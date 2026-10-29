@@ -31,18 +31,17 @@ internal sealed class WorkshopTrace
     private WorkshopGpuProfile _profile;
     private bool _active, _sealed;
     private TraceEnd _sealedReason;
-    private byte[] _construction = [];
-    internal void Begin(RuntimeSessionId session, WorkshopConstruction construction, SimulationEpoch epoch, ProjectionEpoch projection, WorkshopGpuProfile profile)
+    private CompiledSceneId _scene;
+    private RuntimeSessionId _session;
+    internal void Begin(RuntimeSessionId session, WorkshopCompiledScene construction, SimulationEpoch epoch, ProjectionEpoch projection, WorkshopGpuProfile profile)
     {
         try
         {
-            profile.Validate();
+            profile.Validate(); session.Validate();
             construction.Validate(); projection.Validate();
             if (construction.Settings.Simulation != profile.Cadence ||
                 construction.Settings.Physical != profile.Physical)
                 throw new ArgumentException("Trace construction and physical cadence differ.");
-            var encoded = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct,
-                epoch, default, construction, Session: session, Cadence: profile.Revision, Projection: projection));
             var expectedCount = checked((int)profile.RunTickLimit + 1);
             if (expectedCount > Capacity) throw new ArgumentException("Trace profile exceeds its reservation.");
             #if PLAYTEST
@@ -65,7 +64,7 @@ internal sealed class WorkshopTrace
             _durations = durations;
             _durationCount = 0;
             _timingValid = true;
-            _construction = encoded;
+            _scene = construction.Identity; _session = session;
             _profile = profile;
             _expectedCount = expectedCount;
             _active = true;
@@ -205,8 +204,8 @@ internal sealed class WorkshopTrace
     private void Record(WorkshopCaptureKind kind, WorkshopCaptureStage stage, TraceEnd end, TraceTimingStatus status,
         int count, int chunks, int chunk = 0, int first = 0, ImmutableArray<WorkshopTraceSample> samples = default,
         ImmutableArray<double> milliseconds = default) =>
-        Diagnostics.Record(new WorkshopCaptureDiagnostic(kind, stage, _identity, _epoch, _profile, end, status,
+        Diagnostics.Record(new WorkshopCaptureDiagnostic(kind, stage, _session, _identity, _epoch, _profile, end, status,
             kind == WorkshopCaptureKind.Pose ? _expectedCount : _expectedCount - 1, count, chunk, chunks, first,
-            stage == WorkshopCaptureStage.Begin ? WorkshopWireFlatBuffers.DecodeCommand(_construction) : null,
+            stage == WorkshopCaptureStage.Begin ? _scene : null,
             samples.IsDefault ? [] : samples, milliseconds.IsDefault ? [] : milliseconds));
 }

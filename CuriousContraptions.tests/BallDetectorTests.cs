@@ -17,22 +17,22 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         var registry = new PartRegistry();
         registry.Load();
 
-        Assert.True(registry.Definitions.ContainsKey(PartId.BallDetector));
-        var def = registry.Definitions[PartId.BallDetector];
-        Assert.Equal(PartId.BallDetector, def.PartId);
+        Assert.True(registry.Definitions.ContainsKey(new PartId("ball_detector")));
+        var def = registry.Definitions[new PartId("ball_detector")];
+        Assert.Equal(new PartId("ball_detector"), def.PartId);
         Assert.Equal("ball_detector", def.Id);
         Assert.Equal("Ball detector", def.Title);
         Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Control, def.Category);
         Assert.Equal("An open collar sends one trigger when a ball passes in the arrow direction. It must clear the upstream side before triggering again. Snaps to matching tube mouths; does not supply electricity.", def.Description);
         Assert.NotNull(def.Scene);
 
-        var part = registry.Create(PartId.BallDetector);
+        var part = registry.Create(new PartId("ball_detector"));
         try
         {
             godot.Tree.Root.AddChild(part);
             Assert.NotNull(part);
             Assert.Same(def, part.Definition);
-            Assert.Equal(PartId.BallDetector, part.PartId);
+            Assert.Equal(new PartId("ball_detector"), part.PartId);
         }
         finally
         {
@@ -102,7 +102,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 10, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 10, 0, 0, 0, 0, 1);
         var connection = new WorkshopConnection(
             new GpuBodyId(10), WorkshopSocket.ActivationOut,
             new GpuBodyId(20), WorkshopSocket.ActivationIn,
@@ -170,7 +170,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         var startLocalX = -1.0f;
         var startPos = detectorPos + forward * startLocalX;
 
-        var ballInitial = WorkshopInput.Generic(PartId.Basketball,
+        var ballInitial = WorkshopInput.Generic(new PartId("ball"),
             ballId,
             (float)(startPos.X), (float)(startPos.Y), (float)(startPos.Z),
             0, 0, 0, 1);
@@ -257,7 +257,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ballId = new GpuBodyId(2);
-        var ball = WorkshopInput.Generic(PartId.Basketball,ballId, 2, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),ballId, 2, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(),
@@ -337,7 +337,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ballId = new GpuBodyId(2);
-        var ball = WorkshopInput.Generic(PartId.Basketball,ballId, -1, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),ballId, -1, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(),
@@ -417,8 +417,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     public void PassageSensorTracker_MultipleBodies_TwoSeparatedBalls()
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ballA = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), -1, 3, 0, 0, 0, 0, 1);
-        var ballB = WorkshopInput.Generic(PartId.BowlingBall, new GpuBodyId(3), -1, 3, 0, 0, 0, 0, 1);
+        var ballA = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), -1, 3, 0, 0, 0, 0, 1);
+        var ballB = WorkshopInput.Generic(new PartId("bowling"), new GpuBodyId(3), -1, 3, 0, 0, 0, 0, 1);
 
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
@@ -497,7 +497,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     public void SaveCodec_RoundTripsBallDetectorAndPreservesDeclaredColliders()
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
         var connection = new WorkshopConnection(
             new GpuBodyId(10), WorkshopSocket.ActivationOut,
@@ -518,7 +518,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(decoded)));
 
         var decodedDetector = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
-        Assert.Equal(PartId.BallDetector, decodedDetector.PartId);
+        Assert.Equal(new PartId("ball_detector"), decodedDetector.PartId);
         Assert.Equal(ColliderShapeKind.Tube, decodedDetector.DeclaredColliders[0].ShapeKind);
         Assert.Equal(4, decodedDetector.DeclaredColliders.Count);
 

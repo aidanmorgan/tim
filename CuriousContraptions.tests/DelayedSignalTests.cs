@@ -13,7 +13,7 @@ public sealed class DelayedSignalTests
     {
         var before = Lesson(.45f);
         var fixture = PuzzleCatalogue.Definition(new("delayed_signal")).Placements[1].Instance;
-        Assert.Equal(PartId.ImpactSwitch, fixture.Part);
+        Assert.Equal(new PartId("switch"), fixture.Part);
         Assert.True(fixture.Parameters.ContainsKey(new("trigger_threshold")));
         foreach (var json in new[] { "{}", "[]", "[{\"id\":\"x\",\"id\":\"x\"}]" })
             Assert.Throws<System.IO.InvalidDataException>(() => PuzzleContentReader.ReadIndex(json));
@@ -47,24 +47,24 @@ public sealed class DelayedSignalTests
     public void SourceFixturesInventoryThresholdAndCanonicalRoundtrip(double precision, double threshold)
     {
         var construction = Lesson((float)precision);
-        Assert.Equal(PartId.Delay, construction.Puzzle.InventoryPart);
+        Assert.Equal(new PartId("delay"), construction.Puzzle.InventoryPart);
         Assert.Equal(1u, construction.Puzzle.InventoryCount);
         Assert.All(construction.Instances, value => Assert.True(value.Locked));
         Assert.Equal(new CellOrigin(-48,64,0), Payloads.First(construction).Cell);
-        var trigger = construction.Instances.OfType<WorkshopGenericInstance>().Single(instance => instance.PartId == PartId.ImpactSwitch);
+        var trigger = construction.Instances.OfType<WorkshopGenericInstance>().Single(instance => instance.PartId == new PartId("switch"));
         Assert.Equal(new CellOrigin(-48,16,0), trigger.Cell);
-        Assert.Equal(new CellOrigin(48,16,0), construction.Instances.Single(instance => instance.PartId == PartId.SignalLamp).Cell);
+        Assert.Equal(new CellOrigin(48,16,0), construction.Instances.Single(instance => instance.PartId == new PartId("lamp")).Cell);
         Assert.Equal((float)threshold, trigger.Parameters[new ParameterId("trigger_threshold")]);
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
         Assert.Equal(1,scene.Triggers.Length);
         Assert.Equal((float)threshold, scene.Triggers[0].Threshold.Value);
         var save = new WorkshopSavedConstruction(construction, new(4));
         Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(save)));
-        var changed = construction.WithInstance(WorkshopInput.Generic(PartId.Delay, new(4), 0, 1, 0, 0, 0, 0, 1));
+        var changed = construction.WithInstance(WorkshopInput.Generic(new PartId("delay"), new(4), 0, 1, 0, 0, 0, 0, 1));
         changed = changed with { Connections = new(new(new(2),WorkshopSocket.ActivationOut,new(4),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation),
             new(new(4),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)) };
         Assert.Equal(changed, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(changed,new(5)))).Construction);
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => changed.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(5),0,1,0,0,0,0,1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => changed.WithInstance(WorkshopInput.Generic(new PartId("basket"), new(5),0,1,0,0,0,0,1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(Payloads.First(construction) with { Locked=false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDuration=new(.5f) } } }).Validate());
     }
@@ -147,7 +147,7 @@ public sealed class DelayedSignalTests
         var goal=Lesson(1f).Puzzle.Goal;
         Assert.Throws<ArgumentException>(() => (goal with { Body=new(1) }).Validate());
         Assert.Throws<ArgumentException>(() => (goal with { SourceNode=goal.TargetNode }).Validate());
-        var command=WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),Lesson(1f),Session:new(1,2),Cadence:new(1),Projection:new(1)));
+        var command=WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),CompiledSceneFixture.Compile(Lesson(1f)),Session:new(1,2),Cadence:new(1),Projection:new(1)));
         Assert.Equal(WireFaultReason.TrailingBytes, Assert.Throws<WireFaultException>(()=>WorkshopWireFlatBuffers.DecodeCommand([.. command, 12])).Reason);
     }
 }

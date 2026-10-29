@@ -79,7 +79,7 @@ public partial class MachineWorld
         }
     }
 
-    private InstanceParameterCollection CaptureParameters(PartId part, GpuBodyId owner, Vector3? dimensions)
+    public InstanceParameterCollection CaptureParameters(PartId part, GpuBodyId owner, Vector3? dimensions)
     {
         if (!Registry.Definitions.ContainsKey(part))
             throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedPart, $"Unsupported instance part id '{part}'.");
@@ -104,16 +104,8 @@ public partial class MachineWorld
     public IWorkshopInstance CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Vector3? dimensions = null)
     {
         var q = rotation.Normalized();
-        return id.Value switch
-        {
-            // The part's presented length; else the committed pipe keeps its own; a newly placed pipe starts at the declared default.
-            "pipe" => WorkshopInput.Pipe(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                dimensions is { } pipeSize ? new(pipeSize.X) : (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? pipe.Length :
-                    PipeLength.Default)),
-            // A part already in the construction keeps its declared parameters; a newly placed one starts from their declared defaults.
-            _ => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                CaptureParameters(id, bodyId, dimensions))
-        };
+        return WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+            CaptureParameters(id, bodyId, dimensions));
     }
 
     public async Task<WorkshopCompletion> ReplaceConstruction(WorkshopConstruction proposed)

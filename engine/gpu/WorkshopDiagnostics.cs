@@ -68,10 +68,10 @@ public sealed record WorkshopTransferDiagnostic(WorkshopResponse Response) : Wor
 { public override WorkshopDiagnosticCategory Category => WorkshopDiagnosticCategory.BalanceTransfer; }
 public readonly record struct WorkshopTraceSample(SimulationEpoch Epoch, SimulationTick Tick,
     PhysicsBodyReadSet Bodies, PhysicsCaptureRead Captures);
-public sealed record WorkshopCaptureDiagnostic(WorkshopCaptureKind Kind, WorkshopCaptureStage Stage,
+public sealed record WorkshopCaptureDiagnostic(WorkshopCaptureKind Kind, WorkshopCaptureStage Stage, RuntimeSessionId Session,
     ulong Identity, SimulationEpoch Epoch, WorkshopGpuProfile Profile, TraceEnd End, TraceTimingStatus Status,
     int ExpectedCount, int Count, int Chunk, int Chunks, int First,
-    WorkshopCommand? Construction, ImmutableArray<WorkshopTraceSample> Samples, ImmutableArray<double> Milliseconds) : WorkshopDiagnostic
+    CompiledSceneId? Scene, ImmutableArray<WorkshopTraceSample> Samples, ImmutableArray<double> Milliseconds) : WorkshopDiagnostic
 { public override WorkshopDiagnosticCategory Category => WorkshopDiagnosticCategory.Capture; }
 // These records originate in the managed browser after admission; they do not cross a worker wire.
 public sealed record WorkshopClockSampleDiagnostic(ClockProbe Probe, ClockReply? Reply, ClockProbeOutcome Outcome,

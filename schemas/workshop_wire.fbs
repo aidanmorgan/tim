@@ -187,14 +187,7 @@ struct ElectricalControl {
     enabled: uint8;
 }
 
-struct CadenceSettingsRecord {
-    simulation: uint32;
-    physical: uint32;
-    animation: uint32;
-    presentation: uint32;
-    presentation_rate_numerator: uint32;
-    presentation_rate_denominator: uint32;
-}
+
 
 // One stopped collector measurement of the Simulation worker (Story 9A.3): managed usage before and after a full blocking
 // collection, its duration in Stopwatch ticks at frequency, and the allocation and collection counters around it.
@@ -215,75 +208,6 @@ struct CommandIdentityRecord {
     revision: uint64;
     cadence: uint64;
     projection: uint64;
-}
-
-struct ConnectionRecord {
-    source: uint64;
-    target: uint64;
-    domain: uint32;
-    from_socket: uint32;
-    to_socket: uint32;
-}
-
-// One authored assistance knot (Story 9A.44): eleven f32 lanes. A puzzle record carries exactly nine, the forgiving, balanced
-// and precise knots of its primary, target and placement profiles in that order.
-struct AssistanceKnotRecord {
-    precision: float;
-    position_window: float;
-    rotation_window_degrees: float;
-    maximum_position_correction: float;
-    maximum_rotation_correction_degrees: float;
-    blend: float;
-    capture_margin: float;
-    capture_speed: float;
-    capture_dwell: float;
-    guide_acceleration: float;
-    trigger_threshold: float;
-}
-
-table ParameterRecord {
-    key: string (required);
-    value: float;
-}
-
-table InstanceRecord {
-    id: uint64;
-    part_id: string;
-    locked: bool;
-    cell: Vec3i;
-    local: Vec3f;
-    rotation: Quat4f;
-
-    // Pipe
-    length: float;
-
-    parameters: [ParameterRecord];
-}
-
-table PuzzleRecord {
-    id: string (required);
-    placement: uint32;
-    precision: float;
-    inventory_part: string;
-    inventory_count: uint32;
-    goal_kind: uint32;
-    goal_body: uint64;
-    goal_target: uint64;
-    goal_delay: float;
-    assistance: [AssistanceKnotRecord] (required);
-}
-
-table ConstructionRecord {
-    revision: uint64;
-    settings: CadenceSettingsRecord;
-    puzzle: PuzzleRecord;
-    instances: [InstanceRecord];
-    connections: [ConnectionRecord];
-}
-
-table SavedConstruction {
-    next_body_id: uint64;
-    construction: ConstructionRecord;
 }
 
 table WorkshopResponse {
@@ -316,8 +240,8 @@ table WorkshopResponse {
     actuator_drives: [ActuatorDriveRecord];
     contact_loads: [ContactLoadRecord];
     electrical_logic: [ElectricalLogicRecord];
-    // Present on an installation endpoint: Animation admits the same declared construction.
-    construction: ConstructionRecord;
+    // Present on installation: workers admit the same compiled capabilities.
+    scene: CompiledSceneRecord;
 }
 
 table WorkshopCommand {
@@ -330,9 +254,8 @@ table WorkshopCommand {
     cadence: uint64;
     projection: uint64;
     electrical: ElectricalControl;
-    settings: CadenceSettingsRecord;
     target: CommandIdentityRecord;
-    construction_record: ConstructionRecord;
+    scene: CompiledSceneRecord;
 }
 
 // Every buffer is size-prefixed and carries its root's identifier (Story 9A.2): "CCWC" WorkshopCommand, "CCWR" WorkshopResponse
@@ -370,7 +293,7 @@ table TraceSampleObservation { record:[uint8] (required); }
 table CaptureObservation {
     kind:uint32; stage:uint32; identity:uint64; epoch:uint64; cadence:uint32; physical:uint32; revision:uint64;
     end:uint32; status:uint32; expected_count:int32; count:int32; chunk:int32; chunks:int32; first:int32;
-    construction:[uint8]; samples:[TraceSampleObservation] (required); milliseconds:[double] (required);
+    scene:uint64 = null; session:[uint8] (required); samples:[TraceSampleObservation] (required); milliseconds:[double] (required);
 }
 enum ObservationPayload: uint8 { None, Fault, Recalibration, RejectedClock, LateRenewal, WideOffset, Derivation, Deferral, Debt, TickFailure, Transfer, Capture }
 table DiagnosticObservation {
@@ -383,5 +306,336 @@ table DiagnosticObservation {
 table WorkshopObservationBatch {
     session:[uint8] (required); role:uint32; records:[DiagnosticObservation] (required); incomplete:string;
 }
+table CapabilityRigidBodyDeclarationRecord {
+    id: ulong;
+    motion: uint;
+    cell: CapabilityCellOriginRecord (required);
+    local: CapabilityLocalPositionRecord (required);
+    rotation: CapabilityCanonicalRotationRecord (required);
+    velocity: CapabilityLinearVelocityRecord (required);
+    angular_velocity: CapabilityAngularVelocityRecord (required);
+    mass: float;
+    gravity: CapabilityAccelerationVectorRecord (required);
+    linear_drag: float;
+    mass_properties: CapabilityRigidMassPropertiesRecord (required);
+    payload: uint;
+}
+
+table CapabilityCellOriginRecord {
+    x: int;
+    y: int;
+    z: int;
+}
+
+table CapabilityLocalPositionRecord {
+    x: float;
+    y: float;
+    z: float;
+}
+
+table CapabilityCanonicalRotationRecord {
+    x: float;
+    y: float;
+    z: float;
+    w: float;
+}
+
+table CapabilityLinearVelocityRecord {
+    x: float;
+    y: float;
+    z: float;
+}
+
+table CapabilityAngularVelocityRecord {
+    x: float;
+    y: float;
+    z: float;
+}
+
+table CapabilityAccelerationVectorRecord {
+    x: float;
+    y: float;
+    z: float;
+}
+
+table CapabilityRigidMassPropertiesRecord {
+    local_centre_of_mass: CapabilityMetreVectorRecord (required);
+    principal_frame: CapabilityCanonicalRotationRecord (required);
+    x: float;
+    y: float;
+    z: float;
+}
+
+table CapabilityMetreVectorRecord {
+    x: float;
+    y: float;
+    z: float;
+}
+
+table CapabilityColliderDeclarationRecord {
+    id: ulong;
+    body: ulong;
+    material: ulong;
+    shape: uint;
+    pose: CapabilityRigidLocalPoseRecord (required);
+    radius: float;
+    half_extents: CapabilityMetreVectorRecord (required);
+}
+
+table CapabilityRigidLocalPoseRecord {
+    translation: CapabilityMetreVectorRecord (required);
+    rotation: CapabilityCanonicalRotationRecord (required);
+}
+
+table CapabilityContactMaterialDeclarationRecord {
+    id: ulong;
+    restitution: float;
+    bounce_threshold: float;
+    friction: float;
+    rolling_resistance: float;
+}
+
+table CapabilityResidenceSensorDeclarationRecord {
+    id: ulong;
+    frame: ulong;
+    targets: CapabilityBodyTargetSetRecord (required);
+    pose: CapabilityRigidLocalPoseRecord (required);
+    minimum: CapabilityMetreVectorRecord (required);
+    maximum: CapabilityMetreVectorRecord (required);
+    speed_limit: float;
+    dwell: float;
+    participation: uint;
+}
+
+table CapabilityBodyTargetSetRecord {
+    kind: uint;
+    body: ulong;
+}
+
+table CapabilityPlanarGuideDeclarationRecord {
+    id: ulong;
+    frame: ulong;
+    targets: CapabilityBodyTargetSetRecord (required);
+    pose: CapabilityRigidLocalPoseRecord (required);
+    minimum: CapabilityMetreVectorRecord (required);
+    maximum: CapabilityMetreVectorRecord (required);
+    support_height: float;
+    support_margin: float;
+    maximum_acceleration: float;
+}
+
+table CapabilityContactTriggerDeclarationRecord {
+    id: ulong;
+    owner: ulong;
+    targets: CapabilityBodyTargetSetRecord (required);
+    threshold: float;
+}
+
+table CapabilityContactWorkDeclarationRecord {
+    id: ulong;
+    owner: ulong;
+    targets: CapabilityBodyTargetSetRecord (required);
+    target_speed: float;
+    initial_energy: float;
+    threshold: float;
+    cooldown_physical_steps: uint;
+}
+
+table CapabilityOrientationSensorDeclarationRecord {
+    id: ulong;
+    body: ulong;
+    initial: CapabilityCanonicalRotationRecord (required);
+    threshold: float;
+}
+
+table CapabilityElectricalSourceDeclarationRecord {
+    id: ulong;
+    owner: ulong;
+    capacity: float;
+    maximum_power: float;
+    initial_fraction: float;
+    enabled: uint;
+}
+
+table CapabilityElectricalStorageBindingRecord {
+    source: ulong;
+    storage: ulong;
+}
+
+table CapabilityPrismaticConstraintDeclarationRecord {
+    id: ulong;
+    body_a: ulong;
+    body_b: ulong;
+    frame_a: CapabilityConstraintFrameRecord (required);
+    frame_b: CapabilityConstraintFrameRecord (required);
+    lower: float;
+    upper: float;
+    stiffness: float;
+    damping: float;
+    collision: uint;
+}
+
+table CapabilityConstraintFrameRecord {
+    position: CapabilityVector3Record (required);
+    rotation: CapabilityQuaternionRecord (required);
+}
+
+table CapabilityVector3Record {
+    x: float;
+    y: float;
+    z: float;
+}
+
+table CapabilityQuaternionRecord {
+    x: float;
+    y: float;
+    z: float;
+    w: float;
+}
+
+table CapabilitySupplyNodeDeclarationRecord {
+    owner: ulong;
+    kind: uint;
+    source: ulong;
+    consumers: [ulong];
+    operation: uint = null;
+}
+
+table CapabilitySupplyEdgeRecord {
+    source: ulong;
+    target: ulong;
+    input: uint;
+}
+
+table CapabilityContactLoadSensorDeclarationRecord {
+    id: ulong;
+    frame: ulong;
+    region: ulong;
+    minimum_x: float;
+    maximum_x: float;
+    minimum_z: float;
+    maximum_z: float;
+    local_normal: CapabilityVector3Record (required);
+    minimum_alignment: float;
+    maximum_gap: float;
+    minimum_mass: float;
+    supporting_colliders: [ulong];
+}
+
+table CapabilityPrismaticDriveDeclarationRecord {
+    joint: ulong;
+    target: float;
+    max_speed: float;
+    stopping_acceleration: float;
+    max_effort: float;
+    max_power: float;
+}
+
+table CapabilityActivationNodeDeclarationRecord {
+    id: ulong;
+    owner: ulong;
+    kind: uint;
+    trigger: ulong;
+    duration_ticks: uint;
+    sensor: ulong;
+    passage: ulong;
+    target_count: uint;
+    interval_ticks: uint;
+    power_source: ulong;
+    collider: ulong;
+    contact_load: ulong;
+    release_hold_ticks: uint;
+    completion: uint;
+    boundary: uint;
+    elapsed_signal: uint;
+}
+
+table CapabilityActivationEdgeRecord {
+    source: ulong;
+    target: ulong;
+    input: uint;
+}
+
+table CapabilityPassageSensorDeclarationRecord {
+    id: ulong;
+    frame: ulong;
+    cell: CapabilityCellOriginRecord (required);
+    local: CapabilityLocalPositionRecord (required);
+    rotation: CapabilityCanonicalRotationRecord (required);
+    radius: float;
+    rearm_clearance: float;
+}
+
+table CapabilityPresentationBindingRecord {
+    property: uint;
+    driver: uint;
+    from: float;
+    to: float;
+    curve: uint;
+    duration: float;
+    overlap: uint;
+    threshold: float;
+    phase: uint;
+    response: float;
+    intermediate: float = null;
+    socket: uint = null;
+    event: uint;
+    event_magnitude: uint;
+}
+
+table CapabilityWorkshopCadenceSettingsRecord {
+    simulation: uint;
+    physical: uint;
+    animation: uint;
+    presentation: uint;
+    presentation_rate: CapabilityPulseRateRecord (required);
+}
+
+table CapabilityPulseRateRecord {
+    numerator: uint;
+    denominator: uint;
+}
+
+table CompiledPresentationRecord {
+    target: ulong;
+    owner: ulong;
+    binding: int;
+    declaration: CapabilityPresentationBindingRecord (required);
+    activation: CapabilityActivationNodeDeclarationRecord;
+    source_capacity: float;
+}
+
+table CompiledSceneRecord {
+    identity: ulong;
+    revision: ulong;
+    settings: CapabilityWorkshopCadenceSettingsRecord (required);
+    document_low: ulong;
+    document_high: ulong;
+    next_identity: ulong;
+    bodies: [CapabilityRigidBodyDeclarationRecord];
+    colliders: [CapabilityColliderDeclarationRecord];
+    materials: [CapabilityContactMaterialDeclarationRecord];
+    sensors: [CapabilityResidenceSensorDeclarationRecord];
+    guides: [CapabilityPlanarGuideDeclarationRecord];
+    triggers: [CapabilityContactTriggerDeclarationRecord];
+    contact_works: [CapabilityContactWorkDeclarationRecord];
+    orientation_sensors: [CapabilityOrientationSensorDeclarationRecord];
+    electrical_sources: [CapabilityElectricalSourceDeclarationRecord];
+    electrical_bindings: [CapabilityElectricalStorageBindingRecord];
+    prismatics: [CapabilityPrismaticConstraintDeclarationRecord];
+    supply_nodes: [CapabilitySupplyNodeDeclarationRecord];
+    supply_edges: [CapabilitySupplyEdgeRecord];
+    contact_load_sensors: [CapabilityContactLoadSensorDeclarationRecord];
+    prismatic_drives: [CapabilityPrismaticDriveDeclarationRecord];
+    activation_nodes: [CapabilityActivationNodeDeclarationRecord];
+    activation_edges: [CapabilityActivationEdgeRecord];
+    passage_sensors: [CapabilityPassageSensorDeclarationRecord];
+    activation_substeps: uint;
+    contact_owners: [ulong];
+    owners: [ulong];
+    editable_sources: [ulong];
+    presentation: [CompiledPresentationRecord];
+}
+
 root_type WorkshopResponse;
 

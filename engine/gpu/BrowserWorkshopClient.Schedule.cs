@@ -55,6 +55,8 @@ public sealed partial class BrowserWorkshopClient
                     endpoint.Read.Tick.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[64..]) ||
                     endpoint.Publication.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[72..]))
                     throw new ArgumentException("Prepared endpoint identity mismatch.");
+                if (endpoint.Scene is not { } scene || scene.Identity != (_proposedScene ?? _compiledScene)?.Identity || scene.Settings != settings)
+                    throw new ArgumentException("Prepared endpoint compiled scene mismatch.");
                 _preparation = new(header, settings, endpoint, transition);
                 SendScheduleResult(header, ScheduleControlKind.Prepared);
                 break;
@@ -75,7 +77,7 @@ public sealed partial class BrowserWorkshopClient
                 _history.Commit(history); _cursor.Commit(cursor);
                 _observation.Commit(prepared.Endpoint);
                 ReconcileAnimationSchedule(schedule);
-                EnsureInstalledScene(_proposedConstruction ?? _construction);
+                EnsureInstalledScene(_proposedConstruction ?? _construction, prepared.Endpoint.Scene!);
                 _schedule = schedule; _preparation = null;
                 _construction = (_proposedConstruction ?? _construction) with { Settings = schedule.Settings };
                 _lastPresentation = new(schedule.FirstPresentation.Value - 1);
@@ -138,7 +140,7 @@ public sealed partial class BrowserWorkshopClient
         {
             if (_animationPending is not { } command || cadence != _animationPendingCadence || sample.Pulse.Value != command.Sequence ||
                 sample.Property != command.Property || sample.Target != command.Target || sample.World != command.World || sample.Generation != command.Generation ||
-                sample.Timer != command.Timer || sample.EventOrdinal != command.EventOrdinal || !F32Bits.Equal(sample.EventPhase, command.EventPhase))
+                sample.EventOrdinal != command.EventOrdinal || !F32Bits.Equal(sample.EventPhase, command.EventPhase))
                 throw new ArgumentException("Unowned animation acknowledgement.");
             _animationPending = null;
             if (kind == AnimationOutputKind.Rejected) { RetryRejectedGoal(command); RetryDeclaredVisibility(command); return; }

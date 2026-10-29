@@ -14,30 +14,6 @@ public readonly record struct SupplyResolution(bool[] Consumers, ElectricalLogic
 /// <summary>Declared topology shared by physical supply projection and source provenance queries.</summary>
 public sealed record SupplyTopology(SupplyNodeDeclaration[] Nodes, SupplyEdge[] Edges)
 {
-    internal static SupplyTopology Create(WorkshopConstruction construction,
-        Func<PartId, CuriousContraptions.Bundle.BundleEntry> declaration)
-    {
-        var nodes=new System.Collections.Generic.List<SupplyNodeDeclaration>(16);
-        foreach(var instance in construction.Instances)
-        {
-            var entry=declaration(instance.PartId);
-            var kind=entry.Electrical?.Supply?.Kind;
-            if(kind==CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.Source)
-                nodes.Add(new(instance.Id,SupplyNodeKind.Source,construction.Instances.Identities[instance.Id].Source));
-            else if(kind==CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact)
-                nodes.Add(new(instance.Id,SupplyNodeKind.Contact));
-            else if(kind==SupplyCapabilityKind.LogicGate)
-                nodes.Add(new(instance.Id,SupplyNodeKind.LogicGate, Operation: entry.Electrical!.Supply!.Value.Operation));
-            else if(entry.Ports.Any(port=>port.Socket==CuriousContraptions.Abstractions.PortSocket.PowerIn))
-                nodes.Add(new(instance.Id,SupplyNodeKind.Consumer));
-        }
-        var byOwner=nodes.ToDictionary(node=>node.Owner);
-        var edges=construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical &&
-            byOwner.TryGetValue(link.Source,out var from) && from.Kind!=SupplyNodeKind.Consumer &&
-            byOwner.TryGetValue(link.Target,out var to) && to.Kind!=SupplyNodeKind.Source)
-            .Select(link=>new SupplyEdge(link.Source,link.Target,link.Input)).ToArray();
-        return new(nodes.ToArray(),edges);
-    }
     public GpuBodyId[] UpstreamSources(GpuBodyId target)
     {
         var seen=new System.Collections.Generic.HashSet<GpuBodyId>(16);
@@ -53,6 +29,8 @@ public sealed record SupplyTopology(SupplyNodeDeclaration[] Nodes, SupplyEdge[] 
 public sealed class CompiledSupplyGraph
 {
     private readonly SupplyNodeDeclaration[] _nodes;
+    private readonly SupplyEdge[] _edges;
+    public ReadOnlySpan<SupplyEdge> Edges => _edges;
     private readonly int[] _sources;
     private readonly int[][] _consumers;
     private readonly (int Source, WorkshopSocket Input)[][] _inputs;
@@ -63,7 +41,7 @@ public sealed class CompiledSupplyGraph
         ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> consumers,
         ReadOnlySpan<PrismaticDriveDeclaration> drives, ReadOnlySpan<RigidBodyDeclaration> bodies)
     {
-        _nodes = nodes.ToArray();
+        _nodes = nodes.ToArray(); _edges = edges.ToArray();
         _sources = new int[nodes.Length]; _consumers = new int[nodes.Length][];
         Array.Fill(_sources, -1);
         var slots = new System.Collections.Generic.Dictionary<GpuBodyId,int>(16);

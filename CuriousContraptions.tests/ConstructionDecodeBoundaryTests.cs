@@ -3,7 +3,7 @@ using CuriousContraptions.Abstractions;
 // Pressure Plate / Counter / Clock setting.
 //
 // Every declared setting is decoded through both shipped construction decoders:
-//   FB  WorkshopWireFlatBuffers.DecodeConstructionRecord (the Construct command record);
+//   FB  WorkshopAuthoringFlatBuffers.DecodeConstructionRecord (the Construct command record);
 //   SAV WorkshopSaveCodec.Decode (the browser save boundary: structural pre-validation, then the same record decoder).
 // The plate's minimum mass, the clock's interval and the counter's target are their generic instances' declared f32 minimum_mass,
 // interval_seconds and WholeNumber target_count parameters (C-Plate, C-Clock, C-Memory). Expected (independently derived from the
@@ -63,18 +63,19 @@ public sealed class ConstructionDecodeBoundaryTests
         Google.FlatBuffers.FlatBufferBuilder builder, PartId part, float? length, (string Key, float Value)? parameter = null)
     {
         var id = builder.CreateString(part.Value);
-        Google.FlatBuffers.VectorOffset? parameters = parameter is { } declared
-            ? CuriousContraptions.Wire.InstanceRecord.CreateParametersVector(builder,
-                [CuriousContraptions.Wire.ParameterRecord.CreateParameterRecord(builder, builder.CreateString(declared.Key), declared.Value)])
-            : null;
+        var rows = new List<Google.FlatBuffers.Offset<CuriousContraptions.Wire.ParameterRecord>>();
+        if (parameter is { } declared)
+            rows.Add(CuriousContraptions.Wire.ParameterRecord.CreateParameterRecord(builder, builder.CreateString(declared.Key), declared.Value));
+        if (length is { } extra)
+            rows.Add(CuriousContraptions.Wire.ParameterRecord.CreateParameterRecord(builder, builder.CreateString("length"), extra));
+        var parameters = CuriousContraptions.Wire.InstanceRecord.CreateParametersVector(builder, rows.ToArray());
         CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
-        if (parameters is { } vector) CuriousContraptions.Wire.InstanceRecord.AddParameters(builder, vector);
+        CuriousContraptions.Wire.InstanceRecord.AddParameters(builder, parameters);
         CuriousContraptions.Wire.InstanceRecord.AddId(builder, 1);
         CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, id);
         CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, 0, 16, 0));
         CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, 0, 0, 0));
         CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
-        if (length is { } value) CuriousContraptions.Wire.InstanceRecord.AddLength(builder, value);
         var instance = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
         var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instance]);
         var settings = WorkshopCadenceSettings.Default();
@@ -91,7 +92,7 @@ public sealed class ConstructionDecodeBoundaryTests
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         builder.Finish(BuildRecord(builder, part, length, parameter).Value);
-        return WorkshopWireFlatBuffers.DecodeConstructionRecord(CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(
+        return WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(
             new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray())));
     }
 
@@ -104,9 +105,9 @@ public sealed class ConstructionDecodeBoundaryTests
     // C-Plate and C-Clock: each setting is its generic instance's declared parameter (absent when the value is).
     private static (PartId Part, string Key) Declared(Part part) => part switch
     {
-        Part.PressurePlate => (PartId.PressurePlate, "minimum_mass"),
-        Part.Clock => (PartId.Clock, "interval_seconds"),
-        Part.Counter => (PartId.Counter, "target_count"),
+        Part.PressurePlate => (new PartId("pressure_plate"), "minimum_mass"),
+        Part.Clock => (new PartId("clock"), "interval_seconds"),
+        Part.Counter => (new PartId("counter"), "target_count"),
         _ => throw new ArgumentOutOfRangeException(nameof(part)),
     };
 
@@ -159,11 +160,11 @@ public sealed class ConstructionDecodeBoundaryTests
     public void ACounterCarryingALengthIsRefusedBesideAnAdmittedTarget()
     {
         Assert.Equal(WireFaultReason.OutOfRange,
-            Assert.Throws<WireFaultException>(() => DecodeRecord(PartId.Counter, 3f, ("target_count", 3f))).Reason);
+            Assert.Throws<WireFaultException>(() => DecodeRecord(new PartId("counter"), 3f, ("target_count", 3f))).Reason);
         Assert.Equal(WorkshopSaveRejection.OutOfRange,
-            Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(PartId.Counter, 3f, ("target_count", 3f))).Reason);
-        Assert.Equal(3f, DecodedSetting(DecodeRecord(PartId.Counter, null, ("target_count", 3f)), Part.Counter));
-        Assert.Equal(3f, DecodedSetting(DecodeSave(PartId.Counter, null, ("target_count", 3f)), Part.Counter));
+            Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(new PartId("counter"), 3f, ("target_count", 3f))).Reason);
+        Assert.Equal(3f, DecodedSetting(DecodeRecord(new PartId("counter"), null, ("target_count", 3f)), Part.Counter));
+        Assert.Equal(3f, DecodedSetting(DecodeSave(new PartId("counter"), null, ("target_count", 3f)), Part.Counter));
     }
 
     [Theory]

@@ -244,9 +244,9 @@ public sealed class BundlePortsTests
     {
         Assert.Equal(ElementPortRejection.UnknownElement, Assert.Throws<ElementPortRejectedException>(() => TestBundle.Ports.Of(new PartId("kite"))).Reason);
         Assert.Equal(ElementPortRejection.UndeclaredSocket,
-            Assert.Throws<ElementPortRejectedException>(() => TestBundle.Ports.LocalPosition(PartId.SignalLamp, WorkshopSocket.Supply)).Reason);
+            Assert.Throws<ElementPortRejectedException>(() => TestBundle.Ports.LocalPosition(new PartId("lamp"), WorkshopSocket.Supply)).Reason);
         Assert.Equal(ElementPortRejection.UndeclaredSocket,
-            Assert.Throws<ElementPortRejectedException>(() => TestBundle.Ports.Signal(PartId.Battery, WorkshopSocket.Supply, Out)).Reason);
+            Assert.Throws<ElementPortRejectedException>(() => TestBundle.Ports.Signal(new PartId("battery"), WorkshopSocket.Supply, Out)).Reason);
         Assert.False(TestBundle.Ports.Has(new PartId("kite"), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, In));
     }
 
@@ -268,14 +268,14 @@ public sealed class BundlePortsTests
     public void ADifferentCatalogueIsNeverInstalledOverTheBundles()
     {
         DeclaredPorts.Install(ElementPortCatalogue.FromBundle(TestBundle.Entries));
-        Assert.Throws<InvalidOperationException>(() => DeclaredPorts.Install(ElementPortCatalogue.Declare([(PartId.Battery, [])])));
+        Assert.Throws<InvalidOperationException>(() => DeclaredPorts.Install(ElementPortCatalogue.Declare([(new PartId("battery"), [])])));
         Assert.Equal(TestBundle.Ports, DeclaredPorts.Current);
     }
 
     private static readonly Dictionary<GpuBodyId, PartId> Parts = new()
     {
-        [new(1)] = PartId.ImpactSwitch, [new(2)] = PartId.Delay, [new(3)] = PartId.Battery, [new(4)] = PartId.Counter, [new(5)] = PartId.Latch,
-        [new(6)] = PartId.SignalLamp, [new(7)] = PartId.Wall,
+        [new(1)] = new PartId("switch"), [new(2)] = new PartId("delay"), [new(3)] = new PartId("battery"), [new(4)] = new PartId("counter"), [new(5)] = new PartId("latch"),
+        [new(6)] = new PartId("lamp"), [new(7)] = new PartId("wall"),
     };
 
     private static void Validate(WorkshopConnection link) => new WorkshopConnections(link).Validate(id => Parts.TryGetValue(id, out var part) ? part : null);

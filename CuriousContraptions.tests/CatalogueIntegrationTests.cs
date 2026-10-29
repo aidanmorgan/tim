@@ -74,7 +74,7 @@ public sealed class CatalogueIntegrationTests
                 new(PlacedParts.Battery(new(1), -6, 3, 0),
                     PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, .5f),
                     PlacedParts.Counter(new(3), 0, 3, 0, 0, 0, 0, 1, 2),
-                    WorkshopInput.Generic(PartId.PoweredGate, new(4), 5, 3, 0, 0, 0, 0, 1)),
+                    WorkshopInput.Generic(new PartId("powered_gate"), new(4), 5, 3, 0, 0, 0, 0, 1)),
                 Connections: new(Power(1, 2), Power(1, 3), Signal(2, 3), Power(3, 4)));
             if (!clockPowered) bench = bench with { Connections = bench.Connections.Without(Power(1, 2)) };
             var rate = (int)bench.Settings.SimulationRate.Numerator;
@@ -141,7 +141,7 @@ public sealed class CatalogueIntegrationTests
         foreach (var onPlate in new[] { true, false })
         {
             var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default() with { Simulation = cadence },
-                new(WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, 0, 1),
+                new(WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1),
                     PlacedParts.Battery(new(2), 3, 3, 0), PlacedParts.Plate(new(3), -4, -.24f, 0, .5f),
                     WeightTests.Placed(4, onPlate ? -4 : -7, .2, 0, 4)),
                 Connections: new(Power(2, 3), Power(3, 1)));
@@ -199,14 +199,14 @@ public sealed class CatalogueIntegrationTests
     [InlineData(SimulationCadence.Hz240)]
     public async Task BothPayloadsReachTheirReceiverRegardlessOfPlacementOrderAndResetFromMotion(SimulationCadence cadence)
     {
-        foreach (var payload in new[] { PartId.Basketball, PartId.BowlingBall })
+        foreach (var payload in new[] { new PartId("ball"), new PartId("bowling") })
         foreach (var reverse in new[] { false, true })
         foreach (var aligned in new[] { true, false })
         {
             IWorkshopInstance[] parts =
             [
                 WorkshopInput.Generic(payload, new(1), aligned ? 0 : 2, 2, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1)
+                WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1)
             ];
             if (reverse) Array.Reverse(parts);
             var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default() with { Simulation = cadence }, new(parts));
@@ -244,10 +244,10 @@ public sealed class CatalogueIntegrationTests
         {
             const float turn = -.70710677f, w = .70710677f;
             var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default() with { Simulation = cadence },
-                new(WorkshopInput.Generic(PartId.Funnel, new(1), 0, 5, 0, 0, 0, turn, w),
-                    WorkshopInput.Generic(PartId.BallDetector, new(2), 0, 3.5f, 0, 0, 0, turn, w),
-                    WorkshopInput.Generic(PartId.SignalLamp, new(3), 4, 3, 0, 0, 0, 0, 1),
-                    WorkshopInput.Generic(PartId.Basketball, new(4), .8f, 6.5f, 0, 0, 0, 0, 1)),
+                new(WorkshopInput.Generic(new PartId("funnel"), new(1), 0, 5, 0, 0, 0, turn, w),
+                    WorkshopInput.Generic(new PartId("ball_detector"), new(2), 0, 3.5f, 0, 0, 0, turn, w),
+                    WorkshopInput.Generic(new PartId("lamp"), new(3), 4, 3, 0, 0, 0, 0, 1),
+                    WorkshopInput.Generic(new PartId("ball"), new(4), .8f, 6.5f, 0, 0, 0, 0, 1)),
                 Connections: new(Signal(2, 3)));
             if (!guided) bench = bench.WithoutInstance(new(1));
             var rate = (int)bench.Settings.SimulationRate.Numerator;
@@ -273,12 +273,12 @@ public sealed class CatalogueIntegrationTests
     public void EveryAdmittedPartHasAnExecutedNamedInteraction()
     {
         // LaunchLessonSolveTests: routing/impact/toppling/receiver goals and one-cause controls.
-        PartId[] lessonInteractions = [PartId.Ramp, PartId.Springboard, PartId.Domino, PartId.PinballBumper,
-            PartId.Wall, PartId.Delay, PartId.Pipe, PartId.PipeBend45, PartId.PipeBend90, PartId.Receiver];
+        PartId[] lessonInteractions = [new PartId("ramp"), new PartId("spring"), new PartId("domino"), new PartId("bumper"),
+            new PartId("wall"), new PartId("delay"), new PartId("pipe"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("basket")];
         // The methods above: capture, supplied logic, physical activation, intentional timing/counts and direct load.
-        PartId[] interactions = [PartId.Basketball, PartId.BowlingBall, PartId.Funnel, PartId.BallDetector,
-            PartId.SignalLamp, PartId.Battery, PartId.ImpactSwitch, PartId.PoweredGate, PartId.Latch,
-            PartId.Clock, PartId.Counter, PartId.PressurePlate, new("weight"), new("hold_timer"),
+        PartId[] interactions = [new PartId("ball"), new PartId("bowling"), new PartId("funnel"), new PartId("ball_detector"),
+            new PartId("lamp"), new PartId("battery"), new PartId("switch"), new PartId("powered_gate"), new PartId("latch"),
+            new PartId("clock"), new PartId("counter"), new PartId("pressure_plate"), new("weight"), new("hold_timer"),
             new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor")];
         var expected = lessonInteractions.Concat(interactions).Order().ToArray();
         var actual = PartRegistry.Read(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),

@@ -10,7 +10,6 @@ using CuriousContraptions.Bundle;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>An independently authored payload intersects a hollow collider at construction.</summary>
-public sealed class HollowOverlapException() : ArgumentException("A dynamic payload initially overlaps a hollow wall.");
 
 /// <summary>Compiles the bundle's declared bodies, geometry and materials; domain bindings remain separate.</summary>
 public static class WorkshopPhysicsCompiler
@@ -34,7 +33,7 @@ public static class WorkshopPhysicsCompiler
         var contactWorks = new List<ContactWorkDeclaration>(4);
         var prismatics = new List<PrismaticConstraintDeclaration>(4);
         var drives = new List<PrismaticDriveDeclaration>(4);
-        var topology = SupplyTopology.Create(construction, DeclaredPhysics.Of);
+        var topology = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of);
         var supplyNodes = topology.Nodes.ToArray();
         var electricalSources = new List<ElectricalSourceDeclaration>(4);
         var orientationSensors = new List<OrientationSensorDeclaration>(4);
@@ -197,7 +196,7 @@ public static class WorkshopPhysicsCompiler
                     Vector3.Transform(Vector3.UnitZ, rotation), hollowCollider.Radius.Value,
                     hollowCollider.HalfExtents.X, hollowCollider.HalfExtents.Y, hollowCollider.HalfExtents.Z);
                 if (HollowContactQuery.Overlaps(convex, solid, HollowContactQuery.PlacementSlop))
-                    throw new HollowOverlapException();
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.InitialOverlap, "A dynamic payload initially overlaps a hollow wall.");
             }
         }
 

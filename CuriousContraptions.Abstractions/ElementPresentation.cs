@@ -60,3 +60,28 @@ public sealed record ElementPresentation(
     IReadOnlyList<PresentationSpanBinding> Spans,
     IReadOnlyList<PresentationParameterBinding> Parameters, PresentationSizing? Sizing = null);
 
+
+/// <summary>The single supported driver/curve contract shared by package and compiled admission.</summary>
+public static class PresentationDriverRules
+{
+    public static bool Supports(PresentationDriver driver, PresentationCurve curve, float duration, PresentationOverlap overlap) => driver switch
+                {
+                    // Story 9A.25b: a ring-kind cue replays a Replace endpoint clip or adds a saturating pulse per record.
+                    PresentationDriver.Event => duration > 0 &&
+                        ((curve == PresentationCurve.SmoothStep && overlap == PresentationOverlap.Replace) ||
+                         (curve == PresentationCurve.SineSquaredPulse && overlap == PresentationOverlap.SaturatingSum)),
+                    PresentationDriver.CommittedActivation or
+                        PresentationDriver.CommittedCount or PresentationDriver.CommittedElectricalSocket => curve == PresentationCurve.SmoothStep && duration > 0 && overlap == PresentationOverlap.Replace,
+                    PresentationDriver.CommittedOscillatorPhase => curve == PresentationCurve.ExponentialFollow && duration == 0 && overlap == PresentationOverlap.Replace,
+                    PresentationDriver.CommittedOscillatorPulse => curve == PresentationCurve.LinearDecay && duration > 0 && overlap == PresentationOverlap.Maximum,
+                    PresentationDriver.CommittedContactLoadPhase => curve == PresentationCurve.CubicSmoothStep && duration > 0 && overlap == PresentationOverlap.Replace,
+                    PresentationDriver.CommittedTimerActive => overlap == PresentationOverlap.Replace &&
+                        ((curve == PresentationCurve.Linear && duration == 0) || (curve == PresentationCurve.SmoothStep && duration > 0)),
+                    PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
+                        PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState =>
+                            curve == PresentationCurve.Linear && duration == 0 && overlap == PresentationOverlap.Replace,
+                    _ => false
+                };
+
+}
+

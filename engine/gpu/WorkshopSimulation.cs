@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CuriousContraptions.Gpu;
@@ -20,7 +21,7 @@ public readonly record struct WorkshopGpuCandidate(CommandSequence Sequence, Wor
 /// <summary>Implemented only by the simulation worker's WebGPU adapter. No numerical host alternative.</summary>
 public interface IWorkshopGpuDevice : IAsyncDisposable
 {
-    ValueTask<WorkshopGpuCandidate> Admit(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence);
+    ValueTask<WorkshopGpuCandidate> Admit(WorkshopCompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence);
     /// <summary>One physics step from the committed world. The controls carry every player input the step reads (per-source enables);
     /// the device adds committed switch state for its compiled switched supplies. Physics never reads authoring state.</summary>
     ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls);
@@ -61,7 +62,7 @@ public interface IWorkshopInstallation
 {
     void Abort(CommandSequence owner);
     void Retire();
-    ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopConstruction construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase);
+    ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopCompiledScene construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase);
 }
 
 /// <summary>Whether disposing a simulation also disposes its GPU device. The worker's simulation owns the device;
@@ -79,14 +80,11 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         if (_pending != 0) return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy);
         if (Phase is not (WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused))
             return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase);
-        // Only an unlocked owner whose package declares its Source store's enable state run-editable takes a run-time control.
-        foreach (var instance in Construction.Instances)
-            if (instance is WorkshopGenericInstance owner && owner.Id == control.Owner && !owner.Locked &&
-                DeclaredPhysics.HasRunControlledSource(owner.PartId))
-            {
-                _electricalControls[control.Owner] = control.Enabled;
-                return new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);
-            }
+        if (Scene.EditableSources.Contains(control.Owner))
+        {
+            _electricalControls[control.Owner] = control.Enabled;
+            return new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);
+        }
         return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction);
     }
     private readonly IWorkshopGpuDevice _device;
@@ -100,39 +98,40 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     public AuthorityRevision Revision => Committed.Revision;
     private ulong _epoch = 1;
     private int _pending;
-    // Bistable activation nodes (State Latch memory, the level indicators it drives, and contact-load levels) compile once per construction revision;
-    // read validation consults this set instead of walking the authored construction every tick.
-    private (ConstructionRevision Revision, HashSet<ActivationNodeId> Nodes, Dictionary<ActivationNodeId, ActivationNodeDeclaration> Timers) _bistable;
+    // Read-validation declarations belong to the committed compiled installation, including cadence-derived timer durations.
+    private (CompiledSceneId Scene, HashSet<ActivationNodeId> Nodes, Dictionary<ActivationNodeId, ActivationNodeDeclaration> Timers) _bistable;
     private HashSet<ActivationNodeId> BistableNodes()
     {
-        if (_bistable.Nodes is null || _bistable.Revision != Construction.Revision)
+        if (_bistable.Nodes is null || _bistable.Scene != Scene.Identity)
         {
             var nodes = new HashSet<ActivationNodeId>(16);
             var timers = new Dictionary<ActivationNodeId, ActivationNodeDeclaration>(16);
-            foreach (var node in WorkshopActivationCompiler.Compile(Construction).Nodes)
+            foreach (var node in Scene.Activation.Nodes)
             {
                 if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource) nodes.Add(node.Id);
                 if (node.Kind == ActivationNodeKind.Timer) timers.Add(node.Id, node);
             }
-            _bistable = (Construction.Revision, nodes, timers);
+            _bistable = (Scene.Identity, nodes, timers);
         }
         return _bistable.Nodes;
     }
     private bool _disposed;
     public SimulationEpoch Epoch => new(_epoch);
-    public WorkshopConstruction Construction { get; private set; }
+    public WorkshopCompiledScene Scene { get; private set; }
     public WorkshopRead Committed { get; private set; }
     public WorkshopSimulationPhase Phase { get; private set; } = WorkshopSimulationPhase.Uninitialized;
     public WorkshopRejection Fault { get; private set; }
     public WorkshopDiagnostics Diagnostics { get; }
-    public WorkshopSimulation(IWorkshopGpuDevice device, IWorkshopCaptureClock clock, WorkshopCadenceSettings settings, CadenceRevision revision,
+    public WorkshopSimulation(IWorkshopGpuDevice device, IWorkshopCaptureClock clock, WorkshopCompiledScene scene, CadenceRevision revision,
         IWorkshopInstallation installation, GpuDeviceOwnership deviceOwnership, WorkshopDiagnostics? diagnostics = null)
     {
         if (!Enum.IsDefined(deviceOwnership)) throw new ArgumentException("Undefined GPU device ownership.", nameof(deviceOwnership));
         Diagnostics = diagnostics ?? new();
         _deviceOwnership = deviceOwnership;
-        settings.Validate(); Profile = new(settings.Simulation, settings.Physical, revision); Profile.Validate();
-        Construction = new(new(1), settings, WorkshopInstances.Empty);
+        scene.Validate();
+        var settings = scene.Settings;
+        Profile = new(settings.Simulation, settings.Physical, revision); Profile.Validate();
+        Scene = scene;
         _installation = installation ?? throw new ArgumentNullException(nameof(installation));
         _device = device ?? throw new ArgumentNullException(nameof(device));
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
@@ -158,12 +157,12 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         try
         {
             // Device capability/schema and the empty generation must all be admitted.
-            var candidate = await _device.Admit(Construction, epoch, Profile, new(owner));
+            var candidate = await _device.Admit(Scene, epoch, Profile, new(owner));
             var read = CandidateRead(candidate, owner);
             if (!Owns(owner)) return Superseded(owner);
-            ValidateInitialRead(read, Construction, epoch);
+            ValidateInitialRead(read, Scene, epoch);
             read = CaptureForCommit(read);
-            await _installation.Prepare(new(owner), read, Construction, Profile, WorkshopSimulationPhase.Building);
+            await _installation.Prepare(new(owner), read, Scene, Profile, WorkshopSimulationPhase.Building);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
             Committed = read;
@@ -182,7 +181,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         finally { _device.Discard(new(owner)); _pending--; }
     }
 
-    public async ValueTask<WorkshopCommandResult> Construct(WorkshopConstruction candidate)
+    public async ValueTask<WorkshopCommandResult> Construct(WorkshopCompiledScene candidate)
     {
         if (!CanAdvanceRevision(out var nextRevision)) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
         if (Phase != WorkshopSimulationPhase.Building) return Reject(WorkshopRejection.WrongPhase);
@@ -190,8 +189,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         try { candidate.Validate(); }
         catch (ArgumentException) { return Reject(WorkshopRejection.InvalidConstruction); }
         catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return Reject(WorkshopRejection.Capacity); }
-        if (Construction.Revision.Value == ulong.MaxValue ||
-            candidate.Revision.Value != Construction.Revision.Value + 1)
+        if (Scene.Revision.Value == ulong.MaxValue ||
+            candidate.Revision.Value != Scene.Revision.Value + 1)
             return Reject(WorkshopRejection.WrongRevision);
         if (!Begin(WorkshopSimulationPhase.Admitting, true, out var owner, out var epoch))
             return Reject(WorkshopRejection.IdentityExhausted);
@@ -206,7 +205,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
             _electricalControls.Clear();
-            Construction = candidate;
+            Scene = candidate;
             _electricalControls.Clear();
             Committed = read;
             _epoch = epoch.Value;
@@ -218,12 +217,6 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (!Owns(owner)) return Superseded(owner);
             Phase = WorkshopSimulationPhase.Building;
             return Reject(WorkshopRejection.GpuAdmission);
-        }
-        catch (HollowOverlapException)
-        {
-            if (!Owns(owner)) return Superseded(owner);
-            Phase = WorkshopSimulationPhase.Building;
-            return Reject(WorkshopRejection.InvalidConstruction);
         }
         catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return StorageRejected(owner); }
         catch (CuriousContraptions.Abstractions.EventPreparationException error) { return EventPreparationRejected(owner, error.Reason); }
@@ -257,7 +250,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         try
         {
             var read = Committed with { Revision = nextRevision };
-            await _installation.Prepare(new(owner), read, Construction, Profile, target);
+            await _installation.Prepare(new(owner), read, Scene, Profile, target);
             if (!Owns(owner)) return Superseded(owner);
             if (expected == WorkshopSimulationPhase.Building) _electricalControls.Clear();
             Committed = read; Phase = target;
@@ -269,15 +262,17 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         finally { _pending--; }
     }
 
-    public async ValueTask<WorkshopCommandResult> Configure(WorkshopCadenceSettings settings, CadenceRevision revision)
+    public async ValueTask<WorkshopCommandResult> Configure(WorkshopCompiledScene construction, CadenceRevision revision)
     {
         if (Phase != WorkshopSimulationPhase.Building) return Reject(WorkshopRejection.WrongPhase);
         if (_pending != 0) return Reject(WorkshopRejection.Busy);
         if (!CanAdvanceRevision(out var nextRevision)) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
+        construction.Validate();
+        var settings = construction.Settings;
+        if (construction.Revision != Scene.Revision) return Reject(WorkshopRejection.WrongRevision);
         settings.Validate(); revision.Validate();
         if (revision.Value <= Profile.Revision.Value) return Reject(WorkshopRejection.StaleGeneration);
         var profile = new WorkshopGpuProfile(settings.Simulation, settings.Physical, revision);
-        var construction = Construction with { Settings = settings };
         if (!Begin(WorkshopSimulationPhase.Admitting, false, out var owner, out var epoch))
             return Reject(WorkshopRejection.IdentityExhausted);
         try
@@ -291,7 +286,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
             _electricalControls.Clear();
-            Construction = construction; Profile = profile; Committed = read; Phase = WorkshopSimulationPhase.Building;
+            Scene = construction; Profile = profile; Committed = read; Phase = WorkshopSimulationPhase.Building;
             return Applied();
         }
         catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return StorageRejected(owner); }
@@ -319,7 +314,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (!Owns(owner)) return Superseded(owner);
             ValidateAdvancedRead(source, read);
             read = CaptureForCommit(read with { Revision = nextRevision });
-            if (step) await _installation.Prepare(new(owner), read, Construction, Profile, WorkshopSimulationPhase.Paused);
+            if (step) await _installation.Prepare(new(owner), read, Scene, Profile, WorkshopSimulationPhase.Paused);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
             Committed = read;
@@ -349,12 +344,12 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             return Reject(WorkshopRejection.IdentityExhausted);
         try
         {
-            var candidate = await _device.Admit(Construction, epoch, Profile, new(owner));
+            var candidate = await _device.Admit(Scene, epoch, Profile, new(owner));
             var read = CandidateRead(candidate, owner);
             if (!Owns(owner)) return Superseded(owner);
-            ValidateInitialRead(read, Construction, epoch);
+            ValidateInitialRead(read, Scene, epoch);
             read = CaptureForCommit(read with { Revision = nextRevision });
-            await _installation.Prepare(new(owner), read, Construction, Profile, WorkshopSimulationPhase.Building);
+            await _installation.Prepare(new(owner), read, Scene, Profile, WorkshopSimulationPhase.Building);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
             // Reset alone restores the authored enable: in-run supply controls end with the run they changed.
@@ -407,7 +402,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         if (!Begin(WorkshopSimulationPhase.Running, false, out var owner, out _)) throw new InvalidOperationException("Completion owner exhausted.");
         try
         {
-            await _installation.Prepare(new(owner), Committed, Construction, Profile, WorkshopSimulationPhase.Completed);
+            await _installation.Prepare(new(owner), Committed, Scene, Profile, WorkshopSimulationPhase.Completed);
             if (!Owns(owner)) { _installation.Abort(new(owner)); throw new WorkshopInstallationException(); }
             Phase = WorkshopSimulationPhase.Completed;
         }
@@ -496,10 +491,10 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         return candidate.Read;
     }
 
-    private static void ValidateInitialRead(WorkshopRead read, WorkshopConstruction construction, SimulationEpoch epoch)
+    private static void ValidateInitialRead(WorkshopRead read, WorkshopCompiledScene construction, SimulationEpoch epoch)
     {
         WorkshopMessages.ValidatePresentationOwners(read,construction);
-        var physics = WorkshopPhysicsCompiler.Compile(construction, new(1, 1));
+        var physics = construction.Physics;
         if (read.ContactWorks.Count != physics.ContactWorks.Length) throw new ArgumentException("Admission work population changed.");
         for (var i = 0; i < read.ContactWorks.Count; i++)
         {
@@ -518,7 +513,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         }
         // The occurrence rows are device-private (Story 9A.23 D9): the device admits them against the scene; the read carries the stores.
         read.ContactWorks.ValidateScene(physics);
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var network = construction.Activation;
         var initial = network.Clear();
         var timers = network.ClearTimers();
         if (read.Timers.Count != timers.Count) throw new ArgumentException("Admission timer population changed.");
@@ -536,7 +531,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
 
     private void ValidateAdvancedRead(WorkshopRead source, WorkshopRead read)
     {
-        WorkshopMessages.ValidatePresentationOwners(read,Construction);
+        WorkshopMessages.ValidatePresentationOwners(read,Scene);
         if (source.Tick.Value == ulong.MaxValue || read.Epoch != source.Epoch ||
             read.Tick.Value != source.Tick.Value + 1 || read.Bodies.Count != source.Bodies.Count)
             throw new ArgumentException("GPU tick read does not match the active transaction.");

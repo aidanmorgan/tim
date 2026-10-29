@@ -92,7 +92,7 @@ public sealed class SelectionTests
     {
         var bundle = ImpactContext.BundleElements(TestRepository.Read(ImpactContext.BundlePath));
         Assert.NotNull(bundle);
-        var counter = bundle.Single(element => element.Part == PartId.Counter);
+        var counter = bundle.Single(element => element.Part == new PartId("counter"));
         Assert.Equal([new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input), new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output),
             new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input), new ImpactContext.BundlePort(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output)],
             counter.Ports);

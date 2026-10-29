@@ -28,8 +28,8 @@ public sealed class FastSelectionTests
         var linked = plain.Replace("</ItemGroup>", "<ProjectReference Include=\"../PoweredGate/PoweredGate.csproj\" /></ItemGroup>", StringComparison.Ordinal);
         var result = BuildImpact.Parts(CounterProject, Context(CounterProject, removing ? linked : plain, removing ? plain : linked));
         Assert.NotNull(result);
-        Assert.Contains(PartId.Counter, result);
-        Assert.Contains(PartId.PoweredGate, result);
+        Assert.Contains(new PartId("counter"), result);
+        Assert.Contains(new PartId("powered_gate"), result);
     }
 
     [Theory]
@@ -64,8 +64,8 @@ public sealed class FastSelectionTests
     {
         const string empty = "<Solution><Folder Name=\"/elements/\" /></Solution>";
         var known = $"<Solution><Folder Name=\"/elements/\"><Project Path=\"{GateProject}\" /></Folder></Solution>";
-        Assert.Contains(PartId.PoweredGate, BuildImpact.Parts(BuildImpact.Solution, Context(BuildImpact.Solution, known, empty))!);
-        Assert.Contains(PartId.PoweredGate, BuildImpact.Parts(BuildImpact.Solution, Context(BuildImpact.Solution, empty, known))!);
+        Assert.Contains(new PartId("powered_gate"), BuildImpact.Parts(BuildImpact.Solution, Context(BuildImpact.Solution, known, empty))!);
+        Assert.Contains(new PartId("powered_gate"), BuildImpact.Parts(BuildImpact.Solution, Context(BuildImpact.Solution, empty, known))!);
         var unknown = known.Replace(GateProject, "elements/PoweredGate/missing.csproj", StringComparison.Ordinal);
         Assert.Null(BuildImpact.Parts(BuildImpact.Solution, Context(BuildImpact.Solution, empty, unknown)));
         Assert.Null(BuildImpact.Parts(BuildImpact.Solution, Context(BuildImpact.Solution, empty, "<Solution><Configurations /></Solution>")));
@@ -77,7 +77,7 @@ public sealed class FastSelectionTests
         var source = TestRepository.Read("tools/E2eRunner/SuiteCatalogue.cs");
         var row = source.Replace("Parallel(SuiteId.Cat005,", "Parallel(SuiteId.Cat005, /* row */", StringComparison.Ordinal);
         Assert.Empty(CatalogueImpact.Changed(source, row)!);
-        var changed = source.Replace("Parallel(SuiteId.Cat005, PartId.Battery,", "Parallel(SuiteId.Cat005, PartId.Counter,", StringComparison.Ordinal);
+        var changed = source.Replace("""Parallel(SuiteId.Cat005, new PartId("battery"),""", """Parallel(SuiteId.Cat005, new PartId("counter"),""", StringComparison.Ordinal);
         Assert.NotEqual(source, changed);
         Assert.Equal(new[] { SuiteId.Cat005 }, CatalogueImpact.Changed(source, changed));
         Assert.Null(CatalogueImpact.Changed(source, source.Replace("SuiteTiming.Parallel, []", "SuiteTiming.SerialAlone, []", StringComparison.Ordinal)));
@@ -117,8 +117,8 @@ public sealed class FastSelectionTests
             path => after.TryGetValue(path, out var current) ? current : Current(path));
         var parts = BuildImpact.Parts(GateProject, context);
         Assert.NotNull(parts);
-        Assert.Equal(new[] { PartId.Battery, PartId.Counter, PartId.Delay, PartId.PoweredGate }.Order(), parts.Order());
-        Assert.DoesNotContain(PartId.Wall, parts);
+        Assert.Equal(new[] { new PartId("battery"), new PartId("counter"), new PartId("delay"), new PartId("powered_gate") }.Order(), parts.Order());
+        Assert.DoesNotContain(new PartId("wall"), parts);
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public sealed class FastSelectionTests
 
         const string catalogue = "tools/E2eRunner/SuiteCatalogue.cs";
         var source = TestRepository.Read(catalogue);
-        var changed = source.Replace("Parallel(SuiteId.Cat005, PartId.Battery,", "Parallel(SuiteId.Cat005, PartId.Counter,", StringComparison.Ordinal);
+        var changed = source.Replace("""Parallel(SuiteId.Cat005, new PartId("battery"),""", """Parallel(SuiteId.Cat005, new PartId("counter"),""", StringComparison.Ordinal);
         var rowSelection = Selector.Select([catalogue], Context(catalogue, source, changed));
         Assert.Equal(SelectionMode.Selected, rowSelection.Mode);
         Assert.Equal(new[] { SuiteId.Cat005, SuiteId.EngineCore2a1, SuiteId.EngineCore2b1 }.Order(),

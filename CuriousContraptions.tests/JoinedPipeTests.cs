@@ -36,24 +36,24 @@ public sealed class JoinedPipeTests
 
     private static Quaternion Rz(float degrees) => new(Vector3.Back, Mathf.DegToRad(degrees));
 
-    private static WorkshopPipe PipeAt(Vector3 position, Quaternion rotation, float length, bool locked = false)
+    private static WorkshopGenericInstance PipeAt(Vector3 position, Quaternion rotation, float length, bool locked = false)
     {
         var q = rotation.Normalized();
-        return WorkshopInput.Pipe(PipeId, (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), new(length)) with { Locked = locked };
+        return WorkshopInput.Generic(new PartId("pipe"),PipeId, (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), new InstanceParameterCollection([new(new("length"), length)])) with { Locked = locked };
     }
 
     /// <summary>The granted pipe tilted downhill (−45° about Z), offered 0.1 m off the bend's upper mouth and snapped by the query.</summary>
-    private static WorkshopPipe Snapped(WorkshopConstruction lesson, float length)
+    private static WorkshopGenericInstance Snapped(WorkshopConstruction lesson, float length)
     {
         var definitions = Definitions();
-        var length32 = new PipeLength(length);
+        var parameters = new InstanceParameterCollection([new(new("length"), length)]);
         var rotation = Rz(-45);
-        var bend = lesson.Instances.Single(instance => instance.PartId == PartId.PipeBend90);
+        var bend = lesson.Instances.Single(instance => instance.PartId == new PartId("pipe_bend_90"));
         var bendAt = new Vector3((float)((bend.Cell.X + (double)bend.Local.X) / 16), (float)((bend.Cell.Y + (double)bend.Local.Y) / 16), 0);
         var bendTurn = new Quaternion(bend.Rotation.X, bend.Rotation.Y, bend.Rotation.Z, bend.Rotation.W);
-        var mouth = bendAt + bendTurn * TubeMouthSnap.LocalMouth(definitions[PartId.PipeBend90], TubeMouthEnd.Start, null);
-        var offered = mouth - rotation * new Vector3(length32.MouthOffset, 0, 0) + new Vector3(-.06f, .08f, 0);
-        var snap = TubeMouthSnap.Find(definitions, lesson.Instances, new(PartId.Pipe, PipeId, false, length32), offered, rotation);
+        var mouth = bendAt + bendTurn * TubeMouthSnap.LocalMouth(definitions[new PartId("pipe_bend_90")], TubeMouthEnd.Start, null);
+        var offered = mouth - rotation * new Vector3((length * .5f + .09f), 0, 0) + new Vector3(-.06f, .08f, 0);
+        var snap = TubeMouthSnap.Find(definitions, lesson.Instances, new(new PartId("pipe"), PipeId, false, parameters), offered, rotation);
         Assert.NotNull(snap);
         Assert.Equal((BendId, TubeMouthEnd.Start, TubeMouthEnd.End), (snap.Value.TargetBody, snap.Value.TargetMouth, snap.Value.MoverMouth));
         return PipeAt(snap.Value.Position, snap.Value.Rotation, length);
@@ -80,12 +80,12 @@ public sealed class JoinedPipeTests
 
         var construction = Lesson(0f);
         var puzzle = construction.Puzzle;
-        Assert.Equal((new PuzzleId("joined_pipe"), PartId.Pipe, 1u), (puzzle.Id, puzzle.InventoryPart, puzzle.InventoryCount));
+        Assert.Equal((new PuzzleId("joined_pipe"), new PartId("pipe"), 1u), (puzzle.Id, puzzle.InventoryPart, puzzle.InventoryCount));
         var goal = level.GetProperty("goal");
         Assert.Equal(("Captured", "fixture_3", "fixture_1"), (goal.GetProperty("kind").GetString(), goal.GetProperty("target").GetString(), goal.GetProperty("source").GetString()));
         Assert.Equal((WorkshopGoalKind.Captured, BallId, ReceiverId), (puzzle.Goal.Kind, puzzle.Goal.Body, puzzle.Goal.Target));
         Assert.Equal(PartAllowance.Counted(1), Assert.Single(WorkshopInventoryPolicy.Authored(puzzle)).Value);
-        Assert.Equal(PartId.Pipe, Assert.Single(WorkshopInventoryPolicy.Authored(puzzle)).Key);
+        Assert.Equal(new PartId("pipe"), Assert.Single(WorkshopInventoryPolicy.Authored(puzzle)).Key);
 
         var parts = level.GetProperty("placements").EnumerateArray().ToDictionary(row => row.GetProperty("slot").GetString()!, row => row.GetProperty("instance"));
         Assert.Equal(["fixture_1", "fixture_2", "fixture_3"], parts.Keys.ToArray());
@@ -100,7 +100,7 @@ public sealed class JoinedPipeTests
         {
             var source = parts[name];
             Assert.Equal(kind, source.GetProperty("part").GetString());
-            Assert.Equal(kind == "basket" ? PartId.Receiver : kind == "ball" ? PartId.Basketball : PartId.PipeBend90, instance.PartId);
+            Assert.Equal(kind == "basket" ? new PartId("basket") : kind == "ball" ? new PartId("ball") : new PartId("pipe_bend_90"), instance.PartId);
             Assert.True(source.GetProperty("locked").GetBoolean() && instance.Locked, $"{name} is a locked fixture");
             AuthoredContentAssertions.Placement(source, instance);
             AuthoredContentAssertions.Profile(source.GetProperty("assistance"), knots);
@@ -110,7 +110,7 @@ public sealed class JoinedPipeTests
 
         var solution = Assert.Single(level.GetProperty("solution").EnumerateArray()).GetProperty("instance");
         Assert.Equal(("pipe", false), (solution.GetProperty("part").GetString(), solution.GetProperty("locked").GetBoolean()));
-        Assert.Equal(2, solution.GetProperty("scalars").GetProperty("Length").GetDouble());
+        Assert.Equal(2, solution.GetProperty("parameters").GetProperty("length").GetDouble());
         AuthoredContentAssertions.Profile(solution.GetProperty("assistance"), puzzle.PlacementAssistance);
         Assert.Empty(level.GetProperty("solution_connections").EnumerateArray());
     }
@@ -134,9 +134,9 @@ public sealed class JoinedPipeTests
         static Quaternion Rotation(IWorkshopInstance part) => new(part.Rotation.X, part.Rotation.Y, part.Rotation.Z, part.Rotation.W);
         var joint = Position(bend) + Rotation(bend) * bendMouth.Position;
         var intoBend = -(Rotation(bend) * bendMouth.Rotation * Vector3.Right);
-        foreach (var pipe in new[] { Snapped(lesson, 2), Assert.IsType<WorkshopPipe>(authored.Instances.Single(row => row.Id == PipeId)) })
+        foreach (var pipe in new[] { Snapped(lesson, 2), Assert.IsType<WorkshopGenericInstance>(authored.Instances.Single(row => row.Id == PipeId)) })
         {
-            var mouths = definitions[pipe.PartId].Mouths(pipe.Length).Values;
+            var mouths = definitions[pipe.PartId].Mouths(pipe.Parameters).Values;
             var lower = mouths.Single(row => row.Mouth == TubeMouthEnd.End);
             var upper = mouths.Single(row => row.Mouth == TubeMouthEnd.Start);
             var lowerAt = Position(pipe) + Rotation(pipe) * lower.Position;
@@ -167,16 +167,16 @@ public sealed class JoinedPipeTests
         placed.Validate();
 
         // A second pipe exceeds the inventory.
-        var second = WorkshopInput.Pipe(new(5), 3, 6, 0, 0, 0, 0, 1, new(2));
+        var second = WorkshopInput.Generic(new PartId("pipe"),new(5), 3, 6, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), 2)]));
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(second).Validate());
         // A locked player pipe, an unlocked or second bend and any other part reject.
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(Snapped(lesson, 2) with { Locked = true }).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported,
-            () => placed.WithInstance(WorkshopInput.PipeBend90(new(5), 3, 3, 0, 0, 0, 0, 1)).Validate());
+            () => placed.WithInstance(WorkshopInput.Generic(new PartId("pipe_bend_90"), new(5), 3, 3, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported,
-            () => placed.WithInstance(WorkshopInput.Generic(PartId.Ramp, new(5), 3, 1, 0, 0, 0, 0, 1)).Validate());
+            () => placed.WithInstance(WorkshopInput.Generic(new PartId("ramp"), new(5), 3, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported,
-            () => placed.WithInstance(WorkshopInput.PipeBend45(new(5), 3, 3, 0, 0, 0, 0, 1)).Validate());
+            () => placed.WithInstance(WorkshopInput.Generic(new PartId("pipe_bend_45"), new(5), 3, 3, 0, 0, 0, 0, 1)).Validate());
     }
 
     [Fact]
@@ -188,9 +188,9 @@ public sealed class JoinedPipeTests
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Cell = new(bend.Cell.X + 1, bend.Cell.Y, bend.Cell.Z) }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Rotation = CanonicalRotation.Identity }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { PartId = PartId.PipeBend45 }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { PartId = new PartId("pipe_bend_45") }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(Payloads.First(lesson) with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(((WorkshopGenericInstance)lesson.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(((WorkshopGenericInstance)lesson.Instances.Single(instance => instance.PartId == new PartId("basket"))) with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 2 } }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
     }
@@ -203,12 +203,12 @@ public sealed class JoinedPipeTests
     public void AnInterpolatedPrecisionSetsTheReceiverToTheF32BlendOfItsBracketingKnots(float precision)
     {
         var template = PuzzleCatalogue.Definition(new("joined_pipe")).Placements.Select(placement => placement.Instance)
-            .Single(instance => instance.Part == PartId.Receiver);
+            .Single(instance => instance.Part == new PartId("basket"));
         var (forgiving, balanced, precise) = (template.Assistance.Forgiving, template.Assistance.Balanced, template.Assistance.Precise);
         var (a, b) = precision < balanced.Precision ? (forgiving, balanced) : (balanced, precise);
         var t = (precision - a.Precision) / (b.Precision - a.Precision);
         float Blend(float x, float y) => x + (y - x) * t;
-        var receiver = (WorkshopGenericInstance)Lesson(precision).Instances.Single(instance => instance.PartId == PartId.Receiver);
+        var receiver = (WorkshopGenericInstance)Lesson(precision).Instances.Single(instance => instance.PartId == new PartId("basket"));
         var lanes = new (string Parameter, AssistanceValue Knot, float A, float B)[]
         {
             ("capture_margin", AssistanceValue.CaptureMargin, a.CaptureMargin.Value, b.CaptureMargin.Value),
@@ -238,14 +238,14 @@ public sealed class JoinedPipeTests
     public void PrecisionEvaluatesTheReceiverAndTheLessonRoundTripsTheSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {
         var lesson = Lesson((float)precision);
-        var receiver = ((WorkshopGenericInstance)lesson.Instances.Single(instance => instance.PartId == PartId.Receiver));
+        var receiver = ((WorkshopGenericInstance)lesson.Instances.Single(instance => instance.PartId == new PartId("basket")));
         Assert.Equal(((float)margin, (float)speed, (float)dwell, (float)accel),
             (receiver.Parameters[new("capture_margin")], receiver.Parameters[new("capture_speed_limit")], receiver.Parameters[new("capture_dwell")], receiver.Parameters[new("force_maximum_acceleration")]));
         var placed = lesson.WithInstance(Snapped(lesson, 2));
         var saved = new WorkshopSavedConstruction(placed, new(5));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         var updated = PuzzleCatalogue.WithPrecision(placed, new(.45f));
-        Assert.Equal(.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+        Assert.Equal(.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == new PartId("basket"))).Parameters[new("capture_margin")]);
         Assert.Equal(placed.Instances.Single(i => i.Id == PipeId), updated.Instances.Single(i => i.Id == PipeId));
     }
 
@@ -277,7 +277,7 @@ public sealed class JoinedPipeTests
         var snapped = Snapped(lesson, 2);
         var unsnapped = PipeAt(UnsnappedPosition(snapped), Rz(-45), 2);
         var definitions = Definitions();
-        Assert.Null(TubeMouthSnap.Find(definitions, lesson.Instances, new(PartId.Pipe, PipeId, false, unsnapped.Length),
+        Assert.Null(TubeMouthSnap.Find(definitions, lesson.Instances, new(new PartId("pipe"), PipeId, false, unsnapped.Parameters),
             UnsnappedPosition(snapped), Rz(-45)));
         var bench = lesson.WithInstance(unsnapped);
         var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
@@ -290,14 +290,14 @@ public sealed class JoinedPipeTests
             var offset = Ball(read) - centre;
             var along = offset.Dot(axis);
             var radial = (offset - axis * along).Length();
-            Assert.False(MathF.Abs(along) <= unsnapped.Length.HalfLength && radial < .65f, $"the ball entered the bore at {Ball(read)}");
+            Assert.False(MathF.Abs(along) <= (unsnapped.Parameters[new("length")] * .5f) && radial < .65f, $"the ball entered the bore at {Ball(read)}");
         }
     }
 
     /// <summary>The negative-control pose of cat-050-joined test 4: a refused snap keeps the 0.1 grid, and (−1.3, 6) puts the lower mouth
     /// 0.76 m left of the bend's upper mouth, outside the 0.45 m capture. Poses about 0.72 m up, down or up the axis from the joint still
     /// deliver the ball (native-pose-probe.txt), so the suites use this one.</summary>
-    internal static Vector3 UnsnappedPosition(WorkshopPipe snapped)
+    internal static Vector3 UnsnappedPosition(WorkshopGenericInstance snapped)
     {
         var joint = new Vector3((float)((snapped.Cell.X + (double)snapped.Local.X) / 16), (float)((snapped.Cell.Y + (double)snapped.Local.Y) / 16), 0);
         var unsnapped = new Vector3(-1.3f, 6, 0);

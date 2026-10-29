@@ -32,7 +32,7 @@ Remove parallel implementations so each puzzle element has one isolated declarat
 - Story 9A.21: Remove synthetic startup work
 - Story 9A.22: Event ring producer
 - Story 9A.23: Event ring consumers
-- Story 9A.24: Typed observation port — implementation done; five Auto layers and affected re-reviews Pass, full local 5,047/0/0. Hooks, exact-SHA approval and publication pending; browser qualification pending and CI/deployment unverified. [Evidence](spec-9a-24-typed-observation-port.md#auto-run-result).
+- Story 9A.24: Typed observation port
 - Story 9A.25: Packaged presentation bindings
 - Story 9A.25a: Committed-state presentation cues
 - Story 9A.25b: One-shot presentation bindings
@@ -83,7 +83,7 @@ Real production native tests cover positive, control, boundary, progression and 
 
 ## Technical Decisions
 
-Each element project owns metadata, typed parameters, ports, colliders/materials, domain payloads, events, presentation bindings and assets. It references only shared/domain abstractions, never engine or sibling packages. One build-generated bundle is the runtime declaration authority.
+Each element project owns metadata, typed parameters, ports, colliders/materials, domain payloads, events, presentation bindings and assets. It references only shared/domain abstractions, never engine or sibling packages. One build-generated bundle is the declaration authority. Both workers must reference an element-free Core assembly containing capability tables and their codec, solver contracts, activation and event infrastructure. Authoring, catalogue, lessons and bundle loading stay in a main-thread-only assembly that neither worker references. Element identity is opaque, without named element members; build isolation derives prohibited identities from the generated bundle and eventually has no known-violation list.
 
 The main-thread authoring graph compiles at Run into contiguous SIMD-aligned physics tables. Pure C# WASM SIMD runs generic capability kernels at 120 Hz with 480 Hz substeps. Animation runs independently at 60 Hz; rendering uses WebGL2/WebGPU instancing and the shared triple pose ring. Information flows from simulation to presentation only.
 
@@ -99,4 +99,4 @@ Preserve placement, parameter editing, typed wiring and Run/Pause/Step/Reset flo
 
 Merged delivery stories retain all source acceptance; split stories close only when every child closes. Current execution order supersedes historical numerical order. Bundle tooling precedes package consumers; the generic editor supports instance conversions; declared capabilities and presentation bindings precede their consuming elements. The early isolation ratchet shrinks during conversion; the final gate removes remaining exceptions.
 
-Current sequencing completes stabilization, then the typed observation port and final isolation gate before continuing the named catalogue. Observation depends on event consumers; isolation closes the remaining declaration violations. Implement one slice from published main, complete independent Auto review and publication, then begin the next. CI and deployment monitoring do not block continuation.
+Current sequencing has published the typed observation port; the final isolation gate is next before continuing the named catalogue. Observation depends on event consumers; isolation closes the remaining declaration violations. Preserve source acceptance while applying the current local-test, browser-deferral and no-mutation policies. Implement one slice from published main, complete independent Auto review and publication, then begin the next. CI and deployment monitoring do not block continuation.

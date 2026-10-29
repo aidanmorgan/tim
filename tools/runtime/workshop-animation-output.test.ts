@@ -59,10 +59,10 @@ test('every admitted target publishes its latest sample in order, holding one re
     await module.evaluate();
     const channel = new MessageChannel();
     self.onmessage({ data: { bootstrap: new Uint8Array(64), masterPort: channel.port1, clockRing: clockRing.createClockRing() } });
-    self.onmessage({ data: { animationControl: new Uint8Array(96) } });
+    self.onmessage({ data: { animationControl: new Uint8Array(104) } });
     assert.equal(controls, 1, 'current renamed export is callable');
     function sample(target: number, pulse: number) {
-        const bytes = new Uint8Array(96), view = new DataView(bytes.buffer);
+        const bytes = new Uint8Array(104), view = new DataView(bytes.buffer);
         view.setUint32(60, 2, true); view.setBigUint64(64, BigInt(target), true);
         view.setBigUint64(40, BigInt(pulse), true); return bytes;
     }

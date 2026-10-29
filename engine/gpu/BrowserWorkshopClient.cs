@@ -171,15 +171,27 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         var revisionKind = kind is WorkshopCommandKind.Pause or WorkshopCommandKind.Reset or WorkshopCommandKind.Cancel or WorkshopCommandKind.Dispose or WorkshopCommandKind.ConfigureElectrical
             or WorkshopCommandKind.ObserveMemory
             ? ExpectedRevisionKind.Any : ExpectedRevisionKind.Exact;
+        WorkshopConstruction? authored = kind switch
+        {
+            WorkshopCommandKind.Initialize => _construction with { Settings = settings!.Value },
+            WorkshopCommandKind.Construct => construction!.Value,
+            WorkshopCommandKind.ConfigureCadence => _construction with { Settings = settings!.Value },
+            _ => null
+        };
+        var scene = authored is { } source
+            ? WorkshopSceneCompiler.Compile(source, new(Peer.Session.Low, Peer.Session.High), new(sequence.Value)) : null;
         var command = new WorkshopCommand(sequence, kind, Epoch,
-            revisionKind == ExpectedRevisionKind.Any ? default : Revision, construction, target, revisionKind, Peer.Session, _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default, settings, electrical);
+            revisionKind == ExpectedRevisionKind.Any ? default : Revision, scene, target, revisionKind, Peer.Session,
+            _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default, electrical);
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
+        if (authored is { } original) _observation.Associate(command, original);
+        if (kind == WorkshopCommandKind.Run) _observation.BeginRun(command);
         _sequence = sequence.Value;
         _pending++;
         var dispatchedReadOrder = _cursor.ReadOrder;
         var identity = new WorkshopCommandIdentity(sequence, command.Epoch, command.Revision, command.Cadence, command.Projection);
         if (kind != WorkshopCommandKind.Cancel) Pending = identity;
-        if (construction is not null) { _proposedConstruction = construction; _constructionOwner = identity; }
+        if (authored is not null) { _proposedConstruction = authored; _proposedScene = scene; _constructionOwner = identity; }
         try
         {
             var encodedIdentity = new byte[sizeof(ulong)];
@@ -206,10 +218,10 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                     _cursor.Commit(prepared);
                     _observation.Commit(response);
                     if (history is { } ready) _history.Commit(ready);
-                    if (response.Result.Outcome == WorkshopCommandOutcome.Applied && construction is { } admitted)
+                    if (response.Result.Outcome == WorkshopCommandOutcome.Applied && authored is { } admitted)
                     {
                         _construction = admitted;
-                        EnsureInstalledScene(_construction);
+                        EnsureInstalledScene(_construction, scene!);
                     }
                 }
                 return new(response, prepared.Applicable);
@@ -220,7 +232,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                 _transport.CompleteAcknowledgement(_id.Value, encodedIdentity);
             }
         }
-        finally { _pending--; if (_constructionOwner == identity) { _proposedConstruction = null; _constructionOwner = null; } if (Pending == identity) Pending = null; }
+        finally { _observation.CompleteCandidate(command); _pending--; if (_constructionOwner == identity) { _proposedConstruction = null; _proposedScene = null; _constructionOwner = null; } if (Pending == identity) Pending = null; }
     }
 
     /// <summary>The stopped memory observation query (Story 9A.3): one typed command whose acknowledgement carries the Simulation
@@ -309,7 +321,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         if (!prepared.Applicable) return;
         var boundary = response.Phase == WorkshopSimulationPhase.Completed ? PresentationBoundary.Completed : PresentationBoundary.Continuous;
         var history = PrepareHistory(response, boundary, received);
-        EnsureInstalledScene(_construction);
+        EnsureInstalledScene(_construction, _compiledScene ?? throw new InvalidOperationException("Read has no installed compiled scene."));
         _cursor.Commit(prepared);
         _observation.Commit(response);
         _history.Commit(history);
@@ -351,13 +363,15 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
 
     private WorkshopConstruction? _readConstruction;
     private PhysicsSceneDeclaration? _readScene;
-    private void EnsureInstalledScene(WorkshopConstruction construction)
+    private WorkshopCompiledScene? _compiledScene, _proposedScene;
+    private void EnsureInstalledScene(WorkshopConstruction construction, WorkshopCompiledScene scene)
     {
-        if (_readConstruction != construction)
+        if (_compiledScene?.Identity != scene.Identity)
         {
-            _readScene = WorkshopPhysicsCompiler.Compile(construction, new(Peer.Session.Low, Peer.Session.High));
+            _readScene = scene.Physics;
+            _compiledScene = scene;
             _readConstruction = construction;
-            InstallDeclaredTargets(construction);
+            InstallDeclaredTargets(scene);
         }
     }
 

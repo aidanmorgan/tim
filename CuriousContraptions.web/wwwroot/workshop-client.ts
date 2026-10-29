@@ -30,7 +30,7 @@ import { createClockRing, attachClockRing, requestReply, heartbeat, ClockRole } 
 import { EventRingCursor, eventDelivery } from './event-ring-cursor.js';
 
 // The Animation output record fields this client reads, owned by WorkshopAnimationWire (WorkerAbiTests pins each one).
-const ANIMATION_OUTPUT_BYTES = 144;            // WorkshopAnimationWire.OutputBytes
+const ANIMATION_OUTPUT_BYTES = 104;            // WorkshopAnimationWire.OutputBytes
 const ANIMATION_OUTPUT_KIND_OFFSET = 60;       // WorkshopAnimationWire.OutputKindOffset
 
 const clients = new Map<number, Client>();
@@ -307,7 +307,7 @@ export function animationControl(id: number, bytes: Uint8Array) {
     if (client.failure) throw client.failure;
     if (!client.animationQualified || client.hintPending) throw new Error('Animation control is unavailable or pending.');
     const animationControl = new Uint8Array(bytes);
-    if (animationControl.length !== 144) throw new Error('Invalid animation command.');
+    if (animationControl.length !== 104) throw new Error('Invalid animation command.');
     client.hintPending = true;
     client.animation!.postMessage({ animationControl }, [animationControl.buffer]);
 }

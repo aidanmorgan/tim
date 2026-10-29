@@ -17,22 +17,22 @@ public sealed class FunnelTests(NativeSceneFixture godot)
         var registry = new PartRegistry();
         registry.Load();
 
-        Assert.True(registry.Definitions.ContainsKey(PartId.Funnel));
-        var def = registry.Definitions[PartId.Funnel];
-        Assert.Equal(PartId.Funnel, def.PartId);
+        Assert.True(registry.Definitions.ContainsKey(new PartId("funnel")));
+        var def = registry.Definitions[new PartId("funnel")];
+        Assert.Equal(new PartId("funnel"), def.PartId);
         Assert.Equal("funnel", def.Id);
         Assert.Equal("Funnel", def.Title);
         Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Motion, def.Category);
         Assert.Equal("A wide hollow funnel. Gathers falling balls from a wide 2.6-unit mouth into the standard 1.3-unit tube bore by gravity and contact alone.", def.Description);
         Assert.NotNull(def.Scene);
 
-        var part = registry.Create(PartId.Funnel);
+        var part = registry.Create(new PartId("funnel"));
         try
         {
             godot.Tree.Root.AddChild(part);
             Assert.NotNull(part);
             Assert.Same(def, part.Definition);
-            Assert.Equal(PartId.Funnel, part.PartId);
+            Assert.Equal(new PartId("funnel"), part.PartId);
         }
         finally
         {
@@ -97,13 +97,13 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void WorkshopCanonicalColliders_MatchesFunnelColliders()
     {
-        AssertFunnelColliders(DeclaredPhysics.Colliders(PartId.Funnel));
+        AssertFunnelColliders(DeclaredPhysics.Colliders(new PartId("funnel")));
     }
 
     [Fact]
     public void WorkshopPhysicsCompiler_CompilesFunnelIntoStaticBodyWithItsHollowColliders()
     {
-        var funnel = WorkshopInput.Funnel(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var funnel = WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(funnel));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 
@@ -129,8 +129,8 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void SaveCodec_RoundTripsFunnelAndPreservesDeclaredColliders()
     {
-        var funnel = WorkshopInput.Funnel(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var funnel = WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, funnel));
         var save = new WorkshopSavedConstruction(construction, new(12));
 
@@ -141,7 +141,7 @@ public sealed class FunnelTests(NativeSceneFixture godot)
         Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(decoded)));
 
         var decodedFunnel = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
-        Assert.Equal(PartId.Funnel, decodedFunnel.PartId);
+        Assert.Equal(new PartId("funnel"), decodedFunnel.PartId);
         AssertFunnelColliders(decodedFunnel.DeclaredColliders);
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
@@ -157,16 +157,16 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     {
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(WorkshopInput.Funnel(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
+            new WorkshopInstances(WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 0, 5 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
 
         var twoFunnels = new WorkshopInstances(
-            WorkshopInput.Funnel(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Funnel(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1));
+            WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1));
         new WorkshopInstances([.. twoFunnels]).Validate();
 
         var twentyFunnels = new WorkshopInstances(
-            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Funnel(new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
+            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
         new WorkshopInstances([.. twentyFunnels]).Validate();
     }
 
@@ -175,8 +175,8 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     {
         // The inlet stub's bore and the frustum's wide end are the inlet mouth's 1.3 m; its narrow end and the outlet stub's bore are the
         // outlet mouth's 0.65 m.
-        var colliders = DeclaredPhysics.Colliders(PartId.Funnel);
-        var mouths = TestBundle.Entry(PartId.Funnel).TubeMouths;
+        var colliders = DeclaredPhysics.Colliders(new PartId("funnel"));
+        var mouths = TestBundle.Entry(new PartId("funnel")).TubeMouths;
         var (inlet, outlet) = (mouths.Single(m => m.End == CuriousContraptions.Abstractions.TubeEnd.Start).BoreRadius,
             mouths.Single(m => m.End == CuriousContraptions.Abstractions.TubeEnd.End).BoreRadius);
         Assert.Equal(inlet, colliders[0].Radius - colliders[0].HalfExtents.X, 1e-6f);
@@ -191,8 +191,8 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void PhysicsGpuAbi_AdmissionAcceptsFunnelSceneDeclaration()
     {
-        var funnel = WorkshopInput.Funnel(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
+        var funnel = WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, funnel));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 

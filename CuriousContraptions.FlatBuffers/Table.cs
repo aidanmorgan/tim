@@ -41,14 +41,14 @@ namespace Google.FlatBuffers
         // present.
         public int __offset(int vtableOffset)
         {
-            int vtable = bb_pos - bb.GetInt(bb_pos);
-            return vtableOffset < bb.GetShort(vtable) ? (int)bb.GetShort(vtable + vtableOffset) : 0;
+            int vtable = checked(bb_pos - bb.GetInt(bb_pos));
+            return vtableOffset < bb.GetUshort(vtable) ? (int)bb.GetUshort(checked(vtable + vtableOffset)) : 0;
         }
 
         public static int __offset(int vtableOffset, int offset, ByteBuffer bb)
         {
-            int vtable = bb.Length - offset;
-            return (int)bb.GetShort(vtable + vtableOffset - bb.GetInt(vtable)) + vtable;
+            int vtable = checked(bb.Length - offset);
+            return checked((int)bb.GetUshort(checked(vtable + vtableOffset - bb.GetInt(vtable))) + vtable);
         }
 
         // Retrieve the relative offset stored at "offset"

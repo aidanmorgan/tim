@@ -10,10 +10,10 @@ public sealed class SwitchElectricalTests
     private static WorkshopConstruction Machine(float x=0f,float threshold=.8f)
     {
         return new(new(2),WorkshopCadenceSettings.Default(),new(
-            WorkshopInput.Generic(PartId.Basketball,new(1),(float)(x),3,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.ImpactSwitch,new(2),0,1,0,0,0,0,1,new([new(new ParameterId("trigger_threshold"),threshold)])),
+            WorkshopInput.Generic(new PartId("ball"),new(1),(float)(x),3,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("switch"),new(2),0,1,0,0,0,0,1,new([new(new ParameterId("trigger_threshold"),threshold)])),
             PlacedParts.Battery(new(3), -4, 3, 0),
-            WorkshopInput.Generic(PartId.PoweredGate,new(4),9,3,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("powered_gate"),new(4),9,3,0,0,0,0,1),
             PlacedParts.Lamp(new(5),4,2,0,0,0,0,1)),
             Connections:new(Power(3,2),Power(2,4),Signal(2,5)));
     }
@@ -58,7 +58,7 @@ public sealed class SwitchElectricalTests
         var construction=Machine(control==Control.Miss?2f:0f,control==Control.BelowThreshold?64f:.8f);
         if(control==Control.MissingSourceWire) construction=construction with {Connections=construction.Connections.Without(Power(3,2))};
         if(control==Control.MissingConsumerWire) construction=construction with {Connections=construction.Connections.Without(Power(2,4))};
-        if(control==Control.DisabledSource) construction=construction with {Instances=new(construction.Instances.Select(instance=>instance.PartId==PartId.Battery
+        if(control==Control.DisabledSource) construction=construction with {Instances=new(construction.Instances.Select(instance=>instance.PartId==new PartId("battery")
             ? (IWorkshopInstance)PlacedParts.Battery(instance.Id,-4,3,0,enabled:ElectricalEnable.Disabled):instance).ToArray())};
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
         Assert.All(reads,read=>Assert.False(Powered(read)));
@@ -89,15 +89,15 @@ public sealed class SwitchElectricalTests
     {
         var construction=Machine();
         var parts=construction.Instances.Concat(new IWorkshopInstance[]{
-            WorkshopInput.Generic(PartId.ImpactSwitch,new(6),-8,1,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.Basketball,new(7),-8,3,0,0,0,0,1)}).ToArray();
+            WorkshopInput.Generic(new PartId("switch"),new(6),-8,1,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("ball"),new(7),-8,3,0,0,0,0,1)}).ToArray();
         var links=new List<WorkshopConnection>{Power(2,6),Power(6,4),Signal(2,5)};
         if(!noSource) links.Add(Power(3,2));
         if(cycle) links.Add(Power(6,2));
         if(reverse)
         {
             GpuBodyId Reidentify(GpuBodyId id)=>id.Value switch {2=>new(6),6=>new(2),_=>id};
-            parts=parts.Select(part=>part is WorkshopGenericInstance generic && generic.PartId==PartId.ImpactSwitch
+            parts=parts.Select(part=>part is WorkshopGenericInstance generic && generic.PartId==new PartId("switch")
                 ? (IWorkshopInstance)(generic with {Id=Reidentify(generic.Id)}):part).ToArray();
             links=links.Select(link=>link with {Source=Reidentify(link.Source),Target=Reidentify(link.Target)}).ToList();
             Array.Reverse(parts);links.Reverse();
@@ -116,8 +116,8 @@ public sealed class SwitchElectricalTests
     {
         var construction=Machine();
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{
-            WorkshopInput.Generic(PartId.ImpactSwitch,new(6),-8,1,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.Basketball,new(7),-8,3,0,0,0,0,1)}).ToArray()),
+            WorkshopInput.Generic(new PartId("switch"),new(6),-8,1,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("ball"),new(7),-8,3,0,0,0,0,1)}).ToArray()),
             Connections=new(Power(3,2),Power(2,6),Power(6,2),Power(6,4),Signal(2,5))};
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],100),([new(new(3),ElectricalEnable.Disabled)],30),
             ([new(new(3),ElectricalEnable.Enabled)],30));
@@ -133,7 +133,7 @@ public sealed class SwitchElectricalTests
     public void CyclicClockProvenanceTerminatesAndMultipleSourcesRemainRejectedForAccounting()
     {
         var construction=Machine();
-        var second=WorkshopInput.Generic(PartId.ImpactSwitch,new(6),-8,1,0,0,0,0,1);
+        var second=WorkshopInput.Generic(new PartId("switch"),new(6),-8,1,0,0,0,0,1);
         var clock=PlacedParts.Clock(new(7),6,1,0,0,0,0,1,1f);
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{second,clock}).ToArray()),
             Connections=new(Power(2,6),Power(6,2),Power(6,7))};
@@ -144,7 +144,7 @@ public sealed class SwitchElectricalTests
         var battery=PlacedParts.Battery(new(8), -6, 4, 0);
         var ambiguous=sourced with {Instances=new(sourced.Instances.Concat(new IWorkshopInstance[]{battery}).ToArray()),Connections=sourced.Connections.With(Power(8,6))};
         EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied,()=>WorkshopActivationCompiler.Compile(ambiguous));
-        var bumper=WorkshopInput.Generic(PartId.PinballBumper,new(9),12,1,0,0,0,0,1);
+        var bumper=WorkshopInput.Generic(new PartId("bumper"),new(9),12,1,0,0,0,0,1);
         var storage=ambiguous with {Instances=new(ambiguous.Instances.Concat(new IWorkshopInstance[]{bumper}).ToArray()),Connections=ambiguous.Connections.With(Power(6,9))};
         // Physical compile is isolated from activation compilation; it must reject the storage binding itself.
         storage=storage with {Instances=new(storage.Instances.Where(instance=>instance.Id!=clock.Id).ToArray()),Connections=storage.Connections.Without(clock.Id)};

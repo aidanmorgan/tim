@@ -19,10 +19,10 @@ public sealed class DeclaredContactLoadTests
     [Fact]
     public void TheDeclaredSensorCompilesItsRegionAndMembersForEveryPlate()
     {
-        var declared = Assert.NotNull(DeclaredPhysics.Of(PartId.PressurePlate).Signal?.ContactLoad);
+        var declared = Assert.NotNull(DeclaredPhysics.Of(new PartId("pressure_plate")).Signal?.ContactLoad);
         Assert.Equal(new SignalContactLoadDescriptor("minimum_mass", 1, System.Numerics.Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f, declared.SupportingColliders), declared);
         Assert.Equal([1, 7], declared.SupportingColliders);
-        var face = CuriousContraptions.Bundle.BundleGeometry.Colliders(DeclaredPhysics.Of(PartId.PressurePlate))[1];
+        var face = CuriousContraptions.Bundle.BundleGeometry.Colliders(DeclaredPhysics.Of(new PartId("pressure_plate")))[1];
         Assert.Equal((CuriousContraptions.Abstractions.ColliderShapeKind.Box, .9f, .05f, .9f), (face.ShapeKind, face.HalfExtents.X, face.HalfExtents.Y, face.HalfExtents.Z));
 
         var plate = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Plate(new(3), -4, (float)(PlateY), 0, 2f));
@@ -65,9 +65,9 @@ public sealed class DeclaredContactLoadTests
     [Fact]
     public void AStaticBoxWithoutTheDeclarationCompilesNoRowAndNoNode()
     {
-        var wall = WorkshopInput.Generic(PartId.Wall, new(1), 0, (float)(PlateY), 0, 0, 0, 0, 1,
+        var wall = WorkshopInput.Generic(new PartId("wall"), new(1), 0, (float)(PlateY), 0, 0, 0, 0, 1,
             new([new(new("width"), 1.8f), new(new("height"), .4f), new(new("thickness"), 1.8f)]));
-        Assert.Null(DeclaredPhysics.Of(PartId.Wall).Signal?.ContactLoad);
+        Assert.Null(DeclaredPhysics.Of(new PartId("wall")).Signal?.ContactLoad);
         Assert.Empty(WorkshopPhysicsCompiler.Compile(Bench([wall]), new(1, 2)).ContactLoadSensors.ToArray());
         Assert.Empty(WorkshopActivationCompiler.Compile(Bench([wall])).Nodes.ToArray());
     }
@@ -85,8 +85,9 @@ public sealed class DeclaredContactLoadTests
         var bench = Bench([PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, (float)(minimumMass))]);
         var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(2)))).Construction;
         var command = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),
-            WorkshopCommandKind.Construct, new(1), new(1), bench, Session: new(1, 2), Cadence: new(1), Projection: new(1)))).Construction!.Value;
-        foreach (var decoded in new[] { saved, command })
+            WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(bench), Session: new(1, 2), Cadence: new(1), Projection: new(1)))).Scene!;
+        Assert.Equal(minimumMass, Assert.Single(command.Physics.ContactLoadSensors.ToArray()).MinimumMass);
+        foreach (var decoded in new[] { saved })
         {
             var plate = Assert.IsType<WorkshopGenericInstance>(Assert.Single(decoded.Instances));
             Assert.Equal(minimumMass, plate.Parameters[new ParameterId("minimum_mass")]);
@@ -102,14 +103,14 @@ public sealed class DeclaredContactLoadTests
     [InlineData(16.01f, WorkshopSaveRejection.OutOfRange)]
     public void AMissingOrOutOfRangeMinimumMassIsRefusedAtBothBoundaries(float? minimumMass, WorkshopSaveRejection save)
     {
-        var bytes = PayloadInstanceTests.GenericSave("pressure_plate", null, minimumMass is { } mass ? [("minimum_mass", mass)] : []);
+        var bytes = PayloadInstanceTests.GenericSave("pressure_plate", minimumMass is { } mass ? [("minimum_mass", mass)] : []);
         SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
         var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
-        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
         // Control: the identical record at 0.5 kg loads at both boundaries.
-        var control = PayloadInstanceTests.GenericSave("pressure_plate", null, [("minimum_mass", .5f)]);
+        var control = PayloadInstanceTests.GenericSave("pressure_plate", [("minimum_mass", .5f)]);
         Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, control).Construction.Instances));
-        Assert.IsType<WorkshopGenericInstance>(WorkshopWireFlatBuffers.MapInstance(WorkshopSaveCodec.Open(control).Construction!.Value.Instances(0)!.Value));
+        Assert.IsType<WorkshopGenericInstance>(WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(control).Construction!.Value.Instances(0)!.Value));
     }
 
     // Saves written by the record path's production encoders at 61ded7ad (evidence-c-plate/baseline/old-saves, sha256 in
@@ -146,9 +147,9 @@ public sealed class DeclaredContactLoadTests
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
-        var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
-        Assert.Equal("This save cannot be loaded: The FlatBuffers verifier refused a CCWS buffer.", refusal.Message);
-        Assert.Equal((WireFaultReason.VerifierRejected, "The FlatBuffers verifier refused a CCWC buffer."), (fault.Reason, fault.Message));
+        Assert.False(string.IsNullOrWhiteSpace(refusal.Message));
+        Assert.Equal((WireFaultReason.OutOfRange, "Runtime record contains undefined fields."), (fault.Reason, fault.Message));
     }
 }

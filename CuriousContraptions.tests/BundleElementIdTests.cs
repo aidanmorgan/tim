@@ -21,14 +21,14 @@ public sealed class BundleElementIdTests
         new(new(1), WorkshopCadenceSettings.Default(), new(instances));
 
     private static WorkshopSavedConstruction RampSave() =>
-        new(Construction(WorkshopInput.Generic(PartId.Ramp, new(1), 0, 1, 0, 0, 0, 0, 1)), new(2));
+        new(Construction(WorkshopInput.Generic(new PartId("ramp"), new(1), 0, 1, 0, 0, 0, 0, 1)), new(2));
 
     /// <summary>A construction naming <paramref name="element"/>, encoded without domain validation (a tampered save or message).</summary>
     private static WorkshopConstruction Naming(string element) =>
         Construction(new WorkshopGenericInstance(new PartId(element), new(1), default, default, CanonicalRotation.Identity));
 
     private static WorkshopCommand Construct(WorkshopConstruction construction) => new(new(1), WorkshopCommandKind.Construct, new(1),
-        default, construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
+        default, CompiledSceneFixture.Compile(construction), Session: new(1, 2), Cadence: new(1), Projection: new(1));
 
     private static string[] SavedElementIds(byte[] save)
     {
@@ -39,23 +39,32 @@ public sealed class BundleElementIdTests
     // ---------- AC1: each instance carries its typed PartId string, validated against the loaded bundle ----------
 
     [Fact]
+    public void OpaqueIdentityDisplaysItsValueAndRefusesAnUninitializedIdentity()
+    {
+        Assert.Equal("custom-package", new PartId("custom-package").ToString());
+        Assert.Throws<InvalidOperationException>(() => default(PartId).ToString());
+    }
+
+    [Fact]
     public void ASaveCarriesEachInstancesBundleElementIdString()
     {
-        var save = new WorkshopSavedConstruction(Construction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Ramp, new(2), 0, 1, 0, 0, 0, 0, 1), WorkshopInput.Funnel(new(3), 3, 1, 0, 0, 0, 0, 1)), new(4));
+        var save = new WorkshopSavedConstruction(Construction(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("ramp"), new(2), 0, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("funnel"), new(3), 3, 1, 0, 0, 0, 0, 1)), new(4));
         var bytes = WorkshopSaveCodec.Encode(save);
         Assert.Equal(["ball", "ramp", "funnel"], SavedElementIds(bytes));
         Assert.Equal(save.Construction.Instances, WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances);
     }
 
     [Fact]
-    public void AWorkerMessageCarriesEachInstancesBundleElementIdString()
+    public void AWorkerMessageCarriesCompiledOwnersAndBodies()
     {
-        var construction = Construction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1), WorkshopInput.PipeBend90(new(2), 3, 1, 0, 0, 0, 0, 1));
+        var construction = Construction(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("pipe_bend_90"), new(2), 3, 1, 0, 0, 0, 0, 1));
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(Construct(construction));
-        var record = CommandRoot(bytes).ConstructionRecord!.Value;
-        Assert.Equal(["ball", "pipe_bend_90"], Enumerable.Range(0, record.InstancesLength).Select(i => record.Instances(i)!.Value.PartId));
-        Assert.Equal(construction.Instances, WorkshopWireFlatBuffers.DecodeCommand(bytes).Construction!.Value.Instances);
+        var record = CommandRoot(bytes).Scene!.Value;
+        Assert.Equal(2, record.OwnersLength);
+        var scene = WorkshopWireFlatBuffers.DecodeCommand(bytes).Scene!;
+        Assert.Equal(construction.Instances.Select(instance => instance.Id), scene.Owners);
+        Assert.All(scene.Owners, owner => Assert.Contains(scene.Physics.Bodies.ToArray(), body => body.Id == owner));
     }
 
     private static Wire.WorkshopCommand CommandRoot(byte[] bytes) =>
@@ -67,7 +76,7 @@ public sealed class BundleElementIdTests
     public void ASaveIsValidatedAgainstTheLoadedBundle()
     {
         var bytes = WorkshopSaveCodec.Encode(RampSave());
-        var withoutRamp = SaveFixture.Elements.Where(id => id != PartId.Ramp).ToHashSet();
+        var withoutRamp = SaveFixture.Elements.Where(id => id != new PartId("ramp")).ToHashSet();
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.UnknownElement, () => WorkshopSaveCodec.Decode(withoutRamp, bytes));
         Assert.Contains("'ramp'", refusal.Message, StringComparison.Ordinal);
         Assert.Equal(RampSave().Construction.Instances, WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances);
@@ -92,7 +101,7 @@ public sealed class BundleElementIdTests
             builder.Finish(InstanceRecord.EndInstanceRecord(builder).Value);
             var record = InstanceRecord.GetRootAsInstanceRecord(builder.DataBuffer);
             // A parameter-less record may miss a required field; it must never be an unknown element.
-            try { WorkshopWireFlatBuffers.MapInstance(record); }
+            try { WorkshopAuthoringFlatBuffers.MapInstance(record); }
             catch (WireFaultException fault) { Assert.NotEqual(WireFaultReason.UnknownElement, fault.Reason); }
         }
     }
@@ -119,38 +128,28 @@ public sealed class BundleElementIdTests
         Assert.Contains("'kite'", refusal.Message, StringComparison.Ordinal);
     }
 
-    private static byte[] ForgedCommand(string element)
-    {
-        var existing = element.Length == 4 ? "lamp" : "domino";
-        var bytes = WorkshopWireFlatBuffers.EncodeCommand(Construct(Naming(existing)));
-        var original = System.Text.Encoding.UTF8.GetBytes(existing);
-        var replacement = System.Text.Encoding.UTF8.GetBytes(element);
-        Assert.Equal(original.Length, replacement.Length);
-        var offset = bytes.AsSpan().IndexOf(original);
-        Assert.True(offset >= 0);
-        replacement.CopyTo(bytes.AsSpan(offset, replacement.Length));
-        return bytes;
-    }
-
     [Theory]
     [InlineData("kite")]
     [InlineData("tennis")]
-    public void AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(string element)
+    public void MainCompilationRefusesAnUnknownElementNamingIt(string element)
     {
-        var bytes = ForgedCommand(element);
-        var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
-        Assert.Equal(WireFaultReason.UnknownElement, fault.Reason);
+        var fault = Assert.Throws<WorkshopEditRejectedException>(() =>
+            WorkshopSceneCompiler.Compile(Naming(element), new(1, 2), new(1)));
+        Assert.Equal(WorkshopEditRejection.UnsupportedPart, fault.Reason);
         Assert.Contains($"'{element}'", fault.Message, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor()
+    public async Task MainClientRefusesAnUnknownElementBeforeDispatch()
     {
-        var executed = false;
-        var router = new WorkshopCommandRouter(_ => { executed = true; return System.Threading.Tasks.Task.FromResult(Array.Empty<byte>()); });
-        var fault = Assert.Throws<WireFaultException>(() => router.Dispatch(ForgedCommand("kite")));
-        Assert.Equal(WireFaultReason.UnknownElement, fault.Reason);
-        Assert.False(executed);
+        using var host = new WorkshopActivationAnimationTests.NativeClient();
+        var port = host.Client.Observation;
+        var before = port.Receipts(port.Session, default).Value!.Length;
+        var fault = await Assert.ThrowsAsync<WorkshopEditRejectedException>(() =>
+            host.Client.Execute(WorkshopCommandKind.Construct, Naming("kite")));
+        Assert.Equal(WorkshopEditRejection.UnsupportedPart, fault.Reason);
+        Assert.Equal(before, port.Receipts(port.Session, default).Value!.Length);
+        await host.Construct(Naming("lamp"));
     }
 
     // ---------- AC3: no numeric part identity remains in code, schema or save ----------
@@ -183,7 +182,7 @@ public sealed class BundleElementIdTests
     [Fact]
     public void NoSchemaFieldCarriesANumericPartId()
     {
-        var schema = File.ReadAllText(Path.Combine(Root, "schemas", "workshop_wire.fbs"));
+        var schema = File.ReadAllText(Path.Combine(Root, "schemas", "workshop_authoring.fbs"));
         var fields = Regex.Matches(schema, @"^\s*([a-z_][a-z0-9_]*)\s*:\s*([A-Za-z0-9_\[\]]+)\s*;", RegexOptions.Multiline)
             .Select(match => (Name: match.Groups[1].Value, Type: match.Groups[2].Value)).ToArray();
         var elementFields = fields.Where(field => Regex.IsMatch(field.Name, @"(^|_)(part|element)(_|$)")).ToArray();

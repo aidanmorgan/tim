@@ -19,7 +19,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     public void GenericTimerEditorUsesSecondsAndCommitsOnlyValidStoppedValues(bool rearming)
     {
         var parameter = new ParameterId(rearming ? "hold_seconds" : "delay_seconds");
-        var (scene, client) = BenchScene(rearming ? new PartId("hold_timer") : PartId.Delay, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(rearming ? new PartId("hold_timer") : new PartId("delay"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -80,7 +80,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     public void TheClockIntervalEditorShowsTheInstanceValueClampsIntoRangeAndAppliesAsOneUndo()
     {
         var parameter = new ParameterId("interval_seconds");
-        var (scene, client) = BenchScene(PartId.Clock, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("clock"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -131,9 +131,9 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
 
             // A move re-captures the committed instance and keeps its interval; a newly placed clock starts from the declared 1.0 s.
             var applied = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
-            var moved = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(PartId.Clock, applied.Id, new Vector3(1, 3, 0), Quaternion.Identity));
+            var moved = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(new PartId("clock"), applied.Id, new Vector3(1, 3, 0), Quaternion.Identity));
             Assert.Equal(applied.Parameters, moved.Parameters);
-            var fresh = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(PartId.Clock, new GpuBodyId(99), new Vector3(1, 3, 0), Quaternion.Identity));
+            var fresh = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(new PartId("clock"), new GpuBodyId(99), new Vector3(1, 3, 0), Quaternion.Identity));
             Assert.Equal(BitConverter.SingleToUInt32Bits(1f), BitConverter.SingleToUInt32Bits(fresh.Parameters[parameter]));
 
             foreach (var _ in new[] { 1, 2, 3 }) Assert.Empty(Undo(scene));
@@ -169,7 +169,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     public void ThePlateMinimumMassEditorRefusesOutOfRangeWithoutClampAndAppliesAsOneUndo()
     {
         var parameter = new ParameterId("minimum_mass");
-        var (scene, client) = BenchScene(PartId.PressurePlate, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("pressure_plate"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -246,7 +246,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     public void TheCounterTargetEditorAdmitsOneToNineRefusesTheRestAndAppliesAsOneUndo()
     {
         var parameter = new ParameterId("target_count");
-        var (scene, client) = BenchScene(PartId.Counter, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("counter"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -297,9 +297,9 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
 
             // A move re-captures the committed instance and keeps its target; a newly placed counter starts from the declared 3.
             var applied = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
-            var moved = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(PartId.Counter, applied.Id, new Vector3(1, 3, 0), Quaternion.Identity));
+            var moved = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(new PartId("counter"), applied.Id, new Vector3(1, 3, 0), Quaternion.Identity));
             Assert.Equal(applied.Parameters, moved.Parameters);
-            var fresh = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(PartId.Counter, new GpuBodyId(99), new Vector3(1, 3, 0), Quaternion.Identity));
+            var fresh = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(new PartId("counter"), new GpuBodyId(99), new Vector3(1, 3, 0), Quaternion.Identity));
             Assert.Equal(3f, fresh.Parameters[parameter]);
 
             Assert.Empty(Undo(scene));
@@ -341,13 +341,13 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         var viewport = new SubViewport { Size = new(1440, 900), HandleInputLocally = true };
         godot.Tree.Root.AddChild(viewport);
         var store = new MemoryStore();
-        var (scene, client) = BenchScene(PartId.Basketball, PlacementAnswer.Applied, store, viewport);
+        var (scene, client) = BenchScene(new PartId("ball"), PlacementAnswer.Applied, store, viewport);
         try
         {
             var plate = PlacedParts.Plate(new(1), 0, height, 0, .5f);
             store.Bytes = WorkshopSaveCodec.Encode(new(new(new(2), WorkshopCadenceSettings.Default(), new(plate)), new(2)));
             Action(scene, "Load");
-            Choose(scene, PartId.Basketball);
+            Choose(scene, new PartId("ball"));
             var before = scene.World.Construction;
             var preview = Assert.Single(Descendants<MachinePart>(scene).Except(scene.World.Parts));
             var camera = Assert.Single(Descendants<Camera3D>(scene));
@@ -388,7 +388,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             {
                 Assert.True(shown.Visible, $"screen={screen}; mouse={scene.GetViewport().GetMousePosition()}; hovered={scene.GetViewport().GuiGetHoveredControl()?.Name}; preview={shown.Position}; status={Status(scene)}");
                 Assert.InRange(shown.Position.Y, height + .42f - .001f, height + .42f + .001f);
-                var ball = Assert.Single(scene.World.Construction.Instances, instance => instance.PartId == PartId.Basketball);
+                var ball = Assert.Single(scene.World.Construction.Instances, instance => instance.PartId == new PartId("ball"));
                 var placed = new Vector3((ball.Cell.X + ball.Local.X) / 16f, (ball.Cell.Y + ball.Local.Y) / 16f, (ball.Cell.Z + ball.Local.Z) / 16f);
                 Assert.InRange(placed.DistanceTo(shown.Position), 0, .001f);
                 Assert.Empty(Undo(scene));
@@ -402,12 +402,12 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public async Task ImpactContactConnectionChoicesPreserveDomainCancelAndOneUndo()
     {
-        var (scene,client)=BenchScene(PartId.ImpactSwitch,PlacementAnswer.Applied);
+        var (scene,client)=BenchScene(new PartId("switch"),PlacementAnswer.Applied);
         try
         {
             var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(
-                WorkshopInput.Generic(PartId.ImpactSwitch,new(1),0,1,0,0,0,0,1),
-                WorkshopInput.Generic(PartId.PoweredGate,new(2),5,3,0,0,0,0,1),
+                WorkshopInput.Generic(new PartId("switch"),new(1),0,1,0,0,0,0,1),
+                WorkshopInput.Generic(new PartId("powered_gate"),new(2),5,3,0,0,0,0,1),
                 PlacedParts.Lamp(new(3),-3,2,0,0,0,0,1)));
             await scene.World.ReplaceConstruction(construction);
             var source=scene.World.Parts.Single(part=>part.AuthoredId.Value==1);
@@ -695,12 +695,12 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 Assert.Equal(id, Assert.Single(decoded.Construction.Instances).PartId);
                 Assert.Equal(saved, decoded);
                 // The bench placement reaches the Simulation worker as a Construct command on the binary wire.
-                var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction,
+                var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(construction),
                     Session: new(1, 1), Cadence: new(1), Projection: new(1));
                 var wire = WorkshopWireFlatBuffers.EncodeCommand(command);
-                var received = WorkshopWireFlatBuffers.DecodeCommand(wire).Construction;
-                Assert.Equal(id, Assert.Single(Assert.NotNull(received).Instances).PartId);
-                Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(wire));
+                var received = WorkshopWireFlatBuffers.DecodeCommand(wire).Scene;
+                Assert.Equal(instance.Id, Assert.Single(received!.Owners));
+                Assert.Equal(command.Sequence, WorkshopWireFlatBuffers.DecodeCommand(wire).Sequence);
             }
         }
         finally { world.Free(); }
@@ -709,24 +709,19 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void UndeliveredPartsHaveNoPackageNoInstancePathAndNeverReachTheRegistryOrPalette()
     {
-        Assert.Equal([UndeliveredPart.Tennis, UndeliveredPart.Balloon], UndeliveredParts.All);
         var world = DiscoveredWorld();
         try
         {
-            foreach (var part in UndeliveredParts.All)
+            foreach (var part in new PartId[] { new("tennis"), new("balloon") })
             {
-                var id = UndeliveredParts.Id(part);
-                Assert.True(UndeliveredParts.Contains(id));
-                // Story 9A.14 deleted the catalogue resource; Story 12.1 ships the package. Admission alone keeps it out meanwhile
-                // (PartRegistryTests proves a bundle entry for it is still refused).
+                var id = part;
+                // No declaration is shipped for this identity; unknown input is refused before placement.
                 Assert.DoesNotContain(PartRegistry.Read(Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath)),
                     entry => entry.Metadata.Id == id.Value);
                 EditRefusal.Is(WorkshopEditRejection.UnsupportedPart, () => world.CaptureInstance(id, new(1), BenchPoint, Quaternion.Identity));
                 Assert.False(world.Registry.Definitions.ContainsKey(id), $"{id} must not be registered.");
                 Assert.False(world.Registry.Free.ContainsKey(id), $"{id} must not be offered by the Free palette.");
             }
-            Assert.False(UndeliveredParts.Contains(PartId.Basketball));
-            Assert.Throws<ArgumentOutOfRangeException>(() => UndeliveredParts.Id((UndeliveredPart)99));
         }
         finally { world.Free(); }
     }
@@ -764,7 +759,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             var undo = 0;
-            var defect = Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopBenchPlacement.Propose(discovered, PartId.Latch, new(7),
+            var defect = Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopBenchPlacement.Propose(discovered, new PartId("latch"), new(7),
                 new(100, 0, 0), Quaternion.Identity, null, () => undo++));
             Assert.Equal("metres", defect.ParamName);
             Assert.Equal(0, undo);
@@ -775,7 +770,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         {
             var undo = 0;
             // Control: with no discovered registry a payload is a generic instance the declared rule refuses (UnsupportedPart).
-            var refused = WorkshopBenchPlacement.Propose(world, PartId.Basketball, new(7), BenchPoint, Quaternion.Identity, null, () => undo++);
+            var refused = WorkshopBenchPlacement.Propose(world, new PartId("ball"), new(7), BenchPoint, Quaternion.Identity, null, () => undo++);
             Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);
             Assert.Equal(0, undo);
             Assert.Empty(godot.Errors.Drain());
@@ -791,12 +786,12 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         {
             var before = world.Construction;
             var undo = 0;
-            var placement = WorkshopBenchPlacement.Propose(world, PartId.Ramp, new(7), BenchPoint, Quaternion.Identity,
+            var placement = WorkshopBenchPlacement.Propose(world, new PartId("ramp"), new(7), BenchPoint, Quaternion.Identity,
                 null, () => undo++);
             Assert.Equal(BenchPlacementRejection.None, placement.Rejection);
             Assert.Equal(1, undo);
             Assert.Empty(placement.Message);
-            Assert.Equal(PartId.Ramp, Assert.Single(placement.Construction.Instances, i => i.Id == new GpuBodyId(7)).PartId);
+            Assert.Equal(new PartId("ramp"), Assert.Single(placement.Construction.Instances, i => i.Id == new GpuBodyId(7)).PartId);
             Assert.Equal(before, world.Construction); // proposing never commits; the worker admits the construction
         }
         finally { world.Free(); }
@@ -814,7 +809,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             lesson = world.Construction;
             var undo = 0;
             // A representationally exhausted identity refuses the complete proposed scene atomically.
-            var refused = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(ulong.MaxValue), BenchPoint, Quaternion.Identity,
+            var refused = WorkshopBenchPlacement.Propose(world, new PartId("basket"), new(ulong.MaxValue), BenchPoint, Quaternion.Identity,
                 null, () => undo++);
             Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);
             Assert.StartsWith("Placement rejected: ", refused.Message);
@@ -823,7 +818,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Equal(0, undo);
             Assert.Equal(lesson, refused.Construction);
             // Control: a wide representable identity is admitted, with one undo and the precise authored goal.
-            var composed = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(1UL << 32), BenchPoint, Quaternion.Identity,
+            var composed = WorkshopBenchPlacement.Propose(world, new PartId("basket"), new(1UL << 32), BenchPoint, Quaternion.Identity,
                 null, () => undo++);
             Assert.Equal(BenchPlacementRejection.None, composed.Rejection);
             Assert.Equal(1, undo);
@@ -941,22 +936,22 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
 
     public static TheoryData<PartId, ParameterId, string, string[]> ParameterUndoCases() => new()
     {
-        { PartId.Delay, new("delay_seconds"), "2.5", ["0", "13", "NaN", "Infinity"] },
+        { new PartId("delay"), new("delay_seconds"), "2.5", ["0", "13", "NaN", "Infinity"] },
         { new("hold_timer"), new("hold_seconds"), "2.5", ["0", "13", "NaN", "Infinity"] },
-        { PartId.Clock, new("interval_seconds"), "2.5", ["NaN", "Infinity", "-Infinity", "two", ""] },
-        { PartId.PressurePlate, new("minimum_mass"), "2.5", ["0.09", "16.01", "NaN", "Infinity", "two"] },
-        { PartId.Counter, new("target_count"), "4", ["0", "10", "2.5", "-1", "NaN", "Infinity", "three"] },
-        { PartId.Wall, new("width"), "4", ["0", "NaN"] },
-        { PartId.ImpactSwitch, new("trigger_threshold"), "2", ["NaN"] },
-        { PartId.PinballBumper, new("strength"), "12", ["NaN"] },
+        { new PartId("clock"), new("interval_seconds"), "2.5", ["NaN", "Infinity", "-Infinity", "two", ""] },
+        { new PartId("pressure_plate"), new("minimum_mass"), "2.5", ["0.09", "16.01", "NaN", "Infinity", "two"] },
+        { new PartId("counter"), new("target_count"), "4", ["0", "10", "2.5", "-1", "NaN", "Infinity", "three"] },
+        { new PartId("wall"), new("width"), "4", ["0", "NaN"] },
+        { new PartId("switch"), new("trigger_threshold"), "2", ["NaN"] },
+        { new PartId("bumper"), new("strength"), "12", ["NaN"] },
         { WeightTests.Weight, new("mass"), "6.5", ["NaN", "Infinity", "-Infinity", "heavy", ""] },
-        { PartId.Battery, new("capacity"), "900", ["NaN"] },
-        { PartId.Battery, new("power_limit"), "90", ["NaN"] },
-        { PartId.Battery, new("initial_charge"), "0.5", ["NaN"] },
-        { PartId.Springboard, new("stiffness"), "500", ["119", "1201", "NaN"] },
-        { PartId.Springboard, new("damping"), "1", ["-0.1", "8.1", "NaN"] },
-        { PartId.Springboard, new("initial_compression"), "0.1", ["-0.01", "0.21", "NaN"] },
-        { PartId.Ramp, new("length"), "1.234567", ["0.1", "4.5", "NaN"] }
+        { new PartId("battery"), new("capacity"), "900", ["NaN"] },
+        { new PartId("battery"), new("power_limit"), "90", ["NaN"] },
+        { new PartId("battery"), new("initial_charge"), "0.5", ["NaN"] },
+        { new PartId("spring"), new("stiffness"), "500", ["119", "1201", "NaN"] },
+        { new PartId("spring"), new("damping"), "1", ["-0.1", "8.1", "NaN"] },
+        { new PartId("spring"), new("initial_compression"), "0.1", ["-0.01", "0.21", "NaN"] },
+        { new PartId("ramp"), new("length"), "1.234567", ["0.1", "4.5", "NaN"] }
     };
 
     [Theory]
@@ -1055,7 +1050,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         var count = (ulong)PuzzleCatalogue.Definition(id).Placements.Length;
         var exhausted = new GpuBodyId(ulong.MaxValue - count + 1);
         var store = new MemoryStore();
-        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Applied, store);
+        var (scene, client) = BenchScene(new PartId("ramp"), PlacementAnswer.Applied, store);
         try
         {
             store.Bytes = WorkshopSaveCodec.Encode(new(scene.World.Construction, exhausted));
@@ -1081,16 +1076,16 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void UndeliveredPartsCannotBeSelectedFromTheActualPalette()
     {
-        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("ramp"), PlacementAnswer.Applied);
         try
         {
             var buttons = Descendants<Button>(scene).Where(button => button.HasMeta("part_kind")).ToArray();
-            foreach (var part in UndeliveredParts.All)
-                Assert.DoesNotContain(buttons, button => button.GetMeta("part_kind").AsString() == UndeliveredParts.Id(part).Value);
+            foreach (var part in new PartId[] { new("tennis"), new("balloon") })
+                Assert.DoesNotContain(buttons, button => button.GetMeta("part_kind").AsString() == part.Value);
             Assert.Empty(client.Commands);
             Assert.Empty(scene.World.Construction.Instances);
             Assert.Empty(ClickBench(scene));
-            Assert.Equal(PartId.Ramp, Assert.Single(scene.World.Construction.Instances).PartId);
+            Assert.Equal(new PartId("ramp"), Assert.Single(scene.World.Construction.Instances).PartId);
             Assert.Empty(Undo(scene));
             Assert.Empty(scene.World.Construction.Instances);
             Assert.Empty(godot.Errors.Drain());
@@ -1101,19 +1096,19 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void ClickingTheBenchWithAPalettePartWaitsForAdmissionAndUndoRestoresItsConstruction()
     {
-        var (scene, client) = BenchScene(PartId.Ramp);
+        var (scene, client) = BenchScene(new PartId("ramp"));
         try
         {
             var before = scene.World.Construction;
             Assert.Empty(ClickBench(scene));
             var command = Assert.Single(client.Commands);
             Assert.Equal(WorkshopCommandKind.Construct, command.Kind);
-            Assert.Equal(PartId.Ramp, Assert.Single(Assert.NotNull(command.Construction).Instances).PartId);
+            Assert.Equal(new PartId("ramp"), Assert.Single(Assert.NotNull(command.Construction).Instances).PartId);
             Assert.Equal(before, scene.World.Construction);
             Assert.Empty(Undo(scene));
             Assert.Single(client.Commands);
             client.Complete();
-            Assert.Equal(PartId.Ramp, Assert.Single(scene.World.Construction.Instances).PartId);
+            Assert.Equal(new PartId("ramp"), Assert.Single(scene.World.Construction.Instances).PartId);
             client.Answer = PlacementAnswer.Applied;
             Assert.Empty(Undo(scene));
             Assert.Equal(before.Instances, scene.World.Construction.Instances);
@@ -1127,7 +1122,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void RemovingTheSceneDuringAdmissionRetiresItsPresentationWithoutEscaping()
     {
-        var (scene, client) = BenchScene(PartId.Ramp);
+        var (scene, client) = BenchScene(new PartId("ramp"));
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1137,11 +1132,11 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Single(client.Commands);
         }
         finally { Release(scene); }
-        var (fresh, _) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
+        var (fresh, _) = BenchScene(new PartId("ramp"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(fresh));
-            Assert.Equal(PartId.Ramp, Assert.Single(fresh.World.Construction.Instances).PartId);
+            Assert.Equal(new PartId("ramp"), Assert.Single(fresh.World.Construction.Instances).PartId);
             Assert.Empty(godot.Errors.Drain());
         }
         finally { Release(fresh); }
@@ -1150,7 +1145,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void AnUndoTransportFaultIsCaughtLoggedOnceAndShown()
     {
-        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("ramp"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1171,7 +1166,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void ARefusedPlacementLeavesNoUndoAndKeepsItsIdentity()
     {
-        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Rejected);
+        var (scene, client) = BenchScene(new PartId("ramp"), PlacementAnswer.Rejected);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1192,7 +1187,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void GenericWallEditorUsesDeclaredFieldsAndRejectsInvalidOrDisallowedEditsAtomically()
     {
-        var (scene, client) = BenchScene(PartId.Wall, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("wall"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1252,7 +1247,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void GenericImpactEditorClampsOnlyDeclaredFiniteInputAndPreservesEditGuards()
     {
-        var (scene, client) = BenchScene(PartId.ImpactSwitch, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("switch"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1381,16 +1376,16 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     public void ADetectorPlacedBesideAPipeMouthSnapsOntoItAsOneUndo()
     {
         var store = new MemoryStore();
-        var (scene, _) = BenchScene(PartId.BallDetector, PlacementAnswer.Applied, store);
+        var (scene, _) = BenchScene(new PartId("ball_detector"), PlacementAnswer.Applied, store);
         try
         {
             const float height = 3f;
-            var pipe = WorkshopInput.Pipe(new(1), -2.22f, height, 0, 0, 0, 0, 1);
+            var pipe = WorkshopInput.Generic(new PartId("pipe"),new(1), -2.22f, height, 0, 0, 0, 0, 1);
             store.Bytes = WorkshopSaveCodec.Encode(new(new(new(2), WorkshopCadenceSettings.Default(), new(pipe)), new(2)));
             Action(scene, "Load");
-            Choose(scene, PartId.BallDetector);
+            Choose(scene, new PartId("ball_detector"));
             Assert.Empty(ClickBench(scene));
-            var detector = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances, instance => instance.PartId == PartId.BallDetector));
+            var detector = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances, instance => instance.PartId == new PartId("ball_detector")));
             var x = (detector.Cell.X + (double)detector.Local.X) / 16;
             var y = (detector.Cell.Y + (double)detector.Local.Y) / 16;
             Assert.InRange(x, -.051, -.049);
@@ -1409,7 +1404,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void GenericBumperEditorClampsAFiniteStrengthAndRefusesNaNAtomically()
     {
-        var (scene, client) = BenchScene(PartId.PinballBumper, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("bumper"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1419,7 +1414,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
             WorkshopGenericInstance Current() => Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
             var key = new ParameterId("strength");
-            Assert.Equal((PartId.PinballBumper, 8f), (Current().PartId, Current().Parameters[key]));
+            Assert.Equal((new PartId("bumper"), 8f), (Current().PartId, Current().Parameters[key]));
             var initial = scene.World.Construction;
             var undo = scene.World.Construction;
             Press("Configure");
@@ -1546,7 +1541,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void GenericBatteryEditorClampsItsStoreAndPicksTheEnableStateFromItsOptions()
     {
-        var (scene, client) = BenchScene(PartId.Battery, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("battery"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1556,7 +1551,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Dictionary<string, LineEdit> Fields() => Descendants<LineEdit>(choices).ToDictionary(field => field.Name.ToString());
             OptionButton Enable() => Assert.Single(Descendants<OptionButton>(choices));
             float Value(string key) => Current().Parameters[new(key)];
-            Assert.Equal((PartId.Battery, 3600f, 120f, 1f, 1f), (Current().PartId, Value("capacity"), Value("power_limit"), Value("initial_charge"), Value("enabled")));
+            Assert.Equal((new PartId("battery"), 3600f, 120f, 1f, 1f), (Current().PartId, Value("capacity"), Value("power_limit"), Value("initial_charge"), Value("enabled")));
             var initial = scene.World.Construction;
             var undo = scene.World.Construction;
             Press("Configure");
@@ -1618,7 +1613,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void TheRunControlToggleSendsTypedControlsWithoutEditingAndAppearsOnlyForADeclaredRunControl()
     {
-        var (scene, client) = BenchScene(PartId.Battery, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("battery"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1659,7 +1654,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { Release(scene); }
         // Control: a part whose package declares no run-time control (the Bumper) offers no supply toggle while Running, only its
         // disabled build editor.
-        var (bumper, _) = BenchScene(PartId.PinballBumper, PlacementAnswer.Applied);
+        var (bumper, _) = BenchScene(new PartId("bumper"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(bumper));
@@ -1678,7 +1673,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void AChoiceParameterIsPickedFromItsDeclaredOptions()
     {
-        var (scene, _) = BenchScene(PartId.Receiver, PlacementAnswer.Applied);
+        var (scene, _) = BenchScene(new PartId("basket"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1712,7 +1707,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void GenericSpringboardEditorRefusesOutOfRangeValuesAtomicallyAndAcceptsEndpoints()
     {
-        var (scene, client) = BenchScene(PartId.Springboard, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("spring"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1722,7 +1717,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
             WorkshopGenericInstance Current() => Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
             ParameterId k = new("stiffness"), c = new("damping"), q = new("initial_compression");
-            Assert.Equal((PartId.Springboard, 400f, .2f, 0f), (Current().PartId, Current().Parameters[k], Current().Parameters[c], Current().Parameters[q]));
+            Assert.Equal((new PartId("spring"), 400f, .2f, 0f), (Current().PartId, Current().Parameters[k], Current().Parameters[c], Current().Parameters[q]));
             void Edit(ParameterId key, string text)
             {
                 Press("Configure");
@@ -1774,12 +1769,12 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public async Task TheChargedSpringForwardRouteSolvesWithItsPreloadSetThroughTheGenericEditor()
     {
-        var (scene, _) = BenchScene(PartId.Springboard, PlacementAnswer.Applied);
+        var (scene, _) = BenchScene(new PartId("spring"), PlacementAnswer.Applied);
         try
         {
             var zero = LaunchLessonSolveTests.Bench(LaunchLessonSolveTests.Route.SpringZero);
             zero = Install(scene, zero);
-            var board = (WorkshopGenericInstance)zero.Instances.Single(instance => instance.PartId == PartId.Springboard);
+            var board = (WorkshopGenericInstance)zero.Instances.Single(instance => instance.PartId == new PartId("spring"));
             var values = new InstanceParameterCollection([new(new("stiffness"), 400f), new(new("damping"), .2f), new(new("initial_compression"), .2f)]);
             Assert.Empty(Apply(scene, board.Id, values));
             var edited = scene.World.Construction;
@@ -1801,7 +1796,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void GenericWallResizeUsesLocalAxesClampsCancelsAndRecordsOneUndoPerGesture()
     {
-        var (scene, _) = BenchScene(PartId.Wall, PlacementAnswer.Applied);
+        var (scene, _) = BenchScene(new PartId("wall"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1846,7 +1841,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void GenericRampResizeClampsBothHorizontalAxesWithoutEndingGestureAndSupportsCancelUndo()
     {
-        var (scene, _) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
+        var (scene, _) = BenchScene(new PartId("ramp"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -1892,7 +1887,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void GenericRampEditorKeepsExactNonHalfLengthAndRefusesOutOfRangeSubmissionsAtomically()
     {
-        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
+        var (scene, client) = BenchScene(new PartId("ramp"), PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));

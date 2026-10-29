@@ -7,7 +7,7 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopWallTests
 {
     private static WorkshopGenericInstance Wall(InstanceParameterCollection dimensions) =>
-        WorkshopInput.Generic(PartId.Wall, new(2), .125f, 2, -.25f, 0, 0, .382683432365f, .923879532511f, dimensions);
+        WorkshopInput.Generic(new PartId("wall"), new(2), .125f, 2, -.25f, 0, 0, .382683432365f, .923879532511f, dimensions);
     private static WorkshopSavedConstruction Saved(InstanceParameterCollection dimensions) =>
         new(new(new(1), WorkshopCadenceSettings.Default(), new(Wall(dimensions))), new(3));
 
@@ -58,7 +58,7 @@ public sealed class WorkshopWallTests
         var bytes = WorkshopSaveCodec.Encode(saved);
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
         var wall = Assert.IsType<WorkshopGenericInstance>(saved.Construction.Instances[0]);
-        var geometry = CuriousContraptions.Bundle.BundleGeometry.Colliders(DeclaredPhysics.Of(PartId.Wall), wall.Parameters.ToBundleValues());
+        var geometry = CuriousContraptions.Bundle.BundleGeometry.Colliders(DeclaredPhysics.Of(new PartId("wall")), wall.Parameters.ToBundleValues());
         Assert.Equal(3.1234567f * .5f, Assert.Single(geometry).HalfExtents.X);
         foreach (var key in new[] { "width", "height", "thickness", "unknown" })
         foreach (var value in new[] { -1f, 0f, 9f, float.NaN, float.PositiveInfinity })
@@ -69,7 +69,7 @@ public sealed class WorkshopWallTests
             Assert.Throws<ArgumentException>(() => invalid.Validate());
             Assert.Throws<ArgumentException>(() => saved.Construction.WithInstance(invalid).Validate());
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-            var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder,
+            var record = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder,
                 saved.Construction with { Instances = new(invalid) }, validate: false);
             Assert.Throws<WorkshopSaveRejectedException>(() =>
                 WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Finish(builder, record, saved.NextBodyId.Value)));
@@ -88,9 +88,9 @@ public sealed class WorkshopWallTests
     public void RealSimulationRotatedWallBlocksMovingBallWhileAbsentWallDoesNot(float yaw, float speed)
     {
         var normal = new System.Numerics.Vector3(MathF.Sin(yaw), 0, MathF.Cos(yaw));
-        var wall = WorkshopInput.Generic(PartId.Wall, new(2), 0, 3, 0, 0, (float)(MathF.Sin(yaw / 2)), 0, (float)(MathF.Cos(yaw / 2)),
+        var wall = WorkshopInput.Generic(new PartId("wall"), new(2), 0, 3, 0, 0, (float)(MathF.Sin(yaw / 2)), 0, (float)(MathF.Cos(yaw / 2)),
             WallFixture.Values(3, 6, .25f));
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(1), (float)(-2 * normal.X), 3, (float)(-2 * normal.Z), 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new(1), (float)(-2 * normal.X), 3, (float)(-2 * normal.Z), 0, 0, 0, 1);
         float Probe(bool includeWall)
         {
             var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
@@ -120,10 +120,10 @@ public sealed class WorkshopWallTests
     [Fact]
     public async Task RealSimulationResetAndSaveLoadRestoreGenericWallAndItsContact()
     {
-        var wall = WorkshopInput.Generic(PartId.Wall, new(2), 0, 2, 0, 0, 0, 0, 1,
+        var wall = WorkshopInput.Generic(new PartId("wall"), new(2), 0, 2, 0, 0, 0, 0, 1,
             WallFixture.Values(3.1234567f, .4f, 2f));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1), wall));
+            new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1), wall));
         var saved = new WorkshopSavedConstruction(construction, new(3));
         var bytes = WorkshopSaveCodec.Encode(saved);
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 120);
@@ -141,8 +141,8 @@ public sealed class WorkshopWallTests
     public void WallPopulationPuzzleAndForeignPortsReject()
     {
         var wall = Wall(WallFixture.Default);
-        Assert.Empty(DeclaredPorts.Current.Of(PartId.Wall).ToArray());
-        Assert.False(DeclaredPorts.Current.Has(PartId.Wall, WorkshopSocket.ActivationIn,
+        Assert.Empty(DeclaredPorts.Current.Of(new PartId("wall")).ToArray());
+        Assert.False(DeclaredPorts.Current.Has(new PartId("wall"), WorkshopSocket.ActivationIn,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         // Free play has no per-kind wall count; only the compiled table capacities limit the population.
         new WorkshopInstances(wall, wall with { Id = new(3) }).Validate();
@@ -161,13 +161,13 @@ public sealed class WorkshopWallTests
     public void AllAdmittedInstancesCompileIntoExactlySizedTablesWithoutNewLaw()
     {
         var instances = new WorkshopInstances(
-            WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Receiver, new(2), 3, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Ramp, new(3), -3, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Ramp, new(4), -1, 2, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.ImpactSwitch, new(5), 0, 1, 2, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("basket"), new(2), 3, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("ramp"), new(3), -3, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("ramp"), new(4), -1, 2, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("switch"), new(5), 0, 1, 2, 0, 0, 0, 1),
             PlacedParts.Lamp(new(6), 3, 1, 2, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Wall, new(7), -4, 4, -2, 0, 0, 0, 1, WallFixture.Maximum));
+            WorkshopInput.Generic(new PartId("wall"), new(7), -4, 4, -2, 0, 0, 0, 1, WallFixture.Maximum));
         var scene = WorkshopPhysicsCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), instances), new(1, 2));
         Assert.Equal(8, scene.Bodies.Length);
         // The 13 colliders of the harvest shapes plus, since elements-visible-solid, two rails on each of the two ramps, the lamp's
@@ -186,9 +186,9 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
     public void ActualResourceThreeAxesArtworkAndProjectionFollowCanonicalFullPose()
     {
         var registry = new PartRegistry(); registry.Load();
-        var definition = registry.Definitions[PartId.Wall];
+        var definition = registry.Definitions[new PartId("wall")];
         Assert.Single(definition.Colliders);
-        var part = Assert.IsAssignableFrom<MachinePart>(registry.Create(PartId.Wall));
+        var part = Assert.IsAssignableFrom<MachinePart>(registry.Create(new PartId("wall")));
         try
         {
             godot.Tree.Root.AddChild(part);
@@ -233,7 +233,7 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
     public void ExistingRampSelectionRingTracksResizeAndCanonicalRestore()
     {
         var registry = new PartRegistry(); registry.Load();
-        var ramp = Assert.IsAssignableFrom<MachinePart>(registry.Create(PartId.Ramp));
+        var ramp = Assert.IsAssignableFrom<MachinePart>(registry.Create(new PartId("ramp")));
         try
         {
             godot.Tree.Root.AddChild(ramp);

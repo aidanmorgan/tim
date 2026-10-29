@@ -7,6 +7,13 @@ namespace CuriousContraptions.Tests;
 /// with its typed reason at both decode boundaries, and a nine-knot save round-trips bit for bit.</summary>
 public sealed class F32SaveBoundaryTests
 {
+    private static WorkshopConstruction DecodeAuthoring(byte[] bytes)
+    {
+        var buffer = WorkshopAuthoringFlatBuffers.OpenFrame(bytes, "CCWS", CuriousContraptions.Wire.SavedConstructionVerify.Verify);
+        var saved = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(buffer);
+        return WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(saved.Construction!.Value);
+    }
+
     private static string Fixture(string name) => Path.Combine(twodog.Engine.ResolveProjectDir(), "CuriousContraptions.tests/Fixtures", name);
 
     private static WorkshopConstruction Lesson(string id, float precision) =>
@@ -31,7 +38,7 @@ public sealed class F32SaveBoundaryTests
     {
         var first = Lanes(Knots(puzzle)[0]).SelectMany(value => BitConverter.GetBytes(value)).ToArray();
         var at = encoded.AsSpan().IndexOf(first);
-        Assert.True(at >= 4 && BinaryPrimitives.ReadUInt32LittleEndian(encoded.AsSpan(at - 4)) == WorkshopWireFlatBuffers.AssistanceKnotCount,
+        Assert.True(at >= 4 && BinaryPrimitives.ReadUInt32LittleEndian(encoded.AsSpan(at - 4)) == WorkshopAuthoringFlatBuffers.AssistanceKnotCount,
             "the encoded puzzle's nine-knot assistance vector");
         var changed = (byte[])encoded.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(changed.AsSpan(at - 4), count);
@@ -48,14 +55,13 @@ public sealed class F32SaveBoundaryTests
         var legacy = File.ReadAllBytes(Fixture("save-f1ad3bd1-authored-puzzle.bin"));
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, legacy));
         Assert.Equal(VerifierExplanation, refusal.Message);
-        // Independent current-command malformed-vector control: 198 declared 44-byte knots
+        // Independent current-authoring malformed-vector control: 198 declared 44-byte knots
         // exceed this small lesson packet. Never read an unsupported save through the current schema.
         const uint count = 198;
         var construction = Lesson("first_principles", .45f);
-        var encoded = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction,
-            Session: new(1, 2), Cadence: new(1), Projection: new(1)));
+        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
         Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() =>
-            WorkshopWireFlatBuffers.DecodeCommand(WithKnotCount(encoded, construction.Puzzle, count))).Reason);
+            DecodeAuthoring(WithKnotCount(encoded, construction.Puzzle, count))).Reason);
     }
 
     [Fact]
@@ -65,10 +71,10 @@ public sealed class F32SaveBoundaryTests
         // save never reaches the live simulation: the refusal is the status the player reads, the simulation's committed read is the
         // same after the attempt, and it goes on advancing its own bench.
         await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(Lesson("first_principles", .45f))).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(Lesson("first_principles", .45f)))).Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
         for (var tick = 0; tick < 3; tick++) Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
         var before = simulation.Committed;
@@ -134,16 +140,14 @@ public sealed class F32SaveBoundaryTests
     [InlineData(8u)]
     [InlineData(10u)]
     [InlineData(198u)]
-    public void AKnotCountOtherThanNineIsATypedWireFaultAtTheCommandBoundary(uint count)
+    public void AKnotCountOtherThanNineIsATypedWireFaultAtTheAuthoringBoundary(uint count)
     {
         var construction = Lesson("first_principles", .45f);
-        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction,
-            Session: new(1, 2), Cadence: new(1), Projection: new(1));
-        var encoded = WorkshopWireFlatBuffers.EncodeCommand(command);
-        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(encoded)); // control: nine knots decode
-        var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(WithKnotCount(encoded, construction.Puzzle, count)));
-        // 198 records (the half-precision blob's element count) overrun the buffer; a near count reaches the nine-knot rule.
-        Assert.Equal(count == 198 ? WireFaultReason.VerifierRejected : WireFaultReason.MissingField, fault.Reason);
+        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        Assert.Equal(construction, DecodeAuthoring(encoded)); // control: nine knots decode
+        var fault = Assert.Throws<WireFaultException>(() => DecodeAuthoring(WithKnotCount(encoded, construction.Puzzle, count)));
+        // Counts beyond the nine encoded records overrun this frame; a shorter vector reaches the authored count rule.
+        Assert.Equal(count > 9 ? WireFaultReason.VerifierRejected : WireFaultReason.MissingField, fault.Reason);
     }
 
     [Fact]
@@ -189,7 +193,7 @@ public sealed class F32SaveBoundaryTests
         var at = encoded.AsSpan().IndexOf(Lanes(Knots(puzzle)[0]).SelectMany(v => BitConverter.GetBytes(v)).ToArray());
         Assert.True(at >= 4, "the encoded puzzle's assistance vector");
         var changed = (byte[])encoded.Clone();
-        BinaryPrimitives.WriteSingleLittleEndian(changed.AsSpan(at + (profile * WorkshopWireFlatBuffers.KnotsPerProfile + 1) * 44 + lane * 4), value);
+        BinaryPrimitives.WriteSingleLittleEndian(changed.AsSpan(at + (profile * WorkshopAuthoringFlatBuffers.KnotsPerProfile + 1) * 44 + lane * 4), value);
         return changed;
     }
 
@@ -216,30 +220,27 @@ public sealed class F32SaveBoundaryTests
             () => WorkshopSaveCodec.Decode(SaveFixture.Elements, WithKnotLane(encoded, construction.Puzzle, profile, lane, value)));
     }
 
-    // Command boundary: the same lanes break the authored knot rule, refused as the typed OutOfRange wire fault.
+    // Authoring boundary: the same lanes break the authored knot rule, refused as the typed OutOfRange wire fault.
     [Theory]
     [MemberData(nameof(PoisonedKnotLanes))]
-    public void APoisonedKnotLaneIsTheTypedWireFaultAtTheCommandBoundary(int profile, int lane, float value)
+    public void APoisonedKnotLaneIsTheTypedWireFaultAtTheAuthoringBoundary(int profile, int lane, float value)
     {
         var construction = Lesson("first_principles", .45f);
-        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction,
-            Session: new(1, 2), Cadence: new(1), Projection: new(1));
-        var encoded = WorkshopWireFlatBuffers.EncodeCommand(command);
-        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(encoded)); // control
+        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        Assert.Equal(construction, DecodeAuthoring(encoded)); // control
         var fault = Assert.Throws<WireFaultException>(() =>
-            WorkshopWireFlatBuffers.DecodeCommand(WithKnotLane(encoded, construction.Puzzle, profile, lane, value)));
+            DecodeAuthoring(WithKnotLane(encoded, construction.Puzzle, profile, lane, value)));
         Assert.Equal(WireFaultReason.OutOfRange, fault.Reason);
     }
 
-    // Command boundary, authored shape: a finite knot off its precision (Balanced at 0.5) is the same typed fault.
+    // Authoring boundary, authored shape: a finite knot off its precision (Balanced at 0.5) is the same typed fault.
     [Fact]
-    public void AKnotOffItsAuthoredPrecisionIsTheTypedWireFaultAtTheCommandBoundary()
+    public void AKnotOffItsAuthoredPrecisionIsTheTypedWireFaultAtTheAuthoringBoundary()
     {
         var construction = Lesson("first_principles", .45f);
-        var encoded = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
-            construction, Session: new(1, 2), Cadence: new(1), Projection: new(1)));
+        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() =>
-            WorkshopWireFlatBuffers.DecodeCommand(WithKnotLane(encoded, construction.Puzzle, 1, 0, .5f))).Reason);
+            DecodeAuthoring(WithKnotLane(encoded, construction.Puzzle, 1, 0, .5f))).Reason);
     }
 
     // A current save whose assistance vector is empty (no deprecated slot) is told its count, not that it predates f32 assistance.

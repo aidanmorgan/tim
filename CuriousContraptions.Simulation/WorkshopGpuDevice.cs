@@ -104,12 +104,13 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         _initialized = true;
     }
 
-    public ValueTask<WorkshopGpuCandidate> Admit(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence)
+    public ValueTask<WorkshopGpuCandidate> Admit(WorkshopCompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence)
     {
         if (construction.Settings.Simulation != profile.Cadence || construction.Settings.Physical != profile.Physical)
             throw new ArgumentException("Construction and physical profile differ.");
-        var scene = WorkshopPhysicsCompiler.Compile(construction, document);
-        return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence, WorkshopActivationCompiler.Compile(construction),
+        var scene = construction.Physics;
+        if (scene.Document != document) throw new ArgumentException("Compiled scene belongs to another document.");
+        return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence, construction.Activation,
             new(scene.SupplyGraph, scene.Prismatics.Length, scene.Electrical.Sources.Length), PhysicsTickInputs.Admission, scene);
     }
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)

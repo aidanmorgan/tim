@@ -29,6 +29,14 @@ if (generated.Errors.Count > 0)
     foreach (var error in generated.Errors) Console.Error.WriteLine($"BundleElements : error {error.Text} : {error.Detail}");
     return 1;
 }
+var isolation = new ElementIsolation(root, CuriousContraptions.Bundle.BundleSchema.Read(generated.Json!).Elements);
+var violations = isolation.ScanTree();
+if (violations.Count != 0)
+{
+    foreach (var violation in violations)
+        Console.Error.WriteLine($"{violation.File}({violation.Line}): error ISOLATION001: {violation.Rule}: {violation.Token} ({violation.Symbol})");
+    return 1;
+}
 var bytes = Encoding.UTF8.GetBytes(generated.Json!);
 foreach (var output in outputs)
 {

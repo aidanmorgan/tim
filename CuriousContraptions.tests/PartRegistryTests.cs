@@ -16,10 +16,10 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     /// <summary>The Free palette rows the player saw before the cutover (Story 9.4b baseline, minus the undelivered parts).</summary>
     private static readonly PartId[] PaletteRows =
     [
-        PartId.Basketball, PartId.Receiver, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper,
-        PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector,
-        PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock,
-        PartId.Latch, new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"),
+        new PartId("ball"), new PartId("basket"), new PartId("switch"), new PartId("lamp"), new PartId("wall"), new PartId("delay"), new PartId("bumper"),
+        new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"),
+        new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"),
+        new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"),
         new("weight")
     ];
 
@@ -54,12 +54,12 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
             Assert.NotNull(definition.Scene);
             Assert.Equal(metadata.ScenePath, definition.Scene.ResourcePath);
             // The payload predicate is derived from each admitted declaration: exactly the two ball packages.
-            Assert.Equal(id == PartId.Basketball || id == PartId.BowlingBall, DeclaredPhysics.IsPayload(id));
+            Assert.Equal(id == new PartId("ball") || id == new PartId("bowling"), DeclaredPhysics.IsPayload(id));
         }
-        foreach (var part in UndeliveredParts.All)
+        foreach (var part in new PartId[] { new("tennis"), new("balloon") })
         {
-            Assert.False(registry.Definitions.ContainsKey(UndeliveredParts.Id(part)), $"Undelivered part '{part}' must not be registered.");
-            Assert.False(registry.Free.ContainsKey(UndeliveredParts.Id(part)), $"Undelivered part '{part}' must not be offered.");
+            Assert.False(registry.Definitions.ContainsKey(part), $"Undelivered part '{part}' must not be registered.");
+            Assert.False(registry.Free.ContainsKey(part), $"Undelivered part '{part}' must not be offered.");
         }
     }
 
@@ -84,19 +84,18 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         }
     }
 
-    /// <summary>The typed undelivered set is the admission authority: a bundle that declares a Tennis ball (here the bowling ball's
-    /// entry renamed) still never registers or offers it.</summary>
+    /// <summary>A fully declared package is admitted without an engine-owned name whitelist.</summary>
     [Fact]
-    public void AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette()
+    public void AValidNewPackageIdentityNeedsNoEngineAdmissionChange()
     {
         var bundle = Bundle();
         Assert.Contains("\"Id\": \"bowling\"", bundle, StringComparison.Ordinal);
         var registry = new PartRegistry();
         registry.Load(bundle.Replace("\"Id\": \"bowling\"", "\"Id\": \"tennis\"", StringComparison.Ordinal));
-        var tennis = UndeliveredParts.Id(UndeliveredPart.Tennis);
-        Assert.False(registry.Definitions.ContainsKey(tennis));
-        Assert.False(registry.Free.ContainsKey(tennis));
-        Assert.Equal(PaletteRows.Where(id => id != PartId.BowlingBall), registry.Free.Keys);
+        var tennis = new PartId("tennis");
+        Assert.True(registry.Definitions.ContainsKey(tennis));
+        Assert.True(registry.Free.ContainsKey(tennis));
+        Assert.Equal(PaletteRows.Select(id => id == new PartId("bowling") ? tennis : id), registry.Free.Keys);
     }
 
     [Theory]
@@ -147,7 +146,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     {
         var registry = Loaded();
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("unknown-part")));
-        Assert.Throws<ArgumentException>(() => registry.Create(UndeliveredParts.Id(UndeliveredPart.Balloon)));
+        Assert.Throws<ArgumentException>(() => registry.Create(new PartId("balloon")));
     }
 
     [Fact]
@@ -181,7 +180,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         var registry = Loaded();
         Assert.Equal(PaletteRows.ToHashSet(), registry.Elements.ToHashSet());
         Assert.Equal(registry.Definitions.Keys.ToHashSet(), registry.Elements.ToHashSet());
-        foreach (var part in UndeliveredParts.All) Assert.DoesNotContain(UndeliveredParts.Id(part), registry.Elements);
+        foreach (var part in new PartId[] { new("tennis"), new("balloon") }) Assert.DoesNotContain(part, registry.Elements);
     }
 
     private static string Root => twodog.Engine.ResolveProjectDir();
@@ -217,17 +216,16 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         Assert.DoesNotContain(GameSources(), path => File.ReadAllText(path).Contains("BallMaterialResource", StringComparison.Ordinal));
     }
 
-    /// <summary>Story 9A.14 deletion: the undelivered parts have no PartId constant until Story 12.1 delivers their packages (a
-    /// re-added PartId.Tennis fails here), and a save naming one is refused naming it (Story 9A.15, F16-4).</summary>
+    /// <summary>PartId has no named constants. Saves naming absent packages are refused with the unknown identity.</summary>
     [Fact]
     public void TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity()
     {
         var constants = typeof(PartId).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
             .Where(field => field.FieldType == typeof(PartId)).Select(field => ((PartId)field.GetValue(null)!).Value).ToArray();
-        Assert.NotEmpty(constants);
-        foreach (var part in UndeliveredParts.All)
+        Assert.Empty(constants);
+        foreach (var part in new PartId[] { new("tennis"), new("balloon") })
         {
-            var id = UndeliveredParts.Id(part);
+            var id = part;
             Assert.DoesNotContain(id.Value, constants);
             Assert.DoesNotContain(part.ToString(), typeof(PartId).GetFields().Select(field => field.Name));
             var save = SaveFixture.Forged(new Gpu.WorkshopConstruction(new(1), Gpu.WorkshopCadenceSettings.Default(),
@@ -259,7 +257,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         _ = godot;
         var source = File.ReadAllText(Path.Combine(Root, "ui", "WorkshopIcons.cs"));
         var ids = PartRegistry.Read(Bundle()).Select(entry => entry.Metadata.Id)
-            .Concat(UndeliveredParts.All.Select(part => UndeliveredParts.Id(part).Value)).ToArray();
+            .Concat(new PartId[] { new("tennis"), new("balloon") }.Select(part => part.Value)).ToArray();
         Assert.Equal(31, ids.Length);
         foreach (var id in ids)
         {
@@ -282,11 +280,11 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void TheFreeInventoryKeepsTheGivenPaletteOrderMinusTheUndeliveredSet()
+    public void TheFreeInventoryKeepsEveryAdmittedIdentityInPaletteOrder()
     {
-        var tennis = UndeliveredParts.Id(UndeliveredPart.Tennis);
-        Assert.Equal([PartId.Ramp, PartId.Basketball], WorkshopInventoryPolicy.Free([PartId.Ramp, tennis, PartId.Basketball]).Keys);
+        var tennis = new PartId("tennis");
+        Assert.Equal([new PartId("ramp"), tennis, new PartId("ball")], WorkshopInventoryPolicy.Free([new PartId("ramp"), tennis, new PartId("ball")]).Keys);
         Assert.Throws<ArgumentException>(() => WorkshopInventoryPolicy.Free([]));
-        Assert.Throws<ArgumentException>(() => WorkshopInventoryPolicy.Free([tennis]));
+        Assert.Equal([tennis], WorkshopInventoryPolicy.Free([tennis]).Keys);
     }
 }

@@ -17,7 +17,7 @@ public sealed class WorkshopWireFlatBuffersTests
             builder.CreateString("unknown_parameter"), 1);
         var parameters = CuriousContraptions.Wire.InstanceRecord.CreateParametersVector(builder,
             Enumerable.Repeat(parameter, 1000).ToArray());
-        var part = builder.CreateString(PartId.Basketball.Value);
+        var part = builder.CreateString(new PartId("ball").Value);
         CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
         CuriousContraptions.Wire.InstanceRecord.AddId(builder, 1);
         CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, part);
@@ -47,7 +47,7 @@ public sealed class WorkshopWireFlatBuffersTests
         var saved = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(verified);
         Assert.Equal(1001, saved.Construction!.Value.InstancesLength);
         Assert.Equal(1000, saved.Construction.Value.Instances(0)!.Value.ParametersLength);
-        var refused = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(saved.Construction.Value));
+        var refused = Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(saved.Construction.Value));
         Assert.Equal(WireFaultReason.OutOfRange, refused.Reason);
         Assert.Equal("Invalid declared parameters.", refused.Message);
     }
@@ -67,8 +67,7 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Equal(run.Session, decoded.Session);
         Assert.Equal(run.Cadence, decoded.Cadence);
         Assert.Equal(run.Projection, decoded.Projection);
-        Assert.Null(decoded.Construction);
-        Assert.Null(decoded.Settings);
+        Assert.Null(decoded.Scene);
         Assert.Null(decoded.Target);
         Assert.Null(decoded.Electrical);
     }
@@ -77,13 +76,13 @@ public sealed class WorkshopWireFlatBuffersTests
     public void Command_InitializeWithSettings_RoundTrips()
     {
         var settings = WorkshopCadenceSettings.Default();
-        var init = new WorkshopCommand(new(1), WorkshopCommandKind.Initialize, new(1), new(1), null,
-            Session: Session, Settings: settings);
+        var init = new WorkshopCommand(new(1), WorkshopCommandKind.Initialize, new(1), new(1), CompiledSceneFixture.Compile(new(new(1), settings, WorkshopInstances.Empty)),
+            Session: Session);
         var encoded = WorkshopWireFlatBuffers.EncodeCommand(init);
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(encoded);
         Assert.Equal(init.Sequence, decoded.Sequence);
         Assert.Equal(init.Kind, decoded.Kind);
-        Assert.Equal(settings, decoded.Settings);
+        Assert.Equal(settings, decoded.Scene!.Settings);
     }
 
     [Fact]
@@ -92,13 +91,13 @@ public sealed class WorkshopWireFlatBuffersTests
         var settings = new WorkshopCadenceSettings(
             SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz,
             AnimationCadence.Hz30, PresentationCadence.Hz60, new(60, 1));
-        var cmd = new WorkshopCommand(new(2), WorkshopCommandKind.ConfigureCadence, new(1), new(5), null,
-            Session: Session, Cadence: new(1), Projection: new(1), Settings: settings);
+        var cmd = new WorkshopCommand(new(2), WorkshopCommandKind.ConfigureCadence, new(1), new(5), CompiledSceneFixture.Compile(new(new(1), settings, WorkshopInstances.Empty)),
+            Session: Session, Cadence: new(1), Projection: new(1));
         var encoded = WorkshopWireFlatBuffers.EncodeCommand(cmd);
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(encoded);
         Assert.Equal(cmd.Sequence, decoded.Sequence);
         Assert.Equal(cmd.Kind, decoded.Kind);
-        Assert.Equal(settings, decoded.Settings);
+        Assert.Equal(settings, decoded.Scene!.Settings);
     }
 
     [Fact]
@@ -132,53 +131,53 @@ public sealed class WorkshopWireFlatBuffersTests
     [Fact]
     public void Command_ConstructWithInstances_RoundTrips()
     {
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([ball]));
-        var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), default, construction,
+        var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), default, CompiledSceneFixture.Compile(construction),
             Session: Session, Cadence: new(1), Projection: new(1));
         var encoded = WorkshopWireFlatBuffers.EncodeCommand(cmd);
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(encoded);
         Assert.Equal(cmd.Sequence, decoded.Sequence);
         Assert.Equal(cmd.Kind, decoded.Kind);
-        Assert.NotNull(decoded.Construction);
-        Assert.Equal(construction.Revision, decoded.Construction!.Value.Revision);
-        Assert.Equal(construction.Instances.Count, decoded.Construction!.Value.Instances.Count);
-        Assert.Equal(ball.Id, decoded.Construction!.Value.Instances[0].Id);
+        Assert.NotNull(decoded.Scene);
+        Assert.Equal(construction.Revision, decoded.Scene!.Revision);
+        Assert.Equal(construction.Instances.Count, decoded.Scene!.Owners.Length);
+        Assert.Equal(ball.Id, decoded.Scene!.Owners[0]);
     }
 
     private static byte[] EncodeConstruction(WorkshopConstruction construction)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
-        builder.Finish(WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction).Value);
+        builder.Finish(WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, construction).Value);
         return builder.SizedByteArray();
     }
 
     private static WorkshopConstruction DecodeConstruction(byte[] bytes) =>
-        WorkshopWireFlatBuffers.DecodeConstructionRecord(
+        WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(
             CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(new Google.FlatBuffers.ByteBuffer(bytes)));
 
     /// <summary>One instance of every encodable kind, each with non-default declared settings where it has any.</summary>
     public static TheoryData<IWorkshopInstance> EveryInstanceKind() => new()
     {
-        WorkshopInput.Generic(PartId.Basketball,new(1), -1.25f, 3.5f, .5f, 0, 0, 0, 1) with { Locked = true },
-        WorkshopInput.Generic(PartId.BowlingBall, new(1), 2, 1, -.5f, 0, .7071068f, 0, .7071068f),
-        WorkshopInput.Generic(PartId.Receiver, new(1), -.7f, .55f, 0, 0, 0, 0, 1) with
+        WorkshopInput.Generic(new PartId("ball"),new(1), -1.25f, 3.5f, .5f, 0, 0, 0, 1) with { Locked = true },
+        WorkshopInput.Generic(new PartId("bowling"), new(1), 2, 1, -.5f, 0, .7071068f, 0, .7071068f),
+        WorkshopInput.Generic(new PartId("basket"), new(1), -.7f, .55f, 0, 0, 0, 0, 1) with
             { Parameters = new([new(new("capture_margin"), .05f), new(new("capture_speed_limit"), 2.25f), new(new("capture_dwell"), .24f), new(new("capture_participation"), 1f), new(new("force_support_margin"), 0f), new(new("force_maximum_acceleration"), 0f)]) },
-        WorkshopInput.Generic(PartId.Ramp, new(1), 1, 2, 0, 0, 0, .258819f, .9659258f, new([new(new("length"), 4f), new(new("width"), 1.5f)])),
-        WorkshopInput.Generic(PartId.Wall, new(1), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f)),
-        WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), 1.25f)])),
-        WorkshopInput.Generic(PartId.Delay, new(1), 0, 1, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), 2.5f)])),
+        WorkshopInput.Generic(new PartId("ramp"), new(1), 1, 2, 0, 0, 0, .258819f, .9659258f, new([new(new("length"), 4f), new(new("width"), 1.5f)])),
+        WorkshopInput.Generic(new PartId("wall"), new(1), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f)),
+        WorkshopInput.Generic(new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), 1.25f)])),
+        WorkshopInput.Generic(new PartId("delay"), new(1), 0, 1, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), 2.5f)])),
         PlacedParts.Springboard(new(1), 0, .2f, 0, 0, 0, 0, 1, compression: .2f),
         PlacedParts.Battery(new(1), 0, 1, 0, 60f, 30f, .5f, ElectricalEnable.Disabled),
         PlacedParts.Bumper(new(1), 0, 1, 0, strength: 6f),
         PlacedParts.Domino(new(1), .1f, .09f, 0, 0, 0, 0, 1),
         PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1),
         PlacedParts.Latch(new(1), 0, 1, 0, 0, 0, 0, 1, locked: true),
-        WorkshopInput.Pipe(new(1), 0, 1, 0, 0, 0, 0, 1),
-        WorkshopInput.PipeBend45(new(1), 0, 1, 0, 0, 0, 0, 1),
-        WorkshopInput.PipeBend90(new(1), 0, 1, 0, 0, 0, 0, 1),
-        WorkshopInput.Funnel(new(1), 0, 1, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("pipe"),new(1), 0, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("pipe_bend_45"), new(1), 0, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("pipe_bend_90"), new(1), 0, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("funnel"), new(1), 0, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 1, 0, 0, 0, 0, 1),
         PlacedParts.Detector(new(1), 0, 1, 0, 0, 0, 0, 1),
         PlacedParts.Plate(new(1), 0, 1, 0, 2.25f),
         PlacedParts.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, targetCount: 7),
@@ -214,7 +213,7 @@ public sealed class WorkshopWireFlatBuffersTests
             WorkshopGoalKind.Captured => PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new(1f)),
             WorkshopGoalKind.ActivatedAfter => PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.5f)),
             WorkshopGoalKind.None => new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-                new([WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)])),
+                new([WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1)])),
             _ => throw new ArgumentOutOfRangeException(nameof(kind))
         };
         Assert.Equal(kind, construction.Puzzle.Goal.Kind);
@@ -232,8 +231,8 @@ public sealed class WorkshopWireFlatBuffersTests
 
     private static (PartId Part, string Key) Owner(DeclaredSetting setting) => setting switch
     {
-        DeclaredSetting.ClockIntervalSeconds => (PartId.Clock, "interval_seconds"),
-        DeclaredSetting.CounterTarget => (PartId.Counter, "target_count"),
+        DeclaredSetting.ClockIntervalSeconds => (new PartId("clock"), "interval_seconds"),
+        DeclaredSetting.CounterTarget => (new PartId("counter"), "target_count"),
         _ => throw new ArgumentOutOfRangeException(nameof(setting), setting, "Unknown declared setting."),
     };
 
@@ -290,20 +289,20 @@ public sealed class WorkshopWireFlatBuffersTests
     public void Construction_CapturedGoal_EncodesDeclaredBodyTargetAndSensor()
     {
         var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new(1f));
-        var replacement = WorkshopInput.Generic(PartId.Receiver, new(4), 2, .55f, 0, 0, 0, 0, 1);
+        var replacement = WorkshopInput.Generic(new PartId("basket"), new(4), 2, .55f, 0, 0, 0, 0, 1);
         var construction = PuzzleCatalogue.WithInstance(lesson, replacement);
         var goal = construction.Puzzle.Goal;
         Assert.Equal(new GpuBodyId(1), goal.Body);
         Assert.Equal(new GpuBodyId(4), goal.Target);
         var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
-        builder.Finish(WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction).Value);
+        builder.Finish(WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, construction).Value);
         var record = CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(
             new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray()));
         var puzzle = record.Puzzle!.Value;
         Assert.Equal((uint)WorkshopGoalKind.Captured, puzzle.GoalKind);
         Assert.Equal(1UL, puzzle.GoalBody);
         Assert.Equal(4UL, puzzle.GoalTarget);
-        Assert.Equal(goal, WorkshopWireFlatBuffers.DecodeConstructionRecord(record).Puzzle.Goal);
+        Assert.Equal(goal, WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(record).Puzzle.Goal);
     }
 
     [Fact]
@@ -315,8 +314,8 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(valid with { Sequence = default }));
         // Initialize with cadence != 0
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(
-            new WorkshopCommand(new(1), WorkshopCommandKind.Initialize, new(1), new(1), null,
-                Session: Session, Cadence: new(1), Settings: WorkshopCadenceSettings.Default())));
+            new WorkshopCommand(new(1), WorkshopCommandKind.Initialize, new(1), new(1), CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)),
+                Session: Session, Cadence: new(1))));
         // Decode corrupt bytes
         Assert.Equal(WireFaultReason.TrailingBytes, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(new byte[16])).Reason);
     }

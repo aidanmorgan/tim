@@ -14,22 +14,22 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var registry = new PartRegistry();
         registry.Load();
 
-        Assert.True(registry.Definitions.ContainsKey(PartId.PoweredGate));
-        var def = registry.Definitions[PartId.PoweredGate];
-        Assert.Equal(PartId.PoweredGate, def.PartId);
+        Assert.True(registry.Definitions.ContainsKey(new PartId("powered_gate")));
+        var def = registry.Definitions[new PartId("powered_gate")];
+        Assert.Equal(new PartId("powered_gate"), def.PartId);
         Assert.Equal("powered_gate", def.Id);
         Assert.Equal("Powered gate", def.Title);
         Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Motion, def.Category);
         Assert.Equal("Electricity retracts the gold shutter. Without power it returns closed, stopping if a ball blocks its path. Its mouths snap to tubes.", def.Description);
         Assert.NotNull(def.Scene);
 
-        var part = registry.Create(PartId.PoweredGate);
+        var part = registry.Create(new PartId("powered_gate"));
         try
         {
             godot.Tree.Root.AddChild(part);
             Assert.NotNull(part);
             Assert.Same(def, part.Definition);
-            Assert.Equal(PartId.PoweredGate, part.PartId);
+            Assert.Equal(new PartId("powered_gate"), part.PartId);
             Assert.Equal(1.5f, part.PickRadius);
 
             var visual = part.FindChild("Visual", recursive: false) as Node3D;
@@ -108,31 +108,31 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void CanonicalColliders_MatchSceneExtractedColliders()
     {
-        var canonical = DeclaredPhysics.Colliders(PartId.PoweredGate);
+        var canonical = DeclaredPhysics.Colliders(new PartId("powered_gate"));
         Assert.Equal(8, canonical.Count);
-        Assert.Equal(canonical, DeclaredPhysics.Colliders(PartId.PoweredGate));
+        Assert.Equal(canonical, DeclaredPhysics.Colliders(new PartId("powered_gate")));
     }
 
     [Fact]
     public void Ports_DeclareSinglePowerInInput()
     {
-        var ports = DeclaredPorts.Current.Of(PartId.PoweredGate);
+        var ports = DeclaredPorts.Current.Of(new PartId("powered_gate"));
         Assert.Equal(1, ports.Length);
         var port = ports[0];
         Assert.Equal(WorkshopSocket.PowerIn, port.Socket);
         Assert.Equal(WorkshopConnectionDomain.Electrical, port.Domain);
         Assert.Equal(WorkshopPortDirection.Input, port.Direction);
 
-        var localPos = DeclaredPorts.Current.LocalPosition(PartId.PoweredGate, WorkshopSocket.PowerIn);
+        var localPos = DeclaredPorts.Current.LocalPosition(new PartId("powered_gate"), WorkshopSocket.PowerIn);
         Assert.Equal(new System.Numerics.Vector3(0f, 1.65f, 0.92f), localPos);
     }
 
     [Fact]
     public void Connections_AcceptsElectricalAndRejectsActivation()
     {
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 2, 0, 0);
-        var switchPart = WorkshopInput.Generic(PartId.ImpactSwitch, new(3), -2, 0, 0, 0, 0, 0, 1);
+        var switchPart = WorkshopInput.Generic(new PartId("switch"), new(3), -2, 0, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(gate, battery, switchPart);
 
@@ -150,8 +150,8 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void PhysicsCompiler_CompilesGateWithDynamicBladeAndPrismaticJoint()
     {
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 0, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, 3, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 0, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new(2), 0, 3, 0, 0, 0, 0, 1);
 
         var construction = new WorkshopConstruction(
             new(1),
@@ -197,7 +197,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
         new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopGenericInstance Gate(ulong id, double z = 0) =>
-        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, 0, (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(new PartId("powered_gate"), new(id), 0, 0, (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Battery(ulong id, ElectricalEnable enabled, double z = 0) =>
         PlacedParts.Battery(new(id), 2, 0, (float)(z), enabled: enabled);
 
@@ -278,7 +278,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void WorkbenchCapacity_ValidatesPoweredGateFootprint()
     {
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 0, 0, 0, 0, 0, 1);
         IWorkshopInstance[] instances = [gate];
         new WorkshopInstances([.. instances]).Validate();
 

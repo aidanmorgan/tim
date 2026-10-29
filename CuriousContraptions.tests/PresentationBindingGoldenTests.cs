@@ -17,8 +17,8 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
 
     public static TheoryData<PartId, float, SimulationEventKind> OneShots => new()
     {
-        { PartId.ImpactSwitch, .16f, SimulationEventKind.TriggerActivated }, { PartId.PinballBumper, .32f, SimulationEventKind.Impact },
-        { PartId.BallDetector, .35f, SimulationEventKind.Passage }, { PartId.Receiver, .5f, SimulationEventKind.Captured }
+        { new PartId("switch"), .16f, SimulationEventKind.TriggerActivated }, { new PartId("bumper"), .32f, SimulationEventKind.Impact },
+        { new PartId("ball_detector"), .35f, SimulationEventKind.Passage }, { new PartId("basket"), .5f, SimulationEventKind.Captured }
     };
 
     [Theory]
@@ -27,22 +27,22 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
     {
         Golden[] golden = id switch
         {
-            _ when id == PartId.ImpactSwitch => [
+            _ when id == new PartId("switch") => [
                 new("Visual/Button", PresentationProperty.LocalY, .06f, -.02f),
                 new("Visual/Button", PresentationProperty.AlbedoRed, .94f, 191f/255),
                 new("Visual/Button", PresentationProperty.AlbedoGreen, .43f, 245f/255),
                 new("Visual/Button", PresentationProperty.AlbedoBlue, .33f, 176f/255)],
-            _ when id == PartId.PinballBumper => [
+            _ when id == new PartId("bumper") => [
                 new("Visual/BumperHead", PresentationProperty.UniformScale, 1, .88f),
                 new("Visual/ImpactRing", PresentationProperty.UniformScale, 1, 1.24f),
                 new("Visual/ImpactRing", PresentationProperty.AlbedoRed, 1, 247f/255),
                 new("Visual/ImpactRing", PresentationProperty.AlbedoGreen, 240f/255, 203f/255),
                 new("Visual/ImpactRing", PresentationProperty.AlbedoBlue, 194f/255, 82f/255)],
-            _ when id == PartId.BallDetector => [
+            _ when id == new PartId("ball_detector") => [
                 new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, 85f/255, 247f/255),
                 new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, 101f/255, 203f/255),
                 new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, 115f/255, 82f/255)],
-            _ when id == PartId.Receiver => [
+            _ when id == new PartId("basket") => [
                 new("Visual/Visual_Halo", PresentationProperty.UniformScale, 1.02f, 1.02f),
                 new("Visual/Visual_Halo", PresentationProperty.AlbedoRed, 189f/255, 1),
                 new("Visual/Visual_Halo", PresentationProperty.AlbedoGreen, 244f/255, 1),
@@ -68,10 +68,10 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
             // physical instant; the evaluator advances in world time.
             var owner = new GpuBodyId(1);
             var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(WorkshopInput.Generic(id, owner, 0, 2, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, new(2), 6, 3, 0, 0, 0, 0, 1)));
+                WorkshopInput.Generic(new PartId("ball"), new(2), 6, 3, 0, 0, 0, 0, 1)));
             var read = (await WorkshopIntegrationHarness.Observe(bench, 1))[1];
             var start = read.Capture!.Value.Time;
-            var presentation = new WorkshopDeclaredPresentation(bench, new(default, WorkshopResponseKind.Read,
+            var presentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(bench), new(default, WorkshopResponseKind.Read,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, read, new(101, 206), new(1),
                 new(1), new(1), new(1), new(read.Tick.Value)));
             var world = new WorkshopWorldProjection(read.Epoch, new(1), read.Tick, new(start.Value), WorldPlayback.Running);
@@ -80,7 +80,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
             presentation.AcceptEvents(new(read.Epoch.Value, 0, [new(1, read.Tick.Value, kind, owner.Value, 9,
                 checked((uint)(read.Tick.Value * substeps)), 0f, 1f, 1, 0)]), world);
             // Analytic quarter/half/end samples, independent of the evaluator implementation.
-            float[] amounts = id == PartId.PinballBumper ? [0, .5f, 1, .5f, 0] : [0, .103515625f, .5f, .896484375f, 1];
+            float[] amounts = id == new PartId("bumper") ? [0, .5f, 1, .5f, 0] : [0, .103515625f, .5f, .896484375f, 1];
             for (var step = 0; step <= 4; step++)
             {
                 var samples = presentation.Advance(AnimationTestTime.Seconds(read.Tick.Value * substeps / 480d + (double)duration * step / 4));
@@ -105,7 +105,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
     public void UnsupportedPropertyCurveAndMissingNodeAreRejectedAtTheirAdmissionBoundary()
     {
         var registry = new PartRegistry(); registry.Load();
-        var entry = DeclaredPhysics.Of(PartId.Clock);
+        var entry = DeclaredPhysics.Of(new PartId("clock"));
         var pulse = entry.Presentation.Bindings[1];
         PresentationBinding[] invalid = [
             pulse with { Duration = 0 }, pulse with { Driver = PresentationDriver.CommittedSupply },
@@ -120,7 +120,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
             var changed = entry with { Presentation = entry.Presentation with { Bindings = [binding] } };
             Assert.NotEmpty(BundleValidator.Validate([new NamedEntry("clock", changed)]));
         }
-        var definition = registry.Definitions[PartId.Clock];
+        var definition = registry.Definitions[new PartId("clock")];
         var missing = entry with { Presentation = entry.Presentation with { Bindings = [pulse with { Node = "Visual/Missing" }] } };
         var candidate = definition.Scene!.Instantiate<MachinePart>();
         try
@@ -129,7 +129,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
                 definition.Color, definition.IconPath, definition.Scene, missing);
             candidate.Configure(changed);
             Assert.Throws<ArgumentException>(() => candidate.EnsureConstructed());
-            Assert.Same(entry, DeclaredPhysics.Of(PartId.Clock));
+            Assert.Same(entry, DeclaredPhysics.Of(new PartId("clock")));
         }
         finally { candidate.Free(); }
     }

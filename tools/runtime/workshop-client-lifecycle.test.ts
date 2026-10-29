@@ -417,7 +417,7 @@ test('Animation constructor failure closes the already owned Simulation worker',
 
 test('premature Animation output fails without delivering to the managed consumer', async () => {
     const h = await clientHarness(false);
-    h.workers[1].onmessage({ data: { animationOutput: new Uint8Array(144) } });
+    h.workers[1].onmessage({ data: { animationOutput: new Uint8Array(104) } });
     await assert.rejects(h.creation, /precedes admission/);
     assert.equal(h.outputCalls(), 0); assert.ok(h.workers.every(worker => worker.terminated));
 });
@@ -520,12 +520,12 @@ test('two animation owners send sequential controls only after managed ACK deliv
     h.workers[1].onmessage({ data: { ready: true, nativeClock: new Float64Array([2, 1, 1, 0, .001, 1, 1]) } });
     h.workers[1].onmessage({ data: { qualified: true } });
     h.api.animationKinds(id, [1, 2, 3]);
-    const first = new Uint8Array(144), second = new Uint8Array(144);
+    const first = new Uint8Array(104), second = new Uint8Array(104);
     new DataView(first.buffer).setBigUint64(56, 4n, true);
     new DataView(second.buffer).setBigUint64(56, 5n, true);
     h.api.animationControl(id, first);
     h.onOutput(() => assert.throws(() => h.api.animationControl(id, second), /pending/));
-    const ack = new Uint8Array(144); new DataView(ack.buffer).setUint32(60, 1, true);
+    const ack = new Uint8Array(104); new DataView(ack.buffer).setUint32(60, 1, true);
     h.workers[1].onmessage({ data: { animationOutput: ack } });
     assert.equal(h.errors.length, 0);
     h.onOutput(() => {}); h.api.animationControl(id, second);
@@ -534,25 +534,25 @@ test('two animation owners send sequential controls only after managed ACK deliv
     assert.equal(h.errors.length, 0); h.api.dispose(id);
 });
 
-// Story 9A.44 (D7): the Animation worker writes the channel value as f32 at 56 and the property as u16 at 136; the client records
+// Story 9A.44 (D7): the Animation worker writes the channel value as f32 at 56 and the property as u16 at 96; the client records
 // exactly those, so a value no half-precision lane holds (0.34) and the declared property are read back unchanged.
-test('an Animation sample records the f32 channel value at 56 and the u16 property at 136', async () => {
+test('an Animation sample records the f32 channel value at 56 and the u16 property at 96', async () => {
     const h = await clientHarness(), id = await h.ready();
     h.workers[0].onmessage({ data: { animationPeer: new Uint8Array(64) } });
     h.workers[1].onmessage({ data: { ready: true, nativeClock: new Float64Array([2, 1, 1, 0, .001, 1, 1]) } });
     h.workers[1].onmessage({ data: { qualified: true } });
     h.api.animationKinds(id, [1, 2, 3]);
-    const sample = new Uint8Array(144), view = new DataView(sample.buffer);
+    const sample = new Uint8Array(104), view = new DataView(sample.buffer);
     view.setUint32(60, 2, true);            // the sample kind (the second declared output kind)
     view.setBigUint64(64, 7n, true);        // its target
     view.setBigUint64(40, 9n, true);        // its ordinal
     view.setFloat32(56, 0.34, true);        // the f32 channel value
-    view.setUint16(136, 5, true);           // the animated property
+    view.setUint16(96, 5, true);           // the animated property
     h.onOutput(() => {
         const recorded = h.api.eventBytes(id);
         const value = new DataView(recorded.buffer, recorded.byteOffset, recorded.byteLength);
         assert.equal(value.getFloat32(56, true), Math.fround(0.34), 'f32 reaches managed admission');
-        assert.equal(value.getUint16(136, true), 5, 'property reaches managed admission');
+        assert.equal(value.getUint16(96, true), 5, 'property reaches managed admission');
         assert.equal(value.getBigUint64(40, true), 9n);
     });
     h.workers[1].onmessage({ data: { animationOutput: sample } });

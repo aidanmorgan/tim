@@ -16,7 +16,7 @@ public sealed class TubeMouthSnapTests
     private const float StandardBore = .65f;
     private const float FunnelInletBore = 1.3f;
     private static readonly PartId[] TubeParts =
-        [PartId.Pipe, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.BallDetector];
+        [new PartId("pipe"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("ball_detector")];
 
     private static IReadOnlyDictionary<PartId, PartDefinition> Definitions()
     {
@@ -50,14 +50,15 @@ public sealed class TubeMouthSnapTests
     {
         _ = definitions[part];
         var q = rotation.Normalized();
-        if (part == PartId.Pipe)
+        if (part == new PartId("pipe"))
         {
-            IWorkshopInstance pipe = WorkshopInput.Pipe(new(id), (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)) with { Locked = locked };
+            IWorkshopInstance pipe = WorkshopInput.Generic(new PartId("pipe"),new(id), (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)) with { Locked = locked };
             return pipe;
         }
         var x = WorkshopInput.Position((float)(position.X)); var y = WorkshopInput.Position((float)(position.Y)); var z = WorkshopInput.Position((float)(position.Z));
         return new WorkshopGenericInstance(part, new(id), new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
-            CanonicalRotation.Normalize(q.X, q.Y, q.Z, q.W), locked);
+            CanonicalRotation.Normalize(q.X, q.Y, q.Z, q.W), locked)
+            { Parameters = new(definitions[part].Parameters.Select(p => KeyValuePair.Create(new CuriousContraptions.Abstractions.ParameterId(p.Key), p.Default))) };
     }
 
     /// <summary>The mover pose that puts its `end` mouth at `mouthAt` with rotation `rotation`.</summary>
@@ -66,7 +67,7 @@ public sealed class TubeMouthSnapTests
 
     private static TubeMouthSnapResult? Find(IReadOnlyDictionary<PartId, PartDefinition> definitions, IReadOnlyList<IWorkshopInstance> placed,
         PartId part, ulong id, Vector3 position, Quaternion rotation, bool locked = false) =>
-        TubeMouthSnap.Find(definitions, placed, new TubeMouthMover(part, new(id), locked, part == PartId.Pipe ? PipeLength.Default : null),
+        TubeMouthSnap.Find(definitions, placed, new TubeMouthMover(part, new(id), locked, part == new PartId("pipe") ? InstanceParameterCollection.Defaults(new("pipe")) : null),
             position, rotation);
 
     /// <summary>The snapped pose after the canonical capture: both mouths coincide within 1e-4 m and face opposite.</summary>
@@ -100,7 +101,7 @@ public sealed class TubeMouthSnapTests
             // Local +X of each mouth locator points away from the part: out of the tube, never into its bore.
             Assert.True(startOutward.Dot(start.Position - end.Position) > 0, $"{part} mouth_start faces {startOutward}, into the part");
             Assert.True(endOutward.Dot(end.Position - start.Position) > 0, $"{part} mouth_end faces {endOutward}, into the part");
-            Assert.Equal(part == PartId.Funnel ? FunnelInletBore : StandardBore, start.BoreRadius);
+            Assert.Equal(part == new PartId("funnel") ? FunnelInletBore : StandardBore, start.BoreRadius);
             Assert.Equal(StandardBore, end.BoreRadius);
         }
     }
@@ -108,7 +109,7 @@ public sealed class TubeMouthSnapTests
     [Fact]
     public void PipeMouthsSitAtTheOuterCollarFaces()
     {
-        var pipe = Definitions()[PartId.Pipe];
+        var pipe = Definitions()[new PartId("pipe")];
         Assert.True(Mouth(pipe, TubeMouthEnd.Start).Position.IsEqualApprox(new(-1.89f, 0, 0)));
         Assert.True(Mouth(pipe, TubeMouthEnd.End).Position.IsEqualApprox(new(1.89f, 0, 0)));
     }
@@ -117,19 +118,19 @@ public sealed class TubeMouthSnapTests
     public void ANewPipeOffsetAndTurnedSnapsOntoAFreeMouthByTheShortestArcAndKeepsItsRoll()
     {
         var definitions = Definitions();
-        var target = Tube(definitions, PartId.Pipe, 1, new(0, 3, 0), Quaternion.Identity);
+        var target = Tube(definitions, new PartId("pipe"), 1, new(0, 3, 0), Quaternion.Identity);
         IReadOnlyList<IWorkshopInstance> placed = [target];
         // 0.1 m off the free end mouth, turned 0.08 rad about Z, with a 30° roll about the tube's own axis.
         var rotation = (new Quaternion(Vector3.Back, .08f) * Rx(30)).Normalized();
-        var position = PlaceMouth(definitions, PartId.Pipe, TubeMouthEnd.Start, new(1.99f, 3, 0), rotation);
+        var position = PlaceMouth(definitions, new PartId("pipe"), TubeMouthEnd.Start, new(1.99f, 3, 0), rotation);
 
-        var snap = Find(definitions, placed, PartId.Pipe, 2, position, rotation);
+        var snap = Find(definitions, placed, new PartId("pipe"), 2, position, rotation);
 
         Assert.NotNull(snap);
         Assert.Equal((new GpuBodyId(1), TubeMouthEnd.End, TubeMouthEnd.Start), (snap.Value.TargetBody, snap.Value.TargetMouth, snap.Value.MoverMouth));
         // The shortest arc only removes the 0.08 rad misalignment: the roll about the axis survives.
         Assert.True(Mathf.Abs(snap.Value.Rotation.Dot(Rx(30))) > 1 - 1e-6f, $"snapped rotation {snap.Value.Rotation}");
-        var applied = AssertJoined(definitions, placed, snap.Value, PartId.Pipe, 2);
+        var applied = AssertJoined(definitions, placed, snap.Value, new PartId("pipe"), 2);
         Assert.True(Pose(applied).Position.IsEqualApprox(new(3.78f, 3, 0)), $"joined pipe at {Pose(applied).Position}");
     }
 
@@ -140,11 +141,11 @@ public sealed class TubeMouthSnapTests
     public void OnlyAMouthWithinTheCaptureDistanceSnaps(float offset, bool snaps)
     {
         var definitions = Definitions();
-        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, PartId.Pipe, 1, new(0, 3, 0), Quaternion.Identity)];
-        var position = PlaceMouth(definitions, PartId.Pipe, TubeMouthEnd.Start, new(1.89f + offset, 3, 0), Quaternion.Identity);
-        var snap = Find(definitions, placed, PartId.Pipe, 2, position, Quaternion.Identity);
+        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, new PartId("pipe"), 1, new(0, 3, 0), Quaternion.Identity)];
+        var position = PlaceMouth(definitions, new PartId("pipe"), TubeMouthEnd.Start, new(1.89f + offset, 3, 0), Quaternion.Identity);
+        var snap = Find(definitions, placed, new PartId("pipe"), 2, position, Quaternion.Identity);
         Assert.Equal(snaps, snap is not null);
-        if (snap is { } joined) AssertJoined(definitions, placed, joined, PartId.Pipe, 2);
+        if (snap is { } joined) AssertJoined(definitions, placed, joined, new PartId("pipe"), 2);
     }
 
     [Theory]
@@ -154,24 +155,24 @@ public sealed class TubeMouthSnapTests
     public void OnlyAMouthWithinTheCaptureAngleSnaps(float degrees, bool snaps)
     {
         var definitions = Definitions();
-        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, PartId.Pipe, 1, new(0, 3, 0), Quaternion.Identity)];
+        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, new PartId("pipe"), 1, new(0, 3, 0), Quaternion.Identity)];
         var rotation = Rz(degrees);
-        var position = PlaceMouth(definitions, PartId.Pipe, TubeMouthEnd.Start, new(1.89f, 3, 0), rotation);
-        var snap = Find(definitions, placed, PartId.Pipe, 2, position, rotation);
+        var position = PlaceMouth(definitions, new PartId("pipe"), TubeMouthEnd.Start, new(1.89f, 3, 0), rotation);
+        var snap = Find(definitions, placed, new PartId("pipe"), 2, position, rotation);
         Assert.Equal(snaps, snap is not null);
-        if (snap is { } joined) AssertJoined(definitions, placed, joined, PartId.Pipe, 2);
+        if (snap is { } joined) AssertJoined(definitions, placed, joined, new PartId("pipe"), 2);
     }
 
     [Fact]
     public void AnOccupiedMouthIsNotACandidate()
     {
         var definitions = Definitions();
-        var first = Tube(definitions, PartId.Pipe, 1, new(0, 3, 0), Quaternion.Identity);
-        var joined = Tube(definitions, PartId.Pipe, 2, new(3.78f, 3, 0), Quaternion.Identity);
-        var position = PlaceMouth(definitions, PartId.Pipe, TubeMouthEnd.Start, new(1.99f, 3, 0), Quaternion.Identity);
+        var first = Tube(definitions, new PartId("pipe"), 1, new(0, 3, 0), Quaternion.Identity);
+        var joined = Tube(definitions, new PartId("pipe"), 2, new(3.78f, 3, 0), Quaternion.Identity);
+        var position = PlaceMouth(definitions, new PartId("pipe"), TubeMouthEnd.Start, new(1.99f, 3, 0), Quaternion.Identity);
 
-        Assert.NotNull(Find(definitions, [first], PartId.Pipe, 3, position, Quaternion.Identity)); // control: the mouth is free
-        Assert.Null(Find(definitions, [first, joined], PartId.Pipe, 3, position, Quaternion.Identity));
+        Assert.NotNull(Find(definitions, [first], new PartId("pipe"), 3, position, Quaternion.Identity)); // control: the mouth is free
+        Assert.Null(Find(definitions, [first, joined], new PartId("pipe"), 3, position, Quaternion.Identity));
     }
 
     public static TheoryData<string> EveryTubePart => new() { "pipe", "pipe_bend_45", "pipe_bend_90", "funnel", "powered_gate", "ball_detector" };
@@ -189,40 +190,40 @@ public sealed class TubeMouthSnapTests
         // The pipe's start mouth faces -X: turn its +X onto the target's outward axis, then 5° off it.
         var rotation = (new Quaternion(Vector3.Back, Mathf.DegToRad(5)) * new Quaternion(Vector3.Right, outward)).Normalized();
         var offset = outward.Cross(Vector3.Back).Normalized() * .1f;
-        var position = PlaceMouth(definitions, PartId.Pipe, TubeMouthEnd.Start, at + offset, rotation);
+        var position = PlaceMouth(definitions, new PartId("pipe"), TubeMouthEnd.Start, at + offset, rotation);
 
-        var snap = Find(definitions, placed, PartId.Pipe, 2, position, rotation);
+        var snap = Find(definitions, placed, new PartId("pipe"), 2, position, rotation);
 
         Assert.NotNull(snap);
         Assert.Equal((new GpuBodyId(1), TubeMouthEnd.End, TubeMouthEnd.Start), (snap.Value.TargetBody, snap.Value.TargetMouth, snap.Value.MoverMouth));
-        AssertJoined(definitions, placed, snap.Value, PartId.Pipe, 2);
+        AssertJoined(definitions, placed, snap.Value, new PartId("pipe"), 2);
     }
 
     [Fact]
     public void APoweredGateSnapsOntoAPipeMouth()
     {
         var definitions = Definitions();
-        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, PartId.Pipe, 1, new(0, 3, 0), Quaternion.Identity)];
-        var position = PlaceMouth(definitions, PartId.PoweredGate, TubeMouthEnd.Start, new(2, 3.05f, 0), Quaternion.Identity);
-        var snap = Find(definitions, placed, PartId.PoweredGate, 2, position, Quaternion.Identity);
+        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, new PartId("pipe"), 1, new(0, 3, 0), Quaternion.Identity)];
+        var position = PlaceMouth(definitions, new PartId("powered_gate"), TubeMouthEnd.Start, new(2, 3.05f, 0), Quaternion.Identity);
+        var snap = Find(definitions, placed, new PartId("powered_gate"), 2, position, Quaternion.Identity);
         Assert.NotNull(snap);
         Assert.Equal((TubeMouthEnd.End, TubeMouthEnd.Start), (snap.Value.TargetMouth, snap.Value.MoverMouth));
-        AssertJoined(definitions, placed, snap.Value, PartId.PoweredGate, 2);
+        AssertJoined(definitions, placed, snap.Value, new PartId("powered_gate"), 2);
     }
 
     [Fact]
     public void ALockedMoverNeverSnapsAndALockedTargetsFreeMouthDoes()
     {
         var definitions = Definitions();
-        var position = PlaceMouth(definitions, PartId.Pipe, TubeMouthEnd.Start, new(1.99f, 3, 0), Quaternion.Identity);
-        IReadOnlyList<IWorkshopInstance> free = [Tube(definitions, PartId.Pipe, 1, new(0, 3, 0), Quaternion.Identity)];
-        Assert.Null(Find(definitions, free, PartId.Pipe, 2, position, Quaternion.Identity, locked: true));
+        var position = PlaceMouth(definitions, new PartId("pipe"), TubeMouthEnd.Start, new(1.99f, 3, 0), Quaternion.Identity);
+        IReadOnlyList<IWorkshopInstance> free = [Tube(definitions, new PartId("pipe"), 1, new(0, 3, 0), Quaternion.Identity)];
+        Assert.Null(Find(definitions, free, new PartId("pipe"), 2, position, Quaternion.Identity, locked: true));
 
         // CAT-048 fact 21: a new pipe beside a locked fixed pipe at (-2, 3, 0) snaps to x 1.78 (mouths touching, 3.78 m apart).
-        IReadOnlyList<IWorkshopInstance> fixture = [Tube(definitions, PartId.Pipe, 1, new(-2, 3, 0), Quaternion.Identity, locked: true)];
-        var snap = Find(definitions, fixture, PartId.Pipe, 2, new(1.9f, 3, 0), Quaternion.Identity);
+        IReadOnlyList<IWorkshopInstance> fixture = [Tube(definitions, new PartId("pipe"), 1, new(-2, 3, 0), Quaternion.Identity, locked: true)];
+        var snap = Find(definitions, fixture, new PartId("pipe"), 2, new(1.9f, 3, 0), Quaternion.Identity);
         Assert.NotNull(snap);
-        var applied = AssertJoined(definitions, fixture, snap.Value, PartId.Pipe, 2);
+        var applied = AssertJoined(definitions, fixture, snap.Value, new PartId("pipe"), 2);
         Assert.True(Mathf.Abs(Pose(applied).Position.X - 1.78f) <= .001f && Mathf.Abs(Pose(applied).Position.Y - 3) <= .001f);
     }
 
@@ -230,19 +231,19 @@ public sealed class TubeMouthSnapTests
     public void ThePipeSnapsToTheFunnelOutletButNotItsWideInlet()
     {
         var definitions = Definitions();
-        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, PartId.Funnel, 1, new(0, 5, 0), Quaternion.Identity)];
+        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, new PartId("funnel"), 1, new(0, 5, 0), Quaternion.Identity)];
         // CAT-030 fact 5: the same pipe at (2.95, 5, 0) snaps to the outlet; at (-2.95, 5, 0) it does not snap to the 1.3 m inlet.
-        Assert.Null(Find(definitions, placed, PartId.Pipe, 2, new(-2.95f, 5, 0), Quaternion.Identity));
-        var snap = Find(definitions, placed, PartId.Pipe, 2, new(2.95f, 5, 0), Quaternion.Identity);
+        Assert.Null(Find(definitions, placed, new PartId("pipe"), 2, new(-2.95f, 5, 0), Quaternion.Identity));
+        var snap = Find(definitions, placed, new PartId("pipe"), 2, new(2.95f, 5, 0), Quaternion.Identity);
         Assert.NotNull(snap);
         Assert.Equal(TubeMouthEnd.End, snap.Value.TargetMouth);
-        AssertJoined(definitions, placed, snap.Value, PartId.Pipe, 2);
+        AssertJoined(definitions, placed, snap.Value, new PartId("pipe"), 2);
     }
 
     /// <summary>A two-mouth test tube along local X with half length 1 and the given bore at both ends.</summary>
     private static PartDefinition TestTube(string id, float bore, Vector3? endPosition = null, Quaternion? endRotation = null)
     {
-        var template = TestBundle.Entry(PartId.Pipe);
+        var template = TestBundle.Entry(new PartId("pipe"));
         var endAt = endPosition ?? new Vector3(1, 0, 0);
         var endTurn = endRotation ?? Quaternion.Identity;
         var physics = template with
@@ -307,11 +308,11 @@ public sealed class TubeMouthSnapTests
     public void EqualCandidatesBreakTiesByLowerPartIdThenStartBeforeEnd()
     {
         var definitions = Definitions();
-        var higher = Tube(definitions, PartId.Pipe, 5, new(0, 3, 0), Quaternion.Identity);
-        var lower = Tube(definitions, PartId.Pipe, 4, new(0, 3, 0), Quaternion.Identity);
-        var position = PlaceMouth(definitions, PartId.Pipe, TubeMouthEnd.Start, new(1.99f, 3, 0), Quaternion.Identity);
-        Assert.Equal(new GpuBodyId(4), Find(definitions, [higher, lower], PartId.Pipe, 6, position, Quaternion.Identity)!.Value.TargetBody);
-        Assert.Equal(new GpuBodyId(4), Find(definitions, [lower, higher], PartId.Pipe, 6, position, Quaternion.Identity)!.Value.TargetBody);
+        var higher = Tube(definitions, new PartId("pipe"), 5, new(0, 3, 0), Quaternion.Identity);
+        var lower = Tube(definitions, new PartId("pipe"), 4, new(0, 3, 0), Quaternion.Identity);
+        var position = PlaceMouth(definitions, new PartId("pipe"), TubeMouthEnd.Start, new(1.99f, 3, 0), Quaternion.Identity);
+        Assert.Equal(new GpuBodyId(4), Find(definitions, [higher, lower], new PartId("pipe"), 6, position, Quaternion.Identity)!.Value.TargetBody);
+        Assert.Equal(new GpuBodyId(4), Find(definitions, [lower, higher], new PartId("pipe"), 6, position, Quaternion.Identity)!.Value.TargetBody);
 
         // A mover whose two mouths coincide and face the same way: its start mouth is chosen before its end mouth.
         var target = TestTube("tie_target", StandardBore);
@@ -325,25 +326,25 @@ public sealed class TubeMouthSnapTests
     public void AMovedTubeIgnoresItsOwnCommittedPose()
     {
         var definitions = Definitions();
-        var first = Tube(definitions, PartId.Pipe, 1, new(0, 3, 0), Quaternion.Identity);
+        var first = Tube(definitions, new PartId("pipe"), 1, new(0, 3, 0), Quaternion.Identity);
         // The moving pipe's committed pose already occupies the end mouth; while it is dragged, that pose neither occupies nor competes.
-        var moving = Tube(definitions, PartId.Pipe, 2, new(3.78f, 3, 0), Quaternion.Identity);
-        var position = PlaceMouth(definitions, PartId.Pipe, TubeMouthEnd.Start, new(2.1f, 3.1f, 0), Quaternion.Identity);
-        var snap = Find(definitions, [first, moving], PartId.Pipe, 2, position, Quaternion.Identity);
+        var moving = Tube(definitions, new PartId("pipe"), 2, new(3.78f, 3, 0), Quaternion.Identity);
+        var position = PlaceMouth(definitions, new PartId("pipe"), TubeMouthEnd.Start, new(2.1f, 3.1f, 0), Quaternion.Identity);
+        var snap = Find(definitions, [first, moving], new PartId("pipe"), 2, position, Quaternion.Identity);
         Assert.NotNull(snap);
         Assert.Equal(new GpuBodyId(1), snap.Value.TargetBody);
-        AssertJoined(definitions, [first, moving], snap.Value, PartId.Pipe, 2);
+        AssertJoined(definitions, [first, moving], snap.Value, new PartId("pipe"), 2);
     }
 
     [Fact]
     public void TheQueryNeverMutatesTheConstruction()
     {
         var definitions = Definitions();
-        var instances = new WorkshopInstances(Tube(definitions, PartId.Pipe, 1, new(0, 3, 0), Quaternion.Identity));
+        var instances = new WorkshopInstances(Tube(definitions, new PartId("pipe"), 1, new(0, 3, 0), Quaternion.Identity));
         var construction = new WorkshopConstruction(new(7), WorkshopCadenceSettings.Default(), instances);
         var copy = new WorkshopInstances([.. instances]);
 
-        Assert.NotNull(Find(definitions, construction.Instances, PartId.Pipe, 2, new(3.9f, 3, 0), Quaternion.Identity));
+        Assert.NotNull(Find(definitions, construction.Instances, new PartId("pipe"), 2, new(3.9f, 3, 0), Quaternion.Identity));
 
         Assert.Same(instances, construction.Instances);
         Assert.Equal(new ConstructionRevision(7), construction.Revision);
@@ -360,10 +361,10 @@ public sealed class TubeMouthSnapTests
         var definitions = Definitions();
         var (first, second, secondRotation, height) = joint switch
         {
-            Joint.StraightToBend45 => (PartId.Pipe, PartId.PipeBend45, Rz(-90), 5.5f),
-            Joint.Bend45ToBend45 => (PartId.PipeBend45, PartId.PipeBend45, Rz(-135), 6f),
-            Joint.StraightToBend90 => (PartId.Pipe, PartId.PipeBend90, Rz(-90), 6f),
-            Joint.FunnelOutletToPipe => (PartId.Funnel, PartId.Pipe, Rz(-90), 7.5f),
+            Joint.StraightToBend45 => (new PartId("pipe"), new PartId("pipe_bend_45"), Rz(-90), 5.5f),
+            Joint.Bend45ToBend45 => (new PartId("pipe_bend_45"), new PartId("pipe_bend_45"), Rz(-135), 6f),
+            Joint.StraightToBend90 => (new PartId("pipe"), new PartId("pipe_bend_90"), Rz(-90), 6f),
+            Joint.FunnelOutletToPipe => (new PartId("funnel"), new PartId("pipe"), Rz(-90), 7.5f),
             _ => throw new ArgumentOutOfRangeException(nameof(joint)),
         };
         // The first tube's start mouth points up; the second is offered near its end mouth, a little off and turned.
@@ -378,7 +379,7 @@ public sealed class TubeMouthSnapTests
         var (entry, _) = World(definitions, upstream, TubeMouthEnd.Start);
         var (exit, exitOutward) = World(definitions, downstream, TubeMouthEnd.End);
         var drop = entry + new Vector3(joint == Joint.FunnelOutletToPipe ? .3f : 0, .6f, 0);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(1), (float)(drop.X), (float)(drop.Y), (float)(drop.Z), 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new(1), (float)(drop.X), (float)(drop.Y), (float)(drop.Z), 0, 0, 0, 1);
         return (new(new(2), WorkshopCadenceSettings.Default(), new(ball, upstream, downstream)), entry, exit, exitOutward);
     }
 

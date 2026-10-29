@@ -12,7 +12,7 @@ internal static class SaveFixture
     /// does not hold back. The save boundary validates every saved element id against this set.</summary>
     public static IReadOnlySet<PartId> Elements { get; } = PartRegistry.Read(File.ReadAllText(
             Path.Combine(twodog.Engine.ResolveProjectDir(), "elements", "elements.bundle.json")))
-        .Select(entry => new PartId(entry.Metadata.Id)).Where(id => !UndeliveredParts.Contains(id)).ToHashSet();
+        .Select(entry => new PartId(entry.Metadata.Id)).ToHashSet();
 
     public static byte[] Finish(FlatBufferBuilder builder, Offset<ConstructionRecord> record, ulong nextBodyId)
     {
@@ -27,7 +27,7 @@ internal static class SaveFixture
     public static byte[] Forged(WorkshopConstruction construction, ulong nextBodyId)
     {
         var builder = new FlatBufferBuilder(1024);
-        return Finish(builder, WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction, validate: false), nextBodyId);
+        return Finish(builder, WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, construction, validate: false), nextBodyId);
     }
 
     public static WorkshopSaveRejectedException Refused(WorkshopSaveRejection reason, Action decode)

@@ -46,7 +46,7 @@ public sealed class EventRingConsumerTests
         {
             var read = Harness.Committed;
             _publication = 1;
-            Presentation = new(Construction, Response(read, _publication));
+            Presentation = new(CompiledSceneFixture.Compile(Construction), Response(read, _publication));
             World = new(read.Epoch, new(1), read.Tick, new(read.Capture!.Value.Time.Value), WorldPlayback.Running);
             Delivered.Clear();
         }
@@ -108,7 +108,7 @@ public sealed class EventRingConsumerTests
     /// committed tick's ledger holds its stores' latest rows; a sequence-0 row is the admission's empty slot), once each by sequence.</summary>
     private static async Task<(List<SimulationEventRecord> Records, ContactWorkOccurrence[] Hits)> BumperRun()
     {
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([WorkshopInput.Generic(PartId.Basketball, new(1), 0, 4.5f, 0, 0, 0, 0, 1),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([WorkshopInput.Generic(new PartId("ball"), new(1), 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 3, 0)], []));
         await ring.Advance(360);
         return (ring.Records, ring.Ledgers.SelectMany(ledger => Enumerable.Range(0, ledger.OccurrenceCount).Select(ledger.Occurrence))
@@ -227,7 +227,7 @@ public sealed class EventRingConsumerTests
         Assert.Contains(impacts, record => record.Magnitude == 0f); // the control: an unpaid hit in every run
         Assert.Equal(strength > 0, paid.Length > 0);
         if (paid.Length > 0) Assert.Contains(paid, record => record.Ordinal % Substeps != 0); // a hit inside its tick, not a boundary
-        var duration = (double)Duration(PartId.PinballBumper);
+        var duration = (double)Duration(new PartId("bumper"));
         double Expected(double at)
         {
             var sum = 0.0;
@@ -242,26 +242,26 @@ public sealed class EventRingConsumerTests
         foreach (var at in times.Where(at => at >= run.Origin))
         {
             var sampled = run.Sample(at, bumper);
-            var expected = Cue(PartId.PinballBumper, Expected(at));
+            var expected = Cue(new PartId("bumper"), Expected(at));
             for (var i = 0; i < expected.Length; i++) Assert.Equal(expected[i], sampled[i], 1e-5f);
         }
         // Back at rest after the last pulse.
-        Assert.Equal(Cue(PartId.PinballBumper, 0), run.Sample(times[^1] + duration, bumper));
+        Assert.Equal(Cue(new PartId("bumper"), 0), run.Sample(times[^1] + duration, bumper));
     }
 
     public static TheoryData<string> ClipScenarios => new() { "capture", "switch", "detector" };
 
     private static (WorkshopConstruction Bench, GpuBodyId Owner, PartId Part, SimulationEventKind Kind, int Ticks) Scenario(string name, bool fires = true) => name switch
     {
-        "capture" => (Bench([PayloadInstanceTests.Place(PartId.Basketball, 1, fires ? 0 : 2, 1.1, 0),
-            WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1)], []), new(2), PartId.Receiver, SimulationEventKind.Captured, 240),
-        "switch" => (Bench([WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 1, 0, 0, 0, 0, 1,
+        "capture" => (Bench([PayloadInstanceTests.Place(new PartId("ball"), 1, fires ? 0 : 2, 1.1, 0),
+            WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1)], []), new(2), new PartId("basket"), SimulationEventKind.Captured, 240),
+        "switch" => (Bench([WorkshopInput.Generic(new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1,
                 new([new(new ParameterId("trigger_threshold"), fires ? .8f : 64f)])),
-            PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Basketball, new(4), 0, 3, 0, 0, 0, 0, 1)],
-            [Signal(new(1), new(2))]), new(1), PartId.ImpactSwitch, SimulationEventKind.TriggerActivated, 480),
+            PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("ball"), new(4), 0, 3, 0, 0, 0, 0, 1)],
+            [Signal(new(1), new(2))]), new(1), new PartId("switch"), SimulationEventKind.TriggerActivated, 480),
         "detector" => (Bench([PlacedParts.Detector(new(1), 0, (float)(Floor + .62), 0, 0, 0, (fires ? -1 : 1) * (float)Half45, (float)(Half45)),
-            PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Basketball, new(3), 0, (float)(Floor + .34 + 3), 0, 0, 0, 0, 1)],
-            [Signal(new(1), new(2))]), new(1), PartId.BallDetector, SimulationEventKind.Passage, 480),
+            PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("ball"), new(3), 0, (float)(Floor + .34 + 3), 0, 0, 0, 0, 1)],
+            [Signal(new(1), new(2))]), new(1), new PartId("ball_detector"), SimulationEventKind.Passage, 480),
         _ => throw new ArgumentOutOfRangeException(nameof(name))
     };
 
@@ -355,8 +355,8 @@ public sealed class EventRingConsumerTests
         Assert.Empty(run.Harness.Publish());
         var paused = run.Harness.Committed;
         var endpoint = Response(paused, 0, projection: 2);
-        Assert.True(run.Presentation.CanRetain(bench, endpoint));
-        run.Presentation.Rebind(bench, endpoint);
+        Assert.True(run.Presentation.CanRetain(CompiledSceneFixture.Compile(bench), endpoint));
+        run.Presentation.Rebind(CompiledSceneFixture.Compile(bench), endpoint);
         run.Drain();
         Assert.Equal(WorkshopCommandOutcome.Applied, (await run.Harness.Execute(WorkshopCommandKind.Step)).Result.Outcome);
         run.Harness.Publish(); run.Drain();
@@ -375,13 +375,13 @@ public sealed class EventRingConsumerTests
     public async Task AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(string name)
     {
         var (bench, owner, part) = name == "bumper"
-            ? (Bench([PlacedParts.Bumper(new(1), 0, 1, 0)], []), new GpuBodyId(1), PartId.PinballBumper)
-            : (Scenario("switch").Bench, Scenario("switch").Owner, PartId.ImpactSwitch);
+            ? (Bench([PlacedParts.Bumper(new(1), 0, 1, 0)], []), new GpuBodyId(1), new PartId("bumper"))
+            : (Scenario("switch").Bench, Scenario("switch").Owner, new PartId("switch"));
         var kind = DeclaredPhysics.Of(part).Presentation.Bindings[0].Event;
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         var duration = (double)Duration(part);
-        var target = WorkshopDeclaredPresentation.Targets(bench).First(entry => entry.Owner == owner);
+        var target = WorkshopDeclaredPresentation.Targets(CompiledSceneFixture.Compile(bench)).First(entry => entry.Owner == owner);
         var property = WorkshopDeclaredPresentation.Property(DeclaredPhysics.Of(part).Presentation.Bindings[0].Property);
         var tick = run.Harness.Committed.Tick.Value + 1;
         SimulationEventRecord At(ulong sequence, double seconds) => new(sequence, tick, kind, owner.Value, 0,
@@ -419,8 +419,8 @@ public sealed class EventRingConsumerTests
     public async Task ALateRecordStartsItsCueAtItsOwnTimeNotWhenObserved(string name)
     {
         var (bench, owner, part) = name == "bumper"
-            ? (Bench([PlacedParts.Bumper(new(1), 0, 1, 0)], []), new GpuBodyId(1), PartId.PinballBumper)
-            : (Scenario("switch").Bench, Scenario("switch").Owner, PartId.ImpactSwitch);
+            ? (Bench([PlacedParts.Bumper(new(1), 0, 1, 0)], []), new GpuBodyId(1), new PartId("bumper"))
+            : (Scenario("switch").Bench, Scenario("switch").Owner, new PartId("switch"));
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         var duration = (double)Duration(part);
@@ -658,7 +658,7 @@ public sealed class EventRingConsumerTests
     [Fact]
     public void TheBundleRefusesEveryMalformedEventBinding()
     {
-        var entry = DeclaredPhysics.Of(PartId.ImpactSwitch);
+        var entry = DeclaredPhysics.Of(new PartId("switch"));
         var cue = entry.Presentation.Bindings[0];
         Assert.Empty(BundleValidator.Validate([new NamedEntry("impact_switch", entry)]));
         PresentationBinding[] invalid = [
@@ -695,7 +695,7 @@ public sealed class EventRingConsumerTests
         var bench = Bench([PlacedParts.Bumper(new(2), 0, 1, 0)], []);
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
-        var duration = Duration(PartId.PinballBumper);
+        var duration = Duration(new PartId("bumper"));
         var later = checked((uint)Math.Ceiling((duration + 1) * 480));
         var records = Enumerable.Range(1, 96).Select(i => {
             var ordinal = i <= 64 ? 4u : later;
@@ -705,8 +705,8 @@ public sealed class EventRingConsumerTests
         var peak = Animation.At(records[^1]) + duration / 2;
         // The first64 have expired here. Dropping the later32 would incorrectly leave the target at rest.
         Assert.True(peak > Animation.At(records[63]) + duration);
-        Assert.Equal(Cue(PartId.PinballBumper, 1), run.Sample(peak, new(2)));
-        Assert.Equal(Cue(PartId.PinballBumper, 0), run.Sample(Animation.At(records[^1]) + duration + 1, new(2)));
+        Assert.Equal(Cue(new PartId("bumper"), 1), run.Sample(peak, new(2)));
+        Assert.Equal(Cue(new PartId("bumper"), 0), run.Sample(Animation.At(records[^1]) + duration + 1, new(2)));
     }
 
     [Fact]
@@ -720,10 +720,10 @@ public sealed class EventRingConsumerTests
         Assert.ThrowsAny<ArgumentException>(() => run.Presentation.AcceptEvents(
             new(run.World.WorldGeneration.Value, 3, [first, second with { Source = 0 }]), run.World));
         Assert.Equal(0UL, run.Presentation.Lapped);
-        Assert.Equal(Cue(PartId.PinballBumper, 0), run.Sample(Animation.At(first) + Duration(PartId.PinballBumper) / 4, new(2)));
+        Assert.Equal(Cue(new PartId("bumper"), 0), run.Sample(Animation.At(first) + Duration(new PartId("bumper")) / 4, new(2)));
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 3, [first, second]), run.World);
         Assert.Equal(3UL, run.Presentation.Lapped);
-        Assert.Equal(Cue(PartId.PinballBumper, 1), run.Sample(Animation.At(first) + Duration(PartId.PinballBumper) / 2, new(2)));
+        Assert.Equal(Cue(new PartId("bumper"), 1), run.Sample(Animation.At(first) + Duration(new PartId("bumper")) / 2, new(2)));
     }
 
     // ---------- 9A.23 D2: the shared JS reader equals the reference consumer over the same bytes ----------

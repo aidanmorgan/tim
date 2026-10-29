@@ -32,7 +32,7 @@ internal static class OldLayoutSaves
         new RuntimeSessionId(1, 2).WriteTo(bytes);
         var session = Wire.WorkshopResponse.CreateSessionVectorBlock(builder, bytes);
         var record = Record(builder, layout, part, slots, parameters);
-        Wire.WorkshopCommand.StartWorkshopCommand(builder);
+        builder.StartTable(12);
         Wire.WorkshopCommand.AddSequence(builder, 1);
         Wire.WorkshopCommand.AddKind(builder, CommandKind.Construct);
         Wire.WorkshopCommand.AddEpoch(builder, 1);
@@ -41,7 +41,7 @@ internal static class OldLayoutSaves
         Wire.WorkshopCommand.AddSession(builder, session);
         Wire.WorkshopCommand.AddCadence(builder, 1);
         Wire.WorkshopCommand.AddProjection(builder, 1);
-        Wire.WorkshopCommand.AddConstructionRecord(builder, record);
+        builder.AddOffset(11, record.Value, 0);
         builder.FinishSizePrefixed(Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.CommandIdentifier);
         return builder.SizedByteArray();
     }

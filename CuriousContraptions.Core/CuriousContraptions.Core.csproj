@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsTrimmable>true</IsTrimmable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants Condition="'$(Configuration)' == 'Debug' Or '$(PlaytestDiagnostics)' == 'true'">$(DefineConstants);PLAYTEST</DefineConstants>
+  </PropertyGroup>
+  <Import Project="RuntimeSources.props" />
+  <ItemGroup>
+    <Compile Include="@(CoreRuntimeSource)" />
+    <ProjectReference Include="../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+    <ProjectReference Include="../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
+    <ProjectReference Include="../CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
+    <ProjectReference Include="../CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj" />
+    <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
+    <ProjectReference Include="../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
+    <InternalsVisibleTo Include="CuriousContraptions" />
+    <InternalsVisibleTo Include="CuriousContraptions.tests" />
+    <InternalsVisibleTo Include="CuriousContraptions.Simulation" />
+    <InternalsVisibleTo Include="CuriousContraptions.Animation.Worker" />
+  </ItemGroup>
+</Project>

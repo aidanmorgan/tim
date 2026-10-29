@@ -9,7 +9,7 @@ public sealed class FaceMarkingTests(NativeSceneFixture godot)
     public static TheoryData<PartId, int> Parts => new()
     {
         { new("both_gate"), 5 }, { new("electrical_nand"), 19 }, { new("electrical_nor"), 20 },
-        { new("electrical_or"), 21 }, { new("electrical_xor"), 22 }, { new("hold_timer"), 1 }, { PartId.Latch, 15 }
+        { new("electrical_or"), 21 }, { new("electrical_xor"), 22 }, { new("hold_timer"), 1 }, { new PartId("latch"), 15 }
     };
 
     private static IEnumerable<MeshInstance3D> Meshes(Node root)
@@ -72,7 +72,7 @@ public sealed class FaceMarkingTests(NativeSceneFixture godot)
                     Assert.True(area > .0001f, mesh.Name + " has no readable surface area");
                 }
                 // Positive control: an actual solid lamp still stands proud, and is checked against its collider separately.
-                var lamp = part.GetNode<MeshInstance3D>(id == PartId.Latch ? "Visual/IndicatorLamp" :
+                var lamp = part.GetNode<MeshInstance3D>(id == new PartId("latch") ? "Visual/IndicatorLamp" :
                     id == new PartId("hold_timer") ? "Visual/Indicator" : "Visual/OutputLamp");
                 Assert.True(lamp.Mesh!.GetFaces().Max(v => (lamp.GlobalTransform * v - surface).Dot(normal)) > .05f);
             }
@@ -114,7 +114,7 @@ public sealed class FaceMarkingTests(NativeSceneFixture godot)
             godot.Tree.Root.AddChild(part);
             void Ink(string path, float x, float y) => Assert.True(Covers(part, path, new(x, y)), path + " missing ink at " + new Vector2(x, y) + "; transform " + part.GetNode<Node3D>(path).Transform);
             void Clear(string path, float x, float y) => Assert.False(Covers(part, path, new(x, y)), path + " filled its required gap");
-            if (id == PartId.Latch)
+            if (id == new PartId("latch"))
             {
                 Ink("Visual/SetMarker", -.45f, .34f);
                 Clear("Visual/ResetMarker", .45f, .34f);

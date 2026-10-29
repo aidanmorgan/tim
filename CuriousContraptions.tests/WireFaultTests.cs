@@ -57,7 +57,7 @@ public sealed class WireFaultTests
     }
 
     internal static WorkshopSavedConstruction Saved() => new(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-        new([WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)])), new(2));
+        new([WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1)])), new(2));
 
     private static byte[] Valid(Message message) => message switch
     {
@@ -305,13 +305,13 @@ public sealed class WireFaultTests
         // validation exception into a typed wire refusal. Keep that exact catch separate from the codec-wide pin.
         var parameterBoundaries = 0;
         foreach (var codec in new[] { "engine/gpu/WorkshopCommandRouter.cs", "engine/gpu/WorkshopWireFlatBuffers.cs",
-                     "engine/gpu/WorkshopSaveCodec.cs", "engine/gpu/WorkshopSavePrevalidation.cs" })
+                     "engine/gpu/WorkshopSaveCodec.cs", "engine/gpu/WorkshopSavePrevalidation.cs", "engine/gpu/WorkshopAuthoringFlatBuffers.cs" })
         {
             var syntax = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, codec)), cancellationToken: TestContext.Current.CancellationToken)
                 .GetRoot(TestContext.Current.CancellationToken);
             foreach (var clause in syntax.DescendantNodes().OfType<CatchClauseSyntax>())
             {
-                if (codec == "engine/gpu/WorkshopWireFlatBuffers.cs" &&
+                if (codec == "engine/gpu/WorkshopAuthoringFlatBuffers.cs" &&
                     clause.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault()?.Identifier.ValueText == "DecodeParameters")
                 {
                     parameterBoundaries++;

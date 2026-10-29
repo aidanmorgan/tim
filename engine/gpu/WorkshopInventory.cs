@@ -43,18 +43,13 @@ public sealed class PartInventoryDictionary : IReadOnlyDictionary<PartId, PartAl
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Palette inventory per mode, in palette row order. Free play lists each available part in the palette order the element
-/// bundle declares (Story 9A.14), without a count, filtered only by <see cref="UndeliveredParts"/>, so delivering a part (Story 12.1)
-/// is shipping its package and removing it from that set.</summary>
+/// <summary>Palette inventory follows the admitted bundle's declared order.</summary>
 public static class WorkshopInventoryPolicy
-{    /// <summary>The Free inventory of these parts, in the given palette order, minus the undelivered set.</summary>
-    public static IReadOnlyDictionary<PartId, PartAllowance> Free(IEnumerable<PartId> paletteOrder) =>
-        FreeRows(paletteOrder, UndeliveredParts.Ids);
-
-    internal static PartInventoryDictionary FreeRows(IEnumerable<PartId> paletteOrder, IReadOnlySet<PartId> undelivered)
+{
+    public static IReadOnlyDictionary<PartId, PartAllowance> Free(IEnumerable<PartId> paletteOrder)
     {
         ArgumentNullException.ThrowIfNull(paletteOrder);
-        var list = paletteOrder.Where(id => !undelivered.Contains(id)).Select(id => (id, PartAllowance.Unlimited)).ToArray();
+        var list = paletteOrder.Select(id => (id, PartAllowance.Unlimited)).ToArray();
         if (list.Length == 0) throw new ArgumentException("Empty registry cannot populate Free inventory.");
         return new PartInventoryDictionary(list);
     }

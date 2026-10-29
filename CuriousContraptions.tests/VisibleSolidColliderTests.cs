@@ -62,58 +62,58 @@ public sealed class VisibleSolidColliderTests
 
     private static readonly Dictionary<PartId, ArtSpec> Specs = new()
     {
-        [PartId.SignalLamp] = new(["Visual/Visual_Base", "Visual/Visual_Stem", "Visual/Bulb"], null, [], [], null),
-        [PartId.ImpactSwitch] = new(["Visual/Visual_Base", "Visual/Button", "Visual/Visual_Terminal1", "Visual/Visual_Terminal2",
+        [new PartId("lamp")] = new(["Visual/Visual_Base", "Visual/Visual_Stem", "Visual/Bulb"], null, [], [], null),
+        [new PartId("switch")] = new(["Visual/Visual_Base", "Visual/Button", "Visual/Visual_Terminal1", "Visual/Visual_Terminal2",
             "Visual/Visual_Socket"], null, [], [], null),
         // The countdown hand turns with the timer (a presentation binding); a static collider cannot follow it.
-        [PartId.Delay] = new(["Visual/Visual_Body", "Visual/Visual_Face", "Visual/Visual_Base", "Visual/Visual_CenterPip",
+        [new PartId("delay")] = new(["Visual/Visual_Body", "Visual/Visual_Face", "Visual/Visual_Base", "Visual/Visual_CenterPip",
             "Visual/Indicator", "Visual/Visual_PortIn", "Visual/Visual_PortOut"], null, [], ["Visual/CountdownHand/Visual_HandMesh"], null),
-        [PartId.Ramp] = new(["Visual/Visual_Body", "Visual/Visual_RailA", "Visual/Visual_RailB"], null, [], [], null),
+        [new PartId("ramp")] = new(["Visual/Visual_Body", "Visual/Visual_RailA", "Visual/Visual_RailB"], null, [], [], null),
         // The four charge marks and the plus symbol are the gauge and label printed on the body.
-        [PartId.Battery] = new(["Visual/Visual_Body", "Visual/Visual_Stripe", "Visual/Terminal"], null, [],
+        [new PartId("battery")] = new(["Visual/Visual_Body", "Visual/Visual_Stripe", "Visual/Terminal"], null, [],
             ["Visual/Mark_0", "Visual/Mark_1", "Visual/Mark_2", "Visual/Mark_3", "Visual/Visual_PlusH", "Visual/Visual_PlusV"], null),
         // The chevron is the arrow printed on the housing.
-        [PartId.BallDetector] = new(["Visual/Visual_Housing", "Visual/Visual_Socket", "Visual/Visual_Indicator"],
+        [new PartId("ball_detector")] = new(["Visual/Visual_Housing", "Visual/Visual_Socket", "Visual/Visual_Indicator"],
             ["Visual/Visual_Collar"], [], ["Visual/Visual_Chevron/Arm_1", "Visual/Visual_Chevron/Arm_2"], null),
-        [PartId.PoweredGate] = new(
+        [new PartId("powered_gate")] = new(
             ["Visual/Visual_Housing", "Visual/Visual_Rail_Start", "Visual/Visual_Rail_End", "Visual/Blade/Visual_Blade",
                 "Visual/Visual_Socket", "Visual/Visual_Indicator"],
             ["Visual/Visual_Sleeve", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [], "Visual/Blade"),
 
         // Every other element package, classified the same way.
         // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
-        [PartId.Basketball] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], null),
-        [PartId.BowlingBall] = new(["Visual/Visual_Sphere"], null, [], [], null),
+        [new PartId("ball")] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], null),
+        [new PartId("bowling")] = new(["Visual/Visual_Sphere"], null, [], [], null),
         // The base lies inside the head; the impact ring is scaled by the impact cue. The upper ring is the
         // drawn full torus (engine-hollow-shapes).
-        [PartId.PinballBumper] = new(["Visual/BumperHead", "Visual/Visual_Cap"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], null),
+        [new PartId("bumper")] = new(["Visual/BumperHead", "Visual/Visual_Cap"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], null),
         // The pips: engine-multi-collider-dynamic.
-        [PartId.Domino] = new(["Visual/Visual_Body", "Visual/Visual_Pip1", "Visual/Visual_Pip2"], null, [], [], null),
+        [new PartId("domino")] = new(["Visual/Visual_Body", "Visual/Visual_Pip1", "Visual/Visual_Pip2"], null, [], [], null),
         // The stripes are flush with the faces. The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the
         // collider takes the full thickness, 0.001·t thicker per face, at most 2 mm at the 2 m maximum thickness.
-        [PartId.Wall] = new(["Visual/Visual_Body"], null, [], ["Visual/Visual_StripeLeft", "Visual/Visual_StripeRight"], null, Fit: .002f),
+        [new PartId("wall")] = new(["Visual/Visual_Body"], null, [], ["Visual/Visual_StripeLeft", "Visual/Visual_StripeRight"], null, Fit: .002f),
         // The body is drawn at mass m by a uniform scale 0.136734·m + 0.453070 of its 0.35166413 m radius, and the collider's radius
         // is 0.04808397·m + 0.15932827: the declared constants differ by 0.35166413·(0.136734·m + 0.453070) − (0.04808397·m +
         // 0.15932827), at most 4.0e-6 m at the 8 kg bound (the half-height by 3.2e-6 m).
         // The base, and the bands and eye (tori on a dynamic body): engine-multi-collider-dynamic.
         [new PartId("weight")] = new(["Visual/Visual_Body", "Visual/Visual_Base"], ["Visual/Visual_BandLower", "Visual/Visual_BandUpper", "Visual/Visual_Eye"], [], [], null, Fit: 4e-6f),
         // The halo is a glow.
-        [PartId.Receiver] = new(["Visual/Visual_Floor", "Visual/Visual_Left", "Visual/Visual_Right", "Visual/Visual_Back", "Visual/Visual_Front"],
+        [new PartId("basket")] = new(["Visual/Visual_Floor", "Visual/Visual_Left", "Visual/Visual_Right", "Visual/Visual_Back", "Visual/Visual_Front"],
             null, [], ["Visual/Visual_Halo"], null),
         // The studs and the ring torus would be colliders past the fifth, reaching the contact-load row: engine-multi-collider-dynamic.
-        [PartId.PressurePlate] = new(["Visual/Visual_Base", "Visual/Visual_Top", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply",
+        [new PartId("pressure_plate")] = new(["Visual/Visual_Base", "Visual/Visual_Top", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply",
             "Visual/Visual_Socket_ActivationOut", "Visual/Stud_0", "Visual/Stud_1", "Visual/Stud_2", "Visual/Stud_3"], ["Visual/Visual_Ring"], [], [], null),
         // The stripe is printed on the plate; the coil is drawn by the spring's compression.
-        [PartId.Springboard] = new(["Visual/Visual_Base", "Visual/Plate/Visual_Plate"], null, [], ["Visual/Plate/Visual_Stripe", "Visual/Coil/*"],
+        [new PartId("spring")] = new(["Visual/Visual_Base", "Visual/Plate/Visual_Plate"], null, [], ["Visual/Plate/Visual_Stripe", "Visual/Coil/*"],
             "Visual/Plate"),
         // engine-hollow-shapes: the pipe family's shells, stubs and collars are its true hollow colliders; a bend's shell chords draw
         // its torus segment.
-        [PartId.Pipe] = new([], ["Visual/Visual_Shell", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [], null),
-        [PartId.PipeBend45] = new([], ["Visual/Visual_Shell/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"],
+        [new PartId("pipe")] = new([], ["Visual/Visual_Shell", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [], null),
+        [new PartId("pipe_bend_45")] = new([], ["Visual/Visual_Shell/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"],
             ["Visual/Visual_Shell/Visual_Shell_Seg_*"], [], null),
-        [PartId.PipeBend90] = new([], ["Visual/Visual_Shell/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"],
+        [new PartId("pipe_bend_90")] = new([], ["Visual/Visual_Shell/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"],
             ["Visual/Visual_Shell/Visual_Shell_Seg_*"], [], null),
-        [PartId.Funnel] = new([], ["Visual/Visual_Shell", "Visual/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [],
+        [new PartId("funnel")] = new([], ["Visual/Visual_Shell", "Visual/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [],
             null),
         // Static control labels are flat printing, independently checked in FaceMarkingTests.
         [new PartId("both_gate")] = Logic(["Visual/UpperPath", "Visual/LowerPath"]),
@@ -125,15 +125,15 @@ public sealed class VisibleSolidColliderTests
         [new PartId("hold_timer")] = new(["Visual/Body", "Visual/Foot", "Visual/Face", "Visual/Indicator", "Visual/PortTrigger",
             "Visual/PortInput", "Visual/PortOutput"], null, [], ["Visual/Remaining/*", "Visual/Track"], null),
         // The ActivationOut socket (r 0.075 at (0, −0.72, 0.1)) lies wholly inside the foot (|y + 0.72| ≤ 0.08, z ≤ 0.425).
-        [PartId.Counter] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", .. Enumerable.Range(0, 9).Select(i => $"Visual/DotLamp_{i}"),
+        [new PartId("counter")] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", .. Enumerable.Range(0, 9).Select(i => $"Visual/DotLamp_{i}"),
             "Visual/Visual_Socket_ActivationIn", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply"], null, [],
             ["Visual/Visual_Socket_ActivationOut"], null),
         // The rocker turns with state; the set, reset and output cues are printed.
-        [PartId.Latch] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/IndicatorLamp", "Visual/Visual_Socket_SetIn",
+        [new PartId("latch")] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/IndicatorLamp", "Visual/Visual_Socket_SetIn",
             "Visual/Visual_Socket_ResetIn", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply", "Visual/Visual_Socket_ActivationOut"],
             null, [], ["Visual/Rocker", "Visual/SetMarker", "Visual/ResetMarker/*", "Visual/OutMarker/*"], null),
         // The pendulum swings with the clock. The recess stands 2 cm proud of the face. The pivot cap: engine-multi-collider-dynamic.
-        [PartId.Clock] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/PivotCap", "Visual/Visual_Indicator", "Visual/Visual_Socket_PowerIn",
+        [new PartId("clock")] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/PivotCap", "Visual/Visual_Indicator", "Visual/Visual_Socket_PowerIn",
             "Visual/Visual_Socket_ActivationOut", "Visual/Recess"], null, [], ["Visual/PendulumPivot/*"], null),
     };
 
@@ -397,7 +397,7 @@ public sealed class VisibleSolidColliderTests
     private static WorkshopGenericInstance Place(PartId part, GpuBodyId id, NumVector3 at, NumQuaternion rotation,
         InstanceParameterCollection? parameters = null) =>
         WorkshopInput.Generic(part, id, (float)(at.X), (float)(at.Y), (float)(at.Z), (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W), parameters);
-    private static WorkshopGenericInstance BallAt(NumVector3 at) => Place(PartId.Basketball, Ball, at, NumQuaternion.Identity);
+    private static WorkshopGenericInstance BallAt(NumVector3 at) => Place(new PartId("ball"), Ball, at, NumQuaternion.Identity);
 
     private static NumVector3 Position(WorkshopRead read)
     {
@@ -429,17 +429,17 @@ public sealed class VisibleSolidColliderTests
     /// restitution its element doc records.</summary>
     private static (PartId Part, NumQuaternion Rotation, double Top, float X, float Z, double Restitution) Drop(Feature feature) => feature switch
     {
-        Feature.LampBulb => (PartId.SignalLamp, NumQuaternion.Identity, .22 + .43, 0, 0, 1),       // CAT-035: bulb r 0.43 at y 0.22
-        Feature.SwitchButton => (PartId.ImpactSwitch, NumQuaternion.Identity, .06 + .09, 0, 0, 1), // CAT-063: button h 0.18 at y 0.06
-        Feature.DelayHousing => (PartId.Delay, NumQuaternion.Identity, .625, 0, 0, 1),             // CAT-022: 1.25 m housing at the origin
+        Feature.LampBulb => (new PartId("lamp"), NumQuaternion.Identity, .22 + .43, 0, 0, 1),       // CAT-035: bulb r 0.43 at y 0.22
+        Feature.SwitchButton => (new PartId("switch"), NumQuaternion.Identity, .06 + .09, 0, 0, 1), // CAT-063: button h 0.18 at y 0.06
+        Feature.DelayHousing => (new PartId("delay"), NumQuaternion.Identity, .625, 0, 0, 1),             // CAT-022: 1.25 m housing at the origin
         // CAT-022: lying on its back: the r 0.55 face disc's top is 0.32 + 0.0175 = 0.3375, 3.75 cm above the housing's 0.3 face.
         // Dropped 0.4 m off the axis, clear of the hub pip and the hand.
-        Feature.DelayFace => (PartId.Delay, Back, .32 + .0175, .4f, 0, 1),
-        Feature.RampSlab => (PartId.Ramp, NumQuaternion.Identity, .09, 0, 0, 1),                   // CAT-054: 0.18 m slab
-        Feature.BatteryTerminal => (PartId.Battery, NumQuaternion.Identity, .59 + .07, 0, 0, 1),   // CAT-005: terminal h 0.14 at y 0.59
+        Feature.DelayFace => (new PartId("delay"), Back, .32 + .0175, .4f, 0, 1),
+        Feature.RampSlab => (new PartId("ramp"), NumQuaternion.Identity, .09, 0, 0, 1),                   // CAT-054: 0.18 m slab
+        Feature.BatteryTerminal => (new PartId("battery"), NumQuaternion.Identity, .59 + .07, 0, 0, 1),   // CAT-005: terminal h 0.14 at y 0.59
         // CAT-002: turned over about X so the housing hangs below and the collar's top is clear: the drawn outer surface, 0.82 m.
-        Feature.DetectorCollar => (PartId.BallDetector, new(1, 0, 0, 0), .82, 0, 0, .15),
-        Feature.GateHousing => (PartId.PoweredGate, NumQuaternion.Identity, 1.65 + .325, 0, 0, .1), // CAT-051: housing h 0.65 at y 1.65
+        Feature.DetectorCollar => (new PartId("ball_detector"), new(1, 0, 0, 0), .82, 0, 0, .15),
+        Feature.GateHousing => (new PartId("powered_gate"), NumQuaternion.Identity, 1.65 + .325, 0, 0, .1), // CAT-051: housing h 0.65 at y 1.65
         // CAT-013: the Both gate on its back: the 1.45 × 1.05 × 0.04 face panel at z 0.35 tops out at 0.37, 4.5 cm above the body's
         // 0.325 face. Dropped 0.1 m off the axis: resting there (centre 0.71) the ball clears the output lamp (r 0.09 at x 0.48,
         // z 0.42) once 0.3175 = √(0.43² − 0.29²) away horizontally; it is 0.38 away.
@@ -452,16 +452,16 @@ public sealed class VisibleSolidColliderTests
         Feature.LogicLamp => (new PartId("electrical_nand"), Back, .42 + .09, .48f, 0, 1),
         // CAT-020: the Counter on its back, onto its middle dot lamp (r 0.1 at z 0.4). Resting there (centre 0.84) the ball is
         // √(0.36² + 0.44²) = 0.57 from the nearest other lamp, beyond the 0.44 at which it would touch.
-        Feature.CounterLamp => (PartId.Counter, Back, .4 + .1, 0, 0, 1),
+        Feature.CounterLamp => (new PartId("counter"), Back, .4 + .1, 0, 0, 1),
         // CAT-037: the Latch on its back, onto its indicator lamp (r 0.09 at (0, −0.33, 0.42), so at z 0.33). The ActivationOut socket
         // (r 0.075 at (0, −0.56, 0.38)) is √(0.23² + 0.47²) = 0.52 from the resting centre, beyond the 0.415 at which it would touch.
-        Feature.LatchIndicator => (PartId.Latch, Back, .42 + .09, 0, .33f, 1),
+        Feature.LatchIndicator => (new PartId("latch"), Back, .42 + .09, 0, .33f, 1),
         // CAT-037: the upright Latch, onto its SetIn socket (r 0.075 at (−0.45, 0.72, 0)), 17 cm above the housing's 0.625 top.
-        Feature.LatchSocket => (PartId.Latch, NumQuaternion.Identity, .72 + .075, -.45f, 0, 1),
+        Feature.LatchSocket => (new PartId("latch"), NumQuaternion.Identity, .72 + .075, -.45f, 0, 1),
         // CAT-017: the Clock on its back: the 1.14 × 1.44 × 0.04 face at z 0.32 tops out at 0.34, 4 cm above the housing. Dropped at
         // x 0.55, beside the recess (0.84 m wide, its top 2 cm higher): resting at 0.68 the ball clears the recess's edge once
         // √(0.34² − 0.32²) = 0.115 away horizontally; it is 0.13 away.
-        Feature.ClockFace => (PartId.Clock, Back, .32 + .02, .55f, 0, 1),
+        Feature.ClockFace => (new PartId("clock"), Back, .32 + .02, .55f, 0, 1),
         // CAT-033: the Hold timer on its back: the 1.18 × 0.72 × 0.045 face at z 0.35 tops out at 0.3725, 4.75 cm above the body.
         // Dropped at x 0.4: resting there (centre 0.7125) the ball is √(0.4² + 0.22² + 0.3125²) = 0.55 from the indicator (r 0.07 at
         // (0, −0.22, 0.4)), beyond the 0.41 at which it would touch.
@@ -469,19 +469,19 @@ public sealed class VisibleSolidColliderTests
         // CAT-052: the Pressure plate, onto its PowerIn socket (r 0.075 at (−1.18, −0.08, 0)), outside the base's edge at x −1.1. At
         // the socket the ball's centre is √(0.08² + 0.355²) = 0.364 from the base's top edge, beyond its 0.34 radius. The plate's
         // restitution is 0.1 (CAT-052).
-        Feature.PlateSocket => (PartId.PressurePlate, NumQuaternion.Identity, -.08 + .075, -1.18f, 0, .1),
+        Feature.PlateSocket => (new PartId("pressure_plate"), NumQuaternion.Identity, -.08 + .075, -1.18f, 0, .1),
         // CAT-048: the default 3.6 m pipe lying along X; its shell's drawn top is the 0.7 m wall, dropped at the middle of its length.
         // The pipe family's documented restitution is 0.15.
-        Feature.PipeShell => (PartId.Pipe, NumQuaternion.Identity, .7, 0, 0, .15),
+        Feature.PipeShell => (new PartId("pipe"), NumQuaternion.Identity, .7, 0, 0, .15),
         // CAT-048: the end collar's drawn TorusMesh (inner 0.65, outer 0.78) at x 1.8 tops out at 0.78; its top is a point apex.
         // Bend plane laid flat: its start collar is a vertical torus with apex .78.
-        Feature.Bend45Collar => (PartId.PipeBend45, Back, .78, -.91844f, -.182689f, .15),
-        Feature.Bend90Collar => (PartId.PipeBend90, Back, .78, -1.697056f, -.702944f, .15),
-        Feature.FunnelCollar => (PartId.Funnel, NumQuaternion.Identity, .78, .9f, 0, .15),
-        Feature.PipeCollar => (PartId.Pipe, NumQuaternion.Identity, .78, 1.8f, 0, .15),
+        Feature.Bend45Collar => (new PartId("pipe_bend_45"), Back, .78, -.91844f, -.182689f, .15),
+        Feature.Bend90Collar => (new PartId("pipe_bend_90"), Back, .78, -1.697056f, -.702944f, .15),
+        Feature.FunnelCollar => (new PartId("funnel"), NumQuaternion.Identity, .78, .9f, 0, .15),
+        Feature.PipeCollar => (new PartId("pipe"), NumQuaternion.Identity, .78, 1.8f, 0, .15),
         // CAT-051: the Powered gate turned over about X (housing and rails below), onto its end collar's drawn 0.78 m tube at x 0.4.
         // Clear of the blade (top at 0.72, x within ±0.06: the ball reaches x 0.06 at 0.78) and the rails (|z| 0.82, below 0.2).
-        Feature.GateCollar => (PartId.PoweredGate, new(1, 0, 0, 0), .78, .4f, 0, .1),
+        Feature.GateCollar => (new PartId("powered_gate"), new(1, 0, 0, 0), .78, .4f, 0, .1),
         _ => throw new ArgumentOutOfRangeException(nameof(feature), feature, "Unknown feature.")
     };
 
@@ -524,8 +524,8 @@ public sealed class VisibleSolidColliderTests
     public async Task ABallDroppedOntoEachSolidFeatureStopsAtItsDrawnSurfaceAndReboundsAtTheProductRestitution(Feature feature)
     {
         var (part, rotation, top, x, z, staticRestitution) = Drop(feature);
-        IWorkshopInstance element = part == PartId.Pipe
-            ? WorkshopInput.Pipe(Element, 0, (float)(Y), 0, (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W))
+        IWorkshopInstance element = part == new PartId("pipe")
+            ? WorkshopInput.Generic(new PartId("pipe"),Element, 0, (float)(Y), 0, (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W))
             : Place(part, Element, new(0, (float)Y, 0), rotation);
         // A torus's top is a point apex, like a sphere's: no stable rest.
         await AssertDropOnto(element, x, z, top, staticRestitution, feature.ToString(),
@@ -547,7 +547,7 @@ public sealed class VisibleSolidColliderTests
         var surface = degrees == 0 ? .65 + Math.Sqrt(BallRadius * BallRadius - Math.Pow(Math.Max(0, x - .25), 2))
             : corner.Y + BallRadius;
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([
-            Place(PartId.PinballBumper, Element, new(0, (float)Y, 0), turn),
+            Place(new PartId("bumper"), Element, new(0, (float)Y, 0), turn),
             BallAt(new(corner.X, (float)(Y + surface + .2), 0))]));
         await ring.Advance(60);
         var firstRise = ring.Reads.FindIndex(read => Velocity(read).Y > 1);
@@ -564,7 +564,7 @@ public sealed class VisibleSolidColliderTests
     {
         // Head .65 + outermost basketball seam .35 = 1 m: 5 cm clear of all solids.
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([
-            Place(PartId.PinballBumper, Element, new(0, (float)Y, 0), NumQuaternion.Identity),
+            Place(new PartId("bumper"), Element, new(0, (float)Y, 0), NumQuaternion.Identity),
             BallAt(new(1.05f, (float)Y + 1.2f, 0))]));
         await ring.Advance(60);
         Assert.True(Position(ring.Reads[^1]).Y < Y, "the ball passes the bumper");
@@ -585,7 +585,7 @@ public sealed class VisibleSolidColliderTests
         var turn = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, MathF.Atan2(.49f, .43f));
         var ringTop = MathF.Sqrt(.49f * .49f + .43f * .43f) + .018;
         var rest = Y + ringTop + BallRadius;
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(PartId.PinballBumper, Element, new(0, (float)Y, 0), turn),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(new PartId("bumper"), Element, new(0, (float)Y, 0), turn),
             BallAt(new(0, (float)(rest + .25), 0))]));
         await ring.Advance(60);
         double lowest = double.PositiveInfinity, fastest = 0;
@@ -615,7 +615,7 @@ public sealed class VisibleSolidColliderTests
     /// restitution 1) returns the Basketball at its own 0.55 under the product law, by the same drop and bounds.</summary>
     [Fact]
     public async Task ABallDroppedOntoAStaticWallReboundsAtItsOwnRestitution() =>
-        await AssertDropOnto(WorkshopInput.Generic(PartId.Wall, Element, 0, (float)(Y), 0, 0, 0, 0, 1, WallFixture.Default), 0, 0,
+        await AssertDropOnto(WorkshopInput.Generic(new PartId("wall"), Element, 0, (float)(Y), 0, 0, 0, 0, 1, WallFixture.Default), 0, 0,
             WallFixture.Default[new("height")] * .5, 1, "Wall", apex: false, fall: .5);
 
     private static async Task AssertDropOnto(IWorkshopInstance element, float x, float z, double top, double staticRestitution, string feature,
@@ -681,8 +681,8 @@ public sealed class VisibleSolidColliderTests
         var tip = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, -MathF.PI / 2) * NumQuaternion.CreateFromAxisAngle(NumVector3.UnitY, MathF.PI / 4);
         Assert.True((NumVector3.Transform(NumVector3.UnitY, tip) - NumVector3.UnitX).Length() < 1e-6f, "the tipped button's axis is world +X");
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([
-                Place(PartId.ImpactSwitch, Element, new(0, (float)Y, 0), tip),
-                Place(PartId.SignalLamp, Lamp, new(6, (float)Y, 0), NumQuaternion.Identity), BallAt(new(.33f, (float)Y + 1, z))],
+                Place(new PartId("switch"), Element, new(0, (float)Y, 0), tip),
+                Place(new PartId("lamp"), Lamp, new(6, (float)Y, 0), NumQuaternion.Identity), BallAt(new(.33f, (float)Y + 1, z))],
             new WorkshopConnection(Element, WorkshopSocket.ActivationOut, Lamp, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         await ring.Advance(90);
         // Below the tipped base's lowest corner, (0.55 + 0.5)/√2 = 0.742 m under the origin, less the radius, the ball is past it.
@@ -704,8 +704,8 @@ public sealed class VisibleSolidColliderTests
     {
         var rest = Y + .08 + BallRadius;
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([
-                Place(PartId.ImpactSwitch, Element, new(0, (float)Y, 0), NumQuaternion.Identity),
-                Place(PartId.SignalLamp, Lamp, new(6, (float)Y, 0), NumQuaternion.Identity), BallAt(new(.58f, (float)(rest + .5), 0))],
+                Place(new PartId("switch"), Element, new(0, (float)Y, 0), NumQuaternion.Identity),
+                Place(new PartId("lamp"), Lamp, new(6, (float)Y, 0), NumQuaternion.Identity), BallAt(new(.58f, (float)(rest + .5), 0))],
             new WorkshopConnection(Element, WorkshopSocket.ActivationOut, Lamp, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         await ring.Advance(90);
         double lowest = double.PositiveInfinity, fastest = 0;
@@ -735,9 +735,9 @@ public sealed class VisibleSolidColliderTests
         var slope = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, -5f * MathF.PI / 180);
         var ramp = new NumVector3(0, (float)Y, 0);
         NumVector3 World(float x, float y) => ramp + NumVector3.Transform(new(x, y, 0), slope);
-        var delay = Place(PartId.Delay, Element, World(.7f, .09f + .72f + .075f + .002f), slope * NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, MathF.PI / 2));
+        var delay = Place(new PartId("delay"), Element, World(.7f, .09f + .72f + .075f + .002f), slope * NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, MathF.PI / 2));
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([
-            Place(PartId.Ramp, Ramp, ramp, slope), delay, BallAt(World(-1.2f, .09f + (float)BallRadius + .002f))]));
+            Place(new PartId("ramp"), Ramp, ramp, slope), delay, BallAt(World(-1.2f, .09f + (float)BallRadius + .002f))]));
         await ring.Advance(480);
         var face = .7 - .625;
         var farthest = ring.Reads.Max(read => (double)NumVector3.Transform(Position(read) - ramp, NumQuaternion.Inverse(slope)).X);
@@ -762,7 +762,7 @@ public sealed class VisibleSolidColliderTests
         var facing = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitY, -MathF.PI / 2);
         Assert.True((NumVector3.Transform(NumVector3.UnitZ, facing) + NumVector3.UnitX).Length() < 1e-6f, "the gate's face looks along −X");
         var gate = Place(new PartId("both_gate"), Element, contact + new NumVector3(.37f + (float)BallRadius, 0, 0), facing);
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(PartId.Ramp, Ramp, ramp, slope), gate,
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(new PartId("ramp"), Ramp, ramp, slope), gate,
             BallAt(ramp + NumVector3.Transform(new(-1.2f, .09f + (float)BallRadius + .002f, 0), slope))]));
         await ring.Advance(480);
         var farthest = ring.Reads.Max(read =>
@@ -788,7 +788,7 @@ public sealed class VisibleSolidColliderTests
     {
         var slope = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitX, 5f * MathF.PI / 180);
         var ramp = new NumVector3(0, (float)Y, 0);
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(PartId.Ramp, Ramp, ramp, slope),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(new PartId("ramp"), Ramp, ramp, slope),
             BallAt(ramp + NumVector3.Transform(new(0, .09f + (float)BallRadius + .002f, 0), slope))]));
         await ring.Advance(480);
         var local = ring.Reads.Select(read => NumVector3.Transform(Position(read) - ramp, NumQuaternion.Inverse(slope))).ToArray();
@@ -850,9 +850,9 @@ public sealed class VisibleSolidColliderTests
         const float railX = 1.6f, slabTop = 2.33f;
         var depth = .0275f * width / 1.3f; // the rail's half-depth, as its binding scales it
         var turn = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitY, MathF.PI / 2); // local z → world +x
-        var test = Place(PartId.Ramp, Ramp, new(railX + .46f * width, slabTop - .09f, 0), turn,
+        var test = Place(new PartId("ramp"), Ramp, new(railX + .46f * width, slabTop - .09f, 0), turn,
             new([new(new("length"), 3f), new(new("width"), width)]));
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(PartId.Ramp, new(4), chuteAt, chute), test,
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(new PartId("ramp"), new(4), chuteAt, chute), test,
             BallAt(chuteAt + NumVector3.Transform(new(-1.2f, .09f + (float)BallRadius + .002f, 0), chute))]));
         await ring.Advance(240);
         var railTop = slabTop + .0475;

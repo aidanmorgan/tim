@@ -51,7 +51,7 @@ public sealed class PreConversionLaunchSaveTests
     [InlineData("spring default", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("spring charged", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("battery default", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.OutOfRange)]
     [InlineData("counter", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("switch threshold", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("resized ramp", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
@@ -80,7 +80,7 @@ public sealed class PreConversionLaunchSaveTests
     [InlineData("battery_disabled", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("battery_custom_120_30_half", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("battery_custom_disabled_zero", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.OutOfRange)]
     [InlineData("counter", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("impact_switch", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("ramp", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
@@ -109,24 +109,22 @@ public sealed class PreConversionLaunchSaveTests
             var save = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
             Assert.True(save.Reason == reason, $"battery {what}: {save.Reason}");
             var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
-            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
+            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
         }
-        foreach (var field in Enum.GetValues<TypedField>())
-            Refused(PayloadInstanceTests.GenericSave("battery", field, valid, 4f), field.ToString());
-        Refused(PayloadInstanceTests.GenericSave("battery", null, [.. valid, ("maximum_power", 30f)]), "undeclared parameter");
-        Refused(PayloadInstanceTests.GenericSave("battery", null, valid[1..]), "missing parameter");
-        Refused(PayloadInstanceTests.GenericSave("battery", null, [.. valid, valid[0]]), "duplicate parameter");
+        Refused(PayloadInstanceTests.GenericSave("battery", [.. valid, ("maximum_power", 30f)]), "undeclared parameter");
+        Refused(PayloadInstanceTests.GenericSave("battery", valid[1..]), "missing parameter");
+        Refused(PayloadInstanceTests.GenericSave("battery", [.. valid, valid[0]]), "duplicate parameter");
         foreach (var (key, value) in new[] { ("enabled", 2f), ("enabled", .5f), ("enabled", -1f), ("capacity", 59f), ("capacity", 14401f),
                      ("power_limit", 9f), ("power_limit", 481f), ("initial_charge", -.01f), ("initial_charge", 1.01f) })
-            Refused(PayloadInstanceTests.GenericSave("battery", null, valid.Select(pair => pair.Key == key ? (key, value) : pair).ToArray()),
+            Refused(PayloadInstanceTests.GenericSave("battery", valid.Select(pair => pair.Key == key ? (key, value) : pair).ToArray()),
                 $"{key} = {value}");
         // A non-finite value is the save boundary's NonFinite refusal (the command decode's OutOfRange).
-        Refused(PayloadInstanceTests.GenericSave("battery", null, valid.Select(pair => pair.Key == "capacity" ? (pair.Key, float.NaN) : pair).ToArray()),
+        Refused(PayloadInstanceTests.GenericSave("battery", valid.Select(pair => pair.Key == "capacity" ? (pair.Key, float.NaN) : pair).ToArray()),
             "capacity = NaN", WorkshopSaveRejection.NonFinite);
-        var bytes = PayloadInstanceTests.GenericSave("battery", null, valid);
+        var bytes = PayloadInstanceTests.GenericSave("battery", valid);
         var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances));
         Assert.Equal(PlacedParts.Battery(new(1), 0, 2, 0, 120f, 30f, .5f, ElectricalEnable.Disabled), loaded);
-        Assert.Equal(loaded, WorkshopWireFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value));
+        Assert.Equal(loaded, WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value));
     }
 
     // A current-layout Bumper or Springboard record is its declared parameters only: any typed record field (all 11, each with valid
@@ -144,17 +142,15 @@ public sealed class PreConversionLaunchSaveTests
             var save = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
             Assert.True(save.Reason == WorkshopSaveRejection.OutOfRange, $"{part} {what}: {save.Reason}");
             var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
-            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
+            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
         }
-        foreach (var field in Enum.GetValues<TypedField>())
-            Refused(PayloadInstanceTests.GenericSave(part, field, valid, 4f), field.ToString());
-        Refused(PayloadInstanceTests.GenericSave(part, null, [.. valid, ("preload", 1f)]), "undeclared parameter");
-        Refused(PayloadInstanceTests.GenericSave(part, null, valid[..^1]), "missing parameter");
-        Refused(PayloadInstanceTests.GenericSave(part, null, [.. valid, valid[0]]), "duplicate parameter");
-        var bytes = PayloadInstanceTests.GenericSave(part, null, valid);
+        Refused(PayloadInstanceTests.GenericSave(part, [.. valid, ("preload", 1f)]), "undeclared parameter");
+        Refused(PayloadInstanceTests.GenericSave(part, valid[..^1]), "missing parameter");
+        Refused(PayloadInstanceTests.GenericSave(part, [.. valid, valid[0]]), "duplicate parameter");
+        var bytes = PayloadInstanceTests.GenericSave(part, valid);
         var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances));
         Assert.Equal(new InstanceParameterCollection(valid.Select(pair => KeyValuePair.Create(new ParameterId(pair.Key), pair.Value))), loaded.Parameters);
-        Assert.Equal(loaded, WorkshopWireFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value));
+        Assert.Equal(loaded, WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value));
     }
 
     // Control: a current-layout generic Bumper and Springboard record of the same values loads at both boundaries.
@@ -165,8 +161,12 @@ public sealed class PreConversionLaunchSaveTests
             PlacedParts.Bumper(new(1), 0, 2, 0), PlacedParts.Springboard(new(2), 3, 2, 0, 0, 0, 0, 1, .2f)));
         var saved = new WorkshopSavedConstruction(construction, new(3));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved)));
-        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction,
+        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(construction),
             Session: new(1, 2), Cadence: new(1), Projection: new(1));
-        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)));
+        var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command));
+        Assert.Equal(command with { Scene = null }, decoded with { Scene = null });
+        Assert.Equal(command.Scene!.Identity, decoded.Scene!.Identity);
+        Assert.Equal(command.Scene.Physics.Bodies.ToArray(), decoded.Scene.Physics.Bodies.ToArray());
+        Assert.Equal(command.Scene.Owners, decoded.Scene.Owners);
     }
 }

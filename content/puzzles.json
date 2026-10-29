@@ -77,9 +77,6 @@
             0.9848077297210693
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "length": 3,
             "width": 1.3
@@ -149,9 +146,6 @@
             0.9848077297210693
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "length": 3,
             "width": 1.3
@@ -224,9 +218,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -293,9 +284,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -348,27 +336,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -1068,9 +1051,6 @@
             0.9848077297210693
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "stiffness": 400,
             "damping": 0.2,
@@ -1144,9 +1124,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -1213,9 +1190,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -1268,27 +1242,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -1674,7 +1643,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -1682,7 +1651,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -1767,9 +1736,6 @@
             1
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -1836,9 +1802,6 @@
             1
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -1905,9 +1868,6 @@
             1
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -1974,9 +1934,6 @@
             1
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -2054,9 +2011,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -2123,9 +2077,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -2192,9 +2143,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -3420,9 +3368,6 @@
             1
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "strength": 8
           },
@@ -3494,9 +3439,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -3563,9 +3505,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -3618,27 +3557,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -3905,9 +3839,6 @@
             0.7071067690849304
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "strength": 8
           },
@@ -3979,9 +3910,6 @@
             0.7071068
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -4048,9 +3976,6 @@
             0.7071068
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -4103,27 +4028,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -4716,9 +4636,6 @@
             1
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "strength": 8
           },
@@ -4787,9 +4704,6 @@
             1
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "width": 0.4,
             "height": 6,
@@ -4863,9 +4777,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -4932,9 +4843,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -4987,27 +4895,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -7102,9 +7005,9 @@
         ],
         "orientation": [
           -1,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           -1,
           0,
           0,
@@ -7477,9 +7380,9 @@
         ],
         "orientation": [
           -1,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           -1,
           0,
           0,
@@ -7787,11 +7690,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -7850,11 +7753,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -7913,11 +7816,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -7985,11 +7888,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -8070,11 +7973,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -8133,11 +8036,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -8196,11 +8099,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -8257,7 +8160,7 @@
           0
         ],
         "orientation": [
-          1.3113415775478643e-7,
+          1.3113415775478643e-07,
           0,
           1,
           0,
@@ -8265,7 +8168,7 @@
           0,
           -1,
           0,
-          1.3113415775478643e-7
+          1.3113415775478643e-07
         ],
         "properties": {
           "width": 3,
@@ -8335,11 +8238,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -8434,9 +8337,6 @@
             1
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "delay_seconds": 1
           },
@@ -8523,9 +8423,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -8592,9 +8489,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "trigger_threshold": 0.7998047
           },
@@ -8642,7 +8536,6 @@
           "assistance_bindings": [
             {
               "value": "TriggerThreshold",
-              "scalar": null,
               "parameter": "trigger_threshold"
             }
           ]
@@ -8669,9 +8562,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -8965,11 +8855,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -9028,11 +8918,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -9091,11 +8981,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -9154,11 +9044,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -9232,11 +9122,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-8,
+          8.742277657347586e-08,
           0,
           1,
           0,
-          -8.742277657347586e-8,
+          -8.742277657347586e-08,
           0,
           -1
         ],
@@ -9295,11 +9185,11 @@
         "orientation": [
           1,
           0,
-          -1.7484555314695172e-7,
+          -1.7484555314695172e-07,
           0,
           1,
           0,
-          1.7484555314695172e-7,
+          1.7484555314695172e-07,
           0,
           1
         ],
@@ -9408,10 +9298,9 @@
             0.9469301104545593
           ],
           "locked": false,
-          "scalars": {
-            "Length": 3.6
+          "parameters": {
+            "length": 3.6
           },
-          "parameters": {},
           "assistance": [
             [
               0,
@@ -9480,9 +9369,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -9549,9 +9435,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -9604,27 +9487,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -9891,9 +9769,6 @@
             0.7071067690849304
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -9963,9 +9838,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -10032,9 +9904,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -10087,27 +9956,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -10374,9 +10238,6 @@
             0.7071067690849304
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -10446,9 +10307,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -10515,9 +10373,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -10570,27 +10425,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -10857,10 +10707,9 @@
             0.9238795042037964
           ],
           "locked": false,
-          "scalars": {
-            "Length": 2
+          "parameters": {
+            "length": 2
           },
-          "parameters": {},
           "assistance": [
             [
               0,
@@ -10929,9 +10778,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -10998,9 +10844,6 @@
             0.92387956
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -11067,9 +10910,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -11122,27 +10962,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -17128,7 +16963,7 @@
           4
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -17136,7 +16971,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -17191,7 +17026,7 @@
           -2.5
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -17199,7 +17034,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -17254,7 +17089,7 @@
           -4
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -17262,7 +17097,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -17317,7 +17152,7 @@
           2.5
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -17325,7 +17160,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -17394,15 +17229,15 @@
           3.4
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -17457,15 +17292,15 @@
           0.7
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -17520,15 +17355,15 @@
           -3.4
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           0.3420201241970062,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -17583,15 +17418,15 @@
           -0.7
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           0.3420201241970062,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -17660,7 +17495,7 @@
           3
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -17668,7 +17503,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -17723,7 +17558,7 @@
           -1.7
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -17731,7 +17566,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -17786,7 +17621,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -17794,7 +17629,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -17849,7 +17684,7 @@
           1.7
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -17857,7 +17692,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -17926,7 +17761,7 @@
           4
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -17934,7 +17769,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -17989,7 +17824,7 @@
           -4
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -17997,7 +17832,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -18066,7 +17901,7 @@
           3
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -18074,7 +17909,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18129,7 +17964,7 @@
           0.7
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -18137,7 +17972,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18192,7 +18027,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -18200,7 +18035,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18255,7 +18090,7 @@
           -0.7
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -18263,7 +18098,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -18332,15 +18167,15 @@
           3
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18395,15 +18230,15 @@
           -3
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           0.3420201241970062,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -18473,7 +18308,7 @@
           4
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -18481,7 +18316,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18536,7 +18371,7 @@
           -3.2
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -18544,7 +18379,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18599,7 +18434,7 @@
           -4.5
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -18607,7 +18442,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18662,7 +18497,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -18670,7 +18505,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18725,7 +18560,7 @@
           1.7
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -18733,7 +18568,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18788,7 +18623,7 @@
           4.5
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -18796,7 +18631,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -18865,15 +18700,15 @@
           3.4
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18928,15 +18763,15 @@
           0.7
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -18991,7 +18826,7 @@
           -4
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -18999,7 +18834,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -28419,7 +28254,7 @@
           4
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -28427,7 +28262,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -28482,7 +28317,7 @@
           -2.5
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -28490,7 +28325,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -28545,7 +28380,7 @@
           3
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -28553,7 +28388,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -28608,7 +28443,7 @@
           -2
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -28616,7 +28451,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -28671,7 +28506,7 @@
           3.4
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -28679,7 +28514,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -28734,7 +28569,7 @@
           2
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -28742,7 +28577,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -28797,7 +28632,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -28805,7 +28640,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -28860,7 +28695,7 @@
           -0.7
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -28868,7 +28703,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -28942,15 +28777,15 @@
           3.4
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29005,15 +28840,15 @@
           0.7
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29068,7 +28903,7 @@
           2
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -29076,7 +28911,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29131,15 +28966,15 @@
           -3
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           0.3420201241970062,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -29225,7 +29060,7 @@
           4
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -29233,7 +29068,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29288,7 +29123,7 @@
           -3.2
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -29296,7 +29131,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29351,7 +29186,7 @@
           -4.5
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -29359,7 +29194,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29414,7 +29249,7 @@
           3
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -29422,7 +29257,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29477,7 +29312,7 @@
           0.7
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -29485,7 +29320,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29540,7 +29375,7 @@
           -4.5
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           -1,
           0,
@@ -29548,7 +29383,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29603,7 +29438,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -29611,7 +29446,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29666,7 +29501,7 @@
           1.7
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -29674,7 +29509,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29729,7 +29564,7 @@
           4.5
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -29737,7 +29572,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -29811,15 +29646,15 @@
           3.4
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29874,15 +29709,15 @@
           0.7
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -29937,15 +29772,15 @@
           3
         ],
         "orientation": [
-          -4.10752676316406e-8,
+          -4.10752676316406e-08,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-8,
+          -1.4950174431760388e-08,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       },
@@ -30000,7 +29835,7 @@
           -4
         ],
         "orientation": [
-          -4.371138828673793e-8,
+          -4.371138828673793e-08,
           0,
           1,
           0,
@@ -30008,7 +29843,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-8
+          -4.371138828673793e-08
         ],
         "properties": {}
       }
@@ -36007,9 +35842,6 @@
             1
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -36062,27 +35894,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -36111,9 +35938,6 @@
             1
           ],
           "locked": false,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -36166,27 +35990,22 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": null,
               "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": null,
               "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": null,
               "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": null,
               "parameter": "force_maximum_acceleration"
             }
           ]
@@ -36216,9 +36035,6 @@
             1
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {},
           "assistance": [
             [
@@ -36285,9 +36101,6 @@
             0.9659259
           ],
           "locked": true,
-          "scalars": {
-            "Length": 0
-          },
           "parameters": {
             "stiffness": 400,
             "damping": 0.2,

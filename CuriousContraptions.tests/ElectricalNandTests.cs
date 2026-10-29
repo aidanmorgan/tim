@@ -25,14 +25,14 @@ public sealed class ElectricalNandTests
     {
         var parts=new List<IWorkshopInstance>{
             Battery(1,-16,true),Battery(2,-10,true),
-            WorkshopInput.Generic(PartId.ImpactSwitch,new(3),-13,1,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.ImpactSwitch,new(4),-7,1,0,0,0,0,1)};
-        if((closed & ElectricalInputState.FirstOnly)!=0) parts.Add(WorkshopInput.Generic(PartId.Basketball,new(5),-13,3,0,0,0,0,1));
-        if((closed & ElectricalInputState.SecondOnly)!=0) parts.Add(WorkshopInput.Generic(PartId.Basketball,new(6),-7,3,0,0,0,0,1));
+            WorkshopInput.Generic(new PartId("switch"),new(3),-13,1,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("switch"),new(4),-7,1,0,0,0,0,1)};
+        if((closed & ElectricalInputState.FirstOnly)!=0) parts.Add(WorkshopInput.Generic(new PartId("ball"),new(5),-13,3,0,0,0,0,1));
+        if((closed & ElectricalInputState.SecondOnly)!=0) parts.Add(WorkshopInput.Generic(new PartId("ball"),new(6),-7,3,0,0,0,0,1));
         parts.Add(Battery(Supply,-2,supplyEnabled));
         var gate=WorkshopInput.Generic(Kind,new(Gate),3,3,0,0,0,0,1);
         if(gateFirst) parts.Insert(0,gate); else parts.Add(gate);
-        parts.Add(WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1));
+        parts.Add(WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1));
         var links=new[]{Link(1,3),Link(2,4),Link(3,Gate,WorkshopSocket.FirstIn),Link(4,Gate,WorkshopSocket.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)};
         if(reverseLinks) Array.Reverse(links);
         return new(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(links));
@@ -140,7 +140,7 @@ public sealed class ElectricalNandTests
         var parts=new List<IWorkshopInstance>{Battery(1,-8,false),Battery(2,-5,true),
             WorkshopInput.Generic(ElectricalOrTests.Kind,new(either),-1,3,-3,0,0,0,1),
             WorkshopInput.Generic(Kind,new(nand),3,3,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1)};
+            WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)};
         if(gateFirst) parts.Reverse();
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(
             Link(1,nand,WorkshopSocket.FirstIn),Link(1,either,WorkshopSocket.FirstIn),Link(2,either),
@@ -166,7 +166,7 @@ public sealed class ElectricalNandTests
             WorkshopInput.Generic(BothGateTests.Kind,new(4),-3,3,-3,0,0,0,1),
             WorkshopInput.Generic(BothGateTests.Kind,new(6),-6,3,-3,0,0,0,1),
             Battery(Supply,-2,true),
-            WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1)),
+            WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
             Connections:new(Link(4,6,WorkshopSocket.FirstIn),Link(4,6,WorkshopSocket.SecondIn),Link(4,6),
                 Link(6,4,WorkshopSocket.FirstIn),Link(6,4,WorkshopSocket.SecondIn),Link(6,4),
                 Link(4,Gate,WorkshopSocket.FirstIn),Link(6,Gate,WorkshopSocket.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)));
@@ -196,7 +196,7 @@ public sealed class ElectricalNandTests
                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
             FeedbackLoop.ThroughOr => (new[]{supply,Nand(4,0),Either(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
-            FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Nand(4,0),WorkshopInput.Generic(PartId.ImpactSwitch,new(6),4,1,0,0,0,0,1)},
+            FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Nand(4,0),WorkshopInput.Generic(new PartId("switch"),new(6),4,1,0,0,0,0,1)},
                 new[]{Link(1,4),Link(4,6)},Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
             FeedbackLoop.EnteringPowerIn => (new[]{supply,Nand(4,0),Both(6,4),Both(7,8)},
                 new[]{Link(1,6),Link(1,7),Link(4,7,WorkshopSocket.FirstIn),Link(7,6,WorkshopSocket.FirstIn)},
@@ -228,13 +228,13 @@ public sealed class ElectricalNandTests
         Assert.Equal(open,WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Forged(open,10)).Construction); // control
         // The simulation refuses the candidate and keeps its construction.
         await using var device=new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()),new(101,206));
-        await using var simulation=new WorkshopSimulation(device,new WorkshopPhysicsEngineTests.StepClock(),WorkshopCadenceSettings.Default(),
+        await using var simulation=new WorkshopSimulation(device,new WorkshopPhysicsEngineTests.StepClock(),CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)),
             new(1),new WorkshopPhysicsEngineTests.NoInstallation(),GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Initialize()).Outcome);
-        var before=simulation.Construction;
-        Assert.Equal(new WorkshopCommandResult(WorkshopCommandOutcome.Rejected,WorkshopRejection.InvalidConstruction),await simulation.Construct(looped));
-        Assert.Equal(before,simulation.Construction);
-        Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Construct(open)).Outcome);
+        var before=simulation.Scene;
+        EditRefusal.Is(WorkshopEditRejection.NonmonotoneFeedback, () => CompiledSceneFixture.Compile(looped));
+        Assert.Equal(before,simulation.Scene);
+        Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Construct(CompiledSceneFixture.Compile(open))).Outcome);
     }
 
     /// <summary>The refusal fits the status line however long the loop: the first four ids, ascending, then a count.</summary>
@@ -267,7 +267,7 @@ public sealed class ElectricalNandTests
     {
         var (open,closing,_)=LoopCase(FeedbackLoop.ThroughBothGate);
         var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
-        var edges=SupplyTopology.Create(open,DeclaredPhysics.Of).Edges;
+        var edges=WorkshopSupplyCompiler.Compile(open,DeclaredPhysics.Of).Edges;
         _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies);
         var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,closing.Input)).ToArray();
         var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies));
@@ -296,7 +296,7 @@ public sealed class ElectricalNandTests
         new(new(2),WorkshopCadenceSettings.Default(),new(
             Battery(1,-8,false),Battery(2,-5,false),Battery(3,-2,true),
             WorkshopInput.Generic(Kind,new(4),3,3,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1)),
+            WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
             Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,Consumer)));
 
     [Fact]
@@ -311,12 +311,12 @@ public sealed class ElectricalNandTests
             Assert.All(phases[i],read=>Assert.Equal(new(new(4),expected[i].Item1,expected[i].Item2,expected[i].Item3),Logic(read,4)));
         var (built,_,_)=await WorkshopIntegrationHarness.ObserveReset(construction,1);
         Assert.Equal(new(new(4),ElectricalInputState.Neither,false,false),Logic(built,4));
-        WorkshopMessages.ValidatePresentationOwners(built,construction);
-        foreach(var read in phases.SelectMany(rows=>rows)) WorkshopMessages.ValidatePresentationOwners(read,construction);
+        WorkshopMessages.ValidatePresentationOwners(built,CompiledSceneFixture.Compile(construction));
+        foreach(var read in phases.SelectMany(rows=>rows)) WorkshopMessages.ValidatePresentationOwners(read,CompiledSceneFixture.Compile(construction));
         var row=Logic(phases[0][^1],4);
         WorkshopRead Replace(WorkshopRead read,ElectricalLogicRead logic)=>read with {Presentation=new(read.Presentation.Actuators,read.Presentation.Loads,[logic])};
         // An And-shaped row (00 supplied but inactive) contradicts the declared Nand law and is refused at admission.
-        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(phases[0][^1],row with {Active=false}),construction));
+        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(phases[0][^1],row with {Active=false}),CompiledSceneFixture.Compile(construction)));
     }
 
     internal static void ElectricalWorkshopControls(out WorkshopElectricalControl[] none,out WorkshopElectricalControl[] first,
@@ -360,14 +360,14 @@ public sealed class ElectricalNandPresentationTests(NativeSceneFixture godot)
             foreach(var (read,first,second,output) in new[]{(phases[0][^1],slate,slate,gold),(phases[1][^1],gold,slate,gold),(phases[2][^1],gold,gold,slate)})
             {
                 var response=BothGatePresentationTests.Response(read,++publication);
-                if(evaluator is null){evaluator=new WorkshopDeclaredPresentation(construction,response);time=read.Capture!.Value.Time.Value/1_000_000_000d;}
+                if(evaluator is null){evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),response);time=read.Capture!.Value.Time.Value/1_000_000_000d;}
                 else evaluator.Accept(response);
                 time+=.2;
                 foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
                 Assert.Equal(first,Colour("FirstLamp"));Assert.Equal(second,Colour("SecondLamp"));Assert.Equal(output,Colour("OutputLamp"));
             }
             var (built,_,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,2);
-            evaluator=new WorkshopDeclaredPresentation(construction,BothGatePresentationTests.Response(reset,1));
+            evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),BothGatePresentationTests.Response(reset,1));
             foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time+1))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
             Assert.Equal(built.Presentation.Actuators.ToArray(), reset.Presentation.Actuators.ToArray());
         Assert.Equal(built.Presentation.Loads.ToArray(), reset.Presentation.Loads.ToArray());

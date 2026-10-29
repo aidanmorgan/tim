@@ -23,11 +23,11 @@ public sealed class DominoEffectTests
     {
         var lesson = Lesson(.45f);
         Assert.Equal(new PuzzleId("domino_effect"), lesson.Puzzle.Id);
-        Assert.Equal(PartId.Domino, lesson.Puzzle.InventoryPart);
+        Assert.Equal(new PartId("domino"), lesson.Puzzle.InventoryPart);
         Assert.Equal(4u, lesson.Puzzle.InventoryCount);
         Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, new(2), new(3), new(0f)), lesson.Puzzle.Goal);
         Assert.All(lesson.Instances, instance => Assert.True(instance.Locked));
-        var ball = Payloads.First(lesson); var end = lesson.Instances.Single(instance => instance.PartId == PartId.Domino); var lamp = lesson.Instances.Single(instance => instance.PartId == PartId.SignalLamp);
+        var ball = Payloads.First(lesson); var end = lesson.Instances.Single(instance => instance.PartId == new PartId("domino")); var lamp = lesson.Instances.Single(instance => instance.PartId == new PartId("lamp"));
         At(-4.4, ball.Cell.X, ball.Local.X); At(3, ball.Cell.Y, ball.Local.Y);
         At(.1, end.Cell.X, end.Local.X); At(.09, end.Cell.Y, end.Local.Y);
         Assert.Equal(CanonicalRotation.Identity, end.Rotation);
@@ -64,8 +64,8 @@ public sealed class DominoEffectTests
     {
         var lesson = Lesson(); var solved = Solved(lesson);
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => solved.WithInstance(PlacedParts.Domino(new(9), 1, (float)(Upright), 0, 0, 0, 0, 1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(PartId.ImpactSwitch, new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(new PartId("basket"), new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(new PartId("switch"), new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(PlacedParts.Lamp(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(Payloads.First(lesson) with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(PlacedParts.Domino(new(2), .5f, .09f, 0, 0, 0, 0, 1, locked: true)).Validate());

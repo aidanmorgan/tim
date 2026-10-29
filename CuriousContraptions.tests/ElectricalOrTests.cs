@@ -29,14 +29,14 @@ public sealed class ElectricalOrTests
     {
         var parts=new List<IWorkshopInstance>{
             Battery(1,-16,true),Battery(2,-10,true),
-            WorkshopInput.Generic(PartId.ImpactSwitch,new(3),-13,1,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.ImpactSwitch,new(4),-7,1,0,0,0,0,1)};
-        if((closed & ElectricalInputState.FirstOnly)!=0) parts.Add(WorkshopInput.Generic(PartId.Basketball,new(5),-13,3,0,0,0,0,1));
-        if((closed & ElectricalInputState.SecondOnly)!=0) parts.Add(WorkshopInput.Generic(PartId.Basketball,new(6),-7,3,0,0,0,0,1));
+            WorkshopInput.Generic(new PartId("switch"),new(3),-13,1,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("switch"),new(4),-7,1,0,0,0,0,1)};
+        if((closed & ElectricalInputState.FirstOnly)!=0) parts.Add(WorkshopInput.Generic(new PartId("ball"),new(5),-13,3,0,0,0,0,1));
+        if((closed & ElectricalInputState.SecondOnly)!=0) parts.Add(WorkshopInput.Generic(new PartId("ball"),new(6),-7,3,0,0,0,0,1));
         parts.Add(Battery(Supply,-2,supplyEnabled));
         var gate=WorkshopInput.Generic(Kind,new(Gate),3,3,0,0,0,0,1);
         if(gateFirst) parts.Insert(0,gate); else parts.Add(gate);
-        parts.Add(WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1));
+        parts.Add(WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1));
         var links=new[]{Link(1,3),Link(2,4),Link(3,Gate,WorkshopSocket.FirstIn),Link(4,Gate,WorkshopSocket.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)};
         if(reverseLinks) Array.Reverse(links);
         return new(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(links));
@@ -152,7 +152,7 @@ public sealed class ElectricalOrTests
         ulong a=swapIds?6UL:4UL, b=swapIds?4UL:6UL;
         var parts=new List<IWorkshopInstance>{Battery(1,-8,false),Battery(2,-5,true),
             WorkshopInput.Generic(Kind,new(a),-1,3,-3,0,0,0,1),WorkshopInput.Generic(Kind,new(b),3,3,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1)};
+            WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)};
         if(swapIds) parts.Reverse();
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(
             Link(a,b,WorkshopSocket.FirstIn),Link(b,a,WorkshopSocket.FirstIn),Link(1,a,WorkshopSocket.SecondIn),
@@ -194,8 +194,8 @@ public sealed class ElectricalOrTests
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(
             Battery(1,-8,true),Battery(2,-5,true),
             WorkshopInput.Generic(kind,new(Gate),3,3,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.ImpactSwitch,new(6),-1,1,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1)),
+            WorkshopInput.Generic(new PartId("switch"),new(6),-1,1,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
             Connections:new(Link(Gate,6),Link(6,Gate,WorkshopSocket.FirstIn),Link(1,Gate,WorkshopSocket.SecondIn),Link(2,Gate),Link(Gate,Consumer)));
         construction.Validate();
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,120);
@@ -230,7 +230,7 @@ public sealed class ElectricalOrTests
             // CAT-026 O10 / CAT-027 X9: Xor → Or → Xor.
             FeedbackLoop.WithXor => (new[]{supply,Either(4,0),Xor(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
-            FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Either(4,0),WorkshopInput.Generic(PartId.ImpactSwitch,new(6),4,1,0,0,0,0,1),Nor(7,8)},
+            FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Either(4,0),WorkshopInput.Generic(new PartId("switch"),new(6),4,1,0,0,0,0,1),Nor(7,8)},
                 new[]{Link(1,4),Link(1,7),Link(4,6),Link(6,7,WorkshopSocket.FirstIn)},Link(7,4,WorkshopSocket.FirstIn),"4, 6, 7"),
             FeedbackLoop.EnteringPowerIn => (new[]{supply,Nand(4,0),Either(6,4)},new[]{Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4),"4, 6"),
@@ -258,13 +258,13 @@ public sealed class ElectricalOrTests
         Assert.Equal(WorkshopEditRejection.NonmonotoneFeedback,Assert.IsType<WorkshopEditRejectedException>(saveRefusal.InnerException).Reason);
         Assert.Equal(open,WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Forged(open,10)).Construction); // control
         await using var device=new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()),new(101,206));
-        await using var simulation=new WorkshopSimulation(device,new WorkshopPhysicsEngineTests.StepClock(),WorkshopCadenceSettings.Default(),
+        await using var simulation=new WorkshopSimulation(device,new WorkshopPhysicsEngineTests.StepClock(),CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)),
             new(1),new WorkshopPhysicsEngineTests.NoInstallation(),GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Initialize()).Outcome);
-        var before=simulation.Construction;
-        Assert.Equal(new WorkshopCommandResult(WorkshopCommandOutcome.Rejected,WorkshopRejection.InvalidConstruction),await simulation.Construct(looped));
-        Assert.Equal(before,simulation.Construction);
-        Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Construct(open)).Outcome);
+        var before=simulation.Scene;
+        EditRefusal.Is(WorkshopEditRejection.NonmonotoneFeedback, () => CompiledSceneFixture.Compile(looped));
+        Assert.Equal(before,simulation.Scene);
+        Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Construct(CompiledSceneFixture.Compile(open))).Outcome);
     }
 
     [Fact]
@@ -287,7 +287,7 @@ public sealed class ElectricalOrTests
         {
             var (open,closing,_)=LoopCase(loop);
             var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
-            var edges=SupplyTopology.Create(open,DeclaredPhysics.Of).Edges;
+            var edges=WorkshopSupplyCompiler.Compile(open,DeclaredPhysics.Of).Edges;
             var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,closing.Input)).ToArray();
             CompiledSupplyGraph Build()=>new(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies);
             if(admitted) _=Build();
@@ -321,7 +321,7 @@ public sealed class ElectricalOrTests
         new(new(2),WorkshopCadenceSettings.Default(),new(
             Battery(1,-8,false),Battery(2,-5,false),Battery(3,-2,true),
             WorkshopInput.Generic(Kind,new(4),3,3,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1)),
+            WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
             Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,Consumer)));
 
     /// <summary>Battery controls reaching each row in turn: 00, 10, 01, 11 supplied, then 11 without supply.</summary>
@@ -343,13 +343,13 @@ public sealed class ElectricalOrTests
             Assert.All(phases[i],read=>Assert.Equal(new(new(4),Rows[i].Inputs,Rows[i].Supplied,Rows[i].Active),Logic(read,4)));
         var (built,_,_)=await WorkshopIntegrationHarness.ObserveReset(construction,1);
         Assert.Equal(new(new(4),ElectricalInputState.Neither,false,false),Logic(built,4));
-        WorkshopMessages.ValidatePresentationOwners(built,construction);
-        foreach(var read in phases.SelectMany(rows=>rows)) WorkshopMessages.ValidatePresentationOwners(read,construction);
+        WorkshopMessages.ValidatePresentationOwners(built,CompiledSceneFixture.Compile(construction));
+        foreach(var read in phases.SelectMany(rows=>rows)) WorkshopMessages.ValidatePresentationOwners(read,CompiledSceneFixture.Compile(construction));
         WorkshopRead Replace(WorkshopRead read,ElectricalLogicRead logic)=>read with {Presentation=new(read.Presentation.Actuators,read.Presentation.Loads,[logic])};
         // Rows contradicting the declared Or law are refused at admission: a supplied 01 left off (an And-shaped row) and a supplied
         // 00 passed on (a Nand- or Nor-shaped row).
-        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(phases[2][^1],Logic(phases[2][^1],4) with {Active=false}),construction));
-        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(phases[0][^1],Logic(phases[0][^1],4) with {Active=true}),construction));
+        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(phases[2][^1],Logic(phases[2][^1],4) with {Active=false}),CompiledSceneFixture.Compile(construction)));
+        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(phases[0][^1],Logic(phases[0][^1],4) with {Active=true}),CompiledSceneFixture.Compile(construction)));
     }
 }
 
@@ -392,7 +392,7 @@ public sealed class ElectricalOrPresentationTests(NativeSceneFixture godot)
             {
                 var read=phases[i][^1];
                 var response=BothGatePresentationTests.Response(read,++publication);
-                if(evaluator is null){evaluator=new WorkshopDeclaredPresentation(construction,response);time=read.Capture!.Value.Time.Value/1_000_000_000d;}
+                if(evaluator is null){evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),response);time=read.Capture!.Value.Time.Value/1_000_000_000d;}
                 else evaluator.Accept(response);
                 time+=.2;
                 foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
@@ -401,7 +401,7 @@ public sealed class ElectricalOrPresentationTests(NativeSceneFixture godot)
                 Assert.Equal(Lit(rows[i].Active),Colour("OutputLamp"));
             }
             var (built,_,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,2);
-            evaluator=new WorkshopDeclaredPresentation(construction,BothGatePresentationTests.Response(reset,1));
+            evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),BothGatePresentationTests.Response(reset,1));
             foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time+1))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
             Assert.Equal(built.Presentation.Actuators.ToArray(), reset.Presentation.Actuators.ToArray());
         Assert.Equal(built.Presentation.Loads.ToArray(), reset.Presentation.Loads.ToArray());

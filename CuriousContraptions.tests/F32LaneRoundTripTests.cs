@@ -21,13 +21,13 @@ public sealed class F32LaneRoundTripTests
     /// significand.</summary>
     private static WorkshopConstruction Bench()
     {
-        var capture = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
+        var capture = InstanceParameterCollection.Defaults(new PartId("basket")).ToDictionary();
         capture[new("capture_margin")] = Margin; capture[new("capture_speed_limit")] = Speed; capture[new("capture_dwell")] = Dwell;
         capture[new("force_support_margin")] = SupportMargin; capture[new("force_maximum_acceleration")] = Acceleration;
         return new(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(PartId.Basketball, Ball, 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Receiver, Receiver, 3, 1, 0, 0, 0, 0, 1, new(capture)),
-            WorkshopInput.Generic(PartId.ImpactSwitch, Switch, -3, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), Threshold)])),
+            WorkshopInput.Generic(new PartId("ball"), Ball, 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("basket"), Receiver, 3, 1, 0, 0, 0, 0, 1, new(capture)),
+            WorkshopInput.Generic(new PartId("switch"), Switch, -3, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), Threshold)])),
             PlacedParts.Domino(Tile, -6, (float)(-.46 + .55), 0, 0, 0, 0, 1),
             PlacedParts.Lamp(Lamp, -6, 1, 2, 0, 0, 0, 1),
             PlacedParts.Bumper(Bumper, 6, 1, 0, strength: Strength)),
@@ -64,7 +64,7 @@ public sealed class F32LaneRoundTripTests
         // Receiver: its capture speed limit and dwell, the upper bound Y plus the margin (one f32 rounding), and its guide.
         var sensor = scene.Sensors.ToArray().Single(row => row.Frame == Receiver);
         var guide = scene.Guides.ToArray().Single(row => row.Frame == Receiver);
-        var capture = DeclaredPhysics.Of(PartId.Receiver).Mechanical!.Capture!.Value;
+        var capture = DeclaredPhysics.Of(new PartId("basket")).Mechanical!.Capture!.Value;
         var sensorOffset = layout.GetSensorOffset(sensor.Id);
         Assert.Equal((Bits(Speed), Bits(Dwell), Bits(capture.Maximum.Y + Margin)), (Lane(admitted, sensorOffset + PhysicsGpuAbi.SensorSpeedLimitOffset),
             Lane(admitted, sensorOffset + PhysicsGpuAbi.SensorDwellOffset), Lane(admitted, sensorOffset + PhysicsGpuAbi.SensorMaximumOffset + 4)));

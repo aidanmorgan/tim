@@ -12,15 +12,15 @@ public sealed class WorkbenchCapacityTests
     private static double X(int i) => -6 + i * .4;
     private static IWorkshopInstance Make(PartId kind, int i)
     {
-        if (kind == PartId.Basketball) return WorkshopInput.Generic(PartId.Basketball,Id(), (float)(X(i)), 5, 0, 0, 0, 0, 1);
-        if (kind == PartId.Receiver) return WorkshopInput.Generic(PartId.Receiver, Id(), (float)(X(i)), 1, 2, 0, 0, 0, 1);
-        if (kind == PartId.Ramp) return WorkshopInput.Generic(PartId.Ramp, Id(), (float)(X(i)), 2, -2, 0, 0, 0, 1);
-        if (kind == PartId.Wall) return WorkshopInput.Generic(PartId.Wall, Id(), (float)(X(i)), 2, 4, 0, 0, 0, 1, WallFixture.Default);
-        if (kind == PartId.ImpactSwitch) return WorkshopInput.Generic(PartId.ImpactSwitch, Id(), (float)(X(i)), 1, -4, 0, 0, 0, 1);
-        if (kind == PartId.SignalLamp) return PlacedParts.Lamp(Id(), (float)(X(i)), 1, 6, 0, 0, 0, 1);
-        if (kind == PartId.Delay) return WorkshopInput.Generic(PartId.Delay, Id(), (float)(X(i)), 1, -6, 0, 0, 0, 1);
-        if (kind == PartId.Pipe) return WorkshopInput.Pipe(Id(), (float)(X(i)), 3, 0, 0, 0, 0, 1);
-        if (kind == PartId.PipeBend45) return WorkshopInput.PipeBend45(Id(), (float)(X(i)), 3, 0, 0, 0, 0, 1);
+        if (kind == new PartId("ball")) return WorkshopInput.Generic(new PartId("ball"),Id(), (float)(X(i)), 5, 0, 0, 0, 0, 1);
+        if (kind == new PartId("basket")) return WorkshopInput.Generic(new PartId("basket"), Id(), (float)(X(i)), 1, 2, 0, 0, 0, 1);
+        if (kind == new PartId("ramp")) return WorkshopInput.Generic(new PartId("ramp"), Id(), (float)(X(i)), 2, -2, 0, 0, 0, 1);
+        if (kind == new PartId("wall")) return WorkshopInput.Generic(new PartId("wall"), Id(), (float)(X(i)), 2, 4, 0, 0, 0, 1, WallFixture.Default);
+        if (kind == new PartId("switch")) return WorkshopInput.Generic(new PartId("switch"), Id(), (float)(X(i)), 1, -4, 0, 0, 0, 1);
+        if (kind == new PartId("lamp")) return PlacedParts.Lamp(Id(), (float)(X(i)), 1, 6, 0, 0, 0, 1);
+        if (kind == new PartId("delay")) return WorkshopInput.Generic(new PartId("delay"), Id(), (float)(X(i)), 1, -6, 0, 0, 0, 1);
+        if (kind == new PartId("pipe")) return WorkshopInput.Generic(new PartId("pipe"),Id(), (float)(X(i)), 3, 0, 0, 0, 0, 1);
+        if (kind == new PartId("pipe_bend_45")) return WorkshopInput.Generic(new PartId("pipe_bend_45"), Id(), (float)(X(i)), 3, 0, 0, 0, 0, 1);
         throw new ArgumentException($"Unsupported test part id '{kind}'.");
     }
     private static WorkshopInstances Population(params (PartId Kind, int Count)[] groups)
@@ -34,10 +34,10 @@ public sealed class WorkbenchCapacityTests
     [Fact]
     public void ReceiverPoliciesScaleWithOwnersRatherThanPotentialPayloadPairs()
     {
-        var owners = Population((PartId.Receiver, 3));
+        var owners = Population((new PartId("basket"), 3));
         // Unit-spaced centres clear each ball's .35 m seam-inclusive reach.
         var instances = new WorkshopInstances([.. owners, .. Enumerable.Range(0, 17).Select(i =>
-            (IWorkshopInstance)WorkshopInput.Generic(PartId.Basketball, Id(), (float)(i - 8), 5, 0, 0, 0, 0, 1))]);
+            (IWorkshopInstance)WorkshopInput.Generic(new PartId("ball"), Id(), (float)(i - 8), 5, 0, 0, 0, 0, 1))]);
         Free(instances).Validate();
         var scene = WorkshopPhysicsCompiler.Compile(Free(instances), new(1, 2));
         Assert.Equal(3, scene.Sensors.Length);
@@ -50,7 +50,7 @@ public sealed class WorkbenchCapacityTests
     public async Task HeavyCompoundConstructionsValidateCompileAndStepWithoutColliderLimits()
     {
         // 20 pipes (3 hollow colliders each: shell tube and two collar tori) and 10 pipe bends (5 each: arc, two stubs, two collars).
-        var heavy = Population((PartId.Pipe, 20), (PartId.PipeBend45, 10));
+        var heavy = Population((new PartId("pipe"), 20), (new PartId("pipe_bend_45"), 10));
         Free(heavy).Validate();
         var scene = WorkshopPhysicsCompiler.Compile(Free(heavy), new(1, 2));
         Assert.Equal(20 * 3 + 10 * 5 + 1, scene.Colliders.Length);
@@ -84,26 +84,26 @@ public sealed class WorkbenchCapacityTests
     {
         // Fixture identities sit far above the shared test counter so WithInstance appends rather than replaces.
         var first = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(100001), new(.5f));
-        Assert.Equal(PartId.Ramp, first.Puzzle.InventoryPart);
+        Assert.Equal(new PartId("ramp"), first.Puzzle.InventoryPart);
         Assert.Equal(2u, first.Puzzle.InventoryCount);
-        var ramps = first.WithInstance(Make(PartId.Ramp, 0)).WithInstance(Make(PartId.Ramp, 1));
+        var ramps = first.WithInstance(Make(new PartId("ramp"), 0)).WithInstance(Make(new PartId("ramp"), 1));
         ramps.Validate();
-        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => ramps.WithInstance(Make(PartId.Ramp, 2)).Validate());
-        Assert.ThrowsAny<ArgumentException>(() => first.WithInstance(Make(PartId.Receiver, 3)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => first.WithInstance(Make(PartId.Wall, 4)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => ramps.WithInstance(Make(new PartId("ramp"), 2)).Validate());
+        Assert.ThrowsAny<ArgumentException>(() => first.WithInstance(Make(new PartId("basket"), 3)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => first.WithInstance(Make(new PartId("wall"), 4)).Validate());
 
         var delayed = PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(100001), new(.5f));
-        Assert.Equal(PartId.Delay, delayed.Puzzle.InventoryPart);
+        Assert.Equal(new PartId("delay"), delayed.Puzzle.InventoryPart);
         Assert.Equal(1u, delayed.Puzzle.InventoryCount);
-        var delay = delayed.WithInstance(Make(PartId.Delay, 0));
+        var delay = delayed.WithInstance(Make(new PartId("delay"), 0));
         delay.Validate();
-        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => delay.WithInstance(Make(PartId.Delay, 1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => delayed.WithInstance(Make(PartId.SignalLamp, 2)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => delayed.WithInstance(Make(PartId.ImpactSwitch, 3)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => delay.WithInstance(Make(new PartId("delay"), 1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => delayed.WithInstance(Make(new PartId("lamp"), 2)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => delayed.WithInstance(Make(new PartId("switch"), 3)).Validate());
 
         var inventory = WorkshopInventoryPolicy.Authored(first.Puzzle);
         Assert.Equal(PartAllowance.Counted(2), Assert.Single(inventory).Value);
-        Assert.Equal(PartAllowance.Counted(1), WorkshopInventoryPolicy.Authored(delayed.Puzzle)[PartId.Delay]);
+        Assert.Equal(PartAllowance.Counted(1), WorkshopInventoryPolicy.Authored(delayed.Puzzle)[new PartId("delay")]);
         Assert.Throws<ArgumentException>(() => WorkshopInventoryPolicy.Authored(default));
     }
 
@@ -128,21 +128,21 @@ public sealed class WorkbenchCapacityTests
         "ball" or "bowling" => WorkshopInput.Generic(kind, id, (float)(x), 4, (float)(z), 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(id, (float)(x), (float)(DominoUpright + .01), (float)(z), 0, 0, 0, 1),
         "weight" => WorkshopInput.Generic(kind, id, (float)(x), 4, (float)(z), 0, 0, 0, 1),
-        "basket" => WorkshopInput.Generic(PartId.Receiver, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
-        "ramp" => WorkshopInput.Generic(PartId.Ramp, id, (float)(x), 2, (float)(z), 0, 0, 0, 1),
-        "wall" => WorkshopInput.Generic(PartId.Wall, id, (float)(x), 2, (float)(z), 0, 0, 0, 1, WallFixture.Default),
-        "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
+        "basket" => WorkshopInput.Generic(new PartId("basket"), id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
+        "ramp" => WorkshopInput.Generic(new PartId("ramp"), id, (float)(x), 2, (float)(z), 0, 0, 0, 1),
+        "wall" => WorkshopInput.Generic(new PartId("wall"), id, (float)(x), 2, (float)(z), 0, 0, 0, 1, WallFixture.Default),
+        "switch" => WorkshopInput.Generic(new PartId("switch"), id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
         "lamp" => PlacedParts.Lamp(id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
         "delay" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" => WorkshopInput.Generic(kind, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
-        "bumper" => WorkshopInput.Generic(PartId.PinballBumper, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
+        "bumper" => WorkshopInput.Generic(new PartId("bumper"), id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
         "battery" => PlacedParts.Battery(id, (float)(x), 1, (float)(z)),
-        "spring" => WorkshopInput.Generic(PartId.Springboard, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
-        "pipe" => WorkshopInput.Pipe(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
+        "spring" => WorkshopInput.Generic(new PartId("spring"), id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
+        "pipe" => WorkshopInput.Generic(new PartId("pipe"),id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
         "ball_detector" => PlacedParts.Detector(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "pipe_bend_45" => WorkshopInput.PipeBend45(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "pipe_bend_90" => WorkshopInput.PipeBend90(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "funnel" => WorkshopInput.Funnel(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "powered_gate" => WorkshopInput.Generic(PartId.PoweredGate, id, (float)(x), 0, (float)(z), 0, 0, 0, 1),
+        "pipe_bend_45" => WorkshopInput.Generic(new PartId("pipe_bend_45"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
+        "pipe_bend_90" => WorkshopInput.Generic(new PartId("pipe_bend_90"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
+        "funnel" => WorkshopInput.Generic(new PartId("funnel"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
+        "powered_gate" => WorkshopInput.Generic(new PartId("powered_gate"), id, (float)(x), 0, (float)(z), 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(id, (float)(x), 1, (float)(z), .5f),
         "counter" => PlacedParts.Counter(id, (float)(x), 1, (float)(z), 0, 0, 0, 1, 3),
         "clock" => PlacedParts.Clock(id, (float)(x), 1, (float)(z), 0, 0, 0, 1, 1f),
@@ -181,7 +181,7 @@ public sealed class WorkbenchCapacityTests
     public void TheUndeliveredPartsStayOffTheFreePalette()
     {
         // Spec D2 (9R.2): Tennis and Balloon throw in CaptureInstance and Story 9R.0c removed them from the palette.
-        foreach (var undelivered in UndeliveredParts.Ids)
+        foreach (var undelivered in new PartId[] { new("tennis"), new("balloon") })
         {
             Assert.False(FreePalette.ContainsKey(undelivered));
             Assert.Throws<ArgumentException>(() => Place(undelivered, new(1), 0, 0));
@@ -199,7 +199,7 @@ public sealed class WorkbenchCapacityTests
     [InlineData(410)]
     public async Task BendBenchesAcrossTheRetiredColliderCeilingCompileAndStep(int bends)
     {
-        var bench = Bench(Grid(PartId.PipeBend90, bends));
+        var bench = Bench(Grid(new PartId("pipe_bend_90"), bends));
         bench.Validate();
         Assert.Equal(1 + bends * 5, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Colliders.Length);
         var reads = await WorkshopIntegrationHarness.Observe(bench, SteppedTicks);
@@ -215,12 +215,12 @@ public sealed class WorkbenchCapacityTests
     public async Task ABallRestsInTheLastOfFourHundredElevenBendsAndFallsWithoutIt(bool withLastBend)
     {
         var parts = Enumerable.Range(0, 410)
-            .Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new((ulong)i + 1), i < 30 ? -6 + i % 6 : 20 + (i - 30) % 16 * 1.6f, 3,
+            .Select(i => (IWorkshopInstance)WorkshopInput.Generic(new PartId("pipe_bend_90"), new((ulong)i + 1), i < 30 ? -6 + i % 6 : 20 + (i - 30) % 16 * 1.6f, 3,
                 i < 30 ? -3 + i / 6 * 1.5f : -5 + (i - 30) / 16 * 2.5f, 0, 0, 0, 1))
             .ToList();
         var cradle = new GpuBodyId(411);
-        if (withLastBend) parts.Add(WorkshopInput.PipeBend90(cradle, 6, 3, 0, 0, 0, (float)(CradleZ), (float)(CradleW)));
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(412), 6, 3, 0, 0, 0, 0, 1);
+        if (withLastBend) parts.Add(WorkshopInput.Generic(new PartId("pipe_bend_90"), cradle, 6, 3, 0, 0, 0, (float)(CradleZ), (float)(CradleW)));
+        var ball = WorkshopInput.Generic(new PartId("ball"),new(412), 6, 3, 0, 0, 0, 0, 1);
         parts.Add(ball);
         var bench = Bench(new([.. parts]));
         bench.Validate();
@@ -242,14 +242,14 @@ public sealed class WorkbenchCapacityTests
     public async Task OneTransportAdmitsBenchesOfChangingColliderCount()
     {
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
         var revision = 1UL;
         foreach (var bends in new[] { 1, PastThePartTable, 1, PastThePartTable })
         {
-            var bench = new WorkshopConstruction(new(++revision), WorkshopCadenceSettings.Default(), Grid(PartId.PipeBend90, bends));
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(bench)).Outcome);
+            var bench = new WorkshopConstruction(new(++revision), WorkshopCadenceSettings.Default(), Grid(new PartId("pipe_bend_90"), bends));
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(bench))).Outcome);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
             for (var tick = 0; tick < 3; tick++) Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
@@ -284,8 +284,8 @@ public sealed class WorkbenchCapacityTests
     [Fact]
     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
     {
-        PartId[] rows = [PartId.Basketball, PartId.Receiver, PartId.ImpactSwitch, PartId.SignalLamp,
-            PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"), new("weight")];
+        PartId[] rows = [new PartId("ball"), new PartId("basket"), new PartId("switch"), new PartId("lamp"),
+            new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"), new("weight")];
         Assert.Equal(rows, FreePalette.Keys.ToArray());
         Assert.All(FreePalette.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         Assert.Equal(rows.Length, FreePalette.Count);
@@ -294,9 +294,9 @@ public sealed class WorkbenchCapacityTests
         Assert.False(PartAllowance.Counted(2).Less(1).Exhausted);
         Assert.True(PartAllowance.Counted(2).Less(2).Exhausted);
         Assert.Equal(PartAllowance.None, PartAllowance.Counted(2).Less(3)); // over-placed parts clamp at zero, never "× -1"
-        Assert.Equal(PartAllowance.Unlimited, FreePalette[PartId.Ramp]);
+        Assert.Equal(PartAllowance.Unlimited, FreePalette[new PartId("ramp")]);
         Assert.False(FreePalette.ContainsKey(new PartId("unsupported")));
-        Assert.Throws<ArgumentException>(() => new PartInventoryDictionary((PartId.Wall, PartAllowance.Unlimited), (PartId.Wall, PartAllowance.None)));
+        Assert.Throws<ArgumentException>(() => new PartInventoryDictionary((new PartId("wall"), PartAllowance.Unlimited), (new PartId("wall"), PartAllowance.None)));
         Assert.True(PartAllowance.None.Exhausted);
     }
 }

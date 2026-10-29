@@ -14,16 +14,16 @@ internal static class ImpactRules
     /// <summary>elements/&lt;Dir&gt; package directories to their part. A test checks it against the directory listing and the bundle.</summary>
     public static readonly IReadOnlyDictionary<string, PartId> ElementPackages = new Dictionary<string, PartId>(StringComparer.Ordinal)
     {
-        ["Ball"] = PartId.Basketball, ["BallDetector"] = PartId.BallDetector, ["Battery"] = PartId.Battery,
-        ["BothGate"] = new("both_gate"), ["BowlingBall"] = PartId.BowlingBall, ["Bumper"] = PartId.PinballBumper, ["Counter"] = PartId.Counter,
-        ["Domino"] = PartId.Domino, ["DelayBox"] = PartId.Delay, ["ElectricalNand"] = new("electrical_nand"),
+        ["Ball"] = new PartId("ball"), ["BallDetector"] = new PartId("ball_detector"), ["Battery"] = new PartId("battery"),
+        ["BothGate"] = new("both_gate"), ["BowlingBall"] = new PartId("bowling"), ["Bumper"] = new PartId("bumper"), ["Counter"] = new PartId("counter"),
+        ["Domino"] = new PartId("domino"), ["DelayBox"] = new PartId("delay"), ["ElectricalNand"] = new("electrical_nand"),
         ["ElectricalNor"] = new("electrical_nor"), ["ElectricalOr"] = new("electrical_or"), ["ElectricalXor"] = new("electrical_xor"),
-        ["Funnel"] = PartId.Funnel,
-        ["HoldTimer"] = new("hold_timer"), ["ImpactSwitch"] = PartId.ImpactSwitch, ["Pipe"] = PartId.Pipe,
-        ["PipeBend45"] = PartId.PipeBend45, ["PipeBend90"] = PartId.PipeBend90,
-        ["PoweredGate"] = PartId.PoweredGate, ["PressurePlate"] = PartId.PressurePlate, ["Ramp"] = PartId.Ramp,
-        ["Receiver"] = PartId.Receiver, ["SignalLamp"] = PartId.SignalLamp, ["Springboard"] = PartId.Springboard,
-        ["StateLatch"] = PartId.Latch, ["SystemClock"] = PartId.Clock, ["Wall"] = PartId.Wall, ["Weight"] = new("weight"),
+        ["Funnel"] = new PartId("funnel"),
+        ["HoldTimer"] = new("hold_timer"), ["ImpactSwitch"] = new PartId("switch"), ["Pipe"] = new PartId("pipe"),
+        ["PipeBend45"] = new PartId("pipe_bend_45"), ["PipeBend90"] = new PartId("pipe_bend_90"),
+        ["PoweredGate"] = new PartId("powered_gate"), ["PressurePlate"] = new PartId("pressure_plate"), ["Ramp"] = new PartId("ramp"),
+        ["Receiver"] = new PartId("basket"), ["SignalLamp"] = new PartId("lamp"), ["Springboard"] = new PartId("spring"),
+        ["StateLatch"] = new PartId("latch"), ["SystemClock"] = new PartId("clock"), ["Wall"] = new PartId("wall"), ["Weight"] = new("weight"),
     };
 
     /// <summary>Every engine/ (outside engine/gpu), ui/ and scenes/ source to its Workshop area. A file's Godot .uid sidecar follows
@@ -60,7 +60,6 @@ internal static class ImpactRules
         ["engine/presentation/AnimationFollowDefinition.cs"] = WorkshopArea.Presentation,
         ["engine/presentation/AnimationImpulseDefinition.cs"] = WorkshopArea.Presentation,
         ["engine/presentation/AnimationOscillationDefinition.cs"] = WorkshopArea.Presentation,
-        ["engine/presentation/AnimationTimerSegment.cs"] = WorkshopArea.Presentation,
         ["engine/presentation/AnimationValues.cs"] = WorkshopArea.Presentation,
     };
 
@@ -109,7 +108,7 @@ internal static class ImpactRules
         new("workers, client, contracts and schemas", ImpactKind.Full,
             path => Under(path, "CuriousContraptions.Simulation") || path.StartsWith("CuriousContraptions.Animation", StringComparison.Ordinal) ||
                 Under(path, "CuriousContraptions.web") || path.StartsWith("CuriousContraptions.Abstractions", StringComparison.Ordinal) ||
-                Under(path, "CuriousContraptions.Bundle") ||
+                Under(path, "CuriousContraptions.Bundle") || Under(path, "CuriousContraptions.Core") ||
                 Under(path, "CuriousContraptions.FlatBuffers") || Under(path, "schemas"),
             FullReason.SharedRuntime),
         new("tools/{BundleElements,Preview}/**", ImpactKind.Full,

@@ -31,9 +31,9 @@ public sealed class WorkshopAnimationTracks
             throw new ArgumentException("Visibility requires its registered target.");
     }
 
-    public AnimationControlApplication Apply(WorkshopAnimationControl control, PulseRate simulationRate, PhysicalTime masterTime)
+    public AnimationControlApplication Apply(WorkshopAnimationControl control, PhysicalTime masterTime)
     {
-        Validate(control); simulationRate.Validate();
+        Validate(control);
         var slot = -1; var vacant = -1; var occupied = 0;
         for (var i = 0; i < Instances.Length; i++)
         {
@@ -60,36 +60,10 @@ public sealed class WorkshopAnimationTracks
         var started = false;
         if (control.Kind != AnimationControlKind.Visibility)
         {
-            float from, to;
-            bool start;
-            if (control.Kind == AnimationControlKind.TimerObservation)
-            {
-                if (control.Timer.Phase == AnimationTimerPhase.Counting)
-                {
-                    from = AnimationTimerSegment.Create(control.Timer).Endpoint.Value;
-                    to = 1f;
-                    start = true;
-                }
-                else if (control.Timer.Phase == AnimationTimerPhase.Finished)
-                {
-                    from = to = 1f;
-                    start = false;
-                }
-                else
-                {
-                    from = to = 0f;
-                    start = false;
-                }
-            }
-            else
-            {
-                from = control.From;
-                to = control.To;
-                start = control.Kind == AnimationControlKind.Reveal;
-            }
-            var duration = control.Kind == AnimationControlKind.TimerObservation && control.Timer.Phase == AnimationTimerPhase.Counting
-                ? MathF.Max(0.01f, (control.Timer.Due - control.Timer.Observed) * (float)simulationRate.Denominator / simulationRate.Numerator)
-                : control.Duration;
+            var from = control.From;
+            var to = control.To;
+            var start = control.Kind == AnimationControlKind.Reveal;
+            var duration = control.Duration;
             var definition = new AnimationDefinition(WorkshopAnimationWire.Value(control.Property, from),
                 WorkshopAnimationWire.Value(control.Property, to), new AnimationDurationSeconds(duration),
                 control.Curve, AnimationRepeat.Once, AnimationClock.Presentation);

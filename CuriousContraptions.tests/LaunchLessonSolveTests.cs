@@ -42,10 +42,10 @@ public sealed class LaunchLessonSolveTests
             Route.DepthPaid => Lesson("bumper_depth", .45).WithInstance(PlacedParts.Bumper(Player, 0, 1.5f, 3.35f)),
             Route.DepthMiss => Lesson("bumper_depth", .45).WithInstance(PlacedParts.Bumper(Player, 0, 1.5f, 0)),
             Route.WallPaid => Lesson("wall_and_bumper", .45).WithInstance(PlacedParts.Bumper(Player, -3.35f, 1.5f, 0))
-                .WithInstance(WorkshopInput.Generic(PartId.Wall, new(4), -1.75f, 4, 0, 0, 0, 0, 1,
+                .WithInstance(WorkshopInput.Generic(new PartId("wall"), new(4), -1.75f, 4, 0, 0, 0, 0, 1,
                     new([new(new("width"), .4f), new(new("height"), 6f), new(new("thickness"), 1.5f)]))),
             Route.WallMiss => Lesson("wall_and_bumper", .45).WithInstance(PlacedParts.Bumper(Player, -3.35f, 1.5f, 0)),
-            Route.ReadyReceiver => Lesson("ready_to_rebound", .45).WithInstance(WorkshopInput.Generic(PartId.Receiver, Player, 1.8f, 1.3f, 0, 0, 0, 0, 1)),
+            Route.ReadyReceiver => Lesson("ready_to_rebound", .45).WithInstance(WorkshopInput.Generic(new PartId("basket"), Player, 1.8f, 1.3f, 0, 0, 0, 0, 1)),
             Route.ReadyMissingReceiver => Lesson("ready_to_rebound", .45),
             _ => throw new ArgumentOutOfRangeException(nameof(route))
         };
@@ -90,7 +90,7 @@ public sealed class LaunchLessonSolveTests
         var control = positive.Connections.Count > 0
             ? positive with { Connections = positive.Connections.Without(positive.Connections[0]) }
             : positive.WithoutInstance((new PuzzleId(lesson) == new PuzzleId("wall_and_bumper")
-                ? positive.Instances.Single(instance => instance.PartId == PartId.Wall)
+                ? positive.Instances.Single(instance => instance.PartId == new PartId("wall"))
                 : positive.Instances.First(instance => !instance.Locked)).Id);
         control.Validate();
         var limit = 10 * (int)settings.SimulationRate.Numerator;

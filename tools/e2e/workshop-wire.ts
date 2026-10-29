@@ -61,6 +61,7 @@ export enum ElectricalEnable {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+
 export class Vec3f {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -98,6 +99,7 @@ static createVec3f(builder:flatbuffers.Builder, x: number, y: number, z: number)
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+
 export class Vec3i {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -134,6 +136,7 @@ static createVec3i(builder:flatbuffers.Builder, x: number, y: number, z: number)
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 
 export class Quat4f {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -176,6 +179,9 @@ static createQuat4f(builder:flatbuffers.Builder, x: number, y: number, z: number
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
 
 export class BodyRead {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -254,6 +260,7 @@ static createBodyRead(builder:flatbuffers.Builder, id: bigint, cell_x: number, c
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+
 export class CaptureLatchRead {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -301,6 +308,7 @@ static createCaptureLatchRead(builder:flatbuffers.Builder, sensor: bigint, targe
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 
 export class ElectricalSourceRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -355,6 +363,7 @@ static createElectricalSourceRecord(builder:flatbuffers.Builder, id: bigint, own
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+
 export class ContactWorkStoreRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -402,6 +411,7 @@ static createContactWorkStoreRecord(builder:flatbuffers.Builder, id: bigint, own
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 
 export class ActivationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -490,6 +500,7 @@ static createActivationRecord(builder:flatbuffers.Builder, node: bigint, owner: 
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 
 export class TimerRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -584,6 +595,7 @@ static createTimerRecord(builder:flatbuffers.Builder, node: bigint, phase: numbe
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+
 export class ActivationMemoryRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -642,6 +654,7 @@ static createActivationMemoryRecord(builder:flatbuffers.Builder, node: bigint, k
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+
 export class ElectricalLogicRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -684,6 +697,7 @@ static createElectricalLogicRecord(builder:flatbuffers.Builder, owner: bigint, i
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 
 export class ActuatorDriveRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -749,6 +763,7 @@ static createActuatorDriveRecord(builder:flatbuffers.Builder, joint: bigint, own
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+
 export class ContactLoadRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -796,6 +811,7 @@ static createContactLoadRecord(builder:flatbuffers.Builder, sensor: bigint, fram
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+
 export class ClockStamp {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -834,6 +850,7 @@ static createClockStamp(builder:flatbuffers.Builder, time: bigint, uncertainty: 
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+
 export class ElectricalControl {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -867,57 +884,6 @@ static createElectricalControl(builder:flatbuffers.Builder, owner: bigint, enabl
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export class CadenceSettingsRecord {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):CadenceSettingsRecord {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
-
-simulation():number {
-  return this.bb!.readUint32(this.bb_pos);
-}
-
-physical():number {
-  return this.bb!.readUint32(this.bb_pos + 4);
-}
-
-animation():number {
-  return this.bb!.readUint32(this.bb_pos + 8);
-}
-
-presentation():number {
-  return this.bb!.readUint32(this.bb_pos + 12);
-}
-
-presentationRateNumerator():number {
-  return this.bb!.readUint32(this.bb_pos + 16);
-}
-
-presentationRateDenominator():number {
-  return this.bb!.readUint32(this.bb_pos + 20);
-}
-
-static sizeOf():number {
-  return 24;
-}
-
-static createCadenceSettingsRecord(builder:flatbuffers.Builder, simulation: number, physical: number, animation: number, presentation: number, presentation_rate_numerator: number, presentation_rate_denominator: number):flatbuffers.Offset {
-  builder.prep(4, 24);
-  builder.writeInt32(presentation_rate_denominator);
-  builder.writeInt32(presentation_rate_numerator);
-  builder.writeInt32(presentation);
-  builder.writeInt32(animation);
-  builder.writeInt32(physical);
-  builder.writeInt32(simulation);
-  return builder.offset();
-}
-
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export class MemoryObservationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -981,6 +947,7 @@ static createMemoryObservationRecord(builder:flatbuffers.Builder, used_before: b
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+
 export class CommandIdentityRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -1028,611 +995,8 @@ static createCommandIdentityRecord(builder:flatbuffers.Builder, sequence: bigint
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export class ConnectionRecord {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):ConnectionRecord {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
 
-source():bigint {
-  return this.bb!.readUint64(this.bb_pos);
-}
 
-target():bigint {
-  return this.bb!.readUint64(this.bb_pos + 8);
-}
-
-domain():number {
-  return this.bb!.readUint32(this.bb_pos + 16);
-}
-
-fromSocket():number {
-  return this.bb!.readUint32(this.bb_pos + 20);
-}
-
-toSocket():number {
-  return this.bb!.readUint32(this.bb_pos + 24);
-}
-
-static sizeOf():number {
-  return 32;
-}
-
-static createConnectionRecord(builder:flatbuffers.Builder, source: bigint, target: bigint, domain: number, from_socket: number, to_socket: number):flatbuffers.Offset {
-  builder.prep(8, 32);
-  builder.pad(4);
-  builder.writeInt32(to_socket);
-  builder.writeInt32(from_socket);
-  builder.writeInt32(domain);
-  builder.writeInt64(BigInt(target ?? 0));
-  builder.writeInt64(BigInt(source ?? 0));
-  return builder.offset();
-}
-
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-export class AssistanceKnotRecord {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):AssistanceKnotRecord {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
-
-precision():number {
-  return this.bb!.readFloat32(this.bb_pos);
-}
-
-positionWindow():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-}
-
-rotationWindowDegrees():number {
-  return this.bb!.readFloat32(this.bb_pos + 8);
-}
-
-maximumPositionCorrection():number {
-  return this.bb!.readFloat32(this.bb_pos + 12);
-}
-
-maximumRotationCorrectionDegrees():number {
-  return this.bb!.readFloat32(this.bb_pos + 16);
-}
-
-blend():number {
-  return this.bb!.readFloat32(this.bb_pos + 20);
-}
-
-captureMargin():number {
-  return this.bb!.readFloat32(this.bb_pos + 24);
-}
-
-captureSpeed():number {
-  return this.bb!.readFloat32(this.bb_pos + 28);
-}
-
-captureDwell():number {
-  return this.bb!.readFloat32(this.bb_pos + 32);
-}
-
-guideAcceleration():number {
-  return this.bb!.readFloat32(this.bb_pos + 36);
-}
-
-triggerThreshold():number {
-  return this.bb!.readFloat32(this.bb_pos + 40);
-}
-
-static sizeOf():number {
-  return 44;
-}
-
-static createAssistanceKnotRecord(builder:flatbuffers.Builder, precision: number, position_window: number, rotation_window_degrees: number, maximum_position_correction: number, maximum_rotation_correction_degrees: number, blend: number, capture_margin: number, capture_speed: number, capture_dwell: number, guide_acceleration: number, trigger_threshold: number):flatbuffers.Offset {
-  builder.prep(4, 44);
-  builder.writeFloat32(trigger_threshold);
-  builder.writeFloat32(guide_acceleration);
-  builder.writeFloat32(capture_dwell);
-  builder.writeFloat32(capture_speed);
-  builder.writeFloat32(capture_margin);
-  builder.writeFloat32(blend);
-  builder.writeFloat32(maximum_rotation_correction_degrees);
-  builder.writeFloat32(maximum_position_correction);
-  builder.writeFloat32(rotation_window_degrees);
-  builder.writeFloat32(position_window);
-  builder.writeFloat32(precision);
-  return builder.offset();
-}
-
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-export class ParameterRecord {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):ParameterRecord {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
-
-static getRootAsParameterRecord(bb:flatbuffers.ByteBuffer, obj?:ParameterRecord):ParameterRecord {
-  return (obj || new ParameterRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
-
-static getSizePrefixedRootAsParameterRecord(bb:flatbuffers.ByteBuffer, obj?:ParameterRecord):ParameterRecord {
-  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new ParameterRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
-
-key():string|null
-key(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
-key(optionalEncoding?:any):string|Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
-}
-
-value():number {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-static startParameterRecord(builder:flatbuffers.Builder) {
-  builder.startObject(2);
-}
-
-static addKey(builder:flatbuffers.Builder, keyOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(0, keyOffset, 0);
-}
-
-static addValue(builder:flatbuffers.Builder, value:number) {
-  builder.addFieldFloat32(1, value, 0.0);
-}
-
-static endParameterRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
-  const offset = builder.endObject();
-  builder.requiredField(offset, 4) // key
-  return offset;
-}
-
-static createParameterRecord(builder:flatbuffers.Builder, keyOffset:flatbuffers.Offset, value:number):flatbuffers.Offset {
-  ParameterRecord.startParameterRecord(builder);
-  ParameterRecord.addKey(builder, keyOffset);
-  ParameterRecord.addValue(builder, value);
-  return ParameterRecord.endParameterRecord(builder);
-}
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-export class InstanceRecord {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):InstanceRecord {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
-
-static getRootAsInstanceRecord(bb:flatbuffers.ByteBuffer, obj?:InstanceRecord):InstanceRecord {
-  return (obj || new InstanceRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
-
-static getSizePrefixedRootAsInstanceRecord(bb:flatbuffers.ByteBuffer, obj?:InstanceRecord):InstanceRecord {
-  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new InstanceRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
-
-id():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
-}
-
-partId():string|null
-partId(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
-partId(optionalEncoding?:any):string|Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
-}
-
-locked():boolean {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
-}
-
-cell(obj?:Vec3i):Vec3i|null {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? (obj || new Vec3i()).__init(this.bb_pos + offset, this.bb!) : null;
-}
-
-local(obj?:Vec3f):Vec3f|null {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
-}
-
-rotation(obj?:Quat4f):Quat4f|null {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? (obj || new Quat4f()).__init(this.bb_pos + offset, this.bb!) : null;
-}
-
-length():number {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-parameters(index: number, obj?:ParameterRecord):ParameterRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
-  return offset ? (obj || new ParameterRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
-}
-
-parametersLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-static startInstanceRecord(builder:flatbuffers.Builder) {
-  builder.startObject(8);
-}
-
-static addId(builder:flatbuffers.Builder, id:bigint) {
-  builder.addFieldInt64(0, id, BigInt('0'));
-}
-
-static addPartId(builder:flatbuffers.Builder, partIdOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(1, partIdOffset, 0);
-}
-
-static addLocked(builder:flatbuffers.Builder, locked:boolean) {
-  builder.addFieldInt8(2, +locked, +false);
-}
-
-static addCell(builder:flatbuffers.Builder, cellOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(3, cellOffset, 0);
-}
-
-static addLocal(builder:flatbuffers.Builder, localOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(4, localOffset, 0);
-}
-
-static addRotation(builder:flatbuffers.Builder, rotationOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(5, rotationOffset, 0);
-}
-
-static addLength(builder:flatbuffers.Builder, length:number) {
-  builder.addFieldFloat32(6, length, 0.0);
-}
-
-static addParameters(builder:flatbuffers.Builder, parametersOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(7, parametersOffset, 0);
-}
-
-static createParametersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startParametersVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-}
-
-static endInstanceRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
-  const offset = builder.endObject();
-  return offset;
-}
-
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-export class PuzzleRecord {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):PuzzleRecord {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
-
-static getRootAsPuzzleRecord(bb:flatbuffers.ByteBuffer, obj?:PuzzleRecord):PuzzleRecord {
-  return (obj || new PuzzleRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
-
-static getSizePrefixedRootAsPuzzleRecord(bb:flatbuffers.ByteBuffer, obj?:PuzzleRecord):PuzzleRecord {
-  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new PuzzleRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
-
-id():string|null
-id(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
-id(optionalEncoding?:any):string|Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
-}
-
-placement():number {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
-precision():number {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-inventoryPart():string|null
-inventoryPart(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
-inventoryPart(optionalEncoding?:any):string|Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
-}
-
-inventoryCount():number {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
-goalKind():number {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
-goalBody():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
-}
-
-goalTarget():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
-  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
-}
-
-goalDelay():number {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-assistance(index: number, obj?:AssistanceKnotRecord):AssistanceKnotRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
-  return offset ? (obj || new AssistanceKnotRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 44, this.bb!) : null;
-}
-
-assistanceLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-static startPuzzleRecord(builder:flatbuffers.Builder) {
-  builder.startObject(10);
-}
-
-static addId(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(0, idOffset, 0);
-}
-
-static addPlacement(builder:flatbuffers.Builder, placement:number) {
-  builder.addFieldInt32(1, placement, 0);
-}
-
-static addPrecision(builder:flatbuffers.Builder, precision:number) {
-  builder.addFieldFloat32(2, precision, 0.0);
-}
-
-static addInventoryPart(builder:flatbuffers.Builder, inventoryPartOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, inventoryPartOffset, 0);
-}
-
-static addInventoryCount(builder:flatbuffers.Builder, inventoryCount:number) {
-  builder.addFieldInt32(4, inventoryCount, 0);
-}
-
-static addGoalKind(builder:flatbuffers.Builder, goalKind:number) {
-  builder.addFieldInt32(5, goalKind, 0);
-}
-
-static addGoalBody(builder:flatbuffers.Builder, goalBody:bigint) {
-  builder.addFieldInt64(6, goalBody, BigInt('0'));
-}
-
-static addGoalTarget(builder:flatbuffers.Builder, goalTarget:bigint) {
-  builder.addFieldInt64(7, goalTarget, BigInt('0'));
-}
-
-static addGoalDelay(builder:flatbuffers.Builder, goalDelay:number) {
-  builder.addFieldFloat32(8, goalDelay, 0.0);
-}
-
-static addAssistance(builder:flatbuffers.Builder, assistanceOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(9, assistanceOffset, 0);
-}
-
-static startAssistanceVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(44, numElems, 4);
-}
-
-static endPuzzleRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
-  const offset = builder.endObject();
-  builder.requiredField(offset, 4) // id
-  builder.requiredField(offset, 22) // assistance
-  return offset;
-}
-
-static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalDelay:number, assistanceOffset:flatbuffers.Offset):flatbuffers.Offset {
-  PuzzleRecord.startPuzzleRecord(builder);
-  PuzzleRecord.addId(builder, idOffset);
-  PuzzleRecord.addPlacement(builder, placement);
-  PuzzleRecord.addPrecision(builder, precision);
-  PuzzleRecord.addInventoryPart(builder, inventoryPartOffset);
-  PuzzleRecord.addInventoryCount(builder, inventoryCount);
-  PuzzleRecord.addGoalKind(builder, goalKind);
-  PuzzleRecord.addGoalBody(builder, goalBody);
-  PuzzleRecord.addGoalTarget(builder, goalTarget);
-  PuzzleRecord.addGoalDelay(builder, goalDelay);
-  PuzzleRecord.addAssistance(builder, assistanceOffset);
-  return PuzzleRecord.endPuzzleRecord(builder);
-}
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-export class ConstructionRecord {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):ConstructionRecord {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
-
-static getRootAsConstructionRecord(bb:flatbuffers.ByteBuffer, obj?:ConstructionRecord):ConstructionRecord {
-  return (obj || new ConstructionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
-
-static getSizePrefixedRootAsConstructionRecord(bb:flatbuffers.ByteBuffer, obj?:ConstructionRecord):ConstructionRecord {
-  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new ConstructionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
-
-revision():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
-}
-
-settings(obj?:CadenceSettingsRecord):CadenceSettingsRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? (obj || new CadenceSettingsRecord()).__init(this.bb_pos + offset, this.bb!) : null;
-}
-
-puzzle(obj?:PuzzleRecord):PuzzleRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? (obj || new PuzzleRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
-}
-
-instances(index: number, obj?:InstanceRecord):InstanceRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? (obj || new InstanceRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
-}
-
-instancesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-connections(index: number, obj?:ConnectionRecord):ConnectionRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? (obj || new ConnectionRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
-}
-
-connectionsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-static startConstructionRecord(builder:flatbuffers.Builder) {
-  builder.startObject(5);
-}
-
-static addRevision(builder:flatbuffers.Builder, revision:bigint) {
-  builder.addFieldInt64(0, revision, BigInt('0'));
-}
-
-static addSettings(builder:flatbuffers.Builder, settingsOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(1, settingsOffset, 0);
-}
-
-static addPuzzle(builder:flatbuffers.Builder, puzzleOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, puzzleOffset, 0);
-}
-
-static addInstances(builder:flatbuffers.Builder, instancesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, instancesOffset, 0);
-}
-
-static createInstancesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startInstancesVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-}
-
-static addConnections(builder:flatbuffers.Builder, connectionsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(4, connectionsOffset, 0);
-}
-
-static startConnectionsVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(32, numElems, 8);
-}
-
-static endConstructionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
-  const offset = builder.endObject();
-  return offset;
-}
-
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-export class SavedConstruction {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):SavedConstruction {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
-
-static getRootAsSavedConstruction(bb:flatbuffers.ByteBuffer, obj?:SavedConstruction):SavedConstruction {
-  return (obj || new SavedConstruction()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
-
-static getSizePrefixedRootAsSavedConstruction(bb:flatbuffers.ByteBuffer, obj?:SavedConstruction):SavedConstruction {
-  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new SavedConstruction()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
-
-nextBodyId():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
-}
-
-construction(obj?:ConstructionRecord):ConstructionRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
-}
-
-static startSavedConstruction(builder:flatbuffers.Builder) {
-  builder.startObject(2);
-}
-
-static addNextBodyId(builder:flatbuffers.Builder, nextBodyId:bigint) {
-  builder.addFieldInt64(0, nextBodyId, BigInt('0'));
-}
-
-static addConstruction(builder:flatbuffers.Builder, constructionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(1, constructionOffset, 0);
-}
-
-static endSavedConstruction(builder:flatbuffers.Builder):flatbuffers.Offset {
-  const offset = builder.endObject();
-  return offset;
-}
-
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export class WorkshopResponse {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -1852,9 +1216,9 @@ electricalLogicLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-construction(obj?:ConstructionRecord):ConstructionRecord|null {
+scene(obj?:CompiledSceneRecord):CompiledSceneRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 56);
-  return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+  return offset ? (obj || new CompiledSceneRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startWorkshopResponse(builder:flatbuffers.Builder) {
@@ -2029,8 +1393,8 @@ static startElectricalLogicVector(builder:flatbuffers.Builder, numElems:number) 
   builder.startVector(16, numElems, 8);
 }
 
-static addConstruction(builder:flatbuffers.Builder, constructionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(26, constructionOffset, 0);
+static addScene(builder:flatbuffers.Builder, sceneOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(26, sceneOffset, 0);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -2049,6 +1413,9 @@ static finishSizePrefixedWorkshopResponseBuffer(builder:flatbuffers.Builder, off
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
 
 export class WorkshopCommand {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -2123,23 +1490,18 @@ electrical(obj?:ElectricalControl):ElectricalControl|null {
   return offset ? (obj || new ElectricalControl()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
-settings(obj?:CadenceSettingsRecord):CadenceSettingsRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
-  return offset ? (obj || new CadenceSettingsRecord()).__init(this.bb_pos + offset, this.bb!) : null;
-}
-
 target(obj?:CommandIdentityRecord):CommandIdentityRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? (obj || new CommandIdentityRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
-constructionRecord(obj?:ConstructionRecord):ConstructionRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
-  return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+scene(obj?:CompiledSceneRecord):CompiledSceneRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? (obj || new CompiledSceneRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startWorkshopCommand(builder:flatbuffers.Builder) {
-  builder.startObject(12);
+  builder.startObject(11);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -2190,21 +1552,6458 @@ static addElectrical(builder:flatbuffers.Builder, electricalOffset:flatbuffers.O
   builder.addFieldStruct(8, electricalOffset, 0);
 }
 
-static addSettings(builder:flatbuffers.Builder, settingsOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(9, settingsOffset, 0);
-}
-
 static addTarget(builder:flatbuffers.Builder, targetOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(10, targetOffset, 0);
+  builder.addFieldStruct(9, targetOffset, 0);
 }
 
-static addConstructionRecord(builder:flatbuffers.Builder, constructionRecordOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(11, constructionRecordOffset, 0);
+static addScene(builder:flatbuffers.Builder, sceneOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(10, sceneOffset, 0);
 }
 
 static endWorkshopCommand(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class ObservationInterval {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ObservationInterval {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+lowerLow():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+lowerHigh():bigint {
+  return this.bb!.readInt64(this.bb_pos + 8);
+}
+
+upperLow():bigint {
+  return this.bb!.readUint64(this.bb_pos + 16);
+}
+
+upperHigh():bigint {
+  return this.bb!.readInt64(this.bb_pos + 24);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createObservationInterval(builder:flatbuffers.Builder, lower_low: bigint, lower_high: bigint, upper_low: bigint, upper_high: bigint):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.writeInt64(BigInt(upper_high ?? 0));
+  builder.writeInt64(BigInt(upper_low ?? 0));
+  builder.writeInt64(BigInt(lower_high ?? 0));
+  builder.writeInt64(BigInt(lower_low ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class ObservationSlot {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ObservationSlot {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+receipt():bigint {
+  return this.bb!.readInt64(this.bb_pos);
+}
+
+sequence():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+interval(obj?:ObservationInterval):ObservationInterval|null {
+  return (obj || new ObservationInterval()).__init(this.bb_pos + 16, this.bb!);
+}
+
+static sizeOf():number {
+  return 48;
+}
+
+static createObservationSlot(builder:flatbuffers.Builder, receipt: bigint, sequence: bigint, interval_lower_low: bigint, interval_lower_high: bigint, interval_upper_low: bigint, interval_upper_high: bigint):flatbuffers.Offset {
+  builder.prep(8, 48);
+  builder.prep(8, 32);
+  builder.writeInt64(BigInt(interval_upper_high ?? 0));
+  builder.writeInt64(BigInt(interval_upper_low ?? 0));
+  builder.writeInt64(BigInt(interval_lower_high ?? 0));
+  builder.writeInt64(BigInt(interval_lower_low ?? 0));
+  builder.writeInt64(BigInt(sequence ?? 0));
+  builder.writeInt64(BigInt(receipt ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class ObservationExchange {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ObservationExchange {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+before():bigint {
+  return this.bb!.readInt64(this.bb_pos);
+}
+
+master():bigint {
+  return this.bb!.readInt64(this.bb_pos + 8);
+}
+
+after():bigint {
+  return this.bb!.readInt64(this.bb_pos + 16);
+}
+
+epoch():number {
+  return this.bb!.readUint32(this.bb_pos + 24);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createObservationExchange(builder:flatbuffers.Builder, before: bigint, master: bigint, after: bigint, epoch: number):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.pad(4);
+  builder.writeInt32(epoch);
+  builder.writeInt64(BigInt(after ?? 0));
+  builder.writeInt64(BigInt(master ?? 0));
+  builder.writeInt64(BigInt(before ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class FaultObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):FaultObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsFaultObservation(bb:flatbuffers.ByteBuffer, obj?:FaultObservation):FaultObservation {
+  return (obj || new FaultObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsFaultObservation(bb:flatbuffers.ByteBuffer, obj?:FaultObservation):FaultObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new FaultObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+kind():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+site():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+exceptionType():string|null
+exceptionType(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+exceptionType(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+detail():string|null
+detail(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+detail(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+static startFaultObservation(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+}
+
+static addKind(builder:flatbuffers.Builder, kind:number) {
+  builder.addFieldInt32(0, kind, 0);
+}
+
+static addSite(builder:flatbuffers.Builder, site:number) {
+  builder.addFieldInt32(1, site, 0);
+}
+
+static addExceptionType(builder:flatbuffers.Builder, exceptionTypeOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, exceptionTypeOffset, 0);
+}
+
+static addDetail(builder:flatbuffers.Builder, detailOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, detailOffset, 0);
+}
+
+static endFaultObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 8) // exception_type
+  builder.requiredField(offset, 10) // detail
+  return offset;
+}
+
+static createFaultObservation(builder:flatbuffers.Builder, kind:number, site:number, exceptionTypeOffset:flatbuffers.Offset, detailOffset:flatbuffers.Offset):flatbuffers.Offset {
+  FaultObservation.startFaultObservation(builder);
+  FaultObservation.addKind(builder, kind);
+  FaultObservation.addSite(builder, site);
+  FaultObservation.addExceptionType(builder, exceptionTypeOffset);
+  FaultObservation.addDetail(builder, detailOffset);
+  return FaultObservation.endFaultObservation(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class ReplyObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ReplyObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsReplyObservation(bb:flatbuffers.ByteBuffer, obj?:ReplyObservation):ReplyObservation {
+  return (obj || new ReplyObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsReplyObservation(bb:flatbuffers.ByteBuffer, obj?:ReplyObservation):ReplyObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new ReplyObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+probe(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+}
+
+probeLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+probeArray():Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+masterReceived():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+masterSent():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+received():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+derivation():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startReplyObservation(builder:flatbuffers.Builder) {
+  builder.startObject(5);
+}
+
+static addProbe(builder:flatbuffers.Builder, probeOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, probeOffset, 0);
+}
+
+static createProbeVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startProbeVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+}
+
+static addMasterReceived(builder:flatbuffers.Builder, masterReceived:bigint) {
+  builder.addFieldInt64(1, masterReceived, BigInt('0'));
+}
+
+static addMasterSent(builder:flatbuffers.Builder, masterSent:bigint) {
+  builder.addFieldInt64(2, masterSent, BigInt('0'));
+}
+
+static addReceived(builder:flatbuffers.Builder, received:bigint) {
+  builder.addFieldInt64(3, received, BigInt('0'));
+}
+
+static addDerivation(builder:flatbuffers.Builder, derivation:number) {
+  builder.addFieldInt32(4, derivation, 0);
+}
+
+static endReplyObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 4) // probe
+  return offset;
+}
+
+static createReplyObservation(builder:flatbuffers.Builder, probeOffset:flatbuffers.Offset, masterReceived:bigint, masterSent:bigint, received:bigint, derivation:number):flatbuffers.Offset {
+  ReplyObservation.startReplyObservation(builder);
+  ReplyObservation.addProbe(builder, probeOffset);
+  ReplyObservation.addMasterReceived(builder, masterReceived);
+  ReplyObservation.addMasterSent(builder, masterSent);
+  ReplyObservation.addReceived(builder, received);
+  ReplyObservation.addDerivation(builder, derivation);
+  return ReplyObservation.endReplyObservation(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class RecalibrationObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):RecalibrationObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsRecalibrationObservation(bb:flatbuffers.ByteBuffer, obj?:RecalibrationObservation):RecalibrationObservation {
+  return (obj || new RecalibrationObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsRecalibrationObservation(bb:flatbuffers.ByteBuffer, obj?:RecalibrationObservation):RecalibrationObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new RecalibrationObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+peer(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+}
+
+peerLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+peerArray():Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+cause():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+count():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+stateBefore():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+hasDerivation():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
+derivation():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+displayEpoch():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+at():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+recoveryStarted():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+recoverySends():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+pending(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+}
+
+pendingLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+pendingArray():Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+reply(obj?:ReplyObservation):ReplyObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? (obj || new ReplyObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+slots(index: number, obj?:ObservationSlot):ObservationSlot|null {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? (obj || new ObservationSlot()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 48, this.bb!) : null;
+}
+
+slotsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+static startRecalibrationObservation(builder:flatbuffers.Builder) {
+  builder.startObject(13);
+}
+
+static addPeer(builder:flatbuffers.Builder, peerOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, peerOffset, 0);
+}
+
+static createPeerVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startPeerVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+}
+
+static addCause(builder:flatbuffers.Builder, cause:number) {
+  builder.addFieldInt32(1, cause, 0);
+}
+
+static addCount(builder:flatbuffers.Builder, count:bigint) {
+  builder.addFieldInt64(2, count, BigInt('0'));
+}
+
+static addStateBefore(builder:flatbuffers.Builder, stateBefore:number) {
+  builder.addFieldInt32(3, stateBefore, 0);
+}
+
+static addHasDerivation(builder:flatbuffers.Builder, hasDerivation:boolean) {
+  builder.addFieldInt8(4, +hasDerivation, +false);
+}
+
+static addDerivation(builder:flatbuffers.Builder, derivation:number) {
+  builder.addFieldInt32(5, derivation, 0);
+}
+
+static addDisplayEpoch(builder:flatbuffers.Builder, displayEpoch:bigint) {
+  builder.addFieldInt64(6, displayEpoch, BigInt('0'));
+}
+
+static addAt(builder:flatbuffers.Builder, at:bigint) {
+  builder.addFieldInt64(7, at, BigInt('0'));
+}
+
+static addRecoveryStarted(builder:flatbuffers.Builder, recoveryStarted:bigint) {
+  builder.addFieldInt64(8, recoveryStarted, BigInt('0'));
+}
+
+static addRecoverySends(builder:flatbuffers.Builder, recoverySends:number) {
+  builder.addFieldInt32(9, recoverySends, 0);
+}
+
+static addPending(builder:flatbuffers.Builder, pendingOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(10, pendingOffset, 0);
+}
+
+static createPendingVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startPendingVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+}
+
+static addReply(builder:flatbuffers.Builder, replyOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(11, replyOffset, 0);
+}
+
+static addSlots(builder:flatbuffers.Builder, slotsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(12, slotsOffset, 0);
+}
+
+static startSlotsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(48, numElems, 8);
+}
+
+static endRecalibrationObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 4) // peer
+  builder.requiredField(offset, 28) // slots
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class RejectedClockObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):RejectedClockObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsRejectedClockObservation(bb:flatbuffers.ByteBuffer, obj?:RejectedClockObservation):RejectedClockObservation {
+  return (obj || new RejectedClockObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsRejectedClockObservation(bb:flatbuffers.ByteBuffer, obj?:RejectedClockObservation):RejectedClockObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new RejectedClockObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+role():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+count():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+length():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+received():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+detail():string|null
+detail(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+detail(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+static startRejectedClockObservation(builder:flatbuffers.Builder) {
+  builder.startObject(5);
+}
+
+static addRole(builder:flatbuffers.Builder, role:number) {
+  builder.addFieldInt32(0, role, 0);
+}
+
+static addCount(builder:flatbuffers.Builder, count:bigint) {
+  builder.addFieldInt64(1, count, BigInt('0'));
+}
+
+static addLength(builder:flatbuffers.Builder, length:number) {
+  builder.addFieldInt32(2, length, 0);
+}
+
+static addReceived(builder:flatbuffers.Builder, received:bigint) {
+  builder.addFieldInt64(3, received, BigInt('0'));
+}
+
+static addDetail(builder:flatbuffers.Builder, detailOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, detailOffset, 0);
+}
+
+static endRejectedClockObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 12) // detail
+  return offset;
+}
+
+static createRejectedClockObservation(builder:flatbuffers.Builder, role:number, count:bigint, length:number, received:bigint, detailOffset:flatbuffers.Offset):flatbuffers.Offset {
+  RejectedClockObservation.startRejectedClockObservation(builder);
+  RejectedClockObservation.addRole(builder, role);
+  RejectedClockObservation.addCount(builder, count);
+  RejectedClockObservation.addLength(builder, length);
+  RejectedClockObservation.addReceived(builder, received);
+  RejectedClockObservation.addDetail(builder, detailOffset);
+  return RejectedClockObservation.endRejectedClockObservation(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class LateRenewalObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):LateRenewalObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsLateRenewalObservation(bb:flatbuffers.ByteBuffer, obj?:LateRenewalObservation):LateRenewalObservation {
+  return (obj || new LateRenewalObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsLateRenewalObservation(bb:flatbuffers.ByteBuffer, obj?:LateRenewalObservation):LateRenewalObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new LateRenewalObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+role():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+count():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+lapseAge():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+exchanges():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+renewedAt():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+retained(obj?:ObservationInterval):ObservationInterval|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? (obj || new ObservationInterval()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+fresh(obj?:ObservationInterval):ObservationInterval|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? (obj || new ObservationInterval()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+hasDerivation():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
+derivation():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+displayEpoch():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+static startLateRenewalObservation(builder:flatbuffers.Builder) {
+  builder.startObject(10);
+}
+
+static addRole(builder:flatbuffers.Builder, role:number) {
+  builder.addFieldInt32(0, role, 0);
+}
+
+static addCount(builder:flatbuffers.Builder, count:bigint) {
+  builder.addFieldInt64(1, count, BigInt('0'));
+}
+
+static addLapseAge(builder:flatbuffers.Builder, lapseAge:bigint) {
+  builder.addFieldInt64(2, lapseAge, BigInt('0'));
+}
+
+static addExchanges(builder:flatbuffers.Builder, exchanges:number) {
+  builder.addFieldInt32(3, exchanges, 0);
+}
+
+static addRenewedAt(builder:flatbuffers.Builder, renewedAt:bigint) {
+  builder.addFieldInt64(4, renewedAt, BigInt('0'));
+}
+
+static addRetained(builder:flatbuffers.Builder, retainedOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(5, retainedOffset, 0);
+}
+
+static addFresh(builder:flatbuffers.Builder, freshOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(6, freshOffset, 0);
+}
+
+static addHasDerivation(builder:flatbuffers.Builder, hasDerivation:boolean) {
+  builder.addFieldInt8(7, +hasDerivation, +false);
+}
+
+static addDerivation(builder:flatbuffers.Builder, derivation:number) {
+  builder.addFieldInt32(8, derivation, 0);
+}
+
+static addDisplayEpoch(builder:flatbuffers.Builder, displayEpoch:bigint) {
+  builder.addFieldInt64(9, displayEpoch, BigInt('0'));
+}
+
+static endLateRenewalObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class WideOffsetObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):WideOffsetObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsWideOffsetObservation(bb:flatbuffers.ByteBuffer, obj?:WideOffsetObservation):WideOffsetObservation {
+  return (obj || new WideOffsetObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsWideOffsetObservation(bb:flatbuffers.ByteBuffer, obj?:WideOffsetObservation):WideOffsetObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new WideOffsetObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+offset():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+admittedLower():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+admittedUpper():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+declaredUncertainty():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+count():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+static startWideOffsetObservation(builder:flatbuffers.Builder) {
+  builder.startObject(5);
+}
+
+static addOffset(builder:flatbuffers.Builder, offset:bigint) {
+  builder.addFieldInt64(0, offset, BigInt('0'));
+}
+
+static addAdmittedLower(builder:flatbuffers.Builder, admittedLower:bigint) {
+  builder.addFieldInt64(1, admittedLower, BigInt('0'));
+}
+
+static addAdmittedUpper(builder:flatbuffers.Builder, admittedUpper:bigint) {
+  builder.addFieldInt64(2, admittedUpper, BigInt('0'));
+}
+
+static addDeclaredUncertainty(builder:flatbuffers.Builder, declaredUncertainty:bigint) {
+  builder.addFieldInt64(3, declaredUncertainty, BigInt('0'));
+}
+
+static addCount(builder:flatbuffers.Builder, count:bigint) {
+  builder.addFieldInt64(4, count, BigInt('0'));
+}
+
+static endWideOffsetObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createWideOffsetObservation(builder:flatbuffers.Builder, offset:bigint, admittedLower:bigint, admittedUpper:bigint, declaredUncertainty:bigint, count:bigint):flatbuffers.Offset {
+  WideOffsetObservation.startWideOffsetObservation(builder);
+  WideOffsetObservation.addOffset(builder, offset);
+  WideOffsetObservation.addAdmittedLower(builder, admittedLower);
+  WideOffsetObservation.addAdmittedUpper(builder, admittedUpper);
+  WideOffsetObservation.addDeclaredUncertainty(builder, declaredUncertainty);
+  WideOffsetObservation.addCount(builder, count);
+  return WideOffsetObservation.endWideOffsetObservation(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class DerivationObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):DerivationObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsDerivationObservation(bb:flatbuffers.ByteBuffer, obj?:DerivationObservation):DerivationObservation {
+  return (obj || new DerivationObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsDerivationObservation(bb:flatbuffers.ByteBuffer, obj?:DerivationObservation):DerivationObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new DerivationObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+report():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+outcome():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+epoch():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+correction():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+hasPending():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
+pending():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+hasAdmitted():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
+admittedLower():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+admittedUpper():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+exchange(obj?:ObservationExchange):ObservationExchange|null {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? (obj || new ObservationExchange()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+qualified():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+startupAttempts():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+startupOutliers():number {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+startupInconclusive():number {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+startupUnanswered():number {
+  const offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+checks():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+slews():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+rederivations():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+inconclusive():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 40);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+unanswered():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 42);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+checkRetries():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 44);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+static startDerivationObservation(builder:flatbuffers.Builder) {
+  builder.startObject(21);
+}
+
+static addReport(builder:flatbuffers.Builder, report:number) {
+  builder.addFieldInt32(0, report, 0);
+}
+
+static addOutcome(builder:flatbuffers.Builder, outcome:number) {
+  builder.addFieldInt32(1, outcome, 0);
+}
+
+static addEpoch(builder:flatbuffers.Builder, epoch:number) {
+  builder.addFieldInt32(2, epoch, 0);
+}
+
+static addCorrection(builder:flatbuffers.Builder, correction:bigint) {
+  builder.addFieldInt64(3, correction, BigInt('0'));
+}
+
+static addHasPending(builder:flatbuffers.Builder, hasPending:boolean) {
+  builder.addFieldInt8(4, +hasPending, +false);
+}
+
+static addPending(builder:flatbuffers.Builder, pending:bigint) {
+  builder.addFieldInt64(5, pending, BigInt('0'));
+}
+
+static addHasAdmitted(builder:flatbuffers.Builder, hasAdmitted:boolean) {
+  builder.addFieldInt8(6, +hasAdmitted, +false);
+}
+
+static addAdmittedLower(builder:flatbuffers.Builder, admittedLower:bigint) {
+  builder.addFieldInt64(7, admittedLower, BigInt('0'));
+}
+
+static addAdmittedUpper(builder:flatbuffers.Builder, admittedUpper:bigint) {
+  builder.addFieldInt64(8, admittedUpper, BigInt('0'));
+}
+
+static addExchange(builder:flatbuffers.Builder, exchangeOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(9, exchangeOffset, 0);
+}
+
+static addQualified(builder:flatbuffers.Builder, qualified:number) {
+  builder.addFieldInt32(10, qualified, 0);
+}
+
+static addStartupAttempts(builder:flatbuffers.Builder, startupAttempts:number) {
+  builder.addFieldInt32(11, startupAttempts, 0);
+}
+
+static addStartupOutliers(builder:flatbuffers.Builder, startupOutliers:number) {
+  builder.addFieldInt32(12, startupOutliers, 0);
+}
+
+static addStartupInconclusive(builder:flatbuffers.Builder, startupInconclusive:number) {
+  builder.addFieldInt32(13, startupInconclusive, 0);
+}
+
+static addStartupUnanswered(builder:flatbuffers.Builder, startupUnanswered:number) {
+  builder.addFieldInt32(14, startupUnanswered, 0);
+}
+
+static addChecks(builder:flatbuffers.Builder, checks:bigint) {
+  builder.addFieldInt64(15, checks, BigInt('0'));
+}
+
+static addSlews(builder:flatbuffers.Builder, slews:bigint) {
+  builder.addFieldInt64(16, slews, BigInt('0'));
+}
+
+static addRederivations(builder:flatbuffers.Builder, rederivations:bigint) {
+  builder.addFieldInt64(17, rederivations, BigInt('0'));
+}
+
+static addInconclusive(builder:flatbuffers.Builder, inconclusive:bigint) {
+  builder.addFieldInt64(18, inconclusive, BigInt('0'));
+}
+
+static addUnanswered(builder:flatbuffers.Builder, unanswered:bigint) {
+  builder.addFieldInt64(19, unanswered, BigInt('0'));
+}
+
+static addCheckRetries(builder:flatbuffers.Builder, checkRetries:bigint) {
+  builder.addFieldInt64(20, checkRetries, BigInt('0'));
+}
+
+static endDerivationObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class DeferralObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):DeferralObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsDeferralObservation(bb:flatbuffers.ByteBuffer, obj?:DeferralObservation):DeferralObservation {
+  return (obj || new DeferralObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsDeferralObservation(bb:flatbuffers.ByteBuffer, obj?:DeferralObservation):DeferralObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new DeferralObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+cause():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+count():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+static startDeferralObservation(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+}
+
+static addCause(builder:flatbuffers.Builder, cause:number) {
+  builder.addFieldInt32(0, cause, 0);
+}
+
+static addCount(builder:flatbuffers.Builder, count:bigint) {
+  builder.addFieldInt64(1, count, BigInt('0'));
+}
+
+static endDeferralObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createDeferralObservation(builder:flatbuffers.Builder, cause:number, count:bigint):flatbuffers.Offset {
+  DeferralObservation.startDeferralObservation(builder);
+  DeferralObservation.addCause(builder, cause);
+  DeferralObservation.addCount(builder, count);
+  return DeferralObservation.endDeferralObservation(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class DebtObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):DebtObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsDebtObservation(bb:flatbuffers.ByteBuffer, obj?:DebtObservation):DebtObservation {
+  return (obj || new DebtObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsDebtObservation(bb:flatbuffers.ByteBuffer, obj?:DebtObservation):DebtObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new DebtObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+tick():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+reason():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+oldest():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+ageMilliseconds():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt64(this.bb_pos + offset) : BigInt('0');
+}
+
+static startDebtObservation(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+}
+
+static addTick(builder:flatbuffers.Builder, tick:bigint) {
+  builder.addFieldInt64(0, tick, BigInt('0'));
+}
+
+static addReason(builder:flatbuffers.Builder, reason:number) {
+  builder.addFieldInt32(1, reason, 0);
+}
+
+static addOldest(builder:flatbuffers.Builder, oldest:bigint) {
+  builder.addFieldInt64(2, oldest, BigInt('0'));
+}
+
+static addAgeMilliseconds(builder:flatbuffers.Builder, ageMilliseconds:bigint) {
+  builder.addFieldInt64(3, ageMilliseconds, BigInt('0'));
+}
+
+static endDebtObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createDebtObservation(builder:flatbuffers.Builder, tick:bigint, reason:number, oldest:bigint, ageMilliseconds:bigint):flatbuffers.Offset {
+  DebtObservation.startDebtObservation(builder);
+  DebtObservation.addTick(builder, tick);
+  DebtObservation.addReason(builder, reason);
+  DebtObservation.addOldest(builder, oldest);
+  DebtObservation.addAgeMilliseconds(builder, ageMilliseconds);
+  return DebtObservation.endDebtObservation(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class TickFailureObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):TickFailureObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsTickFailureObservation(bb:flatbuffers.ByteBuffer, obj?:TickFailureObservation):TickFailureObservation {
+  return (obj || new TickFailureObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsTickFailureObservation(bb:flatbuffers.ByteBuffer, obj?:TickFailureObservation):TickFailureObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new TickFailureObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+outcome():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+reason():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+fault():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startTickFailureObservation(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addOutcome(builder:flatbuffers.Builder, outcome:number) {
+  builder.addFieldInt32(0, outcome, 0);
+}
+
+static addReason(builder:flatbuffers.Builder, reason:number) {
+  builder.addFieldInt32(1, reason, 0);
+}
+
+static addFault(builder:flatbuffers.Builder, fault:number) {
+  builder.addFieldInt32(2, fault, 0);
+}
+
+static endTickFailureObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createTickFailureObservation(builder:flatbuffers.Builder, outcome:number, reason:number, fault:number):flatbuffers.Offset {
+  TickFailureObservation.startTickFailureObservation(builder);
+  TickFailureObservation.addOutcome(builder, outcome);
+  TickFailureObservation.addReason(builder, reason);
+  TickFailureObservation.addFault(builder, fault);
+  return TickFailureObservation.endTickFailureObservation(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class TransferObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):TransferObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsTransferObservation(bb:flatbuffers.ByteBuffer, obj?:TransferObservation):TransferObservation {
+  return (obj || new TransferObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsTransferObservation(bb:flatbuffers.ByteBuffer, obj?:TransferObservation):TransferObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new TransferObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+response(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+}
+
+responseLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+responseArray():Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+static startTransferObservation(builder:flatbuffers.Builder) {
+  builder.startObject(1);
+}
+
+static addResponse(builder:flatbuffers.Builder, responseOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, responseOffset, 0);
+}
+
+static createResponseVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startResponseVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+}
+
+static endTransferObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 4) // response
+  return offset;
+}
+
+static createTransferObservation(builder:flatbuffers.Builder, responseOffset:flatbuffers.Offset):flatbuffers.Offset {
+  TransferObservation.startTransferObservation(builder);
+  TransferObservation.addResponse(builder, responseOffset);
+  return TransferObservation.endTransferObservation(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class TraceSampleObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):TraceSampleObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsTraceSampleObservation(bb:flatbuffers.ByteBuffer, obj?:TraceSampleObservation):TraceSampleObservation {
+  return (obj || new TraceSampleObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsTraceSampleObservation(bb:flatbuffers.ByteBuffer, obj?:TraceSampleObservation):TraceSampleObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new TraceSampleObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+record(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+}
+
+recordLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+recordArray():Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+static startTraceSampleObservation(builder:flatbuffers.Builder) {
+  builder.startObject(1);
+}
+
+static addRecord(builder:flatbuffers.Builder, recordOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, recordOffset, 0);
+}
+
+static createRecordVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startRecordVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+}
+
+static endTraceSampleObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 4) // record
+  return offset;
+}
+
+static createTraceSampleObservation(builder:flatbuffers.Builder, recordOffset:flatbuffers.Offset):flatbuffers.Offset {
+  TraceSampleObservation.startTraceSampleObservation(builder);
+  TraceSampleObservation.addRecord(builder, recordOffset);
+  return TraceSampleObservation.endTraceSampleObservation(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CaptureObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CaptureObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCaptureObservation(bb:flatbuffers.ByteBuffer, obj?:CaptureObservation):CaptureObservation {
+  return (obj || new CaptureObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCaptureObservation(bb:flatbuffers.ByteBuffer, obj?:CaptureObservation):CaptureObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CaptureObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+kind():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+stage():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+identity():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+epoch():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+cadence():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+physical():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+revision():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+end():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+status():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+expectedCount():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+count():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+chunk():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+chunks():number {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+first():number {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+scene():bigint|null {
+  const offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : null;
+}
+
+session(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+}
+
+sessionLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+sessionArray():Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+samples(index: number, obj?:TraceSampleObservation):TraceSampleObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? (obj || new TraceSampleObservation()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+samplesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+milliseconds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? this.bb!.readFloat64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : 0;
+}
+
+millisecondsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+millisecondsArray():Float64Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? new Float64Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+static startCaptureObservation(builder:flatbuffers.Builder) {
+  builder.startObject(18);
+}
+
+static addKind(builder:flatbuffers.Builder, kind:number) {
+  builder.addFieldInt32(0, kind, 0);
+}
+
+static addStage(builder:flatbuffers.Builder, stage:number) {
+  builder.addFieldInt32(1, stage, 0);
+}
+
+static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
+  builder.addFieldInt64(2, identity, BigInt('0'));
+}
+
+static addEpoch(builder:flatbuffers.Builder, epoch:bigint) {
+  builder.addFieldInt64(3, epoch, BigInt('0'));
+}
+
+static addCadence(builder:flatbuffers.Builder, cadence:number) {
+  builder.addFieldInt32(4, cadence, 0);
+}
+
+static addPhysical(builder:flatbuffers.Builder, physical:number) {
+  builder.addFieldInt32(5, physical, 0);
+}
+
+static addRevision(builder:flatbuffers.Builder, revision:bigint) {
+  builder.addFieldInt64(6, revision, BigInt('0'));
+}
+
+static addEnd(builder:flatbuffers.Builder, end:number) {
+  builder.addFieldInt32(7, end, 0);
+}
+
+static addStatus(builder:flatbuffers.Builder, status:number) {
+  builder.addFieldInt32(8, status, 0);
+}
+
+static addExpectedCount(builder:flatbuffers.Builder, expectedCount:number) {
+  builder.addFieldInt32(9, expectedCount, 0);
+}
+
+static addCount(builder:flatbuffers.Builder, count:number) {
+  builder.addFieldInt32(10, count, 0);
+}
+
+static addChunk(builder:flatbuffers.Builder, chunk:number) {
+  builder.addFieldInt32(11, chunk, 0);
+}
+
+static addChunks(builder:flatbuffers.Builder, chunks:number) {
+  builder.addFieldInt32(12, chunks, 0);
+}
+
+static addFirst(builder:flatbuffers.Builder, first:number) {
+  builder.addFieldInt32(13, first, 0);
+}
+
+static addScene(builder:flatbuffers.Builder, scene:bigint) {
+  builder.addFieldInt64(14, scene, null);
+}
+
+static addSession(builder:flatbuffers.Builder, sessionOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(15, sessionOffset, 0);
+}
+
+static createSessionVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startSessionVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+}
+
+static addSamples(builder:flatbuffers.Builder, samplesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(16, samplesOffset, 0);
+}
+
+static createSamplesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startSamplesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addMilliseconds(builder:flatbuffers.Builder, millisecondsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(17, millisecondsOffset, 0);
+}
+
+static createMillisecondsVector(builder:flatbuffers.Builder, data:number[]|Float64Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createMillisecondsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createMillisecondsVector(builder:flatbuffers.Builder, data:number[]|Float64Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(8, data.length, 8);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addFloat64(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startMillisecondsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(8, numElems, 8);
+}
+
+static endCaptureObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 34) // session
+  builder.requiredField(offset, 36) // samples
+  builder.requiredField(offset, 38) // milliseconds
+  return offset;
+}
+
+static createCaptureObservation(builder:flatbuffers.Builder, kind:number, stage:number, identity:bigint, epoch:bigint, cadence:number, physical:number, revision:bigint, end:number, status:number, expectedCount:number, count:number, chunk:number, chunks:number, first:number, scene:bigint|null, sessionOffset:flatbuffers.Offset, samplesOffset:flatbuffers.Offset, millisecondsOffset:flatbuffers.Offset):flatbuffers.Offset {
+  CaptureObservation.startCaptureObservation(builder);
+  CaptureObservation.addKind(builder, kind);
+  CaptureObservation.addStage(builder, stage);
+  CaptureObservation.addIdentity(builder, identity);
+  CaptureObservation.addEpoch(builder, epoch);
+  CaptureObservation.addCadence(builder, cadence);
+  CaptureObservation.addPhysical(builder, physical);
+  CaptureObservation.addRevision(builder, revision);
+  CaptureObservation.addEnd(builder, end);
+  CaptureObservation.addStatus(builder, status);
+  CaptureObservation.addExpectedCount(builder, expectedCount);
+  CaptureObservation.addCount(builder, count);
+  CaptureObservation.addChunk(builder, chunk);
+  CaptureObservation.addChunks(builder, chunks);
+  CaptureObservation.addFirst(builder, first);
+  if (scene !== null)
+    CaptureObservation.addScene(builder, scene);
+  CaptureObservation.addSession(builder, sessionOffset);
+  CaptureObservation.addSamples(builder, samplesOffset);
+  CaptureObservation.addMilliseconds(builder, millisecondsOffset);
+  return CaptureObservation.endCaptureObservation(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+export enum ObservationPayload {
+  None = 0,
+  Fault = 1,
+  Recalibration = 2,
+  RejectedClock = 3,
+  LateRenewal = 4,
+  WideOffset = 5,
+  Derivation = 6,
+  Deferral = 7,
+  Debt = 8,
+  TickFailure = 9,
+  Transfer = 10,
+  Capture = 11
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class DiagnosticObservation {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):DiagnosticObservation {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsDiagnosticObservation(bb:flatbuffers.ByteBuffer, obj?:DiagnosticObservation):DiagnosticObservation {
+  return (obj || new DiagnosticObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsDiagnosticObservation(bb:flatbuffers.ByteBuffer, obj?:DiagnosticObservation):DiagnosticObservation {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new DiagnosticObservation()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+kind():ObservationPayload {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : ObservationPayload.None;
+}
+
+fault(obj?:FaultObservation):FaultObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new FaultObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+recalibration(obj?:RecalibrationObservation):RecalibrationObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new RecalibrationObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+rejectedClock(obj?:RejectedClockObservation):RejectedClockObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new RejectedClockObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+lateRenewal(obj?:LateRenewalObservation):LateRenewalObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new LateRenewalObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+wideOffset(obj?:WideOffsetObservation):WideOffsetObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? (obj || new WideOffsetObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+derivation(obj?:DerivationObservation):DerivationObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? (obj || new DerivationObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+deferral(obj?:DeferralObservation):DeferralObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? (obj || new DeferralObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+debt(obj?:DebtObservation):DebtObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? (obj || new DebtObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+tickFailure(obj?:TickFailureObservation):TickFailureObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? (obj || new TickFailureObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+transfer(obj?:TransferObservation):TransferObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? (obj || new TransferObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+capture(obj?:CaptureObservation):CaptureObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? (obj || new CaptureObservation()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+static startDiagnosticObservation(builder:flatbuffers.Builder) {
+  builder.startObject(12);
+}
+
+static addKind(builder:flatbuffers.Builder, kind:ObservationPayload) {
+  builder.addFieldInt8(0, kind, ObservationPayload.None);
+}
+
+static addFault(builder:flatbuffers.Builder, faultOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, faultOffset, 0);
+}
+
+static addRecalibration(builder:flatbuffers.Builder, recalibrationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, recalibrationOffset, 0);
+}
+
+static addRejectedClock(builder:flatbuffers.Builder, rejectedClockOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, rejectedClockOffset, 0);
+}
+
+static addLateRenewal(builder:flatbuffers.Builder, lateRenewalOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, lateRenewalOffset, 0);
+}
+
+static addWideOffset(builder:flatbuffers.Builder, wideOffsetOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(5, wideOffsetOffset, 0);
+}
+
+static addDerivation(builder:flatbuffers.Builder, derivationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(6, derivationOffset, 0);
+}
+
+static addDeferral(builder:flatbuffers.Builder, deferralOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(7, deferralOffset, 0);
+}
+
+static addDebt(builder:flatbuffers.Builder, debtOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(8, debtOffset, 0);
+}
+
+static addTickFailure(builder:flatbuffers.Builder, tickFailureOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(9, tickFailureOffset, 0);
+}
+
+static addTransfer(builder:flatbuffers.Builder, transferOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(10, transferOffset, 0);
+}
+
+static addCapture(builder:flatbuffers.Builder, captureOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(11, captureOffset, 0);
+}
+
+static endDiagnosticObservation(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class WorkshopObservationBatch {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):WorkshopObservationBatch {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsWorkshopObservationBatch(bb:flatbuffers.ByteBuffer, obj?:WorkshopObservationBatch):WorkshopObservationBatch {
+  return (obj || new WorkshopObservationBatch()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsWorkshopObservationBatch(bb:flatbuffers.ByteBuffer, obj?:WorkshopObservationBatch):WorkshopObservationBatch {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new WorkshopObservationBatch()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+session(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+}
+
+sessionLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+sessionArray():Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+role():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+records(index: number, obj?:DiagnosticObservation):DiagnosticObservation|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new DiagnosticObservation()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+recordsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+incomplete():string|null
+incomplete(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+incomplete(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+static startWorkshopObservationBatch(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+}
+
+static addSession(builder:flatbuffers.Builder, sessionOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, sessionOffset, 0);
+}
+
+static createSessionVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startSessionVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+}
+
+static addRole(builder:flatbuffers.Builder, role:number) {
+  builder.addFieldInt32(1, role, 0);
+}
+
+static addRecords(builder:flatbuffers.Builder, recordsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, recordsOffset, 0);
+}
+
+static createRecordsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startRecordsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addIncomplete(builder:flatbuffers.Builder, incompleteOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, incompleteOffset, 0);
+}
+
+static endWorkshopObservationBatch(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 4) // session
+  builder.requiredField(offset, 8) // records
+  return offset;
+}
+
+static createWorkshopObservationBatch(builder:flatbuffers.Builder, sessionOffset:flatbuffers.Offset, role:number, recordsOffset:flatbuffers.Offset, incompleteOffset:flatbuffers.Offset):flatbuffers.Offset {
+  WorkshopObservationBatch.startWorkshopObservationBatch(builder);
+  WorkshopObservationBatch.addSession(builder, sessionOffset);
+  WorkshopObservationBatch.addRole(builder, role);
+  WorkshopObservationBatch.addRecords(builder, recordsOffset);
+  WorkshopObservationBatch.addIncomplete(builder, incompleteOffset);
+  return WorkshopObservationBatch.endWorkshopObservationBatch(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityRigidBodyDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityRigidBodyDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityRigidBodyDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRigidBodyDeclarationRecord):CapabilityRigidBodyDeclarationRecord {
+  return (obj || new CapabilityRigidBodyDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityRigidBodyDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRigidBodyDeclarationRecord):CapabilityRigidBodyDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityRigidBodyDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+motion():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+cell(obj?:CapabilityCellOriginRecord):CapabilityCellOriginRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new CapabilityCellOriginRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+local(obj?:CapabilityLocalPositionRecord):CapabilityLocalPositionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new CapabilityLocalPositionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+rotation(obj?:CapabilityCanonicalRotationRecord):CapabilityCanonicalRotationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityCanonicalRotationRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+velocity(obj?:CapabilityLinearVelocityRecord):CapabilityLinearVelocityRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? (obj || new CapabilityLinearVelocityRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+angularVelocity(obj?:CapabilityAngularVelocityRecord):CapabilityAngularVelocityRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? (obj || new CapabilityAngularVelocityRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+mass():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+gravity(obj?:CapabilityAccelerationVectorRecord):CapabilityAccelerationVectorRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? (obj || new CapabilityAccelerationVectorRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+linearDrag():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+massProperties(obj?:CapabilityRigidMassPropertiesRecord):CapabilityRigidMassPropertiesRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? (obj || new CapabilityRigidMassPropertiesRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+payload():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityRigidBodyDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(12);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addMotion(builder:flatbuffers.Builder, motion:number) {
+  builder.addFieldInt32(1, motion, 0);
+}
+
+static addCell(builder:flatbuffers.Builder, cellOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, cellOffset, 0);
+}
+
+static addLocal(builder:flatbuffers.Builder, localOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, localOffset, 0);
+}
+
+static addRotation(builder:flatbuffers.Builder, rotationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, rotationOffset, 0);
+}
+
+static addVelocity(builder:flatbuffers.Builder, velocityOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(5, velocityOffset, 0);
+}
+
+static addAngularVelocity(builder:flatbuffers.Builder, angularVelocityOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(6, angularVelocityOffset, 0);
+}
+
+static addMass(builder:flatbuffers.Builder, mass:number) {
+  builder.addFieldFloat32(7, mass, 0.0);
+}
+
+static addGravity(builder:flatbuffers.Builder, gravityOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(8, gravityOffset, 0);
+}
+
+static addLinearDrag(builder:flatbuffers.Builder, linearDrag:number) {
+  builder.addFieldFloat32(9, linearDrag, 0.0);
+}
+
+static addMassProperties(builder:flatbuffers.Builder, massPropertiesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(10, massPropertiesOffset, 0);
+}
+
+static addPayload(builder:flatbuffers.Builder, payload:number) {
+  builder.addFieldInt32(11, payload, 0);
+}
+
+static endCapabilityRigidBodyDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 8) // cell
+  builder.requiredField(offset, 10) // local
+  builder.requiredField(offset, 12) // rotation
+  builder.requiredField(offset, 14) // velocity
+  builder.requiredField(offset, 16) // angular_velocity
+  builder.requiredField(offset, 20) // gravity
+  builder.requiredField(offset, 24) // mass_properties
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityCellOriginRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityCellOriginRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityCellOriginRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityCellOriginRecord):CapabilityCellOriginRecord {
+  return (obj || new CapabilityCellOriginRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityCellOriginRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityCellOriginRecord):CapabilityCellOriginRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityCellOriginRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+x():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+y():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+z():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityCellOriginRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addX(builder:flatbuffers.Builder, x:number) {
+  builder.addFieldInt32(0, x, 0);
+}
+
+static addY(builder:flatbuffers.Builder, y:number) {
+  builder.addFieldInt32(1, y, 0);
+}
+
+static addZ(builder:flatbuffers.Builder, z:number) {
+  builder.addFieldInt32(2, z, 0);
+}
+
+static endCapabilityCellOriginRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityCellOriginRecord(builder:flatbuffers.Builder, x:number, y:number, z:number):flatbuffers.Offset {
+  CapabilityCellOriginRecord.startCapabilityCellOriginRecord(builder);
+  CapabilityCellOriginRecord.addX(builder, x);
+  CapabilityCellOriginRecord.addY(builder, y);
+  CapabilityCellOriginRecord.addZ(builder, z);
+  return CapabilityCellOriginRecord.endCapabilityCellOriginRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityLocalPositionRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityLocalPositionRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityLocalPositionRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityLocalPositionRecord):CapabilityLocalPositionRecord {
+  return (obj || new CapabilityLocalPositionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityLocalPositionRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityLocalPositionRecord):CapabilityLocalPositionRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityLocalPositionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+x():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+y():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+z():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityLocalPositionRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addX(builder:flatbuffers.Builder, x:number) {
+  builder.addFieldFloat32(0, x, 0.0);
+}
+
+static addY(builder:flatbuffers.Builder, y:number) {
+  builder.addFieldFloat32(1, y, 0.0);
+}
+
+static addZ(builder:flatbuffers.Builder, z:number) {
+  builder.addFieldFloat32(2, z, 0.0);
+}
+
+static endCapabilityLocalPositionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityLocalPositionRecord(builder:flatbuffers.Builder, x:number, y:number, z:number):flatbuffers.Offset {
+  CapabilityLocalPositionRecord.startCapabilityLocalPositionRecord(builder);
+  CapabilityLocalPositionRecord.addX(builder, x);
+  CapabilityLocalPositionRecord.addY(builder, y);
+  CapabilityLocalPositionRecord.addZ(builder, z);
+  return CapabilityLocalPositionRecord.endCapabilityLocalPositionRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityCanonicalRotationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityCanonicalRotationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityCanonicalRotationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityCanonicalRotationRecord):CapabilityCanonicalRotationRecord {
+  return (obj || new CapabilityCanonicalRotationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityCanonicalRotationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityCanonicalRotationRecord):CapabilityCanonicalRotationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityCanonicalRotationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+x():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+y():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+z():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+w():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityCanonicalRotationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+}
+
+static addX(builder:flatbuffers.Builder, x:number) {
+  builder.addFieldFloat32(0, x, 0.0);
+}
+
+static addY(builder:flatbuffers.Builder, y:number) {
+  builder.addFieldFloat32(1, y, 0.0);
+}
+
+static addZ(builder:flatbuffers.Builder, z:number) {
+  builder.addFieldFloat32(2, z, 0.0);
+}
+
+static addW(builder:flatbuffers.Builder, w:number) {
+  builder.addFieldFloat32(3, w, 0.0);
+}
+
+static endCapabilityCanonicalRotationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityCanonicalRotationRecord(builder:flatbuffers.Builder, x:number, y:number, z:number, w:number):flatbuffers.Offset {
+  CapabilityCanonicalRotationRecord.startCapabilityCanonicalRotationRecord(builder);
+  CapabilityCanonicalRotationRecord.addX(builder, x);
+  CapabilityCanonicalRotationRecord.addY(builder, y);
+  CapabilityCanonicalRotationRecord.addZ(builder, z);
+  CapabilityCanonicalRotationRecord.addW(builder, w);
+  return CapabilityCanonicalRotationRecord.endCapabilityCanonicalRotationRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityLinearVelocityRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityLinearVelocityRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityLinearVelocityRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityLinearVelocityRecord):CapabilityLinearVelocityRecord {
+  return (obj || new CapabilityLinearVelocityRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityLinearVelocityRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityLinearVelocityRecord):CapabilityLinearVelocityRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityLinearVelocityRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+x():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+y():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+z():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityLinearVelocityRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addX(builder:flatbuffers.Builder, x:number) {
+  builder.addFieldFloat32(0, x, 0.0);
+}
+
+static addY(builder:flatbuffers.Builder, y:number) {
+  builder.addFieldFloat32(1, y, 0.0);
+}
+
+static addZ(builder:flatbuffers.Builder, z:number) {
+  builder.addFieldFloat32(2, z, 0.0);
+}
+
+static endCapabilityLinearVelocityRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityLinearVelocityRecord(builder:flatbuffers.Builder, x:number, y:number, z:number):flatbuffers.Offset {
+  CapabilityLinearVelocityRecord.startCapabilityLinearVelocityRecord(builder);
+  CapabilityLinearVelocityRecord.addX(builder, x);
+  CapabilityLinearVelocityRecord.addY(builder, y);
+  CapabilityLinearVelocityRecord.addZ(builder, z);
+  return CapabilityLinearVelocityRecord.endCapabilityLinearVelocityRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityAngularVelocityRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityAngularVelocityRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityAngularVelocityRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityAngularVelocityRecord):CapabilityAngularVelocityRecord {
+  return (obj || new CapabilityAngularVelocityRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityAngularVelocityRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityAngularVelocityRecord):CapabilityAngularVelocityRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityAngularVelocityRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+x():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+y():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+z():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityAngularVelocityRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addX(builder:flatbuffers.Builder, x:number) {
+  builder.addFieldFloat32(0, x, 0.0);
+}
+
+static addY(builder:flatbuffers.Builder, y:number) {
+  builder.addFieldFloat32(1, y, 0.0);
+}
+
+static addZ(builder:flatbuffers.Builder, z:number) {
+  builder.addFieldFloat32(2, z, 0.0);
+}
+
+static endCapabilityAngularVelocityRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityAngularVelocityRecord(builder:flatbuffers.Builder, x:number, y:number, z:number):flatbuffers.Offset {
+  CapabilityAngularVelocityRecord.startCapabilityAngularVelocityRecord(builder);
+  CapabilityAngularVelocityRecord.addX(builder, x);
+  CapabilityAngularVelocityRecord.addY(builder, y);
+  CapabilityAngularVelocityRecord.addZ(builder, z);
+  return CapabilityAngularVelocityRecord.endCapabilityAngularVelocityRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityAccelerationVectorRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityAccelerationVectorRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityAccelerationVectorRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityAccelerationVectorRecord):CapabilityAccelerationVectorRecord {
+  return (obj || new CapabilityAccelerationVectorRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityAccelerationVectorRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityAccelerationVectorRecord):CapabilityAccelerationVectorRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityAccelerationVectorRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+x():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+y():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+z():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityAccelerationVectorRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addX(builder:flatbuffers.Builder, x:number) {
+  builder.addFieldFloat32(0, x, 0.0);
+}
+
+static addY(builder:flatbuffers.Builder, y:number) {
+  builder.addFieldFloat32(1, y, 0.0);
+}
+
+static addZ(builder:flatbuffers.Builder, z:number) {
+  builder.addFieldFloat32(2, z, 0.0);
+}
+
+static endCapabilityAccelerationVectorRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityAccelerationVectorRecord(builder:flatbuffers.Builder, x:number, y:number, z:number):flatbuffers.Offset {
+  CapabilityAccelerationVectorRecord.startCapabilityAccelerationVectorRecord(builder);
+  CapabilityAccelerationVectorRecord.addX(builder, x);
+  CapabilityAccelerationVectorRecord.addY(builder, y);
+  CapabilityAccelerationVectorRecord.addZ(builder, z);
+  return CapabilityAccelerationVectorRecord.endCapabilityAccelerationVectorRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityRigidMassPropertiesRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityRigidMassPropertiesRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityRigidMassPropertiesRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRigidMassPropertiesRecord):CapabilityRigidMassPropertiesRecord {
+  return (obj || new CapabilityRigidMassPropertiesRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityRigidMassPropertiesRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRigidMassPropertiesRecord):CapabilityRigidMassPropertiesRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityRigidMassPropertiesRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+localCentreOfMass(obj?:CapabilityMetreVectorRecord):CapabilityMetreVectorRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? (obj || new CapabilityMetreVectorRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+principalFrame(obj?:CapabilityCanonicalRotationRecord):CapabilityCanonicalRotationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new CapabilityCanonicalRotationRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+x():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+y():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+z():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityRigidMassPropertiesRecord(builder:flatbuffers.Builder) {
+  builder.startObject(5);
+}
+
+static addLocalCentreOfMass(builder:flatbuffers.Builder, localCentreOfMassOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, localCentreOfMassOffset, 0);
+}
+
+static addPrincipalFrame(builder:flatbuffers.Builder, principalFrameOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, principalFrameOffset, 0);
+}
+
+static addX(builder:flatbuffers.Builder, x:number) {
+  builder.addFieldFloat32(2, x, 0.0);
+}
+
+static addY(builder:flatbuffers.Builder, y:number) {
+  builder.addFieldFloat32(3, y, 0.0);
+}
+
+static addZ(builder:flatbuffers.Builder, z:number) {
+  builder.addFieldFloat32(4, z, 0.0);
+}
+
+static endCapabilityRigidMassPropertiesRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 4) // local_centre_of_mass
+  builder.requiredField(offset, 6) // principal_frame
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityMetreVectorRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityMetreVectorRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityMetreVectorRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityMetreVectorRecord):CapabilityMetreVectorRecord {
+  return (obj || new CapabilityMetreVectorRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityMetreVectorRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityMetreVectorRecord):CapabilityMetreVectorRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityMetreVectorRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+x():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+y():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+z():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityMetreVectorRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addX(builder:flatbuffers.Builder, x:number) {
+  builder.addFieldFloat32(0, x, 0.0);
+}
+
+static addY(builder:flatbuffers.Builder, y:number) {
+  builder.addFieldFloat32(1, y, 0.0);
+}
+
+static addZ(builder:flatbuffers.Builder, z:number) {
+  builder.addFieldFloat32(2, z, 0.0);
+}
+
+static endCapabilityMetreVectorRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityMetreVectorRecord(builder:flatbuffers.Builder, x:number, y:number, z:number):flatbuffers.Offset {
+  CapabilityMetreVectorRecord.startCapabilityMetreVectorRecord(builder);
+  CapabilityMetreVectorRecord.addX(builder, x);
+  CapabilityMetreVectorRecord.addY(builder, y);
+  CapabilityMetreVectorRecord.addZ(builder, z);
+  return CapabilityMetreVectorRecord.endCapabilityMetreVectorRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityColliderDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityColliderDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityColliderDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityColliderDeclarationRecord):CapabilityColliderDeclarationRecord {
+  return (obj || new CapabilityColliderDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityColliderDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityColliderDeclarationRecord):CapabilityColliderDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityColliderDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+body():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+material():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+shape():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+pose(obj?:CapabilityRigidLocalPoseRecord):CapabilityRigidLocalPoseRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityRigidLocalPoseRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+radius():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+halfExtents(obj?:CapabilityMetreVectorRecord):CapabilityMetreVectorRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? (obj || new CapabilityMetreVectorRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+static startCapabilityColliderDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(7);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addBody(builder:flatbuffers.Builder, body:bigint) {
+  builder.addFieldInt64(1, body, BigInt('0'));
+}
+
+static addMaterial(builder:flatbuffers.Builder, material:bigint) {
+  builder.addFieldInt64(2, material, BigInt('0'));
+}
+
+static addShape(builder:flatbuffers.Builder, shape:number) {
+  builder.addFieldInt32(3, shape, 0);
+}
+
+static addPose(builder:flatbuffers.Builder, poseOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, poseOffset, 0);
+}
+
+static addRadius(builder:flatbuffers.Builder, radius:number) {
+  builder.addFieldFloat32(5, radius, 0.0);
+}
+
+static addHalfExtents(builder:flatbuffers.Builder, halfExtentsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(6, halfExtentsOffset, 0);
+}
+
+static endCapabilityColliderDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 12) // pose
+  builder.requiredField(offset, 16) // half_extents
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityRigidLocalPoseRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityRigidLocalPoseRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityRigidLocalPoseRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRigidLocalPoseRecord):CapabilityRigidLocalPoseRecord {
+  return (obj || new CapabilityRigidLocalPoseRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityRigidLocalPoseRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRigidLocalPoseRecord):CapabilityRigidLocalPoseRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityRigidLocalPoseRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+translation(obj?:CapabilityMetreVectorRecord):CapabilityMetreVectorRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? (obj || new CapabilityMetreVectorRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+rotation(obj?:CapabilityCanonicalRotationRecord):CapabilityCanonicalRotationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new CapabilityCanonicalRotationRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+static startCapabilityRigidLocalPoseRecord(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+}
+
+static addTranslation(builder:flatbuffers.Builder, translationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, translationOffset, 0);
+}
+
+static addRotation(builder:flatbuffers.Builder, rotationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, rotationOffset, 0);
+}
+
+static endCapabilityRigidLocalPoseRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 4) // translation
+  builder.requiredField(offset, 6) // rotation
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityContactMaterialDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityContactMaterialDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityContactMaterialDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityContactMaterialDeclarationRecord):CapabilityContactMaterialDeclarationRecord {
+  return (obj || new CapabilityContactMaterialDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityContactMaterialDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityContactMaterialDeclarationRecord):CapabilityContactMaterialDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityContactMaterialDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+restitution():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+bounceThreshold():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+friction():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+rollingResistance():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityContactMaterialDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(5);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addRestitution(builder:flatbuffers.Builder, restitution:number) {
+  builder.addFieldFloat32(1, restitution, 0.0);
+}
+
+static addBounceThreshold(builder:flatbuffers.Builder, bounceThreshold:number) {
+  builder.addFieldFloat32(2, bounceThreshold, 0.0);
+}
+
+static addFriction(builder:flatbuffers.Builder, friction:number) {
+  builder.addFieldFloat32(3, friction, 0.0);
+}
+
+static addRollingResistance(builder:flatbuffers.Builder, rollingResistance:number) {
+  builder.addFieldFloat32(4, rollingResistance, 0.0);
+}
+
+static endCapabilityContactMaterialDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityContactMaterialDeclarationRecord(builder:flatbuffers.Builder, id:bigint, restitution:number, bounceThreshold:number, friction:number, rollingResistance:number):flatbuffers.Offset {
+  CapabilityContactMaterialDeclarationRecord.startCapabilityContactMaterialDeclarationRecord(builder);
+  CapabilityContactMaterialDeclarationRecord.addId(builder, id);
+  CapabilityContactMaterialDeclarationRecord.addRestitution(builder, restitution);
+  CapabilityContactMaterialDeclarationRecord.addBounceThreshold(builder, bounceThreshold);
+  CapabilityContactMaterialDeclarationRecord.addFriction(builder, friction);
+  CapabilityContactMaterialDeclarationRecord.addRollingResistance(builder, rollingResistance);
+  return CapabilityContactMaterialDeclarationRecord.endCapabilityContactMaterialDeclarationRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityResidenceSensorDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityResidenceSensorDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityResidenceSensorDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityResidenceSensorDeclarationRecord):CapabilityResidenceSensorDeclarationRecord {
+  return (obj || new CapabilityResidenceSensorDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityResidenceSensorDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityResidenceSensorDeclarationRecord):CapabilityResidenceSensorDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityResidenceSensorDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+frame():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+targets(obj?:CapabilityBodyTargetSetRecord):CapabilityBodyTargetSetRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new CapabilityBodyTargetSetRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+pose(obj?:CapabilityRigidLocalPoseRecord):CapabilityRigidLocalPoseRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new CapabilityRigidLocalPoseRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+minimum(obj?:CapabilityMetreVectorRecord):CapabilityMetreVectorRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityMetreVectorRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+maximum(obj?:CapabilityMetreVectorRecord):CapabilityMetreVectorRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? (obj || new CapabilityMetreVectorRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+speedLimit():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+dwell():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+participation():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityResidenceSensorDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(9);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addFrame(builder:flatbuffers.Builder, frame:bigint) {
+  builder.addFieldInt64(1, frame, BigInt('0'));
+}
+
+static addTargets(builder:flatbuffers.Builder, targetsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, targetsOffset, 0);
+}
+
+static addPose(builder:flatbuffers.Builder, poseOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, poseOffset, 0);
+}
+
+static addMinimum(builder:flatbuffers.Builder, minimumOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, minimumOffset, 0);
+}
+
+static addMaximum(builder:flatbuffers.Builder, maximumOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(5, maximumOffset, 0);
+}
+
+static addSpeedLimit(builder:flatbuffers.Builder, speedLimit:number) {
+  builder.addFieldFloat32(6, speedLimit, 0.0);
+}
+
+static addDwell(builder:flatbuffers.Builder, dwell:number) {
+  builder.addFieldFloat32(7, dwell, 0.0);
+}
+
+static addParticipation(builder:flatbuffers.Builder, participation:number) {
+  builder.addFieldInt32(8, participation, 0);
+}
+
+static endCapabilityResidenceSensorDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 8) // targets
+  builder.requiredField(offset, 10) // pose
+  builder.requiredField(offset, 12) // minimum
+  builder.requiredField(offset, 14) // maximum
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityBodyTargetSetRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityBodyTargetSetRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityBodyTargetSetRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityBodyTargetSetRecord):CapabilityBodyTargetSetRecord {
+  return (obj || new CapabilityBodyTargetSetRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityBodyTargetSetRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityBodyTargetSetRecord):CapabilityBodyTargetSetRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityBodyTargetSetRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+kind():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+body():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+static startCapabilityBodyTargetSetRecord(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+}
+
+static addKind(builder:flatbuffers.Builder, kind:number) {
+  builder.addFieldInt32(0, kind, 0);
+}
+
+static addBody(builder:flatbuffers.Builder, body:bigint) {
+  builder.addFieldInt64(1, body, BigInt('0'));
+}
+
+static endCapabilityBodyTargetSetRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityBodyTargetSetRecord(builder:flatbuffers.Builder, kind:number, body:bigint):flatbuffers.Offset {
+  CapabilityBodyTargetSetRecord.startCapabilityBodyTargetSetRecord(builder);
+  CapabilityBodyTargetSetRecord.addKind(builder, kind);
+  CapabilityBodyTargetSetRecord.addBody(builder, body);
+  return CapabilityBodyTargetSetRecord.endCapabilityBodyTargetSetRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityPlanarGuideDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityPlanarGuideDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityPlanarGuideDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPlanarGuideDeclarationRecord):CapabilityPlanarGuideDeclarationRecord {
+  return (obj || new CapabilityPlanarGuideDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityPlanarGuideDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPlanarGuideDeclarationRecord):CapabilityPlanarGuideDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityPlanarGuideDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+frame():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+targets(obj?:CapabilityBodyTargetSetRecord):CapabilityBodyTargetSetRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new CapabilityBodyTargetSetRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+pose(obj?:CapabilityRigidLocalPoseRecord):CapabilityRigidLocalPoseRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new CapabilityRigidLocalPoseRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+minimum(obj?:CapabilityMetreVectorRecord):CapabilityMetreVectorRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityMetreVectorRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+maximum(obj?:CapabilityMetreVectorRecord):CapabilityMetreVectorRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? (obj || new CapabilityMetreVectorRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+supportHeight():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+supportMargin():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maximumAcceleration():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityPlanarGuideDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(9);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addFrame(builder:flatbuffers.Builder, frame:bigint) {
+  builder.addFieldInt64(1, frame, BigInt('0'));
+}
+
+static addTargets(builder:flatbuffers.Builder, targetsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, targetsOffset, 0);
+}
+
+static addPose(builder:flatbuffers.Builder, poseOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, poseOffset, 0);
+}
+
+static addMinimum(builder:flatbuffers.Builder, minimumOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, minimumOffset, 0);
+}
+
+static addMaximum(builder:flatbuffers.Builder, maximumOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(5, maximumOffset, 0);
+}
+
+static addSupportHeight(builder:flatbuffers.Builder, supportHeight:number) {
+  builder.addFieldFloat32(6, supportHeight, 0.0);
+}
+
+static addSupportMargin(builder:flatbuffers.Builder, supportMargin:number) {
+  builder.addFieldFloat32(7, supportMargin, 0.0);
+}
+
+static addMaximumAcceleration(builder:flatbuffers.Builder, maximumAcceleration:number) {
+  builder.addFieldFloat32(8, maximumAcceleration, 0.0);
+}
+
+static endCapabilityPlanarGuideDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 8) // targets
+  builder.requiredField(offset, 10) // pose
+  builder.requiredField(offset, 12) // minimum
+  builder.requiredField(offset, 14) // maximum
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityContactTriggerDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityContactTriggerDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityContactTriggerDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityContactTriggerDeclarationRecord):CapabilityContactTriggerDeclarationRecord {
+  return (obj || new CapabilityContactTriggerDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityContactTriggerDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityContactTriggerDeclarationRecord):CapabilityContactTriggerDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityContactTriggerDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+targets(obj?:CapabilityBodyTargetSetRecord):CapabilityBodyTargetSetRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new CapabilityBodyTargetSetRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+threshold():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityContactTriggerDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
+static addTargets(builder:flatbuffers.Builder, targetsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, targetsOffset, 0);
+}
+
+static addThreshold(builder:flatbuffers.Builder, threshold:number) {
+  builder.addFieldFloat32(3, threshold, 0.0);
+}
+
+static endCapabilityContactTriggerDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 8) // targets
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityContactWorkDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityContactWorkDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityContactWorkDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityContactWorkDeclarationRecord):CapabilityContactWorkDeclarationRecord {
+  return (obj || new CapabilityContactWorkDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityContactWorkDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityContactWorkDeclarationRecord):CapabilityContactWorkDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityContactWorkDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+targets(obj?:CapabilityBodyTargetSetRecord):CapabilityBodyTargetSetRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new CapabilityBodyTargetSetRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+targetSpeed():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+initialEnergy():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+threshold():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+cooldownPhysicalSteps():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityContactWorkDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(7);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
+static addTargets(builder:flatbuffers.Builder, targetsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, targetsOffset, 0);
+}
+
+static addTargetSpeed(builder:flatbuffers.Builder, targetSpeed:number) {
+  builder.addFieldFloat32(3, targetSpeed, 0.0);
+}
+
+static addInitialEnergy(builder:flatbuffers.Builder, initialEnergy:number) {
+  builder.addFieldFloat32(4, initialEnergy, 0.0);
+}
+
+static addThreshold(builder:flatbuffers.Builder, threshold:number) {
+  builder.addFieldFloat32(5, threshold, 0.0);
+}
+
+static addCooldownPhysicalSteps(builder:flatbuffers.Builder, cooldownPhysicalSteps:number) {
+  builder.addFieldInt32(6, cooldownPhysicalSteps, 0);
+}
+
+static endCapabilityContactWorkDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 8) // targets
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityOrientationSensorDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityOrientationSensorDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityOrientationSensorDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityOrientationSensorDeclarationRecord):CapabilityOrientationSensorDeclarationRecord {
+  return (obj || new CapabilityOrientationSensorDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityOrientationSensorDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityOrientationSensorDeclarationRecord):CapabilityOrientationSensorDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityOrientationSensorDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+body():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+initial(obj?:CapabilityCanonicalRotationRecord):CapabilityCanonicalRotationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new CapabilityCanonicalRotationRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+threshold():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityOrientationSensorDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addBody(builder:flatbuffers.Builder, body:bigint) {
+  builder.addFieldInt64(1, body, BigInt('0'));
+}
+
+static addInitial(builder:flatbuffers.Builder, initialOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, initialOffset, 0);
+}
+
+static addThreshold(builder:flatbuffers.Builder, threshold:number) {
+  builder.addFieldFloat32(3, threshold, 0.0);
+}
+
+static endCapabilityOrientationSensorDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 8) // initial
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityElectricalSourceDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityElectricalSourceDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityElectricalSourceDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityElectricalSourceDeclarationRecord):CapabilityElectricalSourceDeclarationRecord {
+  return (obj || new CapabilityElectricalSourceDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityElectricalSourceDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityElectricalSourceDeclarationRecord):CapabilityElectricalSourceDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityElectricalSourceDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+capacity():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maximumPower():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+initialFraction():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+enabled():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityElectricalSourceDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(6);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
+static addCapacity(builder:flatbuffers.Builder, capacity:number) {
+  builder.addFieldFloat32(2, capacity, 0.0);
+}
+
+static addMaximumPower(builder:flatbuffers.Builder, maximumPower:number) {
+  builder.addFieldFloat32(3, maximumPower, 0.0);
+}
+
+static addInitialFraction(builder:flatbuffers.Builder, initialFraction:number) {
+  builder.addFieldFloat32(4, initialFraction, 0.0);
+}
+
+static addEnabled(builder:flatbuffers.Builder, enabled:number) {
+  builder.addFieldInt32(5, enabled, 0);
+}
+
+static endCapabilityElectricalSourceDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityElectricalSourceDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, capacity:number, maximumPower:number, initialFraction:number, enabled:number):flatbuffers.Offset {
+  CapabilityElectricalSourceDeclarationRecord.startCapabilityElectricalSourceDeclarationRecord(builder);
+  CapabilityElectricalSourceDeclarationRecord.addId(builder, id);
+  CapabilityElectricalSourceDeclarationRecord.addOwner(builder, owner);
+  CapabilityElectricalSourceDeclarationRecord.addCapacity(builder, capacity);
+  CapabilityElectricalSourceDeclarationRecord.addMaximumPower(builder, maximumPower);
+  CapabilityElectricalSourceDeclarationRecord.addInitialFraction(builder, initialFraction);
+  CapabilityElectricalSourceDeclarationRecord.addEnabled(builder, enabled);
+  return CapabilityElectricalSourceDeclarationRecord.endCapabilityElectricalSourceDeclarationRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityElectricalStorageBindingRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityElectricalStorageBindingRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityElectricalStorageBindingRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityElectricalStorageBindingRecord):CapabilityElectricalStorageBindingRecord {
+  return (obj || new CapabilityElectricalStorageBindingRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityElectricalStorageBindingRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityElectricalStorageBindingRecord):CapabilityElectricalStorageBindingRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityElectricalStorageBindingRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+source():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+storage():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+static startCapabilityElectricalStorageBindingRecord(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+}
+
+static addSource(builder:flatbuffers.Builder, source:bigint) {
+  builder.addFieldInt64(0, source, BigInt('0'));
+}
+
+static addStorage(builder:flatbuffers.Builder, storage:bigint) {
+  builder.addFieldInt64(1, storage, BigInt('0'));
+}
+
+static endCapabilityElectricalStorageBindingRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityElectricalStorageBindingRecord(builder:flatbuffers.Builder, source:bigint, storage:bigint):flatbuffers.Offset {
+  CapabilityElectricalStorageBindingRecord.startCapabilityElectricalStorageBindingRecord(builder);
+  CapabilityElectricalStorageBindingRecord.addSource(builder, source);
+  CapabilityElectricalStorageBindingRecord.addStorage(builder, storage);
+  return CapabilityElectricalStorageBindingRecord.endCapabilityElectricalStorageBindingRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityPrismaticConstraintDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityPrismaticConstraintDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityPrismaticConstraintDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPrismaticConstraintDeclarationRecord):CapabilityPrismaticConstraintDeclarationRecord {
+  return (obj || new CapabilityPrismaticConstraintDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityPrismaticConstraintDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPrismaticConstraintDeclarationRecord):CapabilityPrismaticConstraintDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityPrismaticConstraintDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+bodyA():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+bodyB():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+frameA(obj?:CapabilityConstraintFrameRecord):CapabilityConstraintFrameRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new CapabilityConstraintFrameRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+frameB(obj?:CapabilityConstraintFrameRecord):CapabilityConstraintFrameRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityConstraintFrameRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+lower():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+upper():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+stiffness():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+damping():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+collision():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityPrismaticConstraintDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(10);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addBodyA(builder:flatbuffers.Builder, bodyA:bigint) {
+  builder.addFieldInt64(1, bodyA, BigInt('0'));
+}
+
+static addBodyB(builder:flatbuffers.Builder, bodyB:bigint) {
+  builder.addFieldInt64(2, bodyB, BigInt('0'));
+}
+
+static addFrameA(builder:flatbuffers.Builder, frameAOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, frameAOffset, 0);
+}
+
+static addFrameB(builder:flatbuffers.Builder, frameBOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, frameBOffset, 0);
+}
+
+static addLower(builder:flatbuffers.Builder, lower:number) {
+  builder.addFieldFloat32(5, lower, 0.0);
+}
+
+static addUpper(builder:flatbuffers.Builder, upper:number) {
+  builder.addFieldFloat32(6, upper, 0.0);
+}
+
+static addStiffness(builder:flatbuffers.Builder, stiffness:number) {
+  builder.addFieldFloat32(7, stiffness, 0.0);
+}
+
+static addDamping(builder:flatbuffers.Builder, damping:number) {
+  builder.addFieldFloat32(8, damping, 0.0);
+}
+
+static addCollision(builder:flatbuffers.Builder, collision:number) {
+  builder.addFieldInt32(9, collision, 0);
+}
+
+static endCapabilityPrismaticConstraintDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 10) // frame_a
+  builder.requiredField(offset, 12) // frame_b
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityConstraintFrameRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityConstraintFrameRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityConstraintFrameRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityConstraintFrameRecord):CapabilityConstraintFrameRecord {
+  return (obj || new CapabilityConstraintFrameRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityConstraintFrameRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityConstraintFrameRecord):CapabilityConstraintFrameRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityConstraintFrameRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+position(obj?:CapabilityVector3Record):CapabilityVector3Record|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? (obj || new CapabilityVector3Record()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+rotation(obj?:CapabilityQuaternionRecord):CapabilityQuaternionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new CapabilityQuaternionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+static startCapabilityConstraintFrameRecord(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+}
+
+static addPosition(builder:flatbuffers.Builder, positionOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, positionOffset, 0);
+}
+
+static addRotation(builder:flatbuffers.Builder, rotationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, rotationOffset, 0);
+}
+
+static endCapabilityConstraintFrameRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 4) // position
+  builder.requiredField(offset, 6) // rotation
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityVector3Record {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityVector3Record {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityVector3Record(bb:flatbuffers.ByteBuffer, obj?:CapabilityVector3Record):CapabilityVector3Record {
+  return (obj || new CapabilityVector3Record()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityVector3Record(bb:flatbuffers.ByteBuffer, obj?:CapabilityVector3Record):CapabilityVector3Record {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityVector3Record()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+x():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+y():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+z():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityVector3Record(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addX(builder:flatbuffers.Builder, x:number) {
+  builder.addFieldFloat32(0, x, 0.0);
+}
+
+static addY(builder:flatbuffers.Builder, y:number) {
+  builder.addFieldFloat32(1, y, 0.0);
+}
+
+static addZ(builder:flatbuffers.Builder, z:number) {
+  builder.addFieldFloat32(2, z, 0.0);
+}
+
+static endCapabilityVector3Record(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityVector3Record(builder:flatbuffers.Builder, x:number, y:number, z:number):flatbuffers.Offset {
+  CapabilityVector3Record.startCapabilityVector3Record(builder);
+  CapabilityVector3Record.addX(builder, x);
+  CapabilityVector3Record.addY(builder, y);
+  CapabilityVector3Record.addZ(builder, z);
+  return CapabilityVector3Record.endCapabilityVector3Record(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityQuaternionRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityQuaternionRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityQuaternionRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityQuaternionRecord):CapabilityQuaternionRecord {
+  return (obj || new CapabilityQuaternionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityQuaternionRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityQuaternionRecord):CapabilityQuaternionRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityQuaternionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+x():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+y():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+z():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+w():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityQuaternionRecord(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+}
+
+static addX(builder:flatbuffers.Builder, x:number) {
+  builder.addFieldFloat32(0, x, 0.0);
+}
+
+static addY(builder:flatbuffers.Builder, y:number) {
+  builder.addFieldFloat32(1, y, 0.0);
+}
+
+static addZ(builder:flatbuffers.Builder, z:number) {
+  builder.addFieldFloat32(2, z, 0.0);
+}
+
+static addW(builder:flatbuffers.Builder, w:number) {
+  builder.addFieldFloat32(3, w, 0.0);
+}
+
+static endCapabilityQuaternionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityQuaternionRecord(builder:flatbuffers.Builder, x:number, y:number, z:number, w:number):flatbuffers.Offset {
+  CapabilityQuaternionRecord.startCapabilityQuaternionRecord(builder);
+  CapabilityQuaternionRecord.addX(builder, x);
+  CapabilityQuaternionRecord.addY(builder, y);
+  CapabilityQuaternionRecord.addZ(builder, z);
+  CapabilityQuaternionRecord.addW(builder, w);
+  return CapabilityQuaternionRecord.endCapabilityQuaternionRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilitySupplyNodeDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilitySupplyNodeDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilitySupplyNodeDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilitySupplyNodeDeclarationRecord):CapabilitySupplyNodeDeclarationRecord {
+  return (obj || new CapabilitySupplyNodeDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilitySupplyNodeDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilitySupplyNodeDeclarationRecord):CapabilitySupplyNodeDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilitySupplyNodeDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+kind():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+source():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+consumers(index: number):bigint|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
+}
+
+consumersLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+operation():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : null;
+}
+
+static startCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(5);
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(0, owner, BigInt('0'));
+}
+
+static addKind(builder:flatbuffers.Builder, kind:number) {
+  builder.addFieldInt32(1, kind, 0);
+}
+
+static addSource(builder:flatbuffers.Builder, source:bigint) {
+  builder.addFieldInt64(2, source, BigInt('0'));
+}
+
+static addConsumers(builder:flatbuffers.Builder, consumersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, consumersOffset, 0);
+}
+
+static createConsumersVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
+  builder.startVector(8, data.length, 8);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt64(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startConsumersVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(8, numElems, 8);
+}
+
+static addOperation(builder:flatbuffers.Builder, operation:number) {
+  builder.addFieldInt32(4, operation, null);
+}
+
+static endCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder, owner:bigint, kind:number, source:bigint, consumersOffset:flatbuffers.Offset, operation:number|null):flatbuffers.Offset {
+  CapabilitySupplyNodeDeclarationRecord.startCapabilitySupplyNodeDeclarationRecord(builder);
+  CapabilitySupplyNodeDeclarationRecord.addOwner(builder, owner);
+  CapabilitySupplyNodeDeclarationRecord.addKind(builder, kind);
+  CapabilitySupplyNodeDeclarationRecord.addSource(builder, source);
+  CapabilitySupplyNodeDeclarationRecord.addConsumers(builder, consumersOffset);
+  if (operation !== null)
+    CapabilitySupplyNodeDeclarationRecord.addOperation(builder, operation);
+  return CapabilitySupplyNodeDeclarationRecord.endCapabilitySupplyNodeDeclarationRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilitySupplyEdgeRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilitySupplyEdgeRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilitySupplyEdgeRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilitySupplyEdgeRecord):CapabilitySupplyEdgeRecord {
+  return (obj || new CapabilitySupplyEdgeRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilitySupplyEdgeRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilitySupplyEdgeRecord):CapabilitySupplyEdgeRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilitySupplyEdgeRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+source():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+target():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+input():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilitySupplyEdgeRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addSource(builder:flatbuffers.Builder, source:bigint) {
+  builder.addFieldInt64(0, source, BigInt('0'));
+}
+
+static addTarget(builder:flatbuffers.Builder, target:bigint) {
+  builder.addFieldInt64(1, target, BigInt('0'));
+}
+
+static addInput(builder:flatbuffers.Builder, input:number) {
+  builder.addFieldInt32(2, input, 0);
+}
+
+static endCapabilitySupplyEdgeRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilitySupplyEdgeRecord(builder:flatbuffers.Builder, source:bigint, target:bigint, input:number):flatbuffers.Offset {
+  CapabilitySupplyEdgeRecord.startCapabilitySupplyEdgeRecord(builder);
+  CapabilitySupplyEdgeRecord.addSource(builder, source);
+  CapabilitySupplyEdgeRecord.addTarget(builder, target);
+  CapabilitySupplyEdgeRecord.addInput(builder, input);
+  return CapabilitySupplyEdgeRecord.endCapabilitySupplyEdgeRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityContactLoadSensorDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityContactLoadSensorDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityContactLoadSensorDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityContactLoadSensorDeclarationRecord):CapabilityContactLoadSensorDeclarationRecord {
+  return (obj || new CapabilityContactLoadSensorDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityContactLoadSensorDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityContactLoadSensorDeclarationRecord):CapabilityContactLoadSensorDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityContactLoadSensorDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+frame():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+region():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+minimumX():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maximumX():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+minimumZ():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maximumZ():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+localNormal(obj?:CapabilityVector3Record):CapabilityVector3Record|null {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? (obj || new CapabilityVector3Record()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+minimumAlignment():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maximumGap():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+minimumMass():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+supportingColliders(index: number):bigint|null {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
+}
+
+supportingCollidersLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityContactLoadSensorDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(12);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addFrame(builder:flatbuffers.Builder, frame:bigint) {
+  builder.addFieldInt64(1, frame, BigInt('0'));
+}
+
+static addRegion(builder:flatbuffers.Builder, region:bigint) {
+  builder.addFieldInt64(2, region, BigInt('0'));
+}
+
+static addMinimumX(builder:flatbuffers.Builder, minimumX:number) {
+  builder.addFieldFloat32(3, minimumX, 0.0);
+}
+
+static addMaximumX(builder:flatbuffers.Builder, maximumX:number) {
+  builder.addFieldFloat32(4, maximumX, 0.0);
+}
+
+static addMinimumZ(builder:flatbuffers.Builder, minimumZ:number) {
+  builder.addFieldFloat32(5, minimumZ, 0.0);
+}
+
+static addMaximumZ(builder:flatbuffers.Builder, maximumZ:number) {
+  builder.addFieldFloat32(6, maximumZ, 0.0);
+}
+
+static addLocalNormal(builder:flatbuffers.Builder, localNormalOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(7, localNormalOffset, 0);
+}
+
+static addMinimumAlignment(builder:flatbuffers.Builder, minimumAlignment:number) {
+  builder.addFieldFloat32(8, minimumAlignment, 0.0);
+}
+
+static addMaximumGap(builder:flatbuffers.Builder, maximumGap:number) {
+  builder.addFieldFloat32(9, maximumGap, 0.0);
+}
+
+static addMinimumMass(builder:flatbuffers.Builder, minimumMass:number) {
+  builder.addFieldFloat32(10, minimumMass, 0.0);
+}
+
+static addSupportingColliders(builder:flatbuffers.Builder, supportingCollidersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(11, supportingCollidersOffset, 0);
+}
+
+static createSupportingCollidersVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
+  builder.startVector(8, data.length, 8);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt64(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startSupportingCollidersVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(8, numElems, 8);
+}
+
+static endCapabilityContactLoadSensorDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 18) // local_normal
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityPrismaticDriveDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityPrismaticDriveDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityPrismaticDriveDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPrismaticDriveDeclarationRecord):CapabilityPrismaticDriveDeclarationRecord {
+  return (obj || new CapabilityPrismaticDriveDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityPrismaticDriveDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPrismaticDriveDeclarationRecord):CapabilityPrismaticDriveDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityPrismaticDriveDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+joint():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+target():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maxSpeed():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+stoppingAcceleration():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maxEffort():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maxPower():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityPrismaticDriveDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(6);
+}
+
+static addJoint(builder:flatbuffers.Builder, joint:bigint) {
+  builder.addFieldInt64(0, joint, BigInt('0'));
+}
+
+static addTarget(builder:flatbuffers.Builder, target:number) {
+  builder.addFieldFloat32(1, target, 0.0);
+}
+
+static addMaxSpeed(builder:flatbuffers.Builder, maxSpeed:number) {
+  builder.addFieldFloat32(2, maxSpeed, 0.0);
+}
+
+static addStoppingAcceleration(builder:flatbuffers.Builder, stoppingAcceleration:number) {
+  builder.addFieldFloat32(3, stoppingAcceleration, 0.0);
+}
+
+static addMaxEffort(builder:flatbuffers.Builder, maxEffort:number) {
+  builder.addFieldFloat32(4, maxEffort, 0.0);
+}
+
+static addMaxPower(builder:flatbuffers.Builder, maxPower:number) {
+  builder.addFieldFloat32(5, maxPower, 0.0);
+}
+
+static endCapabilityPrismaticDriveDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityPrismaticDriveDeclarationRecord(builder:flatbuffers.Builder, joint:bigint, target:number, maxSpeed:number, stoppingAcceleration:number, maxEffort:number, maxPower:number):flatbuffers.Offset {
+  CapabilityPrismaticDriveDeclarationRecord.startCapabilityPrismaticDriveDeclarationRecord(builder);
+  CapabilityPrismaticDriveDeclarationRecord.addJoint(builder, joint);
+  CapabilityPrismaticDriveDeclarationRecord.addTarget(builder, target);
+  CapabilityPrismaticDriveDeclarationRecord.addMaxSpeed(builder, maxSpeed);
+  CapabilityPrismaticDriveDeclarationRecord.addStoppingAcceleration(builder, stoppingAcceleration);
+  CapabilityPrismaticDriveDeclarationRecord.addMaxEffort(builder, maxEffort);
+  CapabilityPrismaticDriveDeclarationRecord.addMaxPower(builder, maxPower);
+  return CapabilityPrismaticDriveDeclarationRecord.endCapabilityPrismaticDriveDeclarationRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityActivationNodeDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityActivationNodeDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityActivationNodeDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityActivationNodeDeclarationRecord):CapabilityActivationNodeDeclarationRecord {
+  return (obj || new CapabilityActivationNodeDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityActivationNodeDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityActivationNodeDeclarationRecord):CapabilityActivationNodeDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityActivationNodeDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+kind():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+trigger():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+durationTicks():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+sensor():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+passage():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+targetCount():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+intervalTicks():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+powerSource():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+collider():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+contactLoad():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+releaseHoldTicks():number {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+completion():number {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+boundary():number {
+  const offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+elapsedSignal():number {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(16);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
+static addKind(builder:flatbuffers.Builder, kind:number) {
+  builder.addFieldInt32(2, kind, 0);
+}
+
+static addTrigger(builder:flatbuffers.Builder, trigger:bigint) {
+  builder.addFieldInt64(3, trigger, BigInt('0'));
+}
+
+static addDurationTicks(builder:flatbuffers.Builder, durationTicks:number) {
+  builder.addFieldInt32(4, durationTicks, 0);
+}
+
+static addSensor(builder:flatbuffers.Builder, sensor:bigint) {
+  builder.addFieldInt64(5, sensor, BigInt('0'));
+}
+
+static addPassage(builder:flatbuffers.Builder, passage:bigint) {
+  builder.addFieldInt64(6, passage, BigInt('0'));
+}
+
+static addTargetCount(builder:flatbuffers.Builder, targetCount:number) {
+  builder.addFieldInt32(7, targetCount, 0);
+}
+
+static addIntervalTicks(builder:flatbuffers.Builder, intervalTicks:number) {
+  builder.addFieldInt32(8, intervalTicks, 0);
+}
+
+static addPowerSource(builder:flatbuffers.Builder, powerSource:bigint) {
+  builder.addFieldInt64(9, powerSource, BigInt('0'));
+}
+
+static addCollider(builder:flatbuffers.Builder, collider:bigint) {
+  builder.addFieldInt64(10, collider, BigInt('0'));
+}
+
+static addContactLoad(builder:flatbuffers.Builder, contactLoad:bigint) {
+  builder.addFieldInt64(11, contactLoad, BigInt('0'));
+}
+
+static addReleaseHoldTicks(builder:flatbuffers.Builder, releaseHoldTicks:number) {
+  builder.addFieldInt32(12, releaseHoldTicks, 0);
+}
+
+static addCompletion(builder:flatbuffers.Builder, completion:number) {
+  builder.addFieldInt32(13, completion, 0);
+}
+
+static addBoundary(builder:flatbuffers.Builder, boundary:number) {
+  builder.addFieldInt32(14, boundary, 0);
+}
+
+static addElapsedSignal(builder:flatbuffers.Builder, elapsedSignal:number) {
+  builder.addFieldInt32(15, elapsedSignal, 0);
+}
+
+static endCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, kind:number, trigger:bigint, durationTicks:number, sensor:bigint, passage:bigint, targetCount:number, intervalTicks:number, powerSource:bigint, collider:bigint, contactLoad:bigint, releaseHoldTicks:number, completion:number, boundary:number, elapsedSignal:number):flatbuffers.Offset {
+  CapabilityActivationNodeDeclarationRecord.startCapabilityActivationNodeDeclarationRecord(builder);
+  CapabilityActivationNodeDeclarationRecord.addId(builder, id);
+  CapabilityActivationNodeDeclarationRecord.addOwner(builder, owner);
+  CapabilityActivationNodeDeclarationRecord.addKind(builder, kind);
+  CapabilityActivationNodeDeclarationRecord.addTrigger(builder, trigger);
+  CapabilityActivationNodeDeclarationRecord.addDurationTicks(builder, durationTicks);
+  CapabilityActivationNodeDeclarationRecord.addSensor(builder, sensor);
+  CapabilityActivationNodeDeclarationRecord.addPassage(builder, passage);
+  CapabilityActivationNodeDeclarationRecord.addTargetCount(builder, targetCount);
+  CapabilityActivationNodeDeclarationRecord.addIntervalTicks(builder, intervalTicks);
+  CapabilityActivationNodeDeclarationRecord.addPowerSource(builder, powerSource);
+  CapabilityActivationNodeDeclarationRecord.addCollider(builder, collider);
+  CapabilityActivationNodeDeclarationRecord.addContactLoad(builder, contactLoad);
+  CapabilityActivationNodeDeclarationRecord.addReleaseHoldTicks(builder, releaseHoldTicks);
+  CapabilityActivationNodeDeclarationRecord.addCompletion(builder, completion);
+  CapabilityActivationNodeDeclarationRecord.addBoundary(builder, boundary);
+  CapabilityActivationNodeDeclarationRecord.addElapsedSignal(builder, elapsedSignal);
+  return CapabilityActivationNodeDeclarationRecord.endCapabilityActivationNodeDeclarationRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityActivationEdgeRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityActivationEdgeRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityActivationEdgeRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityActivationEdgeRecord):CapabilityActivationEdgeRecord {
+  return (obj || new CapabilityActivationEdgeRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityActivationEdgeRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityActivationEdgeRecord):CapabilityActivationEdgeRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityActivationEdgeRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+source():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+target():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+input():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityActivationEdgeRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addSource(builder:flatbuffers.Builder, source:bigint) {
+  builder.addFieldInt64(0, source, BigInt('0'));
+}
+
+static addTarget(builder:flatbuffers.Builder, target:bigint) {
+  builder.addFieldInt64(1, target, BigInt('0'));
+}
+
+static addInput(builder:flatbuffers.Builder, input:number) {
+  builder.addFieldInt32(2, input, 0);
+}
+
+static endCapabilityActivationEdgeRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityActivationEdgeRecord(builder:flatbuffers.Builder, source:bigint, target:bigint, input:number):flatbuffers.Offset {
+  CapabilityActivationEdgeRecord.startCapabilityActivationEdgeRecord(builder);
+  CapabilityActivationEdgeRecord.addSource(builder, source);
+  CapabilityActivationEdgeRecord.addTarget(builder, target);
+  CapabilityActivationEdgeRecord.addInput(builder, input);
+  return CapabilityActivationEdgeRecord.endCapabilityActivationEdgeRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityPassageSensorDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityPassageSensorDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityPassageSensorDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPassageSensorDeclarationRecord):CapabilityPassageSensorDeclarationRecord {
+  return (obj || new CapabilityPassageSensorDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityPassageSensorDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPassageSensorDeclarationRecord):CapabilityPassageSensorDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityPassageSensorDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+frame():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+cell(obj?:CapabilityCellOriginRecord):CapabilityCellOriginRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new CapabilityCellOriginRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+local(obj?:CapabilityLocalPositionRecord):CapabilityLocalPositionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new CapabilityLocalPositionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+rotation(obj?:CapabilityCanonicalRotationRecord):CapabilityCanonicalRotationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityCanonicalRotationRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+radius():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+rearmClearance():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityPassageSensorDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(7);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addFrame(builder:flatbuffers.Builder, frame:bigint) {
+  builder.addFieldInt64(1, frame, BigInt('0'));
+}
+
+static addCell(builder:flatbuffers.Builder, cellOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, cellOffset, 0);
+}
+
+static addLocal(builder:flatbuffers.Builder, localOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, localOffset, 0);
+}
+
+static addRotation(builder:flatbuffers.Builder, rotationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, rotationOffset, 0);
+}
+
+static addRadius(builder:flatbuffers.Builder, radius:number) {
+  builder.addFieldFloat32(5, radius, 0.0);
+}
+
+static addRearmClearance(builder:flatbuffers.Builder, rearmClearance:number) {
+  builder.addFieldFloat32(6, rearmClearance, 0.0);
+}
+
+static endCapabilityPassageSensorDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 8) // cell
+  builder.requiredField(offset, 10) // local
+  builder.requiredField(offset, 12) // rotation
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityPresentationBindingRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityPresentationBindingRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityPresentationBindingRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPresentationBindingRecord):CapabilityPresentationBindingRecord {
+  return (obj || new CapabilityPresentationBindingRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityPresentationBindingRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPresentationBindingRecord):CapabilityPresentationBindingRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityPresentationBindingRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+property():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+driver():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+from():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+to():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+curve():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+duration():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+overlap():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+threshold():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+phase():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+response():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+intermediate():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : null;
+}
+
+socket():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : null;
+}
+
+event():number {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+eventMagnitude():number {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityPresentationBindingRecord(builder:flatbuffers.Builder) {
+  builder.startObject(14);
+}
+
+static addProperty(builder:flatbuffers.Builder, property:number) {
+  builder.addFieldInt32(0, property, 0);
+}
+
+static addDriver(builder:flatbuffers.Builder, driver:number) {
+  builder.addFieldInt32(1, driver, 0);
+}
+
+static addFrom(builder:flatbuffers.Builder, from:number) {
+  builder.addFieldFloat32(2, from, 0.0);
+}
+
+static addTo(builder:flatbuffers.Builder, to:number) {
+  builder.addFieldFloat32(3, to, 0.0);
+}
+
+static addCurve(builder:flatbuffers.Builder, curve:number) {
+  builder.addFieldInt32(4, curve, 0);
+}
+
+static addDuration(builder:flatbuffers.Builder, duration:number) {
+  builder.addFieldFloat32(5, duration, 0.0);
+}
+
+static addOverlap(builder:flatbuffers.Builder, overlap:number) {
+  builder.addFieldInt32(6, overlap, 0);
+}
+
+static addThreshold(builder:flatbuffers.Builder, threshold:number) {
+  builder.addFieldFloat32(7, threshold, 0.0);
+}
+
+static addPhase(builder:flatbuffers.Builder, phase:number) {
+  builder.addFieldInt32(8, phase, 0);
+}
+
+static addResponse(builder:flatbuffers.Builder, response:number) {
+  builder.addFieldFloat32(9, response, 0.0);
+}
+
+static addIntermediate(builder:flatbuffers.Builder, intermediate:number) {
+  builder.addFieldFloat32(10, intermediate, null);
+}
+
+static addSocket(builder:flatbuffers.Builder, socket:number) {
+  builder.addFieldInt32(11, socket, null);
+}
+
+static addEvent(builder:flatbuffers.Builder, event:number) {
+  builder.addFieldInt32(12, event, 0);
+}
+
+static addEventMagnitude(builder:flatbuffers.Builder, eventMagnitude:number) {
+  builder.addFieldInt32(13, eventMagnitude, 0);
+}
+
+static endCapabilityPresentationBindingRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityPresentationBindingRecord(builder:flatbuffers.Builder, property:number, driver:number, from:number, to:number, curve:number, duration:number, overlap:number, threshold:number, phase:number, response:number, intermediate:number|null, socket:number|null, event:number, eventMagnitude:number):flatbuffers.Offset {
+  CapabilityPresentationBindingRecord.startCapabilityPresentationBindingRecord(builder);
+  CapabilityPresentationBindingRecord.addProperty(builder, property);
+  CapabilityPresentationBindingRecord.addDriver(builder, driver);
+  CapabilityPresentationBindingRecord.addFrom(builder, from);
+  CapabilityPresentationBindingRecord.addTo(builder, to);
+  CapabilityPresentationBindingRecord.addCurve(builder, curve);
+  CapabilityPresentationBindingRecord.addDuration(builder, duration);
+  CapabilityPresentationBindingRecord.addOverlap(builder, overlap);
+  CapabilityPresentationBindingRecord.addThreshold(builder, threshold);
+  CapabilityPresentationBindingRecord.addPhase(builder, phase);
+  CapabilityPresentationBindingRecord.addResponse(builder, response);
+  if (intermediate !== null)
+    CapabilityPresentationBindingRecord.addIntermediate(builder, intermediate);
+  if (socket !== null)
+    CapabilityPresentationBindingRecord.addSocket(builder, socket);
+  CapabilityPresentationBindingRecord.addEvent(builder, event);
+  CapabilityPresentationBindingRecord.addEventMagnitude(builder, eventMagnitude);
+  return CapabilityPresentationBindingRecord.endCapabilityPresentationBindingRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CapabilityWorkshopCadenceSettingsRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityWorkshopCadenceSettingsRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityWorkshopCadenceSettingsRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityWorkshopCadenceSettingsRecord):CapabilityWorkshopCadenceSettingsRecord {
+  return (obj || new CapabilityWorkshopCadenceSettingsRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityWorkshopCadenceSettingsRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityWorkshopCadenceSettingsRecord):CapabilityWorkshopCadenceSettingsRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityWorkshopCadenceSettingsRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+simulation():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+physical():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+animation():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+presentation():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+presentationRate(obj?:CapabilityPulseRateRecord):CapabilityPulseRateRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityPulseRateRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+static startCapabilityWorkshopCadenceSettingsRecord(builder:flatbuffers.Builder) {
+  builder.startObject(5);
+}
+
+static addSimulation(builder:flatbuffers.Builder, simulation:number) {
+  builder.addFieldInt32(0, simulation, 0);
+}
+
+static addPhysical(builder:flatbuffers.Builder, physical:number) {
+  builder.addFieldInt32(1, physical, 0);
+}
+
+static addAnimation(builder:flatbuffers.Builder, animation:number) {
+  builder.addFieldInt32(2, animation, 0);
+}
+
+static addPresentation(builder:flatbuffers.Builder, presentation:number) {
+  builder.addFieldInt32(3, presentation, 0);
+}
+
+static addPresentationRate(builder:flatbuffers.Builder, presentationRateOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, presentationRateOffset, 0);
+}
+
+static endCapabilityWorkshopCadenceSettingsRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 12) // presentation_rate
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CapabilityPulseRateRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityPulseRateRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityPulseRateRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPulseRateRecord):CapabilityPulseRateRecord {
+  return (obj || new CapabilityPulseRateRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityPulseRateRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityPulseRateRecord):CapabilityPulseRateRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityPulseRateRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+numerator():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+denominator():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityPulseRateRecord(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+}
+
+static addNumerator(builder:flatbuffers.Builder, numerator:number) {
+  builder.addFieldInt32(0, numerator, 0);
+}
+
+static addDenominator(builder:flatbuffers.Builder, denominator:number) {
+  builder.addFieldInt32(1, denominator, 0);
+}
+
+static endCapabilityPulseRateRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityPulseRateRecord(builder:flatbuffers.Builder, numerator:number, denominator:number):flatbuffers.Offset {
+  CapabilityPulseRateRecord.startCapabilityPulseRateRecord(builder);
+  CapabilityPulseRateRecord.addNumerator(builder, numerator);
+  CapabilityPulseRateRecord.addDenominator(builder, denominator);
+  return CapabilityPulseRateRecord.endCapabilityPulseRateRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CompiledPresentationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CompiledPresentationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCompiledPresentationRecord(bb:flatbuffers.ByteBuffer, obj?:CompiledPresentationRecord):CompiledPresentationRecord {
+  return (obj || new CompiledPresentationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCompiledPresentationRecord(bb:flatbuffers.ByteBuffer, obj?:CompiledPresentationRecord):CompiledPresentationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CompiledPresentationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+target():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+binding():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+declaration(obj?:CapabilityPresentationBindingRecord):CapabilityPresentationBindingRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new CapabilityPresentationBindingRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+activation(obj?:CapabilityActivationNodeDeclarationRecord):CapabilityActivationNodeDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityActivationNodeDeclarationRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+sourceCapacity():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCompiledPresentationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(6);
+}
+
+static addTarget(builder:flatbuffers.Builder, target:bigint) {
+  builder.addFieldInt64(0, target, BigInt('0'));
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
+static addBinding(builder:flatbuffers.Builder, binding:number) {
+  builder.addFieldInt32(2, binding, 0);
+}
+
+static addDeclaration(builder:flatbuffers.Builder, declarationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, declarationOffset, 0);
+}
+
+static addActivation(builder:flatbuffers.Builder, activationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, activationOffset, 0);
+}
+
+static addSourceCapacity(builder:flatbuffers.Builder, sourceCapacity:number) {
+  builder.addFieldFloat32(5, sourceCapacity, 0.0);
+}
+
+static endCompiledPresentationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 10) // declaration
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class CompiledSceneRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CompiledSceneRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCompiledSceneRecord(bb:flatbuffers.ByteBuffer, obj?:CompiledSceneRecord):CompiledSceneRecord {
+  return (obj || new CompiledSceneRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCompiledSceneRecord(bb:flatbuffers.ByteBuffer, obj?:CompiledSceneRecord):CompiledSceneRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CompiledSceneRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+identity():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+revision():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+settings(obj?:CapabilityWorkshopCadenceSettingsRecord):CapabilityWorkshopCadenceSettingsRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new CapabilityWorkshopCadenceSettingsRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+documentLow():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+documentHigh():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+nextIdentity():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+bodies(index: number, obj?:CapabilityRigidBodyDeclarationRecord):CapabilityRigidBodyDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? (obj || new CapabilityRigidBodyDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+bodiesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+colliders(index: number, obj?:CapabilityColliderDeclarationRecord):CapabilityColliderDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? (obj || new CapabilityColliderDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+collidersLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+materials(index: number, obj?:CapabilityContactMaterialDeclarationRecord):CapabilityContactMaterialDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? (obj || new CapabilityContactMaterialDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+materialsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+sensors(index: number, obj?:CapabilityResidenceSensorDeclarationRecord):CapabilityResidenceSensorDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? (obj || new CapabilityResidenceSensorDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+sensorsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+guides(index: number, obj?:CapabilityPlanarGuideDeclarationRecord):CapabilityPlanarGuideDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? (obj || new CapabilityPlanarGuideDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+guidesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+triggers(index: number, obj?:CapabilityContactTriggerDeclarationRecord):CapabilityContactTriggerDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? (obj || new CapabilityContactTriggerDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+triggersLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+contactWorks(index: number, obj?:CapabilityContactWorkDeclarationRecord):CapabilityContactWorkDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? (obj || new CapabilityContactWorkDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+contactWorksLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+orientationSensors(index: number, obj?:CapabilityOrientationSensorDeclarationRecord):CapabilityOrientationSensorDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? (obj || new CapabilityOrientationSensorDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+orientationSensorsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+electricalSources(index: number, obj?:CapabilityElectricalSourceDeclarationRecord):CapabilityElectricalSourceDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? (obj || new CapabilityElectricalSourceDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+electricalSourcesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+electricalBindings(index: number, obj?:CapabilityElectricalStorageBindingRecord):CapabilityElectricalStorageBindingRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? (obj || new CapabilityElectricalStorageBindingRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+electricalBindingsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+prismatics(index: number, obj?:CapabilityPrismaticConstraintDeclarationRecord):CapabilityPrismaticConstraintDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? (obj || new CapabilityPrismaticConstraintDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+prismaticsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+supplyNodes(index: number, obj?:CapabilitySupplyNodeDeclarationRecord):CapabilitySupplyNodeDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? (obj || new CapabilitySupplyNodeDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+supplyNodesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+supplyEdges(index: number, obj?:CapabilitySupplyEdgeRecord):CapabilitySupplyEdgeRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 40);
+  return offset ? (obj || new CapabilitySupplyEdgeRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+supplyEdgesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 40);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+contactLoadSensors(index: number, obj?:CapabilityContactLoadSensorDeclarationRecord):CapabilityContactLoadSensorDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 42);
+  return offset ? (obj || new CapabilityContactLoadSensorDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+contactLoadSensorsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 42);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+prismaticDrives(index: number, obj?:CapabilityPrismaticDriveDeclarationRecord):CapabilityPrismaticDriveDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 44);
+  return offset ? (obj || new CapabilityPrismaticDriveDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+prismaticDrivesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 44);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+activationNodes(index: number, obj?:CapabilityActivationNodeDeclarationRecord):CapabilityActivationNodeDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 46);
+  return offset ? (obj || new CapabilityActivationNodeDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+activationNodesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 46);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+activationEdges(index: number, obj?:CapabilityActivationEdgeRecord):CapabilityActivationEdgeRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? (obj || new CapabilityActivationEdgeRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+activationEdgesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+passageSensors(index: number, obj?:CapabilityPassageSensorDeclarationRecord):CapabilityPassageSensorDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 50);
+  return offset ? (obj || new CapabilityPassageSensorDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+passageSensorsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 50);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+activationSubsteps():number {
+  const offset = this.bb!.__offset(this.bb_pos, 52);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+contactOwners(index: number):bigint|null {
+  const offset = this.bb!.__offset(this.bb_pos, 54);
+  return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
+}
+
+contactOwnersLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 54);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+owners(index: number):bigint|null {
+  const offset = this.bb!.__offset(this.bb_pos, 56);
+  return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
+}
+
+ownersLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 56);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+editableSources(index: number):bigint|null {
+  const offset = this.bb!.__offset(this.bb_pos, 58);
+  return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
+}
+
+editableSourcesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 58);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+presentation(index: number, obj?:CompiledPresentationRecord):CompiledPresentationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 60);
+  return offset ? (obj || new CompiledPresentationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+presentationLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 60);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+static startCompiledSceneRecord(builder:flatbuffers.Builder) {
+  builder.startObject(29);
+}
+
+static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
+  builder.addFieldInt64(0, identity, BigInt('0'));
+}
+
+static addRevision(builder:flatbuffers.Builder, revision:bigint) {
+  builder.addFieldInt64(1, revision, BigInt('0'));
+}
+
+static addSettings(builder:flatbuffers.Builder, settingsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, settingsOffset, 0);
+}
+
+static addDocumentLow(builder:flatbuffers.Builder, documentLow:bigint) {
+  builder.addFieldInt64(3, documentLow, BigInt('0'));
+}
+
+static addDocumentHigh(builder:flatbuffers.Builder, documentHigh:bigint) {
+  builder.addFieldInt64(4, documentHigh, BigInt('0'));
+}
+
+static addNextIdentity(builder:flatbuffers.Builder, nextIdentity:bigint) {
+  builder.addFieldInt64(5, nextIdentity, BigInt('0'));
+}
+
+static addBodies(builder:flatbuffers.Builder, bodiesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(6, bodiesOffset, 0);
+}
+
+static createBodiesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startBodiesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addColliders(builder:flatbuffers.Builder, collidersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(7, collidersOffset, 0);
+}
+
+static createCollidersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startCollidersVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addMaterials(builder:flatbuffers.Builder, materialsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(8, materialsOffset, 0);
+}
+
+static createMaterialsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startMaterialsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addSensors(builder:flatbuffers.Builder, sensorsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(9, sensorsOffset, 0);
+}
+
+static createSensorsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startSensorsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addGuides(builder:flatbuffers.Builder, guidesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(10, guidesOffset, 0);
+}
+
+static createGuidesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startGuidesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addTriggers(builder:flatbuffers.Builder, triggersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(11, triggersOffset, 0);
+}
+
+static createTriggersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startTriggersVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addContactWorks(builder:flatbuffers.Builder, contactWorksOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(12, contactWorksOffset, 0);
+}
+
+static createContactWorksVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startContactWorksVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addOrientationSensors(builder:flatbuffers.Builder, orientationSensorsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(13, orientationSensorsOffset, 0);
+}
+
+static createOrientationSensorsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startOrientationSensorsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addElectricalSources(builder:flatbuffers.Builder, electricalSourcesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(14, electricalSourcesOffset, 0);
+}
+
+static createElectricalSourcesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startElectricalSourcesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addElectricalBindings(builder:flatbuffers.Builder, electricalBindingsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(15, electricalBindingsOffset, 0);
+}
+
+static createElectricalBindingsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startElectricalBindingsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addPrismatics(builder:flatbuffers.Builder, prismaticsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(16, prismaticsOffset, 0);
+}
+
+static createPrismaticsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startPrismaticsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addSupplyNodes(builder:flatbuffers.Builder, supplyNodesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(17, supplyNodesOffset, 0);
+}
+
+static createSupplyNodesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startSupplyNodesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addSupplyEdges(builder:flatbuffers.Builder, supplyEdgesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(18, supplyEdgesOffset, 0);
+}
+
+static createSupplyEdgesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startSupplyEdgesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addContactLoadSensors(builder:flatbuffers.Builder, contactLoadSensorsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(19, contactLoadSensorsOffset, 0);
+}
+
+static createContactLoadSensorsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startContactLoadSensorsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addPrismaticDrives(builder:flatbuffers.Builder, prismaticDrivesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(20, prismaticDrivesOffset, 0);
+}
+
+static createPrismaticDrivesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startPrismaticDrivesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addActivationNodes(builder:flatbuffers.Builder, activationNodesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(21, activationNodesOffset, 0);
+}
+
+static createActivationNodesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startActivationNodesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addActivationEdges(builder:flatbuffers.Builder, activationEdgesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(22, activationEdgesOffset, 0);
+}
+
+static createActivationEdgesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startActivationEdgesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addPassageSensors(builder:flatbuffers.Builder, passageSensorsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(23, passageSensorsOffset, 0);
+}
+
+static createPassageSensorsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startPassageSensorsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addActivationSubsteps(builder:flatbuffers.Builder, activationSubsteps:number) {
+  builder.addFieldInt32(24, activationSubsteps, 0);
+}
+
+static addContactOwners(builder:flatbuffers.Builder, contactOwnersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(25, contactOwnersOffset, 0);
+}
+
+static createContactOwnersVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
+  builder.startVector(8, data.length, 8);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt64(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startContactOwnersVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(8, numElems, 8);
+}
+
+static addOwners(builder:flatbuffers.Builder, ownersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(26, ownersOffset, 0);
+}
+
+static createOwnersVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
+  builder.startVector(8, data.length, 8);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt64(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startOwnersVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(8, numElems, 8);
+}
+
+static addEditableSources(builder:flatbuffers.Builder, editableSourcesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(27, editableSourcesOffset, 0);
+}
+
+static createEditableSourcesVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
+  builder.startVector(8, data.length, 8);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt64(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startEditableSourcesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(8, numElems, 8);
+}
+
+static addPresentation(builder:flatbuffers.Builder, presentationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(28, presentationOffset, 0);
+}
+
+static createPresentationVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startPresentationVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 8) // settings
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class CadenceSettingsRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CadenceSettingsRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+simulation():number {
+  return this.bb!.readUint32(this.bb_pos);
+}
+
+physical():number {
+  return this.bb!.readUint32(this.bb_pos + 4);
+}
+
+animation():number {
+  return this.bb!.readUint32(this.bb_pos + 8);
+}
+
+presentation():number {
+  return this.bb!.readUint32(this.bb_pos + 12);
+}
+
+presentationRateNumerator():number {
+  return this.bb!.readUint32(this.bb_pos + 16);
+}
+
+presentationRateDenominator():number {
+  return this.bb!.readUint32(this.bb_pos + 20);
+}
+
+static sizeOf():number {
+  return 24;
+}
+
+static createCadenceSettingsRecord(builder:flatbuffers.Builder, simulation: number, physical: number, animation: number, presentation: number, presentation_rate_numerator: number, presentation_rate_denominator: number):flatbuffers.Offset {
+  builder.prep(4, 24);
+  builder.writeInt32(presentation_rate_denominator);
+  builder.writeInt32(presentation_rate_numerator);
+  builder.writeInt32(presentation);
+  builder.writeInt32(animation);
+  builder.writeInt32(physical);
+  builder.writeInt32(simulation);
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class ConnectionRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ConnectionRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+source():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+target():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+domain():number {
+  return this.bb!.readUint32(this.bb_pos + 16);
+}
+
+fromSocket():number {
+  return this.bb!.readUint32(this.bb_pos + 20);
+}
+
+toSocket():number {
+  return this.bb!.readUint32(this.bb_pos + 24);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createConnectionRecord(builder:flatbuffers.Builder, source: bigint, target: bigint, domain: number, from_socket: number, to_socket: number):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.pad(4);
+  builder.writeInt32(to_socket);
+  builder.writeInt32(from_socket);
+  builder.writeInt32(domain);
+  builder.writeInt64(BigInt(target ?? 0));
+  builder.writeInt64(BigInt(source ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class AssistanceKnotRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):AssistanceKnotRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+precision():number {
+  return this.bb!.readFloat32(this.bb_pos);
+}
+
+positionWindow():number {
+  return this.bb!.readFloat32(this.bb_pos + 4);
+}
+
+rotationWindowDegrees():number {
+  return this.bb!.readFloat32(this.bb_pos + 8);
+}
+
+maximumPositionCorrection():number {
+  return this.bb!.readFloat32(this.bb_pos + 12);
+}
+
+maximumRotationCorrectionDegrees():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+blend():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+captureMargin():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+captureSpeed():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
+captureDwell():number {
+  return this.bb!.readFloat32(this.bb_pos + 32);
+}
+
+guideAcceleration():number {
+  return this.bb!.readFloat32(this.bb_pos + 36);
+}
+
+triggerThreshold():number {
+  return this.bb!.readFloat32(this.bb_pos + 40);
+}
+
+static sizeOf():number {
+  return 44;
+}
+
+static createAssistanceKnotRecord(builder:flatbuffers.Builder, precision: number, position_window: number, rotation_window_degrees: number, maximum_position_correction: number, maximum_rotation_correction_degrees: number, blend: number, capture_margin: number, capture_speed: number, capture_dwell: number, guide_acceleration: number, trigger_threshold: number):flatbuffers.Offset {
+  builder.prep(4, 44);
+  builder.writeFloat32(trigger_threshold);
+  builder.writeFloat32(guide_acceleration);
+  builder.writeFloat32(capture_dwell);
+  builder.writeFloat32(capture_speed);
+  builder.writeFloat32(capture_margin);
+  builder.writeFloat32(blend);
+  builder.writeFloat32(maximum_rotation_correction_degrees);
+  builder.writeFloat32(maximum_position_correction);
+  builder.writeFloat32(rotation_window_degrees);
+  builder.writeFloat32(position_window);
+  builder.writeFloat32(precision);
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+export class ParameterRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ParameterRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsParameterRecord(bb:flatbuffers.ByteBuffer, obj?:ParameterRecord):ParameterRecord {
+  return (obj || new ParameterRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsParameterRecord(bb:flatbuffers.ByteBuffer, obj?:ParameterRecord):ParameterRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new ParameterRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+key():string|null
+key(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+key(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+value():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startParameterRecord(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+}
+
+static addKey(builder:flatbuffers.Builder, keyOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, keyOffset, 0);
+}
+
+static addValue(builder:flatbuffers.Builder, value:number) {
+  builder.addFieldFloat32(1, value, 0.0);
+}
+
+static endParameterRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 4) // key
+  return offset;
+}
+
+static createParameterRecord(builder:flatbuffers.Builder, keyOffset:flatbuffers.Offset, value:number):flatbuffers.Offset {
+  ParameterRecord.startParameterRecord(builder);
+  ParameterRecord.addKey(builder, keyOffset);
+  ParameterRecord.addValue(builder, value);
+  return ParameterRecord.endParameterRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class InstanceRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):InstanceRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsInstanceRecord(bb:flatbuffers.ByteBuffer, obj?:InstanceRecord):InstanceRecord {
+  return (obj || new InstanceRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsInstanceRecord(bb:flatbuffers.ByteBuffer, obj?:InstanceRecord):InstanceRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new InstanceRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+partId():string|null
+partId(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+partId(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+locked():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
+cell(obj?:Vec3i):Vec3i|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new Vec3i()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+local(obj?:Vec3f):Vec3f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+rotation(obj?:Quat4f):Quat4f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? (obj || new Quat4f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+parameters(index: number, obj?:ParameterRecord):ParameterRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? (obj || new ParameterRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+parametersLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+static startInstanceRecord(builder:flatbuffers.Builder) {
+  builder.startObject(7);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addPartId(builder:flatbuffers.Builder, partIdOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, partIdOffset, 0);
+}
+
+static addLocked(builder:flatbuffers.Builder, locked:boolean) {
+  builder.addFieldInt8(2, +locked, +false);
+}
+
+static addCell(builder:flatbuffers.Builder, cellOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(3, cellOffset, 0);
+}
+
+static addLocal(builder:flatbuffers.Builder, localOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(4, localOffset, 0);
+}
+
+static addRotation(builder:flatbuffers.Builder, rotationOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(5, rotationOffset, 0);
+}
+
+static addParameters(builder:flatbuffers.Builder, parametersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(6, parametersOffset, 0);
+}
+
+static createParametersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startParametersVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static endInstanceRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class PuzzleRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):PuzzleRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsPuzzleRecord(bb:flatbuffers.ByteBuffer, obj?:PuzzleRecord):PuzzleRecord {
+  return (obj || new PuzzleRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsPuzzleRecord(bb:flatbuffers.ByteBuffer, obj?:PuzzleRecord):PuzzleRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new PuzzleRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():string|null
+id(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+id(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+placement():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+precision():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+inventoryPart():string|null
+inventoryPart(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+inventoryPart(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+inventoryCount():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+goalKind():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+goalBody():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+goalTarget():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+goalDelay():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+assistance(index: number, obj?:AssistanceKnotRecord):AssistanceKnotRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? (obj || new AssistanceKnotRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 44, this.bb!) : null;
+}
+
+assistanceLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+static startPuzzleRecord(builder:flatbuffers.Builder) {
+  builder.startObject(10);
+}
+
+static addId(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, idOffset, 0);
+}
+
+static addPlacement(builder:flatbuffers.Builder, placement:number) {
+  builder.addFieldInt32(1, placement, 0);
+}
+
+static addPrecision(builder:flatbuffers.Builder, precision:number) {
+  builder.addFieldFloat32(2, precision, 0.0);
+}
+
+static addInventoryPart(builder:flatbuffers.Builder, inventoryPartOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, inventoryPartOffset, 0);
+}
+
+static addInventoryCount(builder:flatbuffers.Builder, inventoryCount:number) {
+  builder.addFieldInt32(4, inventoryCount, 0);
+}
+
+static addGoalKind(builder:flatbuffers.Builder, goalKind:number) {
+  builder.addFieldInt32(5, goalKind, 0);
+}
+
+static addGoalBody(builder:flatbuffers.Builder, goalBody:bigint) {
+  builder.addFieldInt64(6, goalBody, BigInt('0'));
+}
+
+static addGoalTarget(builder:flatbuffers.Builder, goalTarget:bigint) {
+  builder.addFieldInt64(7, goalTarget, BigInt('0'));
+}
+
+static addGoalDelay(builder:flatbuffers.Builder, goalDelay:number) {
+  builder.addFieldFloat32(8, goalDelay, 0.0);
+}
+
+static addAssistance(builder:flatbuffers.Builder, assistanceOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(9, assistanceOffset, 0);
+}
+
+static startAssistanceVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(44, numElems, 4);
+}
+
+static endPuzzleRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 4) // id
+  builder.requiredField(offset, 22) // assistance
+  return offset;
+}
+
+static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalDelay:number, assistanceOffset:flatbuffers.Offset):flatbuffers.Offset {
+  PuzzleRecord.startPuzzleRecord(builder);
+  PuzzleRecord.addId(builder, idOffset);
+  PuzzleRecord.addPlacement(builder, placement);
+  PuzzleRecord.addPrecision(builder, precision);
+  PuzzleRecord.addInventoryPart(builder, inventoryPartOffset);
+  PuzzleRecord.addInventoryCount(builder, inventoryCount);
+  PuzzleRecord.addGoalKind(builder, goalKind);
+  PuzzleRecord.addGoalBody(builder, goalBody);
+  PuzzleRecord.addGoalTarget(builder, goalTarget);
+  PuzzleRecord.addGoalDelay(builder, goalDelay);
+  PuzzleRecord.addAssistance(builder, assistanceOffset);
+  return PuzzleRecord.endPuzzleRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class ConstructionRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ConstructionRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsConstructionRecord(bb:flatbuffers.ByteBuffer, obj?:ConstructionRecord):ConstructionRecord {
+  return (obj || new ConstructionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsConstructionRecord(bb:flatbuffers.ByteBuffer, obj?:ConstructionRecord):ConstructionRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new ConstructionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+revision():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+settings(obj?:CadenceSettingsRecord):CadenceSettingsRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new CadenceSettingsRecord()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+puzzle(obj?:PuzzleRecord):PuzzleRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new PuzzleRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+instances(index: number, obj?:InstanceRecord):InstanceRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new InstanceRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+instancesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+connections(index: number, obj?:ConnectionRecord):ConnectionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new ConnectionRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+}
+
+connectionsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+static startConstructionRecord(builder:flatbuffers.Builder) {
+  builder.startObject(5);
+}
+
+static addRevision(builder:flatbuffers.Builder, revision:bigint) {
+  builder.addFieldInt64(0, revision, BigInt('0'));
+}
+
+static addSettings(builder:flatbuffers.Builder, settingsOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(1, settingsOffset, 0);
+}
+
+static addPuzzle(builder:flatbuffers.Builder, puzzleOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, puzzleOffset, 0);
+}
+
+static addInstances(builder:flatbuffers.Builder, instancesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, instancesOffset, 0);
+}
+
+static createInstancesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startInstancesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addConnections(builder:flatbuffers.Builder, connectionsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, connectionsOffset, 0);
+}
+
+static startConnectionsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(32, numElems, 8);
+}
+
+static endConstructionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class SavedConstruction {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):SavedConstruction {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsSavedConstruction(bb:flatbuffers.ByteBuffer, obj?:SavedConstruction):SavedConstruction {
+  return (obj || new SavedConstruction()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsSavedConstruction(bb:flatbuffers.ByteBuffer, obj?:SavedConstruction):SavedConstruction {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new SavedConstruction()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static bufferHasIdentifier(bb:flatbuffers.ByteBuffer):boolean {
+  return bb.__has_identifier('CCWS');
+}
+
+nextBodyId():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+construction(obj?:ConstructionRecord):ConstructionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+static startSavedConstruction(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+}
+
+static addNextBodyId(builder:flatbuffers.Builder, nextBodyId:bigint) {
+  builder.addFieldInt64(0, nextBodyId, BigInt('0'));
+}
+
+static addConstruction(builder:flatbuffers.Builder, constructionOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, constructionOffset, 0);
+}
+
+static endSavedConstruction(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static finishSavedConstructionBuffer(builder:flatbuffers.Builder, offset:flatbuffers.Offset) {
+  builder.finish(offset, 'CCWS');
+}
+
+static finishSizePrefixedSavedConstructionBuffer(builder:flatbuffers.Builder, offset:flatbuffers.Offset) {
+  builder.finish(offset, 'CCWS', true);
 }
 
 }
@@ -2287,7 +8086,6 @@ export function dumpAuthored(saved: SavedConstruction): object {
             cell: c ? { x: c.x(), y: c.y(), z: c.z() } : null,
             local: l ? { x: l.x(), y: l.y(), z: l.z() } : null,
             rotation: r ? { x: r.x(), y: r.y(), z: r.z(), w: r.w() } : null,
-            length: inst.length(),
             parameters: Array.from({length: inst.parametersLength()}, (_, index) => {
                 const parameter = inst.parameters(index)!;
                 return {key: parameter.key(), value: parameter.value()};
@@ -2485,14 +8283,6 @@ export interface MockCommandParams {
     cadence?: bigint;
     projection?: bigint;
     electrical?: { owner?: bigint; enabled?: number };
-    settings?: {
-        simulation?: number;
-        physical?: number;
-        animation?: number;
-        presentation?: number;
-        presentationRateNumerator?: number;
-        presentationRateDenominator?: number;
-    };
     target?: {
         sequence?: bigint;
         epoch?: bigint;
@@ -2524,19 +8314,6 @@ export function encodeWorkshopCommand(params: MockCommandParams): Buffer {
             params.electrical.enabled ?? 0
         );
         WorkshopCommand.addElectrical(builder, electOffset);
-    }
-    if (params.settings) {
-        const s = params.settings;
-        const setOffset = CadenceSettingsRecord.createCadenceSettingsRecord(
-            builder,
-            s.simulation ?? 0,
-            s.physical ?? 0,
-            s.animation ?? 0,
-            s.presentation ?? 0,
-            s.presentationRateNumerator ?? 0,
-            s.presentationRateDenominator ?? 0
-        );
-        WorkshopCommand.addSettings(builder, setOffset);
     }
     if (params.target) {
         const t = params.target;

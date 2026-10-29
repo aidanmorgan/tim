@@ -17,12 +17,12 @@ public sealed class SourceStoreInstanceTests
 
     /// <summary>A Powered Gate at the origin and a source beside it, wired Supply → PowerIn unless <paramref name="wired"/> is false.</summary>
     private static WorkshopConstruction GateBench(WorkshopGenericInstance source, bool wired = true) =>
-        new(new(2), Settings, new(WorkshopInput.Generic(PartId.PoweredGate, Gate, 0, 3, 0, 0, 0, 0, 1), source),
+        new(new(2), Settings, new(WorkshopInput.Generic(new PartId("powered_gate"), Gate, 0, 3, 0, 0, 0, 0, 1), source),
             Connections: wired ? new(Power(source.Id, Gate)) : WorkshopConnections.Empty);
 
     /// <summary>A heavy ball that empties a Bumper's contact-work store, the store recharged by the source wired to its PowerIn.</summary>
     private static WorkshopConstruction RechargeBench(WorkshopGenericInstance source, float strength = 8f) =>
-        new(new(2), Settings, new(WorkshopInput.Generic(PartId.BowlingBall, Ball, 0, 6, 0, 0, 0, 0, 1), PlacedParts.Bumper(Bumper, 0, 3, 0, (float)(strength)), source),
+        new(new(2), Settings, new(WorkshopInput.Generic(new PartId("bowling"), Ball, 0, 6, 0, 0, 0, 0, 1), PlacedParts.Bumper(Bumper, 0, 3, 0, (float)(strength)), source),
             Connections: new(Power(source.Id, Bumper)));
 
 
@@ -74,7 +74,7 @@ public sealed class SourceStoreInstanceTests
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (unwired with { Connections = new(Power(Gate, Source)) }).Validate());
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (unwired with { Connections = new(
             new WorkshopConnection(Source, WorkshopSocket.Supply, Gate, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Activation)) }).Validate());
-        var withSwitch = unwired with { Instances = unwired.Instances.With(WorkshopInput.Generic(PartId.ImpactSwitch, new(7), -3, 1, 0, 0, 0, 0, 1)) };
+        var withSwitch = unwired with { Instances = unwired.Instances.With(WorkshopInput.Generic(new PartId("switch"), new(7), -3, 1, 0, 0, 0, 0, 1)) };
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (withSwitch with { Connections = new(
             new WorkshopConnection(new(7), WorkshopSocket.ActivationOut, Source, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) }).Validate());
     }
@@ -142,7 +142,7 @@ public sealed class SourceStoreInstanceTests
         // The Battery's compiled store is exactly its package's store over its own parameters.
         var battery = PlacedParts.Battery(Source, 3, 1, 0, 1234.5f, 77.25f, .625f, ElectricalEnable.Disabled);
         var compiled = Assert.Single(WorkshopPhysicsCompiler.Compile(GateBench(battery), new(1, 2)).Electrical.Sources.ToArray());
-        Assert.Equal(WorkshopPhysicsCompiler.ElectricalSourceFor(GateBench(battery).Instances.Identities[Source].Source, Source, DeclaredPhysics.SourceStore(PartId.Battery)!.Value, battery.Parameters), compiled);
+        Assert.Equal(WorkshopPhysicsCompiler.ElectricalSourceFor(GateBench(battery).Instances.Identities[Source].Source, Source, DeclaredPhysics.SourceStore(new PartId("battery"))!.Value, battery.Parameters), compiled);
         // Only a declared Source compiles a store: no other part does.
         Assert.All(TestBundle.Entries.Where(entry => entry.Metadata.Id != "battery"), entry => Assert.Null(entry.Electrical?.Supply?.Store));
     }
@@ -152,15 +152,15 @@ public sealed class SourceStoreInstanceTests
     [Fact]
     public void ARunTimeControlExistsOnlyWhereTheStoreDeclaresItsEnableStateRunEditable()
     {
-        var entry = DeclaredPhysics.Of(PartId.Battery);
+        var entry = DeclaredPhysics.Of(new PartId("battery"));
         Assert.True(DeclaredPhysics.HasRunControlledSource(entry));
-        Assert.True(DeclaredPhysics.HasRunControlledSource(PartId.Battery));
+        Assert.True(DeclaredPhysics.HasRunControlledSource(new PartId("battery")));
         var buildOnly = entry with { Metadata = entry.Metadata with { Parameters = entry.Metadata.Parameters
             .Select(parameter => parameter with { RunEdit = ParameterRunEdit.BuildOnly }).ToArray() } };
         Assert.False(DeclaredPhysics.HasRunControlledSource(buildOnly));
-        Assert.False(DeclaredPhysics.HasRunControlledSource(PartId.PoweredGate));
-        Assert.False(DeclaredPhysics.HasRunControlledSource(PartId.ImpactSwitch));
-        Assert.False(DeclaredPhysics.HasRunControlledSource(PartId.Basketball));
+        Assert.False(DeclaredPhysics.HasRunControlledSource(new PartId("powered_gate")));
+        Assert.False(DeclaredPhysics.HasRunControlledSource(new PartId("switch")));
+        Assert.False(DeclaredPhysics.HasRunControlledSource(new PartId("ball")));
     }
 
     // ---------- the run-time control (ConfigureElectrical) ----------
@@ -232,7 +232,7 @@ public sealed class SourceStoreInstanceTests
     public async Task TheControlIsRefusedOutsideARunAndForAnyOwnerWithoutARunControlledStore()
     {
         var bench = GateBench(PlacedParts.Battery(Source, 3, 3, 0));
-        bench = bench with { Instances = bench.Instances.With(WorkshopInput.Generic(PartId.Basketball, Ball, -3, 3, 0, 0, 0, 0, 1))
+        bench = bench with { Instances = bench.Instances.With(WorkshopInput.Generic(new PartId("ball"), Ball, -3, 3, 0, 0, 0, 0, 1))
             .With(PlacedParts.Battery(new(8), 6, 3, 0) with { Locked = true }) };
         await using var harness = await WorkshopIntegrationHarness.Building(bench);
         var build = (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result;

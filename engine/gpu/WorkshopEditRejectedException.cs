@@ -35,6 +35,8 @@ public enum WorkshopEditRejection : uint
     UnsupportedPart,
     /// <summary>A wire would close a loop through a gate whose output more input power can switch off.</summary>
     NonmonotoneFeedback,
+    /// <summary>A payload starts inside a solid hollow wall.</summary>
+    InitialOverlap,
 }
 
 /// <summary>

@@ -17,21 +17,21 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var registry = new PartRegistry();
         registry.Load();
 
-        Assert.True(registry.Definitions.ContainsKey(PartId.Counter));
-        var def = registry.Definitions[PartId.Counter];
-        Assert.Equal(PartId.Counter, def.PartId);
+        Assert.True(registry.Definitions.ContainsKey(new PartId("counter")));
+        var def = registry.Definitions[new PartId("counter")];
+        Assert.Equal(new PartId("counter"), def.PartId);
         Assert.Equal("counter", def.Id);
         Assert.Equal("Counter", def.Title);
         Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Control, def.Category);
         Assert.NotNull(def.Scene);
 
-        var part = registry.Create(PartId.Counter);
+        var part = registry.Create(new PartId("counter"));
         try
         {
             godot.Tree.Root.AddChild(part);
             Assert.NotNull(part);
             Assert.Same(def, part.Definition);
-            Assert.Equal(PartId.Counter, part.PartId);
+            Assert.Equal(new PartId("counter"), part.PartId);
             Assert.Equal(1.2f, part.PickRadius);
 
             var visual = part.FindChild("Visual", recursive: false) as Node3D;
@@ -132,7 +132,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void Ports_DeclareExactSocketsAndDirections()
     {
-        var ports = DeclaredPorts.Current.Of(PartId.Counter).ToArray();
+        var ports = DeclaredPorts.Current.Of(new PartId("counter")).ToArray();
         Assert.Equal(4, ports.Length);
 
         var actIn = ports.First(p => p.Socket == WorkshopSocket.ActivationIn);
@@ -151,10 +151,10 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.Equal(WorkshopConnectionDomain.Electrical, supply.Domain);
         Assert.Equal(WorkshopPortDirection.Output, supply.Direction);
 
-        Assert.Equal(new System.Numerics.Vector3(0f, 0.72f, 0.1f), DeclaredPorts.Current.LocalPosition(PartId.Counter, WorkshopSocket.ActivationIn));
-        Assert.Equal(new System.Numerics.Vector3(0f, -0.72f, 0.1f), DeclaredPorts.Current.LocalPosition(PartId.Counter, WorkshopSocket.ActivationOut));
-        Assert.Equal(new System.Numerics.Vector3(-0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Counter, WorkshopSocket.PowerIn));
-        Assert.Equal(new System.Numerics.Vector3(0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Counter, WorkshopSocket.Supply));
+        Assert.Equal(new System.Numerics.Vector3(0f, 0.72f, 0.1f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), WorkshopSocket.ActivationIn));
+        Assert.Equal(new System.Numerics.Vector3(0f, -0.72f, 0.1f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), WorkshopSocket.ActivationOut));
+        Assert.Equal(new System.Numerics.Vector3(-0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), WorkshopSocket.PowerIn));
+        Assert.Equal(new System.Numerics.Vector3(0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), WorkshopSocket.Supply));
     }
 
     // C-Memory (D3): the target is the declared WholeNumber target_count, [1, 9], default 3 (the former placement value, so a newly
@@ -163,11 +163,11 @@ public sealed class CounterTests(NativeSceneFixture godot)
     public void TheDeclaredTargetIsAWholeNumberFromOneToNine()
     {
         for (var t = 1; t <= 9; t++) PlacedParts.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, t).Validate();
-        Assert.Equal(3f, InstanceParameterCollection.Defaults(PartId.Counter)[new ParameterId("target_count")]);
-        static void Refused(float target) => Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(PartId.Counter, new(1), 0, 0, 0, 0, 0, 0, 1,
+        Assert.Equal(3f, InstanceParameterCollection.Defaults(new PartId("counter"))[new ParameterId("target_count")]);
+        static void Refused(float target) => Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(new PartId("counter"), new(1), 0, 0, 0, 0, 0, 0, 1,
             new([new(new("target_count"), target)])).Validate());
         foreach (var target in new[] { 0f, -1f, 10f, 2.5f, float.NaN, float.PositiveInfinity }) Refused(target);
-        Assert.Throws<ArgumentException>(() => (WorkshopInput.Generic(PartId.Counter, new(1), 0, 0, 0, 0, 0, 0, 1) with
+        Assert.Throws<ArgumentException>(() => (WorkshopInput.Generic(new PartId("counter"), new(1), 0, 0, 0, 0, 0, 0, 1) with
             { Parameters = InstanceParameterCollection.Empty }).Validate());
     }
 
@@ -178,7 +178,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var detector = PlacedParts.Detector(new(2), -2, 0, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), 0, -2, 0);
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 0, 2, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(5), 0, 2, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(counter, detector, lamp, battery, gate);
 
@@ -200,7 +200,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     {
         var counter = PlacedParts.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
         var battery = PlacedParts.Battery(new(2), -2, 0, 0);
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(3), 2, 0, 0, 0, 0, 0, 1);
 
         // Without battery connected: gate blade drag is 0
         var connNoBattery = new WorkshopConnection(counter.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
@@ -367,14 +367,15 @@ public sealed class CounterTests(NativeSceneFixture godot)
     {
         var counter = PlacedParts.Counter(new(10), 0.1f, 3.2f, -0.3f, 0, 0, 0, 1, target);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new([counter]));
-        var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(0), new(1), construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
+        var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(0), new(1), CompiledSceneFixture.Compile(construction), Session: new(1, 2), Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(cmd);
         var decodedCmd = WorkshopWireFlatBuffers.DecodeCommand(bytes);
-        Assert.NotNull(decodedCmd.Construction);
-        var decodedCounter = Assert.IsType<WorkshopGenericInstance>(Assert.Single(decodedCmd.Construction!.Value.Instances));
-        Assert.Equal(counter, decodedCounter);
-        Assert.Equal(PartId.Counter, decodedCounter.PartId);
-        Assert.Equal((float)target, decodedCounter.Parameters[new ParameterId("target_count")]);
+        Assert.NotNull(decodedCmd.Scene);
+        var decoded = decodedCmd.Scene;
+        var node = Assert.Single(decoded.Activation.Nodes.ToArray());
+        Assert.Equal(counter.Id, node.Owner);
+        Assert.Equal(ActivationNodeKind.Counter, node.Kind);
+        Assert.Equal((uint)target, node.TargetCount);
     }
 
     [Fact]

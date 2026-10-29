@@ -20,7 +20,7 @@ public sealed class DeclaredOrientationTests
     [Fact]
     public void TheDeclaredThresholdSelectsTheSensorAndNodeOfAWiredTile()
     {
-        var declared = Assert.NotNull(DeclaredPhysics.Of(PartId.Domino).Signal?.Orientation);
+        var declared = Assert.NotNull(DeclaredPhysics.Of(new PartId("domino")).Signal?.Orientation);
         Assert.Equal(new SignalOrientationDescriptor(45f), declared);
         var half = 15 * Math.PI / 180;
         var tile = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, (float)(Math.Sin(half)), 0, (float)(Math.Cos(half))));
@@ -34,7 +34,7 @@ public sealed class DeclaredOrientationTests
         var node = Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), row => row.Owner == tile.Id);
         Assert.Equal((ActivationNodeKind.OrientationSource, new GpuOrientationSensorId(sensor.Id.Value)), (node.Kind, node.Sensor));
 
-        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(3), -3, 1, 0, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(new PartId("switch"), new(3), -3, 1, 0, 0, 0, 0, 1);
         var control = Bench([hit, PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(hit.Id, new(2)));
         Assert.Empty(WorkshopPhysicsCompiler.Compile(control, new(1, 2)).OrientationSensors.ToArray());
         Assert.Equal(ActivationNodeKind.ContactSource, Assert.Single(WorkshopActivationCompiler.Compile(control).Nodes.ToArray(), row => row.Owner == hit.Id).Kind);
@@ -77,7 +77,7 @@ public sealed class DeclaredOrientationTests
     private const string PipeCommand = "jAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAADwBAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAsACAACAAAAAQADAAAACgAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAAAAAACAAAAjAAAACQAAAAgAEAAMAAsAAAAIAAUAAQAAAAAAAAAAAAAAAAAAAA8ACAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAMAAAACAAAAAAAAAAGAAAAAIAAAAAAAAAAAAAAAQAAAAAAAAABAAAAGJhbGwAABYAPAA0ADAAAAAkABgACAAAAAAABAAWAAAAAAAwQAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAMAAAAAQAAAAAAAAAEAAAAcGlwZQAAAAAQAAAAAQAAAAAAAAACAAAAAAAAAA==";
 
     [Theory]
-    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.OutOfRange)]
     [InlineData("plate", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("clock", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     public void ABaseEncoderSaveWhoseSlotsMovedIsRefusedTypedAtBothBoundaries(string name,
@@ -99,11 +99,11 @@ public sealed class DeclaredOrientationTests
     {
         var saveBytes = Convert.FromBase64String(PipeSave);
         var commandBytes = Convert.FromBase64String(PipeCommand);
-        // The old length (2.75 m, slot 8) now lies beyond the 8-field table, and the current length slot (the old mass, absent) reads 0.
-        Assert.Equal("This save cannot be loaded: Part 1 length 0 is outside [1, 8].",
+        // Historical scalar length is not a current declared parameter; the authored command envelope is also unsupported.
+        Assert.Equal("This save cannot be loaded: Invalid declared parameters.",
             SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
-        Assert.Equal((WireFaultReason.MissingField, "Instance 1 has no length."), (fault.Reason, fault.Message));
+        Assert.Equal((WireFaultReason.OutOfRange, "Runtime record contains undefined fields."), (fault.Reason, fault.Message));
     }
 
     // ---------- a field beyond the current InstanceRecord table is refused, never ignored (coordinator decision 2, 23 Oct 2026) ----------
@@ -134,8 +134,8 @@ public sealed class DeclaredOrientationTests
         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", extra)));
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() =>
             WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "domino", extra))).Reason);
-        Assert.Equal(PartId.Domino, Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", [])).Construction.Instances).PartId);
-        Assert.Equal(PartId.Domino, Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "domino", [])).Construction!.Value.Instances).PartId);
+        Assert.Equal(new PartId("domino"), Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", [])).Construction.Instances).PartId);
+        Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "domino", [])));
     }
 
     // Controls and the pinned walk: current-encoder records (a zero-parameter domino and lamp, a parametered Ramp whose parameters fill
@@ -145,19 +145,19 @@ public sealed class DeclaredOrientationTests
     public void CurrentRecordsHoldNothingBeyondTheTableAndTheWalkReachesTheGeneratedInstances()
     {
         var bench = Bench([PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Ramp, new(3), -3, 1, 0, 0, 0, 0, 1), WorkshopInput.Pipe(new(4), 6, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("ramp"), new(3), -3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("pipe"),new(4), 6, 1, 0, 0, 0, 0, 1),
             PlacedParts.Counter(new(5), -6, 1, 0, 0, 0, 0, 1, 3)]);
         var save = WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(9)));
-        var command = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), bench,
+        var command = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(bench),
             Session: new(1, 2), Cadence: new(1), Projection: new(1)));
         Assert.Equal(bench, WorkshopSaveCodec.Decode(SaveFixture.Elements, save).Construction);
-        Assert.Equal(bench, WorkshopWireFlatBuffers.DecodeCommand(command).Construction);
+        Assert.Equal(bench.Instances.Select(instance => instance.Id), WorkshopWireFlatBuffers.DecodeCommand(command).Scene!.Owners);
         var saved = WorkshopSaveCodec.Open(save);
-        Assert.False(WorkshopWireFlatBuffers.HoldsFieldBeyondTheInstanceTable(saved.ByteBuffer, WorkshopWireFlatBuffers.SavedConstructionSlot));
+        Assert.False(WorkshopAuthoringFlatBuffers.HoldsFieldBeyondTheInstanceTable(saved.ByteBuffer, WorkshopAuthoringFlatBuffers.SavedConstructionSlot));
         var bb = saved.ByteBuffer;
         var root = new Google.FlatBuffers.Table(bb.GetInt(bb.Position) + bb.Position, bb);
-        var construction = new Google.FlatBuffers.Table(root.__indirect(root.__offset(WorkshopWireFlatBuffers.SavedConstructionSlot) + root.bb_pos), bb);
-        var instances = construction.__offset(WorkshopWireFlatBuffers.ConstructionInstancesSlot);
+        var construction = new Google.FlatBuffers.Table(root.__indirect(root.__offset(WorkshopAuthoringFlatBuffers.SavedConstructionSlot) + root.bb_pos), bb);
+        var instances = construction.__offset(WorkshopAuthoringFlatBuffers.ConstructionInstancesSlot);
         Assert.Equal(bench.Instances.Count, construction.__vector_len(instances));
         for (var i = 0; i < bench.Instances.Count; i++)
         {

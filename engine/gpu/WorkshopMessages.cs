@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace CuriousContraptions.Gpu;
 
@@ -7,13 +8,13 @@ namespace CuriousContraptions.Gpu;
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical, ObserveMemory }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
-public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
-    CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null, WorkshopElectricalControl? Electrical = null);
+public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopCompiledScene? Scene, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
+    CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopElectricalControl? Electrical = null);
 public readonly record struct WorkshopCommandIdentity(CommandSequence Sequence, SimulationEpoch Epoch, AuthorityRevision Revision, CadenceRevision Cadence, ProjectionEpoch Projection);
 public readonly record struct WorkshopResponse(CommandSequence Sequence, WorkshopResponseKind Kind,
     WorkshopCommandResult Result, WorkshopSimulationPhase Phase, WorkshopRead Read, RuntimeSessionId Session = default, PublicationSequence Publication = default,
     CadenceRevision Cadence = default, ClockGeneration MasterGeneration = default,
-    ProjectionEpoch Projection = default, PulseOrdinal SourcePulse = default, WorkshopMemoryMeasurement? Memory = null, WorkshopConstruction? Construction = null);
+    ProjectionEpoch Projection = default, PulseOrdinal SourcePulse = default, WorkshopMemoryMeasurement? Memory = null, WorkshopCompiledScene? Scene = null);
 
 /// <summary>The domain rules of Workshop commands and responses that every encoder and decoder of the one codec
 /// (<see cref="WorkshopWireFlatBuffers"/>) applies.</summary>
@@ -48,10 +49,10 @@ public static class WorkshopMessages
         }
     }
 
-    internal static void ValidatePresentationOwners(WorkshopRead read, WorkshopConstruction construction)
+    internal static void ValidatePresentationOwners(WorkshopRead read, WorkshopCompiledScene construction)
     {
         for(var i=0;i<read.Captures.Count;i++)
-            if(!construction.Instances.Identities.OwnsCapture(new(read.Captures[i].Sensor,read.Captures[i].Target)))
+            if(!construction.OwnsCapture(new(read.Captures[i].Sensor,read.Captures[i].Target)))
                 throw new ArgumentException("Capture observation names a foreign policy or target.");
         // Render body reads omit static bodies; ownership belongs to the authored construction.
         foreach (var actuator in read.Presentation.Actuators)
@@ -59,17 +60,16 @@ public static class WorkshopMessages
         foreach (var load in read.Presentation.Loads)
             if (!HasOwner(load.Frame)) throw new ArgumentException("Contact-load observation names a foreign owner.");
         var expectedLogic=0;
-        foreach(var instance in construction.Instances)
+        foreach(var node in construction.Physics.SupplyGraph.Nodes)
         {
-            var supply=DeclaredPhysics.Of(instance.PartId).Electrical?.Supply;
-            if(supply?.Kind!=CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.LogicGate) continue;
+            if(node.Kind != SupplyNodeKind.LogicGate) continue;
             expectedLogic++;
             var found=false;
             foreach(var logic in read.Presentation.Logic)
-                if(logic.Owner==instance.Id)
+                if(logic.Owner==node.Owner)
                 {
                     found=true;
-                    var expected=logic.Supplied && CompiledSupplyGraph.Evaluate(supply.Value.Operation!.Value,
+                    var expected=logic.Supplied && CompiledSupplyGraph.Evaluate(node.Operation!.Value,
                         logic.At(WorkshopSocket.FirstIn),logic.At(WorkshopSocket.SecondIn));
                     if(logic.Active!=expected || (read.Tick.Value==0 &&
                         (logic.Inputs!=ElectricalInputState.Neither || logic.Supplied || logic.Active)))
@@ -80,11 +80,7 @@ public static class WorkshopMessages
         }
         if(read.Presentation.Logic.Length!=(read.Epoch.Value==0 ? 0 : expectedLogic))
             throw new ArgumentException("Electrical logic observation population differs from its installed owners.");
-        bool HasOwner(GpuBodyId owner)
-        {
-            foreach (var instance in construction.Instances) if (instance.Id == owner) return true;
-            return false;
-        }
+        bool HasOwner(GpuBodyId owner) => construction.Owners.Contains(owner);
     }
 
     internal static void ValidateScheduleIdentity(WorkshopResponse response)

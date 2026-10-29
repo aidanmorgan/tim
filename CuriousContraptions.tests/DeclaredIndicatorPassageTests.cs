@@ -33,7 +33,7 @@ public sealed class DeclaredIndicatorPassageTests
         var level = PlacedParts.Lamp(new(3), 3, 7, 0, 0, 0, 0, 1);
         var detector = PlacedParts.Detector(new(4), -3, 1, 0, 0, 0, (float)(-H), (float)(H));
         var latch = PlacedParts.Latch(new(5), -6, 1, 0, 0, 0, 0, 1);
-        var wall = WorkshopInput.Generic(PartId.Wall, new(6), 9, 1, 0, 0, 0, 0, 1);
+        var wall = WorkshopInput.Generic(new PartId("wall"), new(6), 9, 1, 0, 0, 0, 0, 1);
         foreach (var part in new[] { lamp, fed, level, detector })
             Assert.Empty(Assert.IsType<WorkshopGenericInstance>(part).Parameters);
         var bench = Bench([lamp, fed, level, detector, latch, wall], Signal(detector.Id, fed.Id), Signal(latch.Id, level.Id));
@@ -43,7 +43,7 @@ public sealed class DeclaredIndicatorPassageTests
         Assert.Equal(ActivationNodeKind.LevelIndicator, Node(network, level.Id).Kind);
         var sensor = Assert.Single(network.PassageSensors.ToArray());
         Assert.Equal((ActivationNodeKind.PassageSource, sensor.Id), (Node(network, detector.Id).Kind, Node(network, detector.Id).Passage));
-        Assert.Equal(WorkshopActivationCompiler.PassageSensorFor(detector, DeclaredPhysics.Of(PartId.BallDetector).Signal!.Passage!.Value, bench.Instances.Identities), sensor);
+        Assert.Equal(WorkshopActivationCompiler.PassageSensorFor(detector, DeclaredPhysics.Of(new PartId("ball_detector")).Signal!.Passage!.Value, bench.Instances.Identities), sensor);
         Assert.Equal((detector.Id, detector.Cell, detector.Local, detector.Rotation), (sensor.Frame, sensor.Cell, sensor.Local, sensor.Rotation));
         Assert.DoesNotContain(network.Nodes.ToArray(), node => node.Owner == wall.Id);
     }
@@ -55,7 +55,7 @@ public sealed class DeclaredIndicatorPassageTests
     {
         var lamp = PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1);
         var latch = PlacedParts.Latch(new(2), -3, 1, 0, 0, 0, 0, 1);
-        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(3), 0, 4, 0, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(new PartId("switch"), new(3), 0, 4, 0, 0, 0, 0, 1);
         var level = Bench([lamp, latch, hit], Signal(latch.Id, lamp.Id));
         Assert.Equal(ActivationNodeKind.LevelIndicator, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortSocket.ActivationIn), level));
         Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortSocket.SetIn), level));
@@ -73,7 +73,7 @@ public sealed class DeclaredIndicatorPassageTests
     {
         var detector = PlacedParts.Detector(new(10), 0, (float)(detectorY), 0, 0, 0, 0, 1);
         var ball = new GpuBodyId(2);
-        var scene = WorkshopPhysicsCompiler.Compile(Bench([detector, WorkshopInput.Generic(PartId.Basketball, ball, (float)(from), (float)(detectorY + y), 0, 0, 0, 0, 1)]),
+        var scene = WorkshopPhysicsCompiler.Compile(Bench([detector, WorkshopInput.Generic(new PartId("ball"), ball, (float)(from), (float)(detectorY + y), 0, 0, 0, 0, 1)]),
             new(1, 2));
         PhysicsBodyReadSet At(float x)
         {
@@ -97,7 +97,7 @@ public sealed class DeclaredIndicatorPassageTests
     }
 
     private static PassageSensorDeclaration Shipped => WorkshopActivationCompiler.PassageSensorFor(PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1),
-        DeclaredPhysics.Of(PartId.BallDetector).Signal!.Passage!.Value, new WorkshopInstances(PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1)).Identities);
+        DeclaredPhysics.Of(new PartId("ball_detector")).Signal!.Passage!.Value, new WorkshopInstances(PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1)).Identities);
 
     // C-Lamp F3 (Story 9A.44 T12), on the production tracker over ticks: a detector placed off the cell grid at y = 3.03 m (cell 48,
     // remainder 0.48 cells = 0.03 m) compiles its aperture at that placed pose, so a ball crossing 0.64 m above the placed axis is inside
@@ -162,7 +162,7 @@ public sealed class DeclaredIndicatorPassageTests
         var detector = PlacedParts.Detector(new(1), 0, (float)(floor + .62), 0, 0, 0, (float)(-H), (float)(H));
         var counter = PlacedParts.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 2);
         return Bench([detector, PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, new(3), 0, (float)(floor + .34 + 3), 0, 0, 0, 0, 1), counter, PlacedParts.Lamp(new(5), 4, 1, 3, 0, 0, 0, 1)],
+                WorkshopInput.Generic(new PartId("ball"), new(3), 0, (float)(floor + .34 + 3), 0, 0, 0, 0, 1), counter, PlacedParts.Lamp(new(5), 4, 1, 3, 0, 0, 0, 1)],
             Signal(detector.Id, new(2)), Signal(detector.Id, counter.Id), Signal(counter.Id, new(5)));
     }
 
@@ -184,7 +184,7 @@ public sealed class DeclaredIndicatorPassageTests
             SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes)).Message);
         var counter = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(3)!.Value;
         Assert.Equal("counter", counter.PartId);
-        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(counter)).Reason);
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(counter)).Reason);
     }
 
     [Theory]
@@ -202,7 +202,7 @@ public sealed class DeclaredIndicatorPassageTests
         Assert.Equal(new WorkshopSavedConstruction(expected, new(9)), loaded);
         var records = WorkshopSaveCodec.Open(bytes).Construction!.Value;
         for (var i = 0; i < records.InstancesLength; i++)
-            Assert.Equal(expected.Instances[i], WorkshopWireFlatBuffers.MapInstance(records.Instances(i)!.Value));
+            Assert.Equal(expected.Instances[i], WorkshopAuthoringFlatBuffers.MapInstance(records.Instances(i)!.Value));
     }
 
     // The saved and loaded wired bench runs: the ball passes the detector twice, so the first lamp is lit and the counter (target 2) lit
@@ -227,10 +227,10 @@ public sealed class DeclaredIndicatorPassageTests
     public async Task ResetRestoresThePassageCursorPulseLatchAndCountInOneSimulation()
     {
         await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(WiredBench())).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(WiredBench()))).Outcome);
         var built = simulation.Committed;
         async Task<List<WorkshopRead>> Run()
         {
@@ -271,15 +271,13 @@ public sealed class DeclaredIndicatorPassageTests
             var save = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
             Assert.True(save.Reason == WorkshopSaveRejection.OutOfRange, $"{part} {what}: {save.Reason}");
             var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
-            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
+            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
         }
-        foreach (var field in Enum.GetValues<TypedField>())
-            Refused(PayloadInstanceTests.GenericSave(part, field), field.ToString());
-        Refused(PayloadInstanceTests.GenericSave(part, null, [("radius", .5f)]), "parameter");
-        var bare = PayloadInstanceTests.GenericSave(part, null);
+        Refused(PayloadInstanceTests.GenericSave(part, [("radius", .5f)]), "parameter");
+        var bare = PayloadInstanceTests.GenericSave(part);
         var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, bare).Construction.Instances));
         Assert.Equal((new PartId(part), 0), (loaded.PartId, loaded.Parameters.Count));
-        Assert.Equal(loaded, WorkshopWireFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bare).Construction!.Value.Instances(0)!.Value));
+        Assert.Equal(loaded, WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bare).Construction!.Value.Instances(0)!.Value));
     }
 
     // D5: the two level-wiring refusals keep their ordinals and display text under their capability names.

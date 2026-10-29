@@ -19,7 +19,7 @@ public sealed class WorkshopDeclaredPresentation
         public List<PhysicalTime> Cues = new(8);
         public required GpuBodyId Owner;
         public required int Index;
-        public required PresentationBinding Declaration;
+        public required CompiledPresentationBinding Declaration;
         public required AnimationTargetId Target;
         public ActivationNodeDeclaration Node;
         public float Capacity;
@@ -43,9 +43,9 @@ public sealed class WorkshopDeclaredPresentation
     private ulong _frame;
     private PhysicalTime _time;
     private readonly uint _substeps;
-    private readonly WorkshopConstruction _construction;
+    private readonly WorkshopCompiledScene _construction;
 
-    public WorkshopDeclaredPresentation(WorkshopConstruction construction, WorkshopResponse endpoint)
+    public WorkshopDeclaredPresentation(WorkshopCompiledScene construction, WorkshopResponse endpoint)
     {
         if (endpoint.Read.Epoch.Value == 0) throw new ArgumentException("Presentation needs an installed world.");
         _construction = construction;
@@ -53,22 +53,13 @@ public sealed class WorkshopDeclaredPresentation
         _latest = endpoint;
         _time = new(checked(endpoint.Read.Tick.Value * construction.Settings.PhysicalStepsPerCommit));
         _substeps = construction.Settings.PhysicalStepsPerCommit;
-        var nodes = WorkshopActivationCompiler.Compile(construction).Nodes;
-        var tracks = new List<Track>(16);
-        foreach (var instance in construction.Instances)
+        var tracks = new List<Track>(construction.Presentation.Length);
+        foreach (var binding in construction.Presentation)
         {
-            var bindings = DeclaredPhysics.Of(instance.PartId).Presentation.Bindings;
-            for (var i = 0; i < bindings.Count; i++)
-            {
-                var declaration = bindings[i];
-                var node = default(ActivationNodeDeclaration);
-                foreach (var candidate in nodes) if (candidate.Owner == instance.Id) node = candidate;
-                var track = new Track { Owner = instance.Id, Index = i, Declaration = declaration,
-                    Target = new(TargetBase + (ulong)tracks.Count), Node = node, Value = declaration.From, Rest = declaration.From,
-                    Capacity = instance is WorkshopGenericInstance owner && DeclaredPhysics.SourceStore(owner.PartId) is { } store
-                        ? owner.Parameters[new ParameterId(store.Capacity)] : 0 };
-                tracks.Add(track);
-            }
+            var declaration = binding.Declaration;
+            tracks.Add(new Track { Owner = binding.Owner, Index = binding.Binding, Declaration = declaration,
+                Target = binding.Target, Node = binding.Activation, Value = declaration.From, Rest = declaration.From,
+                Capacity = binding.SourceCapacity });
         }
         _tracks = tracks.ToArray();
         _batch = new();
@@ -99,8 +90,12 @@ public sealed class WorkshopDeclaredPresentation
             else if (d.Duration > 0)
                 track.Handle = _batch.Register(new(track.Target, AnimationProperty.ColourBlend),
                     new(new(new AnimationColourBlend(0)), new(new AnimationColourBlend(1)), new(d.Duration),
-                        d.Curve == PresentationCurve.SmoothStep ? AnimationCurve.SmoothStep :
-                        d.Curve == PresentationCurve.CubicSmoothStep ? AnimationCurve.CubicSmoothStep : AnimationCurve.Linear,
+                        d.Curve switch
+                        {
+                            PresentationCurve.SmoothStep => AnimationCurve.SmoothStep,
+                            PresentationCurve.CubicSmoothStep => AnimationCurve.CubicSmoothStep,
+                            _ => throw new ArgumentException("Unsupported compiled endpoint curve.")
+                        },
                         AnimationRepeat.Once, AnimationClock.Simulation));
         }
         _batch.Advance(++_frame, default, _time);
@@ -115,14 +110,11 @@ public sealed class WorkshopDeclaredPresentation
         ApplyRead(endpoint.Read);
     }
 
-    public static IReadOnlyList<(AnimationTargetId Target, GpuBodyId Owner, int Binding)> Targets(WorkshopConstruction construction)
+    public static IReadOnlyList<(AnimationTargetId Target, GpuBodyId Owner, int Binding)> Targets(WorkshopCompiledScene construction)
     {
         var result = new List<(AnimationTargetId, GpuBodyId, int)>(16);
-        foreach (var instance in construction.Instances)
-        {
-            var declarations = DeclaredPhysics.Of(instance.PartId).Presentation.Bindings;
-            for (var i = 0; i < declarations.Count; i++) result.Add((new(TargetBase + (ulong)result.Count), instance.Id, i));
-        }
+        foreach (var binding in construction.Presentation)
+            result.Add((binding.Target, binding.Owner, binding.Binding));
         return result;
     }
 
@@ -204,11 +196,11 @@ public sealed class WorkshopDeclaredPresentation
         _latest = response;
     }
 
-    public bool CanRetain(WorkshopConstruction construction, WorkshopResponse endpoint) =>
+    public bool CanRetain(WorkshopCompiledScene construction, WorkshopResponse endpoint) =>
         endpoint.Read.Epoch == _latest.Read.Epoch &&
-        construction == _construction;
+        construction.Identity == _construction.Identity;
 
-    public void ValidateRebind(WorkshopConstruction construction, WorkshopResponse endpoint)
+    public void ValidateRebind(WorkshopCompiledScene construction, WorkshopResponse endpoint)
     {
         if (!CanRetain(construction, endpoint) || endpoint.Session != _latest.Session ||
             endpoint.MasterGeneration != _latest.MasterGeneration || endpoint.Projection.Value <= _latest.Projection.Value ||
@@ -219,7 +211,7 @@ public sealed class WorkshopDeclaredPresentation
         _ = StageRead(endpoint.Read);
     }
 
-    public void Rebind(WorkshopConstruction construction, WorkshopResponse endpoint)
+    public void Rebind(WorkshopCompiledScene construction, WorkshopResponse endpoint)
     {
         // Prepare only validates; a matching worker Commit is the sole caller that changes active state.
         ValidateRebind(construction, endpoint);

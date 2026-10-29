@@ -38,9 +38,9 @@ public sealed class MemoryGuardTests
     [Fact]
     public void TheCounterAndTheLatchDeclareTheirBakedColliders()
     {
-        Assert.Equal(15, DeclaredPhysics.Of(PartId.Counter).Colliders.Count);
-        Assert.Equal(9, DeclaredPhysics.Of(PartId.Latch).Colliders.Count);
-        Assert.Equal([15, 9], new[] { PartId.Counter, PartId.Latch }.Select(part => DeclaredPhysics.Colliders(part).Count));
+        Assert.Equal(15, DeclaredPhysics.Of(new PartId("counter")).Colliders.Count);
+        Assert.Equal(9, DeclaredPhysics.Of(new PartId("latch")).Colliders.Count);
+        Assert.Equal([15, 9], new[] { new PartId("counter"), new PartId("latch") }.Select(part => DeclaredPhysics.Colliders(part).Count));
     }
 
     // ---------- Count: three balls through one detector ----------
@@ -59,10 +59,10 @@ public sealed class MemoryGuardTests
                 PlacedParts.Detector(Detector, 0, (float)(Floor + Plane), 0, 0, 0, (float)(-Half45), (float)(Half45)),
                 PlacedParts.Counter(Counter, -4, 1, 0, 0, 0, 0, 1, target),
                 PlacedParts.Lamp(CounterLamp, -4, 1, 3, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Ramp, Ramp, 1, (float)(Floor + .6), 0, 0, 0, (float)(Math.Sin(tilt)), (float)(Math.Cos(tilt))),
-                WorkshopInput.Generic(PartId.Basketball, Balls[0], 0, (float)(Floor + Plane + .5), 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, Balls[1], 0, (float)(Floor + Plane + 2.5), 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, Balls[2], 0, (float)(Floor + Plane + 4.5), 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(new PartId("ramp"), Ramp, 1, (float)(Floor + .6), 0, 0, 0, (float)(Math.Sin(tilt)), (float)(Math.Cos(tilt))),
+                WorkshopInput.Generic(new PartId("ball"), Balls[0], 0, (float)(Floor + Plane + .5), 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(new PartId("ball"), Balls[1], 0, (float)(Floor + Plane + 2.5), 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(new PartId("ball"), Balls[2], 0, (float)(Floor + Plane + 4.5), 0, 0, 0, 0, 1),
                 PlacedParts.Battery(Battery, -7, 1, 0)],
             Signal(Detector, Counter), Signal(Counter, CounterLamp), Supply(Battery, Counter));
     }
@@ -275,7 +275,7 @@ public sealed class MemoryGuardTests
         var latch = PlacedParts.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
         var other = PlacedParts.Latch(new(2), 0, 3, 0, 0, 0, 0, 1);
         var counter = PlacedParts.Counter(new(3), 3, 0, 0, 0, 0, 0, 1, 3);
-        var delay = WorkshopInput.Generic(PartId.Delay, new(4), 3, 3, 0, 0, 0, 0, 1);
+        var delay = WorkshopInput.Generic(new PartId("delay"), new(4), 3, 3, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(5), -3, 0, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(latch, other, counter, delay, lamp);
         new WorkshopConnections(Signal(latch.Id, lamp.Id)).Validate(instances);
@@ -291,7 +291,7 @@ public sealed class MemoryGuardTests
     {
         private readonly WorkshopGpuDevice _inner = new(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         public Func<WorkshopRead, WorkshopRead>? Next { get; set; }
-        public ValueTask<WorkshopGpuCandidate> Admit(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence) =>
+        public ValueTask<WorkshopGpuCandidate> Admit(WorkshopCompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence) =>
             _inner.Admit(construction, epoch, profile, sequence);
         public async ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)
         {
@@ -314,9 +314,9 @@ public sealed class MemoryGuardTests
     {
         var plateY = Floor + .22;
         return Bench([
-                WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 1, 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1),
                 PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Delay, new(3), 4, 1, 3, 0, 0, 0, 1),
+                WorkshopInput.Generic(new PartId("delay"), new(3), 4, 1, 3, 0, 0, 0, 1),
                 PlacedParts.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 1),
                 PlacedParts.Latch(new(5), -4, 1, 3, 0, 0, 0, 1),
                 PlacedParts.Lamp(new(6), -4, 1, 6, 0, 0, 0, 1),
@@ -324,9 +324,9 @@ public sealed class MemoryGuardTests
                 PlacedParts.Detector(new(8), 12, (float)(Floor + .62), 0, 0, 0, (float)(-Half45), (float)(Half45)),
                 PlacedParts.Clock(new(9), 0, 3, 8, 0, 0, 0, 1, 1f),
                 PlacedParts.Battery(new(10), -3, 3, 8),
-                WorkshopInput.Generic(PartId.Basketball, new(20), 0, 3, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, new(21), -12, (float)(plateY + .08 + .345 + 2), 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, new(22), 12, (float)(Floor + .34 + 3), 0, 0, 0, 0, 1)],
+                WorkshopInput.Generic(new PartId("ball"), new(20), 0, 3, 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(new PartId("ball"), new(21), -12, (float)(plateY + .08 + .345 + 2), 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(new PartId("ball"), new(22), 12, (float)(Floor + .34 + 3), 0, 0, 0, 0, 1)],
             Signal(new(1), new(2)), Signal(new(1), new(3)), Signal(new(1), new(4)), Signal(new(1), new(5), WorkshopSocket.SetIn),
             Signal(new(5), new(6)), Supply(new(10), new(9)));
     }
@@ -387,10 +387,10 @@ public sealed class MemoryGuardTests
     private static async Task<(WorkshopSimulation Simulation, FlipDevice Device)> Admitted(WorkshopConstruction bench)
     {
         var device = new FlipDevice();
-        var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), bench.Settings, new(1),
+        var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), CompiledSceneFixture.Compile(new(new(1), bench.Settings, WorkshopInstances.Empty)), new(1),
             new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Owned);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(bench)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(bench))).Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
         for (var tick = 0; tick < 300; tick++) Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
         foreach (var owner in Enum.GetValues<Flipped>().Where(value => value != Flipped.Unknown))

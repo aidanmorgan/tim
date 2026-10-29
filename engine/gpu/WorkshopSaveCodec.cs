@@ -21,7 +21,7 @@ public static class WorkshopSaveCodec
         save.Construction.Validate();
         if (!AllocatorIsValid(save)) throw new ArgumentException("Saved construction allocator is invalid.");
         var builder = new FlatBufferBuilder(2048);
-        var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, save.Construction);
+        var record = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, save.Construction);
         SavedConstruction.StartSavedConstruction(builder);
         SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
         SavedConstruction.AddConstruction(builder, record);
@@ -48,7 +48,7 @@ public static class WorkshopSaveCodec
     {
         var saved = Open(bytes);
         WorkshopSavePrevalidation.Check(saved, elements);
-        if (WorkshopWireFlatBuffers.HoldsFieldBeyondTheInstanceTable(saved.ByteBuffer, WorkshopWireFlatBuffers.SavedConstructionSlot))
+        if (WorkshopAuthoringFlatBuffers.HoldsFieldBeyondTheInstanceTable(saved.ByteBuffer, WorkshopAuthoringFlatBuffers.SavedConstructionSlot))
             throw new WorkshopSaveRejectedException(WorkshopSaveRejection.OutOfRange,
                 "This save cannot be loaded: an instance record holds a field the current record does not define.");
         return Construct(saved);
@@ -57,7 +57,7 @@ public static class WorkshopSaveCodec
     /// <summary>The verified save root: a frame fault is the save's typed refusal, naming the same reason.</summary>
     internal static SavedConstruction Open(ReadOnlySpan<byte> bytes)
     {
-        try { return SavedConstruction.GetRootAsSavedConstruction(WorkshopWireFlatBuffers.OpenFrame(bytes, Identifier, SavedConstructionVerify.Verify)); }
+        try { return SavedConstruction.GetRootAsSavedConstruction(WorkshopAuthoringFlatBuffers.OpenFrame(bytes, Identifier, SavedConstructionVerify.Verify)); }
         catch (WireFaultException fault)
         {
             var reason = fault.Reason switch
@@ -77,7 +77,7 @@ public static class WorkshopSaveCodec
     internal static WorkshopSavedConstruction Construct(SavedConstruction saved)
     {
         var record = saved.Construction ?? throw new InvalidOperationException("A pre-validated save holds its construction.");
-        var save = new WorkshopSavedConstruction(WorkshopWireFlatBuffers.MapConstructionRecord(record), new(saved.NextBodyId));
+        var save = new WorkshopSavedConstruction(WorkshopAuthoringFlatBuffers.MapConstructionRecord(record), new(saved.NextBodyId));
         save.Construction.Validate();
         if (!AllocatorIsValid(save)) throw new InvalidOperationException("A pre-validated save's allocator is invalid.");
         return save;

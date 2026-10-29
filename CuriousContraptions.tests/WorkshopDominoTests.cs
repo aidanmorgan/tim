@@ -8,7 +8,7 @@ public sealed class WorkshopDominoTests
 {
     private const double Upright = -0.46 + .55;
     private static WorkshopConstruction Construction() => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(PartId.Basketball,new(1), .4f, 3, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(new PartId("ball"),new(1), .4f, 3, 0, 0, 0, 0, 1),
             PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1)));
 
     [Fact]
@@ -71,22 +71,21 @@ public sealed class WorkshopDominoTests
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
         var domino = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
-        Assert.Equal(PartId.Domino, domino.PartId);
+        Assert.Equal(new PartId("domino"), domino.PartId);
         Assert.Empty(domino.Parameters);
-        Assert.DoesNotContain(DeclaredPhysics.Of(PartId.Domino).Presentation.Bindings,
+        Assert.DoesNotContain(DeclaredPhysics.Of(new PartId("domino")).Presentation.Bindings,
             binding => binding.Driver == CuriousContraptions.Abstractions.PresentationDriver.Event);
         var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(1)!.Value;
-        Assert.Equal((false, 0), (WorkshopWireFlatBuffers.CarriesTypedField(record), record.ParametersLength));
-        foreach (var forged in Enum.GetValues<TypedField>().Select(field => PayloadInstanceTests.GenericSave("domino", field))
-                     .Append(PayloadInstanceTests.GenericSave("domino", null, [("mass", .5f)])))
+        Assert.Equal(0, record.ParametersLength);
+        foreach (var forged in new[] { PayloadInstanceTests.GenericSave("domino", [("mass", .5f)]) })
         {
             SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, forged));
             var forgedRecord = WorkshopSaveCodec.Open(forged).Construction!.Value.Instances(0)!.Value;
-            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(forgedRecord)).Reason);
+            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(forgedRecord)).Reason);
         }
         // Control: the bare current-layout record loads as the same generic tile.
         Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            PayloadInstanceTests.GenericSave("domino", null)).Construction.Instances));
+            PayloadInstanceTests.GenericSave("domino")).Construction.Instances));
     }
 
     [Fact]
@@ -94,21 +93,21 @@ public sealed class WorkshopDominoTests
     {
         var domino = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1));
         domino.Validate();
-        Assert.Empty(DeclaredPhysics.Of(PartId.Domino).Metadata.Parameters);
+        Assert.Empty(DeclaredPhysics.Of(new PartId("domino")).Metadata.Parameters);
         foreach (var forged in new[] { "mass", "bounce", "friction", "half_extents", "threshold_degrees" })
             Assert.Throws<ArgumentException>(() => (domino with { Parameters = new([new(new(forged), 1f)]) }).Validate());
         Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(2), 0, 65, 0, 0, 0, 0, 1));
         Assert.Throws<ArgumentException>(() => PlacedParts.Domino(new(2), 0, 0, 0, 0, 0, 0, 0));
         Assert.Equal([new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Pulse,
-            new(0f, .55f, 0f))], DeclaredPorts.Current.Of(PartId.Domino).ToArray());
-        Assert.True(DeclaredPorts.Current.Has(PartId.Domino, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
-        Assert.False(DeclaredPorts.Current.Has(PartId.Domino, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
-        Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Domino, WorkshopSocket.ActivationOut));
+            new(0f, .55f, 0f))], DeclaredPorts.Current.Of(new PartId("domino")).ToArray());
+        Assert.True(DeclaredPorts.Current.Has(new PartId("domino"), WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
+        Assert.False(DeclaredPorts.Current.Has(new PartId("domino"), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
+        Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("domino"), WorkshopSocket.ActivationOut));
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 1, 3 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
-        Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[PartId.Domino]);
+        Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[new PartId("domino")]);
     }
 
     [Fact]
@@ -119,7 +118,7 @@ public sealed class WorkshopDominoTests
         var sixteen = new WorkshopInstances([.. items]);
         sixteen.Validate();
         // Story 9R.5b: the retired 16-row moving-body table no longer refuses the seventeenth moving body.
-        items.Add(WorkshopInput.Generic(PartId.Basketball,new(17), 7, 3, 0, 0, 0, 0, 1));
+        items.Add(WorkshopInput.Generic(new PartId("ball"),new(17), 7, 3, 0, 0, 0, 0, 1));
         var seventeen = new WorkshopInstances([.. items]);
         seventeen.Validate();
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), seventeen), new(1, 2));

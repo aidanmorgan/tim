@@ -37,7 +37,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         var impact = (Abstractions.Signal.IContactTriggerElement)packages["switch"];
         // A contact trigger compiles for the balls that can strike it.
         var struck = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(Placed(PartId.ImpactSwitch), WorkshopInput.Generic(PartId.Basketball,new(2), 0, 6, 0, 0, 0, 0, 1))), new(1, 2));
+            new WorkshopInstances(Placed(new PartId("switch")), WorkshopInput.Generic(new PartId("ball"),new(2), 0, 6, 0, 0, 0, 0, 1))), new(1, 2));
         var trigger = Assert.Single(struck.Triggers.ToArray());
         Assert.Equal(packages["switch"].Metadata.Parameters.Single(p => p.Key == impact.Contact.ThresholdParameter).Default, trigger.Threshold.Value);
         var domino = (Abstractions.Signal.ISignalElement)packages["domino"];
@@ -68,7 +68,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         var aperture = ((Abstractions.Signal.IPassageSensorElement)packages["ball_detector"]).Passage;
         Assert.Equal((.65f, .02f), (aperture.ApertureRadius, aperture.RearmClearance));
         var sensor = Assert.Single(WorkshopActivationCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1),
-            WorkshopCadenceSettings.Default(), new WorkshopInstances(Placed(PartId.BallDetector)))).PassageSensors.ToArray());
+            WorkshopCadenceSettings.Default(), new WorkshopInstances(Placed(new PartId("ball_detector"))))).PassageSensors.ToArray());
         Assert.Equal(((.65f), (.02f)),
             ((sensor.Radius.Value), (sensor.RearmClearance.Value)));
     }
@@ -248,7 +248,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 var margin = capture.UpperMargin.Evaluate(DeclaredPhysics.Parameters(instance));
                 // A capture volume compiles per payload: place one ball beside the part.
                 var withBall = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-                    new WorkshopInstances(instance, WorkshopInput.Generic(PartId.Basketball, new(2), 3, 3, 0, 0, 0, 0, 1))), new(1, 2));
+                    new WorkshopInstances(instance, WorkshopInput.Generic(new PartId("ball"), new(2), 3, 3, 0, 0, 0, 0, 1))), new(1, 2));
                 foreach (var sensor in withBall.Sensors.ToArray())
                 {
                     Assert.Equal(((float)((double)capture.Maximum.Y + margin)), (sensor.Maximum.Y));
@@ -263,11 +263,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         // A parameterised length (the rows the retired golden held at 1, 3.6 and 8 m), against the pipe's physical closed form: its shell
         // Tube spans the whole length and both mouth reaches (half-length L/2 + 0.09, centred at x = 0) and its two collar tori sit at the
         // length's ends (x = ±L/2); nothing else depends on L, so every other lane is the baked collider's.
-        var baked = TestBundle.Entry(PartId.Pipe).Colliders;
+        var baked = TestBundle.Entry(new PartId("pipe")).Colliders;
         Assert.Equal(3, baked.Count);
         foreach (var length in new[] { 1f, 3.6f, 8f })
         {
-            var compiled = Compile(WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1, new PipeLength(length))).Colliders.ToArray()
+            var compiled = Compile(WorkshopInput.Generic(new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), length)]))).Colliders.ToArray()
                 .Where(row => row.Body == Owner).ToArray();
             Assert.Equal(3, compiled.Length);
             Assert.Equal(RuntimeShape.Tube, compiled[0].Shape);
@@ -375,15 +375,15 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         {
             var values = WallFixture.Default.ToDictionary(pair => pair.Key, pair => pair.Value);
             values[new(key)] = value;
-            WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1, new(values));
+            WorkshopInput.Generic(new PartId("wall"), Owner, 0, 3, 0, 0, 0, 0, 1, new(values));
         });
         var enables = Enum.GetValues<ElectricalEnable>();
         return id switch
         {
             "ramp" =>
             [
-                ("length", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 3f, Generic(PartId.Ramp, "length"), []),
-                ("width", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 1.3f, Generic(PartId.Ramp, "width"), [])
+                ("length", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 3f, Generic(new PartId("ramp"), "length"), []),
+                ("width", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 1.3f, Generic(new PartId("ramp"), "width"), [])
             ],
             "wall" =>
             [
@@ -393,17 +393,17 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "bumper" =>
             [
-                ("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, 8f, Generic(PartId.PinballBumper, "strength"), [])
+                ("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, 8f, Generic(new PartId("bumper"), "strength"), [])
             ],
             "battery" =>
             [
                 // The owner defaults of 10 Oct 2026 (3600 J, 120 W, full, Enabled); the enable options are the runtime enum's names,
                 // in its order, so the declared index is the compiled state.
-                ("capacity", ParameterUnit.Joule, ParameterKind.Real, Lane.Single, 3600f, Generic(PartId.Battery, "capacity"), []),
-                ("power_limit", ParameterUnit.Watt, ParameterKind.Real, Lane.Single, 120f, Generic(PartId.Battery, "power_limit"), []),
-                ("initial_charge", ParameterUnit.None, ParameterKind.Real, Lane.Single, 1f, Generic(PartId.Battery, "initial_charge"), []),
+                ("capacity", ParameterUnit.Joule, ParameterKind.Real, Lane.Single, 3600f, Generic(new PartId("battery"), "capacity"), []),
+                ("power_limit", ParameterUnit.Watt, ParameterKind.Real, Lane.Single, 120f, Generic(new PartId("battery"), "power_limit"), []),
+                ("initial_charge", ParameterUnit.None, ParameterKind.Real, Lane.Single, 1f, Generic(new PartId("battery"), "initial_charge"), []),
                 ("enabled", ParameterUnit.None, ParameterKind.Choice, Lane.Whole, Array.IndexOf(enables, ElectricalEnable.Enabled),
-                    Generic(PartId.Battery, "enabled"), Enum.GetNames<ElectricalEnable>())
+                    Generic(new PartId("battery"), "enabled"), Enum.GetNames<ElectricalEnable>())
             ],
             "pressure_plate" =>
             [
@@ -413,7 +413,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             "counter" =>
             [
                 ("target_count", ParameterUnit.None, ParameterKind.WholeNumber, Lane.Whole, 3f,
-                    Generic(PartId.Counter, "target_count"), [])
+                    Generic(new PartId("counter"), "target_count"), [])
             ],
             "clock" =>
             [
@@ -422,28 +422,28 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "basket" =>
             [
-                ("capture_margin", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .02f, Generic(PartId.Receiver, "capture_margin"), []),
-                ("capture_speed_limit", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, 1.5f, Generic(PartId.Receiver, "capture_speed_limit"), []),
-                ("capture_dwell", ParameterUnit.Second, ParameterKind.Real, Lane.Single, .35f, Generic(PartId.Receiver, "capture_dwell"), []),
-                ("capture_participation", ParameterUnit.None, ParameterKind.Choice, Lane.Whole, 1f, Generic(PartId.Receiver, "capture_participation"), Enum.GetNames<SensorParticipation>()),
-                ("force_support_margin", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 0f, Generic(PartId.Receiver, "force_support_margin"), []),
-                ("force_maximum_acceleration", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Lane.Single, 0f, Generic(PartId.Receiver, "force_maximum_acceleration"), [])
+                ("capture_margin", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .02f, Generic(new PartId("basket"), "capture_margin"), []),
+                ("capture_speed_limit", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, 1.5f, Generic(new PartId("basket"), "capture_speed_limit"), []),
+                ("capture_dwell", ParameterUnit.Second, ParameterKind.Real, Lane.Single, .35f, Generic(new PartId("basket"), "capture_dwell"), []),
+                ("capture_participation", ParameterUnit.None, ParameterKind.Choice, Lane.Whole, 1f, Generic(new PartId("basket"), "capture_participation"), Enum.GetNames<SensorParticipation>()),
+                ("force_support_margin", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 0f, Generic(new PartId("basket"), "force_support_margin"), []),
+                ("force_maximum_acceleration", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Lane.Single, 0f, Generic(new PartId("basket"), "force_maximum_acceleration"), [])
             ],
             "spring" =>
             [
-                ("stiffness", ParameterUnit.NewtonPerMetre, ParameterKind.Real, Lane.Single, 400f, Generic(PartId.Springboard, "stiffness"), []),
-                ("damping", ParameterUnit.NewtonSecondPerMetre, ParameterKind.Real, Lane.Single, .2f, Generic(PartId.Springboard, "damping"), []),
-                ("initial_compression", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 0f, Generic(PartId.Springboard, "initial_compression"), [])
+                ("stiffness", ParameterUnit.NewtonPerMetre, ParameterKind.Real, Lane.Single, 400f, Generic(new PartId("spring"), "stiffness"), []),
+                ("damping", ParameterUnit.NewtonSecondPerMetre, ParameterKind.Real, Lane.Single, .2f, Generic(new PartId("spring"), "damping"), []),
+                ("initial_compression", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 0f, Generic(new PartId("spring"), "initial_compression"), [])
             ],
             "pipe" =>
             [
-                ("length", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, PipeLength.Default.Metres,
-                    Admits(value => new PipeLength(value).Validate()), [])
+                ("length", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 3.6f,
+                    Generic(new PartId("pipe"), "length"), [])
             ],
             "delay" =>
             [
                 ("delay_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, 1f,
-                    Admits(value => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float)value)]))), [])
+                    Admits(value => WorkshopInput.Generic(new PartId("delay"), Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float)value)]))), [])
             ],
             "hold_timer" =>
             [
@@ -458,7 +458,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             "switch" =>
             [
                 ("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, .8f,
-                    Admits(value => WorkshopInput.Generic(PartId.ImpactSwitch, Owner, 0, 3, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), (float)value)]))), [])
+                    Admits(value => WorkshopInput.Generic(new PartId("switch"), Owner, 0, 3, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), (float)value)]))), [])
             ],
             _ => []
         };
@@ -467,24 +467,24 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     /// <summary>One newly placed instance of the part, as MachineWorld.CaptureInstance builds it.</summary>
     internal static IWorkshopInstance Placed(PartId id) => id.Value switch
     {
-        "ball" => WorkshopInput.Generic(PartId.Basketball,Owner, 0, 3, 0, 0, 0, 0, 1),
-        "bowling" => WorkshopInput.Generic(PartId.BowlingBall, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "basket" => WorkshopInput.Generic(PartId.Receiver, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "spring" => WorkshopInput.Generic(PartId.Springboard, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "ramp" => WorkshopInput.Generic(PartId.Ramp, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "wall" => WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1),
+        "ball" => WorkshopInput.Generic(new PartId("ball"),Owner, 0, 3, 0, 0, 0, 0, 1),
+        "bowling" => WorkshopInput.Generic(new PartId("bowling"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "basket" => WorkshopInput.Generic(new PartId("basket"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "spring" => WorkshopInput.Generic(new PartId("spring"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "ramp" => WorkshopInput.Generic(new PartId("ramp"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "wall" => WorkshopInput.Generic(new PartId("wall"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "battery" => PlacedParts.Battery(Owner, 0, 3, 0),
-        "bumper" => WorkshopInput.Generic(PartId.PinballBumper, Owner, 0, 3, 0, 0, 0, 0, 1),
+        "bumper" => WorkshopInput.Generic(new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
+        "pipe" => WorkshopInput.Generic(new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
         "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),
         "clock" => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, 1f),
         "latch" => PlacedParts.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "delay" => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1),
+        "switch" => WorkshopInput.Generic(new PartId("switch"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "delay" => WorkshopInput.Generic(new PartId("delay"), Owner, 0, 3, 0, 0, 0, 0, 1),
         _ => throw new ArgumentException($"No placement for packaged part '{id}'.")
     };
 
@@ -570,7 +570,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     {
         _ = godot;
         var parts = Enumerable.Range(1, 40).Select(index => (IWorkshopInstance)WorkshopInput.Generic(
-            PartId.PoweredGate, new((ulong)index), (float)((index - 1) % 8 * 3 - 12), 3, (float)((index - 1) / 8 * 3 - 6), 0, 0, 0, 1)).ToArray();
+            new PartId("powered_gate"), new((ulong)index), (float)((index - 1) % 8 * 3 - 12), 3, (float)((index - 1) / 8 * 3 - 6), 0, 0, 0, 1)).ToArray();
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(parts));
         var identities = construction.Instances.Identities;
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
@@ -614,7 +614,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     public void BundleValidationAllowsColliderCountsBeyondTheDeletedFixedSlots()
     {
         _ = godot;
-        var plate = TestBundle.Entry(PartId.PressurePlate);
+        var plate = TestBundle.Entry(new PartId("pressure_plate"));
         var expanded = plate with { Colliders = [.. plate.Colliders, .. Enumerable.Repeat(plate.Colliders[0], 300)] };
         var errors = CuriousContraptions.Bundle.BundleValidator.Validate([new(expanded.Metadata.Id, expanded)]);
         Assert.Empty(errors);

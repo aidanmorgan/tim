@@ -63,7 +63,7 @@ public sealed class EventRingProducerTests
     public async Task EachBumperHitPublishesExactlyOneImpactAtItsOwnTimeAndNoTrigger()
     {
         GpuBodyId ball = new(1), bumper = new(2);
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([WorkshopInput.Generic(PartId.Basketball, ball, 0, 4.5f, 0, 0, 0, 0, 1),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([WorkshopInput.Generic(new PartId("ball"), ball, 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(bumper, 0, 3, 0)], []));
         await ring.Advance(360);
         var impacts = ring.Of(SimulationEventKind.Impact).ToList();
@@ -105,7 +105,7 @@ public sealed class EventRingProducerTests
         var sign = forwardDown ? -1 : 1;
         var detector = PlacedParts.Detector(new(1), 0, (float)(Floor + .62), 0, 0, 0, (float)(sign * Half45), (float)(Half45));
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(3), (float)(ballX), (float)(Floor + .34 + 3), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"), new(3), (float)(ballX), (float)(Floor + .34 + 3), 0, 0, 0, 0, 1);
         return (Bench([detector, lamp, ball], [Signal(detector.Id, lamp.Id)]), detector.Id, lamp.Id, ball.Id);
     }
 
@@ -155,8 +155,8 @@ public sealed class EventRingProducerTests
     public async Task AReceiverCapturePublishesOneCapturedAndAMissNothing(double shift, bool captures)
     {
         GpuBodyId ball = new(1), receiver = new(2);
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([PayloadInstanceTests.Place(PartId.Basketball, 1, shift, 1.1, 0),
-            WorkshopInput.Generic(PartId.Receiver, receiver, 0, 1, 0, 0, 0, 0, 1)], []));
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([PayloadInstanceTests.Place(new PartId("ball"), 1, shift, 1.1, 0),
+            WorkshopInput.Generic(new PartId("basket"), receiver, 0, 1, 0, 0, 0, 0, 1)], []));
         await ring.Advance(240);
         if (!captures) { Assert.Empty(ring.Records); return; }
         var latched = ring.Reads.First(read => Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched));
@@ -175,7 +175,7 @@ public sealed class EventRingProducerTests
     {
         var plateY = Floor + .22;
         var plate = PlacedParts.Plate(new(1), -4, (float)(plateY), 0, .5f);
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(2), -4, (float)(plateY + .08 + .345 + drop), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"), new(2), -4, (float)(plateY + .08 + .345 + drop), 0, 0, 0, 0, 1);
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([plate, ball], []));
         await ring.Advance(720);
         var edges = Edges(ring.Reads, read => Node(read, plate.Id).Phase == ActivationPhase.Latched);
@@ -203,9 +203,9 @@ public sealed class EventRingProducerTests
     [InlineData(64f, false)]
     public async Task AnImpactSwitchPublishesOneTriggerAndASubThresholdContactNothing(float threshold, bool fires)
     {
-        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), threshold)]));
+        var hit = WorkshopInput.Generic(new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), threshold)]));
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(4), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"), new(4), 0, 3, 0, 0, 0, 0, 1);
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([hit, lamp, ball], [Signal(hit.Id, lamp.Id)]));
         await ring.Advance(480);
         Assert.Contains(ring.Reads, read => read.Bodies.TryGet(ball.Id, out var row) && row.Body.Velocity.Y > 0); // the ball struck and rebounded
@@ -515,7 +515,7 @@ public sealed class EventRingProducerTests
         for (var i = 0; i < n; i++)
         {
             parts.Add(PlacedParts.Bumper(new((ulong)(2 * i + 1)), (float)(-60 + 3 * i), 3, 0));
-            parts.Add(WorkshopInput.Generic(PartId.Basketball, new((ulong)(2 * i + 2)), (float)(-60 + 3 * i), 6, 0, 0, 0, 0, 1));
+            parts.Add(WorkshopInput.Generic(new PartId("ball"), new((ulong)(2 * i + 2)), (float)(-60 + 3 * i), 6, 0, 0, 0, 0, 1));
         }
         await using var ring = await WorkshopIntegrationHarness.Building(Bench([.. parts], []));
         Assert.Equal(n, ring.Device.CommittedContactWork.Count);
@@ -746,7 +746,7 @@ public sealed class EventRingProducerTests
         {
             var id = new PartId(entry.Metadata.Id);
             var part = PackageRuntimeParityTests.Placed(id);
-            IWorkshopInstance[] parts = [part, WorkshopInput.Generic(PartId.Basketball, new(2), 6, 3, 0, 0, 0, 0, 1)];
+            IWorkshopInstance[] parts = [part, WorkshopInput.Generic(new PartId("ball"), new(2), 6, 3, 0, 0, 0, 0, 1)];
             WorkshopConnection[] links = [];
             if (DeclaredPorts.Current.Has(id, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output))
             {
@@ -772,7 +772,7 @@ public sealed class EventRingProducerTests
             if (links.Length == 0) continue;
             lampKinds.Add(WorkshopActivationCompiler.Compile(Bench(parts, links)).Nodes.ToArray().Single(node => node.Owner == new GpuBodyId(3)).Kind);
             Assert.True(Produced(new(3))
-                .SequenceEqual(TestBundle.Entry(PartId.SignalLamp).Events.Select(descriptor => descriptor.Kind)), $"{entry.Metadata.Id}: the wired lamp produces a record kind");
+                .SequenceEqual(TestBundle.Entry(new PartId("lamp")).Events.Select(descriptor => descriptor.Kind)), $"{entry.Metadata.Id}: the wired lamp produces a record kind");
         }
         Assert.Equal([ActivationNodeKind.StickyFirstInput, ActivationNodeKind.LevelIndicator], lampKinds.Order());
     }

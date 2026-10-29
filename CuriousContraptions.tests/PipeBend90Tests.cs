@@ -21,22 +21,22 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         var registry = new PartRegistry();
         registry.Load();
 
-        Assert.True(registry.Definitions.ContainsKey(PartId.PipeBend90));
-        var def = registry.Definitions[PartId.PipeBend90];
-        Assert.Equal(PartId.PipeBend90, def.PartId);
+        Assert.True(registry.Definitions.ContainsKey(new PartId("pipe_bend_90")));
+        var def = registry.Definitions[new PartId("pipe_bend_90")];
+        Assert.Equal(new PartId("pipe_bend_90"), def.PartId);
         Assert.Equal("pipe_bend_90", def.Id);
         Assert.Equal("90° pipe bend", def.Title);
         Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Motion, def.Category);
         Assert.Equal("A 90-degree hollow curve. Turns falling balls through a right angle with a smooth hollow bend.", def.Description);
         Assert.NotNull(def.Scene);
 
-        var part = registry.Create(PartId.PipeBend90);
+        var part = registry.Create(new PartId("pipe_bend_90"));
         try
         {
             godot.Tree.Root.AddChild(part);
             Assert.NotNull(part);
             Assert.Same(def, part.Definition);
-            Assert.Equal(PartId.PipeBend90, part.PartId);
+            Assert.Equal(new PartId("pipe_bend_90"), part.PartId);
         }
         finally
         {
@@ -83,13 +83,13 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     [Fact]
     public void WorkshopCanonicalColliders_MatchesPipeBend90Colliders()
     {
-        BendColliders.Assert(DeclaredPhysics.Colliders(PartId.PipeBend90), 90);
+        BendColliders.Assert(DeclaredPhysics.Colliders(new PartId("pipe_bend_90")), 90);
     }
 
     [Fact]
     public void WorkshopPhysicsCompiler_CompilesPipeBend90IntoStaticBodyWithItsHollowColliders()
     {
-        var bend = WorkshopInput.PipeBend90(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var bend = WorkshopInput.Generic(new PartId("pipe_bend_90"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(bend));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 
@@ -114,8 +114,8 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     [Fact]
     public void SaveCodec_RoundTripsPipeBend90AndPreservesDeclaredColliders()
     {
-        var bend = WorkshopInput.PipeBend90(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var bend = WorkshopInput.Generic(new PartId("pipe_bend_90"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, bend));
         var save = new WorkshopSavedConstruction(construction, new(11));
 
@@ -126,7 +126,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(decoded)));
 
         var decodedBend = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
-        Assert.Equal(PartId.PipeBend90, decodedBend.PartId);
+        Assert.Equal(new PartId("pipe_bend_90"), decodedBend.PartId);
         BendColliders.Assert(decodedBend.DeclaredColliders, 90);
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
@@ -142,25 +142,25 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     {
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(WorkshopInput.PipeBend90(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
+            new WorkshopInstances(WorkshopInput.Generic(new PartId("pipe_bend_90"), new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 0, 5 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
 
         // 2 pipe_bend_90: validates cleanly with unbounded colliders
         var twoBends = new WorkshopInstances(
-            WorkshopInput.PipeBend90(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.PipeBend90(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1));
+            WorkshopInput.Generic(new PartId("pipe_bend_90"), new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("pipe_bend_90"), new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1));
         new WorkshopInstances([.. twoBends]).Validate();
 
         // 20 pipe_bend_90: validates cleanly
         var twentyBends = new WorkshopInstances(
-            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
+            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Generic(new PartId("pipe_bend_90"), new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
         new WorkshopInstances([.. twentyBends]).Validate();
     }
 
     [Fact]
     public void BoreGeometry_MatchesTheDeclaredMouths()
     {
-        BendColliders.AssertBore(DeclaredPhysics.Colliders(PartId.PipeBend90), TestBundle.Entry(PartId.PipeBend90));
+        BendColliders.AssertBore(DeclaredPhysics.Colliders(new PartId("pipe_bend_90")), TestBundle.Entry(new PartId("pipe_bend_90")));
 
         // Actual fitting and oversized passage is exercised by
         // WorkshopPhysicsLawHollowTests.ActualPackageWallsPassAFittingPayloadAndStopAnOversizedPayload.
@@ -169,8 +169,8 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     [Fact]
     public void PhysicsGpuAbi_AdmissionAcceptsPipeBend90SceneDeclaration()
     {
-        var bend = WorkshopInput.PipeBend90(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
+        var bend = WorkshopInput.Generic(new PartId("pipe_bend_90"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, bend));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 
@@ -197,8 +197,8 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
 
         var fixtures = level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
         AuthoredContentAssertions.Placement(fixtures[0], Payloads.First(construction));
-        AuthoredContentAssertions.Placement(fixtures[1], ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
-        Assert.True(Payloads.First(construction).Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
+        AuthoredContentAssertions.Placement(fixtures[1], ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))));
+        Assert.True(Payloads.First(construction).Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))).Locked);
 
         AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
@@ -208,7 +208,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
             construction.Puzzle.PlacementAssistance);
 
         var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
-        Assert.Equal(PartAllowance.Counted(1), inventory[PartId.PipeBend90]);
+        Assert.Equal(PartAllowance.Counted(1), inventory[new PartId("pipe_bend_90")]);
     }
 
     [Fact]
@@ -217,12 +217,12 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         var construction = Lesson(0f);
         construction.Validate();
 
-        var bend = WorkshopInput.PipeBend90(new(3), 0, 4, 0, 0, 0, -0.7071068f, 0.7071068f);
+        var bend = WorkshopInput.Generic(new PartId("pipe_bend_90"), new(3), 0, 4, 0, 0, 0, -0.7071068f, 0.7071068f);
         var placed = construction.WithInstance(bend);
         placed.Validate();
 
         // Second pipe bend 90 exceeds inventory limit
-        var bend2 = WorkshopInput.PipeBend90(new(4), 1, 3, 0, 0, 0, 0, 1);
+        var bend2 = WorkshopInput.Generic(new PartId("pipe_bend_90"), new(4), 1, 3, 0, 0, 0, 0, 1);
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bend2).Validate());
 
         // Locked player pipe bend is rejected
@@ -230,10 +230,10 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
 
         // Unlocking fixed ball or receiver is rejected
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(Payloads.First(construction) with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))) with { Locked = false }).Validate());
 
         // Unauthorized parts are rejected
-        var pipe = WorkshopInput.Pipe(new(5), 0, 1, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(new PartId("pipe"),new(5), 0, 1, 0, 0, 0, 0, 1);
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(pipe).Validate());
 
         // Tampering with assistance profiles is rejected
@@ -248,14 +248,14 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     public void QuarterBend_PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {
         var construction = Lesson((float)precision);
-        var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver));
+        var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket")));
 
         Assert.Equal((float)margin, receiver.Parameters[new("capture_margin")]);
         Assert.Equal((float)speed, receiver.Parameters[new("capture_speed_limit")]);
         Assert.Equal((float)dwell, receiver.Parameters[new("capture_dwell")]);
         Assert.Equal((float)accel, receiver.Parameters[new("force_maximum_acceleration")]);
 
-        var bend = WorkshopInput.PipeBend90(new(3), 0, 4, 0, 0, 0, -0.7071068f, 0.7071068f);
+        var bend = WorkshopInput.Generic(new PartId("pipe_bend_90"), new(3), 0, 4, 0, 0, 0, -0.7071068f, 0.7071068f);
         var placed = construction.WithInstance(bend);
         placed.Validate();
 
@@ -265,14 +265,14 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         Assert.Equal(save, decoded);
 
         var updated = PuzzleCatalogue.WithPrecision(placed, new(0.45f));
-        Assert.Equal(0.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+        Assert.Equal(0.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == new PartId("basket"))).Parameters[new("capture_margin")]);
     }
 
     [Fact]
     public void QuarterBend_CompilerEmitsCompoundCollidersAndSensors()
     {
         var construction = Lesson(0.45f);
-        var bend = WorkshopInput.PipeBend90(new(3), 0, 4, 0, 0, 0, -0.7071068f, 0.7071068f);
+        var bend = WorkshopInput.Generic(new PartId("pipe_bend_90"), new(3), 0, 4, 0, 0, 0, -0.7071068f, 0.7071068f);
         var placed = construction.WithInstance(bend);
 
         var scene = WorkshopPhysicsCompiler.Compile(placed, new(1, 2));

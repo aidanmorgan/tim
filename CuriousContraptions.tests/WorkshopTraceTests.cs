@@ -10,7 +10,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     private static readonly RuntimeSessionId Session = new(0x20000000000001, ulong.MaxValue);
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
-    private static readonly WorkshopConstruction Construction = new(new(7), Settings, new(WorkshopInput.Generic(PartId.Basketball,new(3), 0, 8.875f, 0, 0, 0, 0, 1)));
+    private static readonly WorkshopConstruction Construction = new(new(7), Settings, new(WorkshopInput.Generic(new PartId("ball"),new(3), 0, 8.875f, 0, 0, 0, 0, 1)));
 
     [Fact]
     public void RoundedCommittedRotationPreservesDeclaredNumericValues()
@@ -92,7 +92,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     private static void Begin(WorkshopTrace trace, RuntimeSessionId session, WorkshopConstruction construction,
         SimulationEpoch epoch, ProjectionEpoch projection, byte[] record)
     {
-        trace.Begin(session, construction, epoch, projection, WorkshopTraceRecord.ReadProfile(record));
+        trace.Begin(session, CompiledSceneFixture.Compile(construction), epoch, projection, WorkshopTraceRecord.ReadProfile(record));
         Append(trace, record);
     }
 
@@ -134,12 +134,9 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal((ulong)count, (ulong)header.Count);
         Assert.Equal((ulong)chunks, (ulong)header.Chunks);
         Assert.Equal(TraceEnd.Complete, header.End);
-        var construction = header.Construction!.Value;
-        Assert.Equal(Session, construction.Session);
-        Assert.Equal(configured, construction.Construction);
-        Assert.Equal(profile.Revision, construction.Cadence);
-        Assert.Equal(new ProjectionEpoch(3), construction.Projection);
-        Assert.Equal(new SimulationEpoch(9), construction.Epoch);
+        Assert.Equal(Session, header.Session);
+        Assert.Equal(new CompiledSceneId(configured.Revision.Value), header.Scene);
+        Assert.Equal(profile.Revision, header.Profile.Revision);
         var observed = new List<WorkshopTraceSample>();
         for (var ordinal = 0; ordinal < chunks; ordinal++)
         {
@@ -172,7 +169,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     {
         var trace = new WorkshopTrace();
         var balls = Enumerable.Range(0, 20)
-            .Select(i => (IWorkshopInstance)WorkshopInput.Generic(PartId.Basketball,new((ulong)i + 3), (float)(-6 + i * .6), 8.875f, 0, 0, 0, 0, 1)).ToArray();
+            .Select(i => (IWorkshopInstance)WorkshopInput.Generic(new PartId("ball"),new((ulong)i + 3), (float)(-6 + i * .6), 8.875f, 0, 0, 0, 0, 1)).ToArray();
         var profile = Profile with { Cadence = SimulationCadence.Hz240 };
         var configured = new WorkshopConstruction(new(7), Settings with { Simulation = SimulationCadence.Hz240 }, new(balls));
         var record = Record(configured, new(9), profile);
@@ -210,7 +207,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(3, Pose(trace).Length);
         var header = Pose(trace)[0];
         Assert.Equal(TraceEnd.Reset, header.End);
-        Assert.Equal(Session, header.Construction!.Value.Session);
+        Assert.Equal(Session, header.Session);
     }
 
     [Fact]
@@ -235,8 +232,8 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(10UL, next.Epoch.Value);
         AssertRecordValues(previousRecord, lines[1].Samples.ToArray());
         AssertRecordValues(nextRecord, lines[4].Samples.ToArray());
-        Assert.Equal(Session, previous.Construction!.Value.Session);
-        Assert.Equal(nextSession, next.Construction!.Value.Session);
+        Assert.Equal(Session, previous.Session);
+        Assert.Equal(nextSession, next.Session);
     }
 
     [Fact]
@@ -405,11 +402,9 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(profile.RunTickLimit, (ulong)header.ExpectedCount);
         Assert.Equal(profile.RunTickLimit, (ulong)header.Count);
         Assert.Equal(TraceTimingStatus.Complete, header.Status);
-        var command = header.Construction!.Value;
-        Assert.Equal(Session, command.Session);
-        Assert.Equal(construction, command.Construction);
-        Assert.Equal(new ProjectionEpoch(3), command.Projection);
-        Assert.Equal(new SimulationEpoch(9), command.Epoch);
+        Assert.Equal(Session, header.Session);
+        Assert.Equal(new CompiledSceneId(construction.Revision.Value), header.Scene);
+        Assert.Equal(new SimulationEpoch(9), header.Epoch);
         Assert.Equal(TraceEnd.Complete, header.End);
         var observed = new List<double>();
         for (var ordinal = 0; ordinal < header.Chunks; ordinal++)
@@ -538,7 +533,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             BeginDefect.UndefinedProfile => Profile with { Cadence = (SimulationCadence)999 },
             _ => Profile
         };
-        trace.Begin(defect == BeginDefect.Session ? default : Session, Construction, new(9),
+        trace.Begin(defect == BeginDefect.Session ? default : Session, CompiledSceneFixture.Compile(Construction), new(9),
             defect == BeginDefect.Projection ? default : new(3), profile);
         trace.RecordTickDuration(new(1), .25);
         trace.End(TraceEnd.Complete);
@@ -549,7 +544,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         trace.Flush(WorkshopSimulationPhase.Building);
         var header = Timing(trace)[0];
         Assert.Equal(10UL, header.Epoch.Value);
-        Assert.Equal(Session, header.Construction!.Value.Session);
+        Assert.Equal(Session, header.Session);
     }
 
     [Fact]
@@ -628,7 +623,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(32, trace.RecordOffsetCapacity);
         var physical = PhysicsGpuAbi.ReadDynamicBodies(PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction, new(101, 207)), new(9), Profile))[0];
         var expected = new List<byte>();
-        trace.Begin(Session, Construction, new(9), new(3), Profile);
+        trace.Begin(Session, CompiledSceneFixture.Compile(Construction), new(9), new(3), Profile);
         for (ulong tick = 0; tick < 100; tick++)
         {
             var captures = tick == 0 ? new PhysicsCaptureRead([]) : new PhysicsCaptureRead([new(new(17), new(3), CaptureLatchPhase.Latched, 1, 0)]);
@@ -643,7 +638,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         trace.End(TraceEnd.Reset); trace.Flush(WorkshopSimulationPhase.Building);
         var observed = Pose(trace).Where(record => record.Stage == WorkshopCaptureStage.Chunk).SelectMany(record => record.Samples).ToArray();
         AssertRecordValues(expected.ToArray(), observed);
-        trace.Begin(Session, Construction, new(10), new(3), Profile);
+        trace.Begin(Session, CompiledSceneFixture.Compile(Construction), new(10), new(3), Profile);
         Assert.Equal(16384, trace.RecordCapacityBytes); Assert.Equal(32, trace.RecordOffsetCapacity);
     }
 

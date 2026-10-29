@@ -222,43 +222,26 @@ namespace Google.FlatBuffers
     /// <summary> Get VOffsetT from buffer at given position - it must be verified before read </summary>
     /// <param name="buf"> Input flat byte buffer defined as ByteBuffer type </param>
     /// <param name="pos"> Position of data in the Byte Buffer</param>
-    /// <returns> Return the VOffset Value (Short type - 2 bytes) in pos </returns>
-    private short ReadVOffsetT(ByteBuffer buf, int pos)
+    /// <returns> Return the VOffset Value (UShort type - 2 bytes) in pos </returns>
+    private ushort ReadVOffsetT(ByteBuffer buf, int pos)
     {
-      return buf.GetShort(pos);
+      return buf.GetUshort(pos);
     }
 
     /// <summary> Get table data area relative offset from vtable. Result is relative to table start
     ///           Fields which are deprecated are ignored by checking against the vtable's length. </summary>
     /// <param name="pos"> Position of data in the Byte Buffer </param>
     /// <param name="vtableOffset"> offset of value in the Table</param>
-    /// <returns> Return the relative VOffset Value (Short type - 2 bytes) in calculated offset </returns>
-    private short GetVRelOffset(int pos, short vtableOffset)
+    /// <returns> Return the relative VOffset Value (UShort type - 2 bytes) in calculated offset </returns>
+    private ushort GetVRelOffset(int pos, short vtableOffset)
     {
-      short VOffset = 0;
-      // Used try/catch because pos typa as int 32bit
-      try
-      {
-        // First, get vtable offset
-        short vtable = Convert.ToInt16(pos - ReadSOffsetT(verifier_buffer, pos));
-        // Check that offset points to vtable area (is smaller than vtable size)
-        if (vtableOffset < ReadVOffsetT(verifier_buffer, vtable))
-        {
-          // Now, we can read offset value - TODO check this value against size of table data
-          VOffset = ReadVOffsetT(verifier_buffer, vtable + vtableOffset);
-        }
-        else
-        {
-          VOffset = 0;
-        }
-      }
-      catch (Exception e)
-      {
-        Console.WriteLine("Exception: {0}", e);
-        return VOffset;
-      }
-      return VOffset;
-
+      // Local correctness patch (9A.45): absolute positions are buffer-sized;
+      // only vtable lengths and relative field offsets are unsigned 16-bit values.
+      // Malformed arithmetic must refuse verification, never masquerade as an absent field.
+      int vtable = checked(pos - ReadSOffsetT(verifier_buffer, pos));
+      return vtableOffset < ReadVOffsetT(verifier_buffer, vtable)
+        ? ReadVOffsetT(verifier_buffer, checked(vtable + vtableOffset))
+        : (ushort)0;
     }
     /// <summary> Get table data area absolute offset from vtable. Result is the absolute buffer offset.
     /// The result value offset cannot be '0' (pointing to itself) so after validation this method returnes '0'
@@ -270,7 +253,7 @@ namespace Google.FlatBuffers
     {
       uint UOffset = 0;
       // First, get vtable relative offset
-      short relPos = GetVRelOffset(Convert.ToInt32(tablePos), vtableOffset);
+      ushort relPos = GetVRelOffset(Convert.ToInt32(tablePos), vtableOffset);
       if (relPos != 0)
       {
         // Calculate offset based on table postion

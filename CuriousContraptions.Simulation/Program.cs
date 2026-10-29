@@ -52,7 +52,6 @@ public static partial class Program
     {
         if (_peer is not null) throw new InvalidOperationException("Worker session is already installed.");
         if (bytes.Length != 16) throw new ArgumentException("Unsupported session bootstrap.");
-        DeclaredPorts.Install(BundlePorts());
         var session = RuntimeSessionId.Read(bytes);
         var origin = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
         var peer = new WorkshopClockPeer(session, new(1), origin, new(1), new(100_000), WorkshopRuntimeRole.Browser);
@@ -61,21 +60,6 @@ public static partial class Program
         _peer = peer;
         _executor = new(Device, new CommandHost(), Diagnostics);
         return WorkshopClockWire.EncodePeer(peer);
-    }
-
-    /// <summary>Story 9A.17: the ports of the element bundle this worker was built with, read and validated with the same schema
-    /// the game loads; an invalid bundle refuses the bootstrap.</summary>
-    private static ElementPortCatalogue BundlePorts()
-    {
-        using var stream = typeof(Program).Assembly.GetManifestResourceStream("elements.bundle.json")
-            ?? throw new InvalidDataException("The worker carries no element bundle.");
-        using var reader = new StreamReader(stream);
-        var document = CuriousContraptions.Bundle.BundleSchema.Read(reader.ReadToEnd());
-        var errors = CuriousContraptions.Bundle.BundleValidator.Validate(
-            document.Elements.Select(entry => new CuriousContraptions.Bundle.NamedEntry(entry.Metadata.Id, entry)).ToArray());
-        if (errors.Count > 0) throw new InvalidDataException("The worker's element bundle is invalid: " + string.Join("; ", errors));
-        DeclaredPhysics.Install(document.Elements);
-        return ElementPortCatalogue.FromBundle(document.Elements);
     }
 
     [JSExport]
@@ -203,7 +187,7 @@ public static partial class Program
             await CommitInstallation();
             if (kind == WorkshopCommandKind.Run)
             {
-                Trace.Begin(Peer.Session, simulation.Construction, simulation.Epoch, _schedule!.Value.World.Epoch, simulation.Profile);
+                Trace.Begin(Peer.Session, simulation.Scene, simulation.Epoch, _schedule!.Value.World.Epoch, simulation.Profile);
 #if PLAYTEST
                 Trace.Append(Device.DiagnosticCommitted);
 #endif

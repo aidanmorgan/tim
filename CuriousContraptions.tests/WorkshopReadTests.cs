@@ -234,8 +234,8 @@ public sealed class WorkshopReadTests
     {
         // Story 9A.23 D9: the occurrence rows are the device's ledger, never on the read or the wire; the scene binds them there.
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.PinballBumper,new(2),0,4,0,0,0,0,1)));
+            WorkshopInput.Generic(new PartId("ball"),new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("bumper"),new(2),0,4,0,0,0,0,1)));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,23));
         var declaration = scene.ContactWorks[0];
         var colliders = scene.Colliders.ToArray();

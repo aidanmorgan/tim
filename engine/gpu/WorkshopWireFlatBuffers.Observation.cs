@@ -46,7 +46,7 @@ public static partial class WorkshopWireFlatBuffers
                     throw new ArgumentException("Foreign transfer session.");
                 if (value is ClockRecalibrationDiagnostic clock && clock.Peer.Session != session)
                     throw new ArgumentException("Foreign clock session.");
-                if (value is WorkshopCaptureDiagnostic capture && capture.Construction is { } construction && construction.Session != session)
+                if (value is WorkshopCaptureDiagnostic capture && capture.Session != session)
                     throw new ArgumentException("Foreign capture session.");
                 records.Add(value);
             }
@@ -158,10 +158,9 @@ public static partial class WorkshopWireFlatBuffers
                 }
                 var sampleVector = W.CaptureObservation.CreateSamplesVector(b, samples);
                 var times = EncodeDurations(b, d.Milliseconds);
-                var construction = d.Construction is { } c ? W.CaptureObservation.CreateConstructionVector(b, EncodeCommand(c)) : default;
                 offset = W.CaptureObservation.CreateCaptureObservation(b, (uint)d.Kind, (uint)d.Stage, d.Identity, d.Epoch.Value,
                     (uint)d.Profile.Cadence, (uint)d.Profile.Physical, d.Profile.Revision.Value, (uint)d.End, (uint)d.Status,
-                    d.ExpectedCount, d.Count, d.Chunk, d.Chunks, d.First, construction, sampleVector, times).Value; break;
+                    d.ExpectedCount, d.Count, d.Chunk, d.Chunks, d.First, d.Scene?.Value, W.CaptureObservation.CreateSessionVector(b, RuntimeSessionBytes(d.Session)), sampleVector, times).Value; break;
             default: throw new ArgumentException("Unsupported diagnostic payload.");
         }
         W.DiagnosticObservation.StartDiagnosticObservation(b);
@@ -260,10 +259,10 @@ public static partial class WorkshopWireFlatBuffers
                     if (WorkshopTraceRecord.ReadProfile(bytes) != profile) throw new ArgumentException("Trace profile mismatch.");
                     samples.Add(WorkshopTraceRecord.Decode(bytes));
                 }
-                return new WorkshopCaptureDiagnostic(ObservationEnum<WorkshopCaptureKind>(capture.Kind), ObservationEnum<WorkshopCaptureStage>(capture.Stage),
+                return new WorkshopCaptureDiagnostic(ObservationEnum<WorkshopCaptureKind>(capture.Kind), ObservationEnum<WorkshopCaptureStage>(capture.Stage), RequiredSession(capture.GetSessionArray()),
                     capture.Identity, new(capture.Epoch), profile, ObservationEnum<TraceEnd>(capture.End), ObservationEnum<TraceTimingStatus>(capture.Status),
                     capture.ExpectedCount, capture.Count, capture.Chunk, capture.Chunks, capture.First,
-                    capture.ConstructionLength == 0 ? null : DecodeCommand(capture.GetConstructionArray()),
+                    capture.Scene is { } scene ? new CompiledSceneId(scene) : null,
                     samples.MoveToImmutable(), DecodeDurations(capture));
             default: throw new ArgumentException("Undefined diagnostic payload.");
         }
@@ -312,8 +311,9 @@ public static partial class WorkshopWireFlatBuffers
             case WorkshopTickFailureDiagnostic d: Defined(d.Result.Outcome); Defined(d.Result.Reason); Defined(d.Fault); break;
             case WorkshopTransferDiagnostic d: if (!d.Response.Read.CarriesBalanceTransfer()) throw new ArgumentException("Transfer diagnostic has no transfer."); break;
             case WorkshopCaptureDiagnostic d:
-                Defined(d.Kind); Defined(d.Stage); Defined(d.End); Defined(d.Status); d.Profile.Validate();
-                if (d.Identity == 0 || d.Epoch.Value == 0 || d.Count < 0 || d.ExpectedCount < 0 || d.Chunks < 0 || d.Chunk < 0 || d.First < 0 ||
+                Defined(d.Kind); Defined(d.Stage); Defined(d.End); Defined(d.Status); d.Profile.Validate(); d.Session.Validate();
+                if ((d.Stage == WorkshopCaptureStage.Begin) != d.Scene.HasValue || d.Scene is { Value: 0 } ||
+                    d.Identity == 0 || d.Epoch.Value == 0 || d.Count < 0 || d.ExpectedCount < 0 || d.Chunks < 0 || d.Chunk < 0 || d.First < 0 ||
                     d.Samples.IsDefault || d.Milliseconds.IsDefault || (d.Kind == WorkshopCaptureKind.Pose && d.Milliseconds.Length != 0) ||
                     (d.Kind == WorkshopCaptureKind.Timing && d.Samples.Length != 0) ||
                     (d.Stage != WorkshopCaptureStage.Chunk && (d.Samples.Length != 0 || d.Milliseconds.Length != 0)) ||

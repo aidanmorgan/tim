@@ -13,7 +13,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         var declared = (WorkshopGenericInstance)PlacedParts.Bumper(new(2), 0, 4, 0, strength: 8.000001f);
         Assert.Equal(8.000001f, declared.Parameters[new("strength")]);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1), declared));
+            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1), declared));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
@@ -31,13 +31,13 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Load();
-        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or"), new PartId("electrical_xor"), new PartId("weight") }.OrderBy(id => id),
+        Assert.Equal(new[] { new PartId("ball"), new PartId("basket"), new PartId("ramp"), new PartId("switch"), new PartId("lamp"), new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or"), new PartId("electrical_xor"), new PartId("weight") }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
         // Each package's declared f32 material compiles exactly (the generic dynamic-body compile): Basketball 0.34 m, 1 kg,
         // restitution 0.55, rolling 0.035; Bowling 0.28 m, 4 kg, restitution 0.14, rolling 0.03 (CAT-014, owner 9 Oct 2026).
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(PartId.Basketball, new(1), -1, 2, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.BowlingBall, new(2), 1, 2, 0, 0, 0, 0, 1))), new(1, 2));
+            WorkshopInput.Generic(new PartId("ball"), new(1), -1, 2, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("bowling"), new(2), 1, 2, 0, 0, 0, 0, 1))), new(1, 2));
         (float Radius, float Mass, float Bounce, float Rolling) Values(ulong id)
         {
             var body = Assert.Single(scene.Bodies.ToArray(), row => row.Id == new GpuBodyId(id));
@@ -57,16 +57,16 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         }
         Assert.Equal((.34f, 1f, .55f, .035f), Values(1));
         Assert.Equal((.28f, 4f, .14f, .03f), Values(2));
-        var ball = registry.Create(PartId.Basketball);
-        var bowling = registry.Create(PartId.BowlingBall);
+        var ball = registry.Create(new PartId("ball"));
+        var bowling = registry.Create(new PartId("bowling"));
         try
         {
             godot.Tree.Root.AddChild(ball); godot.Tree.Root.AddChild(bowling);
             static float Radius(MachinePart part) => part.Visual.GetChildren().OfType<MeshInstance3D>()
                 .Select(n => n.Mesh).OfType<SphereMesh>().Single().Radius;
             // The committed scene art is the declared collider: its f32 mesh radius is the package's f32 sphere radius (no runtime resize).
-            Assert.Equal(Assert.Single(DeclaredPhysics.Of(PartId.Basketball).Colliders, child => child.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere).HalfExtents.X, Radius(ball));
-            Assert.Equal(Assert.Single(DeclaredPhysics.Of(PartId.BowlingBall).Colliders).HalfExtents.X, Radius(bowling));
+            Assert.Equal(Assert.Single(DeclaredPhysics.Of(new PartId("ball")).Colliders, child => child.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere).HalfExtents.X, Radius(ball));
+            Assert.Equal(Assert.Single(DeclaredPhysics.Of(new PartId("bowling")).Colliders).HalfExtents.X, Radius(bowling));
             Assert.Equal((.34f, .28f), (Radius(ball), Radius(bowling)));
             Assert.Equal(new Color(0.27f, 0.39f, 0.61f), bowling.Definition.Color);
         }
@@ -77,7 +77,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public void DelayArtworkUsesSharedFullTurnAndSourcePhasePalette()
     {
         var registry=new PartRegistry(); registry.Load();
-        var delay=(MachinePart)registry.Create(PartId.Delay);
+        var delay=(MachinePart)registry.Create(new PartId("delay"));
         try
         {
             godot.Tree.Root.AddChild(delay);
@@ -120,7 +120,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public void ReceiverHaloFollowsTheDeclaredCaptureBlendAndRestsOnItsNeutralPalette()
     {
         var registry=new PartRegistry(); registry.Load();
-        var receiver=(MachinePart)registry.Create(PartId.Receiver);
+        var receiver=(MachinePart)registry.Create(new PartId("basket"));
         try
         {
             godot.Tree.Root.AddChild(receiver);
@@ -148,8 +148,8 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public void BumperAndSwitchArtworkFollowOneDeclaredBlendAndHoldOnInvalidSamples()
     {
         var registry=new PartRegistry(); registry.Load();
-        var bumper=(MachinePart)registry.Create(PartId.PinballBumper);
-        var toggle=(MachinePart)registry.Create(PartId.ImpactSwitch);
+        var bumper=(MachinePart)registry.Create(new PartId("bumper"));
+        var toggle=(MachinePart)registry.Create(new PartId("switch"));
         try
         {
             godot.Tree.Root.AddChild(bumper); godot.Tree.Root.AddChild(toggle);
@@ -185,7 +185,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public void ADeclaredDelayPartBindsTheDelayCurve()
     {
         var registry = new PartRegistry(); registry.Load();
-        var part = registry.Create(PartId.Delay);
+        var part = registry.Create(new PartId("delay"));
         try
         {
             part.EnsureConstructed();
@@ -429,7 +429,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
             WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
         {
-            var command = new WorkshopCommand(new(++_sequence), kind, Epoch, Revision, construction, target, Session: Session, Cadence: new(1), Projection: new(1));
+            var command = new WorkshopCommand(new(++_sequence), kind, Epoch, Revision, construction is { } authored ? CompiledSceneFixture.Compile(authored) : null, target, Session: Session, Cadence: new(1), Projection: new(1));
             var dispatched = _cursor.ReadOrder;
             WorkshopResponse response;
             if (kind == WorkshopCommandKind.Run) response = await RunAck.Task;

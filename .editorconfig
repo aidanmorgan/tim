@@ -1,7 +1,7 @@
 # The repository root: no parent .editorconfig merges in.
 root = true
 
-# Story 9.4b: the vendored Google FlatBuffers runtime is third-party code kept byte-for-byte (THIRD-PARTY-NOTICES.md).
+# Story 9.4b: the vendored Google FlatBuffers runtime is third-party code with pinned vtable corrections (THIRD-PARTY-NOTICES.md).
 # Marking it generated keeps `dotnet format`, IDE formatting and code-style analyzers from rewriting it. Trim analysis
 # still reports in it (an injected RequiresUnreferencedCode call in a generated-marked file fails the build:
 # evidence-9-4b/trim/generated-code-probe-build.log).
@@ -50,7 +50,7 @@ dotnet_diagnostic.IDE0060.severity = warning
 
 # Simulation command state machine: any failure faults the simulation (Faulted + logged), never leaves it mid-phase.
 [engine/gpu/WorkshopSimulation.cs]
-dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Gpu.WorkshopSimulation.Initialize|M:CuriousContraptions.Gpu.WorkshopSimulation.Construct(CuriousContraptions.Gpu.WorkshopConstruction)|M:CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(System.Boolean)|M:CuriousContraptions.Gpu.WorkshopSimulation.Reset
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Gpu.WorkshopSimulation.Initialize|M:CuriousContraptions.Gpu.WorkshopSimulation.Construct(CuriousContraptions.Gpu.WorkshopCompiledScene)|M:CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(System.Boolean)|M:CuriousContraptions.Gpu.WorkshopSimulation.Reset
 
 # Godot frame presentation and disposal: a presentation failure faults the Workshop with its message; disposal always completes and logs.
 [engine/MachineWorld.Gpu.cs]

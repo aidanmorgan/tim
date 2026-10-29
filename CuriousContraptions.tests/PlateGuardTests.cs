@@ -31,11 +31,11 @@ public sealed class PlateGuardTests
         _ => throw new ArgumentOutOfRangeException(nameof(load))
     };
     private static WorkshopGenericInstance Ball(ulong id, double x, double z) =>
-        WorkshopInput.Generic(PartId.Basketball, new(id), (float)(x), (float)(Face + .345), (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(new PartId("ball"), new(id), (float)(x), (float)(Face + .345), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Bowling(ulong id, double x, double z) =>
-        WorkshopInput.Generic(PartId.BowlingBall, new(id), (float)(x), (float)(Face + .285), (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(new PartId("bowling"), new(id), (float)(x), (float)(Face + .285), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
-        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(new PartId("powered_gate"), new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Battery(ulong id, double z) => PlacedParts.Battery(new(id), 3, (float)(GateHeight), (float)(z));
     private static IWorkshopInstance Lamp(ulong id, double z) => PlacedParts.Lamp(new(id), 6, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
@@ -116,7 +116,7 @@ public sealed class PlateGuardTests
     [InlineData(8.0, true)]
     public async Task ABouncingLoadIsHeldElevenTicksAndReleasedOnTheTwelfth(double drop, bool released)
     {
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(5), -4, (float)(Face + .345 + drop), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"), new(5), -4, (float)(Face + .345 + drop), 0, 0, 0, 0, 1);
         var (bench, plate, _, lamp) = Circuit(.5f, [ball]);
         var reads = await Run(bench, 6 * 120);
         ulong? last = null;
@@ -170,7 +170,7 @@ public sealed class PlateGuardTests
     public async Task AStaticBoxWithThePlateFaceButNoSensorNeverActivates()
     {
         const float height = .4f;
-        var wall = WorkshopInput.Generic(PartId.Wall, new(9), -4, (float)(Face - height / 2), 4, 0, 0, 0, 1,
+        var wall = WorkshopInput.Generic(new PartId("wall"), new(9), -4, (float)(Face - height / 2), 4, 0, 0, 0, 1,
             new([new(new("width"), 1.8f), new(new("height"), height), new(new("thickness"), 1.8f)]));
         var (bench, plate, gate, lamp) = Circuit(.5f, [wall, Ball(10, -4, 4)]);
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));

@@ -37,7 +37,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     {
         var start = 1 + .14 - compression + .075 + .34 + .005;
         var reads = await WorkshopIntegrationHarness.Observe(Free(
-            WorkshopInput.Generic(PartId.Basketball, Ball, 0, (float)(start), 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("ball"), Ball, 0, (float)(start), 0, 0, 0, 0, 1),
             PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, compression)), 2 * TicksPerSecond);
         var rise = reads.Max(read => Y(Body(read, Ball))) - (float)start;
         if (launches) Assert.True(rise > .2f, $"charged rise {rise} m");
@@ -48,7 +48,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     [Fact]
     public async Task AMissedBallGetsNothingFromAChargedBoard()
     {
-        var ball = WorkshopInput.Generic(PartId.Basketball, Ball, 2, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"), Ball, 2, 3, 0, 0, 0, 0, 1);
         var beside = await WorkshopIntegrationHarness.Observe(Free(ball, PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, .2f)), 2 * TicksPerSecond);
         var alone = await WorkshopIntegrationHarness.Observe(Free(ball), 2 * TicksPerSecond);
         for (var i = 0; i < alone.Count; i++)
@@ -60,7 +60,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     [Fact]
     public async Task ThePlateHoldsItsLowerAndUpperStops()
     {
-        var heavy = Free(WorkshopInput.Generic(PartId.BowlingBall, Ball, 0, 4, 0, 0, 0, 0, 1),
+        var heavy = Free(WorkshopInput.Generic(new PartId("bowling"), Ball, 0, 4, 0, 0, 0, 0, 1),
             PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, 0f, stiffness: 120f, damping: 0f));
         var moving = MovingBody(heavy);
         var low = (await WorkshopIntegrationHarness.Observe(heavy, 2 * TicksPerSecond)).Min(read => Y(Body(read, moving)) - 1.14f);
@@ -111,12 +111,12 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
         {
             godot.Tree.Root.AddChild(world);
             world.Registry.Load();
-            var reference = world.Registry.Create(PartId.PoweredGate);
+            var reference = world.Registry.Create(new PartId("powered_gate"));
             world.AddChild(reference); reference.EnsureConstructed();
             var scenePose = reference.GetNode<Node3D>("Visual/Blade").Transform;
             reference.Free();
             var gate = new GpuBodyId(2);
-            var bench = Free(WorkshopInput.Generic(PartId.PoweredGate, gate, 0, 0, 0, 0, 0, 0, 1));
+            var bench = Free(WorkshopInput.Generic(new PartId("powered_gate"), gate, 0, 0, 0, 0, 0, 0, 1));
             await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness)));
             Assert.Equal(WorkshopCommandOutcome.Applied, (await world.ReplaceConstruction(bench)).Result.Outcome);
@@ -134,7 +134,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     [Fact]
     public async Task RunResetAndSaveLoadAreExact()
     {
-        var bench = Free(WorkshopInput.Generic(PartId.Basketball, Ball, 0, (float)(1 + .14 - .2 + .075 + .34 + .005), 0, 0, 0, 0, 1),
+        var bench = Free(WorkshopInput.Generic(new PartId("ball"), Ball, 0, (float)(1 + .14 - .2 + .075 + .34 + .005), 0, 0, 0, 0, 1),
             PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, .2f));
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 2 * TicksPerSecond);
         Assert.True(run.Max(read => Y(Body(read, Ball))) > Y(Body(built, Ball)) + .2f, "the charged board launches the ball");

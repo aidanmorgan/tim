@@ -57,8 +57,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
     public static ElementPortCatalogue FromBundle(IEnumerable<BundleEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
-        return Declare(entries.Select(entry => (Element: new PartId(entry.Metadata.Id), entry.Ports))
-            .Where(element => !UndeliveredParts.Contains(element.Element)));
+        return Declare(entries.Select(entry => (Element: new PartId(entry.Metadata.Id), entry.Ports)));
     }
 
     /// <summary>Admits each element's declared ports, or refuses the whole set naming the first invalid port.</summary>

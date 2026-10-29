@@ -29,8 +29,6 @@ public readonly record struct WorkshopGenericInstance(
     public void Validate()
     {
         if (PartId == default) throw new ArgumentException("Generic instance requires a valid PartId.");
-        // The straight pipe declares its length: it is always a WorkshopPipe (Story 9R.7).
-        if (PartId == PartId.Pipe) throw new ArgumentException("A pipe is a typed WorkshopPipe, never a generic instance.");
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
         Rotation.Validate();
         Parameters.Validate(PartId);

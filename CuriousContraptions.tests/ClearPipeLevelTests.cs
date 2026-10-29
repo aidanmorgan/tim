@@ -27,8 +27,8 @@ public sealed class ClearPipeLevelTests
 
         var fixtures = level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
         AuthoredContentAssertions.Placement(fixtures[0], Payloads.First(construction));
-        AuthoredContentAssertions.Placement(fixtures[1], ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
-        Assert.True(Payloads.First(construction).Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
+        AuthoredContentAssertions.Placement(fixtures[1], ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))));
+        Assert.True(Payloads.First(construction).Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))).Locked);
 
         AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
@@ -38,7 +38,7 @@ public sealed class ClearPipeLevelTests
             construction.Puzzle.PlacementAssistance);
 
         var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
-        Assert.Equal(PartAllowance.Counted(1), inventory[PartId.Pipe]);
+        Assert.Equal(PartAllowance.Counted(1), inventory[new PartId("pipe")]);
     }
 
     [Fact]
@@ -47,12 +47,12 @@ public sealed class ClearPipeLevelTests
         var construction = Lesson(0f);
         construction.Validate();
 
-        var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0.7071068f, 0, 0, 0.7071068f);
+        var pipe = WorkshopInput.Generic(new PartId("pipe"),new(3), 0, 3, 0, 0.7071068f, 0, 0, 0.7071068f);
         var placed = construction.WithInstance(pipe);
         placed.Validate();
 
         // Second pipe exceeds inventory limit
-        var pipe2 = WorkshopInput.Pipe(new(4), 1, 3, 0, 0, 0, 0, 1);
+        var pipe2 = WorkshopInput.Generic(new PartId("pipe"),new(4), 1, 3, 0, 0, 0, 0, 1);
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(pipe2).Validate());
 
         // Locked player pipe is rejected
@@ -60,10 +60,10 @@ public sealed class ClearPipeLevelTests
 
         // Unlocking fixed ball or receiver is rejected
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(Payloads.First(construction) with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))) with { Locked = false }).Validate());
 
         // Unauthorized parts are rejected
-        var ramp = WorkshopInput.Generic(PartId.Ramp, new(5), 0, 1, 0, 0, 0, 0, 1);
+        var ramp = WorkshopInput.Generic(new PartId("ramp"), new(5), 0, 1, 0, 0, 0, 0, 1);
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(ramp).Validate());
 
         // Tampering with assistance profiles is rejected
@@ -78,14 +78,14 @@ public sealed class ClearPipeLevelTests
     public void PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {
         var construction = Lesson((float)precision);
-        var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver));
+        var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket")));
 
         Assert.Equal((float)margin, receiver.Parameters[new("capture_margin")]);
         Assert.Equal((float)speed, receiver.Parameters[new("capture_speed_limit")]);
         Assert.Equal((float)dwell, receiver.Parameters[new("capture_dwell")]);
         Assert.Equal((float)accel, receiver.Parameters[new("force_maximum_acceleration")]);
 
-        var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(new PartId("pipe"),new(3), 0, 3, 0, 0, 0, 0, 1);
         var placed = construction.WithInstance(pipe);
         placed.Validate();
 
@@ -95,14 +95,14 @@ public sealed class ClearPipeLevelTests
         Assert.Equal(save, decoded);
 
         var updated = PuzzleCatalogue.WithPrecision(placed, new(0.45f));
-        Assert.Equal(0.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+        Assert.Equal(0.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == new PartId("basket"))).Parameters[new("capture_margin")]);
     }
 
     [Fact]
     public void CompilerEmitsCompoundCollidersAndSensors()
     {
         var construction = Lesson(0.45f);
-        var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0.7071068f, 0, 0, 0.7071068f);
+        var pipe = WorkshopInput.Generic(new PartId("pipe"),new(3), 0, 3, 0, 0.7071068f, 0, 0, 0.7071068f);
         var placed = construction.WithInstance(pipe);
 
         var scene = WorkshopPhysicsCompiler.Compile(placed, new(1, 2));

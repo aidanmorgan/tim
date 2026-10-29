@@ -14,7 +14,7 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopFormatTests
 {
     private static WorkshopSavedConstruction Saved() => new(new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1), WorkshopInput.Pipe(new(2), 0, 3, 0, 0, 0, 0, 1, new(2)))), new(3));
+        new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("pipe"),new(2), 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), 2)])))), new(3));
 
     [Fact]
     public void NoWireOrSaveRecordDeclaresAFormatVersion()
@@ -27,7 +27,8 @@ public sealed class WorkshopFormatTests
         Assert.DoesNotContain("WorkshopWireVersion", engine);
         Assert.DoesNotContain("WorkshopSaveVersion", engine);
         Assert.DoesNotContain("WorkshopSettingsVersion", engine);
-        var schema = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_wire.fbs"));
+        var schema = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_wire.fbs")) +
+            File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_authoring.fbs"));
         foreach (var table in new[] { "struct CadenceSettingsRecord", "table SavedConstruction", "table WorkshopResponse", "table WorkshopCommand" })
         {
             var start = schema.IndexOf(table, StringComparison.Ordinal);
@@ -51,6 +52,7 @@ public sealed class WorkshopFormatTests
             ["CuriousContraptions.Animation.Worker/Program.cs"] = ["Versioning"],
             ["engine/gpu/BrowserWorkshopObservation.cs"] = ["Versioning"],
             ["engine/gpu/WorkshopWireGenerated.cs"] = ["ValidateVersion"],
+            ["engine/gpu/WorkshopAuthoringGenerated.cs"] = ["ValidateVersion"],
             ["CuriousContraptions.web/wwwroot/native-clock.ts"] = ["fullVersionList", "version"],
             // A handle's slot generation, so a stale handle cannot address a reused slot.
             ["engine/presentation/AnimationBatch.cs"] = ["Version", "version", "_versions"],
@@ -95,7 +97,8 @@ public sealed class WorkshopFormatTests
     [Fact]
     public void TheVersionlessRecordsDeclareExactlyTheirFields()
     {
-        var schema = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_wire.fbs"));
+        var schema = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_wire.fbs")) +
+            File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_authoring.fbs"));
         string[] Fields(string header)
         {
             var start = schema.IndexOf(header + " {", StringComparison.Ordinal);
@@ -109,11 +112,11 @@ public sealed class WorkshopFormatTests
         Assert.Equal(["next_body_id", "construction"], Fields("table SavedConstruction"));
         Assert.Equal(["sequence", "kind", "outcome", "reason", "phase", "epoch", "tick", "revision", "publication", "master_generation",
             "cadence", "projection", "session", "capture", "bodies", "captures", "activations", "timers", "contact_works",
-            "electrical", "activation_memory", "motion", "memory", "actuator_drives", "contact_loads", "electrical_logic", "construction"], Fields("table WorkshopResponse"));
+            "electrical", "activation_memory", "motion", "memory", "actuator_drives", "contact_loads", "electrical_logic", "scene"], Fields("table WorkshopResponse"));
         Assert.Equal(["used_before", "used_after", "duration_ticks", "frequency", "allocated_before", "allocated_after", "collections_before",
             "collections_after"], Fields("struct MemoryObservationRecord"));
-        Assert.Equal(["sequence", "kind", "epoch", "revision", "revision_kind", "session", "cadence", "projection", "electrical", "settings",
-            "target", "construction_record"], Fields("table WorkshopCommand"));
+        Assert.Equal(["sequence", "kind", "epoch", "revision", "revision_kind", "session", "cadence", "projection", "electrical",
+            "target", "scene"], Fields("table WorkshopCommand"));
         // The generated settings struct takes exactly the six words (builder plus six arguments).
         Assert.Equal(7, typeof(CuriousContraptions.Wire.CadenceSettingsRecord).GetMethod("CreateCadenceSettingsRecord")!.GetParameters().Length);
     }
@@ -123,7 +126,7 @@ public sealed class WorkshopFormatTests
     {
         // A well-formed buffer of another root (a command) and a save whose construction table is absent.
         var command = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
-            Saved().Construction, Session: new(1, 2), Cadence: new(1), Projection: new(1)));
+            CompiledSceneFixture.Compile(Saved().Construction), Session: new(1, 2), Cadence: new(1), Projection: new(1)));
         SaveFixture.Refused(WorkshopSaveRejection.UnknownIdentifier, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,command));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(64);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);

@@ -45,7 +45,7 @@ internal sealed class WorkshopIntegrationClient(WorkshopIntegrationHarness harne
     }
     public void SetDeclaredVisible(GpuBodyId owner, bool visible)
     {
-        foreach (var target in WorkshopDeclaredPresentation.Targets(harness.Construction))
+        foreach (var target in WorkshopDeclaredPresentation.Targets(harness.Simulation.Scene))
             if (target.Owner == owner)
             {
                 var part = harness.Construction.Instances.Single(instance => instance.Id == owner);

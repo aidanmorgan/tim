@@ -510,7 +510,7 @@ public sealed class WorkshopWireTests
         var candidate = cursor.PrepareAcknowledgement(command, response, order, disposed);
         cursor.Commit(candidate); return new(response, candidate.Applicable);
     }
-    private static WorkshopConstruction Construction => new(new(2), Settings, new(WorkshopInput.Generic(PartId.Basketball,new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1)));
+    private static WorkshopConstruction Construction => new(new(2), Settings, new(WorkshopInput.Generic(new PartId("ball"),new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1)));
 
 
     [Fact]
@@ -623,7 +623,7 @@ public sealed class WorkshopWireTests
             else history.Commit(history.Prepare(response, mapped, boundary, 1));
         }
         var building = Response(1, WorkshopResponseKind.Acknowledgement, 0, 1, 100_000_000, WorkshopSimulationPhase.Building);
-        var initialized = new WorkshopCommand(new(1), WorkshopCommandKind.Initialize, new(1), default, null, Session: peer.Session, Settings: Settings);
+        var initialized = new WorkshopCommand(new(1), WorkshopCommandKind.Initialize, new(1), default, CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), Session: peer.Session);
         cursor.Commit(cursor.PrepareAcknowledgement(initialized, building, 0, false));
         Admit(building, PresentationBoundary.Seed);
         Assert.True(history.TryPresent(new(100_000_000), new(100_000_000), clock, out _));
@@ -780,7 +780,7 @@ public sealed class WorkshopWireTests
     [Fact]
     public void AuthorityRevisionIsSeparateAndAnyControlSurvivesLaterTicks()
     {
-        var exact = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(3), new(9), Construction, Session: Session, Cadence: new(1), Projection: new(1));
+        var exact = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(3), new(9), CompiledSceneFixture.Compile(Construction), Session: Session, Cadence: new(1), Projection: new(1));
         Assert.True(WorkshopMessages.Matches(exact, new(3), new(9), Session, new(1), new(1)));
         Assert.False(WorkshopMessages.Matches(exact, new(3), new(10), Session, new(1), new(1)));
         var reset = new WorkshopCommand(new(2), WorkshopCommandKind.Reset, new(3), default, null,
@@ -842,7 +842,10 @@ public sealed class WorkshopWireTests
         Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)));
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(command with { Target = null }));
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(56), 0);
+        var buffer = new Google.FlatBuffers.ByteBuffer(bytes);
+        var root = new Google.FlatBuffers.Table(4 + buffer.GetInt(4), buffer);
+        var targetOffset = root.bb_pos + root.__offset(4 + 2 * 9);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(targetOffset), 0);
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
     }
 
@@ -865,9 +868,12 @@ public sealed class WorkshopWireTests
             Rotation = new(BitConverter.UInt32BitsToSingle(0x80000000), 0f, 0f, 1f)
         };
         var command = new WorkshopCommand(new(0x20000000000001), WorkshopCommandKind.Construct,
-            new(0x30000000000001), new(1), Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(ball), Session: Session, Cadence: new(1), Projection: new(1));
+            new(0x30000000000001), new(1), CompiledSceneFixture.Compile(Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(ball)), Session: Session, Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
-        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(bytes));
+        var decoded = WorkshopWireFlatBuffers.DecodeCommand(bytes);
+        Assert.Equal(command with { Scene = null }, decoded with { Scene = null });
+        Assert.Equal(command.Scene!.Identity, decoded.Scene!.Identity);
+        Assert.Equal(command.Scene.Physics.Bodies.ToArray(), decoded.Scene.Physics.Bodies.ToArray());
     }
 
 
@@ -893,8 +899,8 @@ public sealed class WorkshopWireTests
         Assert.Equal(2, owned.Length);
         Assert.All(owned, collider => Assert.Equal(OnlyBall(Construction).Id, collider.Body));
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
-            Construction, Session: Session, Cadence: new(1), Projection: new(1));
-        Assert.Equal(OnlyBall(Construction).Id, OnlyBall(WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)).Construction!.Value).Id);
+            CompiledSceneFixture.Compile(Construction), Session: Session, Cadence: new(1), Projection: new(1));
+        Assert.Equal(OnlyBall(Construction).Id, Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)).Scene!.Owners));
     }
 
     private static byte[] GenericAdmission() => PhysicsGpuAbi.Admission(GenericScene, new(2), Profile);
@@ -1070,7 +1076,7 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ByteLength(new byte[PhysicsGpuAbi.HeaderBytes - 1]));
         // A candidate world one collider longer than its source never validates against it.
         var longer = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction.WithoutInstance(OnlyBall(Construction).Id)
-            .WithInstance(OnlyBall(Construction) with { Id = new(1) }).WithInstance(WorkshopInput.Generic(PartId.Wall, new(2), 4, 2, 0, 0, 0, 0, 1, WallFixture.Default)),
+            .WithInstance(OnlyBall(Construction) with { Id = new(1) }).WithInstance(WorkshopInput.Generic(new PartId("wall"), new(2), 4, 2, 0, 0, 0, 0, 1, WallFixture.Default)),
             new(101, 206)), new(2), Profile);
         // Story 9R.5b: the Wall also adds a body and a material row, so the exact length follows the longer world's own layout.
         Assert.Equal(colliders + 1, PhysicsGpuAbi.Layout(longer).Colliders);
@@ -1358,15 +1364,15 @@ public sealed class WorkshopWireTests
         var held = new TaskCompletionSource<byte[]>();
         var applied = new List<WorkshopCommand>();
         var router = new WorkshopCommandRouter(command => { applied.Add(command); return held.Task; });
-        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), Construction, Session: Session, Cadence: new(1), Projection: new(1));
+        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(Construction), Session: Session, Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         var first = router.Dispatch(bytes);
         var duplicate = router.Dispatch((byte[])bytes.Clone());
         Assert.Same(first.Response, duplicate.Response);
         Assert.Equal(command.Sequence, duplicate.Sequence);
-        Assert.Throws<ArgumentException>(() => router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(command with { Kind = WorkshopCommandKind.Run, Construction = null })));
+        Assert.Throws<ArgumentException>(() => router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(command with { Kind = WorkshopCommandKind.Run, Scene = null })));
         Assert.Throws<ArgumentException>(() => router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(command with { Epoch = new(2) })));
-        var different = command with { Construction = Construction.WithoutInstance(OnlyBall(Construction).Id) };
+        var different = command with { Scene = CompiledSceneFixture.Compile(Construction.WithoutInstance(OnlyBall(Construction).Id)) };
         Assert.Throws<ArgumentException>(() => router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(different)));
         held.SetResult([1, 2, 3]);
         Assert.Equal(new byte[] { 1, 2, 3 }, await first.Response);

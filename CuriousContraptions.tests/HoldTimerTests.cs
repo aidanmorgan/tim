@@ -27,18 +27,57 @@ public sealed class HoldTimerTests
     {
         IWorkshopInstance[] parts =
         [
-            WorkshopInput.Generic(PartId.Basketball,new(1),0,3,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.ImpactSwitch, new(2),0,1,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("ball"),new(1),0,3,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("switch"), new(2),0,1,0,0,0,0,1),
             Part(seconds),
             PlacedParts.Battery(new(4), 6, 3, 0),
-            WorkshopInput.Generic(PartId.PoweredGate,new(5),9,3,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.Delay,new(6),-3,2,0,0,0,0,1,
+            WorkshopInput.Generic(new PartId("powered_gate"),new(5),9,3,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("delay"),new(6),-3,2,0,0,0,0,1,
                 new([new(new ParameterId("delay_seconds"),.1f)]))
         ];
         var links = delayed ? new WorkshopConnections(Signal(2,6),Signal(6,3),Power(3,5))
             : new WorkshopConnections(Signal(2,3),Power(3,5));
         if (supply) links = links.With(Power(4,3));
         return new(new(2),WorkshopCadenceSettings.Default(),new(parts),Connections:links);
+    }
+
+
+    [Theory]
+    [InlineData(SimulationCadence.Hz240, 480UL)]
+    [InlineData(SimulationCadence.Hz60, 120UL)]
+    public async Task ResetThenCadenceChangeUsesTheNewCompiledTimerDuration(SimulationCadence cadence, ulong duration)
+    {
+        await using var world = await WorkshopIntegrationHarness.Building(Construction(2f));
+        await world.Run();
+        for (var tick = 0; tick < 10 * (int)world.Construction.Settings.SimulationRate.Numerator &&
+            State(world.Committed).Phase != ActivationTimerPhase.Counting; tick++)
+            await world.Advance(1);
+        Assert.Equal(ActivationTimerPhase.Counting, State(world.Committed).Phase);
+        Assert.Equal(240UL, State(world.Committed).DueTick - State(world.Committed).StartedTick);
+        await world.Reset();
+        var previous = world.Simulation.Scene;
+        var changed = world.Construction.Settings with { Simulation = cadence };
+        Assert.Equal(WorkshopCommandOutcome.Applied,
+            (await world.Execute(WorkshopCommandKind.ConfigureCadence, settings: changed)).Result.Outcome);
+        Assert.Equal(previous.Revision, world.Simulation.Scene.Revision);
+        Assert.NotEqual(previous.Identity, world.Simulation.Scene.Identity);
+        await world.Run();
+        for (var tick = 0; tick < 10 * (int)changed.SimulationRate.Numerator &&
+            State(world.Committed).Phase != ActivationTimerPhase.Counting; tick++)
+            await world.Advance(1);
+        var started = State(world.Committed);
+        Assert.Equal(ActivationTimerPhase.Counting, started.Phase);
+        Assert.Equal(duration, started.DueTick - started.StartedTick);
+        // The physical trigger starts the timer after this tick's supply evaluation.
+        Assert.False(Powered(world.Committed));
+        await world.Advance(1);
+        Assert.Equal(ActivationTimerPhase.Counting, State(world.Committed).Phase);
+        Assert.True(Powered(world.Committed));
+        await world.Advance(checked((int)(started.DueTick - world.Committed.Tick.Value)));
+        Assert.Equal(ActivationTimerPhase.Ready, State(world.Committed).Phase);
+        Assert.False(Powered(world.Committed));
+        await world.Reset();
+        Assert.Equal(ActivationTimerPhase.Ready, State(world.Committed).Phase);
     }
 
     [Theory]
@@ -182,7 +221,7 @@ public sealed class HoldTimerTests
     {
         var construction=Construction(.1f);
         var parts=construction.Instances.Select(instance=>instance.Id.Value==6
-            ? (IWorkshopInstance)WorkshopInput.Generic(PartId.Delay,new(6),-3,2,0,0,0,0,1,new([new(new ParameterId("delay_seconds"),.2f)]))
+            ? (IWorkshopInstance)WorkshopInput.Generic(new PartId("delay"),new(6),-3,2,0,0,0,0,1,new([new(new ParameterId("delay_seconds"),.2f)]))
             : instance).ToArray();
         construction=construction with {Instances=new(parts),Connections=construction.Connections.With(Signal(2,6)).With(Signal(6,3))};
         var (_,reads,_)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
@@ -205,9 +244,9 @@ public sealed class HoldTimerTests
         {
             await using var device = new CandidateTransport();
             await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(),
-                WorkshopCadenceSettings.Default(), new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+                CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)), new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(construction))).Outcome);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
             while (simulation.Committed.Tick.Value < before.Tick.Value)
                 Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
@@ -253,8 +292,8 @@ public sealed class HoldTimerTests
         var original=Construction(.2f,delayed:true);
         var parts=original.Instances.ToArray().Concat(new IWorkshopInstance[]
         {
-            WorkshopInput.Generic(PartId.Basketball,new(7),12,5.96f,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.ImpactSwitch, new(8),12,1,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("ball"),new(7),12,5.96f,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("switch"), new(8),12,1,0,0,0,0,1),
             PlacedParts.Lamp(new(9),15,2,0,0,0,0,1)
         }).ToArray();
         var baseline=original with {Instances=new(parts),Connections=original.Connections.With(Signal(6,9)).With(Signal(8,9))};
@@ -270,7 +309,7 @@ public sealed class HoldTimerTests
         var seconds=(float)ticks/120f;
         Assert.Equal((float)ticks,MathF.Ceiling(seconds*120f));
         parts=parts.Select(part=>part.Id.Value==6
-            ? WorkshopInput.Generic(PartId.Delay,new(6),-3,2,0,0,0,0,1,
+            ? WorkshopInput.Generic(new PartId("delay"),new(6),-3,2,0,0,0,0,1,
                 new([new(new ParameterId("delay_seconds"),seconds)])) : part).ToArray();
         var (_,reads,_)=await WorkshopIntegrationHarness.ObserveReset(baseline with {Instances=new(parts)},180);
         var due=reads.Single(read=>read.Tick.Value==second.Tick.Value);
@@ -335,7 +374,7 @@ public sealed class HoldTimerTests
         private readonly WorkshopGpuDevice _device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(
             new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         public Func<WorkshopRead, WorkshopRead>? Transform { get; set; }
-        public ValueTask<WorkshopGpuCandidate> Admit(WorkshopConstruction construction, SimulationEpoch epoch,
+        public ValueTask<WorkshopGpuCandidate> Admit(WorkshopCompiledScene construction, SimulationEpoch epoch,
             WorkshopGpuProfile profile, CommandSequence sequence) => _device.Admit(construction, epoch, profile, sequence);
         public async ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead source, CommandSequence sequence, WorkshopTickControls controls)
         {
@@ -380,7 +419,7 @@ public sealed class HoldTimerTests
         var construction=Construction(.1f,delayed:true);
         var profile=new WorkshopGpuProfile(SimulationCadence.Hz120,PhysicalStepProfile.Canonical480Hz,new(1));
         ulong sequence=1;
-        var candidate=await device.Admit(construction,new(1),profile,new(sequence++));
+        var candidate=await device.Admit(CompiledSceneFixture.Compile(construction),new(1),profile,new(sequence++));
         var committed=candidate.Read; device.Commit(candidate.Sequence); device.Discard(candidate.Sequence);
         var controls=new WorkshopTickControls([ElectricalEnable.Enabled]);
         ulong due=0;
@@ -432,7 +471,7 @@ public sealed class HoldTimerPresentationTests(NativeSceneFixture godot)
         var first=reads.First(read=>HoldTimerTests.State(read).Phase==ActivationTimerPhase.Counting);
         var due=HoldTimerTests.State(first).DueTick;
         var expired=reads.Single(read=>read.Tick.Value==due);
-        var evaluator=new WorkshopDeclaredPresentation(construction,Response(first,1));
+        var evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),Response(first,1));
         var registry=new PartRegistry(); registry.Load();
         var part=registry.Create(HoldTimerTests.Kind); var untouched=registry.Create(HoldTimerTests.Kind);
         try
@@ -447,7 +486,7 @@ public sealed class HoldTimerPresentationTests(NativeSceneFixture godot)
             Assert.Equal(.5f,bar.GetNode<Node3D>("Bar").Position.X);
             Assert.Equal(new Color("#f7cb52"),material.AlbedoColor);
             Assert.False(untouched.GetNode<Node3D>("Visual/Remaining").Visible); // no binding delivery: positive state is absent
-            var target=WorkshopDeclaredPresentation.Targets(construction).First(row=>row.Owner.Value==3).Target;
+            var target=WorkshopDeclaredPresentation.Targets(CompiledSceneFixture.Compile(construction)).First(row=>row.Owner.Value==3).Target;
             evaluator.SetVisible(target,AnimationProperty.UniformScale,false);
             evaluator.Accept(Response(expired,2));
             Assert.DoesNotContain(evaluator.Advance(AnimationTestTime.Seconds(time+.2)),sample=>sample.Owner.Value==3);

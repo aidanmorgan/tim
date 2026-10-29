@@ -74,10 +74,10 @@ public sealed class WeightTests(ITestOutputHelper output)
         Bench(weight).Validate();
         Assert.Equal(new Kilograms(mass), Assert.Single(WorkshopPhysicsCompiler.Compile(Bench(weight), new(1, 2)).Bodies.ToArray(),
             body => body.Id == weight.Id).Mass);
-        var bytes = PayloadInstanceTests.GenericSave("weight", null, [("mass", mass)]);
+        var bytes = PayloadInstanceTests.GenericSave("weight", [("mass", mass)]);
         var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances));
         Assert.Equal(BitConverter.SingleToUInt32Bits(mass), BitConverter.SingleToUInt32Bits(loaded.Parameters[MassKey]));
-        var command = Assert.IsType<WorkshopGenericInstance>(WorkshopWireFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value));
+        var command = Assert.IsType<WorkshopGenericInstance>(WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value));
         Assert.Equal(BitConverter.SingleToUInt32Bits(mass), BitConverter.SingleToUInt32Bits(command.Parameters[MassKey]));
     }
 
@@ -106,10 +106,10 @@ public sealed class WeightTests(ITestOutputHelper output)
         Assert.Equal(4f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,
             WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(admitted, new(2)))).Construction.Instances)).Parameters[MassKey]);
 
-        var bytes = PayloadInstanceTests.GenericSave("weight", null, [("mass", mass)]);
+        var bytes = PayloadInstanceTests.GenericSave("weight", [("mass", mass)]);
         SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
         var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
-        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
     }
 
     // The count check: a Weight record without its mass is not filled from the default and not migrated, and an undeclared key is refused,
@@ -122,14 +122,12 @@ public sealed class WeightTests(ITestOutputHelper output)
         Assert.Throws<ArgumentException>(() => new InstanceParameterCollection([new(MassKey, 4f), new(new("radius"), .3f)]).Validate(Weight));
         foreach (var parameters in new (string, float)[]?[] { null, [], [("radius", 4f)], [("mass", 4f), ("radius", .3f)] })
         {
-            var bytes = PayloadInstanceTests.GenericSave("weight", null, parameters);
+            var bytes = PayloadInstanceTests.GenericSave("weight", parameters);
             SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
             var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
-            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
+            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
         }
         // A typed record field is no Weight field either.
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            PayloadInstanceTests.GenericSave("weight", TypedField.Length, [("mass", 4f)])));
     }
 
     // ---------------- compile ----------------
@@ -311,7 +309,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     private static WorkshopGenericInstance Ramp(ulong id, float lift = 0f)
     {
         var half = -RampDegrees * Math.PI / 360;
-        return WorkshopInput.Generic(PartId.Ramp, new(id), (float)(RampCentre.X), (float)(RampCentre.Y + lift), (float)(RampCentre.Z), 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
+        return WorkshopInput.Generic(new PartId("ramp"), new(id), (float)(RampCentre.X), (float)(RampCentre.Y + lift), (float)(RampCentre.Z), 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
     }
 
     /// <summary>A Weight lying on its side (axis along world Z, centred at z = 0) on the Ramp's top face, `along` metres from its
@@ -670,9 +668,9 @@ public sealed class WeightTests(ITestOutputHelper output)
         var construction = Bench(Placed(1, origin.X, origin.Y, origin.Z, 4, rotation.X, rotation.Y, rotation.Z, rotation.W));
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(),
-            WorkshopCadenceSettings.Default(), new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+            CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)), new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(construction))).Outcome);
         var built = simulation.Committed;
         async Task<List<WorkshopRead>> Run()
         {
@@ -738,7 +736,7 @@ public sealed class WeightTests(ITestOutputHelper output)
         SameState(built, simulation.Committed);
         Assert.Equal(WorkshopCommandOutcome.Applied, simulation.Save().Outcome);
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(simulation.Construction, new(2))));
+            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(2))));
         var replay = await Run();
         var (_, fresh, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 1200, includeBuilt: true);
         for (var tick = 0; tick < first.Count; tick++)
@@ -820,7 +818,7 @@ public sealed class WeightTests(ITestOutputHelper output)
             Assert.Equal(BitConverter.SingleToUInt32Bits(expected.Parameters[MassKey]), BitConverter.SingleToUInt32Bits(actual.Parameters[MassKey]));
             // The stored record is the generic one: its part id and one declared parameter, no typed field.
             var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(i)!.Value;
-            Assert.Equal(("weight", false, 1), (record.PartId, WorkshopWireFlatBuffers.CarriesTypedField(record), record.ParametersLength));
+            Assert.Equal(("weight", 1), (record.PartId, record.ParametersLength));
         }
         // The reloaded construction runs as the saved one: the same bodies, poses and motion within the 0.05 mm late-motion bound.
         var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(construction, Rate, includeBuilt: true);

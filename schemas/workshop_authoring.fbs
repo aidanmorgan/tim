@@ -1,0 +1,83 @@
+include "workshop_wire.fbs";
+namespace CuriousContraptions.Wire;
+
+struct CadenceSettingsRecord {
+    simulation: uint32;
+    physical: uint32;
+    animation: uint32;
+    presentation: uint32;
+    presentation_rate_numerator: uint32;
+    presentation_rate_denominator: uint32;
+}
+
+struct ConnectionRecord {
+    source: uint64;
+    target: uint64;
+    domain: uint32;
+    from_socket: uint32;
+    to_socket: uint32;
+}
+
+// One authored assistance knot (Story 9A.44): eleven f32 lanes. A puzzle record carries exactly nine, the forgiving, balanced
+// and precise knots of its primary, target and placement profiles in that order.
+struct AssistanceKnotRecord {
+    precision: float;
+    position_window: float;
+    rotation_window_degrees: float;
+    maximum_position_correction: float;
+    maximum_rotation_correction_degrees: float;
+    blend: float;
+    capture_margin: float;
+    capture_speed: float;
+    capture_dwell: float;
+    guide_acceleration: float;
+    trigger_threshold: float;
+}
+
+table ParameterRecord {
+    key: string (required);
+    value: float;
+}
+
+table InstanceRecord {
+    id: uint64;
+    part_id: string;
+    locked: bool;
+    cell: Vec3i;
+    local: Vec3f;
+    rotation: Quat4f;
+
+    // Pipe
+
+    parameters: [ParameterRecord];
+}
+
+table PuzzleRecord {
+    id: string (required);
+    placement: uint32;
+    precision: float;
+    inventory_part: string;
+    inventory_count: uint32;
+    goal_kind: uint32;
+    goal_body: uint64;
+    goal_target: uint64;
+    goal_delay: float;
+    assistance: [AssistanceKnotRecord] (required);
+}
+
+table ConstructionRecord {
+    revision: uint64;
+    settings: CadenceSettingsRecord;
+    puzzle: PuzzleRecord;
+    instances: [InstanceRecord];
+    connections: [ConnectionRecord];
+}
+
+table SavedConstruction {
+    next_body_id: uint64;
+    construction: ConstructionRecord;
+}
+
+
+root_type SavedConstruction;
+file_identifier "CCWS";

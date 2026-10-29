@@ -94,7 +94,7 @@ public sealed class WorkshopSaveTests
         else instance["parameters"]!["capture_participation"] = 0; // Valid parameter, but not the granted configuration.
         using var json = System.Text.Json.JsonDocument.Parse(instance.ToJsonString());
         var template = AuthoredInstanceReader.Parse(json.RootElement, "independently valid receiver");
-        var receiver = before.Instances.Single(row => row.PartId == PartId.Receiver);
+        var receiver = before.Instances.Single(row => row.PartId == new PartId("basket"));
         template.Create(receiver.Id, new(0)).Validate();
         var balanced = template.Create(receiver.Id, new(.45f));
         balanced.Validate();
@@ -102,7 +102,7 @@ public sealed class WorkshopSaveTests
         {
             Assert.Equal(receiver, balanced);
             var forgiving = PuzzleCatalogue.CreateSolution(id, new(1), WorkshopCadenceSettings.Default(), new(1), new(0));
-            Assert.NotEqual(forgiving.Instances.Single(row => row.PartId == PartId.Receiver), template.Create(receiver.Id, new(0)));
+            Assert.NotEqual(forgiving.Instances.Single(row => row.PartId == new PartId("basket")), template.Create(receiver.Id, new(0)));
         }
         var refusal = Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(content.ToJsonString()));
         Assert.Contains("inventory configuration differs", refusal.Message, StringComparison.Ordinal);
@@ -170,9 +170,9 @@ public sealed class WorkshopSaveTests
     {
         _ = SaveFixture.Elements;
         var initial = PuzzleCatalogue.Create(new("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
-        var input = WorkshopInput.Generic(PartId.Receiver, new(8), 2.25f, 1.75f, .5f, 0, 0, 0, 1);
+        var input = WorkshopInput.Generic(new PartId("basket"), new(8), 2.25f, 1.75f, .5f, 0, 0, 0, 1);
         var valid = initial.WithInstance(input); valid.Validate();
-        var receiver = ((WorkshopGenericInstance)valid.Instances.Single(instance => instance.PartId == PartId.Receiver));
+        var receiver = ((WorkshopGenericInstance)valid.Instances.Single(instance => instance.PartId == new PartId("basket")));
         Assert.Equal(input.Cell, receiver.Cell); Assert.Equal(input.Local, receiver.Local); Assert.Equal(input.Rotation, receiver.Rotation);
         Assert.Equal(receiver.Id, valid.Puzzle.Goal.Target);
         var saved = new WorkshopSavedConstruction(valid, new(9));
@@ -192,7 +192,7 @@ public sealed class WorkshopSaveTests
         var bad = valid with { Instances = valid.Instances.With(forged) };
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, bad.Validate);
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, bad, validate: false);
+        var record = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, bad, validate: false);
         var bytes = SaveFixture.Finish(builder, record, 9);
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved)));
@@ -362,7 +362,7 @@ public sealed class WorkshopSaveTests
         var values = receiver.Parameters.ToDictionary(); values[new(parameter)] = value;
         var malformed = saved.Construction with { Instances = saved.Construction.Instances.With(receiver with { Parameters = new(values) }) };
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformed, validate: false);
+        var crOffset = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, malformed, validate: false);
         var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
         SaveFixture.Refused(float.IsFinite(value) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite,
             () => WorkshopSaveCodec.Decode(SaveFixture.Elements, savedBytes));
@@ -374,8 +374,8 @@ public sealed class WorkshopSaveTests
 
     private static WorkshopSavedConstruction Saved()
     {
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), .125f, 3, -.25f, 0, 0, 0, 1);
-        var receiver = WorkshopInput.Generic(PartId.Receiver, new(3), .5f, 1, -.5f, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new(2), .125f, 3, -.25f, 0, 0, 0, 1);
+        var receiver = WorkshopInput.Generic(new PartId("basket"), new(3), .5f, 1, -.5f, 0, 0, 0, 1);
         return new(new(new(9), WorkshopCadenceSettings.Default(), new(ball, receiver)), new(7));
     }
 
@@ -399,7 +399,7 @@ public sealed class WorkshopSaveTests
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         Google.FlatBuffers.Offset<CuriousContraptions.Wire.ConstructionRecord>? crOffset = includeConstruction
-            ? WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction)
+            ? WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction)
             : null;
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, nextBodyId);
@@ -416,7 +416,7 @@ public sealed class WorkshopSaveTests
         SaveFixture.Refused(WorkshopSaveRejection.Truncated, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes.AsSpan(..10)));
         SaveFixture.Refused(WorkshopSaveRejection.TrailingBytes, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,[.. bytes, 0]));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction);
+        var crOffset = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction);
         var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
         SaveFixture.Refused(WorkshopSaveRejection.InvalidAllocator, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Encode(Saved() with { NextBodyId = new(3) }));
@@ -463,8 +463,8 @@ public sealed class WorkshopSaveTests
     public void TwoRampInstancesKeepDistinctCanonicalDimensionsThroughSaveAndCompile()
     {
         var saved = Saved();
-        var a = WorkshopInput.Generic(PartId.Ramp, new(4), -3.4f, 4.3f, 0, 0, 0, 0, 1);
-        var b = WorkshopInput.Generic(PartId.Ramp, new(5), -.7f, 2.7f, 0, 0, 0, 0, 1, new([new(new("length"), 2.5f), new(new("width"), .75f)])) with { Locked = true };
+        var a = WorkshopInput.Generic(new PartId("ramp"), new(4), -3.4f, 4.3f, 0, 0, 0, 0, 1);
+        var b = WorkshopInput.Generic(new PartId("ramp"), new(5), -.7f, 2.7f, 0, 0, 0, 0, 1, new([new(new("length"), 2.5f), new(new("width"), .75f)])) with { Locked = true };
         saved = saved with { Construction = saved.Construction.WithInstance(a).WithInstance(b) };
         var bytes = WorkshopSaveCodec.Encode(saved);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
@@ -504,12 +504,12 @@ public sealed class WorkshopSaveTests
         var copy = new WorkshopInstances(input);
         input[0] = input[1];
         Assert.Equal(first.Instances, copy);
-        var receiver = ((WorkshopGenericInstance)first.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Id = Payloads.First(first).Id };
-        var changed = first.WithoutInstance(((WorkshopGenericInstance)first.Instances.Single(instance => instance.PartId == PartId.Receiver)).Id).WithInstance(receiver);
+        var receiver = ((WorkshopGenericInstance)first.Instances.Single(instance => instance.PartId == new PartId("basket"))) with { Id = Payloads.First(first).Id };
+        var changed = first.WithoutInstance(((WorkshopGenericInstance)first.Instances.Single(instance => instance.PartId == new PartId("basket"))).Id).WithInstance(receiver);
         changed.Validate();
         Assert.NotNull(Payloads.Find(first));
         Assert.Null(Payloads.Find(changed));
-        Assert.Equal(receiver.Id, ((WorkshopGenericInstance)changed.Instances.Single(instance => instance.PartId == PartId.Receiver)).Id);
+        Assert.Equal(receiver.Id, ((WorkshopGenericInstance)changed.Instances.Single(instance => instance.PartId == new PartId("basket"))).Id);
         var saved = new WorkshopSavedConstruction(changed, new(7));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
     }
@@ -520,7 +520,7 @@ public sealed class WorkshopSaveTests
         var saved = Saved();
         var duplicate = saved.Construction with { Instances = new(Payloads.First(saved.Construction), Payloads.First(saved.Construction)) };
         Assert.Throws<ArgumentException>(duplicate.Validate);
-        var ramp = WorkshopInput.Generic(PartId.Ramp, new(4), 0, 3, 0, 0, 0, 0, 1);
+        var ramp = WorkshopInput.Generic(new PartId("ramp"), new(4), 0, 3, 0, 0, 0, 0, 1);
         foreach (var value in new[] { 0f, (-1f), 4.5f, float.NaN, float.PositiveInfinity })
         {
             var invalid = saved with { Construction = saved.Construction.WithInstance(ramp with { Parameters = new([new(new("length"), (float)value), new(new("width"), 1f)]) }) };
@@ -538,13 +538,13 @@ public sealed class WorkshopSaveTests
     {
         var precision = new PuzzlePrecision((float)value);
         var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(11), precision);
-        var a = WorkshopInput.Generic(PartId.Ramp, new(13), -3.4f, 4.3f, 0, 0, 0, 0, 1);
-        var b = WorkshopInput.Generic(PartId.Ramp, new(14), -.7f, 2.7f, 0, 0, 0, 0, 1, new([new(new("length"), 2.5f), new(new("width"), 1f)]));
+        var a = WorkshopInput.Generic(new PartId("ramp"), new(13), -3.4f, 4.3f, 0, 0, 0, 0, 1);
+        var b = WorkshopInput.Generic(new PartId("ramp"), new(14), -.7f, 2.7f, 0, 0, 0, 0, 1, new([new(new("length"), 2.5f), new(new("width"), 1f)]));
         construction = construction.WithInstance(a).WithInstance(b);
         var saved = new WorkshopSavedConstruction(construction, new(15));
         var bytes = WorkshopSaveCodec.Encode(saved);
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
-        Assert.True(Payloads.First(construction).Locked); Assert.True(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
+        Assert.True(Payloads.First(construction).Locked); Assert.True(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))).Locked);
         Assert.Equal(new GpuBodyId(11), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(12), construction.Puzzle.Goal.Target);
         Assert.Equal(2u, construction.Puzzle.InventoryCount);
@@ -555,7 +555,7 @@ public sealed class WorkshopSaveTests
         {
             updated = PuzzleCatalogue.WithPrecision(updated, new(knot));
             var expected = ((WorkshopGenericInstance)PuzzleCatalogue.Definition(new("first_principles")).Placements[1].Instance.Create(construction.Puzzle.Goal.Target, new(knot)));
-            Assert.Equal(expected, updated.Instances.Single(instance => instance.PartId == PartId.Receiver));
+            Assert.Equal(expected, updated.Instances.Single(instance => instance.PartId == new PartId("basket")));
             var guide = Assert.Single(WorkshopPhysicsCompiler.Compile(updated, new(1, 2)).Guides.ToArray());
             Assert.Equal((float)expected.Parameters[new("force_maximum_acceleration")], guide.MaximumAcceleration.Value);
             Assert.Equal((float)expected.Parameters[new("force_support_margin")], guide.SupportMargin.Value);
@@ -640,7 +640,7 @@ public sealed class WorkshopSaveTests
 
     private static WorkshopSavedConstruction ActivationSaved()
     {
-        var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1);
+        var trigger = WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1);
         var link = new WorkshopConnection(trigger.Id, WorkshopSocket.ActivationOut, lamp.Id,
             WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
@@ -689,10 +689,13 @@ public sealed class WorkshopSaveTests
     public void AConstructCommandWithTrailingBytesRejectsBeforeAdmission()
     {
         var save = ActivationSaved();
-        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), save.Construction,
+        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(save.Construction),
             Session: new(1, 2), Cadence: new(1), Projection: new(1));
         var wire = WorkshopWireFlatBuffers.EncodeCommand(command);
-        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(wire));
+        var decoded = WorkshopWireFlatBuffers.DecodeCommand(wire);
+        Assert.Equal(command.Sequence, decoded.Sequence);
+        Assert.Equal(command.Scene!.Identity, decoded.Scene!.Identity);
+        Assert.Equal(command.Scene.Owners, decoded.Scene.Owners);
         Assert.Equal(WireFaultReason.TrailingBytes, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand([.. wire, 9])).Reason);
     }
 

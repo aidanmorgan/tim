@@ -14,7 +14,7 @@ public sealed class ElectricalSupplyTests
     public void F32AuthoringWiringAndSaveRoundTripWithAtomicAmbiguousSourceRejection(ElectricalEnable enabled)
     {
         var battery = PlacedParts.Battery(new(1), 0, 0, 0, 3600.0002f, 120.00001f, .1234567f, enabled);
-        var bumper = WorkshopInput.Generic(PartId.PinballBumper, new(2), 3, 4, 0, 0, 0, 0, 1);
+        var bumper = WorkshopInput.Generic(new PartId("bumper"), new(2), 3, 4, 0, 0, 0, 0, 1);
         var link = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, bumper.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(battery, bumper), Connections: new(link));
@@ -27,7 +27,7 @@ public sealed class ElectricalSupplyTests
         {
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var values = battery.Parameters.ToDictionary(); values[new("enabled")] = undefined;
-            var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction with
+            var record = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, construction with
                 { Instances = new(battery with { Parameters = new(values) }, bumper) }, validate: false);
             var savedBytes = SaveFixture.Finish(builder, record, 3);
             SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, savedBytes));

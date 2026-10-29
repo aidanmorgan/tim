@@ -10,7 +10,7 @@ internal interface IWorkshopObservationObject<T> : IDisposable where T : IWorksh
     static abstract T Array();
     void Push(T item);
     void SetProperty(string name, T value);
-    void SetProperty(string name, string value);
+    void SetProperty(string name, string? value);
     void SetProperty(string name, bool value);
     void SetProperty(string name, int value);
     void SetProperty(string name, uint value);
@@ -38,15 +38,16 @@ internal static class WorkshopObservationProjection
     { var value = T.Object(); value.SetProperty("x", cell.X); value.SetProperty("y", cell.Y); value.SetProperty("z", cell.Z); return value; }
     private static T Vector<T>(float x, float y, float z) where T : IWorkshopObservationObject<T>
     { var value = T.Object(); value.SetProperty("x", x); value.SetProperty("y", y); value.SetProperty("z", z); return value; }
-    internal static T Construction<T>(WorkshopCommand command) where T : IWorkshopObservationObject<T>
+    internal static T Construction<T>(WorkshopAuthoredScene authored) where T : IWorkshopObservationObject<T>
     {
         var value = T.Object();
+        var command = authored.Command;
         value.SetProperty("sessionLow", Exact(command.Session.Low)); value.SetProperty("sessionHigh", Exact(command.Session.High));
         value.SetProperty("sequence", Exact(command.Sequence.Value)); value.SetProperty("kind", EnumValue(command.Kind));
         value.SetProperty("expectedRevision", EnumValue(command.RevisionKind)); value.SetProperty("authorityRevision", Exact(command.Revision.Value));
         value.SetProperty("epoch", Exact(command.Epoch.Value)); value.SetProperty("projection", Exact(command.Projection.Value));
         value.SetProperty("cadence", Exact(command.Cadence.Value));
-        if (command.Construction is not { } source) return value;
+        var source = authored.Construction;
         value.SetProperty("revision", Exact(source.Revision.Value));
         using var puzzle = Puzzle<T>(source.Puzzle); value.SetProperty("puzzle", puzzle);
         value.SetProperty("simulation", EnumValue(source.Settings.Simulation)); value.SetProperty("physical", EnumValue(source.Settings.Physical));
@@ -84,7 +85,7 @@ internal static class WorkshopObservationProjection
     {
         var value = T.Object(); value.SetProperty("id", source.Id.Value);
         value.SetProperty("placement", EnumValue(source.Placement)); value.SetProperty("precision", source.Precision.Value);
-        value.SetProperty("inventoryPart", source.InventoryPart.Value); value.SetProperty("inventoryCount", source.InventoryCount);
+        value.SetProperty("inventoryPart", source.InventoryPart == default ? null : source.InventoryPart.Value); value.SetProperty("inventoryCount", source.InventoryCount);
         using var goal = T.Object(); goal.SetProperty("kind", EnumValue(source.Goal.Kind));
         goal.SetProperty("body", Exact(source.Goal.Body.Value)); goal.SetProperty("target", Exact(source.Goal.Target.Value));
         goal.SetProperty("sourceNode", Exact(source.Goal.SourceNode.Value)); goal.SetProperty("targetNode", Exact(source.Goal.TargetNode.Value));
@@ -318,7 +319,7 @@ internal static class WorkshopObservationProjection
         }
         return value;
     }
-    internal static T Diagnostic<T>(WorkshopDiagnostic source) where T : IWorkshopObservationObject<T>
+    internal static T Diagnostic<T>(WorkshopDiagnostic source, WorkshopAuthoredScene? authored = null) where T : IWorkshopObservationObject<T>
     {
         var value = T.Object(); value.SetProperty("category", WorkshopObservationProjection.EnumValue(source.Category));
         switch (source)
@@ -455,7 +456,12 @@ internal static class WorkshopObservationProjection
                 foreach (var sample in record.Samples) { using var item = TraceSample<T>(sample); samples.Push(item); }
                 value.SetProperty("samples", samples);
                 using var durations = Durations<T>(record.Milliseconds); value.SetProperty("durations", durations);
-                if (record.Construction is { } command) { using var item = Construction<T>(command); value.SetProperty("construction", item); }
+                if (record.Scene is { } scene)
+                {
+                    if (authored is not { } original || original.Scene != scene)
+                        throw new ArgumentException("Capture has no original authored scene association.");
+                    using var item = Construction<T>(original); value.SetProperty("construction", item);
+                }
                 break;
             }
             case WorkshopClockSampleDiagnostic record:
@@ -475,10 +481,7 @@ internal static class WorkshopObservationProjection
                 value.SetProperty("appliedAt", Exact(sample.AppliedAt.Value)); value.SetProperty("value", sample.Value);
                 value.SetProperty("ordinal", sample.EventOrdinal); value.SetProperty("eventPhase", sample.EventPhase);
                 value.SetProperty("property", WorkshopObservationProjection.EnumValue(sample.Property));
-                using var timer = T.Object(); timer.SetProperty("phase", WorkshopObservationProjection.EnumValue(sample.Timer.Phase));
-                timer.SetProperty("started", Exact(sample.Timer.Started)); timer.SetProperty("due", Exact(sample.Timer.Due));
-                timer.SetProperty("observed", Exact(sample.Timer.Observed)); timer.SetProperty("inputEmitter", Exact(sample.Timer.InputEmitter));
-                value.SetProperty("timer", timer); break;
+                break;
             }
             case WorkshopPresentationDiagnostic record:
             {

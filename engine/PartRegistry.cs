@@ -16,8 +16,7 @@ namespace CuriousContraptions;
 /// The catalogue the game offers, loaded only from the generated element bundle (Story 9A.14). Every definition is a plain runtime
 /// record built from one bundle entry; its scene and icon are the package's own files. A missing or structurally invalid bundle, or
 /// an entry whose scene or icon does not load, refuses the whole load with a message naming the problem; nothing is loaded from
-/// anywhere else and nothing is kept from a refused load. The typed <see cref="UndeliveredParts"/> set keeps an element out of the
-/// registry and the palette even when the bundle declares it.
+/// anywhere else and nothing is kept from a refused load. The bundle is the sole membership authority.
 /// </summary>
 public sealed class PartRegistry
 {
@@ -62,7 +61,6 @@ public sealed class PartRegistry
         foreach (var entry in entries)
         {
             var id = new PartId(entry.Metadata.Id);
-            if (UndeliveredParts.Contains(id)) continue;
             definitions.Add(Definition(id, entry));
         }
         if (definitions.Count == 0) throw Invalid("it declares no deliverable element");

@@ -33,12 +33,8 @@ public static class DeclaredPhysics
         }
     }
 
-    public static IReadOnlyDictionary<string, float> Parameters(IWorkshopInstance instance) => instance switch
-    {
-        WorkshopPipe pipe => new Dictionary<string, float> { ["length"] = pipe.Length.Metres },
-        WorkshopGenericInstance generic => generic.Parameters.ToBundleValues(),
-        _ => BundleGeometry.Parameters(Of(instance.PartId))
-    };
+    public static IReadOnlyDictionary<string, float> Parameters(IWorkshopInstance instance) =>
+        ((WorkshopGenericInstance)instance).Parameters.ToBundleValues();
 
     public static IReadOnlyList<ExtractedCollider> Colliders(PartId part, IReadOnlyDictionary<string, float>? parameters = null) =>
         BundleGeometry.Colliders(Of(part), parameters).Select(Admit).ToArray();

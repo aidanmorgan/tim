@@ -77,13 +77,13 @@ public static partial class Program
     {
         public void Abort(CommandSequence owner) { if (owner == _installationOwner) AbortInstallation(); }
         public void Retire() => AbortInstallation();
-        public async ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopConstruction construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase)
+        public async ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopCompiledScene construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase)
         {
             if (owner.Value == 0 || _preparedEndpoint is not null || _receipts is not null) throw new InvalidOperationException("A schedule candidate is already owned.");
             var projection = new ProjectionEpoch(checked(++_nextProjection));
             var endpoint = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), phase, read, Peer.Session, default,
-                profile.Revision, Peer.Generation, projection, new(read.Tick.Value), Construction: construction);
+                profile.Revision, Peer.Generation, projection, new(read.Tick.Value), Scene: construction);
             // Validate the complete endpoint before retaining a candidate or touching either recipient.
             var encoded = WorkshopWireFlatBuffers.EncodeResponse(endpoint);
             _installationOwner = owner; _preparedEndpoint = endpoint; _preparedSettings = construction.Settings; _preparedTransition = _transition;

@@ -7,8 +7,8 @@ using Godot;
 namespace CuriousContraptions;
 
 /// <summary>The part being placed or moved. `Body` is its identity: a moved part's own committed pose is excluded from the query.
-/// `Length` is the straight pipe's declared length (Story 9R.7): required for a pipe, absent for every other part.</summary>
-public readonly record struct TubeMouthMover(PartId Part, GpuBodyId Body, bool Locked, PipeLength? Length = null);
+/// Parameters carry the complete declared values used to evaluate the moving mouths.</summary>
+public readonly record struct TubeMouthMover(PartId Part, GpuBodyId Body, bool Locked, InstanceParameterCollection? Parameters = null);
 
 /// <summary>A proposed join: the mover's `MoverMouth` meets the target's `TargetMouth` at `Joint` (the target mouth, facing `Axis`)
 /// when the mover takes the pose `Position` / `Rotation`.</summary>
@@ -37,10 +37,8 @@ public static class TubeMouthSnap
     {
         ArgumentNullException.ThrowIfNull(definitions);
         ArgumentNullException.ThrowIfNull(placed);
-        if ((mover.Part == PartId.Pipe) != mover.Length.HasValue)
-            throw new ArgumentException("A pipe mover declares its length; no other part has one.");
         if (mover.Locked || !definitions.TryGetValue(mover.Part, out var moverDefinition)) return null;
-        var moverMouths = Mouths(moverDefinition, mover.Length);
+        var moverMouths = Mouths(moverDefinition, mover.Parameters);
         if (moverMouths.Count == 0) return null;
         rotation = rotation.Normalized();
 
@@ -50,8 +48,8 @@ public static class TubeMouthSnap
         {
             if (instance.Id == mover.Body || !definitions.TryGetValue(instance.PartId, out var definition)) continue;
             var (at, turn) = Pose(instance);
-            var length = instance is WorkshopPipe pipe ? pipe.Length : (PipeLength?)null;
-            foreach (var mouth in Mouths(definition, length))
+            var parameters = ((WorkshopGenericInstance)instance).Parameters;
+            foreach (var mouth in Mouths(definition, parameters))
                 others.Add((instance.Id, new(mouth.Mouth!.Value, at + turn * mouth.Position, Outward(turn * mouth.Rotation), mouth.BoreRadius!.Value)));
         }
 
@@ -99,20 +97,18 @@ public static class TubeMouthSnap
 
     /// <summary>A mouth's part-local position. The scene declares the pipe's mouths at the collar faces of its default length; a pipe
     /// of another length keeps their axis and moves them to ±(length/2 + 0.09) (CAT-048 §2).</summary>
-    public static Vector3 LocalMouth(PartDefinition definition, TubeMouthEnd end, PipeLength? length)
+    public static Vector3 LocalMouth(PartDefinition definition, TubeMouthEnd end, InstanceParameterCollection? parameters)
     {
         ArgumentNullException.ThrowIfNull(definition);
-        if ((definition.PartId == PartId.Pipe) != length.HasValue)
-            throw new ArgumentException("A pipe mouth needs its length; no other part has one.");
-        foreach (var mouth in Mouths(definition, length))
+        foreach (var mouth in Mouths(definition, parameters))
             if (mouth.Mouth == end) return mouth.Position;
         throw new ArgumentException($"Part '{definition.PartId}' declares no {end} mouth.");
     }
 
-    private static List<ExtractedPortLocator> Mouths(PartDefinition definition, PipeLength? length)
+    private static List<ExtractedPortLocator> Mouths(PartDefinition definition, InstanceParameterCollection? parameters)
     {
         var mouths = new List<ExtractedPortLocator>(2);
-        foreach (var locator in definition.Mouths(length).Values)
+        foreach (var locator in definition.Mouths(parameters).Values)
             if (locator.Mouth is not null) mouths.Add(locator);
         return mouths;
     }

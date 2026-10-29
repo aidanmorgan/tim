@@ -49,11 +49,10 @@ public sealed class PartDefinition
 
     public IReadOnlyDictionary<string, ExtractedPortLocator> PortLocators => Mouths(null);
 
-    public IReadOnlyDictionary<string, ExtractedPortLocator> Mouths(PipeLength? length)
+    public IReadOnlyDictionary<string, ExtractedPortLocator> Mouths(InstanceParameterCollection? parameters)
     {
-        IReadOnlyDictionary<string, float>? parameters = length is { } pipe
-            ? new Dictionary<string, float> { ["length"] = pipe.Metres } : null;
-        return BundleGeometry.Mouths(_physics, parameters).ToDictionary(mouth => mouth.End switch
+        parameters?.Validate(Parameters);
+        return BundleGeometry.Mouths(_physics, parameters?.ToBundleValues()).ToDictionary(mouth => mouth.End switch
         {
             TubeEnd.Start => "mouth_start",
             TubeEnd.End => "mouth_end",

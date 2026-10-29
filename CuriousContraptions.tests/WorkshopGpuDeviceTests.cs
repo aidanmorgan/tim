@@ -14,12 +14,12 @@ public sealed class WorkshopGpuDeviceTests
     {
         await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(
             new CuriousContraptions.Abstractions.EventRingPublication()), Document);
-        await using var simulation = new WorkshopSimulation(device, new ResetClock(), Settings, new(1),
+        await using var simulation = new WorkshopSimulation(device, new ResetClock(), CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1),
             new ResetInstallation(), GpuDeviceOwnership.Borrowed);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
             PlacedParts.Springboard(new(1), 0, 3, 0, 0, 0, 0, 1, compression)));
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(construction))).Outcome);
         var original = simulation.Committed;
         var plate = construction.Instances.Identities[new(1)].Sliders[0].Body;
         static float Height(PhysicsBodyRead body) => (body.Body.Cell.Y + body.Body.Local.Y) / 16f;
@@ -57,7 +57,7 @@ public sealed class WorkshopGpuDeviceTests
     {
         public void Abort(CommandSequence owner) { }
         public void Retire() { }
-        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopConstruction construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase) => ValueTask.CompletedTask;
+        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopCompiledScene construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase) => ValueTask.CompletedTask;
     }
     private static readonly PhysicsDocumentId Document = new(101, 206);
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
@@ -68,7 +68,7 @@ public sealed class WorkshopGpuDeviceTests
         var transport = new HeldTransport(true);
         var device = new WorkshopGpuDevice(transport, Document);
         var preparation = device.Prepare();
-        var candidate = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        var candidate = device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(1)).AsTask();
         Assert.False(preparation.IsCompleted);
         Assert.False(candidate.IsCompleted);
         Assert.Equal(1, transport.Initializations);
@@ -93,7 +93,7 @@ public sealed class WorkshopGpuDeviceTests
         var transport = new HeldTransport(true);
         var device = new WorkshopGpuDevice(transport, Document);
         var preparation = device.Prepare();
-        var candidate = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        var candidate = device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(1)).AsTask();
         var failure = new IOException("Preparation failed");
         transport.Held.SetException(failure);
         Assert.Same(failure, await Assert.ThrowsAsync<IOException>(() => preparation));
@@ -112,7 +112,7 @@ public sealed class WorkshopGpuDeviceTests
         var transport = new HeldTransport(true);
         var device = new WorkshopGpuDevice(transport, Document);
         var preparation = device.Prepare();
-        var candidate = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        var candidate = device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(1)).AsTask();
         await device.DisposeAsync();
         transport.Held.SetResult();
         await Assert.ThrowsAsync<ObjectDisposedException>(() => preparation);
@@ -137,7 +137,7 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(0, transport.Stages);
         Assert.Equal(0, transport.Reads);
         Assert.Equal(0, transport.Commits);
-        var admitted = await device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(2), Profile, new(1));
+        var admitted = await device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(2), Profile, new(1));
         Assert.Equal(1, transport.Initializations);
         device.Commit(admitted.Sequence);
         device.Discard(admitted.Sequence);
@@ -151,7 +151,7 @@ public sealed class WorkshopGpuDeviceTests
     {
         var transport = new HeldTransport(duringQualification);
         var device = new WorkshopGpuDevice(transport, Document);
-        var pending = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        var pending = device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(1)).AsTask();
         Assert.False(pending.IsCompleted);
         await device.DisposeAsync();
         await device.DisposeAsync();
@@ -162,7 +162,7 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(0, transport.Reads);
         Assert.Equal(0, transport.Commits);
         await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(2)).AsTask());
+            device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(2)).AsTask());
         Assert.Equal(0, transport.Commits);
     }
 
@@ -171,7 +171,7 @@ public sealed class WorkshopGpuDeviceTests
     {
         var transport = new HeldTransport(false);
         var device = new WorkshopGpuDevice(transport, Document);
-        var pending = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        var pending = device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(1)).AsTask();
         transport.Record[136] = 1;
         transport.Held.SetResult();
         await Assert.ThrowsAsync<ArgumentException>(() => pending);
@@ -186,7 +186,7 @@ public sealed class WorkshopGpuDeviceTests
         var transport = new HeldTransport(false);
         var device = new WorkshopGpuDevice(transport, Document);
         transport.Held.SetResult();
-        var admitted = await device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1));
+        var admitted = await device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(1));
         device.Commit(admitted.Sequence);
         device.Discard(admitted.Sequence);
         transport.Record[4] = (byte)PhysicsCandidateStatus.Invalid;
@@ -198,7 +198,7 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(2, transport.Discards);
         transport.Record[4] = (byte)PhysicsCandidateStatus.Committed;
         transport.Record[8] = (byte)PhysicsFailure.None;
-        var next = await device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(3));
+        var next = await device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(3));
         device.Commit(next.Sequence);
         device.Discard(next.Sequence);
         Assert.Equal(2, transport.Commits);
@@ -211,7 +211,7 @@ public sealed class WorkshopGpuDeviceTests
     {
         var transport = new HeldTransport(false);
         var device = new WorkshopGpuDevice(transport, Document);
-        var pending = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        var pending = device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(1)).AsTask();
         transport.Record[8] = byte.MaxValue;
         transport.Held.SetResult();
         await Assert.ThrowsAsync<ArgumentException>(() => pending);
@@ -230,7 +230,7 @@ public sealed class WorkshopGpuDeviceTests
         var settings = Settings with { Simulation = cadence };
         var profile = Profile with { Cadence = cadence, Revision = new(2) };
         // Corrupt the actual staged descriptor to the old120Hz/revision1 profile.
-        var pending = device.Admit(new(new(1), settings, WorkshopInstances.Empty), new(1), profile, new(1)).AsTask();
+        var pending = device.Admit(CompiledSceneFixture.Compile(new(new(1), settings, WorkshopInstances.Empty)), new(1), profile, new(1)).AsTask();
         BinaryPrimitives.WriteUInt32LittleEndian(transport.Record.AsSpan(48), (uint)SimulationCadence.Hz120);
         BinaryPrimitives.WriteUInt64LittleEndian(transport.Record.AsSpan(56), 1);
         transport.Held.SetResult();
@@ -246,16 +246,16 @@ public sealed class WorkshopGpuDeviceTests
         var transport = new InvalidReadTransport();
         await using var device = new WorkshopGpuDevice(transport, Document);
         var construction = new WorkshopConstruction(new(1), Settings, new(
-            WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1),
             PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Delay, new(4), -3, 1, 0, 0, 0, 0, 1)), Connections: new(new WorkshopConnection(
+            WorkshopInput.Generic(new PartId("delay"), new(4), -3, 1, 0, 0, 0, 0, 1)), Connections: new(new WorkshopConnection(
                 new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
-        var first = await device.Admit(construction, new(1), Profile, new(1));
+        var first = await device.Admit(CompiledSceneFixture.Compile(construction), new(1), Profile, new(1));
         device.Commit(first.Sequence); device.Discard(first.Sequence);
         Assert.Equal(ActivationTimerPhase.Ready, first.Read.Timers[0].Phase);
         transport.CorruptNextRead = true;
-        await Assert.ThrowsAsync<ArgumentException>(() => device.Admit(construction, new(2), Profile, new(2)).AsTask());
+        await Assert.ThrowsAsync<ArgumentException>(() => device.Admit(CompiledSceneFixture.Compile(construction), new(2), Profile, new(2)).AsTask());
         var continued = await device.Advance(first.Read, new(3), new WorkshopTickControls([]));
         Assert.Equal(first.Read.Epoch, continued.Read.Epoch);
         Assert.Equal(1UL, continued.Read.Tick.Value);
@@ -265,7 +265,7 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(first.Read.Bodies[0].Body.Id, continued.Read.Bodies[0].Body.Id);
         Assert.True(continued.Read.Bodies[0].Body.Velocity.Y < first.Read.Bodies[0].Body.Velocity.Y);
         device.Commit(continued.Sequence); device.Discard(continued.Sequence);
-        var reset = await device.Admit(construction, new(2), Profile, new(4));
+        var reset = await device.Admit(CompiledSceneFixture.Compile(construction), new(2), Profile, new(4));
         NoFixedCapacityTests.AssertSameState(first.Read, reset.Read, "valid retry after malformed candidate");
         device.Commit(reset.Sequence); device.Discard(reset.Sequence);
     }
@@ -307,7 +307,7 @@ public sealed class WorkshopGpuDeviceTests
             new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
             new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         var network = WorkshopActivationCompiler.Compile(construction);
-        var admitted = await device.Admit(construction, new(1), Profile, new(1));
+        var admitted = await device.Admit(CompiledSceneFixture.Compile(construction), new(1), Profile, new(1));
         Assert.Equal(network.ClearMemory().Count, admitted.Read.Memory.Count);
         Assert.Equal(OscillatorPhase.Stopped, network.Memory(admitted.Read.Memory, clock.Id).Phase);
         Assert.Equal(0U, network.Memory(admitted.Read.Memory, counter.Id).Count);
@@ -324,7 +324,7 @@ public sealed class WorkshopGpuDeviceTests
         var running = network.Memory(advanced.Read.Memory, clock.Id);
         Assert.Equal((OscillatorPhase.Running, 120UL), (running.Phase, running.DueTick));
 
-        var reset = await device.Admit(construction, new(2), Profile, new(4));
+        var reset = await device.Admit(CompiledSceneFixture.Compile(construction), new(2), Profile, new(4));
         Assert.Equal(network.ClearMemory()[0], reset.Read.Memory[0]);
         Assert.Equal(network.ClearMemory()[1], reset.Read.Memory[1]);
         device.Commit(reset.Sequence); device.Discard(reset.Sequence); await device.DisposeAsync();
@@ -337,20 +337,20 @@ public sealed class WorkshopGpuDeviceTests
     {
         var transport = new HeldTransport(false); transport.Held.SetResult();
         await using var device = new WorkshopGpuDevice(transport, Document);
-        await using (var borrower = new WorkshopSimulation(device, new ResetClock(), Settings, new(1), new ResetInstallation(), GpuDeviceOwnership.Borrowed))
+        await using (var borrower = new WorkshopSimulation(device, new ResetClock(), CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), new ResetInstallation(), GpuDeviceOwnership.Borrowed))
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Initialize()).Outcome);
-            var construction = new WorkshopConstruction(new(2), Settings, new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1)));
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Construct(construction)).Outcome);
+            var construction = new WorkshopConstruction(new(2), Settings, new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1)));
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Construct(CompiledSceneFixture.Compile(construction))).Outcome);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Run()).Outcome);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Reset()).Outcome);
         }
         Assert.Equal(0, transport.Disposals);
-        await using (var owner = new WorkshopSimulation(device, new ResetClock(), Settings, new(1), new ResetInstallation(), GpuDeviceOwnership.Owned))
+        await using (var owner = new WorkshopSimulation(device, new ResetClock(), CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), new ResetInstallation(), GpuDeviceOwnership.Owned))
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await owner.Initialize()).Outcome);
             Assert.Equal(0UL, owner.Committed.Tick.Value);
-            Assert.Empty(owner.Construction.Instances);
+            Assert.Empty(owner.Scene.Owners);
         }
         Assert.Equal(1, transport.Disposals);
     }
@@ -361,7 +361,7 @@ public sealed class WorkshopGpuDeviceTests
         var transport = new HeldTransport(true);
         await using var device = new WorkshopGpuDevice(transport, Document);
         var preparation = device.Prepare();
-        var candidate = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        var candidate = device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(1)).AsTask();
         await device.DisposeAsync();
         Assert.Equal(1, transport.Disposals);
         transport.Held.SetResult();
@@ -381,7 +381,7 @@ public sealed class WorkshopGpuDeviceTests
         await device.DisposeAsync();
         Assert.Equal(1, transport.Disposals);
         await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask());
+            device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(1)).AsTask());
     }
 
     [Fact]
@@ -389,13 +389,13 @@ public sealed class WorkshopGpuDeviceTests
     {
         var transport = new HeldTransport(false); transport.Held.SetResult();
         await using var device = new WorkshopGpuDevice(transport, Document);
-        var admitted = await device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1));
+        var admitted = await device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(1));
         await device.DisposeAsync();
         Assert.Equal(1, transport.Disposals);
         device.Discard(admitted.Sequence);
         Assert.Equal(1, transport.Disposals);
         await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(2)).AsTask());
+            device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(2)).AsTask());
     }
 
     private sealed class HeldTransport(bool holdInitialization) : IWorkshopGpuTransport

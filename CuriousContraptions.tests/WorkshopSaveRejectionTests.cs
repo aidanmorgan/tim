@@ -17,7 +17,7 @@ public sealed class WorkshopSaveRejectionTests
     /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field; C-Clock deleted the threshold, C-Memory the target count).</summary>
     public enum Field
     {
-        Id, PartId, Locked, Cell, Local, Rotation, Length, Parameters,
+        Id, PartId, Locked, Cell, Local, Rotation, Parameters,
     }
 
     internal sealed class Instance(string part, ulong id)
@@ -115,40 +115,24 @@ public sealed class WorkshopSaveRejectionTests
         var c = record.Cell!.Value; result.Values[Field.Cell] = (c.X, c.Y, c.Z);
         var l = record.Local!.Value; result.Values[Field.Local] = (l.X, l.Y, l.Z);
         var r = record.Rotation!.Value; result.Values[Field.Rotation] = (r.X, r.Y, r.Z, r.W);
-        foreach (var field in Parameters(record.PartId))
-        {
-            object value = field switch
-            {
-                Field.Length => (object)record.Length,
-                _ => throw new InvalidOperationException($"No fixture reader for {field}."),
-            };
-            result.Values[field] = value;
-        }
         if (instance is WorkshopGenericInstance generic)
             result.Values[Field.Parameters] = generic.Parameters.Select(pair => KeyValuePair.Create(pair.Key.Value, pair.Value)).ToArray();
         return result;
     }
 
-    /// <summary>The kind-specific fields each part's record carries.</summary>
-    internal static Field[] Parameters(string part) => part switch
-    {
-        "pipe" => [Field.Length],
-        _ => [],
-    };
-
     /// <summary>One valid instance of every decodable kind, at distinct identities.</summary>
     internal static IWorkshopInstance[] EveryKind() =>
     [
-        WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.BowlingBall, new(2), 1, 3, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.Receiver, new(3), 4, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.Ramp, new(4), -2, 1, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.Wall, new(5), -4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
-        WorkshopInput.Generic(PartId.ImpactSwitch, new(6), 2, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.Delay, new(7), 3, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.Springboard, new(8), 5, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("bowling"), new(2), 1, 3, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("basket"), new(3), 4, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("ramp"), new(4), -2, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("wall"), new(5), -4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
+        WorkshopInput.Generic(new PartId("switch"), new(6), 2, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("delay"), new(7), 3, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("spring"), new(8), 5, 0, 0, 0, 0, 0, 1),
         PlacedParts.Battery(new(9), 6, 0, 0),
-        WorkshopInput.Generic(PartId.PinballBumper, new(10), 7, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("bumper"), new(10), 7, 0, 0, 0, 0, 0, 1),
         PlacedParts.Domino(new(11), 8, 0, 0, 0, 0, 0, 1),
         PlacedParts.Lamp(new(12), 9, 0, 0, 0, 0, 0, 1),
         PlacedParts.Detector(new(13), 10, 0, 0, 0, 0, 0, 1),
@@ -156,18 +140,18 @@ public sealed class WorkshopSaveRejectionTests
         PlacedParts.Counter(new(15), 12, 0, 0, 0, 0, 0, 1, 3),
         PlacedParts.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
         PlacedParts.Latch(new(17), 14, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Pipe(new(18), 15, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.PipeBend45(new(19), 16, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.PipeBend90(new(20), 17, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Funnel(new(21), 18, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.PoweredGate, new(22), 19, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("pipe"),new(18), 15, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("pipe_bend_45"), new(19), 16, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("pipe_bend_90"), new(20), 17, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("funnel"), new(21), 18, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(new PartId("powered_gate"), new(22), 19, 0, 0, 0, 0, 0, 1),
     ];
 
 
     [Fact]
     public void GenericVectorsRejectMissingDuplicateUnknownAndMixedRecordPayloads()
     {
-        var wall = FromProduction(WorkshopInput.Generic(PartId.Wall, new(1), 0, 2, 0, 0, 0, 0, 1));
+        var wall = FromProduction(WorkshopInput.Generic(new PartId("wall"), new(1), 0, 2, 0, 0, 0, 0, 1));
         KeyValuePair<string, float>[] valid = [new("width", 3f), new("height", 2f), new("thickness", .25f)];
         foreach (var malformed in new KeyValuePair<string, float>[][]
         {
@@ -179,7 +163,7 @@ public sealed class WorkshopSaveRejectionTests
             var bytes = Bytes(One(wall.With(Field.Parameters, malformed)));
             Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
             var construction = WorkshopSaveCodec.Open(bytes).Construction!.Value;
-            Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(construction));
+            Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(construction));
         }
         foreach (var instance in EveryKind().Where(instance => instance is not WorkshopGenericInstance))
         {
@@ -187,14 +171,14 @@ public sealed class WorkshopSaveRejectionTests
             var bytes = Bytes(One(forged));
             Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
             Assert.Throws<WireFaultException>(() =>
-                WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
+                WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
         }
     }
 
     [Fact]
-    public void GenericImpactParametersRejectExternalInvalidVectorsAndObsoleteScalar()
+    public void GenericImpactParametersRejectExternalInvalidVectors()
     {
-        var part = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 2, 0, 0, 0, 0, 1,
+        var part = WorkshopInput.Generic(new PartId("switch"), new(1), 0, 2, 0, 0, 0, 0, 1,
             new([new(new ParameterId("trigger_threshold"), 1.234567f)]));
         var record = FromProduction(part);
         var validBytes = Bytes(One(record));
@@ -209,14 +193,7 @@ public sealed class WorkshopSaveRejectionTests
         {
             var bytes = Bytes(One(record.With(Field.Parameters, invalid)));
             Assert.Contains(Rejection(bytes), new[] { WorkshopSaveRejection.OutOfRange, WorkshopSaveRejection.NonFinite });
-            Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
-        }
-        // A typed scalar beside the declared parameter (the deleted threshold's successor case: the length).
-        foreach (var scalar in new[] { .8f, float.NaN })
-        {
-            var bytes = Bytes(One(record.With(Field.Length, scalar)));
-            Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
-            Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
+            Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
         }
         Assert.Equal(1.234567f, part.Parameters[new ParameterId("trigger_threshold")]);
     }
@@ -226,7 +203,7 @@ public sealed class WorkshopSaveRejectionTests
     private static WorkshopSaveRejection Rejection(byte[] bytes) =>
         Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)).Reason;
 
-    private static Instance Ramp() => FromProduction(WorkshopInput.Generic(PartId.Ramp, new(1), 0, 1, 0, 0, 0, 0, 1));
+    private static Instance Ramp() => FromProduction(WorkshopInput.Generic(new PartId("ramp"), new(1), 0, 1, 0, 0, 0, 0, 1));
     private static Instance Counter() => FromProduction(PlacedParts.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, 3));
 
     // ---------- every rejection reason ----------
@@ -269,7 +246,7 @@ public sealed class WorkshopSaveRejectionTests
             var saved = new WorkshopSavedConstruction(lesson, new(100));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         }
-        var ready = PuzzleCatalogue.WithInstance(lessons[2], WorkshopInput.Generic(PartId.Receiver, new(4), 2, .55f, 0, 0, 0, 0, 1));
+        var ready = PuzzleCatalogue.WithInstance(lessons[2], WorkshopInput.Generic(new PartId("basket"), new(4), 2, .55f, 0, 0, 0, 0, 1));
         var missing = ready.WithoutInstance(new(4));
         missing.Validate(); // control: the domain admits the lesson without its receiver
         var withoutReceiver = new WorkshopSavedConstruction(missing, new(100));
@@ -299,7 +276,7 @@ public sealed class WorkshopSaveRejectionTests
         ("no local", WorkshopSaveRejection.MissingField),
         ("no rotation", WorkshopSaveRejection.MissingField),
         ("no receiver parameter vector", WorkshopSaveRejection.OutOfRange),
-        ("domino carrying a typed length", WorkshopSaveRejection.OutOfRange),
+        ("domino carrying an unknown parameter", WorkshopSaveRejection.OutOfRange),
         ("no counter target", WorkshopSaveRejection.OutOfRange),
         ("undefined simulation cadence", WorkshopSaveRejection.UndefinedEnum),
         ("undefined receiver participation", WorkshopSaveRejection.OutOfRange),
@@ -319,7 +296,7 @@ public sealed class WorkshopSaveRejectionTests
         ("cell outside the world", WorkshopSaveRejection.OutOfRange),
         ("local remainder of one half", WorkshopSaveRejection.OutOfRange),
         ("scaled rotation", WorkshopSaveRejection.OutOfRange),
-        ("counter carrying a typed length", WorkshopSaveRejection.OutOfRange),
+        ("counter carrying an unknown parameter", WorkshopSaveRejection.OutOfRange),
         ("unknown element", WorkshopSaveRejection.UnknownElement),
         ("no element", WorkshopSaveRejection.MissingField),
         ("duplicate instance", WorkshopSaveRejection.DuplicateInstance),
@@ -331,7 +308,7 @@ public sealed class WorkshopSaveRejectionTests
     private static Save Violation(string name)
     {
         var ramp = Ramp();
-        var receiver = FromProduction(WorkshopInput.Generic(PartId.Receiver, new(1), 0, 1, 0, 0, 0, 0, 1));
+        var receiver = FromProduction(WorkshopInput.Generic(new PartId("basket"), new(1), 0, 1, 0, 0, 0, 0, 1));
         var battery = FromProduction(PlacedParts.Battery(new(2), 0, 1, 0));
         var lamp = FromProduction(PlacedParts.Lamp(new(3), 2, 1, 0, 0, 0, 0, 1));
         var electrical = (uint)WorkshopConnectionDomain.Electrical;
@@ -343,7 +320,7 @@ public sealed class WorkshopSaveRejectionTests
             "no local" => One(ramp.Without(Field.Local)),
             "no rotation" => One(ramp.Without(Field.Rotation)),
             "no receiver parameter vector" => One(receiver.Without(Field.Parameters)),
-            "domino carrying a typed length" => One(FromProduction(PlacedParts.Domino(new(1), 0, 1, 0, 0, 0, 0, 1)).With(Field.Length, .4f)),
+            "domino carrying an unknown parameter" => One(FromProduction(PlacedParts.Domino(new(1), 0, 1, 0, 0, 0, 0, 1)).With(Field.Parameters, new KeyValuePair<string, float>[] { new("unknown", .4f) })),
             "no counter target" => One(Counter().With(Field.Parameters, Array.Empty<KeyValuePair<string, float>>())),
             "undefined simulation cadence" => One(ramp) with { Simulation = 99 },
             "undefined receiver participation" => One(receiver.WithParameter(new("capture_participation"), 99f)),
@@ -363,7 +340,7 @@ public sealed class WorkshopSaveRejectionTests
             "cell outside the world" => One(ramp.With(Field.Cell, (2000, 0, 0))),
             "local remainder of one half" => One(ramp.With(Field.Local, (.5f, 0f, 0f))),
             "scaled rotation" => One(ramp.With(Field.Rotation, (0f, 0f, 0f, .5f))),
-            "counter carrying a typed length" => One(Counter().With(Field.Length, 3f)),
+            "counter carrying an unknown parameter" => One(Counter().With(Field.Parameters, new KeyValuePair<string, float>[] { new("unknown", 3f) })),
             "unknown element" => One(ramp.Clone().Also(i => i.Part = "tennis")),
             "no element" => One(ramp.Clone().Also(i => i.Part = "")),
             "duplicate instance" => new([ramp, ramp], []),

@@ -41,7 +41,7 @@ async function animationWorker() {
         Service: () => {
             // External host output carries its consumed-delivery count. Posted output proves
             // the worker services after delivery, including turns without a matching ring.
-            const output = new Uint8Array(144), view = new DataView(output.buffer);
+            const output = new Uint8Array(104), view = new DataView(output.buffer);
             view.setUint32(60, 1, true);
             view.setBigUint64(40, BigInt(deliveries.length), true);
             imports.output(output);

@@ -67,11 +67,11 @@ public sealed class DeclaredPrismaticDriveTests
     [Fact]
     public void TheGatePackageDeclaresItsDriveAndItsPowerInRouteBindsThatSlider()
     {
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var scene = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
             { Connections = new(Power(battery.Id, gate.Id)) }, new(1, 2));
-        var declared = TestBundle.Entry(PartId.PoweredGate).Mechanical!.Sliders.Single().Drive!.Value;
+        var declared = TestBundle.Entry(new PartId("powered_gate")).Mechanical!.Sliders.Single().Drive!.Value;
         Assert.Equal(new PrismaticDriveDescriptor(MechanicalValue.Fixed(1.55f), MechanicalValue.Fixed(2.8f), MechanicalValue.Fixed(14f),
             MechanicalValue.Fixed(60f), MechanicalValue.Fixed(120f)), declared);
         var joint = Assert.Single(scene.Prismatics.ToArray());
@@ -80,7 +80,7 @@ public sealed class DeclaredPrismaticDriveTests
         // The admitted world carries the same drive; a slider without one (the springboard) carries none.
         var world = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         Assert.Equal(scene.PrismaticDrives[0], PhysicsGpuAbi.ReadPrismaticDrive(world, 0));
-        var spring = WorkshopInput.Generic(PartId.Springboard, new(1), 0, 3, 0, 0, 0, 0, 1);
+        var spring = WorkshopInput.Generic(new PartId("spring"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var passive = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new(spring)), new(1, 2));
         Assert.Single(passive.Prismatics.ToArray());
         Assert.Empty(passive.PrismaticDrives.ToArray());
@@ -91,7 +91,7 @@ public sealed class DeclaredPrismaticDriveTests
     [Fact]
     public async Task ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep()
     {
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var reads = await WorkshopIntegrationHarness.Observe(new(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
             { Connections = new(Power(battery.Id, gate.Id)) }, 240);
@@ -291,7 +291,7 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.Throws<ArgumentException>(() => Admit(drive => drive with { Joint = new(999) }));
         Assert.Throws<ArgumentException>(() => Admit(drive => drive, dynamicMoving: false)); // the drive moves a static body
         // A route may drive only a slider that declares a drive: the springboard's passive slider is never a consumer.
-        var spring = WorkshopInput.Generic(PartId.Springboard, new(1), 0, 3, 0, 0, 0, 0, 1);
+        var spring = WorkshopInput.Generic(new PartId("spring"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var passive = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new(spring)), new(1, 2));
         Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph([new(spring.Id, SupplyNodeKind.Consumer, Consumers: [passive.Prismatics[0].Id])],
             [], [], passive.Prismatics, passive.PrismaticDrives, passive.Bodies));
@@ -332,7 +332,7 @@ public sealed class DeclaredPrismaticDriveTests
     public async Task AnUnpoweredInvertedOrTiltedMountRestingInItsInteriorWithNothingInTheWayIsNotBlocked(double degrees, float equilibrium)
     {
         var half = degrees * Math.PI / 360;
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 8, 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
+        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 8, 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
         var reads = await WorkshopIntegrationHarness.Observe(new(new(2), WorkshopCadenceSettings.Default(), new(gate)), 720);
         var drives = reads.Select(read => read.Presentation.Actuators[0]).ToArray();
         var rest = drives[^1];
@@ -393,14 +393,14 @@ public sealed class DeclaredPrismaticDriveTests
     {
         const double tilt = -15;
         var half = tilt * Math.PI / 360;
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
+        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
         // Declared geometry: ball radius .34, blade thickness .12, sleeve bore .70-.05=.65 m
         // (the collar bore is .78-.13=.65 too). D6 requires a resting ball, so place its center
         // tangent to both the upstream blade and lower bore, not inside the closed blade.
         const float radius = .34f, bladeHalfThickness = .06f, boreRadius = .65f;
         const float initialAlong = -(bladeHalfThickness + radius), initialUp = -(boreRadius - radius);
         var (sin, cos) = MathF.SinCos((float)(tilt * Math.PI / 180));
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(2),
+        var ball = WorkshopInput.Generic(new PartId("ball"), new(2),
             (float)(cos * initialAlong - sin * initialUp), (float)(3f + sin * initialAlong + cos * initialUp), 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(3), 3, 3, 0, enabled: authoredEnabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(gate, ball, battery))
@@ -602,17 +602,17 @@ public sealed class DeclaredPrismaticDriveTests
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         if (prepareExplicitly) await device.Prepare();
         var settings = WorkshopCadenceSettings.Default();
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), CompiledSceneFixture.Compile(new(new(1), settings, WorkshopInstances.Empty)), new(1),
             new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
         NoEmittedEvents(device);
-        Assert.Empty(simulation.Construction.Instances);
+        Assert.Empty(simulation.Scene.Owners);
         Assert.Equal(0UL, simulation.Committed.Tick.Value);
         Assert.Equal(0, simulation.Committed.Bodies.Count);
         NoSyntheticActivity(simulation.Committed);
         var construction = new WorkshopConstruction(new(2), settings,
-            new(WorkshopInput.Generic(PartId.Basketball, new(1), 0, 4, 0, 0, 0, 0, 1)));
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+            new(WorkshopInput.Generic(new PartId("ball"), new(1), 0, 4, 0, 0, 0, 0, 1)));
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(construction))).Outcome);
         NoEmittedEvents(device);
         var authored = Ball(simulation.Committed);
         Assert.Equal(new GpuBodyId(1), authored.Body.Id);
@@ -639,10 +639,9 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.Equal(firstRevision.Value + 1, simulation.Committed.Revision.Value);
         Assert.Equal(0UL, simulation.Committed.Tick.Value);
         SamePhysicalBody(authored, Ball(simulation.Committed));
-        Assert.Equal(construction.Revision, simulation.Construction.Revision);
+        Assert.Equal(construction.Revision, simulation.Scene.Revision);
         var originalInstance = Assert.IsType<WorkshopGenericInstance>(Assert.Single(construction.Instances));
-        var restoredInstance = Assert.IsType<WorkshopGenericInstance>(Assert.Single(simulation.Construction.Instances));
-        Assert.Equal(originalInstance, restoredInstance); // Typed part, identity, pose, lock and parameter values.
+        Assert.Equal(originalInstance.Id, Assert.Single(simulation.Scene.Owners)); // Runtime ownership survives Reset; authored save identity is main-owned.
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
         NoEmittedEvents(device);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
@@ -660,20 +659,20 @@ public sealed class DeclaredPrismaticDriveTests
     [Fact]
     public async Task AnEmptyBenchAppliesItsOrdinaryLifecycleWithoutProducingDynamicBodiesOrEvents()
     {
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(102, 207));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         var settings = WorkshopCadenceSettings.Default();
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), CompiledSceneFixture.Compile(new(new(1), settings, WorkshopInstances.Empty)), new(1),
             new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
         NoEmittedEvents(device);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(new(new(2), settings, new([])))).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(new(new(2), settings, new([]))))).Outcome);
         NoEmittedEvents(device);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
         NoEmittedEvents(device);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
         NoEmittedEvents(device);
         Assert.Equal(1UL, simulation.Committed.Tick.Value);
-        Assert.Empty(simulation.Construction.Instances);
+        Assert.Empty(simulation.Scene.Owners);
         Assert.Equal(0, simulation.Committed.Bodies.Count);
         NoSyntheticActivity(simulation.Committed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);

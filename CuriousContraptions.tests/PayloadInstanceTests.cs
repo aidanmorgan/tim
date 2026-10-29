@@ -45,11 +45,11 @@ public sealed class PayloadInstanceTests
     [Fact]
     public void BothKindsCompileTheOwnerDeclaredMaterialsOnOneBench()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Free(Place(PartId.Basketball, 3, -1, 2, 0), Place(PartId.BowlingBall, 4, 1, 2, 0)), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(Free(Place(new PartId("ball"), 3, -1, 2, 0), Place(new PartId("bowling"), 4, 1, 2, 0)), new(1, 2));
         foreach (var (id, kind, radius, mass, bounce, rolling) in new[]
         {
-            (3UL, PartId.Basketball, .34f, 1f, .55f, .035f),
-            (4UL, PartId.BowlingBall, .28f, 4f, .14f, .03f)
+            (3UL, new PartId("ball"), .34f, 1f, .55f, .035f),
+            (4UL, new PartId("bowling"), .28f, 4f, .14f, .03f)
         })
         {
             var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(id));
@@ -78,8 +78,8 @@ public sealed class PayloadInstanceTests
     [Fact]
     public void AReceiverDeclaresOnePayloadPolicyWhateverTheInstanceOrder()
     {
-        var receiver = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
-        var scene = WorkshopPhysicsCompiler.Compile(Free(Place(PartId.BowlingBall, 7, -2, 3, 0), Place(PartId.Basketball, 3, 2, 3, 0), receiver), new(1, 2));
+        var receiver = WorkshopInput.Generic(new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
+        var scene = WorkshopPhysicsCompiler.Compile(Free(Place(new PartId("bowling"), 7, -2, 3, 0), Place(new PartId("ball"), 3, 2, 3, 0), receiver), new(1, 2));
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllPayloads, default), Assert.Single(scene.Sensors.ToArray()).Targets);
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllPayloads, default), Assert.Single(scene.Guides.ToArray()).Targets);
         Assert.All(scene.Bodies.ToArray().Where(body => body.Id.Value is 3 or 7), body => Assert.True(scene.Sensors[0].Targets.Contains(body.Id, body.Payload)));
@@ -91,8 +91,8 @@ public sealed class PayloadInstanceTests
     public void TelemetryFollowsTheLowestIdentityPayloadOrNone()
     {
         var domino = PlacedParts.Domino(new(2), 3, .1f, 0, 0, 0, 0, 1);
-        Assert.Equal(new GpuBodyId(3), MachineWorld.TelemetryBody(new(Place(PartId.BowlingBall, 7, -2, 3, 0), domino, Place(PartId.Basketball, 3, 2, 3, 0))));
-        Assert.Equal(new GpuBodyId(7), MachineWorld.TelemetryBody(new(domino, Place(PartId.BowlingBall, 7, -2, 3, 0))));
+        Assert.Equal(new GpuBodyId(3), MachineWorld.TelemetryBody(new(Place(new PartId("bowling"), 7, -2, 3, 0), domino, Place(new PartId("ball"), 3, 2, 3, 0))));
+        Assert.Equal(new GpuBodyId(7), MachineWorld.TelemetryBody(new(domino, Place(new PartId("bowling"), 7, -2, 3, 0))));
         Assert.Equal(default, MachineWorld.TelemetryBody(new(domino)));
         Assert.Equal(default, MachineWorld.TelemetryBody(WorkshopInstances.Empty));
     }
@@ -101,14 +101,14 @@ public sealed class PayloadInstanceTests
     [Fact]
     public void AReceiverPolicyExcludesNonPayloadBodiesWithoutAllocatingPairState()
     {
-        var receiver = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
+        var receiver = WorkshopInput.Generic(new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
         var domino = PlacedParts.Domino(new(2), 3, .1f, 0, 0, 0, 0, 1);
         var alone = WorkshopPhysicsCompiler.Compile(Free(domino, receiver), new(1, 2));
         Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(alone.Sensors.ToArray()).Targets.Kind);
         Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(alone.Guides.ToArray()).Targets.Kind);
         var nonPayload = alone.Bodies.ToArray().Single(body => body.Id == domino.Id);
         Assert.False(alone.Sensors[0].Targets.Contains(nonPayload.Id, nonPayload.Payload));
-        var mixed = WorkshopPhysicsCompiler.Compile(Free(domino, receiver, Place(PartId.Basketball, 9, -3, 2, 0)), new(1, 2));
+        var mixed = WorkshopPhysicsCompiler.Compile(Free(domino, receiver, Place(new PartId("ball"), 9, -3, 2, 0)), new(1, 2));
         var payload = mixed.Bodies.ToArray().Single(body => body.Id == new GpuBodyId(9));
         Assert.True(Assert.Single(mixed.Sensors.ToArray()).Targets.Contains(payload.Id, payload.Payload));
         Assert.True(Assert.Single(mixed.Guides.ToArray()).Targets.Contains(payload.Id, payload.Payload));
@@ -118,11 +118,11 @@ public sealed class PayloadInstanceTests
     [Fact]
     public void TwoCaptureOwnersAdmitWithEitherPayloadKindAndNonPayloadBodies()
     {
-        var first = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
-        var second = WorkshopInput.Generic(PartId.Receiver, new(6), 4, 1, 0, 0, 0, 0, 1);
+        var first = WorkshopInput.Generic(new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
+        var second = WorkshopInput.Generic(new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1);
         var domino = PlacedParts.Domino(new(2), 3, .1f, 0, 0, 0, 0, 1);
         new WorkshopInstances(first, second, domino).Validate();
-        foreach (var kind in new[] { PartId.Basketball, PartId.BowlingBall })
+        foreach (var kind in new[] { new PartId("ball"), new PartId("bowling") })
         {
             var construction = Free(first, second, domino, Place(kind, 9, -3, 2, 0));
             construction.Validate();
@@ -132,7 +132,7 @@ public sealed class PayloadInstanceTests
             Assert.Empty(PhysicsInteractionSnapshot.Empty.Captures);
         }
         // One capture owner guides any number of payloads.
-        new WorkshopInstances(first, domino, Place(PartId.Basketball, 9, -3, 2, 0), Place(PartId.BowlingBall, 10, -5, 2, 0)).Validate();
+        new WorkshopInstances(first, domino, Place(new PartId("ball"), 9, -3, 2, 0), Place(new PartId("bowling"), 10, -5, 2, 0)).Validate();
     }
 
     // In an authored lesson every contact trigger and finite-work Bumper names the lesson's payload; in free play they act on every
@@ -146,9 +146,9 @@ public sealed class PayloadInstanceTests
         {
             var level = PuzzleCatalogue.Create(new(lesson), new(1), WorkshopCadenceSettings.Default(), new(11), new(.45f));
             // A lesson that offers a Bumper gets one placed from its inventory, so the player's Bumper is named too.
-            if (WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(PartId.PinballBumper))
-                level = level.WithInstance(WorkshopInput.Generic(PartId.PinballBumper, new(900), 3, 1, 0, 0, 0, 0, 1));
-            var payload = Assert.Single(level.Instances, instance => instance.PartId == PartId.Basketball).Id;
+            if (WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(new PartId("bumper")))
+                level = level.WithInstance(WorkshopInput.Generic(new PartId("bumper"), new(900), 3, 1, 0, 0, 0, 0, 1));
+            var payload = Assert.Single(level.Instances, instance => instance.PartId == new PartId("ball")).Id;
             var scene = WorkshopPhysicsCompiler.Compile(level, new(1, 2));
             foreach (var targets in scene.Triggers.ToArray().Select(t => t.Targets).Concat(scene.ContactWorks.ToArray().Select(w => w.Targets)))
             {
@@ -231,7 +231,7 @@ public sealed class PayloadInstanceTests
     [InlineData("bowling", 2, false)]
     public async Task AReceiverCapturesEitherKindAndAShiftedMissNever(string part, double shift, bool captures)
     {
-        var construction = Free(Place(new PartId(part), 1, shift, 1.1, 0), WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1));
+        var construction = Free(Place(new PartId(part), 1, shift, 1.1, 0), WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 2 * TicksPerSecond);
         static bool Latched(WorkshopRead read) =>
             Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched);
@@ -244,12 +244,12 @@ public sealed class PayloadInstanceTests
     [Fact]
     public async Task BothKindsFallAgainAfterExactResetAndReload()
     {
-        var construction = Free(Place(PartId.Basketball, 1, -1.5, 3, 0), Place(PartId.BowlingBall, 2, 1.5, 3, 0));
+        var construction = Free(Place(new PartId("ball"), 1, -1.5, 3, 0), Place(new PartId("bowling"), 2, 1.5, 3, 0));
         var saved = new WorkshopSavedConstruction(construction, new(3));
         var bytes = WorkshopSaveCodec.Encode(saved);
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
-        Assert.Equal([PartId.Basketball, PartId.BowlingBall], loaded.Construction.Instances.Select(i => i.PartId).ToArray());
+        Assert.Equal([new PartId("ball"), new PartId("bowling")], loaded.Construction.Instances.Select(i => i.PartId).ToArray());
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 2 * TicksPerSecond);
         Assert.True(Height(Find(run[^1].Bodies, new(1))) < 2.5f && Height(Find(run[^1].Bodies, new(2))) < 2.5f, "both payloads fell");
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
@@ -326,7 +326,7 @@ public sealed class PayloadInstanceTests
         {
             ("ball", PreConversionBall("ball", .340087890625f, 1, .5498046875f), WorkshopSaveRejection.VerifierRejected),
             ("bowling", PreConversionBall("bowling", .280029296875f, 4, .1400146484375f), WorkshopSaveRejection.VerifierRejected),
-            ("domino", PreConversionDomino(), WorkshopSaveRejection.VerifierRejected),
+            ("domino", PreConversionDomino(), WorkshopSaveRejection.OutOfRange),
             ("pipe", PreConversionPipe(), WorkshopSaveRejection.OutOfRange),
             ("ramp", PreConversionResizedRamp(), WorkshopSaveRejection.OutOfRange)
         })
@@ -340,7 +340,7 @@ public sealed class PayloadInstanceTests
 
     /// <summary>A stored save holding one current-layout generic record of <paramref name="part"/>, optionally carrying one typed record
     /// field set to a nonzero value and optional declared parameters.</summary>
-    internal static byte[] GenericSave(string part, TypedField? field, IReadOnlyList<(string Key, float Value)>? parameters = null, float value = 4f)
+    internal static byte[] GenericSave(string part, IReadOnlyList<(string Key, float Value)>? parameters = null)
     {
         var builder = new FlatBufferBuilder(512);
         var name = builder.CreateString(part);
@@ -355,12 +355,6 @@ public sealed class PayloadInstanceTests
         InstanceRecord.AddCell(builder, Vec3i.CreateVec3i(builder, 0, 32, 0));
         InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, 0, 0, 0));
         InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
-        switch (field)
-        {
-            case null: break;
-            case TypedField.Length: InstanceRecord.AddLength(builder, value); break;
-            default: throw new ArgumentOutOfRangeException(nameof(field));
-        }
         var instance = InstanceRecord.EndInstanceRecord(builder);
         var instances = ConstructionRecord.CreateInstancesVector(builder, [instance]);
         var settings = WorkshopCadenceSettings.Default();
@@ -373,54 +367,15 @@ public sealed class PayloadInstanceTests
         return SaveFixture.Finish(builder, ConstructionRecord.EndConstructionRecord(builder), 2);
     }
 
-    // Every typed record field, on a generic payload and on another generic element (the clock with its declared interval and the
-    // counter with its declared target included, and the latch), is refused atomically by the save pre-validation and by the command
-    // decoder alike, a NaN included. (A signed zero cannot be stored: the builder elides any value equal to the field default.) Control:
-    // the bare record loads.
-    [Theory]
-    [MemberData(nameof(EveryTypedFieldOnGenericRecords))]
-    public void AGenericRecordCarryingAnyTypedFieldIsRefused(string part, TypedField field, float value)
-    {
-        (string, float)[]? parameters = part switch { "ramp" => [("length", 3f), ("width", 1.3f)], "clock" => [("interval_seconds", 1f)],
-            "counter" => [("target_count", 3f)], _ => null };
-        var bytes = GenericSave(part, field, parameters, value);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
-        var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
-        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
-        // Control: the same record without the typed field loads.
-        Assert.Equal(new PartId(part), Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, GenericSave(part, null, parameters)).Construction.Instances).PartId);
-    }
-
-    public static TheoryData<string, TypedField, float> EveryTypedFieldOnGenericRecords()
-    {
-        var data = new TheoryData<string, TypedField, float>();
-        foreach (var part in new[] { "ball", "bowling", "ramp", "domino", "clock", "counter", "latch" })
-            foreach (var field in Enum.GetValues<TypedField>())
-                data.Add(part, field, 4f);
-        data.Add("bowling", TypedField.Length, float.NaN);
-        data.Add("domino", TypedField.Length, float.NaN);
-        data.Add("clock", TypedField.Length, float.NaN);
-        data.Add("counter", TypedField.Length, float.NaN);
-        data.Add("latch", TypedField.Length, float.NaN);
-        return data;
-    }
-
     [Theory]
     [InlineData("ball")]
     [InlineData("bowling")]
     public void ABareGenericPayloadRecordLoadsAndAnyParameterIsRefused(string part)
     {
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, GenericSave(part, null));
+        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, GenericSave(part));
         var payload = Assert.IsType<WorkshopGenericInstance>(Assert.Single(loaded.Construction.Instances));
         Assert.Equal((new PartId(part), 0), (payload.PartId, payload.Parameters.Count));
         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            GenericSave(part, null, [("radius", .5f)])));
+            GenericSave(part, [("radius", .5f)])));
     }
-}
-
-/// <summary>Every typed field of the current InstanceRecord (C-Clock deleted the threshold and C-Memory the target count): a generic
-/// record carries none of them.</summary>
-public enum TypedField
-{
-    Length
 }

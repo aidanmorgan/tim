@@ -6,12 +6,12 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopObservationRefusal { None, Retired, ForeignSession, UnknownQuery, NotCommitted, ClosedCursor, InvalidCursor }
 public enum WorkshopObservationQuery { Committed }
-public readonly record struct WorkshopObservationOrdinal(ulong Value);
 public readonly record struct WorkshopObservationCursor(RuntimeSessionId Session, ulong Value);
 public readonly record struct WorkshopCommandReceipt(WorkshopObservationOrdinal Ordinal, RuntimeSessionId Session,
     CommandSequence Sequence, WorkshopCommandKind Kind, WorkshopCommandResult Result, bool AppliedToPresentation);
 public readonly record struct WorkshopObservationResult<T>(WorkshopObservationRefusal Refusal, T? Value);
 public readonly record struct WorkshopObservationTerminal(string Detail);
+public readonly record struct WorkshopAuthoredScene(CompiledSceneId Scene, WorkshopCommand Command, WorkshopConstruction Construction);
 
 /// <summary>A session's read-only port. It has no command or presentation-consumption capability.</summary>
 public interface IWorkshopObservation
@@ -19,6 +19,7 @@ public interface IWorkshopObservation
     RuntimeSessionId Session { get; }
     WorkshopObservationTerminal? Terminal { get; }
     WorkshopObservationResult<WorkshopDiagnosticReceipt[]> Diagnostics(RuntimeSessionId session, WorkshopObservationOrdinal after);
+    WorkshopObservationResult<WorkshopAuthoredScene> Authored(RuntimeSessionId session, CompiledSceneId scene);
     WorkshopObservationResult<WorkshopResponse> Query(RuntimeSessionId session, WorkshopObservationQuery query);
     WorkshopObservationResult<WorkshopCommandReceipt[]> Receipts(RuntimeSessionId session, WorkshopObservationOrdinal after);
     WorkshopObservationResult<WorkshopObservationCursor> OpenEvents(RuntimeSessionId session);
@@ -38,6 +39,11 @@ internal sealed class WorkshopObservation : IWorkshopObservation
     private Action<int>? _closeEvents;
     private ulong _nextCursor;
     private WorkshopResponse? _committed;
+    private readonly Dictionary<CompiledSceneId, WorkshopAuthoredScene> _authored = new();
+    private readonly HashSet<CompiledSceneId> _pendingScenes = new();
+    private readonly HashSet<CompiledSceneId> _captureScenes = new();
+    private readonly Dictionary<CommandSequence, CompiledSceneId> _pendingRuns = new();
+    private CompiledSceneId? _activeScene;
     private SimulationEpoch _epoch;
     public RuntimeSessionId Session { get; }
     private WorkshopObservationTerminal? _terminal;
@@ -63,12 +69,70 @@ internal sealed class WorkshopObservation : IWorkshopObservation
         _openEvents = open; _readEvents = read; _closeEvents = close;
     }
 
+    internal void Associate(WorkshopCommand command, WorkshopConstruction construction)
+    {
+        if (Terminal is not null) return;
+        try
+        {
+            if (command.Session != Session || command.Scene is not { } scene || scene.Revision != construction.Revision ||
+                scene.Settings != construction.Settings || !_authored.TryAdd(scene.Identity, new(scene.Identity, command with { Scene = null }, construction)))
+                Retire("Missing, foreign or duplicate authored scene association.");
+            else _pendingScenes.Add(scene.Identity);
+        }
+        catch (OutOfMemoryException error) { Retire("Authored scene association unavailable: " + error.Message); }
+    }
+
+    internal void BeginRun(WorkshopCommand command)
+    {
+        if (Terminal is not null) return;
+        try
+        {
+            if (command.Kind != WorkshopCommandKind.Run || command.Session != Session ||
+                _activeScene is not { } scene || !_authored.ContainsKey(scene) || !_pendingRuns.TryAdd(command.Sequence, scene))
+                Retire("Run has no unique original authored scene association.");
+        }
+        catch (OutOfMemoryException error) { Retire("Run scene association unavailable: " + error.Message); }
+    }
+
+    internal void CompleteCandidate(WorkshopCommand command)
+    {
+        if (command.Scene is { } scene) _pendingScenes.Remove(scene.Identity);
+        _pendingRuns.Remove(command.Sequence);
+        ReleaseUnusedScenes();
+    }
+
+    private void ReleaseUnusedScenes()
+    {
+        foreach (var entry in _authored)
+            if (entry.Key != _activeScene && !_pendingScenes.Contains(entry.Key) && !_captureScenes.Contains(entry.Key) &&
+                !_pendingRuns.ContainsValue(entry.Key))
+                _authored.Remove(entry.Key);
+    }
+
+    public WorkshopObservationResult<WorkshopAuthoredScene> Authored(RuntimeSessionId session, CompiledSceneId scene)
+    {
+        var refusal = Validate(session);
+        if (refusal != WorkshopObservationRefusal.None) return new(refusal, default);
+        if (_authored.TryGetValue(scene, out var authored)) return new(WorkshopObservationRefusal.None, authored);
+        Retire("Capture has no original authored scene association.");
+        return new(WorkshopObservationRefusal.NotCommitted, default);
+    }
+
     internal void Receipt(WorkshopCommand command, WorkshopResponse response, bool applicable)
     {
         if (Terminal is not null) return;
         try
         {
             if (!_received.Add(command.Sequence)) return;
+            if (applicable && response.Result.Outcome == WorkshopCommandOutcome.Applied && command.Scene is { } installed)
+                _activeScene = installed.Identity;
+            // Only a successful Run can start a production capture. Keep its source metadata for late delivery.
+            if (command.Kind == WorkshopCommandKind.Run && response.Result.Outcome == WorkshopCommandOutcome.Applied)
+            {
+                if (!_pendingRuns.TryGetValue(command.Sequence, out var captured))
+                { Retire("Run acknowledgement has no original authored scene association."); return; }
+                _captureScenes.Add(captured);
+            }
             _receipts.Add(new(new((ulong)_receipts.Count + 1), Session, command.Sequence, command.Kind, response.Result, applicable));
         }
         catch (OutOfMemoryException error)
@@ -84,6 +148,8 @@ internal sealed class WorkshopObservation : IWorkshopObservation
         // Retain the already admitted managed value. Detachment belongs to an explicit query,
         // never the simulation publication hot path.
         _committed = response;
+        if (response.Scene is { } scene) _activeScene = scene.Identity;
+        ReleaseUnusedScenes();
         _epoch = response.Read.Epoch;
     }
 
@@ -93,6 +159,12 @@ internal sealed class WorkshopObservation : IWorkshopObservation
         if (refusal != WorkshopObservationRefusal.None) return new(refusal, null);
         if (after.Value > (ulong)_diagnostics.Count) return new(WorkshopObservationRefusal.InvalidCursor, null);
         var records = _diagnostics.Since((int)after.Value);
+        foreach (var record in records)
+            if (record is WorkshopCaptureDiagnostic capture && (capture.Session != Session || capture.Scene is { } scene && !_authored.ContainsKey(scene)))
+            {
+                Retire("Capture has no original authored scene association.");
+                return new(WorkshopObservationRefusal.NotCommitted, null);
+            }
         var receipts = new WorkshopDiagnosticReceipt[records.Length];
         for (var i = 0; i < records.Length; i++) receipts[i] = new(new(after.Value + (ulong)i + 1), records[i]);
         return new(WorkshopObservationRefusal.None, receipts);
@@ -156,6 +228,11 @@ internal sealed class WorkshopObservation : IWorkshopObservation
             catch (Exception error) when (error is InvalidOperationException or System.Runtime.InteropServices.JavaScript.JSException) { _terminal = new(detail + " Cursor release: " + error.Message); }
         }
         _events.Clear();
+        _authored.Clear();
+        _pendingScenes.Clear();
+        _captureScenes.Clear();
+        _pendingRuns.Clear();
+        _activeScene = null;
         _committed = null;
     }
 

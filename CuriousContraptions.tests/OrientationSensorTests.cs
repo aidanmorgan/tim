@@ -10,7 +10,7 @@ public sealed class OrientationSensorTests
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
     private static readonly WorkshopConnection Wire = new(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Construction(bool wired = true) => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4f, 3, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1),
             PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1),
             PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
         Connections: wired ? new(Wire) : WorkshopConnections.Empty);
@@ -245,7 +245,7 @@ public sealed class OrientationSensorTests
     public void ARotatedDominoCompilesItsAdmittedRotationAsTheSensorInitialPose()
     {
         var turned = PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, (float)(Math.Sqrt(.5)), 0, (float)(Math.Sqrt(.5)));
-        var construction = Construction() with { Instances = new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4f, 3, 0, 0, 0, 0, 1), turned, PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
+        var construction = Construction() with { Instances = new(WorkshopInput.Generic(new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1), turned, PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var sensor = Assert.Single(scene.OrientationSensors.ToArray());
         Assert.Equal(turned.Rotation, sensor.Initial);
@@ -260,8 +260,8 @@ public sealed class OrientationSensorTests
     public void OrientationCauseCarriesThroughADelayToTheLamp()
     {
         var delayed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4f, 3, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1),
-                PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Delay, new(4), 0, 1, 0, 0, 0, 0, 1)),
+            new(WorkshopInput.Generic(new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1),
+                PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("delay"), new(4), 0, 1, 0, 0, 0, 0, 1)),
             Connections: new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut, new(4), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
                 new WorkshopConnection(new(4), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         var scene = WorkshopPhysicsCompiler.Compile(delayed, new(1, 2));

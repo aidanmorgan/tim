@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- The Google FlatBuffers C# runtime, vendored unmodified from google/flatbuffers tag v25.2.10 (net/FlatBuffers,
+  <!-- The Google FlatBuffers C# runtime, vendored from google/flatbuffers tag v25.2.10 (net/FlatBuffers,
        Apache-2.0, see LICENSE) so the one wire codec is built trim-annotated: the published Google.FlatBuffers
        package is not, which made every trimmable consumer report IL2125 (Story 9.4b). The generated wire code
        asserts this exact runtime version (FLATBUFFERS_25_2_10). Upgrade by replacing every source file from a
-       newer tag together with the regenerated wire code; never edit the vendored sources in place. -->
+       newer tag together with the regenerated wire code. The bounded vtable offset corrections and
+       their exact integrity pins are documented in THIRD-PARTY-NOTICES.md. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>CuriousContraptions.FlatBuffers</AssemblyName>

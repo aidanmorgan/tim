@@ -80,7 +80,7 @@ public sealed class LampDetectorGuardTests
         var sign = forwardDown ? -1 : 1;
         var detector = PlacedParts.Detector(new(1), 0, (float)(Plane), 0, 0, 0, (float)(sign * Half45), (float)(Half45));
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(3), (float)(ballX), (float)(DropY), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"), new(3), (float)(ballX), (float)(DropY), 0, 0, 0, 0, 1);
         if (!counted) return (Bench([detector, lamp, ball], Signal(detector.Id, lamp.Id)), detector.Id, lamp.Id, ball.Id);
         var counter = PlacedParts.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 2);
         var second = PlacedParts.Lamp(new(5), 4, 1, 3, 0, 0, 0, 1);
@@ -218,10 +218,10 @@ public sealed class LampDetectorGuardTests
     [Fact]
     public async Task ASwitchLightsItsLampOnTheFirstInputAndItStaysLitWhileAnUnwiredLampStaysDark()
     {
-        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 1, 0, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
         var dark = PlacedParts.Lamp(new(3), 4, 1, 3, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(4), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"), new(4), 0, 3, 0, 0, 0, 0, 1);
         var bench = Bench([hit, lamp, dark, ball], Signal(hit.Id, lamp.Id));
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, Ticks);
         var first = reads.FindIndex(read => Lit(read, lamp.Id));
@@ -270,7 +270,7 @@ public sealed class LampDetectorGuardTests
         // tube .018 and ball union reach .35 give the conservative contact
         // height .084+sqrt((.35+.018)^2-.1^2)=.4382 m; .448 m clears it.
         var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .368f, 0), rotation);
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(4), (float)(-4 + drop.X), (float)(plateHeight + drop.Y), (float)(drop.Z), 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"), new(4), (float)(-4 + drop.X), (float)(plateHeight + drop.Y), (float)(drop.Z), 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(5), 6, 3, 0, 0, 0, 0, 1);
         var reads = await WorkshopIntegrationHarness.Observe(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), Ticks);
         Assert.All(reads, read => Assert.Equal(Lit(read, plate.Id), Lit(read, lamp.Id)));
@@ -285,7 +285,7 @@ public sealed class LampDetectorGuardTests
         var latch = PlacedParts.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 3, 0, 0, 0, 0, 0, 1);
         var counter = PlacedParts.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
-        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(4), 0, 3, 0, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(new PartId("switch"), new(4), 0, 3, 0, 0, 0, 0, 1);
         var other = PlacedParts.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
         var detector = PlacedParts.Detector(new(6), 6, 3, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(latch, lamp, counter, hit, other, detector);

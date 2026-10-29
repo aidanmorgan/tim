@@ -16,7 +16,7 @@ Test through these seams. They are the contracts other code relies on.
 
 | Area | Arrange through | Act through | Observe through |
 | --- | --- | --- | --- |
-| Simulation | `WorkshopConstruction` built from package declarations and generic instances (`WorkshopInput.Generic`), or authored content | `WorkshopSimulation` commands: `Construct`, `Run`, `Pause`, `Resume`, `Advance`/`Step`, `Reset`, `Save`, `ConfigureElectrical`, `CancelPending` | `WorkshopCommandResult`, committed reads (`WorkshopRead`), event ring records, typed `WorkshopRejection` |
+| Simulation | `WorkshopConstruction` built from package declarations and generic instances (`WorkshopInput.Generic`), or authored content, compiled on main through `WorkshopSceneCompiler` and the runtime codec (normally via the shared native harness) | `WorkshopSimulation` commands over the compiled scene: `Construct`, `Run`, `Pause`, `Resume`, `Advance`/`Step`, `Reset`, `Save`, `ConfigureElectrical`, `CancelPending` | `WorkshopCommandResult`, committed reads (`WorkshopRead`), event ring records, typed `WorkshopRejection` |
 | Saves and wire | Domain values (`WorkshopSavedConstruction`, `WorkshopCommand`) or a committed fixture file of legacy bytes | `WorkshopSaveCodec.Encode`/`Decode`, `WorkshopWireFlatBuffers.EncodeCommand`/`DecodeCommand` | The decoded domain value, field by field, or the typed refusal reason |
 | Packages and bundle | Package declaration data | `BundleValidator.Validate`, `PartRegistry.Load` | The returned `BundleError` set, or the admitted catalogue entry |
 | Authoring and UI logic | The Workshop scene or the generic editor, as a player would use them | Placement (`PlacementPose`), the editor's parameter operations, wiring, Undo and Cancel | The construction after the operation, the typed refusal and the status text |
@@ -89,7 +89,7 @@ They never need Chrome, Playwright or a running browser. They run the core syste
 
 **The mechanism.** All integration tests use the single shared native harness, the *Workshop integration harness* in `CuriousContraptions.tests`. It composes the production pieces:
 - **Bundle:** the actual built `elements/elements.bundle.json`, read through `PartRegistry.Read`; actual scene startup exercises `PartRegistry.LoadFile`. Do not regenerate a separate integration bundle. Content comes from `content/` through its production reader.
-- **Simulation:** the real `WorkshopSimulation`, over the real `WorkshopGpuDevice` and `BrowserGpuTransport`. Commands pass through `WorkshopCommandRouter`, the shared production `WorkshopCommandExecutor` and the wire codec. Explicit native advancement uses the same response encoding; it does not add an Advance wire command or copy the worker command switch.
+- **Simulation:** the real Core-owned `WorkshopSimulation`, over the real `WorkshopGpuDevice` and `BrowserGpuTransport`. Main-owned `WorkshopSceneCompiler` compiles authored constructions into typed capability scenes; workers do not load packages or authored records. Commands pass through `WorkshopCommandRouter`, the shared production `WorkshopCommandExecutor` and the wire codec. Explicit native advancement uses the same response encoding; it does not add an Advance wire command or copy the worker command switch.
 - **Clock:** an explicit integer physical-step clock and declared cadence settings (60, 120 or 240 Hz). Advance world and master time according to their production contracts; a manual Step does not invent elapsed master time. No wall-clock sleeps.
 - **Authoring:** construction goes through the same operations the UI performs (placement through `PlacementPose`, generic-editor parameter operations, wiring, Undo and Cancel), or through authored lesson content. Hand-built internal tables are not allowed.
 - **Observation:** committed reads, actual event memory through `EventRingConsumer` and `EventRingDelivery`, presentation samples from the retained/rebound declared evaluator, goal outcomes and typed refusals. Harness A establishes this mechanism and migrates duplicate orchestration; harness B supplies the complete current-catalogue matrix.
@@ -126,7 +126,7 @@ The JS runtime layer (simulation and animation workers, client, rings) is covere
 ## Architecture guards: a separate, small category
 
 A few tests protect structural invariants that behaviour tests cannot see:
-- the element isolation ratchet;
+- the build-time element isolation guard;
 - the C# static gate;
 - the solver-name scan;
 - the rule that only the event-ring memory wrapper may view shared memory.

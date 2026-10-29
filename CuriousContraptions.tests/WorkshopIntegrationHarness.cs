@@ -36,7 +36,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         public TaskCompletionSource? Hold { get; set; }
         public bool FailNextStep { get; set; }
 
-        public async ValueTask Prepare(CommandSequence command, WorkshopRead read, WorkshopConstruction construction,
+        public async ValueTask Prepare(CommandSequence command, WorkshopRead read, WorkshopCompiledScene construction,
             WorkshopGpuProfile profile, WorkshopSimulationPhase phase)
         {
             _owner = command;
@@ -83,7 +83,8 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
     public WorkshopSimulation Simulation => Executor.Simulation;
     public WorkshopResponse Latest { get; private set; }
     public WorkshopRead Committed => Latest.Read;
-    public WorkshopConstruction Construction => Simulation.Construction;
+    public WorkshopConstruction Construction => _authored[Simulation.Scene.Identity];
+    private readonly Dictionary<CompiledSceneId, WorkshopConstruction> _authored = new();
     public WorkshopSchedule Schedule => _host.Schedule ?? throw new InvalidOperationException("No schedule installed.");
     public bool ReadsIdle { get; set; } = true;
     public bool FailNextStep { set => _host.FailNextStep = value; }
@@ -130,11 +131,27 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
     }
 
     public WorkshopCommand Command(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null) =>
-        new(new(checked(_sequence + 1)), kind, Latest.Read.Epoch.Value == 0 ? new(1) : Latest.Read.Epoch,
-            Latest.Read.Revision, construction, target, Session: _host.Session,
+        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+    {
+        var sequence = new CommandSequence(checked(_sequence + 1));
+        WorkshopCompiledScene? scene = null;
+        WorkshopConstruction? source = kind switch
+        {
+            WorkshopCommandKind.Initialize => new WorkshopConstruction(new(1), settings!.Value, WorkshopInstances.Empty),
+            WorkshopCommandKind.Construct => construction!.Value,
+            WorkshopCommandKind.ConfigureCadence => Construction with { Settings = settings!.Value },
+            _ => null
+        };
+        if (source is { } authored)
+        {
+            scene = WorkshopSceneCompiler.Compile(authored, new(101, 206), new(sequence.Value));
+            _authored.Add(scene.Identity, authored);
+        }
+        return new(sequence, kind, Latest.Read.Epoch.Value == 0 ? new(1) : Latest.Read.Epoch,
+            Latest.Read.Revision, scene, target, Session: _host.Session,
             Cadence: _host.Schedule?.Revision ?? default, Projection: _host.Schedule?.World.Epoch ?? default,
-            Settings: settings, Electrical: electrical);
+            Electrical: electrical);
+    }
 
     private readonly WorkshopClientCursor _cursor = new(new(101, 206));
 
@@ -147,7 +164,10 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         var response = WorkshopWireFlatBuffers.DecodeResponse(bytes);
         var prepared = _cursor.PrepareAcknowledgement(command, response, readOrder, false);
         _cursor.Commit(prepared);
-        if (prepared.Applicable) Accept(response);
+        if (prepared.Applicable)
+        {
+            Accept(response);
+        }
         return response;
     }
     public Task<WorkshopResponse> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
@@ -167,9 +187,9 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         {
             if (Presentation is null || _presentationProjection != response.Projection)
             {
-                if (Presentation is not null && Presentation.CanRetain(Construction, response))
-                    Presentation.Rebind(Construction, response);
-                else Presentation = new(Construction, response);
+                if (Presentation is not null && Presentation.CanRetain(Simulation.Scene, response))
+                    Presentation.Rebind(Simulation.Scene, response);
+                else Presentation = new(Simulation.Scene, response);
                 _presentationProjection = response.Projection;
             }
         }
@@ -208,7 +228,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
     }
     public async Task<WorkshopCommandResult> AdvanceOne()
     {
-        Time.Tick(Construction.Settings);
+        Time.Tick(Simulation.Scene.Settings);
         var result = await Simulation.Advance();
         AcceptRead(WorkshopWireFlatBuffers.DecodeResponse(Executor.Encode(new(default, WorkshopResponseKind.Read,
             result, Simulation.Phase, Simulation.Committed, Publication: new(++_publication)))));
@@ -223,7 +243,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
     {
         for (var i = 0; i < ticks; i++)
         {
-            Time.Tick(Construction.Settings);
+            Time.Tick(Simulation.Scene.Settings);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await Simulation.Advance()).Outcome);
             Latest = WorkshopWireFlatBuffers.DecodeResponse(Executor.Encode(new(default, WorkshopResponseKind.Read,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), Simulation.Phase, Simulation.Committed,

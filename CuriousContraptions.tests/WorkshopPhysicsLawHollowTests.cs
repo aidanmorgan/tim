@@ -636,10 +636,10 @@ public sealed class WorkshopPhysicsLawHollowTests
     {
         var part = passage switch
         {
-            PassageShape.Straight => PartId.Pipe,
-            PassageShape.Bend45 => PartId.PipeBend45,
-            PassageShape.Bend90 => PartId.PipeBend90,
-            PassageShape.Funnel => PartId.Funnel,
+            PassageShape.Straight => new PartId("pipe"),
+            PassageShape.Bend45 => new PartId("pipe_bend_45"),
+            PassageShape.Bend90 => new PartId("pipe_bend_90"),
+            PassageShape.Funnel => new PartId("funnel"),
             _ => throw new ArgumentOutOfRangeException(nameof(passage))
         };
         var entry = TestBundle.Entry(part);
@@ -705,10 +705,10 @@ public sealed class WorkshopPhysicsLawHollowTests
     {
         var (part, turn, x, z) = passage switch
         {
-            PassageShape.Straight => (PartId.Pipe, Quaternion.Identity, 1.8f, 0f),
-            PassageShape.Bend45 => (PartId.PipeBend45, About(Vector3.UnitX, -90), -.91844f, -.182689f),
-            PassageShape.Bend90 => (PartId.PipeBend90, About(Vector3.UnitX, -90), -1.697056f, -.702944f),
-            PassageShape.Funnel => (PartId.Funnel, Quaternion.Identity, .9f, 0f),
+            PassageShape.Straight => (new PartId("pipe"), Quaternion.Identity, 1.8f, 0f),
+            PassageShape.Bend45 => (new PartId("pipe_bend_45"), About(Vector3.UnitX, -90), -.91844f, -.182689f),
+            PassageShape.Bend90 => (new PartId("pipe_bend_90"), About(Vector3.UnitX, -90), -1.697056f, -.702944f),
+            PassageShape.Funnel => (new PartId("funnel"), Quaternion.Identity, .9f, 0f),
             _ => throw new ArgumentOutOfRangeException(nameof(passage))
         };
         var origin = new Vector3(0, 5, 0);

@@ -186,7 +186,7 @@ Curious Contraptions decouples gameplay elements into pure declarative capabilit
   - `ForceRegionTable`: Spatial acceleration and velocity fields (fans, gravity fields, receiver guides).
   - `SensorTable`: Endpoint-sampled apertures, residence volumes, and load switches.
   - `NetworkTable`: Directed graphs for activation pulses, electrical DC power, and optical/acoustic paths.
-- **Physics Core (`CuriousContraptions.Simulation`):** Evaluates mathematical algorithms (Quad-BVH, SAT, TGS Soft, speculative contacts) without any knowledge of game-specific element identities.
+- **Physics Core (`CuriousContraptions.Core`, hosted by the `CuriousContraptions.Simulation` worker):** Evaluates mathematical algorithms (Quad-BVH, SAT, TGS Soft, speculative contacts) without any knowledge of game-specific element identities.
 
 ### 2. Activation & Discrete Logic Subsystem
 - **Execution Domain:** Simulation Web Worker at 120 Hz tick boundaries.

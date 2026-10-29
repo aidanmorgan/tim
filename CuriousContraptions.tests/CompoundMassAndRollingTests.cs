@@ -407,19 +407,19 @@ public sealed class AssignedCompoundFeatureTests
         const float scale = .136734f * 4 + .453070f;
         var (part, surface, normal) = feature switch
         {
-            Feature.BasketballSeam => (PartId.Basketball, new Vector3(0, 0, .35f), Vector3.UnitZ),
-            Feature.DominoLowerPip => (PartId.Domino, new Vector3(.185f, -.25f, 0), Vector3.UnitX),
-            Feature.DominoUpperPip => (PartId.Domino, new Vector3(.185f, .25f, 0), Vector3.UnitX),
+            Feature.BasketballSeam => (new PartId("ball"), new Vector3(0, 0, .35f), Vector3.UnitZ),
+            Feature.DominoLowerPip => (new PartId("domino"), new Vector3(.185f, -.25f, 0), Vector3.UnitX),
+            Feature.DominoUpperPip => (new PartId("domino"), new Vector3(.185f, .25f, 0), Vector3.UnitX),
             Feature.WeightBase => (new PartId("weight"), scale * new Vector3(.36f, .0517f, 0), Vector3.UnitX),
             Feature.WeightLowerBand => (new PartId("weight"), scale * new Vector3(.3633f, .1862f, 0), Vector3.UnitX),
             Feature.WeightUpperBand => (new PartId("weight"), scale * new Vector3(.3633f, .3724f, 0), Vector3.UnitX),
             Feature.WeightEye => (new PartId("weight"), scale * new Vector3(0, .7346f, 0), Vector3.UnitY),
-            Feature.PlateStud0 => (PartId.PressurePlate, new Vector3(-1, .07f, -1), Vector3.UnitY),
-            Feature.PlateStud1 => (PartId.PressurePlate, new Vector3(1, .07f, -1), Vector3.UnitY),
-            Feature.PlateStud2 => (PartId.PressurePlate, new Vector3(-1, .07f, 1), Vector3.UnitY),
-            Feature.PlateStud3 => (PartId.PressurePlate, new Vector3(1, .07f, 1), Vector3.UnitY),
-            Feature.PlateRing => (PartId.PressurePlate, new Vector3(.3f, .102f, 0), Vector3.UnitY),
-            Feature.ClockPivot => (PartId.Clock, new Vector3(0, .4f, .495f), Vector3.UnitZ),
+            Feature.PlateStud0 => (new PartId("pressure_plate"), new Vector3(-1, .07f, -1), Vector3.UnitY),
+            Feature.PlateStud1 => (new PartId("pressure_plate"), new Vector3(1, .07f, -1), Vector3.UnitY),
+            Feature.PlateStud2 => (new PartId("pressure_plate"), new Vector3(-1, .07f, 1), Vector3.UnitY),
+            Feature.PlateStud3 => (new PartId("pressure_plate"), new Vector3(1, .07f, 1), Vector3.UnitY),
+            Feature.PlateRing => (new PartId("pressure_plate"), new Vector3(.3f, .102f, 0), Vector3.UnitY),
+            Feature.ClockPivot => (new PartId("clock"), new Vector3(0, .4f, .495f), Vector3.UnitZ),
             _ => throw new ArgumentOutOfRangeException(nameof(feature))
         };
         LawBody Observe(float gap)
@@ -457,8 +457,8 @@ public sealed class CompoundCaptureOwnershipTests
     public async Task SparseCapturePrepareDiscardAndForeignPairRefusalPreserveCommittedHistory()
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            PayloadInstanceTests.Place(PartId.Basketball, 1, 0, 1.1, 0),
-            WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1)));
+            PayloadInstanceTests.Place(new PartId("ball"), 1, 0, 1.1, 0),
+            WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
@@ -533,14 +533,14 @@ public sealed class CompoundCaptureOwnershipTests
         IWorkshopInstance Receiver(ulong id, float x)
         {
             var centre = Vector3.Transform(new Vector3(x, 1, 0), rotation);
-            var parameters = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
+            var parameters = InstanceParameterCollection.Defaults(new PartId("basket")).ToDictionary();
             parameters[new("force_maximum_acceleration")] = 12f;
-            return WorkshopInput.Generic(PartId.Receiver, new(id), (float)(centre.X), (float)(centre.Y), (float)(centre.Z),
+            return WorkshopInput.Generic(new PartId("basket"), new(id), (float)(centre.X), (float)(centre.Y), (float)(centre.Z),
                 (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W),
                 new(parameters));
         }
         var left = Receiver(5, -.2f); var right = Receiver(6, .2f);
-        var ball = PayloadInstanceTests.Place(PartId.Basketball, 1, position.X, position.Y, position.Z);
+        var ball = PayloadInstanceTests.Place(new PartId("ball"), 1, position.X, position.Y, position.Z);
         var chosen = tied ? left : right;
         LawBody Step(params IWorkshopInstance[] owners)
         {
@@ -566,11 +566,11 @@ public sealed class CompoundCaptureOwnershipTests
     public async Task DistantReceiversCaptureTheirOwnPayloadsWithSparseStateAndResetReplay(bool reverse)
     {
         IWorkshopInstance[] parts = [
-            PayloadInstanceTests.Place(PartId.Basketball, 1, -4, 1.1, 0),
-            PayloadInstanceTests.Place(PartId.BowlingBall, 2, 4, 1.1, 0),
-            PayloadInstanceTests.Place(PartId.Basketball, 3, 10, 5, 0),
-            WorkshopInput.Generic(PartId.Receiver, new(5), -4, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Receiver, new(6), 4, 1, 0, 0, 0, 0, 1)];
+            PayloadInstanceTests.Place(new PartId("ball"), 1, -4, 1.1, 0),
+            PayloadInstanceTests.Place(new PartId("bowling"), 2, 4, 1.1, 0),
+            PayloadInstanceTests.Place(new PartId("ball"), 3, 10, 5, 0),
+            WorkshopInput.Generic(new PartId("basket"), new(5), -4, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1)];
         if (reverse) Array.Reverse(parts);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts));
         await using var ring = await WorkshopIntegrationHarness.Running(construction);
@@ -611,9 +611,9 @@ public sealed class CompoundCaptureOwnershipTests
     {
         // Literal Bowling radius .28: centres .60 apart clear each other and remain inside the receiver walls.
         IWorkshopInstance[] parts = [
-            PayloadInstanceTests.Place(PartId.BowlingBall, 1, -.3, 1.1, 0),
-            PayloadInstanceTests.Place(PartId.BowlingBall, 2, .3, 1.1, 0),
-            WorkshopInput.Generic(PartId.Receiver, new(3), 0, 1, 0, 0, 0, 0, 1)];
+            PayloadInstanceTests.Place(new PartId("bowling"), 1, -.3, 1.1, 0),
+            PayloadInstanceTests.Place(new PartId("bowling"), 2, .3, 1.1, 0),
+            WorkshopInput.Generic(new PartId("basket"), new(3), 0, 1, 0, 0, 0, 0, 1)];
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts));
         await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(120);
@@ -654,8 +654,8 @@ public sealed class CompoundCaptureOwnershipTests
         var goal = new WorkshopGoal(WorkshopGoalKind.Captured, new(1), new(3));
         var parts = new List<IWorkshopInstance>
         {
-            PayloadInstanceTests.Place(PartId.Basketball, 1, namedCaptures ? 0 : 4, 1.1, 0),
-            PayloadInstanceTests.Place(PartId.BowlingBall, 2, namedCaptures ? 4 : 0, 1.1, 0)
+            PayloadInstanceTests.Place(new PartId("ball"), 1, namedCaptures ? 0 : 4, 1.1, 0),
+            PayloadInstanceTests.Place(new PartId("bowling"), 2, namedCaptures ? 4 : 0, 1.1, 0)
         };
         if (growth)
             for (var i = 0; i < 32; i++) parts.Add(PlacedParts.Plate(new((ulong)(100 + i)), (float)(8 + 2.5 * (i % 4)), 3, (float)(-10 + 2.5 * (i / 4)), .5f));
@@ -663,7 +663,7 @@ public sealed class CompoundCaptureOwnershipTests
         var absentRead = (await WorkshopIntegrationHarness.Observe(withoutReceiver, 1))[^1];
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, absentRead, absentRead.Epoch, withoutReceiver.Instances.Identities));
         var absentWake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(withoutReceiver, new(1, 2)));
-        var construction = withoutReceiver.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(3), 0, 1, 0, 0, 0, 0, 1));
+        var construction = withoutReceiver.WithInstance(WorkshopInput.Generic(new PartId("basket"), new(3), 0, 1, 0, 0, 0, 0, 1));
         await using var ring = await WorkshopIntegrationHarness.Running(construction);
         var initial = ring.Committed;
         await ring.Advance(240);
@@ -798,7 +798,7 @@ public sealed class CompoundPassageBoundaryTests
     {
         var q=Quaternion.CreateFromAxisAngle(Vector3.UnitY,degrees*MathF.PI/180);
         var detector=PlacedParts.Detector(new(10),0,3,0,(float)(q.X),(float)(q.Y),(float)(q.Z),(float)(q.W));
-        var ball=PayloadInstanceTests.Place(PartId.Basketball,2,-1,3,2);
+        var ball=PayloadInstanceTests.Place(new PartId("ball"),2,-1,3,2);
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new([detector,ball]));
         var scene=WorkshopPhysicsCompiler.Compile(construction,new(1,2));
         var sensors=WorkshopActivationCompiler.Compile(construction).PassageSensors.ToArray();
@@ -834,7 +834,7 @@ public sealed class CompoundPassageBoundaryTests
     public void BasketballSeamMustClearBeforeRearmingAndStaticPlaneReadsAreExcluded(float upstream, int expected)
     {
         var detector = PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = PayloadInstanceTests.Place(PartId.Basketball, 2, -1, 3, 0);
+        var ball = PayloadInstanceTests.Place(new PartId("ball"), 2, -1, 3, 0);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([detector, ball]));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var sensors = WorkshopActivationCompiler.Compile(construction).PassageSensors.ToArray();
@@ -872,16 +872,10 @@ public sealed class CompoundPassageBoundaryTests
 
 public sealed class CurrentPuzzleShapeTests
 {
-    public enum Envelope { Command, Response, Save }
-
     [Theory]
-    [InlineData(Envelope.Command, 10)]
-    [InlineData(Envelope.Response, 10)]
-    [InlineData(Envelope.Save, 10)]
-    [InlineData(Envelope.Command, 13)]
-    [InlineData(Envelope.Response, 13)]
-    [InlineData(Envelope.Save, 13)]
-    public void EveryConstructionEnvelopeRefusesUnknownPuzzleFieldsBeforeDomainDecoding(Envelope envelope, int extraField)
+    [InlineData(10)]
+    [InlineData(13)]
+    public void AuthoredSaveRefusesUnknownPuzzleFieldsBeforeDomainDecoding(int extraField)
     {
         var builder = new FlatBufferBuilder(512);
         var id = builder.CreateString("ready_to_rebound");
@@ -895,45 +889,13 @@ public sealed class CurrentPuzzleShapeTests
         Wire.ConstructionRecord.StartConstructionRecord(builder);
         Wire.ConstructionRecord.AddPuzzle(builder, puzzle);
         var construction = Wire.ConstructionRecord.EndConstructionRecord(builder);
-        string identifier;
-        VerifyTableAction verify;
-        switch (envelope)
-        {
-            case Envelope.Command:
-                Wire.WorkshopCommand.StartWorkshopCommand(builder);
-                Wire.WorkshopCommand.AddConstructionRecord(builder, construction);
-                builder.FinishSizePrefixed(Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.CommandIdentifier);
-                identifier = WorkshopWireFlatBuffers.CommandIdentifier; verify = Wire.WorkshopCommandVerify.Verify;
-                break;
-            case Envelope.Response:
-                Wire.WorkshopResponse.StartWorkshopResponse(builder);
-                Wire.WorkshopResponse.AddConstruction(builder, construction);
-                builder.FinishSizePrefixed(Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, WorkshopWireFlatBuffers.ResponseIdentifier);
-                identifier = WorkshopWireFlatBuffers.ResponseIdentifier; verify = Wire.WorkshopResponseVerify.Verify;
-                break;
-            case Envelope.Save:
-                var saved = Wire.SavedConstruction.CreateSavedConstruction(builder, 1, construction);
-                builder.FinishSizePrefixed(saved.Value, WorkshopSaveCodec.Identifier);
-                identifier = WorkshopSaveCodec.Identifier; verify = Wire.SavedConstructionVerify.Verify;
-                break;
-            default: throw new ArgumentOutOfRangeException(nameof(envelope));
-        }
+        var saved = Wire.SavedConstruction.CreateSavedConstruction(builder, 1, construction);
+        builder.FinishSizePrefixed(saved.Value, WorkshopSaveCodec.Identifier);
         var bytes = builder.SizedByteArray();
         // The vendored verifier deliberately permits unknown fields. The current
         // game schema must refuse them before interpreting any shifted scalar.
-        Assert.True(new Verifier(new ByteBuffer(bytes)).VerifyBuffer(identifier, true, verify));
-        switch (envelope)
-        {
-            case Envelope.Command:
-                Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes)).Reason);
-                break;
-            case Envelope.Response:
-                Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes)).Reason);
-                break;
-            case Envelope.Save:
-                SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
-                break;
-        }
+        Assert.True(new Verifier(new ByteBuffer(bytes)).VerifyBuffer(WorkshopSaveCodec.Identifier, true, Wire.SavedConstructionVerify.Verify));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
     }
 }
 
@@ -948,16 +910,16 @@ public sealed class CompoundIdentityRefusalTests
     [InlineData(InvalidEdit.ForeignConnection)]
     public async Task InvalidSceneSizedReferencesRefuseAtomicallyAndThePriorWorldStillRuns(InvalidEdit edit)
     {
-        var first = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
-        var second = WorkshopInput.Generic(PartId.Receiver, new(6), 4, 1, 0, 0, 0, 0, 1);
+        var first = WorkshopInput.Generic(new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
+        var second = WorkshopInput.Generic(new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1);
         var tile = PlacedParts.Domino(new(2), -3, 3, 0, 0, 0, 0, 1);
         var valid = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(first, second, tile));
         await using var device = new WorkshopGpuDevice(
             new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(),
-            WorkshopCadenceSettings.Default(), new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+            CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)), new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(valid)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(valid))).Outcome);
         var before = simulation.Committed;
         var invalid = valid with { Revision = new(3) };
         invalid = edit switch
@@ -978,10 +940,8 @@ public sealed class CompoundIdentityRefusalTests
             Assert.Equal(3, valid.Instances.Count);
             Assert.Equal(new ConstructionRevision(2), valid.Revision);
         }
-        var result = await simulation.Construct(invalid);
-        Assert.Equal(WorkshopCommandOutcome.Rejected, result.Outcome);
-        Assert.Equal(WorkshopRejection.InvalidConstruction, result.Reason);
-        Assert.Equal(valid, simulation.Construction);
+        Assert.ThrowsAny<ArgumentException>(() => CompiledSceneFixture.Compile(invalid));
+        Assert.Equal(valid.Revision, simulation.Scene.Revision);
         Assert.Equal(before.Epoch, simulation.Committed.Epoch);
         Assert.Equal(before.Tick, simulation.Committed.Tick);
         Assert.Equal(before.Bodies.Count, simulation.Committed.Bodies.Count);
@@ -996,7 +956,7 @@ public sealed class CompoundIdentityRefusalTests
         Assert.Equal(built.Body.Local, reset.Body.Local);
         Assert.Equal(built.Rotation, reset.Rotation);
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(simulation.Construction, new(10))));
+            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(valid, new(10))));
         Assert.Equal(valid, loaded.Construction);
         var replay = (await WorkshopIntegrationHarness.Observe(loaded.Construction, 12))[^1];
         Assert.True(replay.Bodies.TryGet(tile.Id, out var repeated));
@@ -1013,7 +973,7 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
     [Fact]
     public async Task CommittedVisualTargetsReuseCommonStorageAndGrowAtTheWatermark()
     {
-        var instances = Enumerable.Range(0, 25).Select(index => WorkshopInput.Generic(PartId.Basketball,
+        var instances = Enumerable.Range(0, 25).Select(index => WorkshopInput.Generic(new PartId("ball"),
             new GpuBodyId((ulong)index + 1), (float)(index % 5 - 2), 3, (float)(index / 5 - 2), 0, 0, 0, 1)).ToArray();
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(instances.Cast<IWorkshopInstance>().ToArray()));
         var read = (await WorkshopIntegrationHarness.Observe(construction, 1))[^1];
@@ -1021,7 +981,7 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
         var root = new Godot.Node3D();
         var parts = instances.Select(instance =>
         {
-            var part = registry.Create(PartId.Basketball); part.AuthoredId = instance.Id; return part;
+            var part = registry.Create(new PartId("ball")); part.AuthoredId = instance.Id; return part;
         }).ToArray();
         var presentation = new WorkshopPhysicalPresentation();
         Assert.Equal(16, presentation.Capacity);
@@ -1057,7 +1017,7 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
     [InlineData(true)]
     public void EveryDeclaredChildUsesItsCommittedMotionAndResetAndRefusesForeignSets(bool duplicate)
     {
-        var template = TestBundle.Entry(PartId.Springboard);
+        var template = TestBundle.Entry(new PartId("spring"));
         var shape = new ColliderDescriptor(CuriousContraptions.Abstractions.ColliderShapeKind.Box, new(.1f),
             Vector3.Zero, Quaternion.Identity, new(0, 0, 0, .1f), 0);
         var sliders = Enumerable.Range(0, 2).Select(index => new PrismaticSliderDescriptor(

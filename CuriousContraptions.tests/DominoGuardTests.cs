@@ -164,7 +164,7 @@ public sealed class DominoGuardTests
         var into = Bench([PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, into.Validate);
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var bytes = SaveFixture.Finish(builder, WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, into, validate: false), 3);
+        var bytes = SaveFixture.Finish(builder, WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, into, validate: false), 3);
         SaveFixture.Refused(WorkshopSaveRejection.InvalidConnection, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
     }
 
@@ -192,10 +192,10 @@ public sealed class DominoGuardTests
     {
         var lesson = Lesson(.45f);
         await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(lesson)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(lesson))).Outcome);
         var built = simulation.Committed;
         async Task<List<WorkshopRead>> RunOnce()
         {

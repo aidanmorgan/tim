@@ -15,21 +15,21 @@ public sealed class WorkshopSimulationTests
         public SimulationRun(ControlledClock clock, ControlledInstallation installation, bool holdStartup)
         {
             Device = new ControlledDevice { HoldStartup = holdStartup };
-            Simulation = new WorkshopSimulation(Device, clock, Settings, new(1), installation, GpuDeviceOwnership.Owned);
+            Simulation = new WorkshopSimulation(Device, clock, CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), installation, GpuDeviceOwnership.Owned);
         }
         public WorkshopSimulation Simulation { get; }
         public ControlledDevice Device { get; }
         public ValueTask DisposeAsync() => Simulation.DisposeAsync();
     }
     private static WorkshopConstruction BallConstruction(ulong revision = 2) =>
-        new(new(revision), Settings, new(WorkshopInput.Generic(PartId.Basketball,new(0xfffffffe), 0, 4, 0, 0, 0, 0, 1)));
+        new(new(revision), Settings, new(WorkshopInput.Generic(new PartId("ball"),new(0xfffffffe), 0, 4, 0, 0, 0, 0, 1)));
 
     [Fact]
     public async Task RoundedGpuRotationCommitsThroughTheSimulationReadBoundary()
     {
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
-        var admission = simulation.Construct(BallConstruction()).AsTask();
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(BallConstruction())).AsTask();
         device.CompleteAdmission(0); await admission;
         await simulation.Run();
         var advance = simulation.Advance().AsTask();
@@ -49,7 +49,7 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = PopulationConstruction(count);
-        var admission = simulation.Construct(construction).AsTask();
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(construction)).AsTask();
         device.CompleteAdmission(0); await admission;
         var initial = simulation.Committed;
         Assert.Equal(count, initial.Bodies.Count);
@@ -72,7 +72,8 @@ public sealed class WorkshopSimulationTests
             { Body = initial.Bodies[i].Body with { Epoch = simulation.Committed.Epoch.Value } };
             Assert.Equal(expected, simulation.Committed.Bodies[i]);
         }
-        Assert.Equal(construction, simulation.Construction);
+        Assert.Equal(construction.Revision, simulation.Scene.Revision);
+        Assert.Equal(construction.Instances.Select(instance => instance.Id), simulation.Scene.Owners);
     }
 
     public enum PopulationChange { MissingLast, ForeignLast }
@@ -84,7 +85,7 @@ public sealed class WorkshopSimulationTests
     {
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
-        var admission = simulation.Construct(PopulationConstruction(16)).AsTask();
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(PopulationConstruction(16))).AsTask();
         device.CompleteAdmission(0); await admission;
         await simulation.Run();
         var before = simulation.Committed;
@@ -103,7 +104,7 @@ public sealed class WorkshopSimulationTests
 
     private static WorkshopConstruction PopulationConstruction(int count) =>
         new(new(2), Settings, new(Enumerable.Range(0, count).Select(i =>
-            (IWorkshopInstance)WorkshopInput.Generic(PartId.Basketball,new((ulong)i + 1),
+            (IWorkshopInstance)WorkshopInput.Generic(new PartId("ball"),new((ulong)i + 1),
                 (float)((i % 4) * 2), 4, (float)((i / 4) * 2), 0, 0, 0, 1)).ToArray()));
 
     [Fact]
@@ -112,11 +113,12 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var before = simulation.Committed;
-        var construction = simulation.Construction;
+        var construction = simulation.Scene;
         var commits = device.Commits;
         Assert.Equal(WorkshopCommandOutcome.Applied, simulation.Save().Outcome);
         Assert.Equal(before with { Revision = new(before.Revision.Value + 1) }, simulation.Committed);
-        Assert.Equal(construction, simulation.Construction);
+        Assert.Equal(construction.Revision, simulation.Scene.Revision);
+        Assert.Equal(construction.Owners, simulation.Scene.Owners);
         Assert.Equal(commits, device.Commits);
         Assert.Empty(device.Admissions);
         await simulation.Run();
@@ -131,7 +133,7 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var before = simulation.Committed;
-        var admission = simulation.Construct(BallConstruction()).AsTask();
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(BallConstruction())).AsTask();
         Assert.Equal(WorkshopCommandOutcome.Rejected, simulation.Save().Outcome);
         Assert.Equal(before, simulation.Committed);
         device.CompleteAdmission(0);
@@ -166,12 +168,13 @@ public sealed class WorkshopSimulationTests
     {
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
-        var construction = simulation.Construction;
+        var construction = simulation.Scene;
         var read = simulation.Committed;
-        var admission = simulation.Construct(BallConstruction()).AsTask();
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(BallConstruction())).AsTask();
         device.Admissions[0].Completion.SetException(new GpuAdmissionException("Overlap."));
         Assert.Equal(WorkshopRejection.GpuAdmission, (await admission).Reason);
-        Assert.Equal(construction, simulation.Construction);
+        Assert.Equal(construction.Revision, simulation.Scene.Revision);
+        Assert.Equal(construction.Owners, simulation.Scene.Owners);
         Assert.Equal(read, simulation.Committed);
         Assert.Equal(WorkshopSimulationPhase.Building, simulation.Phase);
     }
@@ -183,7 +186,7 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = BallConstruction();
-        var admission = simulation.Construct(construction).AsTask();
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(construction)).AsTask();
         device.CompleteAdmission(0); await admission;
         installation.HoldNext = true;
         var firstRun = simulation.Run().AsTask();
@@ -194,7 +197,8 @@ public sealed class WorkshopSimulationTests
         installation.Complete(0);
         Assert.Equal(WorkshopCommandOutcome.Superseded, (await firstRun).Outcome);
         Assert.Equal(restored, simulation.Committed);
-        Assert.Equal(construction, simulation.Construction);
+        Assert.Equal(construction.Revision, simulation.Scene.Revision);
+        Assert.Equal(construction.Instances.Select(instance => instance.Id), simulation.Scene.Owners);
         Assert.Equal(WorkshopSimulationPhase.Building, simulation.Phase);
     }
 
@@ -245,13 +249,13 @@ public sealed class WorkshopSimulationTests
     {
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
-        var before = simulation.Construction;
-        var pending = simulation.Construct(BallConstruction()).AsTask();
+        var before = simulation.Scene;
+        var pending = simulation.Construct(CompiledSceneFixture.Compile(BallConstruction())).AsTask();
         var request = device.Admissions[0];
         var correct = ControlledDevice.Initial(request.Construction, request.Epoch);
         request.Completion.SetResult(new(request.Sequence, ChangeOnlyBody(correct, value => value with { Body = value.Body with { Id = new(7) } })));
         Assert.Equal(WorkshopCommandOutcome.Faulted, (await pending).Outcome);
-        Assert.Equal(before, simulation.Construction);
+        Assert.Equal(before, simulation.Scene);
     }
 
     [Fact]
@@ -292,7 +296,7 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = BallConstruction();
-        var admission = simulation.Construct(construction).AsTask();
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(construction)).AsTask();
         device.CompleteAdmission(0); await admission;
         var run = simulation.Run().AsTask();
         await run;
@@ -301,15 +305,16 @@ public sealed class WorkshopSimulationTests
         device.CompleteAdvance(0, read => ChangeOnlyBody(read, value => value with { Body = value.Body with
             { Cell = new(0, 48, 0), Local = new(0f, 0.25f, 0f), Velocity = new(0f, -3.2f, 0f) } }));
         await advance;
-        Assert.NotEqual(construction.Instances.ToArray().Single(instance => instance.PartId == PartId.Basketball).Cell, simulation.Committed.Bodies[0].Body.Cell);
+        Assert.NotEqual(construction.Instances.ToArray().Single(instance => instance.PartId == new PartId("ball")).Cell, simulation.Committed.Bodies[0].Body.Cell);
         var reset = simulation.Reset().AsTask();
         for (var i = 0; i < 8; i++) Assert.Equal(WorkshopRejection.Busy, (await simulation.Reset()).Reason);
         Assert.Equal(2, device.Admissions.Count);
         device.CompleteAdmission(1); await reset;
         Assert.Equal(initialGeneration.Value + 1, simulation.Epoch.Value);
-        Assert.Equal(ControlledDevice.Initial(construction, simulation.Epoch).Bodies[0].Body,
+        Assert.Equal(ControlledDevice.Initial(CompiledSceneFixture.Compile(construction), simulation.Epoch).Bodies[0].Body,
             simulation.Committed.Bodies[0].Body);
-        Assert.Equal(construction, simulation.Construction);
+        Assert.Equal(construction.Revision, simulation.Scene.Revision);
+        Assert.Equal(construction.Instances.Select(instance => instance.Id), simulation.Scene.Owners);
     }
 
     [Fact]
@@ -318,7 +323,7 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var before = simulation.Committed;
-        var command = simulation.Construct(BallConstruction()).AsTask();
+        var command = simulation.Construct(CompiledSceneFixture.Compile(BallConstruction())).AsTask();
         var request = device.Admissions[0];
         var candidate = ControlledDevice.Initial(request.Construction, request.Epoch);
         var ball = candidate.Bodies[0].Body;
@@ -334,7 +339,7 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var old = simulation.Committed;
-        var request = simulation.Construct(BallConstruction()).AsTask();
+        var request = simulation.Construct(CompiledSceneFixture.Compile(BallConstruction())).AsTask();
         Assert.Equal(WorkshopCommandOutcome.Applied, simulation.CancelPending().Outcome);
         Assert.Equal(old with { Revision = new(1) }, simulation.Committed);
         Assert.Equal(WorkshopSimulationPhase.Building, simulation.Phase);
@@ -360,7 +365,7 @@ public sealed class WorkshopSimulationTests
     {
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
-        var admit = simulation.Construct(BallConstruction()).AsTask();
+        var admit = simulation.Construct(CompiledSceneFixture.Compile(BallConstruction())).AsTask();
         device.CompleteAdmission(0); await admit;
         await simulation.Run();
         var before = simulation.Committed;
@@ -431,7 +436,7 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(before.Revision.Value + 2, simulation.Revision.Value);
         Assert.Equal(epoch.Value + 1, simulation.Epoch.Value);
         Assert.Equal(WorkshopSimulationPhase.Building, simulation.Phase);
-        Assert.Equal(new ConstructionRevision(1), simulation.Construction.Revision);
+        Assert.Equal(new ConstructionRevision(1), simulation.Scene.Revision);
     }
 
     // Story 9R.3 D4: Reset alone restores the authored enable. The in-run control survives a Reset that never commits (cancelled),
@@ -442,7 +447,7 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var battery = PlacedParts.Battery(new(7), 0, 3, 0, enabled: ElectricalEnable.Disabled);
-        var admission = simulation.Construct(new(new(2), Settings, new(battery))).AsTask();
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(new(new(2), Settings, new(battery)))).AsTask();
         device.CompleteAdmission(0);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await admission).Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
@@ -563,7 +568,7 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var initial = simulation.Profile;
-        var pending = simulation.Configure(Settings with { Simulation = SimulationCadence.Hz240 }, new(2)).AsTask();
+        var pending = simulation.Configure(CompiledSceneFixture.Compile(new(new(1), Settings with { Simulation = SimulationCadence.Hz240 }, WorkshopInstances.Empty)), new(2)).AsTask();
         await simulation.DisposeAsync();
         device.CompleteAdmission(0);
         Assert.Equal(WorkshopCommandOutcome.Superseded, (await pending).Outcome);
@@ -585,15 +590,15 @@ public sealed class WorkshopSimulationTests
         var before = simulation.Profile;
         var settings = Settings with { Simulation = cadence };
         installation.HoldNext = true;
-        var configure = simulation.Configure(settings, new(3)).AsTask();
+        var configure = simulation.Configure(CompiledSceneFixture.Compile(new(new(1), settings, WorkshopInstances.Empty)), new(3)).AsTask();
         device.CompleteAdmission(0);
         Assert.Equal(before, simulation.Profile);
-        Assert.Equal(Settings, simulation.Construction.Settings);
+        Assert.Equal(Settings, simulation.Scene.Settings);
         installation.Complete(0);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await configure).Outcome);
         Assert.Equal(cadence, simulation.Profile.Cadence);
-        Assert.Equal(settings, simulation.Construction.Settings);
-        Assert.Equal(WorkshopRejection.StaleGeneration, (await simulation.Configure(settings, new(2))).Reason);
+        Assert.Equal(settings, simulation.Scene.Settings);
+        Assert.Equal(WorkshopRejection.StaleGeneration, (await simulation.Configure(CompiledSceneFixture.Compile(new(new(1), settings, WorkshopInstances.Empty)), new(2))).Reason);
         await simulation.Run();
         await simulation.Pause();
         var capture = simulation.Committed.Capture;
@@ -624,11 +629,11 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
-            WorkshopInput.Generic(PartId.Basketball,new(1),0,3,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.ImpactSwitch, new(2),0,1,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.Delay, new(3), -3, 1, 0, 0, 0, 0, 1)),
+            WorkshopInput.Generic(new PartId("ball"),new(1),0,3,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("switch"), new(2),0,1,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("delay"), new(3), -3, 1, 0, 0, 0, 0, 1)),
             Connections:new(new WorkshopConnection(new(2),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)));
-        var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(construction)).AsTask(); device.CompleteAdmission(0); await admission;
         await simulation.Run(); await simulation.Pause();
         var before = simulation.Committed; var commits = device.Commits;
         var network = WorkshopActivationCompiler.Compile(construction);
@@ -675,7 +680,7 @@ public sealed class WorkshopSimulationTests
         try
         {
             installation.HoldNext = true;
-            var admission = simulation.Construct(BallConstruction()).AsTask(); device.CompleteAdmission(0);
+            var admission = simulation.Construct(CompiledSceneFixture.Compile(BallConstruction())).AsTask(); device.CompleteAdmission(0);
             installation.Pending[0].Completion.SetException(failed
                 ? new WorkshopInstallationException(new IOException("installation cause"))
                 : new WorkshopInstallationException());
@@ -699,9 +704,9 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
-            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.PinballBumper,new(2),0,4,0,0,0,0,1)));
-        var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
+            WorkshopInput.Generic(new PartId("ball"),new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Generic(new PartId("bumper"),new(2),0,4,0,0,0,0,1)));
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(construction)).AsTask(); device.CompleteAdmission(0); await admission;
         await simulation.Run(); await simulation.Pause();
         var before = simulation.Committed; var commits = device.Commits;
         // The read carries the owner's stores alone (Story 9A.23 D9: the hit's occurrence row is the device's private ledger).
@@ -736,7 +741,7 @@ public sealed class WorkshopSimulationTests
         public CommandSequence? Active { get; private set; }
         public List<(CommandSequence Owner, TaskCompletionSource Completion)> Pending { get; } = [];
         public List<CommandSequence> Aborted { get; } = [];
-        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopConstruction construction,
+        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopCompiledScene construction,
             WorkshopGpuProfile profile, WorkshopSimulationPhase phase)
         {
             Calls++;
@@ -766,7 +771,7 @@ public sealed class WorkshopSimulationTests
         public int Commits { get; private set; }
         private bool _initializing = true;
         public bool HoldStartup { get; init; }
-        public ValueTask<WorkshopGpuCandidate> Admit(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence)
+        public ValueTask<WorkshopGpuCandidate> Admit(WorkshopCompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence)
         {
             profile.Validate();
             Assert.Equal(construction.Settings.Simulation, profile.Cadence);
@@ -786,12 +791,12 @@ public sealed class WorkshopSimulationTests
             var request = Admissions[index];
             request.Completion.SetResult(new(request.Sequence, Initial(request.Construction, request.Epoch)));
         }
-        public static WorkshopRead Initial(WorkshopConstruction construction, SimulationEpoch epoch)
+        public static WorkshopRead Initial(WorkshopCompiledScene construction, SimulationEpoch epoch)
         {
-            var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var scene = construction.Physics;
             var bytes = PhysicsGpuAbi.Admission(scene, epoch,
                 new(construction.Settings.Simulation, PhysicalStepProfile.Canonical480Hz, new(1)));
-            var network = WorkshopActivationCompiler.Compile(construction);
+            var network = construction.Activation;
             return new(epoch, new(0), PhysicsGpuAbi.ReadDynamicBodies(bytes),
                 Activations: network.Clear(), Timers: network.ClearTimers(),
                 ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes, PhysicsInteractionSnapshot.Empty).Stores, Electrical: PhysicsGpuAbi.ReadElectrical(bytes));
@@ -813,7 +818,7 @@ public sealed class WorkshopSimulationTests
         public void Commit(CommandSequence sequence) { Commits++; }
         public void Discard(CommandSequence sequence) { }
         public ValueTask DisposeAsync() { Disposals++; return ValueTask.CompletedTask; }
-        public sealed record Admission(WorkshopConstruction Construction, SimulationEpoch Epoch, CommandSequence Sequence,
+        public sealed record Admission(WorkshopCompiledScene Construction, SimulationEpoch Epoch, CommandSequence Sequence,
             TaskCompletionSource<WorkshopGpuCandidate> Completion);
     }
 }

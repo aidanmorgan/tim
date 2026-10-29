@@ -7,52 +7,42 @@ using System.Text.Json;
 
 namespace CuriousContraptions.Gpu;
 
-// The current construction record's typed scalar fields, not element identities.
-internal enum AuthoredScalar
-{
-    Length
-}
 internal enum AssistanceValue
 {
     PositionWindow, RotationWindow, MaximumPositionCorrection, MaximumRotationCorrection,
     Blend, CaptureMargin, CaptureSpeed, CaptureDwell, GuideAcceleration, TriggerThreshold
 }
 internal readonly record struct AuthoredSlot(string Value);
-internal readonly record struct AuthoredAssistanceBinding(AssistanceValue Value, AuthoredScalar? Scalar, ParameterId Parameter);
+internal readonly record struct AuthoredAssistanceBinding(AssistanceValue Value, ParameterId Parameter);
 
 /// <summary>Explicit current-schema fields. No omitted scalar is replaced by a FlatBuffers default.</summary>
 internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, LocalPosition Local,
-    CanonicalRotation Rotation, bool Locked, ImmutableDictionary<AuthoredScalar, float> Scalars,
+    CanonicalRotation Rotation, bool Locked,
     InstanceParameterCollection Parameters, AssistanceProfile Assistance, ImmutableArray<AuthoredAssistanceBinding> AssistanceBindings)
 {
     internal AuthoredInstanceTemplate At(PuzzlePrecision precision)
     {
-        var values = Scalars.ToBuilder();
         var parameters = Parameters.ToDictionary();
         var assistance = Assistance.Evaluate(precision);
         foreach (var binding in AssistanceBindings)
         {
             var value = Value(assistance, binding.Value);
-            if (binding.Scalar is { } scalar) values[scalar] = value;
-            else parameters[binding.Parameter] = value;
+            parameters[binding.Parameter] = value;
         }
-        return this with { Scalars = values.ToImmutable(), Parameters = new(parameters) };
+        return this with { Parameters = new(parameters) };
     }
 
     internal void Validate()
     {
         if (!DeclaredPhysics.Contains(Part)) throw new ArgumentException("Unknown declared part.");
-        if (Scalars.Count != Enum.GetValues<AuthoredScalar>().Length ||
-            Scalars.Any(pair => !Enum.IsDefined(pair.Key) || !float.IsFinite(pair.Value)))
-            throw new ArgumentException("Missing, undefined or nonfinite authored scalar.");
+        Parameters.Validate(Part);
         Rotation.Validate();
         // The current wire instance constructor validates typed scalars or the complete generic parameter set.
-        var targets = new HashSet<(AuthoredScalar?, ParameterId)>(4);
+        var targets = new HashSet<ParameterId>(4);
         foreach (var binding in AssistanceBindings)
         {
-            if (!Enum.IsDefined(binding.Value) || (binding.Scalar is null) == (binding.Parameter == default) ||
-                !targets.Add((binding.Scalar, binding.Parameter)) ||
-                (binding.Scalar is { } scalar && !Enum.IsDefined(scalar)) ||
+            if (!Enum.IsDefined(binding.Value) || binding.Parameter == default ||
+                !targets.Add(binding.Parameter) ||
                 (binding.Parameter != default && !Parameters.ContainsKey(binding.Parameter)))
                 throw new ArgumentException("Invalid or duplicate assistance target.");
         }
@@ -62,7 +52,7 @@ internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, Lo
     {
         var current = At(precision);
         current.Validate();
-        var instance = WorkshopWireFlatBuffers.MapAuthoredInstance(current, id);
+        var instance = WorkshopAuthoringFlatBuffers.MapAuthoredInstance(current, id);
         instance.Validate();
         return instance;
     }
@@ -88,39 +78,34 @@ internal static class AuthoredInstanceReader
     internal static AuthoredInstanceTemplate Parse(JsonElement json, string where)
     {
         var fields = PuzzleContentReader.Fields(json, where);
-        Require(fields, where, "part", "cell", "local", "rotation", "locked", "scalars",
+        Require(fields, where, "part", "cell", "local", "rotation", "locked",
             "parameters", "assistance", "assistance_bindings");
         var part = new PartId(PuzzleContentReader.Text(fields, "part", where));
         if (!DeclaredPhysics.Contains(part)) throw PuzzleContentReader.Invalid(where, "part", "unknown declared part");
         var cell = Array(fields["cell"], 3, where + ".cell");
         var local = Vector(fields["local"], where + ".local");
         var rotation = Array(fields["rotation"], 4, where + ".rotation");
-        var scalars = ImmutableDictionary.CreateBuilder<AuthoredScalar, float>();
-        foreach (var (key, value) in PuzzleContentReader.Fields(fields["scalars"], where + ".scalars"))
-            scalars.Add(Closed<AuthoredScalar>(key, where), Number(value, where + ".scalars." + key));
         var parameters = new InstanceParameterCollection(PuzzleContentReader.Fields(fields["parameters"], where + ".parameters")
             .Select(pair => KeyValuePair.Create(new ParameterId(pair.Key), Number(pair.Value, where + ".parameters." + pair.Key))));
         var assistanceBindings = ImmutableArray.CreateBuilder<AuthoredAssistanceBinding>();
         foreach (var row in Rows(fields["assistance_bindings"], where))
         {
             var binding = PuzzleContentReader.Fields(row, where);
-            Require(binding, where, "value", "scalar", "parameter");
-            var scalar = binding["scalar"].ValueKind == JsonValueKind.Null ? (AuthoredScalar?)null :
-                Closed<AuthoredScalar>(PuzzleContentReader.Text(binding, "scalar", where), where);
+            Require(binding, where, "value", "parameter");
             var parameter = binding["parameter"].ValueKind == JsonValueKind.Null ? default :
                 new ParameterId(PuzzleContentReader.Text(binding, "parameter", where));
-            assistanceBindings.Add(new(Closed<AssistanceValue>(PuzzleContentReader.Text(binding, "value", where), where), scalar, parameter));
+            assistanceBindings.Add(new(Closed<AssistanceValue>(PuzzleContentReader.Text(binding, "value", where), where), parameter));
         }
         var result = new AuthoredInstanceTemplate(part,
             new(Integer(cell[0], where + ".cell[0]"), Integer(cell[1], where + ".cell[1]"), Integer(cell[2], where + ".cell[2]")),
             new(local.X, local.Y, local.Z),
             new(Number(rotation[0], where), Number(rotation[1], where), Number(rotation[2], where), Number(rotation[3], where)),
-            Boolean(fields["locked"], where + ".locked"), scalars.ToImmutable(),
+            Boolean(fields["locked"], where + ".locked"),
             parameters, Profile(fields["assistance"], where), assistanceBindings.ToImmutable());
         try
         {
             result.Validate();
-            WorkshopWireFlatBuffers.MapAuthoredInstance(result, new(1)).Validate();
+            WorkshopAuthoringFlatBuffers.MapAuthoredInstance(result, new(1)).Validate();
             foreach (var precision in new[] { 0f, .45f, 1f }) result.Create(new(1), new(precision));
         }
         catch (ArgumentException error) { throw PuzzleContentReader.Invalid(where, "instance", error.Message); }

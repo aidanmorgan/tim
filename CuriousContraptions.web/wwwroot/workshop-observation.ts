@@ -11,7 +11,6 @@ export enum AnimationCadence { Hz30 = 1, Hz60 = 2, Hz90 = 3, Hz120 = 4 }
 export enum AnimationDeferralCause { Preparation = 1, Recalibrating = 2 }
 export enum AnimationOutputKind { Acknowledgement = 1, Sample = 2, Rejected = 3 }
 export enum AnimationProperty { LocalRotationAngle = 1, LocalTranslation = 2, Opacity = 3, UniformScale = 4, ColourBlend = 5, ColourRed = 6, ColourGreen = 7, ColourBlue = 8 }
-export enum AnimationTimerPhase { None, Ready, Counting, Finished }
 export enum CaptureLatchPhase { Clear, Latched }
 export enum ClockDerivationOutcome { Consistent, Slewed, Rederived, Inconclusive, Unanswered }
 export enum ClockDerivationReport { Check, Startup, Summary }
@@ -162,7 +161,6 @@ export interface AnimationSampleDiagnostic {
     readonly category: DiagnosticCategory.AnimationSample; readonly cadence: string; readonly kind: AnimationOutputKind;
     readonly target: string; readonly world: string; readonly generation: string; readonly pulse: string; readonly appliedAt: string;
     readonly value: number; readonly ordinal: number; readonly eventPhase: number; readonly property: AnimationProperty;
-    readonly timer: { readonly phase: AnimationTimerPhase; readonly started: string; readonly due: string; readonly observed: string; readonly inputEmitter: string };
 }
 export interface ObservedEndpoint { readonly tick: string; readonly capture: ObservedClockStamp; readonly interval?: ObservedInterval; readonly receipt?: string; readonly probe?: string; }
 export interface PresentationDiagnostic {

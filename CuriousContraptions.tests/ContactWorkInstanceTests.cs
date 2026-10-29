@@ -48,12 +48,12 @@ public sealed class ContactWorkInstanceTests
     [InlineData(3.3333333f)]
     public void TheCompiledStoreHoldsTheDeclaredPreload(float strength)
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Drop(PartId.Basketball, 4.5, strength), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(Drop(new PartId("ball"), 4.5, strength), new(1, 2));
         var work = Assert.Single(scene.ContactWorks.ToArray());
         var half = .5f * 1f;
         Assert.Equal(half * strength * strength, work.InitialEnergy.Value);
         Assert.Equal(strength, work.TargetSpeed.Value);
-        Assert.Equal((Drop(PartId.Basketball, 4.5, strength).Instances.Identities[Owner].Work, Owner, new BodyTargetSet(BodyTargetKind.AllDynamic, default)),
+        Assert.Equal((Drop(new PartId("ball"), 4.5, strength).Instances.Identities[Owner].Work, Owner, new BodyTargetSet(BodyTargetKind.AllDynamic, default)),
             (work.Id, work.Owner, work.Targets));
         Assert.Equal((.05f, 72u), (work.Threshold.Value, work.CooldownPhysicalSteps));
     }
@@ -76,10 +76,10 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public void OnlyTheDeclaringPartCompilesAStore()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Free(WorkshopInput.Generic(PartId.Basketball, Ball, 0, 4.5f, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Wall, new(3), 4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
-            WorkshopInput.Generic(PartId.Receiver, new(4), -4, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.ImpactSwitch, new(5), 8, 1, 0, 0, 0, 0, 1),
+        var scene = WorkshopPhysicsCompiler.Compile(Free(WorkshopInput.Generic(new PartId("ball"), Ball, 0, 4.5f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("wall"), new(3), 4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
+            WorkshopInput.Generic(new PartId("basket"), new(4), -4, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("switch"), new(5), 8, 1, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(Owner, 0, 3, 0)), new(1, 2));
         Assert.Equal(Owner, Assert.Single(scene.ContactWorks.ToArray()).Owner);
     }
@@ -88,7 +88,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task RunResetAndSaveLoadAreExact()
     {
-        var bench = Drop(PartId.Basketball, 4.5, 12.5f);
+        var bench = Drop(new PartId("ball"), 4.5, 12.5f);
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 2 * TicksPerSecond);
         // A paid hit during the run: the store counted it and spent energy (its occurrence row is device-private, Story 9A.23 D9).
         Assert.Contains(run, read => read.ContactWorks[0].OccurrenceCount > 0 &&
@@ -107,8 +107,8 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public void StrengthEndpointsHoldAnEmptyAndATwoHundredJouleStore()
     {
-        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(Drop(PartId.Basketball, 4.5, 0f), new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
-        Assert.Equal(200f, Assert.Single(WorkshopPhysicsCompiler.Compile(Drop(PartId.Basketball, 4.5, 20f), new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(Drop(new PartId("ball"), 4.5, 0f), new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+        Assert.Equal(200f, Assert.Single(WorkshopPhysicsCompiler.Compile(Drop(new PartId("ball"), 4.5, 20f), new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
     }
 
     // ---------- real simulation ----------
@@ -117,7 +117,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task StrengthEightLaunchesTheBallPaidAtTheTargetSpeedAndTheLedgerCloses()
     {
-        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(PartId.Basketball, 4.5, 8f), 2 * TicksPerSecond);
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(new PartId("ball"), 4.5, 8f), 2 * TicksPerSecond);
         Assert.Equal(32f, reads[0].ContactWorks[0].RemainingEnergy.Value);
         var index = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
         Assert.True(index > 0, "the ball reaches the Bumper");
@@ -135,7 +135,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task APartiallyAffordableBoostEmptiesTheStoreAndALaterContactIsAnOrdinaryUnpaidBounce()
     {
-        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(PartId.BowlingBall, 6, 8f), 4 * TicksPerSecond);
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(new PartId("bowling"), 6, 8f), 4 * TicksPerSecond);
         var occurrences = Occurrences(ledgers).ToArray();
         Assert.True(occurrences.Length >= 2, "the ball returns to the empty Bumper");
         Assert.Equal((32f, ContactWorkEffect.Paid), (occurrences[0].Debit.Value, occurrences[0].Effect));
@@ -150,7 +150,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task StrengthZeroIsAnEmptyStoreWhoseContactsAreUnpaid()
     {
-        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(PartId.Basketball, 4.5, 0f), 2 * TicksPerSecond);
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(new PartId("ball"), 4.5, 0f), 2 * TicksPerSecond);
         var occurrences = Occurrences(ledgers).ToArray();
         Assert.NotEmpty(occurrences);
         Assert.All(occurrences, occurrence => Assert.Equal((0f, ContactWorkEffect.Passive), (occurrence.Debit.Value, occurrence.Effect)));
@@ -161,7 +161,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task ABallInAnotherDepthPlaneNeverPays()
     {
-        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(PartId.Basketball, 4.5, 8f, z: 2), 2 * TicksPerSecond);
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(new PartId("ball"), 4.5, 8f, z: 2), 2 * TicksPerSecond);
         Assert.Empty(Occurrences(ledgers));
         Assert.All(reads, read => Assert.Equal(32f, read.ContactWorks[0].RemainingEnergy.Value));
     }
@@ -173,7 +173,7 @@ public sealed class ContactWorkInstanceTests
     [InlineData(true, 0f)]
     public async Task ExposedCapContactsUseTheFiniteStoreAndOnlyPaidWorkEmitsAPulse(bool heavy, float strength)
     {
-        var payload = heavy ? PartId.BowlingBall : PartId.Basketball;
+        var payload = heavy ? new PartId("bowling") : new PartId("ball");
         // The face at x=.2 is exposed above the sphere. Starting .2 m above the cap
         // gives a slow incoming bounce: a 4 kg payload needs more than 32 J to reach 8 m/s.
         var radius = heavy ? .28 : .34;
@@ -217,7 +217,7 @@ public sealed class ContactWorkInstanceTests
     public async Task ADirectlyWiredBatteryRechargesTheStoreAndAnUnwiredOneDoesNot(bool wired)
     {
         var battery = PlacedParts.Battery(Source, 3, 1, 0, powerLimit: 10f);
-        var bench = Drop(PartId.BowlingBall, 6, 8f);
+        var bench = Drop(new PartId("bowling"), 6, 8f);
         bench = bench with { Instances = bench.Instances.With(battery) };
         if (wired) bench = bench with { Connections = new(new WorkshopConnection(Source, WorkshopSocket.Supply, Owner, WorkshopSocket.PowerIn,
             WorkshopConnectionDomain.Electrical)) };
@@ -236,7 +236,7 @@ public sealed class ContactWorkInstanceTests
     public void SwitchedStoreRoutingIsRefused()
     {
         var battery = PlacedParts.Battery(Source, 3, 1, 0);
-        var toggle = WorkshopInput.Generic(PartId.ImpactSwitch, new(4), 5, 1, 0, 0, 0, 0, 1);
+        var toggle = WorkshopInput.Generic(new PartId("switch"), new(4), 5, 1, 0, 0, 0, 0, 1);
         var bench = Free(PlacedParts.Bumper(Owner, 0, 3, 0), battery, toggle) with { Connections = new(
             new WorkshopConnection(Source, WorkshopSocket.Supply, toggle.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
             new WorkshopConnection(toggle.Id, WorkshopSocket.Supply, Owner, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)) };
@@ -250,7 +250,7 @@ public sealed class ContactWorkInstanceTests
         var angle = degrees * MathF.PI / 180;
         var rotation = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, angle);
         WorkshopConstruction Bench(double x) => Free(
-            WorkshopInput.Generic(PartId.BowlingBall, Ball, (float)(x), 5.5f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("bowling"), Ball, (float)(x), 5.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(Owner, 0, 3, 0, (float)(strength), qz: rotation.Z, qw: rotation.W),
             PlacedParts.Battery(Source, 3, 1, 0)) with
         {

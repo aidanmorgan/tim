@@ -8,9 +8,6 @@ using CuriousContraptions.Abstractions.Electrical;
 namespace CuriousContraptions.Gpu;
 
 public enum WorkshopConnectionDomain : uint { Activation = 1, Electrical = 2 }
-/// <summary>The engine's sockets. Each value equals the bundle's <c>PortSocket</c> of the same name, and is the wire and save
-/// value.</summary>
-public enum WorkshopSocket : uint { ActivationOut = 1, SetIn = 2, ResetIn = 3, ActivationIn = 4, FirstIn = 5, SecondIn = 6, Supply = 7, PowerIn = 8 }
 public enum WorkshopPortDirection : uint { Input = 1, Output = 2 }
 /// <summary>What an activation port carries (Story 9R.5): an output declares what it emits, an input the strongest signal it admits.
 /// A Pulse is one occurrence; a Level is a committed high/low value (the latch's memory, a declared sensor's held contact load). An input that

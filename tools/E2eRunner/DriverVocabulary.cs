@@ -8,12 +8,12 @@ internal static class DriverVocabulary
     /// receiver differ from their PartId values (ball, basket).</summary>
     public static readonly IReadOnlyDictionary<string, PartId> ToolKinds = new Dictionary<string, PartId>(StringComparer.Ordinal)
     {
-        ["basketball"] = PartId.Basketball, ["bowling"] = PartId.BowlingBall, ["wall"] = PartId.Wall, ["ramp"] = PartId.Ramp,
-        ["bumper"] = PartId.PinballBumper, ["switch"] = PartId.ImpactSwitch, ["delay"] = PartId.Delay, ["lamp"] = PartId.SignalLamp,
-        ["receiver"] = PartId.Receiver, ["domino"] = PartId.Domino, ["battery"] = PartId.Battery, ["pipe"] = PartId.Pipe,
-        ["ball_detector"] = PartId.BallDetector, ["pipe_bend_45"] = PartId.PipeBend45, ["pipe_bend_90"] = PartId.PipeBend90,
-        ["funnel"] = PartId.Funnel, ["powered_gate"] = PartId.PoweredGate, ["pressure_plate"] = PartId.PressurePlate,
-        ["counter"] = PartId.Counter, ["clock"] = PartId.Clock, ["latch"] = PartId.Latch,
+        ["basketball"] = new PartId("ball"), ["bowling"] = new PartId("bowling"), ["wall"] = new PartId("wall"), ["ramp"] = new PartId("ramp"),
+        ["bumper"] = new PartId("bumper"), ["switch"] = new PartId("switch"), ["delay"] = new PartId("delay"), ["lamp"] = new PartId("lamp"),
+        ["receiver"] = new PartId("basket"), ["domino"] = new PartId("domino"), ["battery"] = new PartId("battery"), ["pipe"] = new PartId("pipe"),
+        ["ball_detector"] = new PartId("ball_detector"), ["pipe_bend_45"] = new PartId("pipe_bend_45"), ["pipe_bend_90"] = new PartId("pipe_bend_90"),
+        ["funnel"] = new PartId("funnel"), ["powered_gate"] = new PartId("powered_gate"), ["pressure_plate"] = new PartId("pressure_plate"),
+        ["counter"] = new PartId("counter"), ["clock"] = new PartId("clock"), ["latch"] = new PartId("latch"),
     };
 
     /// <summary>The driver calls whose string-literal arguments name parts (through <see cref="ToolKinds"/>).</summary>

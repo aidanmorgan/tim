@@ -8,6 +8,155 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopObservationTests
 {
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task LateCaptureResolvesItsOriginalAuthoredSceneAfterCadenceAndLaterEdits(bool delayRunAcknowledgement)
+    {
+        using var transport = new WorkshopActivationAnimationTests.NativeClient();
+        var client = transport.Client; var port = client.Observation;
+        var original = PuzzleCatalogue.CreateSolution(new("first_principles"), new(2),
+            WorkshopCadenceSettings.Default(), new(1), new(.45f));
+        await transport.Construct(original);
+        var first = port.Query(port.Session, WorkshopObservationQuery.Committed).Value;
+        var scene = transport.InstalledScene.Identity;
+        transport.HoldNextAcknowledgement = delayRunAcknowledgement;
+        var run = client.Execute(WorkshopCommandKind.Run);
+        if (delayRunAcknowledgement) Assert.False(run.IsCompleted);
+        else Assert.Equal(WorkshopCommandOutcome.Applied, (await run).Response.Result.Outcome);
+        await client.Execute(WorkshopCommandKind.Reset);
+        var changedSettings = original.Settings with { Simulation = SimulationCadence.Hz240 };
+        Assert.Equal(WorkshopCommandOutcome.Applied,
+            (await client.Execute(WorkshopCommandKind.ConfigureCadence, settings: changedSettings)).Response.Result.Outcome);
+        var cadenceSource = port.Authored(port.Session, transport.InstalledScene.Identity);
+        Assert.Equal(original with { Settings = changedSettings }, cadenceSource.Value.Construction);
+        await transport.Construct(new(new(3), changedSettings, new(
+            WorkshopInput.Generic(new PartId("ball"), new(9), 3, 7, 0, 0, 0, 0, 1))));
+        if (delayRunAcknowledgement) transport.ReleaseAcknowledgement();
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await run).Response.Result.Outcome);
+        var profile = new WorkshopGpuProfile(original.Settings.Simulation, original.Settings.Physical, first.Cadence);
+        var trace = new WorkshopTrace();
+        trace.Begin(port.Session, CompiledSceneFixture.Compile(original, scene), first.Read.Epoch, first.Projection, profile);
+        trace.Append(WorkshopTraceRecord.Encode(first.Read, profile)); trace.End(TraceEnd.Reset);
+        trace.Flush(WorkshopSimulationPhase.Building);
+        transport.DeliverObservation(WorkshopWireFlatBuffers.EncodeObservations(new(port.Session,
+            WorkshopRuntimeRole.Simulation, trace.Diagnostics.Snapshot().ToImmutableArray())));
+        var capture = port.Diagnostics(port.Session, default).Value!.Select(row => row.Record)
+            .OfType<WorkshopCaptureDiagnostic>().First(row => row.Stage == WorkshopCaptureStage.Begin);
+        Assert.Equal(scene, capture.Scene);
+        var source = port.Authored(capture.Session, capture.Scene!.Value);
+        Assert.Equal(WorkshopObservationRefusal.None, source.Refusal);
+        Assert.Equal(original, source.Value.Construction);
+        using var projected = WorkshopObservationProjection.Diagnostic<ExternalObject>(capture, source.Value);
+        var authored = Assert.IsType<ExternalObject>(projected.Fields["construction"]);
+        Assert.Equal("first_principles", Assert.IsType<ExternalObject>(authored.Fields["puzzle"]).Fields["id"]);
+        Assert.Equal((int)original.Settings.Simulation, authored.Fields["simulation"]);
+        Assert.Equal(original.Instances.Count, Assert.IsType<ExternalObject>(authored.Fields["instances"]).Items.Count);
+        Assert.Null(port.Terminal);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task MissingOrForeignCaptureAssociationRetiresOnlyObservation(bool foreignSession)
+    {
+        using var transport = new WorkshopActivationAnimationTests.NativeClient();
+        var client = transport.Client; var port = client.Observation;
+        var original = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1)));
+        await transport.Construct(original);
+        var before = port.Query(port.Session, WorkshopObservationQuery.Committed).Value;
+        var trace = new WorkshopTrace();
+        var profile = new WorkshopGpuProfile(original.Settings.Simulation, original.Settings.Physical, before.Cadence);
+        trace.Begin(foreignSession ? new(777, 888) : port.Session,
+            CompiledSceneFixture.Compile(original, new(999)), before.Read.Epoch, before.Projection, profile);
+        trace.Append(WorkshopTraceRecord.Encode(before.Read, profile)); trace.End(TraceEnd.Reset);
+        trace.Flush(WorkshopSimulationPhase.Building);
+        transport.DeliverObservation(WorkshopWireFlatBuffers.EncodeObservations(new(port.Session,
+            WorkshopRuntimeRole.Simulation, trace.Diagnostics.Snapshot().ToImmutableArray())));
+        _ = port.Diagnostics(port.Session, default);
+        Assert.NotNull(port.Terminal);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await client.Execute(WorkshopCommandKind.Run)).Response.Result.Outcome);
+        Assert.Equal(WorkshopObservationRefusal.Retired, port.Query(port.Session, WorkshopObservationQuery.Committed).Refusal);
+    }
+
+    [Theory]
+    [InlineData(WorkshopCommandOutcome.Rejected)]
+    [InlineData(WorkshopCommandOutcome.Cancelled)]
+    [InlineData(WorkshopCommandOutcome.Superseded)]
+    public async Task ObservationOwnerReleasesTerminalUnusedCandidates(WorkshopCommandOutcome outcome)
+    {
+        await using var world = await WorkshopIntegrationHarness.Building(new(new(2), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1))));
+        var session = world.Latest.Session;
+        var observation = new WorkshopObservation(session, new WorkshopDiagnostics());
+        var active = new WorkshopCommand(new(90), WorkshopCommandKind.Construct, new(1), new(1),
+            CompiledSceneFixture.Compile(world.Construction, new(90)), Session: session);
+        observation.Associate(active, world.Construction);
+        observation.Commit(world.Latest with { Scene = active.Scene });
+        observation.CompleteCandidate(active);
+        var candidate = active with { Sequence = new(91), Scene = CompiledSceneFixture.Compile(world.Construction with { Revision = new(3) }, new(91)) };
+        observation.Associate(candidate, world.Construction with { Revision = new(3) });
+        var pending = observation.Authored(session, candidate.Scene!.Identity);
+        Assert.Equal(WorkshopObservationRefusal.None, pending.Refusal);
+        Assert.Null(pending.Value.Command.Scene); // Associations retain metadata, never the compiled graph.
+        observation.Receipt(candidate, world.Latest with { Result = new(outcome, WorkshopRejection.InvalidConstruction) }, false);
+        observation.CompleteCandidate(candidate);
+        Assert.Equal(WorkshopObservationRefusal.None, observation.Authored(session, active.Scene!.Identity).Refusal);
+        Assert.Equal(WorkshopObservationRefusal.NotCommitted, observation.Authored(session, candidate.Scene.Identity).Refusal);
+        Assert.NotNull(observation.Terminal);
+        Assert.Equal(WorkshopObservationRefusal.Retired, observation.Authored(session, active.Scene.Identity).Refusal);
+    }
+
+
+    [Theory]
+    [InlineData(WorkshopCommandOutcome.Rejected)]
+    [InlineData(WorkshopCommandOutcome.Cancelled)]
+    [InlineData(WorkshopCommandOutcome.Superseded)]
+    public async Task UnsuccessfulRunReleasesOnlyItsPendingSceneOwnership(WorkshopCommandOutcome outcome)
+    {
+        await using var world = await WorkshopIntegrationHarness.Building(new(new(2), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1))));
+        var session = world.Latest.Session;
+        var observation = new WorkshopObservation(session, new WorkshopDiagnostics());
+        var first = new WorkshopCommand(new(90), WorkshopCommandKind.Construct, new(1), new(1),
+            CompiledSceneFixture.Compile(world.Construction, new(90)), Session: session);
+        observation.Associate(first, world.Construction);
+        observation.Commit(world.Latest with { Scene = first.Scene });
+        observation.CompleteCandidate(first);
+        var run = first with { Sequence = new(91), Kind = WorkshopCommandKind.Run, Scene = null };
+        observation.BeginRun(run);
+        var replacement = first with { Sequence = new(92), Scene = CompiledSceneFixture.Compile(world.Construction, new(92)) };
+        observation.Associate(replacement, world.Construction);
+        observation.Commit(world.Latest with { Scene = replacement.Scene });
+        observation.CompleteCandidate(replacement);
+        Assert.Equal(WorkshopObservationRefusal.None, observation.Authored(session, first.Scene!.Identity).Refusal);
+        observation.Receipt(run, world.Latest with { Result = new(outcome, WorkshopRejection.InvalidConstruction) }, false);
+        observation.CompleteCandidate(run);
+        Assert.Equal(WorkshopObservationRefusal.None, observation.Authored(session, replacement.Scene!.Identity).Refusal);
+        Assert.Equal(WorkshopObservationRefusal.NotCommitted, observation.Authored(session, first.Scene.Identity).Refusal);
+    }
+
+    [Fact]
+    public async Task SupersededUncapturedEditsReleaseTheirSourcesWhileCurrentSceneRemainsUsable()
+    {
+        using var transport = new WorkshopActivationAnimationTests.NativeClient();
+        var client = transport.Client;
+        var port = client.Observation;
+        var source = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1)));
+        await transport.Construct(source);
+        var obsolete = transport.InstalledScene.Identity;
+        for (ulong revision = 3; revision < 13; revision++)
+            await transport.Construct(source with { Revision = new(revision) });
+        var active = transport.InstalledScene.Identity;
+        Assert.Equal(WorkshopObservationRefusal.None, port.Authored(port.Session, active).Refusal);
+        Assert.Equal(WorkshopObservationRefusal.NotCommitted, port.Authored(port.Session, obsolete).Refusal);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await client.Execute(WorkshopCommandKind.Run)).Response.Result.Outcome);
+        await transport.Advance(1);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await client.Execute(WorkshopCommandKind.Reset)).Response.Result.Outcome);
+    }
     public enum StartupFailure { None, Bootstrap, Qualification, Initialize }
     [Fact]
     public async Task QueriesFollowCommittedRunPauseStepAndResetWithoutConsumingTheUi()
@@ -170,15 +319,17 @@ public sealed class WorkshopObservationTests
         var before = port.Query(port.Session, WorkshopObservationQuery.Committed).Value;
         var trace = new WorkshopTrace();
         var profile = new WorkshopGpuProfile(construction.Settings.Simulation, construction.Settings.Physical, before.Cadence);
-        trace.Begin(port.Session, construction, before.Read.Epoch, before.Projection, profile);
+        trace.Begin(port.Session, CompiledSceneFixture.Compile(construction), before.Read.Epoch, before.Projection, profile);
         trace.Append(WorkshopTraceRecord.Encode(before.Read, profile));
         trace.End(TraceEnd.Reset); trace.Flush(WorkshopSimulationPhase.Building);
         var bytes = WorkshopWireFlatBuffers.EncodeObservations(new(port.Session, WorkshopRuntimeRole.Simulation, trace.Diagnostics.Snapshot().ToImmutableArray()));
         transport.DeliverObservation(bytes);
         var records = port.Diagnostics(port.Session, default).Value!.Select(receipt => receipt.Record).OfType<WorkshopCaptureDiagnostic>().ToArray();
         var begin = Assert.Single(records, record => record.Kind == WorkshopCaptureKind.Pose && record.Stage == WorkshopCaptureStage.Begin);
-        Assert.Equal(construction, begin.Construction!.Value.Construction);
-        Assert.Equal(port.Session, begin.Construction.Value.Session);
+        var original = port.Authored(port.Session, begin.Scene!.Value);
+        Assert.Equal(WorkshopObservationRefusal.None, original.Refusal);
+        Assert.Equal(construction, original.Value.Construction);
+        Assert.Equal(port.Session, original.Value.Command.Session);
         Assert.Equal(TraceEnd.Reset, begin.End); Assert.Equal(TraceTimingStatus.Incomplete, begin.Status);
         var chunk = Assert.Single(records, record => record.Kind == WorkshopCaptureKind.Pose && record.Stage == WorkshopCaptureStage.Chunk);
         var sample = Assert.Single(chunk.Samples);
@@ -255,7 +406,7 @@ public sealed class WorkshopObservationTests
     {
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(PartId.BowlingBall, new(5), 0, 6, 0, 0, 0, 0, 1),
+            new(WorkshopInput.Generic(new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
                 PlacedParts.Bumper(new(6), 0, 3, 0, 8f), PlacedParts.Battery(new(3), 3, 1, 0)),
             Connections: new(new WorkshopConnection(new(3), WorkshopSocket.Supply, new(6), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         await transport.Construct(construction);
@@ -318,7 +469,7 @@ public sealed class WorkshopObservationTests
     {
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(PartId.BowlingBall, new(5), 0, 6, 0, 0, 0, 0, 1),
+            new(WorkshopInput.Generic(new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
                 PlacedParts.Bumper(new(6), 0, 3, 0, 8f), PlacedParts.Battery(new(3), 3, 1, 0)),
             Connections: new(new WorkshopConnection(new(3), WorkshopSocket.Supply, new(6), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         await transport.Construct(construction);
@@ -359,7 +510,7 @@ public sealed class WorkshopObservationTests
         }));
         var trace = new WorkshopTrace(producer);
         var profile = new WorkshopGpuProfile(construction.Settings.Simulation, construction.Settings.Physical, before.Cadence);
-        trace.Begin(port.Session, construction, before.Read.Epoch, before.Projection, profile);
+        trace.Begin(port.Session, CompiledSceneFixture.Compile(construction), before.Read.Epoch, before.Projection, profile);
         trace.Append(WorkshopTraceRecord.Encode(before.Read, profile)); trace.End(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Contains("Capture", port.Terminal!.Value.Detail, StringComparison.Ordinal);
@@ -379,7 +530,7 @@ public sealed class WorkshopObservationTests
     public void CompleteCaptureTerminalMetadataMustAgreeAtBothCodecBoundaries(TraceEnd end, int count, bool admitted)
     {
         var profile = new WorkshopGpuProfile(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
-        var diagnostic = new WorkshopCaptureDiagnostic(WorkshopCaptureKind.Timing, WorkshopCaptureStage.End, 1, new(1), profile,
+        var diagnostic = new WorkshopCaptureDiagnostic(WorkshopCaptureKind.Timing, WorkshopCaptureStage.End, new(101, 206), 1, new(1), profile,
             end, TraceTimingStatus.Complete, 10, count, 0, 1, 0, null, [], []);
         var batch = new WorkshopObservationBatch(new(101, 206), WorkshopRuntimeRole.Simulation, [diagnostic]);
         if (admitted)
@@ -390,8 +541,10 @@ public sealed class WorkshopObservationTests
         }
         else Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeObservations(batch));
         var builder = new FlatBufferBuilder(256);
+        var captureSession = new byte[16]; batch.Session.WriteTo(captureSession);
         var capture = W.CaptureObservation.CreateCaptureObservation(builder, (uint)WorkshopCaptureKind.Timing, (uint)WorkshopCaptureStage.End,
             1, 1, (uint)profile.Cadence, (uint)profile.Physical, 1, (uint)end, (uint)TraceTimingStatus.Complete, 10, count,
+            sessionOffset: W.CaptureObservation.CreateSessionVector(builder, captureSession),
             samplesOffset: W.CaptureObservation.CreateSamplesVector(builder, []),
             millisecondsOffset: W.CaptureObservation.CreateMillisecondsVector(builder, []));
         var record = W.DiagnosticObservation.CreateDiagnosticObservation(builder, W.ObservationPayload.Capture, captureOffset: capture);
@@ -407,7 +560,7 @@ public sealed class WorkshopObservationTests
     [Fact]
     public void CompleteCaptureChunksUseLocalCountsWithoutPretendingTheyAreTerminalTotals()
     {
-        var diagnostic = new WorkshopCaptureDiagnostic(WorkshopCaptureKind.Timing, WorkshopCaptureStage.Chunk, 1, new(1),
+        var diagnostic = new WorkshopCaptureDiagnostic(WorkshopCaptureKind.Timing, WorkshopCaptureStage.Chunk, new(101, 206), 1, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)), TraceEnd.Complete, TraceTimingStatus.Complete,
             10, 1, 0, 10, 1, null, [], [0.5]);
         var value = Assert.IsType<WorkshopCaptureDiagnostic>(Assert.Single(WorkshopWireFlatBuffers.DecodeObservations(
@@ -419,8 +572,8 @@ public sealed class WorkshopObservationTests
     public void ProductionConstructionProjectionIncludesPuzzleConfigurationAndConnectionDomains()
     {
         var construction = PuzzleCatalogue.CreateSolution(new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(0.45f));
-        var command = new WorkshopCommand(new(7), WorkshopCommandKind.Construct, new(2), new(3), construction, Session: new(101, 206));
-        using var dto = WorkshopObservationProjection.Construction<ExternalObject>(command);
+        var command = new WorkshopCommand(new(7), WorkshopCommandKind.Construct, new(2), new(3), CompiledSceneFixture.Compile(construction), Session: new(101, 206));
+        using var dto = WorkshopObservationProjection.Construction<ExternalObject>(new(command.Scene!.Identity, command with { Scene = null }, construction));
         Assert.Equal("7", dto.Fields["sequence"]); Assert.Equal((int)WorkshopCommandKind.Construct, dto.Fields["kind"]);
         var puzzle = Assert.IsType<ExternalObject>(dto.Fields["puzzle"]);
         Assert.Equal("first_principles", puzzle.Fields["id"]); Assert.Equal(0.45f, puzzle.Fields["precision"]);
@@ -432,7 +585,7 @@ public sealed class WorkshopObservationTests
         Assert.Equal(11, balanced.Fields.Count);
         var connected = construction with { Connections = new(new WorkshopConnection(new(1), WorkshopSocket.ActivationOut,
             new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
-        using var wired = WorkshopObservationProjection.Construction<ExternalObject>(command with { Construction = connected });
+        using var wired = WorkshopObservationProjection.Construction<ExternalObject>(new(command.Scene!.Identity, command with { Scene = null }, connected));
         var connection = Assert.Single(Assert.IsType<ExternalObject>(wired.Fields["connections"]).Items);
         Assert.Equal((int)WorkshopConnectionDomain.Activation, connection.Fields["domain"]);
         Assert.Equal((int)WorkshopSocket.ActivationOut, connection.Fields["output"]);
@@ -468,7 +621,7 @@ public sealed class WorkshopObservationTests
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         var client = transport.Client; var port = client.Observation;
         await transport.Construct(new(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(PartId.BowlingBall, new(5), 0, 6, 0, 0, 0, 0, 1),
+            new(WorkshopInput.Generic(new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
                 PlacedParts.Bumper(new(6), 0, 3, 0, 8f), PlacedParts.Battery(new(3), 3, 1, 0)),
             Connections: new(new WorkshopConnection(new(3), WorkshopSocket.Supply, new(6), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical))));
         var first = port.OpenEvents(port.Session).Value; var second = port.OpenEvents(port.Session).Value;
@@ -518,7 +671,7 @@ public sealed class WorkshopObservationTests
         var body = Assert.IsType<ExternalObject>(projected.Fields["bodies"]).Items[0];
         Assert.Equal(read.Bodies[0].Body.Local.X, Assert.IsType<ExternalObject>(body.Fields["local"]).Fields["x"]);
         var sample = new WorkshopTraceSample(read.Epoch, read.Tick, read.Bodies, read.Captures);
-        var record = new WorkshopCaptureDiagnostic(WorkshopCaptureKind.Pose, WorkshopCaptureStage.Chunk, ulong.MaxValue, read.Epoch,
+        var record = new WorkshopCaptureDiagnostic(WorkshopCaptureKind.Pose, WorkshopCaptureStage.Chunk, new(101, 206), ulong.MaxValue, read.Epoch,
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)), TraceEnd.Reset, TraceTimingStatus.Incomplete,
             1, 1, 0, 1, 0, null, [sample], []);
         using var diagnostic = WorkshopObservationProjection.Diagnostic<ExternalObject>(record);
@@ -536,13 +689,13 @@ public sealed class WorkshopObservationTests
 
     private sealed class ExternalObject : IWorkshopObservationObject<ExternalObject>
     {
-        public Dictionary<string, object> Fields { get; } = new();
+        public Dictionary<string, object?> Fields { get; } = new();
         public List<ExternalObject> Items { get; } = [];
         public static ExternalObject Object() => new();
         public static ExternalObject Array() => new();
         public void Push(ExternalObject value) => Items.Add(value);
         public void SetProperty(string name, ExternalObject value) => Fields.Add(name, value);
-        public void SetProperty(string name, string value) => Fields.Add(name, value);
+        public void SetProperty(string name, string? value) => Fields.Add(name, value);
         public void SetProperty(string name, bool value) => Fields.Add(name, value);
         public void SetProperty(string name, int value) => Fields.Add(name, value);
         public void SetProperty(string name, uint value) => Fields.Add(name, value);

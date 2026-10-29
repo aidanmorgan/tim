@@ -66,6 +66,8 @@
         <Compile Include="ElementIsolationTests.cs" />
         <Compile Include="PoseRingEncapsulationTests.cs" />
         <Compile Include="WorkshopIntegrationHarness.cs" />
+        <Compile Include="CompiledSceneFixture.cs" />
+        <Compile Include="CompiledSceneBoundaryTests.cs" />
         <Compile Include="WorkshopIntegrationClient.cs" />
         <Compile Include="WorkshopIntegrationHarnessTests.cs" />
         <Compile Include="LampDetectorGuardTests.cs" />
@@ -182,8 +184,6 @@
         <Compile Include="ArchitectureDocsConsistencyTests.cs" />
         <Compile Include="PackageRuntimeParityTests.cs" />
         <Compile Include="BundlePortsTests.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/WorkshopTrace.cs" Link="WorkshopTrace.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/WorkshopGpuDevice.cs" Link="WorkshopGpuDevice.cs" />
         <!-- The shipped worker's physics engine and transport, stepped natively (Story 9.4b). -->
         <Compile Include="WorkshopPhysicsEngineTests.cs" />
         <Compile Include="DeclaredPresentationTests.cs" />
@@ -200,14 +200,6 @@
         <Compile Include="ContactWorkLedgerPropertyTests.cs" />
         <Compile Include="ConstructionDecodeBoundaryTests.cs" />
         <Compile Include="VendoredFlatBuffersIdentityTests.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/BrowserGpuTransport.cs" Link="Simulation/BrowserGpuTransport.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs" Link="Simulation/WorkshopPhysicsEngine.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/WorkshopCollisionKernels.cs" Link="Simulation/WorkshopCollisionKernels.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/WorkshopHollowKernels.cs" Link="Simulation/WorkshopHollowKernels.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/WorkshopConstraintSolver.cs" Link="Simulation/WorkshopConstraintSolver.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/WorkshopFrictionSolver.cs" Link="Simulation/WorkshopFrictionSolver.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/WorkshopDynamicBvh.cs" Link="Simulation/WorkshopDynamicBvh.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/PrismaticConstraintSolver.cs" Link="Simulation/PrismaticConstraintSolver.cs" />
     </ItemGroup>
 
     <!-- Godot project location: the parent directory (hosts are nested inside

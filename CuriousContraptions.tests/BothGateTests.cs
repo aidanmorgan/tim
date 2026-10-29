@@ -41,7 +41,7 @@ public sealed class BothGateTests
             Battery(2,-5,(inputs & ElectricalInputState.SecondOnly)!=0),
             Battery(3,-2,supply),
             WorkshopInput.Generic(Kind,new(4),3,3,0,0,0,0,1),
-            WorkshopInput.Generic(PartId.PoweredGate,new(5),9,3,0,0,0,0,1)),
+            WorkshopInput.Generic(new PartId("powered_gate"),new(5),9,3,0,0,0,0,1)),
             Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,5)));
     private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), (float)(x), 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     internal static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=4)=>read.Presentation.Logic.ToArray().Single(row=>row.Owner.Value==owner);
@@ -188,11 +188,11 @@ public sealed class BothGateTests
         var construction=Machine();
         var clock=PlacedParts.Clock(new(7),12,3,0,0,0,0,1,1f);
         construction=construction with {Instances=new(construction.Instances.Append(clock).ToArray()),Connections=construction.Connections.With(Link(4,7))};
-        var topology=SupplyTopology.Create(construction,DeclaredPhysics.Of);
+        var topology=WorkshopSupplyCompiler.Compile(construction,DeclaredPhysics.Of);
         Assert.Equal(new[]{new GpuBodyId(3)},topology.UpstreamSources(clock.Id));
         Assert.Equal(new GpuBodyId(3),WorkshopActivationCompiler.Compile(construction).Nodes.ToArray().Single(row=>row.Owner==clock.Id).PowerSource);
         var conditionOnly=construction with {Connections=construction.Connections.Without(Link(3,4))};
-        Assert.Empty(SupplyTopology.Create(conditionOnly,DeclaredPhysics.Of).UpstreamSources(clock.Id));
+        Assert.Empty(WorkshopSupplyCompiler.Compile(conditionOnly,DeclaredPhysics.Of).UpstreamSources(clock.Id));
         Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)255,true,true));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,WorkshopSocket.FirstIn))}).Validate());
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,(WorkshopSocket)255))}).Validate());
@@ -202,17 +202,17 @@ public sealed class BothGateTests
     public async Task DeclaredReadAdmissionRejectsMissingForeignAndInconsistentRows()
     {
         var construction=Machine();var (built,reads,_)=await WorkshopIntegrationHarness.ObserveReset(construction,2);
-        WorkshopMessages.ValidatePresentationOwners(built,construction);
+        WorkshopMessages.ValidatePresentationOwners(built,CompiledSceneFixture.Compile(construction));
         var read=reads[^1];var row=Logic(read);
-        WorkshopMessages.ValidatePresentationOwners(read,construction);
+        WorkshopMessages.ValidatePresentationOwners(read,CompiledSceneFixture.Compile(construction));
         WorkshopRead Replace(params ElectricalLogicRead[] rows)=>read with {Presentation=new(read.Presentation.Actuators,read.Presentation.Loads,rows)};
-        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(),construction));
-        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(row with {Owner=new(99)}),construction));
-        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(row with {Active=false}),construction));
-        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(row with {Inputs=ElectricalInputState.Neither}),construction));
+        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(),CompiledSceneFixture.Compile(construction)));
+        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(row with {Owner=new(99)}),CompiledSceneFixture.Compile(construction)));
+        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(row with {Active=false}),CompiledSceneFixture.Compile(construction)));
+        Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(row with {Inputs=ElectricalInputState.Neither}),CompiledSceneFixture.Compile(construction)));
         Assert.Throws<ArgumentException>(()=>new PhysicsPresentationRead([],[],[row with {Inputs=(ElectricalInputState)255}]));
         Assert.Throws<ArgumentException>(()=>new PhysicsPresentationRead([],[],[row,row]));
-        var response=BothGatePresentationTests.Response(read,1) with {Construction=construction};
+        var response=BothGatePresentationTests.Response(read,1) with {Scene=CompiledSceneFixture.Compile(construction)};
         var decoded=WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response));
         Assert.Equal(read.Presentation.Actuators.ToArray(), decoded.Read.Presentation.Actuators.ToArray());
         Assert.Equal(read.Presentation.Loads.ToArray(), decoded.Read.Presentation.Loads.ToArray());
@@ -226,7 +226,7 @@ public sealed class BothGateTests
         var transport=new HoldTimerTests.GatedRealTransport();
         await using var device=new WorkshopGpuDevice(transport,new(101,206));
         var profile=new WorkshopGpuProfile(SimulationCadence.Hz120,PhysicalStepProfile.Canonical480Hz,new(1));
-        var admitted=await device.Admit(Machine(),new(1),profile,new(1));
+        var admitted=await device.Admit(CompiledSceneFixture.Compile(Machine()),new(1),profile,new(1));
         var committed=admitted.Read;device.Commit(admitted.Sequence);device.Discard(admitted.Sequence);
         var on=new WorkshopTickControls([ElectricalEnable.Enabled,ElectricalEnable.Enabled,ElectricalEnable.Enabled]);
         var off=new WorkshopTickControls([ElectricalEnable.Disabled,ElectricalEnable.Disabled,ElectricalEnable.Disabled]);
@@ -257,7 +257,7 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],2),
             ([new(new(3),ElectricalEnable.Disabled)],2),([new(new(1),ElectricalEnable.Disabled)],2));
         var first=phases[0][^1];var noSupply=phases[1][^1];var secondOnly=phases[2][^1];
-        var evaluator=new WorkshopDeclaredPresentation(construction,Response(first,1));
+        var evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),Response(first,1));
         var registry=new PartRegistry();registry.Load();
         var part=registry.Create(BothGateTests.Kind);var control=registry.Create(BothGateTests.Kind);
         try
@@ -276,7 +276,7 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
             Apply(time);
             Assert.Equal(new Color("#f7cb52"),Colour(part,"FirstLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"SecondLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"OutputLamp"));
             Assert.Equal(new Color("#556573"),Colour(control,"OutputLamp")); // No property delivery cannot fake a powered lamp.
-            var target=WorkshopDeclaredPresentation.Targets(construction).First(row=>row.Owner.Value==4).Target;
+            var target=WorkshopDeclaredPresentation.Targets(CompiledSceneFixture.Compile(construction)).First(row=>row.Owner.Value==4).Target;
             evaluator.SetVisible(target,AnimationProperty.ColourRed,false);evaluator.Accept(Response(noSupply,2));
             Assert.DoesNotContain(evaluator.Advance(AnimationTestTime.Seconds(time+.2)),sample=>sample.Owner.Value==4);
             evaluator.SetVisible(target,AnimationProperty.ColourRed,true);Apply(time+.31);
@@ -287,11 +287,11 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
             Assert.Equal(new Color("#556573"),Colour(part,"OutputLamp"));
             var paused=Response(secondOnly,3) with {Kind=WorkshopResponseKind.Acknowledgement,Sequence=new(1),
                 Publication=default,Projection=new(2),Phase=WorkshopSimulationPhase.Paused};
-            evaluator.ValidateRebind(construction,paused);evaluator.Rebind(construction,paused);Apply(time+.6);
+            evaluator.ValidateRebind(CompiledSceneFixture.Compile(construction),paused);evaluator.Rebind(CompiledSceneFixture.Compile(construction),paused);Apply(time+.6);
             Assert.Equal(new Color("#556573"),Colour(part,"FirstLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"SecondLamp"));
             var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(construction,new(6))));
             var (built,_,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,2);
-            evaluator=new WorkshopDeclaredPresentation(loaded.Construction,Response(reset,1));Apply(time+1);
+            evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(loaded.Construction),Response(reset,1));Apply(time+1);
             Assert.Equal(ElectricalInputState.Neither,BothGateTests.Logic(built).Inputs);
             foreach(var node in new[]{"FirstLamp","SecondLamp","OutputLamp"}) Assert.Equal(new Color("#556573"),Colour(part,node));
         }

@@ -11,8 +11,8 @@ namespace CuriousContraptions.Tests;
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
 {
-    private static WorkshopPipe Pipe(float length, ulong id = 1, double x = 0, double y = 3) =>
-        WorkshopInput.Pipe(new(id), (float)(x), (float)(y), 0, 0, 0, 0, 1, new(length));
+    private static WorkshopGenericInstance Pipe(float length, ulong id = 1, double x = 0, double y = 3) =>
+        WorkshopInput.Generic(new PartId("pipe"),new(id), (float)(x), (float)(y), 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), length)]));
 
     // ---------- The declared parameter ----------
 
@@ -21,7 +21,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     [InlineData(2f)]
     [InlineData(3.6f)]
     [InlineData(8f)]
-    public void LengthsFromOneToEightMetresAreAdmitted(float metres) => new PipeLength(metres).Validate();
+    public void LengthsFromOneToEightMetresAreAdmitted(float metres) => Pipe(metres).Validate();
 
     [Theory]
     [InlineData(0f)]
@@ -33,30 +33,16 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     [InlineData(float.NegativeInfinity)]
     public void LengthsOutsideOneToEightMetresAreRejected(float metres)
     {
-        Assert.Throws<ArgumentException>(() => new PipeLength(metres).Validate());
-        Assert.Throws<ArgumentException>(() => WorkshopInput.Pipe(new(1), 0, 3, 0, 0, 0, 0, 1, new(metres)));
+        Assert.Throws<ArgumentException>(() => Pipe(metres).Validate());
+        Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(new PartId("pipe"),new(1), 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), metres)])));
     }
 
-    [Theory]
-    [InlineData(.2f, 1f)]
-    [InlineData(1f, 1f)]
-    [InlineData(2f, 2f)]
-    [InlineData(8f, 8f)]
-    [InlineData(12f, 8f)]
-    [InlineData(-3f, 1f)]
-    public void PointerInputClampsFiniteLengths(float input, float committed) =>
-        Assert.Equal(committed, PipeLength.FromInput(input).Metres);
-
-    [Theory]
-    [InlineData(float.NaN)]
-    [InlineData(float.PositiveInfinity)]
-    [InlineData(float.NegativeInfinity)]
-    public void PointerInputRejectsNonFiniteLengths(float input) =>
-        Assert.Throws<ArgumentException>(() => PipeLength.FromInput(input));
-
     [Fact]
-    public void ThePipeIsNeverAGenericInstance() =>
-        Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(PartId.Pipe, new(1), 0, 3, 0, 0, 0, 0, 1));
+    public void ThePipeUsesItsDeclaredGenericParameters()
+    {
+        var instance = WorkshopInput.Generic(new PartId("pipe"), new(1), 0, 3, 0, 0, 0, 0, 1);
+        Assert.Equal(3.6f, instance.Parameters[new("length")]);
+    }
 
     // ---------- Colliders, mouths and pick radius scale with length ----------
 
@@ -85,8 +71,8 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Load();
-        var scene = registry.Definitions[PartId.Pipe].Colliders;
-        var generated = DeclaredPhysics.Colliders(PartId.Pipe);
+        var scene = registry.Definitions[new PartId("pipe")].Colliders;
+        var generated = DeclaredPhysics.Colliders(new PartId("pipe"));
         Assert.Equal(scene.Count, generated.Count);
         for (var i = 0; i < scene.Count; i++)
         {
@@ -109,28 +95,28 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
         var registry = new PartRegistry();
         registry.Load();
         var definitions = registry.Definitions;
-        var length = new PipeLength(metres);
-        var start = TubeMouthSnap.LocalMouth(definitions[PartId.Pipe], TubeMouthEnd.Start, length);
-        var end = TubeMouthSnap.LocalMouth(definitions[PartId.Pipe], TubeMouthEnd.End, length);
+        var length = new InstanceParameterCollection([new(new("length"), metres)]);
+        var start = TubeMouthSnap.LocalMouth(definitions[new PartId("pipe")], TubeMouthEnd.Start, length);
+        var end = TubeMouthSnap.LocalMouth(definitions[new PartId("pipe")], TubeMouthEnd.End, length);
         Assert.Equal(new Vector3(-(metres / 2 + .09f), 0, 0), start);
         Assert.Equal(new Vector3(metres / 2 + .09f, 0, 0), end);
 
         // A placed pipe of this length joins a default mover exactly at its end collar face.
         IReadOnlyList<IWorkshopInstance> placed = [Pipe(metres)];
         var face = metres / 2 + .09f;
-        var near = new Vector3(face + .1f + PipeLength.Default.MouthOffset, 3, 0);
-        var snap = TubeMouthSnap.Find(definitions, placed, new(PartId.Pipe, new(2), false, PipeLength.Default), near, Quaternion.Identity);
+        var near = new Vector3(face + .1f + 1.89f, 3, 0);
+        var snap = TubeMouthSnap.Find(definitions, placed, new(new PartId("pipe"), new(2), false, InstanceParameterCollection.Defaults(new("pipe"))), near, Quaternion.Identity);
         Assert.NotNull(snap);
         Assert.Equal(TubeMouthEnd.End, snap.Value.TargetMouth);
         Assert.True(snap.Value.Joint.DistanceTo(new Vector3(face, 3, 0)) <= 1e-5f, $"joint at {snap.Value.Joint}");
-        Assert.True(snap.Value.Position.DistanceTo(new Vector3(face + PipeLength.Default.MouthOffset, 3, 0)) <= 1e-5f);
+        Assert.True(snap.Value.Position.DistanceTo(new Vector3(face + 1.89f, 3, 0)) <= 1e-5f);
 
         // A mover of this length joins a default pipe with its own start collar face.
         IReadOnlyList<IWorkshopInstance> fixture = [Pipe(3.6f)];
-        var moved = TubeMouthSnap.Find(definitions, fixture, new(PartId.Pipe, new(2), false, length),
-            new(PipeLength.Default.MouthOffset + face + .1f, 3, 0), Quaternion.Identity);
+        var moved = TubeMouthSnap.Find(definitions, fixture, new(new PartId("pipe"), new(2), false, length),
+            new(1.89f + face + .1f, 3, 0), Quaternion.Identity);
         Assert.NotNull(moved);
-        Assert.True(moved.Value.Position.DistanceTo(new Vector3(PipeLength.Default.MouthOffset + face, 3, 0)) <= 1e-5f,
+        Assert.True(moved.Value.Position.DistanceTo(new Vector3(1.89f + face, 3, 0)) <= 1e-5f,
             $"mover at {moved.Value.Position}");
     }
 
@@ -139,9 +125,9 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Load();
-        Assert.Throws<ArgumentException>(() => TubeMouthSnap.Find(registry.Definitions, [Pipe(2)], new(PartId.Pipe, new(2), false),
+        Assert.Throws<ArgumentException>(() => TubeMouthSnap.Find(registry.Definitions, [Pipe(2)], new(new PartId("pipe"), new(2), false, InstanceParameterCollection.Empty),
             new(3, 3, 0), Quaternion.Identity));
-        Assert.Throws<ArgumentException>(() => TubeMouthSnap.Find(registry.Definitions, [Pipe(2)], new(PartId.PipeBend90, new(2), false, new(2)),
+        Assert.Throws<ArgumentException>(() => TubeMouthSnap.Find(registry.Definitions, [Pipe(2)], new(new PartId("pipe_bend_90"), new(2), false, new InstanceParameterCollection([new(new("length"), 2f)])),
             new(3, 3, 0), Quaternion.Identity));
     }
 
@@ -154,12 +140,12 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Load();
-        var part = registry.Create(PartId.Pipe);
+        var part = registry.Create(new PartId("pipe"));
         try
         {
             godot.Tree.Root.AddChild(part);
             part.EnsureConstructed();
-            Assert.Equal(PipeLength.Default.Metres, part.Dimensions.X);
+            Assert.Equal(3.6f, part.Dimensions.X);
             Assert.Equal(ResizeAxes.X, part.ResizableAxes);
             part.SetDimensions(new(metres, part.Dimensions.Y, part.Dimensions.Z));
             Assert.Equal(metres, part.Dimensions.X);
@@ -206,14 +192,14 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness)));
             Assert.Equal(WorkshopCommandOutcome.Applied, (await world.ReplaceConstruction(
                 new(new(2), WorkshopCadenceSettings.Default(), new(resized)))).Result.Outcome);
-            var turned = Assert.IsType<WorkshopPipe>(world.CaptureInstance(PartId.Pipe, new(4), new(1, 4, 0),
+            var turned = Assert.IsType<WorkshopGenericInstance>(world.CaptureInstance(new PartId("pipe"), new(4), new(1, 4, 0),
                 new Quaternion(Vector3.Back, Mathf.DegToRad(-45))));
-            Assert.Equal(new PipeLength(2), turned.Length);
-            var presented = Assert.IsType<WorkshopPipe>(world.CaptureInstance(PartId.Pipe, new(4), new(1, 4, 0), Quaternion.Identity,
+            Assert.Equal(2f, turned.Parameters[new("length")]);
+            var presented = Assert.IsType<WorkshopGenericInstance>(world.CaptureInstance(new PartId("pipe"), new(4), new(1, 4, 0), Quaternion.Identity,
                 dimensions: new(5, 1.56f, 1.56f)));
-            Assert.Equal(new PipeLength(5), presented.Length);
-            var placed = Assert.IsType<WorkshopPipe>(world.CaptureInstance(PartId.Pipe, new(5), new(1, 4, 0), Quaternion.Identity));
-            Assert.Equal(PipeLength.Default, placed.Length);
+            Assert.Equal(5f, presented.Parameters[new("length")]);
+            var placed = Assert.IsType<WorkshopGenericInstance>(world.CaptureInstance(new PartId("pipe"), new(5), new(1, 4, 0), Quaternion.Identity));
+            Assert.Equal(InstanceParameterCollection.Defaults(new("pipe")), placed.Parameters);
         }
         finally { world.Free(); }
     }
@@ -221,7 +207,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     // ---------- Every codec carries the length ----------
 
     private static WorkshopConstruction Bench(float metres) =>
-        new(new(1), WorkshopCadenceSettings.Default(), new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1), Pipe(metres, 2)));
+        new(new(1), WorkshopCadenceSettings.Default(), new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1), Pipe(metres, 2)));
 
     [Theory]
     [InlineData(1f)]
@@ -234,7 +220,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
         var bytes = WorkshopSaveCodec.Encode(saved);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(saved, decoded);
-        Assert.Equal(metres, Assert.IsType<WorkshopPipe>(decoded.Construction.Instances[1]).Length.Metres);
+        Assert.Equal(metres, Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]).Parameters[new("length")]);
     }
 
     [Theory]
@@ -244,27 +230,29 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     public void TheCommandWireRoundTripsTheLength(float metres)
     {
         var construction = Bench(metres);
-        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction, Session: new(1, 2),
+        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(construction), Session: new(1, 2),
             Cadence: new(1), Projection: new(1));
-        Assert.Equal(construction, WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)).Construction);
+        var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)).Scene!;
+        Assert.Equal(construction.Revision, decoded.Revision);
+        Assert.Equal(command.Scene!.Physics.Colliders.ToArray(), decoded.Physics.Colliders.ToArray());
     }
 
     [Fact]
     public void TheCommandWireRejectsAPipeWithoutItsLength()
     {
         var bench = Bench(2);
-        var stored = bench with { Instances = new(bench.Instances[0], (WorkshopPipe)bench.Instances[1] with { Length = new(0) }) };
+        var stored = bench with { Instances = new(bench.Instances[0], (WorkshopGenericInstance)bench.Instances[1] with { Parameters = InstanceParameterCollection.Empty }) };
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        builder.Finish(WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, stored, validate: false).Value);
+        builder.Finish(WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, stored, validate: false).Value);
         var record = CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray()));
-        // 9A.32: an absent length is the typed missing field at the decoder (as the Counter's absent target count), never defaulted.
-        Assert.Equal(WireFaultReason.MissingField, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(record)).Reason);
+        // A submitted parameter vector must be complete; authoring defaults never repair saved data.
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(record)).Reason);
     }
 
     private static byte[] RawSave(WorkshopConstruction construction)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction, validate: false);
+        var record = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, construction, validate: false);
         return SaveFixture.Finish(builder, record, 3);
     }
 
@@ -277,7 +265,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     public void ASaveWithoutAnAdmittedLengthIsRejectedNeverDefaulted(float metres)
     {
         var bench = Bench(2);
-        var stored = bench with { Instances = new(bench.Instances[0], (WorkshopPipe)bench.Instances[1] with { Length = new(metres) }) };
+        var stored = bench with { Instances = new(bench.Instances[0], (WorkshopGenericInstance)bench.Instances[1] with { Parameters = new([new(new("length"), metres)]) }) };
         SaveFixture.Refused(float.IsFinite(metres) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,RawSave(stored)));
         // Control: the same hand-built record with an admitted length decodes.
         Assert.Equal(bench, WorkshopSaveCodec.Decode(SaveFixture.Elements,RawSave(bench)).Construction);

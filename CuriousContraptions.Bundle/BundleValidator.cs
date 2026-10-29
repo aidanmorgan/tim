@@ -159,24 +159,7 @@ public static class BundleValidator
                 });
                 if (!AdmitsValue(binding.From) || !AdmitsValue(binding.To) || (binding.Intermediate is { } intermediate && !AdmitsValue(intermediate)))
                     OutOfRange("Presentation.Value");
-                var supported = binding.Driver switch
-                {
-                    // Story 9A.25b: a ring-kind cue replays a Replace endpoint clip or adds a saturating pulse per record.
-                    PresentationDriver.Event => binding.Duration > 0 &&
-                        ((binding.Curve == PresentationCurve.SmoothStep && binding.Overlap == PresentationOverlap.Replace) ||
-                         (binding.Curve == PresentationCurve.SineSquaredPulse && binding.Overlap == PresentationOverlap.SaturatingSum)),
-                    PresentationDriver.CommittedActivation or
-                        PresentationDriver.CommittedCount or PresentationDriver.CommittedElectricalSocket => binding.Curve == PresentationCurve.SmoothStep && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Replace,
-                    PresentationDriver.CommittedOscillatorPhase => binding.Curve == PresentationCurve.ExponentialFollow && binding.Duration == 0 && binding.Overlap == PresentationOverlap.Replace,
-                    PresentationDriver.CommittedOscillatorPulse => binding.Curve == PresentationCurve.LinearDecay && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Maximum,
-                    PresentationDriver.CommittedContactLoadPhase => binding.Curve == PresentationCurve.CubicSmoothStep && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Replace,
-                    PresentationDriver.CommittedTimerActive => binding.Overlap == PresentationOverlap.Replace &&
-                        ((binding.Curve == PresentationCurve.Linear && binding.Duration == 0) || (binding.Curve == PresentationCurve.SmoothStep && binding.Duration > 0)),
-                    PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
-                        PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState =>
-                            binding.Curve == PresentationCurve.Linear && binding.Duration == 0 && binding.Overlap == PresentationOverlap.Replace,
-                    _ => false
-                };
+                var supported = PresentationDriverRules.Supports(binding.Driver, binding.Curve, binding.Duration, binding.Overlap);
                 if ((binding.Driver == PresentationDriver.CommittedElectricalSocket) != binding.Socket.HasValue ||
                     (binding.Socket is { } socket &&
                         (electrical?.Supply?.Kind != SupplyCapabilityKind.LogicGate ||

@@ -65,7 +65,14 @@ internal static partial class BrowserWorkshopObservation
         using var values = Array();
         foreach (var receipt in result.Value!)
         {
-            using var row = Object(); using var record = WorkshopObservationProjection.Diagnostic<BrowserObject>(receipt.Record).Value;
+            WorkshopAuthoredScene? authored = null;
+            if (receipt.Record is WorkshopCaptureDiagnostic { Scene: { } scene })
+            {
+                var association = port.Authored(port.Session, scene);
+                if (association.Refusal != WorkshopObservationRefusal.None) return Result(association.Refusal);
+                authored = association.Value;
+            }
+            using var row = Object(); using var record = WorkshopObservationProjection.Diagnostic<BrowserObject>(receipt.Record, authored).Value;
             row.SetProperty("ordinal", Exact(receipt.Ordinal.Value)); row.SetProperty("record", record); Push(values, row);
         }
         dto.SetProperty("value", values); return dto;
@@ -79,7 +86,7 @@ internal static partial class BrowserWorkshopObservation
         public static BrowserObject Array() => new(BrowserWorkshopObservation.Array());
         public void Push(BrowserObject item) => BrowserWorkshopObservation.Push(Value, item.Value);
         public void SetProperty(string name, BrowserObject item) => Value.SetProperty(name, item.Value);
-        public void SetProperty(string name, string item) => Value.SetProperty(name, item);
+        public void SetProperty(string name, string? item) => Value.SetProperty(name, item);
         public void SetProperty(string name, bool item) => Value.SetProperty(name, item);
         public void SetProperty(string name, int item) => Value.SetProperty(name, item);
         public void SetProperty(string name, uint item) => Value.SetProperty(name, item);

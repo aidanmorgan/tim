@@ -99,35 +99,13 @@ internal static class WorkshopSavePrevalidation
         if (!float.IsFinite(value)) throw Refuse(WorkshopSaveRejection.NonFinite, $"Part {id} has a non-finite {field}.");
     }
 
-    private static void Within(ulong id, string field, float value, float minimum, float maximum)
-    {
-        Finite(id, field, value);
-        if (value < minimum || value > maximum)
-            throw Refuse(WorkshopSaveRejection.OutOfRange, $"Part {id} {field} {value:R} is outside [{minimum:R}, {maximum:R}].");
-    }
-
-    /// <summary>Each kind's declared parameters: the ranges of its domain record.</summary>
+    /// <summary>Every instance carries its complete declared parameter set.</summary>
     private static void CheckParameters(PartId part, InstanceRecord r)
     {
-        var id = r.Id;
-        var genericParameters = false;
-        switch (part.Value)
-        {
-            case "pipe":
-                Within(id, "length", r.Length, PipeLength.Minimum, PipeLength.Maximum);
-                break;
-            default:
-                genericParameters = true;
-                if (WorkshopWireFlatBuffers.CarriesTypedField(r))
-                    throw Refuse(WorkshopSaveRejection.OutOfRange, $"Part {id} is a generic instance and cannot carry a typed record field.");
-                for (var i = 0; i < r.ParametersLength; i++)
-                    if (r.Parameters(i) is { } parameter) Finite(id, parameter.Key, parameter.Value);
-                try { _ = WorkshopWireFlatBuffers.DecodeParameters(r, part); }
-                catch (WireFaultException error) { throw Refuse(WorkshopSaveRejection.OutOfRange, error.Message); }
-                break;
-        }
-        if (!genericParameters && r.ParametersLength != 0)
-            throw Refuse(WorkshopSaveRejection.OutOfRange, "Typed instance cannot carry generic parameters.");
+        for (var i = 0; i < r.ParametersLength; i++)
+            if (r.Parameters(i) is { } parameter) Finite(r.Id, parameter.Key, parameter.Value);
+        try { _ = WorkshopAuthoringFlatBuffers.DecodeParameters(r, part); }
+        catch (WireFaultException error) { throw Refuse(WorkshopSaveRejection.OutOfRange, error.Message); }
     }
 
     // ---------- connections and the puzzle ----------
@@ -165,10 +143,10 @@ internal static class WorkshopSavePrevalidation
             throw Refuse(WorkshopSaveRejection.UndefinedEnum, "The saved puzzle names an undefined puzzle, placement or goal.");
         if (!float.IsFinite(p.Precision) || !float.IsFinite(p.GoalDelay))
             throw Refuse(WorkshopSaveRejection.NonFinite, "The saved puzzle has a non-finite precision or goal delay.");
-        if (p.AssistanceLength != WorkshopWireFlatBuffers.AssistanceKnotCount)
+        if (p.AssistanceLength != WorkshopAuthoringFlatBuffers.AssistanceKnotCount)
             throw Refuse(WorkshopSaveRejection.MissingField,
                 $"The saved puzzle holds {p.AssistanceLength} assistance knots; a puzzle holds exactly nine.");
-        var knots = new AssistanceKnot[WorkshopWireFlatBuffers.AssistanceKnotCount];
+        var knots = new AssistanceKnot[WorkshopAuthoringFlatBuffers.AssistanceKnotCount];
         for (var i = 0; i < knots.Length; i++)
         {
             var k = p.Assistance(i)!.Value;
@@ -182,7 +160,7 @@ internal static class WorkshopSavePrevalidation
                 new(k.GuideAcceleration), k.TriggerThreshold);
         }
         // The authored knot rule the content reader applies (AssistanceProfile.HasAuthoredShape), on each of the three profiles.
-        for (var first = 0; first < knots.Length; first += WorkshopWireFlatBuffers.KnotsPerProfile)
+        for (var first = 0; first < knots.Length; first += WorkshopAuthoringFlatBuffers.KnotsPerProfile)
             if (!new AssistanceProfile(knots[first], knots[first + 1], knots[first + 2]).HasAuthoredShape())
                 throw Refuse(WorkshopSaveRejection.OutOfRange,
                     "A saved assistance profile has a negative value or knots not at precisions 0, 0.45 and 1.");

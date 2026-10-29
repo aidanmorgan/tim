@@ -255,8 +255,8 @@ public sealed class ClockGuardTests
         var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(4)))).Construction;
         Assert.Equal(bench, restored);
         var command = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),
-            WorkshopCommandKind.Construct, new(1), new(1), bench, Session: new(1, 2), Cadence: new(1), Projection: new(1))));
-        Assert.Equal(bench, command.Construction);
+            WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(bench), Session: new(1, 2), Cadence: new(1), Projection: new(1))));
+        Assert.Equal((uint)(seconds * 120), command.Scene!.Activation.Nodes.ToArray().Single(node => node.Kind == ActivationNodeKind.Oscillator).IntervalTicks);
         var run = await WorkshopIntegrationHarness.Observe(bench, 240);
         var replay = await WorkshopIntegrationHarness.Observe(restored, 240);
         Assert.Equal((OscillatorPhase.Stopped, 0U), (Row(replay[0], Owner).Phase, Row(replay[0], Owner).Count));
@@ -293,13 +293,13 @@ public sealed class ClockGuardTests
         var row = Row(reads[tick], Owner);
         var phase = 1f - (float)(row.DueTick - (ulong)tick) / 120;
         var input = .5f + .5f * MathF.Sin(MathF.Tau * phase);
-        var presentation = new WorkshopDeclaredPresentation(bench, Response(reads[tick], 1));
+        var presentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(bench), Response(reads[tick], 1));
         Assert.Equal(-.42f + .84f * input, Sample(presentation.Advance(AnimationTestTime.Seconds(Time(reads[tick]) + 10)), 0), 1e-5f);
         // Paused (no further committed read): the follow target is unchanged and the sample stays converged on it.
         Assert.Equal(-.42f + .84f * input, Sample(presentation.Advance(AnimationTestTime.Seconds(Time(reads[tick]) + 12)), 0), 1e-5f);
 
         var stopped = await WorkshopIntegrationHarness.Observe(Bench(1f, wired: false), 1);
-        var rest = new WorkshopDeclaredPresentation(Bench(1f, wired: false), Response(stopped[1], 1));
+        var rest = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(Bench(1f, wired: false)), Response(stopped[1], 1));
         Assert.Equal(0f, Sample(rest.Advance(AnimationTestTime.Seconds(Time(stopped[1]) + 10)), 0), 1e-6f);
     }
 
@@ -311,7 +311,7 @@ public sealed class ClockGuardTests
     {
         var bench = Bench(1f);
         var reads = await WorkshopIntegrationHarness.Observe(bench, 600);
-        var presentation = new WorkshopDeclaredPresentation(bench, Response(reads[1], 1));
+        var presentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(bench), Response(reads[1], 1));
         presentation.Advance(AnimationTestTime.Seconds(Time(reads[1])));
         var lit = new List<ulong>();
         for (var i = 2; i < reads.Count; i++)
@@ -329,7 +329,7 @@ public sealed class ClockGuardTests
     {
         var bench = Bench(1f);
         var (_, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 300);
-        var presentation = new WorkshopDeclaredPresentation(bench, Response(reset, 1) with { Projection = new(2) });
+        var presentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(bench), Response(reset, 1) with { Projection = new(2) });
         var settled = presentation.Advance(AnimationTestTime.Seconds(Time(run[^1]) + 10));
         Assert.Equal(0f, Sample(settled, 0), 1e-6f);
         Assert.Equal(85f / 255f, Sample(settled, 1));

@@ -29,22 +29,22 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         var registry = new PartRegistry();
         registry.Load();
 
-        Assert.True(registry.Definitions.ContainsKey(PartId.Pipe));
-        var def = registry.Definitions[PartId.Pipe];
-        Assert.Equal(PartId.Pipe, def.PartId);
+        Assert.True(registry.Definitions.ContainsKey(new PartId("pipe")));
+        var def = registry.Definitions[new PartId("pipe")];
+        Assert.Equal(new PartId("pipe"), def.PartId);
         Assert.Equal("pipe", def.Id);
         Assert.Equal("Clear pipe", def.Title);
         Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Motion, def.Category);
         Assert.Equal("A hollow tube. Gravity carries balls through the open bore; tilt it downhill to guide them. The clear shell transmits light; cream collars are opaque.", def.Description);
         Assert.NotNull(def.Scene);
 
-        var part = registry.Create(PartId.Pipe);
+        var part = registry.Create(new PartId("pipe"));
         try
         {
             godot.Tree.Root.AddChild(part);
             Assert.NotNull(part);
             Assert.Same(def, part.Definition);
-            Assert.Equal(PartId.Pipe, part.PartId);
+            Assert.Equal(new PartId("pipe"), part.PartId);
         }
         finally
         {
@@ -93,7 +93,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void WorkshopPhysicsCompiler_CompilesPipeIntoStaticBodyWithItsThreeHollowColliders()
     {
-        var pipe = WorkshopInput.Pipe(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(pipe));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 
@@ -118,8 +118,8 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void SaveCodec_RoundTripsPipeAndPreservesDeclaredColliders()
     {
-        var pipe = WorkshopInput.Pipe(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, pipe));
         var save = new WorkshopSavedConstruction(construction, new(11));
 
@@ -129,9 +129,9 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         Assert.Equal(save, decoded);
         Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(decoded)));
 
-        var decodedPipe = Assert.IsType<WorkshopPipe>(decoded.Construction.Instances[1]);
-        Assert.Equal(PartId.Pipe, decodedPipe.PartId);
-        Assert.Equal(PipeLength.Default, decodedPipe.Length);
+        var decodedPipe = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
+        Assert.Equal(new PartId("pipe"), decodedPipe.PartId);
+        Assert.Equal(3.6f, decodedPipe.Parameters[new("length")]);
         AssertPipeColliders(decodedPipe.DeclaredColliders);
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
@@ -147,17 +147,17 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     {
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(WorkshopInput.Pipe(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
+            new WorkshopInstances(WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 0, 3 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
 
         var threePipes = new WorkshopInstances(
-            WorkshopInput.Pipe(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Pipe(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Pipe(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1));
+            WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1));
         new WorkshopInstances([.. threePipes]).Validate();
 
         var twentyPipes = new WorkshopInstances(
-            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Pipe(new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
+            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
         new WorkshopInstances([.. twentyPipes]).Validate();
     }
 
@@ -166,8 +166,8 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void BoreGeometry_MatchesTheDeclaredMouths()
     {
-        var colliders = DeclaredPhysics.Colliders(PartId.Pipe);
-        var bore = TestBundle.Entry(PartId.Pipe).TubeMouths.Select(m => m.BoreRadius).Distinct().Single();
+        var colliders = DeclaredPhysics.Colliders(new PartId("pipe"));
+        var bore = TestBundle.Entry(new PartId("pipe")).TubeMouths.Select(m => m.BoreRadius).Distinct().Single();
         Assert.True(MathF.Abs(colliders[0].HalfExtents.X - bore) <= 1e-6f, $"the shell's bore {colliders[0].HalfExtents.X} is not {bore}");
         foreach (var collar in colliders.Skip(1))
             Assert.True(MathF.Abs(collar.Radius - collar.HalfExtents.Y - bore) <= 1e-6f, $"a collar reaches {collar.Radius - collar.HalfExtents.Y}");
@@ -179,8 +179,8 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void PhysicsGpuAbi_AdmissionAcceptsPipeSceneDeclaration()
     {
-        var pipe = WorkshopInput.Pipe(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, pipe));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 

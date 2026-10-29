@@ -36,17 +36,17 @@ public sealed class LatchSupplyFixtureTests
         {
             PlacedParts.Battery(new(Battery), -8, 3, 4, enabled: battery),
             PlacedParts.Latch(new(Latch), -4, 3, 4, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.PoweredGate, new(Gate), (float)(GateX), (float)(GateY), 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half))),
-            WorkshopInput.Generic(PartId.ImpactSwitch, new(SwitchA), 0, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.Basketball, new(BallA), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.ImpactSwitch, new(SwitchB), 0, 1, -6, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("powered_gate"), new(Gate), (float)(GateX), (float)(GateY), 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half))),
+            WorkshopInput.Generic(new PartId("switch"), new(SwitchA), 0, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("ball"), new(BallA), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("switch"), new(SwitchB), 0, 1, -6, 0, 0, 0, 1),
             PlacedParts.Lamp(new(Lamp), -4, 6, 4, 0, 0, 0, 1),
         };
-        if (ballBHeight is { } height) parts.Add(WorkshopInput.Generic(PartId.Basketball, new(BallB), 0, (float)(height), -6, 0, 0, 0, 1));
+        if (ballBHeight is { } height) parts.Add(WorkshopInput.Generic(new PartId("ball"), new(BallB), 0, (float)(height), -6, 0, 0, 0, 1));
         if (payload)
         {
             const double lx = -.45, ly = -.27;
-            parts.Add(WorkshopInput.Generic(PartId.Basketball, new(Payload),
+            parts.Add(WorkshopInput.Generic(new PartId("ball"), new(Payload),
                 (float)(GateX + Tilt.Cos * lx - Tilt.Sin * ly), (float)(GateY + Tilt.Sin * lx + Tilt.Cos * ly), 0, 0, 0, 0, 1));
         }
         return new(new(2), WorkshopCadenceSettings.Default(), new(parts.ToArray()), Connections: new(FiveConnections));
@@ -60,11 +60,11 @@ public sealed class LatchSupplyFixtureTests
     private static async Task<Trace> Run(WorkshopConstruction construction, int replay, params (WorkshopElectricalControl[] Controls, int Ticks)[] phases)
     {
         await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
-        var built = simulation.Committed; var authored = simulation.Construction;
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(construction))).Outcome);
+        var built = simulation.Committed; var authored = construction;
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
         var reads = new List<WorkshopRead>(); var during = new List<WorkshopConstruction>();
         foreach (var (controls, ticks) in phases)
@@ -73,11 +73,12 @@ public sealed class LatchSupplyFixtureTests
             for (var tick = 0; tick < ticks; tick++)
             {
                 Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
-                reads.Add(simulation.Committed); during.Add(simulation.Construction);
+                reads.Add(simulation.Committed); during.Add(construction);
+                Assert.Equal(construction.Revision, simulation.Scene.Revision);
             }
         }
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
-        var reset = simulation.Committed; var after = simulation.Construction;
+        var reset = simulation.Committed; var after = construction;
         var again = new List<WorkshopRead>();
         if (replay > 0)
         {

@@ -11,19 +11,19 @@ public sealed class DemandSizingLifecycleTests
 
     private static WorkshopConstruction Scene(int count, ulong revision) => new(new(revision), Settings,
         new(Enumerable.Range(0, count).Select(i => (IWorkshopInstance)WorkshopInput.Generic(
-            PartId.Basketball, new((ulong)i + 1), (float)(-7 + (i % 8) * 2), 4, (float)(-5 + (i / 8) * 2), 0, 0, 0, 1)).ToArray()));
+            new PartId("ball"), new((ulong)i + 1), (float)(-7 + (i % 8) * 2), 4, (float)(-5 + (i / 8) * 2), 0, 0, 0, 1)).ToArray()));
 
     [Fact]
     public async Task SmallerLargerSmallerWorldsRunAndResetWithoutRetiredBodyOrContactState()
     {
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), Settings,
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
         foreach (var count in new[] { 1, 40, 2, 0 })
         {
-            var scene = Scene(count, simulation.Construction.Revision.Value + 1);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(scene)).Outcome);
+            var scene = Scene(count, simulation.Scene.Revision.Value + 1);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(scene))).Outcome);
             var initial = simulation.Committed;
             Assert.Equal(count, initial.Bodies.Count);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
@@ -46,11 +46,11 @@ public sealed class DemandSizingLifecycleTests
     public async Task DiscardedLargerAdmissionLeavesOldWorldRunnableAndNextSmallerAdmissionSucceeds()
     {
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new EventRingPublication()), new(101, 206));
-        var first = await device.Admit(Scene(2, 1), new(1), Profile, new(1));
+        var first = await device.Admit(CompiledSceneFixture.Compile(Scene(2, 1)), new(1), Profile, new(1));
         device.Commit(first.Sequence); device.Discard(first.Sequence);
         var moving = await device.Advance(first.Read, new(2), new WorkshopTickControls([]));
         device.Commit(moving.Sequence); device.Discard(moving.Sequence);
-        var abandoned = await device.Admit(Scene(40, 2), new(2), Profile, new(3));
+        var abandoned = await device.Admit(CompiledSceneFixture.Compile(Scene(40, 2)), new(2), Profile, new(3));
         Assert.Equal(40, abandoned.Read.Bodies.Count);
         device.Discard(abandoned.Sequence);
         var continued = await device.Advance(moving.Read, new(4), new WorkshopTickControls([]));
@@ -63,7 +63,7 @@ public sealed class DemandSizingLifecycleTests
             Assert.True(continued.Read.Bodies[i].Body.Velocity.Y < moving.Read.Bodies[i].Body.Velocity.Y);
         }
         device.Commit(continued.Sequence); device.Discard(continued.Sequence);
-        var smaller = await device.Admit(Scene(1, 3), new(3), Profile, new(5));
+        var smaller = await device.Admit(CompiledSceneFixture.Compile(Scene(1, 3)), new(3), Profile, new(5));
         Assert.Single(Enumerable.Range(0, smaller.Read.Bodies.Count));
         Assert.Equal(new GpuBodyId(1), smaller.Read.Bodies[0].Body.Id);
         device.Commit(smaller.Sequence); device.Discard(smaller.Sequence);

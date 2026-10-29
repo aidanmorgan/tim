@@ -13,8 +13,9 @@ public sealed class WorkshopActivationAnimationTests
     private static ChannelControl Control => new(new(4), new(1), 1, 1, AnimationControlKind.Endpoint,
         true, (float)1, (float)1, (float)1, AnimationCurve.Linear, 10, (float)0, AnimationProperty.ColourBlend);
 
-    // The retired relay kinds (Impulse 6, Transition 7) and the impulse envelope words (bytes 92..95) are refused, never read.
+    // The removed timer control (5), retired relay kinds (Impulse 6, Transition 7) and the impulse envelope words (bytes 92..95) are refused, never read.
     [Theory]
+    [InlineData(48, 5u)]
     [InlineData(48, 6u)]
     [InlineData(48, 7u)]
     [InlineData(92, 2u)]
@@ -36,9 +37,9 @@ public sealed class WorkshopActivationAnimationTests
     {
         var bytes = WorkshopAnimationWire.Control(Session, new(1), new(1), Control);
         Assert.Equal(Control, WorkshopAnimationWire.ReadControl(bytes, Session, new(1), new(1)));
-        // Story 9A.1 (F.10): bytes 142..143 are zero padding where the version was; the retired version 5 now rejects.
-        Assert.Equal(0, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(142)));
-        foreach (var (offset, value) in new[] { (142, 5), (142, 1), (140, 0), (140, 99), (92, 1) })
+        // Story 9A.1 (F.10): bytes 102..103 are zero padding where the version was; the retired version 5 now rejects.
+        Assert.Equal(0, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(102)));
+        foreach (var (offset, value) in new[] { (102, 5), (102, 1), (100, 0), (100, 99), (92, 1) })
         {
             var changed = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(offset), (ushort)value);
             Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.ReadControl(changed, Session, new(1), new(1)));
@@ -96,11 +97,11 @@ public sealed class WorkshopActivationAnimationTests
     [Fact]
     public async Task EveryOneShotBindingIsADeclaredTargetOfItsOwner()
     {
-        var bumper = WorkshopInput.Generic(PartId.PinballBumper, new(1), 0, 1, 0, 0, 0, 0, 1);
-        var receiver = WorkshopInput.Generic(PartId.Receiver, new(2), 3, 1, 0, 0, 0, 0, 1);
+        var bumper = WorkshopInput.Generic(new PartId("bumper"), new(1), 0, 1, 0, 0, 0, 0, 1);
+        var receiver = WorkshopInput.Generic(new PartId("basket"), new(2), 3, 1, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(bumper, receiver));
-        var targets = WorkshopDeclaredPresentation.Targets(construction);
-        Assert.Equal(DeclaredPhysics.Of(PartId.PinballBumper).Presentation.Bindings.Count + DeclaredPhysics.Of(PartId.Receiver).Presentation.Bindings.Count,
+        var targets = WorkshopDeclaredPresentation.Targets(CompiledSceneFixture.Compile(construction));
+        Assert.Equal(DeclaredPhysics.Of(new PartId("bumper")).Presentation.Bindings.Count + DeclaredPhysics.Of(new PartId("basket")).Presentation.Bindings.Count,
             targets.Count);
         Assert.Equal([new GpuBodyId(1)], targets.Take(5).Select(target => target.Owner).Distinct());
         using var session = new NativeClient();
@@ -160,23 +161,12 @@ public sealed class WorkshopActivationAnimationTests
         Assert.Equal(UiCurves.Hint.AnimationTarget, session.Controls[1].Target);
     }
 
-    [Fact]
-    public void TimerSegmentsSeedTheirCommittedEndpointAndRejectInconsistentIntervals()
-    {
-        var counting = AnimationTimerSegment.Create(new(68,188,128,2,AnimationTimerPhase.Counting));
-        Assert.Equal((float).5, counting.Endpoint.Value);
-        Assert.Equal((float)1, AnimationTimerSegment.Create(new(68,188,200,2,AnimationTimerPhase.Finished)).Endpoint.Value);
-        Assert.Equal((float)0, AnimationTimerSegment.Create(new(0,0,5,0,AnimationTimerPhase.Ready)).Endpoint.Value);
-        Assert.Throws<ArgumentException>(() => AnimationTimerSegment.Create(new(68,188,187,2,AnimationTimerPhase.Finished)));
-        Assert.Throws<ArgumentException>(() => AnimationTimerSegment.Create(new(68,188,188,2,AnimationTimerPhase.Counting)));
-        Assert.Throws<ArgumentException>(() => AnimationTimerSegment.Create(default));
-    }
 
     [Fact]
     public async Task DeclaredPropertyRejectsForeignChannelAndResetCannotReviveOldWorld()
     {
         using var session = new NativeClient();
-        var timer = WorkshopInput.Generic(PartId.Delay, new(1), 0, 1, 0, 0, 0, 0, 1);
+        var timer = WorkshopInput.Generic(new PartId("delay"), new(1), 0, 1, 0, 0, 0, 0, 1);
         await session.Construct(new(new(1), WorkshopCadenceSettings.Default(), new(timer)));
         var control = session.Declared(timer.Id, 0);
         var oldCadence = session.Schedule.Revision;
@@ -234,7 +224,7 @@ public sealed class WorkshopActivationAnimationTests
     [Fact]
     public void DeclaredImpulseEnvelopeCombinesOverlapInTheSharedBatchAndReturnsToNeutral()
     {
-        var declaration = DeclaredPhysics.Of(PartId.PinballBumper).Presentation.Bindings[0];
+        var declaration = DeclaredPhysics.Of(new PartId("bumper")).Presentation.Bindings[0];
         Assert.Equal((CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse, CuriousContraptions.Abstractions.PresentationOverlap.SaturatingSum),
             (declaration.Curve, declaration.Overlap));
         var envelope = new AnimationImpulseDefinition(new(declaration.Duration), AnimationImpulseCurve.SineSquaredPulse, AnimationImpulseOverlap.SaturatingSum,
@@ -348,16 +338,16 @@ public sealed class WorkshopActivationAnimationTests
         Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Read(Resized(output), Session, new(1), new(1), out _));
     }
 
-    // The retired pulse-duration word (bytes 132..135) is zero padding: a segment there, a timer on a plain output or other padding rejects.
+    // Every reserved word in the current output frame is zero padding and rejects nonzero data.
     [Fact]
-    public void AnimationOutputRejectsTheRetiredPulseSegmentAndPadding()
+    public void AnimationOutputRejectsNonzeroPadding()
     {
         var output = Output(Control, new(1), AnimationOutputKind.Sample, 1);
         WorkshopAnimationWire.Read(output, Session, new(1), new(1), out _);
         foreach (var mutate in new Action<byte[]>[] {
-            bytes => BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(132), (float).32),
-            bytes => BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(138), 1),
-            bytes => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(140), 1) })
+            bytes => BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(88), (float).32),
+            bytes => BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(98), 1),
+            bytes => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(100), 1) })
         {
             var changed = (byte[])output.Clone(); mutate(changed);
             Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Read(changed, Session, new(1), new(1), out _));
@@ -378,6 +368,7 @@ public sealed class WorkshopActivationAnimationTests
         private double _milliseconds;
         private readonly WorkshopClockPeer _peer = new(Session, new(1), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);
         public BrowserWorkshopClient Client { get; }
+        public WorkshopCompiledScene InstalledScene => _world.Simulation.Scene;
         public WorkshopSchedule Schedule => _installed!.Value;
         public List<ChannelControl> Controls { get; } = [];
         public bool HoldPreparation { get; set; }
@@ -427,7 +418,7 @@ public sealed class WorkshopActivationAnimationTests
         public async Task<WorkshopDelivery> Construct(WorkshopConstruction construction)
         {
             var delivery = await Client.Execute(WorkshopCommandKind.Construct,
-                construction with { Revision = new(_world.Construction.Revision.Value + 1) });
+                construction with { Revision = new(_world.Simulation.Scene.Revision.Value + 1) });
             Assert.Equal(WorkshopCommandOutcome.Applied, delivery.Response.Result.Outcome);
             return delivery;
         }
@@ -451,10 +442,10 @@ public sealed class WorkshopActivationAnimationTests
         }
         public ChannelControl Declared(GpuBodyId owner, int binding)
         {
-            var instance = _world.Construction.Instances.Single(value => value.Id == owner);
-            var declaration = DeclaredPhysics.Of(instance.PartId).Presentation.Bindings[binding];
-            var target = WorkshopDeclaredPresentation.Targets(_world.Construction).Single(value => value.Owner == owner && value.Binding == binding);
-            return Control with { Target = target.Target, World = Client.Epoch, Generation = Schedule.World.Epoch.Value,
+            var track = _world.Simulation.Scene.Presentation.Single(value => value.Owner == owner && value.Binding == binding);
+            var declaration = track.Declaration;
+            var target = track.Target;
+            return Control with { Target = target, World = Client.Epoch, Generation = Schedule.World.Epoch.Value,
                 Property = WorkshopDeclaredPresentation.Property(declaration.Property), From = declaration.From, To = declaration.To };
         }
         public void Output(ChannelControl control, AnimationOutputKind kind, ulong ordinal = 1, CadenceRevision? cadence = null)
@@ -547,7 +538,8 @@ public sealed class WorkshopActivationAnimationTests
                 : await _world.Dispatch(command));
             var schedule = _world.Schedule;
             if (_installed?.World.Epoch == schedule.World.Epoch) return;
-            var endpoint = WorkshopWireFlatBuffers.DecodeResponse(_acknowledgement);
+            var endpoint = WorkshopWireFlatBuffers.DecodeResponse(_acknowledgement) with { Scene = _world.Simulation.Scene };
+            var installation = WorkshopWireFlatBuffers.EncodeResponse(endpoint);
             var transition = command.Kind switch
             {
                 WorkshopCommandKind.Run => ScheduleTransition.Run,
@@ -556,7 +548,7 @@ public sealed class WorkshopActivationAnimationTests
                 WorkshopCommandKind.Resume => ScheduleTransition.Resume,
                 _ => ScheduleTransition.Configure
             };
-            var payload = new byte[WorkshopScheduleWire.HeaderBytes + WorkshopScheduleWire.PrepareBytes(_acknowledgement.Length)];
+            var payload = new byte[WorkshopScheduleWire.HeaderBytes + WorkshopScheduleWire.PrepareBytes(installation.Length)];
             var header = new ScheduleControlHeader(ScheduleControlKind.Prepare, Session, new(1), schedule.Revision,
                 schedule.World.Epoch, WorkshopRuntimeRole.Simulation, WorkshopRuntimeRole.Browser);
             WorkshopScheduleWire.WriteHeader(header, payload.AsSpan(0, 64), payload.Length - 64);
@@ -567,7 +559,7 @@ public sealed class WorkshopActivationAnimationTests
             BinaryPrimitives.WriteUInt64LittleEndian(payload.AsSpan(120), endpoint.Read.Epoch.Value);
             BinaryPrimitives.WriteUInt64LittleEndian(payload.AsSpan(128), endpoint.Read.Tick.Value);
             BinaryPrimitives.WriteUInt64LittleEndian(payload.AsSpan(136), endpoint.Publication.Value);
-            _acknowledgement.CopyTo(payload, 144);
+            installation.CopyTo(payload, 144);
             _event = payload; _scheduleControl();
             void Commit()
             {
@@ -590,12 +582,11 @@ public sealed class WorkshopActivationAnimationTests
         U64(0, Session.Low); U64(8, Session.High); U64(16, 1); U64(24, cadence.Value);
         U64(32, control.Generation); U64(40, ordinal);
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(56), control.To);
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(136), (ushort)control.Property);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(WorkshopAnimationWire.OutputPropertyOffset), (ushort)control.Property);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(60), (uint)kind);
         U64(64, control.Target.Value); U64(72, control.World.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(80), control.EventOrdinal);
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(84), control.EventPhase);
-        WorkshopAnimationWire.WriteTimer(bytes, control.Timer);
         return bytes;
         void U64(int offset, ulong value) => BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(offset), value);
     }

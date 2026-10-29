@@ -15,8 +15,8 @@ internal static class LawBalls
 {
     public static PartId Part(LawBall ball) => ball switch
     {
-        LawBall.Basketball => PartId.Basketball,
-        LawBall.Bowling => PartId.BowlingBall,
+        LawBall.Basketball => new PartId("ball"),
+        LawBall.Bowling => new PartId("bowling"),
         _ => throw new ArgumentOutOfRangeException(nameof(ball), ball, "Unknown law ball."),
     };
     private static CuriousContraptions.Abstractions.ColliderDescriptor Sphere(LawBall ball) => Assert.Single(DeclaredPhysics.Of(Part(ball)).Colliders, collider => collider.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere);
@@ -35,9 +35,9 @@ internal static class LawBalls
 /// collider and material lanes (WorkshopPhysicsCompiler), so a law test feeds the engine exactly the compiled tile.</summary>
 internal static class LawTile
 {
-    private static CuriousContraptions.Abstractions.ColliderDescriptor Box => Assert.Single(DeclaredPhysics.Of(PartId.Domino).Colliders, collider => collider.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Box);
+    private static CuriousContraptions.Abstractions.ColliderDescriptor Box => Assert.Single(DeclaredPhysics.Of(new PartId("domino")).Colliders, collider => collider.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Box);
     public static Vector3 HalfExtents => new((float)Box.HalfExtents.X, (float)Box.HalfExtents.Y, (float)Box.HalfExtents.Z);
-    public static float Mass => MassFixtures.Evaluate(DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassFrame, []).Mass;
+    public static float Mass => MassFixtures.Evaluate(DeclaredPhysics.Of(new PartId("domino")).Mechanical!.MassFrame, []).Mass;
     public static LawMaterial Material => new((float)Box.Material.Restitution, (float)Box.Material.BounceThreshold,
         (float)Box.Material.Friction, (float)Box.Material.RollingResistance);
 }
@@ -685,10 +685,9 @@ public sealed class WorkshopPhysicsLawTests
     private static string[] CatalogueElementWords()
     {
         var root = twodog.Engine.ResolveProjectDir();
-        var catalogue = UndeliveredParts.All.Select(part => UndeliveredParts.Id(part).Value);
         var packages = PartRegistry.Read(File.ReadAllText(Path.Combine(root, "elements", "elements.bundle.json")))
             .Select(entry => entry.Metadata.Id);
-        return catalogue.Concat(packages)
+        return packages
             .SelectMany(name => Regex.Matches(name, "[A-Za-z]{3,}").Select(word => word.Value.ToLowerInvariant()))
             .Distinct().Order(StringComparer.Ordinal).ToArray();
     }
@@ -798,7 +797,7 @@ public sealed class WorkshopPhysicsLawTests
     // Murdoch-2 R2-F5: the families the hand list missed are scanned, and every catalogue part's Id words are in the set.
     [Theory]
     [InlineData("springStiffness")] [InlineData("pipeBore")] [InlineData("funnelMouth")] [InlineData("detectorAperture")]
-    [InlineData("clockPhase")] [InlineData("delayTicks")] [InlineData("tennisSpin")] [InlineData("balloonLift")]
+    [InlineData("clockPhase")] [InlineData("delayTicks")]
     public void TheGeneralScanCoversEveryCatalogueFamily(string identifier) => Assert.NotEmpty(GeneralHits($"var x = {identifier};"));
 
     [Fact]

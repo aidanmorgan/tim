@@ -85,7 +85,7 @@ public sealed class WorkshopIntegrationHarnessTests
     private static WorkshopConstruction Bench(SimulationCadence cadence, bool wired = true)
     {
         var settings = WorkshopCadenceSettings.Default() with { Simulation = cadence };
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         return new(new(2), settings, new(gate, battery), Connections: wired
             ? new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)) : new());
@@ -211,7 +211,7 @@ public sealed class WorkshopIntegrationHarnessTests
     public async Task RealImpactDeliverySurvivesPauseAndResetRetiresItsWorld()
     {
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(PartId.Basketball, new(1), 0, 4.5f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 3, 0)));
         await using var harness = await WorkshopIntegrationHarness.Running(bench);
         for (var tick = 0; tick < 240 && harness.Records.Count == 0; tick++) await harness.Advance(1);
@@ -315,7 +315,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
                 "Structure", "wall", "ramp"
             ];
             Assert.Equal(expected, rows);
-            var impact = scene.World.Registry.Definitions[PartId.ImpactSwitch];
+            var impact = scene.World.Registry.Definitions[new PartId("switch")];
             Assert.Equal("Impact switch", impact.Title);
             Assert.Equal("A qualifying impact sends one activation and closes the independently supplied electrical contact.", impact.Description);
             Assert.Equal(new Color(.94f, .43f, .33f, 1), impact.Color);
@@ -374,8 +374,8 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
                     new(part, default, false), at, Quaternion.Identity);
                 await scene.PlaceAsync(part, composed);
             }
-            await Place(PartId.PoweredGate, new(0, 3, 0));
-            await Place(PartId.Battery, new(3, 3, 0));
+            await Place(new PartId("powered_gate"), new(0, 3, 0));
+            await Place(new PartId("battery"), new(3, 3, 0));
             var instances = scene.World.Construction.Instances;
             Assert.Equal(2, instances.Count);
             var source = Assert.IsType<WorkshopGenericInstance>(instances[1]);
@@ -392,14 +392,14 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             await scene.UndoAsync();
             Assert.Single(scene.World.Construction.Connections);
             var before = scene.World.Construction;
-            await scene.PlaceAsync(PartId.Basketball, new(new(8, 2, 0), Quaternion.Identity, null, PlacementRefusal.OutsideBench));
+            await scene.PlaceAsync(new PartId("ball"), new(new(8, 2, 0), Quaternion.Identity, null, PlacementRefusal.OutsideBench));
             Assert.Equal(before.Revision, scene.World.Construction.Revision);
             Assert.Equal(before.Instances.Count, scene.World.Construction.Instances.Count);
             scene.CancelTool();
             Assert.True(HasLabel(scene, "Choose a part, or click a placed part to adjust it."));
             await scene.UndoAsync();
             Assert.Empty(scene.World.Construction.Connections);
-            await Place(PartId.Clock, new(-3, 3, 0));
+            await Place(new PartId("clock"), new(-3, 3, 0));
             var clock = Assert.IsType<WorkshopGenericInstance>(scene.World.Construction.Instances[2]);
             Assert.Equal(new GpuBodyId(3), clock.Id);
             await scene.ApplyDeclaredParametersAsync(clock.Id, new([new(new("interval_seconds"), -1)]));

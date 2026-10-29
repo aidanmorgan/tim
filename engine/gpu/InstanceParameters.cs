@@ -34,9 +34,10 @@ public sealed class InstanceParameterCollection : IReadOnlyDictionary<ParameterI
     public static InstanceParameterCollection Defaults(PartId part) => new(DeclaredPhysics.Of(part).Metadata.Parameters
         .Select(p => KeyValuePair.Create(new ParameterId(p.Key), p.Default)));
 
-    public void Validate(PartId part)
+    public void Validate(PartId part) => Validate(DeclaredPhysics.Of(part).Metadata.Parameters);
+
+    public void Validate(IReadOnlyList<ParameterDescriptor> schema)
     {
-        var schema = DeclaredPhysics.Of(part).Metadata.Parameters;
         if (Count != schema.Count) throw new ArgumentException("Missing or unknown declared parameters.");
         foreach (var descriptor in schema)
         {

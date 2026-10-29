@@ -77,8 +77,9 @@
       <_WorkerAotArguments>;@(MonoAOTCompilerDefaultAotArguments);</_WorkerAotArguments>
     </PropertyGroup>
     <Error Condition="!$(_WorkerAotLinkInputs.Contains(';$(_WasmIntermediateOutputPath)%(_WorkerAotEngine.Filename)%(_WorkerAotEngine.Extension).o;'))" Text="WorkerAot (b): %(_WorkerAotEngine.Filename)%(_WorkerAotEngine.Extension).o is not linked into dotnet.native.wasm." />
+    <Error Condition="'$(WorkerAotSimdTypes)' != '' and '$(WorkerAotSimdAssembly)' == ''" Text="WorkerAot (d): SIMD types require their owning assembly." />
     <Exec Condition="'$(WorkerAotSimdTypes)' != ''"
-          Command="&quot;$(DOTNET_HOST_PATH)&quot; &quot;$(_WorkerAotGuard)&quot; simd &quot;$(EmscriptenUpstreamBinPath)llvm-objdump$(_ExeExt)&quot; &quot;$(_WasmIntermediateOutputPath)$(AssemblyName).dll.o&quot; $(AssemblyName.Replace('.', '_'))_ &quot;$(_WasmIntermediateOutputPath)worker-aot-simd.txt&quot; $(WorkerAotSimdTypes.Replace(';', ' '))"
+          Command="&quot;$(DOTNET_HOST_PATH)&quot; &quot;$(_WorkerAotGuard)&quot; simd &quot;$(EmscriptenUpstreamBinPath)llvm-objdump$(_ExeExt)&quot; &quot;$(_WasmIntermediateOutputPath)$(WorkerAotSimdAssembly).dll.o&quot; $(WorkerAotSimdAssembly.Replace('.', '_'))_ &quot;$(_WasmIntermediateOutputPath)worker-aot-simd.txt&quot; $(WorkerAotSimdTypes.Replace(';', ' '))"
           CustomErrorRegularExpression="^WorkerAot \(" StandardOutputImportance="High" />
     <!-- Every worker's AOT compile targets wasm-simd128 (the Animation worker's SIMD proof is this argument). -->
     <Error Condition="!$(_WorkerAotArguments.Contains(';mattr=simd;'))" Text="WorkerAot (d): the AOT compile of $(AssemblyName) is not given mattr=simd (arguments $(_WorkerAotArguments))." />

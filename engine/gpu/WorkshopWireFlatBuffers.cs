@@ -8,34 +8,13 @@ using CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>The one Workshop codec (Story 9A.2): commands, responses (acknowledgements, physical reads and schedule endpoints) and
-/// the construction record of saves are FlatBuffers of <c>schemas/workshop_wire.fbs</c>. Every buffer is size-prefixed and carries
+/// <summary>The runtime Workshop codec: commands, responses, compiled installations and diagnostics are FlatBuffers of
+/// <c>schemas/workshop_wire.fbs</c>. Authoring and saves belong to the main-only authoring codec. Every buffer is size-prefixed and carries
 /// its root's identifier; each is decoded once, and a buffer that is not exactly one verified root of the expected kind is a
 /// <see cref="WireFaultException"/> naming why. Nothing else decodes these messages.</summary>
 public static partial class WorkshopWireFlatBuffers
 {
 
-    /// <summary>Content uses the same current record constructor as wire input, after strict content/package admission.</summary>
-    internal static IWorkshopInstance MapAuthoredInstance(AuthoredInstanceTemplate template, GpuBodyId id)
-    {
-        var builder = new FlatBufferBuilder(512);
-        var part = builder.CreateString(template.Part.Value);
-        var parameterOffsets = template.Parameters.Select(pair =>
-            ParameterRecord.CreateParameterRecord(builder, builder.CreateString(pair.Key.Value), pair.Value)).ToArray();
-        var parameters = InstanceRecord.CreateParametersVector(builder, parameterOffsets);
-        var values = template.Scalars;
-        InstanceRecord.StartInstanceRecord(builder);
-        InstanceRecord.AddId(builder, id.Value);
-        InstanceRecord.AddPartId(builder, part);
-        InstanceRecord.AddLocked(builder, template.Locked);
-        InstanceRecord.AddCell(builder, Vec3i.CreateVec3i(builder, template.Cell.X, template.Cell.Y, template.Cell.Z));
-        InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, template.Local.X, template.Local.Y, template.Local.Z));
-        InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, template.Rotation.X, template.Rotation.Y, template.Rotation.Z, template.Rotation.W));
-        InstanceRecord.AddLength(builder, values[AuthoredScalar.Length]);
-        InstanceRecord.AddParameters(builder, parameters);
-        builder.Finish(InstanceRecord.EndInstanceRecord(builder).Value);
-        return MapInstance(InstanceRecord.GetRootAsInstanceRecord(new ByteBuffer(builder.SizedByteArray())));
-    }
     public const string CommandIdentifier = "CCWC";
     public const string ResponseIdentifier = "CCWR";
     private const int IdentifierOffset = FlatBufferConstants.SizePrefixLength + sizeof(int);
@@ -58,50 +37,25 @@ public static partial class WorkshopWireFlatBuffers
         bool verified;
         // The vendored verifier's own offset arithmetic (Convert.ToUInt32 of a hostile signed offset) overflows on some corrupt
         // buffers instead of answering false: that is its refusal too, and only here.
-        try { verified = new Verifier(buffer).SetMaxTables(TableVisitBudget(bytes.Length)).VerifyBuffer(identifier, true, verify) && CurrentPuzzleTable(buffer, identifier); }
+        try { verified = new Verifier(buffer).SetMaxTables(TableVisitBudget(bytes.Length)).VerifyBuffer(identifier, true, verify); }
         catch (OverflowException failure)
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
+        var fieldCount = identifier switch { CommandIdentifier => 11, ResponseIdentifier => 27, _ => 0 };
+        if (fieldCount != 0)
+        {
+            var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
+            var vtable = checked(root - buffer.GetInt(root));
+            if (buffer.GetUshort(vtable) > 4 + fieldCount * 2)
+                throw new WireFaultException(WireFaultReason.OutOfRange, "Runtime record contains undefined fields.");
+        }
         return ByteBufferUtil.RemoveSizePrefix(buffer);
     }
 
 
-    /// <summary>Current authored puzzle tables have ten fields and require their final assistance vector.
-    /// Reject unknown table fields before decoding; never reinterpret a superseded table layout.</summary>
-    private static bool CurrentPuzzleTable(ByteBuffer buffer, string identifier)
-    {
-        const int commandConstructionField = 11, responseConstructionField = 26, savedConstructionField = 1, constructionPuzzleField = 2;
-        const int puzzleVtableBytes = 4 + 2 * 10;
-        var constructionField = identifier switch
-        {
-            CommandIdentifier => commandConstructionField,
-            ResponseIdentifier => responseConstructionField,
-            WorkshopSaveCodec.Identifier => savedConstructionField,
-            _ => -1
-        };
-        if (constructionField < 0) return true;
-        var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
-        var construction = Reference(root, constructionField);
-        if (construction == 0) return true;
-        var puzzle = Reference(construction, constructionPuzzleField);
-        if (puzzle == 0) return true;
-        var vtable = checked(puzzle - buffer.GetInt(puzzle));
-        return buffer.GetUshort(vtable) == puzzleVtableBytes;
-
-        int Reference(int table, int field)
-        {
-            var vtable = checked(table - buffer.GetInt(table));
-            var slot = 4 + 2 * field;
-            if (slot >= buffer.GetUshort(vtable)) return 0;
-            var offset = buffer.GetUshort(vtable + slot);
-            if (offset == 0) return 0;
-            var reference = checked(table + offset);
-            return checked(reference + buffer.GetInt(reference));
-        }
-    }
-
-    // Current schema has at most root -> construction -> instance -> parameter table vectors.
+    // Runtime roots contain compiled capability rows and nested presentation descriptors; authoring roots
+    // contain instance/parameter vectors. No current path nests more than two table vectors.
     // Shared vectors are visited repeatedly: bounding unique tables by bytes would be incorrect.
     // Each offset vector has at most w four-byte entries, so 3+w+w*w bounds visits.
     // Leave one representable rejecting visit for the vendored increment-before-check counter.
@@ -122,6 +76,11 @@ public static partial class WorkshopWireFlatBuffers
         ? RuntimeSessionId.Read(bytes)
         : throw new WireFaultException(WireFaultReason.MissingField, "A Workshop message requires its 16-byte runtime session.");
 
+    private static byte[] RuntimeSessionBytes(RuntimeSessionId session)
+    {
+        var bytes = new byte[RuntimeSessionId.ByteLength]; session.WriteTo(bytes); return bytes;
+    }
+
     private static VectorOffset Session(FlatBufferBuilder builder, RuntimeSessionId session)
     {
         var bytes = new byte[RuntimeSessionId.ByteLength];
@@ -132,25 +91,24 @@ public static partial class WorkshopWireFlatBuffers
     public static byte[] EncodeCommand(WorkshopCommand command)
     {
         command.Session.Validate();
-        var hasSettings = command.Kind is WorkshopCommandKind.Initialize or WorkshopCommandKind.ConfigureCadence;
-        command.Settings?.Validate();
+        var hasScene = command.Kind is WorkshopCommandKind.Initialize or WorkshopCommandKind.Construct or WorkshopCommandKind.ConfigureCadence;
+        command.Scene?.Validate();
         command.Electrical?.Validate();
         if (!Enum.IsDefined(command.Kind) || !Enum.IsDefined(command.RevisionKind) ||
             (command.RevisionKind == ExpectedRevisionKind.Any && command.Revision.Value != 0) ||
             (command.Kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && command.RevisionKind != ExpectedRevisionKind.Exact) ||
-            command.Sequence.Value == 0 || hasSettings != command.Settings.HasValue ||
+            command.Sequence.Value == 0 || hasScene != (command.Scene is not null) ||
             (command.Kind == WorkshopCommandKind.ConfigureElectrical) != command.Electrical.HasValue ||
             (command.Kind == WorkshopCommandKind.Initialize
                 ? command.Cadence.Value != 0 || command.Projection.Value != 0
                 : command.Cadence.Value == 0 || command.Projection.Value == 0) ||
-            (command.Kind == WorkshopCommandKind.Construct) != command.Construction.HasValue ||
             (command.Kind == WorkshopCommandKind.Cancel) != command.Target.HasValue ||
             (command.Target is { } target && (target.Sequence.Value == 0 || target.Epoch.Value == 0 || target.Cadence.Value == 0 || target.Projection.Value == 0)))
             throw new ArgumentException("Unsupported Workshop command.");
 
         var builder = new FlatBufferBuilder(512);
         var session = Session(builder, command.Session);
-        Offset<ConstructionRecord>? construction = command.Construction is { } built ? EncodeConstructionRecord(builder, built) : null;
+        Offset<CompiledSceneRecord>? scene = command.Scene is { } built ? EncodeCompiledScene(builder, built) : null;
 
         Wire.WorkshopCommand.StartWorkshopCommand(builder);
         Wire.WorkshopCommand.AddSequence(builder, command.Sequence.Value);
@@ -163,14 +121,10 @@ public static partial class WorkshopWireFlatBuffers
         Wire.WorkshopCommand.AddProjection(builder, command.Projection.Value);
         if (command.Electrical is { } electrical)
             Wire.WorkshopCommand.AddElectrical(builder, ElectricalControl.CreateElectricalControl(builder, electrical.Owner.Value, (byte)electrical.Enabled));
-        if (command.Settings is { } settings)
-            Wire.WorkshopCommand.AddSettings(builder, CadenceSettingsRecord.CreateCadenceSettingsRecord(builder,
-                (uint)settings.Simulation, (uint)settings.Physical, (uint)settings.Animation, (uint)settings.Presentation,
-                settings.PresentationRate.Numerator, settings.PresentationRate.Denominator));
         if (command.Target is { } identity)
             Wire.WorkshopCommand.AddTarget(builder, CommandIdentityRecord.CreateCommandIdentityRecord(builder,
                 identity.Sequence.Value, identity.Epoch.Value, identity.Revision.Value, identity.Cadence.Value, identity.Projection.Value));
-        if (construction is { } record) Wire.WorkshopCommand.AddConstructionRecord(builder, record);
+        if (scene is { } record) Wire.WorkshopCommand.AddScene(builder, record);
         builder.FinishSizePrefixed(Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, CommandIdentifier);
         return builder.SizedByteArray();
     }
@@ -191,13 +145,12 @@ public static partial class WorkshopWireFlatBuffers
         var sequence = new CommandSequence(fb.Sequence);
         var cadence = new CadenceRevision(fb.Cadence);
         var projection = new ProjectionEpoch(fb.Projection);
-        var hasSettings = kind is WorkshopCommandKind.Initialize or WorkshopCommandKind.ConfigureCadence;
+        var hasScene = kind is WorkshopCommandKind.Initialize or WorkshopCommandKind.Construct or WorkshopCommandKind.ConfigureCadence;
         if ((kind == WorkshopCommandKind.Initialize ? cadence.Value != 0 || projection.Value != 0 : cadence.Value == 0 || projection.Value == 0) ||
             sequence.Value == 0 ||
             (kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && revisionKind != ExpectedRevisionKind.Exact) ||
-            hasSettings != fb.Settings.HasValue ||
+            hasScene != fb.Scene.HasValue ||
             (kind == WorkshopCommandKind.ConfigureElectrical) != fb.Electrical.HasValue ||
-            (kind == WorkshopCommandKind.Construct) != fb.ConstructionRecord.HasValue ||
             (kind == WorkshopCommandKind.Cancel) != fb.Target.HasValue)
             throw new ArgumentException("Unsupported Workshop command shape.");
 
@@ -209,15 +162,6 @@ public static partial class WorkshopWireFlatBuffers
                 throw new ArgumentException("Cancel target must have a complete original identity.");
         }
 
-        WorkshopCadenceSettings? settings = null;
-        if (fb.Settings is { } s)
-        {
-            settings = new WorkshopCadenceSettings((SimulationCadence)s.Simulation, (PhysicalStepProfile)s.Physical,
-                (AnimationCadence)s.Animation, (PresentationCadence)s.Presentation,
-                new PulseRate(s.PresentationRateNumerator, s.PresentationRateDenominator));
-            settings.Value.Validate();
-        }
-
         WorkshopElectricalControl? electrical = null;
         if (fb.Electrical is { } e)
         {
@@ -225,44 +169,11 @@ public static partial class WorkshopWireFlatBuffers
             electrical.Value.Validate();
         }
 
-        var construction = fb.ConstructionRecord is { } record ? DecodeConstructionRecord(record) : (WorkshopConstruction?)null;
-        if (HoldsFieldBeyondTheInstanceTable(fb.ByteBuffer, CommandConstructionSlot))
-            throw new WireFaultException(WireFaultReason.OutOfRange, "An instance record holds a field the current record does not define.");
-        return new WorkshopCommand(sequence, kind, new(fb.Epoch), new(fb.Revision), construction,
-            target, revisionKind, session, cadence, projection, settings, electrical);
+        var scene = fb.Scene is { } record ? DecodeCompiledScene(record) : null;
+        return new WorkshopCommand(sequence, kind, new(fb.Epoch), new(fb.Revision), scene,
+            target, revisionKind, session, cadence, projection, electrical);
     }
 
-    /// <summary>The current <c>InstanceRecord</c> table's field count (schemas/workshop_wire.fbs).</summary>
-    internal const int InstanceRecordFields = 8;
-    /// <summary>The vtable offsets of <c>SavedConstruction.construction</c> (field 1), <c>WorkshopCommand.construction_record</c>
-    /// (field 11) and <c>ConstructionRecord.instances</c> (field 3), as the generated accessors read them.</summary>
-    internal const int SavedConstructionSlot = 6, CommandConstructionSlot = 26, ConstructionInstancesSlot = 10;
-
-    /// <summary>Whether any instance record of the verified root's construction holds a present field in a slot the current
-    /// <c>InstanceRecord</c> does not define (an older layout's or a forged record's). Such a field is refused at both decode
-    /// boundaries, never silently ignored. Reads only vtable entries inside each verified vtable.</summary>
-    internal static bool HoldsFieldBeyondTheInstanceTable(ByteBuffer bb, int constructionSlot)
-    {
-        var root = new Table(bb.GetInt(bb.Position) + bb.Position, bb);
-        var field = root.__offset(constructionSlot);
-        if (field == 0) return false;
-        var construction = new Table(root.__indirect(field + root.bb_pos), bb);
-        var instances = construction.__offset(ConstructionInstancesSlot);
-        if (instances == 0) return false;
-        var vector = construction.__vector(instances);
-        for (var i = 0; i < construction.__vector_len(instances); i++)
-        {
-            var table = construction.__indirect(vector + i * 4);
-            var vtable = table - bb.GetInt(table);
-            var size = bb.GetUshort(vtable);
-            for (var slot = InstanceRecordFields; 4 + 2 * slot + 2 <= size; slot++)
-                if (bb.GetUshort(vtable + 4 + 2 * slot) != 0) return true;
-        }
-        return false;
-    }
-
-    /// <summary>The 24-byte receipt identity of a physical read (its session, then its publication): the Simulation worker hands
-    /// it to the browser with the read, so no script parses a buffer to acknowledge it.</summary>
     public static byte[] ReadIdentity(WorkshopResponse response)
     {
         var identity = new byte[WorkshopClockWire.ReceiptBytes];
@@ -286,13 +197,13 @@ public static partial class WorkshopWireFlatBuffers
         ValidateMemory(response);
         WorkshopMessages.ValidateCapture(response.Read);
         WorkshopMessages.ValidateScheduleIdentity(response);
-        if (response.Construction is { } ownerConstruction) WorkshopMessages.ValidatePresentationOwners(response.Read, ownerConstruction);
+        if (response.Scene is { } ownerConstruction) WorkshopMessages.ValidatePresentationOwners(response.Read, ownerConstruction);
         WorkshopMessages.ValidatePhysicalRead(response.Read);
 
         builder.Clear();
         var read = response.Read;
-        Offset<ConstructionRecord>? constructionOffset = response.Construction is { } construction
-            ? EncodeConstructionRecord(builder, construction) : null;
+        Offset<CompiledSceneRecord>? constructionOffset = response.Scene is { } construction
+            ? EncodeCompiledScene(builder, construction) : null;
         VectorOffset? logicOffset = null;
         if (!read.Presentation.Logic.IsEmpty)
         {
@@ -431,7 +342,7 @@ public static partial class WorkshopWireFlatBuffers
         if (logicOffset.HasValue) Wire.WorkshopResponse.AddElectricalLogic(builder,logicOffset.Value);
         if (actuatorOffset.HasValue) Wire.WorkshopResponse.AddActuatorDrives(builder, actuatorOffset.Value);
         if (loadOffset.HasValue) Wire.WorkshopResponse.AddContactLoads(builder, loadOffset.Value);
-        if (constructionOffset.HasValue) Wire.WorkshopResponse.AddConstruction(builder, constructionOffset.Value);
+        if (constructionOffset.HasValue) Wire.WorkshopResponse.AddScene(builder, constructionOffset.Value);
         Wire.WorkshopResponse.AddSequence(builder, response.Sequence.Value);
         Wire.WorkshopResponse.AddKind(builder, (ResponseKind)response.Kind);
         Wire.WorkshopResponse.AddOutcome(builder, (CommandOutcome)response.Result.Outcome);
@@ -588,7 +499,7 @@ public static partial class WorkshopWireFlatBuffers
             : null;
         var response = new WorkshopResponse(sequence, kind, new WorkshopCommandResult(outcome, reason), phase, read, session,
             new PublicationSequence(fb.Publication), new CadenceRevision(fb.Cadence), master, new ProjectionEpoch(fb.Projection),
-            new PulseOrdinal(tick.Value), memory, fb.Construction is { } construction ? DecodeConstructionRecord(construction) : null);
+            new PulseOrdinal(tick.Value), memory, fb.Scene is { } construction ? DecodeCompiledScene(construction) : null);
         WorkshopMessages.ValidateScheduleIdentity(response);
         ValidateMemory(response);
         return response;
@@ -603,240 +514,6 @@ public static partial class WorkshopWireFlatBuffers
         memory.Validate();
     }
 
-    public static Offset<ConstructionRecord> EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, bool validate = true)
-    {
-        ArgumentNullException.ThrowIfNull(builder);
-        if (validate) construction.Validate();
-
-        Offset<PuzzleRecord>? puzzleOffset = null;
-        if (construction.Puzzle.Id.IsAuthored)
-        {
-            var puzzle = construction.Puzzle;
-            var puzzleIdOffset = builder.CreateString(puzzle.Id.Value);
-            var invPartOffset = puzzle.InventoryPart.Value != null ? builder.CreateString(puzzle.InventoryPart.Value) : default;
-
-            var assistVec = EncodeAssistance(builder, puzzle);
-
-            var goalBody = puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.SourceNode.Value : puzzle.Goal.Body.Value;
-            var goalTarget = puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.TargetNode.Value : puzzle.Goal.Target.Value;
-
-            PuzzleRecord.StartPuzzleRecord(builder);
-            PuzzleRecord.AddId(builder, puzzleIdOffset);
-            PuzzleRecord.AddPlacement(builder, (uint)puzzle.Placement);
-            PuzzleRecord.AddPrecision(builder, puzzle.Precision.Value);
-            if (puzzle.InventoryPart.Value != null) PuzzleRecord.AddInventoryPart(builder, invPartOffset);
-            PuzzleRecord.AddInventoryCount(builder, puzzle.InventoryCount);
-            PuzzleRecord.AddGoalKind(builder, (uint)puzzle.Goal.Kind);
-            PuzzleRecord.AddGoalBody(builder, goalBody);
-            PuzzleRecord.AddGoalTarget(builder, goalTarget);
-            PuzzleRecord.AddGoalDelay(builder, puzzle.Goal.MinimumDuration.Value);
-            PuzzleRecord.AddAssistance(builder, assistVec);
-            puzzleOffset = PuzzleRecord.EndPuzzleRecord(builder);
-        }
-
-        var instanceOffsets = new Offset<InstanceRecord>[construction.Instances.Count];
-        for (var i = 0; i < construction.Instances.Count; i++)
-        {
-            var instance = construction.Instances[i];
-            var partIdOffset = builder.CreateString(instance.PartId.Value);
-            VectorOffset? parameterVector = null;
-            if (instance is WorkshopGenericInstance generic)
-            {
-                var parameters = generic.Parameters.Select(pair =>
-                    ParameterRecord.CreateParameterRecord(builder, builder.CreateString(pair.Key.Value), pair.Value)).ToArray();
-                parameterVector = InstanceRecord.CreateParametersVector(builder, parameters);
-            }
-
-            InstanceRecord.StartInstanceRecord(builder);
-            if (parameterVector.HasValue) InstanceRecord.AddParameters(builder, parameterVector.Value);
-            InstanceRecord.AddId(builder, instance.Id.Value);
-            InstanceRecord.AddPartId(builder, partIdOffset);
-            InstanceRecord.AddLocked(builder, instance.Locked);
-            InstanceRecord.AddCell(builder, Vec3i.CreateVec3i(builder, instance.Cell.X, instance.Cell.Y, instance.Cell.Z));
-            InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, instance.Local.X, instance.Local.Y, instance.Local.Z));
-            InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W));
-
-            // The straight pipe's length is the one typed record field left (Story 9A.45 makes the pipe generic).
-            if (instance is WorkshopPipe pipe) InstanceRecord.AddLength(builder, pipe.Length.Metres);
-
-            instanceOffsets[i] = InstanceRecord.EndInstanceRecord(builder);
-        }
-        var instancesVector = ConstructionRecord.CreateInstancesVector(builder, instanceOffsets);
-
-        VectorOffset? connectionsVector = null;
-        if (construction.Connections.Count > 0)
-        {
-            ConstructionRecord.StartConnectionsVector(builder, construction.Connections.Count);
-            for (var i = construction.Connections.Count - 1; i >= 0; i--)
-            {
-                var link = construction.Connections[i];
-                ConnectionRecord.CreateConnectionRecord(builder, link.Source.Value, link.Target.Value, (uint)link.Domain, (uint)link.Output, (uint)link.Input);
-            }
-            connectionsVector = builder.EndVector();
-        }
-
-        ConstructionRecord.StartConstructionRecord(builder);
-        ConstructionRecord.AddRevision(builder, construction.Revision.Value);
-        ConstructionRecord.AddSettings(builder, CadenceSettingsRecord.CreateCadenceSettingsRecord(builder,
-            (uint)construction.Settings.Simulation, (uint)construction.Settings.Physical, (uint)construction.Settings.Animation,
-            (uint)construction.Settings.Presentation, construction.Settings.PresentationRate.Numerator, construction.Settings.PresentationRate.Denominator));
-        if (puzzleOffset.HasValue) ConstructionRecord.AddPuzzle(builder, puzzleOffset.Value);
-        ConstructionRecord.AddInstances(builder, instancesVector);
-        if (connectionsVector.HasValue) ConstructionRecord.AddConnections(builder, connectionsVector.Value);
-        return ConstructionRecord.EndConstructionRecord(builder);
-    }
-
-    /// <summary>Decodes and validates a construction record (the Construct command's): the domain rules reject an inadmissible one.</summary>
-    public static WorkshopConstruction DecodeConstructionRecord(ConstructionRecord cr)
-    {
-        var construction = MapConstructionRecord(cr);
-        construction.Validate();
-        return construction;
-    }
-
-    /// <summary>A puzzle record's assistance: the primary, target and placement profiles, three f32 knots each (Story 9A.44).</summary>
-    internal const int KnotsPerProfile = 3;
-    internal const int AssistanceKnotCount = 3 * KnotsPerProfile;
-
-    private static VectorOffset EncodeAssistance(FlatBufferBuilder builder, WorkshopPuzzle puzzle)
-    {
-        AssistanceKnot[] knots =
-        [
-            puzzle.PrimaryAssistance.Forgiving, puzzle.PrimaryAssistance.Balanced, puzzle.PrimaryAssistance.Precise,
-            puzzle.TargetAssistance.Forgiving, puzzle.TargetAssistance.Balanced, puzzle.TargetAssistance.Precise,
-            puzzle.PlacementAssistance.Forgiving, puzzle.PlacementAssistance.Balanced, puzzle.PlacementAssistance.Precise,
-        ];
-        PuzzleRecord.StartAssistanceVector(builder, knots.Length);
-        for (var i = knots.Length - 1; i >= 0; i--)
-        {
-            var k = knots[i];
-            AssistanceKnotRecord.CreateAssistanceKnotRecord(builder, k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees,
-                k.MaximumPositionCorrection.Value, k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value,
-                k.CaptureSpeed.Value, k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold);
-        }
-        return builder.EndVector();
-    }
-
-    private static AssistanceProfile Profile(PuzzleRecord record, int first) =>
-        new(Knot(record, first), Knot(record, first + 1), Knot(record, first + 2));
-
-    private static AssistanceKnot Knot(PuzzleRecord record, int index)
-    {
-        var k = record.Assistance(index)!.Value;
-        return new(k.Precision, new(k.PositionWindow), k.RotationWindowDegrees, new(k.MaximumPositionCorrection),
-            k.MaximumRotationCorrectionDegrees, new(k.Blend), new(k.CaptureMargin), new(k.CaptureSpeed), new(k.CaptureDwell),
-            new(k.GuideAcceleration), k.TriggerThreshold);
-    }
-
-    /// <summary>The record's values as a construction, without validating them (a save's pre-validation has already admitted them;
-    /// a command's are validated by <see cref="DecodeConstructionRecord"/>). An absent required record or field is a
-    /// <see cref="WireFaultException"/>; nothing is defaulted.</summary>
-    internal static WorkshopConstruction MapConstructionRecord(ConstructionRecord cr)
-    {
-        var s = cr.Settings ?? throw new WireFaultException(WireFaultReason.MissingField, "A construction record requires its cadence settings.");
-        var settings = new WorkshopCadenceSettings((SimulationCadence)s.Simulation, (PhysicalStepProfile)s.Physical,
-            (AnimationCadence)s.Animation, (PresentationCadence)s.Presentation,
-            new PulseRate(s.PresentationRateNumerator, s.PresentationRateDenominator));
-
-        WorkshopPuzzle puzzle = default;
-        if (cr.Puzzle is { } p)
-        {
-            var kind = (WorkshopGoalKind)p.GoalKind;
-            var goal = kind == WorkshopGoalKind.ActivatedAfter
-                ? new WorkshopGoal(kind, default, default, new(p.GoalBody), new(p.GoalTarget), new(p.GoalDelay))
-                : new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget), MinimumDuration: new(p.GoalDelay));
-            if (p.AssistanceLength != AssistanceKnotCount)
-                throw new WireFaultException(WireFaultReason.MissingField, "An authored puzzle requires its nine assistance knots.");
-            AssistanceProfile[] profiles = [Profile(p, 0), Profile(p, KnotsPerProfile), Profile(p, 2 * KnotsPerProfile)];
-            // The authored knot rule (finite, non-negative, knots at 0, 0.45 and 1): a saved record is pre-validated against it.
-            if (profiles.Any(profile => !profile.HasAuthoredShape()))
-                throw new WireFaultException(WireFaultReason.OutOfRange,
-                    "An authored puzzle's assistance knots must be finite, non-negative and at precisions 0, 0.45 and 1.");
-            puzzle = new WorkshopPuzzle(new PuzzleId(p.Id ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing puzzle identity.")), (WorkshopPlacementMode)p.Placement, new(p.Precision),
-                p.InventoryPart != null ? new PartId(p.InventoryPart) : default, p.InventoryCount, goal,
-                profiles[0], profiles[1], profiles[2]);
-        }
-
-        // No instance or connection limit (Story 9R.5b): the record's own vectors are the population.
-        var instances = new IWorkshopInstance[cr.InstancesLength];
-        for (var i = 0; i < instances.Length; i++) instances[i] = MapInstance(cr.Instances(i)!.Value);
-
-        var links = new WorkshopConnection[cr.ConnectionsLength];
-        for (var i = 0; i < links.Length; i++)
-        {
-            var conn = cr.Connections(i)!.Value;
-            links[i] = new(new(conn.Source), (WorkshopSocket)conn.FromSocket, new(conn.Target), (WorkshopSocket)conn.ToSocket, (WorkshopConnectionDomain)conn.Domain);
-        }
-
-        return new WorkshopConstruction(new(cr.Revision), settings, new(instances), puzzle, new(links));
-    }
-
-    private static Vec3f Required(Vec3f? value, string field) =>
-        value ?? throw new WireFaultException(WireFaultReason.MissingField, $"An instance record requires its {field}.");
-
-    internal static IWorkshopInstance MapInstance(InstanceRecord inst)
-    {
-        if (string.IsNullOrEmpty(inst.PartId)) throw new WireFaultException(WireFaultReason.MissingField, "An instance record requires its element.");
-        var c = inst.Cell ?? throw new WireFaultException(WireFaultReason.MissingField, "An instance record requires its cell.");
-        var l = Required(inst.Local, "local position");
-        var r = inst.Rotation ?? throw new WireFaultException(WireFaultReason.MissingField, "An instance record requires its rotation.");
-        var id = new GpuBodyId(inst.Id);
-        var partId = new PartId(inst.PartId);
-        var locked = inst.Locked;
-        var cell = new CellOrigin(c.X, c.Y, c.Z);
-        var local = new LocalPosition(l.X, l.Y, l.Z);
-        var rotation = new CanonicalRotation(r.X, r.Y, r.Z, r.W);
-
-        IWorkshopInstance result = partId.Value switch
-        {
-            // A record without its length is a missing field: no default replaces saved data; a present length is validated as written.
-            "pipe" => new WorkshopPipe(id, cell, local, rotation, new(RequiredLength(inst)), locked),
-            // Every other element is a generic instance of its declared colliders (Story 9A.15: no per-id list); an id with neither
-            // a record nor colliders is no element this decoder knows, refused naming it.
-            _ => DeclaredPhysics.Contains(partId) && DeclaredPhysics.Of(partId).Colliders.Count > 0
-                ? Generic(inst, partId, id, cell, local, rotation, locked)
-                : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names unknown physical element '{partId}'.")
-        };
-        if (result is not WorkshopGenericInstance && inst.ParametersLength != 0)
-            throw new WireFaultException(WireFaultReason.OutOfRange, "Typed instance cannot carry generic parameters.");
-        return result;
-    }
-
-    /// <summary>A generic instance of its declared parameters. A record carrying a typed field (an older typed record of an element
-    /// that is now generic) is refused as that, before its parameters are read, as the save pre-validation orders it.</summary>
-    private static WorkshopGenericInstance Generic(InstanceRecord inst, PartId part, GpuBodyId id, CellOrigin cell, LocalPosition local,
-        CanonicalRotation rotation, bool locked) => CarriesTypedField(inst)
-        ? throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field.")
-        : new(part, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, part) };
-
-    /// <summary>Whether a record holds a typed record field: a nonzero bit pattern in the length. A generic instance carries only its
-    /// declared parameters, so this refuses it (the save pre-validation applies the same rule).</summary>
-    internal static bool CarriesTypedField(InstanceRecord r)
-    {
-        return BitConverter.SingleToUInt32Bits(r.Length) != 0;
-    }
-
-    internal static InstanceParameterCollection DecodeParameters(InstanceRecord record, PartId part)
-    {
-        try
-        {
-            var values = new List<KeyValuePair<ParameterId, float>>(4);
-            for (var i = 0; i < record.ParametersLength; i++)
-            {
-                var parameter = record.Parameters(i) ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing parameter.");
-                values.Add(new(new(parameter.Key), parameter.Value));
-            }
-            var result = new InstanceParameterCollection(values);
-            result.Validate(part);
-            return result;
-        }
-        catch (ArgumentException error)
-        { throw new WireFaultException(WireFaultReason.OutOfRange, "Invalid declared parameters.", error); }
-    }
-
-    /// <summary>A record's length field: absent (the schema's 0, as when an older layout's length moved to another slot) is a missing
-    /// field, never defaulted; a present length is the record's own, which construction validation admits or refuses.</summary>
-    private static float RequiredLength(InstanceRecord inst) => BitConverter.SingleToUInt32Bits(inst.Length) == 0
-        ? throw new WireFaultException(WireFaultReason.MissingField, $"Instance {inst.Id} has no length.")
-        : inst.Length;
+    internal static T Required<T>(T? value, string field) where T : struct =>
+        value ?? throw new WireFaultException(WireFaultReason.MissingField, $"Missing {field}.");
 }

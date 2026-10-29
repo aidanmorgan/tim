@@ -1,5 +1,5 @@
 <Project>
-    <!-- Vendored Google FlatBuffers runtime (Story 9.4b), kept byte-identical to upstream (THIRD-PARTY-NOTICES.md), so
+    <!-- Vendored Google FlatBuffers runtime (Story 9.4b), with its recorded vtable corrections (THIRD-PARTY-NOTICES.md);
          the C# static gate's analyzers do not run on it; compiler diagnostics and trim analysis still apply. This is
          the gate's one opt-out: CSharpStaticGateTests pins it, the vendored files' hashes and this project path. -->
     <PropertyGroup>

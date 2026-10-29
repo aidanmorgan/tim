@@ -37,15 +37,7 @@ public static partial class Program
     public static void ReportObservationFailure(string detail) =>
         Diagnostics.Fault(FaultSite.TraceFlush, new InvalidOperationException(detail));
 
-    public static void Main()
-    {
-        using var stream = typeof(Program).Assembly.GetManifestResourceStream("elements.bundle.json")
-            ?? throw new InvalidOperationException("Animation declaration bundle is missing.");
-        using var reader = new System.IO.StreamReader(stream);
-        var document = CuriousContraptions.Bundle.BundleSchema.Read(reader.ReadToEnd());
-        DeclaredPhysics.Install(document.Elements);
-        DeclaredPorts.Install(ElementPortCatalogue.FromBundle(document.Elements));
-    }
+    public static void Main() { }
     [JSExport] public static int[] OutputKinds() => [(int)AnimationOutputKind.Acknowledgement, (int)AnimationOutputKind.Sample, (int)AnimationOutputKind.Rejected];
     [JSImport("now", "workshopAnimation")] private static partial double NativeMilliseconds();
     [JSImport("probe", "workshopAnimation")] private static partial void SendProbe(byte[] bytes);
@@ -132,7 +124,7 @@ public static partial class Program
                     endpoint.Read.Tick.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[64..]) ||
                     endpoint.Publication.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[72..]))
                     throw new ArgumentException("Prepared Animation endpoint differs from its envelope.");
-                if (endpoint.Construction is not { } construction) throw new ArgumentException("Animation installation lacks its declared construction.");
+                if (endpoint.Scene is not { } construction) throw new ArgumentException("Animation installation lacks its compiled scene.");
                 var retained = transition != ScheduleTransition.Reset && _declared is not null && _declared.CanRetain(construction, endpoint);
                 if (retained) _declared!.ValidateRebind(construction, endpoint);
                 _prepared = new(header, settings, endpoint.Read.Epoch, endpoint.Read.Tick, endpoint.Phase,
@@ -147,7 +139,7 @@ public static partial class Program
                     schedule.MasterNativeOrigin != Peer.MasterOrigin)
                     throw new ArgumentException("Animation Commit lacks its matching prepared endpoint.");
                 Controls.RetireWorld(schedule.World.WorldGeneration);
-                if (candidate.Retained) candidate.Presentation.Rebind(candidate.Endpoint.Construction!.Value, candidate.Endpoint);
+                if (candidate.Retained) candidate.Presentation.Rebind(candidate.Endpoint.Scene!, candidate.Endpoint);
                 _declared = candidate.Presentation;
                 _schedule = schedule; _prepared = null; _lastOrdinal = schedule.FirstAnimation.Value - 1;
                 Respond(header, ScheduleControlKind.Applied);
@@ -266,7 +258,7 @@ public static partial class Program
             Deferred.Hold(bytes, AnimationDeferralCause.Recalibrating);
             return;
         }
-        var applied = Controls.Apply(control, schedule.Settings.SimulationRate,
+        var applied = Controls.Apply(control,
             PhysicalTime.FromNanoseconds(checked((long)now.Lower)));
         if (applied.Started)
             _lastOrdinal = Math.Max(_lastOrdinal, WorkshopPulse.Due(schedule.Settings.AnimationRate,
@@ -292,7 +284,6 @@ public static partial class Program
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputWorldOffset), control.World.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputEventOrdinalOffset), control.EventOrdinal);
         BinaryPrimitives.WriteSingleLittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputEventPhaseOffset), control.EventPhase);
-        WorkshopAnimationWire.WriteTimer(Output, control.Timer);
         SendOutput(Output);
     }
 }

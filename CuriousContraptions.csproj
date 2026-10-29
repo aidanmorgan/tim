@@ -59,4 +59,9 @@
         <Compile Include="ui/WorkshopBenchPlacement.cs" />
         <Compile Include="CuriousContraptions.web/TwoDogWebBoot.cs" />
     </ItemGroup>
+    <Import Project="CuriousContraptions.Core/RuntimeSources.props" />
+    <ItemGroup>
+        <Compile Remove="@(CoreRuntimeSource)" />
+        <ProjectReference Include="CuriousContraptions.Core/CuriousContraptions.Core.csproj" />
+    </ItemGroup>
 </Project>

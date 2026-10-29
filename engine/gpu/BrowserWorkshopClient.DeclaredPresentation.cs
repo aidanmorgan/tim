@@ -53,7 +53,7 @@ public sealed partial class BrowserWorkshopClient
                     if (owned.Value.Owner == target.Owner) _declaredVisibilitySent.Remove(owned.Key);
     }
 
-    private void InstallDeclaredTargets(WorkshopConstruction construction)
+    private void InstallDeclaredTargets(WorkshopCompiledScene construction)
     {
         _declaredTargets.Clear(); _declaredSamples.Clear(); _declaredVisibility.Clear(); _declaredVisibilitySent.Clear();
         foreach (var target in WorkshopDeclaredPresentation.Targets(construction))

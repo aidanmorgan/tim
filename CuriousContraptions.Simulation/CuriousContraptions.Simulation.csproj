@@ -22,6 +22,7 @@
     <WasmEnableSIMD>true</WasmEnableSIMD>
     <WorkerAotRole>Worker</WorkerAotRole>
     <!-- The physics types whose compiled functions must contain f32x4 arithmetic (WorkerAot.targets check d). -->
+    <WorkerAotSimdAssembly>CuriousContraptions.Core</WorkerAotSimdAssembly>
     <WorkerAotSimdTypes>WorkshopPhysicsEngine;PrismaticConstraintSolver;SoftConstraint</WorkerAotSimdTypes>
     <InvariantGlobalization>true</InvariantGlobalization>
     <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
@@ -30,26 +31,18 @@
     <DebuggerSupport>false</DebuggerSupport>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="../content/puzzles.json" LogicalName="CuriousContraptions.Puzzles.json" />
     <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
     <ProjectReference Include="../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
-    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs" Link="Gpu/%(Filename)%(Extension)" />
-    <Compile Include="../engine/PartId.cs" Link="Engine/PartId.cs" />
-    <Using Include="CuriousContraptions" />
+    <ProjectReference Include="../CuriousContraptions.Core/CuriousContraptions.Core.csproj" />
     <WasmExtraFilesToDeploy Include="wwwroot/**" />
     <!-- worker.js reaches every [JSExport] entry point by name, so the trimmer keeps the whole worker assembly. -->
     <TrimmerRootAssembly Include="$(AssemblyName)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
-    <!-- Story 9A.17: the worker reads its declared ports from the generated element bundle, the only declaration source. The
-         bundle schema and validator are the ones the game loads with; building BundleElements generates the bundle (and fails
-         on an invalid package) before it is embedded here. -->
-    <ProjectReference Include="../CuriousContraptions.Bundle/CuriousContraptions.Bundle.csproj" />
-    <ProjectReference Include="../tools/BundleElements/BundleElements.csproj" ReferenceOutputAssembly="false"
-                      SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained" />
-    <EmbeddedResource Include="../elements/elements.bundle.json" LogicalName="elements.bundle.json" />
   </ItemGroup>
+  <Import Project="../CuriousContraptions.Core/RuntimeSources.props" />
+  <ItemGroup><Compile Remove="@(CoreRuntimeSource)" /></ItemGroup>
   <Import Project="../CuriousContraptions.web/WorkerAot.targets" />
   <!-- Return this project's actual trimmed publish bundle, never an assumed sibling output directory.
        The WebAssembly SDK writes the published bundle to $(OutputPath)AppBundle during Publish. -->

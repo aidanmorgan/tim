@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="CuriousContraptions.Core/CuriousContraptions.Core.csproj" />
   <Configurations>
     <BuildType Name="Debug" />
     <BuildType Name="Editor" />
