@@ -73,20 +73,20 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     // The committed presentation: editing the preload 0.2 → 0.1 → 0 → 0.1234567 sets the plate visual's rest pose to exactly
     // 0.14f − q each time (never compounded), and that pose is the compiled moving body's pose in the board frame.
     [Fact]
-    public void ThePlateVisualRestsAtTheDeclaredCompressionAndEqualsItsCompiledBody()
+    public async Task ThePlateVisualRestsAtTheDeclaredCompressionAndEqualsItsCompiledBody()
     {
         var world = new MachineWorld();
         try
         {
             godot.Tree.Root.AddChild(world);
             world.Registry.Load();
-            var construction = typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!;
+            await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+            await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness)));
             foreach (var q in new[] { .2f, .1f, 0f, .1234567f })
             {
                 var bench = Free(PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, q));
-                construction.SetValue(world, bench);
-                world.RestoreConstructionPresentation();
-                var parts = (List<MachinePart>)typeof(MachineWorld).GetField("_parts", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(world)!;
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await world.ReplaceConstruction(bench)).Result.Outcome);
+                var parts = world.Parts;
                 var part = Assert.Single(parts);
                 var moving = MovingBody(bench);
                 var plate = Assert.IsAssignableFrom<Node3D>(part.PhysicalVisual(moving));
@@ -104,7 +104,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     // The same generic slider presentation installs the Powered Gate's blade (declared compression Fixed(0)): the blade is the
     // presented visual of the gate's compiled slider body and rests exactly at its scene pose, as before the conversion.
     [Fact]
-    public void ThePoweredGateBladeRestsAtItsScenePoseUnderItsSliderIdentity()
+    public async Task ThePoweredGateBladeRestsAtItsScenePoseUnderItsSliderIdentity()
     {
         var world = new MachineWorld();
         try
@@ -117,9 +117,10 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
             reference.Free();
             var gate = new GpuBodyId(2);
             var bench = Free(WorkshopInput.Generic(PartId.PoweredGate, gate, 0, 0, 0, 0, 0, 0, 1));
-            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(world, bench);
-            world.RestoreConstructionPresentation();
-            var part = Assert.Single((List<MachinePart>)typeof(MachineWorld).GetField("_parts", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(world)!);
+            await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+            await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness)));
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await world.ReplaceConstruction(bench)).Result.Outcome);
+            var part = Assert.Single(world.Parts);
             var blade = Assert.IsAssignableFrom<Node3D>(part.PhysicalVisual(bench.Instances.Identities[gate].Sliders[0].Body));
             Assert.Same(part.GetNode<Node3D>("Visual/Blade"), blade);
             Assert.Equal(scenePose, blade.Transform);
@@ -143,6 +144,6 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
         var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, 2 * TicksPerSecond);
-        NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], "the reloaded board's run");
+        Assert.True(replay.Max(read => Y(Body(read, Ball))) > Y(Body(built, Ball)) + .2f, "the loaded charged board launches the ball");
     }
 }

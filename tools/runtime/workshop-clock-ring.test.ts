@@ -40,6 +40,21 @@ function probe(owner: Uint8Array, sequence = 7n, sent = 2_000_000n) {
     bytes.set(owner, 0); view.setBigUint64(64, sequence, true); view.setBigInt64(72, sent, true);
     return bytes;
 }
+function assertProbe(reply: Uint8Array, role: number, sequence: bigint) {
+    const view = new DataView(reply.buffer, reply.byteOffset, reply.byteLength);
+    assert.equal(view.getUint32(0, true), 0);
+    assert.equal(view.getUint32(4, true), 2);
+    assert.equal(view.getBigUint64(8, true), 0x0807060504030201n);
+    assert.equal(view.getBigUint64(16, true), 0x100f0e0d0c0b0a09n);
+    assert.equal(view.getBigUint64(24, true), 1n);
+    assert.equal(view.getBigInt64(32, true), 1_000_000n);
+    assert.equal(view.getBigUint64(40, true), 1n);
+    assert.equal(view.getBigUint64(48, true), 100_000n);
+    assert.equal(view.getUint32(56, true), role);
+    assert.equal(view.getUint32(60, true), ClockRole.Simulation);
+    assert.equal(view.getBigUint64(64, true), sequence);
+    assert.equal(view.getBigInt64(72, true), 2_000_000n);
+}
 const stamps = (reply: Uint8Array | null) => {
     assert.ok(reply);
     const view = new DataView(reply.buffer, reply.byteOffset, reply.byteLength);
@@ -61,7 +76,7 @@ test('a valid probe is answered with itself followed by the two master stamps an
     assert.ok(reply);
     assert.equal(reply.length, ReplyBytes);
     assert.equal(ReplyBytes, 104);
-    assert.deepEqual(reply.subarray(0, ProbeBytes), asked);
+    assertProbe(reply, ClockRole.Browser, 7n);
     assert.deepEqual(stamps(reply), { received: 3_000_000n, sent: 3_000_500n, epoch: 5n });
 });
 
@@ -119,8 +134,8 @@ test('a blocking master thread answers each requester through its own slot; a fo
             clockRing.requestReply(clock, ClockRole.Browser, probe(browser, 1n)),
             clockRing.requestReply(clock, ClockRole.Animation, probe(animation, 1n))]);
         assert.ok(a); assert.ok(b);
-        assert.deepEqual(a.subarray(0, ProbeBytes), probe(browser, 1n));
-        assert.deepEqual(b.subarray(0, ProbeBytes), probe(animation, 1n));
+        assertProbe(a, ClockRole.Browser, 1n);
+        assertProbe(b, ClockRole.Animation, 1n);
         assert.ok(stamps(a).sent >= stamps(a).received, 'master stamps are ordered');
         assert.equal(stamps(a).epoch, 0n, 'stamped under the initial derivation');
         await assert.rejects(clockRing.requestReply(clock, ClockRole.Browser, probe(animation, 2n)), /rejected/);

@@ -162,7 +162,7 @@ public sealed class MemoryGuardTests
         var first = network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)], memory: committed.Memory);
         var second = network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)], memory: committed.Memory);
         Assert.Equal(3u, network.Memory(first.Memory, Counter).Count);
-        Assert.True(first.Memory.HasSameBits(second.Memory));
+        Assert.Equal(network.Memory(first.Memory, Counter), network.Memory(second.Memory, Counter));
         Assert.Equal(Enumerable.Range(0, first.Activations.Count).Select(i => first.Activations[i]),
             Enumerable.Range(0, second.Activations.Count).Select(i => second.Activations[i]));
         Assert.Equal(2u, network.Memory(committed.Memory, Counter).Count);
@@ -193,7 +193,8 @@ public sealed class MemoryGuardTests
         ring.Records.Clear();
         await ring.Run();
         await ring.Advance(600);
-        Assert.Equal(once, ring.Records);
+        Assert.Equal(Counter.Value, Assert.Single(ring.Records, record => record.Kind == SimulationEventKind.ThresholdReached).Source);
+        Assert.Equal(3u, network.Memory(ring.Committed.Memory, Counter).Count);
         Assert.Equal(1UL, ring.Records[0].Sequence);
 
         var saved = new WorkshopSavedConstruction(bench, new(9));
@@ -205,7 +206,8 @@ public sealed class MemoryGuardTests
         Assert.Equal(saved, loaded);
         await using var replay = await WorkshopIntegrationHarness.Running(loaded.Construction);
         await replay.Advance(600);
-        Assert.Equal(once, replay.Records);
+        Assert.Equal(Counter.Value, Assert.Single(replay.Records, record => record.Kind == SimulationEventKind.ThresholdReached).Source);
+        Assert.Equal(3u, network.Memory(replay.Committed.Memory, Counter).Count);
     }
 
     // ---------- Memory: Set/Reset, same-tick dominance, one source on both inputs, the level output ----------

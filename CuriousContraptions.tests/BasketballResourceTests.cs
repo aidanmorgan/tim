@@ -371,7 +371,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             Console.SetError(errors);
             world._Process(0); // the presentation read
             Assert.Equal(WorkshopSimulationPhase.Faulted, world.WorkshopPhase);
-            await (Task)typeof(MachineWorld).GetMethod("DisposeWorkshop", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(world, null)!;
+            world._ExitTree(); // The fixture disposal completes synchronously, including its diagnostic failure.
         }
         finally
         {

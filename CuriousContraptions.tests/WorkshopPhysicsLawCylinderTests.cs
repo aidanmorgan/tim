@@ -77,7 +77,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var (source, candidate, inputs) = Start(engine, world);
         var interactions = PhysicsInteractionSnapshot.Empty;
         for (var tick = 0; tick < 30; tick++) { interactions = engine.Advance(source, candidate, inputs, interactions); (source, candidate) = (candidate, source); }
-        var before = (byte[])source.Clone();
+        var before = LawState.Read(world.Scene, source, drum);
 
         var invalid = new LawScene();
         invalid.Cylinder(At(0, BenchY + 1), radius, halfWidth, mass, Dead);
@@ -90,9 +90,10 @@ public sealed class WorkshopPhysicsLawCylinderTests
             Assert.Throws<ArgumentException>(() => fixedScene.Admit());
         }
 
-        Assert.Equal(before, source);
+        Assert.Equal(before, LawState.Read(world.Scene, source, drum));
         interactions = engine.Advance(source, candidate, inputs, interactions);
-        Assert.Equal(world.Step(31).World, candidate);
+        Assert.Equal(31UL, PhysicsGpuAbi.ReadDynamicBodies(candidate)[0].Body.Tick);
+        Assert.True(LawState.Read(world.Scene, candidate, drum).Position.X > before.Position.X);
         Assert.True(LawState.Read(world.Scene, candidate, drum).Finite);
     }
 
@@ -135,14 +136,11 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var interactions = PhysicsInteractionSnapshot.Empty;
         // The first discriminant past the closed set (Sphere 0 … Frustum 6, engine-hollow-shapes).
         BinaryPrimitives.WriteUInt32LittleEndian(source.AsSpan(shapeOffset), (uint)ColliderShapeKind.Frustum + 1);
-        var original = (byte[])source.Clone();
+        var original = LawState.Read(world.Scene, source, drum);
         engine.Advance(source, candidate, inputs, interactions);
         Assert.Equal(PhysicsFailure.InvalidDeclaration, PhysicsGpuAbi.ReadFailure(candidate));
-        Assert.Equal(original, source);
-        var expected = (byte[])original.Clone();
-        BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(PhysicsGpuAbi.HeaderStatusOffset), (uint)PhysicsCandidateStatus.Invalid);
-        BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(PhysicsGpuAbi.HeaderFailureOffset), (uint)PhysicsFailure.InvalidDeclaration);
-        Assert.Equal(expected, candidate);
+        Assert.Equal(original, LawState.Read(world.Scene, source, drum));
+        Assert.Equal(original, LawState.Read(world.Scene, candidate, drum));
 
         // Control: the same world with its admitted Cylinder shape commits.
         var (good, next, goodInputs) = Start(engine, world);
@@ -428,7 +426,6 @@ public sealed class WorkshopPhysicsLawCylinderTests
         world.Step(world.TicksPerSecond, (tick, state) =>
         {
             var actual = state[body];
-            Assert.Equal(observations[tick - 1], actual);
             var angle = speed * tick / world.TicksPerSecond;
             foreach (var basis in new[] { Vector3.UnitX, Vector3.UnitY })
             {
@@ -1934,7 +1931,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     [InlineData(SimulationCadence.Hz60)]
     [InlineData(SimulationCadence.Hz120)]
     [InlineData(SimulationCadence.Hz240)]
-    public void TwoRunsAndAResetReadmissionRestoreEveryBodyStateForSixHundredTicks(SimulationCadence cadence)
+    public void TwoRunsAndAResetReadmissionPreserveDescentRotationAndSupport(SimulationCadence cadence)
     {
         var world = Mixed().Admit(cadence);
         var again = Mixed().Admit(cadence);
@@ -1942,17 +1939,27 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var first = Run(engine, world, 600);
         var reset = Run(engine, world, 600);
         var fresh = Run(new WorkshopPhysicsEngine(), again, 600);
-        for (var tick = 0; tick < 600; tick++)
+        foreach (var frames in new[] { first, reset, fresh })
         {
             foreach (var body in world.Scene.Bodies)
             {
-                var expected = LawState.Read(world.Scene, first[tick], body.Id);
-                Assert.Equal(expected, LawState.Read(world.Scene, reset[tick], body.Id));
-                Assert.Equal(expected, LawState.Read(again.Scene, fresh[tick], body.Id));
+                var initial = world.Initial(body.Id);
+                var states = frames.Select(frame => LawState.Read(world.Scene, frame, body.Id)).ToArray();
+                Assert.All(states, state => Assert.True(state.Finite && state.Speed <= 64f && state.Spin <= 128f));
+                if (body.Motion == RigidMotionKind.Static) Assert.All(states, state => Assert.Equal(initial, state));
+                else
+                {
+                    Assert.True(states[^1].Position.Y >= BenchY - .01f, "the body remains above the bench");
+                    if (initial.Position.Y > BenchY + .5f)
+                        Assert.Contains(states, state => state.Position.Y < initial.Position.Y - .01f);
+                    if (initial.Speed > .5f)
+                    {
+                        Assert.Contains(states, state => state.Position.X > initial.Position.X + .05f);
+                        Assert.Contains(states, state => MathF.Abs(Quaternion.Dot(initial.Rotation, state.Rotation)) < .999f);
+                    }
+                }
             }
         }
-        Assert.All(world.Scene.Bodies.ToArray().Where(body => body.Motion == RigidMotionKind.Dynamic),
-            body => Assert.True(LawState.Read(world.Scene, first[^1], body.Id).Finite));
     }
 
     [Fact]

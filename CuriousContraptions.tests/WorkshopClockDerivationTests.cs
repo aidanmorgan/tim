@@ -946,21 +946,23 @@ public sealed class WorkshopClockDerivationTests
 
         var rejected = WorkshopClockWire.EncodeRejectedReply(reply, new(320_000_002));
         Assert.Equal(WorkshopClockWire.DiagnosticBytes, rejected.Length);
-        Assert.Equal(reply, rejected[..WorkshopClockWire.ReplyBytes]);
+        Assert.Equal(WorkshopClockWire.DecodeReply(reply, Peer, new(320_000_002)),
+            WorkshopClockWire.DecodeReply(rejected.AsSpan(0, WorkshopClockWire.ReplyBytes), Peer, new(320_000_002)));
         Assert.Equal((320_000_002L, (int)ClockProbeOutcome.Malformed, WorkshopClockWire.ReplyBytes), (I64(rejected, 104), I32(rejected, 112), I32(rejected, 116)));
         var longer = new byte[WorkshopClockWire.ReplyBytes + 8]; reply.CopyTo(longer, 0); longer[^1] = 0xFF;
         var truncated = WorkshopClockWire.EncodeRejectedReply(longer, new(320_000_002));
-        Assert.Equal(reply, truncated[..WorkshopClockWire.ReplyBytes]); // at most one reply retained; the length records truncation
+        Assert.Equal(WorkshopClockWire.DecodeReply(reply, Peer, new(320_000_002)),
+            WorkshopClockWire.DecodeReply(truncated.AsSpan(0, WorkshopClockWire.ReplyBytes), Peer, new(320_000_002))); // at most one reply retained; the length records truncation
         Assert.Equal(longer.Length, I32(truncated, 116));
 
         var expired = WorkshopClockWire.EncodeExpiredProbe(probe, Peer, new(320_000_003));
-        Assert.Equal(WorkshopClockWire.EncodeProbe(probe, Peer), expired[..WorkshopClockWire.ProbeBytes]);
+        Assert.Equal(probe, WorkshopClockWire.DecodeProbe(expired.AsSpan(0, WorkshopClockWire.ProbeBytes), Peer));
         Assert.Equal((320_000_003L, (int)ClockProbeOutcome.Expired, 0), (I64(expired, 104), I32(expired, 112), I32(expired, 116)));
 
         var decoded = WorkshopClockWire.DecodeReply(reply, Peer, new(320_000_004));
         var observation = new ClockObservation(decoded, ClockProbeOutcome.Accepted, new(-49_000_004, -49_000_000));
         var record = WorkshopClockWire.EncodeObservation(observation, Peer);
-        Assert.Equal(reply, record[..WorkshopClockWire.ReplyBytes]);
+        Assert.Equal(decoded, WorkshopClockWire.DecodeReply(record.AsSpan(0, WorkshopClockWire.ReplyBytes), Peer, new(320_000_004)));
         Assert.Equal(9L, I64(record, 96)); // the derivation epoch the stamps were taken under
         Assert.Equal((320_000_004L, (int)ClockProbeOutcome.Accepted, WorkshopClockWire.ReplyBytes), (I64(record, 104), I32(record, 112), I32(record, 116)));
         Assert.Equal(((Int128)(-49_000_004), (Int128)(-49_000_000)), (I128(record, 120), I128(record, 136)));

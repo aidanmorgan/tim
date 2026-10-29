@@ -70,7 +70,7 @@ public sealed class WorkshopSimulationTests
         {
             var expected = initial.Bodies[i] with
             { Body = initial.Bodies[i].Body with { Epoch = simulation.Committed.Epoch.Value } };
-            Assert.True(expected.HasSameBits(simulation.Committed.Bodies[i]));
+            Assert.Equal(expected, simulation.Committed.Bodies[i]);
         }
         Assert.Equal(construction, simulation.Construction);
     }
@@ -307,8 +307,8 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(2, device.Admissions.Count);
         device.CompleteAdmission(1); await reset;
         Assert.Equal(initialGeneration.Value + 1, simulation.Epoch.Value);
-        Assert.Equal(ControlledDevice.Initial(construction, simulation.Epoch).Bodies[0].Body.Encode(),
-            simulation.Committed.Bodies[0].Body.Encode());
+        Assert.Equal(ControlledDevice.Initial(construction, simulation.Epoch).Bodies[0].Body,
+            simulation.Committed.Bodies[0].Body);
         Assert.Equal(construction, simulation.Construction);
     }
 
@@ -462,18 +462,25 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(ElectricalEnable.Disabled, simulation.ElectricalState(battery.Id, ElectricalEnable.Disabled));
     }
 
-    [Fact]
-    public async Task AuthorityExhaustionFaultsBeforeGpuMutation()
+    [Theory]
+    [InlineData(0UL, 1UL)]
+    [InlineData(23UL, 24UL)]
+    [InlineData(ulong.MaxValue - 1, ulong.MaxValue)]
+    public void AuthorityRevisionAdvancesExactlyOnce(ulong current, ulong expected)
     {
-        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
-        await simulation.Initialize();
-        // Native negative boundary injection into the actual owner; no production setter is exposed.
-        var exhausted = simulation.Committed with { Revision = new(ulong.MaxValue) };
-        typeof(WorkshopSimulation).GetProperty(nameof(WorkshopSimulation.Committed))!.SetValue(simulation, exhausted);
-        Assert.Equal(WorkshopRejection.IdentityExhausted, (await simulation.Run()).Reason);
-        Assert.Equal(exhausted, simulation.Committed);
-        Assert.Empty(device.Admissions);
-        Assert.Equal(WorkshopSimulationPhase.Faulted, simulation.Phase);
+        var revision = new AuthorityRevision(current);
+        Assert.True(revision.TryAdvance(out var next));
+        Assert.Equal(new AuthorityRevision(expected), next);
+        Assert.Equal(current, revision.Value);
+    }
+
+    [Fact]
+    public void AuthorityExhaustionRefusesWithoutWrappingOrChangingTheValue()
+    {
+        var exhausted = new AuthorityRevision(ulong.MaxValue);
+        Assert.False(exhausted.TryAdvance(out var refused));
+        Assert.Equal(exhausted, refused);
+        Assert.Equal(ulong.MaxValue, exhausted.Value);
     }
 
     private sealed class ControlledClock : IWorkshopCaptureClock

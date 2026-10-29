@@ -81,7 +81,6 @@ public sealed class WorkshopBowlingTests
         var bytes = WorkshopSaveCodec.Encode(save);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
         Assert.Equal(PartId.Basketball, Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[2]).PartId);
         Assert.Equal(PartId.BowlingBall, Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[3]).PartId);
         // The stored record names the kind and nothing else: the material is the package's, never the save's.

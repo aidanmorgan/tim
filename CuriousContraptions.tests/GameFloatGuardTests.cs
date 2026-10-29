@@ -13,8 +13,8 @@ public sealed class GameFloatGuardTests
     internal static readonly HashSet<string> Adapters = new(StringComparer.Ordinal)
     {
         "CuriousContraptions.Gpu.WorkshopNativeClock.FromMilliseconds",
-        "CuriousContraptions.Gpu.BrowserWorkshopClient.NativeMilliseconds",
-        "CuriousContraptions.Gpu.BrowserWorkshopClient.EventMilliseconds",
+        "CuriousContraptions.Gpu.BrowserWorkshopTransport.JsNativeMilliseconds",
+        "CuriousContraptions.Gpu.BrowserWorkshopTransport.JsEventMilliseconds",
         "CuriousContraptions.Simulation.Program.NativeMilliseconds",
         "CuriousContraptions.Simulation.Program.ObservationMilliseconds",
         "CuriousContraptions.Simulation.Program.RecordObservedTickDuration",

@@ -659,34 +659,15 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.True(reads[^1].Memory.Count == 10 + 13, $"counter, clock and plate memory rows: {reads[^1].Memory.Count}");
         // Reset restores the Build-mode committed state exactly (every field the 9R.1 snapshot compares; the world epoch is
         // a new identity by design).
-        AssertSameState(built, reset, "Reset");
+        NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
 
         // Save/Load through the real codec: the reloaded bench is identical and replays the same committed run.
         var saved = new WorkshopSavedConstruction(bench, new((ulong)bench.Instances.Count + 1));
         var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, Ticks);
-        AssertSameState(reads[^1], replay[^1], "the reloaded bench's run");
-    }
-
-    /// <summary>Bit-equal committed state, the world epoch aside: tick, bodies, activations, timers, memory and electrical.</summary>
-    private static void AssertSameState(WorkshopRead expected, WorkshopRead actual, string label)
-    {
-        Assert.Equal(expected.Tick, actual.Tick);
-        Assert.Equal(expected.Bodies.Count, actual.Bodies.Count);
-        for (var i = 0; i < expected.Bodies.Count; i++)
-        {
-            var (e, a) = (expected.Bodies[i], actual.Bodies[i]);
-            Assert.True(e.Body.Id == a.Body.Id && e.Body.Tick == a.Body.Tick && e.Body.Cell == a.Body.Cell &&
-                F32Bits.Equal(e.Body.Local, a.Body.Local) && e.Body.Velocity.HasSameBits(a.Body.Velocity) &&
-                e.Rotation == a.Rotation && e.AngularVelocity.HasSameBits(a.AngularVelocity), $"{label}: body {e.Body.Id.Value} differs");
-        }
-        Assert.Equal(expected.Activations.Count, actual.Activations.Count);
-        for (var i = 0; i < expected.Activations.Count; i++) Assert.Equal(expected.Activations[i], actual.Activations[i]);
-        Assert.Equal(expected.Timers.Count, actual.Timers.Count);
-        for (var i = 0; i < expected.Timers.Count; i++) Assert.Equal(expected.Timers[i], actual.Timers[i]);
-        Assert.True(expected.Memory.HasSameBits(actual.Memory), $"{label}: memory rows differ");
-        Assert.True(expected.Electrical.HasSameBits(actual.Electrical), $"{label}: electrical state differs");
+        AssertGateOpened(replay, plates[^1], gate, "the loaded 13th plate under its own load");
+        foreach (var plate in plates[..^1]) Assert.All(replay, read => Assert.False(ContactClosed(read, plate)));
     }
 
     // Matrix controls: a loaded plate with no battery supplies no route (gate closed, yet the plate still senses), and a plate

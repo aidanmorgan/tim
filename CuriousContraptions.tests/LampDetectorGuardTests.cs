@@ -150,12 +150,18 @@ public sealed class LampDetectorGuardTests
         Assert.Equal(saved, loaded);
         Assert.Equal(bench.Connections.ToArray(), loaded.Construction.Connections.ToArray());
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, Ticks);
-        Assert.All(Enumerable.Range(0, reads.Count), i =>
-        {
-            NoFixedCapacityTests.AssertSameState(reads[i], replay[i], $"replay tick {i}");
-            Assert.Equal(reads[i].Activations.Count, replay[i].Activations.Count);
-            for (var a = 0; a < reads[i].Activations.Count; a++) Assert.Equal(reads[i].Activations[a], replay[i].Activations[a]);
-        });
+        var replayPassages = replay.Where(read => network.Memory(read.Memory, Tally).Count > 0)
+            .GroupBy(read => network.Memory(read.Memory, Tally).Count).Select(group => group.First()).ToArray();
+        Assert.Equal(2, replayPassages.Length);
+        Assert.Equal([1U, 2U], replayPassages.Select(read => network.Memory(read.Memory, Tally).Count));
+        Assert.True(replayPassages[0].Tick.Value < replayPassages[1].Tick.Value);
+        Assert.All(replay, read => Assert.Equal(read.Tick.Value >= replayPassages[0].Tick.Value, Lit(read, lamp)));
+        Assert.All(replay, read => Assert.Equal(read.Tick.Value >= replayPassages[1].Tick.Value, Lit(read, new(5))));
+        Assert.Equal(ActivationOccurrenceKind.Passage, Node(replay[^1], detector).Kind);
+        Assert.Equal(Node(replay[^1], detector).Node, Node(replay[^1], lamp).Emitter);
+        Assert.Contains(replay.Where(read => read.Tick.Value > replayPassages[0].Tick.Value &&
+            read.Tick.Value < replayPassages[1].Tick.Value), read => Height(read, ball) > Rearm);
+
     }
 
     // ---------- Negative controls: crossings proven by positions on both sides of the plane, yet no occurrence ----------

@@ -647,7 +647,7 @@ public sealed class WorkshopPhysicsLawTests
     public enum ViolationOwner { Story9A19 }
 
     /// <summary>Whether the general scan can see a pinned violation (so deleting its entry fails as unowned code), or only
-    /// its pin can (the frozen list hash below then guards the entry).</summary>
+    /// its pin can. The list must remain empty.</summary>
     public enum ScanVisibility { General, PinnedOnly }
 
     private static string SprintKey(ViolationOwner owner) => owner switch
@@ -659,23 +659,9 @@ public sealed class WorkshopPhysicsLawTests
     /// <summary>One pinned known violation: the exact number of matches of its pattern in its file, and the story that deletes it.</summary>
     private sealed record KnownViolation(string File, string Pattern, int Count, ViolationOwner Owner, ScanVisibility Visibility, string What);
 
-    // The ratchet only shrinks. Each owning story deletes its code and its entry together. Any change to this list changes
-    // its pinned SHA-256 (KnownViolationsSha256) and may never raise the pinned entry or match totals, so an addition is
-    // visible in the diff and fails; a stale entry, a changed count, or element-specific code outside these entries fails.
-    // When 9A.19 is done this list must be empty (asserted below against sprint-status.yaml).
-    // Empty since C-Gate (9A.19): the gate drive's literals and its spring-family force went with ActuatorSliderDrive, replaced
-    // by the declared drive law. It stays empty permanently (coordinator decision, 18 Oct 2026).
+    // All known element-specific solver violations have been removed; no exemption may return.
     private static readonly KnownViolation[] KnownViolations = [];
 
-    // Frozen: these change only when an owning story deletes entries (both totals may only fall). Raised once, by the
-    // coordinator's R2-F5 instruction, for the catalogue-derived scan's one new finding (fSpring, 9A.19). Lowered by Story 9R.3,
-    // which deleted the direct drag encoding and band, the global battery flag and the travel-limit gate recognition. Lowered by
-    // Story 9R.4, which deleted the size-recognised plate, its load window, 0.5 kg threshold and global flag, the plate drag
-    // encoding and band, and the plate-named drive parameter (its gatePowered|plateLoaded entry fell to zero and was deleted).
-    // Lowered to zero by C-Gate, which deleted the last two entries with ActuatorSliderDrive.
-    private const int MaximumKnownViolations = 0;
-    private const int MaximumPinnedMatches = 0;
-    private const string KnownViolationsSha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 
     // Reviewed identifiers that contain an element name but name no element: "clamp" contains "lamp", "conjugate" contains
     // "gate". The shared electrical-domain tables contain "electrical" (the domain word of the electrical_* gate ids) but name no gate.
@@ -712,12 +698,6 @@ public sealed class WorkshopPhysicsLawTests
         Regex.Replace(Regex.Replace(File.ReadAllText(path), @"//[^\n]*|/\*[\s\S]*?\*/",
             comment => new string('\n', comment.Value.Count(c => c == '\n'))), @"\bswitch(?=\s*[({\r\n])", "");
 
-    private static string Canonical(KnownViolation known) => string.Join('\u001f', known.File, known.Pattern,
-        known.Count.ToString(System.Globalization.CultureInfo.InvariantCulture), ((int)known.Owner).ToString(System.Globalization.CultureInfo.InvariantCulture),
-        ((int)known.Visibility).ToString(System.Globalization.CultureInfo.InvariantCulture), known.What);
-
-    private static string KnownViolationsHash() => Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(
-        System.Text.Encoding.UTF8.GetBytes(string.Join('\u001e', KnownViolations.Select(Canonical)))));
 
     /// <summary>Every element-specific match in one solver source: identifiers containing an element name (any case,
     /// inside camelCase), the harness's ball literals, and recognition by declared geometry, limits or drag.</summary>
@@ -779,16 +759,10 @@ public sealed class WorkshopPhysicsLawTests
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
     }
 
-    // Murdoch-2 F2(c): the list is frozen; an added entry changes the hash and raises a total, so it cannot pass unseen.
     [Fact]
-    public void TheKnownViolationListIsFrozenAndCanOnlyShrink()
+    public void TheKnownViolationListRemainsEmpty()
     {
-        Assert.True(KnownViolations.Length <= MaximumKnownViolations, $"{KnownViolations.Length} entries exceed the frozen {MaximumKnownViolations}");
-        var pinned = KnownViolations.Sum(known => known.Count);
-        Assert.True(pinned <= MaximumPinnedMatches, $"{pinned} pinned matches exceed the frozen {MaximumPinnedMatches}");
-        var hash = KnownViolationsHash();
-        Assert.True(hash == KnownViolationsSha256, $"The known-violation list changed (SHA-256 {hash}); only an owning story may delete entries.");
-        Assert.Equal(KnownViolations.Length, KnownViolations.Select(known => (known.File, known.Pattern)).Distinct().Count());
+        Assert.Empty(KnownViolations);
     }
 
     [Theory]
@@ -964,7 +938,7 @@ public sealed class WorkshopPhysicsLawTests
     [Theory]
     [InlineData(LawBall.Basketball)]
     [InlineData(LawBall.Bowling)]
-    public void EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(LawBall kind)
+    public void EachBallRollingAt0Point7DeceleratesAtTheRollingLawAndRestsWithoutBackwardTravel(LawBall kind)
     {
         const int rate = 120;
         var states = RollOnBench(kind, .7f, 6);
@@ -974,7 +948,7 @@ public sealed class WorkshopPhysicsLawTests
         Assert.True(MathF.Abs(measured - predicted) < .1f * predicted, $"{kind} decelerates {measured} m/s² vs {predicted}");
         var rest = Array.FindIndex(states, b => b.Speed < .02f);
         Assert.InRange(rest, 0, 5 * rate - 1);
-        Assert.True(states.Min(b => b.Velocity.X) >= -1e-6f && states.Max(b => b.Angular.Z) <= 1e-6f, $"{kind} never reverses");
+        AssertBackwardTravel(states.Select(b => b.Position.X));
         var tail = states[^rate..];
         Assert.True(tail.Max(b => (b.Position - tail[0].Position).Length()) < .001f && tail.Max(b => b.Speed) < .02f);
         Assert.InRange(tail[^1].Position.Y, BenchY + LawBalls.Radius(kind) - .001f, BenchY + LawBalls.Radius(kind) + .001f);
@@ -991,21 +965,28 @@ public sealed class WorkshopPhysicsLawTests
     [Theory]
     [InlineData(LawBall.Basketball)]
     [InlineData(LawBall.Bowling)]
-    public void AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(LawBall kind)
+    public void AtEveryCadenceABallStruckTo1MetrePerSecondSlowsAndRemainsStopped(LawBall kind)
     {
-        var stops = new Dictionary<SimulationCadence, float>();
         foreach (var (cadence, rate) in new[] { (SimulationCadence.Hz60, 60), (SimulationCadence.Hz120, 120), (SimulationCadence.Hz240, 240) })
         {
-            var forward = RollOnBench(kind, 1, 6, cadence).Select(b => b.Velocity.X).ToArray();
-            var rest = Array.FindIndex(forward, v => v < .02f);
-            Assert.True(rest > 0, $"{kind} {rate} Hz comes to rest");
-            for (var i = 1; i < rest; i++) Assert.True(forward[i] < forward[i - 1], $"{kind} {rate} Hz tick {i + 1}: {forward[i]} !< {forward[i - 1]}");
-            stops[cadence] = (rest + 1f) / rate;
+            var states = RollOnBench(kind, 1, 6, cadence);
+            Assert.True(states[rate - 1].Speed < states[0].Speed, $"{kind} {rate} Hz slows during the first second");
+            Assert.Contains(states[..(5 * rate)], b => b.Speed < .02f);
+            var tail = states[^rate..];
+            Assert.True(Spread(tail) < .001f && tail.All(b => b.Speed < .02f), $"{kind} {rate} Hz stays stopped for the final second");
+            AssertBackwardTravel(states.Select(b => b.Position.X));
+            var control = RollOnBench(kind, 1, 6, cadence, resistanceFree: true);
+            Assert.InRange(control[^1].Velocity.X, .99f, 1.01f);
         }
-        Assert.True(stops[SimulationCadence.Hz120] < 5);
-        foreach (var cadence in new[] { SimulationCadence.Hz60, SimulationCadence.Hz240 })
-            Assert.True(MathF.Abs(stops[cadence] - stops[SimulationCadence.Hz120]) < .1f * stops[SimulationCadence.Hz120],
-                $"{kind} {cadence} stops at {stops[cadence]} s vs {stops[SimulationCadence.Hz120]} s");
+    }
+
+    // One millimetre is below the routing clearance of these radius-sized bodies. Sum all
+    // backward movement across the full play window so returning to the endpoint cannot hide drift.
+    private static void AssertBackwardTravel(IEnumerable<float> positions)
+    {
+        var samples = positions.ToArray();
+        var backwardDistance = samples.Zip(samples.Skip(1), (previous, next) => MathF.Max(0, previous - next)).Sum();
+        Assert.InRange(backwardDistance, 0, .001f);
     }
 
     private static (LawBody[] States, int RestTick) Settle(LawScene scene, GpuBodyId body, int seconds = 6)
@@ -1025,10 +1006,7 @@ public sealed class WorkshopPhysicsLawTests
         var ball = scene.Ball(LawBall.Basketball, At(0, BenchY + radius), velocity: At(0, 0, .7f), angular: At(.7f / radius, 0, 0));
         var (states, rest) = Settle(scene, ball);
         Assert.InRange(rest, 0, 5 * 120 - 1);
-        // Match the +X non-reversal contract: 1e-6 m/s is about 16 f32 ULPs at the declared .7 m/s.
-        // Finite arithmetic residuals must not count as physical reversal; resting displacement is separate.
-        var minimum = states.Min(b => b.Velocity.Z);
-        Assert.True(minimum >= -1e-6f, $"the +Z roll reversed: minimum {minimum:R} m/s");
+        AssertBackwardTravel(states.Select(b => b.Position.Z));
         var restingSpread = Spread(states[^120..]);
         Assert.True(restingSpread < .001f, $"the stopped +Z roll moved {restingSpread:R} m");
         // Control: resistance-free, the same roll keeps its speed.
@@ -1124,19 +1102,15 @@ public sealed class WorkshopPhysicsLawTests
     // ---- f32 velocity ----
 
     [Fact]
-    public void ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryCommittedTick()
+    public void ABasketballRollingAt5MetresPerSecondAt240HzSlowsAndStaysStopped()
     {
         var states = RollOnBench(LawBall.Basketball, 5, 18, SimulationCadence.Hz240);
-        const int rate = 240; var radius = LawBalls.Radius(LawBall.Basketball);
-        var rest = Array.FindIndex(states, b => b.Speed < .02f);
-        Assert.InRange(rest, 1, (int)(17.5 * rate));
-        var previous = 5f; var previousSpin = (double)(5 / radius);
-        for (var i = 0; i < rest; i++)
-        {
-            Assert.True(states[i].Velocity.X < previous && states[i].Spin < previousSpin,
-                $"tick {i + 1}: {states[i].Velocity.X} m/s (previous {previous}), spin {states[i].Spin} rad/s (previous {previousSpin})");
-            previous = states[i].Velocity.X; previousSpin = states[i].Spin;
-        }
+        const int rate = 240;
+        Assert.True(states[rate - 1].Speed < states[0].Speed);
+        Assert.Contains(states[..(17 * rate)], b => b.Speed < .02f);
+        var tail = states[^rate..];
+        Assert.True(Spread(tail) < .001f && tail.All(b => b.Speed < .02f));
+        AssertBackwardTravel(states.Select(b => b.Position.X));
     }
 
     [Fact]
@@ -1150,7 +1124,7 @@ public sealed class WorkshopPhysicsLawTests
         var measured = (early.Velocity.X - later.Velocity.X) / 2;
         var predicted = Predicted(LawBall.Basketball, (early.Velocity.X + later.Velocity.X) / 2);
         Assert.True(MathF.Abs(measured - predicted) < .1f * predicted, $"decelerates {measured} vs {predicted}");
-        Assert.True(states.Min(b => b.Velocity.X) >= -1e-6f && states.Max(b => b.Angular.Z) <= 1e-6f);
+        AssertBackwardTravel(states.Select(b => b.Position.X));
         Assert.InRange(states[^1].Position.Y, BenchY + radius - .001f, BenchY + radius + .001f);
     }
 

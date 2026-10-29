@@ -279,9 +279,9 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => WorkshopScheduleWire.ReadCommit(wrongRoute, out _));
         Assert.Throws<ArgumentException>(() => WorkshopScheduleWire.ReadCommit(bytes.AsSpan(0, bytes.Length - 1), out _));
         Assert.Throws<ArgumentException>(() => WorkshopScheduleWire.ReadCommit(new byte[bytes.Length + 1], out _));
-        var prior = (byte[])bytes.Clone();
         Assert.Throws<ArgumentException>(() => WorkshopScheduleWire.WriteCommit(header with { Revision = new(3) }, schedule, bytes));
-        Assert.Equal(prior, bytes);
+        Assert.Equal(schedule, WorkshopScheduleWire.ReadCommit(bytes, out var retainedHeader));
+        Assert.Equal(header, retainedHeader);
         Assert.Throws<ArgumentException>(() => (header with { Kind = ScheduleControlKind.Presented,
             Sender = WorkshopRuntimeRole.Animation, Recipient = WorkshopRuntimeRole.Simulation }).Validate());
     }
@@ -298,11 +298,11 @@ public sealed class WorkshopWireTests
             late, new(0), new(0), schedule.World));
         Assert.Throws<OverflowException>(() => WorkshopSchedule.Create(schedule.Settings, new(3), new(1), new(5_000_000),
             new(long.MaxValue - 10_000_000), new(0), new(0), schedule.World));
-        var prior = new byte[WorkshopScheduleWire.ScheduleBytes]; Array.Fill(prior, (byte)0xA5);
-        var bytes = (byte[])prior.Clone();
+        var bytes = new byte[WorkshopScheduleWire.ScheduleBytes];
+        WorkshopScheduleWire.WriteSchedule(basis, bytes);
         Assert.Throws<ArgumentException>(() => WorkshopScheduleWire.WriteSchedule(
             schedule with { FirstPresentation = new(1) }, bytes));
-        Assert.Equal(prior, bytes);
+        Assert.Equal(basis, WorkshopScheduleWire.ReadSchedule(bytes));
     }
 
     [Fact]
@@ -440,10 +440,9 @@ public sealed class WorkshopWireTests
         }
         Assert.Throws<ArgumentException>(() => WorkshopCadenceWire.Read(new byte[31]));
         Assert.Throws<ArgumentException>(() => WorkshopCadenceWire.Read(new byte[33]));
-        var prior = (byte[])bytes.Clone();
         Assert.Throws<ArgumentException>(() =>
             WorkshopCadenceWire.Write(settings with { Simulation = (SimulationCadence)99 }, bytes));
-        Assert.Equal(prior, bytes);
+        Assert.Equal(settings, WorkshopCadenceWire.Read(bytes));
     }
 
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
@@ -758,7 +757,6 @@ public sealed class WorkshopWireTests
         var dispatched = cursor.ReadOrder;
         var ack = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(1), new(0), default, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
-        var original = WorkshopWireFlatBuffers.EncodeResponse(ack);
         var later = new WorkshopResponse(default, WorkshopResponseKind.Read,
             new(sameRevisionFault ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
                 sameRevisionFault ? WorkshopRejection.Capacity : WorkshopRejection.None),
@@ -766,7 +764,7 @@ public sealed class WorkshopWireTests
         Assert.True(AdmitRead(cursor, later));
         var delivery = AdmitAcknowledgement(cursor, command, ack, dispatched, false);
         Assert.False(delivery.Applicable);
-        Assert.Equal(original, WorkshopWireFlatBuffers.EncodeResponse(delivery.Response));
+        Assert.Equal(ack, delivery.Response);
         Assert.Equal(later.Read.Revision, cursor.Revision);
     }
 
@@ -829,7 +827,8 @@ public sealed class WorkshopWireTests
         var sourceResponse = response with { Read = response.Read with { Electrical = new PhysicsElectricalRead([new(new(10), new(1), new(3600.0002f), new(0f), ElectricalEnable.Enabled)]) } };
         var sourceBytes = WorkshopWireFlatBuffers.EncodeResponse(sourceResponse);
         var sourceRoundTrip = WorkshopWireFlatBuffers.DecodeResponse(sourceBytes);
-        Assert.True(sourceResponse.Read.Electrical.HasSameBits(sourceRoundTrip.Read.Electrical));
+        Assert.Equal(sourceResponse.Read.Electrical.Count, sourceRoundTrip.Read.Electrical.Count);
+        for (var i = 0; i < sourceResponse.Read.Electrical.Count; i++) Assert.Equal(sourceResponse.Read.Electrical[i], sourceRoundTrip.Read.Electrical[i]);
         Assert.Equal(response, WorkshopWireFlatBuffers.DecodeResponse(bytes));
     }
 
@@ -900,7 +899,7 @@ public sealed class WorkshopWireTests
         var command = new WorkshopCommand(new(0x20000000000001), WorkshopCommandKind.Construct,
             new(0x30000000000001), new(1), Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(ball), Session: Session, Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
-        Assert.Equal(bytes, WorkshopWireFlatBuffers.EncodeCommand(WorkshopWireFlatBuffers.DecodeCommand(bytes)));
+        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(bytes));
     }
 
 

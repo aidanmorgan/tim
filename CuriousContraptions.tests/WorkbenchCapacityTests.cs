@@ -266,7 +266,7 @@ public sealed class WorkbenchCapacityTests
         var occurrence = new ContactWorkOccurrence(new(0), new(70_000), new(5), 1, 4, 0f, new(3f), new(1.5f), ContactWorkEffect.Paid);
         var ledger = new ContactWorkLedger([new(new(9), new(8), 1, new(30f))], [occurrence]);
         Assert.Equal(70_000u, ledger.Occurrence(0).Collider.Value);
-        Assert.True(occurrence.HasSameBits(ledger.Occurrence(0)));
+        Assert.Equal(occurrence, ledger.Occurrence(0));
         var bodies = new PhysicsBodyReadSet([new PhysicsBodyRead(new CanonicalBody(new(5), 1, 0, default, default, default),
             CanonicalRotation.Identity, default, default)]);
         var read = new WorkshopRead(new(1), new(0), bodies, new(2),
@@ -275,7 +275,10 @@ public sealed class WorkbenchCapacityTests
             WorkshopSimulationPhase.Building, read, new(1, 2), default, new(1), new(1), new(1), new(0));
         foreach (var decoded in new[] { WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)),
             WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)) })
-            Assert.True(ledger.Stores.HasSameBits(decoded.Read.ContactWorks));
+        {
+            Assert.Equal(1, decoded.Read.ContactWorks.Count);
+            Assert.Equal(new ContactWorkRead(new(9), new(8), 1, new(30f)), decoded.Read.ContactWorks[0]);
+        }
     }
 
     [Fact]

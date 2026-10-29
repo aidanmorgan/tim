@@ -28,3 +28,34 @@ internal interface IWorkshopClient : IAsyncDisposable
     bool TryPresent(ulong frame, out WorkshopPresentationSample sample);
     void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene);
 }
+
+/// <summary>The browser clock and worker-message boundary; production delegates to the JavaScript module.</summary>
+internal interface IWorkshopBrowserTransport
+{
+    bool AnimationQualified(int client);
+    void AnimationKinds(int client, int[] kinds);
+    int[] DisplayRate(int client);
+    void ScheduleResult(int client, byte[] bytes);
+    void SendAnimationControl(int client, byte[] bytes);
+    MonotonicNanoseconds NativeNow();
+    void SendProbe(int client, byte[] probe);
+    void RecordClockObservation(int client, byte[] observation);
+    void RecordPresentationObservation(int client, byte[] observation);
+    Task<int> CreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int captureMode, bool admitDisplay,
+        Action clockReply,
+        Action physicalRead,
+        Action scheduleControl,
+        Action animationOutput,
+        Action service);
+    byte[] MasterBootstrap(int client);
+    void ActivateClient(int client);
+    byte[] EventBytes(int client);
+    MonotonicNanoseconds EventTime(int client);
+    void Qualified(int client);
+    int Status(int client);
+    Task Send(int client, byte[] command, byte[] sequence);
+    byte[] Acknowledgement(int client, byte[] sequence);
+    void CompleteAcknowledgement(int client, byte[] sequence);
+    void DisposeClient(int client);
+    byte[] ReadEvents(int client, string epoch);
+}

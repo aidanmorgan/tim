@@ -199,35 +199,50 @@ public sealed class HoldTimerTests
         var (_,reads,_)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
         var first=reads.First(read=>State(read).Phase==ActivationTimerPhase.Counting);
         var next=reads.Single(read=>read.Tick.Value==first.Tick.Value+1);
-        await using var device=new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()),new(101,206));
-        await using var simulation=new WorkshopSimulation(device,new WorkshopPhysicsEngineTests.StepClock(),WorkshopCadenceSettings.Default(),
-            new(1),new WorkshopPhysicsEngineTests.NoInstallation(),GpuDeviceOwnership.Borrowed);
-        Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Construct(construction)).Outcome);
-        var validate=typeof(WorkshopSimulation).GetMethod("ValidateAdvancedRead",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!;
-        validate.Invoke(simulation,[first,next]);
         WorkshopRead Replace(WorkshopRead read,ActivationTimerState state) =>
             read with {Timers=new PhysicsTimerRead(Enumerable.Range(0,read.Timers.Count).Select(i=>read.Timers[i].Node==state.Node?state:read.Timers[i]).ToArray())};
-        void Refused(WorkshopRead before,WorkshopRead forged)
+        async Task Check(WorkshopRead before, WorkshopRead expected, bool forged)
         {
-            var failure=Assert.Throws<System.Reflection.TargetInvocationException>(()=>validate.Invoke(simulation,[before,forged]));
-            Assert.IsType<ArgumentException>(failure.InnerException);
+            await using var device = new CandidateTransport();
+            await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(),
+                WorkshopCadenceSettings.Default(), new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+            while (simulation.Committed.Tick.Value < before.Tick.Value)
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+            var committed = simulation.Committed;
+            device.Transform = read => read with { Timers = expected.Timers };
+            var result = await simulation.Advance();
+            Assert.Equal(forged ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied, result.Outcome);
+            if (forged)
+            {
+                Assert.Equal(WorkshopRejection.InvalidRead, result.Reason);
+                NoFixedCapacityTests.AssertSameState(committed, simulation.Committed, "forged timer leaves committed state intact");
+                device.Transform = null;
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+            }
+            else Assert.Equal(State(expected), State(simulation.Committed));
         }
+        Task Refused(WorkshopRead before, WorkshopRead forged) => Check(before, forged, true);
+        await Check(first, next, false);
         var beforeStart=reads.Single(read=>read.Tick.Value+1==first.Tick.Value);
-        validate.Invoke(simulation,[beforeStart,first]);
+        await Check(beforeStart, first, false);
         var backTime=ActivationTime.Boundary(new(State(first).StartedTick-1),4);
         var backInput=State(first).Input with {Time=backTime,Cause=State(first).Input.Cause with {Time=backTime}};
-        Refused(beforeStart,Replace(first,State(first) with {StartedTick=State(first).StartedTick-1,DueTick=State(first).DueTick-1,Input=backInput}));
-        Refused(beforeStart,Replace(first,State(first) with {Input=backInput}));
-        Refused(first,Replace(next,ActivationTimerState.Ready(new(3))));
-        Refused(first,Replace(next,State(next) with {DueTick=State(next).DueTick+1}));
-        Refused(first,Replace(next,State(next) with {StartedTick=State(next).StartedTick+1,DueTick=State(next).DueTick+1}));
+        await Refused(beforeStart,Replace(first,State(first) with {StartedTick=State(first).StartedTick-1,DueTick=State(first).DueTick-1,Input=backInput}));
+        await Refused(beforeStart,Replace(first,State(first) with {Input=backInput}));
+        await Refused(first,Replace(next,ActivationTimerState.Ready(new(3))));
+        await Refused(first,Replace(next,State(next) with {DueTick=State(next).DueTick+1}));
+        await Refused(first,Replace(next,State(next) with {StartedTick=State(next).StartedTick+1,DueTick=State(next).DueTick+1}));
         var foreign=Enumerable.Range(0,next.Timers.Count).Select(i=>next.Timers[i].Node.Value==3?next.Timers[i] with {Node=new(4)}:next.Timers[i]).ToArray();
-        Refused(first,next with {Timers=new(foreign)});
+        await Refused(first,next with {Timers=new(foreign)});
         var beforeExpiry=reads.Single(read=>read.Tick.Value+1==State(first).DueTick);
         var expiry=reads.Single(read=>read.Tick.Value==State(first).DueTick);
-        validate.Invoke(simulation,[beforeExpiry,expiry]);
-        Refused(beforeExpiry,Replace(expiry,State(first) with {StartedTick=State(first).DueTick-1,DueTick=State(first).DueTick+23}));
+        await Check(beforeExpiry, expiry, false);
+        await Refused(beforeExpiry,Replace(expiry,State(first) with {StartedTick=State(first).DueTick-1,DueTick=State(first).DueTick+23}));
         Assert.Equal(State(first),State(reads.Single(read=>read.Tick.Value==first.Tick.Value)));
     }
 
@@ -312,6 +327,24 @@ public sealed class HoldTimerTests
             Assert.Equal(new FrictionCoefficient(.3f),material.Friction);
             Assert.Equal(new LinearSpeed(.1f),material.BounceThreshold);
         }
+    }
+
+    // The real device produces every candidate; only its outward transport result is forged for admission controls.
+    private sealed class CandidateTransport : IWorkshopGpuDevice
+    {
+        private readonly WorkshopGpuDevice _device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(
+            new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
+        public Func<WorkshopRead, WorkshopRead>? Transform { get; set; }
+        public ValueTask<WorkshopGpuCandidate> Admit(WorkshopConstruction construction, SimulationEpoch epoch,
+            WorkshopGpuProfile profile, CommandSequence sequence) => _device.Admit(construction, epoch, profile, sequence);
+        public async ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead source, CommandSequence sequence, WorkshopTickControls controls)
+        {
+            var candidate = await _device.Advance(source, sequence, controls);
+            return Transform is { } transform ? candidate with { Read = transform(candidate.Read) } : candidate;
+        }
+        public void Commit(CommandSequence sequence) => _device.Commit(sequence);
+        public void Discard(CommandSequence sequence) => _device.Discard(sequence);
+        public ValueTask DisposeAsync() => _device.DisposeAsync();
     }
 
     internal sealed class GatedRealTransport : IWorkshopGpuTransport

@@ -29,7 +29,9 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         Assert.Equal(gate.Id, drive.Owner);
         var endpoint = Response(read, 1);
         var roundTrip = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(endpoint with { Construction = construction }));
-        Assert.True(read.Presentation.HasSameBits(roundTrip.Read.Presentation));
+        Assert.Equal(read.Presentation.Actuators.ToArray(), roundTrip.Read.Presentation.Actuators.ToArray());
+        Assert.Equal(read.Presentation.Loads.ToArray(), roundTrip.Read.Presentation.Loads.ToArray());
+        Assert.Equal(read.Presentation.Logic.ToArray(), roundTrip.Read.Presentation.Logic.ToArray());
         Assert.Equal(construction, roundTrip.Construction);
         var foreign = read with { Presentation = new([drive with { Owner = new(999) }], []) };
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeResponse(Response(foreign, 2) with { Construction = construction }));

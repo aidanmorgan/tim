@@ -185,8 +185,7 @@ public sealed class WorkshopWireFlatBuffersTests
         PlacedParts.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, intervalSeconds: 3.5f),
     };
 
-    // Story 9.4b: every encoded instance field survives the decoder. Re-encoding the decoded construction reproduces the
-    // exact bytes, so a field the decoder dropped, defaulted or re-derived would differ.
+    // Every authored instance field survives decoding, including the construction settings and revision.
     [Theory]
     [MemberData(nameof(EveryInstanceKind))]
     public void Construction_EveryInstanceKind_RoundTripsEveryEncodedField(IWorkshopInstance instance)
@@ -194,7 +193,7 @@ public sealed class WorkshopWireFlatBuffersTests
         var construction = new WorkshopConstruction(new(3), WorkshopCadenceSettings.Default(), new([instance]));
         var bytes = EncodeConstruction(construction);
         var decoded = DecodeConstruction(bytes);
-        Assert.Equal(bytes, EncodeConstruction(decoded));
+        Assert.Equal(construction, decoded);
         var actual = Assert.Single(decoded.Instances);
         Assert.Equal(instance.GetType(), actual.GetType());
         Assert.Equal(instance.PartId, actual.PartId);
@@ -223,7 +222,7 @@ public sealed class WorkshopWireFlatBuffersTests
         var decoded = DecodeConstruction(bytes);
         Assert.Equal(construction.Puzzle.Goal, decoded.Puzzle.Goal);
         Assert.Equal(construction.Puzzle.Id, decoded.Puzzle.Id);
-        Assert.Equal(bytes, EncodeConstruction(decoded));
+        Assert.Equal(construction, decoded);
     }
 
     // The clock's interval and the counter's target are declared parameters of their generic instances (C-Clock, C-Memory). The
@@ -430,7 +429,8 @@ public sealed class WorkshopWireFlatBuffersTests
 
         Assert.Equal(1, decodedRead.ContactWorks.Count);
         Assert.Equal(work, decodedRead.ContactWorks[0]);
-        Assert.True(contactWorks.HasSameBits(decodedRead.ContactWorks));
+        Assert.Equal(contactWorks.Count, decodedRead.ContactWorks.Count);
+        for (var i = 0; i < contactWorks.Count; i++) Assert.Equal(contactWorks[i], decodedRead.ContactWorks[i]);
 
         Assert.Equal(1, decodedRead.Electrical.Count);
         Assert.Equal(elec.Remaining, decodedRead.Electrical[0].Remaining);

@@ -48,6 +48,7 @@ public partial class Workshop : Node3D
     internal string BundleResourcePath { get; set; } = PartRegistry.BundlePath;
     internal Func<Task<IWorkshopClient>> ClientFactory { get; set; } = async () => await BrowserWorkshopClient.Create();
     internal Task Startup { get; private set; } = Task.CompletedTask;
+    internal IWorkshopSaveStore SaveStore { get; set; } = new BrowserWorkshopSaveStore();
 
     public override async void _Ready()
     {
@@ -237,7 +238,7 @@ public partial class Workshop : Node3D
         _paletteScroll.AddChild(_palette);
         _detail = Paragraph("Choose a part, then click the workbench.", 14, Muted, new(180, 0));
         left.AddChild(_detail);
-        _connectionChoices = new VBoxContainer(); left.AddChild(_connectionChoices);
+        _connectionChoices = new VBoxContainer { Name = "ConnectionChoices" }; left.AddChild(_connectionChoices);
         _cancelButton = Button("Cancel / deselect", CancelTool);
         _cancelButton.Visible = false;
         left.AddChild(_cancelButton);
@@ -280,6 +281,7 @@ public partial class Workshop : Node3D
         _time = Text("00.00 s", 13, Muted);
         _mainActions.AddChild(_time);
         _status = Paragraph("Choose a part to get started.", 12, Muted, new(480, 28));
+        _status.Name = "WorkshopStatus";
         _status.HorizontalAlignment = HorizontalAlignment.Center;
         _status.MouseFilter = Control.MouseFilterEnum.Ignore;
         _canvas.AddChild(_status);
@@ -833,7 +835,7 @@ public partial class Workshop : Node3D
         try
         {
             var bytes = WorkshopSaveCodec.Encode(new(World.Construction, _nextId));
-            await BrowserWorkshopSaveStore.Save(bytes);
+            await SaveStore.Save(bytes);
             stored = true;
             if (_workshopUiRemoved) return;
             var result = await World.AcknowledgeConstructionSave();
@@ -865,7 +867,7 @@ public partial class Workshop : Node3D
         _gpuPending = true; RefreshPalette();
         try
         {
-            var encoded = await BrowserWorkshopSaveStore.Load(0);
+            var encoded = await SaveStore.Load(0);
             if (_workshopUiRemoved) return;
             if (encoded.Length == 0) { _status.Text = "No construction has been saved in this browser."; return; }
             // Browser storage is untrusted input: anything but an admissible save of the loaded bundle's elements is the save

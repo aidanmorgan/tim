@@ -526,8 +526,8 @@ development_status:
   engine-orientation-levelling: done # published bb35e8c4; full local 4453/0/0, hooks 126/0/0; run40365292840, artifact12670871781, deployment7338621740
   test-workshop-harness-a: done # db90de9b; local4901/0/0 hooks126/0/0 and exact-SHA approval; CI/deployment unverified by owner29Oct instruction
   test-workshop-harness-b: done # published318d514f; local4982/0/0 hooks126/0/0 exact-SHA approval; remote deployment unverified
-  runtime-typescript-conversion: done # local4985/0/0, five Auto layers and repair re-review passed; hooks/exact-SHA publication pending; spec-runtime-typescript-conversion.md
-  test-behavioral-hygiene: in-progress # first bounded child: test-semantic-digests; broader inventory remains open
+  runtime-typescript-conversion: done # published2dae2180; local4985/0/0 hooks126/0/0 exact-SHA approval; remote deployment unverified
+  test-behavioral-hygiene: done # implementation/full local5004/0/0 and five Auto layers with repair re-review passed; hooks/exact-SHA publication pending
   test-semantic-digests: done # b3905fcda3df89b38140c9610b8ff2034e4078a8; terminal Pass CI40249169834:4212/0/0; artifact12620546696 deployment7321697410; broader hygiene remains open
   engine-supported-impact-restitution: backlog # before10.3/first dynamic support consumer
   cat-023c-offset-centre-of-mass: backlog # before next Domino-dependent level and catalogue closure

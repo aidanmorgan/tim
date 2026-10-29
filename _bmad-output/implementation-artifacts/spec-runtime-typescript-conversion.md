@@ -203,3 +203,11 @@ Files changed:
 Review: five Auto layers completed. Twelve reported items were individually triaged (high1, medium7, false4), including two permitted borderline items. Six patch groups (high1, medium5) were applied by the original implementer and independently re-reviewed by the affected owners. Four rejected items and their refutations remain in the triage log. No deferrals or unresolved findings.
 
 Follow-up review recommendation: **false** after affected independent re-review verified all six repairs; no specific unverified repair risk remains. Normal hooks, exact-commit SnapshotApproval and push are the remaining publication checks. Browser/device/release and remote build/artifact/deployment qualification remain unverified. No CI wait, local Release worker build, web publish or mutation testing was performed.
+
+## Publication receipt — 29 October 2026
+
+Published main commit **2dae218024ab260cc1797d967b13f2a5ea70d01e**, parent318d514fba18eae71fa3f9663edb2d13a3cde016. Final local round2 **4,985/0/0** (main4,493 in20m49s; tools492), original per-project runtime-typescript-full-round2.trx. Normal commit hooks **126/0/0**, builds zero warnings/errors, execution64415 exited0. All82 reviewed files committed; worktree and commit diff check clean.
+
+Independent reviewer runtime_ts_intent granted SnapshotApproval Pass for this exact SHA after checking the repairs, actual TRXs and hook receipt. Push execution10873 succeeded: origin main advanced from318d514f to2dae2180. Earlier pending-publication wording records the prior stage; these checks are complete.
+
+Per owner instruction, no CI monitoring or wait was performed. Remote build/artifact/deployment, browser/device and release qualification remain unverified. Next slice: test-behavioral-hygiene from this published commit.

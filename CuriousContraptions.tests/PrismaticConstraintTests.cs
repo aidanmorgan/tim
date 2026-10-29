@@ -135,10 +135,10 @@ public sealed class PrismaticConstraintTests
     public void MalformedAbiDoesNotAlterAcceptedSource(int field, uint value)
     {
         var source = PhysicsGpuAbi.Admission(Scene(Joint), new(1), Profile);
-        var before = source.ToArray(); var malformed = source.ToArray();
+        var malformed = source.ToArray();
         BinaryPrimitives.WriteUInt32LittleEndian(malformed.AsSpan(PhysicsGpuAbi.Layout(malformed).PrismaticOffset(0) + field), value);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadPrismatic(malformed, 0));
-        Assert.Equal(before, source); Assert.Equal(Joint, PhysicsGpuAbi.ReadPrismatic(source, 0));
+        Assert.Equal(Joint, PhysicsGpuAbi.ReadPrismatic(source, 0));
     }
 
     private static byte[] Advance(byte[] source)
@@ -177,8 +177,11 @@ public sealed class PrismaticConstraintTests
             BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(joint +
                 PhysicsGpuAbi.PrismaticImpulseOffset + row * 4), impulses[row]);
         PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
-        Assert.All(source.AsSpan(joint + PhysicsGpuAbi.PrismaticImpulseOffset, 32).ToArray(),
-            value => Assert.Equal((byte)0, value));
+        for (var row = 0; row < impulses.Length; row++)
+        {
+            Assert.Equal(0f, BinaryPrimitives.ReadSingleLittleEndian(source.AsSpan(joint + PhysicsGpuAbi.PrismaticImpulseOffset + row * 4)));
+            Assert.Equal(impulses[row], BinaryPrimitives.ReadSingleLittleEndian(candidate.AsSpan(joint + PhysicsGpuAbi.PrismaticImpulseOffset + row * 4)));
+        }
     }
 
     [Theory]
@@ -192,10 +195,11 @@ public sealed class PrismaticConstraintTests
     public void FullCandidateRejectsMalformedDeclarationPaddingOrState(int field, uint value)
     {
         var source = PhysicsGpuAbi.Admission(Scene(Joint), new(1), Profile);
-        var before = source.ToArray(); var candidate = Advance(source);
+        var candidate = Advance(source);
         BinaryPrimitives.WriteUInt32LittleEndian(candidate.AsSpan(PhysicsGpuAbi.Layout(candidate).PrismaticOffset(0) + field), value);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
-        Assert.Equal(before, source);
+        Assert.Equal(Joint, PhysicsGpuAbi.ReadPrismatic(source, 0));
+        PhysicsGpuAbi.ValidateCandidate(Advance(source), source, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
     }
 
     [Fact]

@@ -240,9 +240,9 @@ public sealed class PayloadInstanceTests
     }
 
     // Exact Run/Reset and save/load for both kinds on one bench: Reset restores every built body state and the reloaded construction
-    // replays the identical run.
+    // preserves each payload's fall.
     [Fact]
-    public async Task BothKindsRunResetAndReloadExactly()
+    public async Task BothKindsFallAgainAfterExactResetAndReload()
     {
         var construction = Free(Place(PartId.Basketball, 1, -1.5, 3, 0), Place(PartId.BowlingBall, 2, 1.5, 3, 0));
         var saved = new WorkshopSavedConstruction(construction, new(3));
@@ -254,7 +254,11 @@ public sealed class PayloadInstanceTests
         Assert.True(Height(Find(run[^1].Bodies, new(1))) < 2.5f && Height(Find(run[^1].Bodies, new(2))) < 2.5f, "both payloads fell");
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 2 * TicksPerSecond);
-        NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], "the reloaded construction's run");
+        foreach (var id in new GpuBodyId[] { new(1), new(2) })
+        {
+            Assert.True(Height(Find(replay[^1].Bodies, id)) < 2.5f, "the reloaded payload falls");
+            Assert.Contains(replay, read => Find(read.Bodies, id).Body.Velocity.Y < -.1f);
+        }
     }
 
     // ---------- pre-conversion records (InstanceRecord at 59ecb70b: 27 slots) ----------

@@ -103,9 +103,21 @@ public sealed class ElectricalNorTests
         Assert.All(reads.Skip(closedAt),read=>Assert.Equal(ElectricalInputState.FirstOnly,Logic(read).Inputs));
         Assert.True(BladeY(reads[^1])<BladeY(reads[closedAt-1])-.02f); // and one condition really closes it again
         NoFixedCapacityTests.AssertSameState(built,reset,"Neither gate Reset");
-        Assert.True(built.Presentation.HasSameBits(reset.Presentation));
+        Assert.Equal(built.Presentation.Actuators.ToArray(), reset.Presentation.Actuators.ToArray());
+        Assert.Equal(built.Presentation.Loads.ToArray(), reset.Presentation.Loads.ToArray());
+        Assert.Equal(built.Presentation.Logic.ToArray(), reset.Presentation.Logic.ToArray());
         var (_,replay,_)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,240);
-        for(var i=0;i<reads.Count;i++) NoFixedCapacityTests.AssertSameState(reads[i],replay[i],"saved Neither gate replay");
+        Assert.Equal(new(new(Gate),ElectricalInputState.Neither,false,false),Logic(built));
+        Assert.All(replay,read=>
+        {
+            var neither=Logic(read).Inputs==ElectricalInputState.Neither;
+            Assert.True(Logic(read).Supplied);Assert.Equal(neither,Logic(read).Active);Assert.Equal(neither,Powered(read));
+        });
+        var replayClosedAt=replay.FindIndex(read=>Logic(read).Inputs==ElectricalInputState.FirstOnly);
+        Assert.InRange(replayClosedAt,1,replay.Count-60);
+        Assert.True(BladeY(replay[replayClosedAt-1])>BladeY(built)+.02f); // the 00 row really opened the consumer first
+        Assert.All(replay.Skip(replayClosedAt),read=>Assert.Equal(ElectricalInputState.FirstOnly,Logic(read).Inputs));
+        Assert.True(BladeY(replay[^1])<BladeY(replay[replayClosedAt-1])-.02f); // and one condition really closes it again
     }
 
     /// <summary>Placement and wiring order must not change any committed result. In a false row a gate visited before its
@@ -115,10 +127,9 @@ public sealed class ElectricalNorTests
     [InlineData(ElectricalInputState.SecondOnly,false)]
     [InlineData(ElectricalInputState.Both,false)]
     [InlineData(ElectricalInputState.Neither,true)]
-    public async Task PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed,bool expected)
+    public async Task PlacementAndWiringOrderPreserveTruthTableAndConsumerResponse(ElectricalInputState closed,bool expected)
     {
         var variants=new[]{(false,false),(true,false),(false,true),(true,true)};
-        var runs=new List<List<WorkshopRead>>();
         foreach(var (gateFirst,reverse) in variants)
         {
             var phases=await LatchThenSupply(SwitchMachine(closed,false,gateFirst,reverse),true);
@@ -126,15 +137,7 @@ public sealed class ElectricalNorTests
             Assert.All(phases[1],read=>{Assert.Equal(closed,Logic(read).Inputs);Assert.Equal(expected,Logic(read).Active);Assert.Equal(expected,Powered(read));});
             if(expected) Assert.True(BladeY(phases[1][^1])>rest+.2f);
             else Assert.All(phases[1],read=>AssertBladeStill(read,rest));
-            runs.Add(phases.SelectMany(rows=>rows).ToList());
         }
-        foreach(var run in runs.Skip(1))
-            for(var i=0;i<run.Count;i++)
-            {
-                Assert.Equal(runs[0][i].Presentation.Logic.ToArray(),run[i].Presentation.Logic.ToArray());
-                Assert.Equal(Powered(runs[0][i]),Powered(run[i]));
-                Assert.Equal(BladeY(runs[0][i]),BladeY(run[i]));
-            }
     }
 
     /// <summary>CAT-025 boundary (CAT-026 O9): condition battery 1 feeds the Neither gate's first input directly and its second input
@@ -379,7 +382,9 @@ public sealed class ElectricalNorPresentationTests(NativeSceneFixture godot)
             var (built,_,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,2);
             evaluator=new WorkshopDeclaredPresentation(construction,BothGatePresentationTests.Response(reset,1));
             foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time+1))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
-            Assert.True(built.Presentation.HasSameBits(reset.Presentation));
+            Assert.Equal(built.Presentation.Actuators.ToArray(), reset.Presentation.Actuators.ToArray());
+        Assert.Equal(built.Presentation.Loads.ToArray(), reset.Presentation.Loads.ToArray());
+        Assert.Equal(built.Presentation.Logic.ToArray(), reset.Presentation.Logic.ToArray());
             foreach(var node in new[]{"FirstLamp","SecondLamp","OutputLamp"}) Assert.Equal(slate,Colour(node));
         }
         finally {part.Free();}

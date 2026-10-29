@@ -4,7 +4,17 @@ using System.Collections.Generic;
 namespace CuriousContraptions.Gpu;
 
 public readonly record struct ConstructionRevision(ulong Value);
-public readonly record struct AuthorityRevision(ulong Value);
+public readonly record struct AuthorityRevision(ulong Value)
+{
+    /// <summary>Advances a session authority once; exhaustion refuses without changing or wrapping the value.</summary>
+    public bool TryAdvance(out AuthorityRevision next)
+    {
+        next = this;
+        if (Value == ulong.MaxValue) return false;
+        next = new(Value + 1);
+        return true;
+    }
+}
 public readonly record struct SimulationEpoch(ulong Value);
 public readonly record struct SimulationTick(ulong Value);
 public readonly record struct CommandSequence(ulong Value);

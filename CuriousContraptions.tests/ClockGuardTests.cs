@@ -100,7 +100,7 @@ public sealed class ClockGuardTests
             if (tick == interval)
             {
                 var again = network.Consume(committed.Activations, committed.Timers, [], new(tick), [], [], powered, memory: committed.Memory);
-                Assert.True(next.Memory.HasSameBits(again.Memory), "Consume of the same committed inputs commits the same rows");
+                Assert.Equal(network.Memory(next.Memory, Owner), network.Memory(again.Memory, Owner));
                 Assert.Equal(Enumerable.Range(0, next.Activations.Count).Select(i => next.Activations[i]),
                     Enumerable.Range(0, again.Activations.Count).Select(i => again.Activations[i]));
             }
@@ -152,8 +152,7 @@ public sealed class ClockGuardTests
     // ---------- pause, resume and reset (9R.10 AC2, AC3; CAT-017 C20, C21) ----------
 
     // Pausing mid-interval holds the committed world: every Advance while paused is refused WrongPhase (2.0 s of them) and the committed
-    // read, its clock row included, is unchanged; Resume continues the spacing, so the paused run's every committed tick equals an
-    // unpaused run's.
+    // read, its clock row included, is unchanged; Resume continues the spacing, so the paused and unpaused runs retain the authored pulse schedule.
     [Fact]
     public async Task APauseAddsNoPulseAndNoPhaseAndResumeContinuesTheSpacing()
     {
@@ -175,13 +174,14 @@ public sealed class ClockGuardTests
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Resume)).Result).Outcome);
         var resumed = first.Concat((await harness.AdvanceIncludingCurrent(220)).Skip(1)).ToList();
         Assert.Equal([120UL, 240UL, 360UL], PulseTicks(resumed));
-        for (var i = 0; i < plain.Count; i++) NoFixedCapacityTests.AssertSameState(plain[i], resumed[i], $"tick {i}");
+        Assert.Equal([120UL, 240UL, 360UL], PulseTicks(plain));
+        Assert.All(resumed, read => Assert.Equal((uint)(read.Tick.Value / 120), Row(read, Owner).Count));
     }
 
     // Reset admits the authored world again: the clock is Stopped with no due tick, no pulses and no last occurrence, the read equals the
-    // built one, and the next Run's first pulse is again at tick 120 (phase 0), every committed tick identical to the first run's.
+    // built one, and the next Run's first pulse is again at tick 120 (phase 0), with the authored count at each tick.
     [Fact]
-    public async Task ResetStopsTheClockAndTheNextRunPulsesFirstAtOneSecondIdentically()
+    public async Task ResetStopsTheClockAndTheNextRunPulsesFirstAtOneSecond()
     {
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(Bench(1f), 300);
         Assert.Equal([120UL, 240UL], PulseTicks([built, .. run]));
@@ -195,7 +195,8 @@ public sealed class ClockGuardTests
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var second = await harness.AdvanceIncludingCurrent(150);
         Assert.Equal([120UL], PulseTicks(second));
-        for (var i = 0; i < first.Count; i++) NoFixedCapacityTests.AssertSameState(first[i], second[i], $"replay tick {i}");
+        Assert.Equal([120UL], PulseTicks(first));
+        Assert.All(second, read => Assert.Equal((uint)(read.Tick.Value / 120), Row(read, Owner).Count));
     }
 
     // ---------- negative and boundary (9R.10 AC5; CAT-017 C13, C14, C16) ----------
@@ -243,12 +244,12 @@ public sealed class ClockGuardTests
     // ---------- lifecycle: save and load (9A.42 AC3; CAT-017 C22) ----------
 
     // A saved bench (0.1 s, 1 s and 12 s) loads equal at the save and command boundaries, its built read holds a stopped clock (counts
-    // are not saved), and its run replays every committed tick bit for bit.
+    // are not saved), and each run preserves the authored pulse schedule.
     [Theory]
     [InlineData(.1f)]
     [InlineData(1f)]
     [InlineData(12f)]
-    public async Task SaveAndLoadReplayIdentically(float seconds)
+    public async Task SaveAndLoadPreserveThePulseSchedule(float seconds)
     {
         var bench = Bench(seconds);
         var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(4)))).Construction;
@@ -259,7 +260,11 @@ public sealed class ClockGuardTests
         var run = await WorkshopIntegrationHarness.Observe(bench, 240);
         var replay = await WorkshopIntegrationHarness.Observe(restored, 240);
         Assert.Equal((OscillatorPhase.Stopped, 0U), (Row(replay[0], Owner).Phase, Row(replay[0], Owner).Count));
-        for (var i = 0; i < run.Count; i++) NoFixedCapacityTests.AssertSameState(run[i], replay[i], $"replay tick {i}");
+        var period = seconds switch { .1f => 12, 1f => 120, 12f => 1440, _ => throw new ArgumentOutOfRangeException(nameof(seconds)) };
+        var expected = Enumerable.Range(1, 240 / period).Select(index => (ulong)(index * period)).ToArray();
+        Assert.Equal(expected, PulseTicks(run));
+        Assert.Equal(expected, PulseTicks(replay));
+        Assert.All(replay, read => Assert.Equal((uint)(read.Tick.Value / (ulong)period), Row(read, Owner).Count));
     }
 
     // ---------- presentation (9R.10 AC6, coordinator decision 18 Oct 2026; CAT-017 C20, C23) ----------

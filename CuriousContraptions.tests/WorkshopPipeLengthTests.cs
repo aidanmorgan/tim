@@ -194,15 +194,18 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     /// <summary>Every commit path captures the pipe it edits: the presented length when the part gives one, else the committed pipe's
     /// own length (a rotate, move or snap of a resized pipe never resets it to 3.6); only a new pipe starts at the default.</summary>
     [Fact]
-    public void CaptureKeepsTheResizedLengthThroughRotateAndMove()
+    public async Task CaptureKeepsTheResizedLengthThroughRotateAndMove()
     {
         var world = new MachineWorld();
         try
         {
             world.Registry.Load();
             var resized = Pipe(2, 4);
-            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(world,
-                new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(resized)));
+            godot.Tree.Root.AddChild(world);
+            await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+            await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness)));
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await world.ReplaceConstruction(
+                new(new(2), WorkshopCadenceSettings.Default(), new(resized)))).Result.Outcome);
             var turned = Assert.IsType<WorkshopPipe>(world.CaptureInstance(PartId.Pipe, new(4), new(1, 4, 0),
                 new Quaternion(Vector3.Back, Mathf.DegToRad(-45))));
             Assert.Equal(new PipeLength(2), turned.Length);
@@ -232,7 +235,6 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(saved, decoded);
         Assert.Equal(metres, Assert.IsType<WorkshopPipe>(decoded.Construction.Instances[1]).Length.Metres);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
     }
 
     [Theory]

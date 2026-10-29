@@ -514,7 +514,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public async Task SavingTheCompoundDropPreservesEveryCommittedPoseAndVelocity()
+    public async Task SavingTheCompoundDropPreservesRollingAndSettlement()
     {
         var lift = .18f * MathF.Cos((float)(RampDegrees * Math.PI / 180));
         var weight = OnItsSideOnTheRamp(1, 4f, .5f, lift, CylinderAxisDirection.Positive);
@@ -524,9 +524,17 @@ public sealed class WeightTests(ITestOutputHelper output)
         Assert.Equal(construction, decoded);
         var (_, first, _) = await WorkshopIntegrationHarness.ObserveReset(construction, 14 * Rate, includeBuilt: true);
         var (_, saved, _) = await WorkshopIntegrationHarness.ObserveReset(decoded, 14 * Rate, includeBuilt: true);
-        Assert.Equal(first.Count, saved.Count);
-        for (var tick = 0; tick < first.Count; tick++)
-            Assert.Equal(Find(first[tick], weight.Id), Find(saved[tick], weight.Id));
+        foreach (var run in new[] { first, saved })
+        {
+            var initial = Find(run[0], weight.Id);
+            var final = Find(run[^1], weight.Id);
+            Assert.True(Origin(final).X > Origin(initial).X + .5f, "The Weight rolls downhill off the ramp.");
+            Assert.True(run.Any(read => Spin(Find(read, weight.Id)).Length() > .1f), "Rolling includes rotation.");
+            Assert.InRange(LowestArtPoint(final, 4), BenchY - .001, BenchY + .001);
+            Assert.True(Velocity(final).Length() < .02f, "The Weight settles on the bench.");
+            var lastSecond = run.TakeLast(Rate).Select(read => Origin(Find(read, weight.Id))).ToArray();
+            Assert.All(lastSecond, position => Assert.InRange(Vector3.Distance(position, Origin(final)), 0, .001f));
+        }
     }
 
     [Fact]

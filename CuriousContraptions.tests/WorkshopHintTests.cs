@@ -13,19 +13,31 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
     // Actual A execution and clock qualification are covered by the owned Chrome evidence.
     private HintReadClient _client = null!;
     private void Publish(float opacity) => _client.Next = opacity;
-    private static void Solve(Label solved) { var colour = solved.Modulate; colour.A = 1; solved.Modulate = colour; }
+    private void PublishState(Workshop scene, WorkshopSimulationPhase phase, ulong epoch)
+    {
+        _client.Epoch = new(epoch);
+        _client.NextRead = _client.Response(phase);
+        scene.World._Process(0);
+        scene._PhysicsProcess(0);
+        scene._Process(0);
+    }
+    private void Solve(Workshop scene)
+    {
+        _client.Goal = 1;
+        scene._Process(0);
+        Assert.Equal(1, Control<Label>(scene, WorkshopUiControl.Solved).Modulate.A);
+    }
     private static readonly double QuarterDuration = (double)(float).16 / 4;
 
     private Workshop Scene()
     {
         var scene = GD.Load<PackedScene>("res://scenes/workshop.tscn").Instantiate<Workshop>();
+        _client = new HintReadClient();
+        scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(_client);
         godot.Tree.Root.AddChild(scene);
+        scene.Startup.GetAwaiter().GetResult();
         scene.SetProcess(false);
         scene.SetPhysicsProcess(false);
-        _client = new HintReadClient();
-        // Native-only boundary injection; no production client setter or clock fallback.
-        typeof(MachineWorld).GetField("_workshopClient", System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.NonPublic)!.SetValue(scene.World, _client);
         return scene;
     }
     private void Release(Workshop scene)
@@ -131,8 +143,8 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
             var picker = Control<OptionButton>(scene, WorkshopUiControl.LevelPicker);
             var construction = scene.World.Construction;
             var selected = picker.Selected;
-            // This fixture owns hint samples only, with no admitted gameplay session.
-            // A mode change now requires an atomic canonical construction command.
+            // A running machine refuses mode selection before it can disturb the autonomous hint.
+            PublishState(scene, WorkshopSimulationPhase.Running, 1);
             picker.EmitSignal(OptionButton.SignalName.ItemSelected, 0);
             Assert.Equal(selected, picker.Selected);
             Assert.Equal(construction, scene.World.Construction);
@@ -262,16 +274,18 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         try
         {
             var solved = Control<Label>(scene, WorkshopUiControl.Solved);
-            Solve(solved);
-            SetSceneField(scene, "_solvedPresentationEpoch", new SimulationEpoch(1));
-            SetSceneField(scene, "_displayedWorkshopPhase", WorkshopSimulationPhase.Running);
-            // Native projection boundary only: actual command/cursor ownership is tested separately.
-            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
-            if (acknowledgementFirst) InvokeScene(scene, "ResetUiAnimations");
-            InvokeScene(scene, "ReconcileCommittedUi");
-            Assert.Equal(0, solved.Modulate.A); // The goal label rests on its declared neutral opacity.
-            Assert.Equal(default, SceneField<SimulationEpoch>(scene, "_solvedPresentationEpoch"));
-            InvokeScene(scene, "ReconcileCommittedUi");
+            PublishState(scene, WorkshopSimulationPhase.Running, 1);
+            Solve(scene);
+            _client.HoldReset = !acknowledgementFirst;
+            Press(scene, WorkshopUiControl.Run);
+            if (!acknowledgementFirst)
+            {
+                PublishState(scene, WorkshopSimulationPhase.Building, 2);
+                _client.CompleteReset(applicable: false);
+            }
+            scene._Process(0);
+            Assert.Equal(0, solved.Modulate.A);
+            scene._Process(0);
             Assert.Equal(0, solved.Modulate.A);
         }
         finally { Release(scene); }
@@ -284,18 +298,17 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         try
         {
             var hint = Reveal(scene); Publish((float).5); scene._Process(0);
-            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
-            SetSceneField(scene, "_displayedWorkshopPhase", WorkshopSimulationPhase.Building);
-            InvokeScene(scene, "ReconcileCommittedUi");
-            InvokeScene(scene, "ReconcileCommittedUi");
+            PublishState(scene, WorkshopSimulationPhase.Building, 1);
+            scene._Process(0);
             Assert.True(hint.Visible); Assert.Equal(.5f, hint.Modulate.A);
-            var solved = Control<Label>(scene, WorkshopUiControl.Solved);
-            Solve(solved); SetSceneField(scene, "_solvedPresentationEpoch", new SimulationEpoch(2));
-            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Running);
-            // The valid older Reset ACK is inapplicable; its finally reconciles the newer committed phase.
-            InvokeScene(scene, "ReconcileCommittedUi");
-            Assert.Equal(1, solved.Modulate.A);
-            Assert.Equal(new SimulationEpoch(2), SceneField<SimulationEpoch>(scene, "_solvedPresentationEpoch"));
+            PublishState(scene, WorkshopSimulationPhase.Running, 1);
+            _client.HoldReset = true;
+            Press(scene, WorkshopUiControl.Run);
+            PublishState(scene, WorkshopSimulationPhase.Running, 2);
+            Solve(scene);
+            _client.CompleteReset(applicable: false);
+            scene._Process(0);
+            Assert.Equal(1, Control<Label>(scene, WorkshopUiControl.Solved).Modulate.A);
         }
         finally { Release(scene); }
     }
@@ -307,13 +320,12 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         try
         {
             var hint = Reveal(scene);
-            var solved = Control<Label>(scene, WorkshopUiControl.Solved); Solve(solved);
-            SetSceneField(scene, "_solvedPresentationEpoch", new SimulationEpoch(1));
+            PublishState(scene, WorkshopSimulationPhase.Running, 1);
+            var solved = Control<Label>(scene, WorkshopUiControl.Solved); Solve(scene);
             _client.LeaseBusy = true;
-            InvokeScene(scene, "ResetUiAnimations"); // queues the Hide; never throws while the lease is busy
+            Press(scene, WorkshopUiControl.Run);
             Assert.Equal(AnimationControlKind.Hide, _client.Queued);
             Assert.Equal(0, solved.Modulate.A);
-            Assert.Equal(default, SceneField<SimulationEpoch>(scene, "_solvedPresentationEpoch"));
             Assert.False(hint.Visible); Assert.Equal(1, hint.Modulate.A);
         }
         finally { _client.LeaseBusy = false; Release(scene); }
@@ -344,21 +356,26 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         finally { Release(scene); }
     }
 
-    private static void InvokeScene(Workshop scene, string method) => typeof(Workshop).GetMethod(method,
-        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(scene, null);
-    private static void SetSceneField<T>(Workshop scene, string field, T value) => typeof(Workshop).GetField(field,
-        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.SetValue(scene, value);
-    private static T SceneField<T>(Workshop scene, string field) => (T)typeof(Workshop).GetField(field,
-        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(scene)!;
-
     private sealed class HintReadClient : IWorkshopClient
     {
         public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
-        public SimulationEpoch Epoch => new(1);
+        public SimulationEpoch Epoch { get; set; } = new(1);
         public AuthorityRevision Revision => default;
         public WorkshopCommandIdentity? Pending => null;
         public WorkshopTransportState TransportState => WorkshopTransportState.Ready;
-        public float? Next;
+        public float? Next, Goal;
+        public WorkshopResponse? NextRead;
+        public bool HoldReset;
+        private TaskCompletionSource<WorkshopDelivery>? _reset;
+        public WorkshopResponse Response(WorkshopSimulationPhase phase) => new(new(1), WorkshopResponseKind.Acknowledgement,
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), phase,
+            new(Epoch, default, default, Revision, new(WorkshopClockDomain.SimulationMonotonic, new(1), new(0), new(0))),
+            new(1, 1), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+        public void CompleteReset(bool applicable)
+        {
+            _reset!.SetResult(new(Response(WorkshopSimulationPhase.Building), applicable));
+            _reset = null;
+        }
         public bool Disposed;
         public bool LeaseBusy;
         public AnimationControlKind? Queued;
@@ -370,15 +387,22 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         }
         public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out AnimationOpacity opacity)
         {
-            if (target != WorkshopUiTarget.Hint || Disposed || Next is not { } value) { opacity = default; return false; }
-            Next = null; opacity = new(value); return true;
+            var sample = target == WorkshopUiTarget.Goal ? Goal : Next;
+            if (Disposed || sample is not { } value) { opacity = default; return false; }
+            if (target == WorkshopUiTarget.Goal) Goal = null; else Next = null;
+            opacity = new(value); return true;
         }
-        public bool TryRead(out WorkshopResponse response) { response = default; return false; }
+        public bool TryRead(out WorkshopResponse response) { response = NextRead ?? default; var available = NextRead is not null; NextRead = null; return available; }
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
         public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null) =>
-            throw new InvalidOperationException("Gameplay is outside this hint read-consumer fixture.");
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+        {
+            Assert.Equal(WorkshopCommandKind.Reset, kind);
+            if (HoldReset) { _reset = new(); return _reset.Task; }
+            Epoch = new(Epoch.Value + 1);
+            return Task.FromResult(new WorkshopDelivery(Response(WorkshopSimulationPhase.Building), true));
+        }
         public void SetDeclaredVisible(GpuBodyId owner, bool visible) { }
         public bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out System.Collections.Generic.IReadOnlyList<DeclaredPresentationSample> samples) { samples = System.Array.Empty<DeclaredPresentationSample>(); return false; }
         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No command is pending.");

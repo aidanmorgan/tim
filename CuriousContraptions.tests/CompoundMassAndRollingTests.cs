@@ -594,8 +594,17 @@ public sealed class CompoundCaptureOwnershipTests
         Assert.Equal(0, ring.Committed.Captures.Count);
         var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(7))));
         var replay = await WorkshopIntegrationHarness.Observe(saved.Construction, 120);
-        Assert.Equal(read.Captures.Count, replay[^1].Captures.Count);
-        for (var i = 0; i < read.Captures.Count; i++) Assert.Equal(read.Captures[i], replay[^1].Captures[i]);
+        Assert.Equal(2, replay[^1].Captures.Count);
+        Assert.Equal(new[] { new GpuBodyId(1), new GpuBodyId(2) },
+            Enumerable.Range(0, 2).Select(i => replay[^1].Captures[i].Target));
+        Assert.All(Enumerable.Range(0, 2), i => Assert.Equal(CaptureLatchPhase.Latched, replay[^1].Captures[i].Phase));
+        foreach (var (owner, target) in new[] { (5UL, 1UL), (6UL, 2UL) })
+        {
+            Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(new(WorkshopGoalKind.Captured, new(target), new(owner)),
+                replay[^1], replay[^1].Epoch, saved.Construction.Instances.Identities));
+            Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(new(WorkshopGoalKind.Captured, new(3), new(owner)),
+                replay[^1], replay[^1].Epoch, saved.Construction.Instances.Identities));
+        }
     }
     [Fact]
     public async Task OneCapturePolicyKeepsTwoActualTargetsAcrossTheCommittedReadCodec()

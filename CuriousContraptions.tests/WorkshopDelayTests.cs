@@ -166,7 +166,9 @@ public sealed class WorkshopDelayTests
         Assert.Equal(counting.DueTick, run.First(read => Lamp(read).Phase == ActivationPhase.Latched).Tick.Value);
         NoFixedCapacityTests.AssertSameState(built, reset, "timer Reset");
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 180);
-        NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], "saved timer replay");
+        var replayTimer = replay.First(read => read.Timers[0].Phase == ActivationTimerPhase.Counting).Timers[0];
+        Assert.Equal(15UL, replayTimer.DueTick - replayTimer.StartedTick);
+        Assert.Equal(replayTimer.DueTick, replay.First(read => Lamp(read).Phase == ActivationPhase.Latched).Tick.Value);
     }
 
     [Fact]

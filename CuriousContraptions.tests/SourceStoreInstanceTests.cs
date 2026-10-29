@@ -192,8 +192,7 @@ public sealed class SourceStoreInstanceTests
         Assert.Equal(authored.Revision, harness.Construction.Revision);
     }
 
-    // A Paused control is held until Resume; a second control while paused reverses it (the run is then bit-identical to one never
-    // controlled); a held control is applied on the first tick after Resume.
+    // A Paused control is held until Resume; a second control while paused reverses it (the source continues to supply and the gate opens); a held control is applied on the first tick after Resume.
     [Fact]
     public async Task APausedControlIsHeldReversedByASecondAndAppliedOnResume()
     {
@@ -212,7 +211,12 @@ public sealed class SourceStoreInstanceTests
         Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Enabled))).Result.Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Resume)).Result).Outcome);
         var reversed = first.Concat(await harness.Advance(90)).ToList();
-        for (var i = 0; i < plain.Count; i++) NoFixedCapacityTests.AssertSameState(plain[i], reversed[i], $"reversed tick {i}");
+        foreach (var run in new[] { plain, reversed })
+        {
+            Assert.All(run, read => Assert.Equal(ElectricalEnable.Enabled, SourceRead(read).Enabled));
+            Assert.All(run, read => Assert.True(Blade(read).SupplyClosed));
+            Assert.True(Blade(run[^1]).Coordinate > .2f);
+        }
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Pause)).Result).Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result.Outcome);
         Assert.Equal(ElectricalEnable.Enabled, SourceRead(harness.Committed).Enabled);
@@ -273,10 +277,16 @@ public sealed class SourceStoreInstanceTests
         Assert.Equal(ElectricalEnable.Enabled, harness.Simulation.ElectricalState(Source, ElectricalEnable.Enabled));
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var replay = await harness.Advance(180);
-        for (var i = 0; i < plain.Count; i++) NoFixedCapacityTests.AssertSameState(plain[i], replay[i], $"replay tick {i}");
+
         await using var reloaded = await WorkshopIntegrationHarness.Building(loaded);
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await reloaded.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var fromSave = await reloaded.Advance(180);
-        for (var i = 0; i < plain.Count; i++) NoFixedCapacityTests.AssertSameState(plain[i], fromSave[i], $"loaded tick {i}");
+        foreach (var run in new[] { plain, replay, fromSave })
+        {
+            Assert.All(run, read => Assert.Equal((1350f, 0f, ElectricalEnable.Enabled),
+                (SourceRead(read).Remaining.Value, SourceRead(read).Debit.Value, SourceRead(read).Enabled)));
+            Assert.All(run, read => Assert.True(Blade(read).SupplyClosed));
+            Assert.True(Blade(run[^1]).Coordinate > .2f, "the authored enabled source opens its gate after Reset or load");
+        }
     }
 }

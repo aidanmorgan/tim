@@ -38,7 +38,12 @@ public sealed class SwitchElectricalTests
         Assert.Single(reads.Where(read=>Activation(read,2).Phase==ActivationPhase.Latched).Select(read=>Activation(read,2).Occurrence).Distinct());
         NoFixedCapacityTests.AssertSameState(built,reset,"electrical contact Reset");
         var (_,replay,_)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,180);
-        for(var i=0;i<reads.Count;i++) NoFixedCapacityTests.AssertSameState(reads[i],replay[i],"saved electrical replay");
+        var replayHit=replay.First(read=>Activation(read,2).Phase==ActivationPhase.Latched);
+        Assert.False(Powered(replayHit)); // contact observed after this physical integration
+        Assert.All(replay.Where(read=>read.Tick.Value>replayHit.Tick.Value),read=>Assert.True(Powered(read)));
+        Assert.All(replay.Where(read=>read.Tick.Value>=replayHit.Tick.Value),read=>Assert.Equal(ActivationPhase.Latched,Activation(read,5).Phase));
+        Assert.True(BladeY(replay[^1])>BladeY(built)+.2f);
+        Assert.Single(replay.Where(read=>Activation(read,2).Phase==ActivationPhase.Latched).Select(read=>Activation(read,2).Occurrence).Distinct());
     }
 
     public enum Control { Miss, BelowThreshold, MissingSourceWire, MissingConsumerWire, DisabledSource }

@@ -74,7 +74,9 @@ public sealed class BothGateTests
         if(expected) Assert.True(BladeY(reads[^1])>BladeY(built)+.2f);
         else Assert.True(MathF.Abs(BladeY(reads[^1])-BladeY(built))<.01f);
         NoFixedCapacityTests.AssertSameState(built,reset,"Both gate Reset");
-        Assert.True(built.Presentation.HasSameBits(reset.Presentation));
+        Assert.Equal(built.Presentation.Actuators.ToArray(), reset.Presentation.Actuators.ToArray());
+        Assert.Equal(built.Presentation.Loads.ToArray(), reset.Presentation.Loads.ToArray());
+        Assert.Equal(built.Presentation.Logic.ToArray(), reset.Presentation.Logic.ToArray());
     }
 
     [Fact]
@@ -212,7 +214,9 @@ public sealed class BothGateTests
         Assert.Throws<ArgumentException>(()=>new PhysicsPresentationRead([],[],[row,row]));
         var response=BothGatePresentationTests.Response(read,1) with {Construction=construction};
         var decoded=WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response));
-        Assert.True(read.Presentation.HasSameBits(decoded.Read.Presentation));
+        Assert.Equal(read.Presentation.Actuators.ToArray(), decoded.Read.Presentation.Actuators.ToArray());
+        Assert.Equal(read.Presentation.Loads.ToArray(), decoded.Read.Presentation.Loads.ToArray());
+        Assert.Equal(read.Presentation.Logic.ToArray(), decoded.Read.Presentation.Logic.ToArray());
         Assert.Throws<ArgumentException>(()=>WorkshopWireFlatBuffers.EncodeResponse(response with {Read=Replace(row with {Active=false})}));
     }
 

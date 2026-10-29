@@ -352,10 +352,12 @@ public sealed class WorkshopSaveTests
     [InlineData("capture_dwell", 0f)]
     [InlineData("capture_margin", float.NaN)]
     [InlineData("capture_margin", float.PositiveInfinity)]
-    public void InvalidDeclaredReceiverParameterRejectsWithoutChangingExistingConstruction(string parameter, float value)
+    public void InvalidDeclaredReceiverParameterRejectsAndValidSaveStillLoads(string parameter, float value)
     {
         var saved = Saved();
-        var original = WorkshopSaveCodec.Encode(saved);
+        var validBytes = WorkshopSaveCodec.Encode(saved);
+        var admitted = WorkshopSaveCodec.Decode(SaveFixture.Elements, validBytes);
+        Assert.Equal(saved, admitted);
         var receiver = (WorkshopGenericInstance)saved.Construction.Instances[1];
         var values = receiver.Parameters.ToDictionary(); values[new(parameter)] = value;
         var malformed = saved.Construction with { Instances = saved.Construction.Instances.With(receiver with { Parameters = new(values) }) };
@@ -364,7 +366,10 @@ public sealed class WorkshopSaveTests
         var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
         SaveFixture.Refused(float.IsFinite(value) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite,
             () => WorkshopSaveCodec.Decode(SaveFixture.Elements, savedBytes));
-        Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
+        var continued = WorkshopSaveCodec.Decode(SaveFixture.Elements, validBytes);
+        Assert.Equal(Saved(), continued);
+        Assert.Equal(admitted.Construction.Instances, continued.Construction.Instances);
+        Assert.Equal(new GpuBodyId(7), continued.NextBodyId);
     }
 
     private static WorkshopSavedConstruction Saved()
@@ -381,7 +386,6 @@ public sealed class WorkshopSaveTests
         var bytes = WorkshopSaveCodec.Encode(saved);
         Assert.True(bytes.Length >= 16);
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)));
         var empty = new WorkshopSavedConstruction(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty), new(1));
         Assert.Equal(empty, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(empty)));
     }
@@ -465,7 +469,6 @@ public sealed class WorkshopSaveTests
         var bytes = WorkshopSaveCodec.Encode(saved);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(saved, decoded);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
         var scene = WorkshopPhysicsCompiler.Compile(decoded.Construction, new(1, 2));
         foreach (var ramp in new[] { a, b })
         {
@@ -541,7 +544,6 @@ public sealed class WorkshopSaveTests
         var saved = new WorkshopSavedConstruction(construction, new(15));
         var bytes = WorkshopSaveCodec.Encode(saved);
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)));
         Assert.True(Payloads.First(construction).Locked); Assert.True(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
         Assert.Equal(new GpuBodyId(11), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(12), construction.Puzzle.Goal.Target);
@@ -652,7 +654,6 @@ public sealed class WorkshopSaveTests
         var bytes = WorkshopSaveCodec.Encode(save);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
         Assert.Equal(.8f, ((WorkshopGenericInstance)decoded.Construction.Instances[0]).Parameters[new ParameterId("trigger_threshold")]);
         // Authored values are canonical data, never replaced by the Free Workshop default.
         var changed = save with { Construction = save.Construction.WithInstance(

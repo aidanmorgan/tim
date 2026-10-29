@@ -31,19 +31,27 @@ function probe(sequence: number) {
 
 async function animationWorker() {
     let imports!: AnimationImports, service!: () => void;
-    const replies: Uint8Array[] = [], controls: Uint8Array[] = [], reads: Uint8Array[] = [], messages: Posted[] = [], turns: (string | Uint8Array)[] = [], channel = { port1: new ControlledPort() }, ring = clockRing.createClockRing();
-    // Story 9A.23: the installed epoch the reader may consume, and each turn's managed calls in order. EventRecords refuses a delivery of
+    const replies: Uint8Array[] = [], controls: Uint8Array[] = [], reads: Uint8Array[] = [], messages: Posted[] = [], deliveries: Uint8Array[] = [], channel = { port1: new ControlledPort() }, ring = clockRing.createClockRing();
+    // Story 9A.23: the installed epoch the reader may consume, and the output produced from consumed events. EventRecords refuses a delivery of
     // another epoch exactly as WorkshopDeclaredPresentation.AcceptEvents does ("Foreign event ring epoch."), so a leak faults the worker.
     const installed = { epoch: 0 };
     const waits: Promise<Uint8Array | null>[] = [];
     const host = {
-        OutputKinds: () => [1, 2, 3], Bootstrap: () => {}, AnimationControl: () => {}, Service: () => turns.push('Service'),
+        OutputKinds: () => [1, 2, 3], Bootstrap: () => {}, AnimationControl: () => {},
+        Service: () => {
+            // External host output carries its consumed-delivery count. Posted output proves
+            // the worker services after delivery, including turns without a matching ring.
+            const output = new Uint8Array(144), view = new DataView(output.buffer);
+            view.setUint32(60, 1, true);
+            view.setBigUint64(40, BigInt(deliveries.length), true);
+            imports.output(output);
+        },
         Reply: (bytes: Uint8Array) => replies.push(bytes),
         ScheduleControl: (bytes: Uint8Array) => controls.push(bytes), CommittedRead: (bytes: Uint8Array) => reads.push(bytes),
         EventEpoch: () => installed.epoch.toString(), EventRecords: (bytes: Uint8Array) => {
             if (new DataView(bytes.buffer, bytes.byteOffset, 8).getBigUint64(0, true) !== BigInt(installed.epoch))
                 throw new Error('Foreign event ring epoch.');
-            turns.push(bytes);
+            deliveries.push(bytes);
         }
     };
     const runtime = {
@@ -68,7 +76,7 @@ async function animationWorker() {
     self.onmessage({ data: { bootstrap: new Uint8Array(64), masterPort: channel.port1, clockRing: ring } });
     const master = clockRing.attachClockRing(ring);
     return {
-        imports, replies, controls, reads, messages, self, turns, installed, turn: () => service(),
+        imports, replies, controls, reads, messages, self, deliveries, installed, turn: () => service(),
         send: (message: unknown) => channel.port1.onmessage?.({ data: message }),
         settled: () => Promise.all(waits),
         serve: () => clockRing.serveRequests(master, { [clockRing.ClockRole.Animation]: peer }, () => 1_000_000n),
@@ -115,16 +123,18 @@ test('each Service turn first delivers the new records of the installed epoch, o
     worker.send({ eventRing: eventRing(5n, [1n, 2n]) }); await worker.settled();
     assert.equal(worker.messages.filter(message => message.failure).length, 0, 'the ring envelope is the master port\'s own');
     worker.turn();
-    assert.deepEqual(worker.turns, ['Service'], 'no world installed (epoch 0): the ring is held unread');
-    worker.installed.epoch = 5; worker.turns.length = 0;
+    assert.equal(worker.deliveries.length, 0, 'no world installed (epoch 0): the ring is held unread');
+    worker.installed.epoch = 5;
     worker.turn();
-    assert.equal(worker.turns.length, 2); assert.equal(worker.turns[1], 'Service', 'the records precede the turn\'s evaluation');
-    const records: unknown = worker.turns[0]; assert.ok(records instanceof Uint8Array);
+    assert.equal(worker.deliveries.length, 1);
+    const records: unknown = worker.deliveries[0]; assert.ok(records instanceof Uint8Array);
     const delivery = new DataView(records.buffer, records.byteOffset, records.byteLength);
     assert.deepEqual([delivery.getBigUint64(0, true), delivery.getBigUint64(8, true), records.length,
         delivery.getBigUint64(16, true), delivery.getBigUint64(80, true)], [5n, 0n, 16 + 128, 1n, 2n]);
-    worker.turns.length = 0; worker.turn();
-    assert.deepEqual(worker.turns, ['Service'], 'nothing new: no delivery, and no record twice');
+    worker.turn();
+    assert.deepEqual(worker.messages.filter(message => message.animationOutput).map(message =>
+        new DataView(message.animationOutput.buffer).getBigUint64(40, true)), [0n, 1n, 1n]);
+    assert.equal(worker.deliveries.length, 1, 'nothing new: no record is delivered twice');
     worker.close();
 });
 
@@ -135,7 +145,9 @@ test('a ring older than the installed epoch is ignored: no delivery, no foreign-
     worker.send({ eventRing: eventRing(5n, [1n, 2n]) }); await worker.settled();
     worker.installed.epoch = 6;
     worker.turn(); worker.turn();
-    assert.deepEqual(worker.turns, ['Service', 'Service'], 'no delivery of the older epoch, and the turn still services');
+    assert.deepEqual(worker.messages.filter(message => message.animationOutput).map(message =>
+        new DataView(message.animationOutput.buffer).getBigUint64(40, true)), [0n, 0n]);
+    assert.equal(worker.deliveries.length, 0, 'no delivery of the older epoch');
     assert.equal(worker.messages.filter(message => message.failure).length, 0, 'the worker is not faulted');
     worker.close();
 });

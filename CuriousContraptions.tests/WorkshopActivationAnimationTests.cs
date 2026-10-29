@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Reflection;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Presentation;
 using ChannelControl = CuriousContraptions.Gpu.WorkshopAnimationControl;
@@ -10,10 +9,9 @@ namespace CuriousContraptions.Tests;
 /// Animation worker drives from the event ring), so its controls are the UI clips, the goal cue and declared visibility.</summary>
 public sealed class WorkshopActivationAnimationTests
 {
-    private static readonly RuntimeSessionId Session = new(11, 22);
+    private static readonly RuntimeSessionId Session = new(101, 206);
     private static ChannelControl Control => new(new(4), new(1), 1, 1, AnimationControlKind.Endpoint,
         true, (float)1, (float)1, (float)1, AnimationCurve.Linear, 10, (float)0, AnimationProperty.ColourBlend);
-    private static ChannelControl Goal => Control with { Target = UiCurves.Goal.AnimationTarget, Property = AnimationProperty.Opacity };
 
     // The retired relay kinds (Impulse 6, Transition 7) and the impulse envelope words (bytes 92..95) are refused, never read.
     [Theory]
@@ -68,33 +66,35 @@ public sealed class WorkshopActivationAnimationTests
     [Fact]
     public void AnOutputForATargetNoChannelOwnsIsRefused()
     {
-        var client = Client(); SetPending(client, Control, new(1));
-        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1)));
-        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(Control, new(1), AnimationOutputKind.Sample, 2)));
+        using var session = new NativeClient();
+        Assert.Throws<ArgumentException>(() => session.Output(Control, AnimationOutputKind.Acknowledgement));
+        Assert.Throws<ArgumentException>(() => session.Output(Control, AnimationOutputKind.Sample, 2));
     }
 
     [Fact]
-    public void DeclaredCadenceBoundaryRestartsOrdinalsAndRejectsReplay()
+    public async Task DeclaredCadenceBoundaryRestartsOrdinalsAndRejectsReplay()
     {
-        var client = Client();
-        var battery = PlacedParts.Battery(new(1), 0, 1, 0);
-        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery));
-        Set(client, "_readConstruction", construction); Invoke(client, "InstallDeclaredTargets", construction);
-        var control = Control with { Target = new(WorkshopDeclaredPresentation.TargetBase), Property = AnimationProperty.ColourRed };
-        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 100));
-        var schedule = Schedule(1, 2);
-        Invoke(client, "ReconcileAnimationSchedule", schedule); Set(client, "_schedule", schedule);
-        control = control with { Generation = schedule.World.Epoch.Value };
-        client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Sample, 1));
-        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Sample, 1)));
-        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 200));
-        var samples = Field<Dictionary<AnimationTargetId, WorkshopAnimationSample>>(client, "_declaredSamples");
-        Assert.Equal(1UL, samples[control.Target].Pulse.Value);
+        using var session = new NativeClient();
+        await session.Construct(new(new(1), WorkshopCadenceSettings.Default(), new(PlacedParts.Battery(new(1), 0, 1, 0))));
+        var control = session.Declared(new(1), 0);
+        var oldCadence = session.Schedule.Revision;
+        session.Output(control, AnimationOutputKind.Sample, 100);
+        await session.Client.Execute(WorkshopCommandKind.ConfigureCadence,
+            settings: WorkshopCadenceSettings.Default() with { Simulation = SimulationCadence.Hz60 });
+        Assert.NotEqual(oldCadence, session.Schedule.Revision);
+        var fresh = session.Declared(new(1), 0);
+        session.Output(fresh, AnimationOutputKind.Sample, 1);
+        Assert.Throws<ArgumentException>(() => session.Output(fresh, AnimationOutputKind.Sample, 1));
+        session.Output(control, AnimationOutputKind.Sample, 200, oldCadence);
+        session.Frame();
+        Assert.True(session.Client.TryDeclaredFrame(session.FrameNumber, default, new(1), out var samples));
+        Assert.Equal(fresh.Target, Assert.Single(samples).Target);
+        Assert.Throws<ArgumentException>(() => session.Output(fresh, AnimationOutputKind.Sample, 1));
     }
 
-    // Story 9A.25b: a one-shot binding is a declared target like any other; its samples arrive on the declared range.
+
     [Fact]
-    public void EveryOneShotBindingIsADeclaredTargetOfItsOwner()
+    public async Task EveryOneShotBindingIsADeclaredTargetOfItsOwner()
     {
         var bumper = WorkshopInput.Generic(PartId.PinballBumper, new(1), 0, 1, 0, 0, 0, 0, 1);
         var receiver = WorkshopInput.Generic(PartId.Receiver, new(2), 3, 1, 0, 0, 0, 0, 1);
@@ -103,40 +103,61 @@ public sealed class WorkshopActivationAnimationTests
         Assert.Equal(DeclaredPhysics.Of(PartId.PinballBumper).Presentation.Bindings.Count + DeclaredPhysics.Of(PartId.Receiver).Presentation.Bindings.Count,
             targets.Count);
         Assert.Equal([new GpuBodyId(1)], targets.Take(5).Select(target => target.Owner).Distinct());
-        var client = Client(); Set(client, "_readConstruction", construction); Invoke(client, "InstallDeclaredTargets", construction);
-        var halo = DeclaredPhysics.Of(PartId.Receiver).Presentation.Bindings[1];
-        var control = Control with { Target = targets[6].Target, Property = WorkshopDeclaredPresentation.Property(halo.Property),
-            From = halo.To, To = halo.To };
-        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 1));
-        Assert.Equal(halo.To, Field<Dictionary<AnimationTargetId, WorkshopAnimationSample>>(client, "_declaredSamples")[targets[6].Target].Value);
+        using var session = new NativeClient();
+        await session.Construct(construction);
+        var halo = session.Declared(receiver.Id, 1);
+        session.Output(halo, AnimationOutputKind.Sample);
+        session.Frame();
+        Assert.False(session.Client.TryDeclaredFrame(session.FrameNumber, default, bumper.Id, out _));
+        Assert.True(session.Client.TryDeclaredFrame(session.FrameNumber, default, receiver.Id, out var samples));
+        var sample = Assert.Single(samples);
+        Assert.Equal((halo.Target, receiver.Id, 1), (sample.Target, sample.Owner, sample.Binding));
+        Assert.Equal(halo.To, BitConverter.UInt32BitsToSingle(sample.Value.CanonicalBits));
     }
 
+
     [Fact]
-    public void SameConstructionProjectionReplacementRequeuesHiddenOwnerVisibility()
+    public async Task SameConstructionProjectionReplacementRequeuesHiddenOwnerVisibility()
     {
-        var client = Client();
+        using var session = new NativeClient();
         var battery = PlacedParts.Battery(new(1), 0, 1, 0);
-        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery));
-        Set(client, "_readConstruction", construction); Invoke(client, "InstallDeclaredTargets", construction);
-        var target = new AnimationTargetId(WorkshopDeclaredPresentation.TargetBase);
-        Field<Dictionary<GpuBodyId, bool>>(client, "_declaredVisibility")[battery.Id] = false;
-        Field<Dictionary<AnimationTargetId, bool>>(client, "_declaredVisibilitySent")[target] = false;
-        var schedule = Schedule(1, 2);
-        Invoke(client, "ReconcileAnimationSchedule", schedule);
-        Assert.Empty(Field<Dictionary<AnimationTargetId, bool>>(client, "_declaredVisibilitySent"));
-        Assert.False(Field<Dictionary<GpuBodyId, bool>>(client, "_declaredVisibility")[battery.Id]);
-        Assert.Same(construction.Instances, Field<WorkshopConstruction?>(client, "_readConstruction")!.Value.Instances);
+        await session.Construct(new(new(1), WorkshopCadenceSettings.Default(), new(battery)));
+        session.Client.SetDeclaredVisible(battery.Id, false);
+        var hidden = Assert.Single(session.Controls);
+        Assert.False(hidden.Visible);
+        session.Output(hidden, AnimationOutputKind.Acknowledgement);
+        await session.Client.Execute(WorkshopCommandKind.Run);
+        session.Frame();
+        Assert.Equal(2, session.Controls.Count);
+        var replacement = session.Controls[1];
+        Assert.Equal(hidden.Target, replacement.Target);
+        Assert.False(replacement.Visible);
+        Assert.NotEqual(hidden.Generation, replacement.Generation);
+        session.Output(replacement, AnimationOutputKind.Acknowledgement);
+        session.Output(session.Declared(battery.Id, 0), AnimationOutputKind.Sample);
+        Assert.False(session.Client.TryDeclaredFrame(session.FrameNumber, default, battery.Id, out _));
+        session.Client.SetDeclaredVisible(battery.Id, true);
+        session.Output(session.Controls[^1], AnimationOutputKind.Acknowledgement);
+        Assert.True(session.Client.TryDeclaredFrame(session.FrameNumber, default, battery.Id, out _));
     }
 
+
     [Fact]
-    public void WrongPropertyOrOccurrenceCannotReleaseOwnedAnimationLease()
+    public async Task WrongPropertyOrOccurrenceCannotReleaseOwnedAnimationLease()
     {
-        foreach (var invalid in new[] { Goal with { Property = AnimationProperty.ColourBlend }, Goal with { EventOrdinal = 11 } })
+        using var session = new NativeClient();
+        var goal = await session.Solve();
+        foreach (var invalid in new[] { goal with { Property = AnimationProperty.ColourBlend },
+            goal with { EventOrdinal = goal.EventOrdinal + 1 } })
         {
-            var client = Client(); Set(client, "_goalRequested", new ActivationTime(Goal.EventOrdinal, Goal.EventPhase)); SetPending(client, Goal, new(1));
-            Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(invalid, new(1), AnimationOutputKind.Acknowledgement, 1)));
-            Assert.Equal(Goal, Field<ChannelControl?>(client, "_animationPending")); Assert.Null(Field<WorkshopAnimationSample?>(client, "_goalSample"));
+            Assert.Throws<ArgumentException>(() => session.Output(invalid, AnimationOutputKind.Acknowledgement));
+            session.Client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, true);
+            session.Frame();
+            Assert.Single(session.Controls);
         }
+        session.Output(goal, AnimationOutputKind.Acknowledgement);
+        session.Frame();
+        Assert.Equal(UiCurves.Hint.AnimationTarget, session.Controls[1].Target);
     }
 
     [Fact]
@@ -152,54 +173,62 @@ public sealed class WorkshopActivationAnimationTests
     }
 
     [Fact]
-    public void DeclaredPropertyRejectsForeignChannelAndResetCannotReviveOldWorld()
+    public async Task DeclaredPropertyRejectsForeignChannelAndResetCannotReviveOldWorld()
     {
-        var client = Client();
+        using var session = new NativeClient();
         var timer = WorkshopInput.Generic(PartId.Delay, new(1), 0, 1, 0, 0, 0, 0, 1);
-        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(timer));
-        Set(client, "_readConstruction", construction); Invoke(client, "InstallDeclaredTargets", construction);
-        var first = DeclaredPhysics.Of(PartId.Delay).Presentation.Bindings[0];
-        var control = Control with { Target = new(WorkshopDeclaredPresentation.TargetBase),
-            Property = WorkshopDeclaredPresentation.Property(first.Property), From = first.From, To = first.From };
-        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 1));
-        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(control with { Property = AnimationProperty.Opacity },
-            new(1), AnimationOutputKind.Sample, 2)));
-        var reset = Schedule(2, 2);
-        Invoke(client, "ReconcileAnimationSchedule", reset); Set(client, "_schedule", reset);
-        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 2));
-        var fresh = control with { World = new(2), Generation = reset.World.Epoch.Value };
-        client.ReceiveAnimation(Output(fresh, new(2), AnimationOutputKind.Sample, 1));
-        var samples = Field<Dictionary<AnimationTargetId, WorkshopAnimationSample>>(client, "_declaredSamples");
-        Assert.Equal(new SimulationEpoch(2), samples[control.Target].World);
+        await session.Construct(new(new(1), WorkshopCadenceSettings.Default(), new(timer)));
+        var control = session.Declared(timer.Id, 0);
+        var oldCadence = session.Schedule.Revision;
+        session.Output(control, AnimationOutputKind.Sample);
+        Assert.Throws<ArgumentException>(() => session.Output(control with { Property = AnimationProperty.Opacity, To = .5f }, AnimationOutputKind.Sample, 2));
+        await session.Client.Execute(WorkshopCommandKind.Run);
+        await session.Client.Execute(WorkshopCommandKind.Reset);
+        session.Output(control, AnimationOutputKind.Sample, 2, oldCadence);
+        session.Frame();
+        Assert.False(session.Client.TryDeclaredFrame(session.FrameNumber, default, timer.Id, out _));
+        var fresh = session.Declared(timer.Id, 0);
+        Assert.NotEqual(control.World, fresh.World);
+        session.Output(fresh, AnimationOutputKind.Sample);
+        Assert.True(session.Client.TryDeclaredFrame(session.FrameNumber, default, timer.Id, out var samples));
+        Assert.Equal(timer.Id, Assert.Single(samples).Owner);
     }
 
+
     [Fact]
-    public void GoalFeedbackOwnsOccurrenceAcrossCadenceRetryAndReset()
+    public async Task GoalFeedbackOwnsOccurrenceAcrossProjectionRetryAndReset()
     {
-        var goal = Control with { Target=new(ulong.MaxValue), Property=AnimationProperty.Opacity };
-        var occurrence = new ActivationTime(goal.EventOrdinal,(float)goal.EventPhase);
-        var client=Client(); Set(client,"_goalRequested",occurrence); SetPending(client,goal,new(1));
-        client.ReceiveAnimation(Output(goal,new(1),AnimationOutputKind.Acknowledgement,1));
-        Assert.NotNull(Field<WorkshopAnimationSample?>(client,"_goalSample"));
-        Set(client,"_goalOrdinal",100ul);
-        var cadence=Schedule(1,2); Invoke(client,"ReconcileAnimationSchedule",cadence); Set(client,"_schedule",cadence);
-        Assert.Equal(0ul,Field<ulong>(client,"_goalOrdinal"));
-        Assert.Equal(occurrence,Field<ActivationTime?>(client,"_goalRequested"));
-        client.ReceiveAnimation(Output(goal,new(2),AnimationOutputKind.Sample,1));
-        SetPending(client,goal,new(2));
-        client.ReceiveAnimation(Output(goal,new(2),AnimationOutputKind.Rejected,1));
-        Assert.True(Field<bool>(client,"_goalRetry"));
-        SetPending(client,goal,new(2));
-        Assert.Throws<ArgumentException>(()=>client.ReceiveAnimation(Output(goal with { EventOrdinal=11 },new(2),AnimationOutputKind.Acknowledgement,1)));
-        Assert.NotNull(Field<ChannelControl?>(client,"_animationPending"));
-        Set(client,"_goalWake",new WorkshopGoalWake(default, WorkshopPhysicsCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), new()), new(11,22))));
-        var reset=Schedule(2,3); Invoke(client,"ReconcileAnimationSchedule",reset); Set(client,"_schedule",reset);
-        client.ReceiveAnimation(Output(goal,new(2),AnimationOutputKind.Acknowledgement,1));
-        Assert.Null(Field<ChannelControl?>(client,"_animationPending"));
-        Assert.Null(Field<ActivationTime?>(client,"_goalRequested"));
-        Assert.Null(Field<WorkshopAnimationSample?>(client,"_goalSample"));
-        Assert.False(Field<bool>(client,"_goalRetry"));
-        Assert.Null(Field<WorkshopGoalWake?>(client,"_goalWake")); // a new world starts a new wake (and its own cursor epoch)
+        using var session = new NativeClient();
+        var goal = await session.Solve();
+        var rejectedCadence = await session.Client.Execute(WorkshopCommandKind.ConfigureCadence,
+            settings: WorkshopCadenceSettings.Default() with { Simulation = SimulationCadence.Hz60 });
+        Assert.Equal(WorkshopRejection.WrongPhase, rejectedCadence.Response.Result.Reason);
+        session.Output(goal, AnimationOutputKind.Rejected);
+        session.Frame();
+        var retry = session.Controls[^1];
+        Assert.Equal((goal.World, goal.EventOrdinal, goal.EventPhase), (retry.World, retry.EventOrdinal, retry.EventPhase));
+        Assert.True(retry.Sequence > goal.Sequence);
+        await session.Client.Execute(WorkshopCommandKind.Pause);
+        session.Output(retry, AnimationOutputKind.Rejected);
+        session.Frame();
+        var projected = session.Controls[^1];
+        Assert.Equal((goal.World, goal.EventOrdinal, goal.EventPhase), (projected.World, projected.EventOrdinal, projected.EventPhase));
+        session.Output(projected, AnimationOutputKind.Acknowledgement);
+        var count = session.Controls.Count;
+        session.Frame();
+        Assert.Equal(count, session.Controls.Count);
+        // Reset retires goal state; changing cadence is supported only in this Building phase.
+        await session.Client.Execute(WorkshopCommandKind.Reset);
+        await session.Client.Execute(WorkshopCommandKind.ConfigureCadence,
+            settings: WorkshopCadenceSettings.Default() with { Simulation = SimulationCadence.Hz60 });
+        session.Output(projected, AnimationOutputKind.Sample, 100);
+        session.Frame();
+        Assert.Equal(count, session.Controls.Count);
+        Assert.False(session.Client.TryUiFrame(session.FrameNumber, default, WorkshopUiTarget.Goal, out _));
+        var fresh = await session.Solve(construct: false);
+        Assert.NotEqual(goal.World, fresh.World);
+        Assert.Equal(UiCurves.Goal.AnimationTarget, fresh.Target);
+        session.Output(fresh, AnimationOutputKind.Acknowledgement);
     }
 
     [Fact]
@@ -231,73 +260,76 @@ public sealed class WorkshopActivationAnimationTests
         Assert.Throws<ArgumentException>(() => batch.EnqueueImpulse(handle, new(2), new((float)1), AnimationTestTime.Seconds(3)));
     }
 
-    private static void AdmitFrame(BrowserWorkshopClient client, ulong frame)
-    {
-        // The public frame entry points consult the JS transport status, so the admitted-frame state is seeded directly.
-        Set(client, "_hasPresentationFrame", true); Set(client, "_presentationFrame", frame); Set(client, "_frameAdmitted", true);
-        Set(client, "_frameMaster", new MasterTimeNanoseconds(10)); Set(client, "_frameHintTaken", false);
-    }
-    private static bool TrySample(BrowserWorkshopClient client, string method, object[] arguments) =>
-        (bool)typeof(BrowserWorkshopClient).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(client, arguments)!;
-
     [Fact]
     public void HintControlSampleAppliesOnceOnAnAdmittedFrameAndNeverWhileHidden()
     {
-        var client = Client(); Set(client, "_hintGeneration", 1ul);
-        var sample = new WorkshopAnimationSample(UiCurves.Hint.AnimationTarget, default, 1, new(3), new(5), (float).25, 0, (float)0, AnimationProperty.Opacity);
-        Set(client, "_hintSample", sample); AdmitFrame(client, 7);
-        var arguments = new object[] { WorkshopUiTarget.Hint, null! };
-        Assert.True(TrySample(client, "TryUiControlSample", arguments));
-        Assert.Equal(new AnimationOpacity((float).25), (AnimationOpacity)arguments[1]);
-        Assert.False(TrySample(client, "TryUiControlSample", new object[] { WorkshopUiTarget.Hint, null! })); // consumed for this frame
-        Set(client, "_hintSample", sample); AdmitFrame(client, 8);
-        Assert.False(TrySample(client, "TryUiControlSample", new object[] { WorkshopUiTarget.Goal, null! })); // the goal is not control-fed
-        Set(client, "_uiControlHidden", true);
-        Assert.False(TrySample(client, "TryUiControlSample", new object[] { WorkshopUiTarget.Hint, null! })); // hidden: no further samples applied
-        Set(client, "_uiControlHidden", false);
-        Assert.True(TrySample(client, "TryUiControlSample", new object[] { WorkshopUiTarget.Hint, null! }));
+        using var session = new NativeClient();
+        var client = session.Client;
+        client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, true);
+        var reveal = Assert.Single(session.Controls);
+        session.Output(reveal with { To = .25f }, AnimationOutputKind.Acknowledgement);
+        Assert.True(client.TryUiFrame(session.FrameNumber, default, WorkshopUiTarget.Hint, out var opacity));
+        Assert.Equal(new AnimationOpacity(.25f), opacity);
+        Assert.False(client.TryUiFrame(session.FrameNumber, default, WorkshopUiTarget.Hint, out _));
+        session.Output(reveal with { To = .5f }, AnimationOutputKind.Sample, 2);
+        Assert.False(client.TryUiFrame(session.FrameNumber, default, WorkshopUiTarget.Hint, out _));
+        client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Visibility, false);
+        var hidden = session.Controls[^1];
+        session.Output(hidden with { To = .5f }, AnimationOutputKind.Acknowledgement);
+        session.Frame();
+        Assert.False(client.TryUiFrame(session.FrameNumber, default, WorkshopUiTarget.Hint, out _));
+        client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Visibility, true);
+        session.Output(session.Controls[^1] with { To = .5f }, AnimationOutputKind.Acknowledgement);
+        Assert.True(client.TryUiFrame(session.FrameNumber, default, WorkshopUiTarget.Hint, out opacity));
+        Assert.Equal(new AnimationOpacity(.5f), opacity);
+        Assert.False(client.TryUiFrame(session.FrameNumber, default, WorkshopUiTarget.Goal, out _));
     }
 
     [Fact]
-    public void QueuedRevealSurvivesAPendingPreparationAndSendsOnceItClears()
+    public async Task QueuedRevealSurvivesAPendingPreparationAndSendsOnceItClears()
     {
-        var client = Client();
-        var preparationType = typeof(BrowserWorkshopClient).GetNestedType("Preparation", BindingFlags.NonPublic)!;
-        Set(client, "_preparation", Activator.CreateInstance(preparationType, default(ScheduleControlHeader), WorkshopCadenceSettings.Default(), default(WorkshopResponse), ScheduleTransition.Run));
-        client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, true);
-        Assert.Single(Field<System.Collections.ICollection>(client, "_uiQueue"));
-        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
-        Set(client, "_schedule", null); Invoke(client, "PumpUiControls"); // no schedule yet: still queued, not dropped
-        Assert.Single(Field<System.Collections.ICollection>(client, "_uiQueue"));
-        Set(client, "_schedule", Schedule(1, 1)); Set(client, "_preparation", null);
-        var fault = Assert.Throws<TargetInvocationException>(() => Invoke(client, "PumpUiControls"));
-        Assert.IsType<PlatformNotSupportedException>(fault.InnerException);
-        Assert.Equal(AnimationControlKind.Reveal, Field<ChannelControl?>(client, "_animationPending")!.Value.Kind);
-        Assert.Empty(Field<System.Collections.ICollection>(client, "_uiQueue"));
+        using var session = new NativeClient { HoldPreparation = true };
+        var run = session.Client.Execute(WorkshopCommandKind.Run);
+        Assert.False(run.IsCompleted);
+        session.Client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, true);
+        session.Frame();
+        Assert.Empty(session.Controls);
+        session.CompletePreparation();
+        Assert.True((await run).Applicable);
+        session.Frame();
+        var reveal = Assert.Single(session.Controls);
+        Assert.Equal(AnimationControlKind.Reveal, reveal.Kind);
+        session.Output(reveal, AnimationOutputKind.Acknowledgement);
+        session.Frame();
+        Assert.Single(session.Controls);
     }
 
     [Fact]
     public void UiControlQueuesBehindTheLeaseAndSendsTheDeclaredHintClipWhenFree()
     {
-        var goal = Goal;
-        var client = Client(); Set(client, "_goalRequested", new ActivationTime(goal.EventOrdinal, goal.EventPhase)); SetPending(client, goal, new(1));
+        using var session = new NativeClient();
+        var client = session.Client;
         Assert.Throws<ArgumentException>(() => client.ControlUi(WorkshopUiTarget.Goal, AnimationControlKind.Reveal, true));
         Assert.Throws<ArgumentException>(() => client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Endpoint, true));
-        // The lease is busy: the hint request queues instead of throwing (deferred-work item 1).
+        client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, true);
+        var first = Assert.Single(session.Controls);
         client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Visibility, false);
         client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, true);
-        Assert.Single(Field<System.Collections.ICollection>(client, "_uiQueue")); // Reveal supersedes the queued Visibility.
-        Assert.Equal(goal, Field<ChannelControl?>(client, "_animationPending"));
-        client.ReceiveAnimation(Output(goal, new(1), AnimationOutputKind.Acknowledgement, 1));
-        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
-        // No JS transport exists here: the pump must have leased the declared hint clip before the send faults.
-        var fault = Assert.Throws<TargetInvocationException>(() => Invoke(client, "PumpUiControls"));
-        Assert.IsType<PlatformNotSupportedException>(fault.InnerException);
+        session.Frame();
+        Assert.Single(session.Controls);
+        session.Output(first, AnimationOutputKind.Acknowledgement);
+        session.Frame();
+        Assert.Equal(2, session.Controls.Count);
         var hint = UiCurves.Hint;
-        Assert.Equal(new ChannelControl(hint.AnimationTarget, default, 1, 1, AnimationControlKind.Reveal, true, (float)0, (float)1, hint.Duration, hint.Curve),
-            Field<ChannelControl?>(client, "_animationPending"));
-        Assert.Empty(Field<System.Collections.ICollection>(client, "_uiQueue"));
-        Assert.Equal(1ul, Field<ulong>(client, "_hintGeneration"));
+        var next = session.Controls[1];
+        Assert.Equal(hint.AnimationTarget, next.Target);
+        Assert.Equal(AnimationControlKind.Reveal, next.Kind);
+        Assert.True(next.Visible);
+        Assert.Equal(2ul, next.Generation);
+        Assert.Equal((0f, 1f, hint.Duration, hint.Curve), (next.From, next.To, next.Duration, next.Curve));
+        session.Output(next, AnimationOutputKind.Acknowledgement);
+        session.Frame();
+        Assert.Equal(2, session.Controls.Count);
     }
 
     /// <summary>Story 9A.1 (F.10): with no version word, a channel record is admitted by its exact length; a truncated or extended
@@ -332,22 +364,179 @@ public sealed class WorkshopActivationAnimationTests
         }
     }
 
-    private static BrowserWorkshopClient Client()
+    // A deterministic browser/worker boundary around the shared native integration harness.
+    // The production client owns startup, clocks, schedule admission, animation leases and disposal.
+    private sealed class NativeClient : IWorkshopBrowserTransport, IDisposable
     {
-        var client = (BrowserWorkshopClient)Activator.CreateInstance(typeof(BrowserWorkshopClient),
-            BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { Session }, null)!;
-        Set(client, "_peer", new WorkshopClockPeer(Session, new(1), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser));
-        Set(client, "_schedule", Schedule(1, 1)); return client;
+        private WorkshopIntegrationHarness _world = null!;
+        private Action _clockReply = null!, _physicalRead = null!, _scheduleControl = null!, _animationOutput = null!, _service = null!;
+        private byte[] _event = [], _acknowledgement = [];
+        private WorkshopSchedule? _installed;
+        private Action? _commit;
+        private TaskCompletionSource? _commitCompletion;
+        private double _milliseconds;
+        private readonly WorkshopClockPeer _peer = new(Session, new(1), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);
+        public BrowserWorkshopClient Client { get; }
+        public WorkshopSchedule Schedule => _installed!.Value;
+        public List<ChannelControl> Controls { get; } = [];
+        public bool HoldPreparation { get; set; }
+        private int _eventCursor;
+        public async Task<ChannelControl> Solve(bool construct = true)
+        {
+            if (construct)
+                await Construct(PuzzleCatalogue.CreateSolution(new("first_principles"), new(2),
+                    WorkshopCadenceSettings.Default(), new(1), new(1f)));
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await Client.Execute(WorkshopCommandKind.Run)).Response.Result.Outcome);
+            var before = Controls.Count;
+            for (var tick = 0; tick < 1200 && Controls.Count == before; tick++)
+            {
+                await Advance(1);
+                Frame();
+            }
+            Assert.Equal(before + 1, Controls.Count);
+            var goal = Controls[^1];
+            Assert.Equal(UiCurves.Goal.AnimationTarget, goal.Target);
+            return goal;
+        }
+        public NativeClient() => Client = BrowserWorkshopClient.Create(Session, this).GetAwaiter().GetResult();
+        public void Dispose()
+        {
+            Client.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            _world.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        }
+        public async Task<WorkshopDelivery> Construct(WorkshopConstruction construction)
+        {
+            var delivery = await Client.Execute(WorkshopCommandKind.Construct,
+                construction with { Revision = new(_world.Construction.Revision.Value + 1) });
+            Assert.Equal(WorkshopCommandOutcome.Applied, delivery.Response.Result.Outcome);
+            return delivery;
+        }
+        public ulong FrameNumber { get; private set; } = 1;
+        public void Frame()
+        {
+            _milliseconds += 20; _service();
+            Client.TryUiFrame(++FrameNumber, default, WorkshopUiTarget.Goal, out _);
+        }
+        public async Task Advance(int ticks)
+        {
+            await _world.Advance(ticks);
+            _milliseconds = Math.Max(_milliseconds, _world.Time.Nanoseconds / 1_000_000d);
+            _service();
+            _event = WorkshopWireFlatBuffers.EncodeResponse(_world.Latest);
+            _physicalRead();
+        }
+        public ChannelControl Declared(GpuBodyId owner, int binding)
+        {
+            var instance = _world.Construction.Instances.Single(value => value.Id == owner);
+            var declaration = DeclaredPhysics.Of(instance.PartId).Presentation.Bindings[binding];
+            var target = WorkshopDeclaredPresentation.Targets(_world.Construction).Single(value => value.Owner == owner && value.Binding == binding);
+            return Control with { Target = target.Target, World = Client.Epoch, Generation = Schedule.World.Epoch.Value,
+                Property = WorkshopDeclaredPresentation.Property(declaration.Property), From = declaration.From, To = declaration.To };
+        }
+        public void Output(ChannelControl control, AnimationOutputKind kind, ulong ordinal = 1, CadenceRevision? cadence = null)
+        {
+            _event = WorkshopActivationAnimationTests.Output(control, cadence ?? Schedule.Revision, kind,
+                kind is AnimationOutputKind.Acknowledgement or AnimationOutputKind.Rejected ? control.Sequence : ordinal);
+            _animationOutput();
+        }
+        public void CompletePreparation()
+        {
+            _commit!(); _commit = null;
+            _commitCompletion!.SetResult(); _commitCompletion = null;
+        }
+        public MonotonicNanoseconds NativeNow() => WorkshopNativeClock.FromMilliseconds(_milliseconds);
+        public async Task<int> CreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int captureMode, bool admitDisplay,
+            Action clockReply, Action physicalRead, Action scheduleControl, Action animationOutput, Action service)
+        {
+            _clockReply = clockReply; _physicalRead = physicalRead; _scheduleControl = scheduleControl;
+            _animationOutput = animationOutput; _service = service;
+            _world = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+            return 1;
+        }
+        public byte[] MasterBootstrap(int client) => WorkshopClockWire.EncodePeer(_peer);
+        public void ActivateClient(int client)
+        {
+            for (var i = 0; i < 8; i++) { _milliseconds += 10; _service(); }
+        }
+        public void SendProbe(int client, byte[] probe)
+        {
+            var now = WorkshopNativeClock.FromMilliseconds(_milliseconds);
+            _event = WorkshopClockWire.EncodeReply(probe, _peer, now, now, new(0));
+            _clockReply();
+        }
+        public byte[] EventBytes(int client) => _event;
+        public MonotonicNanoseconds EventTime(int client) => WorkshopNativeClock.FromMilliseconds(_milliseconds);
+        public bool AnimationQualified(int client) => true;
+        public void AnimationKinds(int client, int[] kinds) { }
+        public int[] DisplayRate(int client) => [60, 1];
+        public void Qualified(int client) { }
+        public int Status(int client) => (int)WorkshopTransportState.Ready;
+        public void RecordClockObservation(int client, byte[] observation) { }
+        public void RecordPresentationObservation(int client, byte[] observation) { }
+        public void ScheduleResult(int client, byte[] bytes) => WorkshopScheduleWire.ReadHeader(bytes);
+        public void SendAnimationControl(int client, byte[] bytes) =>
+            Controls.Add(WorkshopAnimationWire.ReadControl(bytes, Session, new(1), Schedule.Revision));
+        public byte[] ReadEvents(int client, string epoch)
+        {
+            var generation = ulong.Parse(epoch, System.Globalization.CultureInfo.InvariantCulture);
+            var records = _world.Records.Skip(_eventCursor).ToArray();
+            _eventCursor = _world.Records.Count;
+            return CuriousContraptions.Abstractions.EventRingDelivery.Write(generation, 0, records);
+        }
+        public byte[] Acknowledgement(int client, byte[] sequence) => _acknowledgement;
+        public void CompleteAcknowledgement(int client, byte[] sequence) { }
+        public void DisposeClient(int client) => _world.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        public async Task Send(int client, byte[] bytes, byte[] sequence)
+        {
+            var command = WorkshopWireFlatBuffers.DecodeCommand(bytes);
+            if (command.Kind == WorkshopCommandKind.Dispose)
+            {
+                await _world.DisposeAsync();
+                _acknowledgement = WorkshopWireFlatBuffers.EncodeResponse(_world.Latest);
+                return;
+            }
+            _acknowledgement = WorkshopWireFlatBuffers.EncodeResponse(command.Kind == WorkshopCommandKind.Initialize
+                ? _world.Latest with { Sequence = command.Sequence }
+                : await _world.Dispatch(command));
+            var schedule = _world.Schedule;
+            if (_installed?.World.Epoch == schedule.World.Epoch) return;
+            var endpoint = WorkshopWireFlatBuffers.DecodeResponse(_acknowledgement);
+            var transition = command.Kind switch
+            {
+                WorkshopCommandKind.Run => ScheduleTransition.Run,
+                WorkshopCommandKind.Reset => ScheduleTransition.Reset,
+                WorkshopCommandKind.Pause => ScheduleTransition.Pause,
+                WorkshopCommandKind.Resume => ScheduleTransition.Resume,
+                _ => ScheduleTransition.Configure
+            };
+            var payload = new byte[WorkshopScheduleWire.HeaderBytes + WorkshopScheduleWire.PrepareBytes(_acknowledgement.Length)];
+            var header = new ScheduleControlHeader(ScheduleControlKind.Prepare, Session, new(1), schedule.Revision,
+                schedule.World.Epoch, WorkshopRuntimeRole.Simulation, WorkshopRuntimeRole.Browser);
+            WorkshopScheduleWire.WriteHeader(header, payload.AsSpan(0, 64), payload.Length - 64);
+            WorkshopCadenceWire.Write(schedule.Settings, payload.AsSpan(64, 32));
+            BinaryPrimitives.WriteUInt64LittleEndian(payload.AsSpan(96), _installed?.Revision.Value ?? 0);
+            BinaryPrimitives.WriteUInt64LittleEndian(payload.AsSpan(104), _installed?.World.Epoch.Value ?? 0);
+            BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(112), (uint)transition);
+            BinaryPrimitives.WriteUInt64LittleEndian(payload.AsSpan(120), endpoint.Read.Epoch.Value);
+            BinaryPrimitives.WriteUInt64LittleEndian(payload.AsSpan(128), endpoint.Read.Tick.Value);
+            BinaryPrimitives.WriteUInt64LittleEndian(payload.AsSpan(136), endpoint.Publication.Value);
+            _acknowledgement.CopyTo(payload, 144);
+            _event = payload; _scheduleControl();
+            void Commit()
+            {
+                var commit = new byte[WorkshopScheduleWire.HeaderBytes + WorkshopScheduleWire.ScheduleBytes];
+                WorkshopScheduleWire.WriteCommit(header with { Kind = ScheduleControlKind.Commit }, schedule, commit);
+                if (_installed?.World.WorldGeneration != schedule.World.WorldGeneration) _eventCursor = _world.Records.Count;
+                _event = commit; _scheduleControl(); _installed = schedule;
+            }
+            if (HoldPreparation)
+            {
+                _commit = Commit; _commitCompletion = new(); await _commitCompletion.Task;
+            }
+            else Commit();
+        }
     }
-    private static WorkshopSchedule Schedule(ulong world, ulong revision) => WorkshopSchedule.Create(
-        WorkshopCadenceSettings.Default(), new(revision), new(1), new(0), new(0), new(0), new(0),
-        new(new(world), new(revision), new(0), new(0), WorldPlayback.Running));
-    private static void SetPending(BrowserWorkshopClient client, ChannelControl control, CadenceRevision cadence)
-    { Set(client, "_animationPending", control); Set(client, "_animationPendingCadence", cadence); }
-    private static T Field<T>(object owner, string name) => (T)owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!;
-    private static void Set(object owner, string name, object? value) => owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(owner, value);
-    private static void Invoke(object owner, string name, object value) => owner.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(owner, new[] { value });
-    private static void Invoke(object owner, string name) => owner.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(owner, Array.Empty<object>());
+
     private static byte[] Output(ChannelControl control, CadenceRevision cadence, AnimationOutputKind kind, ulong ordinal)
     {
         var bytes = new byte[WorkshopAnimationWire.OutputBytes];

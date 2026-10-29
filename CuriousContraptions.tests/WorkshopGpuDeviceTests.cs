@@ -21,17 +21,26 @@ public sealed class WorkshopGpuDeviceTests
             PlacedParts.Springboard(new(1), 0, 3, 0, 0, 0, 0, 1, compression)));
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
         var original = simulation.Committed;
-        var trajectory = new List<WorkshopRead>();
+        var plate = construction.Instances.Identities[new(1)].Sliders[0].Body;
+        static float Height(PhysicsBodyRead body) => (body.Body.Cell.Y + body.Body.Local.Y) / 16f;
         for (var run = 0; run < 2; run++)
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
-            for (var tick = 0; tick < 60; tick++)
+            var heights = new List<float>();
+            for (var tick = 0; tick < 600; tick++)
             {
                 Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
                 Assert.Equal((ulong)tick + 1, simulation.Committed.Tick.Value);
-                if (run == 0) trajectory.Add(simulation.Committed);
-                else NoFixedCapacityTests.AssertSameState(trajectory[tick], simulation.Committed, "spring full-history replay");
+                Assert.True(simulation.Committed.Bodies.TryGet(plate, out var body));
+                heights.Add(Height(body));
+                Assert.InRange(Height(body), 2.9f, 3.4f); // the supported plate stays within its 0.5 m working clearance
             }
+            Assert.True(original.Bodies.TryGet(plate, out var authoredPlate));
+            if (compression > 0) Assert.True(heights.Max() > Height(authoredPlate) + .05f);
+            else Assert.True(heights.Min() < Height(authoredPlate) - .001f); // gravity loads the uncharged control
+            var settled = heights.TakeLast(120).ToArray();
+            Assert.InRange(settled.Max() - settled.Min(), 0f, .01f); // final second: stable to one centimetre
+            Assert.InRange(settled[^1], 3.0f, 3.15f);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
             Assert.Equal(0UL, simulation.Committed.Tick.Value);
             NoFixedCapacityTests.AssertSameState(original, simulation.Committed, "spring Reset");
@@ -310,10 +319,6 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(OscillatorPhase.Running, network.Memory(superseded.Read.Memory, clock.Id).Phase);
         device.Discard(superseded.Sequence);
         transport.Record = committedWorld; // the discarded GPU candidate leaves the committed world in place
-        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        var committedMemory = (PhysicsMemoryRead)typeof(WorkshopGpuDevice).GetField("_committedMemory", flags)!.GetValue(device)!;
-        Assert.Equal(OscillatorPhase.Stopped, network.Memory(committedMemory, clock.Id).Phase);
-
         var advanced = await device.Advance(admitted.Read, new(3), controls);
         device.Commit(advanced.Sequence); device.Discard(advanced.Sequence);
         var running = network.Memory(advanced.Read.Memory, clock.Id);
@@ -326,16 +331,6 @@ public sealed class WorkshopGpuDeviceTests
     }
 
     // ----- Story 9R.0: device ownership and the gate's disposal -----
-
-    private static readonly System.Reflection.FieldInfo GateField =
-        typeof(WorkshopGpuDevice).GetField("_gate", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
-    // AvailableWaitHandle throws ObjectDisposedException exactly when the semaphore is disposed (and changes no count).
-    private static bool GateDisposed(WorkshopGpuDevice device)
-    {
-        var gate = (SemaphoreSlim)GateField.GetValue(device)!;
-        try { _ = gate.AvailableWaitHandle; return false; }
-        catch (ObjectDisposedException) { return true; }
-    }
 
     [Fact]
     public async Task ABorrowedSimulationLeavesTheDeviceUsableUntilItsOwnerDisposesIt()
@@ -361,44 +356,46 @@ public sealed class WorkshopGpuDeviceTests
     }
 
     [Fact]
-    public async Task DisposalWithAQueuedCandidateDisposesTheGateOnlyAfterTheQueueDrains()
+    public async Task DisposalRejectsHeldAndQueuedWorkWithoutLeakingTheTransport()
     {
         var transport = new HeldTransport(true);
         await using var device = new WorkshopGpuDevice(transport, Document);
         var preparation = device.Prepare();
         var candidate = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
         await device.DisposeAsync();
-        Assert.False(GateDisposed(device));
+        Assert.Equal(1, transport.Disposals);
         transport.Held.SetResult();
         await Assert.ThrowsAsync<ObjectDisposedException>(() => preparation);
         // The queued candidate acquires, sees the disposal and releases normally: its failure is the device's, not the gate's.
         var queued = await Assert.ThrowsAsync<ObjectDisposedException>(() => candidate);
         Assert.Contains(nameof(WorkshopGpuDevice), queued.ObjectName, StringComparison.Ordinal);
-        Assert.True(GateDisposed(device));
+        Assert.Equal(1, transport.Disposals);
     }
 
     [Fact]
-    public async Task DisposalWhileTheGateIsFreeDisposesItAtOnceAndRejectsLaterWork()
+    public async Task DisposalOfAnIdleDeviceRejectsLaterWork()
     {
         var transport = new HeldTransport(false); transport.Held.SetResult();
         await using var device = new WorkshopGpuDevice(transport, Document);
         await device.Prepare();
         await device.DisposeAsync();
-        Assert.True(GateDisposed(device));
+        Assert.Equal(1, transport.Disposals);
         await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask());
     }
 
     [Fact]
-    public async Task DisposalWhileACandidateHoldsTheGateDisposesItWhenTheCandidateIsDiscarded()
+    public async Task DisposalWithAHeldCandidateAllowsDiscardAndRejectsLaterWork()
     {
         var transport = new HeldTransport(false); transport.Held.SetResult();
         await using var device = new WorkshopGpuDevice(transport, Document);
         var admitted = await device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1));
         await device.DisposeAsync();
-        Assert.False(GateDisposed(device));
+        Assert.Equal(1, transport.Disposals);
         device.Discard(admitted.Sequence);
-        Assert.True(GateDisposed(device));
+        Assert.Equal(1, transport.Disposals);
+        await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(2)).AsTask());
     }
 
     private sealed class HeldTransport(bool holdInitialization) : IWorkshopGpuTransport

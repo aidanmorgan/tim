@@ -161,12 +161,25 @@ public sealed class WireFaultTests
     [InlineData(0UL)]
     [InlineData(1UL)]
     [InlineData(37UL)]
-    public void MotionRoundTripsBitExactly(ulong tick)
+    public void MotionRoundTripsItsIntervalAndOwnedSamples(ulong tick)
     {
         var response = PhysicalRead(tick);
         var decoded = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response));
         Assert.NotNull(decoded.Read.Motion);
-        Assert.Equal(response.Read.Motion!.Bytes.ToArray(), decoded.Read.Motion!.Bytes.ToArray());
+        var motion = decoded.Read.Motion!;
+        Assert.Equal(tick == 0 ? 0 : 4, motion.Count);
+        Assert.Equal(tick == 0 ? 0u : 4u, motion.Substeps);
+        Assert.Equal(tick == 0 ? 0u : (uint)(tick * 4 - 4), motion.FirstOrdinal);
+        Assert.Equal((uint)(tick * 4), motion.LastOrdinal);
+        if (tick > 0)
+        {
+            Assert.True(motion.TrySample(new(1), new(tick * 4, -2048), out var pose));
+            Assert.Equal(new GpuBodyId(1), pose.Id);
+            Assert.Equal(default, pose.Cell);
+            Assert.Equal(default, pose.Local);
+            Assert.Equal(CanonicalRotation.Identity, pose.Rotation);
+            Assert.False(motion.TrySample(new(2), new(tick * 4), out _));
+        }
         Assert.Equal(response, decoded);
     }
 

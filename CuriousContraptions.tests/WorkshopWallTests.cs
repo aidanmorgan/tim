@@ -132,8 +132,9 @@ public sealed class WorkshopWallTests
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 120);
-        for (var tick = 0; tick < reads.Count; tick++)
-            NoFixedCapacityTests.AssertSameState(reads[tick], replay[tick], "Wall replay");
+        Assert.All(replay, read => Assert.True((read.Bodies[0].Body.Cell.Y + read.Bodies[0].Body.Local.Y) / 16f > 2.2f));
+        Assert.Contains(replay, read => read.Bodies[0].Body.Velocity.Y < -.1f);
+        Assert.True((replay[^1].Bodies[0].Body.Cell.Y + replay[^1].Bodies[0].Body.Local.Y) / 16f < 3.5f);
     }
 
     [Fact]

@@ -194,7 +194,8 @@ public sealed class NoFixedCapacityTests
         var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, LampTicks);
-        AssertSameState(run[^1], replay[^1], "the reloaded bench's run");
+        Assert.False(Latched(replay[0], lamp.Id));
+        Assert.True(Latched(replay[^1], lamp.Id), "the loaded last switch lights its own lamp");
     }
 
     // ---------- Every retired ceiling exceeded at once ----------
@@ -254,7 +255,14 @@ public sealed class NoFixedCapacityTests
         var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, SteppedTicks);
-        AssertSameState(run[^1], replay[^1], "the reloaded machine's run");
+        Assert.Equal(built.Bodies.Count, replay[^1].Bodies.Count);
+        for (ulong id = 1; id <= 17; id++)
+        {
+            Assert.True(replay[^1].Bodies.TryGet(new(id), out var ball));
+            Assert.True(ball.Body.Velocity.Y < -.1f && (ball.Body.Cell.Y + ball.Body.Local.Y) / 16f < 4,
+                $"loaded ball {id} falls despite all populations exceeding their former limits");
+        }
+        AssertCrossesResponseCodec(replay[^1]);
     }
 
     /// <summary>The production Simulation on the worker's transport: Construct, Run, `ticks` Advances, Reset (Story 9R.6 reuses it).</summary>

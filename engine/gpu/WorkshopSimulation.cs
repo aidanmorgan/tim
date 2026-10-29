@@ -182,7 +182,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
 
     public async ValueTask<WorkshopCommandResult> Construct(WorkshopConstruction candidate)
     {
-        if (!CanAdvanceRevision()) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
+        if (!CanAdvanceRevision(out var nextRevision)) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
         if (Phase != WorkshopSimulationPhase.Building) return Reject(WorkshopRejection.WrongPhase);
         if (_pending != 0) return Reject(WorkshopRejection.Busy);
         try { candidate.Validate(); }
@@ -199,7 +199,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             var read = CandidateRead(gpuCandidate, owner);
             if (!Owns(owner)) return Superseded(owner);
             ValidateInitialRead(read, candidate, epoch);
-            read = CaptureForCommit(read with { Revision = new(Revision.Value + 1) });
+            read = CaptureForCommit(read with { Revision = nextRevision });
             await _installation.Prepare(new(owner), read, candidate, Profile, WorkshopSimulationPhase.Building);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
@@ -239,8 +239,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     {
         if (Phase != WorkshopSimulationPhase.Building) return Reject(WorkshopRejection.WrongPhase);
         if (_pending != 0) return Reject(WorkshopRejection.Busy);
-        if (!CanAdvanceRevision()) return Reject(WorkshopRejection.IdentityExhausted);
-        Committed = Committed with { Revision = new(Revision.Value + 1) };
+        if (!CanAdvanceRevision(out var nextRevision)) return Reject(WorkshopRejection.IdentityExhausted);
+        Committed = Committed with { Revision = nextRevision };
         return Applied();
     }
 
@@ -251,10 +251,10 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     {
         if (Phase != expected) return Reject(WorkshopRejection.WrongPhase);
         if (_pending != 0) return Reject(WorkshopRejection.Busy);
-        if (!CanAdvanceRevision() || !Begin(expected, false, out var owner, out _)) return Reject(WorkshopRejection.IdentityExhausted);
+        if (!CanAdvanceRevision(out var nextRevision) || !Begin(expected, false, out var owner, out _)) return Reject(WorkshopRejection.IdentityExhausted);
         try
         {
-            var read = Committed with { Revision = new(Revision.Value + 1) };
+            var read = Committed with { Revision = nextRevision };
             await _installation.Prepare(new(owner), read, Construction, Profile, target);
             if (!Owns(owner)) return Superseded(owner);
             if (expected == WorkshopSimulationPhase.Building) _electricalControls.Clear();
@@ -271,6 +271,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     {
         if (Phase != WorkshopSimulationPhase.Building) return Reject(WorkshopRejection.WrongPhase);
         if (_pending != 0) return Reject(WorkshopRejection.Busy);
+        if (!CanAdvanceRevision(out var nextRevision)) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
         settings.Validate(); revision.Validate();
         if (revision.Value <= Profile.Revision.Value) return Reject(WorkshopRejection.StaleGeneration);
         var profile = new WorkshopGpuProfile(settings.Simulation, settings.Physical, revision);
@@ -283,7 +284,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (!Owns(owner)) return Superseded(owner);
             var read = CandidateRead(candidate, owner);
             ValidateInitialRead(read, construction, epoch);
-            read = CaptureForCommit(read with { Revision = new(Revision.Value + 1) });
+            read = CaptureForCommit(read with { Revision = nextRevision });
             await _installation.Prepare(new(owner), read, construction, profile, WorkshopSimulationPhase.Building);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
@@ -302,7 +303,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     public ValueTask<WorkshopCommandResult> Step() => AdvanceCore(true);
     private async ValueTask<WorkshopCommandResult> AdvanceCore(bool step)
     {
-        if (!CanAdvanceRevision()) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
+        if (!CanAdvanceRevision(out var nextRevision)) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
         if (Phase != (step ? WorkshopSimulationPhase.Paused : WorkshopSimulationPhase.Running)) return Reject(WorkshopRejection.WrongPhase);
         if (Committed.Tick.Value >= Profile.RunTickLimit) return Reject(WorkshopRejection.WrongPhase);
         if (_pending != 0) return Reject(WorkshopRejection.Busy);
@@ -315,7 +316,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             var read = CandidateRead(candidate, owner);
             if (!Owns(owner)) return Superseded(owner);
             ValidateAdvancedRead(source, read);
-            read = CaptureForCommit(read with { Revision = new(Revision.Value + 1) });
+            read = CaptureForCommit(read with { Revision = nextRevision });
             if (step) await _installation.Prepare(new(owner), read, Construction, Profile, WorkshopSimulationPhase.Paused);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
@@ -337,7 +338,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
 
     public async ValueTask<WorkshopCommandResult> Reset()
     {
-        if (!CanAdvanceRevision()) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
+        if (!CanAdvanceRevision(out var nextRevision)) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
         if (Phase is WorkshopSimulationPhase.Uninitialized or WorkshopSimulationPhase.Initializing or WorkshopSimulationPhase.Disposed)
             return Reject(WorkshopRejection.WrongPhase);
         if (Phase == WorkshopSimulationPhase.Resetting || _pending >= 2)
@@ -350,7 +351,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             var read = CandidateRead(candidate, owner);
             if (!Owns(owner)) return Superseded(owner);
             ValidateInitialRead(read, Construction, epoch);
-            read = CaptureForCommit(read with { Revision = new(Revision.Value + 1) });
+            read = CaptureForCommit(read with { Revision = nextRevision });
             await _installation.Prepare(new(owner), read, Construction, Profile, WorkshopSimulationPhase.Building);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
@@ -380,11 +381,11 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         if (_pending == 0 || Phase is not (WorkshopSimulationPhase.Admitting or WorkshopSimulationPhase.Starting or WorkshopSimulationPhase.Resetting))
             return Reject(WorkshopRejection.AlreadyCommitted);
         if (_operation == ulong.MaxValue) return Reject(WorkshopRejection.IdentityExhausted);
-        if (!CanAdvanceRevision()) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
+        if (!CanAdvanceRevision(out var nextRevision)) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
         _installation.Abort(new(_operation));
         _cancelledOperation = _operation++;
         Phase = _priorPhase;
-        Committed = Committed with { Revision = new(Revision.Value + 1) };
+        Committed = Committed with { Revision = nextRevision };
         return Applied();
     }
 
@@ -422,9 +423,9 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     }
     private readonly GpuDeviceOwnership _deviceOwnership;
 
-    private bool CanAdvanceRevision()
+    private bool CanAdvanceRevision(out AuthorityRevision next)
     {
-        if (Revision.Value != ulong.MaxValue) return true;
+        if (Revision.TryAdvance(out next)) return true;
         Phase = WorkshopSimulationPhase.Faulted;
         Fault = WorkshopRejection.IdentityExhausted;
         return false;

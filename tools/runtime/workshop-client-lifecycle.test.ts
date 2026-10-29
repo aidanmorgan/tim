@@ -437,7 +437,8 @@ test('delayed valid ACK keeps Backpressure until managed validation completes, a
     h.clock(501); h.tick(); assert.equal(h.api.status(id), state.Backpressure);
     h.workers[0].onmessage({ data: { acknowledgement: bytes, sequence: bytes } }); await pending;
     h.tick(); assert.equal(h.api.status(id), state.Backpressure, 'arrival is not validated completion');
-    assert.deepEqual(h.api.acknowledgement(id, bytes), bytes);
+    const acknowledgement = h.api.acknowledgement(id, bytes);
+    assert.equal(new DataView(acknowledgement.buffer, acknowledgement.byteOffset, acknowledgement.byteLength).getBigUint64(0, true), 1n);
     h.tick(); assert.equal(h.api.status(id), state.Backpressure, 'leased but unvalidated remains unresolved');
     // Represents return from the actual C# decode/cursor/admission boundary, including valid inapplicable receipts.
     h.api.completeAcknowledgement(id, bytes);

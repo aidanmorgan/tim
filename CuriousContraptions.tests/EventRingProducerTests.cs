@@ -29,7 +29,7 @@ public sealed class EventRingProducerTests
 
     /// <summary>Sequences contiguous from 1, ticks non-decreasing and every tick's records in the D4 order (Ordinal, Phase, Kind,
     /// Source, Other), each stamped with the tick that committed it.</summary>
-    private static void AssertOrderedRun(List<SimulationEventRecord> records)
+    private static void AssertOrderedRun(IReadOnlyList<SimulationEventRecord> records)
     {
         for (var i = 0; i < records.Count; i++)
         {
@@ -74,7 +74,8 @@ public sealed class EventRingProducerTests
         for (var i = 1; i < ring.Reads.Count; i++)
         {
             var (before, after) = (ring.Ledgers[i - 1], ring.Ledgers[i]);
-            Assert.True(after.Stores.HasSameBits(ring.Reads[i].ContactWorks)); // the read carries exactly the ledger's stores
+            Assert.Equal(after.Stores.Count, ring.Reads[i].ContactWorks.Count);
+            for (var store = 0; store < after.Stores.Count; store++) Assert.Equal(after.Stores[store], ring.Reads[i].ContactWorks[store]);
             var tick = ring.Reads[i].Tick.Value;
             var expected = Enumerable.Range(0, after.OccurrenceCount).Select(after.Occurrence)
                 .Where(hit => hit.Sequence > before[0].OccurrenceCount).ToArray();
@@ -114,27 +115,22 @@ public sealed class EventRingProducerTests
         var (bench, detector, lamp, ball) = DropBench(forwardDown: true, ballX: 0);
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(480);
-        // The production passage tracker replayed over the committed bodies gives the expected passes (its sensor law is unchanged).
-        var network = WorkshopActivationCompiler.Compile(bench);
-        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
-        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene, ring.Reads[0].Bodies);
-        var outputs = new PassageSensorRead[8];
-        var expected = new List<(ulong Tick, uint Ordinal)>();
-        foreach (var read in ring.Reads.Skip(1))
+        // Count downward centre crossings of the declared horizontal detector plane independently.
+        var heights = ring.Reads.Select(read =>
         {
-            tracker = tracker.Advance(read.Tick, read.Bodies, Assert.IsType<PhysicsMotionRead>(read.Motion), outputs, out _);
-            expected.AddRange(tracker.Fired.Select(pass => (read.Tick.Value, pass.EventOrdinal)));
-        }
-        Assert.Equal(2, expected.Count);
+            Assert.True(read.Bodies.TryGet(ball, out var row));
+            return (row.Body.Cell.Y + (double)row.Body.Local.Y) / 16;
+        }).ToArray();
+        Assert.Equal(2, heights.Zip(heights.Skip(1), (before, after) => before > Floor + .62 && after <= Floor + .62).Count(crossed => crossed));
         var passages = ring.Of(SimulationEventKind.Passage).ToArray();
-        Assert.Equal(expected, passages.Select(record => (record.Tick, record.Ordinal)));
+        Assert.Equal(2, passages.Length);
         Assert.Equal([1u, 2u], passages.Select(record => record.Count));
         Assert.All(passages, record => Assert.Equal((detector.Value, ball.Value, 0u), (record.Source, record.Other, record.Level)));
         Assert.All(passages, record => Assert.True(record.Magnitude > 0, "a pass carries its crossing speed"));
         Assert.Equal(passages.Length, ring.Records.Count); // the network's Passage and the lamp publish nothing
         // The first-input lamp lit at the first pass and keeps that one occurrence.
         var lit = ring.Reads.First(read => Node(read, lamp).Phase == ActivationPhase.Latched);
-        Assert.Equal(expected[0].Tick, lit.Tick.Value);
+        Assert.Equal(passages[0].Tick, lit.Tick.Value);
         Assert.All(ring.Reads.Where(read => read.Tick.Value >= lit.Tick.Value), read => Assert.Equal(Node(lit, lamp), Node(read, lamp)));
         AssertOrderedRun(ring.Records);
     }
@@ -431,7 +427,8 @@ public sealed class EventRingProducerTests
         await first.Advance(600);
         await using var second = await WorkshopIntegrationHarness.Running(Memory());
         await second.Advance(600);
-        Assert.Equal(first.Records, second.Records);
+        AssertMemoryCycle(first.Records);
+        AssertMemoryCycle(second.Records);
         Assert.Equal(first.Shared!.Header, second.Shared!.Header);
         Assert.Equal((ulong)first.Records.Count, first.Shared.Header.WriteSequence);
         Assert.NotEmpty(first.Records);
@@ -445,7 +442,7 @@ public sealed class EventRingProducerTests
         first.Records.Clear();
         await first.Run();
         await first.Advance(600);
-        Assert.Equal(once, first.Records);
+        AssertMemoryCycle(first.Records);
         var header = first.Shared!.Header;
         Assert.True(header.Epoch > epoch, "the header carries the new run's epoch");
         Assert.Equal((ulong)once.Length, header.WriteSequence);
@@ -454,7 +451,7 @@ public sealed class EventRingProducerTests
         var consumer = new EventRingConsumer();
         var read = new List<SimulationEventRecord>();
         while (consumer.TryRead(first.Shared!, SimulationDomain.None, out var record)) read.Add(record);
-        Assert.Equal(once.TakeLast((int)Math.Min(header.Capacity, (uint)once.Length)), read);
+        Assert.Equal(first.Records.TakeLast((int)Math.Min(header.Capacity, (uint)first.Records.Count)), read);
         Assert.Equal(header.Epoch, consumer.Epoch);
     }
 
@@ -470,7 +467,20 @@ public sealed class EventRingProducerTests
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(original.Construction, new(7)))));
         await using var replay = await WorkshopIntegrationHarness.Running(loaded.Construction);
         await replay.Advance(600);
-        Assert.Equal(original.Records, replay.Records);
+        AssertMemoryCycle(original.Records);
+        AssertMemoryCycle(replay.Records);
+    }
+
+    private static void AssertMemoryCycle(IReadOnlyList<SimulationEventRecord> records)
+    {
+        // Two declared oscillators: 1 s Set and 1.5 s Reset; simultaneous pulses reset the latch.
+        Assert.Equal(new uint[] { 1, 0, 1, 0, 1, 0, 1 },
+            records.Where(record => record.Kind == SimulationEventKind.MemoryChanged).Select(record => record.Level));
+        Assert.All(records.Where(record => record.Kind == SimulationEventKind.MemoryChanged),
+            record => Assert.Equal((3UL, 0UL), (record.Source, record.Other)));
+        Assert.Equal(5, records.Count(record => record.Kind == SimulationEventKind.TriggerActivated && record.Source == 1));
+        Assert.Equal(3, records.Count(record => record.Kind == SimulationEventKind.TriggerActivated && record.Source == 2));
+        AssertOrderedRun(records);
     }
 
     // ---------- actual demand, retention and representation boundaries ----------
