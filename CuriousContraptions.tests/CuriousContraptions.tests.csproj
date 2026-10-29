@@ -96,6 +96,7 @@
         <Compile Include="WorkshopSaveTests.cs" />
         <Compile Include="ContactActivationTests.cs" />
         <Compile Include="WorkshopActivationAnimationTests.cs" />
+        <Compile Include="WorkshopObservationTests.cs" />
         <Compile Include="WorkshopWallTests.cs" />
         <Compile Include="WorkshopDelayTests.cs" />
         <Compile Include="HoldTimerTests.cs" />

@@ -35,6 +35,7 @@ plans/
 /CuriousContraptions.web/wwwroot/event-ring-cursor.js
 
 CuriousContraptions.web/wwwroot/workshop-client.js
+CuriousContraptions.web/wwwroot/workshop-observation.js
 
 /CuriousContraptions.Animation.Worker/wwwroot/worker.js
 /CuriousContraptions.Simulation/wwwroot/clock-master.js

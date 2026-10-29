@@ -410,6 +410,7 @@ public partial class Workshop
     public override void _ExitTree()
     {
         _workshopUiRemoved = true;
+        _observation?.Retire("Workshop scene removed.");
         _gpuPending = true;
         RemoveUiAnimations();
         ClearCameraMotion();
@@ -494,7 +495,7 @@ public partial class Workshop
                 catch (ArgumentException error)
                 {
                     EndGizmo(true);
-                    var failure = WorkshopUiFailure.Report(error);
+                    var failure = WorkshopUiFailure.Report(error, Diagnostics);
                     _status.Text = WorkshopUiFailure.IsRejection(error) ? "Placement unchanged: " + failure : failure;
                     GetViewport().SetInputAsHandled(); return;
                 }

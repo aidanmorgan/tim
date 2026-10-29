@@ -26,7 +26,18 @@ public sealed class GameFloatGuardTests
         "CuriousContraptions.Simulation.WorkshopTrace.RecordTickDuration",
         "CuriousContraptions.Simulation.WorkshopTrace.FlushSealed",
         "CuriousContraptions.Simulation.WorkshopTrace._durations",
-        "CuriousContraptions.Simulation.WorkshopTrace._durationBytes",
+        "System.Runtime.InteropServices.JavaScript.JSObject.SetProperty",
+        "CuriousContraptions.Gpu.WorkshopObservationProjection.Durations",
+        "CuriousContraptions.Gpu.IWorkshopObservationObject<T>.SetMilliseconds",
+        "CuriousContraptions.Gpu.BrowserWorkshopObservation.BrowserObject.SetMilliseconds",
+        "CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeDurations",
+        "CuriousContraptions.Gpu.WorkshopWireFlatBuffers.DecodeDurations",
+        "CuriousContraptions.Gpu.WorkshopWireFlatBuffers.ValidateDurations",
+        "CuriousContraptions.Wire.CaptureObservation.Milliseconds",
+        "CuriousContraptions.Wire.CaptureObservation.GetMillisecondsBytes",
+        "CuriousContraptions.Wire.CaptureObservation.GetMillisecondsArray",
+        "CuriousContraptions.Wire.CaptureObservation.CreateMillisecondsVector",
+        "CuriousContraptions.Wire.CaptureObservation.CreateMillisecondsVectorBlock",
         "CuriousContraptions.Workshop.PrecisionInput", "CuriousContraptions.Workshop.FrameDelta", "CuriousContraptions.Workshop.ChangePrecision", "CuriousContraptions.Workshop._Process", "CuriousContraptions.Workshop._PhysicsProcess",
         "CuriousContraptions.MachineWorld._Process"
     };
@@ -35,6 +46,12 @@ public sealed class GameFloatGuardTests
     {
         "CuriousContraptions.Simulation.Program.RunLoopHost.Advance.tickStarted",
         "CuriousContraptions.Simulation.WorkshopTrace.Begin.durations"
+    };
+
+    private static readonly HashSet<string> ObservationParameters = new(StringComparer.Ordinal)
+    {
+        "CuriousContraptions.Simulation.WorkshopTrace.Record.milliseconds",
+        "CuriousContraptions.Gpu.WorkshopCaptureDiagnostic..ctor.Milliseconds"
     };
 
     private static string Identity(ISymbol symbol) => symbol.ContainingType is { } type
@@ -72,10 +89,17 @@ public sealed class GameFloatGuardTests
                 ObservationLocals.Contains(Identity(variable.ContainingSymbol) + "." + variable.Name)) continue;
             if (model.GetSymbolInfo(node).Symbol is ILocalSymbol read &&
                 ObservationLocals.Contains(Identity(read.ContainingSymbol) + "." + read.Name)) continue;
+            var parameter = node.AncestorsAndSelf().OfType<ParameterSyntax>().FirstOrDefault();
+            if (parameter is not null && model.GetDeclaredSymbol(parameter) is IParameterSymbol declaredParameter &&
+                ObservationParameters.Contains(Identity(declaredParameter.ContainingSymbol) + "." + declaredParameter.Name)) continue;
+            // Roslyn also reports the contextual conversion on a member access's final name.
+            // Normalize that name only; never walk through arithmetic or other argument descendants.
+            var argumentValue = node is SimpleNameSyntax && node.Parent is MemberAccessExpressionSyntax member && member.Name == node
+                ? member : node;
             // Only a float/integer result may widen at a named external output call. The child's
             // own type still rejects wider arithmetic before that conversion.
             if (!Wider(info.Type) && Wider(info.ConvertedType) &&
-                node.Parent is ArgumentSyntax { Parent.Parent: InvocationExpressionSyntax external } &&
+                argumentValue.Parent is ArgumentSyntax { Parent.Parent: InvocationExpressionSyntax external } &&
                 model.GetSymbolInfo(external).Symbol is { } callee && Adapters.Contains(Identity(callee))) continue;
             if (!Wider(info.Type) && Wider(info.ConvertedType) && node.Parent is AssignmentExpressionSyntax output &&
                 node == output.Right && model.GetSymbolInfo(output.Left).Symbol is { } property && Adapters.Contains(Identity(property))) continue;
@@ -160,6 +184,29 @@ public sealed class GameFloatGuardTests
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         var hits = Violations(compilation, tree);
         Assert.Contains(hits, hit => hit.Contains("(double)input * input", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("value.Amount", false)]
+    [InlineData("value.Count", false)]
+    [InlineData("value.Amount * 2f", false)]
+    [InlineData("value.Amount * 2.0", true)]
+    [InlineData("(double)value.Amount", true)]
+    public void ExternalOutputAdmitsMemberConversionsButRejectsWiderArgumentCalculations(string value, bool rejected)
+    {
+        var tree = CSharpSyntaxTree.ParseText("""
+            namespace CuriousContraptions.Gpu;
+            class WorkshopNativeClock {
+                public static long FromMilliseconds(double value) => checked((long)value);
+            }
+            class Payload { public float Amount; public uint Count; }
+            class Consumer {
+                public long Project(Payload value) => WorkshopNativeClock.FromMilliseconds(
+            """ + value + "); }", path: "member-output-control.cs", cancellationToken: TestContext.Current.CancellationToken);
+        var compilation = CSharpCompilation.Create("control", [tree], References(),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        Assert.DoesNotContain(compilation.GetDiagnostics(TestContext.Current.CancellationToken), diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
+        Assert.Equal(rejected, Violations(compilation, tree).Length != 0);
     }
 
     private static IEnumerable<MetadataReference> References() =>

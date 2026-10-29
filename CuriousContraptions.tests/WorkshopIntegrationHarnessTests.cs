@@ -255,16 +255,51 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
     private static bool HasLabel(Workshop scene, string text) => Descendants(scene).OfType<Label>().Any(label => label.Text == text);
     private static Workshop Scene() => GD.Load<PackedScene>(NativeTestBoundary.WorkshopResource).Instantiate<Workshop>();
 
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task DelayedObservationStartupKeepsFramesSafeAndStopsAfterFailureOrRemoval(bool remove)
+    {
+        var scene = Scene();
+        var pending = new TaskCompletionSource();
+        var created = false;
+        scene.StartObservation = _ => pending.Task;
+        scene.ClientFactory = () => { created = true; throw new InvalidOperationException("Client must not start."); };
+        godot.Tree.Root.AddChild(scene);
+        var observation = scene.Observation!;
+        try
+        {
+            Assert.False(scene.Startup.IsCompleted);
+            scene._Process(0); scene._PhysicsProcess(0);
+            Assert.Empty(scene.World.Registry.Definitions);
+            if (remove) { godot.Tree.Root.RemoveChild(scene); pending.SetResult(); }
+            else pending.SetException(new InvalidOperationException("external module import failed"));
+            await scene.Startup;
+            Assert.False(created);
+            Assert.NotNull(observation.Terminal);
+            Assert.Contains(remove ? "scene removed" : "external module import failed", observation.Terminal.Value.Detail, StringComparison.Ordinal);
+            if (!remove) Assert.True(HasLabel(scene, "OBSERVATION UNAVAILABLE"));
+        }
+        finally { scene.Free(); godot.Engine.Iteration(); }
+    }
+
     [Fact]
     public async Task NativePaletteGroupsDeclaredCategoriesAndPreservesTheirDisplayOrder()
     {
         var scene = Scene();
+        var discovery = new TaskCompletionSource();
+        scene.StartObservation = _ => discovery.Task;
         await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
         scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness));
         godot.Tree.Root.AddChild(scene);
         try
         {
+            Assert.False(scene.Startup.IsCompleted);
+            scene._Process(0); scene._PhysicsProcess(0);
+            discovery.SetResult();
             await scene.Startup;
+            Assert.Null(scene.Observation!.Terminal);
             var buttons = Descendants(scene).OfType<Button>().Where(button => button.HasMeta("part_kind")).ToArray();
             var first = Assert.Single(buttons, button => button.GetMeta("part_kind").AsString() == "ball");
             var children = first.GetParent().GetChildren();
@@ -309,6 +344,10 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             Assert.Equal(WorkshopSimulationPhase.Uninitialized, scene.World.WorkshopPhase);
             Assert.Empty(scene.World.Registry.Definitions);
             Assert.True(HasLabel(scene, "PARTS UNAVAILABLE"));
+            var observation = Assert.IsAssignableFrom<IWorkshopObservation>(scene.Observation);
+            Assert.NotNull(observation.Terminal);
+            Assert.Contains("System.IO.InvalidDataException", observation.Terminal.Value.Detail, StringComparison.Ordinal);
+            Assert.Equal(WorkshopObservationRefusal.Retired, observation.Query(observation.Session, WorkshopObservationQuery.Committed).Refusal);
         }
         finally { scene.Free(); godot.Engine.Iteration(); }
     }

@@ -366,10 +366,11 @@ public sealed class WorkshopActivationAnimationTests
 
     // A deterministic browser/worker boundary around the shared native integration harness.
     // The production client owns startup, clocks, schedule admission, animation leases and disposal.
-    private sealed class NativeClient : IWorkshopBrowserTransport, IDisposable
+    internal sealed class NativeClient : IWorkshopBrowserTransport, IDisposable
     {
         private WorkshopIntegrationHarness _world = null!;
-        private Action _clockReply = null!, _physicalRead = null!, _scheduleControl = null!, _animationOutput = null!, _service = null!;
+        private Action _clockReply = null!, _physicalRead = null!, _scheduleControl = null!, _animationOutput = null!, _service = null!, _observation = null!;
+        private Action<string> _retired = null!;
         private byte[] _event = [], _acknowledgement = [];
         private WorkshopSchedule? _installed;
         private Action? _commit;
@@ -381,6 +382,12 @@ public sealed class WorkshopActivationAnimationTests
         public List<ChannelControl> Controls { get; } = [];
         public bool HoldPreparation { get; set; }
         private int _eventCursor;
+        private readonly Dictionary<int, CuriousContraptions.Abstractions.EventRingConsumer> _observers = new();
+        private int _observerId;
+        private readonly Dictionary<ulong, byte[]> _acknowledgements = new();
+        public bool HoldNextAcknowledgement { get; set; }
+        private TaskCompletionSource? _heldAcknowledgement;
+        public void ReleaseAcknowledgement() { _heldAcknowledgement!.SetResult(); _heldAcknowledgement = null; }
         public async Task<ChannelControl> Solve(bool construct = true)
         {
             if (construct)
@@ -398,7 +405,20 @@ public sealed class WorkshopActivationAnimationTests
             Assert.Equal(UiCurves.Goal.AnimationTarget, goal.Target);
             return goal;
         }
-        public NativeClient() => Client = BrowserWorkshopClient.Create(Session, this).GetAwaiter().GetResult();
+        private readonly WorkshopDiagnostics _workerDiagnostics;
+        public Action<byte[]> DiagnosticDelivery { get; set; }
+        private readonly WorkshopObservationTests.StartupFailure _startupFailure;
+        private readonly Action? _beforeReady;
+        public NativeClient(WorkshopObservation? observation = null, WorkshopDiagnostics? diagnostics = null, WorkshopObservationTests.StartupFailure failure = WorkshopObservationTests.StartupFailure.None, Action? beforeReady = null)
+        {
+            _startupFailure = failure; _beforeReady = beforeReady;
+            var journal = diagnostics ?? new WorkshopDiagnostics();
+            Client = BrowserWorkshopClient.Create(observation ?? new WorkshopObservation(Session, journal), this, journal).GetAwaiter().GetResult();
+            DiagnosticDelivery = DeliverObservation;
+            _workerDiagnostics = new(record => PublishWorkerDiagnostic(record));
+        }
+        private void PublishWorkerDiagnostic(WorkshopDiagnostic record) =>
+            _workerDiagnostics.Publish(record, Session, WorkshopRuntimeRole.Simulation, DiagnosticDelivery);
         public void Dispose()
         {
             Client.DisposeAsync().AsTask().GetAwaiter().GetResult();
@@ -419,7 +439,11 @@ public sealed class WorkshopActivationAnimationTests
         }
         public async Task Advance(int ticks)
         {
-            await _world.Advance(ticks);
+            for (var tick = 0; tick < ticks; tick++)
+            {
+                await _world.Advance(1);
+                _workerDiagnostics.RetainTransfer(_world.Latest);
+            }
             _milliseconds = Math.Max(_milliseconds, _world.Time.Nanoseconds / 1_000_000d);
             _service();
             _event = WorkshopWireFlatBuffers.EncodeResponse(_world.Latest);
@@ -446,14 +470,18 @@ public sealed class WorkshopActivationAnimationTests
         }
         public MonotonicNanoseconds NativeNow() => WorkshopNativeClock.FromMilliseconds(_milliseconds);
         public async Task<int> CreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int captureMode, bool admitDisplay,
-            Action clockReply, Action physicalRead, Action scheduleControl, Action animationOutput, Action service)
+            Action clockReply, Action physicalRead, Action scheduleControl, Action animationOutput, Action service, Action observation, Action<string> retired)
         {
             _clockReply = clockReply; _physicalRead = physicalRead; _scheduleControl = scheduleControl;
-            _animationOutput = animationOutput; _service = service;
+            _animationOutput = animationOutput; _service = service; _observation = observation; _retired = retired;
             _world = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+            _beforeReady?.Invoke();
             return 1;
         }
-        public byte[] MasterBootstrap(int client) => WorkshopClockWire.EncodePeer(_peer);
+        public void DeliverObservation(byte[] bytes) { _event = bytes; _observation(); }
+        public void RetireTransport(string detail) => _retired(detail);
+        public byte[] MasterBootstrap(int client) => _startupFailure == WorkshopObservationTests.StartupFailure.Bootstrap
+            ? throw new InvalidOperationException("external bootstrap failure") : WorkshopClockWire.EncodePeer(_peer);
         public void ActivateClient(int client)
         {
             for (var i = 0; i < 8; i++) { _milliseconds += 10; _service(); }
@@ -466,13 +494,11 @@ public sealed class WorkshopActivationAnimationTests
         }
         public byte[] EventBytes(int client) => _event;
         public MonotonicNanoseconds EventTime(int client) => WorkshopNativeClock.FromMilliseconds(_milliseconds);
-        public bool AnimationQualified(int client) => true;
+        public bool AnimationQualified(int client) => _startupFailure != WorkshopObservationTests.StartupFailure.Qualification;
         public void AnimationKinds(int client, int[] kinds) { }
         public int[] DisplayRate(int client) => [60, 1];
         public void Qualified(int client) { }
-        public int Status(int client) => (int)WorkshopTransportState.Ready;
-        public void RecordClockObservation(int client, byte[] observation) { }
-        public void RecordPresentationObservation(int client, byte[] observation) { }
+        public int Status(int client) => (int)(_startupFailure == WorkshopObservationTests.StartupFailure.Qualification ? WorkshopTransportState.Indeterminate : WorkshopTransportState.Ready);
         public void ScheduleResult(int client, byte[] bytes) => WorkshopScheduleWire.ReadHeader(bytes);
         public void SendAnimationControl(int client, byte[] bytes) =>
             Controls.Add(WorkshopAnimationWire.ReadControl(bytes, Session, new(1), Schedule.Revision));
@@ -483,12 +509,33 @@ public sealed class WorkshopActivationAnimationTests
             _eventCursor = _world.Records.Count;
             return CuriousContraptions.Abstractions.EventRingDelivery.Write(generation, 0, records);
         }
-        public byte[] Acknowledgement(int client, byte[] sequence) => _acknowledgement;
-        public void CompleteAcknowledgement(int client, byte[] sequence) { }
+        public int OpenObserverCount => _observers.Count;
+        public int OpenObservationEvents(int client) { var id = ++_observerId; _observers.Add(id, new()); return id; }
+        public byte[] ReadObservationEvents(int client, int cursor, string epoch)
+        {
+            var admitted = ulong.Parse(epoch, System.Globalization.CultureInfo.InvariantCulture);
+            var records = new List<CuriousContraptions.Abstractions.SimulationEventRecord>();
+            var consumer = _observers[cursor]; var before = consumer.Lapped;
+            if (_world.Shared is { } memory && memory.Epoch == admitted)
+                while (consumer.TryRead(memory, CuriousContraptions.Abstractions.SimulationDomain.None, out var record)) records.Add(record);
+            return CuriousContraptions.Abstractions.EventRingDelivery.Write(admitted, consumer.Lapped - before, records.ToArray());
+        }
+        public void CloseObservationEvents(int client, int cursor) => _observers.Remove(cursor);
+        public byte[] Acknowledgement(int client, byte[] sequence) => _acknowledgements[BinaryPrimitives.ReadUInt64LittleEndian(sequence)];
+        public void CompleteAcknowledgement(int client, byte[] sequence) => _acknowledgements.Remove(BinaryPrimitives.ReadUInt64LittleEndian(sequence));
         public void DisposeClient(int client) => _world.DisposeAsync().AsTask().GetAwaiter().GetResult();
         public async Task Send(int client, byte[] bytes, byte[] sequence)
         {
+            var hold = HoldNextAcknowledgement; HoldNextAcknowledgement = false;
+            await SendCore(bytes);
+            _acknowledgements.Add(BinaryPrimitives.ReadUInt64LittleEndian(sequence), _acknowledgement);
+            if (hold) { _heldAcknowledgement = new(); await _heldAcknowledgement.Task; }
+        }
+        private async Task SendCore(byte[] bytes)
+        {
             var command = WorkshopWireFlatBuffers.DecodeCommand(bytes);
+            if (command.Kind == WorkshopCommandKind.Initialize && _startupFailure == WorkshopObservationTests.StartupFailure.Initialize)
+                throw new InvalidOperationException("external initialize failure");
             if (command.Kind == WorkshopCommandKind.Dispose)
             {
                 await _world.DisposeAsync();

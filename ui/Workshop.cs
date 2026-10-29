@@ -12,6 +12,7 @@ namespace CuriousContraptions;
 public partial class Workshop : Node3D
 {
     private static readonly Color Navy = new("#293954"), Muted = new("#48556a"), Cream = new("#25344b"), Mint = new("#326537");
+    public WorkshopDiagnostics Diagnostics { get; } = new();
     public MachineWorld World { get; private set; } = null!;
     private Camera3D _camera = null!;
     private CanvasLayer _canvas = null!;
@@ -46,7 +47,16 @@ public partial class Workshop : Node3D
     private bool CanEdit => !_gpuPending && !_inRun && World.WorkshopPhase == WorkshopSimulationPhase.Building;
 
     internal string BundleResourcePath { get; set; } = PartRegistry.BundlePath;
-    internal Func<Task<IWorkshopClient>> ClientFactory { get; set; } = async () => await BrowserWorkshopClient.Create();
+    private WorkshopObservation? _observation;
+    internal IWorkshopObservation? Observation => _observation;
+    private Func<Task<IWorkshopClient>>? _clientFactory;
+    internal Func<Task<IWorkshopClient>> ClientFactory
+    {
+        get => _clientFactory ?? (async () => await BrowserWorkshopClient.Create(_observation ?? throw new InvalidOperationException("Observation session has not started."), Diagnostics));
+        set => _clientFactory = value;
+    }
+    internal Func<IWorkshopObservation, Task> StartObservation { get; set; } = port =>
+        OperatingSystem.IsBrowser() ? BrowserWorkshopObservation.Start(port) : Task.CompletedTask;
     internal Task Startup { get; private set; } = Task.CompletedTask;
     internal IWorkshopSaveStore SaveStore { get; set; } = new BrowserWorkshopSaveStore();
 
@@ -57,7 +67,8 @@ public partial class Workshop : Node3D
     }
     private async Task ReadyAsync()
     {
-        World = new MachineWorld { Name = "Machine" };
+        _observation = WorkshopObservation.Begin(Diagnostics);
+        World = new MachineWorld { Name = "Machine", Diagnostics = Diagnostics };
         AddChild(World);
         MakeStage();
         MakeInterface();
@@ -69,12 +80,23 @@ public partial class Workshop : Node3D
         _puzzleChoices = choices.ToArray();
         foreach (var choice in _puzzleChoices)
             _picker.AddItem(choice.IsAuthored ? PuzzleCatalogue.Presentation(choice).Title : "Free workshop");
+        try { await StartObservation(_observation); }
+        catch (Exception error)
+        {
+            Diagnostics.Fault(FaultSite.Startup, error);
+            _observation.Retire(error.ToString());
+            if (_workshopUiRemoved) return;
+            _status.Text = error.Message; _state.Text = "OBSERVATION UNAVAILABLE";
+            return;
+        }
+        if (_workshopUiRemoved) return;
         // Story 9A.14: the catalogue is the generated element bundle alone; a missing or invalid bundle stops start-up here.
         // Story 9A.17: its declared ports are the only port source; construction validation reads them once installed.
         try { World.Registry.LoadFile(BundleResourcePath); DeclaredPorts.Install(World.Registry.Ports); DeclaredPhysics.Install(World.Registry.Physics); }
         catch (System.IO.InvalidDataException error)
         {
-            WorkshopDiagnostics.Fault(FaultSite.Startup, error);
+            Diagnostics.Fault(FaultSite.Startup, error);
+            _observation.Retire(error.ToString());
             if (_workshopUiRemoved) return; _status.Text = error.Message; _state.Text = "PARTS UNAVAILABLE";
             return;
         }
@@ -84,7 +106,8 @@ public partial class Workshop : Node3D
         catch (Exception error)
         {
             // A Workshop that cannot start is a fault, not a refused edit.
-            WorkshopDiagnostics.Fault(FaultSite.Startup, error);
+            Diagnostics.Fault(FaultSite.Startup, error);
+            _observation.Retire(error.ToString());
             if (_workshopUiRemoved) return; _status.Text = error.Message; _state.Text = "GPU UNAVAILABLE";
         }
     }
@@ -693,7 +716,7 @@ public partial class Workshop : Node3D
             _precision.Editable = false; _friction.Disabled = true;
             _status.Text = "Reset restores the starting arrangement.";
         }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); if (!_workshopUiRemoved) _status.Text = failure; }
         finally { if (!_workshopUiRemoved) { _gpuPending = false; ReconcileCommittedUi(); RefreshPalette(); RefreshLayerAppearance(); } }
     }
 
@@ -714,7 +737,7 @@ public partial class Workshop : Node3D
                 var cancelled = await World.CancelPendingWorkshop();
                 if (!_workshopUiRemoved && cancelled.Applicable) _status.Text = $"Cancel outcome: {cancelled.Result.Outcome}. The original request remains tracked.";
             }
-            catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
+            catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); if (!_workshopUiRemoved) _status.Text = failure; }
             finally { _cancelPending = false; }
             return;
         }
@@ -727,7 +750,7 @@ public partial class Workshop : Node3D
             if (result.Result.Outcome != WorkshopCommandOutcome.Applied) { _status.Text = $"Reset rejected: {result.Result.Reason}"; return; }
             ResetUiAnimations(); _inRun = false; SetBuildUi();
         }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); if (!_workshopUiRemoved) _status.Text = failure; }
         finally { if (!_workshopUiRemoved) { _gpuPending = false; ReconcileCommittedUi(); RefreshPalette(); RefreshLayerAppearance();  } }
     }
 
@@ -846,7 +869,7 @@ public partial class Workshop : Node3D
         }
         catch (Exception error)
         {
-            var failure = WorkshopUiFailure.Report(error);
+            var failure = WorkshopUiFailure.Report(error, Diagnostics);
             if (!_workshopUiRemoved) _status.Text = stored
                 ? "Construction stored. Session acknowledgement is indeterminate: " + failure
                 : "Save failed; the previous save is unchanged. " + failure;
@@ -898,7 +921,7 @@ public partial class Workshop : Node3D
         }
         catch (Exception error)
         {
-            var failure = WorkshopUiFailure.Report(error);
+            var failure = WorkshopUiFailure.Report(error, Diagnostics);
             if (!_workshopUiRemoved) _status.Text = applied
                 ? "Construction loaded; presentation could not finish. " + failure
                 : submitted ? "Load acknowledgement is incomplete; recover the session. " + failure

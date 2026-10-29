@@ -11,6 +11,7 @@ namespace CuriousContraptions;
 /// <summary>Current admitted game path. Scene nodes are render/input adapters; the worker owns physics.</summary>
 public partial class MachineWorld
 {
+    public WorkshopDiagnostics Diagnostics { get; init; } = new();
     private readonly WorkshopPhysicalPresentation _physicalPresentation = new();
     private IWorkshopClient? _workshopClient;
     private bool _workshopPending;
@@ -180,7 +181,6 @@ public partial class MachineWorld
             var delivery = await client.Execute(kind, next, electrical: electrical);
             var response = delivery.Response;
             if (_workshopRemoved || operation != _workshopOperation) return new(response, false);
-            LogWorkshop(response); // Original command truth is independent of presentation admission.
             if (!delivery.Applicable) return new(response, false);
             if (response.Result.Outcome == WorkshopCommandOutcome.Applied)
                 ValidateWorkshopRead(response.Read, next ?? Construction);
@@ -257,8 +257,8 @@ public partial class MachineWorld
         {
             WorkshopPhase = WorkshopPhase.Faulted; WorkshopFault = error.Message; Running = false;
             // A retired transport already reported its fault; the presentation stopping with it is not a second one.
-            if (TransportRetired) WorkshopDiagnostics.AfterRetirement(FaultSite.Presentation, error);
-            else WorkshopDiagnostics.Fault(FaultSite.Presentation, error);
+            if (TransportRetired) Diagnostics.AfterRetirement(FaultSite.Presentation, error);
+            else Diagnostics.Fault(FaultSite.Presentation, error);
         }
     }
 
@@ -311,11 +311,6 @@ public partial class MachineWorld
     private static Vector3 RenderPosition(CellOrigin cell, LocalPosition local) =>
         new((cell.X + (float)local.X) / 16, (cell.Y + (float)local.Y) / 16, (cell.Z + (float)local.Z) / 16);
 
-    private static void LogWorkshop(WorkshopResponse response)
-    {
-        // Exact read-only binary diagnostics, also available without arbitrary browser evaluation.
-        GD.Print("CCGPU " + Convert.ToBase64String(WorkshopWireFlatBuffers.EncodeResponse(response)));
-    }
 
     private async Task DisposeWorkshop()
     {
@@ -330,8 +325,8 @@ public partial class MachineWorld
             {
                 // Disposing a retired transport reports its indeterminate operations: the fault the transport already reported.
                 if (error is WorkshopTransportException { State: WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked })
-                    WorkshopDiagnostics.AfterRetirement(FaultSite.Disposal, error);
-                else WorkshopDiagnostics.Fault(FaultSite.Disposal, error);
+                    Diagnostics.AfterRetirement(FaultSite.Disposal, error);
+                else Diagnostics.Fault(FaultSite.Disposal, error);
             }
         }
     }

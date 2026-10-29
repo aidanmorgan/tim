@@ -38,7 +38,7 @@ public partial class Workshop
             if (!_workshopUiRemoved) _status.Text = result.Result.Outcome == WorkshopCommandOutcome.Applied
                 ? "Playback updated." : $"Playback rejected: {result.Result.Reason}";
         }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); if (!_workshopUiRemoved) _status.Text = failure; }
         finally { if (!_workshopUiRemoved) _gpuPending = false; }
     }
 
@@ -77,7 +77,7 @@ public partial class Workshop
         // (WorkshopUiFailure.Report). Either way the presentation is restored and the edit is not accepted.
         catch (Exception error)
         {
-            var failure = WorkshopUiFailure.Report(error);
+            var failure = WorkshopUiFailure.Report(error, Diagnostics);
             if (_workshopUiRemoved) return false;
             World.RestoreConstructionPresentation();
             _status.Text = failure;
@@ -105,6 +105,6 @@ public partial class Workshop
             var accepted = await SubmitConstruction(proposed);
             if (!_workshopUiRemoved && !accepted && _undo.Count > 0) _undo.RemoveAt(_undo.Count - 1);
         }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (_workshopUiRemoved) return; World.RestoreConstructionPresentation(); _status.Text = failure; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); if (_workshopUiRemoved) return; World.RestoreConstructionPresentation(); _status.Text = failure; }
     }
 }

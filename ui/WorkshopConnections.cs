@@ -119,7 +119,7 @@ public partial class Workshop
                 ? (add ? "Supply connected." : "Supply disconnected.")
                 : (add ? "Activation connected." : "Activation disconnected.");
         }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); if (!_workshopUiRemoved) _status.Text = failure; }
     }
     private void RefreshConnectionArtwork()
     {

@@ -32,7 +32,7 @@ Remove parallel implementations so each puzzle element has one isolated declarat
 - Story 9A.21: Remove synthetic startup work
 - Story 9A.22: Event ring producer
 - Story 9A.23: Event ring consumers
-- Story 9A.24: Typed observation port
+- Story 9A.24: Typed observation port — implementation done; five Auto layers and affected re-reviews Pass, full local 5,047/0/0. Hooks, exact-SHA approval and publication pending; browser qualification pending and CI/deployment unverified. [Evidence](spec-9a-24-typed-observation-port.md#auto-run-result).
 - Story 9A.25: Packaged presentation bindings
 - Story 9A.25a: Committed-state presentation cues
 - Story 9A.25b: One-shot presentation bindings
@@ -77,9 +77,9 @@ Preserve every existing element, unlimited Workshop, authored construction and t
 
 Use f32 end to end for game values, retaining integers for identities/counts and named external adapters for external numeric types. Replace floating game time with integer ticks plus f32 phase; validate finite values, ranges, enums and overflow at boundaries.
 
-Acceptance protects puzzle outcomes, causal event order, plausible motion, stable rest and reliable lifecycle. Numerical tolerances need an independently justified gameplay consequence or defined mathematical contract. Preserve intentional timer/delay/cadence semantics; incidental historical ticks, trajectories and migration deltas are not requirements. Assert decoded semantic fields, never output hashes or whole-buffer identity.
+Acceptance protects puzzle outcomes, causal order, plausible motion, stable rest and lifecycle. Reuse quantity-specific tolerances justified by functional clearance and observation duration; no universal epsilon or historical trajectory oracle. Use the least strict assertion that detects the named defect, with generous finite completion guards. Preserve deliberate timer/delay/cadence semantics, exact authored state and typed refusals. Assert decoded semantic fields, never output hashes or whole-buffer identity. Before a second numerical repair, identify the gameplay defect; otherwise correct the assertion while retaining meaningful controls.
 
-Real production native unit/integration tests cover positive, control, boundary, progression and applicable Reset/save/load behaviour. The full local solution round is authoritative with zero failures/skips; normal hooks remain required. Browser qualification and mutation testing wait until all named elements pass native proof. CI owns production compilation/publish and deployment, not repeated game tests.
+Real production native tests cover positive, control, boundary, progression and applicable Reset/save/load behaviour. One full local solution round is authoritative with zero failures/skips; normal hooks and independent Auto review remain required. Reuse passing evidence unless relevant inputs change or a concrete concern remains. Browser qualification and mutation testing wait until all named elements pass native proof. Use incremental builds; CI owns Release production compilation/publish and deployment. After local approval, publish and continue without waiting for CI; remote build/artifact/deployment qualification remains unverified unless established.
 
 ## Technical Decisions
 
@@ -87,9 +87,9 @@ Each element project owns metadata, typed parameters, ports, colliders/materials
 
 The main-thread authoring graph compiles at Run into contiguous SIMD-aligned physics tables. Pure C# WASM SIMD runs generic capability kernels at 120 Hz with 480 Hz substeps. Animation runs independently at 60 Hz; rendering uses WebGL2/WebGPU instancing and the shared triple pose ring. Information flows from simulation to presentation only.
 
-Mutations use typed sequenced commands with receipts; queries use committed reads, poses and typed observations. Discrete occurrences use a single-producer, multi-consumer ring with independent cursors. Persistent levels remain committed state. Element names never select engine logic.
+Mutations use typed sequenced commands with receipts; queries use committed reads and poses. A read-only production observation port exposes receipts, committed queries and an independent event cursor, without mutation authority, console channels or ad-hoc globals. Discrete occurrences use one producer and independent consumer cursors; persistent levels remain committed state. Element names never select engine logic.
 
-Use C# wherever possible; affected browser/worker glue and harnesses use strict TypeScript and pinned compilation, with tests exercising shipped output. Closed sets remain enums; extensible identities use typed IDs. Structural boundary validation replaces version checks. Storage follows actual logical demand without arbitrary population ceilings.
+Use C# wherever possible; affected browser/worker glue and harnesses use strict TypeScript and pinned compilation, with tests exercising shipped output. Closed sets remain enums; extensible identities use typed IDs. Structural boundary validation replaces version checks. Storage retains actual logical counts and sparse interaction state, starts at common category defaults, and grows geometrically at demand watermarks. No arbitrary hard counts or worst-case owner-by-target reservation. Event growth preserves retained history, sequence and same-epoch cursors; failed candidates publish nothing.
 
 ## UX & Interaction Patterns
 
@@ -99,4 +99,4 @@ Preserve placement, parameter editing, typed wiring and Run/Pause/Step/Reset flo
 
 Merged delivery stories retain all source acceptance; split stories close only when every child closes. Current execution order supersedes historical numerical order. Bundle tooling precedes package consumers; the generic editor supports instance conversions; declared capabilities and presentation bindings precede their consuming elements. The early isolation ratchet shrinks during conversion; the final gate removes remaining exceptions.
 
-9A.44B follows stabilization and published binary16 removal. Convert only TypeScript modules in its affected closure; remaining conversion belongs to its dedicated slice. Implement one slice from published main, complete independent Auto review and publication, then begin the next.
+Current sequencing completes stabilization, then the typed observation port and final isolation gate before continuing the named catalogue. Observation depends on event consumers; isolation closes the remaining declaration violations. Implement one slice from published main, complete independent Auto review and publication, then begin the next. CI and deployment monitoring do not block continuation.

@@ -1,22 +1,21 @@
 import { PoseReader, createPoseRing } from './pose-ring.js';
 import type { ClockRing } from '../../tools/runtime/worker-contracts.js';
-interface AnimationSample { target: string; kind: number; ordinal: string; property: number; value: number; timestamp: number; }
 interface Client {
     id: number; worker: Worker; animation?: Worker; animationPort?: MessagePort;
     pending: Map<bigint, { resolve(): void; reject(error: unknown): void; started: number }>;
     acknowledgements: Map<bigint, { bytes: Uint8Array; started: number; taken: boolean }>;
     failure: unknown; states: { ready: number; backpressure: number; timedOut: number; indeterminate: number; recoveryBlocked: number }; state: number;
     serviceCallback(): void; clockReplyCallback(): void;
+    observationCallback(): void; retiredCallback(detail: string): void; pendingObservations: Uint8Array[];
     service?: ReturnType<typeof setInterval>; startup?: ReturnType<typeof setTimeout>; retirement?: ReturnType<typeof setTimeout>;
     clockRing?: SharedArrayBuffer; clock?: ClockRing; identity?: Uint8Array;
-    clockAbi: { clockProfile: number; peerBytes: number; probeBytes: number; replyBytes: number; diagnosticBytes: number; browserRole: number; masterRole: number };
-    captureMode: number; observations?: Uint8Array; observationNext: number; observationCount: number; observationSequence: bigint;
-    presentations?: Uint8Array; presentationSequence: bigint; events?: EventRingCursor;
+    clockAbi: { clockProfile: number; peerBytes: number; probeBytes: number; replyBytes: number; browserRole: number; masterRole: number };
+    captureMode: number; events?: EventRingCursor;
     poses?: PoseReader;
+    eventObservers: Map<number, EventRingCursor>; nextEventObserver: number;
     displayRate?: [number, number]; unwatchIsolation?: () => void;
     bootstrapReject?: ((error: unknown) => void) | null; animationReady?: boolean; animationQualified?: boolean;
-    hintKinds: number[]; hintPending?: boolean; animationSampleCount?: number;
-    lastAnimationSamples?: Map<string, AnimationSample>; animationSamplesByTarget?: Map<string, AnimationSample[]>;
+    hintKinds: number[]; hintPending?: boolean;
     workerProfile?: Float64Array; liveness?: { beats: number; since: number; serviced: number };
     eventBytes?: Uint8Array; eventReceived?: number;
 }
@@ -24,25 +23,15 @@ function envelope(value: unknown): Record<string, unknown> {
     if (value === null || typeof value !== 'object') throw new Error('Worker envelope must be an object.');
     return value as Record<string, unknown>;
 }
-declare global {
-    var WorkshopPoseRing: { readPoseSlot: typeof readPoseSlot; readLatestPoseSlot: typeof readLatestPoseSlot; hasPoseRing: typeof hasPoseRing };
-    var WorkshopAnimation: { isAnimationQualified: typeof isAnimationQualified; readAnimationSampleCount: typeof readAnimationSampleCount;
-        readLastAnimationSample: typeof readLastAnimationSample; readAllAnimationSamples: typeof readAllAnimationSamples;
-        readAnimationSamplesForTarget: typeof readAnimationSamplesForTarget };
-}
 
-import { admitNativeClock, nativeNow, nativeProfile, nativeClockEvidence } from './native-clock.js';
-import { requireIsolation, watchIsolation, isolationQualified, isolationEvidence, stopIsolation } from './workshop-isolation.js';
+import { admitNativeClock, nativeNow, nativeProfile } from './native-clock.js';
+import { requireIsolation, watchIsolation, isolationQualified, stopIsolation } from './workshop-isolation.js';
 import { createClockRing, attachClockRing, requestReply, heartbeat, ClockRole } from './clock-ring.js';
 import { EventRingCursor, eventDelivery } from './event-ring-cursor.js';
 
 // The Animation output record fields this client reads, owned by WorkshopAnimationWire (WorkerAbiTests pins each one).
 const ANIMATION_OUTPUT_BYTES = 144;            // WorkshopAnimationWire.OutputBytes
-const ANIMATION_OUTPUT_PULSE_OFFSET = 40;      // WorkshopAnimationWire.OutputPulseOffset
-const ANIMATION_OUTPUT_VALUE_OFFSET = 56;      // WorkshopAnimationWire.OutputValueOffset (f32)
 const ANIMATION_OUTPUT_KIND_OFFSET = 60;       // WorkshopAnimationWire.OutputKindOffset
-const ANIMATION_OUTPUT_TARGET_OFFSET = 64;     // WorkshopAnimationWire.OutputTargetOffset
-const ANIMATION_OUTPUT_PROPERTY_OFFSET = 136;  // WorkshopAnimationWire.OutputPropertyOffset (u16)
 
 const clients = new Map<number, Client>();
 let nextClient = 1, retiredSession = false, creating = false;
@@ -65,11 +54,19 @@ function oldestCommandAge(client: Client, current: number) {
     for (const receipt of client.acknowledgements.values()) oldest = Math.max(oldest, current - receipt.started);
     return oldest;
 }
+function failureDetail(error: unknown, seen = new Set<unknown>()): string {
+    if (seen.has(error)) return '[circular cause]';
+    if (!(error instanceof Error)) return String(error);
+    seen.add(error);
+    const heading = error.name + ': ' + error.message;
+    const detail = error.stack ? heading + '\\n' + error.stack : heading;
+    return error.cause === undefined ? detail : detail + '\\nCaused by: ' + failureDetail(error.cause, seen);
+}
 function fail(client: Client, error: unknown, retiring = false) {
     if (client.failure) return;
     client.failure = error;
     client.state = client.states.indeterminate;
-    if (!retiring) console.error('CCGPU_TRANSPORT_FAILURE', client.state, error);
+    if (!retiring) client.retiredCallback(failureDetail(error));
     retiredSession = true;
     client.unwatchIsolation?.(); client.unwatchIsolation = undefined;
     clearInterval(client.service);
@@ -81,7 +78,9 @@ function fail(client: Client, error: unknown, retiring = false) {
     client.animationPort?.close(); client.animationPort = undefined;
     // The session clock ring is detached with its workers (dispose goes through here): nothing probes or reads it again.
     client.clock = client.clockRing = undefined;
-    client.events = undefined;
+    client.pendingObservations.length = 0;
+    client.events?.close(); client.events = undefined;
+    client.eventObservers.clear();
     client.poses?.dispose(); client.poses = undefined;
     for (const pending of client.pending.values()) pending.reject(error);
     client.pending.clear();
@@ -120,7 +119,7 @@ async function admitDisplayRate() {
     });
 }
 export function displayRate(id: number) { return owner(id).displayRate; }
-export async function create(states: number[], bootstrapBytes: Uint8Array, clockAbi: number[], captureMode: number, admitDisplay: boolean, clockReply: () => void, physicalRead: () => void, scheduleControl: () => void, animationOutput: () => void, service: () => void) {
+export async function create(states: number[], bootstrapBytes: Uint8Array, clockAbi: number[], captureMode: number, admitDisplay: boolean, clockReply: () => void, physicalRead: () => void, scheduleControl: () => void, animationOutput: () => void, service: () => void, observation: () => void, retired: (detail: string) => void) {
     if (clients.size !== 0 || retiredSession || creating) throw new Error('RecoveryBlocked: reload the page before creating another worker.');
     creating = true;
     let id: number | undefined;
@@ -132,9 +131,9 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
         if (typeof admitDisplay !== 'boolean') throw new Error('Invalid display admission selection.');
         const displayRate = admitDisplay ? await admitDisplayRate() : undefined;
         const session = new Uint8Array(bootstrapBytes);
-        if (session.length !== 16 || !session.some(value => value !== 0) || clockAbi.length !== 7)
+        if (session.length !== 16 || !session.some(value => value !== 0) || clockAbi.length !== 6)
             throw new Error('Unsupported session bootstrap.');
-        const [clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole] = clockAbi;
+        const [clockProfile, peerBytes, probeBytes, replyBytes, browserRole, masterRole] = clockAbi;
         if (clockProfile !== nativeProfile) throw new Error('Unsupported native clock profile.');
         const [ready, backpressure, timedOut, indeterminate, recoveryBlocked] = states;
         id = nextClient++;
@@ -145,12 +144,11 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
         const client: Client = { id, hintKinds: [], displayRate, worker, pending: new Map(), acknowledgements: new Map(),
             failure: null, states: { ready, backpressure, timedOut, indeterminate, recoveryBlocked },
             serviceCallback: service, service: undefined, clockReplyCallback: clockReply,
+            observationCallback: observation, retiredCallback: retired, pendingObservations: [],
             clockRing, clock: attachClockRing(clockRing),
             state: ready,
-            identity: undefined, clockAbi: { clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode,
-            observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
-            presentations: captureMode === 2 ? new Uint8Array(32 * 364) : undefined, presentationSequence: 0n,
-            events: new EventRingCursor() };
+            identity: undefined, clockAbi: { clockProfile, peerBytes, probeBytes, replyBytes, browserRole, masterRole }, captureMode,
+            events: new EventRingCursor(), eventObservers: new Map(), nextEventObserver: 0 };
         client.poses = new PoseReader(poseRing);
         client.worker = worker;
         clients.set(id, client);
@@ -188,6 +186,8 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
                     } else if (item.qualified === true) {
                         if (!client.animationReady || client.animationQualified) throw new Error('Duplicate Animation qualification.');
                         client.animationQualified = true;
+                    } else if (item.observation instanceof Uint8Array) {
+                        receiveObservation(client, item.observation);
                     } else if (item.animationOutput instanceof Uint8Array) {
                         if (!animationBootstrapped || !client.animationReady) throw new Error('Animation output precedes admission.');
                         if (item.animationOutput.length !== ANIMATION_OUTPUT_BYTES) throw new Error('Wrong Animation output length.');
@@ -195,28 +195,6 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
                         const output = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, ANIMATION_OUTPUT_BYTES);
                         const kind = output.getUint32(ANIMATION_OUTPUT_KIND_OFFSET, true);
                         if (kind === client.hintKinds[1]) {
-                            client.animationSampleCount = (client.animationSampleCount || 0) + 1;
-                            const target = output.getBigUint64(ANIMATION_OUTPUT_TARGET_OFFSET, true);
-                            const ordinal = output.getBigUint64(ANIMATION_OUTPUT_PULSE_OFFSET, true);
-                            const property = output.getUint16(ANIMATION_OUTPUT_PROPERTY_OFFSET, true);
-                            const value = output.getFloat32(ANIMATION_OUTPUT_VALUE_OFFSET, true);
-                            const sampleObj = {
-                                target: target.toString(),
-                                kind,
-                                ordinal: ordinal.toString(),
-                                property,
-                                value,
-                                timestamp: now()
-                            };
-                            if (!client.lastAnimationSamples) client.lastAnimationSamples = new Map();
-                            client.lastAnimationSamples.set(target.toString(), sampleObj);
-                            if (!client.animationSamplesByTarget) client.animationSamplesByTarget = new Map();
-                            let targetHistory = client.animationSamplesByTarget.get(target.toString());
-                            if (!targetHistory) {
-                                targetHistory = [];
-                                client.animationSamplesByTarget.set(target.toString(), targetHistory);
-                            }
-                            targetHistory.push(sampleObj);
                             const animationAcknowledged = item.animationOutput.slice();
                             animation.postMessage({ animationAcknowledged }, [animationAcknowledged.buffer]);
                         } else if (kind === client.hintKinds[0] || kind === client.hintKinds[2]) {
@@ -274,6 +252,8 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
                         if (!readyReceived) throw new Error('A pose ring arrived before the session was ready.');
                         const reader = new PoseReader(message.poseRing);
                         client.poses?.dispose(); client.poses = reader;
+                    } else if (message.observation instanceof Uint8Array) {
+                        receiveObservation(client, message.observation);
                     } else if (message.eventRing instanceof SharedArrayBuffer) {
                         // Story 9A.23: the session's event ring for an admitted epoch, read by the main thread's own cursor.
                         if (!readyReceived) throw new Error('An event ring arrived before the session was ready.');
@@ -353,6 +333,11 @@ function checkSimulationLiveness(client: Client, current: number) {
         throw error;
     }
 }
+function receiveObservation(client: Client, bytes: Uint8Array) {
+    if (client.service === undefined) { client.pendingObservations.push(bytes); return; }
+    try { deliver(client, bytes, now(), client.observationCallback); }
+    catch (error) { client.retiredCallback('Observation unavailable: ' + String(error)); }
+}
 export function activate(id: number) {
     const client = owner(id);
     if (client.failure) throw client.failure;
@@ -373,6 +358,8 @@ export function activate(id: number) {
                 : oldest > 50 ? client.states.backpressure : client.states.ready;
         } catch (error) { fail(client, error); }
     }, 10);
+    for (const bytes of client.pendingObservations) receiveObservation(client, bytes);
+    client.pendingObservations.length = 0;
 }
 export function eventBytes(id: number) {
     const bytes = owner(id).eventBytes;
@@ -406,62 +393,10 @@ export function probe(id: number, bytes: Uint8Array) {
         fail(client, error);
     });
 }
-export function clockObservation(id: number, bytes: Uint8Array) {
-    const client = owner(id);
-    if (!client.observations) throw new Error('Clock capture is unavailable in Production.');
-    if (bytes.length !== client.clockAbi.diagnosticBytes) throw new Error('Invalid fixed clock diagnostic record.');
-    if (client.observationSequence === 0xffffffffffffffffn) throw new Error('Clock evidence sequence exhausted.');
-    client.observations.set(bytes, client.observationNext * client.clockAbi.diagnosticBytes);
-    client.observationSequence++;
-    client.observationNext = (client.observationNext + 1) % 128;
-    client.observationCount = Math.min(128, client.observationCount + 1);
-
-}
-// Both fixed diagnostic rings total 30,080 retained payload bytes. Extraction visits at most 8 records and does
-// not copy the ring; its largest Number payload is 8*364*8=23,296 scratch bytes.
-function evidence(client: Client, ring: Uint8Array | undefined, total: bigint, recordBytes: number, capacity: number, afterSequence: string) {
-    if (typeof afterSequence !== 'string' || !/^(0|[1-9][0-9]{0,19})$/.test(afterSequence))
-        throw new Error('Evidence cursor must be an exact unsigned decimal sequence.');
-    if (!ring) throw new Error('Evidence capture is unavailable in Production.');
-    const after = BigInt(afterSequence);
-    if (after > total) throw new Error('Evidence cursor is ahead of this session.');
-    const oldest = total >= BigInt(capacity) ? total - BigInt(capacity) + 1n : 1n;
-    const first = after + 1n < oldest ? oldest : after + 1n;
-    const count = Number(total < first ? 0n : total - first + 1n > 8n ? 8n : total - first + 1n);
-    const bytes = new Array(count * recordBytes);
-    for (let i = 0; i < count; i++) {
-        const source = Number((first + BigInt(i) - 1n) % BigInt(capacity)) * recordBytes;
-        for (let j = 0; j < recordBytes; j++) bytes[i * recordBytes + j] = ring[source + j];
-    }
-    return { identity: Array.from(client.identity!), first: first.toString(), count,
-        total: total.toString(), overwritten: (oldest - 1n).toString(),
-        missed: (first - after - 1n).toString(), recordBytes, bytes };
-}
-export function clockEvidence(id: number, afterSequence = '0') {
-    const client = owner(id);
-    return evidence(client, client.observations, client.observationSequence, client.clockAbi.diagnosticBytes, 128, afterSequence);
-}
-export function presentationObservation(id: number, bytes: Uint8Array) {
-    const client = owner(id);
-    if (!client.presentations) throw new Error('Presentation capture is unavailable in Production.');
-    if (!(bytes instanceof Uint8Array) || bytes.length !== 364)
-        throw new Error('Invalid fixed presentation diagnostic record.');
-    if (client.presentationSequence === 0xffffffffffffffffn) throw new Error('Presentation evidence sequence exhausted.');
-    client.presentations.set(bytes, Number(client.presentationSequence % 32n) * 364);
-    client.presentationSequence++;
-}
-export function presentationEvidence(id: number, afterSequence = '0') {
-    const client = owner(id);
-    return evidence(client, client.presentations, client.presentationSequence, 364, 32, afterSequence);
-}
 export function qualified(id: number) {
     const client = owner(id);
     isolationQualified();
     clearTimeout(client.startup);
-}
-export function clockProfileEvidence(id: number) {
-    const client = owner(id);
-    return { browser: nativeClockEvidence(), worker: Array.from(client.workerProfile ?? []), serving: isolationEvidence() };
 }
 export function status(id: number) { return owner(id).state; }
 export function captureMode(id: number) { return owner(id).captureMode; }
@@ -549,8 +484,6 @@ export async function loadConstruction(expectedBytes: number) {
     } finally { database.close(); }
 }
 
-export function readPoseSlot(id: number, slotIndex: number) { return clients.get(id)?.poses?.read(slotIndex) ?? null; }
-export function readLatestPoseSlot(id: number) { return clients.get(id)?.poses?.latest() ?? null; }
 
 // Story 9A.23 D8: the main thread's event ring read, for the epoch C# has installed (the reader holds a newer ring and ignores an
 // older one). C# decodes the delivery (EventRingDelivery); this script reads no record field.
@@ -560,46 +493,24 @@ export function readEvents(id: number, epoch: string) {
     return eventDelivery(events.read(BigInt(epoch)));
 }
 
-export function hasPoseRing(id: number) {
-    const client = clients.get(id);
-    return Boolean(client && client.poses);
-}
 
-export function isAnimationQualified(id = 1) {
-    const client = clients.get(id);
-    return Boolean(client && client.animationQualified);
+export function openObservationEvents(id: number) {
+    const client = owner(id);
+    if (!client.events) throw new Error('The event reader is retired.');
+    const cursor = ++client.nextEventObserver;
+    client.eventObservers.set(cursor, client.events.fork());
+    return cursor;
 }
-
-export function readAnimationSampleCount(id = 1) {
-    const client = clients.get(id);
-    return client ? (client.animationSampleCount || 0) : 0;
+export function readObservationEvents(id: number, cursor: number, epoch: string) {
+    const observer = owner(id).eventObservers.get(cursor);
+    if (!observer) throw new Error('The observation cursor is closed.');
+    return eventDelivery(observer.read(BigInt(epoch)));
 }
-
-export function readLastAnimationSample(id = 1, targetId = 2) {
+export function closeObservationEvents(id: number, cursor: number) {
     const client = clients.get(id);
-    if (!client || !client.lastAnimationSamples) return null;
-    return client.lastAnimationSamples.get(targetId.toString()) || null;
-}
-
-export function readAllAnimationSamples(id = 1) {
-    const client = clients.get(id);
-    if (!client || !client.lastAnimationSamples) return [];
-    return Array.from(client.lastAnimationSamples.values());
-}
-
-export function readAnimationSamplesForTarget(id = 1, targetId = 2) {
-    const client = clients.get(id);
-    if (!client || !client.animationSamplesByTarget) return [];
-    return client.animationSamplesByTarget.get(targetId.toString()) || [];
-}
-
-if (typeof globalThis !== 'undefined') {
-    globalThis.WorkshopPoseRing = { readPoseSlot, readLatestPoseSlot, hasPoseRing };
-    globalThis.WorkshopAnimation = {
-        isAnimationQualified,
-        readAnimationSampleCount,
-        readLastAnimationSample,
-        readAllAnimationSamples,
-        readAnimationSamplesForTarget
-    };
+    if (!client) return;
+    const observer = client.eventObservers.get(cursor);
+    if (!observer) return;
+    client.events?.release(observer);
+    client.eventObservers.delete(cursor);
 }

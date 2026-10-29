@@ -323,20 +323,21 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         finally { world.Free(); }
     }
 
-    // Story 9R.0 (Chrome, clock-master's liveness fault): a retired transport has already reported its fault once, on the
-    // error stream (CCGPU_TRANSPORT_FAILURE). The presentation that then stops, and the disposal that then reports the
-    // indeterminate operations, are that same fault: each is recorded on the standard stream, never as a second stderr fault.
+    // Story 9R.0 (Chrome, clock-master's liveness fault): a retired transport has already reported its fault once, as a
+    // typed transport fault. The presentation that then stops, and the disposal that then reports the
+    // indeterminate operations, are that same fault: each is recorded as AfterRetirement, never as a second Fault.
     [Theory]
     [InlineData(WorkshopTransportState.Indeterminate)]
     [InlineData(WorkshopTransportState.RecoveryBlocked)]
     public async Task ARetiredTransportsStoppedPresentationAndDisposalAreNotSecondFaults(WorkshopTransportState retired)
     {
         await using var client = new RetiringUiClient();
-        var (output, errors) = await PresentAndDispose(client, retired,
+        var diagnostics = await PresentAndDispose(client, retired,
             new WorkshopTransportException(new(new(1), new(1), default, default, default), retired, new TimeoutException("unresponsive")));
-        Assert.Equal("", errors);
-        Assert.Contains("CCGPU_PRESENTATION_AFTER_RETIREMENT System.InvalidOperationException: Worker session is unavailable", output, StringComparison.Ordinal);
-        Assert.Contains($"CCGPU_DISPOSAL_AFTER_RETIREMENT {typeof(WorkshopTransportException).FullName}", output, StringComparison.Ordinal);
+        Assert.Equal(2, diagnostics.Length);
+        Assert.All(diagnostics, diagnostic => Assert.Equal(WorkshopFaultKind.AfterRetirement, diagnostic.Kind));
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Site == FaultSite.Presentation && diagnostic.Detail.Contains("Worker session is unavailable", StringComparison.Ordinal));
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Site == FaultSite.Disposal && diagnostic.ExceptionType == typeof(WorkshopTransportException).FullName);
     }
 
     // Control: on a transport that has not retired (every live state, a timed-out or backpressured one included), the same
@@ -348,39 +349,29 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public async Task APresentationOrDisposalFailureOnALiveTransportIsAStderrFault(WorkshopTransportState live)
     {
         await using var client = new RetiringUiClient { ReadFailure = new InvalidOperationException("presentation defect") };
-        var (output, errors) = await PresentAndDispose(client, live,
+        var diagnostics = await PresentAndDispose(client, live,
             new WorkshopTransportException(new(new(1), new(1), default, default, default), live, new TimeoutException("late")));
-        Assert.Contains("CCGPU_PRESENTATION_EXCEPTION System.InvalidOperationException: presentation defect", errors, StringComparison.Ordinal);
-        Assert.Contains($"CCGPU_DISPOSAL_EXCEPTION {typeof(WorkshopTransportException).FullName}", errors, StringComparison.Ordinal);
-        Assert.DoesNotContain("AFTER_RETIREMENT", output, StringComparison.Ordinal);
+        Assert.Equal(2, diagnostics.Length);
+        Assert.All(diagnostics, diagnostic => Assert.Equal(WorkshopFaultKind.Fault, diagnostic.Kind));
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Site == FaultSite.Presentation && diagnostic.Detail.Contains("presentation defect", StringComparison.Ordinal));
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Site == FaultSite.Disposal && diagnostic.ExceptionType == typeof(WorkshopTransportException).FullName);
     }
 
-    private static async Task<(string Output, string Errors)> PresentAndDispose(RetiringUiClient client, WorkshopTransportState state,
+    private static async Task<WorkshopFaultDiagnostic[]> PresentAndDispose(RetiringUiClient client, WorkshopTransportState state,
         Exception disposalFailure)
     {
-        using var output = new StringWriter(System.Globalization.CultureInfo.InvariantCulture);
-        using var errors = new StringWriter(System.Globalization.CultureInfo.InvariantCulture);
         var world = new MachineWorld();
-        var (previousOut, previousError) = (Console.Out, Console.Error);
         try
         {
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(client));
             client.TransportState = state;
             client.DisposalFailure = disposalFailure;
-            Console.SetOut(output);
-            Console.SetError(errors);
-            world._Process(0); // the presentation read
+            world._Process(0);
             Assert.Equal(WorkshopSimulationPhase.Faulted, world.WorkshopPhase);
-            world._ExitTree(); // The fixture disposal completes synchronously, including its diagnostic failure.
+            world._ExitTree();
+            return world.Diagnostics.Snapshot().Cast<WorkshopFaultDiagnostic>().ToArray();
         }
-        finally
-        {
-            Console.SetOut(previousOut);
-            Console.SetError(previousError);
-            client.DisposalFailure = null; // the test's own disposal of the fixture succeeds
-            world.Free();
-        }
-        return (output.ToString(), errors.ToString());
+        finally { client.DisposalFailure = null; world.Free(); }
     }
 
     /// <summary>Mirrors BrowserWorkshopClient: UI calls and reads on a retired transport throw.</summary>

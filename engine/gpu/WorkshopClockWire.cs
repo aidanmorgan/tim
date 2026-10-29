@@ -114,51 +114,6 @@ public static class WorkshopClockWire
         return mapping.Receive(reply);
     }
 
-    /// <summary>A diagnostic record keeps the exact reply 0..103 (including its derivation epoch), then the requester receipt,
-    /// the outcome, the received length and the offset interval.</summary>
-    public const int DiagnosticBytes = 152;
-    public const int DiagnosticReceiptOffset = ReplyBytes;
-    public const int DiagnosticOutcomeOffset = DiagnosticReceiptOffset + 8;
-    public const int DiagnosticLengthOffset = DiagnosticOutcomeOffset + 4;
-    public const int DiagnosticLowerOffset = DiagnosticLengthOffset + 4;
-    public const int DiagnosticUpperOffset = DiagnosticLowerOffset + 16;
-    public static byte[] EncodeRejectedReply(ReadOnlySpan<byte> reply, MonotonicNanoseconds received)
-    {
-        received.Validate();
-        var data = new byte[DiagnosticBytes];
-        reply[..Math.Min(reply.Length, ReplyBytes)].CopyTo(data);
-        BinaryPrimitives.WriteInt64LittleEndian(data.AsSpan(DiagnosticReceiptOffset), received.Value);
-        BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(DiagnosticOutcomeOffset), (int)ClockProbeOutcome.Malformed);
-        BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(DiagnosticLengthOffset), reply.Length);
-        return data; // At most one native reply is retained; declared length records any truncation.
-    }
-
-    public static byte[] EncodeExpiredProbe(ClockProbe probe, WorkshopClockPeer peer, MonotonicNanoseconds now)
-    {
-        var data = new byte[DiagnosticBytes];
-        EncodeProbe(probe, peer).CopyTo(data, 0);
-        BinaryPrimitives.WriteInt64LittleEndian(data.AsSpan(DiagnosticReceiptOffset), now.Value);
-        BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(DiagnosticOutcomeOffset), (int)ClockProbeOutcome.Expired);
-        return data; // Worker timestamps are unavailable; this outcome records a local expiry.
-    }
-
-    public static byte[] EncodeObservation(ClockObservation observation, WorkshopClockPeer peer)
-    {
-        var reply = observation.Reply;
-        var data = new byte[DiagnosticBytes];
-        var probe = EncodeProbe(reply.Probe, peer);
-        probe.CopyTo(data, 0);
-        BinaryPrimitives.WriteInt64LittleEndian(data.AsSpan(80), reply.MasterReceived.Value);
-        BinaryPrimitives.WriteInt64LittleEndian(data.AsSpan(88), reply.MasterSent.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(data.AsSpan(96), reply.Derivation.Value);
-        BinaryPrimitives.WriteInt64LittleEndian(data.AsSpan(DiagnosticReceiptOffset), reply.RequesterReceived.Value);
-        BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(DiagnosticOutcomeOffset), (int)observation.Outcome);
-        BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(DiagnosticLengthOffset), ReplyBytes);
-        BinaryPrimitives.WriteInt128LittleEndian(data.AsSpan(DiagnosticLowerOffset), observation.Offset.Lower);
-        BinaryPrimitives.WriteInt128LittleEndian(data.AsSpan(DiagnosticUpperOffset), observation.Offset.Upper);
-        return data;
-    }
-
     public static void WriteReceipt(WorkshopResponse response, Span<byte> destination)
     {
         if (destination.Length != ReceiptBytes || response.Kind != WorkshopResponseKind.Read || response.Publication.Value == 0)

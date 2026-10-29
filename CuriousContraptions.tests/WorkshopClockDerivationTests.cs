@@ -1,4 +1,5 @@
 using CuriousContraptions.Gpu;
+using System.Collections.Immutable;
 
 namespace CuriousContraptions.Tests;
 
@@ -16,18 +17,21 @@ public sealed class WorkshopClockDerivationTests
     private const long Step = WorkshopClockDerivation.SlewStepNanoseconds;
     private static readonly ClockDerivationEpoch Initial = new(0);
 
-    private static (string Output, T Result) Capture<T>(Func<T> action)
+    private static (WorkshopDiagnostic[] Output, T Result) Capture<T>(WorkshopDiagnostics journal, Func<T> action)
     {
-        using var output = new System.IO.StringWriter(System.Globalization.CultureInfo.InvariantCulture);
-        var previous = Console.Out;
-        try { Console.SetOut(output); var result = action(); return (output.ToString(), result); }
-        finally { Console.SetOut(previous); }
+        var before = journal.Snapshot().Length;
+        var result = action();
+        var records = journal.Snapshot()[before..];
+        var role = records.Any(record => record is ClockDerivationDiagnostic or ClockWideOffsetDiagnostic)
+            ? WorkshopRuntimeRole.Simulation : WorkshopRuntimeRole.Browser;
+        var encoded = WorkshopWireFlatBuffers.EncodeObservations(new(Peer.Session, role, records.ToImmutableArray()));
+        return (WorkshopWireFlatBuffers.DecodeObservations(encoded).Records.ToArray(), result);
     }
 
     private static WorkshopClockDerivation Qualified()
     {
         var derivation = new WorkshopClockDerivation();
-        Capture(() =>
+        Capture(derivation.Diagnostics, () =>
         {
             // Integral offsets (7812 and 15624 ns), so the derived offset of a master at the bracket midpoint is exactly 0.
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++)
@@ -57,14 +61,14 @@ public sealed class WorkshopClockDerivationTests
         Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Qualify(new(100000000, 100000000 - Bound - 1, 100010000, Initial)));
         Assert.Equal((3, 1), (derivation.Qualified, derivation.StartupOutliers));
         Assert.False(derivation.IsQualified);
-        var (output, _) = Capture(() =>
+        var (output, _) = Capture(derivation.Diagnostics, () =>
         {
             for (var i = 3; i < WorkshopClockDerivation.StartupExchanges; i++) derivation.Qualify(new(100000000, 100005000, 100010000, Initial));
             return 0;
         });
         Assert.True(derivation.IsQualified);
-        Assert.Contains("\"reportName\":\"Startup\"", output); // the startup counters are typed telemetry
-        Assert.Contains("\"startupInconclusive\":1", output);
+        Assert.Contains(output, record => record is ClockDerivationDiagnostic { Report: ClockDerivationReport.Startup }); // the startup counters are typed telemetry
+        Assert.Equal(1, Assert.IsType<ClockDerivationDiagnostic>(Assert.Single(output)).StartupInconclusive);
         Assert.Throws<InvalidOperationException>(() => derivation.Qualify(new(100000000, 100005000, 100010000, Initial)));
     }
 
@@ -76,19 +80,18 @@ public sealed class WorkshopClockDerivationTests
     public void AStartupOffsetBeyondTheDeclaredUncertaintyIsAcceptedRecordedOnceAndApplied()
     {
         var ahead = new WorkshopClockDerivation();
-        var (output, _) = Capture(() =>
+        var (output, _) = Capture(ahead.Diagnostics, () =>
         {
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++) ahead.Qualify(new(200000000 + i, 201005000 + i, 200010000 + i, Initial));
             return 0;
         });
         Assert.True(ahead.IsQualified);
-        var wide = Assert.Single(output.Split('\n', StringSplitOptions.RemoveEmptyEntries), line => line.StartsWith("CCGPU_CLOCK_OFFSET_WIDE ", StringComparison.Ordinal));
-        using var json = System.Text.Json.JsonDocument.Parse(wide["CCGPU_CLOCK_OFFSET_WIDE ".Length..]);
-        var offset = json.RootElement.GetProperty("offset").GetInt64();
+        var wide = Assert.Single(output.OfType<ClockWideOffsetDiagnostic>());
+        var offset = wide.Offset;
         Assert.InRange(offset, -1_000_000L - Bound, -1_000_000L + Bound);
-        Assert.True(json.RootElement.GetProperty("admittedLower").GetInt64() <= offset && offset <= json.RootElement.GetProperty("admittedUpper").GetInt64());
-        Assert.Equal(WorkshopClockDerivation.WideStartupOffsetNanoseconds, json.RootElement.GetProperty("declaredUncertainty").GetInt64());
-        Assert.Equal("1", json.RootElement.GetProperty("count").GetString());
+        Assert.True(wide.AdmittedLower <= offset && offset <= wide.AdmittedUpper);
+        Assert.Equal(WorkshopClockDerivation.WideStartupOffsetNanoseconds, wide.DeclaredUncertainty);
+        Assert.Equal(1UL, wide.Count);
         Assert.Equal(1UL, ahead.WideStartupOffsets);
         // Applied: the master installs the derived correction, and its corrected readings are consistent.
         Assert.Equal(offset, ahead.StartupCorrection);
@@ -99,13 +102,13 @@ public sealed class WorkshopClockDerivationTests
         Assert.Equal(1UL, ahead.WideStartupOffsets); // recorded once, at startup
         // Control: an offset within the declared uncertainty qualifies with its Startup record and no wide record.
         var narrow = new WorkshopClockDerivation();
-        var (narrowOutput, _) = Capture(() =>
+        var (narrowOutput, _) = Capture(narrow.Diagnostics, () =>
         {
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++) narrow.Qualify(new(100000000 + i, 100000000 + i + 7812, 100000000 + i + 15624, Initial));
             return 0;
         });
-        Assert.Contains("\"reportName\":\"Startup\"", narrowOutput);
-        Assert.DoesNotContain("CCGPU_CLOCK_OFFSET_WIDE", narrowOutput);
+        Assert.Contains(narrowOutput, record => record is ClockDerivationDiagnostic { Report: ClockDerivationReport.Startup });
+        Assert.DoesNotContain(narrowOutput, record => record is ClockWideOffsetDiagnostic);
         Assert.Equal(0UL, narrow.WideStartupOffsets);
     }
 
@@ -116,7 +119,7 @@ public sealed class WorkshopClockDerivationTests
     public void AConstantOffsetBetweenTheContextsTimeOriginsIsDerivedAtStartupNotRefused()
     {
         var derivation = new WorkshopClockDerivation();
-        var (startup, _) = Capture(() =>
+        var (startup, _) = Capture(derivation.Diagnostics, () =>
         {
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++)
                 derivation.Qualify(new(79795000 + i, 79770020 + i, 79800000 + i, Initial));
@@ -125,12 +128,9 @@ public sealed class WorkshopClockDerivationTests
         var correction = derivation.StartupCorrection;
         Assert.InRange(correction, 27000L, 28000L);
         // Typed per-session telemetry of the derived offset and how tightly the exchanges pinned it.
-        using (var json = System.Text.Json.JsonDocument.Parse(startup[(startup.IndexOf('{'))..]))
-        {
-            Assert.Equal(correction, json.RootElement.GetProperty("startupOffset").GetInt64());
-            // Identical exchanges admit their own bracket width plus the bound on both sides: 0.005 + 2 x 0.0158 ms.
-            Assert.Equal(5000L + 2 * Bound, json.RootElement.GetProperty("admittedWidth").GetInt64());
-        }
+        var startupRecord = Assert.IsType<ClockDerivationDiagnostic>(Assert.Single(startup));
+        Assert.Equal(correction, startupRecord.PendingCorrection);
+        Assert.Equal(5000L + 2 * Bound, startupRecord.AdmittedUpper - startupRecord.AdmittedLower);
         Assert.Throws<InvalidOperationException>(() => derivation.Check(new(500000000, 500004000, 500008000, Initial), out _));
         derivation.Adopt(Initial);
         Assert.Equal((Initial, correction), (derivation.Epoch, derivation.Correction));
@@ -150,7 +150,7 @@ public sealed class WorkshopClockDerivationTests
         const long origin = 27500; // the master reads this much early at startup (the observed Chrome case)
         const long half = 7812; // half the integral 15624 ns bracket
         var derivation = new WorkshopClockDerivation();
-        Capture(() =>
+        Capture(derivation.Diagnostics, () =>
         {
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++)
                 derivation.Qualify(new(100000000 + i, 100000000 + i + half - origin, 100000000 + i + 2 * half, Initial));
@@ -160,7 +160,7 @@ public sealed class WorkshopClockDerivationTests
         derivation.Adopt(Initial);
         var outcomes = new List<ClockDerivationOutcome>();
         var worst = 0L;
-        Capture(() =>
+        Capture(derivation.Diagnostics, () =>
         {
             for (var check = 1; check <= 60; check++)
             {
@@ -207,7 +207,7 @@ public sealed class WorkshopClockDerivationTests
     public void OneJitteredExchangeAmongTheStartupExchangesIsSetAsideAndTheOffsetComesFromTheRest()
     {
         var derivation = new WorkshopClockDerivation();
-        Capture(() =>
+        Capture(derivation.Diagnostics, () =>
         {
             derivation.Qualify(new(99000000, 99500000, 99010000, Initial)); // 0.49 ms late: no correction in common with the others
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++)
@@ -242,10 +242,10 @@ public sealed class WorkshopClockDerivationTests
     public void AConsistentCheckChangesNothingAndReportsNothing()
     {
         var derivation = Qualified();
-        var (output, outcome) = Capture(() => derivation.Check(new(500000000, 500004000, 500008000, Initial), out var correction)
+        var (output, outcome) = Capture(derivation.Diagnostics, () => derivation.Check(new(500000000, 500004000, 500008000, Initial), out var correction)
             == ClockDerivationOutcome.Consistent && correction == 0);
         Assert.True(outcome);
-        Assert.Equal("", output);
+        Assert.Empty(output);
         Assert.Equal((1UL, 0UL, 0UL, Initial), (derivation.Checks, derivation.Slews, derivation.Rederivations, derivation.Epoch));
     }
 
@@ -289,17 +289,13 @@ public sealed class WorkshopClockDerivationTests
     public void ALargeDriftRederivesToTheBracketMidpointUnderTheNextEpoch()
     {
         var derivation = Qualified();
-        var (output, result) = Capture(() => (derivation.Check(new(500000000, 501004000, 500008000, Initial), out var correction), correction));
+        var (output, result) = Capture(derivation.Diagnostics, () => (derivation.Check(new(500000000, 501004000, 500008000, Initial), out var correction), correction));
         Assert.Equal(ClockDerivationOutcome.Rederived, result.Item1);
         Assert.Equal(-1_000_000L, result.Item2);
-        var line = Assert.Single(output.Split('\n', StringSplitOptions.RemoveEmptyEntries));
-        Assert.StartsWith("CCGPU_CLOCK_DERIVATION ", line);
-        using (var json = System.Text.Json.JsonDocument.Parse(line["CCGPU_CLOCK_DERIVATION ".Length..]))
-        {
-            Assert.Equal("Rederived", json.RootElement.GetProperty("outcomeName").GetString());
-            Assert.Equal(1UL, json.RootElement.GetProperty("rederivations").GetUInt64());
-            Assert.Equal(result.Item2, json.RootElement.GetProperty("pendingCorrection").GetInt64());
-        }
+        var record = Assert.IsType<ClockDerivationDiagnostic>(Assert.Single(output));
+        Assert.Equal(ClockDerivationOutcome.Rederived, record.Outcome);
+        Assert.Equal(1UL, record.Rederivations);
+        Assert.Equal(result.Item2, record.PendingCorrection);
         // The correction takes effect only when the ring installed it under the next epoch.
         Assert.Throws<InvalidOperationException>(() => derivation.Check(new(600000000, 600004000, 600008000, Initial), out _));
         Assert.Throws<InvalidOperationException>(() => derivation.Adopt(Initial));
@@ -315,27 +311,27 @@ public sealed class WorkshopClockDerivationTests
     public void InconclusiveAndUnansweredChecksAreCountedReportingTheFirstOfEachRunAndASummaryEveryHundredChecks()
     {
         var derivation = Qualified();
-        var (output, outcomes) = Capture(() => new[]
+        var (output, outcomes) = Capture(derivation.Diagnostics, () => new[]
         {
             derivation.Check(new(500000000, 503000000, 501000000, Initial), out _),
             derivation.Check(new(510000000, 513000000, 511000000, Initial), out _),
         });
         Assert.Equal(new[] { ClockDerivationOutcome.Inconclusive, ClockDerivationOutcome.Inconclusive }, outcomes);
-        Assert.Single(output.Split('\n', StringSplitOptions.RemoveEmptyEntries));
+        Assert.Single(output);
         Assert.Equal((2UL, 0UL, 0L), (derivation.Inconclusive, derivation.Rederivations, derivation.Correction));
-        var (missed, _) = Capture(() => { derivation.Missed(); derivation.Missed(); return 0; });
+        var (missed, _) = Capture(derivation.Diagnostics, () => { derivation.Missed(); derivation.Missed(); return 0; });
         Assert.Equal(2UL, derivation.Unanswered);
-        Assert.Single(missed.Split('\n', StringSplitOptions.RemoveEmptyEntries)); // the first unanswered check of the run
+        Assert.Single(missed); // the first unanswered check of the run
         derivation.Retried(); // a wide exchange retried within a check is counted, not a check of its own
         Assert.Equal((1UL, 4UL), (derivation.CheckRetries, derivation.Checks));
-        var (summary, _) = Capture(() =>
+        var (summary, _) = Capture(derivation.Diagnostics, () =>
         {
             while (derivation.Checks < WorkshopClockDerivation.SummaryInterval) derivation.Check(new(520000000, 520004000, 520008000, Initial), out _);
             return 0;
         });
-        Assert.Contains("\"reportName\":\"Summary\"", summary);
-        Assert.Contains("\"checks\":100", summary);
-        Assert.Contains("\"checkRetries\":1", summary);
+        Assert.Contains(summary, record => record is ClockDerivationDiagnostic { Report: ClockDerivationReport.Summary });
+        Assert.Equal(100UL, Assert.IsType<ClockDerivationDiagnostic>(Assert.Single(summary)).Checks);
+        Assert.Equal(1UL, Assert.IsType<ClockDerivationDiagnostic>(Assert.Single(summary)).CheckRetries);
         Assert.Equal(Initial, derivation.Epoch);
     }
 
@@ -355,7 +351,7 @@ public sealed class WorkshopClockDerivationTests
         Assert.Throws<OverflowException>(() => startup.Qualify(new(long.MaxValue, 0, long.MaxValue, Initial)));
         Assert.Equal((0, 0, false), (startup.StartupAttempts, startup.Qualified, startup.IsQualified));
         var running = new WorkshopClockDerivation();
-        Capture(() => {
+        Capture(running.Diagnostics, () => {
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++)
                 running.Qualify(new(1_000_000, long.MaxValue - 1_000_000, 1_000_000, Initial));
             return 0;
@@ -413,13 +409,13 @@ public sealed class WorkshopClockDerivationTests
         var map = Ready(Initial);
         var epoch = map.DisplayEpoch;
         // The first refresh probe after qualification (refresh spacing 250 ms) is answered under epoch 1.
-        var (output, observation) = Capture(() => Accept(map, 320_000_000, new(1), 49_000_000));
+        var (output, observation) = Capture(map.Diagnostics, () => Accept(map, 320_000_000, new(1), 49_000_000));
         Assert.Equal(ClockProbeOutcome.Accepted, observation.Outcome);
         Assert.Equal((1UL, ClockRecalibrationCause.MasterRederived), (map.Recalibrations, map.LastRecalibration!.Value.Cause));
         Assert.Equal(epoch + 1, map.DisplayEpoch);
         Assert.Equal(1, map.ValidProbeCount);
-        Assert.Contains("\"causeName\":\"MasterRederived\"", output);
-        Assert.Contains("\"derivation\":\"0\"", output);
+        Assert.Equal(ClockRecalibrationCause.MasterRederived, Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(output)).Cause);
+        Assert.Equal(Initial, Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(output)).Derivation);
         for (var i = 1; i < WorkshopClockMapping.ProbeCapacity; i++) Accept(map, 320_000_000 + i * 10_000_000, new(1), 49_000_000);
         Assert.Equal(ClockMappingState.Ready, map.State);
         Assert.Equal(1UL, map.Recalibrations);
@@ -445,10 +441,10 @@ public sealed class WorkshopClockDerivationTests
     {
         var map = Ready(Initial);
         Assert.NotNull(map.BeginProbe(new(320_000_000))); // the refresh is sent and never answered
-        var (output, _) = Capture(() => { map.Observe(new(70_000_000 + WorkshopClockMapping.MappingLifetime + 1)); return 0; });
+        var (output, _) = Capture(map.Diagnostics, () => { map.Observe(new(70_000_000 + WorkshopClockMapping.MappingLifetime + 1)); return 0; });
         Assert.Equal(ClockMappingState.Expired, map.State);
         Assert.Equal((1UL, ClockRecalibrationCause.MappingLifetime), (map.Recalibrations, map.LastRecalibration!.Value.Cause));
-        Assert.Contains("\"causeName\":\"MappingLifetime\"", output);
+        Assert.Equal(ClockRecalibrationCause.MappingLifetime, Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(output)).Cause);
         Assert.Equal(0UL, map.LateRenewals);
     }
 
@@ -463,9 +459,9 @@ public sealed class WorkshopClockDerivationTests
         Assert.Equal(ClockProbeOutcome.Reversed, map.Receive(new(refresh, new(370_000_000), new(369_999_999), new(321_000_000), Initial)).Outcome);
         Assert.Null(map.Pending);
         map.Observe(new(560_000_000)); // the requester runs; its next refresh is due at 570 ms, when the mapping lapses
-        var (output, _) = Capture(() => { map.Observe(new(570_000_001)); return 0; });
+        var (output, _) = Capture(map.Diagnostics, () => { map.Observe(new(570_000_001)); return 0; });
         Assert.Equal((1UL, ClockRecalibrationCause.MappingLifetime, 0UL), (map.Recalibrations, map.LastRecalibration!.Value.Cause, map.LateRenewals));
-        Assert.DoesNotContain("CCGPU_CLOCK_RENEWED_LATE", output);
+        Assert.DoesNotContain(output, record => record is ClockLateRenewalDiagnostic);
     }
 
     /// <summary>Ready (eight slots, offset +50 ms, the last answered at 70 ms), then the requester's own event loop does
@@ -473,8 +469,8 @@ public sealed class WorkshopClockDerivationTests
     private static WorkshopClockMapping Stalled(long resumed)
     {
         var map = Ready(Initial);
-        var (output, _) = Capture(() => { map.Observe(new(resumed)); return 0; });
-        Assert.Equal("", output);
+        var (output, _) = Capture(map.Diagnostics, () => { map.Observe(new(resumed)); return 0; });
+        Assert.Empty(output);
         Assert.Equal((ClockMappingState.Renewing, false, 0UL), (map.State, map.IsQualified, map.Recalibrations));
         // Consumers hold, as they do for any mapping without a current calibration.
         Assert.False(map.TryMasterNow(new(resumed), out _));
@@ -489,25 +485,19 @@ public sealed class WorkshopClockDerivationTests
         var epoch = map.DisplayEpoch;
         var probe = map.BeginProbe(new(resumed)); // the fresh exchange is taken at once
         Assert.NotNull(probe);
-        var (output, observation) = Capture(() => map.Receive(new(probe!.Value, new(resumed + 50_000_000), new(resumed + 50_000_000), new(resumed), Initial)));
+        var (output, observation) = Capture(map.Diagnostics, () => map.Receive(new(probe!.Value, new(resumed + 50_000_000), new(resumed + 50_000_000), new(resumed), Initial)));
         Assert.Equal(ClockProbeOutcome.Accepted, observation.Outcome);
         Assert.Equal((ClockMappingState.Ready, 0UL, epoch, 1UL), (map.State, map.Recalibrations, map.DisplayEpoch, map.LateRenewals));
         Assert.True(map.TryMasterNow(new(resumed), out _));
-        var line = Assert.Single(output.Split('\n', StringSplitOptions.RemoveEmptyEntries));
-        Assert.StartsWith("CCGPU_CLOCK_RENEWED_LATE ", line);
-        using var json = System.Text.Json.JsonDocument.Parse(line["CCGPU_CLOCK_RENEWED_LATE ".Length..]);
-        var root = json.RootElement;
-        Assert.Equal((uint)WorkshopRuntimeRole.Browser, root.GetProperty("role").GetUInt32());
-        Assert.Equal("1", root.GetProperty("count").GetString());
-        Assert.Equal((resumed - 70_000_000).ToString(System.Globalization.CultureInfo.InvariantCulture), root.GetProperty("lapseAge").GetString());
-        Assert.Equal("0", root.GetProperty("derivation").GetString());
-        Assert.Equal(epoch.ToString(System.Globalization.CultureInfo.InvariantCulture), root.GetProperty("displayEpoch").GetString());
-        static Int128 Exact(System.Text.Json.JsonElement value) => Int128.Parse(value.GetString()!, System.Globalization.CultureInfo.InvariantCulture);
-        var newLower = Exact(root.GetProperty("newLower")); var newUpper = Exact(root.GetProperty("newUpper"));
-        var oldLower = Exact(root.GetProperty("oldLower")); var oldUpper = Exact(root.GetProperty("oldUpper"));
+        var record = Assert.IsType<ClockLateRenewalDiagnostic>(Assert.Single(output));
+        Assert.Equal(WorkshopRuntimeRole.Browser, record.Role);
+        Assert.Equal(1UL, record.Count);
+        Assert.Equal(resumed - 70_000_000, record.LapseAge);
+        Assert.Equal(Initial, record.Derivation);
+        Assert.Equal(epoch, record.DisplayEpoch);
         Assert.Equal(WorkshopClockMapping.Offset(new(probe.Value, new(resumed + 50_000_000), new(resumed + 50_000_000), new(resumed), Initial), Peer.Uncertainty),
-            new ClockInterval(newLower, newUpper));
-        Assert.True(new ClockInterval(oldLower, oldUpper).Overlaps(new(newLower, newUpper)));
+            record.Fresh);
+        Assert.True(record.Retained.Overlaps(record.Fresh));
     }
 
     [Fact]
@@ -518,13 +508,13 @@ public sealed class WorkshopClockDerivationTests
         var epoch = map.DisplayEpoch;
         var probe = map.BeginProbe(new(resumed))!.Value;
         // The offset moved by 10 ms during the stall, far beyond the old mapping's drift-widened interval.
-        var (output, observation) = Capture(() => map.Receive(new(probe, new(resumed + 60_000_000), new(resumed + 60_000_000), new(resumed), Initial)));
+        var (output, observation) = Capture(map.Diagnostics, () => map.Receive(new(probe, new(resumed + 60_000_000), new(resumed + 60_000_000), new(resumed), Initial)));
         Assert.Equal(ClockProbeOutcome.Accepted, observation.Outcome); // it seeds the fresh calibration
         Assert.Equal((1UL, ClockRecalibrationCause.MappingLifetime, epoch + 1, 0UL),
             (map.Recalibrations, map.LastRecalibration!.Value.Cause, map.DisplayEpoch, map.LateRenewals));
         Assert.Equal((ClockMappingState.Expired, 1), (map.State, map.ValidProbeCount));
-        Assert.Contains("CCGPU_CLOCK_RECALIBRATED ", output);
-        Assert.DoesNotContain("CCGPU_CLOCK_RENEWED_LATE", output);
+        Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(output));
+        Assert.DoesNotContain(output, record => record is ClockLateRenewalDiagnostic);
     }
 
     // ---- R3-F1 (Murdoch-2 round 3; D23 amended by the coordinator): only an exchange narrow enough to qualify the
@@ -533,11 +523,11 @@ public sealed class WorkshopClockDerivationTests
 
     /// <summary>One renewing exchange answered at <paramref name="sent"/> + <paramref name="roundTrip"/>, its master read
     /// at the round trip's midpoint under <paramref name="offset"/>.</summary>
-    private static (string Output, ClockObservation Observation) Renew(WorkshopClockMapping map, long sent, long roundTrip, long offset)
+    private static (WorkshopDiagnostic[] Output, ClockObservation Observation) Renew(WorkshopClockMapping map, long sent, long roundTrip, long offset)
     {
         var probe = map.BeginProbe(new(sent)) ?? throw new InvalidOperationException($"No renewing probe could be sent at {sent}.");
         var master = sent + roundTrip / 2 + offset;
-        return Capture(() => map.Receive(new(probe, new(master), new(master), new(sent + roundTrip), Initial)));
+        return Capture(map.Diagnostics, () => map.Receive(new(probe, new(master), new(master), new(sent + roundTrip), Initial)));
     }
 
     // Murdoch's probe (review-r3/probes/MurdochR3RenewalTests.cs.txt), inverted: a 200 ms renewing exchange while the
@@ -553,13 +543,13 @@ public sealed class WorkshopClockDerivationTests
         Assert.Equal(ClockProbeOutcome.Inconclusive, wide.Outcome);
         Assert.Equal((ClockMappingState.Renewing, 0UL, 0UL, epoch), (map.State, map.LateRenewals, map.Recalibrations, map.DisplayEpoch));
         Assert.False(map.TryMasterNow(new(resumed + 200_000_000), out _)); // consumers keep holding
-        Assert.Equal("", output);
+        Assert.Empty(output);
         var (recalibration, narrow) = Renew(map, resumed + 200_000_000, 1_000_000, moved);
         Assert.Equal(ClockProbeOutcome.Accepted, narrow.Outcome); // it seeds the fresh calibration
         Assert.Equal((1UL, ClockRecalibrationCause.MappingLifetime, 0UL, epoch + 1),
             (map.Recalibrations, map.LastRecalibration!.Value.Cause, map.LateRenewals, map.DisplayEpoch));
-        Assert.Contains("\"stateBefore\":6", recalibration);
-        Assert.DoesNotContain("CCGPU_CLOCK_RENEWED_LATE", recalibration);
+        Assert.Equal(ClockMappingState.Renewing, Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(recalibration)).StateBefore);
+        Assert.DoesNotContain(recalibration, record => record is ClockLateRenewalDiagnostic);
     }
 
     // A narrow consistent exchange after wide ones renews exactly once, when the renewal concludes, and resumes Ready
@@ -574,23 +564,20 @@ public sealed class WorkshopClockDerivationTests
         var map = Stalled(resumed);
         var epoch = map.DisplayEpoch;
         var now = resumed;
-        var output = "";
+        var output = new List<WorkshopDiagnostic>();
         for (var i = 0; i < wide; i++, now += roundTrip)
         {
             var (text, observation) = Renew(map, now, roundTrip, 50_000_000);
             Assert.Equal(ClockProbeOutcome.Inconclusive, observation.Outcome);
-            output += text;
+            output.AddRange(text);
         }
         Assert.Equal((ClockMappingState.Renewing, 0UL, 0UL), (map.State, map.LateRenewals, map.Recalibrations));
         var (renewal, narrow) = Renew(map, now, 0, 50_000_000);
         Assert.Equal(ClockProbeOutcome.Accepted, narrow.Outcome);
         Assert.Equal((ClockMappingState.Ready, 1UL, 0UL, epoch), (map.State, map.LateRenewals, map.Recalibrations, map.DisplayEpoch));
         Assert.True(map.TryMasterNow(new(now), out _));
-        Assert.Equal("", output);
-        var line = Assert.Single(renewal.Split('\n', StringSplitOptions.RemoveEmptyEntries));
-        Assert.StartsWith("CCGPU_CLOCK_RENEWED_LATE ", line);
-        using var json = System.Text.Json.JsonDocument.Parse(line["CCGPU_CLOCK_RENEWED_LATE ".Length..]);
-        Assert.Equal(wide + 1, json.RootElement.GetProperty("exchanges").GetInt32());
+        Assert.Empty(output);
+        Assert.Equal(wide + 1, Assert.IsType<ClockLateRenewalDiagnostic>(Assert.Single(renewal)).Exchanges);
     }
 
     // The budget boundary: the RecoveryProbeLimit-th renewing exchange inconclusive too exhausts it (ProbeLimit).
@@ -607,7 +594,7 @@ public sealed class WorkshopClockDerivationTests
         Assert.Equal(ClockProbeOutcome.Inconclusive, last.Outcome);
         Assert.Equal((ClockMappingState.Expired, 1UL, ClockRecalibrationCause.ProbeLimit, 0UL),
             (map.State, map.Recalibrations, map.LastRecalibration!.Value.Cause, map.LateRenewals));
-        Assert.Contains("\"stateBefore\":6", output);
+        Assert.Equal(ClockMappingState.Renewing, Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(output)).StateBefore);
     }
 
     // The time bound: a renewal not concluded within RecoveryLifetime of the lapse is a recalibration (Elapsed); at the
@@ -620,7 +607,7 @@ public sealed class WorkshopClockDerivationTests
         const long resumed = 770_000_000;
         var map = Stalled(resumed);
         Assert.Equal(ClockProbeOutcome.Inconclusive, Renew(map, resumed, 2_000_000, 50_000_000).Observation.Outcome);
-        Capture(() => { map.Observe(new(resumed + WorkshopClockMapping.RecoveryLifetime + beyond)); return 0; });
+        Capture(map.Diagnostics, () => { map.Observe(new(resumed + WorkshopClockMapping.RecoveryLifetime + beyond)); return 0; });
         Assert.Equal(elapsed ? (ClockMappingState.Expired, 1UL) : (ClockMappingState.Renewing, 0UL), (map.State, map.Recalibrations));
         if (elapsed) Assert.Equal(ClockRecalibrationCause.Elapsed, map.LastRecalibration!.Value.Cause);
     }
@@ -652,10 +639,10 @@ public sealed class WorkshopClockDerivationTests
         map.Observe(new(321_000_000)); // the refresh horizon is lost: Recovering
         Assert.Equal(ClockMappingState.Recovering, map.State);
         Assert.NotNull(map.BeginProbe(new(321_000_000))); // sent and never answered
-        var (output, _) = Capture(() => { map.Observe(new(70_000_000 + WorkshopClockMapping.MappingLifetime + 1)); return 0; });
+        var (output, _) = Capture(map.Diagnostics, () => { map.Observe(new(70_000_000 + WorkshopClockMapping.MappingLifetime + 1)); return 0; });
         Assert.Equal((ClockMappingState.Expired, 1UL, ClockRecalibrationCause.MappingLifetime, 0UL),
             (map.State, map.Recalibrations, map.LastRecalibration!.Value.Cause, map.LateRenewals));
-        Assert.Contains("\"stateBefore\":5", output);
+        Assert.Equal(ClockMappingState.Recovering, Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(output)).StateBefore);
     }
 
     // R3-F3: the renewing probe is taken the moment the lapse is detected, even 249 ms after the last send.
@@ -694,9 +681,9 @@ public sealed class WorkshopClockDerivationTests
         Assert.Equal(ClockProbeOutcome.Accepted, observation.Outcome); // it seeds the fresh calibration
         Assert.Equal((1UL, ClockRecalibrationCause.StallPastMappedWidth, 0UL, epoch + 1),
             (map.Recalibrations, map.LastRecalibration!.Value.Cause, map.LateRenewals, map.DisplayEpoch));
-        Assert.Contains("\"stateBefore\":6", output);
-        Assert.Contains("\"causeName\":\"StallPastMappedWidth\"", output);
-        Assert.DoesNotContain("CCGPU_CLOCK_RENEWED_LATE", output);
+        Assert.Equal(ClockMappingState.Renewing, Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(output)).StateBefore);
+        Assert.Equal(ClockRecalibrationCause.StallPastMappedWidth, Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(output)).Cause);
+        Assert.DoesNotContain(output, record => record is ClockLateRenewalDiagnostic);
     }
 
     // The boundary: Ready's newest slot is 400,000 ns wide (answered at 70 ms); drift-widened by 500 ppm of its age
@@ -729,7 +716,7 @@ public sealed class WorkshopClockDerivationTests
         Assert.Equal((ClockProbeOutcome.Accepted, 400_001L), (answered.Outcome, (long)answered.Offset.Width));
         Assert.Equal(ClockMappingState.Ready, map.State);
         var resumed = 70_000_001 + age;
-        Capture(() => { map.Observe(new(resumed)); return 0; });
+        Capture(map.Diagnostics, () => { map.Observe(new(resumed)); return 0; });
         Assert.Equal(ClockMappingState.Renewing, map.State);
         Renew(map, resumed, 0, 50_000_000);
         Assert.Equal((renews ? 1UL : 0UL, renews ? 0UL : 1UL), (map.LateRenewals, map.Recalibrations));
@@ -752,9 +739,7 @@ public sealed class WorkshopClockDerivationTests
         var (renewal, last) = Renew(map, now, 0, 50_000_000);
         Assert.Equal(ClockProbeOutcome.Accepted, last.Outcome);
         Assert.Equal((ClockMappingState.Ready, 1UL, 0UL), (map.State, map.LateRenewals, map.Recalibrations));
-        var line = Assert.Single(renewal.Split('\n', StringSplitOptions.RemoveEmptyEntries));
-        using var json = System.Text.Json.JsonDocument.Parse(line["CCGPU_CLOCK_RENEWED_LATE ".Length..]);
-        Assert.Equal(WorkshopClockMapping.RecoveryProbeLimit, json.RootElement.GetProperty("exchanges").GetInt32());
+        Assert.Equal(WorkshopClockMapping.RecoveryProbeLimit, Assert.IsType<ClockLateRenewalDiagnostic>(Assert.Single(renewal)).Exchanges);
     }
 
     [Fact]
@@ -764,11 +749,11 @@ public sealed class WorkshopClockDerivationTests
         var unanswered = Stalled(resumed);
         Assert.NotNull(unanswered.BeginProbe(new(resumed)));
         // Unanswered: the renewal's time bound (ordinary recovery's lifetime, from the lapse) ends it.
-        Capture(() => { unanswered.Observe(new(resumed + WorkshopClockMapping.RecoveryLifetime + 1)); return 0; });
+        Capture(unanswered.Diagnostics, () => { unanswered.Observe(new(resumed + WorkshopClockMapping.RecoveryLifetime + 1)); return 0; });
         Assert.Equal((1UL, ClockRecalibrationCause.Elapsed, 0UL), (unanswered.Recalibrations, unanswered.LastRecalibration!.Value.Cause, unanswered.LateRenewals));
         var reversed = Stalled(resumed);
         var probe = reversed.BeginProbe(new(resumed))!.Value;
-        Capture(() => reversed.Receive(new(probe, new(resumed + 50_000_000), new(resumed + 49_999_999), new(resumed), Initial)));
+        Capture(reversed.Diagnostics, () => reversed.Receive(new(probe, new(resumed + 50_000_000), new(resumed + 49_999_999), new(resumed), Initial)));
         Assert.Equal((1UL, ClockRecalibrationCause.MappingLifetime, 0UL), (reversed.Recalibrations, reversed.LastRecalibration!.Value.Cause, reversed.LateRenewals));
     }
 
@@ -786,7 +771,7 @@ public sealed class WorkshopClockDerivationTests
         // A zero-round-trip exchange reading master = resumed + X admits [X - 2u, X + 2u]; its lower edge meets old.Upper.
         var offset = checked((long)(old.Upper + 2 * u)) + beyond;
         var probe = map.BeginProbe(new(resumed))!.Value;
-        Capture(() => map.Receive(new(probe, new(resumed + offset), new(resumed + offset), new(resumed), Initial)));
+        Capture(map.Diagnostics, () => map.Receive(new(probe, new(resumed + offset), new(resumed + offset), new(resumed), Initial)));
         Assert.Equal((renewed ? 1UL : 0UL, renewed ? 0UL : 1UL), (map.LateRenewals, map.Recalibrations));
         // A 700 ms stall is within the bound: this is a genuine disagreement, not a stall past the mapped width.
         if (!renewed) Assert.Equal(ClockRecalibrationCause.MappingLifetime, map.LastRecalibration!.Value.Cause);
@@ -796,11 +781,11 @@ public sealed class WorkshopClockDerivationTests
     public void ADisjointIntervalIsACountedRecalibration()
     {
         var map = Ready(Initial);
-        var (output, observation) = Capture(() => Accept(map, 320_000_000, Initial, 60_000_000));
+        var (output, observation) = Capture(map.Diagnostics, () => Accept(map, 320_000_000, Initial, 60_000_000));
         Assert.Equal(ClockProbeOutcome.Disjoint, observation.Outcome);
         Assert.Equal(ClockMappingState.Suspect, map.State);
         Assert.Equal((1UL, ClockRecalibrationCause.Disjoint), (map.Recalibrations, map.LastRecalibration!.Value.Cause));
-        Assert.Contains("\"causeName\":\"Disjoint\"", output);
+        Assert.Equal(ClockRecalibrationCause.Disjoint, Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(output)).Cause);
     }
 
     // ---- Story 9.4b final-round review (blind hunter 8, edge-case E3, verification gaps V2/V3) ----
@@ -819,10 +804,10 @@ public sealed class WorkshopClockDerivationTests
         var map = Ready(Initial);
         var probe = map.BeginProbe(new(320_000_000))!.Value;
         var stale = probe with { Sequence = new(probe.Sequence.Value - 1) };
-        var (output, newer) = Capture(() => map.Receive(new(stale, new(370_000_000), new(370_000_000), new(320_000_000), new(1))));
+        var (output, newer) = Capture(map.Diagnostics, () => map.Receive(new(stale, new(370_000_000), new(370_000_000), new(320_000_000), new(1))));
         Assert.Equal(ClockProbeOutcome.WrongIdentity, newer.Outcome);
         Assert.Equal((0UL, ClockMappingState.Ready), (map.Recalibrations, map.State));
-        Assert.Equal("", output);
+        Assert.Empty(output);
         // The installed epoch is still 0: the owned answer under epoch 0 is accepted, not a reversal.
         Assert.Equal(ClockProbeOutcome.Accepted,
             map.Receive(new(probe, new(370_000_000), new(370_000_000), new(320_000_000), Initial)).Outcome);
@@ -835,11 +820,12 @@ public sealed class WorkshopClockDerivationTests
     {
         var map = Ready(Initial);
         Assert.NotNull(map.BeginProbe(new(320_000_000))); // a probe outstanding: the lapse recalibrates
-        Capture(() => { map.Observe(new(70_000_000 + WorkshopClockMapping.MappingLifetime + 1)); return 0; });
+        Capture(map.Diagnostics, () => { map.Observe(new(70_000_000 + WorkshopClockMapping.MappingLifetime + 1)); return 0; });
         Assert.Equal(1UL, map.Recalibrations);
-        var (output, first) = Capture(() => Accept(map, 600_000_000, new(1)));
+        var (output, first) = Capture(map.Diagnostics, () => Accept(map, 600_000_000, new(1)));
         Assert.Equal(ClockProbeOutcome.Accepted, first.Outcome);
-        Assert.Equal((1UL, ""), (map.Recalibrations, output));
+        Assert.Equal(1UL, map.Recalibrations);
+        Assert.Empty(output);
     }
 
     // Verification gap V2: the ProfileRange cause. Each accepted interval overlaps the best current one, but slots retained
@@ -853,10 +839,10 @@ public sealed class WorkshopClockDerivationTests
         Assert.Equal(ClockProbeOutcome.Accepted, Reply(map, 580 * ms, 580 * ms, 381 * ms, Initial).Outcome);    // narrow -199
         Assert.Equal(ClockProbeOutcome.Accepted, Reply(map, 830 * ms, 1079 * ms, 631 * ms, Initial).Outcome);   // [-448, -199]
         Assert.Equal(ClockProbeOutcome.Accepted, Reply(map, 1081 * ms, 1081 * ms, 633 * ms, Initial).Outcome);  // narrow -448
-        var (output, observation) = Capture(() => Reply(map, 1331 * ms, 1580 * ms, 883 * ms, Initial));         // [-697, -448]
+        var (output, observation) = Capture(map.Diagnostics, () => Reply(map, 1331 * ms, 1580 * ms, 883 * ms, Initial));         // [-697, -448]
         Assert.Equal(ClockProbeOutcome.ProfileRange, observation.Outcome);
         Assert.Equal((1UL, ClockRecalibrationCause.ProfileRange), (map.Recalibrations, map.LastRecalibration!.Value.Cause));
-        Assert.Contains("\"causeName\":\"ProfileRange\"", output);
+        Assert.Equal(ClockRecalibrationCause.ProfileRange, Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(output)).Cause);
     }
 
     // Verification gap V3: a derivation epoch beyond 32 bits is a malformed reply, never truncated.
@@ -894,20 +880,17 @@ public sealed class WorkshopClockDerivationTests
             _ => throw new ArgumentOutOfRangeException(nameof(corruption)),
         };
         var error = Assert.ThrowsAny<ArgumentException>(() => WorkshopClockWire.DecodeReply(corrupted, Peer, new(320_000_000)));
-        var (output, observation) = Capture(() => map.ReceiveEncoded(corrupted, new(320_000_000)));
+        var (output, observation) = Capture(map.Diagnostics, () => map.ReceiveEncoded(corrupted, new(320_000_000)));
         Assert.Null(observation);
         Assert.Equal((1UL, (ClockProbe?)probe, 0UL, ClockMappingState.Ready), (map.MalformedReplies, map.Pending, map.Recalibrations, map.State));
-        var line = Assert.Single(output.Split('\n', StringSplitOptions.RemoveEmptyEntries));
-        Assert.StartsWith("CCGPU_CLOCK_REPLY_REJECTED ", line);
-        using var json = System.Text.Json.JsonDocument.Parse(line["CCGPU_CLOCK_REPLY_REJECTED ".Length..]);
-        Assert.Equal((int)ClockProbeOutcome.Malformed, json.RootElement.GetProperty("outcome").GetInt32());
-        Assert.Equal("Malformed", json.RootElement.GetProperty("outcomeName").GetString());
-        Assert.Equal("1", json.RootElement.GetProperty("count").GetString());
-        Assert.Equal(corrupted.Length, json.RootElement.GetProperty("length").GetInt32());
-        Assert.Equal(error.Message, json.RootElement.GetProperty("detail").GetString());
+        var record = Assert.IsType<ClockReplyRejectedDiagnostic>(Assert.Single(output));
+        Assert.Equal(1UL, record.Count);
+        Assert.Equal(corrupted.Length, record.Length);
+        Assert.Equal(error.Message, record.Detail);
         // Control: the well-formed answer to the same probe takes the same path, is accepted and emits nothing.
-        var (accepted, good) = Capture(() => map.ReceiveEncoded(reply, new(320_000_000)));
-        Assert.Equal(("", ClockProbeOutcome.Accepted), (accepted, good!.Value.Outcome));
+        var (accepted, good) = Capture(map.Diagnostics, () => map.ReceiveEncoded(reply, new(320_000_000)));
+        Assert.Empty(accepted);
+        Assert.Equal(ClockProbeOutcome.Accepted, good!.Value.Outcome);
         Assert.Equal(1UL, map.MalformedReplies);
     }
 
@@ -931,40 +914,25 @@ public sealed class WorkshopClockDerivationTests
         Assert.DoesNotContain("RejectMalformedReply(", source);
     }
 
-    // Blind hunter 2: since wire v4 the reply carries its derivation epoch at 96..103, and every diagnostic record keeps the
-    // exact reply 0..103 (receipt I64 at 104, outcome U32 at 112, received length U32 at 116, offset I128 at 120/136).
     [Fact]
-    public void EveryClockDiagnosticRecordKeepsTheExactReplyIncludingItsDerivationEpoch()
+    public void ManagedClockObservationsRetainTheAdmittedReplyAndExactInterval()
     {
-        static long I64(byte[] d, int at) => System.Buffers.Binary.BinaryPrimitives.ReadInt64LittleEndian(d.AsSpan(at));
-        static int I32(byte[] d, int at) => System.Buffers.Binary.BinaryPrimitives.ReadInt32LittleEndian(d.AsSpan(at));
-        static Int128 I128(byte[] d, int at) => System.Buffers.Binary.BinaryPrimitives.ReadInt128LittleEndian(d.AsSpan(at));
-        Assert.Equal(152, WorkshopClockWire.DiagnosticBytes);
-        var map = Ready(Initial);
-        var probe = map.BeginProbe(new(320_000_000))!.Value;
-        var reply = WorkshopClockWire.EncodeReply(WorkshopClockWire.EncodeProbe(probe, Peer), Peer, new(370_000_000), new(370_000_001), new(9));
-
-        var rejected = WorkshopClockWire.EncodeRejectedReply(reply, new(320_000_002));
-        Assert.Equal(WorkshopClockWire.DiagnosticBytes, rejected.Length);
-        Assert.Equal(WorkshopClockWire.DecodeReply(reply, Peer, new(320_000_002)),
-            WorkshopClockWire.DecodeReply(rejected.AsSpan(0, WorkshopClockWire.ReplyBytes), Peer, new(320_000_002)));
-        Assert.Equal((320_000_002L, (int)ClockProbeOutcome.Malformed, WorkshopClockWire.ReplyBytes), (I64(rejected, 104), I32(rejected, 112), I32(rejected, 116)));
-        var longer = new byte[WorkshopClockWire.ReplyBytes + 8]; reply.CopyTo(longer, 0); longer[^1] = 0xFF;
-        var truncated = WorkshopClockWire.EncodeRejectedReply(longer, new(320_000_002));
-        Assert.Equal(WorkshopClockWire.DecodeReply(reply, Peer, new(320_000_002)),
-            WorkshopClockWire.DecodeReply(truncated.AsSpan(0, WorkshopClockWire.ReplyBytes), Peer, new(320_000_002))); // at most one reply retained; the length records truncation
-        Assert.Equal(longer.Length, I32(truncated, 116));
-
-        var expired = WorkshopClockWire.EncodeExpiredProbe(probe, Peer, new(320_000_003));
-        Assert.Equal(probe, WorkshopClockWire.DecodeProbe(expired.AsSpan(0, WorkshopClockWire.ProbeBytes), Peer));
-        Assert.Equal((320_000_003L, (int)ClockProbeOutcome.Expired, 0), (I64(expired, 104), I32(expired, 112), I32(expired, 116)));
-
-        var decoded = WorkshopClockWire.DecodeReply(reply, Peer, new(320_000_004));
-        var observation = new ClockObservation(decoded, ClockProbeOutcome.Accepted, new(-49_000_004, -49_000_000));
-        var record = WorkshopClockWire.EncodeObservation(observation, Peer);
-        Assert.Equal(decoded, WorkshopClockWire.DecodeReply(record.AsSpan(0, WorkshopClockWire.ReplyBytes), Peer, new(320_000_004)));
-        Assert.Equal(9L, I64(record, 96)); // the derivation epoch the stamps were taken under
-        Assert.Equal((320_000_004L, (int)ClockProbeOutcome.Accepted, WorkshopClockWire.ReplyBytes), (I64(record, 104), I32(record, 112), I32(record, 116)));
-        Assert.Equal(((Int128)(-49_000_004), (Int128)(-49_000_000)), (I128(record, 120), I128(record, 136)));
+        using var transport = new WorkshopActivationAnimationTests.NativeClient();
+        var port = transport.Client.Observation;
+        var samples = port.Diagnostics(port.Session, default).Value!.Select(receipt => receipt.Record)
+            .OfType<WorkshopClockSampleDiagnostic>().ToArray();
+        Assert.Equal(8, samples.Length);
+        for (var index = 0; index < samples.Length; index++)
+        {
+            var record = samples[index];
+            Assert.Equal((ulong)index + 1, record.Probe.Sequence.Value);
+            Assert.Equal(port.Session, record.Probe.Session);
+            Assert.Equal(ClockProbeOutcome.Accepted, record.Outcome);
+            var reply = record.Reply!.Value;
+            Assert.Equal(record.Probe, reply.Probe);
+            Assert.Equal(new ClockDerivationEpoch(0), reply.Derivation);
+            Assert.Equal(reply.RequesterReceived, record.Received);
+            Assert.Equal(new ClockInterval(-200_000, 200_000), record.Offset);
+        }
     }
 }

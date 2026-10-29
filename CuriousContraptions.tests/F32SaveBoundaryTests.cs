@@ -76,7 +76,7 @@ public sealed class F32SaveBoundaryTests
             TestContext.Current.CancellationToken));
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.DecodeStored(SaveFixture.Elements, stored));
         Assert.True(WorkshopUiFailure.IsRejection(refusal));
-        Assert.Equal(VerifierExplanation, WorkshopUiFailure.Report(refusal));
+        Assert.Equal(VerifierExplanation, WorkshopUiFailure.Report(refusal, simulation.Diagnostics));
         NoFixedCapacityTests.AssertSameState(before, simulation.Committed, "the live simulation after a refused load");
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
         Assert.Equal(before.Tick.Value + 1, simulation.Committed.Tick.Value);

@@ -3398,7 +3398,9 @@ So that effects line up with the physics and none is lost or doubled.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.24: Typed Read-Only Observation Port Replaces Console Channels
-*Status: Backlog. Position 52.*
+*Status: Implementation done; five Auto layers and affected re-reviews Pass, final local 5,047/0/0. Normal hooks, exact-SHA approval and publication pending. Browser qualification pending; CI/deployment unverified. Position 52.*
+
+*Current enforcement: the stabilization contract defers the browser consumer migration and Chrome assertions below until post-catalogue E2E. This slice replaces all active production publishers and migrates native/node consumers; no old production alias remains for deferred browser tools. [Implementation and evidence](../implementation-artifacts/spec-9a-24-typed-observation-port.md).*
 
 *Depends on: Story 9A.23. Audit: C4, C5.*
 

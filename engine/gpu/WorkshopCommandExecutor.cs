@@ -19,7 +19,7 @@ public interface IWorkshopCommandHost
 }
 
 /// <summary>Shared worker/native command admission, execution and acknowledgement ownership.</summary>
-public sealed class WorkshopCommandExecutor(IWorkshopGpuDevice device, IWorkshopCommandHost host) : IAsyncDisposable
+public sealed class WorkshopCommandExecutor(IWorkshopGpuDevice device, IWorkshopCommandHost host, WorkshopDiagnostics? diagnostics = null) : IAsyncDisposable
 {
     private WorkshopSimulation? _simulation;
     private ulong _nextCadence = 1;
@@ -54,7 +54,7 @@ public sealed class WorkshopCommandExecutor(IWorkshopGpuDevice device, IWorkshop
             {
                 case WorkshopCommandKind.Initialize:
                     if (_simulation is not null) throw new InvalidOperationException("Already initialized.");
-                    _simulation = new(device, host.Clock, command.Settings!.Value, new(1), host.Installation, GpuDeviceOwnership.Owned);
+                    _simulation = new(device, host.Clock, command.Settings!.Value, new(1), host.Installation, GpuDeviceOwnership.Owned, diagnostics);
                     result = await Simulation.Initialize(); break;
                 case WorkshopCommandKind.ConfigureCadence:
                     result = await Simulation.Configure(command.Settings!.Value, new(checked(++_nextCadence))); break;

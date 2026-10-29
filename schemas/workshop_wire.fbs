@@ -338,5 +338,50 @@ table WorkshopCommand {
 // Every buffer is size-prefixed and carries its root's identifier (Story 9A.2): "CCWC" WorkshopCommand, "CCWR" WorkshopResponse
 // (acknowledgements, physical reads and schedule endpoints) and "CCWS" SavedConstruction. A schema declares one file_identifier,
 // so the codecs pass each root's identifier to FinishSizePrefixed and to the verifier. No field or check names a format generation.
+// Concrete session diagnostic payloads, carried by the same verified codec ("CCWO").
+// Existing clock/command/response/trace blobs below are decoded only by their managed codecs.
+struct ObservationInterval { lower_low:uint64; lower_high:int64; upper_low:uint64; upper_high:int64; }
+struct ObservationSlot { receipt:int64; sequence:uint64; interval:ObservationInterval; }
+struct ObservationExchange { before:int64; master:int64; after:int64; epoch:uint32; }
+table FaultObservation { kind:uint32; site:uint32; exception_type:string (required); detail:string (required); }
+table ReplyObservation { probe:[uint8] (required); master_received:int64; master_sent:int64; received:int64; derivation:uint32; }
+table RecalibrationObservation {
+    peer:[uint8] (required); cause:uint32; count:uint64; state_before:uint32;
+    has_derivation:bool; derivation:uint32; display_epoch:uint64; at:int64;
+    recovery_started:int64; recovery_sends:int32; pending:[uint8]; reply:ReplyObservation; slots:[ObservationSlot] (required);
+}
+table RejectedClockObservation { role:uint32; count:uint64; length:int32; received:int64; detail:string (required); }
+table LateRenewalObservation {
+    role:uint32; count:uint64; lapse_age:int64; exchanges:int32; renewed_at:int64;
+    retained:ObservationInterval; fresh:ObservationInterval; has_derivation:bool; derivation:uint32; display_epoch:uint64;
+}
+table WideOffsetObservation { offset:int64; admitted_lower:int64; admitted_upper:int64; declared_uncertainty:int64; count:uint64; }
+table DerivationObservation {
+    report:uint32; outcome:uint32; epoch:uint32; correction:int64; has_pending:bool; pending:int64;
+    has_admitted:bool; admitted_lower:int64; admitted_upper:int64; exchange:ObservationExchange;
+    qualified:int32; startup_attempts:int32; startup_outliers:int32; startup_inconclusive:int32; startup_unanswered:int32;
+    checks:uint64; slews:uint64; rederivations:uint64; inconclusive:uint64; unanswered:uint64; check_retries:uint64;
+}
+table DeferralObservation { cause:uint32; count:uint64; }
+table DebtObservation { tick:uint64; reason:uint32; oldest:uint64; age_milliseconds:int64; }
+table TickFailureObservation { outcome:uint32; reason:uint32; fault:uint32; }
+table TransferObservation { response:[uint8] (required); }
+table TraceSampleObservation { record:[uint8] (required); }
+table CaptureObservation {
+    kind:uint32; stage:uint32; identity:uint64; epoch:uint64; cadence:uint32; physical:uint32; revision:uint64;
+    end:uint32; status:uint32; expected_count:int32; count:int32; chunk:int32; chunks:int32; first:int32;
+    construction:[uint8]; samples:[TraceSampleObservation] (required); milliseconds:[double] (required);
+}
+enum ObservationPayload: uint8 { None, Fault, Recalibration, RejectedClock, LateRenewal, WideOffset, Derivation, Deferral, Debt, TickFailure, Transfer, Capture }
+table DiagnosticObservation {
+    kind:ObservationPayload;
+    fault:FaultObservation; recalibration:RecalibrationObservation; rejected_clock:RejectedClockObservation;
+    late_renewal:LateRenewalObservation; wide_offset:WideOffsetObservation; derivation:DerivationObservation;
+    deferral:DeferralObservation; debt:DebtObservation; tick_failure:TickFailureObservation;
+    transfer:TransferObservation; capture:CaptureObservation;
+}
+table WorkshopObservationBatch {
+    session:[uint8] (required); role:uint32; records:[DiagnosticObservation] (required); incomplete:string;
+}
 root_type WorkshopResponse;
 

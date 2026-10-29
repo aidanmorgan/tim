@@ -19,7 +19,7 @@ public enum ClockDerivationReport : byte { Check, Startup, Summary }
 /// A wider bracket (the master or the Simulation was descheduled) is inconclusive and is retried or skipped.</item>
 /// <item>Startup: <see cref="StartupExchanges"/> narrow exchanges within <see cref="StartupAttemptLimit"/> attempts derive
 /// the constant offset between the contexts' time origins as the startup correction, whatever its size: an offset beyond
-/// <see cref="WideStartupOffsetNanoseconds"/> is applied and recorded once as typed, counted CCGPU_CLOCK_OFFSET_WIDE
+/// <see cref="WideStartupOffsetNanoseconds"/> is applied and recorded once as typed, counted ClockOffsetWide diagnostic
 /// telemetry (each worker's time origin carries its own host-clock reference, so a host clock step widens it; D14 as
 /// amended 19 Oct 2026). Only a derivation that cannot qualify refuses the session: exchanges that admit no common
 /// correction beyond the outlier allowance, or an exhausted budget.</item>
@@ -35,6 +35,8 @@ public enum ClockDerivationReport : byte { Check, Startup, Summary }
 /// </summary>
 public sealed class WorkshopClockDerivation
 {
+    public WorkshopDiagnostics Diagnostics { get; }
+    public WorkshopClockDerivation(WorkshopDiagnostics? diagnostics = null) => Diagnostics = diagnostics ?? new();
     /// <summary>The share of the declared 100 us timestamp uncertainty that the native clock's 84.1255 us conservative
     /// error leaves, rounded down.</summary>
     public const long BoundNanoseconds = 15_800;
@@ -154,18 +156,8 @@ public sealed class WorkshopClockDerivation
     private void RecordWideOffset(long offset)
     {
         WideStartupOffsets++;
-        using var bytes = new System.IO.MemoryStream();
-        using (var json = new System.Text.Json.Utf8JsonWriter(bytes))
-        {
-            json.WriteStartObject();
-            json.WriteNumber("offset", offset);
-            json.WriteNumber("admittedLower", _admitted!.Value.Lower); json.WriteNumber("admittedUpper", _admitted!.Value.Upper);
-            json.WriteNumber("admittedWidth", _admitted!.Value.Upper - _admitted!.Value.Lower);
-            json.WriteNumber("declaredUncertainty", WideStartupOffsetNanoseconds);
-            json.WriteString("count", WideStartupOffsets.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            json.WriteEndObject();
-        }
-        Console.WriteLine("CCGPU_CLOCK_OFFSET_WIDE " + System.Text.Encoding.UTF8.GetString(bytes.GetBuffer(), 0, checked((int)bytes.Length)));
+        Diagnostics.Capture(() => new ClockWideOffsetDiagnostic(offset, _admitted!.Value.Lower,
+            _admitted!.Value.Upper, WideStartupOffsetNanoseconds, WideStartupOffsets));
     }
 
     private (int Covered, long Lower, long Upper) MostAdmitted((long Lower, long Upper) candidate)
@@ -264,40 +256,9 @@ public sealed class WorkshopClockDerivation
     }
 
     private void Report(ClockDerivationReport report, ClockDerivationOutcome outcome, ClockDerivationExchange? exchange) =>
-        Console.WriteLine("CCGPU_CLOCK_DERIVATION " + Describe(report, outcome, exchange));
-
-    private string Describe(ClockDerivationReport report, ClockDerivationOutcome outcome, ClockDerivationExchange? exchange)
-    {
-        using var bytes = new System.IO.MemoryStream();
-        using (var json = new System.Text.Json.Utf8JsonWriter(bytes))
-        {
-            json.WriteStartObject();
-            json.WriteNumber("report", (byte)report);
-            json.WriteString("reportName", report.ToString());
-            json.WriteNumber("outcome", (byte)outcome);
-            json.WriteString("outcomeName", outcome.ToString());
-            json.WriteNumber("epoch", Epoch.Value);
-            json.WriteNumber("correction", Correction);
-            if (_pending is { } pending) json.WriteNumber("pendingCorrection", pending);
-            if (report == ClockDerivationReport.Startup)
-            {
-                // The derived time-origin offset and how tightly the narrow exchanges pinned it, per session (the evidence
-                // for the startup offset distribution; a wide one is also recorded as CCGPU_CLOCK_OFFSET_WIDE).
-                json.WriteNumber("startupOffset", checked((long)(((Int128)_admitted!.Value.Lower + _admitted!.Value.Upper) / 2)));
-                json.WriteNumber("admittedLower", _admitted!.Value.Lower); json.WriteNumber("admittedUpper", _admitted!.Value.Upper);
-                json.WriteNumber("admittedWidth", _admitted!.Value.Upper - _admitted!.Value.Lower);
-            }
-            if (exchange is { } value)
-            {
-                json.WriteNumber("before", value.Before); json.WriteNumber("master", value.Master); json.WriteNumber("after", value.After);
-            }
-            json.WriteNumber("qualified", Qualified); json.WriteNumber("startupAttempts", StartupAttempts);
-            json.WriteNumber("startupOutliers", StartupOutliers);
-            json.WriteNumber("startupInconclusive", StartupInconclusive); json.WriteNumber("startupUnanswered", StartupUnanswered);
-            json.WriteNumber("checks", Checks); json.WriteNumber("slews", Slews); json.WriteNumber("rederivations", Rederivations);
-            json.WriteNumber("inconclusive", Inconclusive); json.WriteNumber("unanswered", Unanswered); json.WriteNumber("checkRetries", CheckRetries);
-            json.WriteEndObject();
-        }
-        return System.Text.Encoding.UTF8.GetString(bytes.GetBuffer(), 0, checked((int)bytes.Length));
-    }
+        Diagnostics.Capture(() => new ClockDerivationDiagnostic(report, outcome, Epoch, Correction, _pending,
+            report == ClockDerivationReport.Startup ? _admitted!.Value.Lower : null,
+            report == ClockDerivationReport.Startup ? _admitted!.Value.Upper : null, exchange,
+            Qualified, StartupAttempts, StartupOutliers, StartupInconclusive, StartupUnanswered,
+            Checks, Slews, Rederivations, Inconclusive, Unanswered, CheckRetries));
 }

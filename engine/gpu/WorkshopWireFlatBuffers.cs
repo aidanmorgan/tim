@@ -12,7 +12,7 @@ namespace CuriousContraptions.Gpu;
 /// the construction record of saves are FlatBuffers of <c>schemas/workshop_wire.fbs</c>. Every buffer is size-prefixed and carries
 /// its root's identifier; each is decoded once, and a buffer that is not exactly one verified root of the expected kind is a
 /// <see cref="WireFaultException"/> naming why. Nothing else decodes these messages.</summary>
-public static class WorkshopWireFlatBuffers
+public static partial class WorkshopWireFlatBuffers
 {
 
     /// <summary>Content uses the same current record constructor as wire input, after strict content/package admission.</summary>

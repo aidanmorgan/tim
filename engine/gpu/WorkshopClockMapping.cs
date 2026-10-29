@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
@@ -164,8 +165,10 @@ public sealed class WorkshopClockMapping
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
     private readonly record struct ClockSlot(long Receipt, ulong Sequence, int LowerDelta, uint Width);
 
-    public WorkshopClockMapping(WorkshopClockPeer peer)
+    public WorkshopDiagnostics Diagnostics { get; }
+    public WorkshopClockMapping(WorkshopClockPeer peer, WorkshopDiagnostics? diagnostics = null)
     {
+        Diagnostics = diagnostics ?? new();
         peer.Validate(); _peer = peer;
     }
 
@@ -417,19 +420,18 @@ public sealed class WorkshopClockMapping
     /// out-of-profile interval and a master re-derivation. Every retained slot is
     /// discarded, the display epoch advances so no capture is mapped across the gap, and startup calibration requalifies
     /// it. Nothing is widened, extrapolated or retried into the old episode. Each recalibration is a counted, typed
-    /// telemetry occurrence (CCGPU_CLOCK_RECALIBRATED), which every Chrome suite fails on.
+    /// telemetry occurrence (ClockRecalibrated diagnostic), which every Chrome suite fails on.
     /// </summary>
     private void Recalibrate(ClockRecalibrationCause cause, MonotonicNanoseconds now, ClockReply? reply,
         ClockMappingState next)
     {
         if (DisplayEpoch == ulong.MaxValue) throw new InvalidOperationException("Display epoch exhausted.");
-        var record = DescribeRecalibration(cause, now, reply);
+        Diagnostics.Capture(() => DescribeRecalibration(cause, now, reply));
         _count = _next = 0; DisplayEpoch++;
         State = next;
         ClearRecovery();
         Recalibrations++;
         LastRecalibration = new(_peer.RequesterRole, cause, Recalibrations, DisplayEpoch, now);
-        Console.WriteLine("CCGPU_CLOCK_RECALIBRATED " + record);
     }
 
     /// <summary>Recalibrations of this mapping so far: the typed telemetry count the browser suites read.</summary>
@@ -442,7 +444,7 @@ public sealed class WorkshopClockMapping
     /// <summary>
     /// A reply the wire decoder rejected (WorkshopClockWire.DecodeReply) is never applied and never silently dropped
     /// (Murdoch-2, Story 9.4b): it is a counted, typed <see cref="ClockProbeOutcome.Malformed"/> occurrence
-    /// (CCGPU_CLOCK_REPLY_REJECTED), which every Chrome suite fails on. The outstanding probe is left to expire, so
+    /// (ClockReplyRejected diagnostic), which every Chrome suite fails on. The outstanding probe is left to expire, so
     /// the mapping recovers or recalibrates on its ordinary path. Only the wire's one reply path calls it.
     /// </summary>
     internal void RejectMalformedReply(int length, MonotonicNanoseconds received, string detail)
@@ -452,81 +454,19 @@ public sealed class WorkshopClockMapping
         received.Validate();
         if (MalformedReplies == ulong.MaxValue) throw new InvalidOperationException("Malformed reply count exhausted.");
         MalformedReplies++;
-        const ClockProbeOutcome outcome = ClockProbeOutcome.Malformed;
-        using var bytes = new System.IO.MemoryStream();
-        using (var json = new System.Text.Json.Utf8JsonWriter(bytes))
-        {
-            json.WriteStartObject();
-            json.WriteNumber("role", (uint)_peer.RequesterRole);
-            json.WriteNumber("outcome", (int)outcome);
-            json.WriteString("outcomeName", outcome.ToString());
-            json.WriteString("count", MalformedReplies.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            json.WriteNumber("length", length);
-            json.WriteString("received", received.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            json.WriteString("detail", detail);
-            json.WriteEndObject();
-        }
-        Console.WriteLine("CCGPU_CLOCK_REPLY_REJECTED " + System.Text.Encoding.UTF8.GetString(bytes.GetBuffer(), 0, checked((int)bytes.Length)));
+        Diagnostics.Capture(() => new ClockReplyRejectedDiagnostic(_peer.RequesterRole, MalformedReplies, length, received, detail));
     }
 
-    private string DescribeRecalibration(ClockRecalibrationCause cause, MonotonicNanoseconds now, ClockReply? reply)
+    private ClockRecalibrationDiagnostic DescribeRecalibration(ClockRecalibrationCause cause, MonotonicNanoseconds now, ClockReply? reply)
     {
-        using var bytes = new System.IO.MemoryStream();
-        using (var json = new System.Text.Json.Utf8JsonWriter(bytes))
+        var slots = ImmutableArray.CreateBuilder<ClockSlotDiagnostic>(_count);
+        for (var i = 0; i < _count; i++)
         {
-            void Exact(string name, Int128 value) =>
-                json.WriteString(name, value.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            void Probe(ClockProbe probe)
-            {
-                json.WriteStartObject();
-                Exact("sessionLow", probe.Session.Low); Exact("sessionHigh", probe.Session.High);
-                Exact("masterGeneration", probe.Generation.Value);
-                Exact("requesterGeneration", probe.RequesterGeneration.Value);
-                json.WriteNumber("role", (uint)probe.RequesterRole);
-                Exact("sequence", probe.Sequence.Value); Exact("sent", probe.RequesterSent.Value);
-                json.WriteEndObject();
-            }
-            json.WriteStartObject();
-            json.WriteNumber("role", (uint)_peer.RequesterRole);
-            json.WriteNumber("cause", (byte)cause);
-            json.WriteString("causeName", cause.ToString());
-            Exact("count", Recalibrations + 1);
-            json.WriteNumber("stateBefore", (byte)State);
-            Exact("sessionLow", Session.Low); Exact("sessionHigh", Session.High);
-            Exact("masterGeneration", Generation.Value);
-            Exact("requesterGeneration", _peer.RequesterGeneration.Value);
-            Exact("masterOrigin", _peer.MasterOrigin.Value);
-            if (_derivation is { } derivation) Exact("derivation", derivation.Value); else json.WriteNull("derivation");
-            Exact("uncertainty", EndpointUncertainty.Value);
-            Exact("displayEpoch", DisplayEpoch); Exact("now", now.Value);
-            Exact("recoveryStarted", _recoveryStarted);
-            json.WriteNumber("recoverySends", _recoverySends);
-            json.WritePropertyName("pending");
-            if (Pending is { } pending) Probe(pending); else json.WriteNullValue();
-            json.WritePropertyName("reply");
-            if (reply is { } received)
-            {
-                json.WriteStartObject();
-                json.WritePropertyName("probe"); Probe(received.Probe);
-                Exact("masterReceived", received.MasterReceived.Value);
-                Exact("masterSent", received.MasterSent.Value);
-                Exact("requesterReceived", received.RequesterReceived.Value);
-                json.WriteEndObject();
-            }
-            else json.WriteNullValue();
-            // These slots may already include the triggering accepted reply.
-            json.WriteStartArray("slotsBefore");
-            for (var i = 0; i < _count; i++)
-            {
-                var slot = _slots[i]; var interval = Interval(slot);
-                json.WriteStartObject();
-                Exact("receipt", slot.Receipt); Exact("sequence", slot.Sequence);
-                Exact("lower", interval.Lower); Exact("upper", interval.Upper);
-                json.WriteEndObject();
-            }
-            json.WriteEndArray(); json.WriteEndObject();
+            var slot = _slots[i];
+            slots.Add(new(new(slot.Receipt), new(slot.Sequence), Interval(slot)));
         }
-        return System.Text.Encoding.UTF8.GetString(bytes.GetBuffer(), 0, checked((int)bytes.Length));
+        return new(_peer, cause, Recalibrations + 1, State, _derivation, DisplayEpoch, now,
+            new(_recoveryStarted), _recoverySends, Pending, reply, slots.MoveToImmutable());
     }
 
     private void RequireRecoveryTime(MonotonicNanoseconds now, ClockReply? reply = null)
@@ -605,7 +545,7 @@ public sealed class WorkshopClockMapping
     }
 
     /// <summary>Lapses of a stalled requester renewed by a consistent fresh exchange: counted, typed
-    /// CCGPU_CLOCK_RENEWED_LATE telemetry the Chrome suites report but do not fail on. Not a recalibration: the
+    /// ClockRenewedLate diagnostic telemetry the Chrome suites report but do not fail on. Not a recalibration: the
     /// derivation, display epoch and retained calibration are kept.</summary>
     public ulong LateRenewals { get; private set; }
 
@@ -613,24 +553,8 @@ public sealed class WorkshopClockMapping
     {
         if (LateRenewals == ulong.MaxValue) throw new InvalidOperationException("Late renewal count exhausted.");
         LateRenewals++;
-        using var bytes = new System.IO.MemoryStream();
-        using (var json = new System.Text.Json.Utf8JsonWriter(bytes))
-        {
-            void Exact(string name, Int128 value) =>
-                json.WriteString(name, value.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            json.WriteStartObject();
-            json.WriteNumber("role", (uint)_peer.RequesterRole);
-            Exact("count", LateRenewals);
-            Exact("lapseAge", _renewalLapseAge);
-            json.WriteNumber("exchanges", _recoverySends);
-            Exact("renewedAt", reply.RequesterReceived.Value);
-            Exact("oldLower", retained.Lower); Exact("oldUpper", retained.Upper);
-            Exact("newLower", fresh.Lower); Exact("newUpper", fresh.Upper);
-            if (_derivation is { } derivation) Exact("derivation", derivation.Value); else json.WriteNull("derivation");
-            Exact("displayEpoch", DisplayEpoch);
-            json.WriteEndObject();
-        }
-        Console.WriteLine("CCGPU_CLOCK_RENEWED_LATE " + System.Text.Encoding.UTF8.GetString(bytes.GetBuffer(), 0, checked((int)bytes.Length)));
+        Diagnostics.Capture(() => new ClockLateRenewalDiagnostic(_peer.RequesterRole, LateRenewals, _renewalLapseAge,
+            _recoverySends, reply.RequesterReceived, retained, fresh, _derivation, DisplayEpoch));
     }
 
     public void Retire()

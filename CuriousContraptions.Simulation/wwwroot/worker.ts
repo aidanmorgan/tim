@@ -224,12 +224,12 @@ function flushRead() {
     self.postMessage({ read: read.bytes, readIdentity: read.identity, dispatchReadbackMs: 0 }, [read.bytes.buffer, read.identity.buffer]);
 }
 
-// The trace flush is diagnostic output: its failure never stops the session, but it is always logged, never swallowed.
+// The trace flush is diagnostic output: its failure never stops the session, its failure is a typed managed diagnostic.
 function flushObservation() {
     if (!observationPending || activeRequests !== 0 || readInFlight || latestRead) return;
     observationPending = false;
     try { host.FlushObservation(); }
-    catch (error) { console.error('CCGPU_TRACE_FLUSH_EXCEPTION', String(error)); }
+    catch (error) { host.ReportObservationFailure(String(error)); }
 }
 
 // Story 9A.3: C# matches every receipt in its own reliable-read accounting (WorkshopReliableReadLedger), which is how the worker
@@ -257,6 +257,7 @@ function resumeTurn(turn: number) {
 turnChannel.port1.onmessage = () => { const turn = queuedTurns.shift(); if (turn !== undefined) resumeTurn(turn); };
 
 runtime.setModuleImports('workshopGpu', {
+    observation(bytes) { const observation = new Uint8Array(bytes); self.postMessage({ observation }, [observation.buffer]); },
     now: clockNow,
     scheduleTurn(turn, delayMilliseconds) {
         if (disposed) return;

@@ -90,6 +90,8 @@ export class EventRingMemory {
 export class EventRingCursor {
     #ring: EventRingMemory | undefined; // the adopted EventRingMemory: private, so no consumer can reach the ring's memory through the cursor (review R3-F1)
 
+    #followers = new Set<EventRingCursor>();
+    #closed = false;
     epoch: bigint; cursor: bigint; lapped: bigint;
     constructor() {
         this.epoch = 0n; this.cursor = 0n; this.lapped = 0n;
@@ -97,6 +99,7 @@ export class EventRingCursor {
 
     // Same-epoch growth preserves each reader's position. A new epoch starts a new sequence.
     attach(buffer: SharedArrayBuffer) {
+        if (this.#closed) throw new Error('The event reader is retired.');
         const next = EventRingMemory.attach(buffer);
         if (next.epoch === this.epoch && this.#ring) {
             if (next.capacity < this.#ring.capacity || next.loadWriteSequence() < this.#ring.loadWriteSequence())
@@ -105,12 +108,33 @@ export class EventRingCursor {
             this.epoch = next.epoch; this.cursor = 0n;
         }
         this.#ring = next;
+        for (const follower of this.#followers) follower.attach(buffer);
+    }
+
+    fork() {
+        if (this.#closed) throw new Error('The event reader is retired.');
+        const follower = new EventRingCursor();
+        follower.#ring = this.#ring;
+        follower.epoch = this.epoch;
+        this.#followers.add(follower);
+        return follower;
+    }
+    release(follower: EventRingCursor) {
+        if (!this.#followers.delete(follower)) throw new Error('Unknown event reader.');
+        follower.close();
+    }
+    close() {
+        this.#closed = true;
+        this.#ring = undefined;
+        for (const follower of this.#followers) follower.close();
+        this.#followers.clear();
     }
 
     // Reads every whole record committed since the cursor, only while the ring's epoch is the one the caller has installed (D5): a
     // ring of an older epoch is ignored and one of a newer epoch is held unread, so its records wait for the matching Commit.
     // Returns the records (64 bytes each, ascending sequence), the records skipped by this read and the ring's epoch.
     read(admitted: bigint): EventDelivery {
+        if (this.#closed) throw new Error('The event reader is retired.');
         if (typeof admitted !== 'bigint') throw new Error('An event read names its installed epoch.');
         if (!this.#ring || this.epoch !== admitted) return { records: NO_RECORDS, skipped: 0n, epoch: this.epoch };
         const written = this.#ring.loadWriteSequence(), capacity = BigInt(this.#ring.capacity);

@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../engine/gpu/WorkshopClockMapping.cs" Link="Runtime/WorkshopClockMapping.cs" />
-    <Compile Include="../../engine/gpu/WorkshopNativeClock.cs" Link="Runtime/WorkshopNativeClock.cs" />
+    <ProjectReference Include="../../CuriousContraptions.csproj" />
   </ItemGroup>
 </Project>

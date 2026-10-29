@@ -43,7 +43,7 @@ public sealed class CSharpStaticGateTests
         ["engine/MachineWorld.Gpu.cs:MachineWorld.DisposeWorkshop"] = 1,
         ["CuriousContraptions.Simulation/Program.cs:Program.RunLoop"] = 1,
         ["ui/Workshop.cs:Workshop._Ready"] = 1,
-        ["ui/Workshop.cs:Workshop.ReadyAsync"] = 1,
+        ["ui/Workshop.cs:Workshop.ReadyAsync"] = 2,
         ["ui/Workshop.cs:Workshop.Click"] = 1,
         ["ui/Workshop.cs:Workshop.PlaceAsync"] = 2,
         ["ui/Workshop.cs:Workshop.DeleteSelected"] = 1,
@@ -1113,7 +1113,7 @@ public sealed class CSharpStaticGateTests
     {
         // Pinned strict TypeScript build: restore and generated runtime output; no Csc changes.
         ["tools/runtime/RuntimeTypeScript.targets:RestoreRuntimeTypeScript"] = "31c65cfd3d114862701641af1a1379edd6e09d5d0f8037e19340902c182befed",
-        ["tools/runtime/RuntimeTypeScript.targets:BuildRuntimeTypeScript"] = "189b783742adf103060f39c611267d3125f9f4661434378eb0a7aaedf81a2fd6",
+        ["tools/runtime/RuntimeTypeScript.targets:BuildRuntimeTypeScript"] = "77084445c92a209d0d08b0703e7ab87b193ff21f8add2fd5d3d0399d368cdff3",
         // The 2dog.xunit package-source analyzer exclusion (CA1711, CA1001).
         ["Directory.Build.targets:ExcludePackageCompileSourcesFromAnalyzers"] = "add02e050a6440638d100c9ae07e742391968e2d16e8c6bb8c6c120f58b12425",
         // The worker publish bundles and the web host's bundle assembly (no compile settings).

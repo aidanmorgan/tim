@@ -41,11 +41,7 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
         {
             // Story 9A.44 D7: the Animation output fields the client decodes (the f32 value at 56, the u16 property at 136).
             ["ANIMATION_OUTPUT_BYTES"] = WorkshopAnimationWire.OutputBytes,
-            ["ANIMATION_OUTPUT_PULSE_OFFSET"] = WorkshopAnimationWire.OutputPulseOffset,
-            ["ANIMATION_OUTPUT_VALUE_OFFSET"] = WorkshopAnimationWire.OutputValueOffset,
             ["ANIMATION_OUTPUT_KIND_OFFSET"] = WorkshopAnimationWire.OutputKindOffset,
-            ["ANIMATION_OUTPUT_TARGET_OFFSET"] = WorkshopAnimationWire.OutputTargetOffset,
-            ["ANIMATION_OUTPUT_PROPERTY_OFFSET"] = WorkshopAnimationWire.OutputPropertyOffset,
         },
         // Story 9A.23: the ring's memory (EventRingMemory) owns every header word it stores, validates and loads; the shared reader
         // hands C# the delivery header.

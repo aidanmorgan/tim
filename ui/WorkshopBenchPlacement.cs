@@ -32,9 +32,9 @@ public static class WorkshopBenchPlacement
         catch (Exception error) when (error is WorkshopEditRejectedException)
         {
             // A part that a declared rule refuses to capture or compose is refused here, before any undo entry exists, and
-            // logged as a UI rejection on the standard stream. Any other exception is a defect and reaches the handler
-            // boundary, which logs it as a fault.
-            return new(BenchPlacementRejection.UnsupportedPart, world.Construction, $"Placement rejected: {WorkshopUiFailure.Report(error)}");
+            // recorded as a typed UI rejection. Any other exception is a defect and reaches the handler
+            // boundary, which records it as a fault.
+            return new(BenchPlacementRejection.UnsupportedPart, world.Construction, $"Placement rejected: {WorkshopUiFailure.Report(error, world.Diagnostics)}");
         }
         pushUndo();
         return new(BenchPlacementRejection.None, proposed, string.Empty);

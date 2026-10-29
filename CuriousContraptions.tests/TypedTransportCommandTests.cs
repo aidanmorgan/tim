@@ -390,11 +390,12 @@ public sealed class TypedTransportCommandTests
         "CuriousContraptions.Abstractions.Signal", "CuriousContraptions.Animation", "CuriousContraptions.Animation.Worker",
         "CuriousContraptions.Bundle", "CuriousContraptions.Simulation", "CuriousContraptions.web"];
 
-    private static readonly string[] ProductionExtensions = [".cs", ".js", ".mjs", ".fbs"];
+    private static readonly string[] ProductionExtensions = [".cs", ".ts", ".js", ".mjs", ".fbs"];
 
     /// <summary>The typed command and query definitions: the closed command kind's declaration in the C# enum, the schema and the
     /// generated schema code. Everywhere else the query is named only through its enum (<c>CommandKind.ObserveMemory</c>).</summary>
-    private static readonly string[] TypedDefinitions = ["engine/gpu/WorkshopMessages.cs", "schemas/workshop_wire.fbs", "engine/gpu/WorkshopWireGenerated.cs"];
+    private static readonly string[] TypedDefinitions = ["engine/gpu/WorkshopMessages.cs", "schemas/workshop_wire.fbs", "engine/gpu/WorkshopWireGenerated.cs",
+        "CuriousContraptions.web/wwwroot/workshop-observation.ts"];
 
     private static bool IsBuildOutput(string path) => path.Split(Path.DirectorySeparatorChar)
         .Any(segment => segment is "bin" or "obj" or "node_modules" or ".godot" or "AppBundle" or "_framework");
@@ -403,21 +404,46 @@ public sealed class TypedTransportCommandTests
     [Fact]
     public void TheRawStallFlagAndMemoryChannelAreGoneFromProduction()
     {
-        var retired = new Regex(string.Join('|', "reliable" + "Stalled", "memory" + "Request", "SetReliable" + "Stall", "Observe" + "Memory",
-            "memory" + "Result", "candidate" + "TimedOut", "Workshop" + "MemoryWire", "Begin" + "Memory", "Receive" + "Memory\\b",
-            "Release" + "Memory", "SendMemory" + "Request", "CompleteMemory" + "Observation", "settle" + "Memory"));
-        var enumUse = new Regex(@"CommandKind\." + "Observe" + "Memory" + @"\b");
-        var declaration = new Regex(@"\b" + "Observe" + "Memory" + @"\b(?=\s*(=|,|\}))");
         var hits = ProductionRoots.Select(directory => Path.Combine(Root, directory)).Where(Directory.Exists)
             .SelectMany(directory => Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
             .Select(path => Path.GetRelativePath(Root, path))
             .Where(path => ProductionExtensions.Contains(Path.GetExtension(path)) && !IsBuildOutput(path))
             .SelectMany(path =>
             {
-                var text = enumUse.Replace(File.ReadAllText(Path.Combine(Root, path)), "");
-                if (TypedDefinitions.Contains(path.Replace(Path.DirectorySeparatorChar, '/'))) text = declaration.Replace(text, "");
-                return retired.Matches(text).Select(match => $"{path}: {match.Value}");
+                return RawChannelNames(path.Replace(Path.DirectorySeparatorChar, '/'), File.ReadAllText(Path.Combine(Root, path)))
+                    .Select(name => $"{path}: {name}");
             }).ToArray();
         Assert.Empty(hits);
+    }
+
+    private static string[] RawChannelNames(string path, string source)
+    {
+        var retired = new Regex(string.Join('|', "reliable" + "Stalled", "memory" + "Request", "SetReliable" + "Stall", "Observe" + "Memory",
+            "memory" + "Result", "candidate" + "TimedOut", "Workshop" + "MemoryWire", "Begin" + "Memory", "Receive" + "Memory\\b",
+            "Release" + "Memory", "SendMemory" + "Request", "CompleteMemory" + "Observation", "settle" + "Memory"));
+        var enumUse = new Regex(@"CommandKind\." + "Observe" + "Memory" + @"\b");
+        var declaration = new Regex(@"\b" + "Observe" + "Memory" + @"\b(?=\s*(=|,|\}))");
+        var text = enumUse.Replace(source, "");
+        if (TypedDefinitions.Contains(path)) text = declaration.Replace(text, "");
+        // Pinned tsc emits a bidirectional numeric enum declaration; this names a typed receipt kind,
+        // not a raw transport channel. Only this exact declaration at its actual output boundary is allowed.
+        if (path == "CuriousContraptions.web/wwwroot/workshop-observation.js")
+            text = text.Replace("WorkshopCommandKind[WorkshopCommandKind[\"ObserveMemory\"] = 12] = \"ObserveMemory\";", "", StringComparison.Ordinal);
+        return retired.Matches(text).Select(match => match.Value).ToArray();
+    }
+
+    [Theory]
+    [InlineData("CuriousContraptions.web/wwwroot/workshop-observation.js", "WorkshopCommandKind[WorkshopCommandKind[\"ObserveMemory\"] = 12] = \"ObserveMemory\";", false)]
+    [InlineData("CuriousContraptions.web/wwwroot/workshop-observation.ts", "export enum WorkshopCommandKind { ObserveMemory = 12 }", false)]
+    [InlineData("other.ts", "command.kind = WorkshopCommandKind.ObserveMemory;", false)]
+    [InlineData("other.js", "WorkshopCommandKind[WorkshopCommandKind[\"ObserveMemory\"] = 12] = \"ObserveMemory\";", true)]
+    [InlineData("CuriousContraptions.web/wwwroot/workshop-observation.js", "OtherKind[OtherKind[\"ObserveMemory\"] = 12] = \"ObserveMemory\";", true)]
+    [InlineData("CuriousContraptions.web/wwwroot/workshop-observation.js", "WorkshopCommandKind[WorkshopCommandKind[\"ObserveMemory\"] = 13] = \"ObserveMemory\";", true)]
+    [InlineData("CuriousContraptions.web/wwwroot/workshop-observation.js", "WorkshopCommandKind[WorkshopCommandKind[\"ObserveMemory\"] = 12] = \"ObserveMemory\"; worker.postMessage({ memoryRequest: true });", true)]
+    [InlineData("CuriousContraptions.web/wwwroot/workshop-observation.ts", "worker.postMessage({ ObserveMemory: true });", true)]
+    [InlineData("other.ts", "export enum WorkshopCommandKind { ObserveMemory = 12 }", true)]
+    public void RawChannelGuardDistinguishesCanonicalDeclarationsFromTransportChannels(string path, string source, bool rejected)
+    {
+        Assert.Equal(rejected, RawChannelNames(path, source).Length != 0);
     }
 }

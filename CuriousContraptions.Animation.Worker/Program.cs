@@ -12,12 +12,13 @@ namespace CuriousContraptions.Animation.Worker;
 /// <summary>Independent owner of the declared animation channels; all evaluation uses S master time.</summary>
 public static partial class Program
 {
+    private static readonly WorkshopDiagnostics Diagnostics = new(PublishDiagnostic);
     private static WorkshopClockPeer? _peer;
     private static WorkshopClockMapping? _clock;
     private static WorkshopSchedule? _schedule;
     private static Preparation? _prepared;
     private static WorkshopDeclaredPresentation? _declared;
-    private static readonly AnimationControlDeferral Deferred = new();
+    private static readonly AnimationControlDeferral Deferred = new(Diagnostics);
     private static readonly WorkshopAnimationTracks Controls = new();
     private static ulong _commandSequence, _lastOrdinal, _evaluationSequence;
     private static MasterTimeNanoseconds _lastApplied;
@@ -27,6 +28,14 @@ public static partial class Program
         SimulationEpoch World, SimulationTick Tick, WorkshopSimulationPhase Phase, WorkshopDeclaredPresentation Presentation, WorkshopResponse Endpoint, bool Retained);
     private static WorkshopClockPeer Peer => _peer ?? throw new InvalidOperationException("Animation master is not installed.");
     private static WorkshopClockMapping Clock => _clock ?? throw new InvalidOperationException("Animation mapping is not installed.");
+
+    [JSImport("observation", "workshopAnimation")]
+    private static partial void PublishObservation(byte[] bytes);
+    private static void PublishDiagnostic(WorkshopDiagnostic record) =>
+        Diagnostics.Publish(record, Peer.Session, WorkshopRuntimeRole.Animation, PublishObservation);
+    [JSExport]
+    public static void ReportObservationFailure(string detail) =>
+        Diagnostics.Fault(FaultSite.TraceFlush, new InvalidOperationException(detail));
 
     public static void Main()
     {
@@ -51,7 +60,7 @@ public static partial class Program
         var peer = WorkshopClockWire.DecodePeer(bytes);
         if (peer.RequesterRole != WorkshopRuntimeRole.Animation || peer.RequesterGeneration.Value != 1)
             throw new ArgumentException("Wrong Animation bootstrap role.");
-        _peer = peer; _clock = new(peer);
+        _peer = peer; _clock = new(peer, Diagnostics);
     }
 
     [JSExport]
@@ -252,7 +261,7 @@ public static partial class Program
         Controls.Validate(control);
         if (!Clock.TryMasterNow(WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()), out var now))
         {
-            // A recalibrating mapping (counted CCGPU_CLOCK_RECALIBRATED telemetry) has no master time yet: the control
+            // A recalibrating mapping (counted ClockRecalibrated diagnostics) has no master time yet: the control
             // waits unapplied and unacknowledged, so the browser sends no other, until the mapping requalifies (Story 9.4b).
             Deferred.Hold(bytes, AnimationDeferralCause.Recalibrating);
             return;

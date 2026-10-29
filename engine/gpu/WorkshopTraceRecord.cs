@@ -57,6 +57,28 @@ public static class WorkshopTraceRecord
             new(BinaryPrimitives.ReadUInt64LittleEndian(b[8..])));
         p.Validate(); return p;
     }
+    public static WorkshopTraceSample Decode(ReadOnlySpan<byte> bytes)
+    {
+        var profile = ReadProfile(bytes);
+        var epoch = new SimulationEpoch(BinaryPrimitives.ReadUInt64LittleEndian(bytes[16..]));
+        var tick = new SimulationTick(BinaryPrimitives.ReadUInt64LittleEndian(bytes[24..]));
+        if (epoch.Value == 0 || tick.Value > profile.RunTickLimit) throw new ArgumentException("Invalid trace time.");
+        var bodies = new PhysicsBodyRead[(int)BinaryPrimitives.ReadUInt32LittleEndian(bytes[36..])];
+        var captures = new CaptureLatch[(int)BinaryPrimitives.ReadUInt32LittleEndian(bytes[40..])];
+        var offset = HeaderBytes;
+        for (var i = 0; i < bodies.Length; i++, offset += PhysicsBodyWire.ByteLength)
+            bodies[i] = PhysicsBodyWire.Read(bytes.Slice(offset, PhysicsBodyWire.ByteLength), epoch, tick);
+        for (var i = 0; i < captures.Length; i++, offset += CaptureBytes)
+        {
+            var record = bytes.Slice(offset, CaptureBytes);
+            if (record[28..].IndexOfAnyExcept((byte)0) >= 0) throw new ArgumentException("Trace capture padding is not zero.");
+            var capture = new CaptureLatch(new(BinaryPrimitives.ReadUInt64LittleEndian(record)),
+                new(BinaryPrimitives.ReadUInt64LittleEndian(record[8..])), (CaptureLatchPhase)BinaryPrimitives.ReadUInt32LittleEndian(record[16..]),
+                BinaryPrimitives.ReadUInt32LittleEndian(record[20..]), BinaryPrimitives.ReadSingleLittleEndian(record[24..]));
+            capture.Validate(); captures[i] = capture;
+        }
+        return new(epoch, tick, new(bodies), new(captures));
+    }
     private static void U32(Span<byte>b,int o,uint v)=>BinaryPrimitives.WriteUInt32LittleEndian(b[o..],v);
     private static void U64(Span<byte>b,int o,ulong v)=>BinaryPrimitives.WriteUInt64LittleEndian(b[o..],v);
 }

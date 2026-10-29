@@ -124,10 +124,12 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     public WorkshopRead Committed { get; private set; }
     public WorkshopSimulationPhase Phase { get; private set; } = WorkshopSimulationPhase.Uninitialized;
     public WorkshopRejection Fault { get; private set; }
+    public WorkshopDiagnostics Diagnostics { get; }
     public WorkshopSimulation(IWorkshopGpuDevice device, IWorkshopCaptureClock clock, WorkshopCadenceSettings settings, CadenceRevision revision,
-        IWorkshopInstallation installation, GpuDeviceOwnership deviceOwnership)
+        IWorkshopInstallation installation, GpuDeviceOwnership deviceOwnership, WorkshopDiagnostics? diagnostics = null)
     {
         if (!Enum.IsDefined(deviceOwnership)) throw new ArgumentException("Undefined GPU device ownership.", nameof(deviceOwnership));
+        Diagnostics = diagnostics ?? new();
         _deviceOwnership = deviceOwnership;
         settings.Validate(); Profile = new(settings.Simulation, settings.Physical, revision); Profile.Validate();
         Construction = new(new(1), settings, WorkshopInstances.Empty);
@@ -174,7 +176,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         catch (Exception error)
         {
             var failed = Failure(owner, WorkshopRejection.InvalidRead);
-            WorkshopDiagnostics.Fault(FaultSite.Initialize, error);
+            Diagnostics.Fault(FaultSite.Initialize, error);
             return failed;
         }
         finally { _device.Discard(new(owner)); _pending--; }
@@ -229,7 +231,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         catch (Exception error)
         {
             var failed = Failure(owner, WorkshopRejection.InvalidRead);
-            WorkshopDiagnostics.Fault(FaultSite.Construct, error);
+            Diagnostics.Fault(FaultSite.Construct, error);
             return failed;
         }
         finally { _device.Discard(new(owner)); _pending--; }
@@ -329,7 +331,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         catch (Exception error)
         {
             var failed = Failure(owner, WorkshopRejection.InvalidRead);
-            WorkshopDiagnostics.Fault(FaultSite.Advance, error);
+            Diagnostics.Fault(FaultSite.Advance, error);
             return failed;
         }
         // Counts every request, independently of ownership. A stale completion cannot clear a new one.
@@ -369,7 +371,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         catch (Exception error)
         {
             var failed = Failure(owner, WorkshopRejection.InvalidRead);
-            WorkshopDiagnostics.Fault(FaultSite.Reset, error);
+            Diagnostics.Fault(FaultSite.Reset, error);
             return failed;
         }
         finally { _device.Discard(new(owner)); _pending--; }
@@ -468,7 +470,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     private WorkshopCommandResult InstallationRejected(ulong owner, WorkshopInstallationException error)
     {
         if (Owns(owner)) Phase = _priorPhase;
-        if (error.InnerException is { } cause) WorkshopDiagnostics.Fault(FaultSite.Installation, cause);
+        if (error.InnerException is { } cause) Diagnostics.Fault(FaultSite.Installation, cause);
         return Reject(error.Reason);
     }
 

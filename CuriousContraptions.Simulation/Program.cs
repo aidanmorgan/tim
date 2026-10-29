@@ -10,6 +10,7 @@ namespace CuriousContraptions.Simulation;
 
 public static partial class Program
 {
+    private static readonly WorkshopDiagnostics Diagnostics = new(PublishDiagnostic);
     private static WorkshopGpuDevice? _device;
     private static WorkshopGpuDevice Device => _device ?? throw new InvalidOperationException("Worker document has not bootstrapped.");
     private static WorkshopClockPeer? _peer;
@@ -25,7 +26,15 @@ public static partial class Program
     // One builder for every physical read this worker publishes: the per-tick encode reuses its storage.
     private static readonly Google.FlatBuffers.FlatBufferBuilder ReadBuilder = new(4096);
     private static ulong _loopOwner;
-    private static readonly CuriousContraptions.Simulation.WorkshopTrace Trace = new();
+    private static readonly CuriousContraptions.Simulation.WorkshopTrace Trace = new(Diagnostics);
+    [JSImport("observation", "workshopGpu")]
+    private static partial void PublishObservation(byte[] bytes);
+    private static void PublishDiagnostic(WorkshopDiagnostic record) =>
+        Diagnostics.Publish(record, Peer.Session, WorkshopRuntimeRole.Simulation, PublishObservation);
+    [JSExport]
+    public static void ReportObservationFailure(string detail) =>
+        Diagnostics.Fault(FaultSite.TraceFlush, new InvalidOperationException(detail));
+
     public static void Main() { }
 
     [JSImport("now", "workshopGpu")]
@@ -50,7 +59,7 @@ public static partial class Program
         _device = new(new BrowserGpuTransport(new WorkerEventPublication()), new(session.Low, session.High));
         _reads = new(session);
         _peer = peer;
-        _executor = new(Device, new CommandHost());
+        _executor = new(Device, new CommandHost(), Diagnostics);
         return WorkshopClockWire.EncodePeer(peer);
     }
 
@@ -136,7 +145,7 @@ public static partial class Program
 
     private static string RejectEnvelope(WorkerEnvelopeRejectedException rejection)
     {
-        WorkshopDiagnostics.Fault(FaultSite.WorkerEnvelope, rejection);
+        Diagnostics.Fault(FaultSite.WorkerEnvelope, rejection);
         return rejection.Message;
     }
 
@@ -175,10 +184,10 @@ public static partial class Program
             if (kind == WorkshopCommandKind.Pause) _loopOwner++;
             if (kind is WorkshopCommandKind.Pause or WorkshopCommandKind.ConfigureElectrical)
                 while (Simulation.HasPendingGpuOperation) await Task.Delay(1);
-            if (kind == WorkshopCommandKind.Reset) Trace.End(CuriousContraptions.Simulation.TraceEnd.Reset);
+            if (kind == WorkshopCommandKind.Reset) Trace.End(TraceEnd.Reset);
             if (kind == WorkshopCommandKind.Dispose)
             {
-                Trace.End(CuriousContraptions.Simulation.TraceEnd.Disposed);
+                Trace.End(TraceEnd.Disposed);
                 _loopOwner++;
             }
             if (kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Run or WorkshopCommandKind.Reset)
@@ -212,11 +221,11 @@ public static partial class Program
         catch (Exception error)
         {
             // A superseded loop no longer owns the simulation, so it records its failure and changes nothing.
-            if (owner != _loopOwner) { WorkshopDiagnostics.Fault(FaultSite.StaleRunLoop, error); return; }
+            if (owner != _loopOwner) { Diagnostics.Fault(FaultSite.StaleRunLoop, error); return; }
             _loopOwner++;
             Simulation.Stop(WorkshopRejection.Transport);
-            WorkshopDiagnostics.Fault(FaultSite.RunLoop, error);
-            Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+            Diagnostics.Fault(FaultSite.RunLoop, error);
+            Trace.End(TraceEnd.Fault);
             Retire("Physical publication failed after commit: " + error.Message);
         }
     }
@@ -266,10 +275,10 @@ public static partial class Program
             var reason = Reads.DebtReason(now);
             var oldest = Reads.Oldest;
             var age = oldest is { } read ? (now.Value - read.Published.Value) / 1_000_000 : 0;
-            Console.WriteLine($"CCGPU_DEBT_FAULT: committedTick={Simulation.Committed.Tick.Value} reason={reason} " +
-                $"oldestUnreceipted={oldest?.Publication.Value ?? 0} ageMs={age}");
+            Diagnostics.Capture(() => new WorkshopDebtDiagnostic(Simulation.Committed.Tick, reason,
+                oldest?.Publication ?? default, age));
             Simulation.Stop(reason);
-            Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+            Trace.End(TraceEnd.Fault);
             EmitRead(new(WorkshopCommandOutcome.Faulted, Simulation.Fault));
             return ValueTask.CompletedTask;
         }
@@ -279,7 +288,7 @@ public static partial class Program
             _transition = ScheduleTransition.Completed;
             await Simulation.CompleteRun();
             await CommitInstallation();
-            Trace.End(CuriousContraptions.Simulation.TraceEnd.Complete);
+            Trace.End(TraceEnd.Complete);
             EmitRead(new(WorkshopCommandOutcome.Applied, WorkshopRejection.None));
         }
 
@@ -294,8 +303,8 @@ public static partial class Program
 #endif
             if (result.Outcome != WorkshopCommandOutcome.Applied)
             {
-                Console.WriteLine($"CCGPU_TICK_FAILED: {result.Outcome} {result.Reason} fault={Simulation.Fault}");
-                Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+                Diagnostics.Capture(() => new WorkshopTickFailureDiagnostic(result, Simulation.Fault));
+                Trace.End(TraceEnd.Fault);
             }
             EmitRead(result);
             if (result.Outcome != WorkshopCommandOutcome.Applied) return TickAttempt.Stopped;
@@ -318,14 +327,8 @@ public static partial class Program
         var encoded = WorkshopWireFlatBuffers.EncodeResponse(readResponse, ReadBuilder);
         Reads.Publish(sequence, MasterNow());
         _publication++;
-        // Existing read-only observation channel, in the production build every Chrome suite runs against (owner decision
-        // h; Story 9A.24 replaces it with the typed observation port): retained energy/event commits prove finite
-        // transfers in UI runs. Its measured cost (Story 9.4b D1, evidence-9-4b/diagnosis/retained-cost) is flagged to
-        // the owner. The PlaytestDiagnostics variant only adds diagnostic recording and is never a gate.
-        if (Simulation.Committed.CarriesBalanceTransfer())
-        {
-            Console.WriteLine("CCGPU_RETAINED " + Convert.ToBase64String(encoded));
-        }
+        // Preserve transfers before the browser coalesces ordinary reads.
+        Diagnostics.RetainTransfer(readResponse);
         _ = Device.DrainEvents();
         Publish(encoded, WorkshopWireFlatBuffers.ReadIdentity(readResponse), WorkshopPoseRing.ComposeSlot(readResponse.Read.Capture?.Time.Value ?? 0, readResponse.Read.Bodies),
             Trace.CanFlush(Simulation.Phase));

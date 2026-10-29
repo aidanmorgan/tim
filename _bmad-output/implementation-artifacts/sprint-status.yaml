@@ -392,7 +392,7 @@ development_status:
   epic-12: backlog
   12-1-lightweight-tennis-ball-floating-balloon: backlog # split aggregate; use individual children
   # 52 (deletion)
-  9a-24-typed-observation-port: backlog
+  9a-24-typed-observation-port: done # Implementation/review and full local 5047/0/0 complete; hooks/exact-SHA approval/publication pending; browser consumers deferred
   # 53 (element)
   12-2-electric-fan-aerodynamic-airflow-jet: backlog
   # 54 (deletion): final empty-list isolation gate; the last deletion story
@@ -527,7 +527,7 @@ development_status:
   test-workshop-harness-a: done # db90de9b; local4901/0/0 hooks126/0/0 and exact-SHA approval; CI/deployment unverified by owner29Oct instruction
   test-workshop-harness-b: done # published318d514f; local4982/0/0 hooks126/0/0 exact-SHA approval; remote deployment unverified
   runtime-typescript-conversion: done # published2dae2180; local4985/0/0 hooks126/0/0 exact-SHA approval; remote deployment unverified
-  test-behavioral-hygiene: done # implementation/full local5004/0/0 and five Auto layers with repair re-review passed; hooks/exact-SHA publication pending
+  test-behavioral-hygiene: done # 7e12c9452a165f42ab2ef9c8b80964f237a05b00; local5004/0/0 hooks126/0/0; five Auto layers, repair re-review, exact-SHA and remote-main Pass; CI/deployment unverified
   test-semantic-digests: done # b3905fcda3df89b38140c9610b8ff2034e4078a8; terminal Pass CI40249169834:4212/0/0; artifact12620546696 deployment7321697410; broader hygiene remains open
   engine-supported-impact-restitution: backlog # before10.3/first dynamic support consumer
   cat-023c-offset-centre-of-mass: backlog # before next Domino-dependent level and catalogue closure

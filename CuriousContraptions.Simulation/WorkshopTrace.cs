@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Collections.Immutable;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Simulation;
@@ -6,10 +7,10 @@ namespace CuriousContraptions.Simulation;
 // Observational only. All methods contain diagnostic failure; none can reject or change a commit.
 // 3 was DeviceLost: the worker owns no device since the pure C# engine (Story 9.2b) and Story 9.4b deleted that path.
 // Recorded trace values keep their numbers; 3 is undefined and rejects.
-internal enum TraceEnd { Complete = 0, Reset = 1, Disposed = 2, Fault = 4, InvalidRecord = 5, Overflow = 6 }
-internal enum TraceTimingStatus { Complete, Incomplete }
 internal sealed class WorkshopTrace
 {
+    public WorkshopDiagnostics Diagnostics { get; }
+    public WorkshopTrace(WorkshopDiagnostics? diagnostics = null) => Diagnostics = diagnostics ?? new();
     private const int Capacity = 7201;
     private const int ChunkRecords = 128;
     #if PLAYTEST
@@ -22,7 +23,6 @@ internal sealed class WorkshopTrace
     #endif
     private double[] _durations = new double[32];
     internal int DurationCapacity => _durations.Length;
-    private readonly byte[] _durationBytes = new byte[ChunkRecords * sizeof(double)];
     private int _durationCount;
     private bool _timingValid;
     private ulong _identity;
@@ -165,43 +165,48 @@ internal sealed class WorkshopTrace
         var reason = _sealedReason;
         try
         {
-            #if PLAYTEST
+#if PLAYTEST
             var chunks = (_count + ChunkRecords - 1) / ChunkRecords;
             var poseReason = _poseEnd ?? reason;
-            // Closed discriminants are serialized numerically at this console boundary.
-            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {_count} {chunks} {(int)poseReason} {Convert.ToBase64String(_construction)}");
+            var poseStatus = poseReason == TraceEnd.Complete ? TraceTimingStatus.Complete : TraceTimingStatus.Incomplete;
+            Record(WorkshopCaptureKind.Pose, WorkshopCaptureStage.Begin, poseReason, poseStatus, _count, chunks);
             for (var ordinal = 0; ordinal < chunks; ordinal++)
             {
                 var first = ordinal * ChunkRecords;
                 var count = Math.Min(ChunkRecords, _count - first);
-                var start = first == 0 ? 0 : _recordEnds[first - 1];
-                var encoded = Convert.ToBase64String(_records, start, _recordEnds[first + count - 1] - start);
-                Console.WriteLine($"CCGPU_TRACE_CHUNK {_identity} {ordinal} {chunks} {first} {count} {encoded}");
+                var samples = ImmutableArray.CreateBuilder<WorkshopTraceSample>(count);
+                for (var index = first; index < first + count; index++)
+                {
+                    var offset = index == 0 ? 0 : _recordEnds[index - 1];
+                    samples.Add(WorkshopTraceRecord.Decode(_records.AsSpan(offset, _recordEnds[index] - offset)));
+                }
+                Record(WorkshopCaptureKind.Pose, WorkshopCaptureStage.Chunk, poseReason, poseStatus, count, chunks,
+                    ordinal, first, samples.MoveToImmutable());
             }
-            Console.WriteLine($"CCGPU_TRACE_END {_identity} {_count} {chunks} {(int)poseReason}");
-            #endif
+            Record(WorkshopCaptureKind.Pose, WorkshopCaptureStage.End, poseReason, poseStatus, _count, chunks);
+#endif
             var durationChunks = (_durationCount + ChunkRecords - 1) / ChunkRecords;
             var status = reason == TraceEnd.Complete && _timingValid && _durationCount == _expectedCount - 1
                 ? TraceTimingStatus.Complete : TraceTimingStatus.Incomplete;
-            // The timing lines bind original little-endian binary64 milliseconds to the construction and terminal reason.
-            // Tick IDs are exactly 1..count only when the capture is Complete.
-            Console.WriteLine($"CCGPU_TICK_TIMES_BEGIN {_identity} {_epoch.Value} {sizeof(double)} {(uint)_profile.Cadence} {(uint)_profile.Physical} {_profile.Revision.Value} {_expectedCount - 1} {_durationCount} {durationChunks} {(int)status} {Convert.ToBase64String(_construction)} {(int)reason}");
+            Record(WorkshopCaptureKind.Timing, WorkshopCaptureStage.Begin, reason, status, _durationCount, durationChunks);
             for (var ordinal = 0; ordinal < durationChunks; ordinal++)
             {
                 var first = ordinal * ChunkRecords;
                 var count = Math.Min(ChunkRecords, _durationCount - first);
-                for (var index = 0; index < count; index++)
-                    BinaryPrimitives.WriteDoubleLittleEndian(_durationBytes.AsSpan(index * sizeof(double)), _durations[first + index]);
-                var encoded = Convert.ToBase64String(_durationBytes, 0, count * sizeof(double));
-                Console.WriteLine($"CCGPU_TICK_TIMES_CHUNK {_identity} {ordinal} {durationChunks} {first + 1} {count} {encoded}");
+                Record(WorkshopCaptureKind.Timing, WorkshopCaptureStage.Chunk, reason, status, count, durationChunks,
+                    ordinal, first + 1, milliseconds: _durations.AsSpan(first, count).ToArray().ToImmutableArray());
             }
-            Console.WriteLine($"CCGPU_TICK_TIMES_END {_identity} {_durationCount} {durationChunks} {(int)status}");
+            Record(WorkshopCaptureKind.Timing, WorkshopCaptureStage.End, reason, status, _durationCount, durationChunks);
         }
-        catch (Exception error) when (error is IOException or ArgumentException)
-        {
-            // Missing end/chunks are an explicit incomplete capture to its consumer; the cause goes to the error stream
-            // (the fault channel), never the standard stream that just failed.
-            WorkshopDiagnostics.Fault(FaultSite.TraceFlush, error);
-        }
+        catch (Exception error) when (error is ArgumentException or InvalidOperationException or OverflowException or OutOfMemoryException or WireFaultException)
+        { Diagnostics.Fault(FaultSite.TraceFlush, error); }
     }
+
+    private void Record(WorkshopCaptureKind kind, WorkshopCaptureStage stage, TraceEnd end, TraceTimingStatus status,
+        int count, int chunks, int chunk = 0, int first = 0, ImmutableArray<WorkshopTraceSample> samples = default,
+        ImmutableArray<double> milliseconds = default) =>
+        Diagnostics.Record(new WorkshopCaptureDiagnostic(kind, stage, _identity, _epoch, _profile, end, status,
+            kind == WorkshopCaptureKind.Pose ? _expectedCount : _expectedCount - 1, count, chunk, chunks, first,
+            stage == WorkshopCaptureStage.Begin ? WorkshopWireFlatBuffers.DecodeCommand(_construction) : null,
+            samples.IsDefault ? [] : samples, milliseconds.IsDefault ? [] : milliseconds));
 }

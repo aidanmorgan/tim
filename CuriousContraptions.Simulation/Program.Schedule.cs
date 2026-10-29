@@ -32,7 +32,7 @@ public static partial class Program
     public static byte[] AnimationPeer() => WorkshopClockWire.EncodePeer(Peer with { RequesterRole = WorkshopRuntimeRole.Animation });
 
     // The Simulation's continuous check of the clock master context's derived domain (worker.js startClockMaster).
-    private static readonly WorkshopClockDerivation ClockDerivation = new();
+    private static readonly WorkshopClockDerivation ClockDerivation = new(Diagnostics);
 
     [JSExport]
     public static int[] ClockDerivationProfile() =>

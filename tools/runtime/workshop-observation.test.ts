@@ -169,6 +169,7 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
         PrepareGpu: () => { preparations++; return new Promise<void>(resolve => { releasePreparation = resolve; }); },
         Dispatch: async () => { await new Promise<void>(resolve => { release = resolve; }); },
         FlushObservation: () => { flushes++; if (throwOutput) throw Error('Output unavailable'); },
+        ReportObservationFailure: (detail: string) => logged.push(detail),
         // The managed reliable-read ledger: every receipt reaches it, unparsed (it accepts all here; refusals are below).
         AcknowledgeRead: (receipt: Uint8Array) => { receipts.push(receiptIdentity(receipt)); }
     };
@@ -244,7 +245,7 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
     await self.onmessage({ data: { readAcknowledged: receipt(last) } });
     assert.equal(flushes, 2);
     assert.equal(messages.filter(item => item.failure).length, failuresBefore, 'observation failure is contained');
-    assert.deepEqual(logged, ['CCGPU_TRACE_FLUSH_EXCEPTION Error: Output unavailable'], 'and logged, never swallowed');
+    assert.deepEqual(logged, ['Error: Output unavailable'], 'and logged, never swallowed');
     throwOutput = false;
     const beforeReset = publication(4n), afterReset = publication(5n);
     publish(beforeReset, false);
@@ -535,4 +536,104 @@ test('a mixed envelope is rejected atomically', async () => {
     }
     assert.deepEqual([dispatches, receipts, schedules], [0, 0, 0], 'mixed envelopes mutate no managed state');
     console.log(JSON.stringify({ mixedEnvelopesRejectedAtomically: true }));
+});
+
+test('the observation facade freezes every nested result and exposes no command capability', async () => {
+    const { registerObservation, discoverObservation, ObservationRefusal, DiagnosticCategory, WorkshopSimulationPhase, WorkshopCommandOutcome, WorkshopRejection, WorkshopCommandKind, WorkshopRuntimeRole, ClockProbeOutcome } =
+        await import('../../CuriousContraptions.web/wwwroot/workshop-observation.js');
+    let tick = '4';
+    registerObservation('101:206',
+        () => ({ refusal: ObservationRefusal.None, value: {
+            epoch: '2', tick, revision: '3', phase: WorkshopSimulationPhase.Running, cadence: '1', projection: '2', captures: [], electrical: [], sequence: '1', publication: '2', masterGeneration: '1', sourcePulse: '4',
+            outcome: WorkshopCommandOutcome.Applied, reason: WorkshopRejection.None, activations: [], timers: [], contactWorks: [], memory: [], actuators: [], loads: [], logic: [],
+            bodies: [{ id: '7', cell: { x: 0, y: 0, z: 0 }, local: { x: 1, y: 2, z: 3 },
+                velocity: { x: 0, y: 0, z: 0 }, angularVelocity: { x: 0, y: 0, z: 0 }, localCentreOfMass: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } }] } }),
+        () => ({ refusal: ObservationRefusal.None, value: [{ ordinal: '1', sequence: '3', kind: WorkshopCommandKind.Run, outcome: WorkshopCommandOutcome.Applied, reason: WorkshopRejection.None, appliedToPresentation: true }] }),
+        () => ({ refusal: ObservationRefusal.None, value: [{ ordinal: '9007199254740993',
+            record: { category: DiagnosticCategory.ClockSample, probe: { sessionLow: '101', sessionHigh: '206',
+                generation: '1', requesterGeneration: '1', role: WorkshopRuntimeRole.Browser, sequence: '9007199254740995', sent: '9007199254740997' },
+                outcome: ClockProbeOutcome.Accepted, offset: { lower: '-18446744073709551617', upper: '18446744073709551617' }, received: '9007199254740999' } }] }),
+        () => ({ refusal: ObservationRefusal.None, value: '1' }),
+        () => ({ refusal: ObservationRefusal.None, value: { epoch: '2', skipped: '0', records: [] } }),
+        () => ({ refusal: ObservationRefusal.None }),
+        () => ({ refusal: ObservationRefusal.None }));
+    const port = discoverObservation()!;
+    assert.equal(Object.isFrozen(port), true);
+    assert.equal('execute' in port, false);
+    const before = port.query();
+    const value = before.value!;
+    assert.throws(() => { Object.defineProperty(value.bodies[0].local, 'x', { value: 99 }); }, TypeError);
+    assert.throws(() => { Object.defineProperty(value.bodies, '0', { value: {} }); }, TypeError);
+    tick = '5';
+    assert.equal(value.tick, '4');
+    assert.equal(port.query().value!.tick, '5');
+    assert.equal(port.query().value!.bodies[0].local.x, 1);
+    assert.equal(Object.isFrozen(port.receipts().value), true);
+    const diagnostic = port.diagnostics().value![0];
+    assert.equal(diagnostic.ordinal, '9007199254740993');
+    assert.equal(diagnostic.record.category, DiagnosticCategory.ClockSample);
+    if (diagnostic.record.category !== DiagnosticCategory.ClockSample) throw new Error('Expected a typed clock sample.');
+    assert.equal(diagnostic.record.probe.sequence, '9007199254740995');
+    assert.equal(diagnostic.record.offset.lower, '-18446744073709551617');
+    const offset = diagnostic.record.offset;
+    assert.throws(() => { Object.defineProperty(offset, 'lower', { value: '0' }); }, TypeError);
+});
+
+test('client observation event exports keep two observers independent from UI through growth and Reset', async () => {
+    const { poseClient } = await import('./pose-client-harness.js');
+    const { eventWorker } = await import('./event-worker-harness.js');
+    const { publication, publish } = await import('./event-ring-fixture.js');
+    const client = await poseClient(), worker = await eventWorker();
+    const delivery = (bytes: Uint8Array) => {
+        const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+        return { epoch: view.getBigUint64(0, true), skipped: view.getBigUint64(8, true),
+            sequences: Array.from({ length: (bytes.length - 16) / 64 }, (_, i) => view.getBigUint64(16 + i * 64, true)) };
+    };
+    try {
+        const fast = client.api.openObservationEvents(client.id), slow = client.api.openObservationEvents(client.id);
+        publish(worker.imports, publication(5n, 2, 0n, 2n)); client.deliverEvents(worker.posted.at(-1)!);
+        assert.deepEqual(delivery(client.api.readObservationEvents(client.id, fast, '5')).sequences, [1n, 2n]);
+        publish(worker.imports, publication(5n, 4, 2n, 4n)); client.deliverEvents(worker.posted.at(-1)!);
+        assert.deepEqual(delivery(client.api.readObservationEvents(client.id, fast, '5')).sequences, [3n, 4n]);
+        assert.deepEqual(delivery(client.api.readEvents(client.id, '5')).sequences, [1n, 2n, 3n, 4n]);
+        assert.deepEqual(delivery(client.api.readObservationEvents(client.id, slow, '5')).sequences, [1n, 2n, 3n, 4n]);
+        publish(worker.imports, publication(6n, 2, 0n, 2n)); client.deliverEvents(worker.posted.at(-1)!);
+        assert.deepEqual(delivery(client.api.readObservationEvents(client.id, fast, '6')).sequences, [1n, 2n]);
+        assert.deepEqual(delivery(client.api.readEvents(client.id, '6')).sequences, [1n, 2n]);
+        assert.deepEqual(delivery(client.api.readObservationEvents(client.id, slow, '6')).sequences, [1n, 2n]);
+        client.api.closeObservationEvents(client.id, fast);
+        assert.throws(() => client.api.readObservationEvents(client.id, fast, '6'), /closed/);
+        client.dispose();
+        assert.throws(() => client.api.readObservationEvents(client.id, slow, '6'), /retired|client/i);
+    } finally { client.dispose(); worker.imports.dispose(); }
+});
+
+test('discovery retains the same startup port and exposes its terminal failure before a replacement session', async () => {
+    const { registerObservation, discoverObservation, ObservationRefusal } = await import('../../CuriousContraptions.web/wwwroot/workshop-observation.js');
+    let detail: string | undefined;
+    registerObservation('startup', () => ({ refusal: detail ? ObservationRefusal.Retired : ObservationRefusal.NotCommitted }),
+        () => ({ refusal: ObservationRefusal.None, value: [] }), () => ({ refusal: ObservationRefusal.None, value: [] }),
+        () => ({ refusal: ObservationRefusal.NotCommitted }), () => ({ refusal: ObservationRefusal.NotCommitted }),
+        () => ({ refusal: ObservationRefusal.ClosedCursor }), () => ({ refusal: ObservationRefusal.None, value: detail }));
+    const before = discoverObservation()!;
+    assert.equal(before.query().refusal, ObservationRefusal.NotCommitted);
+    detail = 'bundle resource unavailable';
+    assert.equal(discoverObservation(), before);
+    assert.equal(before.query().refusal, ObservationRefusal.Retired);
+    assert.equal(before.terminal().value, detail);
+});
+
+test('observation enums preserve canonical external command, refusal, state and diagnostic values', async () => {
+    const value = await import('../../CuriousContraptions.web/wwwroot/workshop-observation.js');
+    assert.equal(value.WorkshopCommandKind.Initialize, 0);
+    assert.equal(value.WorkshopCommandKind.Run, 2);
+    assert.equal(value.WorkshopCommandKind.ObserveMemory, 12);
+    assert.equal(value.WorkshopRejection.InvalidRead, 7);
+    assert.equal(value.WorkshopRejection[6], undefined);
+    assert.equal(value.WorkshopSimulationPhase.Running, 5);
+    assert.equal(value.WorkshopConnectionDomain.Activation, 1);
+    assert.equal(value.WorkshopConnectionDomain.Electrical, 2);
+    assert.equal(value.TraceEnd.Fault, 4);
+    assert.equal(value.TraceEnd[3], undefined);
+    assert.equal(value.WorkshopRuntimeRole.Animation, 3);
 });

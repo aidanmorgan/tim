@@ -152,7 +152,7 @@ public partial class Workshop
                     ? "Supply change accepted for the next physics step." : "Supply change was not applied.";
             }
         }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); if (!_workshopUiRemoved) _status.Text = failure; }
         finally
         {
             _runControlSending = false;
@@ -200,7 +200,7 @@ public partial class Workshop
             try { parameters.Validate(current.PartId); }
             catch (ArgumentException error)
             {
-                var failure = WorkshopUiFailure.Report(new WorkshopEditRejectedException(WorkshopEditRejection.OutOfRange, error.Message));
+                var failure = WorkshopUiFailure.Report(new WorkshopEditRejectedException(WorkshopEditRejection.OutOfRange, error.Message), Diagnostics);
                 if (!_workshopUiRemoved) _status.Text = failure;
                 return;
             }
@@ -211,6 +211,6 @@ public partial class Workshop
             if (!await SubmitConstruction(proposed)) { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
             if (!_workshopUiRemoved) { _status.Text = "Parameters updated."; RefreshConnectionChoices(); }
         }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); if (!_workshopUiRemoved) _status.Text = failure; }
     }
 }

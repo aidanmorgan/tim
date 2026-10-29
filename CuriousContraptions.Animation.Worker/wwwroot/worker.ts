@@ -18,7 +18,7 @@ interface AnimationHost {
     AnimationControl(bytes: Uint8Array): void;
 }
 interface AnimationExports { CuriousContraptions: { Animation: { Worker: { Program: AnimationHost } } } }
-interface AnimationImports { now(): number; probe(bytes: Uint8Array): void; control(bytes: Uint8Array): void; output(bytes: Uint8Array): void; qualified(): void; }
+interface AnimationImports { observation(bytes: Uint8Array): void; now(): number; probe(bytes: Uint8Array): void; control(bytes: Uint8Array): void; output(bytes: Uint8Array): void; qualified(): void; }
 let host: AnimationHost;
 let port: MessagePort | undefined, clock: ReturnType<typeof attachClockRing> | undefined;
 let service: ReturnType<typeof setInterval> | undefined;
@@ -59,6 +59,7 @@ function flushSample() {
     self.postMessage({ animationOutput: value }, [value.buffer]);
 }
 runtime.setModuleImports<AnimationImports>('workshopAnimation', {
+    observation(bytes) { const observation = new Uint8Array(bytes); self.postMessage({ observation }, [observation.buffer]); },
     now: nativeNow,
     probe(bytes) {
         // The Simulation-owned clock master answers through the clock ring; the reply is received when the wait resolves.

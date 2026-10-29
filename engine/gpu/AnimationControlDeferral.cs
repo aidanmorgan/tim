@@ -14,10 +14,12 @@ public enum AnimationServiceTurn { Wait, ApplyDeferred, Evaluate }
 /// the browser sends no other, so the capacity is one. A service turn applies it once the installation is committed and
 /// master time is available again, and that turn ends there: applying it reads a newer native time, so evaluation
 /// resumes on the next turn and never at a reversed time. Every hold is a counted, typed
-/// CCGPU_ANIMATION_CONTROL_DEFERRED telemetry line.
+/// AnimationControlDeferred diagnostic.
 /// </summary>
 public sealed class AnimationControlDeferral
 {
+    public WorkshopDiagnostics Diagnostics { get; }
+    public AnimationControlDeferral(WorkshopDiagnostics? diagnostics = null) => Diagnostics = diagnostics ?? new();
     private byte[]? _held;
 
     public bool IsHolding => _held is not null;
@@ -31,16 +33,7 @@ public sealed class AnimationControlDeferral
         if (Deferrals == ulong.MaxValue) throw new InvalidOperationException("Animation deferral count exhausted.");
         _held = control;
         Deferrals++;
-        using var bytes = new System.IO.MemoryStream();
-        using (var json = new System.Text.Json.Utf8JsonWriter(bytes))
-        {
-            json.WriteStartObject();
-            json.WriteNumber("cause", (uint)cause);
-            json.WriteString("causeName", Enum.GetName(cause));
-            json.WriteString("count", Deferrals.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            json.WriteEndObject();
-        }
-        Console.WriteLine("CCGPU_ANIMATION_CONTROL_DEFERRED " + System.Text.Encoding.UTF8.GetString(bytes.ToArray()));
+        Diagnostics.Capture(() => new AnimationDeferralDiagnostic(cause, Deferrals));
     }
 
     /// <summary>A turn waits without an installation, while one is prepared, or without master time; otherwise it applies

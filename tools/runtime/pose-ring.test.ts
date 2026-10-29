@@ -29,8 +29,8 @@ test('common bootstrap and reserved committed epochs preserve full-width identit
     const client = await poseClient(), worker = await eventWorker();
     try {
         assert.equal(client.bootstrapRing.byteLength, 3120);
-        assert.equal(client.api.hasPoseRing(client.id), true);
-        assert.equal(client.api.readLatestPoseSlot(client.id)!.bodies.length, 0);
+        let reader = new PoseReader(client.bootstrapRing);
+        assert.equal(reader.latest()!.bodies.length, 0);
         let publication = 0;
         for (const [epoch, ids, capacity] of [[1n, [1n, 4294967296n, 18446744073709551615n], 16],
             [2n, Array.from({ length: 40 }, (_, i) => BigInt(i + 1)), 54], [3n, [7n], 16], [4n, [], 16]] as const) {
@@ -41,9 +41,10 @@ test('common bootstrap and reserved committed epochs preserve full-width identit
             const ring = worker.posePosted.at(-1)!;
             assert.equal(ring.byteLength, 3 * (16 + capacity * 64));
             client.deliverRing(ring);
+            reader.dispose(); reader = new PoseReader(ring);
             for (let tick = 0; tick < 5; tick++) {
                 worker.imports.publish(new Uint8Array(0), new Uint8Array(24), slot([...ids], ++publication), false);
-                const observed = client.api.readLatestPoseSlot(client.id)!;
+                const observed = reader.latest()!;
                 assert.equal(observed.timestamp, BigInt(publication * 100));
                 assert.deepEqual(Array.from(observed.bodies, body => body.id), ids.map(String));
                 for (const body of observed.bodies) {
@@ -62,13 +63,14 @@ test('prepare and stale discard preserve advertised storage; same epoch reuses i
         const initial = identity(1n, 1n);
         worker.imports.preparePose(initial, 2, 16); worker.imports.commitPose(initial);
         const ring = worker.posePosted[0]; client.deliverRing(ring);
+        const reader = new PoseReader(ring);
         worker.imports.publish(new Uint8Array(0), new Uint8Array(24), slot([1n, 2n], 1), false);
         const next = identity(2n, 2n);
         worker.imports.preparePose(next, 40, 54);
         worker.imports.discardPose(initial);
         assert.throws(() => worker.imports.commitPose(initial), /does not own/);
         assert.equal(worker.posePosted.length, 1);
-        assert.deepEqual(Array.from(client.api.readLatestPoseSlot(client.id)!.bodies, body => body.id), ['1', '2']);
+        assert.deepEqual(Array.from(reader.latest()!.bodies, body => body.id), ['1', '2']);
         worker.imports.discardPose(next);
         assert.throws(() => worker.imports.commitPose(next), /does not own/);
         assert.throws(() => worker.imports.preparePose(identity(3n, 1n), 1, 16), /cannot change/);
@@ -76,7 +78,7 @@ test('prepare and stale discard preserve advertised storage; same epoch reuses i
         worker.imports.preparePose(same, 2, 16); worker.imports.commitPose(same);
         assert.equal(worker.posePosted.length, 1);
         worker.imports.publish(new Uint8Array(0), new Uint8Array(24), slot([1n, 2n], 2), false);
-        assert.equal(client.api.readLatestPoseSlot(client.id)!.timestamp, 200n);
+        assert.equal(reader.latest()!.timestamp, 200n);
         worker.imports.preparePose(identity(5n, 2n), 1, 16); worker.imports.dispose();
         assert.throws(() => worker.imports.commitPose(identity(5n, 2n)), /does not own/);
     } finally { worker.imports.dispose(); client.dispose(); }
@@ -86,14 +88,15 @@ test('actual reader ignores in-progress slots and rejects invalid slot indices',
     try {
         const owned = identity(1n, 1n); worker.imports.preparePose(owned, 1, 16); worker.imports.commitPose(owned);
         const ring = worker.posePosted[0]; client.deliverRing(ring);
+        const reader = new PoseReader(ring);
         worker.imports.publish(new Uint8Array(0), new Uint8Array(24), slot([4294967296n], 1), false);
         worker.imports.publish(new Uint8Array(0), new Uint8Array(24), slot([4294967296n], 2), false);
         const words = new BigInt64Array(ring);
         Atomics.store(words, 2 * 1040 / 8, 5n);
-        assert.equal(client.api.readPoseSlot(client.id, 2), null);
-        assert.equal(client.api.readLatestPoseSlot(client.id)!.bodies[0].px, 1);
-        assert.equal(client.api.readPoseSlot(client.id, -1), null);
-        assert.equal(client.api.readPoseSlot(client.id, 3), null);
+        assert.equal(reader.read(2), null);
+        assert.equal(reader.latest()!.bodies[0].px, 1);
+        assert.equal(reader.read(-1), null);
+        assert.equal(reader.read(3), null);
     } finally { worker.imports.dispose(); client.dispose(); }
 });
 test('malformed ownership and population refuse before publishing; valid retry succeeds', async () => {
@@ -111,12 +114,11 @@ test('malformed ownership and population refuse before publishing; valid retry s
         assert.throws(() => worker.imports.publish(new Uint8Array(0), new Uint8Array(24), slot([1n], 1), false), /match its admitted/);
     } finally { worker.imports.dispose(); }
 });
-test('malformed shared pose layout retires the public client and its reader', async () => {
+test('malformed shared pose layout retires the public client', async () => {
     const client = await poseClient();
     try {
         client.deliverRing(new SharedArrayBuffer(51));
         assert.equal(client.api.status(client.id), 4);
-        assert.equal(client.api.readLatestPoseSlot(client.id), null);
     } finally { client.dispose(); }
 });
 

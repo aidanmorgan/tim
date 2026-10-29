@@ -35,6 +35,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
     const replyWaits: Promise<Uint8Array | null>[] = [];
     const workerCreated = new Promise<void>(resolve => { resolveWorker = resolve; });
     const profile = new Float64Array([2, 1, 1, 0, 0.001, 1, 1]);
+    let isolationFailure: Error | undefined;
     const context = {
         Uint8Array, Float64Array, DataView, URL, Map, Error, Array, Promise, Math,
         SharedArrayBuffer, BigInt64Array, Float32Array, Atomics,
@@ -44,7 +45,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
         document: { baseURI: 'http://127.0.0.1:8060/', hidden: false },
         nativeProfile: 2, nativeNow: () => milliseconds,
         nativeClockEvidence: () => Array.from(profile), admitNativeClock: async () => {},
-        requireIsolation: () => {}, watchIsolation: () => () => {}, isolationQualified: () => {},
+        requireIsolation: () => { if (isolationFailure) throw isolationFailure; }, watchIsolation: () => () => {}, isolationQualified: () => {},
         isolationEvidence: () => ({}), stopIsolation: () => {},
         console: { error: (...args: unknown[]) => errors.push(args) },
         setInterval: (callback: () => void, delay: number) => {
@@ -98,8 +99,8 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
         // A running Simulation beats the ring between its tick turns (worker.js); a hung one stops.
         if (simulationRuns) clockRing.beat(clock);
     };
-    const creation = api.create(Object.values(state), session, [2, 64, 72, 96, 160, 1, 2], captureMode, false,
-        () => { clockReplies++; }, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service);
+    const creation = api.create(Object.values(state), session, [2, 64, 72, 96, 1, 2], captureMode, false,
+        () => { clockReplies++; }, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service, () => {}, detail => errors.push(['retired', detail]));
     creation.catch(() => {});
     // A creation that rejects before constructing its workers (e.g. a missing module binding) fails the harness with its own error;
     // waiting only for the first Worker left the test pending forever with an idle event loop.
@@ -113,6 +114,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
     const startup = () => [...timers.values()].find(timer => timer.delay === 5000);
     return {
         api, creation, intervals, timers, workers, errors, probes, messages, runtimeReady,
+        failIsolation: (error: Error) => { isolationFailure = error; },
         get startup() { return startup(); },
         onOutput: (callback: () => void) => { outputCallback = callback; },
         calls: () => calls, outputCalls: () => outputCalls, clockReplies: () => clockReplies, publish: (id: number) => { publishedId = id; },
@@ -288,7 +290,7 @@ test('a clock reply landing after the client failed is never delivered', async (
     h.serveRing(); // the master answers the waiting probe after the failure
     assertOneAnsweredWait(await h.replyWaitsSettled(), 'after the failure');
     assert.equal(h.clockReplies(), 1, 'the failed client dropped the answered reply');
-    assert.deepEqual(h.errors.filter(([kind]) => kind !== 'CCGPU_TRANSPORT_FAILURE'), []);
+    assert.deepEqual(h.errors.filter(([kind]) => kind !== 'retired'), []);
     h.api.dispose(id);
 });
 test('a clock reply landing after disposal is never delivered', async () => {
@@ -334,9 +336,9 @@ test('a Simulation heartbeat silent for 1000ms of running service faults the ses
     assert.equal(h.api.status(id), state.Ready, 'within the bound the session stays ready');
     serviceFor(h, 4020, 30);
     assert.equal(h.api.status(id), state.Indeterminate);
-    assert.match(String(h.errors[0][2]), /SimulationUnresponsive/);
-    const failure: unknown = h.errors[0][2]; assert.ok(failure instanceof Error);
-    assert.equal(failure.name, 'SimulationUnresponsive');
+    assert.match(String(h.errors[0][1]), /SimulationUnresponsive/);
+    const failure = h.errors[0][1]; assert.equal(typeof failure, 'string');
+    assert.match(String(failure), /SimulationUnresponsive/);
     assert.equal(h.intervals.size, 0); h.api.dispose(id);
 });
 
@@ -507,7 +509,7 @@ for (const retired of ['memoryResult', 'candidateTimedOut'])
         const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
         h.workers[0].onmessage({ data: { [retired]: retired === 'memoryResult' ? new Uint8Array(128) : true } });
         assert.equal(h.api.status(id), state.Indeterminate);
-        assert.match(String(h.errors.find(entry => entry[0] === 'CCGPU_TRANSPORT_FAILURE')?.[2]), /Unknown worker transport envelope/);
+        assert.match(String(h.errors.find(entry => entry[0] === 'retired')?.[1]), /Unknown worker transport envelope/);
         h.api.dispose(id);
     });
 
@@ -546,27 +548,29 @@ test('an Animation sample records the f32 channel value at 56 and the u16 proper
     view.setBigUint64(40, 9n, true);        // its ordinal
     view.setFloat32(56, 0.34, true);        // the f32 channel value
     view.setUint16(136, 5, true);           // the animated property
+    h.onOutput(() => {
+        const recorded = h.api.eventBytes(id);
+        const value = new DataView(recorded.buffer, recorded.byteOffset, recorded.byteLength);
+        assert.equal(value.getFloat32(56, true), Math.fround(0.34), 'f32 reaches managed admission');
+        assert.equal(value.getUint16(136, true), 5, 'property reaches managed admission');
+        assert.equal(value.getBigUint64(40, true), 9n);
+    });
     h.workers[1].onmessage({ data: { animationOutput: sample } });
-    const recorded = h.api.readLastAnimationSample(id, 7);
-    assert.ok(recorded);
-    assert.equal(recorded.value, Math.fround(0.34), 'the f32 channel value');
-    assert.equal(recorded.property, 5, 'the property at 136');
-    assert.equal(recorded.ordinal, '9');
+    assert.equal(h.outputCalls(), 1);
+    assert.equal(h.messages.filter(message => message.animationAcknowledged).length, 1);
     assert.equal(h.errors.length, 0); h.api.dispose(id);
 });
 
-test('presentation diagnostics retain the integral timestamp and bounded f32 phase in the current record', async () => {
-    const h = await clientHarness(true, false, 2), id = await h.ready();
-    const bytes = new Uint8Array(364), view = new DataView(bytes.buffer);
-    view.setBigUint64(32, 18_014_398_509_481_985n, true);
-    view.setFloat32(360, 1024, true);
-    h.api.presentationObservation(id, bytes);
-    const evidence = h.api.presentationEvidence(id);
-    assert.equal(evidence.recordBytes, 364); assert.equal(evidence.count, 1);
-    const retained = new DataView(Uint8Array.from(evidence.bytes).buffer);
-    assert.equal(retained.getBigUint64(32, true), 18_014_398_509_481_985n);
-    assert.equal(retained.getFloat32(360, true), 1024);
-    assert.throws(() => h.api.presentationObservation(id, new Uint8Array(360)), /Invalid fixed presentation/);
-    assert.equal(h.api.presentationEvidence(id).total, '1', 'refused width did not advance evidence');
+test('transport retirement retains error name message stack and nested cause', async () => {
+    const h = await clientHarness(), id = await h.ready();
+    const cause = new Error('underlying transport cause'); cause.name = 'TransportCause'; cause.stack = 'cause-stack-marker';
+    const error = new Error('outer transport failure', { cause }); error.name = 'TransportFailure'; error.stack = 'outer-stack-marker';
+    h.failIsolation(error);
+    assert.throws(() => h.api.now(), /outer transport failure/);
+    const detail = h.errors.find(entry => entry[0] === 'retired')?.[1];
+    assert.equal(typeof detail, 'string');
+    for (const fragment of ['TransportFailure', 'outer transport failure', 'outer-stack-marker',
+        'TransportCause', 'underlying transport cause', 'cause-stack-marker'])
+        assert.ok(String(detail).includes(fragment), fragment);
     h.api.dispose(id);
 });

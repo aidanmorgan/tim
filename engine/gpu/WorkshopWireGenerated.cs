@@ -4,9 +4,11 @@
 
 namespace CuriousContraptions.Wire
 {
+
 using global::System;
 using global::System.Collections.Generic;
 using global::Google.FlatBuffers;
+
 public struct ActivationMemoryRecord : IFlatbufferObject
 {
   private Struct __p;
@@ -244,6 +246,156 @@ public struct CaptureLatchRead : IFlatbufferObject
   }
 }
 
+public struct CaptureObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static CaptureObservation GetRootAsCaptureObservation(ByteBuffer _bb) { return GetRootAsCaptureObservation(_bb, new CaptureObservation()); }
+  public static CaptureObservation GetRootAsCaptureObservation(ByteBuffer _bb, CaptureObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public CaptureObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public uint Kind { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint Stage { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong Identity { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong Epoch { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public uint Cadence { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint Physical { get { int o = __p.__offset(14); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong Revision { get { int o = __p.__offset(16); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public uint End { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint Status { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public int ExpectedCount { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public int Count { get { int o = __p.__offset(24); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public int Chunk { get { int o = __p.__offset(26); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public int Chunks { get { int o = __p.__offset(28); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public int First { get { int o = __p.__offset(30); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public byte Construction(int j) { int o = __p.__offset(32); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
+  public int ConstructionLength { get { int o = __p.__offset(32); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetConstructionBytes() { return __p.__vector_as_span<byte>(32, 1); }
+#else
+  public ArraySegment<byte>? GetConstructionBytes() { return __p.__vector_as_arraysegment(32); }
+#endif
+  public byte[] GetConstructionArray() { return __p.__vector_as_array<byte>(32); }
+  public CuriousContraptions.Wire.TraceSampleObservation? Samples(int j) { int o = __p.__offset(34); return o != 0 ? (CuriousContraptions.Wire.TraceSampleObservation?)(new CuriousContraptions.Wire.TraceSampleObservation()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int SamplesLength { get { int o = __p.__offset(34); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public double Milliseconds(int j) { int o = __p.__offset(36); return o != 0 ? __p.bb.GetDouble(__p.__vector(o) + j * 8) : (double)0; }
+  public int MillisecondsLength { get { int o = __p.__offset(36); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<double> GetMillisecondsBytes() { return __p.__vector_as_span<double>(36, 8); }
+#else
+  public ArraySegment<byte>? GetMillisecondsBytes() { return __p.__vector_as_arraysegment(36); }
+#endif
+  public double[] GetMillisecondsArray() { return __p.__vector_as_array<double>(36); }
+
+  public static Offset<CuriousContraptions.Wire.CaptureObservation> CreateCaptureObservation(FlatBufferBuilder builder,
+      uint kind = 0,
+      uint stage = 0,
+      ulong identity = 0,
+      ulong epoch = 0,
+      uint cadence = 0,
+      uint physical = 0,
+      ulong revision = 0,
+      uint end = 0,
+      uint status = 0,
+      int expected_count = 0,
+      int count = 0,
+      int chunk = 0,
+      int chunks = 0,
+      int first = 0,
+      VectorOffset constructionOffset = default(VectorOffset),
+      VectorOffset samplesOffset = default(VectorOffset),
+      VectorOffset millisecondsOffset = default(VectorOffset)) {
+    builder.StartTable(17);
+    CaptureObservation.AddRevision(builder, revision);
+    CaptureObservation.AddEpoch(builder, epoch);
+    CaptureObservation.AddIdentity(builder, identity);
+    CaptureObservation.AddMilliseconds(builder, millisecondsOffset);
+    CaptureObservation.AddSamples(builder, samplesOffset);
+    CaptureObservation.AddConstruction(builder, constructionOffset);
+    CaptureObservation.AddFirst(builder, first);
+    CaptureObservation.AddChunks(builder, chunks);
+    CaptureObservation.AddChunk(builder, chunk);
+    CaptureObservation.AddCount(builder, count);
+    CaptureObservation.AddExpectedCount(builder, expected_count);
+    CaptureObservation.AddStatus(builder, status);
+    CaptureObservation.AddEnd(builder, end);
+    CaptureObservation.AddPhysical(builder, physical);
+    CaptureObservation.AddCadence(builder, cadence);
+    CaptureObservation.AddStage(builder, stage);
+    CaptureObservation.AddKind(builder, kind);
+    return CaptureObservation.EndCaptureObservation(builder);
+  }
+
+  public static void StartCaptureObservation(FlatBufferBuilder builder) { builder.StartTable(17); }
+  public static void AddKind(FlatBufferBuilder builder, uint kind) { builder.AddUint(0, kind, 0); }
+  public static void AddStage(FlatBufferBuilder builder, uint stage) { builder.AddUint(1, stage, 0); }
+  public static void AddIdentity(FlatBufferBuilder builder, ulong identity) { builder.AddUlong(2, identity, 0); }
+  public static void AddEpoch(FlatBufferBuilder builder, ulong epoch) { builder.AddUlong(3, epoch, 0); }
+  public static void AddCadence(FlatBufferBuilder builder, uint cadence) { builder.AddUint(4, cadence, 0); }
+  public static void AddPhysical(FlatBufferBuilder builder, uint physical) { builder.AddUint(5, physical, 0); }
+  public static void AddRevision(FlatBufferBuilder builder, ulong revision) { builder.AddUlong(6, revision, 0); }
+  public static void AddEnd(FlatBufferBuilder builder, uint end) { builder.AddUint(7, end, 0); }
+  public static void AddStatus(FlatBufferBuilder builder, uint status) { builder.AddUint(8, status, 0); }
+  public static void AddExpectedCount(FlatBufferBuilder builder, int expectedCount) { builder.AddInt(9, expectedCount, 0); }
+  public static void AddCount(FlatBufferBuilder builder, int count) { builder.AddInt(10, count, 0); }
+  public static void AddChunk(FlatBufferBuilder builder, int chunk) { builder.AddInt(11, chunk, 0); }
+  public static void AddChunks(FlatBufferBuilder builder, int chunks) { builder.AddInt(12, chunks, 0); }
+  public static void AddFirst(FlatBufferBuilder builder, int first) { builder.AddInt(13, first, 0); }
+  public static void AddConstruction(FlatBufferBuilder builder, VectorOffset constructionOffset) { builder.AddOffset(14, constructionOffset.Value, 0); }
+  public static VectorOffset CreateConstructionVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateConstructionVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateConstructionVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateConstructionVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartConstructionVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
+  public static void AddSamples(FlatBufferBuilder builder, VectorOffset samplesOffset) { builder.AddOffset(15, samplesOffset.Value, 0); }
+  public static VectorOffset CreateSamplesVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.TraceSampleObservation>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateSamplesVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.TraceSampleObservation>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateSamplesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.TraceSampleObservation>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateSamplesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.TraceSampleObservation>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartSamplesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddMilliseconds(FlatBufferBuilder builder, VectorOffset millisecondsOffset) { builder.AddOffset(16, millisecondsOffset.Value, 0); }
+  public static VectorOffset CreateMillisecondsVector(FlatBufferBuilder builder, double[] data) { builder.StartVector(8, data.Length, 8); for (int i = data.Length - 1; i >= 0; i--) builder.AddDouble(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateMillisecondsVectorBlock(FlatBufferBuilder builder, double[] data) { builder.StartVector(8, data.Length, 8); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateMillisecondsVectorBlock(FlatBufferBuilder builder, ArraySegment<double> data) { builder.StartVector(8, data.Count, 8); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateMillisecondsVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<double>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartMillisecondsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(8, numElems, 8); }
+  public static Offset<CuriousContraptions.Wire.CaptureObservation> EndCaptureObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    builder.Required(o, 34);  // samples
+    builder.Required(o, 36);  // milliseconds
+    return new Offset<CuriousContraptions.Wire.CaptureObservation>(o);
+  }
+}
+
+
+static public class CaptureObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Kind*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 6 /*Stage*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 8 /*Identity*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 10 /*Epoch*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 12 /*Cadence*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 14 /*Physical*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 16 /*Revision*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 18 /*End*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 20 /*Status*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 22 /*ExpectedCount*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 24 /*Count*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 26 /*Chunk*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 28 /*Chunks*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 30 /*First*/, 4 /*int*/, 4, false)
+      && verifier.VerifyVectorOfData(tablePos, 32 /*Construction*/, 1 /*byte*/, false)
+      && verifier.VerifyVectorOfTables(tablePos, 34 /*Samples*/, CuriousContraptions.Wire.TraceSampleObservationVerify.Verify, true)
+      && verifier.VerifyVectorOfData(tablePos, 36 /*Milliseconds*/, 8 /*double*/, true)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct ClockStamp : IFlatbufferObject
 {
   private Struct __p;
@@ -440,6 +592,286 @@ public struct ContactWorkStoreRecord : IFlatbufferObject
   }
 }
 
+public struct DebtObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static DebtObservation GetRootAsDebtObservation(ByteBuffer _bb) { return GetRootAsDebtObservation(_bb, new DebtObservation()); }
+  public static DebtObservation GetRootAsDebtObservation(ByteBuffer _bb, DebtObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public DebtObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Tick { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public uint Reason { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong Oldest { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public long AgeMilliseconds { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+
+  public static Offset<CuriousContraptions.Wire.DebtObservation> CreateDebtObservation(FlatBufferBuilder builder,
+      ulong tick = 0,
+      uint reason = 0,
+      ulong oldest = 0,
+      long age_milliseconds = 0) {
+    builder.StartTable(4);
+    DebtObservation.AddAgeMilliseconds(builder, age_milliseconds);
+    DebtObservation.AddOldest(builder, oldest);
+    DebtObservation.AddTick(builder, tick);
+    DebtObservation.AddReason(builder, reason);
+    return DebtObservation.EndDebtObservation(builder);
+  }
+
+  public static void StartDebtObservation(FlatBufferBuilder builder) { builder.StartTable(4); }
+  public static void AddTick(FlatBufferBuilder builder, ulong tick) { builder.AddUlong(0, tick, 0); }
+  public static void AddReason(FlatBufferBuilder builder, uint reason) { builder.AddUint(1, reason, 0); }
+  public static void AddOldest(FlatBufferBuilder builder, ulong oldest) { builder.AddUlong(2, oldest, 0); }
+  public static void AddAgeMilliseconds(FlatBufferBuilder builder, long ageMilliseconds) { builder.AddLong(3, ageMilliseconds, 0); }
+  public static Offset<CuriousContraptions.Wire.DebtObservation> EndDebtObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.DebtObservation>(o);
+  }
+}
+
+
+static public class DebtObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Tick*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 6 /*Reason*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 8 /*Oldest*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 10 /*AgeMilliseconds*/, 8 /*long*/, 8, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct DeferralObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static DeferralObservation GetRootAsDeferralObservation(ByteBuffer _bb) { return GetRootAsDeferralObservation(_bb, new DeferralObservation()); }
+  public static DeferralObservation GetRootAsDeferralObservation(ByteBuffer _bb, DeferralObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public DeferralObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public uint Cause { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong Count { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+
+  public static Offset<CuriousContraptions.Wire.DeferralObservation> CreateDeferralObservation(FlatBufferBuilder builder,
+      uint cause = 0,
+      ulong count = 0) {
+    builder.StartTable(2);
+    DeferralObservation.AddCount(builder, count);
+    DeferralObservation.AddCause(builder, cause);
+    return DeferralObservation.EndDeferralObservation(builder);
+  }
+
+  public static void StartDeferralObservation(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void AddCause(FlatBufferBuilder builder, uint cause) { builder.AddUint(0, cause, 0); }
+  public static void AddCount(FlatBufferBuilder builder, ulong count) { builder.AddUlong(1, count, 0); }
+  public static Offset<CuriousContraptions.Wire.DeferralObservation> EndDeferralObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.DeferralObservation>(o);
+  }
+}
+
+
+static public class DeferralObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Cause*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 6 /*Count*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct DerivationObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static DerivationObservation GetRootAsDerivationObservation(ByteBuffer _bb) { return GetRootAsDerivationObservation(_bb, new DerivationObservation()); }
+  public static DerivationObservation GetRootAsDerivationObservation(ByteBuffer _bb, DerivationObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public DerivationObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public uint Report { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint Outcome { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint Epoch { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public long Correction { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public bool HasPending { get { int o = __p.__offset(12); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+  public long Pending { get { int o = __p.__offset(14); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public bool HasAdmitted { get { int o = __p.__offset(16); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+  public long AdmittedLower { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public long AdmittedUpper { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public CuriousContraptions.Wire.ObservationExchange? Exchange { get { int o = __p.__offset(22); return o != 0 ? (CuriousContraptions.Wire.ObservationExchange?)(new CuriousContraptions.Wire.ObservationExchange()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+  public int Qualified { get { int o = __p.__offset(24); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public int StartupAttempts { get { int o = __p.__offset(26); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public int StartupOutliers { get { int o = __p.__offset(28); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public int StartupInconclusive { get { int o = __p.__offset(30); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public int StartupUnanswered { get { int o = __p.__offset(32); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public ulong Checks { get { int o = __p.__offset(34); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong Slews { get { int o = __p.__offset(36); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong Rederivations { get { int o = __p.__offset(38); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong Inconclusive { get { int o = __p.__offset(40); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong Unanswered { get { int o = __p.__offset(42); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong CheckRetries { get { int o = __p.__offset(44); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+
+  public static void StartDerivationObservation(FlatBufferBuilder builder) { builder.StartTable(21); }
+  public static void AddReport(FlatBufferBuilder builder, uint report) { builder.AddUint(0, report, 0); }
+  public static void AddOutcome(FlatBufferBuilder builder, uint outcome) { builder.AddUint(1, outcome, 0); }
+  public static void AddEpoch(FlatBufferBuilder builder, uint epoch) { builder.AddUint(2, epoch, 0); }
+  public static void AddCorrection(FlatBufferBuilder builder, long correction) { builder.AddLong(3, correction, 0); }
+  public static void AddHasPending(FlatBufferBuilder builder, bool hasPending) { builder.AddBool(4, hasPending, false); }
+  public static void AddPending(FlatBufferBuilder builder, long pending) { builder.AddLong(5, pending, 0); }
+  public static void AddHasAdmitted(FlatBufferBuilder builder, bool hasAdmitted) { builder.AddBool(6, hasAdmitted, false); }
+  public static void AddAdmittedLower(FlatBufferBuilder builder, long admittedLower) { builder.AddLong(7, admittedLower, 0); }
+  public static void AddAdmittedUpper(FlatBufferBuilder builder, long admittedUpper) { builder.AddLong(8, admittedUpper, 0); }
+  public static void AddExchange(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ObservationExchange> exchangeOffset) { builder.AddStruct(9, exchangeOffset.Value, 0); }
+  public static void AddQualified(FlatBufferBuilder builder, int qualified) { builder.AddInt(10, qualified, 0); }
+  public static void AddStartupAttempts(FlatBufferBuilder builder, int startupAttempts) { builder.AddInt(11, startupAttempts, 0); }
+  public static void AddStartupOutliers(FlatBufferBuilder builder, int startupOutliers) { builder.AddInt(12, startupOutliers, 0); }
+  public static void AddStartupInconclusive(FlatBufferBuilder builder, int startupInconclusive) { builder.AddInt(13, startupInconclusive, 0); }
+  public static void AddStartupUnanswered(FlatBufferBuilder builder, int startupUnanswered) { builder.AddInt(14, startupUnanswered, 0); }
+  public static void AddChecks(FlatBufferBuilder builder, ulong checks) { builder.AddUlong(15, checks, 0); }
+  public static void AddSlews(FlatBufferBuilder builder, ulong slews) { builder.AddUlong(16, slews, 0); }
+  public static void AddRederivations(FlatBufferBuilder builder, ulong rederivations) { builder.AddUlong(17, rederivations, 0); }
+  public static void AddInconclusive(FlatBufferBuilder builder, ulong inconclusive) { builder.AddUlong(18, inconclusive, 0); }
+  public static void AddUnanswered(FlatBufferBuilder builder, ulong unanswered) { builder.AddUlong(19, unanswered, 0); }
+  public static void AddCheckRetries(FlatBufferBuilder builder, ulong checkRetries) { builder.AddUlong(20, checkRetries, 0); }
+  public static Offset<CuriousContraptions.Wire.DerivationObservation> EndDerivationObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.DerivationObservation>(o);
+  }
+}
+
+
+static public class DerivationObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Report*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 6 /*Outcome*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 8 /*Epoch*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 10 /*Correction*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 12 /*HasPending*/, 1 /*bool*/, 1, false)
+      && verifier.VerifyField(tablePos, 14 /*Pending*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 16 /*HasAdmitted*/, 1 /*bool*/, 1, false)
+      && verifier.VerifyField(tablePos, 18 /*AdmittedLower*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 20 /*AdmittedUpper*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 22 /*Exchange*/, 32 /*CuriousContraptions.Wire.ObservationExchange*/, 8, false)
+      && verifier.VerifyField(tablePos, 24 /*Qualified*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 26 /*StartupAttempts*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 28 /*StartupOutliers*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 30 /*StartupInconclusive*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 32 /*StartupUnanswered*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 34 /*Checks*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 36 /*Slews*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 38 /*Rederivations*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 40 /*Inconclusive*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 42 /*Unanswered*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 44 /*CheckRetries*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct DiagnosticObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static DiagnosticObservation GetRootAsDiagnosticObservation(ByteBuffer _bb) { return GetRootAsDiagnosticObservation(_bb, new DiagnosticObservation()); }
+  public static DiagnosticObservation GetRootAsDiagnosticObservation(ByteBuffer _bb, DiagnosticObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public DiagnosticObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public CuriousContraptions.Wire.ObservationPayload Kind { get { int o = __p.__offset(4); return o != 0 ? (CuriousContraptions.Wire.ObservationPayload)__p.bb.Get(o + __p.bb_pos) : CuriousContraptions.Wire.ObservationPayload.None; } }
+  public CuriousContraptions.Wire.FaultObservation? Fault { get { int o = __p.__offset(6); return o != 0 ? (CuriousContraptions.Wire.FaultObservation?)(new CuriousContraptions.Wire.FaultObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.RecalibrationObservation? Recalibration { get { int o = __p.__offset(8); return o != 0 ? (CuriousContraptions.Wire.RecalibrationObservation?)(new CuriousContraptions.Wire.RecalibrationObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.RejectedClockObservation? RejectedClock { get { int o = __p.__offset(10); return o != 0 ? (CuriousContraptions.Wire.RejectedClockObservation?)(new CuriousContraptions.Wire.RejectedClockObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.LateRenewalObservation? LateRenewal { get { int o = __p.__offset(12); return o != 0 ? (CuriousContraptions.Wire.LateRenewalObservation?)(new CuriousContraptions.Wire.LateRenewalObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.WideOffsetObservation? WideOffset { get { int o = __p.__offset(14); return o != 0 ? (CuriousContraptions.Wire.WideOffsetObservation?)(new CuriousContraptions.Wire.WideOffsetObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.DerivationObservation? Derivation { get { int o = __p.__offset(16); return o != 0 ? (CuriousContraptions.Wire.DerivationObservation?)(new CuriousContraptions.Wire.DerivationObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.DeferralObservation? Deferral { get { int o = __p.__offset(18); return o != 0 ? (CuriousContraptions.Wire.DeferralObservation?)(new CuriousContraptions.Wire.DeferralObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.DebtObservation? Debt { get { int o = __p.__offset(20); return o != 0 ? (CuriousContraptions.Wire.DebtObservation?)(new CuriousContraptions.Wire.DebtObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.TickFailureObservation? TickFailure { get { int o = __p.__offset(22); return o != 0 ? (CuriousContraptions.Wire.TickFailureObservation?)(new CuriousContraptions.Wire.TickFailureObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.TransferObservation? Transfer { get { int o = __p.__offset(24); return o != 0 ? (CuriousContraptions.Wire.TransferObservation?)(new CuriousContraptions.Wire.TransferObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.CaptureObservation? Capture { get { int o = __p.__offset(26); return o != 0 ? (CuriousContraptions.Wire.CaptureObservation?)(new CuriousContraptions.Wire.CaptureObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+
+  public static Offset<CuriousContraptions.Wire.DiagnosticObservation> CreateDiagnosticObservation(FlatBufferBuilder builder,
+      CuriousContraptions.Wire.ObservationPayload kind = CuriousContraptions.Wire.ObservationPayload.None,
+      Offset<CuriousContraptions.Wire.FaultObservation> faultOffset = default(Offset<CuriousContraptions.Wire.FaultObservation>),
+      Offset<CuriousContraptions.Wire.RecalibrationObservation> recalibrationOffset = default(Offset<CuriousContraptions.Wire.RecalibrationObservation>),
+      Offset<CuriousContraptions.Wire.RejectedClockObservation> rejected_clockOffset = default(Offset<CuriousContraptions.Wire.RejectedClockObservation>),
+      Offset<CuriousContraptions.Wire.LateRenewalObservation> late_renewalOffset = default(Offset<CuriousContraptions.Wire.LateRenewalObservation>),
+      Offset<CuriousContraptions.Wire.WideOffsetObservation> wide_offsetOffset = default(Offset<CuriousContraptions.Wire.WideOffsetObservation>),
+      Offset<CuriousContraptions.Wire.DerivationObservation> derivationOffset = default(Offset<CuriousContraptions.Wire.DerivationObservation>),
+      Offset<CuriousContraptions.Wire.DeferralObservation> deferralOffset = default(Offset<CuriousContraptions.Wire.DeferralObservation>),
+      Offset<CuriousContraptions.Wire.DebtObservation> debtOffset = default(Offset<CuriousContraptions.Wire.DebtObservation>),
+      Offset<CuriousContraptions.Wire.TickFailureObservation> tick_failureOffset = default(Offset<CuriousContraptions.Wire.TickFailureObservation>),
+      Offset<CuriousContraptions.Wire.TransferObservation> transferOffset = default(Offset<CuriousContraptions.Wire.TransferObservation>),
+      Offset<CuriousContraptions.Wire.CaptureObservation> captureOffset = default(Offset<CuriousContraptions.Wire.CaptureObservation>)) {
+    builder.StartTable(12);
+    DiagnosticObservation.AddCapture(builder, captureOffset);
+    DiagnosticObservation.AddTransfer(builder, transferOffset);
+    DiagnosticObservation.AddTickFailure(builder, tick_failureOffset);
+    DiagnosticObservation.AddDebt(builder, debtOffset);
+    DiagnosticObservation.AddDeferral(builder, deferralOffset);
+    DiagnosticObservation.AddDerivation(builder, derivationOffset);
+    DiagnosticObservation.AddWideOffset(builder, wide_offsetOffset);
+    DiagnosticObservation.AddLateRenewal(builder, late_renewalOffset);
+    DiagnosticObservation.AddRejectedClock(builder, rejected_clockOffset);
+    DiagnosticObservation.AddRecalibration(builder, recalibrationOffset);
+    DiagnosticObservation.AddFault(builder, faultOffset);
+    DiagnosticObservation.AddKind(builder, kind);
+    return DiagnosticObservation.EndDiagnosticObservation(builder);
+  }
+
+  public static void StartDiagnosticObservation(FlatBufferBuilder builder) { builder.StartTable(12); }
+  public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.ObservationPayload kind) { builder.AddByte(0, (byte)kind, 0); }
+  public static void AddFault(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.FaultObservation> faultOffset) { builder.AddOffset(1, faultOffset.Value, 0); }
+  public static void AddRecalibration(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.RecalibrationObservation> recalibrationOffset) { builder.AddOffset(2, recalibrationOffset.Value, 0); }
+  public static void AddRejectedClock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.RejectedClockObservation> rejectedClockOffset) { builder.AddOffset(3, rejectedClockOffset.Value, 0); }
+  public static void AddLateRenewal(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.LateRenewalObservation> lateRenewalOffset) { builder.AddOffset(4, lateRenewalOffset.Value, 0); }
+  public static void AddWideOffset(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.WideOffsetObservation> wideOffsetOffset) { builder.AddOffset(5, wideOffsetOffset.Value, 0); }
+  public static void AddDerivation(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.DerivationObservation> derivationOffset) { builder.AddOffset(6, derivationOffset.Value, 0); }
+  public static void AddDeferral(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.DeferralObservation> deferralOffset) { builder.AddOffset(7, deferralOffset.Value, 0); }
+  public static void AddDebt(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.DebtObservation> debtOffset) { builder.AddOffset(8, debtOffset.Value, 0); }
+  public static void AddTickFailure(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.TickFailureObservation> tickFailureOffset) { builder.AddOffset(9, tickFailureOffset.Value, 0); }
+  public static void AddTransfer(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.TransferObservation> transferOffset) { builder.AddOffset(10, transferOffset.Value, 0); }
+  public static void AddCapture(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CaptureObservation> captureOffset) { builder.AddOffset(11, captureOffset.Value, 0); }
+  public static Offset<CuriousContraptions.Wire.DiagnosticObservation> EndDiagnosticObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.DiagnosticObservation>(o);
+  }
+}
+
+
+static public class DiagnosticObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Kind*/, 1 /*CuriousContraptions.Wire.ObservationPayload*/, 1, false)
+      && verifier.VerifyTable(tablePos, 6 /*Fault*/, CuriousContraptions.Wire.FaultObservationVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 8 /*Recalibration*/, CuriousContraptions.Wire.RecalibrationObservationVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 10 /*RejectedClock*/, CuriousContraptions.Wire.RejectedClockObservationVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 12 /*LateRenewal*/, CuriousContraptions.Wire.LateRenewalObservationVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 14 /*WideOffset*/, CuriousContraptions.Wire.WideOffsetObservationVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 16 /*Derivation*/, CuriousContraptions.Wire.DerivationObservationVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 18 /*Deferral*/, CuriousContraptions.Wire.DeferralObservationVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 20 /*Debt*/, CuriousContraptions.Wire.DebtObservationVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 22 /*TickFailure*/, CuriousContraptions.Wire.TickFailureObservationVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 24 /*Transfer*/, CuriousContraptions.Wire.TransferObservationVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 26 /*Capture*/, CuriousContraptions.Wire.CaptureObservationVerify.Verify, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct ElectricalControl : IFlatbufferObject
 {
   private Struct __p;
@@ -515,6 +947,73 @@ public struct ElectricalSourceRecord : IFlatbufferObject
   }
 }
 
+public struct FaultObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static FaultObservation GetRootAsFaultObservation(ByteBuffer _bb) { return GetRootAsFaultObservation(_bb, new FaultObservation()); }
+  public static FaultObservation GetRootAsFaultObservation(ByteBuffer _bb, FaultObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public FaultObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public uint Kind { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint Site { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public string ExceptionType { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetExceptionTypeBytes() { return __p.__vector_as_span<byte>(8, 1); }
+#else
+  public ArraySegment<byte>? GetExceptionTypeBytes() { return __p.__vector_as_arraysegment(8); }
+#endif
+  public byte[] GetExceptionTypeArray() { return __p.__vector_as_array<byte>(8); }
+  public string Detail { get { int o = __p.__offset(10); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetDetailBytes() { return __p.__vector_as_span<byte>(10, 1); }
+#else
+  public ArraySegment<byte>? GetDetailBytes() { return __p.__vector_as_arraysegment(10); }
+#endif
+  public byte[] GetDetailArray() { return __p.__vector_as_array<byte>(10); }
+
+  public static Offset<CuriousContraptions.Wire.FaultObservation> CreateFaultObservation(FlatBufferBuilder builder,
+      uint kind = 0,
+      uint site = 0,
+      StringOffset exception_typeOffset = default(StringOffset),
+      StringOffset detailOffset = default(StringOffset)) {
+    builder.StartTable(4);
+    FaultObservation.AddDetail(builder, detailOffset);
+    FaultObservation.AddExceptionType(builder, exception_typeOffset);
+    FaultObservation.AddSite(builder, site);
+    FaultObservation.AddKind(builder, kind);
+    return FaultObservation.EndFaultObservation(builder);
+  }
+
+  public static void StartFaultObservation(FlatBufferBuilder builder) { builder.StartTable(4); }
+  public static void AddKind(FlatBufferBuilder builder, uint kind) { builder.AddUint(0, kind, 0); }
+  public static void AddSite(FlatBufferBuilder builder, uint site) { builder.AddUint(1, site, 0); }
+  public static void AddExceptionType(FlatBufferBuilder builder, StringOffset exceptionTypeOffset) { builder.AddOffset(2, exceptionTypeOffset.Value, 0); }
+  public static void AddDetail(FlatBufferBuilder builder, StringOffset detailOffset) { builder.AddOffset(3, detailOffset.Value, 0); }
+  public static Offset<CuriousContraptions.Wire.FaultObservation> EndFaultObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    builder.Required(o, 8);  // exception_type
+    builder.Required(o, 10);  // detail
+    return new Offset<CuriousContraptions.Wire.FaultObservation>(o);
+  }
+}
+
+
+static public class FaultObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Kind*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 6 /*Site*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyString(tablePos, 8 /*ExceptionType*/, true)
+      && verifier.VerifyString(tablePos, 10 /*Detail*/, true)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct InstanceRecord : IFlatbufferObject
 {
   private Table __p;
@@ -579,6 +1078,64 @@ static public class InstanceRecordVerify
   }
 }
 
+public struct LateRenewalObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static LateRenewalObservation GetRootAsLateRenewalObservation(ByteBuffer _bb) { return GetRootAsLateRenewalObservation(_bb, new LateRenewalObservation()); }
+  public static LateRenewalObservation GetRootAsLateRenewalObservation(ByteBuffer _bb, LateRenewalObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public LateRenewalObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public uint Role { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong Count { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public long LapseAge { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public int Exchanges { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public long RenewedAt { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public CuriousContraptions.Wire.ObservationInterval? Retained { get { int o = __p.__offset(14); return o != 0 ? (CuriousContraptions.Wire.ObservationInterval?)(new CuriousContraptions.Wire.ObservationInterval()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+  public CuriousContraptions.Wire.ObservationInterval? Fresh { get { int o = __p.__offset(16); return o != 0 ? (CuriousContraptions.Wire.ObservationInterval?)(new CuriousContraptions.Wire.ObservationInterval()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+  public bool HasDerivation { get { int o = __p.__offset(18); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+  public uint Derivation { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong DisplayEpoch { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+
+  public static void StartLateRenewalObservation(FlatBufferBuilder builder) { builder.StartTable(10); }
+  public static void AddRole(FlatBufferBuilder builder, uint role) { builder.AddUint(0, role, 0); }
+  public static void AddCount(FlatBufferBuilder builder, ulong count) { builder.AddUlong(1, count, 0); }
+  public static void AddLapseAge(FlatBufferBuilder builder, long lapseAge) { builder.AddLong(2, lapseAge, 0); }
+  public static void AddExchanges(FlatBufferBuilder builder, int exchanges) { builder.AddInt(3, exchanges, 0); }
+  public static void AddRenewedAt(FlatBufferBuilder builder, long renewedAt) { builder.AddLong(4, renewedAt, 0); }
+  public static void AddRetained(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ObservationInterval> retainedOffset) { builder.AddStruct(5, retainedOffset.Value, 0); }
+  public static void AddFresh(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ObservationInterval> freshOffset) { builder.AddStruct(6, freshOffset.Value, 0); }
+  public static void AddHasDerivation(FlatBufferBuilder builder, bool hasDerivation) { builder.AddBool(7, hasDerivation, false); }
+  public static void AddDerivation(FlatBufferBuilder builder, uint derivation) { builder.AddUint(8, derivation, 0); }
+  public static void AddDisplayEpoch(FlatBufferBuilder builder, ulong displayEpoch) { builder.AddUlong(9, displayEpoch, 0); }
+  public static Offset<CuriousContraptions.Wire.LateRenewalObservation> EndLateRenewalObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.LateRenewalObservation>(o);
+  }
+}
+
+
+static public class LateRenewalObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Role*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 6 /*Count*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 8 /*LapseAge*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 10 /*Exchanges*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 12 /*RenewedAt*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 14 /*Retained*/, 32 /*CuriousContraptions.Wire.ObservationInterval*/, 8, false)
+      && verifier.VerifyField(tablePos, 16 /*Fresh*/, 32 /*CuriousContraptions.Wire.ObservationInterval*/, 8, false)
+      && verifier.VerifyField(tablePos, 18 /*HasDerivation*/, 1 /*bool*/, 1, false)
+      && verifier.VerifyField(tablePos, 20 /*Derivation*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 22 /*DisplayEpoch*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct MemoryObservationRecord : IFlatbufferObject
 {
   private Struct __p;
@@ -606,6 +1163,91 @@ public struct MemoryObservationRecord : IFlatbufferObject
     builder.PutLong(UsedAfter);
     builder.PutLong(UsedBefore);
     return new Offset<CuriousContraptions.Wire.MemoryObservationRecord>(builder.Offset);
+  }
+}
+
+public struct ObservationExchange : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public ObservationExchange __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public long Before { get { return __p.bb.GetLong(__p.bb_pos + 0); } }
+  public long Master { get { return __p.bb.GetLong(__p.bb_pos + 8); } }
+  public long After { get { return __p.bb.GetLong(__p.bb_pos + 16); } }
+  public uint Epoch { get { return __p.bb.GetUint(__p.bb_pos + 24); } }
+
+  public static Offset<CuriousContraptions.Wire.ObservationExchange> CreateObservationExchange(FlatBufferBuilder builder, long Before, long Master, long After, uint Epoch) {
+    builder.Prep(8, 32);
+    builder.Pad(4);
+    builder.PutUint(Epoch);
+    builder.PutLong(After);
+    builder.PutLong(Master);
+    builder.PutLong(Before);
+    return new Offset<CuriousContraptions.Wire.ObservationExchange>(builder.Offset);
+  }
+}
+
+public struct ObservationInterval : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public ObservationInterval __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong LowerLow { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public long LowerHigh { get { return __p.bb.GetLong(__p.bb_pos + 8); } }
+  public ulong UpperLow { get { return __p.bb.GetUlong(__p.bb_pos + 16); } }
+  public long UpperHigh { get { return __p.bb.GetLong(__p.bb_pos + 24); } }
+
+  public static Offset<CuriousContraptions.Wire.ObservationInterval> CreateObservationInterval(FlatBufferBuilder builder, ulong LowerLow, long LowerHigh, ulong UpperLow, long UpperHigh) {
+    builder.Prep(8, 32);
+    builder.PutLong(UpperHigh);
+    builder.PutUlong(UpperLow);
+    builder.PutLong(LowerHigh);
+    builder.PutUlong(LowerLow);
+    return new Offset<CuriousContraptions.Wire.ObservationInterval>(builder.Offset);
+  }
+}
+
+public enum ObservationPayload : byte
+{
+  None = 0,
+  Fault = 1,
+  Recalibration = 2,
+  RejectedClock = 3,
+  LateRenewal = 4,
+  WideOffset = 5,
+  Derivation = 6,
+  Deferral = 7,
+  Debt = 8,
+  TickFailure = 9,
+  Transfer = 10,
+  Capture = 11,
+};
+
+public struct ObservationSlot : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public ObservationSlot __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public long Receipt { get { return __p.bb.GetLong(__p.bb_pos + 0); } }
+  public ulong Sequence { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
+  public CuriousContraptions.Wire.ObservationInterval Interval { get { return (new CuriousContraptions.Wire.ObservationInterval()).__assign(__p.bb_pos + 16, __p.bb); } }
+
+  public static Offset<CuriousContraptions.Wire.ObservationSlot> CreateObservationSlot(FlatBufferBuilder builder, long Receipt, ulong Sequence, ulong interval_LowerLow, long interval_LowerHigh, ulong interval_UpperLow, long interval_UpperHigh) {
+    builder.Prep(8, 48);
+    builder.Prep(8, 32);
+    builder.PutLong(interval_UpperHigh);
+    builder.PutUlong(interval_UpperLow);
+    builder.PutLong(interval_LowerHigh);
+    builder.PutUlong(interval_LowerLow);
+    builder.PutUlong(Sequence);
+    builder.PutLong(Receipt);
+    return new Offset<CuriousContraptions.Wire.ObservationSlot>(builder.Offset);
   }
 }
 
@@ -758,7 +1400,6 @@ static public class PuzzleRecordVerify
   }
 }
 
-
 public struct Quat4f : IFlatbufferObject
 {
   private Struct __p;
@@ -778,6 +1419,268 @@ public struct Quat4f : IFlatbufferObject
     builder.PutFloat(Y);
     builder.PutFloat(X);
     return new Offset<CuriousContraptions.Wire.Quat4f>(builder.Offset);
+  }
+}
+
+public struct RecalibrationObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static RecalibrationObservation GetRootAsRecalibrationObservation(ByteBuffer _bb) { return GetRootAsRecalibrationObservation(_bb, new RecalibrationObservation()); }
+  public static RecalibrationObservation GetRootAsRecalibrationObservation(ByteBuffer _bb, RecalibrationObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public RecalibrationObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public byte Peer(int j) { int o = __p.__offset(4); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
+  public int PeerLength { get { int o = __p.__offset(4); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetPeerBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetPeerBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetPeerArray() { return __p.__vector_as_array<byte>(4); }
+  public uint Cause { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong Count { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public uint StateBefore { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public bool HasDerivation { get { int o = __p.__offset(12); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+  public uint Derivation { get { int o = __p.__offset(14); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong DisplayEpoch { get { int o = __p.__offset(16); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public long At { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public long RecoveryStarted { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public int RecoverySends { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public byte Pending(int j) { int o = __p.__offset(24); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
+  public int PendingLength { get { int o = __p.__offset(24); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetPendingBytes() { return __p.__vector_as_span<byte>(24, 1); }
+#else
+  public ArraySegment<byte>? GetPendingBytes() { return __p.__vector_as_arraysegment(24); }
+#endif
+  public byte[] GetPendingArray() { return __p.__vector_as_array<byte>(24); }
+  public CuriousContraptions.Wire.ReplyObservation? Reply { get { int o = __p.__offset(26); return o != 0 ? (CuriousContraptions.Wire.ReplyObservation?)(new CuriousContraptions.Wire.ReplyObservation()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.ObservationSlot? Slots(int j) { int o = __p.__offset(28); return o != 0 ? (CuriousContraptions.Wire.ObservationSlot?)(new CuriousContraptions.Wire.ObservationSlot()).__assign(__p.__vector(o) + j * 48, __p.bb) : null; }
+  public int SlotsLength { get { int o = __p.__offset(28); return o != 0 ? __p.__vector_len(o) : 0; } }
+
+  public static Offset<CuriousContraptions.Wire.RecalibrationObservation> CreateRecalibrationObservation(FlatBufferBuilder builder,
+      VectorOffset peerOffset = default(VectorOffset),
+      uint cause = 0,
+      ulong count = 0,
+      uint state_before = 0,
+      bool has_derivation = false,
+      uint derivation = 0,
+      ulong display_epoch = 0,
+      long at = 0,
+      long recovery_started = 0,
+      int recovery_sends = 0,
+      VectorOffset pendingOffset = default(VectorOffset),
+      Offset<CuriousContraptions.Wire.ReplyObservation> replyOffset = default(Offset<CuriousContraptions.Wire.ReplyObservation>),
+      VectorOffset slotsOffset = default(VectorOffset)) {
+    builder.StartTable(13);
+    RecalibrationObservation.AddRecoveryStarted(builder, recovery_started);
+    RecalibrationObservation.AddAt(builder, at);
+    RecalibrationObservation.AddDisplayEpoch(builder, display_epoch);
+    RecalibrationObservation.AddCount(builder, count);
+    RecalibrationObservation.AddSlots(builder, slotsOffset);
+    RecalibrationObservation.AddReply(builder, replyOffset);
+    RecalibrationObservation.AddPending(builder, pendingOffset);
+    RecalibrationObservation.AddRecoverySends(builder, recovery_sends);
+    RecalibrationObservation.AddDerivation(builder, derivation);
+    RecalibrationObservation.AddStateBefore(builder, state_before);
+    RecalibrationObservation.AddCause(builder, cause);
+    RecalibrationObservation.AddPeer(builder, peerOffset);
+    RecalibrationObservation.AddHasDerivation(builder, has_derivation);
+    return RecalibrationObservation.EndRecalibrationObservation(builder);
+  }
+
+  public static void StartRecalibrationObservation(FlatBufferBuilder builder) { builder.StartTable(13); }
+  public static void AddPeer(FlatBufferBuilder builder, VectorOffset peerOffset) { builder.AddOffset(0, peerOffset.Value, 0); }
+  public static VectorOffset CreatePeerVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreatePeerVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreatePeerVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreatePeerVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartPeerVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
+  public static void AddCause(FlatBufferBuilder builder, uint cause) { builder.AddUint(1, cause, 0); }
+  public static void AddCount(FlatBufferBuilder builder, ulong count) { builder.AddUlong(2, count, 0); }
+  public static void AddStateBefore(FlatBufferBuilder builder, uint stateBefore) { builder.AddUint(3, stateBefore, 0); }
+  public static void AddHasDerivation(FlatBufferBuilder builder, bool hasDerivation) { builder.AddBool(4, hasDerivation, false); }
+  public static void AddDerivation(FlatBufferBuilder builder, uint derivation) { builder.AddUint(5, derivation, 0); }
+  public static void AddDisplayEpoch(FlatBufferBuilder builder, ulong displayEpoch) { builder.AddUlong(6, displayEpoch, 0); }
+  public static void AddAt(FlatBufferBuilder builder, long at) { builder.AddLong(7, at, 0); }
+  public static void AddRecoveryStarted(FlatBufferBuilder builder, long recoveryStarted) { builder.AddLong(8, recoveryStarted, 0); }
+  public static void AddRecoverySends(FlatBufferBuilder builder, int recoverySends) { builder.AddInt(9, recoverySends, 0); }
+  public static void AddPending(FlatBufferBuilder builder, VectorOffset pendingOffset) { builder.AddOffset(10, pendingOffset.Value, 0); }
+  public static VectorOffset CreatePendingVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreatePendingVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreatePendingVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreatePendingVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartPendingVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
+  public static void AddReply(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ReplyObservation> replyOffset) { builder.AddOffset(11, replyOffset.Value, 0); }
+  public static void AddSlots(FlatBufferBuilder builder, VectorOffset slotsOffset) { builder.AddOffset(12, slotsOffset.Value, 0); }
+  public static void StartSlotsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(48, numElems, 8); }
+  public static Offset<CuriousContraptions.Wire.RecalibrationObservation> EndRecalibrationObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    builder.Required(o, 4);  // peer
+    builder.Required(o, 28);  // slots
+    return new Offset<CuriousContraptions.Wire.RecalibrationObservation>(o);
+  }
+}
+
+
+static public class RecalibrationObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyVectorOfData(tablePos, 4 /*Peer*/, 1 /*byte*/, true)
+      && verifier.VerifyField(tablePos, 6 /*Cause*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 8 /*Count*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 10 /*StateBefore*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 12 /*HasDerivation*/, 1 /*bool*/, 1, false)
+      && verifier.VerifyField(tablePos, 14 /*Derivation*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 16 /*DisplayEpoch*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 18 /*At*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 20 /*RecoveryStarted*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 22 /*RecoverySends*/, 4 /*int*/, 4, false)
+      && verifier.VerifyVectorOfData(tablePos, 24 /*Pending*/, 1 /*byte*/, false)
+      && verifier.VerifyTable(tablePos, 26 /*Reply*/, CuriousContraptions.Wire.ReplyObservationVerify.Verify, false)
+      && verifier.VerifyVectorOfData(tablePos, 28 /*Slots*/, 48 /*CuriousContraptions.Wire.ObservationSlot*/, true)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct RejectedClockObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static RejectedClockObservation GetRootAsRejectedClockObservation(ByteBuffer _bb) { return GetRootAsRejectedClockObservation(_bb, new RejectedClockObservation()); }
+  public static RejectedClockObservation GetRootAsRejectedClockObservation(ByteBuffer _bb, RejectedClockObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public RejectedClockObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public uint Role { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong Count { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public int Length { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public long Received { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public string Detail { get { int o = __p.__offset(12); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetDetailBytes() { return __p.__vector_as_span<byte>(12, 1); }
+#else
+  public ArraySegment<byte>? GetDetailBytes() { return __p.__vector_as_arraysegment(12); }
+#endif
+  public byte[] GetDetailArray() { return __p.__vector_as_array<byte>(12); }
+
+  public static Offset<CuriousContraptions.Wire.RejectedClockObservation> CreateRejectedClockObservation(FlatBufferBuilder builder,
+      uint role = 0,
+      ulong count = 0,
+      int length = 0,
+      long received = 0,
+      StringOffset detailOffset = default(StringOffset)) {
+    builder.StartTable(5);
+    RejectedClockObservation.AddReceived(builder, received);
+    RejectedClockObservation.AddCount(builder, count);
+    RejectedClockObservation.AddDetail(builder, detailOffset);
+    RejectedClockObservation.AddLength(builder, length);
+    RejectedClockObservation.AddRole(builder, role);
+    return RejectedClockObservation.EndRejectedClockObservation(builder);
+  }
+
+  public static void StartRejectedClockObservation(FlatBufferBuilder builder) { builder.StartTable(5); }
+  public static void AddRole(FlatBufferBuilder builder, uint role) { builder.AddUint(0, role, 0); }
+  public static void AddCount(FlatBufferBuilder builder, ulong count) { builder.AddUlong(1, count, 0); }
+  public static void AddLength(FlatBufferBuilder builder, int length) { builder.AddInt(2, length, 0); }
+  public static void AddReceived(FlatBufferBuilder builder, long received) { builder.AddLong(3, received, 0); }
+  public static void AddDetail(FlatBufferBuilder builder, StringOffset detailOffset) { builder.AddOffset(4, detailOffset.Value, 0); }
+  public static Offset<CuriousContraptions.Wire.RejectedClockObservation> EndRejectedClockObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    builder.Required(o, 12);  // detail
+    return new Offset<CuriousContraptions.Wire.RejectedClockObservation>(o);
+  }
+}
+
+
+static public class RejectedClockObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Role*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 6 /*Count*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 8 /*Length*/, 4 /*int*/, 4, false)
+      && verifier.VerifyField(tablePos, 10 /*Received*/, 8 /*long*/, 8, false)
+      && verifier.VerifyString(tablePos, 12 /*Detail*/, true)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct ReplyObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static ReplyObservation GetRootAsReplyObservation(ByteBuffer _bb) { return GetRootAsReplyObservation(_bb, new ReplyObservation()); }
+  public static ReplyObservation GetRootAsReplyObservation(ByteBuffer _bb, ReplyObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public ReplyObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public byte Probe(int j) { int o = __p.__offset(4); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
+  public int ProbeLength { get { int o = __p.__offset(4); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetProbeBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetProbeBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetProbeArray() { return __p.__vector_as_array<byte>(4); }
+  public long MasterReceived { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public long MasterSent { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public long Received { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public uint Derivation { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+
+  public static Offset<CuriousContraptions.Wire.ReplyObservation> CreateReplyObservation(FlatBufferBuilder builder,
+      VectorOffset probeOffset = default(VectorOffset),
+      long master_received = 0,
+      long master_sent = 0,
+      long received = 0,
+      uint derivation = 0) {
+    builder.StartTable(5);
+    ReplyObservation.AddReceived(builder, received);
+    ReplyObservation.AddMasterSent(builder, master_sent);
+    ReplyObservation.AddMasterReceived(builder, master_received);
+    ReplyObservation.AddDerivation(builder, derivation);
+    ReplyObservation.AddProbe(builder, probeOffset);
+    return ReplyObservation.EndReplyObservation(builder);
+  }
+
+  public static void StartReplyObservation(FlatBufferBuilder builder) { builder.StartTable(5); }
+  public static void AddProbe(FlatBufferBuilder builder, VectorOffset probeOffset) { builder.AddOffset(0, probeOffset.Value, 0); }
+  public static VectorOffset CreateProbeVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateProbeVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateProbeVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateProbeVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartProbeVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
+  public static void AddMasterReceived(FlatBufferBuilder builder, long masterReceived) { builder.AddLong(1, masterReceived, 0); }
+  public static void AddMasterSent(FlatBufferBuilder builder, long masterSent) { builder.AddLong(2, masterSent, 0); }
+  public static void AddReceived(FlatBufferBuilder builder, long received) { builder.AddLong(3, received, 0); }
+  public static void AddDerivation(FlatBufferBuilder builder, uint derivation) { builder.AddUint(4, derivation, 0); }
+  public static Offset<CuriousContraptions.Wire.ReplyObservation> EndReplyObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    builder.Required(o, 4);  // probe
+    return new Offset<CuriousContraptions.Wire.ReplyObservation>(o);
+  }
+}
+
+
+static public class ReplyObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyVectorOfData(tablePos, 4 /*Probe*/, 1 /*byte*/, true)
+      && verifier.VerifyField(tablePos, 6 /*MasterReceived*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 8 /*MasterSent*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 10 /*Received*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 12 /*Derivation*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyTableEnd(tablePos);
   }
 }
 
@@ -845,6 +1748,54 @@ public enum SimulationPhase : byte
   Disposed = 10,
 };
 
+public struct TickFailureObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static TickFailureObservation GetRootAsTickFailureObservation(ByteBuffer _bb) { return GetRootAsTickFailureObservation(_bb, new TickFailureObservation()); }
+  public static TickFailureObservation GetRootAsTickFailureObservation(ByteBuffer _bb, TickFailureObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public TickFailureObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public uint Outcome { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint Reason { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint Fault { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+
+  public static Offset<CuriousContraptions.Wire.TickFailureObservation> CreateTickFailureObservation(FlatBufferBuilder builder,
+      uint outcome = 0,
+      uint reason = 0,
+      uint fault = 0) {
+    builder.StartTable(3);
+    TickFailureObservation.AddFault(builder, fault);
+    TickFailureObservation.AddReason(builder, reason);
+    TickFailureObservation.AddOutcome(builder, outcome);
+    return TickFailureObservation.EndTickFailureObservation(builder);
+  }
+
+  public static void StartTickFailureObservation(FlatBufferBuilder builder) { builder.StartTable(3); }
+  public static void AddOutcome(FlatBufferBuilder builder, uint outcome) { builder.AddUint(0, outcome, 0); }
+  public static void AddReason(FlatBufferBuilder builder, uint reason) { builder.AddUint(1, reason, 0); }
+  public static void AddFault(FlatBufferBuilder builder, uint fault) { builder.AddUint(2, fault, 0); }
+  public static Offset<CuriousContraptions.Wire.TickFailureObservation> EndTickFailureObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.TickFailureObservation>(o);
+  }
+}
+
+
+static public class TickFailureObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Outcome*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 6 /*Reason*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 8 /*Fault*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct TimerRecord : IFlatbufferObject
 {
   private Struct __p;
@@ -888,6 +1839,108 @@ public struct TimerRecord : IFlatbufferObject
   }
 }
 
+public struct TraceSampleObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static TraceSampleObservation GetRootAsTraceSampleObservation(ByteBuffer _bb) { return GetRootAsTraceSampleObservation(_bb, new TraceSampleObservation()); }
+  public static TraceSampleObservation GetRootAsTraceSampleObservation(ByteBuffer _bb, TraceSampleObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public TraceSampleObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public byte Record(int j) { int o = __p.__offset(4); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
+  public int RecordLength { get { int o = __p.__offset(4); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetRecordBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetRecordBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetRecordArray() { return __p.__vector_as_array<byte>(4); }
+
+  public static Offset<CuriousContraptions.Wire.TraceSampleObservation> CreateTraceSampleObservation(FlatBufferBuilder builder,
+      VectorOffset recordOffset = default(VectorOffset)) {
+    builder.StartTable(1);
+    TraceSampleObservation.AddRecord(builder, recordOffset);
+    return TraceSampleObservation.EndTraceSampleObservation(builder);
+  }
+
+  public static void StartTraceSampleObservation(FlatBufferBuilder builder) { builder.StartTable(1); }
+  public static void AddRecord(FlatBufferBuilder builder, VectorOffset recordOffset) { builder.AddOffset(0, recordOffset.Value, 0); }
+  public static VectorOffset CreateRecordVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateRecordVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRecordVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRecordVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartRecordVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
+  public static Offset<CuriousContraptions.Wire.TraceSampleObservation> EndTraceSampleObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    builder.Required(o, 4);  // record
+    return new Offset<CuriousContraptions.Wire.TraceSampleObservation>(o);
+  }
+}
+
+
+static public class TraceSampleObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyVectorOfData(tablePos, 4 /*Record*/, 1 /*byte*/, true)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct TransferObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static TransferObservation GetRootAsTransferObservation(ByteBuffer _bb) { return GetRootAsTransferObservation(_bb, new TransferObservation()); }
+  public static TransferObservation GetRootAsTransferObservation(ByteBuffer _bb, TransferObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public TransferObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public byte Response(int j) { int o = __p.__offset(4); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
+  public int ResponseLength { get { int o = __p.__offset(4); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetResponseBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetResponseBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetResponseArray() { return __p.__vector_as_array<byte>(4); }
+
+  public static Offset<CuriousContraptions.Wire.TransferObservation> CreateTransferObservation(FlatBufferBuilder builder,
+      VectorOffset responseOffset = default(VectorOffset)) {
+    builder.StartTable(1);
+    TransferObservation.AddResponse(builder, responseOffset);
+    return TransferObservation.EndTransferObservation(builder);
+  }
+
+  public static void StartTransferObservation(FlatBufferBuilder builder) { builder.StartTable(1); }
+  public static void AddResponse(FlatBufferBuilder builder, VectorOffset responseOffset) { builder.AddOffset(0, responseOffset.Value, 0); }
+  public static VectorOffset CreateResponseVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateResponseVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateResponseVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateResponseVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartResponseVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
+  public static Offset<CuriousContraptions.Wire.TransferObservation> EndTransferObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    builder.Required(o, 4);  // response
+    return new Offset<CuriousContraptions.Wire.TransferObservation>(o);
+  }
+}
+
+
+static public class TransferObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyVectorOfData(tablePos, 4 /*Response*/, 1 /*byte*/, true)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct Vec3f : IFlatbufferObject
 {
   private Struct __p;
@@ -925,6 +1978,64 @@ public struct Vec3i : IFlatbufferObject
     builder.PutInt(Y);
     builder.PutInt(X);
     return new Offset<CuriousContraptions.Wire.Vec3i>(builder.Offset);
+  }
+}
+
+public struct WideOffsetObservation : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static WideOffsetObservation GetRootAsWideOffsetObservation(ByteBuffer _bb) { return GetRootAsWideOffsetObservation(_bb, new WideOffsetObservation()); }
+  public static WideOffsetObservation GetRootAsWideOffsetObservation(ByteBuffer _bb, WideOffsetObservation obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public WideOffsetObservation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public long Offset { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public long AdmittedLower { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public long AdmittedUpper { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public long DeclaredUncertainty { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; } }
+  public ulong Count { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+
+  public static Offset<CuriousContraptions.Wire.WideOffsetObservation> CreateWideOffsetObservation(FlatBufferBuilder builder,
+      long offset = 0,
+      long admitted_lower = 0,
+      long admitted_upper = 0,
+      long declared_uncertainty = 0,
+      ulong count = 0) {
+    builder.StartTable(5);
+    WideOffsetObservation.AddCount(builder, count);
+    WideOffsetObservation.AddDeclaredUncertainty(builder, declared_uncertainty);
+    WideOffsetObservation.AddAdmittedUpper(builder, admitted_upper);
+    WideOffsetObservation.AddAdmittedLower(builder, admitted_lower);
+    WideOffsetObservation.AddOffset(builder, offset);
+    return WideOffsetObservation.EndWideOffsetObservation(builder);
+  }
+
+  public static void StartWideOffsetObservation(FlatBufferBuilder builder) { builder.StartTable(5); }
+  public static void AddOffset(FlatBufferBuilder builder, long offset) { builder.AddLong(0, offset, 0); }
+  public static void AddAdmittedLower(FlatBufferBuilder builder, long admittedLower) { builder.AddLong(1, admittedLower, 0); }
+  public static void AddAdmittedUpper(FlatBufferBuilder builder, long admittedUpper) { builder.AddLong(2, admittedUpper, 0); }
+  public static void AddDeclaredUncertainty(FlatBufferBuilder builder, long declaredUncertainty) { builder.AddLong(3, declaredUncertainty, 0); }
+  public static void AddCount(FlatBufferBuilder builder, ulong count) { builder.AddUlong(4, count, 0); }
+  public static Offset<CuriousContraptions.Wire.WideOffsetObservation> EndWideOffsetObservation(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.WideOffsetObservation>(o);
+  }
+}
+
+
+static public class WideOffsetObservationVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Offset*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 6 /*AdmittedLower*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 8 /*AdmittedUpper*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 10 /*DeclaredUncertainty*/, 8 /*long*/, 8, false)
+      && verifier.VerifyField(tablePos, 12 /*Count*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyTableEnd(tablePos);
   }
 }
 
@@ -1000,6 +2111,85 @@ static public class WorkshopCommandVerify
       && verifier.VerifyField(tablePos, 22 /*Settings*/, 24 /*CuriousContraptions.Wire.CadenceSettingsRecord*/, 4, false)
       && verifier.VerifyField(tablePos, 24 /*Target*/, 40 /*CuriousContraptions.Wire.CommandIdentityRecord*/, 8, false)
       && verifier.VerifyTable(tablePos, 26 /*ConstructionRecord*/, CuriousContraptions.Wire.ConstructionRecordVerify.Verify, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct WorkshopObservationBatch : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static WorkshopObservationBatch GetRootAsWorkshopObservationBatch(ByteBuffer _bb) { return GetRootAsWorkshopObservationBatch(_bb, new WorkshopObservationBatch()); }
+  public static WorkshopObservationBatch GetRootAsWorkshopObservationBatch(ByteBuffer _bb, WorkshopObservationBatch obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public WorkshopObservationBatch __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public byte Session(int j) { int o = __p.__offset(4); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
+  public int SessionLength { get { int o = __p.__offset(4); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetSessionBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetSessionBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetSessionArray() { return __p.__vector_as_array<byte>(4); }
+  public uint Role { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public CuriousContraptions.Wire.DiagnosticObservation? Records(int j) { int o = __p.__offset(8); return o != 0 ? (CuriousContraptions.Wire.DiagnosticObservation?)(new CuriousContraptions.Wire.DiagnosticObservation()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int RecordsLength { get { int o = __p.__offset(8); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public string Incomplete { get { int o = __p.__offset(10); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetIncompleteBytes() { return __p.__vector_as_span<byte>(10, 1); }
+#else
+  public ArraySegment<byte>? GetIncompleteBytes() { return __p.__vector_as_arraysegment(10); }
+#endif
+  public byte[] GetIncompleteArray() { return __p.__vector_as_array<byte>(10); }
+
+  public static Offset<CuriousContraptions.Wire.WorkshopObservationBatch> CreateWorkshopObservationBatch(FlatBufferBuilder builder,
+      VectorOffset sessionOffset = default(VectorOffset),
+      uint role = 0,
+      VectorOffset recordsOffset = default(VectorOffset),
+      StringOffset incompleteOffset = default(StringOffset)) {
+    builder.StartTable(4);
+    WorkshopObservationBatch.AddIncomplete(builder, incompleteOffset);
+    WorkshopObservationBatch.AddRecords(builder, recordsOffset);
+    WorkshopObservationBatch.AddRole(builder, role);
+    WorkshopObservationBatch.AddSession(builder, sessionOffset);
+    return WorkshopObservationBatch.EndWorkshopObservationBatch(builder);
+  }
+
+  public static void StartWorkshopObservationBatch(FlatBufferBuilder builder) { builder.StartTable(4); }
+  public static void AddSession(FlatBufferBuilder builder, VectorOffset sessionOffset) { builder.AddOffset(0, sessionOffset.Value, 0); }
+  public static VectorOffset CreateSessionVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateSessionVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateSessionVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateSessionVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartSessionVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
+  public static void AddRole(FlatBufferBuilder builder, uint role) { builder.AddUint(1, role, 0); }
+  public static void AddRecords(FlatBufferBuilder builder, VectorOffset recordsOffset) { builder.AddOffset(2, recordsOffset.Value, 0); }
+  public static VectorOffset CreateRecordsVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.DiagnosticObservation>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateRecordsVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.DiagnosticObservation>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRecordsVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.DiagnosticObservation>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRecordsVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.DiagnosticObservation>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartRecordsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddIncomplete(FlatBufferBuilder builder, StringOffset incompleteOffset) { builder.AddOffset(3, incompleteOffset.Value, 0); }
+  public static Offset<CuriousContraptions.Wire.WorkshopObservationBatch> EndWorkshopObservationBatch(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    builder.Required(o, 4);  // session
+    builder.Required(o, 8);  // records
+    return new Offset<CuriousContraptions.Wire.WorkshopObservationBatch>(o);
+  }
+}
+
+
+static public class WorkshopObservationBatchVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyVectorOfData(tablePos, 4 /*Session*/, 1 /*byte*/, true)
+      && verifier.VerifyField(tablePos, 6 /*Role*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyVectorOfTables(tablePos, 8 /*Records*/, CuriousContraptions.Wire.DiagnosticObservationVerify.Verify, true)
+      && verifier.VerifyString(tablePos, 10 /*Incomplete*/, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

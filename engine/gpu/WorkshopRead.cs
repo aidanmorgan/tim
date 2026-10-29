@@ -6,7 +6,7 @@ namespace CuriousContraptions.Gpu;
 public readonly partial record struct WorkshopRead
 {
     /// <summary>The commit moved energy: a store was credited or a source debited. Story 9A.23 D9: it gates only the existing
-    /// <c>CCGPU_RETAINED</c> observation line (until Story 9A.24's typed port replaces it); no read is reliable or retained, since every
+    /// typed BalanceTransfer diagnostic; no read is reliable or retained, since every
     /// one-shot occurrence (Impact, ElectricalPowered) reaches its consumers through the event ring.</summary>
     public bool CarriesBalanceTransfer()
     {

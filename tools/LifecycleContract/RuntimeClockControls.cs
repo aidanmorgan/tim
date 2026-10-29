@@ -14,7 +14,7 @@ internal enum RuntimeClockCase
 
 internal sealed record RuntimeClockResult(RuntimeClockCase Case, bool Passed, string Detail);
 
-/// <summary>Source-linked controls. These do not qualify a real browser clock or renderer.</summary>
+/// <summary>Controls against the production assembly. These do not qualify a real browser clock or renderer.</summary>
 internal static class RuntimeClockControls
 {
     private static readonly WorkshopClockPeer Peer = new(new(11, 23), new(7), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);

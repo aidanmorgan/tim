@@ -29,7 +29,6 @@ public partial class Workshop
 {
     private bool _hintAnimationVisible;
     private readonly List<WorkshopUiBinding> _uiBindings = new(16);
-    private SimulationEpoch _solvedPresentationEpoch;
     private void InitializeUiAnimations()
     {
         _uiBindings.Clear();
@@ -57,7 +56,6 @@ public partial class Workshop
     }
     private void ClearGoalFeedback()
     {
-        _solvedPresentationEpoch = default;
         UiBinding(WorkshopUiTarget.Goal)?.ApplyNeutral();
     }
     private void ResetUiAnimations()
@@ -83,16 +81,7 @@ public partial class Workshop
             if (binding.Target == WorkshopUiTarget.Hint && !hintInTree) continue;
             if (!World.TryUiFrame(binding.Target, out var opacity)) continue;
             binding.Apply(opacity);
-            if (binding.Target == WorkshopUiTarget.Goal) AnnounceSolved();
         }
-    }
-    private void AnnounceSolved()
-    {
-        // Goal truth is the committed named event; the worker sample only schedules visible feedback.
-        // The console line is the e2e driver's solve boundary, emitted once per world epoch.
-        if (_solvedPresentationEpoch == World.WorkshopRead.Epoch) return;
-        _solvedPresentationEpoch = World.WorkshopRead.Epoch;
-        GD.Print("CCGOAL_SOLVED " + World.WorkshopRead.Epoch.Value);
     }
     private void RemoveUiAnimations() => ResetUiAnimations();
 }

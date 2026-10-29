@@ -4,7 +4,6 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
 
-// Console.Out controls are serialized by xunit.runner.json: parallelizeTestCollections=false.
 public sealed class WorkshopWireTests
 {
     // The installed master derivation epoch of every reply below that does not exercise a re-derivation.
@@ -12,7 +11,7 @@ public sealed class WorkshopWireTests
     public enum FaultTrigger { ProbeLimitReply, ElapsedReply, ElapsedService }
 
     // Story 9.4b (game-grade envelope): a recovery episode that cannot re-qualify recalibrates and continues. It never
-    // throws or terminates the session; the lapse is a counted, typed CCGPU_CLOCK_RECALIBRATED occurrence in the single
+    // throws or terminates the session; the lapse is a counted, typed ClockRecalibrated occurrence in the single
     // production build, and fresh calibration re-qualifies the mapping.
     [Theory]
     [InlineData(WorkshopRuntimeRole.Browser, FaultTrigger.ProbeLimitReply)]
@@ -23,126 +22,94 @@ public sealed class WorkshopWireTests
     [InlineData(WorkshopRuntimeRole.Animation, FaultTrigger.ElapsedService)]
     public void RecoveryLapseRecalibratesContinuesAndReportsExactContext(WorkshopRuntimeRole role, FaultTrigger trigger)
     {
-        using var output = new System.IO.StringWriter(System.Globalization.CultureInfo.InvariantCulture);
-        var previous = Console.Out;
-        try
+        var (clock, lapse, now) = RecoveryFaultScenario(role, trigger);
+        Assert.Equal(0UL, clock.Recalibrations);
+        lapse();
+        Assert.Equal(ClockMappingState.Expired, clock.State);
+        Assert.False(clock.IsQualified);
+        // A reply that settles the lapsed episode is still a genuine accepted interval: it seeds fresh calibration.
+        Assert.Equal(trigger == FaultTrigger.ElapsedReply ? 1 : 0, clock.ValidProbeCount);
+        Assert.Equal(2UL, clock.DisplayEpoch);
+        Assert.Equal(1UL, clock.Recalibrations);
+        var cause = trigger == FaultTrigger.ProbeLimitReply ? ClockRecalibrationCause.ProbeLimit : ClockRecalibrationCause.Elapsed;
+        Assert.Equal(new ClockRecalibration(role, cause, 1, 2, new(now)), clock.LastRecalibration);
+        var records = clock.Diagnostics.Snapshot();
+        clock.Observe(new(now));
+        Assert.Single(clock.Diagnostics.Snapshot());
+        Assert.Equal(1UL, clock.Recalibrations);
+
+        // Startup calibration re-qualifies the mapping in the same session (after any expired probe's lifetime).
+        var restart = now + WorkshopClockMapping.ProbeLifetime + 1;
+        var probes = 0;
+        for (; clock.State != ClockMappingState.Ready; probes++)
         {
-            Console.SetOut(output);
-            var (clock, lapse, now) = RecoveryFaultScenario(role, trigger);
-            Assert.Equal(0UL, clock.Recalibrations);
-            lapse();
-            Assert.Equal(ClockMappingState.Expired, clock.State);
-            Assert.False(clock.IsQualified);
-            // A reply that settles the lapsed episode is still a genuine accepted interval: it seeds fresh calibration.
-            Assert.Equal(trigger == FaultTrigger.ElapsedReply ? 1 : 0, clock.ValidProbeCount);
-            Assert.Equal(2UL, clock.DisplayEpoch);
-            Assert.Equal(1UL, clock.Recalibrations);
-            var cause = trigger == FaultTrigger.ProbeLimitReply ? ClockRecalibrationCause.ProbeLimit : ClockRecalibrationCause.Elapsed;
-            Assert.Equal(new ClockRecalibration(role, cause, 1, 2, new(now)), clock.LastRecalibration);
-            var text = output.ToString();
-            clock.Observe(new(now));
-            Assert.Equal(text, output.ToString());
-            Assert.Equal(1UL, clock.Recalibrations);
-
-            // Startup calibration re-qualifies the mapping in the same session (after any expired probe's lifetime).
-            var restart = now + WorkshopClockMapping.ProbeLifetime + 1;
-            var probes = 0;
-            for (; clock.State != ClockMappingState.Ready; probes++)
-            {
-                Assert.True(probes < WorkshopClockMapping.ProbeCapacity, "requalifies within one full calibration");
-                var sent = restart + probes * WorkshopClockMapping.StartupSpacing;
-                var probe = clock.BeginProbe(new(sent))!.Value;
-                Assert.Equal(ClockProbeOutcome.Accepted, clock.Receive(new(probe,
-                    new(sent + 50_000_000), new(sent + 50_000_000), new(sent + 100_000), Derived)).Outcome);
-            }
-            Assert.True(clock.TryMasterNow(new(restart + probes * WorkshopClockMapping.StartupSpacing), out _));
-            Assert.Equal(1UL, clock.Recalibrations);
-
-            var line = Assert.Single(text.Split('\n', StringSplitOptions.RemoveEmptyEntries));
-            Assert.StartsWith("CCGPU_CLOCK_RECALIBRATED ", line);
-            using var document = System.Text.Json.JsonDocument.Parse(line["CCGPU_CLOCK_RECALIBRATED ".Length..]);
-            var root = document.RootElement;
-            Assert.Equal((uint)role, root.GetProperty("role").GetUInt32());
-            Assert.Equal((int)cause, root.GetProperty("cause").GetInt32());
-            Assert.Equal(cause.ToString(), root.GetProperty("causeName").GetString());
-            Assert.Equal("1", root.GetProperty("count").GetString());
-            Assert.Equal((int)ClockMappingState.Recovering, root.GetProperty("stateBefore").GetInt32());
-            Assert.Equal("18446744073709551615", root.GetProperty("sessionLow").GetString());
-            Assert.Equal("9007199254740993", root.GetProperty("sessionHigh").GetString());
-            Assert.Equal("9007199254740995", root.GetProperty("masterGeneration").GetString());
-            Assert.Equal("9007199254740997", root.GetProperty("requesterGeneration").GetString());
-            Assert.Equal(now.ToString(System.Globalization.CultureInfo.InvariantCulture), root.GetProperty("now").GetString());
-            Assert.Equal("1", root.GetProperty("displayEpoch").GetString());
-            Assert.Equal(8, root.GetProperty("slotsBefore").GetArrayLength());
-            Assert.Equal(trigger == FaultTrigger.ElapsedService, root.GetProperty("reply").ValueKind == System.Text.Json.JsonValueKind.Null);
-            Assert.Equal(trigger == FaultTrigger.ProbeLimitReply, root.GetProperty("pending").ValueKind == System.Text.Json.JsonValueKind.Null);
-
-            const long origin = 9_007_199_254_740_993;
-            string Exact(long value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            Assert.Equal(Exact(origin + 321_295_000), root.GetProperty("recoveryStarted").GetString());
-            Assert.Equal(trigger == FaultTrigger.ProbeLimitReply ? 8 : 1, root.GetProperty("recoverySends").GetInt32());
-            var slot = root.GetProperty("slotsBefore").EnumerateArray()
-                .Single(value => value.GetProperty("sequence").GetString() ==
-                    (trigger == FaultTrigger.ProbeLimitReply ? "17" : "9"));
-            Assert.Equal(Exact(origin + (trigger == FaultTrigger.ProbeLimitReply ? 401_295_000 : 321_295_000)),
-                slot.GetProperty("receipt").GetString());
-            Assert.Equal("48505000", slot.GetProperty("lower").GetString());
-            Assert.Equal("50200000", slot.GetProperty("upper").GetString());
-            if (trigger != FaultTrigger.ElapsedService)
-            {
-                var reply = root.GetProperty("reply");
-                var probe = reply.GetProperty("probe");
-                Assert.Equal(Exact(now), reply.GetProperty("requesterReceived").GetString());
-                var master = Exact(origin + (trigger == FaultTrigger.ProbeLimitReply ? 450_000_000 : 380_000_000));
-                Assert.Equal(master, reply.GetProperty("masterReceived").GetString());
-                Assert.Equal(master, reply.GetProperty("masterSent").GetString());
-                Assert.Equal(trigger == FaultTrigger.ProbeLimitReply ? "17" : "10", probe.GetProperty("sequence").GetString());
-                Assert.Equal(Exact(origin + (trigger == FaultTrigger.ProbeLimitReply ? 400_000_000 : 330_000_000)),
-                    probe.GetProperty("sent").GetString());
-                Assert.Equal((uint)role, probe.GetProperty("role").GetUInt32());
-                foreach (var field in new[] { "sessionLow", "sessionHigh", "masterGeneration", "requesterGeneration" })
-                    Assert.Equal(root.GetProperty(field).GetString(), probe.GetProperty(field).GetString());
-            }
-            if (trigger != FaultTrigger.ProbeLimitReply)
-            {
-                Assert.Equal("10", root.GetProperty("pending").GetProperty("sequence").GetString());
-                Assert.Equal(Exact(origin + 330_000_000), root.GetProperty("pending").GetProperty("sent").GetString());
-            }
+            Assert.True(probes < WorkshopClockMapping.ProbeCapacity, "requalifies within one full calibration");
+            var sent = restart + probes * WorkshopClockMapping.StartupSpacing;
+            var probe = clock.BeginProbe(new(sent))!.Value;
+            Assert.Equal(ClockProbeOutcome.Accepted, clock.Receive(new(probe,
+                new(sent + 50_000_000), new(sent + 50_000_000), new(sent + 100_000), Derived)).Outcome);
         }
-        finally { Console.SetOut(previous); }
+        Assert.True(clock.TryMasterNow(new(restart + probes * WorkshopClockMapping.StartupSpacing), out _));
+        Assert.Equal(1UL, clock.Recalibrations);
+
+        var record = Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(records));
+        Assert.Equal(role, record.Peer.RequesterRole);
+        Assert.Equal(cause, record.Cause);
+        Assert.Equal(1UL, record.Count);
+        Assert.Equal(ClockMappingState.Recovering, record.StateBefore);
+        Assert.Equal(ulong.MaxValue, record.Peer.Session.Low);
+        Assert.Equal(9007199254740993UL, record.Peer.Session.High);
+        Assert.Equal(9007199254740995UL, record.Peer.Generation.Value);
+        Assert.Equal(9007199254740997UL, record.Peer.RequesterGeneration.Value);
+        Assert.Equal(now, record.At.Value);
+        Assert.Equal(1UL, record.DisplayEpoch);
+        Assert.Equal(8, record.Slots.Length);
+        Assert.Equal(trigger == FaultTrigger.ElapsedService, record.Reply is null);
+        Assert.Equal(trigger == FaultTrigger.ProbeLimitReply, record.Pending is null);
+        const long origin = 9_007_199_254_740_993;
+        Assert.Equal(origin + 321_295_000, record.RecoveryStarted.Value);
+        Assert.Equal(trigger == FaultTrigger.ProbeLimitReply ? 8 : 1, record.RecoverySends);
+        var slot = Assert.Single(record.Slots, value => value.Sequence.Value == (trigger == FaultTrigger.ProbeLimitReply ? 17UL : 9UL));
+        Assert.Equal(origin + (trigger == FaultTrigger.ProbeLimitReply ? 401_295_000 : 321_295_000), slot.Receipt.Value);
+        Assert.Equal(new ClockInterval(48505000, 50200000), slot.Interval);
+        if (trigger != FaultTrigger.ElapsedService)
+        {
+            var reply = record.Reply!.Value;
+            Assert.Equal(now, reply.RequesterReceived.Value);
+            var master = origin + (trigger == FaultTrigger.ProbeLimitReply ? 450_000_000 : 380_000_000);
+            Assert.Equal(master, reply.MasterReceived.Value);
+            Assert.Equal(master, reply.MasterSent.Value);
+            Assert.Equal(trigger == FaultTrigger.ProbeLimitReply ? 17UL : 10UL, reply.Probe.Sequence.Value);
+            Assert.Equal(origin + (trigger == FaultTrigger.ProbeLimitReply ? 400_000_000 : 330_000_000), reply.Probe.RequesterSent.Value);
+        }
+        if (trigger != FaultTrigger.ProbeLimitReply)
+        {
+            Assert.Equal(10UL, record.Pending!.Value.Sequence.Value);
+            Assert.Equal(origin + 330_000_000, record.Pending.Value.RequesterSent.Value);
+        }
     }
 
-    // The mapping has fully recalibrated before its telemetry is written, so a failing telemetry writer surfaces its own
-    // error (nothing is swallowed) and cannot leave the mapping half-recovered.
+    // Diagnostic delivery failure is visible in the journal and cannot interrupt recalibration.
     [Theory]
     [InlineData(WorkshopRuntimeRole.Browser)]
     [InlineData(WorkshopRuntimeRole.Animation)]
-    public void RecalibrationTelemetryWriterFailureSurfacesAfterTheMappingRecalibrated(WorkshopRuntimeRole role)
+    public void RecalibrationDiagnosticDeliveryFailureLeavesTheMappingRecalibrated(WorkshopRuntimeRole role)
     {
-        var previous = Console.Out;
-        using var writer = new FailingClockDiagnosticWriter();
-        try
-        {
-            Console.SetOut(writer);
-            var (clock, lapse, _) = RecoveryFaultScenario(role, FaultTrigger.ElapsedService);
-            Assert.Throws<System.IO.IOException>(lapse);
-            Assert.Equal(ClockMappingState.Expired, clock.State);
-            Assert.Equal(1UL, clock.Recalibrations);
-        }
-        finally { Console.SetOut(previous); }
-    }
-
-    private sealed class FailingClockDiagnosticWriter : System.IO.StringWriter
-    {
-        public override void WriteLine(string? value) => throw new System.IO.IOException("Controlled diagnostic writer failure.");
+        var diagnostics = new WorkshopDiagnostics(_ => throw new System.IO.IOException("Controlled diagnostic delivery failure."));
+        var (clock, lapse, _) = RecoveryFaultScenario(role, FaultTrigger.ElapsedService, diagnostics);
+        lapse();
+        Assert.Equal(ClockMappingState.Expired, clock.State);
+        Assert.Equal(1UL, clock.Recalibrations);
+        Assert.Contains("Controlled diagnostic delivery failure.", diagnostics.Incomplete);
+        Assert.IsType<ClockRecalibrationDiagnostic>(Assert.Single(diagnostics.Snapshot()));
     }
 
     private static (WorkshopClockMapping Clock, Action Lapse, long Now) RecoveryFaultScenario(
-        WorkshopRuntimeRole role, FaultTrigger trigger)
+        WorkshopRuntimeRole role, FaultTrigger trigger, WorkshopDiagnostics? diagnostics = null)
     {
         const long origin = 9_007_199_254_740_993;
         var clock = new WorkshopClockMapping(new(new(ulong.MaxValue, (ulong)origin),
-            new((ulong)origin + 2), new(0), new((ulong)origin + 4), new(100_000), role));
+            new((ulong)origin + 2), new(0), new((ulong)origin + 4), new(100_000), role), diagnostics);
         void Probe(long offset, long roundtrip = 0)
         {
             var sent = origin + offset;
@@ -170,25 +137,26 @@ public sealed class WorkshopWireTests
     }
 
     [Fact]
-    public void PresentationDiagnosticBindsCadenceAndPulseWithinItsFixedRingBudget()
+    public void PresentationDiagnosticBindsCadencePulseAndFullWidthTimeWithoutARecordCap()
     {
+        using var transport = new WorkshopActivationAnimationTests.NativeClient();
+        var client = transport.Client;
         var sample = new WorkshopPresentationSample(default, null, new(default), PresentationQuality.AwaitingHistory,
             new(new(100), 1, 1, new(2), null, null, null));
-        // Story 9R.5b: the position-write and part counts are u32 (past the former u16/byte ranges) at 352 and 356.
-        var scene = new PresentationScene(3, 70_000, 300, new(1_728_000, 1024), 0, 0, 0, 0, 0, 0, 1);
-        var bytes = WorkshopPresentationWire.Encode(sample, false, scene, new(101), new(7), new(17));
-        Assert.Equal(364, bytes.Length);
-        Assert.Equal(1_728_000ul, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(32)));
-        Assert.Equal(1024f, BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(360)));
-        Assert.Equal(7UL, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(336)));
-        Assert.Equal(17UL, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(344)));
-        Assert.Equal(70_000u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(WorkshopPresentationWire.PositionWritesOffset)));
-        Assert.Equal(300u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(WorkshopPresentationWire.PartCountOffset)));
-        Assert.Equal((0, 0), (bytes[58], bytes[59]));
-        Assert.Equal(30_080, WorkshopPresentationWire.RetainedBytes + 128 * 144);
-        Assert.True(WorkshopPresentationWire.RetainedBytes + 128 * 144 <= 32 * 1024);
-        Assert.Throws<ArgumentOutOfRangeException>(() =>
-            WorkshopPresentationWire.Encode(sample, false, scene, new(101), default, new(17)));
+        var scene = new PresentationScene(3, 70_000, 300, new(18_014_398_509_481_985, 1024), 0, 0, 0, 0, 0, 0, 1);
+        for (var index = 0; index < 70; index++) client.RecordPresentation(sample, false, scene with { Frame = (ulong)index });
+        var records = client.Observation.Diagnostics(client.Observation.Session, default).Value!
+            .Select(receipt => receipt.Record).OfType<WorkshopPresentationDiagnostic>().ToArray();
+        Assert.Equal(70, records.Length);
+        Assert.Equal(0UL, records[0].Scene.Frame);
+        Assert.Equal(69UL, records[^1].Scene.Frame);
+        Assert.Equal(18_014_398_509_481_985UL, records[^1].Scene.SimulationTime.Ordinal);
+        Assert.Equal(1024f, records[^1].Scene.SimulationTime.Phase);
+        Assert.Equal(70_000u, records[^1].Scene.PositionWrites);
+        Assert.Equal(300u, records[^1].Scene.PartCount);
+        Assert.Equal(transport.Schedule.Revision, records[^1].Cadence);
+        Assert.False(records[^1].Selected);
+        Assert.Equal(PresentationQuality.AwaitingHistory, records[^1].Sample.Quality);
     }
 
     [Fact]

@@ -204,3 +204,9 @@ Verification: matching builds and scoped repair checks passed 27/0/0; prior comp
 - `tools/runtime/workshop-client-lifecycle.test.ts` — Decode acknowledgement fields instead of comparing raw output.
 - `tools/runtime/workshop-clock-ring.test.ts` — Decode probe identity, sequence and clock fields.
 - `ui/Workshop.cs` — Name existing controls and inject genuine save storage for native UI testing.
+
+## Publication receipt — 29 October 2026
+
+Published commit: `7e12c9452a165f42ab2ef9c8b80964f237a05b00`, parent `2dae218024ab260cc1797d967b13f2a5ea70d01e`. Final local suite **5,004/0/0** (main4,512 in20m58); normal commit hooks **126/0/0**, exit0. Original logs/TRXs: `/tmp/tim-hygiene-review-final`; hook output: `commit.log`.
+
+Five Auto layers and affected repair re-review completed. Independent reviewer `/root/hygiene_edge` returned SnapshotApproval Pass for this exact committed SHA, then independently verified remote main equals it after push and returned terminal implementation Pass. Worktree was clean. No extra tests or hashing were used for terminal verification. CI/artifact/deployment, browser and release qualification remain unverified under current owner policy. Next slice is9A.24, started from this published main.

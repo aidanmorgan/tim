@@ -682,8 +682,14 @@ public sealed class WorkshopSimulationTests
             Assert.Equal(WorkshopRejection.Transport, (await admission).Reason);
         }
         finally { Console.SetError(previous); }
-        Assert.Equal(failed, errors.ToString().Contains("CCGPU_INSTALLATION_EXCEPTION System.IO.IOException: installation cause", StringComparison.Ordinal));
-        Assert.Equal(failed, errors.ToString().Length > 0);
+        var diagnostics = simulation.Diagnostics.Snapshot().OfType<WorkshopFaultDiagnostic>().ToArray();
+        Assert.Equal(failed ? 1 : 0, diagnostics.Length);
+        if (failed)
+        {
+            Assert.Equal(FaultSite.Installation, diagnostics[0].Site);
+            Assert.Contains("installation cause", diagnostics[0].Detail, StringComparison.Ordinal);
+        }
+        Assert.Empty(errors.ToString());
     }
 
     [Fact]

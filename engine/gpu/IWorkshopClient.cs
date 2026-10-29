@@ -39,14 +39,12 @@ internal interface IWorkshopBrowserTransport
     void SendAnimationControl(int client, byte[] bytes);
     MonotonicNanoseconds NativeNow();
     void SendProbe(int client, byte[] probe);
-    void RecordClockObservation(int client, byte[] observation);
-    void RecordPresentationObservation(int client, byte[] observation);
     Task<int> CreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int captureMode, bool admitDisplay,
         Action clockReply,
         Action physicalRead,
         Action scheduleControl,
         Action animationOutput,
-        Action service);
+        Action service, Action observation, Action<string> retired);
     byte[] MasterBootstrap(int client);
     void ActivateClient(int client);
     byte[] EventBytes(int client);
@@ -58,4 +56,7 @@ internal interface IWorkshopBrowserTransport
     void CompleteAcknowledgement(int client, byte[] sequence);
     void DisposeClient(int client);
     byte[] ReadEvents(int client, string epoch);
+    int OpenObservationEvents(int client);
+    byte[] ReadObservationEvents(int client, int cursor, string epoch);
+    void CloseObservationEvents(int client, int cursor);
 }

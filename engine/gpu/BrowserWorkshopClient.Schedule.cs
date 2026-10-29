@@ -73,6 +73,7 @@ public sealed partial class BrowserWorkshopClient
                 var history = _history.PrepareInstall(schedule, prepared.Endpoint, mapped, boundary, Clock.DisplayEpoch);
                 var cursor = _cursor.PrepareInstallation(prepared.Endpoint);
                 _history.Commit(history); _cursor.Commit(cursor);
+                _observation.Commit(prepared.Endpoint);
                 ReconcileAnimationSchedule(schedule);
                 EnsureInstalledScene(_proposedConstruction ?? _construction);
                 _schedule = schedule; _preparation = null;
@@ -149,6 +150,7 @@ public sealed partial class BrowserWorkshopClient
         else if (sample.Target == UiCurves.Goal.AnimationTarget) ReceiveGoalSample(sample, kind, active);
         else if (sample.Target.Value >= WorkshopDeclaredPresentation.TargetBase) ReceiveDeclaredSample(sample, kind, active);
         else throw new ArgumentException("Unowned animation output target.");
+        Diagnostics.Capture(() => new WorkshopAnimationDiagnostic(cadence, kind, sample));
         // The JS ACK lease releases after this callback returns; next presentation pumps the next owner.
     }
     private bool AdmitPresentationFrame(ulong frame)

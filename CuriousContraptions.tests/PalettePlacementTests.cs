@@ -1156,13 +1156,11 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Empty(ClickBench(scene));
             var accepted = scene.World.Construction;
             client.NextFailure = new InvalidOperationException("worker disconnected");
-            using var errors = new StringWriter(System.Globalization.CultureInfo.InvariantCulture);
-            var previous = Console.Error;
-            Console.SetError(errors);
-            try { Assert.Empty(Undo(scene)); }
-            finally { Console.SetError(previous); }
-            Assert.Single(errors.ToString().Split('\n'), line => line.StartsWith("CCGPU_UI_HANDLER_EXCEPTION", StringComparison.Ordinal));
-            Assert.Contains("worker disconnected", errors.ToString(), StringComparison.Ordinal);
+            Assert.Empty(Undo(scene));
+            var diagnostic = Assert.IsType<WorkshopFaultDiagnostic>(Assert.Single(scene.Diagnostics.Snapshot()));
+            Assert.Equal(FaultSite.UiHandler, diagnostic.Site);
+            Assert.Equal(WorkshopFaultKind.Fault, diagnostic.Kind);
+            Assert.Contains("worker disconnected", diagnostic.Detail, StringComparison.Ordinal);
             Assert.Contains("worker disconnected", Status(scene), StringComparison.Ordinal);
             Assert.Empty(godot.Errors.Drain());
             Assert.Equal(accepted, scene.World.Construction);

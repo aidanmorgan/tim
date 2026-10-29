@@ -13,6 +13,7 @@ export interface ManagedHost {
     ClockDerivationMissed(): void;
     CheckClockDerivation(exchange: Uint8Array): Uint8Array;
     FlushObservation(): void;
+    ReportObservationFailure(detail: string): void;
     AcknowledgeRead(receipt: Uint8Array): void;
     ResumeTurn(turn: number): void;
     RejectUnknownEnvelope(keys: string[]): string;
@@ -25,6 +26,7 @@ export interface ManagedHost {
     Dispatch(bytes: Uint8Array): Promise<void>;
 }
 export interface ManagedImports {
+    observation(bytes: Uint8Array): void;
     now(): number;
     scheduleTurn(turn: number, delayMilliseconds: number): void;
     scheduleControl(bytes: Uint8Array, recipient: number): void;

@@ -31,6 +31,9 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     private bool _disposed;
     private readonly WorkshopMemoryQueryOwner _memoryQuery = new();
     private readonly WorkshopClientCursor _cursor;
+    private readonly WorkshopObservation _observation;
+    public IWorkshopObservation Observation => _observation;
+    public WorkshopDiagnostics Diagnostics { get; }
     public WorkshopCommandIdentity? Pending { get; private set; }
     public WorkshopTransportState TransportState
     {
@@ -44,30 +47,62 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     }
     public SimulationEpoch Epoch => _cursor.Epoch;
     public AuthorityRevision Revision => _cursor.Revision;
-    private BrowserWorkshopClient(RuntimeSessionId session, IWorkshopBrowserTransport transport)
-    { session.Validate(); _cursor = new(session); _transport = transport; }
-
-    public static async Task<BrowserWorkshopClient> Create()
+    private BrowserWorkshopClient(WorkshopObservation observation, IWorkshopBrowserTransport transport, WorkshopDiagnostics diagnostics)
     {
-        if (!OperatingSystem.IsBrowser())
-            throw new PlatformNotSupportedException("This Workshop requires a browser environment.");
-        using var document = JSHost.GlobalThis.GetPropertyAsJSObject("document")
-            ?? throw new InvalidOperationException("A browser document is required.");
-        var baseUri = document.GetPropertyAsString("baseURI")
-            ?? throw new InvalidOperationException("The document resource origin is unavailable.");
-        await JSHost.ImportAsync("workshopClient", new Uri(new Uri(baseUri), "workshop-client.js").AbsoluteUri);
-        var identity = new byte[16];
-        System.Security.Cryptography.RandomNumberGenerator.Fill(identity);
-        return await Create(RuntimeSessionId.Read(identity), new BrowserWorkshopTransport());
+        var session = observation.Session;
+        session.Validate(); _cursor = new(session); _transport = transport;
+        Diagnostics = diagnostics;
+        _observation = observation;
     }
 
-    internal static async Task<BrowserWorkshopClient> Create(RuntimeSessionId session, IWorkshopBrowserTransport transport)
+    public static async Task<BrowserWorkshopClient> Create(WorkshopDiagnostics? diagnostics = null)
+    {
+        var journal = diagnostics ?? new();
+        var observation = WorkshopObservation.Begin(journal);
+        try
+        {
+            if (!OperatingSystem.IsBrowser())
+                throw new PlatformNotSupportedException("This Workshop requires a browser environment.");
+            await BrowserWorkshopObservation.Start(observation);
+            return await Create(observation, journal);
+        }
+        catch (Exception error)
+        {
+            journal.Fault(FaultSite.Startup, error);
+            observation.Retire(error.ToString());
+            throw;
+        }
+    }
+
+    internal static async Task<BrowserWorkshopClient> Create(WorkshopObservation observation, WorkshopDiagnostics diagnostics)
+    {
+        try
+        {
+            if (!OperatingSystem.IsBrowser())
+                throw new PlatformNotSupportedException("This Workshop requires a browser environment.");
+            using var document = JSHost.GlobalThis.GetPropertyAsJSObject("document")
+                ?? throw new InvalidOperationException("A browser document is required.");
+            var baseUri = document.GetPropertyAsString("baseURI")
+                ?? throw new InvalidOperationException("The document resource origin is unavailable.");
+            await JSHost.ImportAsync("workshopClient", new Uri(new Uri(baseUri), "workshop-client.js").AbsoluteUri);
+            return await Create(observation, new BrowserWorkshopTransport(), diagnostics);
+        }
+        catch (Exception error)
+        {
+            diagnostics.Fault(FaultSite.Startup, error);
+            observation.Retire(error.ToString());
+            throw;
+        }
+    }
+
+    internal static async Task<BrowserWorkshopClient> Create(WorkshopObservation observation, IWorkshopBrowserTransport transport, WorkshopDiagnostics diagnostics)
     {
         ArgumentNullException.ThrowIfNull(transport);
+        var session = observation.Session;
         var identity = new byte[16];
         BinaryPrimitives.WriteUInt64LittleEndian(identity, session.Low);
         BinaryPrimitives.WriteUInt64LittleEndian(identity.AsSpan(8), session.High);
-        var client = new BrowserWorkshopClient(session, transport);
+        var client = new BrowserWorkshopClient(observation, transport, diagnostics);
         try
         {
             client._construction = new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty);
@@ -75,15 +110,18 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                 (int)WorkshopTransportState.TimedOut, (int)WorkshopTransportState.Indeterminate, (int)WorkshopTransportState.RecoveryBlocked],
                 identity, [(int)NativeClockProfile.IsolatedWitnessedPerformanceNow,
                     WorkshopClockWire.PeerBytes, WorkshopClockWire.ProbeBytes, WorkshopClockWire.ReplyBytes,
-                    WorkshopClockWire.DiagnosticBytes, (int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Simulation],
+                    (int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Simulation],
                 (int)WorkshopBuild.CaptureMode, client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay, client.ReceiveClockReply, client.ReceiveRead, client.ReceiveSchedule, client.ReceiveAnimation,
-                client.Service));
+                client.Service, client.ReceiveObservation, client.ReceiveRetirement));
+            client._observation.BindEvents(() => client._transport.OpenObservationEvents(client._id.Value),
+                (cursor, epoch) => client._transport.ReadObservationEvents(client._id.Value, cursor, epoch.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+                cursor => client._transport.CloseObservationEvents(client._id.Value, cursor));
             var peer = WorkshopClockWire.DecodePeer(client._transport.MasterBootstrap(client._id.Value));
             if (peer.Session != session || peer.Generation.Value != 1 || peer.RequesterGeneration.Value != 1 ||
                 peer.RequesterRole != WorkshopRuntimeRole.Browser)
                 throw new ArgumentException("Unexpected master bootstrap identity.");
             client._peer = peer;
-            client._clock = new(peer);
+            client._clock = new(peer, client.Diagnostics);
             client._transport.AnimationKinds(client._id.Value, [(int)AnimationOutputKind.Acknowledgement, (int)AnimationOutputKind.Sample, (int)AnimationOutputKind.Rejected]);
             client._transport.ActivateClient(client._id.Value);
             if (client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay)
@@ -107,7 +145,8 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         }
         catch (Exception error)
         {
-            WorkshopDiagnostics.Fault(FaultSite.Startup, error);
+            client.Diagnostics.Fault(FaultSite.Startup, error);
+            observation.Retire(error.ToString());
             // An unstarted client retires locally (DisposeAsync's startup path); the worker never saw a command.
             await client.DisposeAsync();
             throw;
@@ -152,6 +191,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             {
                 WorkshopMemoryQuery.ValidateCarriage(kind, response);
                 var prepared = _cursor.PrepareAcknowledgement(command, response, dispatchedReadOrder, _disposed);
+                _observation.Receipt(command, response, prepared.Applicable);
                 if (prepared.Applicable)
                 {
                     var boundary = response.Result.Outcome == WorkshopCommandOutcome.Applied ? kind switch
@@ -164,6 +204,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                         installed.Read.HasSameContent(response.Read) ? null :
                         PrepareHistory(response, boundary, _transport.NativeNow());
                     _cursor.Commit(prepared);
+                    _observation.Commit(response);
                     if (history is { } ready) _history.Commit(ready);
                     if (response.Result.Outcome == WorkshopCommandOutcome.Applied && construction is { } admitted)
                     {
@@ -209,16 +250,38 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         if (_disposed) return;
         var now = _transport.NativeNow();
         Clock.Observe(now);
-#if PLAYTEST
         var pending = Clock.Pending;
-#endif
         if (Clock.BeginProbe(now) is { } probe)
         {
-#if PLAYTEST
-            if (pending is { } expired) _transport.RecordClockObservation(_id.Value, WorkshopClockWire.EncodeExpiredProbe(expired, Peer, now));
-#endif
+            if (pending is { } expired) Diagnostics.Capture(() => new WorkshopClockSampleDiagnostic(expired, null, ClockProbeOutcome.Expired, default, now));
             _transport.SendProbe(_id.Value, WorkshopClockWire.EncodeProbe(probe, Peer));
         }
+    }
+
+    private void ReceiveObservation()
+    {
+        try
+        {
+            var batch = WorkshopWireFlatBuffers.DecodeObservations(_transport.EventBytes(_id.Value));
+            if (batch.Session != Observation.Session || batch.Role is not (WorkshopRuntimeRole.Simulation or WorkshopRuntimeRole.Animation))
+                throw new ArgumentException("Foreign observation session or runtime.");
+            foreach (var record in batch.Records) Diagnostics.Record(record);
+            if (batch.Incomplete is { } detail)
+            {
+                Diagnostics.MarkIncomplete(detail);
+                _observation.Retire(detail);
+            }
+        }
+        catch (Exception error) when (error is WireFaultException or ArgumentException or InvalidOperationException)
+        {
+            Diagnostics.Fault(FaultSite.WorkerEnvelope, error);
+            _observation.Retire(error.ToString());
+        }
+    }
+    private void ReceiveRetirement(string detail)
+    {
+        Diagnostics.Fault(FaultSite.Transport, new InvalidOperationException(detail));
+        _observation.Retire(detail);
     }
 
     private void ReceiveClockReply()
@@ -227,16 +290,8 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         var bytes = _transport.EventBytes(_id.Value);
         var received = _transport.EventTime(_id.Value);
         // The requesters' one reply path: a malformed reply is one counted, typed rejection, never applied or dropped.
-        if (Clock.ReceiveEncoded(bytes, received) is not { } observation)
-        {
-#if PLAYTEST
-            _transport.RecordClockObservation(_id.Value, WorkshopClockWire.EncodeRejectedReply(bytes, received));
-#endif
-            return;
-        }
-#if PLAYTEST
-        _transport.RecordClockObservation(_id.Value, WorkshopClockWire.EncodeObservation(observation, Peer));
-#endif
+        if (Clock.ReceiveEncoded(bytes, received) is { } observation)
+            Diagnostics.Capture(() => new WorkshopClockSampleDiagnostic(observation.Reply.Probe, observation.Reply, observation.Outcome, observation.Offset, received));
     }
 
     private void ReceiveRead()
@@ -256,6 +311,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         var history = PrepareHistory(response, boundary, received);
         EnsureInstalledScene(_construction);
         _cursor.Commit(prepared);
+        _observation.Commit(response);
         _history.Commit(history);
     }
 
@@ -282,11 +338,9 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             SendScheduleResult(awaiting, ScheduleControlKind.Presented);
             _awaitingPresented = null;
         }
-        #if PLAYTEST
         if (_disposed) return;
-        _transport.RecordPresentationObservation(_id.Value, WorkshopPresentationWire.Encode(sample, selected, scene,
+        Diagnostics.Capture(() => new WorkshopPresentationDiagnostic(sample, selected, scene,
             _transport.NativeNow(), _schedule!.Value.Revision, _lastPresentation));
-        #endif
     }
 
     private void ThrowIfTransportFailed()
@@ -314,7 +368,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         {
             // Startup failure: retire locally without a worker command.
             // A client whose browser registration failed has no id (browser ids start at 1).
-            _disposed = true; _clock?.Retire(); _history.Retire();
+            _observation.Retire("Worker session disposed."); _disposed = true; _clock?.Retire(); _history.Retire();
             if (_id.Value != 0) _transport.DisposeClient(_id.Value);
             return;
         }
@@ -323,10 +377,10 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             var disposal = Execute(WorkshopCommandKind.Dispose);
             if (await Task.WhenAny(disposal, Task.Delay(1000)) == disposal) await disposal;
             // A late disposal failure is observed and logged; the client is already retired below.
-            else _ = disposal.ContinueWith(task => WorkshopDiagnostics.Fault(FaultSite.LateDispose, task.Exception!),
+            else _ = disposal.ContinueWith(task => Diagnostics.Fault(FaultSite.LateDispose, task.Exception!),
                 CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
         }
-        finally { _disposed = true; Clock.Retire(); _history.Retire(); _transport.DisposeClient(_id.Value); }
+        finally { _observation.Retire("Worker session disposed."); _disposed = true; Clock.Retire(); _history.Retire(); _transport.DisposeClient(_id.Value); }
     }
 }
 
@@ -354,25 +408,21 @@ internal sealed partial class BrowserWorkshopTransport : IWorkshopBrowserTranspo
     [JSImport("probe", "workshopClient")]
     private static partial void JsSendProbe(int client, byte[] probe);
     public void SendProbe(int client, byte[] probe) => JsSendProbe(client, probe);
-    [JSImport("clockObservation", "workshopClient")]
-    private static partial void JsRecordClockObservation(int client, byte[] observation);
-    public void RecordClockObservation(int client, byte[] observation) => JsRecordClockObservation(client, observation);
-    [JSImport("presentationObservation", "workshopClient")]
-    private static partial void JsRecordPresentationObservation(int client, byte[] observation);
-    public void RecordPresentationObservation(int client, byte[] observation) => JsRecordPresentationObservation(client, observation);
     [JSImport("create", "workshopClient")]
     private static partial Task<int> JsCreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int captureMode, bool admitDisplay,
         [JSMarshalAs<JSType.Function>] Action clockReply,
         [JSMarshalAs<JSType.Function>] Action physicalRead,
         [JSMarshalAs<JSType.Function>] Action scheduleControl,
         [JSMarshalAs<JSType.Function>] Action animationOutput,
-        [JSMarshalAs<JSType.Function>] Action service);
+        [JSMarshalAs<JSType.Function>] Action service,
+        [JSMarshalAs<JSType.Function>] Action observation,
+        [JSMarshalAs<JSType.Function<JSType.String>>] Action<string> retired);
     public Task<int> CreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int captureMode, bool admitDisplay,
         Action clockReply,
         Action physicalRead,
         Action scheduleControl,
         Action animationOutput,
-        Action service) => JsCreateClient(states, bootstrap, clockAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service);
+        Action service, Action observation, Action<string> retired) => JsCreateClient(states, bootstrap, clockAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service, observation, retired);
     [JSImport("bootstrap", "workshopClient")]
     private static partial byte[] JsMasterBootstrap(int client);
     public byte[] MasterBootstrap(int client) => JsMasterBootstrap(client);
@@ -403,6 +453,15 @@ internal sealed partial class BrowserWorkshopTransport : IWorkshopBrowserTranspo
     [JSImport("dispose", "workshopClient")]
     private static partial void JsDisposeClient(int client);
     public void DisposeClient(int client) => JsDisposeClient(client);
+    [JSImport("openObservationEvents", "workshopClient")]
+    private static partial int JsOpenObservationEvents(int client);
+    public int OpenObservationEvents(int client) => JsOpenObservationEvents(client);
+    [JSImport("readObservationEvents", "workshopClient")]
+    private static partial byte[] JsReadObservationEvents(int client, int cursor, string epoch);
+    public byte[] ReadObservationEvents(int client, int cursor, string epoch) => JsReadObservationEvents(client, cursor, epoch);
+    [JSImport("closeObservationEvents", "workshopClient")]
+    private static partial void JsCloseObservationEvents(int client, int cursor);
+    public void CloseObservationEvents(int client, int cursor) => JsCloseObservationEvents(client, cursor);
     [JSImport("readEvents", "workshopClient")]
     private static partial byte[] JsReadEvents(int client, string epoch);
     public byte[] ReadEvents(int client, string epoch) => JsReadEvents(client, epoch);

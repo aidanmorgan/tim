@@ -189,3 +189,26 @@ test('concurrent smoke: over a million records through shipped writer never deli
     }
     assert.ok(records >= 1_000_000);
 });
+
+test('forked observation readers follow growth and Reset independently of the UI and close explicitly', async () => {
+    const worker = await eventWorker(), ui = new EventRingCursor();
+    publish(worker.imports, publication(5n, 2, 0n, 2n));
+    ui.attach(worker.posted[0]);
+    const fast = ui.fork(), slow = ui.fork();
+    assert.deepEqual(sequences(fast.read(5n)), [1n, 2n]);
+    assert.deepEqual(sequences(ui.read(5n)), [1n, 2n]);
+    publish(worker.imports, publication(5n, 4, 2n, 4n));
+    ui.attach(worker.posted.at(-1)!);
+    assert.deepEqual(sequences(fast.read(5n)), [3n, 4n]);
+    assert.deepEqual(sequences(slow.read(5n)), [1n, 2n, 3n, 4n]);
+    assert.deepEqual(sequences(ui.read(5n)), [3n, 4n]);
+    publish(worker.imports, publication(6n, 2, 0n, 2n));
+    ui.attach(worker.posted.at(-1)!);
+    assert.deepEqual(sequences(slow.read(5n)), []);
+    assert.deepEqual(sequences(slow.read(6n)), [1n, 2n]);
+    ui.release(fast);
+    assert.throws(() => fast.read(6n), /retired/);
+    ui.close();
+    assert.throws(() => slow.read(6n), /retired/);
+    worker.imports.dispose();
+});

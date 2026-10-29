@@ -37,7 +37,7 @@ public partial class Workshop
             Select(null); _tool = null; ClearPreview(); _undo.Clear();
             ResetUiAnimations(); PresentMode();
         }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) { PresentMode(); _status.Text = failure; } }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); if (!_workshopUiRemoved) { PresentMode(); _status.Text = failure; } }
     }
 
     private void PresentMode()
@@ -88,6 +88,6 @@ public partial class Workshop
             _precisionText.Text = value < 33 ? "Forgiving" : value > 66 ? "Precise" : "Balanced";
             _status.Text = PuzzleCatalogue.Presentation(World.Construction.Puzzle.Id).PrecisionStatus;
         }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); _precision.SetValueNoSignal(World.Construction.Puzzle.Precision.Value * 100f); _status.Text = failure; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); _precision.SetValueNoSignal(World.Construction.Puzzle.Precision.Value * 100f); _status.Text = failure; }
     }
 }

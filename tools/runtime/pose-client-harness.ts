@@ -6,7 +6,7 @@ import { EventRingCursor, eventDelivery } from '../../CuriousContraptions.web/ww
 import { HarnessPort } from './event-worker-harness.js';
 import type * as ClientModule from '../../CuriousContraptions.web/wwwroot/workshop-client.js';
 
-type ClientApi = Pick<typeof ClientModule, 'create' | 'dispose' | 'status' | 'readPoseSlot' | 'readLatestPoseSlot' | 'hasPoseRing'>;
+type ClientApi = Pick<typeof ClientModule, 'create' | 'dispose' | 'status' | 'readEvents' | 'openObservationEvents' | 'readObservationEvents' | 'closeObservationEvents'>;
 class Channel { port1 = new HarnessPort(); port2 = new HarnessPort(); }
 export async function poseClient() {
     const workers: PlatformWorker[] = [];
@@ -65,9 +65,10 @@ export async function poseClient() {
     await module.evaluate();
     const api = module.namespace as unknown as ClientApi;
     const id = await api.create([1, 2, 3, 4, 5], new Uint8Array(16).fill(1),
-        [1, 64, 64, 64, 64, 1, 0], 1, false, () => {}, () => {}, () => {}, () => {}, () => {});
+        [1, 64, 64, 64, 1, 0], 1, false, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {});
     assert.ok(bootstrapRing);
     const simulation = workers.find(worker => !worker.animation)!;
     return { api, id, bootstrapRing, deliverRing(buffer: SharedArrayBuffer) { simulation.emit({ poseRing: buffer }); },
+        deliverEvents(buffer: SharedArrayBuffer) { simulation.emit({ eventRing: buffer }); },
         dispose() { api.dispose(id); } };
 }
