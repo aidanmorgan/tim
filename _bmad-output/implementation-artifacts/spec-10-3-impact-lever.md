@@ -170,6 +170,14 @@ Story 10.3 Balanced Impact Lever & Pivot Fulcrum (CAT-034):
 ### Residual Risks
 - Playwright/Chrome browser viewport qualification remains deferred until post-catalogue E2E phase per owner fast-test policy. Native C# simulation and unit proof are 100% green.
 
+## Publication Receipt — 31 October 2026
+
+- **Committed SHA:** `441af75a25636c704143f91603ac86c10321dce2`
+- **Published Ref:** `origin/main`
+- **Remote HEAD Verified:** `441af75a25636c704143f91603ac86c10321dce2`
+- **Pre-commit Gate:** Static gate clean (127 passed, 0 skipped), Anvil passed (80 snapshots, 0 warnings/errors), build 0 warnings/0 errors.
+- **Slice Status:** `done` (Story 10.3 / CAT-034 delivered; Balanced Impact Lever & Pivot Fulcrum with generic 8-row Box2D v3 TGS Soft revolute constraint solver, bilateral anchor/transverse rows, unilateral angular limit stops at $\pm 30^\circ$, child-body rope routing, and zero backwards-compatibility shims/fallbacks).
+
 ## Design Notes
 
 - The revolute hinge uses 8 constraint rows matching the SIMD 4-lane layout:
