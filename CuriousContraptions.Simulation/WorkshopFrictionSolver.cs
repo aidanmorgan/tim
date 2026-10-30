@@ -46,6 +46,8 @@ internal sealed class ContactPatch
     public bool Supported;
     public Vector3 Lambda;
     public float[] RollingCoefficients = new float[64];
+    public Vector3 RelaxedLambda;
+    public float RelaxedLambdaR1, RelaxedLambdaR2;
     public Vector3[] ProjectedSupport = new Vector3[64];
     public bool[] SupportMembers = new bool[64];
     public readonly List<ContactPoint> Supporting = new(64);
@@ -65,6 +67,7 @@ internal sealed class ContactPatch
         Points.Clear(); Supporting.Clear(); Key = null!;
         AnchorA = AnchorB = Normal = T1 = T2 = Lambda = Roll1 = Roll2 = Vector3.Zero;
         Radius = RollingMass1 = RollingMass2 = LambdaR1 = LambdaR2 = 0f; Supported = false;
+        RelaxedLambda = Vector3.Zero; RelaxedLambdaR1 = RelaxedLambdaR2 = 0f;
         Array.Clear(Linear); Array.Clear(AngularA); Array.Clear(AngularB);
         Array.Clear(Mass); Array.Clear(Eigenvectors); Array.Clear(Eigenvalues);
     }

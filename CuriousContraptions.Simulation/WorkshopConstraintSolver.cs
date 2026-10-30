@@ -415,28 +415,44 @@ internal static class WorkshopConstraintSolver
 
     public static float CouplingMass(ContactPoint ci, ContactPoint cj)
     {
-        var A = ci.A;
-        var B = ci.B;
         var ni = new Vector3(ci.Nx, ci.Ny, ci.Nz);
         var nj = new Vector3(cj.Nx, cj.Ny, cj.Nz);
         // Contact normals are unit directions. The chord identity evaluates their
         // dot product without self-dot roundoff for identical normals, keeping the
         // block diagonal consistent with EffectiveMass while coupling nonparallel
-        // rows by the same rule: n_i dot n_j = 1 - |n_i - n_j|² / 2.
+        // rows by the same rule: n_i dot n_j = 1 - .5f * Vector3.DistanceSquared(ni, nj);
         var cosine = 1f - .5f * Vector3.DistanceSquared(ni, nj);
-        var k = ((A.Motion == RigidMotionKind.Dynamic ? A.InvMass : 0f) + (B.Motion == RigidMotionKind.Dynamic ? B.InvMass : 0f)) * cosine;
+        var invMass = 0f;
+        if (ci.A == cj.A) invMass += (ci.A.Motion == RigidMotionKind.Dynamic ? ci.A.InvMass : 0f);
+        if (ci.B == cj.B) invMass += (ci.B.Motion == RigidMotionKind.Dynamic ? ci.B.InvMass : 0f);
+        if (ci.A == cj.B) invMass -= (ci.A.Motion == RigidMotionKind.Dynamic ? ci.A.InvMass : 0f);
+        if (ci.B == cj.A) invMass -= (ci.B.Motion == RigidMotionKind.Dynamic ? ci.B.InvMass : 0f);
 
-        if (A.Motion == RigidMotionKind.Dynamic)
+        var k = invMass * cosine;
+
+        if (ci.A == cj.A && ci.A.Motion == RigidMotionKind.Dynamic)
         {
             var ri = Vector3.Cross(new Vector3(ci.RAx, ci.RAy, ci.RAz), ni);
             var rj = Vector3.Cross(new Vector3(cj.RAx, cj.RAy, cj.RAz), nj);
-            k += WorkshopCollisionKernels.InverseInertiaCoupling(A, ri, rj);
+            k += WorkshopCollisionKernels.InverseInertiaCoupling(ci.A, ri, rj);
         }
-        if (B.Motion == RigidMotionKind.Dynamic)
+        if (ci.B == cj.B && ci.B.Motion == RigidMotionKind.Dynamic)
         {
             var ri = Vector3.Cross(new Vector3(ci.RBx, ci.RBy, ci.RBz), ni);
             var rj = Vector3.Cross(new Vector3(cj.RBx, cj.RBy, cj.RBz), nj);
-            k += WorkshopCollisionKernels.InverseInertiaCoupling(B, ri, rj);
+            k += WorkshopCollisionKernels.InverseInertiaCoupling(ci.B, ri, rj);
+        }
+        if (ci.A == cj.B && ci.A.Motion == RigidMotionKind.Dynamic)
+        {
+            var ri = Vector3.Cross(new Vector3(ci.RAx, ci.RAy, ci.RAz), ni);
+            var rj = Vector3.Cross(new Vector3(cj.RBx, cj.RBy, cj.RBz), nj);
+            k -= WorkshopCollisionKernels.InverseInertiaCoupling(ci.A, ri, rj);
+        }
+        if (ci.B == cj.A && ci.B.Motion == RigidMotionKind.Dynamic)
+        {
+            var ri = Vector3.Cross(new Vector3(ci.RBx, ci.RBy, ci.RBz), ni);
+            var rj = Vector3.Cross(new Vector3(cj.RAx, cj.RAy, cj.RAz), nj);
+            k -= WorkshopCollisionKernels.InverseInertiaCoupling(ci.B, ri, rj);
         }
         return k;
     }
@@ -660,21 +676,6 @@ internal static class WorkshopConstraintSolver
     /// the pair's bounce threshold at the substep start (Box2D v3 b2ApplyRestitution).</summary>
     private static bool Bounces(ContactPoint c) => c.Restitution != 0f && c.RelVel < -c.Threshold && c.MaxImpulse > 0f;
 
-    /// <summary>The restitution pass for one manifold, once per substep after relax: the bouncing points' restitution
-    /// (<see cref="ApplyRestitution"/>), then one friction and rolling pass whose cones now include the restitution impulse, so a
-    /// bounce keeps its Coulomb share of tangential impulse (each 480 Hz substep is a whole Box2D step, so friction had only the
-    /// stop's impulse before).</summary>
-    public static void Restitute(ContactManifold m)
-    {
-        var any = false;
-        foreach (var c in m.Points) any |= Bounces(c);
-        if (!any) return;
-        for (var block = 0; block < m.NormalBlockCount; block++)
-            ApplyRestitution(m.NormalBlocks[block].Points);
-        WorkshopFrictionSolver.Solve(m);
-        SolveRolling(m);
-    }
-
     /// <summary>a·I·c for the body's compiled principal moments in its current principal frame (an axis with zero inverse moment
     /// contributes nothing).</summary>
     private static float InertiaDot(SimBody b, Vector3 a, Vector3 c)
@@ -712,12 +713,17 @@ internal static class WorkshopConstraintSolver
         touched.Add(b);
     }
 
-    /// <summary>The substep's restitution pass over every manifold (<see cref="Restitute"/>), bounded by energy. The bodies joined by
-    /// this substep's bouncing manifolds form groups; a group's kinetic energy after the pass may not exceed the larger of its
-    /// kinetic energy before the contact solve and after the relax sweeps, so restitution returns at most what this substep's
-    /// contacts removed. Independent Newton targets on a body shared by several impacts (a box landing on a box resting on the
-    /// bench, which bounces on the bench in the same substep) can otherwise return more than was removed. Such a group's change is
-    /// scaled back along the straight line from its relaxed velocities to the largest fraction the bound allows.</summary>
+    /// <summary>An active supporting contact carried normal impulse this substep and approached slower than the bounce
+    /// threshold at substep start (|v_rel| ≈ 0), resting on its support.</summary>
+    private static bool Supports(ContactPoint c) => c.MaxImpulse > 0f && c.RelVel >= -c.Threshold;
+
+    [ThreadStatic] private static List<ContactPoint>? s_islandPoints;
+    [ThreadStatic] private static List<ContactManifold>? s_islandManifolds;
+
+    /// <summary>The substep's restitution pass over bouncing islands, bounded by energy. Bouncing contacts are grouped with the active
+    /// supporting contacts (c.MaxImpulse > 0, |v_rel| ≈ 0) of touched dynamic bodies. Contacts are coupled across manifolds using generalized
+    /// multi-body CouplingMass in ApplyRestitution, then friction and rolling are updated. Finally, each group's kinetic energy is bounded
+    /// to max(E_relaxed, E_pre-solve).</summary>
     public static void RestitutionPass(List<ContactManifold> manifolds, List<SimBody> touched, int stamp)
     {
         touched.Clear();
@@ -737,52 +743,178 @@ internal static class WorkshopConstraintSolver
             }
         }
         if (touched.Count == 0) return;
-        foreach (var m in manifolds) Restitute(m);
 
-        foreach (var b in touched) { b.EnergyA = 0f; b.EnergyB = 0f; b.EnergyC = 0f; b.EnergyBudget = 0f; }
-        foreach (var b in touched)
+        bool expanded;
+        do
         {
-            var r = Root(b);
-            var dv = b.LinearVelocity - b.RelaxedV;
-            var dw = b.AngularVelocity - b.RelaxedW;
-            var relaxed = Kinetic(b, b.RelaxedV, b.RelaxedW);
-            r.EnergyA += Kinetic(b, dv, dw);
-            r.EnergyB += b.Mass * Vector3.Dot(b.RelaxedV, dv) + InertiaDot(b, b.RelaxedW, dw);
-            r.EnergyC += relaxed;
-            r.EnergyBudget += b.PreSolveKinetic - relaxed;
+            expanded = false;
+            foreach (var m in manifolds)
+            {
+                if (m.Points.Count == 0) continue;
+                var hasActiveSupport = false;
+                foreach (var c in m.Points)
+                {
+                    if (Supports(c)) { hasActiveSupport = true; break; }
+                }
+                if (!hasActiveSupport) continue;
+
+                var c0 = m.Points[0];
+                var aTouched = c0.A.Motion == RigidMotionKind.Dynamic && c0.A.RestitutionStamp == stamp;
+                var bTouched = c0.B.Motion == RigidMotionKind.Dynamic && c0.B.RestitutionStamp == stamp;
+                if (!aTouched && !bTouched) continue;
+                if (!((aTouched && c0.Ny > 0f) || (bTouched && c0.Ny < 0f))) continue;
+
+                var oldCount = touched.Count;
+                Join(c0.A, touched, stamp);
+                Join(c0.B, touched, stamp);
+                if (c0.A.Motion == RigidMotionKind.Dynamic && c0.B.Motion == RigidMotionKind.Dynamic)
+                {
+                    var ra = Root(c0.A);
+                    var rb = Root(c0.B);
+                    if (ra != rb) rb.RestitutionRoot = ra;
+                }
+                if (touched.Count > oldCount) expanded = true;
+            }
+        } while (expanded);
+
+        s_islandPoints ??= new(32);
+        s_islandManifolds ??= new(16);
+
+        try
+        {
+            foreach (var b in touched)
+            {
+                if (Root(b) != b) continue;
+                var root = b;
+                s_islandPoints.Clear();
+                s_islandManifolds.Clear();
+
+                foreach (var m in manifolds)
+                {
+                    if (m.Points.Count == 0) continue;
+                    var c0 = m.Points[0];
+                    var aInIsland = c0.A.Motion == RigidMotionKind.Dynamic && c0.A.RestitutionStamp == stamp && Root(c0.A) == root;
+                    var bInIsland = c0.B.Motion == RigidMotionKind.Dynamic && c0.B.RestitutionStamp == stamp && Root(c0.B) == root;
+                    if (!aInIsland && !bInIsland) continue;
+
+                    var hasBounce = false;
+                    foreach (var c in m.Points) hasBounce |= Bounces(c);
+                    var supportsIsland = (aInIsland && bInIsland) || (aInIsland && c0.Ny > 0f) || (bInIsland && c0.Ny < 0f);
+                    var startCount = s_islandPoints.Count;
+                    for (var block = 0; block < m.NormalBlockCount; block++)
+                    {
+                        var blockPoints = m.NormalBlocks[block].Points;
+                        for (var i = 0; i < blockPoints.Count; i++)
+                        {
+                            var c = blockPoints[i];
+                            if (Bounces(c) || (!hasBounce && supportsIsland && Supports(c)))
+                                s_islandPoints.Add(c);
+                        }
+                    }
+                    if (s_islandPoints.Count > startCount)
+                        s_islandManifolds.Add(m);
+                }
+
+                if (s_islandPoints.Count > 8)
+                {
+                    s_islandPoints.Sort((x, y) => (Bounces(y) ? 1 : 0).CompareTo(Bounces(x) ? 1 : 0));
+                    s_islandPoints.RemoveRange(8, s_islandPoints.Count - 8);
+                }
+
+                for (var i = 0; i < s_islandPoints.Count; i++)
+                    s_islandPoints[i].RelaxedLambdaN = s_islandPoints[i].LambdaN;
+                foreach (var m in s_islandManifolds)
+                    foreach (var p in m.Patches)
+                    {
+                        p.RelaxedLambda = p.Lambda;
+                        p.RelaxedLambdaR1 = p.LambdaR1;
+                        p.RelaxedLambdaR2 = p.LambdaR2;
+                    }
+
+                ApplyRestitution(s_islandPoints);
+
+                foreach (var m in s_islandManifolds)
+                {
+                    WorkshopFrictionSolver.Solve(m);
+                    SolveRolling(m);
+                }
+
+                root.EnergyA = 0f; root.EnergyB = 0f; root.EnergyC = 0f; root.EnergyBudget = 0f;
+                foreach (var body in touched)
+                {
+                    if (Root(body) != root) continue;
+                    var dv = body.LinearVelocity - body.RelaxedV;
+                    var dw = body.AngularVelocity - body.RelaxedW;
+                    var relaxed = Kinetic(body, body.RelaxedV, body.RelaxedW);
+                    root.EnergyA += Kinetic(body, dv, dw);
+                    root.EnergyB += body.Mass * Vector3.Dot(body.RelaxedV, dv) + InertiaDot(body, body.RelaxedW, dw);
+                    root.EnergyC += relaxed;
+                    root.EnergyBudget += body.PreSolveKinetic - relaxed;
+                }
+
+                float a = root.EnergyA, lin = root.EnergyB, energyC = root.EnergyC, bound = energyC + MathF.Max(0f, root.EnergyBudget);
+                root.EnergyScale = 1f;
+                if (a > 0f && a + lin + energyC > bound * (1f + 1e-5f))
+                {
+                    var disc = lin * lin + 4f * a * (bound - energyC);
+                    root.EnergyScale = Math.Clamp((-lin + MathF.Sqrt(MathF.Max(0f, disc))) / (2f * a), 0f, 1f);
+                }
+
+                var scale = root.EnergyScale;
+                if (scale < 1f)
+                {
+                    foreach (var body in touched)
+                    {
+                        if (Root(body) != root) continue;
+                        var v = body.RelaxedV + scale * (body.LinearVelocity - body.RelaxedV);
+                        var w = body.RelaxedW + scale * (body.AngularVelocity - body.RelaxedW);
+                        body.Vx = v.X; body.Vy = v.Y; body.Vz = v.Z;
+                        body.Wx = w.X; body.Wy = w.Y; body.Wz = w.Z;
+                    }
+                    foreach (var m in s_islandManifolds)
+                    {
+                        foreach (var p in m.Patches)
+                        {
+                            p.Lambda = p.RelaxedLambda + scale * (p.Lambda - p.RelaxedLambda);
+                            p.LambdaR1 = p.RelaxedLambdaR1 + scale * (p.LambdaR1 - p.RelaxedLambdaR1);
+                            p.LambdaR2 = p.RelaxedLambdaR2 + scale * (p.LambdaR2 - p.RelaxedLambdaR2);
+                        }
+                    }
+                }
+                for (var i = 0; i < s_islandPoints.Count; i++)
+                {
+                    var pt = s_islandPoints[i];
+                    if (Bounces(pt))
+                        pt.LambdaN = pt.RelaxedLambdaN + scale * (pt.LambdaN - pt.RelaxedLambdaN);
+                    else
+                        pt.LambdaN = pt.RelaxedLambdaN;
+                }
+            }
         }
-        foreach (var b in touched)
+        finally
         {
-            if (Root(b) != b) continue;
-            // Along the relaxed → restituted line the group's energy is c + bα + aα²; the bound is max(pre-solve, relaxed).
-            float a = b.EnergyA, lin = b.EnergyB, c = b.EnergyC, bound = c + MathF.Max(0f, b.EnergyBudget);
-            b.EnergyScale = 1f;
-            if (a <= 0f || a + lin + c <= bound * (1f + 1e-5f)) continue;
-            var disc = lin * lin + 4f * a * (bound - c);
-            b.EnergyScale = Math.Clamp((-lin + MathF.Sqrt(MathF.Max(0f, disc))) / (2f * a), 0f, 1f);
-        }
-        foreach (var b in touched)
-        {
-            var scale = Root(b).EnergyScale;
-            if (scale >= 1f) continue;
-            var v = b.RelaxedV + scale * (b.LinearVelocity - b.RelaxedV);
-            var w = b.RelaxedW + scale * (b.AngularVelocity - b.RelaxedW);
-            b.Vx = v.X; b.Vy = v.Y; b.Vz = v.Z;
-            b.Wx = w.X; b.Wy = w.Y; b.Wz = w.Z;
+            s_islandPoints.Clear();
+            s_islandManifolds.Clear();
         }
     }
 
-    /// <summary>The bouncing points use the same accumulated active-set rule with massScale 1,
-    /// impulseScale 0, and target -e*RelVel. Existing support is included in b; the substep
-    /// energy limiter remains authoritative after this correction.</summary>
+    /// <summary>The coupled restitution pass over an island of bouncing points and active supporting contacts. Bouncing contacts
+    /// target -e*RelVel and supporting contacts target 0 (unilateral non-penetration), solved through the accumulated active-set
+    /// rule with massScale 1 and impulseScale 0. Existing support is included in b; the substep energy limiter remains authoritative
+    /// after this correction.</summary>
     public static void ApplyRestitution(List<ContactPoint> points)
     {
         var count = points.Count;
         Span<int> index = stackalloc int[count];
         var n = 0;
+        var anyBounce = false;
         for (var i = 0; i < count; i++)
-            if (Bounces(points[i])) index[n++] = i;
-        if (n == 0) return;
+        {
+            var c = points[i];
+            if (Bounces(c)) anyBounce = true;
+            if (Bounces(c) || Supports(c)) index[n++] = i;
+        }
+        if (n == 0 || !anyBounce) return;
         Span<float> matrix = stackalloc float[n * n];
         Span<float> rhs = stackalloc float[n];
         Span<float> solution = stackalloc float[n];
@@ -790,16 +922,24 @@ internal static class WorkshopConstraintSolver
         {
             var c = points[index[i]];
             var vn = Vector3.Dot(RelativeVelocity(c), new Vector3(c.Nx, c.Ny, c.Nz));
-            rhs[i] = -(vn + c.Restitution * c.RelVel);
+            var target = Bounces(c) ? c.Restitution * c.RelVel : 0f;
+            rhs[i] = -(vn + target);
             for (var j = 0; j < n; j++)
             {
-                matrix[i * n + j] = CouplingMass(c, points[index[j]]);
-                rhs[i] += matrix[i * n + j] * points[index[j]].LambdaN;
+                var k = CouplingMass(c, points[index[j]]);
+                matrix[i * n + j] = k;
+                rhs[i] += k * points[index[j]].LambdaN;
             }
         }
-        if (!SolveActiveSet(matrix, rhs, solution, n, SubstepSeconds)) return;
+        var solved = SolveActiveSet(matrix, rhs, solution, n, SubstepSeconds);
+        if (!solved) return;
         for (var i = 0; i < n; i++)
-            if (!float.IsFinite(solution[i] - points[index[i]].LambdaN)) return;
-        for (var i = 0; i < n; i++) ApplyNormalImpulse(points[index[i]], solution[i]);
+        {
+            if (!float.IsFinite(solution[i]) || solution[i] < 0f) return;
+        }
+        for (var i = 0; i < n; i++)
+        {
+            ApplyNormalImpulse(points[index[i]], solution[i]);
+        }
     }
 }

@@ -638,4 +638,237 @@ public sealed class WorkshopPhysicsLawRestitutionTests
             $"body {id.Value} remains supported above the bench"));
         }
     }
+
+    // ---- supported impacts (engine-supported-impact-restitution) ----
+
+    /// <summary>A ball dropped 0.6 m onto a dynamic box resting on the bench rebounds at its supported limit without yielding into the support
+    /// or gaining thermodynamic energy. With e = 0.55 (effective e² ≈ 0.0918), the rebound apex ratio recovers to >= 0.08 (2 kg box) and >= 0.07 (0.5 kg box).
+    /// With e = 1.0, the rebound apex ratio recovers to >= 0.90 for both 0.3 kg and 2 kg boxes (within 5% of the static limit 0.9764).</summary>
+    [Theory]
+    [InlineData(2f, .55f, .08f)]
+    [InlineData(.5f, .55f, .07f)]
+    [InlineData(2f, 1f, .90f)]
+    [InlineData(.3f, 1f, .90f)]
+    public void ABallDroppedOntoARestingDynamicBoxReboundsAtItsSupportedLimit(float boxMass, float e, float minRatio)
+    {
+        const float ballMass = .6f, radius = .12f, drop = .6f;
+        var boxHalf = At(.3f, .1f, .3f);
+        var material = new LawMaterial(e, .1f, .5f, 0f);
+        var scene = new LawScene();
+        var box = scene.Box(At(0, BenchY + boxHalf.Y), boxHalf, boxMass, material);
+        var restY = BenchY + 2 * boxHalf.Y + radius;
+        var ball = scene.Sphere(At(0, restY + drop), radius, ballMass, material, default, default, 0f, LawScene.Gravity);
+        var world = scene.Admit();
+
+        var landed = false;
+        var highestAfterImpact = float.NegativeInfinity;
+        double? previousEnergy = null;
+        var worstEnergyRise = 0.0;
+
+        world.Step(3 * world.TicksPerSecond, (_, state) =>
+        {
+            var bState = state[ball];
+            var boxState = state[box];
+
+            var currentEnergy = .5 * ballMass * Squared(bState.Velocity) + ballMass * G * (bState.Position.Y - BenchY)
+                + BoxEnergy(boxState, boxMass, boxHalf);
+            if (previousEnergy is { } prev) worstEnergyRise = Math.Max(worstEnergyRise, currentEnergy - prev);
+            previousEnergy = currentEnergy;
+
+            if (!landed && bState.Position.Y - restY < .05f && bState.Velocity.Y > -1f)
+                landed = true;
+
+            if (landed)
+            {
+                var reboundHeight = bState.Position.Y - restY;
+                if (reboundHeight > highestAfterImpact)
+                    highestAfterImpact = reboundHeight;
+            }
+        });
+
+        Assert.True(landed, "the ball lands on the resting box");
+        var ratio = highestAfterImpact / drop;
+        Assert.True(ratio >= minRatio, $"rebound apex ratio was {ratio:F4}, expected >= {minRatio:F4}");
+        Assert.True(worstEnergyRise <= 3 * Slop, $"a tick gained {worstEnergyRise * 1000:F3} mJ (bound {3 * Slop * 1000:F3} mJ)");
+    }
+
+    /// <summary>Inelastic control: an e = 0 ball dropped 0.6 m onto a resting dynamic box dissipates its approach and never rebounds
+    /// (stays within 1 mm of the resting contact height).</summary>
+    [Theory]
+    [InlineData(2f)]
+    [InlineData(.5f)]
+    public void AnInelasticBallOnARestingBoxDoesNotRebound(float boxMass)
+    {
+        const float ballMass = .6f, radius = .12f, drop = .6f;
+        var boxHalf = At(.3f, .1f, .3f);
+        var material = new LawMaterial(0f, .1f, .5f, 0f);
+        var scene = new LawScene();
+        var box = scene.Box(At(0, BenchY + boxHalf.Y), boxHalf, boxMass, material);
+        var restY = BenchY + 2 * boxHalf.Y + radius;
+        var ball = scene.Sphere(At(0, restY + drop), radius, ballMass, material, default, default, 0f, LawScene.Gravity);
+        var world = scene.Admit();
+
+        var landed = false;
+        var highestAfterImpact = float.NegativeInfinity;
+
+        world.Step(3 * world.TicksPerSecond, (_, state) =>
+        {
+            var bState = state[ball];
+            if (!landed && bState.Position.Y - restY < .05f && bState.Velocity.Y > -1f)
+                landed = true;
+
+            if (landed)
+            {
+                var reboundHeight = bState.Position.Y - restY;
+                if (reboundHeight > highestAfterImpact)
+                    highestAfterImpact = reboundHeight;
+            }
+        });
+
+        Assert.True(landed, "the ball lands on the resting box");
+        Assert.True(highestAfterImpact <= .001f, $"e = 0 left the resting height by {highestAfterImpact * 1000:F3} mm (limit 1 mm)");
+    }
+
+    /// <summary>Unsupported control: in mid-air zero gravity with no support, a ball striking a dynamic box conserves linear momentum
+    /// and separates at exactly e * |v_rel|.</summary>
+    [Theory]
+    [InlineData(.55f)]
+    [InlineData(1f)]
+    public void AFreeFallingMidAirCollisionConservesMomentumAndSeparatesAtRestitution(float e)
+    {
+        const float ballMass = .6f, boxMass = 2f, radius = .12f;
+        var boxHalf = At(.3f, .1f, .3f);
+        var material = new LawMaterial(MathF.Sqrt(e), .1f, 0f, 0f);
+        var scene = new LawScene(bench: false);
+        var box = scene.Box(At(0, 0, 0), boxHalf, boxMass, material, velocity: default, gravity: 0f);
+        var ball = scene.Sphere(At(0, boxHalf.Y + radius + .01f, 0), radius, ballMass, material,
+            velocity: At(0, -3f, 0), angular: default, drag: 0f, gravity: 0f);
+        var world = scene.Admit();
+
+        var initialP = ballMass * (-3f);
+        var final = world.Step(world.TicksPerSecond / 4);
+        var finalBall = final[ball];
+        var finalBox = final[box];
+
+        var finalP = ballMass * finalBall.Velocity.Y + boxMass * finalBox.Velocity.Y;
+        Assert.InRange(finalP, initialP - 1e-4f, initialP + 1e-4f);
+
+        var sep = finalBall.Velocity.Y - finalBox.Velocity.Y;
+        var expectedSep = e * 3f;
+        Assert.InRange(sep, expectedSep - 1e-3f, expectedSep + 1e-3f);
+        Assert.InRange(MathF.Abs(finalBall.Velocity.X), 0f, 1e-4f);
+        Assert.InRange(MathF.Abs(finalBall.Velocity.Z), 0f, 1e-4f);
+        Assert.InRange(MathF.Abs(finalBox.Velocity.X), 0f, 1e-4f);
+        Assert.InRange(MathF.Abs(finalBox.Velocity.Z), 0f, 1e-4f);
+        Assert.InRange(finalBall.Angular.Length(), 0f, 1e-4f);
+        Assert.InRange(finalBox.Angular.Length(), 0f, 1e-4f);
+    }
+
+    /// <summary>An off-center drop on a supported dynamic box couples normal impact to pitch/roll inertia,
+    /// rebounding positively while inducing coupled angular spin without gaining thermodynamic energy.</summary>
+    [Fact]
+    public void AnOffCenterDropOnARestingBoxReboundsWithCoupledSpin()
+    {
+        const float upperMass = 1f, lowerMass = 2f, drop = .6f, offsetX = .15f;
+        var lowerHalf = At(.3f, .1f, .3f);
+        var upperHalf = At(.25f, .1f, .15f);
+        var material = new LawMaterial(1f, .1f, .5f, 0f);
+        var scene = new LawScene();
+        var lower = scene.Box(At(0, BenchY + lowerHalf.Y), lowerHalf, lowerMass, material);
+        var restY = BenchY + 2 * lowerHalf.Y + upperHalf.Y;
+        var upper = scene.Box(At(offsetX, restY + drop), upperHalf, upperMass, material);
+        var world = scene.Admit();
+
+        var landed = false;
+        var highestAfterImpact = float.NegativeInfinity;
+        var maxUpperSpin = 0f;
+        double? previousEnergy = null;
+        var worstEnergyRise = 0.0;
+
+        world.Step(3 * world.TicksPerSecond, (_, state) =>
+        {
+            var uState = state[upper];
+            var lState = state[lower];
+
+            var currentEnergy = BoxEnergy(lState, lowerMass, lowerHalf) + BoxEnergy(uState, upperMass, upperHalf);
+            if (previousEnergy is { } prev) worstEnergyRise = Math.Max(worstEnergyRise, currentEnergy - prev);
+            previousEnergy = currentEnergy;
+
+            maxUpperSpin = MathF.Max(maxUpperSpin, uState.Angular.Length());
+
+            if (!landed && uState.Position.Y - restY < .05f && uState.Velocity.Y > -1f)
+                landed = true;
+
+            if (landed)
+            {
+                var reboundHeight = uState.Position.Y - restY;
+                if (reboundHeight > highestAfterImpact)
+                    highestAfterImpact = reboundHeight;
+            }
+        });
+
+        Assert.True(landed, "the upper box lands on the resting box");
+        var ratio = highestAfterImpact / drop;
+        Assert.True(ratio >= .20f, $"rebound apex ratio was {ratio:F4}, expected >= 0.20");
+        Assert.True(maxUpperSpin > 1.0f, $"off-center impact induced upper spin {maxUpperSpin:F4} rad/s (expected > 1.0 rad/s)");
+        Assert.True(worstEnergyRise <= 3 * Slop, $"a tick gained {worstEnergyRise * 1000:F3} mJ (bound {3 * Slop * 1000:F3} mJ)");
+    }
+
+    /// <summary>A ball dropped onto a dynamic two-box stack (box 1 on box 2 on bench) transmits impact through the transitive
+    /// support island and rebounds off the stack without collapsing either box.</summary>
+    [Fact]
+    public void ABallDroppedOntoATwoBoxDynamicStackReboundsWithoutCollapsing()
+    {
+        const float ballMass = .6f, radius = .12f, drop = .6f;
+        var boxHalf2 = At(.4f, .1f, .4f);
+        var boxHalf1 = At(.3f, .1f, .3f);
+        var material = new LawMaterial(1f, .1f, .5f, 0f);
+        var scene = new LawScene();
+
+        var box2 = scene.Box(At(0, BenchY + boxHalf2.Y), boxHalf2, 2f, material);
+        var box1 = scene.Box(At(0, BenchY + 2 * boxHalf2.Y + boxHalf1.Y), boxHalf1, 1f, material);
+
+        var restY = BenchY + 2 * boxHalf2.Y + 2 * boxHalf1.Y + radius;
+        var ball = scene.Sphere(At(0, restY + drop), radius, ballMass, material, default, default, 0f, LawScene.Gravity);
+        var world = scene.Admit();
+
+        var landed = false;
+        var highestAfterImpact = float.NegativeInfinity;
+        double? previousEnergy = null;
+        var worstEnergyRise = 0.0;
+        var minBox2Y = float.PositiveInfinity;
+        var minBox1Y = float.PositiveInfinity;
+
+        world.Step(3 * world.TicksPerSecond, (_, state) =>
+        {
+            var bState = state[ball];
+            var box1State = state[box1];
+            var box2State = state[box2];
+
+            minBox2Y = MathF.Min(minBox2Y, box2State.Position.Y);
+            minBox1Y = MathF.Min(minBox1Y, box1State.Position.Y);
+
+            var currentEnergy = .5 * ballMass * Squared(bState.Velocity) + ballMass * G * (bState.Position.Y - BenchY)
+                + BoxEnergy(box1State, 1f, boxHalf1) + BoxEnergy(box2State, 2f, boxHalf2);
+            if (previousEnergy is { } prev) worstEnergyRise = Math.Max(worstEnergyRise, currentEnergy - prev);
+            previousEnergy = currentEnergy;
+
+            if (!landed && bState.Position.Y - restY < .05f && bState.Velocity.Y > -1f)
+                landed = true;
+
+            if (landed)
+            {
+                var reboundHeight = bState.Position.Y - restY;
+                if (reboundHeight > highestAfterImpact)
+                    highestAfterImpact = reboundHeight;
+            }
+        });
+
+        Assert.True(landed, "the ball lands on the two-box dynamic stack");
+        var ratio = highestAfterImpact / drop;
+        Assert.True(ratio >= .05f, $"rebound apex ratio was {ratio:F4}, expected >= 0.05");
+        Assert.True(minBox2Y >= BenchY + boxHalf2.Y - .01f, $"bottom box settled to {minBox2Y:F4}, expected >= {BenchY + boxHalf2.Y - .01f:F4}");
+        Assert.True(minBox1Y >= BenchY + 2 * boxHalf2.Y + boxHalf1.Y - .01f, $"top box settled to {minBox1Y:F4}, expected >= {BenchY + 2 * boxHalf2.Y + boxHalf1.Y - .01f:F4}");
+        Assert.True(worstEnergyRise <= 3 * Slop, $"a tick gained {worstEnergyRise * 1000:F3} mJ (bound {3 * Slop * 1000:F3} mJ)");
+    }
 }

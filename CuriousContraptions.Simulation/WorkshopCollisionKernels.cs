@@ -127,6 +127,7 @@ internal sealed class ContactPoint
     public float Friction;
     public ContactFeatureIdentity Key;
     public float LambdaN;
+    public float RelaxedLambdaN;
     /// <summary>The substep-start relative normal velocity at this point (negative approaching): the restitution target's and the
     /// contact events' approach.</summary>
     public float RelVel;
