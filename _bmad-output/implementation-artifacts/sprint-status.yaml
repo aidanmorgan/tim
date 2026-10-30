@@ -346,7 +346,7 @@ development_status:
   # 38 (deletion)
   9a-32-generic-instance-domino: done # scoped native/publication Pass61ded7; browser pending
   # 39 (element)
-  10-4-counterweight-multibody-pendulum-lifting: backlog
+  10-4-counterweight-multibody-pendulum-lifting: done # scoped native Pass; browser pending (post-catalogue)
   # 40 (deletion): includes F.6 item F-1
   9a-c-plate-contact-load-conversion: done # scoped native/publication Pass146588; browser pending
   # merged into 9a-c-plate (21 Oct 2026)

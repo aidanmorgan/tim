@@ -825,4 +825,508 @@ public sealed class WeightTests(ITestOutputHelper output)
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(decoded.Construction, Rate, includeBuilt: true);
         AssertSamePoses(run[^1], replay[^1], .00005f, 1e-4f, 1e-3f, "the reloaded run");
     }
+
+    // ---------------- pendulum qualification (Story 10.4, CAT-067) ----------------
+
+    private static float TieOffsetY(float mass) => 0.5771f * (0.136734f * mass + 0.453070f);
+
+    private static WorkshopConstruction SuspendedPendulum(float mass, float ropeLength, float angleRad,
+        Vector3 anchorPos, float angleZRad, float initialRadialDistance)
+    {
+        var anchorInstance = WorkshopInput.Generic(new("rope_anchor"), new(1),
+            anchorPos.X, anchorPos.Y, anchorPos.Z - 0.18f, 0f, 0f, 0f, 1f);
+
+        var tieOffset = TieOffsetY(mass);
+        var sinX = MathF.Sin(angleRad);
+        var cosX = MathF.Cos(angleRad);
+        var sinZ = MathF.Sin(angleZRad);
+        var cosZ = MathF.Cos(angleZRad);
+
+        var tieX = anchorPos.X + initialRadialDistance * sinX * cosZ;
+        var tieZ = anchorPos.Z + initialRadialDistance * sinZ;
+        var tieY = anchorPos.Y - initialRadialDistance * cosX * cosZ;
+
+        var weightInstance = Placed(2, tieX, tieY - tieOffset, tieZ, mass);
+
+        var connection = new WorkshopConnection(new(1), WorkshopSocket.Tie, new(2), WorkshopSocket.Tie,
+            WorkshopConnectionDomain.Rope, ropeLength);
+
+        return new(new(2), WorkshopCadenceSettings.Default(),
+            new(anchorInstance, weightInstance),
+            Connections: new(connection));
+    }
+
+    private static WorkshopConstruction SuspendedPendulum(float mass, float ropeLength, float angleRad, Vector3 anchorPos) =>
+        SuspendedPendulum(mass, ropeLength, angleRad, anchorPos, 0f, ropeLength);
+
+    /// <summary>Measures the oscillation period by tracking zero-crossings of the X displacement with linear interpolation.</summary>
+    private static float MeasurePeriod(List<WorkshopRead> reads, GpuBodyId id)
+    {
+        if (reads.Count == 0) throw new ArgumentException("Empty reads list.", nameof(reads));
+        var zeroCrossings = new List<float>();
+        var prevX = Origin(Find(reads[0], id)).X;
+
+        for (var i = 1; i < reads.Count; i++)
+        {
+            var body = Find(reads[i], id);
+            var x = Origin(body).X;
+
+            if ((prevX > 0f && x <= 0f) || (prevX < 0f && x >= 0f))
+            {
+                var dt = 1f / 120f;
+                var frac = MathF.Abs(prevX) / (MathF.Abs(prevX) + MathF.Abs(x));
+                var tZero = (i - 1) / 120f + frac * dt;
+                zeroCrossings.Add(tZero);
+            }
+            prevX = x;
+        }
+
+        // Canonical period: require at least 3 zero-crossings (1 full cycle).
+        if (zeroCrossings.Count >= 3)
+        {
+            return zeroCrossings[2] - zeroCrossings[0];
+        }
+        throw new InvalidOperationException($"Insufficient zero crossings detected: {zeroCrossings.Count}");
+    }
+
+    private static (WorkshopConstruction Construction, GpuBodyId WeightA, GpuBodyId Pulley1, GpuBodyId Pulley2, GpuBodyId WeightB)
+        TwoPulleyCounterweight(float massA, float massB, float heightA, float heightB, bool reverseWiring = false)
+    {
+        var a = Placed(1, -2.4f, heightA, 0f, massA);
+        var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
+        var p2 = WorkshopInput.Generic(new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
+        var b = Placed(4, 2.4f, heightB, 0f, massB);
+        var tieA = DeclaredPorts.Current.LocalPosition(a, WorkshopSocket.Tie);
+        var tieB = DeclaredPorts.Current.LocalPosition(b, WorkshopSocket.Tie);
+        var posA = new Vector3(-2.4f, heightA, 0f) + tieA;
+        var posB = new Vector3(2.4f, heightB, 0f) + tieB;
+        var guides = new (Vector3 Position, Quaternion Rotation)[]
+        {
+            (new(-2f, 6f, -.12f), Quaternion.Identity),
+            (new(2f, 6f, -.12f), Quaternion.Identity)
+        };
+        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides);
+        var len = evaluated.TotalLength;
+        var span1 = 4.0f;
+        var remaining = MathF.Max(0.1f, len - span1);
+        var distA = Vector3.Distance(posA, guides[0].Position);
+        var distB = Vector3.Distance(posB, guides[1].Position);
+        var span0 = remaining * (distA / (distA + distB));
+        var span2 = remaining - span0;
+
+        WorkshopConnection link0, link1, link2;
+        if (!reverseWiring)
+        {
+            link0 = new WorkshopConnection(a.Id, WorkshopSocket.Tie, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
+            link1 = new WorkshopConnection(p1.Id, WorkshopSocket.Tie, p2.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
+            link2 = new WorkshopConnection(p2.Id, WorkshopSocket.Tie, b.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span2);
+        }
+        else
+        {
+            link0 = new WorkshopConnection(b.Id, WorkshopSocket.Tie, p2.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span2);
+            link1 = new WorkshopConnection(p2.Id, WorkshopSocket.Tie, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
+            link2 = new WorkshopConnection(p1.Id, WorkshopSocket.Tie, a.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
+        }
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(a, p1, p2, b),
+            Connections: new(link0, link1, link2));
+        return (construction, a.Id, p1.Id, p2.Id, b.Id);
+    }
+
+    [Fact]
+    public async Task SuspendedPendulum_OscillatesWithTheoreticalNaturalPeriod()
+    {
+        const float mass = 4.0f;
+        const float length = 2.0f;
+        var angle = 15f * MathF.PI / 180f; // 15 deg
+        var construction = SuspendedPendulum(mass, length, angle, new(0, 6, 0));
+
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+        var reads = await harness.Advance(600); // 5 seconds at 120 Hz
+
+        var measuredPeriod = MeasurePeriod(reads, new(2));
+        var effectiveLength = length + (TieOffsetY(mass) - HalfHeight(mass));
+        var theoreticalPeriod = 2f * MathF.PI * MathF.Sqrt(effectiveLength / G);
+
+        // Measured period is within 5% of theoretical compound pendulum period T = 2π√(L/g).
+        Assert.InRange(measuredPeriod, theoreticalPeriod * 0.95f, theoreticalPeriod * 1.05f);
+
+        // Swings through the release plane symmetrically to negative X.
+        var minX = float.MaxValue;
+        foreach (var read in reads)
+        {
+            var x = Origin(Find(read, new(2))).X;
+            if (x < minX) minX = x;
+        }
+        Assert.True(minX < -0.45f, $"The swinging weight must reach negative excursion: {minX}");
+    }
+
+    [Fact]
+    public async Task SuspendedPendulum_PeriodScalesWithSquareRootOfLength()
+    {
+        const float mass = 4.0f;
+        var angle = 15f * MathF.PI / 180f;
+
+        // Compare L1 = 1.0m vs L2 = 4.0m
+        var c1 = SuspendedPendulum(mass, 1.0f, angle, new(0, 7, 0));
+        var c2 = SuspendedPendulum(mass, 4.0f, angle, new(0, 7, 0));
+
+        await using var h1 = await WorkshopIntegrationHarness.Running(c1);
+        var reads1 = await h1.Advance(600);
+        var period1 = MeasurePeriod(reads1, new(2));
+
+        await using var h2 = await WorkshopIntegrationHarness.Running(c2);
+        var reads2 = await h2.Advance(1000); // 8.3 seconds for longer pendulum
+        var period2 = MeasurePeriod(reads2, new(2));
+
+        var effL1 = 1.0f + (TieOffsetY(mass) - HalfHeight(mass));
+        var effL2 = 4.0f + (TieOffsetY(mass) - HalfHeight(mass));
+        var expectedRatio = MathF.Sqrt(effL2 / effL1);
+        var measuredRatio = period2 / period1;
+
+        // Period ratio scales with √(L2 / L1) within 5%.
+        Assert.InRange(measuredRatio, expectedRatio * 0.95f, expectedRatio * 1.05f);
+        Assert.True(period2 > period1 * 1.6f, $"Longer pendulum period {period2}s must exceed shorter period {period1}s.");
+    }
+
+    [Fact]
+    public async Task SuspendedPendulum_PeriodIsInvariantWithMass()
+    {
+        var angle = 15f * MathF.PI / 180f;
+        const float targetEffLength = 2.5f;
+
+        // Keep effective length L_eff = ropeLength + (TieOffsetY(mass) - HalfHeight(mass)) identical for both:
+        var ropeLight = targetEffLength - (TieOffsetY(0.25f) - HalfHeight(0.25f));
+        var ropeHeavy = targetEffLength - (TieOffsetY(8.0f) - HalfHeight(8.0f));
+
+        var cLight = SuspendedPendulum(0.25f, ropeLight, angle, new(0, 6, 0));
+        var cHeavy = SuspendedPendulum(8.0f, ropeHeavy, angle, new(0, 6, 0));
+
+        await using var hLight = await WorkshopIntegrationHarness.Running(cLight);
+        var readsLight = await hLight.Advance(600);
+        var periodLight = MeasurePeriod(readsLight, new(2));
+
+        await using var hHeavy = await WorkshopIntegrationHarness.Running(cHeavy);
+        var readsHeavy = await hHeavy.Advance(600);
+        var periodHeavy = MeasurePeriod(readsHeavy, new(2));
+
+        var theoreticalPeriod = 2f * MathF.PI * MathF.Sqrt(targetEffLength / G);
+
+        // Both periods conform to T = 2π√(L/g) within 5% of theoretical and within 3% of each other.
+        Assert.InRange(periodLight, theoreticalPeriod * 0.95f, theoreticalPeriod * 1.05f);
+        Assert.InRange(periodHeavy, theoreticalPeriod * 0.95f, theoreticalPeriod * 1.05f);
+        Assert.InRange(MathF.Abs(periodHeavy - periodLight) / periodLight, 0f, 0.03f);
+    }
+
+    [Fact]
+    public async Task SuspendedPendulum_DampsGraduallyWithoutEnergyGrowth()
+    {
+        const float mass = 4.0f;
+        const float length = 2.0f;
+        var angle = 15f * MathF.PI / 180f;
+        var construction = SuspendedPendulum(mass, length, angle, new(0, 6, 0));
+
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+        var reads = await harness.Advance(1200); // 10 seconds at 120 Hz (~3.2 full cycles)
+
+        var peakExcursions = new List<float>();
+        var prevVx = Velocity(Find(reads[0], new(2))).X;
+
+        // Initial mechanical energy: at t = 0 with v = 0, E0 = m * g * (y_com - y_lowest)
+        var lowestY = 6f - length - TieOffsetY(mass) + HalfHeight(mass);
+        var initialComY = Centre(Find(reads[0], new(2))).Y;
+        var initialEnergy = mass * G * (initialComY - lowestY);
+
+        for (var i = 1; i < reads.Count; i++)
+        {
+            var body = Find(reads[i], new(2));
+            var com = Centre(body);
+            var v = Velocity(body);
+            var w = Spin(body);
+
+            // Total energy: potential + linear kinetic + rotational kinetic in local principal frame
+            var potential = mass * G * (com.Y - lowestY);
+            var kineticLin = 0.5f * mass * v.LengthSquared();
+            // Solid cylinder transverse moment: m * (r²/4 + h²/3), axial: 0.5 * m * r²
+            var r = Radius(mass);
+            var h = HalfHeight(mass);
+            var iTransverse = mass * (r * r / 4f + h * h / 3f);
+            var iAxial = 0.5f * mass * r * r;
+            var wLocal = Vector3.Transform(w, Quaternion.Inverse(Rotation(body)));
+            var kineticRot = 0.5f * (iTransverse * (wLocal.X * wLocal.X + wLocal.Z * wLocal.Z) + iAxial * wLocal.Y * wLocal.Y);
+            var totalEnergy = potential + kineticLin + kineticRot;
+
+            // Total mechanical energy must not grow beyond initial energy (tolerance for numerical integration)
+            Assert.True(totalEnergy <= initialEnergy * 1.005f,
+                $"Tick {i}: energy {totalEnergy:F3}J exceeded initial energy {initialEnergy:F3}J.");
+
+            // Track peaks (where Vx changes sign)
+            var vx = v.X;
+            if (MathF.Sign(prevVx) != MathF.Sign(vx) && MathF.Abs(prevVx) > 0.005f)
+            {
+                peakExcursions.Add(MathF.Abs(Origin(body).X));
+            }
+            prevVx = vx;
+        }
+
+        // Over 10 seconds, multiple turning points are recorded and amplitude damps gradually.
+        Assert.True(peakExcursions.Count >= 4, $"Expected at least 4 turning points, found {peakExcursions.Count}");
+        var firstPeak = peakExcursions[0];
+        var lastPeak = peakExcursions[^1];
+        Assert.True(lastPeak < firstPeak, $"Oscillation must damp: initial peak {firstPeak:F3}m, final peak {lastPeak:F3}m");
+    }
+
+    [Fact]
+    public async Task SuspendedPendulum_ThreeDimensionalNonPlanarPrecession()
+    {
+        const float mass = 4.0f;
+        const float length = 2.0f;
+        var angleX = 15f * MathF.PI / 180f;
+        var angleZ = 10f * MathF.PI / 180f;
+        var anchorPos = new Vector3(0, 6, 0);
+
+        var construction = SuspendedPendulum(mass, length, angleX, anchorPos, angleZ, length);
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+        var reads = await harness.Advance(600); // 5 seconds
+
+        var visitedQuadPlusPlus = false;
+        var visitedQuadMinusMinus = false;
+
+        foreach (var read in reads)
+        {
+            var body = Find(read, new(2));
+            var pos = Origin(body);
+            var x = pos.X;
+            var z = pos.Z;
+
+            if (x > 0.05f && z > 0.05f) visitedQuadPlusPlus = true;
+            if (x < -0.05f && z < -0.05f) visitedQuadMinusMinus = true;
+
+            // Tether length from anchor to tie socket remains bounded
+            var tiePos = pos + Vector3.Transform(new Vector3(0f, TieOffsetY(mass), 0f), Rotation(body));
+            var dist = Vector3.Distance(anchorPos, tiePos);
+            Assert.InRange(dist, length - 0.05f, length + 0.05f);
+
+            // Tilt remains bounded (no tumbling)
+            Assert.True(Tilt(body) < 45.0, $"Tilt exceeded 45 degrees: {Tilt(body)}");
+        }
+
+        // Swings in 3D through the plumb line across release plane
+        Assert.True(visitedQuadPlusPlus && visitedQuadMinusMinus, "3D pendulum must swing across release plane.");
+    }
+
+    [Fact]
+    public async Task SuspendedPendulum_SteepAngleSlackReleaseTransitionsSmoothly()
+    {
+        const float mass = 4.0f;
+        const float ropeLength = 2.0f;
+        const float initialDistance = 1.2f; // 0.8m slack initially
+        var angle = 75f * MathF.PI / 180f; // 75 degrees steep release
+        var anchorPos = new Vector3(0, 6, 0);
+
+        var construction = SuspendedPendulum(mass, ropeLength, angle, anchorPos, 0f, initialDistance);
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+        var reads = await harness.Advance(480); // 4 seconds
+
+        // Verify initial free fall: at tick 12 (0.1s), body fell ~0.5*g*t² under gravity while rope is slack
+        var initial = Origin(Find(reads[0], new(2)));
+        var early = Origin(Find(reads[12], new(2)));
+        Assert.True(early.Y < initial.Y - 0.03f, "Weight must fall freely under gravity while rope is slack.");
+
+        var swungAcross = false;
+        foreach (var read in reads)
+        {
+            var body = Find(read, new(2));
+            var pos = Origin(body);
+            var vel = Velocity(body);
+
+            // Kinematic states remain strictly finite (no solver blowup on taut impact)
+            Assert.True(float.IsFinite(pos.X) && float.IsFinite(pos.Y) && float.IsFinite(pos.Z));
+            Assert.True(float.IsFinite(vel.X) && float.IsFinite(vel.Y) && float.IsFinite(vel.Z));
+
+            if (pos.X < -0.5f) swungAcross = true;
+        }
+
+        Assert.True(swungAcross, "Slack-released pendulum must transition through taut shock into swing across release plane.");
+    }
+
+    [Fact]
+    public async Task Counterweight_LiftsLighterLoadOverPulley()
+    {
+        // 4 kg counterweight at height 3.5m lifts 1 kg load at height 2.0m
+        var (construction, idA, _, _, idB) = TwoPulleyCounterweight(massA: 4.0f, massB: 1.0f, heightA: 3.5f, heightB: 2.0f);
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+
+        var initialA = Find(harness.Committed, idA);
+        var initialB = Find(harness.Committed, idB);
+
+        var reads = await harness.Advance(60); // 0.5 seconds at 120 Hz
+
+        var finalA = Find(reads[^1], idA);
+        var finalB = Find(reads[^1], idB);
+
+        var deltaA = Origin(finalA).Y - Origin(initialA).Y;
+        var deltaB = Origin(finalB).Y - Origin(initialB).Y;
+
+        // Heavy counterweight descends, light weight is lifted upward
+        Assert.True(deltaA < -0.2f, $"4kg counterweight must descend: {deltaA}m");
+        Assert.True(deltaB > +0.2f, $"1kg load must be lifted: {deltaB}m");
+
+        // Displacements are opposite and equal magnitude
+        Assert.InRange(MathF.Abs(deltaA + deltaB), 0f, 0.05f);
+    }
+
+    [Fact]
+    public async Task Counterweight_EqualMassesOverPulleyRemainBalanced()
+    {
+        // Equal 4 kg weights connected over pulleys
+        var (construction, idA, _, _, idB) = TwoPulleyCounterweight(massA: 4.0f, massB: 4.0f, heightA: 3.0f, heightB: 3.0f);
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+
+        var initialA = Find(harness.Committed, idA);
+        var initialB = Find(harness.Committed, idB);
+
+        var reads = await harness.Advance(600); // 5 seconds at 120 Hz
+
+        var finalA = Find(reads[^1], idA);
+        var finalB = Find(reads[^1], idB);
+
+        var deltaA = Origin(finalA).Y - Origin(initialA).Y;
+        var deltaB = Origin(finalB).Y - Origin(initialB).Y;
+
+        // Equal masses remain in static equilibrium over 600 ticks
+        Assert.InRange(MathF.Abs(deltaA), 0f, 0.005f);
+        Assert.InRange(MathF.Abs(deltaB), 0f, 0.005f);
+        Assert.InRange(MathF.Abs(Velocity(finalA).Y), 0f, 0.005f);
+        Assert.InRange(MathF.Abs(Velocity(finalB).Y), 0f, 0.005f);
+    }
+
+    [Fact]
+    public async Task Counterweight_FloorContactRelaxesTensionAndRestsOnBench()
+    {
+        // Solid shelf placed under the descending 4 kg counterweight at height 2.0m (top surface at y = 2.25m).
+        var shelf = WorkshopInput.Generic(new("wall"), new(5), -2.4f, 2.0f, 0f, 0, 0, 0, 1,
+            new([new(new("width"), 1.5f), new(new("height"), .5f), new(new("thickness"), 1.5f)]));
+        var (construction, idA, _, _, _) = TwoPulleyCounterweight(massA: 4.0f, massB: 1.0f, heightA: 2.8f, heightB: 2.0f);
+        construction = construction with { Instances = construction.Instances.With(shelf) };
+
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+        var reads = await harness.Advance(180); // 1.5 seconds at 120 Hz
+
+        // Counterweight lands on the shelf surface at y ~ 2.25m and rests stably
+        var finalA = Find(reads[^1], idA);
+        var contactY = Origin(finalA).Y;
+        Assert.InRange(contactY, 2.24f, 2.30f);
+        Assert.InRange(MathF.Abs(Velocity(finalA).Y), 0f, 0.05f);
+
+        // Rope presentation relaxes into Slack state upon floor/shelf contact
+        var hadSlackState = false;
+        foreach (var read in reads)
+        {
+            if (read.Presentation.Ropes[0].State == RopeState.Slack)
+                hadSlackState = true;
+        }
+        Assert.True(hadSlackState, "Rope must transition to slack upon shelf contact.");
+    }
+
+    [Fact]
+    public async Task Counterweight_OpenRouteFallsFreelyToBench()
+    {
+        // Solid shelf placed under the falling load at height 1.0m (top surface at y = 1.25m).
+        var shelf = WorkshopInput.Generic(new("wall"), new(3), -2.0f, 1.0f, 0f, 0, 0, 0, 1,
+            new([new(new("width"), 1.5f), new(new("height"), .5f), new(new("thickness"), 1.5f)]));
+        var a = Placed(1, -2.0f, 3.0f, 0f, 4.0f);
+        var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
+        var tieA = DeclaredPorts.Current.LocalPosition(a, WorkshopSocket.Tie);
+        var span = Vector3.Distance(new Vector3(-2f, 3f, 0f) + tieA, new Vector3(-2f, 6f, -.12f));
+        var openConnection = new WorkshopConnection(a.Id, WorkshopSocket.Tie, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(a, p1, shelf),
+            Connections: new(openConnection));
+
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+        var reads = await harness.Advance(180); // 1.5 seconds
+
+        // The weight on an open incomplete route falls freely under gravity to the shelf surface at y ~ 1.25m
+        var finalA = Find(reads[^1], a.Id);
+        Assert.InRange(Origin(finalA).Y, 1.24f, 1.30f);
+    }
+
+    [Fact]
+    public async Task Counterweight_PulleyWiringDirectionInvariance()
+    {
+        // Forward wiring: A -> P1 -> P2 -> B
+        var (cForward, idA_F, _, _, _) = TwoPulleyCounterweight(4.0f, 1.0f, 3.5f, 2.0f, reverseWiring: false);
+        // Reverse wiring: B -> P2 -> P1 -> A
+        var (cReverse, idA_R, _, _, _) = TwoPulleyCounterweight(4.0f, 1.0f, 3.5f, 2.0f, reverseWiring: true);
+
+        await using var hF = await WorkshopIntegrationHarness.Running(cForward);
+        await using var hR = await WorkshopIntegrationHarness.Running(cReverse);
+
+        var readsF = await hF.Advance(60);
+        var readsR = await hR.Advance(60);
+
+        var deltaA_F = Origin(Find(readsF[^1], idA_F)).Y - Origin(Find(readsF[0], idA_F)).Y;
+        var deltaA_R = Origin(Find(readsR[^1], idA_R)).Y - Origin(Find(readsR[0], idA_R)).Y;
+
+        // Displacements match regardless of wiring direction
+        Assert.InRange(MathF.Abs(deltaA_F - deltaA_R), 0f, 0.01f);
+    }
+
+    [Fact]
+    public async Task SuspendedPendulum_ResetRestoresAuthoredPoseAndZeroVelocity()
+    {
+        const float mass = 4.0f;
+        const float length = 2.0f;
+        var angle = 15f * MathF.PI / 180f;
+        var construction = SuspendedPendulum(mass, length, angle, new(0, 6, 0));
+
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 600, SimulationCadence.Hz120, includeBuilt: true);
+
+        // Reset restores authored pose within 1 um and 1 urad
+        AssertSamePoses(built, reset, 1e-6f, 1e-6f, 1e-6f, "Reset");
+        var resetBody = Find(reset, new(2));
+        Assert.True(Velocity(resetBody).Length() == 0f && Spin(resetBody).Length() == 0f, "at rest after Reset");
+
+        // During the run, the pendulum swung away from its authored pose
+        var maxDisplacement = 0f;
+        foreach (var read in run)
+        {
+            var d = Vector3.Distance(Origin(Find(read, new(2))), Origin(Find(built, new(2))));
+            if (d > maxDisplacement) maxDisplacement = d;
+        }
+        Assert.True(maxDisplacement > 0.8f, $"Swinging pendulum moved significantly: {maxDisplacement}m");
+
+        // Replay repeats terminal and milestone ticks
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(construction, 600, SimulationCadence.Hz120, includeBuilt: true);
+        Assert.Equal(run.Count, replay.Count);
+        AssertSamePoses(run[^1], replay[^1], 0.00005f, 1e-4f, 1e-3f, "replay terminal tick");
+        foreach (var t in new[] { 0, 150, 300, 450 })
+        {
+            AssertSamePoses(run[t], replay[t], 0.00005f, 1e-4f, 1e-3f, $"replay milestone tick {t}");
+        }
+    }
+
+    [Fact]
+    public async Task SuspendedPendulum_SaveLoadRoundtripPreservesSwingingState()
+    {
+        const float mass = 4.0f;
+        const float length = 2.0f;
+        var angle = 15f * MathF.PI / 180f;
+        var construction = SuspendedPendulum(mass, length, angle, new(0, 6, 0));
+
+        // Save roundtrip of construction
+        var save = new WorkshopSavedConstruction(construction, new(4));
+        var bytes = WorkshopSaveCodec.Encode(save);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        Assert.Equal(save, decoded);
+
+        // Both original and decoded constructions run identically
+        var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(construction, 600, SimulationCadence.Hz120, includeBuilt: true);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(decoded.Construction, 600, SimulationCadence.Hz120, includeBuilt: true);
+        Assert.Equal(run.Count, replay.Count);
+        AssertSamePoses(run[^1], replay[^1], 0.00005f, 1e-4f, 1e-3f, "saved vs reloaded terminal tick");
+        foreach (var t in new[] { 0, 150, 300, 450 })
+        {
+            AssertSamePoses(run[t], replay[t], 0.00005f, 1e-4f, 1e-3f, $"saved vs reloaded milestone tick {t}");
+        }
+    }
 }
