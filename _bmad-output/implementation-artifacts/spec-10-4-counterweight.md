@@ -134,3 +134,14 @@ deferred: []
 - **Format & Syntax Checks:** `git diff --check` — 0 errors
 - **Pre-Commit Verification:** `.githooks/pre-commit` — 127 checks clean, Anvil 80 files clean
 - **Verdict:** PASS
+
+---
+
+## Publication Receipt — 31 October 2026
+
+- **Committed SHA:** `9fe8676fc21604a0f14502d63baf49a6b58d4811`
+- **Published Ref:** `origin/main`
+- **Remote HEAD Verified:** `9fe8676fc21604a0f14502d63baf49a6b58d4811`
+- **Pre-commit Gate:** Static gate clean (127 passed, 0 skipped), Anvil passed (80 snapshots, 0 warnings/errors), build 0 warnings/0 errors.
+- **Slice Status:** `done` (Story 10.4 / CAT-067 qualified; Counterweight & Multi-Body Pendulum Lifting verified for small-angle harmonic period $T = 2\pi\sqrt{L_{\text{eff}}/g}$, square-root length scaling, mass invariance across boundary masses [0.25 kg, 8.0 kg], monotonic damping without energy growth, 3D non-planar precession, steep-angle slack-release shock transitions, multi-body pulley lifting and static equilibrium, floor contact tension relaxation, open route free fall, wiring direction invariance, exact Run/Reset restoration $\le 1\,\mu\text{m}, \le 1\,\mu\text{rad}$, and Save/Load persistence roundtrips).
+
