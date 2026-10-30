@@ -330,7 +330,7 @@ development_status:
   # rope domain and the Weight's Tie socket and Load role (provisional)
   10-2b-rope-tie-load: done # RopeAnchor/straight rope/cut delivered; local 5,110/0/0, Auto review pass; browser deferred
   # Pulley (provisional)
-  10-2c-pulley-wheel: backlog
+  10-2c-pulley-wheel: in-progress # CAT-053 Pulley wheel and routed rope
   # 36 (deletion)
   9a-c-lamp-detector-conversion: done # scoped native/publication Pass2065d3; browser pending
   # merged into 9a-c-lamp-detector (21 Oct 2026)

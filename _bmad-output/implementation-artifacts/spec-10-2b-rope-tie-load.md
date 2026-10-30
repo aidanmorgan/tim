@@ -309,3 +309,9 @@ Evidence identity: baseline published main `71135ecd0109b8d5eba0a9f4b944e2ffbefc
 
 Remaining qualification: normal hooks and exact-SHA approval precede push; CI/artifacts/deployment remain unverified. Browser/E2E remains explicitly deferred until every named catalogue element passes native proof; performance/device/retention qualification retains its named later gates.
 
+## Publication receipt — 30 October 2026
+
+Published and independently verified on remote main: `d2862ebea41b4b9036ba6d7367383ec62d93f811`. Full local verification passed 5,110 tests; unchanged normal commit hooks passed 127 tests; both had zero failures/skips. Compiler builds and Anvil reported zero warnings/errors. Exact committed SHA approved, verified the clean tree and reviewed/tested candidate match, then independently confirmed remote main after the successful push. Terminal publication Pass under the owner's local-authority policy; CI/artifact/deployment and browser qualification remain unverified.
+
+Original full-test/compiler/hook evidence remains in the `story-10-2b-rope-tie-load` worktree at `.tmp/rope-coordinator-round4/` (`full-local.log`, five `results/*.trx`, compiler logs and normal-hook commit log). This receipt is appended by the following slice; the approved commit is not amended.
+
