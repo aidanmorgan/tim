@@ -326,11 +326,11 @@ development_status:
   # 35 (element)
   10-2a-weight: done # scoped native/publication Passb88ca4; browser pending (cat-067, engine-cylinder)
   # split into 10-2a, 10-2b and 10-2c (24 Oct 2026; one new element per story; 10-2b/10-2c provisional)
-  10-2-pulley-wheel-tensile-rope-dynamics: in-progress
+  10-2-pulley-wheel-tensile-rope-dynamics: done # All children 10.2a, 10.2b, 10.2c delivered & published
   # rope domain and the Weight's Tie socket and Load role (provisional)
   10-2b-rope-tie-load: done # RopeAnchor/straight rope/cut delivered; local 5,110/0/0, Auto review pass; browser deferred
   # Pulley (provisional)
-  10-2c-pulley-wheel: in-progress # CAT-053 Pulley wheel and routed rope
+  10-2c-pulley-wheel: done # CAT-053 Pulley wheel and routed rope delivered & published; browser deferred
   # 36 (deletion)
   9a-c-lamp-detector-conversion: done # scoped native/publication Pass2065d3; browser pending
   # merged into 9a-c-lamp-detector (21 Oct 2026)

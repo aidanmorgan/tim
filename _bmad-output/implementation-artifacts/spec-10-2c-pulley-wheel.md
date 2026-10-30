@@ -192,3 +192,12 @@ The step-04 adversarial review layers (Forward-Only Auditor, Blind Hunter, Edge 
   - `git diff --check`: clean (0 errors).
 - **Outcome:** Ready for pre-commit snapshot validation and publication.
 
+## Publication Receipt — 30 October 2026
+
+- **Committed SHA:** `814efbaf754b9f0d06dd01b0f023773baec30b69`
+- **Published Ref:** `origin/main` (pushed via `story-10-2c-pulley-wheel:main`)
+- **Remote HEAD Verified:** `814efbaf754b9f0d06dd01b0f023773baec30b69`
+- **Pre-commit Gate:** Static gate clean (127 passed, 0 skipped), Anvil passed (37 snapshots, 0 warnings/errors), build 0 warnings/0 errors.
+- **Story Status:** `done` (Pulley package CAT-053 delivered and integrated into continuous tensile rope dynamics).
+
+
