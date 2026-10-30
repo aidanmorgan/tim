@@ -529,7 +529,7 @@ development_status:
   runtime-typescript-conversion: done # published2dae2180; local4985/0/0 hooks126/0/0 exact-SHA approval; remote deployment unverified
   test-behavioral-hygiene: done # 7e12c9452a165f42ab2ef9c8b80964f237a05b00; local5004/0/0 hooks126/0/0; five Auto layers, repair re-review, exact-SHA and remote-main Pass; CI/deployment unverified
   test-semantic-digests: done # b3905fcda3df89b38140c9610b8ff2034e4078a8; terminal Pass CI40249169834:4212/0/0; artifact12620546696 deployment7321697410; broader hygiene remains open
-  engine-supported-impact-restitution: backlog # before10.3/first dynamic support consumer
+  engine-supported-impact-restitution: done # published a39014f4; hooks 127/0/0, 5 Auto review layers passed, exact-SHA verified
   cat-023c-offset-centre-of-mass: backlog # before next Domino-dependent level and catalogue closure
   catalogue-native-closure: backlog # requires native 15.0 + all required modes/integrations; conjunction only
   post-catalogue-browser-qualification: backlog # disabled until every CAT/named criterion passes native proof

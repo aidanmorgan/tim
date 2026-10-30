@@ -112,4 +112,11 @@ The unified LCP system $K \lambda \ge b$ is solved by `SolveActiveSet`, exactly 
 **Commands:**
 - `dotnet build CuriousContraptions.slnx -c Debug` -- expected: 0 warnings, 0 errors
 - `dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-build --no-restore --filter "FullyQualifiedName~WorkshopPhysicsLawRestitutionTests"` -- expected: all pass, 0 failed, 0 skipped
-- `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` -- expected: all pass, 0 failed, 0 skipped
+## Publication Receipt — 30 October 2026
+
+- **Committed SHA:** `a39014f44c4fae8fa655ecdfa0b38cf702d7eb3d`
+- **Published Ref:** `origin/main` (pushed via `slice-supported-impact-restitution:main`)
+- **Remote HEAD Verified:** `a39014f44c4fae8fa655ecdfa0b38cf702d7eb3d`
+- **Pre-commit Gate:** Static gate clean (127 passed, 0 skipped), Anvil passed (4 snapshots, 0 warnings/errors), build 0 warnings/0 errors.
+- **Slice Status:** `done` (`engine-supported-impact-restitution` delivered; supported impacts through resting dynamic bodies transfer restitution without yielding into support or gaining energy).
+
