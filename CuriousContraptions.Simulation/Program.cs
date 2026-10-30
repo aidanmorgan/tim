@@ -166,7 +166,7 @@ public static partial class Program
                 WorkshopCommandKind.Reset => ScheduleTransition.Reset, _ => ScheduleTransition.Configure
             };
             if (kind == WorkshopCommandKind.Pause) _loopOwner++;
-            if (kind is WorkshopCommandKind.Pause or WorkshopCommandKind.ConfigureElectrical)
+            if (kind is WorkshopCommandKind.Pause or WorkshopCommandKind.ConfigureElectrical or WorkshopCommandKind.CutRope)
                 while (Simulation.HasPendingGpuOperation) await Task.Delay(1);
             if (kind == WorkshopCommandKind.Reset) Trace.End(TraceEnd.Reset);
             if (kind == WorkshopCommandKind.Dispose)

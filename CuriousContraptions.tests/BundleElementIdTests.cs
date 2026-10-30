@@ -87,7 +87,7 @@ public sealed class BundleElementIdTests
     [Fact]
     public void EveryLoadedElementIsKnownToTheWorkerDecode()
     {
-        Assert.Equal(29, SaveFixture.Elements.Count);
+        Assert.Equal(30, SaveFixture.Elements.Count);
         foreach (var element in SaveFixture.Elements)
         {
             var builder = new FlatBufferBuilder(256);

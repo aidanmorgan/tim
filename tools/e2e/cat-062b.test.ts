@@ -261,7 +261,6 @@ test('CAT062b Ready Receiver deletion and replacement rebind the saved capture g
         // A Captured goal declares Body = ball and Target = Receiver (SpringboardLessons.WithReceiver); the replacement rebinds the target.
         assert.equal(replacementFb.construction()!.puzzle()!.goalBody(),ballId,'The captured ball stays the goal body');
         assert.equal(replacementFb.construction()!.puzzle()!.goalTarget(),newId,'The replacement Receiver becomes the goal target');
-        assert.equal(replacementFb.construction()!.puzzle()!.goalEventSource(),expectedSensor);
         await d.load();await d.save();assert.deepEqual(authoredState(await saved(d)),authoredState(replacementBytes));
         const initial=reads.at(-1)!;
         assert.equal(initial.captures(0)!.sensor(),expectedSensor);

@@ -15,9 +15,9 @@ internal sealed class WorkshopIntegrationClient(WorkshopIntegrationHarness harne
     public WorkshopTransportState TransportState => WorkshopTransportState.Ready;
 
     public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
     {
-        var command = harness.Command(kind, construction, target, settings, electrical);
+        var command = harness.Command(kind, construction, target, settings, electrical, cut);
         var order = _cursor.ReadOrder;
         var response = await harness.Dispatch(command);
         var prepared = _cursor.PrepareAcknowledgement(command, response, order, false);

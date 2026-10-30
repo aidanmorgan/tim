@@ -71,7 +71,7 @@ public sealed class CompiledSceneBoundaryTests
         var bytes = builder.SizedByteArray();
         var buffer = new ByteBuffer(bytes);
         var root = new Table(4 + buffer.GetInt(4), buffer);
-        var table = Child(root, 10);
+        var table = Child(root, 11);
         var vtable = table.bb_pos - buffer.GetInt(table.bb_pos);
         Assert.Equal(padding > 0, vtable > short.MaxValue);
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(bytes).Scene!;
@@ -172,8 +172,8 @@ public sealed class CompiledSceneBoundaryTests
         var response = WorkshopWireFlatBuffers.EncodeResponse(world.Latest with { Scene = scene });
         Assert.Equal(.25f, WorkshopWireFlatBuffers.DecodeCommand(request).Scene!.Presentation[trackIndex].Declaration.From);
         Assert.Equal(.25f, WorkshopWireFlatBuffers.DecodeResponse(response).Scene!.Presentation[trackIndex].Declaration.From);
-        Poison(request, 10);
-        Poison(response, 26);
+        Poison(request, 11);
+        Poison(response, 27);
         Assert.Equal(WireFaultReason.OutOfRange,
             Assert.Throws<WireFaultException>(() => world.Router.Dispatch(request)).Reason);
         Assert.Equal(WireFaultReason.OutOfRange,
@@ -190,7 +190,7 @@ public sealed class CompiledSceneBoundaryTests
         {
             var buffer = new ByteBuffer(bytes);
             var root = new Table(4 + buffer.GetInt(4), buffer);
-            var binding = Child(Rows(Child(root, sceneField), 28)[trackIndex], 3);
+            var binding = Child(Rows(Child(root, sceneField), 29)[trackIndex], 3);
             switch (defect)
             {
                 case PresentationDefect.InvalidElectricalSocket:
@@ -213,7 +213,7 @@ public sealed class CompiledSceneBoundaryTests
     {
         var buffer = new ByteBuffer(bytes);
         var root = new Table(4 + buffer.GetInt(4), buffer);
-        var scene = Child(root, 10); // WorkshopCommand.scene
+        var scene = Child(root, 11); // WorkshopCommand.scene
         var bodies = Rows(scene, 6); // CompiledSceneRecord.bodies
         var body = bodies.Single(row => ReadUInt(row, 1) == (uint)RigidMotionKind.Dynamic);
         switch (defect)
@@ -225,8 +225,8 @@ public sealed class CompiledSceneBoundaryTests
             case Defect.ForeignColliderBody:
                 BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(Rows(scene, 7)[0], 1)), ulong.MaxValue); break;
             case Defect.ForeignTrigger:
-                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(Rows(scene, 21)[0], 3)), ulong.MaxValue); break;
-            case Defect.WrongSubsteps: WriteUInt(scene, 24, 2); break;
+                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(Rows(scene, 22)[0], 3)), ulong.MaxValue); break;
+            case Defect.WrongSubsteps: WriteUInt(scene, 25, 2); break;
             default: throw new ArgumentOutOfRangeException(nameof(defect));
         }
         void WriteUInt(Table table, int field, uint value) =>

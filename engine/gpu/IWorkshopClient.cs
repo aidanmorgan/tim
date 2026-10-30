@@ -22,7 +22,7 @@ internal interface IWorkshopClient : IAsyncDisposable
     WorkshopCommandIdentity? Pending { get; }
     WorkshopTransportState TransportState { get; }
     Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null);
+        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null);
     Task<WorkshopDelivery> CancelPending();
     bool TryRead(out WorkshopResponse response);
     bool TryPresent(ulong frame, out WorkshopPresentationSample sample);

@@ -10,5 +10,6 @@ public enum SimulationDomain : uint
     Electrical = 1 << 1, // 2
     Signal = 1 << 2,     // 4
     Fluid = 1 << 3,      // 8
-    Audio = 1 << 4       // 16
+    Audio = 1 << 4,      // 16
+    Rope = 1 << 5        // 32
 }

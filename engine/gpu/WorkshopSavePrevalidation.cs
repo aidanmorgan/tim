@@ -117,7 +117,9 @@ internal static class WorkshopSavePrevalidation
         {
             var link = record.Connections(i)!.Value;
             var connection = new WorkshopConnection(new(link.Source), (WorkshopSocket)link.FromSocket, new(link.Target),
-                (WorkshopSocket)link.ToSocket, (WorkshopConnectionDomain)link.Domain);
+                (WorkshopSocket)link.ToSocket, (WorkshopConnectionDomain)link.Domain, link.HasRopeLength ? link.RopeLength : null);
+            if (!link.HasRopeLength && link.RopeLength != 0f)
+                throw Refuse(WorkshopSaveRejection.OutOfRange, "Unowned saved rope length.");
             if (!Enum.IsDefined(connection.Domain) || !Enum.IsDefined(connection.Output) || !Enum.IsDefined(connection.Input))
                 throw Refuse(WorkshopSaveRejection.UndefinedEnum, "A saved connection names an undefined domain or socket.");
             if (!parts.ContainsKey(connection.Source) || !parts.ContainsKey(connection.Target))

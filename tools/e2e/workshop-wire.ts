@@ -32,7 +32,8 @@ export enum CommandKind {
   Step = 9,
   Save = 10,
   ConfigureElectrical = 11,
-  ObserveMemory = 12
+  ObserveMemory = 12,
+  CutRope = 13
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
@@ -1216,13 +1217,23 @@ electricalLogicLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-scene(obj?:CompiledSceneRecord):CompiledSceneRecord|null {
+ropes(index: number, obj?:RopeSpanReadRecord):RopeSpanReadRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 56);
+  return offset ? (obj || new RopeSpanReadRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+ropesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 56);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+scene(obj?:CompiledSceneRecord):CompiledSceneRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 58);
   return offset ? (obj || new CompiledSceneRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(27);
+  builder.startObject(28);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1393,8 +1404,24 @@ static startElectricalLogicVector(builder:flatbuffers.Builder, numElems:number) 
   builder.startVector(16, numElems, 8);
 }
 
+static addRopes(builder:flatbuffers.Builder, ropesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(26, ropesOffset, 0);
+}
+
+static createRopesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startRopesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static addScene(builder:flatbuffers.Builder, sceneOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(26, sceneOffset, 0);
+  builder.addFieldOffset(27, sceneOffset, 0);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -1490,18 +1517,23 @@ electrical(obj?:ElectricalControl):ElectricalControl|null {
   return offset ? (obj || new ElectricalControl()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
-target(obj?:CommandIdentityRecord):CommandIdentityRecord|null {
+cutSpan():bigint|null {
   const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : null;
+}
+
+target(obj?:CommandIdentityRecord):CommandIdentityRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? (obj || new CommandIdentityRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 scene(obj?:CompiledSceneRecord):CompiledSceneRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? (obj || new CompiledSceneRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startWorkshopCommand(builder:flatbuffers.Builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1552,12 +1584,16 @@ static addElectrical(builder:flatbuffers.Builder, electricalOffset:flatbuffers.O
   builder.addFieldStruct(8, electricalOffset, 0);
 }
 
+static addCutSpan(builder:flatbuffers.Builder, cutSpan:bigint) {
+  builder.addFieldInt64(9, cutSpan, null);
+}
+
 static addTarget(builder:flatbuffers.Builder, targetOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(9, targetOffset, 0);
+  builder.addFieldStruct(10, targetOffset, 0);
 }
 
 static addScene(builder:flatbuffers.Builder, sceneOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(10, sceneOffset, 0);
+  builder.addFieldOffset(11, sceneOffset, 0);
 }
 
 static endWorkshopCommand(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -6666,6 +6702,263 @@ static endCompiledPresentationRecord(builder:flatbuffers.Builder):flatbuffers.Of
 
 
 
+export class RopeSpanReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):RopeSpanReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsRopeSpanReadRecord(bb:flatbuffers.ByteBuffer, obj?:RopeSpanReadRecord):RopeSpanReadRecord {
+  return (obj || new RopeSpanReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsRopeSpanReadRecord(bb:flatbuffers.ByteBuffer, obj?:RopeSpanReadRecord):RopeSpanReadRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new RopeSpanReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+route():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+order():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+bodyA():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+bodyB():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+attachmentA(obj?:Vec3f):Vec3f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+attachmentB(obj?:Vec3f):Vec3f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+maximumLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+currentLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+integrity():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+state():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+cutSpan():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+static startRopeSpanReadRecord(builder:flatbuffers.Builder) {
+  builder.startObject(12);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addRoute(builder:flatbuffers.Builder, route:bigint) {
+  builder.addFieldInt64(1, route, BigInt('0'));
+}
+
+static addOrder(builder:flatbuffers.Builder, order:number) {
+  builder.addFieldInt32(2, order, 0);
+}
+
+static addBodyA(builder:flatbuffers.Builder, bodyA:bigint) {
+  builder.addFieldInt64(3, bodyA, BigInt('0'));
+}
+
+static addBodyB(builder:flatbuffers.Builder, bodyB:bigint) {
+  builder.addFieldInt64(4, bodyB, BigInt('0'));
+}
+
+static addAttachmentA(builder:flatbuffers.Builder, attachmentAOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(5, attachmentAOffset, 0);
+}
+
+static addAttachmentB(builder:flatbuffers.Builder, attachmentBOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(6, attachmentBOffset, 0);
+}
+
+static addMaximumLength(builder:flatbuffers.Builder, maximumLength:number) {
+  builder.addFieldFloat32(7, maximumLength, 0.0);
+}
+
+static addCurrentLength(builder:flatbuffers.Builder, currentLength:number) {
+  builder.addFieldFloat32(8, currentLength, 0.0);
+}
+
+static addIntegrity(builder:flatbuffers.Builder, integrity:number) {
+  builder.addFieldInt32(9, integrity, 0);
+}
+
+static addState(builder:flatbuffers.Builder, state:number) {
+  builder.addFieldInt32(10, state, 0);
+}
+
+static addCutSpan(builder:flatbuffers.Builder, cutSpan:bigint) {
+  builder.addFieldInt64(11, cutSpan, BigInt('0'));
+}
+
+static endRopeSpanReadRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
+export class TensileSpanRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):TensileSpanRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsTensileSpanRecord(bb:flatbuffers.ByteBuffer, obj?:TensileSpanRecord):TensileSpanRecord {
+  return (obj || new TensileSpanRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsTensileSpanRecord(bb:flatbuffers.ByteBuffer, obj?:TensileSpanRecord):TensileSpanRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new TensileSpanRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+route():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+order():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+bodyA():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+localA(obj?:Vec3f):Vec3f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+bodyB():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+localB(obj?:Vec3f):Vec3f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+maximumLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+complete():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
+static startTensileSpanRecord(builder:flatbuffers.Builder) {
+  builder.startObject(9);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addRoute(builder:flatbuffers.Builder, route:bigint) {
+  builder.addFieldInt64(1, route, BigInt('0'));
+}
+
+static addOrder(builder:flatbuffers.Builder, order:number) {
+  builder.addFieldInt32(2, order, 0);
+}
+
+static addBodyA(builder:flatbuffers.Builder, bodyA:bigint) {
+  builder.addFieldInt64(3, bodyA, BigInt('0'));
+}
+
+static addLocalA(builder:flatbuffers.Builder, localAOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(4, localAOffset, 0);
+}
+
+static addBodyB(builder:flatbuffers.Builder, bodyB:bigint) {
+  builder.addFieldInt64(5, bodyB, BigInt('0'));
+}
+
+static addLocalB(builder:flatbuffers.Builder, localBOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(6, localBOffset, 0);
+}
+
+static addMaximumLength(builder:flatbuffers.Builder, maximumLength:number) {
+  builder.addFieldFloat32(7, maximumLength, 0.0);
+}
+
+static addComplete(builder:flatbuffers.Builder, complete:boolean) {
+  builder.addFieldInt8(8, +complete, +false);
+}
+
+static endTensileSpanRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
+
+
 export class CompiledSceneRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -6824,123 +7117,133 @@ prismaticsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-supplyNodes(index: number, obj?:CapabilitySupplyNodeDeclarationRecord):CapabilitySupplyNodeDeclarationRecord|null {
+tensileSpans(index: number, obj?:TensileSpanRecord):TensileSpanRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? (obj || new TensileSpanRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+tensileSpansLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+supplyNodes(index: number, obj?:CapabilitySupplyNodeDeclarationRecord):CapabilitySupplyNodeDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 40);
   return offset ? (obj || new CapabilitySupplyNodeDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 supplyNodesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 38);
+  const offset = this.bb!.__offset(this.bb_pos, 40);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 supplyEdges(index: number, obj?:CapabilitySupplyEdgeRecord):CapabilitySupplyEdgeRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 40);
+  const offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? (obj || new CapabilitySupplyEdgeRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 supplyEdgesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 40);
+  const offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 contactLoadSensors(index: number, obj?:CapabilityContactLoadSensorDeclarationRecord):CapabilityContactLoadSensorDeclarationRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
+  const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? (obj || new CapabilityContactLoadSensorDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 contactLoadSensorsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
+  const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 prismaticDrives(index: number, obj?:CapabilityPrismaticDriveDeclarationRecord):CapabilityPrismaticDriveDeclarationRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 44);
+  const offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? (obj || new CapabilityPrismaticDriveDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 prismaticDrivesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 44);
+  const offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 activationNodes(index: number, obj?:CapabilityActivationNodeDeclarationRecord):CapabilityActivationNodeDeclarationRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+  const offset = this.bb!.__offset(this.bb_pos, 48);
   return offset ? (obj || new CapabilityActivationNodeDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 activationNodesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+  const offset = this.bb!.__offset(this.bb_pos, 48);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 activationEdges(index: number, obj?:CapabilityActivationEdgeRecord):CapabilityActivationEdgeRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 48);
+  const offset = this.bb!.__offset(this.bb_pos, 50);
   return offset ? (obj || new CapabilityActivationEdgeRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 activationEdgesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 48);
+  const offset = this.bb!.__offset(this.bb_pos, 50);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 passageSensors(index: number, obj?:CapabilityPassageSensorDeclarationRecord):CapabilityPassageSensorDeclarationRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 50);
+  const offset = this.bb!.__offset(this.bb_pos, 52);
   return offset ? (obj || new CapabilityPassageSensorDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 passageSensorsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 50);
+  const offset = this.bb!.__offset(this.bb_pos, 52);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 activationSubsteps():number {
-  const offset = this.bb!.__offset(this.bb_pos, 52);
+  const offset = this.bb!.__offset(this.bb_pos, 54);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 contactOwners(index: number):bigint|null {
-  const offset = this.bb!.__offset(this.bb_pos, 54);
+  const offset = this.bb!.__offset(this.bb_pos, 56);
   return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
 }
 
 contactOwnersLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 54);
+  const offset = this.bb!.__offset(this.bb_pos, 56);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 owners(index: number):bigint|null {
-  const offset = this.bb!.__offset(this.bb_pos, 56);
+  const offset = this.bb!.__offset(this.bb_pos, 58);
   return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
 }
 
 ownersLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 56);
+  const offset = this.bb!.__offset(this.bb_pos, 58);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 editableSources(index: number):bigint|null {
-  const offset = this.bb!.__offset(this.bb_pos, 58);
+  const offset = this.bb!.__offset(this.bb_pos, 60);
   return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
 }
 
 editableSourcesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 58);
+  const offset = this.bb!.__offset(this.bb_pos, 60);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 presentation(index: number, obj?:CompiledPresentationRecord):CompiledPresentationRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 60);
+  const offset = this.bb!.__offset(this.bb_pos, 62);
   return offset ? (obj || new CompiledPresentationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 presentationLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 60);
+  const offset = this.bb!.__offset(this.bb_pos, 62);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(29);
+  builder.startObject(30);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -7143,8 +7446,24 @@ static startPrismaticsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
+static addTensileSpans(builder:flatbuffers.Builder, tensileSpansOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(17, tensileSpansOffset, 0);
+}
+
+static createTensileSpansVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startTensileSpansVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static addSupplyNodes(builder:flatbuffers.Builder, supplyNodesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(17, supplyNodesOffset, 0);
+  builder.addFieldOffset(18, supplyNodesOffset, 0);
 }
 
 static createSupplyNodesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -7160,7 +7479,7 @@ static startSupplyNodesVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addSupplyEdges(builder:flatbuffers.Builder, supplyEdgesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(18, supplyEdgesOffset, 0);
+  builder.addFieldOffset(19, supplyEdgesOffset, 0);
 }
 
 static createSupplyEdgesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -7176,7 +7495,7 @@ static startSupplyEdgesVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addContactLoadSensors(builder:flatbuffers.Builder, contactLoadSensorsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(19, contactLoadSensorsOffset, 0);
+  builder.addFieldOffset(20, contactLoadSensorsOffset, 0);
 }
 
 static createContactLoadSensorsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -7192,7 +7511,7 @@ static startContactLoadSensorsVector(builder:flatbuffers.Builder, numElems:numbe
 }
 
 static addPrismaticDrives(builder:flatbuffers.Builder, prismaticDrivesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(20, prismaticDrivesOffset, 0);
+  builder.addFieldOffset(21, prismaticDrivesOffset, 0);
 }
 
 static createPrismaticDrivesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -7208,7 +7527,7 @@ static startPrismaticDrivesVector(builder:flatbuffers.Builder, numElems:number) 
 }
 
 static addActivationNodes(builder:flatbuffers.Builder, activationNodesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(21, activationNodesOffset, 0);
+  builder.addFieldOffset(22, activationNodesOffset, 0);
 }
 
 static createActivationNodesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -7224,7 +7543,7 @@ static startActivationNodesVector(builder:flatbuffers.Builder, numElems:number) 
 }
 
 static addActivationEdges(builder:flatbuffers.Builder, activationEdgesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(22, activationEdgesOffset, 0);
+  builder.addFieldOffset(23, activationEdgesOffset, 0);
 }
 
 static createActivationEdgesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -7240,7 +7559,7 @@ static startActivationEdgesVector(builder:flatbuffers.Builder, numElems:number) 
 }
 
 static addPassageSensors(builder:flatbuffers.Builder, passageSensorsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(23, passageSensorsOffset, 0);
+  builder.addFieldOffset(24, passageSensorsOffset, 0);
 }
 
 static createPassageSensorsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -7256,11 +7575,11 @@ static startPassageSensorsVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addActivationSubsteps(builder:flatbuffers.Builder, activationSubsteps:number) {
-  builder.addFieldInt32(24, activationSubsteps, 0);
+  builder.addFieldInt32(25, activationSubsteps, 0);
 }
 
 static addContactOwners(builder:flatbuffers.Builder, contactOwnersOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(25, contactOwnersOffset, 0);
+  builder.addFieldOffset(26, contactOwnersOffset, 0);
 }
 
 static createContactOwnersVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
@@ -7276,7 +7595,7 @@ static startContactOwnersVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addOwners(builder:flatbuffers.Builder, ownersOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(26, ownersOffset, 0);
+  builder.addFieldOffset(27, ownersOffset, 0);
 }
 
 static createOwnersVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
@@ -7292,7 +7611,7 @@ static startOwnersVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addEditableSources(builder:flatbuffers.Builder, editableSourcesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(27, editableSourcesOffset, 0);
+  builder.addFieldOffset(28, editableSourcesOffset, 0);
 }
 
 static createEditableSourcesVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
@@ -7308,7 +7627,7 @@ static startEditableSourcesVector(builder:flatbuffers.Builder, numElems:number) 
 }
 
 static addPresentation(builder:flatbuffers.Builder, presentationOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(28, presentationOffset, 0);
+  builder.addFieldOffset(29, presentationOffset, 0);
 }
 
 static createPresentationVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -7416,13 +7735,24 @@ toSocket():number {
   return this.bb!.readUint32(this.bb_pos + 24);
 }
 
-static sizeOf():number {
-  return 32;
+hasRopeLength():boolean {
+  return !!this.bb!.readInt8(this.bb_pos + 28);
 }
 
-static createConnectionRecord(builder:flatbuffers.Builder, source: bigint, target: bigint, domain: number, from_socket: number, to_socket: number):flatbuffers.Offset {
-  builder.prep(8, 32);
+ropeLength():number {
+  return this.bb!.readFloat32(this.bb_pos + 32);
+}
+
+static sizeOf():number {
+  return 40;
+}
+
+static createConnectionRecord(builder:flatbuffers.Builder, source: bigint, target: bigint, domain: number, from_socket: number, to_socket: number, has_rope_length: boolean, rope_length: number):flatbuffers.Offset {
+  builder.prep(8, 40);
   builder.pad(4);
+  builder.writeFloat32(rope_length);
+  builder.pad(3);
+  builder.writeInt8(Number(Boolean(has_rope_length)));
   builder.writeInt32(to_socket);
   builder.writeInt32(from_socket);
   builder.writeInt32(domain);
@@ -7889,7 +8219,7 @@ instancesLength():number {
 
 connections(index: number, obj?:ConnectionRecord):ConnectionRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? (obj || new ConnectionRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+  return offset ? (obj || new ConnectionRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
 }
 
 connectionsLength():number {
@@ -7934,7 +8264,7 @@ static addConnections(builder:flatbuffers.Builder, connectionsOffset:flatbuffers
 }
 
 static startConnectionsVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(32, numElems, 8);
+  builder.startVector(40, numElems, 8);
 }
 
 static endConstructionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -8101,6 +8431,7 @@ export function dumpAuthored(saved: SavedConstruction): object {
             domain: conn.domain(),
             fromSocket: conn.fromSocket(),
             toSocket: conn.toSocket(),
+            ropeLength: conn.hasRopeLength() ? conn.ropeLength() : null,
         });
     }
     const p = cr.puzzle();
@@ -8113,7 +8444,6 @@ export function dumpAuthored(saved: SavedConstruction): object {
         goalKind: p.goalKind(),
         goalBody: String(p.goalBody()),
         goalTarget: String(p.goalTarget()),
-        goalEventSource: String(p.goalEventSource()),
         goalDelay: p.goalDelay(),
     } : null;
 

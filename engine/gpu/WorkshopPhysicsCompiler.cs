@@ -212,10 +212,28 @@ public static class WorkshopPhysicsCompiler
             return (centre, Quaternion.Normalize(bodyRotation * localRotation));
         }
 
+        var routes = RopeTopology.Compile(construction.Connections, endpoint =>
+            DeclaredPorts.Current.Of(construction.Instances.Single(p => p.Id == endpoint.Body).PartId).ToArray()
+                .Single(port => port.Socket == endpoint.Socket).AttachmentRole);
+        var tensile = new List<TensileSpanDeclaration>();
+        for (var routeIndex = 0; routeIndex < routes.Length; routeIndex++)
+        {
+            var route = routes[routeIndex];
+            for (var order = 0; order < route.Spans.Length; order++)
+            {
+                var a = route.Attachments[order]; var b = route.Attachments[order + 1];
+                var instanceA = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == a.Body);
+                var instanceB = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == b.Body);
+                tensile.Add(new(new((ulong)tensile.Count + 1), new((ulong)routeIndex + 1), (uint)order,
+                    a.Body, DeclaredPorts.Current.LocalPosition(instanceA, a.Socket),
+                    b.Body, DeclaredPorts.Current.LocalPosition(instanceB, b.Socket),
+                    route.Spans[order].RopeLength!.Value, route.Complete));
+            }
+        }
         return new(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(identities[link.Source].Source, identities[link.Target].Work)).ToArray(), prismatics.ToArray(),
-            supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray());
+            supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray());
     }
     /// <summary>The finite electrical store a declared Source compiles for one owner, from its own store parameters as f32: the
     /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>

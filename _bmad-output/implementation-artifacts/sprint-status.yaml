@@ -328,7 +328,7 @@ development_status:
   # split into 10-2a, 10-2b and 10-2c (24 Oct 2026; one new element per story; 10-2b/10-2c provisional)
   10-2-pulley-wheel-tensile-rope-dynamics: in-progress
   # rope domain and the Weight's Tie socket and Load role (provisional)
-  10-2b-rope-tie-load: backlog
+  10-2b-rope-tie-load: done # RopeAnchor/straight rope/cut delivered; local 5,110/0/0, Auto review pass; browser deferred
   # Pulley (provisional)
   10-2c-pulley-wheel: backlog
   # 36 (deletion)
@@ -396,7 +396,7 @@ development_status:
   # 53 (element)
   12-2-electric-fan-aerodynamic-airflow-jet: backlog
   # 54 (deletion): final empty-list isolation gate; the last deletion story
-  9a-45-compile-time-isolation-gate: backlog
+  9a-45-compile-time-isolation-gate: done # published71135ecd; local5057/hooks127, independent approval; browser pending
   epic-9a-retrospective: optional
   # 55 (element)
   12-3-windmill-rotor-aerodynamic-capture-drive: backlog

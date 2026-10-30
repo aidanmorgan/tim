@@ -6,6 +6,8 @@ namespace CuriousContraptions.Tests;
 /// The behaviour guards (period, pause, reset, supply, presentation, save/load) are <see cref="ClockGuardTests"/>, written on the record
 /// path and unchanged; these facts cover what only the declared path has: the compiled node's exact identity, the declared parameter's
 /// refusals at both decode boundaries, and the refusal of every record-path save.</summary>
+// Historical command fixtures are obsolete authored envelopes and refuse structurally before instance fields.
+// Current compiled field boundaries are exercised by CompiledSceneBoundaryTests; save checks retain their field-level controls.
 public sealed class DeclaredOscillatorTests
 {
     private static readonly GpuBodyId Source = new(1), Owner = new(2);
@@ -158,7 +160,7 @@ public sealed class DeclaredOscillatorTests
         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
         Assert.False(string.IsNullOrWhiteSpace(SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes)).Message));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
-        Assert.Equal(WireFaultReason.OutOfRange, fault.Reason);
+        Assert.Equal(WireFaultReason.VerifierRejected, fault.Reason);
         Assert.False(string.IsNullOrWhiteSpace(fault.Message));
     }
 

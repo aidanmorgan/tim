@@ -163,7 +163,7 @@ public static class WorkshopAuthoringFlatBuffers
             for (var i = construction.Connections.Count - 1; i >= 0; i--)
             {
                 var link = construction.Connections[i];
-                ConnectionRecord.CreateConnectionRecord(builder, link.Source.Value, link.Target.Value, (uint)link.Domain, (uint)link.Output, (uint)link.Input);
+                ConnectionRecord.CreateConnectionRecord(builder, link.Source.Value, link.Target.Value, (uint)link.Domain, (uint)link.Output, (uint)link.Input, link.RopeLength.HasValue, link.RopeLength.GetValueOrDefault());
             }
             connectionsVector = builder.EndVector();
         }
@@ -258,7 +258,10 @@ public static class WorkshopAuthoringFlatBuffers
         for (var i = 0; i < links.Length; i++)
         {
             var conn = cr.Connections(i)!.Value;
-            links[i] = new(new(conn.Source), (WorkshopSocket)conn.FromSocket, new(conn.Target), (WorkshopSocket)conn.ToSocket, (WorkshopConnectionDomain)conn.Domain);
+            if (!conn.HasRopeLength && conn.RopeLength != 0f)
+                throw new WireFaultException(WireFaultReason.OutOfRange, "Unowned rope length.");
+            links[i] = new(new(conn.Source), (WorkshopSocket)conn.FromSocket, new(conn.Target), (WorkshopSocket)conn.ToSocket, (WorkshopConnectionDomain)conn.Domain,
+                conn.HasRopeLength ? conn.RopeLength : null);
         }
 
         return new WorkshopConstruction(new(cr.Revision), settings, new(instances), puzzle, new(links));

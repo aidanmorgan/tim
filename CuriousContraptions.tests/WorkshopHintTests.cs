@@ -396,7 +396,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
         public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
         {
             Assert.Equal(WorkshopCommandKind.Reset, kind);
             if (HoldReset) { _reset = new(); return _reset.Task; }

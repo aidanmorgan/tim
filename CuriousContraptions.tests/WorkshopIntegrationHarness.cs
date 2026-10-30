@@ -131,7 +131,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
     }
 
     public WorkshopCommand Command(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
     {
         var sequence = new CommandSequence(checked(_sequence + 1));
         WorkshopCompiledScene? scene = null;
@@ -150,7 +150,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         return new(sequence, kind, Latest.Read.Epoch.Value == 0 ? new(1) : Latest.Read.Epoch,
             Latest.Read.Revision, scene, target, Session: _host.Session,
             Cadence: _host.Schedule?.Revision ?? default, Projection: _host.Schedule?.World.Epoch ?? default,
-            Electrical: electrical);
+            Electrical: electrical, Cut: cut);
     }
 
     private readonly WorkshopClientCursor _cursor = new(new(101, 206));
@@ -171,12 +171,12 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         return response;
     }
     public Task<WorkshopResponse> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null) =>
-        Dispatch(Command(kind, construction, target, settings, electrical));
+        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null) =>
+        Dispatch(Command(kind, construction, target, settings, electrical, cut));
     public async Task<WorkshopCommandResult> Require(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+        WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
     {
-        var response = await Execute(kind, construction, settings: settings, electrical: electrical);
+        var response = await Execute(kind, construction, settings: settings, electrical: electrical, cut: cut);
         Assert.Equal(WorkshopCommandOutcome.Applied, response.Result.Outcome);
         return response.Result;
     }

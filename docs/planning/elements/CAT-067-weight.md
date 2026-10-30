@@ -42,7 +42,7 @@ None owned by the weight. It is a rope endpoint (role `Load`); the rope law and 
 
 - One socket `Tie`, domain `Rope`, bidirectional, at local (0, r + 0.08, 0) m (the eye above the body) — `parts/WeightPart.cs@a6c914e:L16-L21`; `engine/MachineData.cs@a6c914e:L100`. Role `Load`: one rope end (`engine/RopeNetwork.cs@a6c914e:L76-L77`).
 - Rope domain and `Tie` socket do not exist in `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`; Story 10.2b adds them.
-- **10.2a declares no port.** The Tie, the Rope domain and the `Load` role belong to 10.2b. With the base-centre origin the centre of mass is h(m) above the origin, so a Tie at the centre of mass (or at the eye, above 2h) needs a size binding on its anchor in 10.2b.
+- **10.2b candidate:** Tie/Rope/Bidirectional with Load role follows the actual eye centre: local Y = .5771 × (.136734 × mass + .453070), X/Z = 0. A typed linear parameter binding supplies measurement, compiler and art from one declaration. The base-centre origin and mass-dependent COM remain unchanged. Independent review/publication are pending; later pulley and comprehensive pendulum gates remain open.
 
 ### Sensors and activation
 

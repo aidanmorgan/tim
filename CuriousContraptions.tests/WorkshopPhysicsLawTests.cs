@@ -669,12 +669,15 @@ public sealed class WorkshopPhysicsLawTests
         "ElectricalSupply", "ElectricalEnable", "ElectricalSources", "ElectricalBindings", "ElectricalSourceOffset", "ElectricalBindingOffset",
         // Story 9A.44: the generic electrical-supply capability's named record fields (every supply source and storage route).
         "ElectricalSourceEnableOffset", "ElectricalSourceRemainingOffset", "ElectricalSourceMaximumPowerOffset", "ElectricalSourceDebitOffset",
-        "ElectricalBindingSourceOffset", "ElectricalBindingStorageOffset"];
+        "ElectricalBindingSourceOffset", "ElectricalBindingStorageOffset",
+        // Core route identity/integrity apply to any declared tensile route. Contact anchor is a geometric support point,
+        // not the RopeAnchor package: SupportDisplacement and AnchorDisplacement use only SimBody/collider geometry.
+        "RopeRouteId", "RopeIntegrity", "AnchorDisplacement", "anchor"];
 
     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token
     // (a future Springboard-specific name) is still found.
-    private const string GenericQualifiedNames = @"\b(?:PrismaticRowKind\.Spring|SoftConstraintCoefficients\.FromSpring|CaptureLatch\.Clear|CaptureLatchPhase\.Clear|retained\.Latch)\b";
+    private const string GenericQualifiedNames = @"\b(?:PrismaticRowKind\.Spring|SoftConstraintCoefficients\.FromSpring|CaptureLatch\.Clear|CaptureLatchPhase\.Clear|retained\.Latch|PhysicsMotionRead\.AnchorOrdinalOffset|PhysicsMotionRead\.AnchorPhaseOffset)\b";
 
     /// <summary>Murdoch-2 R2-F5: the scanned element names are the catalogue's, never a hand list. Every word of every element
     /// package Id in <c>elements/</c> and of every undelivered part (letters only, three or more), so a new element is scanned the
@@ -719,7 +722,8 @@ public sealed class WorkshopPhysicsLawTests
     }
 
     private static readonly string[] ShippedSolverFiles = ["WorkshopPhysicsEngine.cs", "WorkshopCollisionKernels.cs",
-        "WorkshopConstraintSolver.cs", "PrismaticConstraintSolver.cs", "WorkshopDynamicBvh.cs"];
+        "WorkshopConstraintSolver.cs", "PrismaticConstraintSolver.cs", "WorkshopDynamicBvh.cs",
+        "TensileConstraintSolver.cs", "ConstraintBodyImpulse.cs"];
 
     [Fact]
     public void TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations()
@@ -790,6 +794,16 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("electricalXorRow", true)]   // Exactly one gate (electrical_xor)
     [InlineData("xorRow", true)]             // "xor" clears the floor, so it is an element word of its own
     [InlineData("weightRow", true)]          // Weight (weight, 10.2a)
+    [InlineData("RopeRouteId", false)]
+    [InlineData("RopeIntegrity", false)]
+    [InlineData("AnchorDisplacement", false)]
+    [InlineData("anchor", false)]
+    [InlineData("PhysicsMotionRead.AnchorOrdinalOffset", false)]
+    [InlineData("PhysicsMotionRead.AnchorPhaseOffset", false)]
+    [InlineData("RopeAnchor", true)]
+    [InlineData("ropeAnchorForce", true)]
+    [InlineData("anchorBoost", true)]
+    [InlineData("ropeSpecificForce", true)]
     [InlineData("gravityLoad", false)]       // the prismatic drive's generic gravity term (renamed from "weight" in 10.2a)
     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);

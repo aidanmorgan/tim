@@ -601,6 +601,8 @@ Owner **S334**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S332**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected rope carries no anchored tension. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Current candidate:** 10.2b supplies the fixed Anchor/Tie outcome and straight-rope native proof; independent review/publication pending, browser qualification later. [Candidate evidence](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md).
+
 **Delivery slice:** `named-el-064` under canonical **S332**. [EL-064 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-064-metal-loop-anchor.md). Also retains [CAT-058 acceptance](../elements/CAT-058-rope_anchor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-064).
@@ -1869,6 +1871,8 @@ Owner **S306**. Individual named outcome, modes, proof and publication retained.
 ### element-205 · EL-205 · Rope. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Finite-length tension-only connector couples actual routed endpoints.
 
 Owner **S307**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Slack rope cannot push or pull until tension develops. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Current candidate:** 10.2b supplies straight tensile rope, slack/cut/lifecycle and native proof; independent review/publication pending. Finite-radius pulley routing remains 10.2c, comprehensive pendulum/mass-ratio qualification 10.4 and browser qualification post-catalogue. [Candidate evidence](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md).
 
 **Delivery slice:** `named-el-205` under canonical **S307**. [EL-205 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-205-rope.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 

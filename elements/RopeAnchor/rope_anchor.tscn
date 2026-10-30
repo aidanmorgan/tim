@@ -1,0 +1,39 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="Cream"]
+albedo_color = Color(1, 0.973, 0.914, 1)
+
+[sub_resource type="StandardMaterial3D" id="Gold"]
+albedo_color = Color(0.84, 0.61, 0.28, 1)
+
+[sub_resource type="BoxMesh" id="Mount"]
+material = SubResource("Cream")
+size = Vector3(0.55, 0.55, 0.16)
+
+[sub_resource type="TorusMesh" id="Eye"]
+material = SubResource("Gold")
+inner_radius = 0.1725
+outer_radius = 0.2275
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.55, 0.55, 0.16)
+
+[node name="rope_anchor" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Visual_Mount" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0, -0.12)
+mesh = SubResource("Mount")
+
+[node name="Visual_Eye" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0.18)
+mesh = SubResource("Eye")
+
+[node name="col_mount" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, -0.12)
+shape = SubResource("Shape")
+
+[node name="Loc_Port_Tie" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.18)

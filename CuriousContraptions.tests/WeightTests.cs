@@ -36,7 +36,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     // ---------------- declaration ----------------
 
     [Fact]
-    public void TheWeightIsAMassBoundDynamicCylinderWithNoPortAndNoPayloadRole()
+    public void TheWeightIsAMassBoundDynamicCylinderWithALoadTieAndNoPayloadRole()
     {
         var entry = DeclaredPhysics.Of(Weight);
         var mass = Assert.Single(entry.Metadata.Parameters);
@@ -48,8 +48,8 @@ public sealed class WeightTests(ITestOutputHelper output)
         Assert.Equal(CuriousContraptions.Abstractions.Mechanical.KinematicMode.Dynamic, entry.Mechanical.KinematicMode);
         Assert.Equal(4f, MassFixtures.Evaluate(entry.Mechanical.MassFrame, entry.Metadata.Parameters).Mass);
         Assert.Equal(CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder, entry.Colliders[0].ShapeKind);
-        Assert.Empty(entry.Ports);
-        Assert.Empty(DeclaredPorts.Current.Of(Weight).ToArray());
+        Assert.Equal(RopeAttachmentRole.Load, Assert.Single(entry.Ports).AttachmentRole);
+        Assert.Equal(WorkshopSocket.Tie, Assert.Single(DeclaredPorts.Current.Of(Weight).ToArray()).Socket);
         Assert.Empty(entry.Events);
         // A cylinder is never the payload (only a lone dynamic sphere is), so no capture, trigger or work store targets it.
         Assert.False(DeclaredPhysics.IsPayload(Weight));

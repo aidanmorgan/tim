@@ -59,7 +59,7 @@ function saved(options: SavedOptions = {}): Uint8Array {
     const connectionCount = options.connections ?? 1;
     ConstructionRecord.startConnectionsVector(builder, connectionCount);
     for (let i = connectionCount - 1; i >= 0; i--)
-        ConnectionRecord.createConnectionRecord(builder, BALL, RECEIVER, 1, 2, options.toSocket ?? 3);
+        ConnectionRecord.createConnectionRecord(builder, BALL, RECEIVER, 1, 2, options.toSocket ?? 3, false, 0);
     const connectionsVector = builder.endVector();
     const inventory = builder.createString('pipe');
     PuzzleRecord.startPuzzleRecord(builder);

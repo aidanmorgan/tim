@@ -13,14 +13,14 @@ namespace CuriousContraptions.Tests;
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class PartRegistryTests(NativeSceneFixture godot)
 {
-    /// <summary>The Free palette rows the player saw before the cutover (Story 9.4b baseline, minus the undelivered parts).</summary>
+    /// <summary>The current delivered Free palette rows in declared palette order.</summary>
     private static readonly PartId[] PaletteRows =
     [
         new PartId("ball"), new PartId("basket"), new PartId("switch"), new PartId("lamp"), new PartId("wall"), new PartId("delay"), new PartId("bumper"),
         new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"),
         new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"),
         new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"),
-        new("weight")
+        new("weight"), new("rope_anchor")
     ];
 
     private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);
@@ -37,7 +37,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     {
         _ = godot;
         var registry = Loaded();
-        Assert.Equal(29, registry.Definitions.Count);
+        Assert.Equal(PaletteRows.Length, registry.Definitions.Count);
         Assert.Equal(PaletteRows, registry.Free.Keys);
         Assert.All(registry.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         var entries = PartRegistry.Read(Bundle()).ToDictionary(entry => new PartId(entry.Metadata.Id));
@@ -128,7 +128,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         Assert.Contains(expected, error.Message, StringComparison.Ordinal);
         // Nothing is kept from a refused load: the registry still holds the last good bundle.
         Assert.Equal(PaletteRows, registry.Free.Keys);
-        Assert.Equal(29, registry.Definitions.Count);
+        Assert.Equal(PaletteRows.Length, registry.Definitions.Count);
     }
 
     [Fact]
@@ -258,7 +258,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         var source = File.ReadAllText(Path.Combine(Root, "ui", "WorkshopIcons.cs"));
         var ids = PartRegistry.Read(Bundle()).Select(entry => entry.Metadata.Id)
             .Concat(new PartId[] { new("tennis"), new("balloon") }.Select(part => part.Value)).ToArray();
-        Assert.Equal(31, ids.Length);
+        Assert.Equal(PaletteRows.Length + 2, ids.Length);
         foreach (var id in ids)
         {
             Assert.DoesNotContain($"\"{id}\"", source, StringComparison.Ordinal);

@@ -42,7 +42,7 @@ public static partial class WorkshopWireFlatBuffers
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
-        var fieldCount = identifier switch { CommandIdentifier => 11, ResponseIdentifier => 27, _ => 0 };
+        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 28, _ => 0 };
         if (fieldCount != 0)
         {
             var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
@@ -99,6 +99,7 @@ public static partial class WorkshopWireFlatBuffers
             (command.Kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && command.RevisionKind != ExpectedRevisionKind.Exact) ||
             command.Sequence.Value == 0 || hasScene != (command.Scene is not null) ||
             (command.Kind == WorkshopCommandKind.ConfigureElectrical) != command.Electrical.HasValue ||
+            (command.Kind == WorkshopCommandKind.CutRope) != command.Cut.HasValue || command.Cut is { Value: 0 } ||
             (command.Kind == WorkshopCommandKind.Initialize
                 ? command.Cadence.Value != 0 || command.Projection.Value != 0
                 : command.Cadence.Value == 0 || command.Projection.Value == 0) ||
@@ -119,6 +120,7 @@ public static partial class WorkshopWireFlatBuffers
         Wire.WorkshopCommand.AddSession(builder, session);
         Wire.WorkshopCommand.AddCadence(builder, command.Cadence.Value);
         Wire.WorkshopCommand.AddProjection(builder, command.Projection.Value);
+        if (command.Cut is { } cut) Wire.WorkshopCommand.AddCutSpan(builder, cut.Value);
         if (command.Electrical is { } electrical)
             Wire.WorkshopCommand.AddElectrical(builder, ElectricalControl.CreateElectricalControl(builder, electrical.Owner.Value, (byte)electrical.Enabled));
         if (command.Target is { } identity)
@@ -151,6 +153,7 @@ public static partial class WorkshopWireFlatBuffers
             (kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && revisionKind != ExpectedRevisionKind.Exact) ||
             hasScene != fb.Scene.HasValue ||
             (kind == WorkshopCommandKind.ConfigureElectrical) != fb.Electrical.HasValue ||
+            (kind == WorkshopCommandKind.CutRope) != fb.CutSpan.HasValue || fb.CutSpan == 0 ||
             (kind == WorkshopCommandKind.Cancel) != fb.Target.HasValue)
             throw new ArgumentException("Unsupported Workshop command shape.");
 
@@ -171,7 +174,7 @@ public static partial class WorkshopWireFlatBuffers
 
         var scene = fb.Scene is { } record ? DecodeCompiledScene(record) : null;
         return new WorkshopCommand(sequence, kind, new(fb.Epoch), new(fb.Revision), scene,
-            target, revisionKind, session, cadence, projection, electrical);
+            target, revisionKind, session, cadence, projection, electrical, fb.CutSpan is { } cut ? new RopeSpanId(cut) : null);
     }
 
     public static byte[] ReadIdentity(WorkshopResponse response)
@@ -204,6 +207,22 @@ public static partial class WorkshopWireFlatBuffers
         var read = response.Read;
         Offset<CompiledSceneRecord>? constructionOffset = response.Scene is { } construction
             ? EncodeCompiledScene(builder, construction) : null;
+        var ropeOffsets = new Offset<RopeSpanReadRecord>[read.Presentation.Ropes.Length];
+        for (var i = 0; i < ropeOffsets.Length; i++)
+        {
+            var rope = read.Presentation.Ropes[i];
+            RopeSpanReadRecord.StartRopeSpanReadRecord(builder);
+            RopeSpanReadRecord.AddId(builder, rope.Id.Value); RopeSpanReadRecord.AddRoute(builder, rope.Route.Value);
+            RopeSpanReadRecord.AddOrder(builder, rope.Order);
+            RopeSpanReadRecord.AddBodyA(builder, rope.BodyA.Value); RopeSpanReadRecord.AddBodyB(builder, rope.BodyB.Value);
+            RopeSpanReadRecord.AddAttachmentA(builder, Vec3f.CreateVec3f(builder, rope.AttachmentA.X, rope.AttachmentA.Y, rope.AttachmentA.Z));
+            RopeSpanReadRecord.AddAttachmentB(builder, Vec3f.CreateVec3f(builder, rope.AttachmentB.X, rope.AttachmentB.Y, rope.AttachmentB.Z));
+            RopeSpanReadRecord.AddMaximumLength(builder, rope.MaximumLength); RopeSpanReadRecord.AddCurrentLength(builder, rope.CurrentLength);
+            RopeSpanReadRecord.AddIntegrity(builder, (uint)rope.Integrity); RopeSpanReadRecord.AddState(builder, (uint)rope.State);
+            RopeSpanReadRecord.AddCutSpan(builder, rope.CutSpan.Value);
+            ropeOffsets[i] = RopeSpanReadRecord.EndRopeSpanReadRecord(builder);
+        }
+        var ropesVector = Wire.WorkshopResponse.CreateRopesVector(builder, ropeOffsets);
         VectorOffset? logicOffset = null;
         if (!read.Presentation.Logic.IsEmpty)
         {
@@ -340,6 +359,7 @@ public static partial class WorkshopWireFlatBuffers
 
         Wire.WorkshopResponse.StartWorkshopResponse(builder);
         if (logicOffset.HasValue) Wire.WorkshopResponse.AddElectricalLogic(builder,logicOffset.Value);
+        Wire.WorkshopResponse.AddRopes(builder, ropesVector);
         if (actuatorOffset.HasValue) Wire.WorkshopResponse.AddActuatorDrives(builder, actuatorOffset.Value);
         if (loadOffset.HasValue) Wire.WorkshopResponse.AddContactLoads(builder, loadOffset.Value);
         if (constructionOffset.HasValue) Wire.WorkshopResponse.AddScene(builder, constructionOffset.Value);
@@ -456,6 +476,15 @@ public static partial class WorkshopWireFlatBuffers
             sources[i] = new ElectricalSourceRead(new ElectricalSourceId(e.Id), new GpuBodyId(e.Owner), new Joules(e.Remaining), new Joules(e.Debit), (ElectricalEnable)e.Enabled);
         }
 
+        var ropeValues = new RopeSpanRead[fb.RopesLength];
+        for (var i = 0; i < ropeValues.Length; i++)
+        {
+            var row = Required(fb.Ropes(i), "rope observation");
+            var a = Required(row.AttachmentA, "rope attachment A"); var b = Required(row.AttachmentB, "rope attachment B");
+            ropeValues[i] = new(new(row.Id), new(row.Route), row.Order, new(row.BodyA), new(row.BodyB),
+                new(a.X, a.Y, a.Z), new(b.X, b.Y, b.Z), row.MaximumLength, row.CurrentLength,
+                (RopeIntegrity)row.Integrity, (RopeState)row.State, new(row.CutSpan));
+        }
         var logicValues=new ElectricalLogicRead[fb.ElectricalLogicLength];
         for(var i=0;i<logicValues.Length;i++)
         {
@@ -490,7 +519,7 @@ public static partial class WorkshopWireFlatBuffers
 
         var read = new WorkshopRead(epoch, tick, bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores),
-            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues));
+            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);
 
@@ -501,6 +530,7 @@ public static partial class WorkshopWireFlatBuffers
             new PublicationSequence(fb.Publication), new CadenceRevision(fb.Cadence), master, new ProjectionEpoch(fb.Projection),
             new PulseOrdinal(tick.Value), memory, fb.Scene is { } construction ? DecodeCompiledScene(construction) : null);
         WorkshopMessages.ValidateScheduleIdentity(response);
+        if (response.Scene is { } ownerConstruction) WorkshopMessages.ValidatePresentationOwners(read, ownerConstruction);
         ValidateMemory(response);
         return response;
     }

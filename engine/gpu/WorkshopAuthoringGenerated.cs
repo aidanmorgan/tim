@@ -81,10 +81,15 @@ public struct ConnectionRecord : IFlatbufferObject
   public uint Domain { get { return __p.bb.GetUint(__p.bb_pos + 16); } }
   public uint FromSocket { get { return __p.bb.GetUint(__p.bb_pos + 20); } }
   public uint ToSocket { get { return __p.bb.GetUint(__p.bb_pos + 24); } }
+  public bool HasRopeLength { get { return 0!=__p.bb.Get(__p.bb_pos + 28); } }
+  public float RopeLength { get { return __p.bb.GetFloat(__p.bb_pos + 32); } }
 
-  public static Offset<CuriousContraptions.Wire.ConnectionRecord> CreateConnectionRecord(FlatBufferBuilder builder, ulong Source, ulong Target, uint Domain, uint FromSocket, uint ToSocket) {
-    builder.Prep(8, 32);
+  public static Offset<CuriousContraptions.Wire.ConnectionRecord> CreateConnectionRecord(FlatBufferBuilder builder, ulong Source, ulong Target, uint Domain, uint FromSocket, uint ToSocket, bool HasRopeLength, float RopeLength) {
+    builder.Prep(8, 40);
     builder.Pad(4);
+    builder.PutFloat(RopeLength);
+    builder.Pad(3);
+    builder.PutBool(HasRopeLength);
     builder.PutUint(ToSocket);
     builder.PutUint(FromSocket);
     builder.PutUint(Domain);
@@ -109,7 +114,7 @@ public struct ConstructionRecord : IFlatbufferObject
   public CuriousContraptions.Wire.PuzzleRecord? Puzzle { get { int o = __p.__offset(8); return o != 0 ? (CuriousContraptions.Wire.PuzzleRecord?)(new CuriousContraptions.Wire.PuzzleRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
   public CuriousContraptions.Wire.InstanceRecord? Instances(int j) { int o = __p.__offset(10); return o != 0 ? (CuriousContraptions.Wire.InstanceRecord?)(new CuriousContraptions.Wire.InstanceRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int InstancesLength { get { int o = __p.__offset(10); return o != 0 ? __p.__vector_len(o) : 0; } }
-  public CuriousContraptions.Wire.ConnectionRecord? Connections(int j) { int o = __p.__offset(12); return o != 0 ? (CuriousContraptions.Wire.ConnectionRecord?)(new CuriousContraptions.Wire.ConnectionRecord()).__assign(__p.__vector(o) + j * 32, __p.bb) : null; }
+  public CuriousContraptions.Wire.ConnectionRecord? Connections(int j) { int o = __p.__offset(12); return o != 0 ? (CuriousContraptions.Wire.ConnectionRecord?)(new CuriousContraptions.Wire.ConnectionRecord()).__assign(__p.__vector(o) + j * 40, __p.bb) : null; }
   public int ConnectionsLength { get { int o = __p.__offset(12); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static void StartConstructionRecord(FlatBufferBuilder builder) { builder.StartTable(5); }
@@ -123,7 +128,7 @@ public struct ConstructionRecord : IFlatbufferObject
   public static VectorOffset CreateInstancesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.InstanceRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartInstancesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static void AddConnections(FlatBufferBuilder builder, VectorOffset connectionsOffset) { builder.AddOffset(4, connectionsOffset.Value, 0); }
-  public static void StartConnectionsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
+  public static void StartConnectionsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(40, numElems, 8); }
   public static Offset<CuriousContraptions.Wire.ConstructionRecord> EndConstructionRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.ConstructionRecord>(o);
@@ -140,7 +145,7 @@ static public class ConstructionRecordVerify
       && verifier.VerifyField(tablePos, 6 /*Settings*/, 24 /*CuriousContraptions.Wire.CadenceSettingsRecord*/, 4, false)
       && verifier.VerifyTable(tablePos, 8 /*Puzzle*/, CuriousContraptions.Wire.PuzzleRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 10 /*Instances*/, CuriousContraptions.Wire.InstanceRecordVerify.Verify, false)
-      && verifier.VerifyVectorOfData(tablePos, 12 /*Connections*/, 32 /*CuriousContraptions.Wire.ConnectionRecord*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 12 /*Connections*/, 40 /*CuriousContraptions.Wire.ConnectionRecord*/, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

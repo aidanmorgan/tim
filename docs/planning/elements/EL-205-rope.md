@@ -16,7 +16,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Refines / extends | No CAT spec of its own: the rope is a connection. Specified jointly with [CAT-058 rope anchor](CAT-058-rope_anchor.md) (rope harvest) and [CAT-053 pulley](CAT-053-pulley.md) |
 | Related | EL-206 Fixed pulley, EL-207 Moving pulley, EL-064 Metal loop anchor, CAT-067 Weight, EL-184 Mechanical ball gate |
 | Roadmap story | [EL-205 delivery slice](../invest/named-elements.md#element-205); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Status | Straight-rope/cut implementation candidate in 10.2b; review/publication pending, finite-radius pulley routing in 10.2c |
 
 ## 2. Declaration
 
@@ -45,7 +45,7 @@ None: a massless inextensible rope stores no energy and transmits only the tensi
 | Name | Type | Range | Default | Unit | Source |
 | --- | --- | --- | --- | --- | --- |
 | span length | f32, per span | 0.05–200 | straight-line distance between the two `Tie` sockets at connect time | m | `engine/ConnectionPort.cs@a6c914e:L47-L52`; `reference/cpu/MachineWorld.cs@a6c914e:L686-L691` |
-| slack threshold | constant | — | 0.001 legacy | m | do not carry forward the literal ([CAT-058 R13](CAT-058-rope_anchor.md#4-legacy-harvest)); an f32 threshold is frozen in Story 10.2 |
+| slack classification | derived | current length below authored maximum | no deadband | m | coordinator30October2026; [CAT-058 decision6](CAT-058-rope_anchor.md#6-open-questions) |
 
 ### Cosmetic curves and UI bindings
 Warm-wood rope; gold endpoint knots and no pulley knots; free spans straight when taut and curved when slack; unfinished threading dashed and carrying no tension; tangent legs meet arcs outside the wheel rims (`DESIGN.md@a6c914e:L284-L284`). Artwork reads committed poses only. UI: connect `Tie` to `Tie` with the contextual Connect; length is set on connect.
@@ -57,7 +57,7 @@ Warm-wood rope with gold `#f7cb52` knots; pulleys and anchors keep their `#d69c4
 Not a catalogue part; a Rope-domain connection kind added with `WorkshopConnectionDomain.Rope` (current domains are Activation and Electrical, `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L8`).
 
 ### Variants
-One outcome in the row; no variants. Rope cutting is a separate obligation ([CAT-058 R29](CAT-058-rope_anchor.md#4-legacy-harvest)).
+One outcome in the row; no variants. Runtime cutting is required in10.2b with the current [CAT-058 entry decisions](CAT-058-rope_anchor.md#6-open-questions); R29 records historical scope only.
 
 ## 3. Engine capabilities
 
@@ -66,9 +66,9 @@ Families: EnvironmentState, GeometryQuery, JointConstraint, RigidBodyDynamics, T
 **Exists now**
 - Dynamic loads (spheres and boxes) and typed connection storage: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`; `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
 
-**Missing**
-- Rope domain, `Tie` sockets, attachment roles and the tension-only route row (TensionTransmission/JointConstraint): Story 10.2; decision S257 rope-port, next implementation S688 ([decisions](../invest/decisions.md#s257)). Owner S307.
-- Committed route read for rope artwork: Story 10.2.
+**10.2b candidate**
+- Rope/Tie roles, measured persistent span lengths, canonical straight routes, generic unilateral length rows, committed route artwork and queued typed cutting are implemented for native review. See the [candidate contract and evidence](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md). S257/S688 and canonical proof owner S307 remain traceable; no overall named-element/browser qualification is claimed.
+- Finite-radius pulley tangents/arcs and guide integration remain 10.2c; comprehensive mass-ratio/pendulum qualification remains 10.4.
 
 **Dependencies.** CAT-058 anchor and CAT-067 weight as endpoints; CAT-053 pulley as guide (Story 10.2).
 
@@ -110,5 +110,4 @@ Follow [element-205](../requirements.md#element-205), [CAT-058](CAT-058-rope_anc
 
 ## 6. Open questions
 
-1. Is the rope extensible (a compliant tension row) or inextensible as in the legacy? Unspecified — owner decision.
-2. May the player edit a rope's length after connecting, or only by moving parts before connecting? Owner decision.
+Resolved for10.2b by the coordinator,30October2026: massless inextensible/tension-only gameplay uses shared numerical regularization, not an elastic-energy store. Length is measured at connect time within0.05–200m, retained through moves/mass edits, and remeasured on reconnect; no length editor. The complete [CAT-058 decisions](CAT-058-rope_anchor.md#6-open-questions) and [implementation contract](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md) govern cutting, committed state/art and Reset/save. Pulley integration and comprehensive later qualification retain their owners.

@@ -8,7 +8,7 @@ namespace CuriousContraptions.Elements.Weight;
 /// <summary>The Weight (CAT-067, Story 10.2a): a dynamic blue solid cylinder, axis +Y, whose <c>mass</c> parameter (0.25–8 kg,
 /// default 4) is both its compiled mass and its size. The body origin is the base centre, so the collider sits h above it and a mass
 /// edit grows the Weight upward. Radius and half-height are linear in mass, exact at 0.25 and 8 kg against the legacy
-/// r = 0.85·0.32∛m and h = 0.675·0.32∛m; the art scales uniformly with the radius. It has no rope socket until Story 10.2b.</summary>
+/// r = 0.85·0.32∛m and h = 0.675·0.32∛m; the art and Tie scale uniformly with the radius.</summary>
 public sealed class WeightElementDeclaration : IMechanicalElement, ISceneGeometryElement, IParameterizedGeometryElement
 {
     public ElementPresentation Presentation => new(
@@ -36,8 +36,13 @@ public sealed class WeightElementDeclaration : IMechanicalElement, ISceneGeometr
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 1, PrismaticConstraints: 0);
 
-    /// <summary>No socket yet: the rope Tie and its Load role arrive with the rope domain (Story 10.2b).</summary>
-    public IReadOnlyList<PortDescriptor> Ports => [];
+    private static PortPositionBinding TieBinding => new(new("mass"),
+        new(0f, .5771f * .136734f, 0f), new(0f, .5771f * .453070f, 0f));
+    public IReadOnlyList<PortDescriptor> Ports =>
+    [
+        new(PortSocket.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, null,
+            TieBinding.Evaluate(4f), Vector3.UnitY, RopeAttachmentRole.Load, TieBinding)
+    ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
 
@@ -75,7 +80,7 @@ public sealed class WeightElementDeclaration : IMechanicalElement, ISceneGeometr
     /// <summary>A load owns no event row.</summary>
     public IReadOnlyList<EventDescriptor> Events => [];
 
-    public SimulationDomain SupportedDomains => SimulationDomain.Mechanical;
+    public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Rope;
 
     public KinematicMode KinematicMode => KinematicMode.Dynamic;
 

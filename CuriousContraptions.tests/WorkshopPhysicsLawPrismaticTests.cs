@@ -138,7 +138,7 @@ public sealed class WorkshopPhysicsLawPrismaticTests
         }
         var ia = Inverse(a, row.Aa); var ib = Inverse(b, row.Ab);
         var expected = Vector3.Dot(row.La, row.La) * a.InvMass + Vector3.Dot(row.Lb, row.Lb) * b.InvMass + Vector3.Dot(row.Aa, ia) + Vector3.Dot(row.Ab, ib);
-        var actual = PrismaticConstraintSolver.ConstraintMass(a, row.La, row.Aa) + PrismaticConstraintSolver.ConstraintMass(b, row.Lb, row.Ab);
+        var actual = ConstraintBodyImpulse.ConstraintMass(a, row.La, row.Aa) + ConstraintBodyImpulse.ConstraintMass(b, row.Lb, row.Ab);
         Assert.True(MathF.Abs(actual - expected) < 2e-6f, $"effective mass {actual} vs {expected}");
         var beforeA = (a.LinearVelocity, a.AngularVelocity); var beforeB = (b.LinearVelocity, b.AngularVelocity);
         const float impulse = .75f;
@@ -270,8 +270,8 @@ public sealed class WorkshopPhysicsLawPrismaticTests
                 {
                     var r = j.Rows[row];
                     var result = SoftConstraint.Solve4(
-                        Vector128.Create(PrismaticConstraintSolver.ConstraintMass(j.A, r.La, r.Aa) + PrismaticConstraintSolver.ConstraintMass(j.B, r.Lb, r.Ab), 0, 0, 0),
-                        Vector128.Create(PrismaticConstraintSolver.ConstraintVelocity(j.A, r.La, r.Aa) + PrismaticConstraintSolver.ConstraintVelocity(j.B, r.Lb, r.Ab), 0, 0, 0),
+                        Vector128.Create(ConstraintBodyImpulse.ConstraintMass(j.A, r.La, r.Aa) + ConstraintBodyImpulse.ConstraintMass(j.B, r.Lb, r.Ab), 0, 0, 0),
+                        Vector128.Create(ConstraintBodyImpulse.ConstraintVelocity(j.A, r.La, r.Aa) + ConstraintBodyImpulse.ConstraintVelocity(j.B, r.Lb, r.Ab), 0, 0, 0),
                         Vector128.Create(r.Error, 0, 0, 0), Vector128.Create(r.Gamma, 0, 0, 0), Vector128.Create(r.Bias, 0, 0, 0),
                         Vector128.Create(j.Impulses[row], 0, 0, 0), Vector128.Create(r.Minimum, 0, 0, 0), Vector128.Create(float.MaxValue, 0, 0, 0));
                     j.Impulses[row] = result.Accumulated.GetElement(0);

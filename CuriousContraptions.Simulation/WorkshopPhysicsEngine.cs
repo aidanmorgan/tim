@@ -27,6 +27,8 @@ internal sealed class WorkshopPhysicsEngine
     private Dictionary<int, SimBody> _allBodies = new(16);
     private List<SimCollider> _colliders = new(32);
     private List<SimJoint> _joints = new(4);
+    private readonly List<SimTensileSpan> _tensile = new(4);
+    private readonly List<SimTensileSpan> _tensilePool = new(4);
     private List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
     private List<ContactPoint> _contacts = new(64);
     // Scratch for the speculative sphere-contact touch probe (WorkshopCollisionKernels.AdvanceSpeculativeSphereContact).
@@ -73,6 +75,7 @@ internal sealed class WorkshopPhysicsEngine
         _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4];
         _restitutionStamp = 0;
         _probeContacts.Clear(); _probeCollider = new();
+        _tensile.Clear(); _tensilePool.Clear();
         _bvh.Reset();
     }
 
@@ -212,6 +215,24 @@ internal sealed class WorkshopPhysicsEngine
         var span = candidate.Span;
         // Story 9R.5b: every table offset is this world's own (its header's populations); no table has a fixed capacity.
         var layout = PhysicsGpuAbi.Layout(span);
+        foreach (var cut in inputs.Cuts)
+        {
+            var route = default(RopeRouteId);
+            for (var i = 0; i < layout.TensileSpans; i++)
+            {
+                var declared = PhysicsGpuAbi.ReadTensileSpan(span, i);
+                if (declared.Id == cut) route = declared.Route;
+            }
+            if (route.Value == 0) throw new ArgumentException("Unknown cut span.");
+            for (var i = 0; i < layout.TensileSpans; i++)
+            {
+                if (PhysicsGpuAbi.ReadTensileSpan(span, i).Route != route) continue;
+                var offset = layout.TensileSpanOffset(i);
+                BinaryPrimitives.WriteUInt32LittleEndian(span[(offset + PhysicsGpuAbi.TensileIntegrityOffset)..], (uint)RopeIntegrity.Cut);
+                BinaryPrimitives.WriteUInt64LittleEndian(span[(offset + PhysicsGpuAbi.TensileCutSpanOffset)..], cut.Value);
+                WriteF32(span, offset + PhysicsGpuAbi.TensileImpulseOffset, 0f);
+            }
+        }
 
         // Motion is a closed ABI discriminant. Refuse the entire candidate before clocks,
         // bodies or solver state advance; every downstream motion value is typed.
@@ -414,6 +435,23 @@ internal sealed class WorkshopPhysicsEngine
         }
 
         _joints.Clear();
+        _tensile.Clear();
+        for (var index = 0; index < layout.TensileSpans; index++)
+        {
+            var declared = PhysicsGpuAbi.ReadTensileSpan(span, index);
+            var offset = layout.TensileSpanOffset(index);
+            while (_tensilePool.Count <= index) _tensilePool.Add(new());
+            var tensile = _tensilePool[index];
+            tensile.Offset = offset;
+            tensile.A = _allBodies[(int)ReadU32(span, offset + PhysicsGpuAbi.TensileBodyAOffset)];
+            tensile.B = _allBodies[(int)ReadU32(span, offset + PhysicsGpuAbi.TensileBodyBOffset)];
+            tensile.LocalA = declared.LocalA; tensile.LocalB = declared.LocalB;
+            tensile.Maximum = declared.MaximumLength; tensile.Complete = declared.Complete;
+            tensile.Cut = ReadU32(span, offset + PhysicsGpuAbi.TensileIntegrityOffset) == (uint)RopeIntegrity.Cut;
+            tensile.Impulse = ReadF32(span, offset + PhysicsGpuAbi.TensileImpulseOffset);
+            tensile.Active = false; tensile.Row = default;
+            _tensile.Add(tensile);
+        }
         for (var index = 0; index < layout.Prismatics; index++)
         {
             var prismaticOffset = layout.PrismaticOffset(index);
@@ -729,12 +767,18 @@ internal sealed class WorkshopPhysicsEngine
                 for (var row = 0; row < 8; row++)
                     PrismaticConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
             }
+            foreach (var tensile in _tensile)
+            {
+                TensileConstraintSolver.Prepare(tensile, dt);
+                TensileConstraintSolver.Apply(tensile, tensile.Impulse);
+            }
             foreach (var c in _contacts) WorkshopConstraintSolver.WarmStartContact(c);
             foreach (var m in _manifolds) WorkshopFrictionSolver.WarmStart(m);
 
             for (var iteration = 0; iteration < WorkshopConstraintSolver.SolverIterations; iteration++)
             {
                 PrismaticConstraintSolver.SweepConstraints(_joints, true);
+                foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, true);
                 WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Solve, softCoeffs, dt);
             }
 
@@ -795,12 +839,16 @@ internal sealed class WorkshopPhysicsEngine
                 joint.Rows[(int)PrismaticRowKind.Spring].Error = softRowError;
             }
 
+            foreach (var tensile in _tensile) TensileConstraintSolver.Prepare(tensile, dt);
             for (var iteration = 0; iteration < WorkshopConstraintSolver.RelaxIterations; iteration++)
             {
                 PrismaticConstraintSolver.SweepConstraints(_joints, false);
+                foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, false);
                 WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Relax, softCoeffs, dt);
             }
 
+            foreach (var tensile in _tensile)
+                WriteF32(span, tensile.Offset + PhysicsGpuAbi.TensileImpulseOffset, tensile.Impulse);
             foreach (var joint in _joints)
             {
                 for (var row = 0; row < PhysicsGpuAbi.PrismaticRowCount; row++)

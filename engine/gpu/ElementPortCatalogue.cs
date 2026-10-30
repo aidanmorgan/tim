@@ -93,12 +93,14 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         {
             SimulationDomain.Signal => WorkshopConnectionDomain.Activation,
             SimulationDomain.Electrical => WorkshopConnectionDomain.Electrical,
+            SimulationDomain.Rope => WorkshopConnectionDomain.Rope,
             _ => throw Refused(ElementPortRejection.UnsupportedDomain, element, index, $"declares the domain {port.Domain}, which the engine does not connect")
         };
         var direction = port.Direction switch
         {
             PortDirection.Input => WorkshopPortDirection.Input,
             PortDirection.Output => WorkshopPortDirection.Output,
+            PortDirection.Bidirectional => WorkshopPortDirection.Bidirectional,
             _ => throw Refused(ElementPortRejection.UnsupportedDirection, element, index, $"declares the direction {port.Direction}, which the engine does not connect")
         };
         var socket = Socket(port.Socket);
@@ -109,12 +111,16 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             (WorkshopConnectionDomain.Activation, PortSignalKind.Pulse) => WorkshopSignalKind.Pulse,
             (WorkshopConnectionDomain.Activation, PortSignalKind.Level) => WorkshopSignalKind.Level,
             (WorkshopConnectionDomain.Electrical, null) => null,
+            (WorkshopConnectionDomain.Rope, null) => null,
             _ => throw Refused(ElementPortRejection.SignalKindDisagrees, element, index,
                 $"declares the signal kind '{port.Signal}' on a {port.Domain} port")
         };
         if (!float.IsFinite(port.LocalPosition.X) || !float.IsFinite(port.LocalPosition.Y) || !float.IsFinite(port.LocalPosition.Z))
             throw Refused(ElementPortRejection.NonFinitePosition, element, index, "declares a non-finite anchor");
-        return new(socket, domain, direction, signal, port.LocalPosition);
+        if (!Enum.IsDefined(port.AttachmentRole) ||
+            (domain == WorkshopConnectionDomain.Rope) != (port.AttachmentRole != RopeAttachmentRole.None))
+            throw Refused(ElementPortRejection.SocketDisagrees, element, index, "declares an invalid attachment role");
+        return new(socket, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding);
     }
 
     /// <summary>The domain and direction each socket is: the activation sockets carry signals, Supply feeds and PowerIn draws.</summary>
@@ -124,6 +130,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         WorkshopSocket.SetIn or WorkshopSocket.ResetIn or WorkshopSocket.ActivationIn => (WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input),
         WorkshopSocket.Supply => (WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output),
         WorkshopSocket.PowerIn or WorkshopSocket.FirstIn or WorkshopSocket.SecondIn => (WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input),
+        WorkshopSocket.Tie => (WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional),
         _ => throw new ArgumentOutOfRangeException(nameof(socket), socket, "Undefined socket.")
     };
 
@@ -168,6 +175,21 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         foreach (var port in Of(element))
             if (port.Socket == socket) return port.LocalPosition;
         throw new ElementPortRejectedException(ElementPortRejection.UndeclaredSocket, $"'{element}' declares no {socket} socket.");
+    }
+
+    /// <summary>Evaluates the socket using this instance's admitted parameter values.</summary>
+    public Vector3 LocalPosition(WorkshopGenericInstance instance, WorkshopSocket socket)
+    {
+        foreach (var port in Of(instance.PartId))
+            if (port.Socket == socket)
+            {
+                var position = port.PositionBinding is { } binding
+                    ? binding.Evaluate(instance.Parameters[binding.Parameter]) : port.LocalPosition;
+                if (!float.IsFinite(position.X) || !float.IsFinite(position.Y) || !float.IsFinite(position.Z))
+                    throw new ElementPortRejectedException(ElementPortRejection.NonFinitePosition, "Socket evaluation is not finite.");
+                return position;
+            }
+        throw new ElementPortRejectedException(ElementPortRejection.UndeclaredSocket, "The instance does not declare this socket.");
     }
 
     public bool Equals(ElementPortCatalogue? other) =>

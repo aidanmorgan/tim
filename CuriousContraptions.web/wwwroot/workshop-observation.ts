@@ -34,16 +34,16 @@ export enum TraceTimingStatus { Complete, Incomplete }
 export enum WorkshopCaptureKind { Pose, Timing }
 export enum WorkshopCaptureStage { Begin, Chunk, End }
 export enum WorkshopClockDomain { BrowserMonotonic = 1, SimulationMonotonic = 2 }
-export enum WorkshopCommandKind { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical, ObserveMemory }
+export enum WorkshopCommandKind { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical, ObserveMemory, CutRope }
 export enum WorkshopCommandOutcome { Applied, Rejected, Superseded, Faulted, Cancelled }
-export enum WorkshopConnectionDomain { Activation = 1, Electrical = 2 }
+export enum WorkshopConnectionDomain { Activation = 1, Electrical = 2, Rope = 3 }
 export enum WorkshopFaultKind { Fault, Rejection, AfterRetirement }
 export enum WorkshopGoalKind { None, Captured, ActivatedAfter }
 export enum WorkshopPlacementMode { Manual }
-export enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, WrongRevision = 3, WrongPhase = 4, GpuAdmission = 5, InvalidRead = 7, IdentityExhausted = 8, StaleGeneration = 9, Cancelled = 10, AlreadyCommitted = 11, Capacity = 12, ReliableStalled = 13, Transport = 14 }
+export enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, WrongRevision = 3, WrongPhase = 4, GpuAdmission = 5, InvalidRead = 7, IdentityExhausted = 8, StaleGeneration = 9, Cancelled = 10, AlreadyCommitted = 11, Capacity = 12, ReliableStalled = 13, Transport = 14, UnknownRopeSpan = 15, RopeAlreadyCut = 16 }
 export enum WorkshopRuntimeRole { Browser = 1, Simulation = 2, Animation = 3 }
 export enum WorkshopSimulationPhase { Uninitialized, Initializing, Building, Admitting, Starting, Running, Paused, Completed, Resetting, Faulted, Disposed }
-export enum WorkshopSocket { ActivationOut = 1, SetIn = 2, ResetIn = 3, ActivationIn = 4, FirstIn = 5, SecondIn = 6, Supply = 7, PowerIn = 8 }
+export enum WorkshopSocket { ActivationOut = 1, SetIn = 2, ResetIn = 3, ActivationIn = 4, FirstIn = 5, SecondIn = 6, Supply = 7, PowerIn = 8, Tie = 9 }
 // Event/cause phases are fractional time quantities, not closed state sets.
 export type ObservationValue = null | boolean | number | string | ObservationObject | readonly ObservationValue[];
 export interface ObservationObject { readonly [field: string]: ObservationValue; }

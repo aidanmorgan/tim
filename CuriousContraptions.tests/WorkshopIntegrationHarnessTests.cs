@@ -255,6 +255,189 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
     private static bool HasLabel(Workshop scene, string text) => Descendants(scene).OfType<Label>().Any(label => label.Text == text);
     private static Workshop Scene() => GD.Load<PackedScene>(NativeTestBoundary.WorkshopResource).Instantiate<Workshop>();
 
+    [Fact]
+    public async Task DeclaredIncompleteRopeReadsProduceDashedArtworkAndCompleteReadsRemainSolid()
+    {
+        var scene = Scene();
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness));
+        godot.Tree.Root.AddChild(scene);
+        try
+        {
+            await scene.Startup;
+            var a = WorkshopInput.Generic(new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
+            var b = WorkshopInput.Generic(new PartId("rope_anchor"), new(2), 0, 3, -.18f, 0, 0, 0, 1);
+            var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(a, b),
+                Connections: new(WorkshopConnections.MeasureRope(new(a, b), a.Id, b.Id)));
+            await scene.World.ReplaceConstruction(construction);
+            var compiled = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var span = Assert.Single(compiled.TensileSpans.ToArray());
+            foreach (var complete in new[] { true, false, true })
+            {
+                // The supported generic declaration boundary supplies open/complete rows without inventing a Guide package.
+                var declaration = new PhysicsSceneDeclaration(compiled.Document, compiled.NextIdentity, compiled.Bodies,
+                    compiled.Colliders, compiled.Materials, [], [], tensileSpans: [span with { Complete = complete }]);
+                var source = PhysicsGpuAbi.Admission(declaration, new(1),
+                    new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+                var candidate = new byte[source.Length];
+                var inputs = new PhysicsTickInputs([], []);
+                var engine = new CuriousContraptions.Simulation.WorkshopPhysicsEngine();
+                var interactions = engine.Advance(source, candidate, inputs, PhysicsInteractionSnapshot.Empty);
+                _ = PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1), interactions, PhysicsInteractionSnapshot.Empty);
+                var read = PhysicsGpuAbi.ReadPresentation(candidate, inputs, false);
+                var rope = Assert.Single(read.Ropes.ToArray());
+                Assert.Equal(complete ? RopeState.Taut : RopeState.Open, rope.State);
+                scene.RefreshConnectionArtwork(read.Ropes);
+                var artwork = scene.GetNode<Node3D>("WorkshopConnections");
+                var meshes = artwork.GetChildren().OfType<MeshInstance3D>().ToArray();
+                var strands = meshes.Where(node => node.Mesh is CylinderMesh).ToArray();
+                var knots = meshes.Where(node => node.Mesh is SphereMesh).ToArray();
+                Assert.NotEmpty(strands); Assert.Equal(2, knots.Length);
+                Assert.All(knots, knot => Assert.True(knot.Visible));
+                Assert.InRange(knots[0].Position.DistanceTo(new(rope.AttachmentA.X, rope.AttachmentA.Y, rope.AttachmentA.Z)), 0f, .01f);
+                Assert.InRange(knots[1].Position.DistanceTo(new(rope.AttachmentB.X, rope.AttachmentB.Y, rope.AttachmentB.Z)), 0f, .01f);
+                if (complete) Assert.All(strands, strand => Assert.True(strand.Visible));
+                else
+                {
+                    Assert.Contains(strands, strand => strand.Visible);
+                    Assert.Contains(strands, strand => !strand.Visible);
+                    for (var i = 1; i < strands.Length; i++)
+                        Assert.NotEqual(strands[i - 1].Visible, strands[i].Visible);
+                }
+            }
+        }
+        finally { scene.Free(); godot.Engine.Iteration(); }
+        Assert.Empty(godot.Errors.Drain());
+    }
+
+    [Fact]
+    public async Task RopePresenterUsesCommittedKnotsAndCutStateAndRetainsNodesUntilTeardown()
+    {
+        var scene = Scene();
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness));
+        godot.Tree.Root.AddChild(scene);
+        MeshInstance3D[] retained = [];
+        try
+        {
+            await scene.Startup;
+            var anchor = WorkshopInput.Generic(new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
+            var weight = WeightTests.Placed(2, 1, 2, 0, 4);
+            await scene.World.ReplaceConstruction(new(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight)));
+            await scene.ChangeConnectionAsync(new(anchor.Id, WorkshopSocket.Tie, weight.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope), true);
+            var link = Assert.Single(scene.World.Construction.Connections);
+            void Frame() { scene.World._Process(0); scene._Process(0); }
+            Frame();
+            var artwork = scene.GetNode<Node3D>("WorkshopConnections");
+            retained = artwork.GetChildren().OfType<MeshInstance3D>().ToArray();
+            var knots = retained.Where(node => node.Mesh is SphereMesh).ToArray();
+            var segments = retained.Where(node => node.Mesh is CylinderMesh).ToArray();
+            Assert.Equal(2, knots.Length); Assert.NotEmpty(segments);
+            // Rendered cylinders must form one connected path between the actual knots, within a 1cm artwork allowance.
+            var previous = knots[0].Position;
+            var pathLength = 0f;
+            foreach (var node in segments)
+            {
+                var cylinder = (CylinderMesh)node.Mesh;
+                var half = node.Quaternion * (Vector3.Up * (cylinder.Height * .5f));
+                var start = node.Position - half; var end = node.Position + half;
+                Assert.InRange(start.DistanceTo(previous), 0f, .01f);
+                pathLength += start.DistanceTo(end); previous = end;
+            }
+            Assert.InRange(previous.DistanceTo(knots[1].Position), 0f, .01f);
+            Assert.InRange(MathF.Abs(pathLength - link.RopeLength!.Value), 0f, .01f);
+            Assert.All(knots, node => Assert.Equal(new Color("#f7cb52"), ((StandardMaterial3D)node.MaterialOverride).AlbedoColor));
+            Assert.All(retained, node => Assert.True(node.Visible));
+            Assert.InRange(knots[0].Position.DistanceTo(new(0, 6, 0)), 0f, .001f);
+            Assert.InRange(knots[1].Position.DistanceTo(new(1, 2.57710344f, 0)), 0f, .001f);
+            var authoredKnots = knots.Select(node => node.Position).ToArray();
+            using (var run = new InputEventKey { Keycode = Key.Space, Pressed = true }) scene._UnhandledInput(run);
+            Assert.Equal(WorkshopSimulationPhase.Running, scene.World.WorkshopPhase);
+            await harness.Advance(60); Frame();
+            var committed = Assert.Single(scene.World.WorkshopRead.Presentation.Ropes.ToArray());
+            var expected = new[] { committed.AttachmentA, committed.AttachmentB };
+            for (var i = 0; i < knots.Length; i++)
+                Assert.InRange(knots[i].Position.DistanceTo(new(expected[i].X, expected[i].Y, expected[i].Z)), 0f, .001f);
+            Assert.True(knots[1].Position.DistanceTo(authoredKnots[1]) > .05f);
+            await scene.World.PlaybackWorkshop(WorkshopCommandKind.Pause);
+            var part = scene.World.Parts.Single(item => item.AuthoredId == anchor.Id);
+            var camera = Assert.Single(Descendants(scene).OfType<Camera3D>());
+            using (var click = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true,
+                Position = camera.UnprojectPosition(part.GlobalPosition) }) scene._UnhandledInput(click);
+            Assert.Single(Descendants(scene).OfType<Button>(), button => button.Text == "Cut rope");
+            await scene.ChangeConnectionAsync(link, false); Frame();
+            Assert.Single(Descendants(scene).OfType<Button>(), button => button.Text == "Cut queued" && button.Disabled);
+            Assert.Equal(RopeIntegrity.Intact, Assert.Single(scene.World.WorkshopRead.Presentation.Ropes.ToArray()).Integrity);
+            Assert.All(retained, node => Assert.True(node.Visible));
+            await scene.World.PlaybackWorkshop(WorkshopCommandKind.Step); Frame();
+            Assert.Equal(RopeIntegrity.Cut, Assert.Single(scene.World.WorkshopRead.Presentation.Ropes.ToArray()).Integrity);
+            Assert.Single(Descendants(scene).OfType<Button>(), button => button.Text == "Rope cut" && button.Disabled);
+            Assert.All(retained, node => Assert.False(node.Visible));
+            await scene.World.ResetWorkshop(); Frame();
+            Assert.All(retained, node => Assert.True(node.Visible));
+            for (var i = 0; i < knots.Length; i++) Assert.Equal(authoredKnots[i], knots[i].Position);
+            for (var i = 0; i < 5; i++) Frame();
+            Assert.Equal(retained.Select(node => node.GetInstanceId()), artwork.GetChildren().OfType<MeshInstance3D>().Select(node => node.GetInstanceId()));
+
+            var installed = scene.World.WorkshopRead;
+            scene.RefreshConnectionArtwork([]);
+            Assert.All(retained, node => Assert.False(node.Visible));
+            var fault = Assert.Single(scene.Diagnostics.Snapshot().OfType<WorkshopFaultDiagnostic>());
+            Assert.Equal(WorkshopFaultKind.Fault, fault.Kind);
+            Assert.Contains("WireFaultException", fault.ExceptionType, StringComparison.Ordinal);
+            Assert.Contains(Descendants(scene).OfType<Label>(), label => label.Text.Contains("Missing committed rope observation", StringComparison.Ordinal));
+            Assert.Equal(installed, scene.World.WorkshopRead);
+            scene.RefreshConnectionArtwork(installed.Presentation.Ropes);
+            Assert.All(retained, node => Assert.True(node.Visible));
+        }
+        finally { scene.Free(); godot.Engine.Iteration(); }
+        Assert.All(retained, node => Assert.False(GodotObject.IsInstanceValid(node)));
+        Assert.Empty(godot.Errors.Drain());
+    }
+
+    [Fact]
+    public async Task RopeAuthoringMeasuresSocketsAndRefusesBeforeUndoThenReconnectsAtChangedMass()
+    {
+        var scene = Scene();
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness));
+        godot.Tree.Root.AddChild(scene);
+        try
+        {
+            await scene.Startup;
+            var anchor = WorkshopInput.Generic(new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
+            var weight = WeightTests.Placed(2, 0, 2, 0, 4);
+            await scene.World.ReplaceConstruction(new(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight)));
+            var request = new WorkshopConnection(anchor.Id, WorkshopSocket.Tie, weight.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope);
+            await scene.ChangeConnectionAsync(request, true);
+            var connected = Assert.Single(scene.World.Construction.Connections);
+            // Anchor eye is y=6; the four-kilogram load eye is y=2+0.57710344.
+            Assert.InRange(connected.RopeLength!.Value, 3.422f, 3.424f);
+            var revision = scene.World.Construction.Revision;
+            await scene.ChangeConnectionAsync(request with { Target = anchor.Id }, true);
+            Assert.Equal(revision, scene.World.Construction.Revision);
+            Assert.Equal(connected, Assert.Single(scene.World.Construction.Connections));
+            await scene.UndoAsync();
+            Assert.Empty(scene.World.Construction.Connections); // Refusal must not insert an Undo entry.
+            await scene.ChangeConnectionAsync(request, true);
+            await scene.ApplyDeclaredParametersAsync(weight.Id, new([new(new("mass"), 8f)]));
+            Assert.Equal(connected.RopeLength, Assert.Single(scene.World.Construction.Connections).RopeLength);
+            await scene.ChangeConnectionAsync(connected, false);
+            await scene.ChangeConnectionAsync(request, true);
+            var reconnected = Assert.Single(scene.World.Construction.Connections);
+            Assert.True(reconnected.RopeLength < connected.RopeLength - .3f);
+            var saved = WorkshopSaveCodec.Encode(new(scene.World.Construction, new(3)));
+            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, saved);
+            Assert.Equal(reconnected, Assert.Single(loaded.Construction.Connections));
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await scene.World.RunWorkshop()).Result.Outcome);
+            await harness.Advance(120);
+            Assert.Single(harness.Committed.Presentation.Ropes.ToArray());
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await scene.World.ResetWorkshop()).Result.Outcome);
+            Assert.Equal(reconnected, Assert.Single(scene.World.Construction.Connections));
+        }
+        finally { scene.Free(); godot.Engine.Iteration(); }
+    }
+
 
     [Theory]
     [InlineData(false)]
@@ -308,7 +491,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             string[] expected =
             [
                 "Motion", "ball", "bumper", "domino", "bowling", "spring", "pipe", "pipe_bend_45",
-                "pipe_bend_90", "funnel", "powered_gate", "weight",
+                "pipe_bend_90", "funnel", "powered_gate", "weight", "rope_anchor",
                 "Goals", "basket", "lamp", "Power", "switch", "battery",
                 "Control", "delay", "ball_detector", "pressure_plate", "counter", "clock", "latch",
                 "hold_timer", "both_gate", "electrical_nand", "electrical_nor", "electrical_or", "electrical_xor",

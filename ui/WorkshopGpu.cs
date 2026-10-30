@@ -83,7 +83,7 @@ public partial class Workshop
             _status.Text = failure;
             return false;
         }
-        finally { if (!_workshopUiRemoved) { _gpuPending = false; RefreshPalette(); RefreshLayers(); RefreshConnectionChoices(); RefreshConnectionArtwork(); } }
+        finally { if (!_workshopUiRemoved) { _gpuPending = false; RefreshPalette(); RefreshLayers(); RefreshConnectionChoices(); RefreshConnectionArtwork(World.WorkshopRead.Presentation.Ropes); } }
     }
 
     private async void CommitSelected()

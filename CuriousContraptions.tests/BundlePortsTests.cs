@@ -119,7 +119,11 @@ public sealed class BundlePortsTests
         ["basket"] = ([], new(1, 0, 0)),
         ["battery"] = ([Electrical(WorkshopSocket.Supply, Out, 0f, .62f, 0f)], new(1, 0, 0)),
         ["bowling"] = ([], new(1, 1, 0)),
-        ["weight"] = ([], new(1, 1, 0)),
+        ["weight"] = ([new(WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+            new(0f, 4f * (.5771f * .136734f) + .5771f * .453070f, 0f), RopeAttachmentRole.Load,
+            new(new("mass"), new(0f, .5771f * .136734f, 0f), new(0f, .5771f * .453070f, 0f)))], new(1, 1, 0)),
+        ["rope_anchor"] = ([new(WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+            new(0f, 0f, .18f), RopeAttachmentRole.Anchor)], new(1, 0, 0)),
         ["bumper"] = ([Electrical(WorkshopSocket.PowerIn, In, 0f, 0f, .65f)], new(1, 0, 0)),
         ["clock"] = ([Electrical(WorkshopSocket.PowerIn, In, -.78f, 0f, 0f), Activation(WorkshopSocket.ActivationOut, Out, Pulse, .78f, 0f, 0f)],
             new(1, 0, 0)),
@@ -201,7 +205,7 @@ public sealed class BundlePortsTests
 
     public static TheoryData<string, PortDescriptor, ElementPortRejection> InvalidPorts => new()
     {
-        { "bidirectional", Port(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Bidirectional, PortSignalKind.Pulse), ElementPortRejection.UnsupportedDirection },
+        { "bidirectional", Port(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Bidirectional, PortSignalKind.Pulse), ElementPortRejection.SocketDisagrees },
         { "undefined direction", Port(PortSocket.ActivationOut, SimulationDomain.Signal, (PortDirection)7, PortSignalKind.Pulse), ElementPortRejection.UnsupportedDirection },
         { "audio domain", Port(PortSocket.PowerIn, SimulationDomain.Audio, PortDirection.Input, null), ElementPortRejection.UnsupportedDomain },
         { "combined domain", Port(PortSocket.PowerIn, SimulationDomain.Electrical | SimulationDomain.Signal, PortDirection.Input, null), ElementPortRejection.UnsupportedDomain },

@@ -84,7 +84,7 @@ public sealed class WorkshopSaveRejectionTests
         {
             ConstructionRecord.StartConnectionsVector(builder, save.Links.Length);
             for (var i = save.Links.Length - 1; i >= 0; i--)
-                ConnectionRecord.CreateConnectionRecord(builder, save.Links[i].Source, save.Links[i].Target, save.Links[i].Domain, save.Links[i].From, save.Links[i].To);
+                ConnectionRecord.CreateConnectionRecord(builder, save.Links[i].Source, save.Links[i].Target, save.Links[i].Domain, save.Links[i].From, save.Links[i].To, false, 0f);
             links = builder.EndVector();
         }
         var settings = WorkshopCadenceSettings.Default();

@@ -1,5 +1,9 @@
 <Project>
   <ItemGroup>
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/TensileSpanDeclaration.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.Tensile.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/TensileConstraintSolver.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/ConstraintBodyImpulse.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/ActivationMemory.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/ActivationNetwork.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/ActivationTimers.cs" />

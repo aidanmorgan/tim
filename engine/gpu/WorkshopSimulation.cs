@@ -11,7 +11,7 @@ public enum WorkshopCommandOutcome { Applied, Rejected, Superseded, Faulted, Can
 // Story 9.4b deleted that path; 6 is undefined on the wire and rejects.
 public enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, WrongRevision = 3, WrongPhase = 4,
     GpuAdmission = 5, InvalidRead = 7, IdentityExhausted = 8, StaleGeneration = 9, Cancelled = 10, AlreadyCommitted = 11,
-    Capacity = 12, ReliableStalled = 13, Transport = 14 }
+    Capacity = 12, ReliableStalled = 13, Transport = 14, UnknownRopeSpan = 15, RopeAlreadyCut = 16 }
 public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
 public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, PhysicsBodyReadSet Bodies, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
     PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default,
@@ -71,6 +71,20 @@ public enum GpuDeviceOwnership { Owned = 1, Borrowed = 2 }
 
 public sealed class WorkshopSimulation : IAsyncDisposable
 {
+    private readonly Dictionary<RopeRouteId, RopeSpanId> _pendingCuts = new();
+    public WorkshopCommandResult CutRope(RopeSpanId span)
+    {
+        if (_pending != 0) return Reject(WorkshopRejection.Busy);
+        if (Phase is not (WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused))
+            return Reject(WorkshopRejection.WrongPhase);
+        var declared = Scene.Physics.TensileSpans.ToArray().SingleOrDefault(row => row.Id == span);
+        if (span.Value == 0 || declared.Id != span) return Reject(WorkshopRejection.UnknownRopeSpan);
+        if (_pendingCuts.ContainsKey(declared.Route) || Committed.Presentation.Ropes.ToArray().Any(row =>
+                row.Route == declared.Route && row.Integrity == RopeIntegrity.Cut))
+            return Reject(WorkshopRejection.RopeAlreadyCut);
+        _pendingCuts.Add(declared.Route, span);
+        return Applied();
+    }
     private readonly Dictionary<GpuBodyId, ElectricalEnable> _electricalControls = new(16);
     public ElectricalEnable ElectricalState(GpuBodyId owner, ElectricalEnable previous) =>
         _electricalControls.TryGetValue(owner, out var state) ? state : previous;
@@ -309,7 +323,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             return Reject(WorkshopRejection.IdentityExhausted);
         try
         {
-            var candidate = await _device.Advance(source, new(owner), WorkshopTickControls.For(source.Electrical, ElectricalState));
+            var cuts = _pendingCuts.Values.ToArray();
+            var candidate = await _device.Advance(source, new(owner), WorkshopTickControls.For(source.Electrical, ElectricalState) with { Cuts = cuts });
             var read = CandidateRead(candidate, owner);
             if (!Owns(owner)) return Superseded(owner);
             ValidateAdvancedRead(source, read);
@@ -318,6 +333,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
             Committed = read;
+            _pendingCuts.Clear();
             return Applied();
         }
         catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return StorageRejected(owner); }
@@ -354,6 +370,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             _device.Commit(new(owner));
             // Reset alone restores the authored enable: in-run supply controls end with the run they changed.
             _electricalControls.Clear();
+            _pendingCuts.Clear();
             Committed = read;
             _epoch = epoch.Value;
             Phase = WorkshopSimulationPhase.Building;
@@ -464,6 +481,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
 
     private WorkshopCommandResult InstallationRejected(ulong owner, WorkshopInstallationException error)
     {
+        _installation.Abort(new(owner));
         if (Owns(owner)) Phase = _priorPhase;
         if (error.InnerException is { } cause) Diagnostics.Fault(FaultSite.Installation, cause);
         return Reject(error.Reason);
@@ -532,6 +550,13 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     private void ValidateAdvancedRead(WorkshopRead source, WorkshopRead read)
     {
         WorkshopMessages.ValidatePresentationOwners(read,Scene);
+        for (var i = 0; i < read.Presentation.Ropes.Length; i++)
+        {
+            var before = source.Presentation.Ropes[i]; var after = read.Presentation.Ropes[i];
+            var expectedCut = _pendingCuts.TryGetValue(before.Route, out var selected) ? selected : before.CutSpan;
+            if (after.CutSpan != expectedCut || after.Integrity != (expectedCut.Value == 0 ? RopeIntegrity.Intact : RopeIntegrity.Cut))
+                throw new ArgumentException("Rope integrity changed without an admitted cut.");
+        }
         if (source.Tick.Value == ulong.MaxValue || read.Epoch != source.Epoch ||
             read.Tick.Value != source.Tick.Value + 1 || read.Bodies.Count != source.Bodies.Count)
             throw new ArgumentException("GPU tick read does not match the active transaction.");

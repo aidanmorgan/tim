@@ -126,6 +126,7 @@ public static class BundleSchema
         typeof(Vector3Converter), typeof(QuaternionConverter), typeof(ParameterIdConverter), typeof(PackageBodyIndexConverter),
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
+        typeof(ExactEnumConverter<RopeAttachmentRole>),
         typeof(ExactEnumConverter<PortSocket>),        typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
         typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>),typeof(ExactEnumConverter<TimerCompletionPolicy>),
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),

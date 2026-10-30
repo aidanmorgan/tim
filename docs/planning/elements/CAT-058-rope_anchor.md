@@ -2,7 +2,7 @@
 
 This is the Story 7.0 CAT-058-D declaration readiness spec for the rope anchor. It also carries the route, length and tension facts of the rope connector itself (EL-205), which has no catalogue entry of its own; [CAT-053 pulley](CAT-053-pulley.md) and [CAT-067 weight](CAT-067-weight.md) cross-reference this file for them. Baseline commit is `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge; current-engine files are cited at the same commit.
 
-Current implementation authority: package/bundle discovery and .tscn assets; C# f32 generic constraints and typed command/query/event interfaces. Pinned source/API citations below describe harvest baseline. Native unit/integration acceptance applies now; Chrome recipes are retained post-catalogue. Finite entry decisions 1–6 remain explicit blockers under 10.2b, not guessed constants.
+Current implementation authority: package/bundle discovery and .tscn assets; C# f32 generic constraints and typed command/query/event interfaces. Pinned source/API citations below describe harvest baseline. Native unit/integration acceptance applies now; Chrome recipes are retained post-catalogue. Entry decisions 1–7 are resolved below for 10.2b by the coordinator on 30 October 2026, using retained source behavior and current runtime-control conventions. The [implementation contract](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md) records the complete current design and candidate evidence. The candidate implements the straight-rope scope; independent review/publication remain pending, and pulley/browser qualification is not claimed.
 
 ## 1. Identity
 
@@ -13,7 +13,7 @@ Current implementation authority: package/bundle discovery and .tscn assets; C# 
 | Requirement anchor | [CAT-058](../requirements.md#current-cat-058); retained behaviour [todo-140](../requirements.md#todo-140) and [todo-141](../requirements.md#todo-141) |
 | Mapped identities | [EL-064 Metal loop anchor](../invest/named-elements.md#element-064) (candidate — Batch A confirms); [EL-205 Rope](../invest/named-elements.md#element-205) (candidate — Batch A confirms; the rope is a connection, not a catalogue part) |
 | Roadmap story |10.2b Rope Anchor, tensile rope and cutting;10.2c owns later pulley routing. [Independent contracts](../../../_bmad-output/planning-artifacts/epics.md#story-102b-rope-anchor-tensile-rope-and-cutting-cat-058). |
-| Status | not started |
+| Status | 10.2b implementation candidate; independent review/publication pending; pulley and browser qualification later |
 
 ## 2. Declaration
 
@@ -82,12 +82,14 @@ Capability families: see the CAT-058 row of the [general-engine element map](../
 - Typed connection storage and validation pattern: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L62`.
 - Save codec version enum: `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`.
 
-**Missing**
+**Current 10.2b candidate**
 
-- Rope connection domain, `Tie` socket and attachment role enums — Story 10.2.
-- Tension-only (unilateral) rope route constraint in the TGS Soft solver, with route compilation from the logical graph — Story 10.2.
-- Route topology admission (branch, loop, duplicate, incomplete-route and fixed-route rejection) — Story 10.2.
-- Committed route read for rope artwork (taut/slack/open) — Story 10.2.
+- Rope/Tie/Bidirectional and declared attachment roles; parameter-evaluated Weight eye and static RopeAnchor package.
+- Canonical straight routes, measured 0.05–200m spans, graph refusal and one projected tensile row in the existing TGS schedule. Open guide topology has no equation; finite-radius guided geometry remains 10.2c.
+- Committed Open/Slack/Taut geometry and Intact/Cut integrity; Running/Paused cut queues until the next committed physical step. Reset restores authored endpoints and length; Building saves omit cut state.
+- Retained strand/knot artwork follows committed attachments. Native proof and review status live in the implementation contract; browser qualification is pending.
+
+**Later gates**
 - Pendulum and counterweight qualification on the same rope law — Story 10.4.
 
 **Element dependencies**
@@ -170,10 +172,12 @@ Requirement row: [CAT-058](../requirements.md#current-cat-058); story 10.2.
 
 ## 6. Open questions
 
-1. Rope length authoring: is length always the connect-time distance, or may the player edit it? Keep the legacy 0.05–200 m bounds? Unspecified — owner decision.
-2. Rope compliance: natural frequency and damping ratio of the TGS Soft rope row. Unspecified — owner decision.
-3. Rope mass and sag: legacy rope is massless and slack curvature is cosmetic only. Confirm massless rope. Unspecified — owner decision.
-4. Anchor contact material (restitution, friction) and whether the anchor may be rotated or wall-mounted (supported orientation modes). Unspecified — owner decision.
-5. Is EL-205 Rope only a connection type (legacy), or does it need its own inventory allowance in campaign levels? Unspecified — owner decision.
-6. f32 taut/slack threshold that replaces the legacy 0.001 m literal. Unspecified — owner decision.
-7. **Resolved scope, owner, 24 October 2026:** cutting is required in 10.2b. Before implementation, define the typed cut/release command and supported phase, atomic committed removal, unknown/already-cut refusal and Reset restoration of the original authored route. Save/load preserves authored endpoints/length; runtime cut state is not silently baked into construction. Steel-cable cutting resistance remains EL-067's separate acceptance.
+Resolved entry decisions — coordinator,30October2026. These are explicit implementation decisions, not a claim of a new owner answer. They settle the former blockers; the [10.2b contract](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md#design-notes) supplies the current command/read and numerical details.
+
+1. Connect-time world Tie distance sets per-span length, inclusive0.05–200m. Moves and mass edits preserve it; reconnect remeasures. Zero, missing, nonfinite and outside values refuse. No separate length editor in10.2b.
+2. Massless, tension-only/inextensible gameplay uses the shared projected soft-constraint law. Explicitly extend the existing contact regularization policy (60Hz, damping ratio10) to the new length row through effective-mass spring/damping coefficients. This is numerical conditioning, not a rope material or elastic-energy store. Verify gameplay support, release and energy behavior; do not inherit historical precision pins or a second solver.
+3. Rope has no mass/collider. Slack sag is a length-matched cosmetic approximation driven by committed attachments, with no physical work.
+4. Anchor uses the sourced restitution1, threshold0.1m/s, friction0.3 and rolling0; static mass0. Existing full3D placement rotations transform collider, Tie and art. No separate wall-mount attachment mechanic is added.
+5. Rope is a connection, with no separate inventory stock or metre budget. Existing level endpoint stock and connection permissions still apply.
+6. Open means incomplete or cut; Slack means current geometric length below authored maximum; otherwise Taut. No inherited0.001m deadband or universal epsilon. State classification does not assert nonzero tension. Coincident positive-length endpoints are slack and never fault a tick.
+7. Cutting remains required in10.2b. Running/Paused accept a typed span-targeted CutRope request through the existing command path. Applied acknowledges queued input; the UI says Cut queued until the next successful committed step removes that route's tensile row and publishes Cut/Open. Paused waits for Step/Resume; no artificial time advance. Pending/already-cut route and unknown span refuse typed without altering other routes. Discarded candidates do not publish or consume an unapplied request. Reset clears cuts and restores original authored endpoints/lengths; Building-only Save/Load stores the uncut authored construction. Build-mode connection deletion/Undo is distinct. Steel-cable resistance remains EL-067; finite-radius pulley routing remains10.2c.

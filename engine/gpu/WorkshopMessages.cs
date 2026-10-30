@@ -1,15 +1,16 @@
 using System;
 using System.Linq;
+using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Every Workshop command and query (closed set). <see cref="WorkshopCommandKind.ObserveMemory"/> is the stopped memory
 /// observation query (Story 9A.3), answered by its acknowledgement's <see cref="WorkshopResponse.Memory"/>.</summary>
-public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical, ObserveMemory }
+public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical, ObserveMemory, CutRope }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopCompiledScene? Scene, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
-    CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopElectricalControl? Electrical = null);
+    CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopElectricalControl? Electrical = null, RopeSpanId? Cut = null);
 public readonly record struct WorkshopCommandIdentity(CommandSequence Sequence, SimulationEpoch Epoch, AuthorityRevision Revision, CadenceRevision Cadence, ProjectionEpoch Projection);
 public readonly record struct WorkshopResponse(CommandSequence Sequence, WorkshopResponseKind Kind,
     WorkshopCommandResult Result, WorkshopSimulationPhase Phase, WorkshopRead Read, RuntimeSessionId Session = default, PublicationSequence Publication = default,
@@ -51,6 +52,28 @@ public static class WorkshopMessages
 
     internal static void ValidatePresentationOwners(WorkshopRead read, WorkshopCompiledScene construction)
     {
+        var expectedRopes = read.Epoch.Value == 0 ? 0 : construction.Physics.TensileSpans.Length;
+        if (read.Presentation.Ropes.Length != expectedRopes) throw new ArgumentException("Rope observation population differs from its installation.");
+        var cutOwners = new System.Collections.Generic.Dictionary<RopeSpanId, RopeRouteId>();
+        foreach (var span in construction.Physics.TensileSpans) cutOwners.Add(span.Id, span.Route);
+        var bodies = construction.Physics.Bodies.ToArray().ToDictionary(body => body.Id);
+        for (var i = 0; i < read.Presentation.Ropes.Length; i++)
+        {
+            var rope = read.Presentation.Ropes[i];
+            var declared = construction.Physics.TensileSpans[i];
+            if (declared.Id != rope.Id || declared.Route != rope.Route || declared.Order != rope.Order ||
+                declared.BodyA != rope.BodyA || declared.BodyB != rope.BodyB || declared.MaximumLength != rope.MaximumLength ||
+                (rope.Integrity == RopeIntegrity.Intact && (rope.State == RopeState.Open) == declared.Complete) ||
+                (rope.CutSpan.Value != 0 && (!cutOwners.TryGetValue(rope.CutSpan, out var cutRoute) || cutRoute != rope.Route)) ||
+                (read.Tick.Value == 0 && rope.Integrity != RopeIntegrity.Intact))
+                throw new ArgumentException("Rope observation names foreign ownership.");
+            // One centimetre is below the strand's 2.5cm radius: enough for render/pose f32 rounding,
+            // but detached knots cannot be hidden by translating both endpoints together.
+            const float attachmentAllowance = .01f;
+            if (Vector3.Distance(rope.AttachmentA, Attachment(declared.BodyA, declared.LocalA)) > attachmentAllowance ||
+                Vector3.Distance(rope.AttachmentB, Attachment(declared.BodyB, declared.LocalB)) > attachmentAllowance)
+                throw new ArgumentException("Rope attachment differs from its committed body socket.");
+        }
         for(var i=0;i<read.Captures.Count;i++)
             if(!construction.OwnsCapture(new(read.Captures[i].Sensor,read.Captures[i].Target)))
                 throw new ArgumentException("Capture observation names a foreign policy or target.");
@@ -81,6 +104,19 @@ public static class WorkshopMessages
         if(read.Presentation.Logic.Length!=(read.Epoch.Value==0 ? 0 : expectedLogic))
             throw new ArgumentException("Electrical logic observation population differs from its installed owners.");
         bool HasOwner(GpuBodyId owner) => construction.Owners.Contains(owner);
+        Vector3 Attachment(GpuBodyId owner, Vector3 local)
+        {
+            var body = bodies[owner];
+            var cell = body.Cell; var position = body.Local; var rotation = body.Rotation;
+            if (body.Motion == RigidMotionKind.Dynamic)
+            {
+                if (!read.Bodies.TryGet(owner, out var committed))
+                    throw new ArgumentException("Rope attachment has no committed dynamic owner.");
+                cell = committed.Body.Cell; position = committed.Body.Local; rotation = committed.Rotation;
+            }
+            return new Vector3((cell.X + position.X) / 16f, (cell.Y + position.Y) / 16f, (cell.Z + position.Z) / 16f) +
+                Vector3.Transform(local, new Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W));
+        }
     }
 
     internal static void ValidateScheduleIdentity(WorkshopResponse response)
@@ -103,7 +139,7 @@ public static class WorkshopMessages
             if (capture.Domain != WorkshopClockDomain.SimulationMonotonic || read.Epoch.Value == 0)
                 throw new ArgumentException("Physical read requires its simulation native clock.");
         }
-        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0)
+        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0 || read.Presentation.Ropes.Length != 0)
             throw new ArgumentException("An installed physical read requires its original capture.");
     }
 }

@@ -127,6 +127,12 @@ public partial class MachineWorld
         return new(delivery.Response.Result, delivery.Applicable);
     }
 
+    public async Task<WorkshopCompletion> CutRope(RopeSpanId span)
+    {
+        var delivery = await ExecuteWorkshop(WorkshopCommandKind.CutRope, cut: span);
+        return new(delivery.Response.Result, delivery.Applicable);
+    }
+
     public async Task<WorkshopCompletion> ConfigureElectrical(GpuBodyId owner, ElectricalEnable enabled)
     {
         var delivery = await ExecuteWorkshop(WorkshopCommandKind.ConfigureElectrical, electrical: new(owner, enabled));
@@ -153,7 +159,7 @@ public partial class MachineWorld
         return new(response.Result, delivery.Applicable);
     }
 
-    private async Task<WorkshopDelivery> ExecuteWorkshop(WorkshopCommandKind kind, WorkshopConstruction? next = null, WorkshopElectricalControl? electrical = null)
+    private async Task<WorkshopDelivery> ExecuteWorkshop(WorkshopCommandKind kind, WorkshopConstruction? next = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
     {
         var client = _workshopClient ?? throw new InvalidOperationException("GPU worker is not ready.");
         if (_workshopPending) throw new InvalidOperationException("A Workshop command is pending.");
@@ -165,12 +171,12 @@ public partial class MachineWorld
             WorkshopCommandKind.Construct => WorkshopPhase.Admitting,
             WorkshopCommandKind.Run => WorkshopPhase.Starting,
             WorkshopCommandKind.Reset => WorkshopPhase.Resetting,
-            WorkshopCommandKind.Pause or WorkshopCommandKind.Resume or WorkshopCommandKind.Step or WorkshopCommandKind.Save or WorkshopCommandKind.ConfigureElectrical => previous,
+            WorkshopCommandKind.Pause or WorkshopCommandKind.Resume or WorkshopCommandKind.Step or WorkshopCommandKind.Save or WorkshopCommandKind.ConfigureElectrical or WorkshopCommandKind.CutRope => previous,
             _ => throw new ArgumentException("Unsupported scene command.")
         };
         try
         {
-            var delivery = await client.Execute(kind, next, electrical: electrical);
+            var delivery = await client.Execute(kind, next, electrical: electrical, cut: cut);
             var response = delivery.Response;
             if (_workshopRemoved || operation != _workshopOperation) return new(response, false);
             if (!delivery.Applicable) return new(response, false);

@@ -47,7 +47,7 @@ public sealed record NamedEntry(string Source, BundleEntry Entry);
 public static class BundleValidator
 {
     private const SimulationDomain AllDomains = SimulationDomain.Mechanical | SimulationDomain.Electrical | SimulationDomain.Signal |
-        SimulationDomain.Fluid | SimulationDomain.Audio;
+        SimulationDomain.Fluid | SimulationDomain.Audio | SimulationDomain.Rope;
 
     public static IReadOnlyList<BundleError> Validate(IReadOnlyList<NamedEntry> entries)
     {
@@ -83,7 +83,7 @@ public static class BundleValidator
             var sockets = new HashSet<PortSocket>(4);
             for (var i = 0; i < entry.Ports.Count; i++)
             {
-                Port($"Ports[{i}]", entry.Ports[i]);
+                Port($"Ports[{i}]", entry.Ports[i], entry.Metadata.Parameters);
                 if (!sockets.Add(entry.Ports[i].Socket))
                     errors.Add(new(BundleErrorCode.DuplicatePort, $"{source}.Ports[{i}].Socket: {entry.Ports[i].Socket} is declared more than once"));
             }
@@ -330,7 +330,7 @@ public static class BundleValidator
                 OutOfRange(path + ".Options");
         }
 
-        private void Port(string path, PortDescriptor port)
+        private void Port(string path, PortDescriptor port, IReadOnlyList<ParameterDescriptor> parameters)
         {
             Defined(path + ".Socket", port.Socket);
             Defined(path + ".Domain", port.Domain);
@@ -340,6 +340,30 @@ public static class BundleValidator
                 errors.Add(new(BundleErrorCode.PortSignalKind, $"{source}.{path}.Signal: a Signal port declares its signal kind and no other port does"));
             Finite(path + ".LocalPosition", port.LocalPosition);
             Finite(path + ".Normal", port.Normal);
+            Defined(path + ".AttachmentRole", port.AttachmentRole);
+            if (port.Domain == SimulationDomain.Rope)
+            {
+                if (port.Socket != PortSocket.Tie || port.Direction != PortDirection.Bidirectional ||
+                    port.AttachmentRole == RopeAttachmentRole.None) OutOfRange(path + ".AttachmentRole");
+            }
+            else if (port.AttachmentRole != RopeAttachmentRole.None || port.Socket == PortSocket.Tie)
+                OutOfRange(path + ".AttachmentRole");
+            if (port.PositionBinding is { } binding)
+            {
+                Finite(path + ".PositionBinding.Multiplier", binding.Multiplier);
+                Finite(path + ".PositionBinding.Offset", binding.Offset);
+                var matches = parameters.Where(p => new ParameterId(p.Key) == binding.Parameter).ToArray();
+                if (matches.Length != 1 || matches[0].Kind != ParameterKind.Real)
+                    OutOfRange(path + ".PositionBinding.Parameter");
+                else
+                {
+                    var parameter = matches[0];
+                    Finite(path + ".PositionBinding.Minimum", binding.Evaluate(parameter.Minimum));
+                    Finite(path + ".PositionBinding.Maximum", binding.Evaluate(parameter.Maximum));
+                    if (binding.Evaluate(parameter.Default) != port.LocalPosition)
+                        OutOfRange(path + ".PositionBinding.Default");
+                }
+            }
             // A port normal is a direction: unit length within f32 rounding.
             var length = port.Normal.LengthSquared();
             if (float.IsFinite(length) && MathF.Abs(length - 1f) > 1e-5f) OutOfRange(path + ".Normal");

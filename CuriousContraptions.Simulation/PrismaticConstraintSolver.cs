@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.Intrinsics;
 using CuriousContraptions.Gpu;
+using static CuriousContraptions.Simulation.ConstraintBodyImpulse;
 
 namespace CuriousContraptions.Simulation;
 
@@ -77,27 +78,6 @@ internal static class PrismaticConstraintSolver
                 Minimum = minimum
             };
         }
-    }
-
-    public static float ConstraintMass(SimBody body, Vector3 linear, Vector3 angular)
-    {
-        if (body.Motion != RigidMotionKind.Dynamic) return 0f;
-        return body.InvMass * Vector3.Dot(linear, linear) + WorkshopCollisionKernels.InverseInertiaCoupling(body, angular, angular);
-    }
-
-    public static float ConstraintVelocity(SimBody body, Vector3 linear, Vector3 angular) =>
-        Vector3.Dot(linear, body.LinearVelocity) + Vector3.Dot(angular, body.AngularVelocity);
-
-    private static void ApplyBodyImpulse(SimBody body, Vector3 linear, Vector3 angular, float impulse)
-    {
-        if (body.Motion != RigidMotionKind.Dynamic) return;
-        body.Vx += linear.X * impulse * body.InvMass;
-        body.Vy += linear.Y * impulse * body.InvMass;
-        body.Vz += linear.Z * impulse * body.InvMass;
-        var dw = WorkshopCollisionKernels.ApplyInvInertia(body, angular * impulse);
-        body.Wx += dw.X;
-        body.Wy += dw.Y;
-        body.Wz += dw.Z;
     }
 
     public static void ApplyConstraintImpulse(SimJoint joint, in ConstraintRowData row, float impulse)

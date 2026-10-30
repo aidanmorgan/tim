@@ -16,6 +16,8 @@ struct ConnectionRecord {
     domain: uint32;
     from_socket: uint32;
     to_socket: uint32;
+    has_rope_length: bool;
+    rope_length: float;
 }
 
 // One authored assistance knot (Story 9A.44): eleven f32 lanes. A puzzle record carries exactly nine, the forgiving, balanced

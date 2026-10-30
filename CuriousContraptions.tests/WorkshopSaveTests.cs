@@ -740,7 +740,7 @@ public sealed class WorkshopSaveTests
         }
         var instancesVector = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, instanceOffsets);
         CuriousContraptions.Wire.ConstructionRecord.StartConnectionsVector(builder, 1);
-        CuriousContraptions.Wire.ConnectionRecord.CreateConnectionRecord(builder, source, target, domain, fromSocket, toSocket);
+        CuriousContraptions.Wire.ConnectionRecord.CreateConnectionRecord(builder, source, target, domain, fromSocket, toSocket, false, 0f);
         var connectionsVector = builder.EndVector();
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, save.Construction.Revision.Value);

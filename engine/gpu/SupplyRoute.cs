@@ -248,6 +248,7 @@ public static class SupplyCycles
 /// <summary>Player controls the discrete owner hands to one physics step: the enable state of every admitted source, in source order.</summary>
 public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 {
+    public RopeSpanId[] Cuts { get; init; } = [];
     public static WorkshopTickControls For(PhysicsElectricalRead committed, Func<GpuBodyId, ElectricalEnable, ElectricalEnable> enable)
     {
         ArgumentNullException.ThrowIfNull(enable);
@@ -266,12 +267,13 @@ public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 /// whether its compiled supply route is closed this tick. Data flows one way: committed discrete state → next physics step.</summary>
 public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] SupplyClosed, ElectricalLogicRead[]? Logic = null)
 {
+    public RopeSpanId[] Cuts { get; init; } = [];
     public static PhysicsTickInputs Admission { get; } = new([], []);
     public static PhysicsTickInputs Compose(CompiledSupplyGraph graph, int prismatics, WorkshopTickControls controls,
         Func<GpuBodyId, bool> contactClosed)
     {
         var resolved=graph.Resolve(prismatics,controls,contactClosed);
-        return new(controls.SourceEnable,resolved.Consumers,resolved.Logic);
+        return new(controls.SourceEnable,resolved.Consumers,resolved.Logic) { Cuts = controls.Cuts };
     }
     public void Validate(int sources, int prismatics)
     {

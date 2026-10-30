@@ -31,7 +31,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Load();
-        Assert.Equal(new[] { new PartId("ball"), new PartId("basket"), new PartId("ramp"), new PartId("switch"), new PartId("lamp"), new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or"), new PartId("electrical_xor"), new PartId("weight") }.OrderBy(id => id),
+        Assert.Equal(new[] { new PartId("ball"), new PartId("basket"), new PartId("ramp"), new PartId("switch"), new PartId("lamp"), new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or"), new PartId("electrical_xor"), new PartId("weight"), new PartId("rope_anchor") }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
         // Each package's declared f32 material compiles exactly (the generic dynamic-body compile): Basketball 0.34 m, 1 kg,
         // restitution 0.55, rolling 0.035; Bowling 0.28 m, 4 kg, restitution 0.14, rolling 0.03 (CAT-014, owner 9 Oct 2026).
@@ -397,7 +397,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public void SetDeclaredVisible(GpuBodyId owner, bool visible) { }
         public bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out System.Collections.Generic.IReadOnlyList<DeclaredPresentationSample> samples) { samples = System.Array.Empty<DeclaredPresentationSample>(); return false; }
         public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null) =>
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null) =>
             throw new InvalidOperationException("Commands are outside this UI binding fixture.");
         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No cancellable test transport request.");
         public bool TryRead(out WorkshopResponse response)
@@ -427,7 +427,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
         public WorkshopTransportState TransportState => WorkshopTransportState.Ready;
         public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
         {
             var command = new WorkshopCommand(new(++_sequence), kind, Epoch, Revision, construction is { } authored ? CompiledSceneFixture.Compile(authored) : null, target, Session: Session, Cadence: new(1), Projection: new(1));
             var dispatched = _cursor.ReadOrder;

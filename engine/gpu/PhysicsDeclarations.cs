@@ -221,6 +221,8 @@ public readonly record struct PlanarGuideDeclaration(
 /// Story 9R.5b (owner decision, 20 Oct 2026): no table has a fixed capacity; every table is sized from this scene at Run.</summary>
 public sealed class PhysicsSceneDeclaration
 {
+    private readonly TensileSpanDeclaration[] _tensileSpans;
+    public ReadOnlySpan<TensileSpanDeclaration> TensileSpans => _tensileSpans;
     private readonly ContactLoadSensorDeclaration[] _contactLoadSensors;
     /// <summary>The compiled per-plate contact-load rows (Story 9R.4), sorted by identity.</summary>
     public ReadOnlySpan<ContactLoadSensorDeclaration> ContactLoadSensors => _contactLoadSensors;
@@ -263,7 +265,8 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<SupplyNodeDeclaration> supplyNodes = default,
         ReadOnlySpan<SupplyEdge> supplyEdges = default,
         ReadOnlySpan<ContactLoadSensorDeclaration> contactLoadSensors = default,
-        ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives = default)
+        ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives = default,
+        ReadOnlySpan<TensileSpanDeclaration> tensileSpans = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
@@ -376,6 +379,46 @@ public sealed class PhysicsSceneDeclaration
                 !pairs.Add(joint.BodyA.Value < joint.BodyB.Value ? (joint.BodyA, joint.BodyB) : (joint.BodyB, joint.BodyA)))
                 throw new ArgumentException("A prismatic joint requires a unique admitted pair with a dynamic body.");
         }
+        var spanIds = new HashSet<RopeSpanId>();
+        var routeOrders = new HashSet<(RopeRouteId, uint)>();
+        foreach (var span in tensileSpans)
+        {
+            span.Validate();
+            if (!spanIds.Add(span.Id) || !routeOrders.Add((span.Route, span.Order)) ||
+                !bodyMap.TryGetValue(span.BodyA, out var a) || !bodyMap.TryGetValue(span.BodyB, out var b) ||
+                a.Motion is not (RigidMotionKind.Static or RigidMotionKind.Dynamic) ||
+                b.Motion is not (RigidMotionKind.Static or RigidMotionKind.Dynamic))
+                throw new ArgumentException("Tensile span requires unique identities and admitted participants.");
+            if (span.Complete && a.Motion == RigidMotionKind.Static && b.Motion == RigidMotionKind.Static &&
+                System.Numerics.Vector3.Distance(Attachment(a, span.LocalA), Attachment(b, span.LocalB)) > span.MaximumLength)
+                throw new ArgumentException("An immovable rope exceeds its authored length.");
+        }
+        _tensileSpans = tensileSpans.ToArray();
+        Array.Sort(_tensileSpans, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        var orderedRoutes = new Dictionary<RopeRouteId, SortedDictionary<uint, TensileSpanDeclaration>>();
+        foreach (var span in _tensileSpans)
+        {
+            if (!orderedRoutes.TryGetValue(span.Route, out var ordered)) orderedRoutes.Add(span.Route, ordered = new());
+            ordered.Add(span.Order, span);
+        }
+        foreach (var route in orderedRoutes.Values)
+        {
+            uint order = 0;
+            TensileSpanDeclaration? previous = null;
+            var visited = new HashSet<GpuBodyId>();
+            foreach (var span in route.Values)
+            {
+                if (span.Order != order++ || (previous is { } prior &&
+                    (prior.BodyB != span.BodyA || prior.LocalB != span.LocalA)) ||
+                    !visited.Add(span.BodyA))
+                    throw new ArgumentException("Tensile route must be one ordered acyclic chain.");
+                previous = span;
+            }
+            if (previous is { } last && !visited.Add(last.BodyB)) throw new ArgumentException("Tensile route closes a cycle.");
+        }
+        foreach (var span in _tensileSpans)
+            if (span.Complete && (span.Order != 0 || Array.Exists(_tensileSpans, other => other.Route == span.Route && other.Id != span.Id)))
+                throw new ArgumentException("Complete guided routes require supported guide geometry.");
         _prismatics = prismatics.ToArray();
         Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         var driven = new HashSet<PrismaticConstraintId>(4);
@@ -407,7 +450,7 @@ public sealed class PhysicsSceneDeclaration
         Array.Sort(_contactWorks, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         World = new(_bodies.Length, _colliders.Length, _materials.Length, _sensors.Length, dynamicCount, _guides.Length,
             _triggers.Length, _contactWorks.Length, _orientationSensors.Length, Electrical.Sources.Length,
-            Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length);
+            Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length, _tensileSpans.Length);
         _ = World.ByteLength;
         Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics);
     }
@@ -417,6 +460,10 @@ public sealed class PhysicsSceneDeclaration
         if (id == 0 || id >= next || !identities.Add(id))
             throw new ArgumentException("Physical identities must be allocated once in the document.");
     }
+
+    private static System.Numerics.Vector3 Attachment(RigidBodyDeclaration body, System.Numerics.Vector3 local) =>
+        new System.Numerics.Vector3((body.Cell.X + body.Local.X) / 16f, (body.Cell.Y + body.Local.Y) / 16f, (body.Cell.Z + body.Local.Z) / 16f) +
+        System.Numerics.Vector3.Transform(local, new System.Numerics.Quaternion(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W));
 }
 
 internal static class PhysicsDeclarationBounds

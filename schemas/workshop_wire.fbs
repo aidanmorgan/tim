@@ -27,6 +27,7 @@ enum CommandKind : uint32 {
     Step = 9,
     Save = 10,
     ConfigureElectrical = 11,
+    CutRope = 13,
     // The stopped memory observation query (Story 9A.3): its acknowledgement carries WorkshopResponse.memory.
     ObserveMemory = 12
 }
@@ -240,6 +241,7 @@ table WorkshopResponse {
     actuator_drives: [ActuatorDriveRecord];
     contact_loads: [ContactLoadRecord];
     electrical_logic: [ElectricalLogicRecord];
+    ropes: [RopeSpanReadRecord];
     // Present on installation: workers admit the same compiled capabilities.
     scene: CompiledSceneRecord;
 }
@@ -254,6 +256,7 @@ table WorkshopCommand {
     cadence: uint64;
     projection: uint64;
     electrical: ElectricalControl;
+    cut_span: ulong = null;
     target: CommandIdentityRecord;
     scene: CompiledSceneRecord;
 }
@@ -605,6 +608,33 @@ table CompiledPresentationRecord {
     source_capacity: float;
 }
 
+table RopeSpanReadRecord {
+    id: ulong;
+    route: ulong;
+    order: uint;
+    body_a: ulong;
+    body_b: ulong;
+    attachment_a: Vec3f;
+    attachment_b: Vec3f;
+    maximum_length: float;
+    current_length: float;
+    integrity: uint;
+    state: uint;
+    cut_span: ulong;
+}
+
+table TensileSpanRecord {
+    id: ulong;
+    route: ulong;
+    order: uint;
+    body_a: ulong;
+    local_a: Vec3f;
+    body_b: ulong;
+    local_b: Vec3f;
+    maximum_length: float;
+    complete: bool;
+}
+
 table CompiledSceneRecord {
     identity: ulong;
     revision: ulong;
@@ -623,6 +653,7 @@ table CompiledSceneRecord {
     electrical_sources: [CapabilityElectricalSourceDeclarationRecord];
     electrical_bindings: [CapabilityElectricalStorageBindingRecord];
     prismatics: [CapabilityPrismaticConstraintDeclarationRecord];
+    tensile_spans: [TensileSpanRecord];
     supply_nodes: [CapabilitySupplyNodeDeclarationRecord];
     supply_edges: [CapabilitySupplyEdgeRecord];
     contact_load_sensors: [CapabilityContactLoadSensorDeclarationRecord];

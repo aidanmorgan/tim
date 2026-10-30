@@ -3,6 +3,25 @@ using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
 
+public readonly record struct RopeSpanRead(RopeSpanId Id, RopeRouteId Route, uint Order, GpuBodyId BodyA, GpuBodyId BodyB,
+    Vector3 AttachmentA, Vector3 AttachmentB, float MaximumLength, float CurrentLength,
+    RopeIntegrity Integrity, RopeState State, RopeSpanId CutSpan)
+{
+    public void Validate()
+    {
+        if (Id.Value == 0 || Route.Value == 0 || BodyA.Value == 0 || BodyB.Value == 0 || BodyA == BodyB ||
+            !Enum.IsDefined(Integrity) || !Enum.IsDefined(State) || !Finite(AttachmentA) || !Finite(AttachmentB) ||
+            !float.IsFinite(MaximumLength) || MaximumLength < .05f || MaximumLength > 200f ||
+            !float.IsFinite(CurrentLength) || CurrentLength < 0f || CurrentLength != Vector3.Distance(AttachmentA, AttachmentB) ||
+            (State == RopeState.Slack && CurrentLength >= MaximumLength) ||
+            (State == RopeState.Taut && CurrentLength < MaximumLength) ||
+            (Integrity == RopeIntegrity.Intact) != (CutSpan.Value == 0) ||
+            (Integrity == RopeIntegrity.Cut && State != RopeState.Open))
+            throw new ArgumentException("Invalid committed rope observation.");
+    }
+    private static bool Finite(Vector3 value) => float.IsFinite(value.X) && float.IsFinite(value.Y) && float.IsFinite(value.Z);
+}
+
 [Flags]
 public enum ElectricalInputState : byte { Neither=0, FirstOnly=1, SecondOnly=2, Both=3 }
 public readonly record struct ElectricalLogicRead(GpuBodyId Owner, ElectricalInputState Inputs, bool Supplied, bool Active)
@@ -48,14 +67,24 @@ public readonly record struct ActuatorDriveRead(
 /// <summary>Immutable committed presentation queries. Population comes from the compiled world.</summary>
 public readonly struct PhysicsPresentationRead
 {
+    private readonly RopeSpanRead[]? _ropes;
+    public ReadOnlySpan<RopeSpanRead> Ropes => _ropes;
     private readonly ActuatorDriveRead[]? _actuators;
     private readonly ContactLoadSensorRead[]? _loads;
     private readonly ElectricalLogicRead[]? _logic;
     public ReadOnlySpan<ElectricalLogicRead> Logic => _logic;
     public ReadOnlySpan<ActuatorDriveRead> Actuators => _actuators;
     public ReadOnlySpan<ContactLoadSensorRead> Loads => _loads;
-    public PhysicsPresentationRead(ReadOnlySpan<ActuatorDriveRead> actuators, ReadOnlySpan<ContactLoadSensorRead> loads, ReadOnlySpan<ElectricalLogicRead> logic = default)
+    public PhysicsPresentationRead(ReadOnlySpan<ActuatorDriveRead> actuators, ReadOnlySpan<ContactLoadSensorRead> loads, ReadOnlySpan<ElectricalLogicRead> logic = default,
+        ReadOnlySpan<RopeSpanRead> ropes = default)
     {
+        for (var i = 0; i < ropes.Length; i++)
+        {
+            ropes[i].Validate();
+            if (i > 0 && ropes[i - 1].Id.Value >= ropes[i].Id.Value)
+                throw new ArgumentException("Rope observations require ordered unique identities.");
+        }
+        _ropes = ropes.ToArray();
         for (var i = 0; i < actuators.Length; i++)
         {
             actuators[i].Validate();
@@ -79,7 +108,7 @@ public readonly struct PhysicsPresentationRead
         _actuators = actuators.ToArray(); _loads = loads.ToArray(); _logic=logic.ToArray();
     }
     public bool HasSameBits(PhysicsPresentationRead other) =>
-        Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads) && Logic.SequenceEqual(other.Logic);
+        Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads) && Logic.SequenceEqual(other.Logic) && Ropes.SequenceEqual(other.Ropes);
 }
 
 public static partial class PhysicsGpuAbi
@@ -108,7 +137,22 @@ public static partial class PhysicsGpuAbi
         }
         var loads = new ContactLoadSensorRead[ReadContactLoadCount(bytes)];
         for (var i = 0; i < loads.Length; i++) loads[i] = ReadContactLoadSensor(bytes, i);
-        return new(actuators, loads, inputs.Logic);
+        var ropes = new RopeSpanRead[layout.TensileSpans];
+        for (var i = 0; i < ropes.Length; i++)
+        {
+            var span = ReadTensileSpan(bytes, i);
+            var record = bytes.Slice(layout.TensileSpanOffset(i), TensileSpanBytes);
+            var a = PresentationFrame(bytes.Slice(layout.BodyOffset((int)R32(record, TensileBodyAOffset)), BodyBytes));
+            var b = PresentationFrame(bytes.Slice(layout.BodyOffset((int)R32(record, TensileBodyBOffset)), BodyBytes));
+            var from = a.Position + Vector3.Transform(span.LocalA, a.Rotation);
+            var to = b.Position + Vector3.Transform(span.LocalB, b.Rotation);
+            var length = Vector3.Distance(from, to);
+            var integrity = (RopeIntegrity)R32(record, TensileIntegrityOffset);
+            ropes[i] = new(span.Id, span.Route, span.Order, span.BodyA, span.BodyB, from, to, span.MaximumLength, length,
+                integrity, integrity == RopeIntegrity.Cut || !span.Complete ? RopeState.Open :
+                    length < span.MaximumLength ? RopeState.Slack : RopeState.Taut, new(R64(record, TensileCutSpanOffset)));
+        }
+        return new(actuators, loads, inputs.Logic, ropes);
     }
     private static Vector3 PresentationVector(ReadOnlySpan<byte> body, int offset) =>
         new(RF(body, offset), RF(body, offset + 4), RF(body, offset + 8));
