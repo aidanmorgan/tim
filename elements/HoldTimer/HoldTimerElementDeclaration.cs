@@ -19,7 +19,7 @@ public sealed class HoldTimerElementDeclaration : ITimerElement, ISupplyElement,
         IconPath: "res://elements/HoldTimer/icon.svg",
         ScenePath: "res://elements/HoldTimer/hold_timer.tscn",
         Parameters: [new("hold_seconds", ParameterUnit.Second, ParameterKind.Real, .1f, 12f, 2f, [])]);
-    public ElementFootprint Footprint => new(1, 0, 0);
+    public ElementFootprint Footprint => new(1, 0, 0, 0);
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>
     [

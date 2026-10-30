@@ -46,7 +46,7 @@ public sealed class ReceiverElementDeclaration : IResidenceCaptureElement, IScen
             new("force_maximum_acceleration", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Minimum: 0f, Maximum: 12f, Default: 0f, Options: [])
         ]);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 

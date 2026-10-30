@@ -30,7 +30,7 @@ public sealed class WallElementDeclaration : IMechanicalElement, ISceneGeometryE
             new("thickness", ParameterUnit.Metre, ParameterKind.Real, Minimum: 0.12f, Maximum: 2f, Default: 0.25f, Options: [])
         ]);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 

@@ -228,6 +228,8 @@ public sealed class PhysicsSceneDeclaration
     public ReadOnlySpan<ContactLoadSensorDeclaration> ContactLoadSensors => _contactLoadSensors;
     private readonly PrismaticConstraintDeclaration[] _prismatics;
     public ReadOnlySpan<PrismaticConstraintDeclaration> Prismatics => _prismatics;
+    private readonly RevoluteConstraintDeclaration[] _revolutes;
+    public ReadOnlySpan<RevoluteConstraintDeclaration> Revolutes => _revolutes;
     private readonly PrismaticDriveDeclaration[] _prismaticDrives;
     /// <summary>The supplied drives, at most one per prismatic, sorted by joint identity (C-Gate).</summary>
     public ReadOnlySpan<PrismaticDriveDeclaration> PrismaticDrives => _prismaticDrives;
@@ -266,7 +268,8 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<SupplyEdge> supplyEdges = default,
         ReadOnlySpan<ContactLoadSensorDeclaration> contactLoadSensors = default,
         ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives = default,
-        ReadOnlySpan<TensileSpanDeclaration> tensileSpans = default)
+        ReadOnlySpan<TensileSpanDeclaration> tensileSpans = default,
+        ReadOnlySpan<RevoluteConstraintDeclaration> revolutes = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
@@ -379,6 +382,14 @@ public sealed class PhysicsSceneDeclaration
                 !pairs.Add(joint.BodyA.Value < joint.BodyB.Value ? (joint.BodyA, joint.BodyB) : (joint.BodyB, joint.BodyA)))
                 throw new ArgumentException("A prismatic joint requires a unique admitted pair with a dynamic body.");
         }
+        foreach (var joint in revolutes)
+        {
+            joint.Validate(); Identity(joint.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(joint.BodyA, out var a) || !bodyMap.TryGetValue(joint.BodyB, out var b) ||
+                (a.Motion != RigidMotionKind.Dynamic && b.Motion != RigidMotionKind.Dynamic) ||
+                !pairs.Add(joint.BodyA.Value < joint.BodyB.Value ? (joint.BodyA, joint.BodyB) : (joint.BodyB, joint.BodyA)))
+                throw new ArgumentException("A revolute joint requires a unique admitted pair with a dynamic body.");
+        }
         var spanIds = new HashSet<RopeSpanId>();
         var routeOrders = new HashSet<(RopeRouteId, uint)>();
         foreach (var span in tensileSpans)
@@ -418,6 +429,8 @@ public sealed class PhysicsSceneDeclaration
         }
         _prismatics = prismatics.ToArray();
         Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        _revolutes = revolutes.ToArray();
+        Array.Sort(_revolutes, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         var driven = new HashSet<PrismaticConstraintId>(4);
         foreach (var drive in prismaticDrives)
         {
@@ -447,9 +460,9 @@ public sealed class PhysicsSceneDeclaration
         Array.Sort(_contactWorks, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         World = new(_bodies.Length, _colliders.Length, _materials.Length, _sensors.Length, dynamicCount, _guides.Length,
             _triggers.Length, _contactWorks.Length, _orientationSensors.Length, Electrical.Sources.Length,
-            Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length, _tensileSpans.Length);
+            Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length, _tensileSpans.Length, _revolutes.Length);
         _ = World.ByteLength;
-        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics);
+        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes);
     }
 
     private static void Identity(ulong id, ulong next, HashSet<ulong> identities)

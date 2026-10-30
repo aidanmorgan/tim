@@ -18,7 +18,7 @@ public sealed class ElectricalXorElementDeclaration : ISupplyElement, ISceneGeom
         IconPath: "res://elements/ElectricalXor/icon.svg",
         ScenePath: "res://elements/ElectricalXor/electrical_xor.tscn",
         Parameters: []);
-    public ElementFootprint Footprint => new(1,0,0);
+    public ElementFootprint Footprint => new(1, 0, 0, 0);
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>
     [

@@ -32,7 +32,8 @@ public static partial class SceneGeometryExtractor
             n.Name.StartsWith("col_", StringComparison.OrdinalIgnoreCase) ||
             n.Name.Contains("-col_", StringComparison.OrdinalIgnoreCase)).ToArray();
         var sliders = entry.Mechanical?.Sliders ?? [];
-        var hasData = entry.Colliders.Count != 0 || sliders.Any(s => s.MovingBody.Colliders.Count != 0);
+        var hinges = entry.Mechanical?.Hinges ?? [];
+        var hasData = entry.Colliders.Count != 0 || sliders.Any(s => s.MovingBody.Colliders.Count != 0) || hinges.Any(h => h.MovingBody.Colliders.Count != 0);
         if (proxies.Length != 0 && hasData) throw new ArgumentException("Scene and data both declare colliders.");
         if (proxies.Length != 0 && ownership is null) throw new ArgumentException("Scene collider bodies have no ownership declaration.");
         if (ownership is null)
@@ -41,8 +42,8 @@ public static partial class SceneGeometryExtractor
             return entry with { TubeMouths = Mouths() };
         }
         if (hasData) throw new ArgumentException("A scene-owned package also declares data colliders.");
-        if (ownership.Count != 1 + sliders.Count || ownership[0].Root != ".")
-            throw new ArgumentException("Scene ownership must name the base and every slider body.");
+        if (ownership.Count != 1 + sliders.Count + hinges.Count || ownership[0].Root != ".")
+            throw new ArgumentException("Scene ownership must name the base, every slider and every hinge body.");
         for (var i = 0; i < ownership.Count; i++)
         {
             if (!byPath.ContainsKey(ownership[i].Root)) throw new ArgumentException("Body root does not exist: " + ownership[i].Root);
@@ -99,10 +100,12 @@ public static partial class SceneGeometryExtractor
         if (bodies.Any(body => body.Count == 0)) throw new ArgumentException("A scene body has no collider.");
         var bakedSliders = sliders.Select((slider, index) => slider with
         { MovingBody = slider.MovingBody with { Colliders = bodies[index + 1] } }).ToArray();
+        var bakedHinges = hinges.Select((hinge, index) => hinge with
+        { MovingBody = hinge.MovingBody with { Colliders = bodies[index + 1 + sliders.Count] } }).ToArray();
         return entry with
         {
             Colliders = bodies[0],
-            Mechanical = entry.Mechanical is { } mechanical ? mechanical with { Sliders = bakedSliders } : null,
+            Mechanical = entry.Mechanical is { } mechanical ? mechanical with { Sliders = bakedSliders, Hinges = bakedHinges } : null,
             TubeMouths = Mouths()
         };
 

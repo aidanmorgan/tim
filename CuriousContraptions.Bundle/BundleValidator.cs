@@ -77,19 +77,21 @@ public static class BundleValidator
             if (footprint.Bodies < 0) OutOfRange("Footprint.Bodies");
             if (footprint.MovingBodies < 0 || footprint.MovingBodies > footprint.Bodies) OutOfRange("Footprint.MovingBodies");
             if (footprint.PrismaticConstraints < 0) OutOfRange("Footprint.PrismaticConstraints");
+            if (footprint.RevoluteConstraints < 0) OutOfRange("Footprint.RevoluteConstraints");
             // Any entry with a body (a declared footprint body, or a mechanical payload) needs a collider, whatever its domains.
             if ((footprint.Bodies > 0 || entry.Mechanical is not null) && entry.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.Colliders: a body declares no collider"));
+            var childBodies = (entry.Mechanical?.Sliders.Count ?? 0) + (entry.Mechanical?.Hinges.Count ?? 0);
             var sockets = new HashSet<PortSocket>(4);
             for (var i = 0; i < entry.Ports.Count; i++)
             {
-                Port($"Ports[{i}]", entry.Ports[i], entry.Metadata.Parameters);
+                Port($"Ports[{i}]", entry.Ports[i], entry.Metadata.Parameters, childBodies);
                 if (!sockets.Add(entry.Ports[i].Socket))
                     errors.Add(new(BundleErrorCode.DuplicatePort, $"{source}.Ports[{i}].Socket: {entry.Ports[i].Socket} is declared more than once"));
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
-            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal, entry.Events, entry.Mechanical?.Sliders.Count ?? 0);
+            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal, entry.Events, childBodies);
             // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
             var kinds = new HashSet<SimulationEventKind>(4);
             for (var i = 0; i < entry.Events.Count; i++)
@@ -330,7 +332,7 @@ public static class BundleValidator
                 OutOfRange(path + ".Options");
         }
 
-        private void Port(string path, PortDescriptor port, IReadOnlyList<ParameterDescriptor> parameters)
+        private void Port(string path, PortDescriptor port, IReadOnlyList<ParameterDescriptor> parameters, int childBodies)
         {
             Defined(path + ".Socket", port.Socket);
             Defined(path + ".Domain", port.Domain);
@@ -343,11 +345,13 @@ public static class BundleValidator
             Defined(path + ".AttachmentRole", port.AttachmentRole);
             if (port.Domain == SimulationDomain.Rope)
             {
-                if (port.Socket != PortSocket.Tie || port.Direction != PortDirection.Bidirectional ||
+                if (port.Socket is not (PortSocket.Tie or PortSocket.TieA or PortSocket.TieB) || port.Direction != PortDirection.Bidirectional ||
                     port.AttachmentRole == RopeAttachmentRole.None) OutOfRange(path + ".AttachmentRole");
             }
-            else if (port.AttachmentRole != RopeAttachmentRole.None || port.Socket == PortSocket.Tie)
+            else if (port.AttachmentRole != RopeAttachmentRole.None || port.Socket is PortSocket.Tie or PortSocket.TieA or PortSocket.TieB)
                 OutOfRange(path + ".AttachmentRole");
+            if (port.Body.Value < 0 || port.Body.Value > childBodies)
+                OutOfRange(path + ".Body");
             if (port.PositionBinding is { } binding)
             {
                 Finite(path + ".PositionBinding.Multiplier", binding.Multiplier);
@@ -400,6 +404,7 @@ public static class BundleValidator
                 Finite($"AnchorPoints[{i}].Axis", anchor.Axis);
             }
             for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters);
+            for (var i = 0; i < mechanical.Hinges.Count; i++) Hinge($"Hinges[{i}]", mechanical.Hinges[i], parameters);
             // The owner's PowerIn route enables every declared drive; each retains its own physical limits.
             var driven = mechanical.Sliders.Select((slider, index) => (slider, index)).Where(pair => pair.slider.Drive is not null).ToArray();
             if (driven.Length > 0 && !ports.Any(port => port.Socket == PortSocket.PowerIn && port.Domain == SimulationDomain.Electrical &&
@@ -583,6 +588,34 @@ public static class BundleValidator
             }
         }
 
+        private void Hinge(string path, RevoluteHingeDescriptor hinge, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            Finite(path + ".BaseFrame.Position", hinge.BaseFrame.Position);
+            Finite(path + ".BaseFrame.Rotation", hinge.BaseFrame.Rotation);
+            if (MathF.Abs(hinge.BaseFrame.Rotation.LengthSquared() - 1f) > 1e-4f) OutOfRange(path + ".BaseFrame.Rotation");
+            Finite(path + ".MovingFrame.Position", hinge.MovingFrame.Position);
+            Finite(path + ".MovingFrame.Rotation", hinge.MovingFrame.Rotation);
+            if (MathF.Abs(hinge.MovingFrame.Rotation.LengthSquared() - 1f) > 1e-4f) OutOfRange(path + ".MovingFrame.Rotation");
+            if (Finite(path + ".LowerLimit", hinge.LowerLimit) & Finite(path + ".UpperLimit", hinge.UpperLimit))
+            {
+                if (hinge.LowerLimit < -MathF.PI || hinge.LowerLimit > MathF.PI) OutOfRange(path + ".LowerLimit");
+                if (hinge.UpperLimit < -MathF.PI || hinge.UpperLimit > MathF.PI || hinge.UpperLimit <= hinge.LowerLimit) OutOfRange(path + ".UpperLimit");
+            }
+            Value(path + ".Stiffness", hinge.Stiffness, parameters);
+            Value(path + ".Damping", hinge.Damping, parameters);
+            Value(path + ".InitialAngle", hinge.InitialAngle, parameters, allowNegative: true);
+            if (hinge.InitialAngle.Source == MechanicalValueSource.Constant && float.IsFinite(hinge.InitialAngle.Constant))
+            {
+                if (hinge.InitialAngle.Constant < hinge.LowerLimit || hinge.InitialAngle.Constant > hinge.UpperLimit)
+                    OutOfRange(path + ".InitialAngle");
+            }
+            var body = hinge.MovingBody;
+            MassFrame(path + ".MovingBody.MassFrame", body.MassFrame, KinematicMode.Dynamic, parameters);
+            for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
+            if (body.Colliders.Count == 0)
+                errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.{path}.MovingBody.Colliders: a body declares no collider"));
+        }
+
         /// <summary>One drive value inside [minimum, maximum] (excluding a zero bound when <paramref name="positive"/>): a constant
         /// directly, a parameter by its whole declared range.</summary>
         private void DriveValue(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters, float minimum, float maximum, bool positive)
@@ -592,14 +625,14 @@ public static class BundleValidator
                 if (value.Constant < minimum || value.Constant > maximum || (positive && value.Constant <= 0f)) OutOfRange(path);
                 return;
             }
-            Value(path, value, parameters);
+            Value(path, value, parameters, allowNegative: !positive);
             if (value.Source == MechanicalValueSource.Parameter &&
                 parameters.SingleOrDefault(parameter => parameter.Key == value.Parameter && parameter.Kind == ParameterKind.Real) is { Key: not null } parameter &&
                 (parameter.Minimum < minimum || parameter.Maximum > maximum || (positive && parameter.Minimum <= 0f)))
                 OutOfRange(path);
         }
 
-        private void Value(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters)
+        private void Value(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters, bool allowNegative = false)
         {
             Defined(path + ".Source", value.Source);
             Finite(path + ".Constant", value.Constant);
@@ -608,7 +641,7 @@ public static class BundleValidator
                 if (value.Constant != 0f) OutOfRange(path + ".Constant");
                 Real(path + ".Parameter", value.Parameter ?? "", parameters);
             }
-            else if (value.Parameter is not null || value.Constant < 0f) OutOfRange(path);
+            else if (value.Parameter is not null || (!allowNegative && value.Constant < 0f)) OutOfRange(path);
         }
 
         /// <summary>A key must name one of the element's declared Real parameters.</summary>
@@ -718,7 +751,7 @@ public static class BundleValidator
                 // The reached target closes a switched contact.
                 if (electrical?.Supply?.Kind != SupplyCapabilityKind.SwitchedContact)
                     OutOfRange("PulseCount.Supply");
-                if ((mechanical is { } frame && (frame.KinematicMode == KinematicMode.Dynamic || frame.Sliders.Count != 0)) || colliders.Count == 0)
+                if ((mechanical is { } frame && (frame.KinematicMode == KinematicMode.Dynamic || frame.Sliders.Count != 0 || frame.Hinges.Count != 0)) || colliders.Count == 0)
                     OutOfRange("PulseCount.Body");
             }
             if (signal.Memory is { } memory)
@@ -735,7 +768,7 @@ public static class BundleValidator
                 // Memory On closes a switched contact.
                 if (electrical?.Supply?.Kind != SupplyCapabilityKind.SwitchedContact)
                     OutOfRange("Memory.Supply");
-                if ((mechanical is { } frame && (frame.KinematicMode == KinematicMode.Dynamic || frame.Sliders.Count != 0)) || colliders.Count == 0)
+                if ((mechanical is { } frame && (frame.KinematicMode == KinematicMode.Dynamic || frame.Sliders.Count != 0 || frame.Hinges.Count != 0)) || colliders.Count == 0)
                     OutOfRange("Memory.Body");
             }
             if (signal.Oscillator is { } oscillator)
@@ -753,7 +786,7 @@ public static class BundleValidator
                         electrical?.Nodes.Any(node => node.Role == ElectricalRole.Consumer) != true)
                     OutOfRange("Oscillator.Supply");
                 // A Static frame without sliders and with a collider: each pulse names the frame's first declared collider through its compiled identity map.
-                if ((mechanical is { } frame && (frame.KinematicMode != KinematicMode.Static || frame.Sliders.Count != 0)) || colliders.Count == 0)
+                if ((mechanical is { } frame && (frame.KinematicMode != KinematicMode.Static || frame.Sliders.Count != 0 || frame.Hinges.Count != 0)) || colliders.Count == 0)
                     OutOfRange("Oscillator.Body");
             }
             if (signal.ContactLoad is { } load)
@@ -784,7 +817,7 @@ public static class BundleValidator
                     OutOfRange("ContactLoad.DepthMargin");
                 if (Finite("ContactLoad.ReleaseHoldSeconds", load.ReleaseHoldSeconds) && !(load.ReleaseHoldSeconds > 0f && load.ReleaseHoldSeconds <= 1f))
                     OutOfRange("ContactLoad.ReleaseHoldSeconds");
-                if (mechanical is not { KinematicMode: KinematicMode.Static, Sliders.Count: 0 })
+                if (mechanical is not { KinematicMode: KinematicMode.Static, Sliders.Count: 0, Hinges.Count: 0 })
                     OutOfRange("ContactLoad.Body");
                 if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
                     OutOfRange("ContactLoad.Ports");

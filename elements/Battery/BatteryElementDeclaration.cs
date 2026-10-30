@@ -49,7 +49,7 @@ public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryEl
                 RunEdit: ParameterRunEdit.RunControl)
         ]);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [

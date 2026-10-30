@@ -33,6 +33,7 @@ public static class WorkshopPhysicsCompiler
         var contactWorks = new List<ContactWorkDeclaration>(4);
         var prismatics = new List<PrismaticConstraintDeclaration>(4);
         var drives = new List<PrismaticDriveDeclaration>(4);
+        var revolutes = new List<RevoluteConstraintDeclaration>(4);
         var topology = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of);
         var supplyNodes = topology.Nodes.ToArray();
         var electricalSources = new List<ElectricalSourceDeclaration>(4);
@@ -64,9 +65,11 @@ public static class WorkshopPhysicsCompiler
             };
             if (mechanical is not null) mass.Validate(mechanical.KinematicMode);
             var sliders = mechanical?.Sliders ?? [];
-            if (entry.Footprint.Bodies != 1 + sliders.Count ||
-                entry.Footprint.MovingBodies != sliders.Count + (mode == RigidMotionKind.Dynamic ? 1 : 0) ||
-                entry.Footprint.PrismaticConstraints != sliders.Count)
+            var hinges = mechanical?.Hinges ?? [];
+            if (entry.Footprint.Bodies != 1 + sliders.Count + hinges.Count ||
+                entry.Footprint.MovingBodies != sliders.Count + hinges.Count + (mode == RigidMotionKind.Dynamic ? 1 : 0) ||
+                entry.Footprint.PrismaticConstraints != sliders.Count ||
+                entry.Footprint.RevoluteConstraints != hinges.Count)
                 throw new ArgumentException("Physical declaration disagrees with its compiled footprint.");
             bodies.Add(new(instance.Id, mode, instance.Cell, instance.Local, instance.Rotation, default, default,
                 new(mass.Mass), new(mass.Gravity.X, mass.Gravity.Y, mass.Gravity.Z), new(mass.LinearDrag),
@@ -102,6 +105,38 @@ public static class WorkshopPhysicsCompiler
                 var slot = Array.FindIndex(supplyNodes, node => node.Owner == instance.Id && node.Kind == SupplyNodeKind.Consumer);
                 if (slot < 0) throw new ArgumentException("A supplied drive requires its owner's declared electrical input.");
                 supplyNodes[slot] = supplyNodes[slot] with { Consumers = supplyNodes[slot].Consumers.IsDefault ? [joint] : supplyNodes[slot].Consumers.Add(joint) };
+            }
+            for (var i = 0; i < hinges.Count; i++)
+            {
+                var hinge = hinges[i];
+                var moving = rows.Hinges[i].Body;
+                var initialAngleDeg = hinge.InitialAngle.Evaluate(parameters);
+                var initialAngleRad = initialAngleDeg * (MathF.PI / 180f);
+                var instanceRotation = new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W);
+                var basePos = hinge.BaseFrame.Position;
+                var baseRot = hinge.BaseFrame.Rotation;
+                var angleRot = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, initialAngleRad);
+                var combinedLocalRot = Quaternion.Multiply(baseRot, angleRot);
+                var movingOffset = Vector3.Transform(hinge.MovingFrame.Position, combinedLocalRot);
+                var offset = basePos - movingOffset;
+                var displacement = Vector3.Transform(offset, instanceRotation);
+                var x = WorkshopInput.Position((instance.Cell.X + instance.Local.X) / 16f + displacement.X);
+                var y = WorkshopInput.Position((instance.Cell.Y + instance.Local.Y) / 16f + displacement.Y);
+                var z = WorkshopInput.Position((instance.Cell.Z + instance.Local.Z) / 16f + displacement.Z);
+                var worldMovingRot = Quaternion.Multiply(instanceRotation, combinedLocalRot);
+
+                var body = hinge.MovingBody;
+                var movingMass = body.MassFrame.Evaluate(values);
+                movingMass.Validate(KinematicMode.Dynamic);
+                bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+                    new(worldMovingRot.X, worldMovingRot.Y, worldMovingRot.Z, worldMovingRot.W), default, default, new(movingMass.Mass),
+                    new(movingMass.Gravity.X, movingMass.Gravity.Y, movingMass.Gravity.Z), new(movingMass.LinearDrag), MassProperties(movingMass)));
+                AddGeometry(moving, rows.Hinges[i].Material, rows.Hinges[i].Colliders, body.Colliders);
+                var joint = rows.Hinges[i].Joint;
+                revolutes.Add(new(joint, instance.Id, moving,
+                    new(hinge.BaseFrame.Position, hinge.BaseFrame.Rotation), new(hinge.MovingFrame.Position, hinge.MovingFrame.Rotation),
+                    hinge.LowerLimit, hinge.UpperLimit, hinge.Stiffness.Evaluate(parameters), hinge.Damping.Evaluate(parameters),
+                    hinge.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
             }
         }
         // A declared orientation threshold compiles its sensor only while its owner is wired, in instance order.
@@ -212,6 +247,18 @@ public static class WorkshopPhysicsCompiler
             return (centre, Quaternion.Normalize(bodyRotation * localRotation));
         }
 
+        GpuBodyId ResolvePortBody(GpuBodyId instanceId, CuriousContraptions.Abstractions.PackageBodyIndex bodyIndex)
+        {
+            if (bodyIndex.Value == 0) return instanceId;
+            var partIds = identities[instanceId];
+            if (bodyIndex.Value <= partIds.Sliders.Length)
+                return partIds.Sliders[bodyIndex.Value - 1].Body;
+            var hingeIndex = bodyIndex.Value - 1 - partIds.Sliders.Length;
+            if (hingeIndex < partIds.Hinges.Length)
+                return partIds.Hinges[hingeIndex].Body;
+            throw new ArgumentException($"Invalid port body index {bodyIndex.Value} for {instanceId}");
+        }
+
         var routes = RopeTopology.Compile(construction.Connections, endpoint =>
             DeclaredPorts.Current.Of(construction.Instances.Single(p => p.Id == endpoint.Body).PartId).ToArray()
                 .Single(port => port.Socket == endpoint.Socket).AttachmentRole);
@@ -224,16 +271,20 @@ public static class WorkshopPhysicsCompiler
                 var a = route.Attachments[order]; var b = route.Attachments[order + 1];
                 var instanceA = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == a.Body);
                 var instanceB = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == b.Body);
+                var portA = DeclaredPorts.Current.Of(instanceA.PartId).ToArray().Single(p => p.Socket == a.Socket);
+                var portB = DeclaredPorts.Current.Of(instanceB.PartId).ToArray().Single(p => p.Socket == b.Socket);
+                var bodyA = ResolvePortBody(instanceA.Id, portA.Body);
+                var bodyB = ResolvePortBody(instanceB.Id, portB.Body);
                 tensile.Add(new(new((ulong)tensile.Count + 1), new((ulong)routeIndex + 1), (uint)order,
-                    a.Body, DeclaredPorts.Current.LocalPosition(instanceA, a.Socket),
-                    b.Body, DeclaredPorts.Current.LocalPosition(instanceB, b.Socket),
+                    bodyA, DeclaredPorts.Current.LocalPosition(instanceA, a.Socket),
+                    bodyB, DeclaredPorts.Current.LocalPosition(instanceB, b.Socket),
                     route.Spans[order].RopeLength!.Value, route.Complete));
             }
         }
         return new(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(identities[link.Source].Source, identities[link.Target].Work)).ToArray(), prismatics.ToArray(),
-            supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray());
+            supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray());
     }
     /// <summary>The finite electrical store a declared Source compiles for one owner, from its own store parameters as f32: the
     /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>

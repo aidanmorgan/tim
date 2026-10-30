@@ -38,6 +38,20 @@ public static partial class PhysicsGpuAbi
     /// <summary>The rows of one prismatic joint (two transverse, three angular, the axial spring, two stops): structural.</summary>
     public const int PrismaticRowCount = 8;
 
+    public const int RevoluteBytes = 128;
+    public const int RevoluteBodyAOffset = 8;
+    public const int RevoluteBodyBOffset = 12;
+    public const int RevoluteFrameAOffset = 16;
+    public const int RevoluteFrameBOffset = 44;
+    public const int RevoluteLowerOffset = 72;
+    public const int RevoluteUpperOffset = 76;
+    public const int RevoluteStiffnessOffset = 80;
+    public const int RevoluteDampingOffset = 84;
+    public const int RevoluteCollisionOffset = 88;
+    public const int RevolutePaddingOffset = 92;
+    public const int RevoluteImpulseOffset = 96;
+    public const int RevoluteRowCount = 8;
+
     private static void WritePrismaticAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
     {
         for (var i = 0; i < scene.Prismatics.Length; i++)
@@ -137,6 +151,65 @@ public static partial class PhysicsGpuAbi
                 var impulse = RF(candidate, offset + PrismaticImpulseOffset + row * 4);
                 if (!float.IsFinite(impulse) || (PrismaticRows.IsStop((PrismaticRowKind)row) && impulse < 0))
                     throw new ArgumentException("Invalid prismatic impulse.");
+            }
+        }
+    }
+
+    private static void WriteRevoluteAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
+    {
+        for (var i = 0; i < scene.Revolutes.Length; i++)
+        {
+            var value = scene.Revolutes[i];
+            var record = data.Slice(scene.Layout.GetRevoluteOffset(value.Id.Value), RevoluteBytes);
+            U64(record, RecordIdentityOffset, value.Id.Value);
+            U32(record, RevoluteBodyAOffset, (uint)scene.Layout.GetBodySlot(value.BodyA));
+            U32(record, RevoluteBodyBOffset, (uint)scene.Layout.GetBodySlot(value.BodyB));
+            WriteConstraintFrame(record, RevoluteFrameAOffset, value.FrameA);
+            WriteConstraintFrame(record, RevoluteFrameBOffset, value.FrameB);
+            WriteEnergy(record, RevoluteLowerOffset, value.Lower);
+            WriteEnergy(record, RevoluteUpperOffset, value.Upper);
+            WriteEnergy(record, RevoluteStiffnessOffset, value.Stiffness);
+            WriteEnergy(record, RevoluteDampingOffset, value.Damping);
+            U32(record, RevoluteCollisionOffset, (uint)value.Collision);
+        }
+    }
+
+    public static RevoluteConstraintDeclaration ReadRevolute(ReadOnlySpan<byte> data, int index)
+    {
+        Header(data);
+        var layout = Layout(data);
+        if (index < 0 || index >= layout.Revolutes) throw new ArgumentException("Invalid revolute table.");
+        var record = data.Slice(layout.RevoluteOffset(index), RevoluteBytes);
+        var a = R32(record, RevoluteBodyAOffset);
+        var b = R32(record, RevoluteBodyBOffset);
+        if (a >= R32(data, HeaderBodyCountOffset) || b >= R32(data, HeaderBodyCountOffset) ||
+            R32(record, RevoluteCollisionOffset) > (uint)ConnectedCollision.Enabled ||
+            !AllZero(record.Slice(RevolutePaddingOffset, 4)))
+            throw new ArgumentException("Invalid revolute record.");
+        var result = new RevoluteConstraintDeclaration(new(R64(record, RecordIdentityOffset)),
+            new(R64(data, layout.BodyOffset((int)a))), new(R64(data, layout.BodyOffset((int)b))),
+            ReadConstraintFrame(record, RevoluteFrameAOffset), ReadConstraintFrame(record, RevoluteFrameBOffset),
+            RF(record, RevoluteLowerOffset), RF(record, RevoluteUpperOffset),
+            RF(record, RevoluteStiffnessOffset), RF(record, RevoluteDampingOffset),
+            (ConnectedCollision)R32(record, RevoluteCollisionOffset));
+        result.Validate();
+        return result;
+    }
+
+    private static void ValidateRevoluteCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source)
+    {
+        var layout = Layout(source);
+        for (var i = 0; i < layout.Revolutes; i++)
+        {
+            _ = ReadRevolute(candidate, i);
+            var offset = layout.RevoluteOffset(i);
+            if (!candidate.Slice(offset, RevoluteImpulseOffset).SequenceEqual(source.Slice(offset, RevoluteImpulseOffset)))
+                throw new ArgumentException("Revolute declaration changed.");
+            for (var row = 0; row < RevoluteRowCount; row++)
+            {
+                var impulse = RF(candidate, offset + RevoluteImpulseOffset + row * 4);
+                if (!float.IsFinite(impulse) || (RevoluteRows.IsStop((RevoluteRowKind)row) && impulse < 0))
+                    throw new ArgumentException("Invalid revolute impulse.");
             }
         }
     }

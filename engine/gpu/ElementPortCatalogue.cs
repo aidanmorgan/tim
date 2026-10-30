@@ -120,7 +120,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         if (!Enum.IsDefined(port.AttachmentRole) ||
             (domain == WorkshopConnectionDomain.Rope) != (port.AttachmentRole != RopeAttachmentRole.None))
             throw Refused(ElementPortRejection.SocketDisagrees, element, index, "declares an invalid attachment role");
-        return new(socket, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding);
+        return new(socket, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body);
     }
 
     /// <summary>The domain and direction each socket is: the activation sockets carry signals, Supply feeds and PowerIn draws.</summary>
@@ -130,7 +130,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         WorkshopSocket.SetIn or WorkshopSocket.ResetIn or WorkshopSocket.ActivationIn => (WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input),
         WorkshopSocket.Supply => (WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output),
         WorkshopSocket.PowerIn or WorkshopSocket.FirstIn or WorkshopSocket.SecondIn => (WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input),
-        WorkshopSocket.Tie => (WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional),
+        WorkshopSocket.Tie or WorkshopSocket.TieA or WorkshopSocket.TieB => (WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional),
         _ => throw new ArgumentOutOfRangeException(nameof(socket), socket, "Undefined socket.")
     };
 

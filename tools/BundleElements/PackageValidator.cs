@@ -69,10 +69,16 @@ public static partial class PackageValidator
                 var name = Enum.GetName(port.Socket);
                 if (name is null) continue; // An undefined socket is refused by the declaration's own validation.
                 var where = $"{package.Package}.Ports[{i}]";
+                var expectedParent = port.Body.Value == 0 ? "." :
+                    package.Declaration is ISceneGeometryElement geom && port.Body.Value < geom.SceneBodies.Count
+                        ? geom.SceneBodies[port.Body.Value].Root
+                        : ".";
                 if (!locators.TryGetValue(name, out var locator))
                     errors.Add(new(BundleErrorCode.MissingPortLocator, $"{where}: the scene has no {LocatorPrefix}{name} locator"));
-                else if (!locator.RootChild)
-                    errors.Add(new(BundleErrorCode.PortLocatorDisagrees, $"{where}: {LocatorPrefix}{name} is not a child of the scene root"));
+                else if (locator.Parent != expectedParent)
+                    errors.Add(new(BundleErrorCode.PortLocatorDisagrees, expectedParent == "."
+                        ? $"{where}: {LocatorPrefix}{name} is not a child of the scene root"
+                        : $"{where}: {LocatorPrefix}{name} is not a child of '{expectedParent}'"));
                 else if (locator.Origin is not { } origin)
                     errors.Add(new(BundleErrorCode.PortLocatorDisagrees, $"{where}: {LocatorPrefix}{name} has no readable transform"));
                 else if (Vector3.Distance(origin, port.LocalPosition) > AnchorTolerance)
@@ -87,7 +93,7 @@ public static partial class PackageValidator
 
     /// <summary>One <c>Loc_Port_</c> node of a scene: its name after the prefix, whether its parent is the scene root, and its
     /// local origin (null when its transform cannot be read; a node with no transform line is at the origin).</summary>
-    private sealed record SceneLocator(string Name, bool RootChild, Vector3? Origin);
+    private sealed record SceneLocator(string Name, string Parent, Vector3? Origin);
 
     [GeneratedRegex(@"^\[node name=""Loc_Port_(?<name>[^""]*)""(?<attributes>[^\]]*)\]$", RegexOptions.CultureInvariant)]
     private static partial Regex LocatorNode();
@@ -113,7 +119,7 @@ public static partial class PackageValidator
                 origin = Origin(TransformLine().Match(lines[j]));
             }
             var parent = ParentAttribute().Match(node.Groups["attributes"].Value);
-            yield return new(node.Groups["name"].Value, parent.Success && parent.Groups["parent"].Value == ".", origin);
+            yield return new(node.Groups["name"].Value, parent.Success ? parent.Groups["parent"].Value : ".", origin);
         }
     }
 

@@ -24,7 +24,7 @@ public sealed class PipeBend90ElementDeclaration : IMechanicalElement, ISceneGeo
         ScenePath: "res://elements/PipeBend90/pipe_bend_90.tscn",
         Parameters: []);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 

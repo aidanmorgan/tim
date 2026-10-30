@@ -1027,7 +1027,7 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
         var entry = template with
         {
             Metadata = template.Metadata with { Id = "native_multislider", Parameters = [] },
-            Footprint = new(3, 2, 2), Colliders = [shape], ColliderBindings = [],
+            Footprint = new(3, 2, 2, 0), Colliders = [shape], ColliderBindings = [],
             Mechanical = template.Mechanical! with { Sliders = sliders },
             Presentation = new(1, PresentationAxes.None, [],
                 [new("Visual/First", new(1), Vector3.Zero), new("Visual/Second", new(2), Vector3.Zero)], [], [])

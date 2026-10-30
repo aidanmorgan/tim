@@ -19,7 +19,7 @@ internal static class ImpactRules
         ["Domino"] = new PartId("domino"), ["DelayBox"] = new PartId("delay"), ["ElectricalNand"] = new("electrical_nand"),
         ["ElectricalNor"] = new("electrical_nor"), ["ElectricalOr"] = new("electrical_or"), ["ElectricalXor"] = new("electrical_xor"),
         ["Funnel"] = new PartId("funnel"),
-        ["HoldTimer"] = new("hold_timer"), ["ImpactSwitch"] = new PartId("switch"), ["Pipe"] = new PartId("pipe"),
+        ["HoldTimer"] = new("hold_timer"), ["ImpactLever"] = new("impact_lever"), ["ImpactSwitch"] = new PartId("switch"), ["Pipe"] = new PartId("pipe"),
         ["PipeBend45"] = new PartId("pipe_bend_45"), ["PipeBend90"] = new PartId("pipe_bend_90"),
         ["PoweredGate"] = new PartId("powered_gate"), ["PressurePlate"] = new PartId("pressure_plate"), ["Pulley"] = new("pulley"), ["Ramp"] = new PartId("ramp"),
         ["Receiver"] = new PartId("basket"), ["SignalLamp"] = new PartId("lamp"), ["Springboard"] = new PartId("spring"),

@@ -35,7 +35,8 @@ public static class RopeTopology
             var a = new Endpoint(edge.Source, edge.Output);
             var b = new Endpoint(edge.Target, edge.Input);
             if (a.Body.Value == 0 || b.Body.Value == 0 || a.Body == b.Body ||
-                edge.Output != WorkshopSocket.Tie || edge.Input != WorkshopSocket.Tie ||
+                edge.Output is not (WorkshopSocket.Tie or WorkshopSocket.TieA or WorkshopSocket.TieB) ||
+                edge.Input is not (WorkshopSocket.Tie or WorkshopSocket.TieA or WorkshopSocket.TieB) ||
                 edge.RopeLength is not { } length || !float.IsFinite(length) || length < .05f || length > 200f ||
                 !seen.Add(a.CompareTo(b) < 0 ? (a, b) : (b, a)))
                 Refuse("Invalid or duplicate rope span.");

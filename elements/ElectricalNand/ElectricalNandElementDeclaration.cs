@@ -18,7 +18,7 @@ public sealed class ElectricalNandElementDeclaration : ISupplyElement, ISceneGeo
         IconPath: "res://elements/ElectricalNand/icon.svg",
         ScenePath: "res://elements/ElectricalNand/electrical_nand.tscn",
         Parameters: []);
-    public ElementFootprint Footprint => new(1,0,0);
+    public ElementFootprint Footprint => new(1, 0, 0, 0);
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>
     [

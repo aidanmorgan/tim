@@ -29,7 +29,7 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, IIndicato
         ScenePath: "res://elements/SignalLamp/lamp.tscn",
         Parameters: []);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     /// <summary>The only input that admits a level: a lamp then follows that one level output alone.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>

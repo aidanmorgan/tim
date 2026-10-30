@@ -5,4 +5,5 @@ namespace CuriousContraptions.Abstractions;
 public readonly record struct ElementFootprint(
     int Bodies,
     int MovingBodies,
-    int PrismaticConstraints);
+    int PrismaticConstraints,
+    int RevoluteConstraints);

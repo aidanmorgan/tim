@@ -31,6 +31,8 @@ public sealed class CompiledMemoryLayout
     private readonly Dictionary<ElectricalSourceId, int> _electricalSourceOffsets = new(4);
     private readonly Dictionary<ulong, int> _prismaticSlots = new(4);
     private readonly Dictionary<ulong, int> _prismaticOffsets = new(4);
+    private readonly Dictionary<ulong, int> _revoluteSlots = new(4);
+    private readonly Dictionary<ulong, int> _revoluteOffsets = new(4);
 
     public IReadOnlyDictionary<GpuBodyId, int> BodySlots => _bodySlots;
     public IReadOnlyDictionary<GpuBodyId, int> BodyOffsets => _bodyOffsets;
@@ -52,6 +54,8 @@ public sealed class CompiledMemoryLayout
     public IReadOnlyDictionary<ElectricalSourceId, int> ElectricalSourceOffsets => _electricalSourceOffsets;
     public IReadOnlyDictionary<ulong, int> PrismaticSlots => _prismaticSlots;
     public IReadOnlyDictionary<ulong, int> PrismaticOffsets => _prismaticOffsets;
+    public IReadOnlyDictionary<ulong, int> RevoluteSlots => _revoluteSlots;
+    public IReadOnlyDictionary<ulong, int> RevoluteOffsets => _revoluteOffsets;
 
     public int GetBodySlot(GpuBodyId id) => _bodySlots[id];
     public int GetBodyOffset(GpuBodyId id) => _bodyOffsets[id];
@@ -73,6 +77,8 @@ public sealed class CompiledMemoryLayout
     public int GetElectricalSourceOffset(ElectricalSourceId id) => _electricalSourceOffsets[id];
     public int GetPrismaticSlot(ulong id) => _prismaticSlots[id];
     public int GetPrismaticOffset(ulong id) => _prismaticOffsets[id];
+    public int GetRevoluteSlot(ulong id) => _revoluteSlots[id];
+    public int GetRevoluteOffset(ulong id) => _revoluteOffsets[id];
 
     public static CompiledMemoryLayout Build(
         PhysicsWorldLayout world,
@@ -85,7 +91,8 @@ public sealed class CompiledMemoryLayout
         ReadOnlySpan<ContactWorkDeclaration> contactWorks,
         ReadOnlySpan<OrientationSensorDeclaration> orientationSensors,
         ReadOnlySpan<ElectricalSourceDeclaration> electricalSources,
-        ReadOnlySpan<PrismaticConstraintDeclaration> prismatics)
+        ReadOnlySpan<PrismaticConstraintDeclaration> prismatics,
+        ReadOnlySpan<RevoluteConstraintDeclaration> revolutes = default)
     {
         var layout = new CompiledMemoryLayout();
         for (var i = 0; i < bodies.Length; i++)
@@ -147,6 +154,12 @@ public sealed class CompiledMemoryLayout
             var id = prismatics[i].Id.Value;
             layout._prismaticSlots[id] = i;
             layout._prismaticOffsets[id] = world.PrismaticOffset(i);
+        }
+        for (var i = 0; i < revolutes.Length; i++)
+        {
+            var id = revolutes[i].Id.Value;
+            layout._revoluteSlots[id] = i;
+            layout._revoluteOffsets[id] = world.RevoluteOffset(i);
         }
         return layout;
     }

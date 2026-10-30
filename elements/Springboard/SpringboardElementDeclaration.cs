@@ -29,7 +29,7 @@ public sealed class SpringboardElementDeclaration : ISliderElement, ISceneGeomet
             new("initial_compression", ParameterUnit.Metre, ParameterKind.Real, Minimum: 0f, Maximum: 0.2f, Default: 0f, Options: [])
         ]);
 
-    public ElementFootprint Footprint => new(Bodies: 2, MovingBodies: 1, PrismaticConstraints: 1);
+    public ElementFootprint Footprint => new(Bodies: 2, MovingBodies: 1, PrismaticConstraints: 1, RevoluteConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 

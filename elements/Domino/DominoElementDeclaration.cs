@@ -22,7 +22,7 @@ public sealed class DominoElementDeclaration : IMechanicalElement, IOrientationS
         ScenePath: "res://elements/Domino/domino.tscn",
         Parameters: []);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 1, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 1, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [

@@ -43,7 +43,7 @@ public sealed class Fixture : ISliderElement
     public ElementPresentation Presentation => new(1f, PresentationAxes.None, [],
         Sliders.Select((_, index) => new PresentationBodyBinding($"Visual/Body{index + 1}", new(index + 1), Vector3.Zero)).ToArray(), [], []);
     public ElementMetadata Metadata => new(Id, Category, DisplayName, Description, Color, PaletteOrder, IconPath, ScenePath, Parameters);
-    public ElementFootprint Footprint { get; init; } = new(1, 0, 0);
+    public ElementFootprint Footprint { get; init; } = new(1, 0, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports { get; init; } = [];
     public IReadOnlyList<ColliderDescriptor> Colliders { get; init; } = [Box(new(.5f, .5f, .5f))];
     public IReadOnlyList<EventDescriptor> Events { get; init; } = [];
@@ -60,7 +60,7 @@ public sealed class SecondFixture : IPuzzleElementDeclaration
 {
     public ElementPresentation Presentation => new(1f, PresentationAxes.None, [], [], [], []);
     public ElementMetadata Metadata => new("second", ElementCategory.Goals, "Second", "A second fixture.", new(.5f, .5f, .5f, 1f), 2, "res://elements/Second/icon.svg", "res://elements/Second/second.tscn", []);
-    public ElementFootprint Footprint => new(0, 0, 0);
+    public ElementFootprint Footprint => new(0, 0, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports => [];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<EventDescriptor> Events => [];
@@ -74,7 +74,7 @@ internal sealed class SignalFixture : ISignalElement
     public ElementPresentation Presentation => new(1f, PresentationAxes.None, [], [], [], []);
     public ElementMetadata Metadata => new("signal_fixture", ElementCategory.Goals, "Signal fixture", "A signal fixture.", new(.5f, .5f, .5f, 1f), 3, "res://elements/SignalFixture/icon.svg",
         "res://elements/SignalFixture/signal.tscn", []);
-    public ElementFootprint Footprint { get; init; } = new(1, 0, 0);
+    public ElementFootprint Footprint { get; init; } = new(1, 0, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports => [];
     public IReadOnlyList<ColliderDescriptor> Colliders { get; init; } = [Fixture.Box(new(.4f, .1f, .4f))];
     public IReadOnlyList<EventDescriptor> Events => [];

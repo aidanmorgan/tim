@@ -201,6 +201,7 @@
         <Compile Include="ContactWorkLedgerPropertyTests.cs" />
         <Compile Include="ConstructionDecodeBoundaryTests.cs" />
         <Compile Include="VendoredFlatBuffersIdentityTests.cs" />
+        <Compile Include="ImpactLeverTests.cs" />
     </ItemGroup>
 
     <!-- Godot project location: the parent directory (hosts are nested inside

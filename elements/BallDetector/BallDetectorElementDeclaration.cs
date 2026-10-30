@@ -31,7 +31,7 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, IPassag
         ScenePath: "res://elements/BallDetector/ball_detector.tscn",
         Parameters: []);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [

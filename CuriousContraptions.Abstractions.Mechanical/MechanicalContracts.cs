@@ -108,6 +108,36 @@ public interface ISliderElement : IMechanicalElement
     IReadOnlyList<PrismaticSliderDescriptor> Sliders { get; }
 }
 
+/// <summary>A hinge joint frame in one body's local space. Local Z is the hinge rotation axis.</summary>
+public readonly record struct HingeFrame(
+    Vector3 Position,
+    Quaternion Rotation);
+
+/// <summary>The moving body a hinge carries, in its own local frame: its mass, gravity, linear drag and colliders.</summary>
+public readonly record struct HingeBodyDescriptor(
+    MassFrameDeclaration MassFrame,
+    IReadOnlyList<ColliderDescriptor> Colliders);
+
+/// <summary>One revolute hinge joining the element's base body to a moving body. At rest the two frames coincide; the moving body
+/// may rotate from <see cref="LowerLimit"/> to <see cref="UpperLimit"/> (radians) around the base frame's local Z. The axial spring's stiffness
+/// and damping, and the starting angle, are the element parameters these keys name.</summary>
+public readonly record struct RevoluteHingeDescriptor(
+    HingeFrame BaseFrame,
+    HingeFrame MovingFrame,
+    float LowerLimit,
+    float UpperLimit,
+    MechanicalValue Stiffness,
+    MechanicalValue Damping,
+    MechanicalValue InitialAngle,
+    bool BodiesCollide,
+    HingeBodyDescriptor MovingBody);
+
+/// <summary>A mechanical element whose base body carries moving bodies on revolute hinges.</summary>
+public interface IHingeElement : IMechanicalElement
+{
+    IReadOnlyList<RevoluteHingeDescriptor> Hinges { get; }
+}
+
 /// <summary>A mechanical value is either fixed authoring data or a declared real parameter.</summary>
 public enum MechanicalValueSource : byte { Constant, Parameter }
 

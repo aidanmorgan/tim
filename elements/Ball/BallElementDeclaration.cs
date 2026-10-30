@@ -21,7 +21,7 @@ public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryE
         ScenePath: "res://elements/Ball/ball.tscn",
         Parameters: []);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 1, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 1, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 

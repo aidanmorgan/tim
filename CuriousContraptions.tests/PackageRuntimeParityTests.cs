@@ -84,7 +84,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             // The workbench plane (the body of the one plane collider) belongs to no part.
             var plane = scene.Colliders.ToArray().Single(collider => collider.Shape == RuntimeShape.Plane).Body;
             var bodies = scene.Bodies.ToArray().Where(body => body.Id != plane).ToArray();
-            Assert.True(new ElementFootprint(bodies.Length, bodies.Count(body => body.Motion != RigidMotionKind.Static), scene.Prismatics.Length) ==
+            Assert.True(new ElementFootprint(bodies.Length, bodies.Count(body => body.Motion != RigidMotionKind.Static), scene.Prismatics.Length, scene.Revolutes.Length) ==
                 declaration.Footprint, $"{package.Package}: footprint {declaration.Footprint} declared.");
             var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == Owner).ToArray();
             AssertColliders(package.Package, ExpectedColliders(TestBundle.Entry(id)), colliders.Select(collider => (collider.Shape, collider.Pose, collider.Radius.Value,
@@ -205,6 +205,41 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 AssertColliders(where + ".MovingBody", slider.MovingBody.Colliders, colliders.Select(collider => (collider.Shape, collider.Pose,
                     collider.Radius.Value, collider.HalfExtents)).ToArray());
                 AssertMaterials(where + ".MovingBody", slider.MovingBody.Colliders, colliders, scene.Materials.ToArray());
+            }
+        }
+    }
+
+    [Fact]
+    public void EveryHingePackageDeclaresTheCompiledRevoluteJointAndCarriesItsMovingBody()
+    {
+        _ = godot;
+        var hinges = Packages().Where(package => package.Declaration is IHingeElement).ToArray();
+        Assert.Equal(["ImpactLever"], hinges.Select(package => package.Package));
+        foreach (var package in hinges)
+        {
+            var element = (IHingeElement)package.Declaration;
+            var id = new PartId(element.Metadata.Id);
+            var placed = Placed(id);
+            var scene = Compile(placed);
+            var joints = scene.Revolutes.ToArray();
+            var declaredHinges = TestBundle.Entry(id).Mechanical!.Hinges;
+            Assert.True(joints.Length == declaredHinges.Count, $"{package.Package}: {element.Hinges.Count} hinges declared, {joints.Length} compiled.");
+            for (var i = 0; i < joints.Length; i++)
+            {
+                var (hinge, joint, where) = (declaredHinges[i], joints[i], $"{package.Package}.Hinges[{i}]");
+                Assert.Equal(Owner, joint.BodyA);
+                AssertFrame(where + ".BaseFrame", new(hinge.BaseFrame.Position, hinge.BaseFrame.Rotation), joint.FrameA);
+                AssertFrame(where + ".MovingFrame", new(hinge.MovingFrame.Position, hinge.MovingFrame.Rotation), joint.FrameB);
+                Assert.True(hinge.LowerLimit == joint.Lower && hinge.UpperLimit == joint.Upper,
+                    $"{where}: limits [{hinge.LowerLimit}, {hinge.UpperLimit}] declared, [{joint.Lower}, {joint.Upper}] compiled.");
+                Assert.Equal(hinge.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled, joint.Collision);
+                var moving = scene.Bodies.ToArray().Single(body => body.Id == joint.BodyB);
+                AssertBody(where + ".MovingBody", KinematicMode.Dynamic, MassFixtures.Evaluate(hinge.MovingBody.MassFrame, element.Metadata.Parameters).Mass, hinge.MovingBody.MassFrame.LinearDrag,
+                    hinge.MovingBody.MassFrame.Gravity, moving);
+                var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == joint.BodyB).ToArray();
+                AssertColliders(where + ".MovingBody", hinge.MovingBody.Colliders, colliders.Select(collider => (collider.Shape, collider.Pose,
+                    collider.Radius.Value, collider.HalfExtents)).ToArray());
+                AssertMaterials(where + ".MovingBody", hinge.MovingBody.Colliders, colliders, scene.Materials.ToArray());
             }
         }
     }
@@ -435,6 +470,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("damping", ParameterUnit.NewtonSecondPerMetre, ParameterKind.Real, Lane.Single, .2f, Generic(new PartId("spring"), "damping"), []),
                 ("initial_compression", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 0f, Generic(new PartId("spring"), "initial_compression"), [])
             ],
+            "impact_lever" =>
+            [
+                ("beam_mass", ParameterUnit.Kilogram, ParameterKind.Real, Lane.Single, 2f, Generic(new PartId("impact_lever"), "beam_mass"), []),
+                ("initial_angle", ParameterUnit.Degree, ParameterKind.Real, Lane.Single, 0f, Generic(new PartId("impact_lever"), "initial_angle"), [])
+            ],
             "pipe" =>
             [
                 ("length", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 3.6f,
@@ -477,7 +517,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),

@@ -18,7 +18,7 @@ public sealed class ElectricalNorElementDeclaration : ISupplyElement, ISceneGeom
         IconPath: "res://elements/ElectricalNor/icon.svg",
         ScenePath: "res://elements/ElectricalNor/electrical_nor.tscn",
         Parameters: []);
-    public ElementFootprint Footprint => new(1,0,0);
+    public ElementFootprint Footprint => new(1, 0, 0, 0);
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>
     [

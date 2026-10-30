@@ -18,7 +18,8 @@ public enum WorkshopSignalKind : uint { Pulse = 1, Level = 2 }
 /// activation port and absent (null) on every electrical port; LocalPosition is the declared f32 anchor in the part's local frame
 /// (metres), the wire artwork's endpoint.</summary>
 public readonly record struct WorkshopPort(WorkshopSocket Socket, WorkshopConnectionDomain Domain, WorkshopPortDirection Direction,
-    WorkshopSignalKind? Signal, Vector3 LocalPosition, RopeAttachmentRole AttachmentRole = RopeAttachmentRole.None, PortPositionBinding? PositionBinding = null);
+    WorkshopSignalKind? Signal, Vector3 LocalPosition, RopeAttachmentRole AttachmentRole = RopeAttachmentRole.None, PortPositionBinding? PositionBinding = null,
+    CuriousContraptions.Abstractions.PackageBodyIndex Body = default);
 public readonly record struct WorkshopConnection(GpuBodyId Source, WorkshopSocket Output, GpuBodyId Target,
     WorkshopSocket Input, WorkshopConnectionDomain Domain, float? RopeLength = null);
 
@@ -117,6 +118,9 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
             }
             else if (link.Domain == WorkshopConnectionDomain.Rope)
             {
+                if (link.Output is not (WorkshopSocket.Tie or WorkshopSocket.TieA or WorkshopSocket.TieB) ||
+                    link.Input is not (WorkshopSocket.Tie or WorkshopSocket.TieA or WorkshopSocket.TieB))
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported rope socket.");
                 if (link.RopeLength is not { } length || !float.IsFinite(length) || length < .05f || length > 200f)
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Rope length must be between 0.05 and 200 metres.");
             }

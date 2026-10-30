@@ -34,7 +34,7 @@ public sealed class WeightElementDeclaration : IMechanicalElement, ISceneGeometr
                 EditorPolicy: ParameterEditorPolicy.Clamp, RunEdit: ParameterRunEdit.BuildOnly)
         ]);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 1, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 1, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     private static PortPositionBinding TieBinding => new(new("mass"),
         new(0f, .5771f * .136734f, 0f), new(0f, .5771f * .453070f, 0f));

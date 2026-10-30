@@ -8556,6 +8556,7 @@ export interface MockCommandParams {
     session?: Uint8Array | number[];
     cadence?: bigint;
     projection?: bigint;
+    settings?: Record<string, unknown>;
     electrical?: { owner?: bigint; enabled?: number };
     target?: {
         sequence?: bigint;

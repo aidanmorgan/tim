@@ -23,7 +23,7 @@
     <WorkerAotRole>Worker</WorkerAotRole>
     <!-- The physics types whose compiled functions must contain f32x4 arithmetic (WorkerAot.targets check d). -->
     <WorkerAotSimdAssembly>CuriousContraptions.Core</WorkerAotSimdAssembly>
-    <WorkerAotSimdTypes>WorkshopPhysicsEngine;PrismaticConstraintSolver;SoftConstraint</WorkerAotSimdTypes>
+    <WorkerAotSimdTypes>WorkshopPhysicsEngine;PrismaticConstraintSolver;RevoluteConstraintSolver;SoftConstraint</WorkerAotSimdTypes>
     <InvariantGlobalization>true</InvariantGlobalization>
     <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
     <WasmEmitSourceMap>false</WasmEmitSourceMap>

@@ -281,7 +281,7 @@ public sealed class CatalogueIntegrationTests
             new PartId("clock"), new PartId("counter"), new PartId("pressure_plate"), new("weight"), new("hold_timer"),
             new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor")];
         // RopeTests.ACompleteRopeSupportsItsLoadWhileAnUnconnectedLoadFalls executes real support and disconnected control.
-        PartId[] ropeInteractions = [new("rope_anchor"), new("pulley")];
+        PartId[] ropeInteractions = [new("rope_anchor"), new("pulley"), new("impact_lever")];
         var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Order().ToArray();
         var actual = PartRegistry.Read(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),
             "elements/elements.bundle.json"))).Select(row => new PartId(row.Metadata.Id)).Order().ToArray();

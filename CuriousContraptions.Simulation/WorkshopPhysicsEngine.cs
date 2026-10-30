@@ -27,6 +27,7 @@ internal sealed class WorkshopPhysicsEngine
     private Dictionary<int, SimBody> _allBodies = new(16);
     private List<SimCollider> _colliders = new(32);
     private List<SimJoint> _joints = new(4);
+    private List<SimRevoluteJoint> _revoluteJoints = new(4);
     private readonly List<SimTensileRoute> _tensile = new(4);
     private readonly List<SimTensileRoute> _tensilePool = new(4);
     private List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
@@ -61,6 +62,7 @@ internal sealed class WorkshopPhysicsEngine
     private List<SimBody> _bodyPool = new(16);
     private List<SimCollider> _colliderPool = new(32);
     private List<SimJoint> _jointPool = new(4);
+    private List<SimRevoluteJoint> _revoluteJointPool = new(4);
     private List<ContactManifold> _manifoldPool = new(16);
 
     /// <summary>Retire an epoch's scratch and warm state. Substep Clear calls retain ordinary within-world reuse.</summary>
@@ -68,9 +70,9 @@ internal sealed class WorkshopPhysicsEngine
     {
         _contactCache = new(64); _normalContactSets = new(16); _frictionCache = new(16); _allBodies = new(16);
         _loadContacts = new(64); _staticBodies = new(16); _dynamicBodies = new(16); _restitutionBodies = new(16);
-        _colliders = new(32); _joints = new(4); _candidatePairs = new(64); _contacts = new(64); _manifolds = new(16);
+        _colliders = new(32); _joints = new(4); _revoluteJoints = new(4); _candidatePairs = new(64); _contacts = new(64); _manifolds = new(16);
         _storeIndices = new(4); _balances = new(4); _capacities = new(4); _credits = new(4);
-        _bodyPool = new(16); _colliderPool = new(32); _jointPool = new(4); _manifoldPool = new(16);
+        _bodyPool = new(16); _colliderPool = new(32); _jointPool = new(4); _revoluteJointPool = new(4); _manifoldPool = new(16);
         _loadCounted = new GpuBodyId[64]; _loadDeclarations = new ContactLoadSensorDeclaration[4]; _loadFrames = new int[4]; _loadMass = new float[4];
         _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4];
         _restitutionStamp = 0;
@@ -435,6 +437,7 @@ internal sealed class WorkshopPhysicsEngine
         }
 
         _joints.Clear();
+        _revoluteJoints.Clear();
         _tensile.Clear();
         var routeSpans = new Dictionary<RopeRouteId, List<(int Index, TensileSpanDeclaration Declared, int Offset)>>();
         for (var index = 0; index < layout.TensileSpans; index++)
@@ -535,6 +538,42 @@ internal sealed class WorkshopPhysicsEngine
             _joints.Add(joint);
         }
 
+        var revoluteCount = layout.Revolutes;
+        for (var index = 0; index < revoluteCount; index++)
+        {
+            var revoluteOffset = layout.RevoluteOffset(index);
+            var aSlot = (int)ReadU32(span, revoluteOffset + PhysicsGpuAbi.RevoluteBodyAOffset);
+            var bSlot = (int)ReadU32(span, revoluteOffset + PhysicsGpuAbi.RevoluteBodyBOffset);
+
+            var (pa, qa) = ReadConstraintFrame(span, revoluteOffset + PhysicsGpuAbi.RevoluteFrameAOffset);
+            var (pb, qb) = ReadConstraintFrame(span, revoluteOffset + PhysicsGpuAbi.RevoluteFrameBOffset);
+            var lower = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteLowerOffset);
+            var upper = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteUpperOffset);
+            var stiffness = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteStiffnessOffset);
+            var damping = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteDampingOffset);
+            var soft = stiffness > 0f
+                ? SoftConstraintCoefficients.FromSpring(stiffness, damping, WorkshopConstraintSolver.SubstepSeconds)
+                : (damping > 0f ? SoftConstraintCoefficients.FromDamper(damping, WorkshopConstraintSolver.SubstepSeconds) : default);
+            var collision = ReadU32(span, revoluteOffset + PhysicsGpuAbi.RevoluteCollisionOffset);
+
+            while (_revoluteJointPool.Count <= index) _revoluteJointPool.Add(new SimRevoluteJoint());
+            var joint = _revoluteJointPool[index];
+            joint.Offset = revoluteOffset;
+            joint.A = _allBodies[aSlot];
+            joint.B = _allBodies[bSlot];
+            joint.Pa = pa; joint.Qa = qa; joint.Pb = pb; joint.Qb = qb;
+            joint.Lower = lower; joint.Upper = upper;
+            joint.Stiffness = stiffness;
+            joint.Damping = damping;
+            joint.Soft = soft;
+            joint.Collision = collision;
+
+            for (var imp = 0; imp < PhysicsGpuAbi.RevoluteRowCount; imp++)
+                joint.Impulses[imp] = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteImpulseOffset + imp * 4);
+
+            _revoluteJoints.Add(joint);
+        }
+
         var dt = WorkshopConstraintSolver.SubstepSeconds;
         var softCoeffs = SoftCoefficients.MakeSoft(WorkshopConstraintSolver.ContactHertz, WorkshopConstraintSolver.ContactDampingRatio, dt);
 
@@ -601,6 +640,11 @@ internal sealed class WorkshopPhysicsEngine
             if (colA.BodySlot == colB.BodySlot) return;
             if (colA.Body.Motion == RigidMotionKind.Static && colB.Body.Motion == RigidMotionKind.Static) return;
             foreach (var j in _joints)
+            {
+                if (j.Collision == 0 && ((j.A == colA.Body && j.B == colB.Body) || (j.B == colA.Body && j.A == colB.Body)))
+                    return;
+            }
+            foreach (var j in _revoluteJoints)
             {
                 if (j.Collision == 0 && ((j.A == colA.Body && j.B == colB.Body) || (j.B == colA.Body && j.A == colB.Body)))
                     return;
@@ -809,6 +853,12 @@ internal sealed class WorkshopPhysicsEngine
                 for (var row = 0; row < 8; row++)
                     PrismaticConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
             }
+            foreach (var joint in _revoluteJoints)
+            {
+                RevoluteConstraintSolver.PrepareJointRows(joint, dt);
+                for (var row = 0; row < 8; row++)
+                    RevoluteConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
+            }
             foreach (var tensile in _tensile)
             {
                 TensileConstraintSolver.Prepare(tensile, dt);
@@ -820,6 +870,7 @@ internal sealed class WorkshopPhysicsEngine
             for (var iteration = 0; iteration < WorkshopConstraintSolver.SolverIterations; iteration++)
             {
                 PrismaticConstraintSolver.SweepConstraints(_joints, true);
+                RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, true);
                 foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, true);
                 WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Solve, softCoeffs, dt);
             }
@@ -895,11 +946,18 @@ internal sealed class WorkshopPhysicsEngine
                 PrismaticConstraintSolver.PrepareJointRows(joint, dt);
                 joint.Rows[(int)PrismaticRowKind.Spring].Error = softRowError;
             }
+            foreach (var joint in _revoluteJoints)
+            {
+                var axialError = joint.Rows[(int)RevoluteRowKind.Axial].Error;
+                RevoluteConstraintSolver.PrepareJointRows(joint, dt);
+                joint.Rows[(int)RevoluteRowKind.Axial].Error = axialError;
+            }
 
             foreach (var tensile in _tensile) TensileConstraintSolver.Prepare(tensile, dt);
             for (var iteration = 0; iteration < WorkshopConstraintSolver.RelaxIterations; iteration++)
             {
                 PrismaticConstraintSolver.SweepConstraints(_joints, false);
+                RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, false);
                 foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, false);
                 WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Relax, softCoeffs, dt);
             }
@@ -925,6 +983,11 @@ internal sealed class WorkshopPhysicsEngine
                     }
                 BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(joint.Offset + PhysicsGpuAbi.PrismaticMovingContactOffset, 4),
                     joint.MovingContact ? 1u : 0u);
+            }
+            foreach (var joint in _revoluteJoints)
+            {
+                for (var row = 0; row < PhysicsGpuAbi.RevoluteRowCount; row++)
+                    WriteF32(span, joint.Offset + PhysicsGpuAbi.RevoluteImpulseOffset + row * 4, joint.Impulses[row]);
             }
 
             WorkshopConstraintSolver.RestitutionPass(_manifolds, _restitutionBodies, ++_restitutionStamp);

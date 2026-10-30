@@ -34,6 +34,7 @@ public sealed record BundleEntry(
 /// <summary>Package-owned physical state and explicit payload participation.</summary>
 public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDeclaration MassFrame, PayloadPolicy Payload,
     IReadOnlyList<AnchorPointDescriptor> AnchorPoints, IReadOnlyList<PrismaticSliderDescriptor> Sliders,
+    IReadOnlyList<RevoluteHingeDescriptor> Hinges,
     ResidenceCaptureDescriptor? Capture = null, ContactWorkDescriptor? ContactWork = null);
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
@@ -62,6 +63,7 @@ public static class BundleSchema
             declaration is IMechanicalElement mechanical
                 ? new MechanicalPayload(mechanical.KinematicMode, mechanical.MassFrame, mechanical.Payload, mechanical.AnchorPoints,
                     mechanical is ISliderElement slider ? slider.Sliders : [],
+                    mechanical is IHingeElement hinge ? hinge.Hinges : [],
                     mechanical is IResidenceCaptureElement capture ? capture.Capture : null,
                     mechanical is IContactWorkElement work ? work.ContactWork : null) : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.Supply : null) : null,

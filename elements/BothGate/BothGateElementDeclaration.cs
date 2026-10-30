@@ -18,7 +18,7 @@ public sealed class BothGateElementDeclaration : ISupplyElement, ISceneGeometryE
         IconPath: "res://elements/BothGate/icon.svg",
         ScenePath: "res://elements/BothGate/both_gate.tscn",
         Parameters: []);
-    public ElementFootprint Footprint => new(1,0,0);
+    public ElementFootprint Footprint => new(1, 0, 0, 0);
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>
     [

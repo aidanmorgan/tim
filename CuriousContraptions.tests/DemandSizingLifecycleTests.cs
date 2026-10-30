@@ -96,7 +96,7 @@ public sealed class DemandSizingLifecycleTests
         Assert.Equal(Array.MaxLength, BrowserGpuTransport.WorldCapacity(Array.MaxLength, Array.MaxLength));
         Assert.Throws<WorkshopStorageException>(() => BrowserGpuTransport.WorldCapacity(common, int.MaxValue));
         Assert.Throws<WorkshopStorageException>(() => PhysicsMotionRead.ByteLength(int.MaxValue));
-        var impossible = new PhysicsWorldLayout(int.MaxValue, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        var impossible = new PhysicsWorldLayout(int.MaxValue, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         Assert.Throws<WorkshopStorageException>(() => impossible.ByteLength);
     }
 

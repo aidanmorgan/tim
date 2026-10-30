@@ -7,11 +7,13 @@ namespace CuriousContraptions.Gpu;
 
 public sealed record CompiledSliderIdentities(GpuBodyId Body, GpuMaterialId Material,
     ImmutableArray<GpuColliderId> Colliders, PrismaticConstraintId Joint);
+public sealed record CompiledHingeIdentities(GpuBodyId Body, GpuMaterialId Material,
+    ImmutableArray<GpuColliderId> Colliders, RevoluteConstraintId Joint);
 public readonly record struct CompiledCaptureIdentities(GpuSensorId Sensor, GpuForceId Guide);
 public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArray<GpuColliderId> Colliders,
     ImmutableArray<CompiledSliderIdentities> Sliders, GpuContactTriggerId Trigger, GpuOrientationSensorId Orientation,
     GpuContactLoadSensorId ContactLoad, ElectricalSourceId Source, GpuContactWorkId Work, GpuPassageSensorId Passage,
-    CompiledCaptureIdentities Capture);
+    CompiledCaptureIdentities Capture, ImmutableArray<CompiledHingeIdentities> Hinges);
 
 /// <summary>One immutable scene-sized allocation shared by every consumer of an authored instance collection.</summary>
 public sealed class CompiledIdentityMap
@@ -72,6 +74,13 @@ public sealed class CompiledIdentityMap
                 owners.Add(body, instance.Id);
                 sliders.Add(new(body, new(Allocate()), Colliders(slider.MovingBody.Colliders.Count), new(Allocate())));
             }
+            var hinges = ImmutableArray.CreateBuilder<CompiledHingeIdentities>(4);
+            foreach (var hinge in entry.Mechanical?.Hinges ?? [])
+            {
+                var body = new GpuBodyId(Allocate());
+                owners.Add(body, instance.Id);
+                hinges.Add(new(body, new(Allocate()), Colliders(hinge.MovingBody.Colliders.Count), new(Allocate())));
+            }
             var trigger = entry.Signal?.Contact is not null ? new GpuContactTriggerId(Allocate()) : default;
             var orientation = entry.Signal?.Orientation is not null ? new GpuOrientationSensorId(Allocate()) : default;
             var load = entry.Signal?.ContactLoad is not null ? new GpuContactLoadSensorId(Allocate()) : default;
@@ -81,7 +90,7 @@ public sealed class CompiledIdentityMap
             var capture = entry.Mechanical?.Capture is not null
                 ? new CompiledCaptureIdentities(new(Allocate()),new(Allocate())) : default;
             parts.Add(instance.Id, new(material, colliders, sliders.ToImmutable(), trigger, orientation, load, source, work,
-                passage, capture));
+                passage, capture, hinges.ToImmutable()));
         }
         _parts = parts.ToImmutable(); _owners = owners.ToImmutable(); NextIdentity = next;
     }

@@ -298,6 +298,10 @@ public partial class MachineWorld
             for (var index = 0; index < sliders.Count; index++)
                 part.InstallSliderPresentation(new(index + 1), Construction.Instances.Identities[instance.Id].Sliders[index].Body,
                     sliders[index].Compression.Evaluate(parameters), Construction.Instances.Identities);
+            var hinges = DeclaredPhysics.Of(instance.PartId).Mechanical?.Hinges ?? [];
+            for (var index = 0; index < hinges.Count; index++)
+                part.InstallHingePresentation(new(index + 1 + sliders.Count), Construction.Instances.Identities[instance.Id].Hinges[index].Body,
+                    hinges[index].InitialAngle.Evaluate(parameters), Construction.Instances.Identities);
             part.Locked = instance.Locked;
             part.Position = RenderPosition(instance.Cell, instance.Local);
             var q = instance.Rotation;

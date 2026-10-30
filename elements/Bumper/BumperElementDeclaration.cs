@@ -36,7 +36,7 @@ public sealed class BumperElementDeclaration : IContactWorkElement, IElectricalE
 
     public ContactWorkDescriptor ContactWork => new("strength", ReferenceMass: 1f, Threshold: .05f, CooldownPhysicalSteps: 72);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [

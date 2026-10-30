@@ -27,7 +27,7 @@ public sealed class StateLatchElementDeclaration : IMemoryElement, ISupplyElemen
         ScenePath: "res://elements/StateLatch/latch.tscn",
         Parameters: []);
 
-    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
     /// <summary>The level output is high while memory is On (owner decision 18 Oct 2026) and is listed before Supply.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>

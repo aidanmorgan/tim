@@ -29,7 +29,9 @@ public enum PortSocket : uint
     SecondIn = 6,
     Supply = 7,
     PowerIn = 8,
-    Tie = 9
+    Tie = 9,
+    TieA = 10,
+    TieB = 11
 }
 
 /// <summary>One declared socket, and the only source of its domain, direction, signal kind and anchor position (Story 9A.17).
@@ -43,7 +45,8 @@ public readonly record struct PortDescriptor(
     Vector3 LocalPosition,
     Vector3 Normal,
     RopeAttachmentRole AttachmentRole = RopeAttachmentRole.None,
-    PortPositionBinding? PositionBinding = null);
+    PortPositionBinding? PositionBinding = null,
+    PackageBodyIndex Body = default);
 
 public enum RopeAttachmentRole : byte { None = 0, Anchor = 1, Load = 2, Guide = 3 }
 

@@ -22,6 +22,19 @@ public readonly record struct SoftConstraintCoefficients(float Gamma, float Bias
             throw new ArgumentException("Spring coefficients must fit the canonical f32 domain.");
         return new(gamma, bias);
     }
+
+    public static SoftConstraintCoefficients FromDamper(float damping, float step)
+    {
+        if (!float.IsFinite(damping) || damping <= 0 || !float.IsFinite(step) || step <= 0)
+            throw new ArgumentException("A damper requires positive finite damping and step.");
+        var impulseDenominator = step * damping;
+        if (!float.IsFinite(impulseDenominator) || impulseDenominator <= 0)
+            throw new ArgumentException("Damper intermediates must fit the canonical f32 domain.");
+        var gamma = 1f / impulseDenominator;
+        if (!float.IsFinite(gamma) || gamma <= 0)
+            throw new ArgumentException("Damper coefficients must fit the canonical f32 domain.");
+        return new(gamma, 0f);
+    }
 }
 
 public readonly record struct ConstraintRowImpulse(Vector128<float> Accumulated, Vector128<float> Delta);

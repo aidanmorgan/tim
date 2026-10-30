@@ -102,7 +102,7 @@ public sealed class BundleValidatorTests
         {
             Parameters = [mass],
             KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic,
-            Footprint = new(1, 1, 0),
+            Footprint = new(1, 1, 0, 0),
             MassFrame = MassFrameDeclaration.Constant(4f, new(0f, .28f, 0f), new(.23f, .25f, .23f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)),
             Colliders = [new(ColliderShapeKind.Cylinder, new(.35f, .28f, .35f), new(0f, .28f, 0f), Quaternion.Identity, new MaterialProperties(.08f, .3f, .03f, .1f), 0f)]
         });
@@ -472,13 +472,13 @@ public sealed class BundleValidatorTests
     [Fact]
     public void ANonMechanicalBodyWithoutAColliderIsRefused() =>
         Assert.Equal(["BUNDLE004 FixtureLamp.Colliders: a body declares no collider"],
-            Errors(("FixtureLamp", new SignalFixture { Footprint = new(1, 0, 0), Colliders = [] })));
+            Errors(("FixtureLamp", new SignalFixture { Footprint = new(1, 0, 0, 0), Colliders = [] })));
 
     [Fact]
     public void ANonMechanicalPackageWithColliderOrWithoutBodyIsAdmitted()
     {
-        Assert.Empty(Errors(("FixtureLamp", new SignalFixture { Footprint = new(1, 0, 0) })));
-        Assert.Empty(Errors(("FixtureSignal", new SignalFixture { Footprint = new(0, 0, 0), Colliders = [] })));
+        Assert.Empty(Errors(("FixtureLamp", new SignalFixture { Footprint = new(1, 0, 0, 0) })));
+        Assert.Empty(Errors(("FixtureSignal", new SignalFixture { Footprint = new(0, 0, 0, 0), Colliders = [] })));
     }
 
     // Story 9A.22: a declared event kind is a defined record kind, declared once; None is no record.
@@ -923,6 +923,67 @@ public sealed class BundleValidatorTests
             Ports = [.. latch.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, Vector3.UnitY)],
             Signal = latch.Signal with { Indicator = new(PortSocket.ActivationIn) }
         }, "Capability");
+    }
+
+    [Fact]
+    public void HingeCapabilityValidatesLimitsFramesMovingBodyCollidersAndInitialAngle()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
+        var lever = bundle.Single(entry => entry.Metadata.Id == "impact_lever");
+
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) =>
+            Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+
+        Assert.Empty(Check(lever));
+        var hinge = lever.Mechanical!.Hinges[0];
+
+        // Inverted limits Lower >= Upper
+        Refused(lever with
+        {
+            Mechanical = lever.Mechanical with
+            {
+                Hinges = [hinge with { LowerLimit = 0.5f, UpperLimit = -0.5f }]
+            }
+        }, "Hinges[0].UpperLimit");
+
+        // Non-unit quaternion
+        Refused(lever with
+        {
+            Mechanical = lever.Mechanical with
+            {
+                Hinges = [hinge with { BaseFrame = new(Vector3.Zero, new Quaternion(1f, 1f, 1f, 1f)) }]
+            }
+        }, "Hinges[0].BaseFrame.Rotation");
+
+        // Moving body without colliders
+        Refused(lever with
+        {
+            Mechanical = lever.Mechanical with
+            {
+                Hinges = [hinge with { MovingBody = hinge.MovingBody with { Colliders = [] } }]
+            }
+        }, "Hinges[0].MovingBody.Colliders", Bundle.BundleErrorCode.BodyWithoutCollider);
+
+        // Port body index out of bounds
+        Refused(lever with
+        {
+            Ports = [lever.Ports[0] with { Body = new PackageBodyIndex(99) }, lever.Ports[1]]
+        }, "Ports[0].Body");
+
+        // Constant initial angle out of range
+        Refused(lever with
+        {
+            Mechanical = lever.Mechanical with
+            {
+                Hinges = [hinge with { InitialAngle = MechanicalValue.Fixed(1.5f) }]
+            }
+        }, "Hinges[0].InitialAngle");
     }
 
     [Fact]

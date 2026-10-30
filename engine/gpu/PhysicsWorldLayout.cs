@@ -12,7 +12,7 @@ namespace CuriousContraptions.Gpu;
 /// </summary>
 public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int Materials, int Sensors, int Dynamic, int Guides,
     int Triggers, int ContactWorks, int OrientationSensors, int ElectricalSources, int ElectricalBindings,
-    int Prismatics, int ContactLoads, int TensileSpans = 0)
+    int Prismatics, int ContactLoads, int TensileSpans, int Revolutes)
 {
     /// <summary>The body table directly follows the header in every world.</summary>
     public static int BodiesOffset => PhysicsGpuAbi.HeaderBytes;
@@ -30,7 +30,8 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     public int PrismaticsOffset => After(ElectricalBindingsOffset, ElectricalBindings, PhysicsGpuAbi.ElectricalBindingBytes);
     public int ContactLoadsOffset => After(PrismaticsOffset, Prismatics, PhysicsGpuAbi.PrismaticBytes);
     public int TensileSpansOffset => After(ContactLoadsOffset, ContactLoads, PhysicsGpuAbi.ContactLoadSensorBytes);
-    public int CollidersOffset => After(TensileSpansOffset, TensileSpans, PhysicsGpuAbi.TensileSpanBytes);
+    public int RevoluteJointsOffset => After(TensileSpansOffset, TensileSpans, PhysicsGpuAbi.TensileSpanBytes);
+    public int CollidersOffset => After(RevoluteJointsOffset, Revolutes, PhysicsGpuAbi.RevoluteBytes);
     /// <summary>The exact world length.</summary>
     public int ByteLength => After(CollidersOffset, Colliders, PhysicsGpuAbi.ColliderBytes);
 
@@ -47,6 +48,7 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     public int ContactLoadOffset(int slot) => Row(ContactLoadsOffset, slot, ContactLoads, PhysicsGpuAbi.ContactLoadSensorBytes);
     public int ColliderOffset(int slot) => Row(CollidersOffset, slot, Colliders, PhysicsGpuAbi.ColliderBytes);
     public int TensileSpanOffset(int slot) => Row(TensileSpansOffset, slot, TensileSpans, PhysicsGpuAbi.TensileSpanBytes);
+    public int RevoluteOffset(int slot) => Row(RevoluteJointsOffset, slot, Revolutes, PhysicsGpuAbi.RevoluteBytes);
 
     /// <summary>The layout a world header declares. Every count is a non-negative population; a world whose tables cannot be
     /// addressed (longer than an array can hold) is rejected.</summary>
@@ -60,7 +62,8 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
             Count(header, PhysicsGpuAbi.HeaderOrientationSensorCountOffset),
             Count(header, PhysicsGpuAbi.HeaderElectricalSourceCountOffset), Count(header, PhysicsGpuAbi.HeaderElectricalBindingCountOffset),
             Count(header, PhysicsGpuAbi.HeaderPrismaticCountOffset), Count(header, PhysicsGpuAbi.HeaderContactLoadCountOffset),
-            Count(header, PhysicsGpuAbi.HeaderTensileSpanCountOffset));
+            Count(header, PhysicsGpuAbi.HeaderTensileSpanCountOffset),
+            Count(header, PhysicsGpuAbi.HeaderRevoluteCountOffset));
         _ = layout.ByteLength;
         return layout;
     }
@@ -77,6 +80,7 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
         Write(header, PhysicsGpuAbi.HeaderElectricalBindingCountOffset, ElectricalBindings);
         Write(header, PhysicsGpuAbi.HeaderPrismaticCountOffset, Prismatics); Write(header, PhysicsGpuAbi.HeaderContactLoadCountOffset, ContactLoads);
         Write(header, PhysicsGpuAbi.HeaderTensileSpanCountOffset, TensileSpans);
+        Write(header, PhysicsGpuAbi.HeaderRevoluteCountOffset, Revolutes);
     }
 
     private static int Count(ReadOnlySpan<byte> header, int offset)

@@ -342,7 +342,7 @@ development_status:
   # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
   9r-16-cat-035-signal-lamp-suite: backlog # native guard green on record path and candidate; cat-035 authored post-catalogue
   # 37 (element)
-  10-3-balanced-impact-lever-pivot-fulcrum: backlog
+  10-3-balanced-impact-lever-pivot-fulcrum: done # scoped native Pass; browser pending (post-catalogue)
   # 38 (deletion)
   9a-32-generic-instance-domino: done # scoped native/publication Pass61ded7; browser pending
   # 39 (element)

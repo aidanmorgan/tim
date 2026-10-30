@@ -737,7 +737,7 @@ public static class NativeTwoDriveScenario
         var entry = template with
         {
             Metadata = template.Metadata with { Id = "native_two_drives", PaletteOrder = entries.Max(e => e.Metadata.PaletteOrder) + 1 },
-            Footprint = new(3, 2, 2), Colliders = [shape], ColliderBindings = [], TubeMouths = [], TubeMouthBindings = [],
+            Footprint = new(3, 2, 2, 0), Colliders = [shape], ColliderBindings = [], TubeMouths = [], TubeMouthBindings = [],
             Mechanical = template.Mechanical! with { Sliders = sliders },
             Presentation = new(1, CuriousContraptions.Abstractions.PresentationAxes.None, [],
                 [new("Visual/First", new(1), Vector3.Zero), new("Visual/Second", new(2), Vector3.Zero)], [], [])

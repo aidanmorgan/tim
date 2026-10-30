@@ -137,6 +137,17 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         var scene = _sceneRestPoses[slot];
         SetPhysicalRestPose(slot, new Transform3D(scene.Basis, scene.Origin - Vector3.Up * compression));
     }
+    /// <summary>The hinge body's visual: its admitted identity, resting at its scene pose rotated around local Z by the
+    /// declared starting angle (the compiled moving body's pose; never compounded across edits).</summary>
+    internal void InstallHingePresentation(PackageBodyIndex slot, GpuBodyId id, float angleDegrees, CompiledIdentityMap identities)
+    {
+        if (!float.IsFinite(angleDegrees)) throw new ArgumentException("Hinge angle must be finite.");
+        InstallPhysicalIdentity(slot, id, identities);
+        var scene = _sceneRestPoses[slot];
+        var angleRad = Mathf.DegToRad(angleDegrees);
+        var rotationBasis = new Basis(new Quaternion(new Vector3(0, 0, 1), angleRad));
+        SetPhysicalRestPose(slot, new Transform3D(scene.Basis * rotationBasis, scene.Origin));
+    }
     private void BindPhysicalSpan(Node3D moving, Vector3 movingAnchor, Node3D target, Vector3 fixedAnchor, float restLength)
     {
         if (!IsAncestorOf(moving) || !IsAncestorOf(target) || moving.GetParent() != target.GetParent() ||
@@ -147,9 +158,14 @@ public sealed partial class MachinePart : Node3D, IResizablePart
     }
     internal void InstallPhysicalIdentity(PackageBodyIndex slot, GpuBodyId id, CompiledIdentityMap identities)
     {
-        if (AuthoredId.Value == 0 || slot.Value < 1 || slot.Value > identities[AuthoredId].Sliders.Length ||
-            identities[AuthoredId].Sliders[slot.Value - 1].Body != id ||
+        if (AuthoredId.Value == 0 || slot.Value < 1 ||
             !_physicalBodies.TryGetValue(slot, out var binding))
+            throw new ArgumentException("Invalid admitted physical visual identity.");
+        var partIds = identities[AuthoredId];
+        var isSlider = slot.Value <= partIds.Sliders.Length && partIds.Sliders[slot.Value - 1].Body == id;
+        var hingeIndex = slot.Value - 1 - partIds.Sliders.Length;
+        var isHinge = hingeIndex >= 0 && hingeIndex < partIds.Hinges.Length && partIds.Hinges[hingeIndex].Body == id;
+        if (!isSlider && !isHinge)
             throw new ArgumentException("Invalid admitted physical visual identity.");
         _physicalBodies[slot] = (id, binding.Target, binding.RestPose);
     }

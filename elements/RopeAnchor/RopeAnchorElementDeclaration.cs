@@ -11,7 +11,7 @@ public sealed class RopeAnchorElementDeclaration : IMechanicalElement, ISceneGeo
         Color: new(.84f, .61f, .28f, 1f), PaletteOrder: 32, IconPath: "res://elements/RopeAnchor/icon.svg",
         ScenePath: "res://elements/RopeAnchor/rope_anchor.tscn", Parameters: []);
     public ElementPresentation Presentation => new(.55f, PresentationAxes.None, [], [], [], []);
-    public ElementFootprint Footprint => new(1, 0, 0);
+    public ElementFootprint Footprint => new(1, 0, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports =>
     [
         new(PortSocket.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, null,

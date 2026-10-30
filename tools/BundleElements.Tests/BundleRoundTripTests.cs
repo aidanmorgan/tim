@@ -147,6 +147,7 @@ public sealed class BundleRoundTripTests
             AssertSame(mechanical.MassFrame, entry.Mechanical.MassFrame, "MassFrame");
             AssertSame(mechanical.AnchorPoints, entry.Mechanical.AnchorPoints, "AnchorPoints");
             AssertSame(mechanical is ISliderElement slider ? slider.Sliders : [], entry.Mechanical.Sliders, "Sliders");
+            AssertSame(mechanical is IHingeElement hinge ? hinge.Hinges : [], entry.Mechanical.Hinges, "Hinges");
             Assert.Equal(mechanical is IContactWorkElement, entry.Mechanical.ContactWork is not null);
             if (mechanical is IContactWorkElement work) AssertSame(work.ContactWork, entry.Mechanical.ContactWork!.Value, "ContactWork");
             Assert.Equal(mechanical.Payload, entry.Mechanical.Payload);

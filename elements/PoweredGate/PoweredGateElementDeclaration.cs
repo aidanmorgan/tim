@@ -31,7 +31,7 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
         ScenePath: "res://elements/PoweredGate/powered_gate.tscn",
         Parameters: []);
 
-    public ElementFootprint Footprint => new(Bodies: 2, MovingBodies: 1, PrismaticConstraints: 1);
+    public ElementFootprint Footprint => new(Bodies: 2, MovingBodies: 1, PrismaticConstraints: 1, RevoluteConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [

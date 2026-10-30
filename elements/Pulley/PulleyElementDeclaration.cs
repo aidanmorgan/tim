@@ -15,7 +15,7 @@ public sealed class PulleyElementDeclaration : IMechanicalElement, ISceneGeometr
             new("Visual/Wheel", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedWheelAngle,
                 0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
         ], [], [], []);
-    public ElementFootprint Footprint => new(1, 0, 0);
+    public ElementFootprint Footprint => new(1, 0, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports =>
     [
         new(PortSocket.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, null,
