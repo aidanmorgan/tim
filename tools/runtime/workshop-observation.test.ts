@@ -545,7 +545,7 @@ test('the observation facade freezes every nested result and exposes no command 
     registerObservation('101:206',
         () => ({ refusal: ObservationRefusal.None, value: {
             epoch: '2', tick, revision: '3', phase: WorkshopSimulationPhase.Running, cadence: '1', projection: '2', captures: [], electrical: [], sequence: '1', publication: '2', masterGeneration: '1', sourcePulse: '4',
-            outcome: WorkshopCommandOutcome.Applied, reason: WorkshopRejection.None, activations: [], timers: [], contactWorks: [], memory: [], actuators: [], loads: [], logic: [],
+            outcome: WorkshopCommandOutcome.Applied, reason: WorkshopRejection.None, activations: [], timers: [], contactWorks: [], memory: [], actuators: [], loads: [], logic: [], pulleys: [],
             bodies: [{ id: '7', cell: { x: 0, y: 0, z: 0 }, local: { x: 1, y: 2, z: 3 },
                 velocity: { x: 0, y: 0, z: 0 }, angularVelocity: { x: 0, y: 0, z: 0 }, localCentreOfMass: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } }] } }),
         () => ({ refusal: ObservationRefusal.None, value: [{ ordinal: '1', sequence: '3', kind: WorkshopCommandKind.Run, outcome: WorkshopCommandOutcome.Applied, reason: WorkshopRejection.None, appliedToPresentation: true }] }),

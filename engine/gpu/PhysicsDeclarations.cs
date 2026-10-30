@@ -416,9 +416,6 @@ public sealed class PhysicsSceneDeclaration
             }
             if (previous is { } last && !visited.Add(last.BodyB)) throw new ArgumentException("Tensile route closes a cycle.");
         }
-        foreach (var span in _tensileSpans)
-            if (span.Complete && (span.Order != 0 || Array.Exists(_tensileSpans, other => other.Route == span.Route && other.Id != span.Id)))
-                throw new ArgumentException("Complete guided routes require supported guide geometry.");
         _prismatics = prismatics.ToArray();
         Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         var driven = new HashSet<PrismaticConstraintId>(4);

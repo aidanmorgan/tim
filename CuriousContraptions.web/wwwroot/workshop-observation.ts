@@ -72,6 +72,7 @@ export interface CommittedObservation {
     readonly activations: readonly ObservedActivation[]; readonly timers: readonly ObservedTimer[];
     readonly contactWorks: readonly ObservedContactWork[]; readonly memory: readonly ObservedMemory[];
     readonly actuators: readonly ObservedActuator[]; readonly loads: readonly ObservedLoad[]; readonly logic: readonly ObservedLogic[];
+    readonly pulleys: readonly ObservedPulleyWheel[];
 }
 export interface CommandReceiptObservation {
     readonly ordinal: string; readonly sequence: string; readonly kind: WorkshopCommandKind;
@@ -99,6 +100,7 @@ export interface ObservedMemory { readonly node: string; readonly kind: Activati
 export interface ObservedActuator { readonly joint: string; readonly owner: string; readonly supplyClosed: boolean; readonly movingContact: boolean; readonly coordinate: number; readonly speed: number; readonly lower: number; readonly upper: number; readonly blocked: boolean; }
 export interface ObservedLoad { readonly sensor: string; readonly frame: string; readonly region: string; readonly mass: number; readonly phase: ContactLoadPhase; }
 export interface ObservedLogic { readonly owner: string; readonly inputs: ElectricalInputState; readonly supplied: boolean; readonly active: boolean; }
+export interface ObservedPulleyWheel { readonly pulley: string; readonly travel: number; readonly angle: number; }
 export enum DiagnosticCategory { Fault, Rejection, AfterRetirement, ClockRecalibrated, ClockReplyRejected, ClockRenewedLate, ClockOffsetWide, ClockDerivation, AnimationControlDeferred, DebtFault, TickFailed, BalanceTransfer, Capture, ClockSample, AnimationSample, Presentation }
 export interface ObservedInterval { readonly lower: string; readonly upper: string; }
 export interface ObservedPeer { readonly sessionLow: string; readonly sessionHigh: string; readonly generation: string; readonly requesterGeneration: string; readonly role: WorkshopRuntimeRole; readonly origin: string; readonly uncertainty: string; }

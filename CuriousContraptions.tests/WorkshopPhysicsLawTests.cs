@@ -672,7 +672,7 @@ public sealed class WorkshopPhysicsLawTests
         "ElectricalBindingSourceOffset", "ElectricalBindingStorageOffset",
         // Core route identity/integrity apply to any declared tensile route. Contact anchor is a geometric support point,
         // not the RopeAnchor package: SupportDisplacement and AnchorDisplacement use only SimBody/collider geometry.
-        "RopeRouteId", "RopeIntegrity", "AnchorDisplacement", "anchor"];
+        "RopeRouteId", "RopeIntegrity", "RopeGeometry", "AnchorDisplacement", "anchor"];
 
     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token
@@ -796,6 +796,7 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("weightRow", true)]          // Weight (weight, 10.2a)
     [InlineData("RopeRouteId", false)]
     [InlineData("RopeIntegrity", false)]
+    [InlineData("RopeGeometry", false)]
     [InlineData("AnchorDisplacement", false)]
     [InlineData("anchor", false)]
     [InlineData("PhysicsMotionRead.AnchorOrdinalOffset", false)]

@@ -148,8 +148,11 @@ public sealed class RopeTests
         RopeAttachmentRole Role(RopeTopology.Endpoint endpoint) => endpoint.Body.Value == 1 ? RopeAttachmentRole.Load : RopeAttachmentRole.Guide;
         var route = Assert.Single(RopeTopology.Compile([Edge(2, 1), Edge(3, 2)], Role));
         Assert.False(route.Complete); Assert.Equal(new GpuBodyId(1), route.Attachments[0].Body);
-        Assert.Throws<WorkshopEditRejectedException>(() => RopeTopology.Compile([Edge(1, 2), Edge(2, 3)],
+        var completeRoute = Assert.Single(RopeTopology.Compile([Edge(1, 2), Edge(2, 3)],
             endpoint => endpoint.Body.Value == 2 ? RopeAttachmentRole.Guide : RopeAttachmentRole.Load));
+        Assert.True(completeRoute.Complete);
+        Assert.Equal(3, completeRoute.Attachments.Length);
+        Assert.Equal(2, completeRoute.Spans.Length);
         Assert.Throws<WorkshopEditRejectedException>(() => RopeTopology.Compile([Edge(2, 3), Edge(3, 4), Edge(4, 2)], Role));
         Assert.Throws<WorkshopEditRejectedException>(() => RopeTopology.Compile([Edge(1, 2), Edge(1, 3)], Role));
         Assert.Throws<WorkshopEditRejectedException>(() => RopeTopology.Compile([Edge(1, 2), Edge(2, 1)], Role));
@@ -531,6 +534,328 @@ public sealed class RopeTests
             if (i == 0) await world.Advance(30);
         }
         Assert.True(Vector3.Distance(initial.AttachmentB, world.Committed.Presentation.Ropes[0].AttachmentB) > .01f);
+    }
+
+    private static (WorkshopConstruction Construction, GpuBodyId WeightA, GpuBodyId Pulley1, GpuBodyId Pulley2, GpuBodyId WeightB, float TotalLength)
+        TwoPulleyAtwood(float massA = 4f, float massB = 4f, float heightA = 3f, float heightB = 3f, float? totalLength = null)
+    {
+        var a = WeightTests.Placed(1, -2.4f, heightA, 0f, massA);
+        var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
+        var p2 = WorkshopInput.Generic(new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
+        var b = WeightTests.Placed(4, 2.4f, heightB, 0f, massB);
+        var tieA = DeclaredPorts.Current.LocalPosition(a, WorkshopSocket.Tie);
+        var tieB = DeclaredPorts.Current.LocalPosition(b, WorkshopSocket.Tie);
+        var posA = new Vector3(-2.4f, heightA, 0f) + tieA;
+        var posB = new Vector3(2.4f, heightB, 0f) + tieB;
+        var guides = new (Vector3 Position, Quaternion Rotation)[]
+        {
+            (new(-2f, 6f, -.12f), Quaternion.Identity),
+            (new(2f, 6f, -.12f), Quaternion.Identity)
+        };
+        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides);
+        var len = totalLength ?? evaluated.TotalLength;
+        var span1 = 4.0f;
+        var remaining = MathF.Max(0.1f, len - span1);
+        var span0 = remaining * 0.5f;
+        var span2 = remaining * 0.5f;
+        var link0 = new WorkshopConnection(a.Id, WorkshopSocket.Tie, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
+        var link1 = new WorkshopConnection(p1.Id, WorkshopSocket.Tie, p2.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
+        var link2 = new WorkshopConnection(p2.Id, WorkshopSocket.Tie, b.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span2);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(a, p1, p2, b),
+            Connections: new(link0, link1, link2));
+        return (construction, a.Id, p1.Id, p2.Id, b.Id, len);
+    }
+
+    [Fact]
+    public async Task TwoPulleyAtwoodBalancesEqualWeightsAtRest()
+    {
+        var (construction, idA, _, _, idB, _) = TwoPulleyAtwood(massA: 5f, massB: 5f, heightA: 3f, heightB: 3f);
+        await using var world = await WorkshopIntegrationHarness.Running(construction);
+        var initialA = BodyY(world.Committed, idA);
+        var initialB = BodyY(world.Committed, idB);
+
+        await world.Advance(120);
+
+        var finalA = BodyY(world.Committed, idA);
+        var finalB = BodyY(world.Committed, idB);
+
+        Assert.InRange(MathF.Abs(finalA - initialA), 0f, .005f);
+        Assert.InRange(MathF.Abs(finalB - initialB), 0f, .005f);
+        Assert.Equal(3, world.Committed.Presentation.Ropes.Length);
+        Assert.All(world.Committed.Presentation.Ropes.ToArray(), span =>
+        {
+            Assert.Equal(RopeIntegrity.Intact, span.Integrity);
+        });
+    }
+
+    [Fact]
+    public async Task TwoPulleyAtwoodAcceleratesUnequalWeightsWithTheoreticalAtwoodDynamics()
+    {
+        // Mass A = 2 kg, Mass B = 6 kg: theoretical a = g * (6 - 2) / (6 + 2) = 0.5 * 9.81 = 4.905 m/s²
+        var (construction, idA, _, _, idB, _) = TwoPulleyAtwood(massA: 2f, massB: 6f, heightA: 2.5f, heightB: 3.5f);
+        await using var world = await WorkshopIntegrationHarness.Running(construction);
+        var initialA = BodyY(world.Committed, idA);
+        var initialB = BodyY(world.Committed, idB);
+
+        await world.Advance(30); // 0.25 seconds at 120 Hz
+
+        var finalA = BodyY(world.Committed, idA);
+        var finalB = BodyY(world.Committed, idB);
+        var deltaA = finalA - initialA;
+        var deltaB = finalB - initialB;
+
+        Assert.True(deltaA > .05f, "Light 2kg weight must rise.");
+        Assert.True(deltaB < -.05f, "Heavy 6kg weight must fall.");
+        Assert.InRange(MathF.Abs(deltaA + deltaB), 0f, .02f);
+
+        const float expectedA = 4.905f;
+        var measuredA = 2f * MathF.Abs(deltaB) / (0.25f * 0.25f);
+        Assert.InRange(MathF.Abs(measuredA - expectedA) / expectedA, 0f, 0.10f);
+
+        // Wheel rotation proportional to rope travel Δθ = Δs / 0.4 rad
+        var pulleys = world.Committed.Presentation.Pulleys.ToArray();
+        Assert.Equal(2, pulleys.Length);
+        var ropeTravel = MathF.Abs(deltaB);
+        var expectedAngle = (ropeTravel / 0.4f) % MathF.Tau;
+        foreach (var p in pulleys)
+        {
+            Assert.InRange(MathF.Abs(p.Travel - ropeTravel), 0f, .02f);
+            Assert.InRange(MathF.Abs(p.Angle - expectedAngle), 0f, .05f);
+        }
+    }
+
+    [Fact]
+    public void LawSceneAtwoodTenKilogramAndFiveKilogramAcceleratesWithTheoreticalDynamics()
+    {
+        var scene = new LawScene(bench: false);
+        var a = scene.Cylinder(new(-2.4f, 3f, 0f), .2f, .2f, 5f, LawMaterial.Domino, Quaternion.Identity, gravity: -9.81f);
+        var p1 = scene.StaticCylinder(new(-2f, 6f, -.12f), .4f, .17f, Quaternion.Identity);
+        var p2 = scene.StaticCylinder(new(2f, 6f, -.12f), .4f, .17f, Quaternion.Identity);
+        var b = scene.Cylinder(new(2.4f, 3f, 0f), .2f, .2f, 10f, LawMaterial.Domino, Quaternion.Identity, gravity: -9.81f);
+        var posA = new Vector3(-2.4f, 3.2f, 0f);
+        var posB = new Vector3(2.4f, 3.2f, 0f);
+        var guides = new (Vector3 Position, Quaternion Rotation)[]
+        {
+            (new(-2f, 6f, -.12f), Quaternion.Identity),
+            (new(2f, 6f, -.12f), Quaternion.Identity)
+        };
+        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides);
+        var totalLength = evaluated.TotalLength;
+        var compiled = scene.Admit().Scene;
+        var span0 = (totalLength - 4f) * .5f;
+        var spans = new TensileSpanDeclaration[]
+        {
+            new(new(1), new(1), 0, a, new(0, .2f, 0), p1, new(0, .4f, .12f), span0, true),
+            new(new(2), new(1), 1, p1, new(0, .4f, .12f), p2, new(0, .4f, .12f), 4f, true),
+            new(new(3), new(1), 2, p2, new(0, .4f, .12f), b, new(0, .2f, 0), span0, true),
+        };
+        var physicsScene = new PhysicsSceneDeclaration(compiled.Document, compiled.NextIdentity,
+            compiled.Bodies, compiled.Colliders, compiled.Materials, [], [], tensileSpans: spans);
+        var world = new LawWorld(physicsScene, PhysicsGpuAbi.Admission(physicsScene, new(1),
+            new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1))), SimulationCadence.Hz120);
+
+        var initialA = world.Initial(a).Position.Y;
+        var initialB = world.Initial(b).Position.Y;
+        var final = world.Step(30);
+        var finalA = final[a].Position.Y;
+        var finalB = final[b].Position.Y;
+
+        var deltaA = finalA - initialA;
+        var deltaB = finalB - initialB;
+        Assert.True(deltaA > .05f, "Light 5kg weight must rise.");
+        Assert.True(deltaB < -.05f, "Heavy 10kg weight must fall.");
+        Assert.InRange(MathF.Abs(deltaA + deltaB), 0f, .01f);
+        const float expectedA = 9.81f * (10f - 5f) / (10f + 5f); // 3.27 m/s²
+        var measuredA = 2f * MathF.Abs(deltaB) / (0.25f * 0.25f);
+        Assert.InRange(MathF.Abs(measuredA - expectedA) / expectedA, 0f, 0.10f);
+    }
+
+    [Fact]
+    public async Task SinglePulleyRedirectionSupportsSuspendedWeight()
+    {
+        var anchor = WorkshopInput.Generic(new("rope_anchor"), new(1), -2f, 6f, -.18f, 0, 0, 0, 1);
+        var pulley = WorkshopInput.Generic(new("pulley"), new(2), 0f, 6f, -.12f, 0, 0, 0, 1);
+        var weight = WeightTests.Placed(3, 0.4f, 3f, 0f, 4f);
+        var tieWeight = DeclaredPorts.Current.LocalPosition(weight, WorkshopSocket.Tie);
+        var posAnchor = new Vector3(-2f, 6f, 0f);
+        var posWeight = new Vector3(0.4f, 3f, 0f) + tieWeight;
+        var guides = new (Vector3 Position, Quaternion Rotation)[]
+        {
+            (new(0f, 6f, -.12f), Quaternion.Identity)
+        };
+        var evaluated = RopeGeometry.EvaluateRoute(posAnchor, posWeight, guides);
+        var totalLength = evaluated.TotalLength;
+        var span0 = Vector3.Distance(posAnchor, new Vector3(0f, 6.4f, 0f));
+        var span1 = totalLength - span0;
+        var link0 = new WorkshopConnection(anchor.Id, WorkshopSocket.Tie, pulley.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
+        var link1 = new WorkshopConnection(pulley.Id, WorkshopSocket.Tie, weight.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(anchor, pulley, weight),
+            Connections: new(link0, link1));
+
+        await using var world = await WorkshopIntegrationHarness.Running(construction);
+        var freeWeight = WeightTests.Placed(4, 3f, 3f, 0f, 4f);
+        await using var control = await WorkshopIntegrationHarness.Running(new WorkshopConstruction(new(2),
+            WorkshopCadenceSettings.Default(), new(freeWeight)));
+
+        var initialY = BodyY(world.Committed, weight.Id);
+        await world.Advance(120);
+        await control.Advance(120);
+
+        var finalY = BodyY(world.Committed, weight.Id);
+        var controlY = BodyY(control.Committed, freeWeight.Id);
+
+        Assert.InRange(MathF.Abs(finalY - initialY), 0f, .02f);
+        Assert.True(controlY < 1f, "Unconnected control weight must fall freely.");
+    }
+
+    [Fact]
+    public async Task AtwoodSlackTransitionOnFloorContactReleasesTension()
+    {
+        var shelf = WorkshopInput.Generic(new("wall"), new(5), 2.4f, 2.0f, 0f, 0, 0, 0, 1,
+            new([new(new("width"), 1.5f), new(new("height"), .5f), new(new("thickness"), 1.5f)]));
+        var (construction, idA, _, _, idB, _) = TwoPulleyAtwood(massA: 2f, massB: 6f, heightA: 2f, heightB: 2.8f);
+        construction = construction with { Instances = construction.Instances.With(shelf) };
+
+        await using var world = await WorkshopIntegrationHarness.Running(construction);
+
+        // Advance 40 ticks: rope is taut, Atwood acceleration in progress
+        await world.Advance(40);
+        Assert.Equal(RopeState.Taut, world.Committed.Presentation.Ropes[0].State);
+
+        // Advance to 60 ticks: weight B has contacted the shelf at y ~ 2.25m, rope transitions to slack
+        await world.Advance(20);
+        var yB60 = BodyY(world.Committed, idB);
+        Assert.InRange(yB60, 2.24f, 2.27f);
+        var rope60 = world.Committed.Presentation.Ropes[0];
+        Assert.Equal(RopeState.Slack, rope60.State);
+        Assert.True(rope60.CurrentLength < rope60.MaximumLength);
+        var yA60 = BodyY(world.Committed, idA);
+
+        // Advance to 80 ticks: lighter weight A continues upward on momentum while rope is slack
+        await world.Advance(20);
+        var rope80 = world.Committed.Presentation.Ropes[0];
+        Assert.Equal(RopeState.Slack, rope80.State);
+        var yA80 = BodyY(world.Committed, idA);
+        Assert.True(yA80 > yA60 + .1f, "Lighter weight must continue rising on momentum while rope is slack.");
+
+        // Advance to 100 ticks: lighter weight A peaks and falls back downward under gravity
+        await world.Advance(20);
+        var rope100 = world.Committed.Presentation.Ropes[0];
+        Assert.Equal(RopeState.Slack, rope100.State);
+        var yA100 = BodyY(world.Committed, idA);
+        Assert.True(yA100 < yA80, "Lighter weight must fall back downward under gravity after reaching apex.");
+        var yB100 = BodyY(world.Committed, idB);
+        Assert.InRange(yB100, 2.24f, 2.27f);
+    }
+
+    [Fact]
+    public async Task AtwoodCutSpanReleasesTensionAtomicallyAndWeightsFallFreely()
+    {
+        var (construction, idA, _, _, idB, _) = TwoPulleyAtwood(massA: 5f, massB: 5f, heightA: 3.5f, heightB: 3.5f);
+        await using var world = await WorkshopIntegrationHarness.Running(construction);
+        await world.Advance(30);
+
+        var spanToCut = world.Committed.Presentation.Ropes[1].Id;
+        await world.Require(WorkshopCommandKind.CutRope, cut: spanToCut);
+        await world.Advance(1);
+
+        var cutRope = world.Committed.Presentation.Ropes.ToArray().Single(r => r.Id == spanToCut);
+        Assert.Equal(RopeIntegrity.Cut, cutRope.Integrity);
+        Assert.Equal(RopeState.Open, cutRope.State);
+
+        await world.Advance(60);
+
+        var yA = BodyY(world.Committed, idA);
+        var yB = BodyY(world.Committed, idB);
+        Assert.True(yA < 2.5f, "Weight A must fall freely after cut.");
+        Assert.True(yB < 2.5f, "Weight B must fall freely after cut.");
+    }
+
+    [Fact]
+    public async Task TwoPulleyRouteSurvivesResetAndSaveLoad()
+    {
+        var (construction, idA, _, _, idB, _) = TwoPulleyAtwood(massA: 2f, massB: 6f, heightA: 2.5f, heightB: 3.5f);
+        await using var world = await WorkshopIntegrationHarness.Running(construction);
+        await world.Advance(30);
+
+        var movedB = BodyY(world.Committed, idB);
+        Assert.True(movedB < 3.4f);
+
+        await world.Reset();
+
+        var resetA = BodyY(world.Committed, idA);
+        var resetB = BodyY(world.Committed, idB);
+        Assert.InRange(resetA, 2.495f, 2.505f);
+        Assert.InRange(resetB, 3.495f, 3.505f);
+
+        var saved = new WorkshopSavedConstruction(world.Construction, new(10));
+        var bytes = WorkshopSaveCodec.Encode(saved);
+        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+
+        Assert.Equal(construction.Connections, loaded.Construction.Connections);
+        Assert.Equal(4, loaded.Construction.Instances.Count);
+
+        await using var loadedWorld = await WorkshopIntegrationHarness.Running(loaded.Construction);
+        await loadedWorld.Advance(30);
+        var loadedMovedB = BodyY(loadedWorld.Committed, idB);
+        Assert.InRange(MathF.Abs(loadedMovedB - movedB), 0f, .01f);
+    }
+
+    [Theory]
+    [InlineData(0.04f)]
+    [InlineData(200.5f)]
+    public void MalformedGuideLengthsRefuseAtomically(float length)
+    {
+        WorkshopConnection Edge(ulong a, ulong b, float len) =>
+            new(new(a), WorkshopSocket.Tie, new(b), WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, len);
+        RopeAttachmentRole Role(RopeTopology.Endpoint endpoint) =>
+            endpoint.Body.Value is 2 or 3 ? RopeAttachmentRole.Guide : RopeAttachmentRole.Load;
+
+        Assert.Throws<WorkshopEditRejectedException>(() =>
+            RopeTopology.Compile([Edge(1, 2, 1f), Edge(2, 3, length), Edge(3, 4, 1f)], Role));
+    }
+
+    [Fact]
+    public void MalformedGuideTopologyBranchingCycleAndGuideEndpointsRefuse()
+    {
+        WorkshopConnection Edge(ulong a, ulong b) =>
+            new(new(a), WorkshopSocket.Tie, new(b), WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, 1f);
+        RopeAttachmentRole Role(RopeTopology.Endpoint endpoint) =>
+            endpoint.Body.Value is 2 or 3 ? RopeAttachmentRole.Guide : RopeAttachmentRole.Load;
+
+        var incompleteRoute = Assert.Single(RopeTopology.Compile([Edge(1, 2)], Role));
+        Assert.False(incompleteRoute.Complete);
+
+        Assert.Throws<WorkshopEditRejectedException>(() =>
+            RopeTopology.Compile([Edge(1, 2), Edge(2, 3), Edge(2, 4)], Role));
+
+        Assert.Throws<WorkshopEditRejectedException>(() =>
+            RopeTopology.Compile([Edge(2, 3), Edge(3, 2)], Role));
+    }
+
+    [Fact]
+    public async Task WorkshopDeclaredPresentationAdvancesPulleyWheelRotationAngle()
+    {
+        var pulley = WorkshopInput.Generic(new("pulley"), new(1), 0f, 0f, 0f, 0, 0, 0, 1);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(pulley));
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 1);
+        var read = reads[0];
+        var pres = new PhysicsPresentationRead(read.Presentation.Actuators.ToArray(), read.Presentation.Loads.ToArray(),
+            read.Presentation.Logic.ToArray(), read.Presentation.Ropes.ToArray(), [new(new(1), 0.8f, 2.0f)]);
+        var response = new WorkshopResponse(default, WorkshopResponseKind.Read, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
+            WorkshopSimulationPhase.Running, read with { Presentation = pres }, new(101, 206), new(1), new(1), new(1), new(1), new(read.Tick.Value));
+        var compiled = CompiledSceneFixture.Compile(construction);
+        var evaluator = new WorkshopDeclaredPresentation(compiled, response);
+        var samples = evaluator.Advance(AnimationTestTime.Seconds(read.Tick.Value / 120.0));
+        var wheelSample = Assert.Single(samples, s => s.Owner == new GpuBodyId(1) && s.Binding == 0);
+        var angle = BitConverter.UInt32BitsToSingle(wheelSample.Value.CanonicalBits);
+        Assert.Equal(2.0f, angle);
+    }
+
+    private static float BodyY(WorkshopRead read, GpuBodyId id)
+    {
+        Assert.True(read.Bodies.TryGet(id, out var value));
+        return (value.Body.Cell.Y + value.Body.Local.Y) / 16f;
     }
 
     private static Table WireRoot(byte[] bytes)

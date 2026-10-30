@@ -19,7 +19,8 @@ public enum PresentationDriver : byte
     Event,
     CommittedActivation, CommittedCount, CommittedOscillatorPhase, CommittedOscillatorPulse,
     CommittedTimerProgress, CommittedTimerPhase, CommittedSupply, CommittedCharge, CommittedActuatorDrive,
-    CommittedContactLoadPhase, CommittedActuatorState, CommittedTimerRemaining, CommittedTimerActive, CommittedElectricalSocket
+    CommittedContactLoadPhase, CommittedActuatorState, CommittedTimerRemaining, CommittedTimerActive, CommittedElectricalSocket,
+    CommittedWheelAngle
 }
 
 public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep }
@@ -78,7 +79,8 @@ public static class PresentationDriverRules
                     PresentationDriver.CommittedTimerActive => overlap == PresentationOverlap.Replace &&
                         ((curve == PresentationCurve.Linear && duration == 0) || (curve == PresentationCurve.SmoothStep && duration > 0)),
                     PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
-                        PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState =>
+                        PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState or
+                        PresentationDriver.CommittedWheelAngle =>
                             curve == PresentationCurve.Linear && duration == 0 && overlap == PresentationOverlap.Replace,
                     _ => false
                 };

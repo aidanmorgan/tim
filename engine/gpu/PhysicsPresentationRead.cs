@@ -13,8 +13,6 @@ public readonly record struct RopeSpanRead(RopeSpanId Id, RopeRouteId Route, uin
             !Enum.IsDefined(Integrity) || !Enum.IsDefined(State) || !Finite(AttachmentA) || !Finite(AttachmentB) ||
             !float.IsFinite(MaximumLength) || MaximumLength < .05f || MaximumLength > 200f ||
             !float.IsFinite(CurrentLength) || CurrentLength < 0f || CurrentLength != Vector3.Distance(AttachmentA, AttachmentB) ||
-            (State == RopeState.Slack && CurrentLength >= MaximumLength) ||
-            (State == RopeState.Taut && CurrentLength < MaximumLength) ||
             (Integrity == RopeIntegrity.Intact) != (CutSpan.Value == 0) ||
             (Integrity == RopeIntegrity.Cut && State != RopeState.Open))
             throw new ArgumentException("Invalid committed rope observation.");
@@ -64,11 +62,22 @@ public readonly record struct ActuatorDriveRead(
     }
 }
 
+public readonly record struct PulleyWheelRead(GpuBodyId Pulley, float Travel, float Angle)
+{
+    public void Validate()
+    {
+        if (Pulley.Value == 0 || !float.IsFinite(Travel) || !float.IsFinite(Angle))
+            throw new ArgumentException("Invalid committed pulley observation.");
+    }
+}
+
 /// <summary>Immutable committed presentation queries. Population comes from the compiled world.</summary>
 public readonly struct PhysicsPresentationRead
 {
     private readonly RopeSpanRead[]? _ropes;
     public ReadOnlySpan<RopeSpanRead> Ropes => _ropes;
+    private readonly PulleyWheelRead[]? _pulleys;
+    public ReadOnlySpan<PulleyWheelRead> Pulleys => _pulleys;
     private readonly ActuatorDriveRead[]? _actuators;
     private readonly ContactLoadSensorRead[]? _loads;
     private readonly ElectricalLogicRead[]? _logic;
@@ -76,7 +85,7 @@ public readonly struct PhysicsPresentationRead
     public ReadOnlySpan<ActuatorDriveRead> Actuators => _actuators;
     public ReadOnlySpan<ContactLoadSensorRead> Loads => _loads;
     public PhysicsPresentationRead(ReadOnlySpan<ActuatorDriveRead> actuators, ReadOnlySpan<ContactLoadSensorRead> loads, ReadOnlySpan<ElectricalLogicRead> logic = default,
-        ReadOnlySpan<RopeSpanRead> ropes = default)
+        ReadOnlySpan<RopeSpanRead> ropes = default, ReadOnlySpan<PulleyWheelRead> pulleys = default)
     {
         for (var i = 0; i < ropes.Length; i++)
         {
@@ -85,6 +94,13 @@ public readonly struct PhysicsPresentationRead
                 throw new ArgumentException("Rope observations require ordered unique identities.");
         }
         _ropes = ropes.ToArray();
+        for (var i = 0; i < pulleys.Length; i++)
+        {
+            pulleys[i].Validate();
+            if (i > 0 && pulleys[i - 1].Pulley.Value >= pulleys[i].Pulley.Value)
+                throw new ArgumentException("Pulley observations require ordered unique identities.");
+        }
+        _pulleys = pulleys.ToArray();
         for (var i = 0; i < actuators.Length; i++)
         {
             actuators[i].Validate();
@@ -108,7 +124,7 @@ public readonly struct PhysicsPresentationRead
         _actuators = actuators.ToArray(); _loads = loads.ToArray(); _logic=logic.ToArray();
     }
     public bool HasSameBits(PhysicsPresentationRead other) =>
-        Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads) && Logic.SequenceEqual(other.Logic) && Ropes.SequenceEqual(other.Ropes);
+        Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads) && Logic.SequenceEqual(other.Logic) && Ropes.SequenceEqual(other.Ropes) && Pulleys.SequenceEqual(other.Pulleys);
 }
 
 public static partial class PhysicsGpuAbi
@@ -138,7 +154,15 @@ public static partial class PhysicsGpuAbi
         var loads = new ContactLoadSensorRead[ReadContactLoadCount(bytes)];
         for (var i = 0; i < loads.Length; i++) loads[i] = ReadContactLoadSensor(bytes, i);
         var ropes = new RopeSpanRead[layout.TensileSpans];
-        for (var i = 0; i < ropes.Length; i++)
+        var pulleyMap = new Dictionary<GpuBodyId, (float Travel, float Angle)>();
+        if (inputs.Pulleys is { Length: > 0 })
+        {
+            foreach (var p in inputs.Pulleys)
+                pulleyMap.TryAdd(p, (0f, 0f));
+        }
+
+        var rawSpans = new (TensileSpanDeclaration Span, Vector3 From, Vector3 To, float Length, RopeIntegrity Integrity, float Impulse, float Travel, RopeSpanId CutSpan, Vector3 FrameBPos, Quaternion FrameBRot)[layout.TensileSpans];
+        for (var i = 0; i < layout.TensileSpans; i++)
         {
             var span = ReadTensileSpan(bytes, i);
             var record = bytes.Slice(layout.TensileSpanOffset(i), TensileSpanBytes);
@@ -148,11 +172,54 @@ public static partial class PhysicsGpuAbi
             var to = b.Position + Vector3.Transform(span.LocalB, b.Rotation);
             var length = Vector3.Distance(from, to);
             var integrity = (RopeIntegrity)R32(record, TensileIntegrityOffset);
-            ropes[i] = new(span.Id, span.Route, span.Order, span.BodyA, span.BodyB, from, to, span.MaximumLength, length,
-                integrity, integrity == RopeIntegrity.Cut || !span.Complete ? RopeState.Open :
-                    length < span.MaximumLength ? RopeState.Slack : RopeState.Taut, new(R64(record, TensileCutSpanOffset)));
+            var impulse = RF(record, TensileImpulseOffset);
+            var travel = RF(record, TensileTravelOffset);
+            var cutSpan = new RopeSpanId(R64(record, TensileCutSpanOffset));
+            rawSpans[i] = (span, from, to, length, integrity, impulse, travel, cutSpan, b.Position, b.Rotation);
         }
-        return new(actuators, loads, inputs.Logic, ropes);
+
+        var routeGroups = rawSpans.Select((raw, index) => (raw, index))
+            .GroupBy(x => x.raw.Span.Route);
+
+        foreach (var group in routeGroups)
+        {
+            var ordered = group.OrderBy(x => x.raw.Span.Order).ToArray();
+            var travel = ordered.Length > 0 ? ordered[0].raw.Travel : 0f;
+            var impulse = ordered.Length > 0 ? ordered[0].raw.Impulse : 0f;
+
+            var guides = new (Vector3 Position, Quaternion Rotation)[ordered.Length > 1 ? ordered.Length - 1 : 0];
+            for (var i = 0; i < ordered.Length - 1; i++)
+            {
+                if (ordered[i].raw.Span.BodyB == ordered[i + 1].raw.Span.BodyA)
+                {
+                    var guideBody = ordered[i].raw.Span.BodyB;
+                    var angle = ((travel / RopeGeometry.PulleyRadius) % MathF.Tau + MathF.Tau) % MathF.Tau;
+                    pulleyMap[guideBody] = (travel, angle);
+                }
+                guides[i] = (ordered[i].raw.FrameBPos, ordered[i].raw.FrameBRot);
+            }
+
+            var terminalA = ordered[0].raw.From;
+            var terminalB = ordered[^1].raw.To;
+            var evaluated = RopeGeometry.EvaluateRoute(terminalA, terminalB, guides);
+            var totalLength = evaluated.TotalLength;
+            var totalMax = ordered.Sum(x => x.raw.Span.MaximumLength);
+            var isCutOrIncomplete = ordered.Any(x => x.raw.Integrity == RopeIntegrity.Cut || !x.raw.Span.Complete);
+            var routeState = isCutOrIncomplete
+                ? RopeState.Open
+                : (totalLength >= totalMax - 1e-3f || impulse > 0f ? RopeState.Taut : RopeState.Slack);
+
+            foreach (var item in ordered)
+            {
+                var r = item.raw;
+                ropes[item.index] = new(r.Span.Id, r.Span.Route, r.Span.Order, r.Span.BodyA, r.Span.BodyB,
+                    r.From, r.To, r.Span.MaximumLength, r.Length, r.Integrity, routeState, r.CutSpan);
+            }
+        }
+
+        var pulleys = pulleyMap.OrderBy(kv => kv.Key.Value)
+            .Select(kv => new PulleyWheelRead(kv.Key, kv.Value.Travel, kv.Value.Angle)).ToArray();
+        return new(actuators, loads, inputs.Logic, ropes, pulleys);
     }
     private static Vector3 PresentationVector(ReadOnlySpan<byte> body, int offset) =>
         new(RF(body, offset), RF(body, offset + 4), RF(body, offset + 8));

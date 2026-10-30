@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions;
@@ -197,6 +198,10 @@ public partial class Workshop
                     link.Domain == WorkshopConnectionDomain.Electrical ? .035f : .025f, true);
                 continue;
             }
+            var sourcePart = World.Parts.Single(part => part.AuthoredId == link.Source);
+            var targetPart = World.Parts.Single(part => part.AuthoredId == link.Target);
+            var isSourceGuide = IsGuide(sourcePart.Definition.PartId, link.Output);
+            var isTargetGuide = IsGuide(targetPart.Definition.PartId, link.Input);
             RopeSpanRead? observed = null;
             foreach (var rope in ropes)
                 if ((rope.BodyA == link.Source && rope.BodyB == link.Target) ||
@@ -215,10 +220,20 @@ public partial class Workshop
             for (var i = 1; i < points.Length; i++)
                 Segment(new(points[i - 1].X, points[i - 1].Y, points[i - 1].Z),
                     new(points[i].X, points[i].Y, points[i].Z), new("#d69c47"), .025f, state != RopeState.Open || i % 2 == 1);
-            Knot(start); Knot(end);
+            var startIsGuide = committed.BodyA == link.Source ? isSourceGuide : isTargetGuide;
+            var endIsGuide = committed.BodyB == link.Target ? isTargetGuide : isSourceGuide;
+            if (!startIsGuide) Knot(start);
+            if (!endIsGuide) Knot(end);
         }
         for (var i = segmentCount; i < _connectionSegments.Count; i++) _connectionSegments[i].Visible = false;
         for (var i = knotCount; i < _connectionKnots.Count; i++) _connectionKnots[i].Visible = false;
+
+        bool IsGuide(PartId partId, WorkshopSocket socket)
+        {
+            foreach (var p in DeclaredPorts.Current.Of(partId))
+                if (p.Socket == socket && p.AttachmentRole == RopeAttachmentRole.Guide) return true;
+            return false;
+        }
 
         void Segment(Vector3 start, Vector3 end, Color colour, float width, bool visible)
         {

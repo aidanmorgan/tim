@@ -359,6 +359,11 @@ public sealed class WorkshopDeclaredPresentation
                         return load.Phase == ContactLoadPhase.Loaded ? 1 : 0;
                     }
                 break;
+            case PresentationDriver.CommittedWheelAngle:
+                foreach (var pulley in read.Presentation.Pulleys)
+                    if (pulley.Pulley == track.Owner)
+                        return pulley.Angle;
+                break;
             default: throw new ArgumentException("Unsupported committed presentation driver.");
         }
         throw new ArgumentException("Declared presentation query is absent from the committed read.");
@@ -411,7 +416,7 @@ public sealed class WorkshopDeclaredPresentation
                 _samples.Add(new(track.Target, track.Owner, track.Index, value));
                 continue;
             }
-            if (d.Curve == PresentationCurve.ExponentialFollow) track.Value = amount;
+            if (d.Curve == PresentationCurve.ExponentialFollow || d.Driver == PresentationDriver.CommittedWheelAngle) track.Value = amount;
             else
             {
                 var from = d.Driver == PresentationDriver.CommittedContactLoadPhase ? track.Rest : d.From;

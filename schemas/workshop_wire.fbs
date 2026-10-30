@@ -244,6 +244,7 @@ table WorkshopResponse {
     ropes: [RopeSpanReadRecord];
     // Present on installation: workers admit the same compiled capabilities.
     scene: CompiledSceneRecord;
+    pulley_wheels: [PulleyWheelReadRecord];
 }
 
 table WorkshopCommand {
@@ -621,6 +622,12 @@ table RopeSpanReadRecord {
     integrity: uint;
     state: uint;
     cut_span: ulong;
+}
+
+table PulleyWheelReadRecord {
+    pulley: ulong;
+    travel: float;
+    angle: float;
 }
 
 table TensileSpanRecord {

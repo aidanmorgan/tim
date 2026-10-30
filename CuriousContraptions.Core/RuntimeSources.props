@@ -42,6 +42,7 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsNumericalException.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsPresentationRead.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsWorldLayout.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/RopeGeometry.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PresentedBodySet.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PrismaticConstraint.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PrismaticRows.cs" />

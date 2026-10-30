@@ -66,8 +66,6 @@ public static class RopeTopology
                 points.Add(current);
             }
             var complete = role(points[0]) != RopeAttachmentRole.Guide && role(points[^1]) != RopeAttachmentRole.Guide;
-            if (complete && points.Count != 2)
-                Refuse("Complete guided ropes require supported finite-radius guide geometry.");
             routes.Add(new(points.ToArray(), spans.ToArray(), complete));
         }
         if (visited.Count != edges.Length) Refuse("Rope cycles are unsupported.");

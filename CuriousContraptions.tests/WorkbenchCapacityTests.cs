@@ -127,7 +127,7 @@ public sealed class WorkbenchCapacityTests
     {
         "ball" or "bowling" => WorkshopInput.Generic(kind, id, (float)(x), 4, (float)(z), 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(id, (float)(x), (float)(DominoUpright + .01), (float)(z), 0, 0, 0, 1),
-        "weight" or "rope_anchor" => WorkshopInput.Generic(kind, id, (float)(x), 4, (float)(z), 0, 0, 0, 1),
+        "weight" or "rope_anchor" or "pulley" => WorkshopInput.Generic(kind, id, (float)(x), 4, (float)(z), 0, 0, 0, 1),
         "basket" => WorkshopInput.Generic(new PartId("basket"), id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
         "ramp" => WorkshopInput.Generic(new PartId("ramp"), id, (float)(x), 2, (float)(z), 0, 0, 0, 1),
         "wall" => WorkshopInput.Generic(new PartId("wall"), id, (float)(x), 2, (float)(z), 0, 0, 0, 1, WallFixture.Default),
@@ -285,7 +285,7 @@ public sealed class WorkbenchCapacityTests
     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
     {
         PartId[] rows = [new PartId("ball"), new PartId("basket"), new PartId("switch"), new PartId("lamp"),
-            new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"), new("weight"), new("rope_anchor")];
+            new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"), new("weight"), new("rope_anchor"), new("pulley")];
         Assert.Equal(rows, FreePalette.Keys.ToArray());
         Assert.All(FreePalette.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         Assert.Equal(rows.Length, FreePalette.Count);

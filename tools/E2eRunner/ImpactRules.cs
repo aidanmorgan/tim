@@ -21,7 +21,7 @@ internal static class ImpactRules
         ["Funnel"] = new PartId("funnel"),
         ["HoldTimer"] = new("hold_timer"), ["ImpactSwitch"] = new PartId("switch"), ["Pipe"] = new PartId("pipe"),
         ["PipeBend45"] = new PartId("pipe_bend_45"), ["PipeBend90"] = new PartId("pipe_bend_90"),
-        ["PoweredGate"] = new PartId("powered_gate"), ["PressurePlate"] = new PartId("pressure_plate"), ["Ramp"] = new PartId("ramp"),
+        ["PoweredGate"] = new PartId("powered_gate"), ["PressurePlate"] = new PartId("pressure_plate"), ["Pulley"] = new("pulley"), ["Ramp"] = new PartId("ramp"),
         ["Receiver"] = new PartId("basket"), ["SignalLamp"] = new PartId("lamp"), ["Springboard"] = new PartId("spring"),
         ["StateLatch"] = new PartId("latch"), ["SystemClock"] = new PartId("clock"), ["Wall"] = new PartId("wall"), ["Weight"] = new("weight"), ["RopeAnchor"] = new("rope_anchor"),
     };

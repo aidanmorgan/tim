@@ -20,7 +20,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"),
         new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"),
         new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"),
-        new("weight"), new("rope_anchor")
+        new("weight"), new("rope_anchor"), new("pulley")
     ];
 
     private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);

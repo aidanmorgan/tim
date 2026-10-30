@@ -27,8 +27,8 @@ internal sealed class WorkshopPhysicsEngine
     private Dictionary<int, SimBody> _allBodies = new(16);
     private List<SimCollider> _colliders = new(32);
     private List<SimJoint> _joints = new(4);
-    private readonly List<SimTensileSpan> _tensile = new(4);
-    private readonly List<SimTensileSpan> _tensilePool = new(4);
+    private readonly List<SimTensileRoute> _tensile = new(4);
+    private readonly List<SimTensileRoute> _tensilePool = new(4);
     private List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
     private List<ContactPoint> _contacts = new(64);
     // Scratch for the speculative sphere-contact touch probe (WorkshopCollisionKernels.AdvanceSpeculativeSphereContact).
@@ -436,21 +436,63 @@ internal sealed class WorkshopPhysicsEngine
 
         _joints.Clear();
         _tensile.Clear();
+        var routeSpans = new Dictionary<RopeRouteId, List<(int Index, TensileSpanDeclaration Declared, int Offset)>>();
         for (var index = 0; index < layout.TensileSpans; index++)
         {
             var declared = PhysicsGpuAbi.ReadTensileSpan(span, index);
             var offset = layout.TensileSpanOffset(index);
-            while (_tensilePool.Count <= index) _tensilePool.Add(new());
-            var tensile = _tensilePool[index];
-            tensile.Offset = offset;
-            tensile.A = _allBodies[(int)ReadU32(span, offset + PhysicsGpuAbi.TensileBodyAOffset)];
-            tensile.B = _allBodies[(int)ReadU32(span, offset + PhysicsGpuAbi.TensileBodyBOffset)];
-            tensile.LocalA = declared.LocalA; tensile.LocalB = declared.LocalB;
-            tensile.Maximum = declared.MaximumLength; tensile.Complete = declared.Complete;
-            tensile.Cut = ReadU32(span, offset + PhysicsGpuAbi.TensileIntegrityOffset) == (uint)RopeIntegrity.Cut;
-            tensile.Impulse = ReadF32(span, offset + PhysicsGpuAbi.TensileImpulseOffset);
-            tensile.Active = false; tensile.Row = default;
-            _tensile.Add(tensile);
+            if (!routeSpans.TryGetValue(declared.Route, out var list))
+                routeSpans.Add(declared.Route, list = []);
+            list.Add((index, declared, offset));
+        }
+
+        var routeIndex = 0;
+        foreach (var (_, list) in routeSpans)
+        {
+            list.Sort((x, y) => x.Declared.Order.CompareTo(y.Declared.Order));
+            while (_tensilePool.Count <= routeIndex) _tensilePool.Add(new());
+            var route = _tensilePool[routeIndex++];
+
+            var span0 = list[0];
+            var lastSpan = list[^1];
+
+            route.A = _allBodies[(int)ReadU32(span, span0.Offset + PhysicsGpuAbi.TensileBodyAOffset)];
+            route.B = _allBodies[(int)ReadU32(span, lastSpan.Offset + PhysicsGpuAbi.TensileBodyBOffset)];
+            route.LocalA = span0.Declared.LocalA;
+            route.LocalB = lastSpan.Declared.LocalB;
+
+            if (list.Count > 1)
+            {
+                var guides = new SimBody[list.Count - 1];
+                for (var i = 0; i < list.Count - 1; i++)
+                    guides[i] = _allBodies[(int)ReadU32(span, list[i].Offset + PhysicsGpuAbi.TensileBodyBOffset)];
+                route.Guides = guides;
+            }
+            else
+            {
+                route.Guides = [];
+            }
+
+            route.Maximum = 0f;
+            route.Complete = true;
+            route.Cut = false;
+            route.Offsets = new int[list.Count];
+
+            for (var i = 0; i < list.Count; i++)
+            {
+                var item = list[i];
+                route.Offsets[i] = item.Offset;
+                route.Maximum += item.Declared.MaximumLength;
+                if (!item.Declared.Complete) route.Complete = false;
+                if (ReadU32(span, item.Offset + PhysicsGpuAbi.TensileIntegrityOffset) == (uint)RopeIntegrity.Cut)
+                    route.Cut = true;
+            }
+
+            route.Impulse = ReadF32(span, span0.Offset + PhysicsGpuAbi.TensileImpulseOffset);
+            route.Travel = ReadF32(span, span0.Offset + PhysicsGpuAbi.TensileTravelOffset);
+            route.Active = false;
+            route.Row = default;
+            _tensile.Add(route);
         }
         for (var index = 0; index < layout.Prismatics; index++)
         {
@@ -832,6 +874,21 @@ internal sealed class WorkshopPhysicsEngine
                 WorkshopCollisionKernels.UpdateDynamicFrame(b);
             }
 
+            foreach (var route in _tensile)
+            {
+                if (route.Active)
+                {
+                    var aPoint = route.A.Position + Vector3.Transform(route.LocalA, route.A.Rotation);
+                    var bPoint = route.B.Position + Vector3.Transform(route.LocalB, route.B.Rotation);
+                    var vA = route.A.LinearVelocity + Vector3.Cross(route.A.AngularVelocity, aPoint - route.A.CentreOfMass);
+                    var vB = route.B.LinearVelocity + Vector3.Cross(route.B.AngularVelocity, bPoint - route.B.CentreOfMass);
+                    var termA = Vector3.Dot(route.UnitA, vA);
+                    var termB = -Vector3.Dot(route.UnitB, vB);
+                    var vTravel = (route.A.InvMass > 0f && route.B.InvMass > 0f) ? (termA + termB) * 0.5f : (route.A.InvMass > 0f ? termA : termB);
+                    route.Travel += vTravel * dt;
+                }
+            }
+
             foreach (var joint in _joints)
             {
                 var softRowError = joint.Rows[(int)PrismaticRowKind.Spring].Error;
@@ -848,7 +905,13 @@ internal sealed class WorkshopPhysicsEngine
             }
 
             foreach (var tensile in _tensile)
-                WriteF32(span, tensile.Offset + PhysicsGpuAbi.TensileImpulseOffset, tensile.Impulse);
+            {
+                foreach (var offset in tensile.Offsets)
+                {
+                    WriteF32(span, offset + PhysicsGpuAbi.TensileImpulseOffset, tensile.Impulse);
+                    WriteF32(span, offset + PhysicsGpuAbi.TensileTravelOffset, tensile.Travel);
+                }
+            }
             foreach (var joint in _joints)
             {
                 for (var row = 0; row < PhysicsGpuAbi.PrismaticRowCount; row++)

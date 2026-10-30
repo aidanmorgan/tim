@@ -42,7 +42,7 @@ public class CurrentCapabilityInputsTests
         Assert.Contains(preparation.Issues, issue => issue.Problem == CurrentInputProblem.MissingScope);
         Assert.Empty(expected.ImplementationEligibleOwners);
         var ball = new SourceKey(RequirementOrigin.Catalogue, new("ball"));
-        var planned = new SourceKey(RequirementOrigin.Catalogue, new("pulley"));
+        var planned = new SourceKey(RequirementOrigin.Catalogue, new("laser"));
         Assert.Equal(ConsumerKind.CurrentPart, expected.Classifications[ball].Consumer);
         Assert.Equal(ConsumerKind.FutureDeclaration, expected.Classifications[planned].Consumer);
         Assert.NotEmpty(expected.RequiredSymbols[ball]);
@@ -84,9 +84,9 @@ public class CurrentCapabilityInputsTests
                 Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
                 File.Copy(Path.Combine(original.FullName, path), destination);
             }
-            // Every supplied logic gate (CAT-024..027) is admitted since Stories 9.7a..9.8b; the Pulley (CAT-053, Story 10.2) is still
-            // planned with no package.
-            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/Pulley")));
+            // Every supplied logic gate (CAT-024..027) is admitted since Stories 9.7a..9.8b; the Pulley (CAT-053, Story 10.2) is admitted;
+            // Laser is still planned with no package.
+            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/Laser")));
             var sources = RequirementDiscovery.Discover(target);
             var prepared = CapabilityInputs.Prepare(target, sources);
             Assert.Equal(1472, sources.Count);

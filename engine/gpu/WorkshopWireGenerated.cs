@@ -3577,6 +3577,54 @@ public struct ObservationSlot : IFlatbufferObject
   }
 }
 
+public struct PulleyWheelReadRecord : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static PulleyWheelReadRecord GetRootAsPulleyWheelReadRecord(ByteBuffer _bb) { return GetRootAsPulleyWheelReadRecord(_bb, new PulleyWheelReadRecord()); }
+  public static PulleyWheelReadRecord GetRootAsPulleyWheelReadRecord(ByteBuffer _bb, PulleyWheelReadRecord obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public PulleyWheelReadRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Pulley { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public float Travel { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Angle { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+
+  public static Offset<CuriousContraptions.Wire.PulleyWheelReadRecord> CreatePulleyWheelReadRecord(FlatBufferBuilder builder,
+      ulong pulley = 0,
+      float travel = 0.0f,
+      float angle = 0.0f) {
+    builder.StartTable(3);
+    PulleyWheelReadRecord.AddPulley(builder, pulley);
+    PulleyWheelReadRecord.AddAngle(builder, angle);
+    PulleyWheelReadRecord.AddTravel(builder, travel);
+    return PulleyWheelReadRecord.EndPulleyWheelReadRecord(builder);
+  }
+
+  public static void StartPulleyWheelReadRecord(FlatBufferBuilder builder) { builder.StartTable(3); }
+  public static void AddPulley(FlatBufferBuilder builder, ulong pulley) { builder.AddUlong(0, pulley, 0); }
+  public static void AddTravel(FlatBufferBuilder builder, float travel) { builder.AddFloat(1, travel, 0.0f); }
+  public static void AddAngle(FlatBufferBuilder builder, float angle) { builder.AddFloat(2, angle, 0.0f); }
+  public static Offset<CuriousContraptions.Wire.PulleyWheelReadRecord> EndPulleyWheelReadRecord(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>(o);
+  }
+}
+
+
+static public class PulleyWheelReadRecordVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Pulley*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 6 /*Travel*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 8 /*Angle*/, 4 /*float*/, 4, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct Quat4f : IFlatbufferObject
 {
   private Struct __p;
@@ -4511,8 +4559,10 @@ public struct WorkshopResponse : IFlatbufferObject
   public CuriousContraptions.Wire.RopeSpanReadRecord? Ropes(int j) { int o = __p.__offset(56); return o != 0 ? (CuriousContraptions.Wire.RopeSpanReadRecord?)(new CuriousContraptions.Wire.RopeSpanReadRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int RopesLength { get { int o = __p.__offset(56); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.CompiledSceneRecord? Scene { get { int o = __p.__offset(58); return o != 0 ? (CuriousContraptions.Wire.CompiledSceneRecord?)(new CuriousContraptions.Wire.CompiledSceneRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.PulleyWheelReadRecord? PulleyWheels(int j) { int o = __p.__offset(60); return o != 0 ? (CuriousContraptions.Wire.PulleyWheelReadRecord?)(new CuriousContraptions.Wire.PulleyWheelReadRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int PulleyWheelsLength { get { int o = __p.__offset(60); return o != 0 ? __p.__vector_len(o) : 0; } }
 
-  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(28); }
+  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(29); }
   public static void AddSequence(FlatBufferBuilder builder, ulong sequence) { builder.AddUlong(0, sequence, 0); }
   public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.ResponseKind kind) { builder.AddByte(1, (byte)kind, 0); }
   public static void AddOutcome(FlatBufferBuilder builder, CuriousContraptions.Wire.CommandOutcome outcome) { builder.AddByte(2, (byte)outcome, 0); }
@@ -4566,6 +4616,12 @@ public struct WorkshopResponse : IFlatbufferObject
   public static VectorOffset CreateRopesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.RopeSpanReadRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartRopesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static void AddScene(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CompiledSceneRecord> sceneOffset) { builder.AddOffset(27, sceneOffset.Value, 0); }
+  public static void AddPulleyWheels(FlatBufferBuilder builder, VectorOffset pulleyWheelsOffset) { builder.AddOffset(28, pulleyWheelsOffset.Value, 0); }
+  public static VectorOffset CreatePulleyWheelsVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreatePulleyWheelsVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreatePulleyWheelsVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreatePulleyWheelsVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartPulleyWheelsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<CuriousContraptions.Wire.WorkshopResponse> EndWorkshopResponse(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.WorkshopResponse>(o);
@@ -4608,6 +4664,7 @@ static public class WorkshopResponseVerify
       && verifier.VerifyVectorOfData(tablePos, 54 /*ElectricalLogic*/, 16 /*CuriousContraptions.Wire.ElectricalLogicRecord*/, false)
       && verifier.VerifyVectorOfTables(tablePos, 56 /*Ropes*/, CuriousContraptions.Wire.RopeSpanReadRecordVerify.Verify, false)
       && verifier.VerifyTable(tablePos, 58 /*Scene*/, CuriousContraptions.Wire.CompiledSceneRecordVerify.Verify, false)
+      && verifier.VerifyVectorOfTables(tablePos, 60 /*PulleyWheels*/, CuriousContraptions.Wire.PulleyWheelReadRecordVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

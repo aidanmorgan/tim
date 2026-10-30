@@ -324,7 +324,10 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         try
         {
             var cuts = _pendingCuts.Values.ToArray();
-            var candidate = await _device.Advance(source, new(owner), WorkshopTickControls.For(source.Electrical, ElectricalState) with { Cuts = cuts });
+            var pulleys = Scene.Presentation
+                .Where(t => t.Declaration.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedWheelAngle)
+                .Select(t => t.Owner).Distinct().ToArray();
+            var candidate = await _device.Advance(source, new(owner), WorkshopTickControls.For(source.Electrical, ElectricalState) with { Cuts = cuts, Pulleys = pulleys });
             var read = CandidateRead(candidate, owner);
             if (!Owns(owner)) return Superseded(owner);
             ValidateAdvancedRead(source, read);

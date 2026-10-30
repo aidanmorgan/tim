@@ -249,6 +249,7 @@ public static class SupplyCycles
 public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 {
     public RopeSpanId[] Cuts { get; init; } = [];
+    public GpuBodyId[] Pulleys { get; init; } = [];
     public static WorkshopTickControls For(PhysicsElectricalRead committed, Func<GpuBodyId, ElectricalEnable, ElectricalEnable> enable)
     {
         ArgumentNullException.ThrowIfNull(enable);
@@ -268,12 +269,13 @@ public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] SupplyClosed, ElectricalLogicRead[]? Logic = null)
 {
     public RopeSpanId[] Cuts { get; init; } = [];
+    public GpuBodyId[] Pulleys { get; init; } = [];
     public static PhysicsTickInputs Admission { get; } = new([], []);
     public static PhysicsTickInputs Compose(CompiledSupplyGraph graph, int prismatics, WorkshopTickControls controls,
         Func<GpuBodyId, bool> contactClosed)
     {
         var resolved=graph.Resolve(prismatics,controls,contactClosed);
-        return new(controls.SourceEnable,resolved.Consumers,resolved.Logic) { Cuts = controls.Cuts };
+        return new(controls.SourceEnable,resolved.Consumers,resolved.Logic) { Cuts = controls.Cuts, Pulleys = controls.Pulleys };
     }
     public void Validate(int sources, int prismatics)
     {

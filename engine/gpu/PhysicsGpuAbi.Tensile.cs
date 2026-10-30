@@ -17,6 +17,7 @@ public static partial class PhysicsGpuAbi
     public const int TensileIntegrityOffset = 60;
     public const int TensileCutSpanOffset = 64;
     public const int TensileImpulseOffset = 72;
+    public const int TensileTravelOffset = 76;
 
     private static void WriteTensileAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
     {
@@ -33,6 +34,7 @@ public static partial class PhysicsGpuAbi
             F32(row, TensileMaximumOffset, value.MaximumLength);
             U32(row, TensileCompleteOffset, value.Complete ? 1u : 0u);
             U32(row, TensileIntegrityOffset, (uint)RopeIntegrity.Intact);
+            F32(row, TensileTravelOffset, 0f);
         }
     }
 
@@ -44,11 +46,12 @@ public static partial class PhysicsGpuAbi
         var a = R32(row, TensileBodyAOffset); var b = R32(row, TensileBodyBOffset);
         var integrity = (RopeIntegrity)R32(row, TensileIntegrityOffset);
         var impulse = RF(row, TensileImpulseOffset);
+        var travel = RF(row, TensileTravelOffset);
         var cut = R64(row, TensileCutSpanOffset);
         if (a >= layout.Bodies || b >= layout.Bodies || R32(row, TensileCompleteOffset) > 1 ||
             !Enum.IsDefined(integrity) || (integrity == RopeIntegrity.Intact) != (cut == 0) ||
             !float.IsFinite(impulse) || impulse < 0f || (integrity == RopeIntegrity.Cut && impulse != 0f) ||
-            !AllZero(row[(TensileImpulseOffset + sizeof(float))..]))
+            !float.IsFinite(travel))
             throw new ArgumentException("Invalid tensile span.");
         var value = new TensileSpanDeclaration(new(R64(row, 0)), new(R64(row, TensileRouteOffset)),
             R32(row, TensileOrderOffset), new(R64(data, layout.BodyOffset((int)a))),

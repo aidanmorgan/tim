@@ -310,6 +310,55 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
         Assert.Empty(godot.Errors.Drain());
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RefreshConnectionArtworkSuppressesKnotsOnPulleyGuideSocketsInBothDirections(bool reversed)
+    {
+        var scene = Scene();
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness));
+        godot.Tree.Root.AddChild(scene);
+        try
+        {
+            await scene.Startup;
+            var a = WorkshopInput.Generic(new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
+            var pulley = WorkshopInput.Generic(new PartId("pulley"), new(2), 2, 6, 0f, 0, 0, 0, 1);
+            var b = WorkshopInput.Generic(new PartId("rope_anchor"), new(3), 4, 6, -.18f, 0, 0, 0, 1);
+            var instances = new WorkshopInstances(a, pulley, b);
+            var conn1 = reversed
+                ? WorkshopConnections.MeasureRope(instances, pulley.Id, a.Id)
+                : WorkshopConnections.MeasureRope(instances, a.Id, pulley.Id);
+            var conn2 = reversed
+                ? WorkshopConnections.MeasureRope(instances, b.Id, pulley.Id)
+                : WorkshopConnections.MeasureRope(instances, pulley.Id, b.Id);
+            var construction = new WorkshopConstruction(new(3), WorkshopCadenceSettings.Default(), instances,
+                Connections: new([conn1, conn2]));
+            await scene.World.ReplaceConstruction(construction);
+            var compiled = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var declaration = new PhysicsSceneDeclaration(compiled.Document, compiled.NextIdentity, compiled.Bodies,
+                compiled.Colliders, compiled.Materials, [], [], tensileSpans: compiled.TensileSpans.ToArray());
+            var source = PhysicsGpuAbi.Admission(declaration, new(1),
+                new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+            var candidate = new byte[source.Length];
+            var inputs = new PhysicsTickInputs([], []);
+            var engine = new CuriousContraptions.Simulation.WorkshopPhysicsEngine();
+            var interactions = engine.Advance(source, candidate, inputs, PhysicsInteractionSnapshot.Empty);
+            _ = PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1), interactions, PhysicsInteractionSnapshot.Empty);
+            var read = PhysicsGpuAbi.ReadPresentation(candidate, inputs, false);
+            Assert.Equal(2, read.Ropes.Length);
+            scene.RefreshConnectionArtwork(read.Ropes);
+            var artwork = scene.GetNode<Node3D>("WorkshopConnections");
+            var knots = artwork.GetChildren().OfType<MeshInstance3D>().Where(node => node.Mesh is SphereMesh).ToArray();
+            var visibleKnots = knots.Where(k => k.Visible).ToArray();
+            Assert.Equal(2, visibleKnots.Length);
+            var pulleySocket = new Godot.Vector3(2f, 6.4f, 0.12f);
+            Assert.DoesNotContain(visibleKnots, knot => knot.Position.DistanceTo(pulleySocket) < 0.1f);
+        }
+        finally { scene.Free(); godot.Engine.Iteration(); }
+        Assert.Empty(godot.Errors.Drain());
+    }
+
     [Fact]
     public async Task RopePresenterUsesCommittedKnotsAndCutStateAndRetainsNodesUntilTeardown()
     {
@@ -491,7 +540,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             string[] expected =
             [
                 "Motion", "ball", "bumper", "domino", "bowling", "spring", "pipe", "pipe_bend_45",
-                "pipe_bend_90", "funnel", "powered_gate", "weight", "rope_anchor",
+                "pipe_bend_90", "funnel", "powered_gate", "weight", "rope_anchor", "pulley",
                 "Goals", "basket", "lamp", "Power", "switch", "battery",
                 "Control", "delay", "ball_detector", "pressure_plate", "counter", "clock", "latch",
                 "hold_timer", "both_gate", "electrical_nand", "electrical_nor", "electrical_or", "electrical_xor",

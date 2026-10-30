@@ -62,7 +62,6 @@ export enum ElectricalEnable {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class Vec3f {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -100,7 +99,6 @@ static createVec3f(builder:flatbuffers.Builder, x: number, y: number, z: number)
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class Vec3i {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -137,7 +135,6 @@ static createVec3i(builder:flatbuffers.Builder, x: number, y: number, z: number)
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class Quat4f {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -180,9 +177,6 @@ static createQuat4f(builder:flatbuffers.Builder, x: number, y: number, z: number
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class BodyRead {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -261,7 +255,6 @@ static createBodyRead(builder:flatbuffers.Builder, id: bigint, cell_x: number, c
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CaptureLatchRead {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -309,7 +302,6 @@ static createCaptureLatchRead(builder:flatbuffers.Builder, sensor: bigint, targe
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class ElectricalSourceRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -364,7 +356,6 @@ static createElectricalSourceRecord(builder:flatbuffers.Builder, id: bigint, own
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class ContactWorkStoreRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -412,7 +403,6 @@ static createContactWorkStoreRecord(builder:flatbuffers.Builder, id: bigint, own
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class ActivationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -501,7 +491,6 @@ static createActivationRecord(builder:flatbuffers.Builder, node: bigint, owner: 
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class TimerRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -596,7 +585,6 @@ static createTimerRecord(builder:flatbuffers.Builder, node: bigint, phase: numbe
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class ActivationMemoryRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -655,7 +643,6 @@ static createActivationMemoryRecord(builder:flatbuffers.Builder, node: bigint, k
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class ElectricalLogicRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -698,7 +685,6 @@ static createElectricalLogicRecord(builder:flatbuffers.Builder, owner: bigint, i
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class ActuatorDriveRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -764,7 +750,6 @@ static createActuatorDriveRecord(builder:flatbuffers.Builder, joint: bigint, own
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class ContactLoadRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -812,7 +797,6 @@ static createContactLoadRecord(builder:flatbuffers.Builder, sensor: bigint, fram
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class ClockStamp {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -851,7 +835,6 @@ static createClockStamp(builder:flatbuffers.Builder, time: bigint, uncertainty: 
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class ElectricalControl {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -884,7 +867,6 @@ static createElectricalControl(builder:flatbuffers.Builder, owner: bigint, enabl
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class MemoryObservationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -948,7 +930,6 @@ static createMemoryObservationRecord(builder:flatbuffers.Builder, used_before: b
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CommandIdentityRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -995,9 +976,6 @@ static createCommandIdentityRecord(builder:flatbuffers.Builder, sequence: bigint
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class WorkshopResponse {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -1232,8 +1210,18 @@ scene(obj?:CompiledSceneRecord):CompiledSceneRecord|null {
   return offset ? (obj || new CompiledSceneRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
+pulleyWheels(index: number, obj?:PulleyWheelReadRecord):PulleyWheelReadRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 60);
+  return offset ? (obj || new PulleyWheelReadRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+pulleyWheelsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 60);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(28);
+  builder.startObject(29);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1424,6 +1412,22 @@ static addScene(builder:flatbuffers.Builder, sceneOffset:flatbuffers.Offset) {
   builder.addFieldOffset(27, sceneOffset, 0);
 }
 
+static addPulleyWheels(builder:flatbuffers.Builder, pulleyWheelsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(28, pulleyWheelsOffset, 0);
+}
+
+static createPulleyWheelsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startPulleyWheelsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
@@ -1440,9 +1444,6 @@ static finishSizePrefixedWorkshopResponseBuffer(builder:flatbuffers.Builder, off
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class WorkshopCommand {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -1605,7 +1606,6 @@ static endWorkshopCommand(builder:flatbuffers.Builder):flatbuffers.Offset {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class ObservationInterval {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -1648,9 +1648,6 @@ static createObservationInterval(builder:flatbuffers.Builder, lower_low: bigint,
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
-
-
 export class ObservationSlot {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -1691,7 +1688,6 @@ static createObservationSlot(builder:flatbuffers.Builder, receipt: bigint, seque
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class ObservationExchange {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -1735,7 +1731,6 @@ static createObservationExchange(builder:flatbuffers.Builder, before: bigint, ma
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class FaultObservation {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -1817,7 +1812,6 @@ static createFaultObservation(builder:flatbuffers.Builder, kind:number, site:num
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class ReplyObservation {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -1926,9 +1920,6 @@ static createReplyObservation(builder:flatbuffers.Builder, probeOffset:flatbuffe
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class RecalibrationObservation {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -2133,7 +2124,6 @@ static endRecalibrationObservation(builder:flatbuffers.Builder):flatbuffers.Offs
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class RejectedClockObservation {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -2221,9 +2211,6 @@ static createRejectedClockObservation(builder:flatbuffers.Builder, role:number, 
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class LateRenewalObservation {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -2346,7 +2333,6 @@ static endLateRenewalObservation(builder:flatbuffers.Builder):flatbuffers.Offset
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class WideOffsetObservation {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -2431,9 +2417,6 @@ static createWideOffsetObservation(builder:flatbuffers.Builder, offset:bigint, a
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class DerivationObservation {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -2655,7 +2638,6 @@ static endDerivationObservation(builder:flatbuffers.Builder):flatbuffers.Offset 
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class DeferralObservation {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -2710,7 +2692,6 @@ static createDeferralObservation(builder:flatbuffers.Builder, cause:number, coun
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class DebtObservation {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -2787,7 +2768,6 @@ static createDebtObservation(builder:flatbuffers.Builder, tick:bigint, reason:nu
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class TickFailureObservation {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -2852,7 +2832,6 @@ static createTickFailureObservation(builder:flatbuffers.Builder, outcome:number,
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class TransferObservation {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -2922,7 +2901,6 @@ static createTransferObservation(builder:flatbuffers.Builder, responseOffset:fla
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class TraceSampleObservation {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -2990,9 +2968,6 @@ static createTraceSampleObservation(builder:flatbuffers.Builder, recordOffset:fl
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CaptureObservation {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -3296,9 +3271,6 @@ export enum ObservationPayload {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
-
-
 export class DiagnosticObservation {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -3438,9 +3410,6 @@ static endDiagnosticObservation(builder:flatbuffers.Builder):flatbuffers.Offset 
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
-
-
 export class WorkshopObservationBatch {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -3558,9 +3527,6 @@ static createWorkshopObservationBatch(builder:flatbuffers.Builder, sessionOffset
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CapabilityRigidBodyDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -3708,7 +3674,6 @@ static endCapabilityRigidBodyDeclarationRecord(builder:flatbuffers.Builder):flat
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilityCellOriginRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -3774,7 +3739,6 @@ static createCapabilityCellOriginRecord(builder:flatbuffers.Builder, x:number, y
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilityLocalPositionRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -3839,7 +3803,6 @@ static createCapabilityLocalPositionRecord(builder:flatbuffers.Builder, x:number
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class CapabilityCanonicalRotationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -3916,7 +3879,6 @@ static createCapabilityCanonicalRotationRecord(builder:flatbuffers.Builder, x:nu
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilityLinearVelocityRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -3981,7 +3943,6 @@ static createCapabilityLinearVelocityRecord(builder:flatbuffers.Builder, x:numbe
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class CapabilityAngularVelocityRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -4048,7 +4009,6 @@ static createCapabilityAngularVelocityRecord(builder:flatbuffers.Builder, x:numb
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilityAccelerationVectorRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -4113,9 +4073,6 @@ static createCapabilityAccelerationVectorRecord(builder:flatbuffers.Builder, x:n
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CapabilityRigidMassPropertiesRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -4195,7 +4152,6 @@ static endCapabilityRigidMassPropertiesRecord(builder:flatbuffers.Builder):flatb
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilityMetreVectorRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -4260,9 +4216,6 @@ static createCapabilityMetreVectorRecord(builder:flatbuffers.Builder, x:number, 
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CapabilityColliderDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -4360,9 +4313,6 @@ static endCapabilityColliderDeclarationRecord(builder:flatbuffers.Builder):flatb
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
-
-
 export class CapabilityRigidLocalPoseRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -4413,7 +4363,6 @@ static endCapabilityRigidLocalPoseRecord(builder:flatbuffers.Builder):flatbuffer
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class CapabilityContactMaterialDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -4499,9 +4448,6 @@ static createCapabilityContactMaterialDeclarationRecord(builder:flatbuffers.Buil
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CapabilityResidenceSensorDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -4619,7 +4565,6 @@ static endCapabilityResidenceSensorDeclarationRecord(builder:flatbuffers.Builder
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilityBodyTargetSetRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -4674,9 +4619,6 @@ static createCapabilityBodyTargetSetRecord(builder:flatbuffers.Builder, kind:num
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CapabilityPlanarGuideDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -4794,9 +4736,6 @@ static endCapabilityPlanarGuideDeclarationRecord(builder:flatbuffers.Builder):fl
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
-
-
 export class CapabilityContactTriggerDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -4864,9 +4803,6 @@ static endCapabilityContactTriggerDeclarationRecord(builder:flatbuffers.Builder)
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CapabilityContactWorkDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -4963,9 +4899,6 @@ static endCapabilityContactWorkDeclarationRecord(builder:flatbuffers.Builder):fl
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
-
-
 export class CapabilityOrientationSensorDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -5033,7 +4966,6 @@ static endCapabilityOrientationSensorDeclarationRecord(builder:flatbuffers.Build
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class CapabilityElectricalSourceDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -5130,7 +5062,6 @@ static createCapabilityElectricalSourceDeclarationRecord(builder:flatbuffers.Bui
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilityElectricalStorageBindingRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -5185,9 +5116,6 @@ static createCapabilityElectricalStorageBindingRecord(builder:flatbuffers.Builde
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CapabilityPrismaticConstraintDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -5312,9 +5240,6 @@ static endCapabilityPrismaticConstraintDeclarationRecord(builder:flatbuffers.Bui
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
-
-
 export class CapabilityConstraintFrameRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -5365,7 +5290,6 @@ static endCapabilityConstraintFrameRecord(builder:flatbuffers.Builder):flatbuffe
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class CapabilityVector3Record {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -5431,7 +5355,6 @@ static createCapabilityVector3Record(builder:flatbuffers.Builder, x:number, y:nu
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class CapabilityQuaternionRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -5507,7 +5430,6 @@ static createCapabilityQuaternionRecord(builder:flatbuffers.Builder, x:number, y
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class CapabilitySupplyNodeDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -5612,7 +5534,6 @@ static createCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder, 
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilitySupplyEdgeRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -5677,9 +5598,6 @@ static createCapabilitySupplyEdgeRecord(builder:flatbuffers.Builder, source:bigi
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CapabilityContactLoadSensorDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -5838,7 +5756,6 @@ static endCapabilityContactLoadSensorDeclarationRecord(builder:flatbuffers.Build
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilityPrismaticDriveDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -5933,7 +5850,6 @@ static createCapabilityPrismaticDriveDeclarationRecord(builder:flatbuffers.Build
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class CapabilityActivationNodeDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -6130,7 +6046,6 @@ static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Build
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilityActivationEdgeRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -6195,9 +6110,6 @@ static createCapabilityActivationEdgeRecord(builder:flatbuffers.Builder, source:
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CapabilityPassageSensorDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -6295,7 +6207,6 @@ static endCapabilityPassageSensorDeclarationRecord(builder:flatbuffers.Builder):
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class CapabilityPresentationBindingRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -6474,9 +6385,6 @@ static createCapabilityPresentationBindingRecord(builder:flatbuffers.Builder, pr
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
-
-
 export class CapabilityWorkshopCadenceSettingsRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -6554,7 +6462,6 @@ static endCapabilityWorkshopCadenceSettingsRecord(builder:flatbuffers.Builder):f
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CapabilityPulseRateRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -6609,9 +6516,6 @@ static createCapabilityPulseRateRecord(builder:flatbuffers.Builder, numerator:nu
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CompiledPresentationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -6698,9 +6602,6 @@ static endCompiledPresentationRecord(builder:flatbuffers.Builder):flatbuffers.Of
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class RopeSpanReadRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -6841,8 +6742,70 @@ static endRopeSpanReadRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export class PulleyWheelReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):PulleyWheelReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
 
+static getRootAsPulleyWheelReadRecord(bb:flatbuffers.ByteBuffer, obj?:PulleyWheelReadRecord):PulleyWheelReadRecord {
+  return (obj || new PulleyWheelReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
 
+static getSizePrefixedRootAsPulleyWheelReadRecord(bb:flatbuffers.ByteBuffer, obj?:PulleyWheelReadRecord):PulleyWheelReadRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new PulleyWheelReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+pulley():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+travel():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+angle():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startPulleyWheelReadRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addPulley(builder:flatbuffers.Builder, pulley:bigint) {
+  builder.addFieldInt64(0, pulley, BigInt('0'));
+}
+
+static addTravel(builder:flatbuffers.Builder, travel:number) {
+  builder.addFieldFloat32(1, travel, 0.0);
+}
+
+static addAngle(builder:flatbuffers.Builder, angle:number) {
+  builder.addFieldFloat32(2, angle, 0.0);
+}
+
+static endPulleyWheelReadRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createPulleyWheelReadRecord(builder:flatbuffers.Builder, pulley:bigint, travel:number, angle:number):flatbuffers.Offset {
+  PulleyWheelReadRecord.startPulleyWheelReadRecord(builder);
+  PulleyWheelReadRecord.addPulley(builder, pulley);
+  PulleyWheelReadRecord.addTravel(builder, travel);
+  PulleyWheelReadRecord.addAngle(builder, angle);
+  return PulleyWheelReadRecord.endPulleyWheelReadRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export class TensileSpanRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -6955,9 +6918,6 @@ static endTensileSpanRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class CompiledSceneRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -7652,7 +7612,6 @@ static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CadenceSettingsRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -7704,7 +7663,6 @@ static createCadenceSettingsRecord(builder:flatbuffers.Builder, simulation: numb
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class ConnectionRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -7764,7 +7722,6 @@ static createConnectionRecord(builder:flatbuffers.Builder, source: bigint, targe
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class AssistanceKnotRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -7843,7 +7800,6 @@ static createAssistanceKnotRecord(builder:flatbuffers.Builder, precision: number
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class ParameterRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -7901,9 +7857,6 @@ static createParameterRecord(builder:flatbuffers.Builder, keyOffset:flatbuffers.
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class InstanceRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -8017,9 +7970,6 @@ static endInstanceRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class PuzzleRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -8171,9 +8121,6 @@ static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offs
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
-
-
 export class ConstructionRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -8275,9 +8222,6 @@ static endConstructionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class SavedConstruction {
   bb: flatbuffers.ByteBuffer|null = null;

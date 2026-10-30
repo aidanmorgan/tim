@@ -110,8 +110,11 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             throw new ArgumentException("Construction and physical profile differ.");
         var scene = construction.Physics;
         if (scene.Document != document) throw new ArgumentException("Compiled scene belongs to another document.");
+        var pulleys = construction.Presentation
+            .Where(t => t.Declaration.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedWheelAngle)
+            .Select(t => t.Owner).Distinct().ToArray();
         return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence, construction.Activation,
-            new(scene.SupplyGraph, scene.Prismatics.Length, scene.Electrical.Sources.Length), PhysicsTickInputs.Admission, scene);
+            new(scene.SupplyGraph, scene.Prismatics.Length, scene.Electrical.Sources.Length), new PhysicsTickInputs([], []) { Pulleys = pulleys }, scene);
     }
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)
     {
@@ -151,7 +154,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             if(operation==WorkshopGpuOperation.Admit)
             {
                 _triggerScratch = new ContactTriggerRead[4]; _orientationScratch = new OrientationSensorRead[4]; _passageScratch = new PassageSensorRead[4]; _loadScratch = new ContactLoadSensorRead[4];
-                inputs=new([],[],supply.Graph.NeutralReads());
+                inputs = new([], [], supply.Graph.NeutralReads()) { Cuts = inputs.Cuts, Pulleys = inputs.Pulleys };
             }
             await EnsureInitialized();
             await transport.Stage(input, operation, inputs);

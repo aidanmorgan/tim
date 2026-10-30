@@ -657,12 +657,19 @@ public sealed class WorkshopObservationTests
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         await transport.Construct(PuzzleCatalogue.CreateSolution(new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(1f)));
         var response = transport.Client.Observation.Query(transport.Client.Observation.Session, WorkshopObservationQuery.Committed).Value;
+        var pres = new PhysicsPresentationRead(response.Read.Presentation.Actuators.ToArray(), response.Read.Presentation.Loads.ToArray(),
+            response.Read.Presentation.Logic.ToArray(), response.Read.Presentation.Ropes.ToArray(), [new(new(9007199254740991), 1.25f, 3.125f)]);
         var read = response.Read with { Epoch = new(9007199254740993), Tick = new(9007199254740995),
-            Captures = new([new(new(9007199254740997), new(9007199254740999), CaptureLatchPhase.Latched, 23, .5f)]) };
+            Captures = new([new(new(9007199254740997), new(9007199254740999), CaptureLatchPhase.Latched, 23, .5f)]),
+            Presentation = pres };
         using var projected = WorkshopObservationProjection.Response<ExternalObject>(response with { Read = read, Sequence = new(ulong.MaxValue) });
         Assert.Equal("18446744073709551615", projected.Fields["sequence"]);
         Assert.Equal("9007199254740993", projected.Fields["epoch"]);
         Assert.Equal((int)WorkshopSimulationPhase.Building, projected.Fields["phase"]);
+        var pulley = Assert.Single(Assert.IsType<ExternalObject>(projected.Fields["pulleys"]).Items);
+        Assert.Equal("9007199254740991", pulley.Fields["pulley"]);
+        Assert.Equal(1.25f, pulley.Fields["travel"]);
+        Assert.Equal(3.125f, pulley.Fields["angle"]);
         var capture = Assert.Single(Assert.IsType<ExternalObject>(projected.Fields["captures"]).Items);
         Assert.Equal("9007199254740997", capture.Fields["sensor"]);
         Assert.Equal((int)CaptureLatchPhase.Latched, capture.Fields["phase"]);
