@@ -243,3 +243,9 @@ Status: done (local commit; publication follows under the coordinator).
 - `SocketWorld` doesn't yet handle body-owned non-rope ports.
 - Story 10.5 must merge `workshop_wire.fbs` by hand and regenerate.
 - Browser qualification is pending.
+
+## Publication receipt — 1 November 2026
+
+- Commit `cca0061a19cf83652489becf4d1dd7b69236dc94`, pushed as a fast-forward of `origin/main` from `2ee79e8b0a1dce23fed3f2472d7edc40dcd067c6`. The coordinator confirmed afterwards that remote `main` equals that SHA.
+- Approval was the Auto review pass with the owner decision. The full local round and the normal hook (127/0/0, `Skipped: 0`) ran on the committed content.
+- CI build, Pages artifact and deployment were not monitored, per the owner instruction of 29 October 2026, so they remain unverified. Browser qualification is pending until the post-catalogue phase.
