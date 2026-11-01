@@ -82,6 +82,22 @@ internal sealed class SignalFixture : ISignalElement
     public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 }
 
+/// <summary>A fixture whose scene declares body roots (Story 10.3a): the base at the scene root and one moving body under
+/// <c>Visual/Beam</c>, so a port may name body 1 and keep its locator under that body. Internal, so the assembly-as-package discovery
+/// count above stays two.</summary>
+internal sealed class SceneBodyFixture : ISceneGeometryElement
+{
+    public ElementPresentation Presentation => new(1f, PresentationAxes.None, [], [], [], []);
+    public ElementMetadata Metadata => new("fixture", ElementCategory.Motion, "Fixture", "A fixture.", new(.5f, .5f, .5f, 1f), 1,
+        "res://elements/Fixture/icon.svg", "res://elements/Fixture/fixture.tscn", []);
+    public ElementFootprint Footprint => new(2, 1, 0, 1);
+    public IReadOnlyList<PortDescriptor> Ports { get; init; } = [];
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+    public IReadOnlyList<EventDescriptor> Events => [];
+    public SimulationDomain SupportedDomains => SimulationDomain.Rope;
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(1f, .3f, 0f, .1f)), new("Visual/Beam", new(0f, .3f, 0f, .1f))];
+}
+
 internal static class TestRepository
 {
     public static readonly string Root = FindRoot();

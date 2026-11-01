@@ -432,6 +432,36 @@ public static partial class WorkshopWireFlatBuffers
         row.Damping,
         ObservationEnum<CuriousContraptions.Gpu.ConnectedCollision>(row.Collision));
 
+    private static Offset<W.CapabilityRevoluteConstraintDeclarationRecord> EncodeCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.RevoluteConstraintDeclaration value)
+    {
+        var frame_a = EncodeCapabilityConstraintFrameRecord(b, value.FrameA);
+        var frame_b = EncodeCapabilityConstraintFrameRecord(b, value.FrameB);
+        W.CapabilityRevoluteConstraintDeclarationRecord.StartCapabilityRevoluteConstraintDeclarationRecord(b);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddId(b, value.Id.Value);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddBodyA(b, value.BodyA.Value);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddBodyB(b, value.BodyB.Value);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddFrameA(b, frame_a);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddFrameB(b, frame_b);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddLower(b, value.Lower);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddUpper(b, value.Upper);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddStiffness(b, value.Stiffness);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddDamping(b, value.Damping);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddCollision(b, (uint)value.Collision);
+        return W.CapabilityRevoluteConstraintDeclarationRecord.EndCapabilityRevoluteConstraintDeclarationRecord(b);
+    }
+
+    private static CuriousContraptions.Gpu.RevoluteConstraintDeclaration DecodeCapabilityRevoluteConstraintDeclarationRecord(W.CapabilityRevoluteConstraintDeclarationRecord row) => new(
+        new CuriousContraptions.Gpu.RevoluteConstraintId(row.Id),
+        new CuriousContraptions.Gpu.GpuBodyId(row.BodyA),
+        new CuriousContraptions.Gpu.GpuBodyId(row.BodyB),
+        DecodeCapabilityConstraintFrameRecord(Required(row.FrameA, "FrameA")),
+        DecodeCapabilityConstraintFrameRecord(Required(row.FrameB, "FrameB")),
+        row.Lower,
+        row.Upper,
+        row.Stiffness,
+        row.Damping,
+        ObservationEnum<CuriousContraptions.Gpu.ConnectedCollision>(row.Collision));
+
     private static Offset<W.CapabilityConstraintFrameRecord> EncodeCapabilityConstraintFrameRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.ConstraintFrame value)
     {
         var position = EncodeCapabilityVector3Record(b, value.Position);
@@ -724,6 +754,7 @@ public static partial class WorkshopWireFlatBuffers
         var electrical_sources = W.CompiledSceneRecord.CreateElectricalSourcesVector(b, scene.Physics.Electrical.Sources.ToArray().Select(value => EncodeCapabilityElectricalSourceDeclarationRecord(b, value)).ToArray());
         var electrical_bindings = W.CompiledSceneRecord.CreateElectricalBindingsVector(b, scene.Physics.Electrical.Bindings.ToArray().Select(value => EncodeCapabilityElectricalStorageBindingRecord(b, value)).ToArray());
         var prismatics = W.CompiledSceneRecord.CreatePrismaticsVector(b, scene.Physics.Prismatics.ToArray().Select(value => EncodeCapabilityPrismaticConstraintDeclarationRecord(b, value)).ToArray());
+        var revolutes = W.CompiledSceneRecord.CreateRevolutesVector(b, scene.Physics.Revolutes.ToArray().Select(value => EncodeCapabilityRevoluteConstraintDeclarationRecord(b, value)).ToArray());
         var tensile = W.CompiledSceneRecord.CreateTensileSpansVector(b, scene.Physics.TensileSpans.ToArray().Select(value => EncodeTensile(b, value)).ToArray());
         var supply_nodes = W.CompiledSceneRecord.CreateSupplyNodesVector(b, scene.Physics.SupplyGraph.Nodes.ToArray().Select(value => EncodeCapabilitySupplyNodeDeclarationRecord(b, value)).ToArray());
         var supply_edges = W.CompiledSceneRecord.CreateSupplyEdgesVector(b, scene.Physics.SupplyGraph.Edges.ToArray().Select(value => EncodeCapabilitySupplyEdgeRecord(b, value)).ToArray());
@@ -779,6 +810,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddOwners(b, owners);
         W.CompiledSceneRecord.AddEditableSources(b, editable);
         W.CompiledSceneRecord.AddPresentation(b, presentation);
+        W.CompiledSceneRecord.AddRevolutes(b, revolutes);
         return W.CompiledSceneRecord.EndCompiledSceneRecord(b);
     }
 
@@ -797,6 +829,7 @@ public static partial class WorkshopWireFlatBuffers
             var electrical_sources = Enumerable.Range(0, row.ElectricalSourcesLength).Select(i => DecodeCapabilityElectricalSourceDeclarationRecord(Required(row.ElectricalSources(i), "ElectricalSources"))).ToArray();
             var electrical_bindings = Enumerable.Range(0, row.ElectricalBindingsLength).Select(i => DecodeCapabilityElectricalStorageBindingRecord(Required(row.ElectricalBindings(i), "ElectricalBindings"))).ToArray();
             var prismatics = Enumerable.Range(0, row.PrismaticsLength).Select(i => DecodeCapabilityPrismaticConstraintDeclarationRecord(Required(row.Prismatics(i), "Prismatics"))).ToArray();
+            var revolutes = Enumerable.Range(0, row.RevolutesLength).Select(i => DecodeCapabilityRevoluteConstraintDeclarationRecord(Required(row.Revolutes(i), "Revolutes"))).ToArray();
             var supply_nodes = Enumerable.Range(0, row.SupplyNodesLength).Select(i => DecodeCapabilitySupplyNodeDeclarationRecord(Required(row.SupplyNodes(i), "SupplyNodes"))).ToArray();
             var supply_edges = Enumerable.Range(0, row.SupplyEdgesLength).Select(i => DecodeCapabilitySupplyEdgeRecord(Required(row.SupplyEdges(i), "SupplyEdges"))).ToArray();
             var contact_load_sensors = Enumerable.Range(0, row.ContactLoadSensorsLength).Select(i => DecodeCapabilityContactLoadSensorDeclarationRecord(Required(row.ContactLoadSensors(i), "ContactLoadSensors"))).ToArray();
@@ -807,7 +840,7 @@ public static partial class WorkshopWireFlatBuffers
             var passage_sensors = Enumerable.Range(0, row.PassageSensorsLength).Select(i => DecodeCapabilityPassageSensorDeclarationRecord(Required(row.PassageSensors(i), "PassageSensors"))).ToArray();
             var physics = new PhysicsSceneDeclaration(new(row.DocumentLow, row.DocumentHigh), row.NextIdentity,
                 bodies, colliders, materials, sensors, guides, triggers, contact_works, orientation_sensors,
-                electrical_sources, electrical_bindings, prismatics, supply_nodes, supply_edges, contact_load_sensors, prismatic_drives, tensile);
+                electrical_sources, electrical_bindings, prismatics, supply_nodes, supply_edges, contact_load_sensors, prismatic_drives, tensile, revolutes: revolutes);
             var activation = new ActivationNetwork(activation_nodes, activation_edges, row.ActivationSubsteps, passage_sensors,
                 Enumerable.Range(0, row.ContactOwnersLength).Select(i => new GpuBodyId(row.ContactOwners(i))).ToArray());
             var presentation = Enumerable.Range(0, row.PresentationLength).Select(i =>

@@ -43,9 +43,10 @@ public static partial class PackageValidator
     }
 
     /// <summary>Story 9A.17: the declared ports are the one port source, and each package's scene agrees with them. A scene keeps a
-    /// socket locator only under its typed socket's exact name, as a child of the scene root, at the declared anchor; every declared
-    /// port has its locator; and the only other locators are the two tube mouths. A scene that is not a package file is reported by
-    /// <see cref="Assets"/> and skipped here.</summary>
+    /// socket locator only under its typed socket's exact name, as a direct child of its owning body's scene root (the scene root for
+    /// body 0, <see cref="ISceneGeometryElement.SceneBodies"/>[Body].Root otherwise, Story 10.3a), at the declared anchor in that body's
+    /// frame; a port naming no declared scene body is refused; every declared port has its locator; and the only other locators are
+    /// the two tube mouths. A scene that is not a package file is reported by <see cref="Assets"/> and skipped here.</summary>
     public static IReadOnlyList<BundleError> Locators(string root, IReadOnlyList<BundlePackage> packages)
     {
         ArgumentNullException.ThrowIfNull(packages);
@@ -69,10 +70,15 @@ public static partial class PackageValidator
                 var name = Enum.GetName(port.Socket);
                 if (name is null) continue; // An undefined socket is refused by the declaration's own validation.
                 var where = $"{package.Package}.Ports[{i}]";
-                var expectedParent = port.Body.Value == 0 ? "." :
-                    package.Declaration is ISceneGeometryElement geom && port.Body.Value < geom.SceneBodies.Count
-                        ? geom.SceneBodies[port.Body.Value].Root
-                        : ".";
+                string expectedParent;
+                if (port.Body.Value == 0) expectedParent = ".";
+                else if (package.Declaration is ISceneGeometryElement geometry && port.Body.Value > 0 && port.Body.Value < geometry.SceneBodies.Count)
+                    expectedParent = geometry.SceneBodies[port.Body.Value].Root;
+                else
+                {
+                    errors.Add(new(BundleErrorCode.OutOfRange, $"{where}.Body: body {port.Body.Value} is not a declared scene body"));
+                    continue;
+                }
                 if (!locators.TryGetValue(name, out var locator))
                     errors.Add(new(BundleErrorCode.MissingPortLocator, $"{where}: the scene has no {LocatorPrefix}{name} locator"));
                 else if (locator.Parent != expectedParent)
@@ -91,7 +97,7 @@ public static partial class PackageValidator
 
     private static string Text(Vector3 value) => string.Create(CultureInfo.InvariantCulture, $"({value.X}, {value.Y}, {value.Z})");
 
-    /// <summary>One <c>Loc_Port_</c> node of a scene: its name after the prefix, whether its parent is the scene root, and its
+    /// <summary>One <c>Loc_Port_</c> node of a scene: its name after the prefix, its parent's path ("." for the scene root), and its
     /// local origin (null when its transform cannot be read; a node with no transform line is at the origin).</summary>
     private sealed record SceneLocator(string Name, string Parent, Vector3? Origin);
 

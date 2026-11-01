@@ -63,8 +63,10 @@ internal static class RevoluteConstraintSolver
             }
             else if (IsStop(i))
             {
+                // The prismatic stop law: an open stop (error >= 0) is speculative and admits closing the whole gap within the
+                // substep; only a penetrated stop is pushed out at the joint's 0.2 / h position rate.
                 gamma = 0f;
-                bias = (row.Error < 0f ? 1f : 0.2f) / h;
+                bias = (row.Error >= 0f ? 1f : 0.2f) / h;
                 minimum = 0f;
             }
             else
@@ -124,7 +126,7 @@ internal static class RevoluteConstraintSolver
                 ref readonly var row = ref joint.Rows[rowIndex];
                 var invMass = ConstraintMass(joint.A, row.La, row.Aa) + ConstraintMass(joint.B, row.Lb, row.Ab);
                 var vel = ConstraintVelocity(joint.A, row.La, row.Aa) + ConstraintVelocity(joint.B, row.Lb, row.Ab);
-                var bias = useBias || (rowIndex == (int)RevoluteRowKind.Axial && (joint.Stiffness > 0f || joint.Damping > 0f)) || (IsStop(rowIndex) && row.Error < 0f) ? row.Bias : 0f;
+                var bias = useBias || (rowIndex == (int)RevoluteRowKind.Axial && (joint.Stiffness > 0f || joint.Damping > 0f)) || (IsStop(rowIndex) && row.Error > 0f) ? row.Bias : 0f;
 
                 var vInvMass = Vector128.Create(invMass, 0f, 0f, 0f);
                 var vVel = Vector128.Create(vel, 0f, 0f, 0f);
@@ -199,7 +201,7 @@ internal static class RevoluteConstraintSolver
                             vels[lane] = ConstraintVelocity(joint.A, row.La, row.Aa) + ConstraintVelocity(joint.B, row.Lb, row.Ab);
                             errors[lane] = row.Error;
                             gammas[lane] = row.Gamma;
-                            biases[lane] = useBias || (rowIndex == (int)RevoluteRowKind.Axial && (joint.Stiffness > 0f || joint.Damping > 0f)) || (IsStop(rowIndex) && row.Error < 0f) ? row.Bias : 0f;
+                            biases[lane] = useBias || (rowIndex == (int)RevoluteRowKind.Axial && (joint.Stiffness > 0f || joint.Damping > 0f)) || (IsStop(rowIndex) && row.Error > 0f) ? row.Bias : 0f;
                             accum[lane] = joint.Impulses[rowIndex];
                             mins[lane] = row.Minimum;
                             maxs[lane] = 3.4028234663852886e38f;

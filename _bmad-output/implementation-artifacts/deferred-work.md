@@ -178,6 +178,17 @@
   evidence: Not measured. A bench of many logic parts is the worst case.
   destination: the named performance qualification gate (P0-034), which profiles affected workloads.
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-10-3a-lever-locators-revolute-wire.md`
+  summary: `ui/WorkshopConnections.cs:166-171` `SocketWorld` places every port in its part's frame and ignores `PortDescriptor.Body`. A body-owned port is anchored in its moving body's frame, so its endpoint is drawn off that body when the body is not at the part's pose (for the Impact Lever, whenever `initial_angle` is not 0 or the beam turns).
+  evidence: Code trace at `2ee79e8b`. Story 10.3a fixed the locator contract and the runtime hinge and left this file untouched by spec rule. Today `SocketWorld` draws only non-rope links (`RefreshConnectionArtwork`), and the only body-owned ports are the lever's rope ties `TieA`/`TieB`, whose artwork comes from the committed rope spans. So no current link shows the defect; the first body-owned electrical or activation port, or any reuse of `SocketWorld` for rope sockets, would.
+  destination: a follow-up UI slice that resolves a body-owned port through its body's committed pose; its browser proof joins the post-catalogue E2E phase.
+
+<a id="lever-equal-load-indefinite-balance"></a>
+- source_spec: `_bmad-output/implementation-artifacts/spec-10-3a-lever-locators-revolute-wire.md` (owner decision, 1 November 2026)
+  summary: Open item: Story 10.3's acceptance "an equal load placed on both arms remains balanced indefinitely" is not met. The Impact Lever's hinge is frictionless, and loads resting on top of the beam make an unstable equilibrium.
+  evidence: An equal 4 kg Weight pair at x = ±1.2 m tips past 0.01 rad at about 8 s and then goes to a stop. Story 10.3a's diagnostic probe, with the weights resting on the beam top, grew at about 1.4/s, matching the analytic inverted-pendulum rate. `SymmetricalLoadBalance_RemainsBalanced` asserts that pair only over its 3 s play window. CAT-034 fact 17's 10 s Basketball balance (`EqualBallLoads_StayBalancedForTenSeconds`) passes, but only because the scene is mirror-symmetric; nothing holds the beam.
+  destination: a separate engine slice. It adds a declared pivot holding mechanism (friction or detent) and re-qualifies the lever tests against the indefinite-balance acceptance.
+
 ## Owner-requested subtask — remove core warm-up (26 October 2026)
 
 - **Outcome / owner:** `engine-remove-core-warmup`, assigned to the backlog coordinator for a fresh bounded Auto slice after the float-policy adoption. Owner direction: “remove the warmup out of the core code, it shouldnt be there”.

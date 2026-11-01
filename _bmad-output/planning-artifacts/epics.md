@@ -3962,6 +3962,8 @@ So that see-saw mechanisms can fling objects or lift connected ropes.
 - **And** with a rope routed through two Pulleys from a falling Counterweight to a lever end rope socket, rope tension lifts that lever arm (the rope-load integration moved from Story 10.2).
 - **And** `tools/e2e/cat-034.test.ts` passes 100% in Chrome serially.
 
+*Open item (owner decision, 1 November 2026): the indefinite equal-load balance is reopened. The hinge is frictionless, so a separate engine slice adds a declared pivot holding mechanism; see [deferred work](../implementation-artifacts/deferred-work.md#lever-equal-load-indefinite-balance).*
+
 ### Story 10.4: Counterweight & Multi-Body Pendulum Lifting (CAT-067)
 *Status: Backlog*
 

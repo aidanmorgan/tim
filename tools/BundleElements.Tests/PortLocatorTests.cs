@@ -3,23 +3,26 @@ using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.BundleElements.Tests;
 
-/// <summary>Story 9A.17: a scene keeps a socket locator only under its typed socket's exact name, at the declared anchor, as a child
-/// of the scene root; every declared port has its locator, and the only other locators are the tube mouths (Story 9R.6). Any
-/// mismatch fails the bundle build.</summary>
+/// <summary>Story 9A.17: a scene keeps a socket locator only under its typed socket's exact name, at the declared anchor, as a direct
+/// child of its owning body's scene root (the scene root for body 0; the declared body root for a moving body, Story 10.3a); every
+/// declared port has its locator, a port naming no declared scene body is refused, and the only other locators are the tube mouths
+/// (Story 9R.6). Any mismatch fails the bundle build.</summary>
 public sealed class PortLocatorTests
 {
     private static PortDescriptor PowerIn(Vector3 at) => new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, at, -Vector3.UnitX);
 
     private const string Header = "[gd_scene format=3]\n\n[node name=\"Fixture\" type=\"Node3D\"]\n\n";
 
-    private static string[] Errors(string scene, params PortDescriptor[] ports)
+    private static string[] Errors(string scene, params PortDescriptor[] ports) => Errors(scene, new Fixture { Ports = ports });
+
+    private static string[] Errors(string scene, IPuzzleElementDeclaration declaration)
     {
         var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(Path.Combine(root, "elements", "Fixture"));
         try
         {
             File.WriteAllText(Path.Combine(root, "elements", "Fixture", "fixture.tscn"), Header + scene);
-            return PackageValidator.Locators(root, [new("Fixture", new Fixture { Ports = ports })]).Select(error => error.ToString()).ToArray();
+            return PackageValidator.Locators(root, [new("Fixture", declaration)]).Select(error => error.ToString()).ToArray();
         }
         finally { Directory.Delete(root, true); }
     }
@@ -67,6 +70,37 @@ public sealed class PortLocatorTests
         Assert.Equal(["BUNDLE013 Fixture.Ports[0]: Loc_Port_PowerIn has no readable transform"],
             Errors(Locator("PowerIn", "Transform3D(1, 0, 0)"), PowerIn(new(-.93f, 0f, 0f))));
     }
+
+    /// <summary>A rope tie on body <paramref name="body"/> at x = -1.8 m in that body's frame, like the Impact Lever's TieA.</summary>
+    private static PortDescriptor BodyTie(int body) =>
+        new(PortSocket.TieA, SimulationDomain.Rope, PortDirection.Bidirectional, null, new(-1.8f, 0f, 0f), -Vector3.UnitX,
+            RopeAttachmentRole.Load, null, new PackageBodyIndex(body));
+
+    private const string BeamBody = "[node name=\"Visual\" type=\"Node3D\" parent=\".\"]\n\n[node name=\"Beam\" type=\"Node3D\" parent=\"Visual\"]\n\n";
+    private const string TieAnchor = "Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 0, 0)";
+
+    [Fact]
+    public void ABodyOwnedLocatorUnderItsBodyRootAtTheAnchorInThatBodysFrameIsAdmitted() =>
+        Assert.Empty(Errors(BeamBody + Locator("TieA", TieAnchor, "Visual/Beam"), new SceneBodyFixture { Ports = [BodyTie(1)] }));
+
+    [Theory]
+    [InlineData(".")]
+    [InlineData("Visual")]
+    public void ABodyOwnedLocatorOutsideItsBodyRootFailsTheBuild(string parent) =>
+        Assert.Equal(["BUNDLE013 Fixture.Ports[0]: Loc_Port_TieA is not a child of 'Visual/Beam'"],
+            Errors(BeamBody + Locator("TieA", TieAnchor, parent), new SceneBodyFixture { Ports = [BodyTie(1)] }));
+
+    [Theory]
+    [InlineData(2)]
+    [InlineData(-1)]
+    public void APortNamingNoDeclaredSceneBodyFailsTheBuild(int body) =>
+        Assert.Equal([$"BUNDLE006 Fixture.Ports[0].Body: body {body} is not a declared scene body"],
+            Errors(BeamBody + Locator("TieA", TieAnchor, "Visual/Beam"), new SceneBodyFixture { Ports = [BodyTie(body)] }));
+
+    [Fact]
+    public void AMovingBodyPortOnADeclarationWithoutSceneBodiesFailsTheBuild() =>
+        Assert.Equal(["BUNDLE006 Fixture.Ports[0].Body: body 1 is not a declared scene body"],
+            Errors(Locator("TieA", TieAnchor), BodyTie(1)));
 
     [Fact]
     public void ADuplicateLocatorFailsTheBuild() =>

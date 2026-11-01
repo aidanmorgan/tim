@@ -59,7 +59,7 @@ Every bundle entry is typed, and every field is written bit-exactly and read bac
 2. **Metadata:** a unique canonical element id, an enum category (the palette's Motion, Goals, Power, Control or Structure), a display-name key, the icon path (null until the element ships its icon) and the element's `.tscn` scene path.
 3. **Typed parameter schema:** each parameter declares its key, its unit enum, an enum kind (Real, WholeNumber, Boolean or Choice), and an f32 minimum, maximum and default; a Choice also lists its option names, and its bounds and default are option indices. Instance values are validated against this schema; there is no property bag.
 4. **Footprint:** the bodies, moving bodies and prismatic constraints one placed instance adds to the compiled scene.
-5. **Ports:** typed socket id (the socket's name), domain, direction, the signal kind of a signal port (Pulse or Level), local position, normal and the `Loc_Port_<Id>` locator node.
+5. **Ports:** typed socket id (the socket's name), domain, direction, the signal kind of a signal port (Pulse or Level), owning body (`Body`, 0 for the base), local position in that body's frame, normal and the `Loc_Port_<Id>` locator node.
 6. **Colliders:** shape kind enum, half-extents (a sphere's radius on every axis), local offset, local rotation and material (restitution, friction, rolling resistance $C_{rr}$, bounce threshold).
 7. **Mechanical payload:** body motion kind, mass, principal inertia, material, and joint and prismatic anchors.
 8. **Electrical payload:** source, consumer and switch nodes and their supply parameters.
@@ -73,8 +73,8 @@ Admission rejects explicitly a missing or duplicate required field, an unknown f
 ### Locator-Anchored Mesh Sockets Contract
 
 1. **Locator Naming Convention:** All connection socket anchors in an element's `.tscn` scene follow the canonical naming convention `Loc_Port_<Id>`, named exactly by the declared typed socket.
-2. **Runtime Resolution in `MachinePart`:** Sockets resolve their local transforms from the locator nodes. No hardcoded vector tables or static position switch statements are permitted.
-3. **Secondary Body Transform Tracking:** Locators attached to secondary moving components (such as rotating motor shafts or pivoting lever arms) inherit the dynamic transform of that sub-mesh during runtime/preview. Connected cables, belts, and links update their endpoint anchors without per-element scripts.
+2. **Declared anchors, build-checked locators:** the declared port anchor is the socket's one source. The bundle build checks each locator against it: a direct child of its owning body's scene root (the scene root for the base body, `SceneBodies[Body].Root` for a moving body), at the anchor in that body's frame (Story 10.3a). Nothing at runtime reads the locator nodes. No hardcoded vector tables or static position switch statements are permitted.
+3. **Secondary Body Transform Tracking:** a socket on a secondary moving body (such as a pivoting lever arm) is anchored in that body's frame. Rope spans attached to it follow the body's committed pose through those body-frame anchors, without per-element scripts. Drawn non-rope links do not yet follow a moving body ([deferred `SocketWorld` entry](../_bmad-output/implementation-artifacts/deferred-work.md)).
 
 <a id="element-scene-contract"></a>
 
@@ -84,7 +84,7 @@ The authored element asset is the element's own Godot `.tscn` scene in its packa
 
 1. **Visual nodes:** PBR surface meshes (base color, roughness, metallic) adhering to the palette and sculptural aesthetic in [DESIGN.md](../DESIGN.md).
 2. **Collision proxy nodes:** separate, non-rendered analytic proxies named by prefix: `col_box` (half-extents), `col_sphere` (radius), `col_capsule` (radius and half-height), `col_cylinder` (radius and height) and `col_hull` (convex hull).
-3. **Locators:** empty `Loc_Port_<Id>` nodes for every declared socket.
+3. **Locators:** empty `Loc_Port_<Id>` nodes for every declared socket, each a direct child of its owning body's scene root.
 4. **Articulated sub-trees:** moving sub-components (motor shafts, springboard plates, lever arms) are child branches carrying their own visual, collision and locator nodes.
 5. **No code-defined geometry:** procedural mesh construction and hardcoded coordinate or collider tables in C# are forbidden.
 6. **Extraction:** collider and locator extraction reads only the dedicated proxy and locator nodes, with no element branching. Under Story 9A.16 it runs at build time and its output is baked into the bundle, which is then the compiler's only collider source.

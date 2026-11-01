@@ -1846,6 +1846,91 @@ static public class CapabilityResidenceSensorDeclarationRecordVerify
   }
 }
 
+public struct CapabilityRevoluteConstraintDeclarationRecord : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static CapabilityRevoluteConstraintDeclarationRecord GetRootAsCapabilityRevoluteConstraintDeclarationRecord(ByteBuffer _bb) { return GetRootAsCapabilityRevoluteConstraintDeclarationRecord(_bb, new CapabilityRevoluteConstraintDeclarationRecord()); }
+  public static CapabilityRevoluteConstraintDeclarationRecord GetRootAsCapabilityRevoluteConstraintDeclarationRecord(ByteBuffer _bb, CapabilityRevoluteConstraintDeclarationRecord obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public CapabilityRevoluteConstraintDeclarationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Id { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong BodyA { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong BodyB { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public CuriousContraptions.Wire.CapabilityConstraintFrameRecord? FrameA { get { int o = __p.__offset(10); return o != 0 ? (CuriousContraptions.Wire.CapabilityConstraintFrameRecord?)(new CuriousContraptions.Wire.CapabilityConstraintFrameRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.CapabilityConstraintFrameRecord? FrameB { get { int o = __p.__offset(12); return o != 0 ? (CuriousContraptions.Wire.CapabilityConstraintFrameRecord?)(new CuriousContraptions.Wire.CapabilityConstraintFrameRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public float Lower { get { int o = __p.__offset(14); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Upper { get { int o = __p.__offset(16); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Stiffness { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Damping { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public uint Collision { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+
+  public static Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord> CreateCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder,
+      ulong id = 0,
+      ulong body_a = 0,
+      ulong body_b = 0,
+      Offset<CuriousContraptions.Wire.CapabilityConstraintFrameRecord> frame_aOffset = default(Offset<CuriousContraptions.Wire.CapabilityConstraintFrameRecord>),
+      Offset<CuriousContraptions.Wire.CapabilityConstraintFrameRecord> frame_bOffset = default(Offset<CuriousContraptions.Wire.CapabilityConstraintFrameRecord>),
+      float lower = 0.0f,
+      float upper = 0.0f,
+      float stiffness = 0.0f,
+      float damping = 0.0f,
+      uint collision = 0) {
+    builder.StartTable(10);
+    CapabilityRevoluteConstraintDeclarationRecord.AddBodyB(builder, body_b);
+    CapabilityRevoluteConstraintDeclarationRecord.AddBodyA(builder, body_a);
+    CapabilityRevoluteConstraintDeclarationRecord.AddId(builder, id);
+    CapabilityRevoluteConstraintDeclarationRecord.AddCollision(builder, collision);
+    CapabilityRevoluteConstraintDeclarationRecord.AddDamping(builder, damping);
+    CapabilityRevoluteConstraintDeclarationRecord.AddStiffness(builder, stiffness);
+    CapabilityRevoluteConstraintDeclarationRecord.AddUpper(builder, upper);
+    CapabilityRevoluteConstraintDeclarationRecord.AddLower(builder, lower);
+    CapabilityRevoluteConstraintDeclarationRecord.AddFrameB(builder, frame_bOffset);
+    CapabilityRevoluteConstraintDeclarationRecord.AddFrameA(builder, frame_aOffset);
+    return CapabilityRevoluteConstraintDeclarationRecord.EndCapabilityRevoluteConstraintDeclarationRecord(builder);
+  }
+
+  public static void StartCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder) { builder.StartTable(10); }
+  public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
+  public static void AddBodyA(FlatBufferBuilder builder, ulong bodyA) { builder.AddUlong(1, bodyA, 0); }
+  public static void AddBodyB(FlatBufferBuilder builder, ulong bodyB) { builder.AddUlong(2, bodyB, 0); }
+  public static void AddFrameA(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityConstraintFrameRecord> frameAOffset) { builder.AddOffset(3, frameAOffset.Value, 0); }
+  public static void AddFrameB(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityConstraintFrameRecord> frameBOffset) { builder.AddOffset(4, frameBOffset.Value, 0); }
+  public static void AddLower(FlatBufferBuilder builder, float lower) { builder.AddFloat(5, lower, 0.0f); }
+  public static void AddUpper(FlatBufferBuilder builder, float upper) { builder.AddFloat(6, upper, 0.0f); }
+  public static void AddStiffness(FlatBufferBuilder builder, float stiffness) { builder.AddFloat(7, stiffness, 0.0f); }
+  public static void AddDamping(FlatBufferBuilder builder, float damping) { builder.AddFloat(8, damping, 0.0f); }
+  public static void AddCollision(FlatBufferBuilder builder, uint collision) { builder.AddUint(9, collision, 0); }
+  public static Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord> EndCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    builder.Required(o, 10);  // frame_a
+    builder.Required(o, 12);  // frame_b
+    return new Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord>(o);
+  }
+}
+
+
+static public class CapabilityRevoluteConstraintDeclarationRecordVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Id*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 6 /*BodyA*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 8 /*BodyB*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyTable(tablePos, 10 /*FrameA*/, CuriousContraptions.Wire.CapabilityConstraintFrameRecordVerify.Verify, true)
+      && verifier.VerifyTable(tablePos, 12 /*FrameB*/, CuriousContraptions.Wire.CapabilityConstraintFrameRecordVerify.Verify, true)
+      && verifier.VerifyField(tablePos, 14 /*Lower*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 16 /*Upper*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 18 /*Stiffness*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 20 /*Damping*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 22 /*Collision*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct CapabilityRigidBodyDeclarationRecord : IFlatbufferObject
 {
   private Table __p;
@@ -2674,6 +2759,8 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public ulong[] GetEditableSourcesArray() { return __p.__vector_as_array<ulong>(60); }
   public CuriousContraptions.Wire.CompiledPresentationRecord? Presentation(int j) { int o = __p.__offset(62); return o != 0 ? (CuriousContraptions.Wire.CompiledPresentationRecord?)(new CuriousContraptions.Wire.CompiledPresentationRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int PresentationLength { get { int o = __p.__offset(62); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord? Revolutes(int j) { int o = __p.__offset(64); return o != 0 ? (CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord?)(new CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int RevolutesLength { get { int o = __p.__offset(64); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<CuriousContraptions.Wire.CompiledSceneRecord> CreateCompiledSceneRecord(FlatBufferBuilder builder,
       ulong identity = 0,
@@ -2705,13 +2792,15 @@ public struct CompiledSceneRecord : IFlatbufferObject
       VectorOffset contact_ownersOffset = default(VectorOffset),
       VectorOffset ownersOffset = default(VectorOffset),
       VectorOffset editable_sourcesOffset = default(VectorOffset),
-      VectorOffset presentationOffset = default(VectorOffset)) {
-    builder.StartTable(30);
+      VectorOffset presentationOffset = default(VectorOffset),
+      VectorOffset revolutesOffset = default(VectorOffset)) {
+    builder.StartTable(31);
     CompiledSceneRecord.AddNextIdentity(builder, next_identity);
     CompiledSceneRecord.AddDocumentHigh(builder, document_high);
     CompiledSceneRecord.AddDocumentLow(builder, document_low);
     CompiledSceneRecord.AddRevision(builder, revision);
     CompiledSceneRecord.AddIdentity(builder, identity);
+    CompiledSceneRecord.AddRevolutes(builder, revolutesOffset);
     CompiledSceneRecord.AddPresentation(builder, presentationOffset);
     CompiledSceneRecord.AddEditableSources(builder, editable_sourcesOffset);
     CompiledSceneRecord.AddOwners(builder, ownersOffset);
@@ -2740,7 +2829,7 @@ public struct CompiledSceneRecord : IFlatbufferObject
     return CompiledSceneRecord.EndCompiledSceneRecord(builder);
   }
 
-  public static void StartCompiledSceneRecord(FlatBufferBuilder builder) { builder.StartTable(30); }
+  public static void StartCompiledSceneRecord(FlatBufferBuilder builder) { builder.StartTable(31); }
   public static void AddIdentity(FlatBufferBuilder builder, ulong identity) { builder.AddUlong(0, identity, 0); }
   public static void AddRevision(FlatBufferBuilder builder, ulong revision) { builder.AddUlong(1, revision, 0); }
   public static void AddSettings(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityWorkshopCadenceSettingsRecord> settingsOffset) { builder.AddOffset(2, settingsOffset.Value, 0); }
@@ -2886,6 +2975,12 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public static VectorOffset CreatePresentationVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CompiledPresentationRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
   public static VectorOffset CreatePresentationVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CompiledPresentationRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartPresentationVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddRevolutes(FlatBufferBuilder builder, VectorOffset revolutesOffset) { builder.AddOffset(30, revolutesOffset.Value, 0); }
+  public static VectorOffset CreateRevolutesVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateRevolutesVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRevolutesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRevolutesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartRevolutesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<CuriousContraptions.Wire.CompiledSceneRecord> EndCompiledSceneRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 8);  // settings
@@ -2929,6 +3024,7 @@ static public class CompiledSceneRecordVerify
       && verifier.VerifyVectorOfData(tablePos, 58 /*Owners*/, 8 /*ulong*/, false)
       && verifier.VerifyVectorOfData(tablePos, 60 /*EditableSources*/, 8 /*ulong*/, false)
       && verifier.VerifyVectorOfTables(tablePos, 62 /*Presentation*/, CuriousContraptions.Wire.CompiledPresentationRecordVerify.Verify, false)
+      && verifier.VerifyVectorOfTables(tablePos, 64 /*Revolutes*/, CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecordVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

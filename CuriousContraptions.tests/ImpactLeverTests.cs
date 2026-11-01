@@ -21,6 +21,10 @@ public sealed class ImpactLeverTests
                 [new("initial_angle")] = angleDeg
             }));
 
+    /// <summary>The top face of a lever placed at y = 3 m: the pivot plus the beam's 0.12 m half-thickness (its 0.24 m box). A Weight's
+    /// origin is its base, so a Weight placed here rests on the level beam without overlapping it.</summary>
+    private const float BeamTop = 3f + 0.12f;
+
     private static WorkshopGenericInstance Basketball(ulong id = 2, float x = 1.2f, float y = 3.46f, float z = 0) =>
         WorkshopInput.Generic(new PartId("ball"), new(id), x, y, z, 0, 0, 0, 1);
 
@@ -137,30 +141,115 @@ public sealed class ImpactLeverTests
         Assert.True(maxEnergyRatio <= 1.01f, $"Max energy ratio {maxEnergyRatio:F4} must be <= 1.01");
     }
 
+    /// <summary>The beam's rotation axis (local Z) tipped away from world Z: the out-of-plane tilt the hinge's two locked transverse
+    /// rotations exclude.</summary>
+    private static float OffAxisTilt(WorkshopRead read, GpuBodyId beamId)
+    {
+        Assert.True(read.Bodies.TryGet(beamId, out var value));
+        var axis = Vector3.Transform(Vector3.UnitZ, new Quaternion(value.Rotation.X, value.Rotation.Y, value.Rotation.Z, value.Rotation.W));
+        return MathF.Acos(Math.Clamp(MathF.Abs(axis.Z), 0f, 1f));
+    }
+
+    // Story 10.3a: the compiled revolute row reaches the running world through the production wire, so an asymmetric load turns the
+    // beam about its authored pivot instead of tipping a loose plank off the fulcrum. A 4 kg weight resting on the left arm
+    // (x = -1.2 m, its base on the beam top) drives the beam (left end down, positive Z) to its +pi/6 stop within the 2 s window (about 0.4 s from the load's 47 N m torque).
+    // Throughout that window:
+    // - The beam origin stays on the pivot within 0.03 m, a quarter of the beam's 0.12 m half-thickness. Beyond that the beam visibly
+    //   leaves its fulcrum pin and the lever arms the puzzle relies on change; a loose plank slides and drops tenths of a metre.
+    // - The rotation axis stays within 0.05 rad of world Z. A larger tilt carries the 1.8 m arm ends about 9 cm out of the play plane,
+    //   enough for payloads and ropes to leave the beam sideways.
+    [Fact]
+    public async Task AsymmetricLoad_TurnsTheBeamToItsStopAboutTheAuthoredPivot()
+    {
+        const float pivotDrift = 0.03f;
+        const float offAxisTilt = 0.05f;
+        const float limitTolerance = 0.05f;
+        var lever = Lever(1, 0, 3, 0);
+        var load = WeightTests.Placed(2, -1.2f, BeamTop, 0, 4f);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(lever, load));
+        var beamId = construction.Instances.Identities[lever.Id].Hinges[0].Body;
+        var pivot = new Vector3(0f, 3f, 0f);
+
+        await using var world = await WorkshopIntegrationHarness.Running(construction);
+
+        var maxDrift = 0f;
+        var maxTilt = 0f;
+        var maxAngle = 0f;
+        for (var t = 0; t < 240; t++)
+        {
+            await world.Advance(1);
+            var read = world.Committed;
+            maxDrift = MathF.Max(maxDrift, Vector3.Distance(BodyPos(read, beamId), pivot));
+            maxTilt = MathF.Max(maxTilt, OffAxisTilt(read, beamId));
+            maxAngle = MathF.Max(maxAngle, BeamAngle(read, beamId));
+        }
+
+        Assert.True(maxDrift <= pivotDrift, $"The beam origin left its pivot by {maxDrift:F4} m (allowed {pivotDrift} m).");
+        Assert.True(maxTilt <= offAxisTilt, $"The beam's hinge axis tilted {maxTilt:F4} rad out of the play plane (allowed {offAxisTilt} rad).");
+        Assert.True(maxAngle >= MathF.PI / 6f - limitTolerance && maxAngle <= MathF.PI / 6f + limitTolerance,
+            $"The loaded beam reached {maxAngle:F3} rad; its stop is {MathF.PI / 6f:F3} rad.");
+    }
+
+    // Equal 4 kg loads at x = +/-1.2 m put no net torque on the beam, so it stays level through the 3 s play window: within 0.01 rad
+    // and 0.02 rad/s at every tick. That window is about seven times the ~0.4 s an unequal load takes to reach its stop
+    // (AsymmetricLoad_TurnsTheBeamToItsStopAboutTheAuthoredPivot is the control).
+    // Story 10.3a: this heavy pair's former 10 s hold is not asserted. Loads resting on top of a frictionless pivot are an unstable
+    // (inverted pendulum) equilibrium: with I of about 15 kg m^2 and M g h of about 31 N m, any seed grows about e-fold every 0.7 s,
+    // so a 10 s hold measures the size of the solver-noise seed, not whether equal loads balance. The requirement's ten-second
+    // balance is EqualBallLoads_StayBalancedForTenSeconds.
     [Fact]
     public async Task SymmetricalLoadBalance_RemainsBalanced()
     {
         var lever = Lever(1, 0, 3, 0);
-        var loadLeft = WeightTests.Placed(2, -1.2f, 3.06f, 0, 4f);
-        var loadRight = WeightTests.Placed(3, 1.2f, 3.06f, 0, 4f);
+        var loadLeft = WeightTests.Placed(2, -1.2f, BeamTop, 0, 4f);
+        var loadRight = WeightTests.Placed(3, 1.2f, BeamTop, 0, 4f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(lever, loadLeft, loadRight));
         var beamId = construction.Instances.Identities[lever.Id].Hinges[0].Body;
 
         await using var world = await WorkshopIntegrationHarness.Running(construction);
 
-        // For the first 350 ticks (3 s play window), tilt remains within 0.01 rad (0.57 deg)
-        await world.Advance(350);
-        var earlyAngle = MathF.Abs(BeamAngle(world.Committed, beamId));
-        Assert.True(earlyAngle <= 0.01f, $"Beam tilt angle {earlyAngle:F4} rad at 3s, expected <= 0.01 rad");
+        var maxTilt = 0f;
+        var maxOmega = 0f;
+        for (var t = 0; t < 360; t++)
+        {
+            await world.Advance(1);
+            maxTilt = MathF.Max(maxTilt, MathF.Abs(BeamAngle(world.Committed, beamId)));
+            maxOmega = MathF.Max(maxOmega, MathF.Abs(BeamAngularVelocity(world.Committed, beamId)));
+        }
 
-        // Over 1,200 ticks (10 s), equal loads remain balanced on the beam without tipping to stops (stops at ±0.52 rad)
-        await world.Advance(850);
-        var read = world.Committed;
-        var finalAngle = MathF.Abs(BeamAngle(read, beamId));
-        var omega = MathF.Abs(BeamAngularVelocity(read, beamId));
+        Assert.True(maxTilt <= 0.01f, $"Equally loaded beam tilted {maxTilt:F4} rad within 3 s, expected <= 0.01 rad");
+        Assert.True(maxOmega <= 0.02f, $"Equally loaded beam turned at {maxOmega:F4} rad/s within 3 s, expected <= 0.02 rad/s");
+    }
 
-        Assert.True(finalAngle <= 0.01f, $"Beam tilt angle {finalAngle:F4} rad at 10s, expected <= 0.01 rad");
-        Assert.True(omega <= 0.02f, $"Beam angular velocity {omega:F4} rad/s, expected <= 0.02 rad/s");
+    // CAT-034 fact 17, the requirement row's equal-load ten-second balance: Basketballs resting on both arms at x = +/-1 m (centres at
+    // the beam top plus their 0.34 m radius) keep the beam within 0.01 rad, and their heights within 0.01 m of each other, at every
+    // tick of 1,200 ticks (10 s at 120 Hz); the final hinge speed is at most 0.02 rad/s. A height split beyond 0.01 m is the beam
+    // visibly tilting under the balls, after which they roll off its low end.
+    [Fact]
+    public async Task EqualBallLoads_StayBalancedForTenSeconds()
+    {
+        var lever = Lever(1, 0, 3, 0);
+        var left = Basketball(2, -1f, BeamTop + 0.34f, 0);
+        var right = Basketball(3, 1f, BeamTop + 0.34f, 0);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(lever, left, right));
+        var beamId = construction.Instances.Identities[lever.Id].Hinges[0].Body;
+
+        await using var world = await WorkshopIntegrationHarness.Running(construction);
+
+        var maxTilt = 0f;
+        var maxSplit = 0f;
+        for (var t = 0; t < 1200; t++)
+        {
+            await world.Advance(1);
+            var read = world.Committed;
+            maxTilt = MathF.Max(maxTilt, MathF.Abs(BeamAngle(read, beamId)));
+            maxSplit = MathF.Max(maxSplit, MathF.Abs(BodyY(read, left.Id) - BodyY(read, right.Id)));
+        }
+        var omega = MathF.Abs(BeamAngularVelocity(world.Committed, beamId));
+
+        Assert.True(maxTilt <= 0.01f, $"Equally ball-loaded beam tilted {maxTilt:F4} rad within 10 s, expected <= 0.01 rad");
+        Assert.True(maxSplit <= 0.01f, $"The balls' heights split by {maxSplit:F4} m within 10 s, expected <= 0.01 m");
+        Assert.True(omega <= 0.02f, $"Final hinge speed {omega:F4} rad/s, expected <= 0.02 rad/s");
     }
 
     [Fact]

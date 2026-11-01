@@ -5240,6 +5240,129 @@ static endCapabilityPrismaticConstraintDeclarationRecord(builder:flatbuffers.Bui
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export class CapabilityRevoluteConstraintDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityRevoluteConstraintDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityRevoluteConstraintDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRevoluteConstraintDeclarationRecord):CapabilityRevoluteConstraintDeclarationRecord {
+  return (obj || new CapabilityRevoluteConstraintDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityRevoluteConstraintDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRevoluteConstraintDeclarationRecord):CapabilityRevoluteConstraintDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityRevoluteConstraintDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+bodyA():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+bodyB():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+frameA(obj?:CapabilityConstraintFrameRecord):CapabilityConstraintFrameRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new CapabilityConstraintFrameRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+frameB(obj?:CapabilityConstraintFrameRecord):CapabilityConstraintFrameRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityConstraintFrameRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+lower():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+upper():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+stiffness():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+damping():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+collision():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+static startCapabilityRevoluteConstraintDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(10);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addBodyA(builder:flatbuffers.Builder, bodyA:bigint) {
+  builder.addFieldInt64(1, bodyA, BigInt('0'));
+}
+
+static addBodyB(builder:flatbuffers.Builder, bodyB:bigint) {
+  builder.addFieldInt64(2, bodyB, BigInt('0'));
+}
+
+static addFrameA(builder:flatbuffers.Builder, frameAOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, frameAOffset, 0);
+}
+
+static addFrameB(builder:flatbuffers.Builder, frameBOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, frameBOffset, 0);
+}
+
+static addLower(builder:flatbuffers.Builder, lower:number) {
+  builder.addFieldFloat32(5, lower, 0.0);
+}
+
+static addUpper(builder:flatbuffers.Builder, upper:number) {
+  builder.addFieldFloat32(6, upper, 0.0);
+}
+
+static addStiffness(builder:flatbuffers.Builder, stiffness:number) {
+  builder.addFieldFloat32(7, stiffness, 0.0);
+}
+
+static addDamping(builder:flatbuffers.Builder, damping:number) {
+  builder.addFieldFloat32(8, damping, 0.0);
+}
+
+static addCollision(builder:flatbuffers.Builder, collision:number) {
+  builder.addFieldInt32(9, collision, 0);
+}
+
+static endCapabilityRevoluteConstraintDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 10) // frame_a
+  builder.requiredField(offset, 12) // frame_b
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 export class CapabilityConstraintFrameRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -7202,8 +7325,18 @@ presentationLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+revolutes(index: number, obj?:CapabilityRevoluteConstraintDeclarationRecord):CapabilityRevoluteConstraintDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 64);
+  return offset ? (obj || new CapabilityRevoluteConstraintDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+revolutesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 64);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(30);
+  builder.startObject(31);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -7599,6 +7732,22 @@ static createPresentationVector(builder:flatbuffers.Builder, data:flatbuffers.Of
 }
 
 static startPresentationVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addRevolutes(builder:flatbuffers.Builder, revolutesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(30, revolutesOffset, 0);
+}
+
+static createRevolutesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startRevolutesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 

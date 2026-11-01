@@ -36,7 +36,8 @@ public enum PortSocket : uint
 
 /// <summary>One declared socket, and the only source of its domain, direction, signal kind and anchor position (Story 9A.17).
 /// <see cref="Signal"/> is declared on every signal port and null on every other port; <see cref="LocalPosition"/> is the anchor in
-/// the element's local frame (metres).</summary>
+/// the frame of the owning <see cref="Body"/> (metres): the element's local frame for body 0, otherwise that moving body's frame. Its
+/// scene locator is a direct child of that body's scene root (Story 10.3a).</summary>
 public readonly record struct PortDescriptor(
     PortSocket Socket,
     SimulationDomain Domain,

@@ -352,8 +352,9 @@ public sealed class BundlePortsTests
     }
 }
 
-/// <summary>AC6: every declared port and its scene locator agree. The locator is named <c>Loc_Port_&lt;socket&gt;</c> exactly, at the
-/// declared anchor; every other locator is a tube mouth (Story 9R.6).</summary>
+/// <summary>AC6: every declared port and its scene locator agree. The locator is named <c>Loc_Port_&lt;socket&gt;</c> exactly and is a
+/// direct child of its owning body's scene root (the scene root for the base body, <c>SceneBodies[Body].Root</c> for a moving body,
+/// Story 10.3a), at the declared anchor in that body's frame; every other locator, at any depth, is a tube mouth (Story 9R.6).</summary>
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class BundlePortLocatorTests(NativeSceneFixture godot)
 {
@@ -372,22 +373,37 @@ public sealed class BundlePortLocatorTests(NativeSceneFixture godot)
             var root = scene.Instantiate<Node3D>();
             try
             {
-                var (_, locators) = TestBundle.SceneGeometry(root);
                 foreach (var port in declaration.Ports)
                 {
                     var name = port.Socket.ToString();
-                    Assert.True(locators.TryGetValue(name, out var locator), $"{package.Package}: no Loc_Port_{name} locator for its declared {name} port.");
+                    var path = LocatorPath(package, port);
+                    var locator = root.GetNodeOrNull<Node3D>(path);
+                    if (locator is null) Assert.Fail($"{package.Package}: no {path} locator for its declared {name} port.");
                     Assert.True(Vector3.Distance(port.LocalPosition, new(locator.Position.X, locator.Position.Y, locator.Position.Z)) <= 1e-5f,
-                        $"{package.Package}.{name}: declared at {port.LocalPosition}, its locator is at {locator.Position}.");
+                        $"{package.Package}.{name}: declared at {port.LocalPosition} in its body's frame, its locator is at {locator.Position}.");
                     checkedPorts++;
                 }
-                foreach (var name in locators.Keys)
-                    Assert.True(Mouths.Contains(name) || declaration.Ports.Any(port => port.Socket.ToString() == name),
-                        $"{package.Package}: Loc_Port_{name} names no declared socket.");
+                foreach (var locator in root.FindChildren("Loc_Port_*", "", true, false))
+                {
+                    var name = locator.Name.ToString()["Loc_Port_".Length..];
+                    var at = root.GetPathTo(locator).ToString();
+                    Assert.True(Mouths.Contains(name) || declaration.Ports.Any(port => port.Socket.ToString() == name && LocatorPath(package, port) == at),
+                        $"{package.Package}: {at} names no declared socket on its owning body.");
+                }
             }
             finally { root.Free(); }
         }
         Assert.Equal(TestBundle.Packages.Sum(package => package.Declaration.Ports.Count), checkedPorts);
         Assert.True(checkedPorts >= 22, $"{checkedPorts} declared ports were checked.");
+    }
+
+    /// <summary>A port's locator path from the scene root: directly under the scene root for the base body (body 0), otherwise
+    /// directly under the owning body's declared scene root.</summary>
+    private static string LocatorPath(BundlePackage package, PortDescriptor port)
+    {
+        if (port.Body.Value == 0) return $"Loc_Port_{port.Socket}";
+        var geometry = Assert.IsAssignableFrom<ISceneGeometryElement>(package.Declaration);
+        Assert.InRange(port.Body.Value, 1, geometry.SceneBodies.Count - 1);
+        return $"{geometry.SceneBodies[port.Body.Value].Root}/Loc_Port_{port.Socket}";
     }
 }

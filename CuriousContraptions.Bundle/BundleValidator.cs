@@ -23,7 +23,8 @@ public enum BundleErrorCode
     UndeclaredPortLocator = 11,
     /// <summary>A declared port has no <c>Loc_Port_&lt;socket&gt;</c> locator in its element's scene.</summary>
     MissingPortLocator = 12,
-    /// <summary>A port's locator is not at the declared anchor, is not a child of the scene root, or has no readable transform.</summary>
+    /// <summary>A port's locator is not at the declared anchor, is not a direct child of its owning body's scene root, or has no
+    /// readable transform.</summary>
     PortLocatorDisagrees = 13,
     /// <summary>One element declares the same socket twice.</summary>
     DuplicatePort = 14,

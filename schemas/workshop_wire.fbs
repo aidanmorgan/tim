@@ -479,6 +479,19 @@ table CapabilityPrismaticConstraintDeclarationRecord {
     collision: uint;
 }
 
+table CapabilityRevoluteConstraintDeclarationRecord {
+    id: ulong;
+    body_a: ulong;
+    body_b: ulong;
+    frame_a: CapabilityConstraintFrameRecord (required);
+    frame_b: CapabilityConstraintFrameRecord (required);
+    lower: float;
+    upper: float;
+    stiffness: float;
+    damping: float;
+    collision: uint;
+}
+
 table CapabilityConstraintFrameRecord {
     position: CapabilityVector3Record (required);
     rotation: CapabilityQuaternionRecord (required);
@@ -673,6 +686,7 @@ table CompiledSceneRecord {
     owners: [ulong];
     editable_sources: [ulong];
     presentation: [CompiledPresentationRecord];
+    revolutes: [CapabilityRevoluteConstraintDeclarationRecord];
 }
 
 root_type WorkshopResponse;

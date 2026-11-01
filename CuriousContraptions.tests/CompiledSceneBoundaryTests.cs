@@ -209,6 +209,110 @@ public sealed class CompiledSceneBoundaryTests
         }
     }
 
+    private static WorkshopConstruction LeverConstruction => new(new(2), WorkshopCadenceSettings.Default(), new(
+        WorkshopInput.Generic(new PartId("impact_lever"), new(1), 0, 3, 0, 0, 0, 0, 1)));
+
+    private static WorkshopCommand Construct(WorkshopCompiledScene scene) =>
+        new(new(1), WorkshopCommandKind.Construct, new(1), default, scene, Session: new(101, 206), Cadence: new(1), Projection: new(1));
+
+    // Story 10.3a: a compiled revolute crosses the command wire with every field. The lever's own row leaves stiffness, damping and
+    // collision at zero and both frames at the identity, so the row is varied in each of those fields; a codec that dropped or
+    // swapped any one decodes a different declaration.
+    [Fact]
+    public void EveryRevoluteFieldCrossesTheCommandWire()
+    {
+        var compiled = WorkshopSceneCompiler.Compile(LeverConstruction, new(101, 206), new(7));
+        var physics = compiled.Physics;
+        var varied = Assert.Single(physics.Revolutes.ToArray()) with
+        {
+            FrameA = new(new(.05f, -.02f, .01f), System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitY, .3f)),
+            FrameB = new(new(-.04f, .03f, -.02f), System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitX, -.2f)),
+            Lower = -.4f,
+            Upper = .45f,
+            Stiffness = 40f,
+            Damping = 2f,
+            Collision = ConnectedCollision.Enabled
+        };
+        var scene = new WorkshopCompiledScene(compiled.Identity, compiled.Revision, compiled.Settings,
+            new PhysicsSceneDeclaration(physics.Document, physics.NextIdentity, physics.Bodies, physics.Colliders, physics.Materials,
+                physics.Sensors, physics.Guides, physics.Triggers, physics.ContactWorks, physics.OrientationSensors,
+                physics.Electrical.Sources.ToArray(), physics.Electrical.Bindings.ToArray(), physics.Prismatics,
+                physics.SupplyGraph.Nodes.ToArray(), physics.SupplyGraph.Edges.ToArray(), physics.ContactLoadSensors, physics.PrismaticDrives,
+                physics.TensileSpans, revolutes: [varied]),
+            compiled.Activation, compiled.Presentation, compiled.Owners, compiled.EditableSources);
+
+        var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(Construct(scene))).Scene!;
+
+        Assert.Equal([varied], decoded.Physics.Revolutes.ToArray());
+    }
+
+    // Story 10.3a: the lever's compiled hinge row reaches the decoded scene unchanged, the row the running world installs.
+    [Fact]
+    public void TheCompiledLeverHingeRoundTripsUnchanged()
+    {
+        var compiled = WorkshopSceneCompiler.Compile(LeverConstruction, new(101, 206), new(7));
+
+        var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(Construct(compiled))).Scene!;
+
+        Assert.Equal(Assert.Single(compiled.Physics.Revolutes.ToArray()), Assert.Single(decoded.Physics.Revolutes.ToArray()));
+    }
+
+    // Story 10.3a control: a construction without a hinge decodes with no revolutes, and its bodies, colliders and prismatics are the
+    // compiled ones.
+    [Fact]
+    public void AConstructionWithoutAHingeCrossesTheWireWithNoRevolutesAndItsOtherTablesIntact()
+    {
+        var compiled = WorkshopSceneCompiler.Compile(Construction, new(101, 206), new(7));
+
+        var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(Construct(compiled))).Scene!;
+
+        Assert.Empty(decoded.Physics.Revolutes.ToArray());
+        Assert.Equal(compiled.Physics.Bodies.ToArray(), decoded.Physics.Bodies.ToArray());
+        Assert.Equal(compiled.Physics.Colliders.ToArray(), decoded.Physics.Colliders.ToArray());
+        Assert.Equal(compiled.Physics.Prismatics.ToArray(), decoded.Physics.Prismatics.ToArray());
+    }
+
+    public enum RevoluteDefect { LimitOrder, UnadmittedBody }
+
+    // Story 10.3a: a revolute row whose lower limit is not below its upper limit, or whose body is not in the scene, is refused at
+    // both decode boundaries that carry a compiled scene, and the refused command leaves the installed lever world unchanged.
+    [Theory]
+    [InlineData(RevoluteDefect.LimitOrder)]
+    [InlineData(RevoluteDefect.UnadmittedBody)]
+    public async Task MalformedRevoluteRowsRefuseAtCommandAndResponseBoundariesAndLeaveTheInstalledWorldUnchanged(RevoluteDefect defect)
+    {
+        await using var world = await WorkshopIntegrationHarness.Building(LeverConstruction);
+        var before = world.Committed;
+        var original = world.Simulation.Scene;
+        var request = WorkshopWireFlatBuffers.EncodeCommand(world.Command(WorkshopCommandKind.Construct, LeverConstruction with { Revision = new(3) }));
+        var response = WorkshopWireFlatBuffers.EncodeResponse(world.Latest with { Scene = original });
+        Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(request).Scene!.Physics.Revolutes.ToArray());
+        Assert.Single(WorkshopWireFlatBuffers.DecodeResponse(response).Scene!.Physics.Revolutes.ToArray());
+        Poison(request, 11); // WorkshopCommand.scene
+        Poison(response, 27); // WorkshopResponse.scene
+
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => world.Router.Dispatch(request)).Reason);
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(response)).Reason);
+        Assert.Same(original, world.Simulation.Scene);
+        Assert.Equal(before, world.Committed);
+
+        void Poison(byte[] bytes, int sceneField)
+        {
+            var buffer = new ByteBuffer(bytes);
+            var row = Assert.Single(Rows(Child(new Table(4 + buffer.GetInt(4), buffer), sceneField), 30)); // CompiledSceneRecord.revolutes
+            switch (defect)
+            {
+                case RevoluteDefect.LimitOrder: // lower := upper
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 5)), BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(Slot(row, 6))));
+                    break;
+                case RevoluteDefect.UnadmittedBody: // body_b names no scene body
+                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(row, 2)), ulong.MaxValue);
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(defect));
+            }
+        }
+    }
+
     private static void Mutate(byte[] bytes, Defect defect)
     {
         var buffer = new ByteBuffer(bytes);
