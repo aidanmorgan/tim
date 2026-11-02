@@ -311,3 +311,10 @@ The departures (30 s run, 0.5 kg load, launch budget as a comment) are recorded 
 **Process disclosures:**
 - The implementer reports some Anvil checks run after the edit or on previews.
 - Coordinator spec edits were not individually Anvil-validated; the hook's Anvil scan covers the staged spec.
+
+## Publication receipt — 2 November 2026
+
+- **Commit:** `3ce30ba3e0ebb6afef3894c20a15b9cd436d4db4`, pushed as a fast-forward of `origin/main` from `140c6f073d094294366cc46f73caaeffe23154ef`. The coordinator confirmed afterwards that remote `main` equals that SHA.
+- **Approval:** the five-layer Auto review, plus two independent re-review rounds of the fix delta ending in Pass.
+- **Tests:** full local round 5,396/0/0, `Skipped: 0`, on the committed content. Normal hook 127/0/0.
+- **Unverified:** CI build, Pages artifact and deployment were not monitored (owner instruction, 29 October 2026). Browser qualification is pending until the post-catalogue phase.
