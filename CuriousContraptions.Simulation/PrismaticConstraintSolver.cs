@@ -17,6 +17,8 @@ internal struct ConstraintRowData
     public float Gamma;
     public float Bias;
     public float Minimum;
+    /// <summary>The accumulated impulse's upper bound (float.MaxValue for a row bounded only below).</summary>
+    public float Maximum;
 }
 
 internal sealed class SimJoint
@@ -75,7 +77,8 @@ internal static class PrismaticConstraintSolver
                 Error = row.Error,
                 Gamma = gamma,
                 Bias = bias,
-                Minimum = minimum
+                Minimum = minimum,
+                Maximum = 3.4028234663852886e38f
             };
         }
     }
@@ -120,7 +123,7 @@ internal static class PrismaticConstraintSolver
                 var vBias = Vector128.Create(bias, 0f, 0f, 0f);
                 var vAccum = Vector128.Create(joint.Impulses[rowIndex], 0f, 0f, 0f);
                 var vMin = Vector128.Create(row.Minimum, 0f, 0f, 0f);
-                var vMax = Vector128.Create(3.4028234663852886e38f, 0f, 0f, 0f);
+                var vMax = Vector128.Create(row.Maximum, 0f, 0f, 0f);
 
                 var result = SoftConstraint.Solve4(vInvMass, vVel, vError, vGamma, vBias, vAccum, vMin, vMax);
                 joint.Impulses[rowIndex] = result.Accumulated.GetElement(0);
@@ -176,7 +179,7 @@ internal static class PrismaticConstraintSolver
                         biases[lane] = useBias || rowIndex == (int)PrismaticRowKind.Spring || (IsStop(rowIndex) && row.Error > 0f) ? row.Bias : 0f;
                         accum[lane] = joint.Impulses[rowIndex];
                         mins[lane] = row.Minimum;
-                        maxs[lane] = 3.4028234663852886e38f;
+                        maxs[lane] = row.Maximum;
                     }
                     else
                     {
@@ -229,7 +232,8 @@ internal static class PrismaticConstraintSolver
             var speed = ConstraintVelocity(joint.A, axial.LinearA, axial.AngularA) + ConstraintVelocity(moving, axial.LinearB, axial.AngularB);
             var gravity = Vector3.Dot(new Vector3(moving.Gx, moving.Gy, moving.Gz), axial.LinearB);
             var force = SuppliedDriveForce(joint.Drive, axial.Error, speed, moving.Mass, joint.Stiffness, gravity, dt);
-            ApplyConstraintImpulse(joint, new ConstraintRowData { La = axial.LinearA, Lb = axial.LinearB, Aa = axial.AngularA, Ab = axial.AngularB },
+            ApplyConstraintImpulse(joint, new ConstraintRowData { La = axial.LinearA, Lb = axial.LinearB, Aa = axial.AngularA, Ab = axial.AngularB,
+                    Maximum = 3.4028234663852886e38f },
                 force * dt);
         }
     }

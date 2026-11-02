@@ -12,7 +12,10 @@ public enum RevoluteRowKind : int
     AngularY,
     Axial,
     LowerStop,
-    UpperStop
+    UpperStop,
+    /// <summary>Coulomb friction about the hinge axis: the axial Jacobian with zero error, its impulse bounded each substep by
+    /// ±<see cref="RevoluteRows.FrictionImpulseLimit"/>. Appended after the stops, so it resolves last among the joint's rows.</summary>
+    Friction
 }
 
 public readonly record struct RevoluteRow(Vector3 LinearA, Vector3 LinearB, Vector3 AngularA, Vector3 AngularB, float Error);
@@ -20,13 +23,20 @@ public readonly record struct RevoluteRow(Vector3 LinearA, Vector3 LinearB, Vect
 /// <summary>Canonical f32 Jacobians for a full 3D revolute hinge joint; independent of catalogue identity.</summary>
 public static class RevoluteRows
 {
-    public const int Count = 8;
+    public const int Count = 9;
     public static bool IsStop(RevoluteRowKind kind) => kind is RevoluteRowKind.LowerStop or RevoluteRowKind.UpperStop;
+
+    /// <summary>The physical substep h (s) every revolute row is solved over.</summary>
+    public const float SubstepSeconds = 1f / WorkshopCadenceSettings.PhysicalFrequency;
+
+    /// <summary>The friction row's per-substep impulse bound τ·h (N·m·s) for a declared friction torque τ: the one expression the solver
+    /// clamps the accumulated friction impulse to and admission refuses a committed friction impulse beyond.</summary>
+    public static float FrictionImpulseLimit(float frictionTorque) => frictionTorque * SubstepSeconds;
 
     public static void Prepare(ConstraintBodyFrame a, ConstraintBodyFrame b, ConstraintFrame localA,
         ConstraintFrame localB, float lower, float upper, Span<RevoluteRow> output)
     {
-        if (output.Length < Count) throw new ArgumentException("Eight constraint rows are required.");
+        if (output.Length < Count) throw new ArgumentException("Nine constraint rows are required.");
         var localAnchorA = Vector3.Transform(localA.Position, a.Rotation);
         var localAnchorB = Vector3.Transform(localB.Position, b.Rotation);
         var anchorA = a.Position + localAnchorA;
@@ -63,6 +73,7 @@ public static class RevoluteRows
         output[(int)RevoluteRowKind.Axial] = new(Vector3.Zero, Vector3.Zero, -axisZ, axisZ, angleZ);
         output[(int)RevoluteRowKind.LowerStop] = new(Vector3.Zero, Vector3.Zero, -axisZ, axisZ, angleZ - lower);
         output[(int)RevoluteRowKind.UpperStop] = new(Vector3.Zero, Vector3.Zero, axisZ, -axisZ, upper - angleZ);
+        output[(int)RevoluteRowKind.Friction] = new(Vector3.Zero, Vector3.Zero, -axisZ, axisZ, 0f);
     }
 
     private static RevoluteRow Linear(Vector3 axis, float error, Vector3 armA, Vector3 armB) =>

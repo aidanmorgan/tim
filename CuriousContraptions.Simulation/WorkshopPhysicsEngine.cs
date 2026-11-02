@@ -551,6 +551,7 @@ internal sealed class WorkshopPhysicsEngine
             var upper = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteUpperOffset);
             var stiffness = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteStiffnessOffset);
             var damping = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteDampingOffset);
+            var frictionTorque = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteFrictionTorqueOffset);
             var soft = stiffness > 0f
                 ? SoftConstraintCoefficients.FromSpring(stiffness, damping, WorkshopConstraintSolver.SubstepSeconds)
                 : (damping > 0f ? SoftConstraintCoefficients.FromDamper(damping, WorkshopConstraintSolver.SubstepSeconds) : default);
@@ -565,6 +566,7 @@ internal sealed class WorkshopPhysicsEngine
             joint.Lower = lower; joint.Upper = upper;
             joint.Stiffness = stiffness;
             joint.Damping = damping;
+            joint.FrictionTorque = frictionTorque;
             joint.Soft = soft;
             joint.Collision = collision;
 
@@ -858,7 +860,7 @@ internal sealed class WorkshopPhysicsEngine
             foreach (var joint in _revoluteJoints)
             {
                 RevoluteConstraintSolver.PrepareJointRows(joint, dt);
-                for (var row = 0; row < 8; row++)
+                for (var row = 0; row < RevoluteRows.Count; row++)
                     RevoluteConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
             }
             foreach (var tensile in _tensile)

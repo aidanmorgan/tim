@@ -26,7 +26,9 @@ internal enum ManifoldSoftness { NoSoftPoint, SoftPoint }
 
 internal static class WorkshopConstraintSolver
 {
-    public const float SubstepSeconds = 1.0f / 480.0f;
+    /// <summary>The physical substep h (s), 1 / WorkshopCadenceSettings.PhysicalFrequency: the one value every row, including the revolute
+    /// friction bound (RevoluteRows.FrictionImpulseLimit), is solved over.</summary>
+    public const float SubstepSeconds = RevoluteRows.SubstepSeconds;
     public const float ContactSlop = PhysicalTolerance.ContactSeparationMetres;
     public const float SpeculativeSlop = 0.004f;
     public const float MaxLinearSpeed = 64f;

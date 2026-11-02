@@ -137,6 +137,7 @@ public static class WorkshopPhysicsCompiler
                 revolutes.Add(new(joint, instance.Id, moving,
                     new(hinge.BaseFrame.Position, hinge.BaseFrame.Rotation), new(hinge.MovingFrame.Position, hinge.MovingFrame.Rotation),
                     hinge.LowerLimit, hinge.UpperLimit, hinge.Stiffness.Evaluate(parameters), hinge.Damping.Evaluate(parameters),
+                    hinge.FrictionTorque.Evaluate(parameters),
                     hinge.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
             }
             if (mechanical?.CompliantSurface is { } compliant)

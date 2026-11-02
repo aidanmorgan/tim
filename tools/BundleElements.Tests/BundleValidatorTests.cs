@@ -1006,7 +1006,7 @@ public sealed class BundleValidatorTests
     }
 
     [Fact]
-    public void HingeCapabilityValidatesLimitsFramesMovingBodyCollidersAndInitialAngle()
+    public void HingeCapabilityValidatesLimitsFramesMovingBodyCollidersInitialAngleAndFrictionTorque()
     {
         var generated = BundleGenerator.Generate(TestRepository.Root);
         var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
@@ -1064,6 +1064,20 @@ public sealed class BundleValidatorTests
                 Hinges = [hinge with { InitialAngle = MechanicalValue.Fixed(1.5f) }]
             }
         }, "Hinges[0].InitialAngle");
+
+        // Friction torque (Story 10.3b): finite and at least 0; 0 is admitted (frictionless through the same law). Negative infinity
+        // breaks both rules, so it is refused for both, on the same field.
+        Bundle.BundleEntry WithFriction(float value) => lever with
+        {
+            Mechanical = lever.Mechanical with { Hinges = [hinge with { FrictionTorque = MechanicalValue.Fixed(value) }] }
+        };
+        Assert.Empty(Check(WithFriction(0f)));
+        Refused(WithFriction(-1f), "Hinges[0].FrictionTorque");
+        Refused(WithFriction(float.NaN), "Hinges[0].FrictionTorque.Constant", Bundle.BundleErrorCode.NonFinite);
+        Refused(WithFriction(float.PositiveInfinity), "Hinges[0].FrictionTorque.Constant", Bundle.BundleErrorCode.NonFinite);
+        var negativeInfinity = Check(WithFriction(float.NegativeInfinity));
+        Assert.Equal([Bundle.BundleErrorCode.NonFinite, Bundle.BundleErrorCode.OutOfRange], negativeInfinity.Select(error => error.Code).Order());
+        Assert.All(negativeInfinity, error => Assert.StartsWith("Candidate.Hinges[0].FrictionTorque", error.Detail, StringComparison.Ordinal));
     }
 
     [Fact]

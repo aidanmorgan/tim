@@ -4,12 +4,12 @@
 
 ## Goal
 
-Deliver solid cylinder geometry and inertia, compliant elastic fixtures, pivots, pulleys, ropes, and counterweights using unified TGS Soft constraints without ad-hoc velocity projections or Baumgarte stabilization. This enables players to author physical contraptions featuring realistic wheeled shafts, seesaw impact levers, pulley-routed rope networks, swinging pendulums, and compliant trampolines that reliably transfer loads, store and release elastic energy, and strictly conserve mechanical energy.
+Deliver the solid cylinder collider and inertia, pivots, pulleys, tensile ropes, counterweights and compliant elastic fixtures, all expressed as unified TGS Soft constraints with no ad-hoc velocity projections or Baumgarte stabilization. Players can then build contraptions with true wheeled shafts and pivot posts, see-saw impact levers, pulley-routed rope networks, swinging pendulums and bouncing trampolines that transfer loads and store and release elastic energy without artificial energy gain.
 
 ## Stories
 
 - Story 10.1: Solid Cylinder Collider & Cylinder Inertia
-- Story 10.2: Pulley Wheel & Tensile Rope Dynamics
+- Story 10.2: Pulley Wheel & Tensile Rope Dynamics (aggregate parent; closes with 10.2a–10.2c)
 - Story 10.2a: Weight
 - Story 10.2b: Rope Anchor, tensile rope and cutting
 - Story 10.2c: Pulley wheel and routed rope
@@ -19,54 +19,39 @@ Deliver solid cylinder geometry and inertia, compliant elastic fixtures, pivots,
 
 ## Requirements & Constraints
 
-Solid cylinder colliders must provide analytic curved-side and flat end-face contacts against planes, spheres, boxes, and cylinders without polyhedral hull stand-ins. Dynamic cylinders must roll smoothly and rest stable on end faces; rotational inertia must compile from declared radius, width, and mass using standard cylinder laws (axial $m r^2 / 2$, transverse $m (3 r^2 + w^2) / 12$).
-
-Tensile ropes couple declared, compatible body endpoints through unilateral distance constraints that transmit tensile work only; slack ropes exert zero force. Cutting or releasing a rope removes its constraint atomically, immediately decoupling connected bodies; unknown or repeated cut requests refuse cleanly without modifying other constraints. Machine reset and save/load restore original endpoints, lengths, and uncut authored construction.
-
-Impact levers pivot around a solid cylinder fulcrum via a revolute hinge constrained to defined angular limits (±30° / ±π/6 rad) with inelastic end stops. Dropped payloads striking one arm must pivot the beam and fling resting objects upward on the opposite arm without energy gain, while equal opposing loads balance indefinitely. Levers provide rope connection sockets at beam ends that transfer tension to pivot the arm.
-
-Pulleys redirect tensile ropes across rotary rims with low friction, transmitting mechanical work between connected loads such as counterweights. Counterweights function as balanced rope loads and as 3D pendulums oscillating at their natural period ($T = 2\pi\sqrt{L/g}$) with gradual damping.
-
-Compliant fixtures such as trampolines yield elastically under payload impact and rebound upwards according to membrane surface normals, with total kinetic energy after rebound strictly bounded by initial potential energy (zero artificial energy gain).
-
-Pre-run validation must atomically reject overlapping parts, incompatible socket pairings, non-positive or non-finite dimensions/mass, out-of-range parameters, or unsupported geometries before physical state changes.
-
-Verification must execute real production C# simulation logic through defined interfaces across positive, negative/control, boundary, tick-progression, and reset/save/load scenarios. Assertions must verify observable physical behaviors, causal timing, and derived tolerances rather than output hashes or binary buffers. Browser/E2E test suites remain deferred until all named catalogue elements pass unit and integration verification.
+- **Cylinders:** contact follows the true curved side and flat end faces against spheres, boxes and the workbench plane, with no sphere, box or prism-hull stand-in. A dynamic cylinder rolls on its side and rests on an end face without jitter. Inertia compiles from the declaration: axial $m r^2/2$, transverse $m(3r^2 + w^2)/12$. Cylinder is a closed collider-shape enum value end-to-end.
+- **Ropes:** tensile-only constraints couple admitted Tie/Load endpoints; slack ropes apply zero force and equal loads stay balanced. A typed cut/release command removes the constraint atomically at the committed boundary; repeated or unknown cuts return a typed refusal and leave other ropes unchanged. Tests cover zero and maximum admitted length, incompatible or missing endpoints, slack/taut crossing, cutting before and after load, and multiple independent ropes.
+- **Pulleys:** route a rope between unequal Weights so the heavy load falls and the light load rises; routing obeys length and contact boundaries. Preserve every CAT-053 variant and its source geometry.
+- **Impact Lever:** pivots on a solid cylinder fulcrum (not an art-only post), strikes its end stop and launches a payload resting on the opposite arm when a heavy ball drops on one arm. Rope tension routed through two Pulleys from a falling Counterweight to a lever end rope socket lifts that arm. **Open item:** indefinite balance under equal loads is not met because the hinge is frictionless and loads resting on the beam form an unstable equilibrium. A separate engine slice adds a declared pivot holding mechanism (friction or detent) and re-qualifies the lever tests against indefinite balance.
+- **Pendulum:** a suspended Counterweight released from an angle oscillates with period $T = 2\pi\sqrt{L/g}$ and damps gradually. Reset restores the initial angle and zero velocity.
+- **Trampoline:** the membrane deflects with compliant stiffness and launches the ball upward. Off-centre hits deflect along the surface normal. Kinetic energy after rebound never exceeds the initial potential energy.
+- **Validation:** non-positive or non-finite dimensions or mass, incompatible sockets and out-of-range parameters are rejected atomically before any state changes.
+- **Lifecycle:** exact Reset and supported Save/Load restore authored poses, endpoints, lengths and uncut construction, and rerunning reproduces behaviour.
+- **Verification:** native C# tests run the real production simulation through defined interfaces and cover positive, negative/control, boundary, tick-progression and Reset/Save/Load cases. Bounds are derived from gameplay. Each story's named Chrome suite (`tools/e2e/*.test.ts`) is deferred to the post-catalogue E2E phase, so browser qualification stays pending.
 
 ## Technical Decisions
 
-Each element resides in an isolated package under `elements/<Name>/` defining its Godot visual scene (`.tscn`), dedicated physics collision proxies (`col_box`, `col_sphere`, `col_cylinder`), 3D socket locators (`Loc_Port_*`), material coefficients, and typed parameter schemas. The bundle is the sole catalogue source; the core simulation engine and workers contain no element-specific identities, branches, or classes.
-
-All constraints compile into generic Box2D v3 Temporal Gauss-Seidel (TGS) Soft solver rows executed on the dedicated WASM SIMD physics worker at 120 Hz with 480 Hz substeps (4 substeps per tick). Compliance, softness, and effective mass govern joint and contact dynamics; Baumgarte stabilization and ad-hoc velocity projections are strictly prohibited. Numerical residuals clamp or continue without faulting the tick.
-
-Simulation state conforms end-to-end to canonical IEEE-754 32-bit floating-point (`f32`) values and integer tick counters plus f32 phase. Closed parameter sets are enums; string conversions occur only at external authoring and serialization boundaries.
-
-Mutations execute via sequenced typed commands returning receipts; queries read committed state. Transient physical occurrences emit via the shared event ring, while persistent states reside in committed query tables. Rendering and animation consume physics poses from the zero-copy pose ring one-way without backward feedback.
-
-Refactor forward with zero backwards-compatibility shims, legacy fallback solvers, or migration adapters. When replacing legacy constraint or collision code, superseded implementations must be purged and callers updated atomically.
-
-Non-C# runtime and harness code must be strict TypeScript (`strict: true`, no `any`) compiled by the pinned build toolchain.
+- Each element is declaration data in its own `elements/<Name>/` package: a `.tscn` scene with visual meshes, dedicated collision proxies (`col_box`, `col_sphere`, `col_cylinder`, …), `Loc_Port_<Id>` socket locators, mass and material coefficients, constraint parameters and typed parameters. No element identifier, branch, class or tick loop exists outside `elements/`. The solver, compiler and workers stay generic.
+- Revolute hinges with end stops, ropes, pulley routing, springs and compliant membranes compile into generic `ConstraintTable` rows. These run in the TGS Soft solver with compliance, softness and effective mass, at 120 Hz with four 480 Hz substeps on the WASM SIMD physics worker.
+- Game-grade envelope:
+  - Resting penetration is at most 0.5 mm.
+  - Linear velocity is clamped to 64 m/s and angular velocity to 128 rad/s.
+  - Non-finite candidate state is discarded and the last committed pose is kept.
+  - Residuals clamp or continue; they never fault the tick.
+- Game values are f32. Time is integer ticks plus an f32 phase. Closed sets are enums, and strings are converted only at genuine authoring or serialization boundaries.
+- Mutations are sequenced typed commands that return receipts, for example rope cut. Queries read committed state. Transient occurrences go on the event ring. Rendering consumes poses one-way from the pose ring.
+- Refactoring is forward-only: no fallback, shim, legacy path, version branch or second rule for the same behaviour. Each story deletes the legacy it supersedes, for example the 24-sided prism-hull shaft in 10.1 and superseded rope paths in 10.2b.
+- Non-C# runtime and harness code is strict TypeScript, built by the pinned `tsc`.
 
 ## UX & Interaction Patterns
 
-Follow the standard Workshop interaction loop: place elements on the workbench, adjust authored sliders (such as beam mass or initial angle), connect compatible sockets (power cables, signal wires, ropes), Run to execute physical simulation, observe results, and Reset to adjust.
-
-Connection links attach to declared 3D socket locators. Ambiguous socket attachments must be explicitly confirmed. Taut ropes render as straight spans; slack ropes curve with length-matched visual approximation; cut ropes visibly uncouple.
-
-Preserve the approved palette (cream structures, cyan insets, ochre/gold pins, marks, and stops, navy foot and base, warm wood). Moving visual meshes track committed physics poses directly from the pose ring.
+Standard Workshop loop: place elements, adjust typed sliders, connect compatible sockets (including ropes) on declared locators, Run, observe, then Reset. Moving meshes track committed physics poses. Keep the approved palette.
 
 ## Cross-Story Dependencies
 
-Story 10.1 (Solid Cylinder Collider & Inertia) is an engine prerequisite for the Pulley wheel (Story 10.2c) and Impact Lever fulcrum (Story 10.3).
-
-Story 10.2a (Weight body & mass parameter) provides the dynamic counterweight body required for rope tension and pulley balance tests.
-
-Story 10.2b (Rope Anchor, tensile rope, and cutting) implements the generic rope constraint domain, tension solver, and cut command required by the routed Pulley (Story 10.2c), Impact Lever rope sockets (Story 10.3), and Counterweight pendulum (Story 10.4).
-
-Story 10.2c (Pulley wheel and routed rope) provides rope routing around wheels, completing the two-pulley counterbalance integration.
-
-Story 10.3 (Impact Lever) integrates the solid cylinder fulcrum (10.1), revolute hinge constraint with end stops, and rope-load lifting via pulley-routed counterweights (10.2b/10.2c).
-
-Story 10.4 (Counterweight Pendulum) qualifies 3D pendulum oscillation and damping using the delivered Weight (10.2a) and tension rope (10.2b).
-
-Story 10.5 (Trampoline) builds upon generic elastic spring constraints, relying on ball payloads and counterweight tethers for compliance and energy conservation verification.
+- **10.1** (cylinder) is an engine prerequisite for the 10.2c Pulley wheel and the 10.3 Lever fulcrum. The engine restitution energy-correctness slice followed it.
+- **10.2a** (Weight) supplies the dynamic load body for 10.2b, 10.2c, 10.4 and the 10.5 tether controls.
+- **10.2b** supplies the generic rope domain and cut command used by 10.2c, the 10.3 rope sockets and 10.4. It does not depend on the Pulley.
+- **10.2c** completes the two-pulley counterbalance and the parent 10.2 criteria.
+- **10.3** also depends on impact restitution and the Story 6.2 Bumper. Its indefinite equal-load balance waits on the separate pivot-holding engine slice.
+- **10.5** depends on the Story 6.4 elastic spring constraint, the Stories 6.6–6.7 pipe (drop-to-pipe lesson), 10.2 ropes and the 10.4 Weight tethers.

@@ -95,6 +95,10 @@ public sealed class ImpactLeverElementDeclaration : IHingeElement, ISceneGeometr
             UpperLimit: MathF.PI / 6f,
             Stiffness: MechanicalValue.Fixed(0f),
             Damping: MechanicalValue.Fixed(0f),
+            // Story 10.3b: 2 N m of hinge friction holds an equal resting load indefinitely (the 4 kg pair's inverted-pendulum
+            // stiffness is about 31 N m/rad, so any seed up to 0.065 rad), while the lightest Weight (0.25 kg) at a 1.8 m tie port
+            // (4.4 N m) still tips the beam.
+            FrictionTorque: MechanicalValue.Fixed(2f),
             InitialAngle: MechanicalValue.FromParameter("initial_angle"),
             BodiesCollide: false,
             MovingBody: new(

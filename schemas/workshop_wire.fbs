@@ -492,6 +492,7 @@ table CapabilityRevoluteConstraintDeclarationRecord {
     stiffness: float;
     damping: float;
     collision: uint;
+    friction_torque: float;
 }
 
 table CapabilityConstraintFrameRecord {

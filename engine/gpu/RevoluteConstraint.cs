@@ -4,10 +4,12 @@ namespace CuriousContraptions.Gpu;
 
 public readonly record struct RevoluteConstraintId(ulong Value);
 
-/// <summary>One generic 3D revolute joint: locks three linear translation and two transverse angular degrees of freedom, leaving rotation about local Z.</summary>
+/// <summary>One generic 3D revolute joint: locks three linear translation and two transverse angular degrees of freedom, leaving rotation about local Z.
+/// <see cref="FrictionTorque"/> (N·m, finite, at least 0) bounds the hinge's Coulomb friction row: each substep's friction impulse about
+/// the axis is clamped to ±<see cref="RevoluteRows.FrictionImpulseLimit"/>; 0 is frictionless through the same clamp.</summary>
 public readonly record struct RevoluteConstraintDeclaration(RevoluteConstraintId Id,
     GpuBodyId BodyA, GpuBodyId BodyB, ConstraintFrame FrameA, ConstraintFrame FrameB,
-    float Lower, float Upper, float Stiffness, float Damping, ConnectedCollision Collision)
+    float Lower, float Upper, float Stiffness, float Damping, float FrictionTorque, ConnectedCollision Collision)
 {
     public void Validate()
     {
@@ -15,13 +17,13 @@ public readonly record struct RevoluteConstraintDeclaration(RevoluteConstraintId
             !Enum.IsDefined(Collision) || !float.IsFinite(Lower) || !float.IsFinite(Upper) ||
             Lower < -MathF.PI || Upper > MathF.PI || Lower >= Upper ||
             !float.IsFinite(Stiffness) || Stiffness < 0f ||
-            !float.IsFinite(Damping) || Damping < 0f)
+            !float.IsFinite(Damping) || Damping < 0f ||
+            !float.IsFinite(FrictionTorque) || FrictionTorque < 0f)
             throw new ArgumentException("Invalid revolute declaration.");
         FrameA.Validate(); FrameB.Validate();
-        const float substepSeconds = 1f / WorkshopCadenceSettings.PhysicalFrequency;
         if (Stiffness > 0f)
-            _ = SoftConstraintCoefficients.FromSpring(Stiffness, Damping, substepSeconds);
+            _ = SoftConstraintCoefficients.FromSpring(Stiffness, Damping, RevoluteRows.SubstepSeconds);
         else if (Damping > 0f)
-            _ = SoftConstraintCoefficients.FromDamper(Damping, substepSeconds);
+            _ = SoftConstraintCoefficients.FromDamper(Damping, RevoluteRows.SubstepSeconds);
     }
 }

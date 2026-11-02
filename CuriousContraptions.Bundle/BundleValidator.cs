@@ -630,6 +630,7 @@ public static class BundleValidator
             }
             Value(path + ".Stiffness", hinge.Stiffness, parameters);
             Value(path + ".Damping", hinge.Damping, parameters);
+            Value(path + ".FrictionTorque", hinge.FrictionTorque, parameters);
             Value(path + ".InitialAngle", hinge.InitialAngle, parameters, allowNegative: true);
             if (hinge.InitialAngle.Source == MechanicalValueSource.Constant && float.IsFinite(hinge.InitialAngle.Constant))
             {

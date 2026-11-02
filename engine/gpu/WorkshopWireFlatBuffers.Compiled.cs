@@ -455,6 +455,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityRevoluteConstraintDeclarationRecord.AddStiffness(b, value.Stiffness);
         W.CapabilityRevoluteConstraintDeclarationRecord.AddDamping(b, value.Damping);
         W.CapabilityRevoluteConstraintDeclarationRecord.AddCollision(b, (uint)value.Collision);
+        W.CapabilityRevoluteConstraintDeclarationRecord.AddFrictionTorque(b, value.FrictionTorque);
         return W.CapabilityRevoluteConstraintDeclarationRecord.EndCapabilityRevoluteConstraintDeclarationRecord(b);
     }
 
@@ -468,6 +469,7 @@ public static partial class WorkshopWireFlatBuffers
         row.Upper,
         row.Stiffness,
         row.Damping,
+        row.FrictionTorque,
         ObservationEnum<CuriousContraptions.Gpu.ConnectedCollision>(row.Collision));
 
     private static Offset<W.CapabilityConstraintFrameRecord> EncodeCapabilityConstraintFrameRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.ConstraintFrame value)

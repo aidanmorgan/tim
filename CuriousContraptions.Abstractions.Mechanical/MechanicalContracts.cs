@@ -120,7 +120,9 @@ public readonly record struct HingeBodyDescriptor(
 
 /// <summary>One revolute hinge joining the element's base body to a moving body. At rest the two frames coincide; the moving body
 /// may rotate from <see cref="LowerLimit"/> to <see cref="UpperLimit"/> (radians) around the base frame's local Z. The axial spring's stiffness
-/// and damping, and the starting angle, are the element parameters these keys name.</summary>
+/// and damping, and the starting angle, are the element parameters these keys name. <see cref="FrictionTorque"/> is the hinge's
+/// Coulomb friction torque (N·m, finite and at least 0): the pivot holds while the net torque about its axis is below it and turns,
+/// resisted by it, once the net torque is above.</summary>
 public readonly record struct RevoluteHingeDescriptor(
     HingeFrame BaseFrame,
     HingeFrame MovingFrame,
@@ -128,6 +130,7 @@ public readonly record struct RevoluteHingeDescriptor(
     float UpperLimit,
     MechanicalValue Stiffness,
     MechanicalValue Damping,
+    MechanicalValue FrictionTorque,
     MechanicalValue InitialAngle,
     bool BodiesCollide,
     HingeBodyDescriptor MovingBody);

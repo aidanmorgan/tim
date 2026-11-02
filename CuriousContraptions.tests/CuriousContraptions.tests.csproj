@@ -202,6 +202,7 @@
         <Compile Include="ConstructionDecodeBoundaryTests.cs" />
         <Compile Include="VendoredFlatBuffersIdentityTests.cs" />
         <Compile Include="ImpactLeverTests.cs" />
+        <Compile Include="RevoluteHingeFrictionTests.cs" />
         <Compile Include="TrampolineTests.cs" />
     </ItemGroup>
 

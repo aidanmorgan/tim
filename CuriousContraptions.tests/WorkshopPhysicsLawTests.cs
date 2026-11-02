@@ -234,6 +234,17 @@ internal sealed class LawScene
     }
     private readonly List<CompliantSurfaceDeclaration> _compliantSurfaces = [];
 
+    /// <summary>A generic revolute joint (Story 10.3b): free about the frames' shared local Z, limited to [lower, upper], with no axial
+    /// spring and the declared Coulomb friction torque.</summary>
+    public RevoluteConstraintId Revolute(GpuBodyId a, GpuBodyId b, ConstraintFrame frameA, ConstraintFrame frameB, float lower, float upper,
+        float frictionTorque, ConnectedCollision collision = ConnectedCollision.Disabled)
+    {
+        var id = new RevoluteConstraintId(_next++);
+        _revolutes.Add(new(id, a, b, frameA, frameB, lower, upper, 0f, 0f, frictionTorque, collision));
+        return id;
+    }
+    private readonly List<RevoluteConstraintDeclaration> _revolutes = [];
+
     public void DeclareMassFrame(GpuBodyId body, Vector3 moments, Vector3 centre = default, Quaternion? principalFrame = null)
     {
         var index = _bodies.FindIndex(value => value.Id == body);
@@ -247,7 +258,7 @@ internal sealed class LawScene
     {
         var scene = new PhysicsSceneDeclaration(new(1, 2), _next, [.. _bodies], [.. _colliders], [.. _materials], [], [],
             contactWorks: [.. _contactWorks], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics],
-            prismaticDrives: [.. _drives], compliantSurfaces: [.. _compliantSurfaces]);
+            prismaticDrives: [.. _drives], revolutes: [.. _revolutes], compliantSurfaces: [.. _compliantSurfaces]);
         return new(scene, PhysicsGpuAbi.Admission(scene, new(1), new(cadence, PhysicalStepProfile.Canonical480Hz, new(1))), cadence);
     }
 }

@@ -20,10 +20,12 @@ internal sealed class SimRevoluteJoint
     public float Upper;
     public float Stiffness;
     public float Damping;
+    /// <summary>The declared Coulomb friction torque (N·m) bounding the friction row.</summary>
+    public float FrictionTorque;
     public SoftConstraintCoefficients Soft;
     public uint Collision;
-    public float[] Impulses = new float[8];
-    public ConstraintRowData[] Rows = new ConstraintRowData[8];
+    public float[] Impulses = new float[RevoluteRows.Count];
+    public ConstraintRowData[] Rows = new ConstraintRowData[RevoluteRows.Count];
 }
 
 internal static class RevoluteConstraintSolver
@@ -40,14 +42,25 @@ internal static class RevoluteConstraintSolver
 
         RevoluteRows.Prepare(frameA, frameB, localA, localB, joint.Lower, joint.Upper, prepared);
 
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < RevoluteRows.Count; i++)
         {
             var row = prepared[i];
             float gamma;
             float bias;
             float minimum;
+            var maximum = 3.4028234663852886e38f;
 
-            if (i == (int)RevoluteRowKind.Axial)
+            if (i == (int)RevoluteRowKind.Friction)
+            {
+                // Coulomb friction about the axis: a velocity-level row (zero error, no bias, no softness) that drives the relative spin
+                // toward zero with an accumulated impulse bounded by ±τ·h, so it holds below the friction torque and only resists above it.
+                var limit = RevoluteRows.FrictionImpulseLimit(joint.FrictionTorque);
+                gamma = 0f;
+                bias = 0f;
+                minimum = -limit;
+                maximum = limit;
+            }
+            else if (i == (int)RevoluteRowKind.Axial)
             {
                 if (joint.Stiffness > 0f || joint.Damping > 0f)
                 {
@@ -85,7 +98,8 @@ internal static class RevoluteConstraintSolver
                 Error = row.Error,
                 Gamma = gamma,
                 Bias = bias,
-                Minimum = minimum
+                Minimum = minimum,
+                Maximum = maximum
             };
         }
     }
@@ -113,7 +127,7 @@ internal static class RevoluteConstraintSolver
         Span<int> remaining = stackalloc int[count];
         Span<int> groupIndices = stackalloc int[4];
 
-        for (var rowIndex = 0; rowIndex < 8; rowIndex++)
+        for (var rowIndex = 0; rowIndex < RevoluteRows.Count; rowIndex++)
         {
             if (count == 1)
             {
@@ -135,7 +149,7 @@ internal static class RevoluteConstraintSolver
                 var vBias = Vector128.Create(bias, 0f, 0f, 0f);
                 var vAccum = Vector128.Create(joint.Impulses[rowIndex], 0f, 0f, 0f);
                 var vMin = Vector128.Create(row.Minimum, 0f, 0f, 0f);
-                var vMax = Vector128.Create(3.4028234663852886e38f, 0f, 0f, 0f);
+                var vMax = Vector128.Create(row.Maximum, 0f, 0f, 0f);
 
                 var result = SoftConstraint.Solve4(vInvMass, vVel, vError, vGamma, vBias, vAccum, vMin, vMax);
                 joint.Impulses[rowIndex] = result.Accumulated.GetElement(0);
@@ -204,7 +218,7 @@ internal static class RevoluteConstraintSolver
                             biases[lane] = useBias || (rowIndex == (int)RevoluteRowKind.Axial && (joint.Stiffness > 0f || joint.Damping > 0f)) || (IsStop(rowIndex) && row.Error > 0f) ? row.Bias : 0f;
                             accum[lane] = joint.Impulses[rowIndex];
                             mins[lane] = row.Minimum;
-                            maxs[lane] = 3.4028234663852886e38f;
+                            maxs[lane] = row.Maximum;
                         }
                     }
                     else

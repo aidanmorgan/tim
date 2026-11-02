@@ -217,7 +217,8 @@ public sealed class CompiledSceneBoundaryTests
 
     // Story 10.3a: a compiled revolute crosses the command wire with every field. The lever's own row leaves stiffness, damping and
     // collision at zero and both frames at the identity, so the row is varied in each of those fields; a codec that dropped or
-    // swapped any one decodes a different declaration.
+    // swapped any one decodes a different declaration. Story 10.3b: the friction torque is varied from the lever's 2 N m to a value no
+    // other field carries.
     [Fact]
     public void EveryRevoluteFieldCrossesTheCommandWire()
     {
@@ -231,6 +232,7 @@ public sealed class CompiledSceneBoundaryTests
             Upper = .45f,
             Stiffness = 40f,
             Damping = 2f,
+            FrictionTorque = 3.5f,
             Collision = ConnectedCollision.Enabled
         };
         var scene = new WorkshopCompiledScene(compiled.Identity, compiled.Revision, compiled.Settings,
@@ -272,13 +274,18 @@ public sealed class CompiledSceneBoundaryTests
         Assert.Equal(compiled.Physics.Prismatics.ToArray(), decoded.Physics.Prismatics.ToArray());
     }
 
-    public enum RevoluteDefect { LimitOrder, UnadmittedBody }
+    public enum RevoluteDefect { LimitOrder, UnadmittedBody, NegativeFrictionTorque, NaNFrictionTorque, InfiniteFrictionTorque, NegativeInfiniteFrictionTorque }
 
     // Story 10.3a: a revolute row whose lower limit is not below its upper limit, or whose body is not in the scene, is refused at
     // both decode boundaries that carry a compiled scene, and the refused command leaves the installed lever world unchanged.
+    // Story 10.3b: so is a row whose friction torque is negative, NaN, +infinity or -infinity.
     [Theory]
     [InlineData(RevoluteDefect.LimitOrder)]
     [InlineData(RevoluteDefect.UnadmittedBody)]
+    [InlineData(RevoluteDefect.NegativeFrictionTorque)]
+    [InlineData(RevoluteDefect.NaNFrictionTorque)]
+    [InlineData(RevoluteDefect.InfiniteFrictionTorque)]
+    [InlineData(RevoluteDefect.NegativeInfiniteFrictionTorque)]
     public async Task MalformedRevoluteRowsRefuseAtCommandAndResponseBoundariesAndLeaveTheInstalledWorldUnchanged(RevoluteDefect defect)
     {
         await using var world = await WorkshopIntegrationHarness.Building(LeverConstruction);
@@ -307,6 +314,18 @@ public sealed class CompiledSceneBoundaryTests
                     break;
                 case RevoluteDefect.UnadmittedBody: // body_b names no scene body
                     BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(row, 2)), ulong.MaxValue);
+                    break;
+                case RevoluteDefect.NegativeFrictionTorque: // friction_torque := -1 (the lever writes 2, so the slot is present)
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 10)), -1f);
+                    break;
+                case RevoluteDefect.NaNFrictionTorque:
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 10)), float.NaN);
+                    break;
+                case RevoluteDefect.InfiniteFrictionTorque:
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 10)), float.PositiveInfinity);
+                    break;
+                case RevoluteDefect.NegativeInfiniteFrictionTorque:
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 10)), float.NegativeInfinity);
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(defect));
             }

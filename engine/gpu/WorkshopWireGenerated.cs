@@ -1866,6 +1866,7 @@ public struct CapabilityRevoluteConstraintDeclarationRecord : IFlatbufferObject
   public float Stiffness { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public float Damping { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public uint Collision { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public float FrictionTorque { get { int o = __p.__offset(24); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
 
   public static Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord> CreateCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder,
       ulong id = 0,
@@ -1877,11 +1878,13 @@ public struct CapabilityRevoluteConstraintDeclarationRecord : IFlatbufferObject
       float upper = 0.0f,
       float stiffness = 0.0f,
       float damping = 0.0f,
-      uint collision = 0) {
-    builder.StartTable(10);
+      uint collision = 0,
+      float friction_torque = 0.0f) {
+    builder.StartTable(11);
     CapabilityRevoluteConstraintDeclarationRecord.AddBodyB(builder, body_b);
     CapabilityRevoluteConstraintDeclarationRecord.AddBodyA(builder, body_a);
     CapabilityRevoluteConstraintDeclarationRecord.AddId(builder, id);
+    CapabilityRevoluteConstraintDeclarationRecord.AddFrictionTorque(builder, friction_torque);
     CapabilityRevoluteConstraintDeclarationRecord.AddCollision(builder, collision);
     CapabilityRevoluteConstraintDeclarationRecord.AddDamping(builder, damping);
     CapabilityRevoluteConstraintDeclarationRecord.AddStiffness(builder, stiffness);
@@ -1892,7 +1895,7 @@ public struct CapabilityRevoluteConstraintDeclarationRecord : IFlatbufferObject
     return CapabilityRevoluteConstraintDeclarationRecord.EndCapabilityRevoluteConstraintDeclarationRecord(builder);
   }
 
-  public static void StartCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder) { builder.StartTable(10); }
+  public static void StartCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder) { builder.StartTable(11); }
   public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
   public static void AddBodyA(FlatBufferBuilder builder, ulong bodyA) { builder.AddUlong(1, bodyA, 0); }
   public static void AddBodyB(FlatBufferBuilder builder, ulong bodyB) { builder.AddUlong(2, bodyB, 0); }
@@ -1903,6 +1906,7 @@ public struct CapabilityRevoluteConstraintDeclarationRecord : IFlatbufferObject
   public static void AddStiffness(FlatBufferBuilder builder, float stiffness) { builder.AddFloat(7, stiffness, 0.0f); }
   public static void AddDamping(FlatBufferBuilder builder, float damping) { builder.AddFloat(8, damping, 0.0f); }
   public static void AddCollision(FlatBufferBuilder builder, uint collision) { builder.AddUint(9, collision, 0); }
+  public static void AddFrictionTorque(FlatBufferBuilder builder, float frictionTorque) { builder.AddFloat(10, frictionTorque, 0.0f); }
   public static Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord> EndCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 10);  // frame_a
@@ -1927,6 +1931,7 @@ static public class CapabilityRevoluteConstraintDeclarationRecordVerify
       && verifier.VerifyField(tablePos, 18 /*Stiffness*/, 4 /*float*/, 4, false)
       && verifier.VerifyField(tablePos, 20 /*Damping*/, 4 /*float*/, 4, false)
       && verifier.VerifyField(tablePos, 22 /*Collision*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 24 /*FrictionTorque*/, 4 /*float*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

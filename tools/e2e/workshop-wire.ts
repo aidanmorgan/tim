@@ -5334,8 +5334,13 @@ collision():number {
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
+frictionTorque():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
 static startCapabilityRevoluteConstraintDeclarationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(10);
+  builder.startObject(11);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -5376,6 +5381,10 @@ static addDamping(builder:flatbuffers.Builder, damping:number) {
 
 static addCollision(builder:flatbuffers.Builder, collision:number) {
   builder.addFieldInt32(9, collision, 0);
+}
+
+static addFrictionTorque(builder:flatbuffers.Builder, frictionTorque:number) {
+  builder.addFieldFloat32(10, frictionTorque, 0.0);
 }
 
 static endCapabilityRevoluteConstraintDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {

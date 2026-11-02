@@ -223,6 +223,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             var scene = Compile(placed);
             var joints = scene.Revolutes.ToArray();
             var declaredHinges = TestBundle.Entry(id).Mechanical!.Hinges;
+            var defaults = element.Metadata.Parameters.ToDictionary(parameter => parameter.Key, parameter => parameter.Default, StringComparer.Ordinal);
             Assert.True(joints.Length == declaredHinges.Count, $"{package.Package}: {element.Hinges.Count} hinges declared, {joints.Length} compiled.");
             for (var i = 0; i < joints.Length; i++)
             {
@@ -232,6 +233,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 AssertFrame(where + ".MovingFrame", new(hinge.MovingFrame.Position, hinge.MovingFrame.Rotation), joint.FrameB);
                 Assert.True(hinge.LowerLimit == joint.Lower && hinge.UpperLimit == joint.Upper,
                     $"{where}: limits [{hinge.LowerLimit}, {hinge.UpperLimit}] declared, [{joint.Lower}, {joint.Upper}] compiled.");
+                var frictionTorque = hinge.FrictionTorque.Evaluate(defaults);
+                Assert.True(frictionTorque == joint.FrictionTorque, $"{where}: friction torque {frictionTorque} declared, {joint.FrictionTorque} compiled.");
                 Assert.Equal(hinge.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled, joint.Collision);
                 var moving = scene.Bodies.ToArray().Single(body => body.Id == joint.BodyB);
                 AssertBody(where + ".MovingBody", KinematicMode.Dynamic, MassFixtures.Evaluate(hinge.MovingBody.MassFrame, element.Metadata.Parameters).Mass, hinge.MovingBody.MassFrame.LinearDrag,

@@ -38,7 +38,10 @@ public static partial class PhysicsGpuAbi
     /// <summary>The rows of one prismatic joint (two transverse, three angular, the axial spring, two stops): structural.</summary>
     public const int PrismaticRowCount = 8;
 
-    public const int RevoluteBytes = 128;
+    // Row: identity U64 at 0, body A and body B slots, frame A and frame B, f32 lower and upper limits, f32 stiffness and damping,
+    // connected-collision U32 and the f32 friction torque (all immutable after admission); then one committed f32 impulse per
+    // RevoluteRowKind and zero padding to the 16-byte row multiple.
+    public const int RevoluteBytes = 144;
     public const int RevoluteBodyAOffset = 8;
     public const int RevoluteBodyBOffset = 12;
     public const int RevoluteFrameAOffset = 16;
@@ -48,9 +51,12 @@ public static partial class PhysicsGpuAbi
     public const int RevoluteStiffnessOffset = 80;
     public const int RevoluteDampingOffset = 84;
     public const int RevoluteCollisionOffset = 88;
-    public const int RevolutePaddingOffset = 92;
+    /// <summary>The hinge's f32 Coulomb friction torque (N·m).</summary>
+    public const int RevoluteFrictionTorqueOffset = 92;
     public const int RevoluteImpulseOffset = 96;
-    public const int RevoluteRowCount = 8;
+    /// <summary>The rows of one revolute joint (three linear, two transverse angular, the axial spring, two stops, friction): structural.</summary>
+    public const int RevoluteRowCount = RevoluteRows.Count;
+    private const int RevolutePaddingOffset = 132;
 
     // Compliant surface row (Story 10.5): identity U64 at 0, frame body slot, then the f32 declaration (arrival depth, half extents,
     // rest height, stroke, tension, damping ratio) in its first CompliantSurfaceDeclarationBytes, which never change after admission;
@@ -195,6 +201,7 @@ public static partial class PhysicsGpuAbi
             WriteEnergy(record, RevoluteStiffnessOffset, value.Stiffness);
             WriteEnergy(record, RevoluteDampingOffset, value.Damping);
             U32(record, RevoluteCollisionOffset, (uint)value.Collision);
+            WriteEnergy(record, RevoluteFrictionTorqueOffset, value.FrictionTorque);
         }
     }
 
@@ -208,13 +215,13 @@ public static partial class PhysicsGpuAbi
         var b = R32(record, RevoluteBodyBOffset);
         if (a >= R32(data, HeaderBodyCountOffset) || b >= R32(data, HeaderBodyCountOffset) ||
             R32(record, RevoluteCollisionOffset) > (uint)ConnectedCollision.Enabled ||
-            !AllZero(record.Slice(RevolutePaddingOffset, 4)))
+            !AllZero(record[RevolutePaddingOffset..]))
             throw new ArgumentException("Invalid revolute record.");
         var result = new RevoluteConstraintDeclaration(new(R64(record, RecordIdentityOffset)),
             new(R64(data, layout.BodyOffset((int)a))), new(R64(data, layout.BodyOffset((int)b))),
             ReadConstraintFrame(record, RevoluteFrameAOffset), ReadConstraintFrame(record, RevoluteFrameBOffset),
             RF(record, RevoluteLowerOffset), RF(record, RevoluteUpperOffset),
-            RF(record, RevoluteStiffnessOffset), RF(record, RevoluteDampingOffset),
+            RF(record, RevoluteStiffnessOffset), RF(record, RevoluteDampingOffset), RF(record, RevoluteFrictionTorqueOffset),
             (ConnectedCollision)R32(record, RevoluteCollisionOffset));
         result.Validate();
         return result;
@@ -225,14 +232,18 @@ public static partial class PhysicsGpuAbi
         var layout = Layout(source);
         for (var i = 0; i < layout.Revolutes; i++)
         {
-            _ = ReadRevolute(candidate, i);
+            var joint = ReadRevolute(candidate, i);
             var offset = layout.RevoluteOffset(i);
             if (!candidate.Slice(offset, RevoluteImpulseOffset).SequenceEqual(source.Slice(offset, RevoluteImpulseOffset)))
                 throw new ArgumentException("Revolute declaration changed.");
+            // Three linear, two transverse angular, the axial spring, lower/upper unilateral stops, then friction within ±τ·h.
+            var frictionLimit = RevoluteRows.FrictionImpulseLimit(joint.FrictionTorque);
             for (var row = 0; row < RevoluteRowCount; row++)
             {
+                var kind = (RevoluteRowKind)row;
                 var impulse = RF(candidate, offset + RevoluteImpulseOffset + row * 4);
-                if (!float.IsFinite(impulse) || (RevoluteRows.IsStop((RevoluteRowKind)row) && impulse < 0))
+                if (!float.IsFinite(impulse) || (RevoluteRows.IsStop(kind) && impulse < 0) ||
+                    (kind == RevoluteRowKind.Friction && MathF.Abs(impulse) > frictionLimit))
                     throw new ArgumentException("Invalid revolute impulse.");
             }
         }
