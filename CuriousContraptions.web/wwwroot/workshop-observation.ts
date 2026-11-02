@@ -73,6 +73,7 @@ export interface CommittedObservation {
     readonly contactWorks: readonly ObservedContactWork[]; readonly memory: readonly ObservedMemory[];
     readonly actuators: readonly ObservedActuator[]; readonly loads: readonly ObservedLoad[]; readonly logic: readonly ObservedLogic[];
     readonly pulleys: readonly ObservedPulleyWheel[];
+    readonly surfaces: readonly ObservedCompliantSurface[];
 }
 export interface CommandReceiptObservation {
     readonly ordinal: string; readonly sequence: string; readonly kind: WorkshopCommandKind;
@@ -101,6 +102,8 @@ export interface ObservedActuator { readonly joint: string; readonly owner: stri
 export interface ObservedLoad { readonly sensor: string; readonly frame: string; readonly region: string; readonly mass: number; readonly phase: ContactLoadPhase; }
 export interface ObservedLogic { readonly owner: string; readonly inputs: ElectricalInputState; readonly supplied: boolean; readonly active: boolean; }
 export interface ObservedPulleyWheel { readonly pulley: string; readonly travel: number; readonly angle: number; }
+/** A compliant surface's committed bed deflection (Story 10.5): its frame body and the depth in metres of its deepest OnTop sample. */
+export interface ObservedCompliantSurface { readonly frame: string; readonly deflection: number; }
 export enum DiagnosticCategory { Fault, Rejection, AfterRetirement, ClockRecalibrated, ClockReplyRejected, ClockRenewedLate, ClockOffsetWide, ClockDerivation, AnimationControlDeferred, DebtFault, TickFailed, BalanceTransfer, Capture, ClockSample, AnimationSample, Presentation }
 export interface ObservedInterval { readonly lower: string; readonly upper: string; }
 export interface ObservedPeer { readonly sessionLow: string; readonly sessionHigh: string; readonly generation: string; readonly requesterGeneration: string; readonly role: WorkshopRuntimeRole; readonly origin: string; readonly uncertainty: string; }

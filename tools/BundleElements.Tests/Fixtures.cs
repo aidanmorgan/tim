@@ -82,6 +82,28 @@ internal sealed class SignalFixture : ISignalElement
     public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 }
 
+internal sealed class CompliantFixture : ICompliantSurfaceElement
+{
+    public ElementPresentation Presentation => new(1f, PresentationAxes.None, [], [], [], []);
+    public ElementMetadata Metadata => new("compliant_fixture", ElementCategory.Motion, "Compliant fixture", "A compliant fixture.",
+        new(.4f, .72f, .79f, 1f), 35, "res://elements/CompliantFixture/icon.svg", "res://elements/CompliantFixture/compliant.tscn",
+        [
+            new("tension", ParameterUnit.NewtonPerMetre, ParameterKind.Real, 120f, 1200f, 180f, []),
+            new("damping_ratio", ParameterUnit.None, ParameterKind.Real, 0.08f, 0.8f, 0.12f, [])
+        ]);
+    public ElementFootprint Footprint { get; init; } = new(1, 0, 0, 0);
+    public IReadOnlyList<PortDescriptor> Ports => [];
+    public IReadOnlyList<ColliderDescriptor> Colliders => [Fixture.Box(new(1.2f, .1f, .9f))];
+    public IReadOnlyList<EventDescriptor> Events => [];
+    public SimulationDomain SupportedDomains => SimulationDomain.Mechanical;
+    public KinematicMode KinematicMode => KinematicMode.Static;
+    public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(0f, Vector3.Zero, Vector3.Zero, Quaternion.Identity, 0f, Vector3.Zero);
+    public PayloadPolicy Payload => PayloadPolicy.None;
+    public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
+    public CompliantSurfaceDescriptor CompliantSurface { get; init; } = new(
+        new(1.2f, 0.9f), 0.2f, 0.65f, 0.1f, MechanicalValue.FromParameter("tension"), MechanicalValue.FromParameter("damping_ratio"));
+}
+
 /// <summary>A fixture whose scene declares body roots (Story 10.3a): the base at the scene root and one moving body under
 /// <c>Visual/Beam</c>, so a port may name body 1 and keep its locator under that body. Internal, so the assembly-as-package discovery
 /// count above stays two.</summary>

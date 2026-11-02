@@ -1220,8 +1220,18 @@ pulleyWheelsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+compliantSurfaces(index: number, obj?:CompliantSurfaceReadRecord):CompliantSurfaceReadRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 62);
+  return offset ? (obj || new CompliantSurfaceReadRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+compliantSurfacesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 62);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(29);
+  builder.startObject(30);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1425,6 +1435,22 @@ static createPulleyWheelsVector(builder:flatbuffers.Builder, data:flatbuffers.Of
 }
 
 static startPulleyWheelsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addCompliantSurfaces(builder:flatbuffers.Builder, compliantSurfacesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(29, compliantSurfacesOffset, 0);
+}
+
+static createCompliantSurfacesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startCompliantSurfacesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
@@ -6930,6 +6956,61 @@ static createPulleyWheelReadRecord(builder:flatbuffers.Builder, pulley:bigint, t
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export class CompliantSurfaceReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CompliantSurfaceReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCompliantSurfaceReadRecord(bb:flatbuffers.ByteBuffer, obj?:CompliantSurfaceReadRecord):CompliantSurfaceReadRecord {
+  return (obj || new CompliantSurfaceReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCompliantSurfaceReadRecord(bb:flatbuffers.ByteBuffer, obj?:CompliantSurfaceReadRecord):CompliantSurfaceReadRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CompliantSurfaceReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+frame():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+deflection():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCompliantSurfaceReadRecord(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+}
+
+static addFrame(builder:flatbuffers.Builder, frame:bigint) {
+  builder.addFieldInt64(0, frame, BigInt('0'));
+}
+
+static addDeflection(builder:flatbuffers.Builder, deflection:number) {
+  builder.addFieldFloat32(1, deflection, 0.0);
+}
+
+static endCompliantSurfaceReadRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCompliantSurfaceReadRecord(builder:flatbuffers.Builder, frame:bigint, deflection:number):flatbuffers.Offset {
+  CompliantSurfaceReadRecord.startCompliantSurfaceReadRecord(builder);
+  CompliantSurfaceReadRecord.addFrame(builder, frame);
+  CompliantSurfaceReadRecord.addDeflection(builder, deflection);
+  return CompliantSurfaceReadRecord.endCompliantSurfaceReadRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 export class TensileSpanRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -7038,6 +7119,131 @@ static endTensileSpanRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+export class CompliantSurfaceRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CompliantSurfaceRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCompliantSurfaceRecord(bb:flatbuffers.ByteBuffer, obj?:CompliantSurfaceRecord):CompliantSurfaceRecord {
+  return (obj || new CompliantSurfaceRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCompliantSurfaceRecord(bb:flatbuffers.ByteBuffer, obj?:CompliantSurfaceRecord):CompliantSurfaceRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CompliantSurfaceRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+body():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+halfX():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+halfZ():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+restHeight():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maxStroke():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+tension():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+dampingRatio():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+arrivalDepth():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCompliantSurfaceRecord(builder:flatbuffers.Builder) {
+  builder.startObject(9);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addBody(builder:flatbuffers.Builder, body:bigint) {
+  builder.addFieldInt64(1, body, BigInt('0'));
+}
+
+static addHalfX(builder:flatbuffers.Builder, halfX:number) {
+  builder.addFieldFloat32(2, halfX, 0.0);
+}
+
+static addHalfZ(builder:flatbuffers.Builder, halfZ:number) {
+  builder.addFieldFloat32(3, halfZ, 0.0);
+}
+
+static addRestHeight(builder:flatbuffers.Builder, restHeight:number) {
+  builder.addFieldFloat32(4, restHeight, 0.0);
+}
+
+static addMaxStroke(builder:flatbuffers.Builder, maxStroke:number) {
+  builder.addFieldFloat32(5, maxStroke, 0.0);
+}
+
+static addTension(builder:flatbuffers.Builder, tension:number) {
+  builder.addFieldFloat32(6, tension, 0.0);
+}
+
+static addDampingRatio(builder:flatbuffers.Builder, dampingRatio:number) {
+  builder.addFieldFloat32(7, dampingRatio, 0.0);
+}
+
+static addArrivalDepth(builder:flatbuffers.Builder, arrivalDepth:number) {
+  builder.addFieldFloat32(8, arrivalDepth, 0.0);
+}
+
+static endCompliantSurfaceRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCompliantSurfaceRecord(builder:flatbuffers.Builder, id:bigint, body:bigint, halfX:number, halfZ:number, restHeight:number, maxStroke:number, tension:number, dampingRatio:number, arrivalDepth:number):flatbuffers.Offset {
+  CompliantSurfaceRecord.startCompliantSurfaceRecord(builder);
+  CompliantSurfaceRecord.addId(builder, id);
+  CompliantSurfaceRecord.addBody(builder, body);
+  CompliantSurfaceRecord.addHalfX(builder, halfX);
+  CompliantSurfaceRecord.addHalfZ(builder, halfZ);
+  CompliantSurfaceRecord.addRestHeight(builder, restHeight);
+  CompliantSurfaceRecord.addMaxStroke(builder, maxStroke);
+  CompliantSurfaceRecord.addTension(builder, tension);
+  CompliantSurfaceRecord.addDampingRatio(builder, dampingRatio);
+  CompliantSurfaceRecord.addArrivalDepth(builder, arrivalDepth);
+  return CompliantSurfaceRecord.endCompliantSurfaceRecord(builder);
+}
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
@@ -7335,8 +7541,18 @@ revolutesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+compliantSurfaces(index: number, obj?:CompliantSurfaceRecord):CompliantSurfaceRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 66);
+  return offset ? (obj || new CompliantSurfaceRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+compliantSurfacesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 66);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(31);
+  builder.startObject(32);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -7748,6 +7964,22 @@ static createRevolutesVector(builder:flatbuffers.Builder, data:flatbuffers.Offse
 }
 
 static startRevolutesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addCompliantSurfaces(builder:flatbuffers.Builder, compliantSurfacesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(31, compliantSurfacesOffset, 0);
+}
+
+static createCompliantSurfacesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startCompliantSurfacesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 

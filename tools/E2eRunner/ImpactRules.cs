@@ -24,6 +24,7 @@ internal static class ImpactRules
         ["PoweredGate"] = new PartId("powered_gate"), ["PressurePlate"] = new PartId("pressure_plate"), ["Pulley"] = new("pulley"), ["Ramp"] = new PartId("ramp"),
         ["Receiver"] = new PartId("basket"), ["SignalLamp"] = new PartId("lamp"), ["Springboard"] = new PartId("spring"),
         ["StateLatch"] = new PartId("latch"), ["SystemClock"] = new PartId("clock"), ["Wall"] = new PartId("wall"), ["Weight"] = new("weight"), ["RopeAnchor"] = new("rope_anchor"),
+        ["Trampoline"] = new("trampoline"),
     };
 
     /// <summary>Every engine/ (outside engine/gpu), ui/ and scenes/ source to its Workshop area. A file's Godot .uid sidecar follows

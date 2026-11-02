@@ -282,7 +282,10 @@ public sealed class CatalogueIntegrationTests
             new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor")];
         // RopeTests.ACompleteRopeSupportsItsLoadWhileAnUnconnectedLoadFalls executes real support and disconnected control.
         PartId[] ropeInteractions = [new("rope_anchor"), new("pulley"), new("impact_lever")];
-        var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Order().ToArray();
+        // TrampolineTests.ADroppedBasketballCompressesTheMembraneAndIsLaunchedUpWithoutEnergyGain launches a real payload; its rim
+        // strikes are the inelastic controls.
+        PartId[] membraneInteractions = [new("trampoline")];
+        var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Order().ToArray();
         var actual = PartRegistry.Read(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),
             "elements/elements.bundle.json"))).Select(row => new PartId(row.Metadata.Id)).Order().ToArray();
         Assert.Equal(actual, expected);

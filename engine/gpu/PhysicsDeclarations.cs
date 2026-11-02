@@ -15,6 +15,44 @@ public readonly record struct GpuColliderId(ulong Value);
 public readonly record struct GpuMaterialId(ulong Value);
 public readonly record struct GpuSensorId(ulong Value);
 public readonly record struct GpuForceId(ulong Value);
+public readonly record struct CompliantSurfaceId(ulong Value);
+
+/// <summary>A compiled compliant surface. <see cref="ArrivalDepth"/> is its declared arrival depth a (finite, 0 &lt; a &lt; MaxStroke / 2).</summary>
+public readonly record struct CompliantSurfaceDeclaration(
+    CompliantSurfaceId Id,
+    GpuBodyId Body,
+    float HalfX,
+    float HalfZ,
+    float RestHeight,
+    float MaxStroke,
+    float ArrivalDepth,
+    float Tension,
+    float DampingRatio)
+{
+    public void Validate()
+    {
+        if (Id.Value == 0) throw new ArgumentException("Compliant surface identity is required.");
+        PhysicsDeclarationBounds.Range(HalfX, 1f / 1024f, 16f);
+        PhysicsDeclarationBounds.Range(HalfZ, 1f / 1024f, 16f);
+        PhysicsDeclarationBounds.Range(RestHeight, -16f, 16f);
+        PhysicsDeclarationBounds.Range(MaxStroke, 1f / 1024f, 16f);
+        if (!float.IsFinite(ArrivalDepth) || ArrivalDepth <= 0f || ArrivalDepth >= MaxStroke / 2f)
+            throw new ArgumentException("A compliant surface's arrival depth must be finite, positive and under half its stroke.");
+        PhysicsDeclarationBounds.Range(Tension, 120f, 1200f);
+        PhysicsDeclarationBounds.Range(DampingRatio, 0.08f, 0.8f);
+    }
+}
+
+/// <summary>The committed contact state of one support sample of one dynamic body on one compliant surface (CAT-065 §2, Story 10.5
+/// review loop 4). <see cref="Outside"/>: not over the bed (the frame carries it). <see cref="OnTop"/>: it reached the footprint from
+/// above the rest plane, or crossed its edge no deeper than the arrival depth, and bears the bed while over it and below the plane.
+/// <see cref="Under"/>: it entered the footprint deeper than the arrival depth and is never pushed until it rises to the plane. Zero is
+/// Outside, so every sample starts Outside at Run and Reset and classifies itself on the first update.</summary>
+public enum CompliantSampleState : uint { Outside = 0, OnTop = 1, Under = 2 }
+
+/// <summary>One committed support sample on a compliant surface: its contact state and its offset, the depth below the rest plane the
+/// bed has not been paid for (the bed pushes with (k/4)·(d − offset)); the offset is zero unless the sample is OnTop.</summary>
+public readonly record struct CompliantSampleRead(CompliantSampleState State, float Offset);
 public readonly record struct FrictionCoefficient(float Value);
 /// <summary>Dimensionless rolling-resistance coefficient Crr: at every sphere contact and every curved-side cylinder contact the solver
 /// opposes the relative rolling with an angular impulse of at most Crr · normal impulse · radius, equal and opposite on both
@@ -230,6 +268,8 @@ public sealed class PhysicsSceneDeclaration
     public ReadOnlySpan<PrismaticConstraintDeclaration> Prismatics => _prismatics;
     private readonly RevoluteConstraintDeclaration[] _revolutes;
     public ReadOnlySpan<RevoluteConstraintDeclaration> Revolutes => _revolutes;
+    private readonly CompliantSurfaceDeclaration[] _compliantSurfaces;
+    public ReadOnlySpan<CompliantSurfaceDeclaration> CompliantSurfaces => _compliantSurfaces;
     private readonly PrismaticDriveDeclaration[] _prismaticDrives;
     /// <summary>The supplied drives, at most one per prismatic, sorted by joint identity (C-Gate).</summary>
     public ReadOnlySpan<PrismaticDriveDeclaration> PrismaticDrives => _prismaticDrives;
@@ -269,7 +309,8 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<ContactLoadSensorDeclaration> contactLoadSensors = default,
         ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives = default,
         ReadOnlySpan<TensileSpanDeclaration> tensileSpans = default,
-        ReadOnlySpan<RevoluteConstraintDeclaration> revolutes = default)
+        ReadOnlySpan<RevoluteConstraintDeclaration> revolutes = default,
+        ReadOnlySpan<CompliantSurfaceDeclaration> compliantSurfaces = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
@@ -431,6 +472,16 @@ public sealed class PhysicsSceneDeclaration
         Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         _revolutes = revolutes.ToArray();
         Array.Sort(_revolutes, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        var surfaceBodies = new HashSet<GpuBodyId>(4);
+        foreach (var surface in compliantSurfaces)
+        {
+            surface.Validate(); Identity(surface.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(surface.Body, out var body) || body.Motion != RigidMotionKind.Static ||
+                !surfaceBodies.Add(surface.Body))
+                throw new ArgumentException("Compliant surface requires a unique static owner body.");
+        }
+        _compliantSurfaces = compliantSurfaces.ToArray();
+        Array.Sort(_compliantSurfaces, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         var driven = new HashSet<PrismaticConstraintId>(4);
         foreach (var drive in prismaticDrives)
         {
@@ -460,9 +511,10 @@ public sealed class PhysicsSceneDeclaration
         Array.Sort(_contactWorks, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         World = new(_bodies.Length, _colliders.Length, _materials.Length, _sensors.Length, dynamicCount, _guides.Length,
             _triggers.Length, _contactWorks.Length, _orientationSensors.Length, Electrical.Sources.Length,
-            Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length, _tensileSpans.Length, _revolutes.Length);
+            Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length, _tensileSpans.Length, _revolutes.Length,
+            _compliantSurfaces.Length);
         _ = World.ByteLength;
-        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes);
+        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes, _compliantSurfaces);
     }
 
     private static void Identity(ulong id, ulong next, HashSet<ulong> identities)

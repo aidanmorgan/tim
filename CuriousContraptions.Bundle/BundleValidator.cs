@@ -92,7 +92,7 @@ public static class BundleValidator
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
-            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal, entry.Events, childBodies);
+            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Signal, entry.Events, childBodies);
             // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
             var kinds = new HashSet<SimulationEventKind>(4);
             for (var i = 0; i < entry.Events.Count; i++)
@@ -112,8 +112,8 @@ public static class BundleValidator
             if (entry.Fluid is { } fluid) Fluid(fluid);
         }
 
-        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical,
-            SignalPayload? signal, IReadOnlyList<EventDescriptor> events, int childBodies)
+        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
+            MechanicalPayload? mechanical, ElectricalPayload? electrical, SignalPayload? signal, IReadOnlyList<EventDescriptor> events, int childBodies)
         {
             if (!Finite("Presentation.PickRadius", value.PickRadius) || value.PickRadius <= 0)
                 OutOfRange("Presentation.PickRadius");
@@ -176,6 +176,9 @@ public static class BundleValidator
                 // A committed count binding reads the memory row only a declared pulse count compiles.
                 if (binding.Driver == PresentationDriver.CommittedCount && signal?.PulseCount is null)
                     OutOfRange("Presentation.PulseCount");
+                // A committed deflection binding reads the row only a declared compliant surface compiles.
+                if (binding.Driver == PresentationDriver.CommittedSurfaceDeflection && mechanical?.CompliantSurface is null)
+                    OutOfRange("Presentation.CompliantSurface");
                 if (!supported || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
                     (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
                     OutOfRange("Presentation.DriverCurve");
@@ -449,7 +452,30 @@ public static class BundleValidator
                 if (mechanical.KinematicMode != KinematicMode.Static || mechanical.Sliders.Count != 0)
                     OutOfRange("ContactWork.Owner");
             }
+            if (mechanical.CompliantSurface is { } surface)
+            {
+                // The runtime surface's domain (CompliantSurfaceDeclaration): half extents and stroke 1/1024–16 m, rest height within
+                // ±16 m, arrival depth finite, positive and under half the stroke, tension 120–1200 N/m and damping ratio 0.08–0.8, on
+                // one static owner body.
+                if (mechanical.KinematicMode != KinematicMode.Static)
+                    OutOfRange("CompliantSurface.Owner");
+                Finite("CompliantSurface.HalfExtents", surface.HalfExtents);
+                if (float.IsFinite(surface.HalfExtents.X) && float.IsFinite(surface.HalfExtents.Y) &&
+                    (!InSurfaceRange(surface.HalfExtents.X) || !InSurfaceRange(surface.HalfExtents.Y)))
+                    OutOfRange("CompliantSurface.HalfExtents");
+                if (Finite("CompliantSurface.RestHeight", surface.RestHeight) && MathF.Abs(surface.RestHeight) > 16f)
+                    OutOfRange("CompliantSurface.RestHeight");
+                if (Finite("CompliantSurface.MaxStroke", surface.MaxStroke) && !InSurfaceRange(surface.MaxStroke))
+                    OutOfRange("CompliantSurface.MaxStroke");
+                if (Finite("CompliantSurface.ArrivalDepth", surface.ArrivalDepth) &&
+                    (surface.ArrivalDepth <= 0f || !float.IsFinite(surface.MaxStroke) || surface.ArrivalDepth >= surface.MaxStroke / 2f))
+                    OutOfRange("CompliantSurface.ArrivalDepth");
+                CaptureValue("CompliantSurface.Tension", surface.Tension, parameters, ParameterUnit.NewtonPerMetre, 120f, 1200f);
+                CaptureValue("CompliantSurface.DampingRatio", surface.DampingRatio, parameters, ParameterUnit.None, 0.08f, 0.8f);
+            }
         }
+
+        private static bool InSurfaceRange(float metres) => metres >= 1f / 1024f && metres <= 16f;
 
         private void MassFrame(string path, MassFrameDeclaration frame, KinematicMode mode, IReadOnlyList<ParameterDescriptor> parameters)
         {
@@ -916,6 +942,12 @@ public static class BundleValidator
             if (float.IsFinite(value)) return true;
             errors.Add(new(BundleErrorCode.NonFinite, $"{source}.{path}: not finite"));
             return false;
+        }
+
+        private void Finite(string path, Vector2 value)
+        {
+            Finite(path + ".x", value.X);
+            Finite(path + ".y", value.Y);
         }
 
         private void Finite(string path, Vector3 value)

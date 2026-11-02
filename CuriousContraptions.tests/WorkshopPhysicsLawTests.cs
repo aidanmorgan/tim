@@ -223,6 +223,17 @@ internal sealed class LawScene
         _drives.Add(new(joint, target, maxSpeed, stoppingAcceleration, maxEffort, maxPower));
     private readonly List<PrismaticDriveDeclaration> _drives = [];
 
+    /// <summary>A compliant surface (Story 10.5) on a static frame body: footprint half extents, rest height, stroke and arrival depth in
+    /// the frame, tension (N/m) and damping ratio. No frame geometry is implied; the scene supplies whatever colliders it needs.</summary>
+    public CompliantSurfaceId CompliantSurface(GpuBodyId frame, float halfX, float halfZ, float rest, float stroke, float arrivalDepth,
+        float tension, float damping)
+    {
+        var id = new CompliantSurfaceId(_next++);
+        _compliantSurfaces.Add(new(id, frame, halfX, halfZ, rest, stroke, arrivalDepth, tension, damping));
+        return id;
+    }
+    private readonly List<CompliantSurfaceDeclaration> _compliantSurfaces = [];
+
     public void DeclareMassFrame(GpuBodyId body, Vector3 moments, Vector3 centre = default, Quaternion? principalFrame = null)
     {
         var index = _bodies.FindIndex(value => value.Id == body);
@@ -236,7 +247,7 @@ internal sealed class LawScene
     {
         var scene = new PhysicsSceneDeclaration(new(1, 2), _next, [.. _bodies], [.. _colliders], [.. _materials], [], [],
             contactWorks: [.. _contactWorks], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics],
-            prismaticDrives: [.. _drives]);
+            prismaticDrives: [.. _drives], compliantSurfaces: [.. _compliantSurfaces]);
         return new(scene, PhysicsGpuAbi.Admission(scene, new(1), new(cadence, PhysicalStepProfile.Canonical480Hz, new(1))), cadence);
     }
 }

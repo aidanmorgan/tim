@@ -74,6 +74,17 @@ public sealed class BundleRoundTripTests
     }
 
     [Fact]
+    public void ACompliantSurfaceRoundTripsBitForBit()
+    {
+        var fixture = new CompliantFixture();
+        var json = BundleSchema.Write([fixture]);
+        Assert.Contains("\"CompliantSurface\":", json, StringComparison.Ordinal);
+        var entry = Assert.Single(BundleSchema.Read(json).Elements);
+        AssertEntry(fixture, entry);
+        Assert.NotNull(entry.Mechanical!.CompliantSurface);
+    }
+
+    [Fact]
     public void GenerationIsDeterministicAndCarriesNoTimestamp()
     {
         var first = BundleGenerator.Generate(TestRepository.Root);
@@ -150,6 +161,8 @@ public sealed class BundleRoundTripTests
             AssertSame(mechanical is IHingeElement hinge ? hinge.Hinges : [], entry.Mechanical.Hinges, "Hinges");
             Assert.Equal(mechanical is IContactWorkElement, entry.Mechanical.ContactWork is not null);
             if (mechanical is IContactWorkElement work) AssertSame(work.ContactWork, entry.Mechanical.ContactWork!.Value, "ContactWork");
+            Assert.Equal(mechanical is ICompliantSurfaceElement, entry.Mechanical.CompliantSurface is not null);
+            if (mechanical is ICompliantSurfaceElement compliant) AssertSame(compliant.CompliantSurface, entry.Mechanical.CompliantSurface!.Value, "CompliantSurface");
             Assert.Equal(mechanical.Payload, entry.Mechanical.Payload);
         }
         Assert.Equal(declaration is IElectricalElement, entry.Electrical is not null);
@@ -203,6 +216,10 @@ public sealed class BundleRoundTripTests
             case float value:
                 Assert.True(BitConverter.SingleToInt32Bits(value) == BitConverter.SingleToInt32Bits((float)actual),
                     $"{path}: {value:R} vs {(float)actual:R}");
+                return;
+            case Vector2 vector2:
+                var other2 = (Vector2)actual;
+                AssertSame(vector2.X, other2.X, path + ".x"); AssertSame(vector2.Y, other2.Y, path + ".y");
                 return;
             case Vector3 vector:
                 var other = (Vector3)actual;

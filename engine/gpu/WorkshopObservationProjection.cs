@@ -243,6 +243,15 @@ internal static class WorkshopObservationProjection
             pulleys.Push(row);
         }
         value.SetProperty("pulleys", pulleys);
+        using var surfaces = T.Array();
+        foreach (var source in read.Presentation.Surfaces)
+        {
+            using var row = T.Object();
+            row.SetProperty("frame", Exact(source.Frame.Value));
+            row.SetProperty("deflection", source.Deflection);
+            surfaces.Push(row);
+        }
+        value.SetProperty("surfaces", surfaces);
         return value;
     }
 

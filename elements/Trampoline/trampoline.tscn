@@ -1,0 +1,173 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Navy"]
+albedo_color = Color(0.161, 0.224, 0.329, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Cream"]
+albedo_color = Color(1, 0.973, 0.914, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Gold"]
+albedo_color = Color(0.91, 0.718, 0.392, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Cyan"]
+albedo_color = Color(0.4, 0.722, 0.788, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_BackPlate"]
+material = SubResource("Mat_Navy")
+size = Vector3(2.72, 0.12, 2.12)
+
+[sub_resource type="BoxMesh" id="Mesh_SideRail"]
+material = SubResource("Mat_Cream")
+size = Vector3(0.16, 0.2, 2.12)
+
+[sub_resource type="BoxMesh" id="Mesh_EndRail"]
+material = SubResource("Mat_Cream")
+size = Vector3(2.4, 0.2, 0.16)
+
+[sub_resource type="CylinderMesh" id="Mesh_Post"]
+material = SubResource("Mat_Gold")
+top_radius = 0.0625
+bottom_radius = 0.0625
+height = 0.45
+
+[sub_resource type="CylinderMesh" id="Mesh_Foot"]
+material = SubResource("Mat_Gold")
+top_radius = 0.07
+bottom_radius = 0.07
+height = 0.2
+
+[sub_resource type="BoxMesh" id="Mesh_Bed"]
+material = SubResource("Mat_Cyan")
+size = Vector3(2.4, 0.02, 1.8)
+
+[sub_resource type="BoxShape3D" id="Shape_BackPlate"]
+size = Vector3(2.72, 0.12, 2.12)
+
+[sub_resource type="BoxShape3D" id="Shape_SideRail"]
+size = Vector3(0.16, 0.2, 2.12)
+
+[sub_resource type="BoxShape3D" id="Shape_EndRail"]
+size = Vector3(2.4, 0.2, 0.16)
+
+[sub_resource type="CylinderShape3D" id="Shape_Post"]
+radius = 0.0625
+height = 0.45
+
+[sub_resource type="CylinderShape3D" id="Shape_Foot"]
+radius = 0.07
+height = 0.2
+
+[node name="trampoline" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Visual_BackPlate" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.51, 0)
+mesh = SubResource("Mesh_BackPlate")
+
+[node name="Visual_SideLeft" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.28, 0.1, 0)
+mesh = SubResource("Mesh_SideRail")
+
+[node name="Visual_SideRight" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.28, 0.1, 0)
+mesh = SubResource("Mesh_SideRail")
+
+[node name="Visual_EndFront" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -0.98)
+mesh = SubResource("Mesh_EndRail")
+
+[node name="Visual_EndBack" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.98)
+mesh = SubResource("Mesh_EndRail")
+
+[node name="Visual_Post0" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.28, -0.225, -0.98)
+mesh = SubResource("Mesh_Post")
+
+[node name="Visual_Post1" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.28, -0.225, -0.98)
+mesh = SubResource("Mesh_Post")
+
+[node name="Visual_Post2" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.28, -0.225, 0.98)
+mesh = SubResource("Mesh_Post")
+
+[node name="Visual_Post3" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.28, -0.225, 0.98)
+mesh = SubResource("Mesh_Post")
+
+[node name="Visual_Foot0" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, -0.67, -0.9)
+mesh = SubResource("Mesh_Foot")
+
+[node name="Visual_Foot1" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, -0.67, -0.9)
+mesh = SubResource("Mesh_Foot")
+
+[node name="Visual_Foot2" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, -0.67, 0.9)
+mesh = SubResource("Mesh_Foot")
+
+[node name="Visual_Foot3" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, -0.67, 0.9)
+mesh = SubResource("Mesh_Foot")
+
+[node name="Visual_Bed" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.19, 0)
+mesh = SubResource("Mesh_Bed")
+
+[node name="col_back_plate" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.51, 0)
+shape = SubResource("Shape_BackPlate")
+
+[node name="col_side_left" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.28, 0.1, 0)
+shape = SubResource("Shape_SideRail")
+
+[node name="col_side_right" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.28, 0.1, 0)
+shape = SubResource("Shape_SideRail")
+
+[node name="col_end_front" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -0.98)
+shape = SubResource("Shape_EndRail")
+
+[node name="col_end_back" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.98)
+shape = SubResource("Shape_EndRail")
+
+[node name="col_post_0" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.28, -0.225, -0.98)
+shape = SubResource("Shape_Post")
+
+[node name="col_post_1" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.28, -0.225, -0.98)
+shape = SubResource("Shape_Post")
+
+[node name="col_post_2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.28, -0.225, 0.98)
+shape = SubResource("Shape_Post")
+
+[node name="col_post_3" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.28, -0.225, 0.98)
+shape = SubResource("Shape_Post")
+
+[node name="col_foot_0" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, -0.67, -0.9)
+shape = SubResource("Shape_Foot")
+
+[node name="col_foot_1" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, -0.67, -0.9)
+shape = SubResource("Shape_Foot")
+
+[node name="col_foot_2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, -0.67, 0.9)
+shape = SubResource("Shape_Foot")
+
+[node name="col_foot_3" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, -0.67, 0.9)
+shape = SubResource("Shape_Foot")

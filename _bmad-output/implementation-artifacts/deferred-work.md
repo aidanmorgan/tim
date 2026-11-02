@@ -189,6 +189,22 @@
   evidence: An equal 4 kg Weight pair at x = ±1.2 m tips past 0.01 rad at about 8 s and then goes to a stop. Story 10.3a's diagnostic probe, with the weights resting on the beam top, grew at about 1.4/s, matching the analytic inverted-pendulum rate. `SymmetricalLoadBalance_RemainsBalanced` asserts that pair only over its 3 s play window. CAT-034 fact 17's 10 s Basketball balance (`EqualBallLoads_StayBalancedForTenSeconds`) passes, but only because the scene is mirror-symmetric; nothing holds the beam.
   destination: a separate engine slice. It adds a declared pivot holding mechanism (friction or detent) and re-qualifies the lever tests against the indefinite-balance acceptance.
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-10-5-trampoline.md` (review loop 1 amendment)
+  summary: The Trampoline's bed visual is a flat slab that the committed surface deflection translates downward (`CommittedSurfaceDeflection` on `Visual/Visual_Bed`). CAT-065 §2 "Membrane skin" asks for the 24 × 18 direction-aware grid skin: per-patch dents falling off as (1 − f²)², the skin kept below each patch's rounding sphere, a flat lower bound under flat features, neighbour reach limits and frame edges held at the rest height (harvest rows 12 and 31).
+  evidence: Story 10.5 ships one committed per-surface read (`CompliantSurfaceRead`: frame, deepest engaged deflection). A grid skin needs a per-patch committed read (position and rounding radius per engaged body) and a deformable mesh binding kind, neither of which exists.
+  destination: a later presentation refinement slice on the animation worker; its browser proof joins the post-catalogue E2E phase.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-10-5-trampoline.md` (deferred, medium)
+  summary: The compliant membrane samples every collider of every dynamic body for every surface twice per 480 Hz substep (force pass and contact-state pass), with no footprint or AABB prefilter.
+  evidence: `CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs` `ApplyCompliantMembranes` and `UpdateCompliantContacts`. Not measured.
+  destination: the named performance qualification gate (P0-034).
+
+<a id="compliant-surface-friction"></a>
+- source_spec: `_bmad-output/implementation-artifacts/spec-10-5-trampoline.md` (owner decision, 2 November 2026)
+  summary: Compliant surfaces have no tangential friction or rolling resistance. The membrane pushes only along its normal, so a load on the Trampoline bed slides freely along it until a rail stops it. CAT-065 §2 records this as a residual.
+  evidence: Story 10.5 review loop 4: a 1 kg Weight thrown onto the bed by a 12 m/s straddle still drifts at about 0.4 m/s after 8 s (`ABodyThatTipsFullyOntoTheBedSettlesWithEverySampleOnTopAndItsSagWithinTheOffsetBias`, which therefore bounds only states and sag, not drift). The owner deferred the law on 2 November 2026 rather than build it inside Story 10.5.
+  destination: a separate engine slice. Intended law: tangential friction (and rolling resistance for spheres) applied per bearing sample, energy-removing only, with its own edge-case analysis (crossing the footprint edge, offsets, stroke floor contact, stacked loads); it then re-qualifies the Trampoline's resting and sliding cases.
+
 ## Owner-requested subtask — remove core warm-up (26 October 2026)
 
 - **Outcome / owner:** `engine-remove-core-warmup`, assigned to the backlog coordinator for a fresh bounded Auto slice after the float-policy adoption. Owner direction: “remove the warmup out of the core code, it shouldnt be there”.

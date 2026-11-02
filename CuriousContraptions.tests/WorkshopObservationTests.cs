@@ -658,7 +658,8 @@ public sealed class WorkshopObservationTests
         await transport.Construct(PuzzleCatalogue.CreateSolution(new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(1f)));
         var response = transport.Client.Observation.Query(transport.Client.Observation.Session, WorkshopObservationQuery.Committed).Value;
         var pres = new PhysicsPresentationRead(response.Read.Presentation.Actuators.ToArray(), response.Read.Presentation.Loads.ToArray(),
-            response.Read.Presentation.Logic.ToArray(), response.Read.Presentation.Ropes.ToArray(), [new(new(9007199254740991), 1.25f, 3.125f)]);
+            response.Read.Presentation.Logic.ToArray(), response.Read.Presentation.Ropes.ToArray(), [new(new(9007199254740991), 1.25f, 3.125f)],
+            [new(new(9007199254740989), .375f)]);
         var read = response.Read with { Epoch = new(9007199254740993), Tick = new(9007199254740995),
             Captures = new([new(new(9007199254740997), new(9007199254740999), CaptureLatchPhase.Latched, 23, .5f)]),
             Presentation = pres };
@@ -670,6 +671,9 @@ public sealed class WorkshopObservationTests
         Assert.Equal("9007199254740991", pulley.Fields["pulley"]);
         Assert.Equal(1.25f, pulley.Fields["travel"]);
         Assert.Equal(3.125f, pulley.Fields["angle"]);
+        var surface = Assert.Single(Assert.IsType<ExternalObject>(projected.Fields["surfaces"]).Items);
+        Assert.Equal("9007199254740989", surface.Fields["frame"]);
+        Assert.Equal(.375f, surface.Fields["deflection"]);
         var capture = Assert.Single(Assert.IsType<ExternalObject>(projected.Fields["captures"]).Items);
         Assert.Equal("9007199254740997", capture.Fields["sensor"]);
         Assert.Equal((int)CaptureLatchPhase.Latched, capture.Fields["phase"]);

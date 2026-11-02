@@ -313,6 +313,55 @@ public sealed class CompiledSceneBoundaryTests
         }
     }
 
+    private static WorkshopConstruction TrampolineConstruction => new(new(2), WorkshopCadenceSettings.Default(), new(
+        WorkshopInput.Generic(new PartId("trampoline"), new(1), 0, 3, 0, 0, 0, 0, 1)));
+
+    public enum CompliantSurfaceDefect { CollapsedFootprint, UnadmittedBody, ZeroArrivalDepth }
+
+    // Story 10.5: a compliant-surface row whose footprint half extent is zero, whose frame body is not in the scene, or whose arrival
+    // depth is zero is refused at both decode boundaries that carry a compiled scene, and the refused command leaves the installed
+    // Trampoline world unchanged.
+    [Theory]
+    [InlineData(CompliantSurfaceDefect.CollapsedFootprint)]
+    [InlineData(CompliantSurfaceDefect.UnadmittedBody)]
+    [InlineData(CompliantSurfaceDefect.ZeroArrivalDepth)]
+    public async Task MalformedCompliantSurfaceRowsRefuseAtCommandAndResponseBoundariesAndLeaveTheInstalledWorldUnchanged(CompliantSurfaceDefect defect)
+    {
+        await using var world = await WorkshopIntegrationHarness.Building(TrampolineConstruction);
+        var before = world.Committed;
+        var original = world.Simulation.Scene;
+        var request = WorkshopWireFlatBuffers.EncodeCommand(world.Command(WorkshopCommandKind.Construct, TrampolineConstruction with { Revision = new(3) }));
+        var response = WorkshopWireFlatBuffers.EncodeResponse(world.Latest with { Scene = original });
+        Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(request).Scene!.Physics.CompliantSurfaces.ToArray());
+        Assert.Single(WorkshopWireFlatBuffers.DecodeResponse(response).Scene!.Physics.CompliantSurfaces.ToArray());
+        Poison(request, 11); // WorkshopCommand.scene
+        Poison(response, 27); // WorkshopResponse.scene
+
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => world.Router.Dispatch(request)).Reason);
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(response)).Reason);
+        Assert.Same(original, world.Simulation.Scene);
+        Assert.Equal(before, world.Committed);
+
+        void Poison(byte[] bytes, int sceneField)
+        {
+            var buffer = new ByteBuffer(bytes);
+            var row = Assert.Single(Rows(Child(new Table(4 + buffer.GetInt(4), buffer), sceneField), 31)); // CompiledSceneRecord.compliant_surfaces
+            switch (defect)
+            {
+                case CompliantSurfaceDefect.CollapsedFootprint: // half_x := 0
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 2)), 0f);
+                    break;
+                case CompliantSurfaceDefect.UnadmittedBody: // body names no scene body
+                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(row, 1)), ulong.MaxValue);
+                    break;
+                case CompliantSurfaceDefect.ZeroArrivalDepth: // arrival_depth := 0
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 8)), 0f);
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(defect));
+            }
+        }
+    }
+
     private static void Mutate(byte[] bytes, Defect defect)
     {
         var buffer = new ByteBuffer(bytes);

@@ -96,8 +96,15 @@ public sealed class DemandSizingLifecycleTests
         Assert.Equal(Array.MaxLength, BrowserGpuTransport.WorldCapacity(Array.MaxLength, Array.MaxLength));
         Assert.Throws<WorkshopStorageException>(() => BrowserGpuTransport.WorldCapacity(common, int.MaxValue));
         Assert.Throws<WorkshopStorageException>(() => PhysicsMotionRead.ByteLength(int.MaxValue));
-        var impossible = new PhysicsWorldLayout(int.MaxValue, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        var impossible = new PhysicsWorldLayout(int.MaxValue, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         Assert.Throws<WorkshopStorageException>(() => impossible.ByteLength);
+        // Story 10.5: the compliant engagement table holds one row per (surface, dynamic body). 65536 surfaces × 65536 dynamic bodies
+        // is 2³² rows of 32 bytes, beyond any array, so the layout is refused. Control: the same dynamic population under one surface is
+        // addressable and adds exactly one surface row and one engagement row per dynamic body.
+        var engagements = new PhysicsWorldLayout(0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 65536);
+        Assert.Throws<WorkshopStorageException>(() => engagements.ByteLength);
+        Assert.Equal((engagements with { CompliantSurfaces = 0 }).ByteLength + PhysicsGpuAbi.CompliantSurfaceBytes +
+            65536 * PhysicsGpuAbi.CompliantEngagementBytes, (engagements with { CompliantSurfaces = 1 }).ByteLength);
     }
 
     [Fact]

@@ -34,7 +34,7 @@ public sealed record BundleEntry(
 /// <summary>Package-owned physical state and explicit payload participation.</summary>
 public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDeclaration MassFrame, PayloadPolicy Payload,
     IReadOnlyList<AnchorPointDescriptor> AnchorPoints, IReadOnlyList<PrismaticSliderDescriptor> Sliders,
-    IReadOnlyList<RevoluteHingeDescriptor> Hinges,
+    IReadOnlyList<RevoluteHingeDescriptor> Hinges, CompliantSurfaceDescriptor? CompliantSurface,
     ResidenceCaptureDescriptor? Capture = null, ContactWorkDescriptor? ContactWork = null);
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
@@ -64,6 +64,7 @@ public static class BundleSchema
                 ? new MechanicalPayload(mechanical.KinematicMode, mechanical.MassFrame, mechanical.Payload, mechanical.AnchorPoints,
                     mechanical is ISliderElement slider ? slider.Sliders : [],
                     mechanical is IHingeElement hinge ? hinge.Hinges : [],
+                    mechanical is ICompliantSurfaceElement compliant ? compliant.CompliantSurface : null,
                     mechanical is IResidenceCaptureElement capture ? capture.Capture : null,
                     mechanical is IContactWorkElement work ? work.ContactWork : null) : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.Supply : null) : null,
@@ -125,7 +126,7 @@ public static class BundleSchema
     RespectRequiredConstructorParameters = true,
     Converters =
     [
-        typeof(Vector3Converter), typeof(QuaternionConverter), typeof(ParameterIdConverter), typeof(PackageBodyIndexConverter),
+        typeof(Vector2Converter), typeof(Vector3Converter), typeof(QuaternionConverter), typeof(ParameterIdConverter), typeof(PackageBodyIndexConverter),
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<RopeAttachmentRole>),
@@ -185,6 +186,24 @@ internal sealed class ParameterIdConverter : JsonConverter<ParameterId>
     {
         if (value == default) throw new JsonException("A mass binding requires a parameter identity.");
         writer.WriteStringValue(value.Value);
+    }
+}
+
+internal sealed class Vector2Converter : JsonConverter<Vector2>
+{
+    public override Vector2 Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        Span<float> values = stackalloc float[2];
+        Components.Read(ref reader, values);
+        return new(values[0], values[1]);
+    }
+
+    public override void Write(Utf8JsonWriter writer, Vector2 value, JsonSerializerOptions options)
+    {
+        writer.WriteStartArray();
+        writer.WriteNumberValue(value.X);
+        writer.WriteNumberValue(value.Y);
+        writer.WriteEndArray();
     }
 }
 

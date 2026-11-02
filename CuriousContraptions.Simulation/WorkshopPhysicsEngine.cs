@@ -788,6 +788,8 @@ internal sealed class WorkshopPhysicsEngine
 
             // Each declared drive follows its own compiled route (SimJoint.SupplyClosed), closed from committed state, never a timer.
             PrismaticConstraintSolver.ApplySuppliedDrives(_joints, dt);
+            // Compliant membranes are external forces like gravity, inside the restitution pass's pre-solve energy bound.
+            ApplyCompliantMembranes(span, layout, dt);
 
             foreach (var b in _dynamicBodies)
             {
@@ -994,6 +996,8 @@ internal sealed class WorkshopPhysicsEngine
             // Loads are read after the restitution pass: a point that carried normal impulse presses its face even from the gap.
             if (loadRows > 0) MeasureContactLoads(loadDeclarations[..loadRows], loadFrames[..loadRows], loadMass[..loadRows]);
             foreach (var b in _dynamicBodies) WorkshopConstraintSolver.SettleVelocity(b);
+            // Each sample's contact state and the bed's deflection follow this substep's resulting pose; the next substep's force reads them.
+            UpdateCompliantContacts(span, layout);
 
             _contactCache.Clear();
             _normalContactSets.Clear();
@@ -1173,4 +1177,173 @@ internal sealed class WorkshopPhysicsEngine
         }
         return new(captureStates.ToImmutable(),workStates.ToImmutable());
     }
+
+    /// <summary>Every declared compliant surface (Story 10.5, CAT-065 §2) as a massless unilateral spring-damper bed on its static frame,
+    /// applied once per substep as an external force beside gravity. The bed meets each dynamic body at its four support samples
+    /// (<see cref="SampleMembrane"/>), each with its own committed contact state and offset (<see cref="UpdateCompliantContacts"/>). A
+    /// sample bears the bed when it is <see cref="CompliantSampleState.OnTop"/>, over the bed (<see cref="OverBed"/>) and below the rest
+    /// plane, a purely geometric condition read from the substep's starting pose, and then carries a quarter of the bed:
+    /// Fᵢ = max(0, (k/4)·(dᵢ − oᵢ) − (c/4)·vᵢ) along n, with dᵢ = clamp(rest − heightᵢ, 0, stroke), oᵢ the sample's committed offset
+    /// (the depth the bed was not paid for), vᵢ the normal velocity there and c = 2ζ√(k·m). Outside and Under samples get nothing; the
+    /// frame carries them. The bed never pulls, and its spring part is the gradient of Σ½(k/4)·(dᵢ − oᵢ)², so it returns only compression
+    /// it took while bearing that sample. All four samples are read before any is applied.</summary>
+    private void ApplyCompliantMembranes(ReadOnlySpan<byte> span, PhysicsWorldLayout layout, float dt)
+    {
+        for (var s = 0; s < layout.CompliantSurfaces; s++)
+        {
+            var membrane = ReadMembrane(span, layout, s);
+            var sampleTension = membrane.Tension / MembraneSamples;
+            foreach (var body in _dynamicBodies)
+            {
+                var row = layout.CompliantEngagementOffset(s, body.DynamicIndex);
+                var onTop = false;
+                for (var i = 0; i < MembraneSamples; i++) onTop |= SampleState(span, row, i) == CompliantSampleState.OnTop;
+                if (!onTop || !SampleMembrane(membrane, body)) continue;
+                var sampleDamping = 2f * membrane.DampingRatio * MathF.Sqrt(membrane.Tension * body.Mass) / MembraneSamples;
+                for (var i = 0; i < MembraneSamples; i++)
+                {
+                    _membraneImpulses[i] = 0f;
+                    var support = _membraneSamples[i];
+                    var local = support - membrane.Origin;
+                    var depth = Depth(membrane, Vector3.Dot(local, membrane.Normal));
+                    if (SampleState(span, row, i) != CompliantSampleState.OnTop || depth <= 0f || !OverBed(membrane, local)) continue;
+                    var offset = ReadF32(span, row + PhysicsGpuAbi.CompliantSampleOffsetOffset + 4 * i);
+                    var angular = Vector3.Cross(support - body.CentreOfMass, membrane.Normal);
+                    var velocity = ConstraintBodyImpulse.ConstraintVelocity(body, membrane.Normal, angular);
+                    _membraneImpulses[i] = MathF.Max(0f, sampleTension * (depth - offset) - sampleDamping * velocity) * dt;
+                    _membraneAxes[i] = angular;
+                }
+                for (var i = 0; i < MembraneSamples; i++)
+                    if (_membraneImpulses[i] > 0f) ConstraintBodyImpulse.ApplyBodyImpulse(body, membrane.Normal, _membraneAxes[i], _membraneImpulses[i]);
+            }
+        }
+    }
+
+    /// <summary>Each support sample's committed contact state and offset on each compliant surface, from the substep's resulting pose
+    /// (CAT-065 §2), and each surface's committed deflection; the next substep's membrane force reads them at that same pose. One uniform
+    /// rule per (surface, dynamic body, sample direction i), with overᵢ (<see cref="OverBed"/>) and dᵢ = clamp(rest − heightᵢ, 0, stroke):
+    /// <list type="bullet">
+    /// <item>not overᵢ: Outside, oᵢ = 0;</item>
+    /// <item>Outside and overᵢ: OnTop with oᵢ = dᵢ when its unclamped depth max(0, rest − heightᵢ) is at most the surface's declared
+    /// arrival depth a, otherwise Under, oᵢ = 0 (classifying on the unclamped depth keeps a deep entry Under whatever the stroke);</item>
+    /// <item>Under and overᵢ: OnTop with oᵢ = 0 once dᵢ = 0 (it rose to the plane), otherwise Under;</item>
+    /// <item>OnTop and overᵢ: OnTop, oᵢ = min(oᵢ, dᵢ).</item>
+    /// </list>
+    /// It keeps three invariants: (1) a sample that reaches the footprint on top (from above the plane, or crossing its edge no deeper than
+    /// the arrival depth) bears the bed while it stays over it; (2) a sample that enters the footprint deeper than the arrival depth is
+    /// never pushed until it rises to the plane; (3) the bed never returns more energy than it took, because a sample starts bearing with
+    /// its offset at its entry depth and the offset only shrinks; the one exception is a support-direction jump between body features
+    /// (at most about ε × the body's width), which can carry a sample's offset to a deeper point and so store up to that much unpaid
+    /// compression. The deflection is the deepest dᵢ among OnTop over-bed samples, zero
+    /// when there is none. Zeroed rows (Run and Reset) are Outside and classify themselves on the first update.</summary>
+    private void UpdateCompliantContacts(Span<byte> span, PhysicsWorldLayout layout)
+    {
+        for (var s = 0; s < layout.CompliantSurfaces; s++)
+        {
+            var membrane = ReadMembrane(span, layout, s);
+            var deflection = 0f;
+            foreach (var body in _dynamicBodies)
+            {
+                var row = layout.CompliantEngagementOffset(s, body.DynamicIndex);
+                var sampled = SampleMembrane(membrane, body);
+                for (var i = 0; i < MembraneSamples; i++)
+                {
+                    var offsetAt = row + PhysicsGpuAbi.CompliantSampleOffsetOffset + 4 * i;
+                    var (state, offset) = (CompliantSampleState.Outside, 0f);
+                    var local = _membraneSamples[i] - membrane.Origin;
+                    if (sampled && OverBed(membrane, local))
+                    {
+                        var height = Vector3.Dot(local, membrane.Normal);
+                        var depth = Depth(membrane, height);
+                        var below = MathF.Max(0f, membrane.Rest - height);
+                        (CompliantSampleState State, float Offset) next = SampleState(span, row, i) switch
+                        {
+                            CompliantSampleState.Outside => below <= membrane.ArrivalDepth ? (CompliantSampleState.OnTop, depth) : (CompliantSampleState.Under, 0f),
+                            CompliantSampleState.Under => depth > 0f ? (CompliantSampleState.Under, 0f) : (CompliantSampleState.OnTop, 0f),
+                            CompliantSampleState.OnTop => (CompliantSampleState.OnTop, MathF.Min(ReadF32(span, offsetAt), depth)),
+                            _ => throw new ArgumentException("Undefined compliant sample state.")
+                        };
+                        (state, offset) = next;
+                        if (next.State == CompliantSampleState.OnTop) deflection = MathF.Max(deflection, depth);
+                    }
+                    WriteU32(span, row + PhysicsGpuAbi.CompliantSampleStateOffset + 4 * i, (uint)state);
+                    WriteF32(span, offsetAt, offset);
+                }
+            }
+            WriteF32(span, layout.CompliantSurfaceOffset(s) + PhysicsGpuAbi.CompliantSurfaceDeflectionOffset, deflection);
+        }
+    }
+
+    /// <summary>Sample <paramref name="i"/>'s committed contact state in the engagement row at <paramref name="row"/>.</summary>
+    private static CompliantSampleState SampleState(ReadOnlySpan<byte> span, int row, int i) =>
+        (CompliantSampleState)ReadU32(span, row + PhysicsGpuAbi.CompliantSampleStateOffset + 4 * i);
+
+    /// <summary>A sample's depth below the rest plane at height <paramref name="height"/> along n, within the stroke.</summary>
+    private static float Depth(in Membrane membrane, float height) => Math.Clamp(membrane.Rest - height, 0f, membrane.Stroke);
+
+    /// <summary>Whether a sample, at <paramref name="local"/> from the surface origin, lies over the bed: within the half-extents plus
+    /// the footprint edge (<see cref="FootprintEdge"/>) on both in-plane axes.</summary>
+    private static bool OverBed(in Membrane membrane, Vector3 local) =>
+        MathF.Abs(Vector3.Dot(local, membrane.Right)) <= membrane.HalfX + FootprintEdge &&
+        MathF.Abs(Vector3.Dot(local, membrane.Forward)) <= membrane.HalfZ + FootprintEdge;
+
+    /// <summary>One compliant surface in world space: its frame's position and rotated basis (normal n = R·Y), its declaration, and
+    /// the four diagonal sample directions −n ± ε·right ± ε·forward.</summary>
+    private readonly record struct Membrane(Vector3 Origin, Vector3 Normal, Vector3 Right, Vector3 Forward,
+        float HalfX, float HalfZ, float Rest, float Stroke, float ArrivalDepth, float Tension, float DampingRatio);
+
+    private Membrane ReadMembrane(ReadOnlySpan<byte> span, PhysicsWorldLayout layout, int surface)
+    {
+        var offset = layout.CompliantSurfaceOffset(surface);
+        var frame = _allBodies[(int)ReadU32(span, offset + PhysicsGpuAbi.CompliantSurfaceBodyOffset)];
+        return new Membrane(frame.Position,
+            WorkshopCollisionKernels.RotateVector(frame.Rotation, Vector3.UnitY),
+            WorkshopCollisionKernels.RotateVector(frame.Rotation, Vector3.UnitX),
+            WorkshopCollisionKernels.RotateVector(frame.Rotation, Vector3.UnitZ),
+            ReadF32(span, offset + PhysicsGpuAbi.CompliantSurfaceHalfXOffset),
+            ReadF32(span, offset + PhysicsGpuAbi.CompliantSurfaceHalfZOffset),
+            ReadF32(span, offset + PhysicsGpuAbi.CompliantSurfaceRestHeightOffset),
+            ReadF32(span, offset + PhysicsGpuAbi.CompliantSurfaceMaxStrokeOffset),
+            ReadF32(span, offset + PhysicsGpuAbi.CompliantSurfaceArrivalDepthOffset),
+            ReadF32(span, offset + PhysicsGpuAbi.CompliantSurfaceTensionOffset),
+            ReadF32(span, offset + PhysicsGpuAbi.CompliantSurfaceDampingRatioOffset));
+    }
+
+    /// <summary>The body's support points in the current membrane's four diagonal sample directions, into the sample scratch. The
+    /// diagonals give an axis-aligned box all four bottom corners (a box resolves a zero direction component to +H), a flat face its
+    /// extreme vertices or rim points and a sphere four points within r·ε√2 of its bottom, so a flat payload rests flat. False for a
+    /// body with no collider.</summary>
+    private bool SampleMembrane(in Membrane membrane, SimBody body)
+    {
+        for (var i = 0; i < MembraneSamples; i++)
+        {
+            var right = (i & 1) == 0 ? membrane.Right : -membrane.Right;
+            var forward = (i & 2) == 0 ? membrane.Forward : -membrane.Forward;
+            var direction = Vector3.Normalize(-membrane.Normal + MembraneSampleSpread * (right + forward));
+            var reach = float.NegativeInfinity;
+            foreach (var child in _colliders)
+            {
+                if (child.Body != body) continue;
+                WorkshopCollisionKernels.RefreshCollider(child);
+                var point = WorkshopCollisionKernels.SupportPoint(child, direction);
+                var along = Vector3.Dot(point, direction);
+                if (along > reach) { reach = along; _membraneSamples[i] = point; }
+            }
+            if (reach == float.NegativeInfinity) return false;
+        }
+        return true;
+    }
+
+    /// <summary>The bed's support samples per body, and the tilt of each sample direction from −n along each in-plane axis (small, so
+    /// a sphere's samples sit close to its bottom, while a flat face still yields its extreme vertices).</summary>
+    private const int MembraneSamples = 4;
+    private const float MembraneSampleSpread = 1f / 64f;
+    /// <summary>The footprint edge e, 1 cm: a sample is over the bed within the half-extents plus e on both in-plane axes. It is a flush-
+    /// contact tolerance, independent of any frame's dimensions: it covers a load pressed flush against a frame face, whose edge samples
+    /// sit a fraction of a millimetre past the footprint (the contact slop). It is not widened, so a sample on a frame top beyond the
+    /// footprint edge does not count as over the bed. The arrival depth, which a frame sizes, is declared per surface.</summary>
+    private const float FootprintEdge = 1e-2f;
+    private readonly Vector3[] _membraneSamples = new Vector3[MembraneSamples];
+    private readonly Vector3[] _membraneAxes = new Vector3[MembraneSamples];
+    private readonly float[] _membraneImpulses = new float[MembraneSamples];
 }

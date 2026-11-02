@@ -182,3 +182,22 @@ public interface IContactWorkElement : IMechanicalElement
 {
     ContactWorkDescriptor ContactWork { get; }
 }
+
+/// <summary>A rectangular compliant membrane on the element's static frame body. <see cref="HalfExtents"/> (m) are the footprint's half
+/// extents in the frame's local plane: X along the frame's right (X) axis, the second component along its forward (Z) axis; the rest
+/// plane's normal is the frame's Y axis. <see cref="ArrivalDepth"/> (m) is the deepest a
+/// support sample may cross into the footprint below the rest plane and still bear the bed (deeper it is never pushed until it rises
+/// to the plane); it is finite, positive and under half the stroke, and a package sizes it from its own frame (its side opening must be
+/// at least twice it).</summary>
+public readonly record struct CompliantSurfaceDescriptor(
+    Vector2 HalfExtents,
+    float RestHeight,
+    float MaxStroke,
+    float ArrivalDepth,
+    MechanicalValue Tension,
+    MechanicalValue DampingRatio);
+
+public interface ICompliantSurfaceElement : IMechanicalElement
+{
+    CompliantSurfaceDescriptor CompliantSurface { get; }
+}

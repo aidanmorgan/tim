@@ -68,6 +68,9 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     /// <summary>The committed world's compiled event rows.</summary>
     /// <summary>The committed world's device-private contact-work ledger (Story 9A.23 D9): the occurrence rows behind its Impact records.</summary>
     internal ContactWorkLedger CommittedContactWork => _committedSources.ContactWorks;
+    /// <summary>The committed world memory, read only through <see cref="PhysicsGpuAbi"/>'s defined row readers (for example a compliant
+    /// surface's committed per-sample contact states, Story 10.5).</summary>
+    internal ReadOnlyMemory<byte> CommittedWorld => _committedWorld;
     /// <summary>The publication of every committed record not yet published (the worker copies it into the event ring).</summary>
     internal byte[] DrainEvents()
     {

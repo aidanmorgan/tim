@@ -34,6 +34,7 @@ public static class WorkshopPhysicsCompiler
         var prismatics = new List<PrismaticConstraintDeclaration>(4);
         var drives = new List<PrismaticDriveDeclaration>(4);
         var revolutes = new List<RevoluteConstraintDeclaration>(4);
+        var compliantSurfaces = new List<CompliantSurfaceDeclaration>(4);
         var topology = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of);
         var supplyNodes = topology.Nodes.ToArray();
         var electricalSources = new List<ElectricalSourceDeclaration>(4);
@@ -137,6 +138,19 @@ public static class WorkshopPhysicsCompiler
                     new(hinge.BaseFrame.Position, hinge.BaseFrame.Rotation), new(hinge.MovingFrame.Position, hinge.MovingFrame.Rotation),
                     hinge.LowerLimit, hinge.UpperLimit, hinge.Stiffness.Evaluate(parameters), hinge.Damping.Evaluate(parameters),
                     hinge.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
+            }
+            if (mechanical?.CompliantSurface is { } compliant)
+            {
+                compliantSurfaces.Add(new CompliantSurfaceDeclaration(
+                    rows.CompliantSurface,
+                    instance.Id,
+                    compliant.HalfExtents.X,
+                    compliant.HalfExtents.Y,
+                    compliant.RestHeight,
+                    compliant.MaxStroke,
+                    compliant.ArrivalDepth,
+                    compliant.Tension.Evaluate(parameters),
+                    compliant.DampingRatio.Evaluate(parameters)));
             }
         }
         // A declared orientation threshold compiles its sensor only while its owner is wired, in instance order.
@@ -284,7 +298,8 @@ public static class WorkshopPhysicsCompiler
         return new(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(identities[link.Source].Source, identities[link.Target].Work)).ToArray(), prismatics.ToArray(),
-            supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray());
+            supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray(),
+            compliantSurfaces.ToArray());
     }
     /// <summary>The finite electrical store a declared Source compiles for one owner, from its own store parameters as f32: the
     /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>

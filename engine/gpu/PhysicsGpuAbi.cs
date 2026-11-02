@@ -164,6 +164,7 @@ public static partial class PhysicsGpuAbi
         WritePrismaticAdmission(data, scene);
         WriteTensileAdmission(data, scene);
         WriteRevoluteAdmission(data, scene);
+        WriteCompliantSurfaceAdmission(data, scene);
         WriteContactLoadAdmission(data, scene);
         return bytes;
     }
@@ -398,6 +399,7 @@ public static partial class PhysicsGpuAbi
         ValidateTensileCandidate(candidate, source);
         ValidateRevoluteCandidate(candidate, source);
         ValidateContactLoadCandidate(candidate, source);
+        ValidateCompliantSurfaceCandidate(candidate, source);
         return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(layout.MotionOffset, layout.MotionBytes), bodies, expectedTick));
     }
 

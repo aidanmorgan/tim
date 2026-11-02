@@ -13,7 +13,8 @@ public readonly record struct CompiledCaptureIdentities(GpuSensorId Sensor, GpuF
 public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArray<GpuColliderId> Colliders,
     ImmutableArray<CompiledSliderIdentities> Sliders, GpuContactTriggerId Trigger, GpuOrientationSensorId Orientation,
     GpuContactLoadSensorId ContactLoad, ElectricalSourceId Source, GpuContactWorkId Work, GpuPassageSensorId Passage,
-    CompiledCaptureIdentities Capture, ImmutableArray<CompiledHingeIdentities> Hinges);
+    CompiledCaptureIdentities Capture, ImmutableArray<CompiledHingeIdentities> Hinges,
+    CompliantSurfaceId CompliantSurface);
 
 /// <summary>One immutable scene-sized allocation shared by every consumer of an authored instance collection.</summary>
 public sealed class CompiledIdentityMap
@@ -89,8 +90,9 @@ public sealed class CompiledIdentityMap
             var passage = entry.Signal?.Passage is not null ? new GpuPassageSensorId(Allocate()) : default;
             var capture = entry.Mechanical?.Capture is not null
                 ? new CompiledCaptureIdentities(new(Allocate()),new(Allocate())) : default;
+            var compliant = entry.Mechanical?.CompliantSurface is not null ? new CompliantSurfaceId(Allocate()) : default;
             parts.Add(instance.Id, new(material, colliders, sliders.ToImmutable(), trigger, orientation, load, source, work,
-                passage, capture, hinges.ToImmutable()));
+                passage, capture, hinges.ToImmutable(), compliant));
         }
         _parts = parts.ToImmutable(); _owners = owners.ToImmutable(); NextIdentity = next;
     }

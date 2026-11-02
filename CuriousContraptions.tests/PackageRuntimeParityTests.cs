@@ -500,6 +500,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, .8f,
                     Admits(value => WorkshopInput.Generic(new PartId("switch"), Owner, 0, 3, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), (float)value)]))), [])
             ],
+            "trampoline" =>
+            [
+                ("tension", ParameterUnit.NewtonPerMetre, ParameterKind.Real, Lane.Single, 300f, Generic(new PartId("trampoline"), "tension"), []),
+                ("damping_ratio", ParameterUnit.None, ParameterKind.Real, Lane.Single, 0.12f, Generic(new PartId("trampoline"), "damping_ratio"), [])
+            ],
             _ => []
         };
     }
@@ -517,7 +522,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),

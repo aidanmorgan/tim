@@ -8,11 +8,12 @@ namespace CuriousContraptions.Gpu;
 /// every population is a count in the world header, so the offsets and the world's length derive from the header alone. There
 /// is no fixed table capacity: memory is the only bound (owner decision, 20 Oct 2026).
 /// Table order: bodies, materials, residence sensors, guides, triggers, contact works, orientation sensors,
-/// the motion payload, electrical sources, electrical bindings, prismatic joints, contact-load rows, colliders.
+/// the motion payload, electrical sources, electrical bindings, prismatic joints, contact-load rows, tensile spans, revolute joints,
+/// compliant surfaces, compliant engagements (surfaces × dynamic bodies), colliders.
 /// </summary>
 public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int Materials, int Sensors, int Dynamic, int Guides,
     int Triggers, int ContactWorks, int OrientationSensors, int ElectricalSources, int ElectricalBindings,
-    int Prismatics, int ContactLoads, int TensileSpans, int Revolutes)
+    int Prismatics, int ContactLoads, int TensileSpans, int Revolutes, int CompliantSurfaces)
 {
     /// <summary>The body table directly follows the header in every world.</summary>
     public static int BodiesOffset => PhysicsGpuAbi.HeaderBytes;
@@ -31,7 +32,10 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     public int ContactLoadsOffset => After(PrismaticsOffset, Prismatics, PhysicsGpuAbi.PrismaticBytes);
     public int TensileSpansOffset => After(ContactLoadsOffset, ContactLoads, PhysicsGpuAbi.ContactLoadSensorBytes);
     public int RevoluteJointsOffset => After(TensileSpansOffset, TensileSpans, PhysicsGpuAbi.TensileSpanBytes);
-    public int CollidersOffset => After(RevoluteJointsOffset, Revolutes, PhysicsGpuAbi.RevoluteBytes);
+    public int CompliantSurfacesOffset => After(RevoluteJointsOffset, Revolutes, PhysicsGpuAbi.RevoluteBytes);
+    /// <summary>The committed engagement table: one row per (compliant surface, dynamic body), derived from those two populations.</summary>
+    public int CompliantEngagementsOffset => After(CompliantSurfacesOffset, CompliantSurfaces, PhysicsGpuAbi.CompliantSurfaceBytes);
+    public int CollidersOffset => After(CompliantEngagementsOffset, (long)CompliantSurfaces * Dynamic, PhysicsGpuAbi.CompliantEngagementBytes);
     /// <summary>The exact world length.</summary>
     public int ByteLength => After(CollidersOffset, Colliders, PhysicsGpuAbi.ColliderBytes);
 
@@ -49,6 +53,13 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     public int ColliderOffset(int slot) => Row(CollidersOffset, slot, Colliders, PhysicsGpuAbi.ColliderBytes);
     public int TensileSpanOffset(int slot) => Row(TensileSpansOffset, slot, TensileSpans, PhysicsGpuAbi.TensileSpanBytes);
     public int RevoluteOffset(int slot) => Row(RevoluteJointsOffset, slot, Revolutes, PhysicsGpuAbi.RevoluteBytes);
+    public int CompliantSurfaceOffset(int slot) => Row(CompliantSurfacesOffset, slot, CompliantSurfaces, PhysicsGpuAbi.CompliantSurfaceBytes);
+    public int CompliantEngagementOffset(int surface, int dynamicIndex)
+    {
+        if ((uint)surface >= (uint)CompliantSurfaces) throw new ArgumentOutOfRangeException(nameof(surface));
+        if ((uint)dynamicIndex >= (uint)Dynamic) throw new ArgumentOutOfRangeException(nameof(dynamicIndex));
+        return CompliantEngagementsOffset + (surface * Dynamic + dynamicIndex) * PhysicsGpuAbi.CompliantEngagementBytes;
+    }
 
     /// <summary>The layout a world header declares. Every count is a non-negative population; a world whose tables cannot be
     /// addressed (longer than an array can hold) is rejected.</summary>
@@ -63,7 +74,8 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
             Count(header, PhysicsGpuAbi.HeaderElectricalSourceCountOffset), Count(header, PhysicsGpuAbi.HeaderElectricalBindingCountOffset),
             Count(header, PhysicsGpuAbi.HeaderPrismaticCountOffset), Count(header, PhysicsGpuAbi.HeaderContactLoadCountOffset),
             Count(header, PhysicsGpuAbi.HeaderTensileSpanCountOffset),
-            Count(header, PhysicsGpuAbi.HeaderRevoluteCountOffset));
+            Count(header, PhysicsGpuAbi.HeaderRevoluteCountOffset),
+            Count(header, PhysicsGpuAbi.HeaderCompliantSurfaceCountOffset));
         _ = layout.ByteLength;
         return layout;
     }
@@ -81,6 +93,7 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
         Write(header, PhysicsGpuAbi.HeaderPrismaticCountOffset, Prismatics); Write(header, PhysicsGpuAbi.HeaderContactLoadCountOffset, ContactLoads);
         Write(header, PhysicsGpuAbi.HeaderTensileSpanCountOffset, TensileSpans);
         Write(header, PhysicsGpuAbi.HeaderRevoluteCountOffset, Revolutes);
+        Write(header, PhysicsGpuAbi.HeaderCompliantSurfaceCountOffset, CompliantSurfaces);
     }
 
     private static int Count(ReadOnlySpan<byte> header, int offset)
@@ -91,7 +104,7 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     }
     private static void Write(Span<byte> header, int offset, int value) =>
         BinaryPrimitives.WriteUInt32LittleEndian(header[offset..], checked((uint)value));
-    private static int After(int offset, int count, int bytes)
+    private static int After(int offset, long count, int bytes)
     {
         if (count < 0) throw new ArgumentException("A table population cannot be negative.");
         var end = offset + (long)count * bytes;

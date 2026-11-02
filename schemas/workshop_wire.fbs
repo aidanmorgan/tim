@@ -245,6 +245,8 @@ table WorkshopResponse {
     // Present on installation: workers admit the same compiled capabilities.
     scene: CompiledSceneRecord;
     pulley_wheels: [PulleyWheelReadRecord];
+    // Story 10.5: every compliant surface's committed bed deflection, ordered by frame.
+    compliant_surfaces: [CompliantSurfaceReadRecord];
 }
 
 table WorkshopCommand {
@@ -643,6 +645,12 @@ table PulleyWheelReadRecord {
     angle: float;
 }
 
+// One compliant surface's committed deflection (Story 10.5): its frame body and the depth in metres of its deepest engaged sample.
+table CompliantSurfaceReadRecord {
+    frame: ulong;
+    deflection: float;
+}
+
 table TensileSpanRecord {
     id: ulong;
     route: ulong;
@@ -653,6 +661,20 @@ table TensileSpanRecord {
     local_b: Vec3f;
     maximum_length: float;
     complete: bool;
+}
+
+// One compliant membrane on a static frame body (Story 10.5, CAT-065): footprint half extents, rest height and stroke in the
+// frame, and the evaluated f32 tension (N/m) and damping ratio.
+table CompliantSurfaceRecord {
+    id: ulong;
+    body: ulong;
+    half_x: float;
+    half_z: float;
+    rest_height: float;
+    max_stroke: float;
+    tension: float;
+    damping_ratio: float;
+    arrival_depth: float;
 }
 
 table CompiledSceneRecord {
@@ -687,6 +709,7 @@ table CompiledSceneRecord {
     editable_sources: [ulong];
     presentation: [CompiledPresentationRecord];
     revolutes: [CapabilityRevoluteConstraintDeclarationRecord];
+    compliant_surfaces: [CompliantSurfaceRecord];
 }
 
 root_type WorkshopResponse;

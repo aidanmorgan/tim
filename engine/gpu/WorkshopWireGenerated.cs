@@ -2761,6 +2761,8 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public int PresentationLength { get { int o = __p.__offset(62); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord? Revolutes(int j) { int o = __p.__offset(64); return o != 0 ? (CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord?)(new CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int RevolutesLength { get { int o = __p.__offset(64); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.CompliantSurfaceRecord? CompliantSurfaces(int j) { int o = __p.__offset(66); return o != 0 ? (CuriousContraptions.Wire.CompliantSurfaceRecord?)(new CuriousContraptions.Wire.CompliantSurfaceRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int CompliantSurfacesLength { get { int o = __p.__offset(66); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<CuriousContraptions.Wire.CompiledSceneRecord> CreateCompiledSceneRecord(FlatBufferBuilder builder,
       ulong identity = 0,
@@ -2793,13 +2795,15 @@ public struct CompiledSceneRecord : IFlatbufferObject
       VectorOffset ownersOffset = default(VectorOffset),
       VectorOffset editable_sourcesOffset = default(VectorOffset),
       VectorOffset presentationOffset = default(VectorOffset),
-      VectorOffset revolutesOffset = default(VectorOffset)) {
-    builder.StartTable(31);
+      VectorOffset revolutesOffset = default(VectorOffset),
+      VectorOffset compliant_surfacesOffset = default(VectorOffset)) {
+    builder.StartTable(32);
     CompiledSceneRecord.AddNextIdentity(builder, next_identity);
     CompiledSceneRecord.AddDocumentHigh(builder, document_high);
     CompiledSceneRecord.AddDocumentLow(builder, document_low);
     CompiledSceneRecord.AddRevision(builder, revision);
     CompiledSceneRecord.AddIdentity(builder, identity);
+    CompiledSceneRecord.AddCompliantSurfaces(builder, compliant_surfacesOffset);
     CompiledSceneRecord.AddRevolutes(builder, revolutesOffset);
     CompiledSceneRecord.AddPresentation(builder, presentationOffset);
     CompiledSceneRecord.AddEditableSources(builder, editable_sourcesOffset);
@@ -2829,7 +2833,7 @@ public struct CompiledSceneRecord : IFlatbufferObject
     return CompiledSceneRecord.EndCompiledSceneRecord(builder);
   }
 
-  public static void StartCompiledSceneRecord(FlatBufferBuilder builder) { builder.StartTable(31); }
+  public static void StartCompiledSceneRecord(FlatBufferBuilder builder) { builder.StartTable(32); }
   public static void AddIdentity(FlatBufferBuilder builder, ulong identity) { builder.AddUlong(0, identity, 0); }
   public static void AddRevision(FlatBufferBuilder builder, ulong revision) { builder.AddUlong(1, revision, 0); }
   public static void AddSettings(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityWorkshopCadenceSettingsRecord> settingsOffset) { builder.AddOffset(2, settingsOffset.Value, 0); }
@@ -2981,6 +2985,12 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public static VectorOffset CreateRevolutesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
   public static VectorOffset CreateRevolutesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartRevolutesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddCompliantSurfaces(FlatBufferBuilder builder, VectorOffset compliantSurfacesOffset) { builder.AddOffset(31, compliantSurfacesOffset.Value, 0); }
+  public static VectorOffset CreateCompliantSurfacesVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CompliantSurfaceRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CompliantSurfaceRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CompliantSurfaceRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CompliantSurfaceRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartCompliantSurfacesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<CuriousContraptions.Wire.CompiledSceneRecord> EndCompiledSceneRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 8);  // settings
@@ -3025,6 +3035,128 @@ static public class CompiledSceneRecordVerify
       && verifier.VerifyVectorOfData(tablePos, 60 /*EditableSources*/, 8 /*ulong*/, false)
       && verifier.VerifyVectorOfTables(tablePos, 62 /*Presentation*/, CuriousContraptions.Wire.CompiledPresentationRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 64 /*Revolutes*/, CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecordVerify.Verify, false)
+      && verifier.VerifyVectorOfTables(tablePos, 66 /*CompliantSurfaces*/, CuriousContraptions.Wire.CompliantSurfaceRecordVerify.Verify, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct CompliantSurfaceReadRecord : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static CompliantSurfaceReadRecord GetRootAsCompliantSurfaceReadRecord(ByteBuffer _bb) { return GetRootAsCompliantSurfaceReadRecord(_bb, new CompliantSurfaceReadRecord()); }
+  public static CompliantSurfaceReadRecord GetRootAsCompliantSurfaceReadRecord(ByteBuffer _bb, CompliantSurfaceReadRecord obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public CompliantSurfaceReadRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Frame { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public float Deflection { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+
+  public static Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord> CreateCompliantSurfaceReadRecord(FlatBufferBuilder builder,
+      ulong frame = 0,
+      float deflection = 0.0f) {
+    builder.StartTable(2);
+    CompliantSurfaceReadRecord.AddFrame(builder, frame);
+    CompliantSurfaceReadRecord.AddDeflection(builder, deflection);
+    return CompliantSurfaceReadRecord.EndCompliantSurfaceReadRecord(builder);
+  }
+
+  public static void StartCompliantSurfaceReadRecord(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void AddFrame(FlatBufferBuilder builder, ulong frame) { builder.AddUlong(0, frame, 0); }
+  public static void AddDeflection(FlatBufferBuilder builder, float deflection) { builder.AddFloat(1, deflection, 0.0f); }
+  public static Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord> EndCompliantSurfaceReadRecord(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord>(o);
+  }
+}
+
+
+static public class CompliantSurfaceReadRecordVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Frame*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 6 /*Deflection*/, 4 /*float*/, 4, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct CompliantSurfaceRecord : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static CompliantSurfaceRecord GetRootAsCompliantSurfaceRecord(ByteBuffer _bb) { return GetRootAsCompliantSurfaceRecord(_bb, new CompliantSurfaceRecord()); }
+  public static CompliantSurfaceRecord GetRootAsCompliantSurfaceRecord(ByteBuffer _bb, CompliantSurfaceRecord obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public CompliantSurfaceRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Id { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong Body { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public float HalfX { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float HalfZ { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float RestHeight { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float MaxStroke { get { int o = __p.__offset(14); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Tension { get { int o = __p.__offset(16); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float DampingRatio { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float ArrivalDepth { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+
+  public static Offset<CuriousContraptions.Wire.CompliantSurfaceRecord> CreateCompliantSurfaceRecord(FlatBufferBuilder builder,
+      ulong id = 0,
+      ulong body = 0,
+      float half_x = 0.0f,
+      float half_z = 0.0f,
+      float rest_height = 0.0f,
+      float max_stroke = 0.0f,
+      float tension = 0.0f,
+      float damping_ratio = 0.0f,
+      float arrival_depth = 0.0f) {
+    builder.StartTable(9);
+    CompliantSurfaceRecord.AddBody(builder, body);
+    CompliantSurfaceRecord.AddId(builder, id);
+    CompliantSurfaceRecord.AddArrivalDepth(builder, arrival_depth);
+    CompliantSurfaceRecord.AddDampingRatio(builder, damping_ratio);
+    CompliantSurfaceRecord.AddTension(builder, tension);
+    CompliantSurfaceRecord.AddMaxStroke(builder, max_stroke);
+    CompliantSurfaceRecord.AddRestHeight(builder, rest_height);
+    CompliantSurfaceRecord.AddHalfZ(builder, half_z);
+    CompliantSurfaceRecord.AddHalfX(builder, half_x);
+    return CompliantSurfaceRecord.EndCompliantSurfaceRecord(builder);
+  }
+
+  public static void StartCompliantSurfaceRecord(FlatBufferBuilder builder) { builder.StartTable(9); }
+  public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
+  public static void AddBody(FlatBufferBuilder builder, ulong body) { builder.AddUlong(1, body, 0); }
+  public static void AddHalfX(FlatBufferBuilder builder, float halfX) { builder.AddFloat(2, halfX, 0.0f); }
+  public static void AddHalfZ(FlatBufferBuilder builder, float halfZ) { builder.AddFloat(3, halfZ, 0.0f); }
+  public static void AddRestHeight(FlatBufferBuilder builder, float restHeight) { builder.AddFloat(4, restHeight, 0.0f); }
+  public static void AddMaxStroke(FlatBufferBuilder builder, float maxStroke) { builder.AddFloat(5, maxStroke, 0.0f); }
+  public static void AddTension(FlatBufferBuilder builder, float tension) { builder.AddFloat(6, tension, 0.0f); }
+  public static void AddDampingRatio(FlatBufferBuilder builder, float dampingRatio) { builder.AddFloat(7, dampingRatio, 0.0f); }
+  public static void AddArrivalDepth(FlatBufferBuilder builder, float arrivalDepth) { builder.AddFloat(8, arrivalDepth, 0.0f); }
+  public static Offset<CuriousContraptions.Wire.CompliantSurfaceRecord> EndCompliantSurfaceRecord(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.CompliantSurfaceRecord>(o);
+  }
+}
+
+
+static public class CompliantSurfaceRecordVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Id*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 6 /*Body*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 8 /*HalfX*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 10 /*HalfZ*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 12 /*RestHeight*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 14 /*MaxStroke*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 16 /*Tension*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 18 /*DampingRatio*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 20 /*ArrivalDepth*/, 4 /*float*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -4657,8 +4789,10 @@ public struct WorkshopResponse : IFlatbufferObject
   public CuriousContraptions.Wire.CompiledSceneRecord? Scene { get { int o = __p.__offset(58); return o != 0 ? (CuriousContraptions.Wire.CompiledSceneRecord?)(new CuriousContraptions.Wire.CompiledSceneRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
   public CuriousContraptions.Wire.PulleyWheelReadRecord? PulleyWheels(int j) { int o = __p.__offset(60); return o != 0 ? (CuriousContraptions.Wire.PulleyWheelReadRecord?)(new CuriousContraptions.Wire.PulleyWheelReadRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int PulleyWheelsLength { get { int o = __p.__offset(60); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.CompliantSurfaceReadRecord? CompliantSurfaces(int j) { int o = __p.__offset(62); return o != 0 ? (CuriousContraptions.Wire.CompliantSurfaceReadRecord?)(new CuriousContraptions.Wire.CompliantSurfaceReadRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int CompliantSurfacesLength { get { int o = __p.__offset(62); return o != 0 ? __p.__vector_len(o) : 0; } }
 
-  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(29); }
+  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(30); }
   public static void AddSequence(FlatBufferBuilder builder, ulong sequence) { builder.AddUlong(0, sequence, 0); }
   public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.ResponseKind kind) { builder.AddByte(1, (byte)kind, 0); }
   public static void AddOutcome(FlatBufferBuilder builder, CuriousContraptions.Wire.CommandOutcome outcome) { builder.AddByte(2, (byte)outcome, 0); }
@@ -4718,6 +4852,12 @@ public struct WorkshopResponse : IFlatbufferObject
   public static VectorOffset CreatePulleyWheelsVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
   public static VectorOffset CreatePulleyWheelsVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartPulleyWheelsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddCompliantSurfaces(FlatBufferBuilder builder, VectorOffset compliantSurfacesOffset) { builder.AddOffset(29, compliantSurfacesOffset.Value, 0); }
+  public static VectorOffset CreateCompliantSurfacesVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartCompliantSurfacesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<CuriousContraptions.Wire.WorkshopResponse> EndWorkshopResponse(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.WorkshopResponse>(o);
@@ -4761,6 +4901,7 @@ static public class WorkshopResponseVerify
       && verifier.VerifyVectorOfTables(tablePos, 56 /*Ropes*/, CuriousContraptions.Wire.RopeSpanReadRecordVerify.Verify, false)
       && verifier.VerifyTable(tablePos, 58 /*Scene*/, CuriousContraptions.Wire.CompiledSceneRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 60 /*PulleyWheels*/, CuriousContraptions.Wire.PulleyWheelReadRecordVerify.Verify, false)
+      && verifier.VerifyVectorOfTables(tablePos, 62 /*CompliantSurfaces*/, CuriousContraptions.Wire.CompliantSurfaceReadRecordVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

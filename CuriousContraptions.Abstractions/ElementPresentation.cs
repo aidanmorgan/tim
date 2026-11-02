@@ -20,7 +20,9 @@ public enum PresentationDriver : byte
     CommittedActivation, CommittedCount, CommittedOscillatorPhase, CommittedOscillatorPulse,
     CommittedTimerProgress, CommittedTimerPhase, CommittedSupply, CommittedCharge, CommittedActuatorDrive,
     CommittedContactLoadPhase, CommittedActuatorState, CommittedTimerRemaining, CommittedTimerActive, CommittedElectricalSocket,
-    CommittedWheelAngle
+    CommittedWheelAngle,
+    /// <summary>The owner's committed compliant-surface deflection in metres (0 at rest): the value is From + (To − From) · deflection.</summary>
+    CommittedSurfaceDeflection
 }
 
 public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep }
@@ -80,7 +82,7 @@ public static class PresentationDriverRules
                         ((curve == PresentationCurve.Linear && duration == 0) || (curve == PresentationCurve.SmoothStep && duration > 0)),
                     PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
                         PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState or
-                        PresentationDriver.CommittedWheelAngle =>
+                        PresentationDriver.CommittedWheelAngle or PresentationDriver.CommittedSurfaceDeflection =>
                             curve == PresentationCurve.Linear && duration == 0 && overlap == PresentationOverlap.Replace,
                     _ => false
                 };

@@ -73,6 +73,13 @@ public sealed class WorkshopReadTests
         Assert.False(first.HasSameContent(Wire(read with { Motion = PhysicsMotionRead.Decode(drag, Bodies(body), new(1)) })));
         Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), new(1), CaptureLatchPhase.Latched, 2, 0f)]) })));
         Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), new(1), CaptureLatchPhase.Latched, 1, -0f)]) })));
+        // A committed surface deflection is read content: the same deflection through the wire is the same read, another deflection or
+        // a read without the surface row is a new one.
+        WorkshopRead Surface(float deflection) => Wire(read with { Presentation = new([], [], surfaces: [new(new(3), deflection)]) });
+        var surfaced = Surface(.1f);
+        Assert.True(surfaced.HasSameContent(Surface(.1f)));
+        Assert.False(surfaced.HasSameContent(Surface(.2f)));
+        Assert.False(first.HasSameContent(surfaced));
     }
 
     [Fact]

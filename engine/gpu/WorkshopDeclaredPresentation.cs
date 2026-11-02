@@ -364,6 +364,11 @@ public sealed class WorkshopDeclaredPresentation
                     if (pulley.Pulley == track.Owner)
                         return pulley.Angle;
                 break;
+            case PresentationDriver.CommittedSurfaceDeflection:
+                foreach (var surface in read.Presentation.Surfaces)
+                    if (surface.Frame == track.Owner)
+                        return surface.Deflection;
+                break;
             default: throw new ArgumentException("Unsupported committed presentation driver.");
         }
         throw new ArgumentException("Declared presentation query is absent from the committed read.");

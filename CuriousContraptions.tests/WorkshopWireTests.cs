@@ -1020,8 +1020,8 @@ public sealed class WorkshopWireTests
     [InlineData(48, uint.MaxValue)]
     [InlineData(56, 2u)]
     [InlineData(96, 1u)]
+    [InlineData(PhysicsGpuAbi.HeaderCompliantSurfaceCountOffset, 1u)]
     [InlineData(PhysicsGpuAbi.HeaderPaddingOffset, 1u)]
-    [InlineData(PhysicsGpuAbi.HeaderPaddingOffset + 4, 1u)]
     public void GenericCandidateRejectsChangedHeaderIdentityOrPadding(int offset, uint value)
     {
         var source = GenericAdmission(); var candidate = (byte[])source.Clone();

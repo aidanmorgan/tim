@@ -42,7 +42,7 @@ public static partial class WorkshopWireFlatBuffers
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
-        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 29, _ => 0 };
+        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 30, _ => 0 };
         if (fieldCount != 0)
         {
             var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
@@ -234,6 +234,17 @@ public static partial class WorkshopWireFlatBuffers
             }
             pulleyOffset = Wire.WorkshopResponse.CreatePulleyWheelsVector(builder, pulleyOffsets);
         }
+        VectorOffset? surfaceOffset = null;
+        if (!read.Presentation.Surfaces.IsEmpty)
+        {
+            var surfaceOffsets = new Offset<Wire.CompliantSurfaceReadRecord>[read.Presentation.Surfaces.Length];
+            for (var i = 0; i < read.Presentation.Surfaces.Length; i++)
+            {
+                var s = read.Presentation.Surfaces[i];
+                surfaceOffsets[i] = Wire.CompliantSurfaceReadRecord.CreateCompliantSurfaceReadRecord(builder, s.Frame.Value, s.Deflection);
+            }
+            surfaceOffset = Wire.WorkshopResponse.CreateCompliantSurfacesVector(builder, surfaceOffsets);
+        }
         VectorOffset? logicOffset = null;
         if (!read.Presentation.Logic.IsEmpty)
         {
@@ -372,6 +383,7 @@ public static partial class WorkshopWireFlatBuffers
         if (logicOffset.HasValue) Wire.WorkshopResponse.AddElectricalLogic(builder,logicOffset.Value);
         Wire.WorkshopResponse.AddRopes(builder, ropesVector);
         if (pulleyOffset.HasValue) Wire.WorkshopResponse.AddPulleyWheels(builder, pulleyOffset.Value);
+        if (surfaceOffset.HasValue) Wire.WorkshopResponse.AddCompliantSurfaces(builder, surfaceOffset.Value);
         if (actuatorOffset.HasValue) Wire.WorkshopResponse.AddActuatorDrives(builder, actuatorOffset.Value);
         if (loadOffset.HasValue) Wire.WorkshopResponse.AddContactLoads(builder, loadOffset.Value);
         if (constructionOffset.HasValue) Wire.WorkshopResponse.AddScene(builder, constructionOffset.Value);
@@ -503,6 +515,12 @@ public static partial class WorkshopWireFlatBuffers
             var row = Required(fb.PulleyWheels(i), "pulley observation");
             pulleyValues[i] = new(new(row.Pulley), row.Travel, row.Angle);
         }
+        var surfaceValues = new CompliantSurfaceRead[fb.CompliantSurfacesLength];
+        for (var i = 0; i < surfaceValues.Length; i++)
+        {
+            var row = Required(fb.CompliantSurfaces(i), "compliant surface observation");
+            surfaceValues[i] = new(new(row.Frame), row.Deflection);
+        }
         var logicValues=new ElectricalLogicRead[fb.ElectricalLogicLength];
         for(var i=0;i<logicValues.Length;i++)
         {
@@ -537,7 +555,7 @@ public static partial class WorkshopWireFlatBuffers
 
         var read = new WorkshopRead(epoch, tick, bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores),
-            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, pulleyValues));
+            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, pulleyValues, surfaceValues));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);
 

@@ -52,6 +52,30 @@ public static partial class PhysicsGpuAbi
     public const int RevoluteImpulseOffset = 96;
     public const int RevoluteRowCount = 8;
 
+    // Compliant surface row (Story 10.5): identity U64 at 0, frame body slot, then the f32 declaration (arrival depth, half extents,
+    // rest height, stroke, tension, damping ratio) in its first CompliantSurfaceDeclarationBytes, which never change after admission;
+    // then the committed f32 bed deflection (the deepest OnTop sample, 0 at rest) and zero padding.
+    public const int CompliantSurfaceBytes = 64;
+    public const int CompliantSurfaceBodyOffset = 8;
+    public const int CompliantSurfaceArrivalDepthOffset = 12;
+    public const int CompliantSurfaceHalfXOffset = 16;
+    public const int CompliantSurfaceHalfZOffset = 20;
+    public const int CompliantSurfaceRestHeightOffset = 24;
+    public const int CompliantSurfaceMaxStrokeOffset = 28;
+    public const int CompliantSurfaceTensionOffset = 32;
+    public const int CompliantSurfaceDampingRatioOffset = 36;
+    public const int CompliantSurfaceDeclarationBytes = 40;
+    public const int CompliantSurfaceDeflectionOffset = 40;
+    public const int CompliantSurfacePaddingOffset = 44;
+
+    // Compliant engagement row (Story 10.5): one row per (surface, dynamic body), surface-major in dynamic-body order: four committed
+    // U32 CompliantSampleState words, one per diagonal sample direction in sample order, then the four samples' f32 offsets.
+    // Admission's zero bytes are every sample Outside with offset 0.
+    public const int CompliantSampleCount = 4;
+    public const int CompliantEngagementBytes = 32;
+    public const int CompliantSampleStateOffset = 0;
+    public const int CompliantSampleOffsetOffset = 16;
+
     private static void WritePrismaticAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
     {
         for (var i = 0; i < scene.Prismatics.Length; i++)
@@ -211,6 +235,95 @@ public static partial class PhysicsGpuAbi
                 if (!float.IsFinite(impulse) || (RevoluteRows.IsStop((RevoluteRowKind)row) && impulse < 0))
                     throw new ArgumentException("Invalid revolute impulse.");
             }
+        }
+    }
+
+    private static void WriteCompliantSurfaceAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
+    {
+        for (var i = 0; i < scene.CompliantSurfaces.Length; i++)
+        {
+            var value = scene.CompliantSurfaces[i];
+            var record = data.Slice(scene.Layout.GetCompliantSurfaceOffset(value.Id.Value), CompliantSurfaceBytes);
+            U64(record, RecordIdentityOffset, value.Id.Value);
+            U32(record, CompliantSurfaceBodyOffset, (uint)scene.Layout.GetBodySlot(value.Body));
+            WriteEnergy(record, CompliantSurfaceArrivalDepthOffset, value.ArrivalDepth);
+            WriteEnergy(record, CompliantSurfaceHalfXOffset, value.HalfX);
+            WriteEnergy(record, CompliantSurfaceHalfZOffset, value.HalfZ);
+            WriteEnergy(record, CompliantSurfaceRestHeightOffset, value.RestHeight);
+            WriteEnergy(record, CompliantSurfaceMaxStrokeOffset, value.MaxStroke);
+            WriteEnergy(record, CompliantSurfaceTensionOffset, value.Tension);
+            WriteEnergy(record, CompliantSurfaceDampingRatioOffset, value.DampingRatio);
+            record[CompliantSurfacePaddingOffset..].Clear();
+        }
+    }
+
+    public static CompliantSurfaceDeclaration ReadCompliantSurface(ReadOnlySpan<byte> data, int index)
+    {
+        Header(data);
+        var layout = Layout(data);
+        if (index < 0 || index >= layout.CompliantSurfaces) throw new ArgumentException("Invalid compliant surface table.");
+        var record = data.Slice(layout.CompliantSurfaceOffset(index), CompliantSurfaceBytes);
+        var body = R32(record, CompliantSurfaceBodyOffset);
+        if (body >= R32(data, HeaderBodyCountOffset) ||
+            (RigidMotionKind)R32(data, layout.BodyOffset((int)body) + BodyMotionOffset) != RigidMotionKind.Static ||
+            !AllZero(record[CompliantSurfacePaddingOffset..]))
+            throw new ArgumentException("Invalid compliant surface record.");
+        var result = new CompliantSurfaceDeclaration(
+            new(R64(record, RecordIdentityOffset)),
+            new(R64(data, layout.BodyOffset((int)body))),
+            RF(record, CompliantSurfaceHalfXOffset),
+            RF(record, CompliantSurfaceHalfZOffset),
+            RF(record, CompliantSurfaceRestHeightOffset),
+            RF(record, CompliantSurfaceMaxStrokeOffset),
+            RF(record, CompliantSurfaceArrivalDepthOffset),
+            RF(record, CompliantSurfaceTensionOffset),
+            RF(record, CompliantSurfaceDampingRatioOffset));
+        result.Validate();
+        var deflection = RF(record, CompliantSurfaceDeflectionOffset);
+        if (!float.IsFinite(deflection) || deflection < 0f || deflection > result.MaxStroke)
+            throw new ArgumentException("Invalid compliant surface deflection.");
+        return result;
+    }
+
+    /// <summary>The committed bed deflection of one compliant surface: its frame body and the depth of its deepest engaged sample.</summary>
+    public static CompliantSurfaceRead ReadCompliantSurfaceDeflection(ReadOnlySpan<byte> data, int index)
+    {
+        var surface = ReadCompliantSurface(data, index);
+        return new(surface.Body, RF(data, Layout(data).CompliantSurfaceOffset(index) + CompliantSurfaceDeflectionOffset));
+    }
+
+    /// <summary>The committed state and offset of one support sample (0–3, in sample order) of one (surface, dynamic body) pair; the body
+    /// is named by its dynamic ordinal. Refuses an undefined state, and an offset that is non-finite, negative, above the surface's
+    /// declared arrival depth (the law never enters a sample deeper), or non-zero on a sample that is not OnTop.</summary>
+    public static CompliantSampleRead ReadCompliantSample(ReadOnlySpan<byte> data, int surface, int dynamicIndex, int sample)
+    {
+        if ((uint)sample >= CompliantSampleCount) throw new ArgumentOutOfRangeException(nameof(sample));
+        var arrivalDepth = ReadCompliantSurface(data, surface).ArrivalDepth;
+        var record = data.Slice(Layout(data).CompliantEngagementOffset(surface, dynamicIndex), CompliantEngagementBytes);
+        var state = (CompliantSampleState)R32(record, CompliantSampleStateOffset + 4 * sample);
+        var offset = RF(record, CompliantSampleOffsetOffset + 4 * sample);
+        if (!Enum.IsDefined(state) || !float.IsFinite(offset) || offset < 0f || offset > arrivalDepth ||
+            (state != CompliantSampleState.OnTop && offset != 0f))
+            throw new ArgumentException("Invalid compliant sample record.");
+        return new(state, offset);
+    }
+
+    /// <summary>Each surface's declaration bytes are its admitted ones; its committed deflection and every sample's state and offset are
+    /// admissible values, and a deflected bed has an OnTop sample.</summary>
+    private static void ValidateCompliantSurfaceCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source)
+    {
+        var layout = Layout(source);
+        for (var i = 0; i < layout.CompliantSurfaces; i++)
+        {
+            var offset = layout.CompliantSurfaceOffset(i);
+            if (!candidate.Slice(offset, CompliantSurfaceDeclarationBytes).SequenceEqual(source.Slice(offset, CompliantSurfaceDeclarationBytes)))
+                throw new ArgumentException("Compliant surface declaration changed.");
+            var onTop = false;
+            for (var body = 0; body < layout.Dynamic; body++)
+                for (var sample = 0; sample < CompliantSampleCount; sample++)
+                    onTop |= ReadCompliantSample(candidate, i, body, sample).State == CompliantSampleState.OnTop;
+            if (ReadCompliantSurfaceDeflection(candidate, i).Deflection > 0f && !onTop)
+                throw new ArgumentException("A compliant surface is deflected with no sample on top.");
         }
     }
 }

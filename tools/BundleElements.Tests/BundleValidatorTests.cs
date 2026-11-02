@@ -91,6 +91,84 @@ public sealed class BundleValidatorTests
         }) Assert.True(Check(candidate).Any(error => error.Detail.Contains(".ContactWork.", StringComparison.Ordinal)), name);
     }
 
+    // Story 10.5: a compliant surface admits exactly the runtime declaration's domain (CompliantSurfaceDeclaration.Validate): half
+    // extents and stroke 1/1024–16 m, rest height within ±16 m, arrival depth finite in (0, stroke/2), tension 120–1200 N/m, damping
+    // ratio 0.08–0.8, on a static owner.
+    [Fact]
+    public void CompliantSurfaceCapabilityAdmitsTheRuntimeDomainAndRefusesOutsideIt()
+    {
+        var entry = Bundle.BundleSchema.Entry(new CompliantFixture());
+        var surface = entry.Mechanical!.CompliantSurface!.Value;
+        Bundle.BundleEntry With(CompliantSurfaceDescriptor value, KinematicMode mode = KinematicMode.Static) =>
+            entry with { Mechanical = entry.Mechanical! with { KinematicMode = mode, CompliantSurface = value } };
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
+        const float least = 1f / 1024f;
+        foreach (var admitted in new[]
+        {
+            surface,
+            surface with { Tension = MechanicalValue.Fixed(120f), DampingRatio = MechanicalValue.Fixed(.08f) },
+            surface with { Tension = MechanicalValue.Fixed(1200f), DampingRatio = MechanicalValue.Fixed(.8f) },
+            surface with { HalfExtents = new(least, least), MaxStroke = least, ArrivalDepth = least / 4f },
+            surface with { HalfExtents = new(16f, 16f), MaxStroke = 16f, RestHeight = 16f },
+            surface with { RestHeight = -16f },
+        }) Assert.Empty(Check(With(admitted)));
+        var below = MathF.BitDecrement(least);
+        foreach (var (name, invalid, field) in new[]
+        {
+            ("half x below 1/1024 m", surface with { HalfExtents = new(below, .9f) }, "HalfExtents"),
+            ("half z below 1/1024 m", surface with { HalfExtents = new(1.2f, below) }, "HalfExtents"),
+            ("half x above 16 m", surface with { HalfExtents = new(MathF.BitIncrement(16f), .9f) }, "HalfExtents"),
+            ("zero half z", surface with { HalfExtents = new(1.2f, 0f) }, "HalfExtents"),
+            ("nonfinite half z", surface with { HalfExtents = new(1.2f, float.NaN) }, "HalfExtents"),
+            ("rest above 16 m", surface with { RestHeight = MathF.BitIncrement(16f) }, "RestHeight"),
+            ("nonfinite rest", surface with { RestHeight = float.NaN }, "RestHeight"),
+            ("stroke below 1/1024 m", surface with { MaxStroke = below }, "MaxStroke"),
+            ("negative stroke", surface with { MaxStroke = -.5f }, "MaxStroke"),
+            ("stroke above 16 m", surface with { MaxStroke = MathF.BitIncrement(16f) }, "MaxStroke"),
+            ("zero arrival depth", surface with { ArrivalDepth = 0f }, "ArrivalDepth"),
+            ("negative arrival depth", surface with { ArrivalDepth = -.1f }, "ArrivalDepth"),
+            ("nonfinite arrival depth", surface with { ArrivalDepth = float.NaN }, "ArrivalDepth"),
+            ("arrival depth at half the stroke", surface with { ArrivalDepth = surface.MaxStroke / 2f }, "ArrivalDepth"),
+            ("tension below 120", surface with { Tension = MechanicalValue.Fixed(119.9f) }, "Tension"),
+            ("tension above 1200", surface with { Tension = MechanicalValue.Fixed(1200.1f) }, "Tension"),
+            ("damping below 0.08", surface with { DampingRatio = MechanicalValue.Fixed(.079f) }, "DampingRatio"),
+            ("damping above 0.8", surface with { DampingRatio = MechanicalValue.Fixed(.801f) }, "DampingRatio"),
+            ("unknown tension parameter", surface with { Tension = MechanicalValue.FromParameter("unknown") }, "Tension"),
+            ("unknown damping parameter", surface with { DampingRatio = MechanicalValue.FromParameter("unknown") }, "DampingRatio"),
+        }) Assert.True(Check(With(invalid)).Any(error => error.Detail.Contains($".CompliantSurface.{field}", StringComparison.Ordinal)), name);
+        Assert.Contains(Check(With(surface, KinematicMode.Dynamic)), error => error.Detail.Contains(".CompliantSurface.Owner", StringComparison.Ordinal));
+    }
+
+    // The bundle's compliant-surface key is required, its value nullable: a mechanical payload written without the key is refused,
+    // and one that names it null (no surface) is read.
+    [Fact]
+    public void TheMechanicalPayloadRequiresTheCompliantSurfaceKeyAndAdmitsANullValue()
+    {
+        var json = Bundle.BundleSchema.Write([new Fixture()]);
+        Assert.Contains("\"CompliantSurface\": null,", json, StringComparison.Ordinal);
+        Assert.Null(Assert.Single(Bundle.BundleSchema.Read(json).Elements).Mechanical!.CompliantSurface);
+        var missing = json.Replace("\"CompliantSurface\": null,", "", StringComparison.Ordinal);
+        Assert.NotEqual(json, missing);
+        Assert.ThrowsAny<System.Text.Json.JsonException>(() => Bundle.BundleSchema.Read(missing));
+    }
+
+    // A committed deflection binding reads the row only a declared compliant surface compiles: admitted on the compliant fixture,
+    // refused on an element without one.
+    [Fact]
+    public void ASurfaceDeflectionBindingRequiresADeclaredCompliantSurface()
+    {
+        var sag = new PresentationBinding("Visual/Bed", PresentationProperty.LocalY, PresentationDriver.CommittedSurfaceDeflection,
+            .19f, -.81f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None);
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate, PresentationBinding binding) => Bundle.BundleValidator.Validate(
+            [new("Fixture", candidate with { Presentation = candidate.Presentation with { Bindings = [binding] } })]);
+        Assert.Empty(Check(Bundle.BundleSchema.Entry(new CompliantFixture()), sag));
+        Assert.Contains(Check(Bundle.BundleSchema.Entry(new Fixture()), sag),
+            error => error.Detail.Contains(".Presentation.CompliantSurface", StringComparison.Ordinal));
+        // The deflection is a committed state, read untimed and linear: a timed, curved binding is refused even on a compliant surface.
+        Assert.Contains(Check(Bundle.BundleSchema.Entry(new CompliantFixture()), sag with { Curve = PresentationCurve.SmoothStep, Duration = .2f }),
+            error => error.Detail.Contains(".Presentation.DriverCurve", StringComparison.Ordinal));
+    }
+
     // Story 10.2a (CAT-067 D3): a body mass bound to a parameter names one declared Real kilogram parameter whose whole range lies in
     // the compiled mass domain [1/1024, 1024] kg, on a dynamic body, and the fixed declared mass is that parameter's default (one truth).
     // A cylinder's radial lanes are bound together or not at all, so every evaluation keeps X = Z.

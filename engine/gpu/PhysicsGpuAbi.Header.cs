@@ -42,8 +42,10 @@ public static partial class PhysicsGpuAbi
     public const int HeaderTensileSpanCountOffset = 128;
     /// <summary>Header word holding the revolute joint row count (Story 10.3).</summary>
     public const int HeaderRevoluteCountOffset = 132;
+    /// <summary>Header word holding the compliant surface row count (Story 10.5).</summary>
+    public const int HeaderCompliantSurfaceCountOffset = 136;
     /// <summary>Header padding word (zero tail).</summary>
-    public const int HeaderPaddingOffset = 136;
+    public const int HeaderPaddingOffset = 140;
 
     // Contact-work record (ContactWorkBytes): identity U64 at 0, owner body slot U32, target kind, the f32 target and
     // admission speeds, cooldown, named target slot, occurrence count, preload, padding 40..47, available work, the work

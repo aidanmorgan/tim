@@ -26,6 +26,14 @@ public static partial class WorkshopWireFlatBuffers
         return new(new(row.Id), new(row.Route), row.Order, new(row.BodyA), new(a.X, a.Y, a.Z),
             new(row.BodyB), new(b.X, b.Y, b.Z), row.MaximumLength, row.Complete);
     }
+
+    private static Offset<W.CompliantSurfaceRecord> EncodeCompliantSurface(FlatBufferBuilder b, CompliantSurfaceDeclaration value) =>
+        W.CompliantSurfaceRecord.CreateCompliantSurfaceRecord(b, value.Id.Value, value.Body.Value, value.HalfX, value.HalfZ,
+            value.RestHeight, value.MaxStroke, value.Tension, value.DampingRatio, value.ArrivalDepth);
+
+    private static CompliantSurfaceDeclaration DecodeCompliantSurface(W.CompliantSurfaceRecord row) => new(new(row.Id), new(row.Body),
+        row.HalfX, row.HalfZ, row.RestHeight, row.MaxStroke, row.ArrivalDepth, row.Tension, row.DampingRatio);
+
     private static Offset<W.CapabilityRigidBodyDeclarationRecord> EncodeCapabilityRigidBodyDeclarationRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.RigidBodyDeclaration value)
     {
         var cell = EncodeCapabilityCellOriginRecord(b, value.Cell);
@@ -756,6 +764,7 @@ public static partial class WorkshopWireFlatBuffers
         var prismatics = W.CompiledSceneRecord.CreatePrismaticsVector(b, scene.Physics.Prismatics.ToArray().Select(value => EncodeCapabilityPrismaticConstraintDeclarationRecord(b, value)).ToArray());
         var revolutes = W.CompiledSceneRecord.CreateRevolutesVector(b, scene.Physics.Revolutes.ToArray().Select(value => EncodeCapabilityRevoluteConstraintDeclarationRecord(b, value)).ToArray());
         var tensile = W.CompiledSceneRecord.CreateTensileSpansVector(b, scene.Physics.TensileSpans.ToArray().Select(value => EncodeTensile(b, value)).ToArray());
+        var compliant_surfaces = W.CompiledSceneRecord.CreateCompliantSurfacesVector(b, scene.Physics.CompliantSurfaces.ToArray().Select(value => EncodeCompliantSurface(b, value)).ToArray());
         var supply_nodes = W.CompiledSceneRecord.CreateSupplyNodesVector(b, scene.Physics.SupplyGraph.Nodes.ToArray().Select(value => EncodeCapabilitySupplyNodeDeclarationRecord(b, value)).ToArray());
         var supply_edges = W.CompiledSceneRecord.CreateSupplyEdgesVector(b, scene.Physics.SupplyGraph.Edges.ToArray().Select(value => EncodeCapabilitySupplyEdgeRecord(b, value)).ToArray());
         var contact_load_sensors = W.CompiledSceneRecord.CreateContactLoadSensorsVector(b, scene.Physics.ContactLoadSensors.ToArray().Select(value => EncodeCapabilityContactLoadSensorDeclarationRecord(b, value)).ToArray());
@@ -811,6 +820,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddEditableSources(b, editable);
         W.CompiledSceneRecord.AddPresentation(b, presentation);
         W.CompiledSceneRecord.AddRevolutes(b, revolutes);
+        W.CompiledSceneRecord.AddCompliantSurfaces(b, compliant_surfaces);
         return W.CompiledSceneRecord.EndCompiledSceneRecord(b);
     }
 
@@ -835,12 +845,14 @@ public static partial class WorkshopWireFlatBuffers
             var contact_load_sensors = Enumerable.Range(0, row.ContactLoadSensorsLength).Select(i => DecodeCapabilityContactLoadSensorDeclarationRecord(Required(row.ContactLoadSensors(i), "ContactLoadSensors"))).ToArray();
             var prismatic_drives = Enumerable.Range(0, row.PrismaticDrivesLength).Select(i => DecodeCapabilityPrismaticDriveDeclarationRecord(Required(row.PrismaticDrives(i), "PrismaticDrives"))).ToArray();
             var tensile = Enumerable.Range(0, row.TensileSpansLength).Select(i => DecodeTensile(Required(row.TensileSpans(i), "TensileSpans"))).ToArray();
+            var compliant_surfaces = Enumerable.Range(0, row.CompliantSurfacesLength).Select(i => DecodeCompliantSurface(Required(row.CompliantSurfaces(i), "CompliantSurfaces"))).ToArray();
             var activation_nodes = Enumerable.Range(0, row.ActivationNodesLength).Select(i => DecodeCapabilityActivationNodeDeclarationRecord(Required(row.ActivationNodes(i), "ActivationNodes"))).ToArray();
             var activation_edges = Enumerable.Range(0, row.ActivationEdgesLength).Select(i => DecodeCapabilityActivationEdgeRecord(Required(row.ActivationEdges(i), "ActivationEdges"))).ToArray();
             var passage_sensors = Enumerable.Range(0, row.PassageSensorsLength).Select(i => DecodeCapabilityPassageSensorDeclarationRecord(Required(row.PassageSensors(i), "PassageSensors"))).ToArray();
             var physics = new PhysicsSceneDeclaration(new(row.DocumentLow, row.DocumentHigh), row.NextIdentity,
                 bodies, colliders, materials, sensors, guides, triggers, contact_works, orientation_sensors,
-                electrical_sources, electrical_bindings, prismatics, supply_nodes, supply_edges, contact_load_sensors, prismatic_drives, tensile, revolutes: revolutes);
+                electrical_sources, electrical_bindings, prismatics, supply_nodes, supply_edges, contact_load_sensors, prismatic_drives, tensile,
+                revolutes: revolutes, compliantSurfaces: compliant_surfaces);
             var activation = new ActivationNetwork(activation_nodes, activation_edges, row.ActivationSubsteps, passage_sensors,
                 Enumerable.Range(0, row.ContactOwnersLength).Select(i => new GpuBodyId(row.ContactOwners(i))).ToArray());
             var presentation = Enumerable.Range(0, row.PresentationLength).Select(i =>

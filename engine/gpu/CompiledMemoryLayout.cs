@@ -33,6 +33,8 @@ public sealed class CompiledMemoryLayout
     private readonly Dictionary<ulong, int> _prismaticOffsets = new(4);
     private readonly Dictionary<ulong, int> _revoluteSlots = new(4);
     private readonly Dictionary<ulong, int> _revoluteOffsets = new(4);
+    private readonly Dictionary<ulong, int> _compliantSurfaceSlots = new(4);
+    private readonly Dictionary<ulong, int> _compliantSurfaceOffsets = new(4);
 
     public IReadOnlyDictionary<GpuBodyId, int> BodySlots => _bodySlots;
     public IReadOnlyDictionary<GpuBodyId, int> BodyOffsets => _bodyOffsets;
@@ -56,6 +58,8 @@ public sealed class CompiledMemoryLayout
     public IReadOnlyDictionary<ulong, int> PrismaticOffsets => _prismaticOffsets;
     public IReadOnlyDictionary<ulong, int> RevoluteSlots => _revoluteSlots;
     public IReadOnlyDictionary<ulong, int> RevoluteOffsets => _revoluteOffsets;
+    public IReadOnlyDictionary<ulong, int> CompliantSurfaceSlots => _compliantSurfaceSlots;
+    public IReadOnlyDictionary<ulong, int> CompliantSurfaceOffsets => _compliantSurfaceOffsets;
 
     public int GetBodySlot(GpuBodyId id) => _bodySlots[id];
     public int GetBodyOffset(GpuBodyId id) => _bodyOffsets[id];
@@ -79,6 +83,8 @@ public sealed class CompiledMemoryLayout
     public int GetPrismaticOffset(ulong id) => _prismaticOffsets[id];
     public int GetRevoluteSlot(ulong id) => _revoluteSlots[id];
     public int GetRevoluteOffset(ulong id) => _revoluteOffsets[id];
+    public int GetCompliantSurfaceSlot(ulong id) => _compliantSurfaceSlots[id];
+    public int GetCompliantSurfaceOffset(ulong id) => _compliantSurfaceOffsets[id];
 
     public static CompiledMemoryLayout Build(
         PhysicsWorldLayout world,
@@ -92,7 +98,8 @@ public sealed class CompiledMemoryLayout
         ReadOnlySpan<OrientationSensorDeclaration> orientationSensors,
         ReadOnlySpan<ElectricalSourceDeclaration> electricalSources,
         ReadOnlySpan<PrismaticConstraintDeclaration> prismatics,
-        ReadOnlySpan<RevoluteConstraintDeclaration> revolutes = default)
+        ReadOnlySpan<RevoluteConstraintDeclaration> revolutes,
+        ReadOnlySpan<CompliantSurfaceDeclaration> compliantSurfaces)
     {
         var layout = new CompiledMemoryLayout();
         for (var i = 0; i < bodies.Length; i++)
@@ -160,6 +167,12 @@ public sealed class CompiledMemoryLayout
             var id = revolutes[i].Id.Value;
             layout._revoluteSlots[id] = i;
             layout._revoluteOffsets[id] = world.RevoluteOffset(i);
+        }
+        for (var i = 0; i < compliantSurfaces.Length; i++)
+        {
+            var id = compliantSurfaces[i].Id.Value;
+            layout._compliantSurfaceSlots[id] = i;
+            layout._compliantSurfaceOffsets[id] = world.CompliantSurfaceOffset(i);
         }
         return layout;
     }

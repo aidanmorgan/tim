@@ -71,6 +71,17 @@ public readonly record struct PulleyWheelRead(GpuBodyId Pulley, float Travel, fl
     }
 }
 
+/// <summary>A compliant surface's committed bed deflection (Story 10.5): the depth below its rest plane of the deepest engaged
+/// support sample, within its stroke; zero when nothing is engaged.</summary>
+public readonly record struct CompliantSurfaceRead(GpuBodyId Frame, float Deflection)
+{
+    public void Validate()
+    {
+        if (Frame.Value == 0 || !float.IsFinite(Deflection) || Deflection < 0f)
+            throw new ArgumentException("Invalid committed compliant surface observation.");
+    }
+}
+
 /// <summary>Immutable committed presentation queries. Population comes from the compiled world.</summary>
 public readonly struct PhysicsPresentationRead
 {
@@ -78,6 +89,8 @@ public readonly struct PhysicsPresentationRead
     public ReadOnlySpan<RopeSpanRead> Ropes => _ropes;
     private readonly PulleyWheelRead[]? _pulleys;
     public ReadOnlySpan<PulleyWheelRead> Pulleys => _pulleys;
+    private readonly CompliantSurfaceRead[]? _surfaces;
+    public ReadOnlySpan<CompliantSurfaceRead> Surfaces => _surfaces;
     private readonly ActuatorDriveRead[]? _actuators;
     private readonly ContactLoadSensorRead[]? _loads;
     private readonly ElectricalLogicRead[]? _logic;
@@ -85,8 +98,16 @@ public readonly struct PhysicsPresentationRead
     public ReadOnlySpan<ActuatorDriveRead> Actuators => _actuators;
     public ReadOnlySpan<ContactLoadSensorRead> Loads => _loads;
     public PhysicsPresentationRead(ReadOnlySpan<ActuatorDriveRead> actuators, ReadOnlySpan<ContactLoadSensorRead> loads, ReadOnlySpan<ElectricalLogicRead> logic = default,
-        ReadOnlySpan<RopeSpanRead> ropes = default, ReadOnlySpan<PulleyWheelRead> pulleys = default)
+        ReadOnlySpan<RopeSpanRead> ropes = default, ReadOnlySpan<PulleyWheelRead> pulleys = default,
+        ReadOnlySpan<CompliantSurfaceRead> surfaces = default)
     {
+        for (var i = 0; i < surfaces.Length; i++)
+        {
+            surfaces[i].Validate();
+            if (i > 0 && surfaces[i - 1].Frame.Value >= surfaces[i].Frame.Value)
+                throw new ArgumentException("Compliant surface observations require ordered unique frames.");
+        }
+        _surfaces = surfaces.ToArray();
         for (var i = 0; i < ropes.Length; i++)
         {
             ropes[i].Validate();
@@ -124,7 +145,8 @@ public readonly struct PhysicsPresentationRead
         _actuators = actuators.ToArray(); _loads = loads.ToArray(); _logic=logic.ToArray();
     }
     public bool HasSameBits(PhysicsPresentationRead other) =>
-        Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads) && Logic.SequenceEqual(other.Logic) && Ropes.SequenceEqual(other.Ropes) && Pulleys.SequenceEqual(other.Pulleys);
+        Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads) && Logic.SequenceEqual(other.Logic) && Ropes.SequenceEqual(other.Ropes) &&
+        Pulleys.SequenceEqual(other.Pulleys) && Surfaces.SequenceEqual(other.Surfaces);
 }
 
 public static partial class PhysicsGpuAbi
@@ -219,7 +241,10 @@ public static partial class PhysicsGpuAbi
 
         var pulleys = pulleyMap.OrderBy(kv => kv.Key.Value)
             .Select(kv => new PulleyWheelRead(kv.Key, kv.Value.Travel, kv.Value.Angle)).ToArray();
-        return new(actuators, loads, inputs.Logic, ropes, pulleys);
+        var surfaces = new CompliantSurfaceRead[layout.CompliantSurfaces];
+        for (var i = 0; i < surfaces.Length; i++) surfaces[i] = ReadCompliantSurfaceDeflection(bytes, i);
+        Array.Sort(surfaces, (a, b) => a.Frame.Value.CompareTo(b.Frame.Value));
+        return new(actuators, loads, inputs.Logic, ropes, pulleys, surfaces);
     }
     private static Vector3 PresentationVector(ReadOnlySpan<byte> body, int offset) =>
         new(RF(body, offset), RF(body, offset + 4), RF(body, offset + 8));
