@@ -1196,3 +1196,10 @@ Actual (`ARopeThatTightensOnALoadedBedSharesTheLoadWithoutStretchOrEnergyGain`):
 Actual: as predicted. Shared load: mean sag 0.0327 m, rope Taut over the last second. Control: mean sag 0.0654 m, rope Slack. Frame: no collider enters the stroke volume. Validator: both rows refused. The CAT-065 stability envelope now states the per-mode condition with ζ_eff, and I checked its figures by solving the quadratic for 1/√m: centred 5.64 g, flat Domino 34.1 g, slender square rod 37.4 g. The energy-envelope comment now gives the centred undamped figure and points to it. Tests run: TrampolineTests 173/173, BundleValidatorTests 62/62.
 
 **Verification (staged candidate on 9519d83b, 57 files; spec and attempt patches unstaged).** Full round (log `$TMPDIR/full-round-loop5.log`): builds 0 warnings, 0 errors; CuriousContraptions.tests 4,862/0/0 (4,850 + 12 new cases), BundleElements.Tests 225/0/0, Coverage.Tests 77/0/0, E2eRunner.Tests 192/0/0, WorkerAotGuard.Tests 17/0/0, Skipped 0 everywhere; round exit 0. Unmodified `.githooks/pre-commit` on the staged snapshot (log `$TMPDIR/hook-loop5.log`): exit 0 (scoped 127/0/0, Anvil 0 errors, 0 warnings).
+
+## Publication receipt — 2 November 2026
+
+- **Commits:** `5b597c2e` (slice) and `e7928bfdc5a92e50fff5ce2679811dc16c0a68bd` (independent re-review fixes), pushed as a fast-forward of `origin/main` from `9519d83bf17cfe2ac86bfdf372bdbc8738dd396c`. The coordinator confirmed afterwards that remote `main` equals `e7928bfd`.
+- **Approval:** the five-layer Auto review through loop 5, the owner decisions of 2 November (declared arrival depth; friction deferred), and three independent re-review rounds of the fix delta ending in Pass.
+- **Tests on the committed content:** full local round 5,374/0/0, `Skipped: 0`. Normal hooks 127/0/0 on both commits.
+- **Not monitored:** CI build, Pages artifact and deployment, per the owner instruction of 29 October 2026, so they remain unverified. Browser qualification is pending until the post-catalogue phase.

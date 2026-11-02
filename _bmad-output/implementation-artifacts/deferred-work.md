@@ -203,7 +203,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-10-5-trampoline.md` (owner decision, 2 November 2026)
   summary: Compliant surfaces have no tangential friction or rolling resistance. The membrane pushes only along its normal, so a load on the Trampoline bed slides freely along it until a rail stops it. CAT-065 §2 records this as a residual.
   evidence: Story 10.5 review loop 4: a 1 kg Weight thrown onto the bed by a 12 m/s straddle still drifts at about 0.4 m/s after 8 s (`ABodyThatTipsFullyOntoTheBedSettlesWithEverySampleOnTopAndItsSagWithinTheOffsetBias`, which therefore bounds only states and sag, not drift). The owner deferred the law on 2 November 2026 rather than build it inside Story 10.5.
-  destination: a separate engine slice. Intended law: tangential friction (and rolling resistance for spheres) applied per bearing sample, energy-removing only, with its own edge-case analysis (crossing the footprint edge, offsets, stroke floor contact, stacked loads); it then re-qualifies the Trampoline's resting and sliding cases.
+  destination: a separate engine slice. Intended law: tangential friction (and rolling resistance for spheres) applied per bearing sample, energy-removing only, with its own edge-case analysis (crossing the footprint edge, offsets, stroke floor contact, stacked loads); it then re-qualifies the Trampoline's resting and sliding cases. It must also re-derive `ABodyLeavingTheFootprintBelowTheRestPlaneIsDisarmed`, which relies on free sliding to force the under-rail exit (Story 10.5 loop-5 Blind 5).
 
 ## Owner-requested subtask — remove core warm-up (26 October 2026)
 
