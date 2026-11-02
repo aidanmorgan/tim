@@ -5,7 +5,7 @@ created: '2026-10-31'
 baseline_revision: 9519d83bf17cfe2ac86bfdf372bdbc8738dd396c # merge-base after merging published main 1 Nov 2026; originally 2ee79e8b
 status: 'done'
 review_loop_iteration: 5
-followup_review_recommended: true
+followup_review_recommended: false # follow-up review done 2 Nov 2026 (three re-review rounds, Pass); see Auto Run Result
 context: []
 warnings: []
 deferred:
@@ -826,7 +826,7 @@ Start from `spec-10-5-attempt-5.patch` (working artifact, not retained), the rev
   - `[low]` `[reject]` (Edge 2) A compliant package that also declares sliders or hinges would push its own moving bodies. No such package exists, and the fix adds a new validator rule.
   - `[low]` `[reject]` (Edge 3) The opening ≥ 2a rule is not validated generically. The shipped frame is pinned by its package test, a generic check needs semantics for which colliders bound the footprint, and the rule is documented for package authors in CAT-065.
   - `[low]` `[patch]` (Edge 4) The documented stability floor ignores off-centre coupling and the explicit damper. Not reachable with the catalogue: the 0.25 kg Weight and the 0.4 kg Domino rod end stay below c·h/m_eff ≈ 0.9 at 1200 N/m, ζ 0.8. → patch: corrected envelope in CAT-065.
-  - `[low]` `[patch]` (Edge 5) The same stability claim, stated in the engine comments. Same root as Edge 4. → patch: same correction.
+  - `[low]` `[patch]` (Edge 5) The same stability claim, stated in the engine comments. Same root as Edge 4. → patch: same correction. The re-review on 5b597c2e found no stability claim in the engine. The only other copy was the test comment at `TrampolineTests.cs:1690`, which is corrected in the re-review fixes.
   - `[low]` `[reject]` (Edge 6) carried — the TGS claim. Same as the loop-0 row Edge 7.
   - `[medium]` `[patch]` (Blind 1) The tether test never has the rope and the bed act together. The taut rope holds the Weight 2.4 m up, and the slack rope can never tighten. Harvest row 22's rope-length bound is not asserted. → patch, in two parts:
     1. Re-pick lengths so the taut rope holds the Weight just above a bed it would otherwise load, and assert rope length ≤ L + 0.002.
@@ -911,6 +911,16 @@ Status: done after review loop 5. The loop-5 review raised no new engagement-bou
 
 - **Earlier coordinator rounds:** 5,361/0/0 on the loop-4 candidate and 5,373/0/0 on the loop-5 candidate.
 - Implementer after the patches: TrampolineTests 172/0/0, BundleValidatorTests 62/0/0, pre-commit hook exit 0 (127/0/0, Anvil clean).
+
+**Independent re-review of the fix delta.** AGENTS.md requires fixes to be re-reviewed independently, and `followup_review_recommended` was set to `true`.
+
+| Round | Delta reviewed | Findings | Outcome |
+|---|---|---|---|
+| 1 | Loop-5 candidate against committed `5b597c2e` | 5: shared-load test medium; stability envelope ζ_eff and centred n = 4; stale test comment; stroke-volume guard lost with the collider count; DriverCurve row changed two conditions at once | Fixed by the implementer |
+| 2 | The five fixes | All confirmed correct. 1 new low: guard sized only boxes and cylinders | Fixed: guard throws on unmodelled shapes |
+| 3 | The guard fix | Confirmed correct, no defect | Pass |
+
+The recommendation is satisfied, and the fixes land as a follow-up commit on `5b597c2e`.
 
 **Process disclosures:**
 - **Coordinator Anvil gap.** Most coordinator edits to this spec during loops 4 and 5 were made without a per-write `anvil_validate_write`. The one call made used a placeholder `contentSha256` with a preview. The staged spec is scanned by the pre-commit hook's Anvil step before commit. That covers the content, not the per-write rule.
@@ -1174,5 +1184,15 @@ Tests run: TrampolineTests 172/172 and BundleValidatorTests 62/62.
 - **Every tick.** Rope length ≤ L + 0.002 m (expected stretch under 1 mm), and E/E0 ≤ 1.005, with the bed store counted from the committed offsets (offsets are 0, since it starts on the plane). The rope tightening and the bed damper only remove energy.
 
 Actual (`ARopeThatTightensOnALoadedBedSharesTheLoadWithoutStretchOrEnergyGain`): mean sag 0.0327 m, which is d_r itself, between 0 and m·g/k = 0.0654 m. That is just under the predicted 0.033–0.035 range because the stretch and sample spread I allowed for came out negligible. Longest rope 2.91416 m (L + 0.08 mm). Worst E/E0 1.00000, so no tick exceeds the start. The direction and every assertion hold as predicted. Tests run: the two tether facts, both passing.
+
+**Second review on 5b597c2e.** Prediction, written before the changes ran:
+- **Shared load.** Settled mean sag within ±0.015 m of d_r = 0.0327 m (it read 0.0327). The rope is Taut on every tick of the last second.
+- **Control rope.** Slack by 3·m·g/k = 0.196 m, more than the undamped drop's overshoot of 2·m·g/k, so it never tightens. The bed alone settles within ±0.015 m of m·g/k = 0.0654 m, and the rope is Slack over the last second.
+  - The two sag bands, [0.018, 0.048] and [0.050, 0.080], do not overlap. So the control observes the bed's push: a bed that pushed nothing would let the Weight fall to the rope.
+- **Frame volume.** No frame collider's bounds enter the stroke volume (the open footprint between the stroke floor and the rest plane) beyond the 10 µm slack.
+  - The footprint plus the 1 cm edge band cannot be used. The rails' inner faces sit on the footprint edges, so every rail lies inside that band.
+- **Validator rows.** Linear with a 0.2 s duration and SmoothStep with no duration are each refused with `.Presentation.DriverCurve`.
+
+Actual: as predicted. Shared load: mean sag 0.0327 m, rope Taut over the last second. Control: mean sag 0.0654 m, rope Slack. Frame: no collider enters the stroke volume. Validator: both rows refused. The CAT-065 stability envelope now states the per-mode condition with ζ_eff, and I checked its figures by solving the quadratic for 1/√m: centred 5.64 g, flat Domino 34.1 g, slender square rod 37.4 g. The energy-envelope comment now gives the centred undamped figure and points to it. Tests run: TrampolineTests 173/173, BundleValidatorTests 62/62.
 
 **Verification (staged candidate on 9519d83b, 57 files; spec and attempt patches unstaged).** Full round (log `$TMPDIR/full-round-loop5.log`): builds 0 warnings, 0 errors; CuriousContraptions.tests 4,862/0/0 (4,850 + 12 new cases), BundleElements.Tests 225/0/0, Coverage.Tests 77/0/0, E2eRunner.Tests 192/0/0, WorkerAotGuard.Tests 17/0/0, Skipped 0 everywhere; round exit 0. Unmodified `.githooks/pre-commit` on the staged snapshot (log `$TMPDIR/hook-loop5.log`): exit 0 (scoped 127/0/0, Anvil 0 errors, 0 warnings).

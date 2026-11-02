@@ -252,8 +252,10 @@ public sealed class TrampolineTests(ITestOutputHelper output)
     // whole footprint; two side and two end rails, 0.2 m tall, have their tops on the rest plane and their inner faces on the footprint
     // edges; four gold corner posts stand on the plate and reach the rails' underside, each outside the footprint, so none intrudes into
     // the stroke volume; the feet hang below the plate. Nothing else collides between the rails' underside and the plate, so the sides
-    // stay open and the compression reads from the side. The posts collide as drawn (cylinders of r 1/16 m, the engine's minimum
-    // cylinder radius), and every frame solid is inelastic.
+    // stay open and the compression reads from the side, and no frame solid enters the stroke volume (the open footprint between the
+    // stroke floor and the rest plane; the rails' inner faces lie on the footprint edges, so the footprint itself, not the footprint plus
+    // e, bounds it). The posts collide as drawn (cylinders of r 1/16 m, the engine's minimum cylinder radius), and every frame solid is
+    // inelastic.
     [Fact]
     public void TheFrameIsBuiltAsDesignedWithOpenSidesAndIsInelastic()
     {
@@ -291,6 +293,23 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         Assert.All(feet, foot => Assert.True(Top(foot) <= Bottom(plate) + slack, "feet hang below the plate"));
         Assert.All(colliders.Where(c => !posts.Contains(c)), c =>
             Assert.True(Bottom(c) >= Rest - RailHeight - slack || Top(c) <= Rest - Stroke + slack, "the sides are open below the rails"));
+        Assert.All(colliders, c =>
+        {
+            // The collider's frame-local bounds: |R|·(half extents), with a cylinder's half extents (r, half height, r).
+            var q = new Quaternion(c.Pose.Rotation.X, c.Pose.Rotation.Y, c.Pose.Rotation.Z, c.Pose.Rotation.W);
+            var h = c.Shape switch
+            {
+                Gpu.ColliderShapeKind.Box => new Vector3(c.HalfExtents.X, c.HalfExtents.Y, c.HalfExtents.Z),
+                Gpu.ColliderShapeKind.Cylinder => new Vector3(c.Radius.Value, c.HalfExtents.Y, c.Radius.Value),
+                _ => throw new ArgumentException($"The test has no bounds for a {c.Shape} frame collider.")
+            };
+            var reach = new[] { Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ }.Aggregate(Vector3.Zero, (sum, axis) =>
+                sum + Vector3.Abs(Vector3.Transform(axis, q)) * Vector3.Dot(axis, h));
+            var t = new Vector3(c.Pose.Translation.X, c.Pose.Translation.Y, c.Pose.Translation.Z);
+            var inside = MathF.Abs(t.X) - reach.X < HalfX - slack && MathF.Abs(t.Z) - reach.Z < HalfZ - slack &&
+                t.Y - reach.Y < Rest - slack && t.Y + reach.Y > Rest - Stroke + slack;
+            Assert.False(inside, $"a {c.Shape} collider at {t} enters the stroke volume");
+        });
         var frameMaterials = colliders.Select(c => c.Material).ToHashSet();
         Assert.All(scene.Materials.ToArray().Where(m => frameMaterials.Contains(m.Id)), m => Assert.Equal(new Restitution(0f), m.Restitution));
     }
@@ -1686,8 +1705,9 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         Math.Acos(Math.Clamp(1 - 2 * (body.Rotation.X * body.Rotation.X + body.Rotation.Z * body.Rotation.Z), -1, 1)) * 180 / Math.PI;
 
     // The energy envelope: payloads of 0.25–4 kg arriving at 2–6 m/s on tensions of 120–1200 N/m never hold more mechanical energy,
-    // membrane store included, than they started with (0.5 % of the energy above the stroke floor). The stiffest corner (0.25 kg at
-    // 6 m/s on 1200 N/m) is the explicit force's hardest case, ω·h = √(1200/0.25)/480 ≈ 0.14.
+    // membrane store included, than they started with (0.5 % of the energy above the stroke floor). The stiffest corner is 0.25 kg at
+    // 6 m/s on 1200 N/m: centred and undamped (four coincident samples, k in total), ω·h = √(1200/0.25)/480 ≈ 0.14. CAT-065 §2's
+    // stability envelope gives the off-centre and damped bound.
     [Theory]
     [InlineData(.5f, 2f, 120f)]
     [InlineData(.5f, 6f, 600f)]
@@ -2106,11 +2126,15 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         Assert.True(Velocity(Find(slack[contact.End], weight)).Y > 1f, "rebounds");
     }
 
-    // Rope and bed sharing one load. The 2 kg Weight stands on the rest plane under the anchor (its offsets are 0), tied by a rope
-    // slack by d_r = ½·m·g/k: L = anchor height − (rest plane − d_r) − tie height = 6.5 − 3.2 + 0.0327 − 0.4193 ≈ 2.913 m. It sinks
-    // into the bed and the rope tightens at d_r, below the free sag m·g/k, so the rope carries the rest of the weight. Over the last
-    // second of 4 s the mean deflection lies strictly between 0 and m·g/k. On every tick the rope is no longer than L + 0.002 m, and the
-    // Weight's energy, with the bed store counted on its bearing samples from their committed offsets, never exceeds 1.005 × its start.
+    // Rope and bed sharing one load. The 2 kg Weight stands on the rest plane under the anchor (its offsets are its first substep's
+    // fall, ½·g·h² ≈ 21 µm), tied by a rope slack by d_r = ½·m·g/k: L = anchor height − (rest plane − d_r) − tie height = 6.5 − 3.2 +
+    // 0.0327 − 0.4193 ≈ 2.913 m. It sinks into the bed and the rope tightens at d_r, below the free sag m·g/k, so the rope carries the
+    // rest of the weight. Over the last second of 4 s the mean deflection is d_r within the intent's 1.5 cm settle band and the rope is
+    // Taut. On every tick the rope is no longer than L + 0.002 m, and the Weight's energy, with the bed store counted on its bearing
+    // samples from their committed offsets, never exceeds 1.005 × its start. Control observing the bed's push: a rope slack by 3·m·g/k,
+    // more than the undamped drop's overshoot of 2·m·g/k, never tightens, and the bed alone settles at m·g/k within the same band with
+    // the rope Slack (the two bands, d_r ± 1.5 cm and m·g/k ± 1.5 cm, do not overlap; a bed that pushed nothing would let the Weight
+    // fall to the rope).
     [Fact]
     public async Task ARopeThatTightensOnALoadedBedSharesTheLoadWithoutStretchOrEnergyGain()
     {
@@ -2130,9 +2154,16 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         var sag = run.Reads.Skip(3 * Rate).Average(read => Surface(read, bed));
         var longest = run.Reads.Max(read => Assert.Single(read.Presentation.Ropes.ToArray()).CurrentLength);
         output.WriteLine($"L {length:F4}: mean sag {sag:F4} (free {freeSag:F4}, rope tightens at {freeSag / 2:F4}), longest rope {longest:F5}, worst E/E0 {worst:F5}");
-        Assert.True(sag > 0 && sag < freeSag, $"mean sag {sag} is not between 0 and m·g/k {freeSag}");
+        Assert.InRange(sag, freeSag / 2 - SettleBand, freeSag / 2 + SettleBand);
+        Assert.All(run.Reads.Skip(3 * Rate), read => Assert.Equal(RopeState.Taut, Assert.Single(read.Presentation.Ropes.ToArray()).State));
         Assert.All(run.Reads, read => Assert.True(Assert.Single(read.Presentation.Ropes.ToArray()).CurrentLength <= length + .002f, "rope within L + 2 mm"));
         Assert.True(worst <= EnergyEnvelope, $"E/E0 reached {worst}");
+
+        var control = await RunWithSamples(Tethered(BedY, TetherAnchor.Y - (BedY - 3 * freeSag) - TetherTie), 4 * Rate);
+        var controlSag = control.Reads.Skip(3 * Rate).Average(read => Surface(read, bed));
+        output.WriteLine($"control: mean sag {controlSag:F4}");
+        Assert.InRange(controlSag, freeSag - SettleBand, freeSag + SettleBand);
+        Assert.All(control.Reads.Skip(3 * Rate), read => Assert.Equal(RopeState.Slack, Assert.Single(read.Presentation.Ropes.ToArray()).State));
     }
 
     // ---------------- Reset, replay and save ----------------

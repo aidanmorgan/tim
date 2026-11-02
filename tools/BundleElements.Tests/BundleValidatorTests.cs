@@ -164,9 +164,11 @@ public sealed class BundleValidatorTests
         Assert.Empty(Check(Bundle.BundleSchema.Entry(new CompliantFixture()), sag));
         Assert.Contains(Check(Bundle.BundleSchema.Entry(new Fixture()), sag),
             error => error.Detail.Contains(".Presentation.CompliantSurface", StringComparison.Ordinal));
-        // The deflection is a committed state, read untimed and linear: a timed, curved binding is refused even on a compliant surface.
-        Assert.Contains(Check(Bundle.BundleSchema.Entry(new CompliantFixture()), sag with { Curve = PresentationCurve.SmoothStep, Duration = .2f }),
-            error => error.Detail.Contains(".Presentation.DriverCurve", StringComparison.Ordinal));
+        // The deflection is a committed state, read untimed and linear: a timed binding and a curved one are each refused, even on a
+        // compliant surface.
+        foreach (var invalid in new[] { sag with { Duration = .2f }, sag with { Curve = PresentationCurve.SmoothStep } })
+            Assert.Contains(Check(Bundle.BundleSchema.Entry(new CompliantFixture()), invalid),
+                error => error.Detail.Contains(".Presentation.DriverCurve", StringComparison.Ordinal));
     }
 
     // Story 10.2a (CAT-067 D3): a body mass bound to a parameter names one declared Real kilogram parameter whose whole range lies in
