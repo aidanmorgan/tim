@@ -438,3 +438,10 @@ Implementer pre-commit hook: exit 0, Anvil clean, 127/0/0.
 - **Writes outside the worktree:** the implementer once wrote logs to the coordinator scratchpad.
 - **Coordinator slip:** I changed this spec's status line once with `sed -i`.
 - **Anvil:** several writes skipped the per-write Anvil check; the hook's Anvil scan covered the staged files.
+
+## Publication receipt — 3 November 2026
+
+- **Commit:** `2c008ee9869e4fc7ba010313cadf82545d110e03`, pushed as a fast-forward of `origin/main` from `b54d18571f7b0410e7860570fce2dd168e7bbe69`. The coordinator confirmed afterwards that remote `main` equals that SHA.
+- **Approval:** the five-layer Auto review (Forward-Only high fixed), plus two independent re-review rounds ending in Pass.
+- **Tests:** full local round 5,469/0/0, `Skipped: 0`, on the committed content. Normal hook 127/0/0.
+- **Unverified:** CI build, Pages artifact and deployment were not monitored, per the owner instruction of 29 October 2026. Browser qualification is pending until the post-catalogue phase.
