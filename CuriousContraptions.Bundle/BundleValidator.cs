@@ -179,6 +179,13 @@ public static class BundleValidator
                 // A committed deflection binding reads the row only a declared compliant surface compiles.
                 if (binding.Driver == PresentationDriver.CommittedSurfaceDeflection && mechanical?.CompliantSurface is null)
                     OutOfRange("Presentation.CompliantSurface");
+                // A committed blocked state is read only from a prismatic drive's moving contact; a revolute slot reports none.
+                if (binding.Driver == PresentationDriver.CommittedActuatorState && mechanical?.Sliders.Any(slider => slider.Drive is not null) != true)
+                    OutOfRange("Presentation.ActuatorState");
+                // A committed drive binding reads only a driven slot of its owner: it requires a driven slider or hinge.
+                if (binding.Driver == PresentationDriver.CommittedActuatorDrive && mechanical?.Sliders.Any(slider => slider.Drive is not null) != true &&
+                    mechanical?.Hinges.Any(hinge => hinge.Drive is not null) != true)
+                    OutOfRange("Presentation.ActuatorDrive");
                 if (!supported || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
                     (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
                     OutOfRange("Presentation.DriverCurve");
@@ -611,12 +618,13 @@ public static class BundleValidator
             if (slider.Drive is { } drive)
             {
                 // The target lies within the travel; every bound is a finite positive f32 (a zero bound is a drive that cannot move).
-                DriveValue(path + ".Drive.Target", drive.Target, parameters, slider.LowerLimit, slider.UpperLimit, positive: false);
+                DriveValue(path + ".Drive.Target", drive.Target, parameters, slider.LowerLimit, slider.UpperLimit, positive: false, ParameterUnit.Metre);
                 // 64 m/s: the game-grade envelope's linear speed bound.
-                DriveValue(path + ".Drive.MaxSpeed", drive.MaxSpeed, parameters, 0f, 64f, positive: true);
-                DriveValue(path + ".Drive.StoppingAcceleration", drive.StoppingAcceleration, parameters, 0f, float.MaxValue, positive: true);
-                DriveValue(path + ".Drive.MaxEffort", drive.MaxEffort, parameters, 0f, float.MaxValue, positive: true);
-                DriveValue(path + ".Drive.MaxPower", drive.MaxPower, parameters, 0f, float.MaxValue, positive: true);
+                DriveValue(path + ".Drive.MaxSpeed", drive.MaxSpeed, parameters, 0f, 64f, positive: true, ParameterUnit.MetrePerSecond);
+                DriveValue(path + ".Drive.StoppingAcceleration", drive.StoppingAcceleration, parameters, 0f, float.MaxValue, positive: true,
+                    ParameterUnit.MetrePerSecondSquared);
+                DriveValue(path + ".Drive.MaxEffort", drive.MaxEffort, parameters, 0f, float.MaxValue, positive: true, ParameterUnit.Newton);
+                DriveValue(path + ".Drive.MaxPower", drive.MaxPower, parameters, 0f, float.MaxValue, positive: true, ParameterUnit.Watt);
             }
         }
 
@@ -658,14 +666,15 @@ public static class BundleValidator
             if (hinge.Drive is { } drive)
             {
                 // A signed target within the game-grade angular speed envelope (128 rad/s); a positive finite torque bound.
-                DriveValue(path + ".Drive.TargetSpeed", drive.TargetSpeed, parameters, -128f, 128f, positive: false);
-                DriveValue(path + ".Drive.MaxTorque", drive.MaxTorque, parameters, 0f, float.MaxValue, positive: true);
+                DriveValue(path + ".Drive.TargetSpeed", drive.TargetSpeed, parameters, -128f, 128f, positive: false, ParameterUnit.RadianPerSecond);
+                DriveValue(path + ".Drive.MaxTorque", drive.MaxTorque, parameters, 0f, float.MaxValue, positive: true, ParameterUnit.NewtonMetre);
             }
         }
 
         /// <summary>One drive value inside [minimum, maximum] (excluding a zero bound when <paramref name="positive"/>): a constant
-        /// directly, a parameter by its whole declared range.</summary>
-        private void DriveValue(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters, float minimum, float maximum, bool positive)
+        /// directly, a parameter by its whole declared range and in the drive value's own <paramref name="unit"/>.</summary>
+        private void DriveValue(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters, float minimum, float maximum, bool positive,
+            ParameterUnit unit)
         {
             if (value.Source == MechanicalValueSource.Constant && value.Parameter is null && float.IsFinite(value.Constant))
             {
@@ -675,7 +684,8 @@ public static class BundleValidator
             Value(path, value, parameters, allowNegative: !positive);
             if (value.Source == MechanicalValueSource.Parameter &&
                 parameters.SingleOrDefault(parameter => parameter.Key == value.Parameter && parameter.Kind == ParameterKind.Real) is { Key: not null } parameter &&
-                (parameter.Minimum < minimum || parameter.Maximum > maximum || (positive && parameter.Minimum <= 0f)))
+                (parameter.Minimum < minimum || parameter.Maximum > maximum || (positive && parameter.Minimum <= 0f) ||
+                 parameter.Unit != unit))
                 OutOfRange(path);
         }
 

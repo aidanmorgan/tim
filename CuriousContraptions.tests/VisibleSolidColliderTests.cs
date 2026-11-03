@@ -80,6 +80,10 @@ public sealed class VisibleSolidColliderTests
                 "Visual/Visual_Socket", "Visual/Visual_Indicator"],
             ["Visual/Visual_Sleeve", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [], "Visual/Blade"),
 
+        // CAT-042: the rotor turns on its hinge (its own body); the gold index is printed flush on the rotor face.
+        [new PartId("motor")] = new(["Visual/Visual_Base", "Visual/Visual_Body", "Visual/Visual_Housing", "Visual/Visual_Stud", "Visual/Lamp",
+            "Visual/Rotor/Visual_Rotor"], null, [], ["Visual/Rotor/Visual_Index"], "Visual/Rotor"),
+
         // Every other element package, classified the same way.
         // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
         [new PartId("ball")] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], null),
@@ -171,7 +175,9 @@ public sealed class VisibleSolidColliderTests
             Assert.All(entries, e => Assert.True(art.Keys.Any(path => Names(e, path)), $"{element}: '{e}' names no art"));
 
             var colliders = BundleGeometry.Colliders(entry, parameters).ToList();
-            var moving = entry.Mechanical?.Sliders.SelectMany(s => s.MovingBody.Colliders).ToList() ?? [];
+            var moving = entry.Mechanical is { } mechanical
+                ? mechanical.Sliders.SelectMany(s => s.MovingBody.Colliders).Concat(mechanical.Hinges.SelectMany(h => h.MovingBody.Colliders)).ToList()
+                : [];
             var bores = entry.TubeMouths.Select(m => m.BoreRadius).Distinct().ToArray();
             var unmatched = new List<string>();
             foreach (var path in art.Keys.Where(path => (spec.Hollow ?? []).Any(e => Names(e, path))))

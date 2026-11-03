@@ -71,6 +71,27 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         }
         finally { Release(scene); }
     }
+    // Story 11.1a (CAT-042): the generic editor labels the Motor's speed in rad/s and its torque in N·m, with their declared ranges.
+    [Fact]
+    public void TheMotorEditorLabelsSpeedInRadiansPerSecondAndTorqueInNewtonMetres()
+    {
+        var (scene, _) = BenchScene(new PartId("motor"), PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Choices(scene);
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            Assert.Single(Nodes<Button>(choices), button => button.Text == "Configure").EmitSignal(Button.SignalName.Pressed);
+
+            var labels = Nodes<Label>(choices).Select(label => label.Text).ToArray();
+            Assert.Contains("speed (0–20 rad/s)", labels);
+            Assert.Contains("torque (0.1–100 N·m)", labels);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
     // C-Clock (9A.42, D3/D6): a clock placed from the palette takes the declared 1.0 s and is configured through the generic editor,
     // which shows the instance's own value (the record panel showed a part-side copy that nothing set) and applies the Clamp policy:
     // 13 applies as 12 and 0.05 as 0.1, each one Undo and one command; NaN, Infinity and text are refused with no change, no command

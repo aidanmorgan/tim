@@ -285,7 +285,11 @@ public sealed class CatalogueIntegrationTests
         // TrampolineTests.ADroppedBasketballCompressesTheMembraneAndIsLaunchedUpWithoutEnergyGain launches a real payload; its rim
         // strikes are the inelastic controls.
         PartId[] membraneInteractions = [new("trampoline")];
-        var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Order().ToArray();
+        // MotorTests.ASuppliedMotorSpinsUpToItsSpeedHoldsItAndPaysOnlyItsBearingLoss spins a Battery-supplied rotor; the unpowered,
+        // stalled and back-driven cases are its controls.
+        PartId[] driveInteractions = [new("motor")];
+        var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions)
+            .Order().ToArray();
         var actual = PartRegistry.Read(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),
             "elements/elements.bundle.json"))).Select(row => new PartId(row.Metadata.Id)).Order().ToArray();
         Assert.Equal(actual, expected);

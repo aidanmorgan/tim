@@ -198,7 +198,8 @@ internal static class WorkshopObservationProjection
         foreach (var source in read.Presentation.Actuators)
         {
             using var row = T.Object();
-            row.SetProperty("joint", Exact(source.Joint.Value));
+            row.SetProperty("kind", WorkshopObservationProjection.EnumValue(source.Drive.Kind));
+            row.SetProperty("joint", Exact(source.Slot.Joint));
             row.SetProperty("owner", Exact(source.Owner.Value));
             row.SetProperty("supplyClosed", source.SupplyClosed);
             row.SetProperty("movingContact", source.MovingContact);

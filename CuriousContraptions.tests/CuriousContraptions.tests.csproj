@@ -205,6 +205,7 @@
         <Compile Include="RevoluteHingeFrictionTests.cs" />
         <Compile Include="RevoluteDriveTests.cs" />
         <Compile Include="TrampolineTests.cs" />
+        <Compile Include="MotorTests.cs" />
     </ItemGroup>
 
     <!-- Godot project location: the parent directory (hosts are nested inside

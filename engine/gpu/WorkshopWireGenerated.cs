@@ -86,16 +86,16 @@ public struct ActuatorDriveRecord : IFlatbufferObject
 
   public ulong Joint { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
   public ulong Owner { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
-  public bool SupplyClosed { get { return 0!=__p.bb.Get(__p.bb_pos + 16); } }
-  public bool MovingContact { get { return 0!=__p.bb.Get(__p.bb_pos + 17); } }
-  public float Coordinate { get { return __p.bb.GetFloat(__p.bb_pos + 20); } }
-  public float Speed { get { return __p.bb.GetFloat(__p.bb_pos + 24); } }
-  public float Lower { get { return __p.bb.GetFloat(__p.bb_pos + 28); } }
-  public float Upper { get { return __p.bb.GetFloat(__p.bb_pos + 32); } }
+  public uint Kind { get { return __p.bb.GetUint(__p.bb_pos + 16); } }
+  public bool SupplyClosed { get { return 0!=__p.bb.Get(__p.bb_pos + 20); } }
+  public bool MovingContact { get { return 0!=__p.bb.Get(__p.bb_pos + 21); } }
+  public float Coordinate { get { return __p.bb.GetFloat(__p.bb_pos + 24); } }
+  public float Speed { get { return __p.bb.GetFloat(__p.bb_pos + 28); } }
+  public float Lower { get { return __p.bb.GetFloat(__p.bb_pos + 32); } }
+  public float Upper { get { return __p.bb.GetFloat(__p.bb_pos + 36); } }
 
-  public static Offset<CuriousContraptions.Wire.ActuatorDriveRecord> CreateActuatorDriveRecord(FlatBufferBuilder builder, ulong Joint, ulong Owner, bool SupplyClosed, bool MovingContact, float Coordinate, float Speed, float Lower, float Upper) {
+  public static Offset<CuriousContraptions.Wire.ActuatorDriveRecord> CreateActuatorDriveRecord(FlatBufferBuilder builder, ulong Joint, ulong Owner, uint Kind, bool SupplyClosed, bool MovingContact, float Coordinate, float Speed, float Lower, float Upper) {
     builder.Prep(8, 40);
-    builder.Pad(4);
     builder.PutFloat(Upper);
     builder.PutFloat(Lower);
     builder.PutFloat(Speed);
@@ -103,6 +103,7 @@ public struct ActuatorDriveRecord : IFlatbufferObject
     builder.Pad(2);
     builder.PutBool(MovingContact);
     builder.PutBool(SupplyClosed);
+    builder.PutUint(Kind);
     builder.PutUlong(Owner);
     builder.PutUlong(Joint);
     return new Offset<CuriousContraptions.Wire.ActuatorDriveRecord>(builder.Offset);

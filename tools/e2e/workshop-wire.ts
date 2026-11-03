@@ -703,37 +703,40 @@ owner():bigint {
   return this.bb!.readUint64(this.bb_pos + 8);
 }
 
+kind():number {
+  return this.bb!.readUint32(this.bb_pos + 16);
+}
+
 supplyClosed():boolean {
-  return !!this.bb!.readInt8(this.bb_pos + 16);
+  return !!this.bb!.readInt8(this.bb_pos + 20);
 }
 
 movingContact():boolean {
-  return !!this.bb!.readInt8(this.bb_pos + 17);
+  return !!this.bb!.readInt8(this.bb_pos + 21);
 }
 
 coordinate():number {
-  return this.bb!.readFloat32(this.bb_pos + 20);
-}
-
-speed():number {
   return this.bb!.readFloat32(this.bb_pos + 24);
 }
 
-lower():number {
+speed():number {
   return this.bb!.readFloat32(this.bb_pos + 28);
 }
 
-upper():number {
+lower():number {
   return this.bb!.readFloat32(this.bb_pos + 32);
+}
+
+upper():number {
+  return this.bb!.readFloat32(this.bb_pos + 36);
 }
 
 static sizeOf():number {
   return 40;
 }
 
-static createActuatorDriveRecord(builder:flatbuffers.Builder, joint: bigint, owner: bigint, supply_closed: boolean, moving_contact: boolean, coordinate: number, speed: number, lower: number, upper: number):flatbuffers.Offset {
+static createActuatorDriveRecord(builder:flatbuffers.Builder, joint: bigint, owner: bigint, kind: number, supply_closed: boolean, moving_contact: boolean, coordinate: number, speed: number, lower: number, upper: number):flatbuffers.Offset {
   builder.prep(8, 40);
-  builder.pad(4);
   builder.writeFloat32(upper);
   builder.writeFloat32(lower);
   builder.writeFloat32(speed);
@@ -741,6 +744,7 @@ static createActuatorDriveRecord(builder:flatbuffers.Builder, joint: bigint, own
   builder.pad(2);
   builder.writeInt8(Number(Boolean(moving_contact)));
   builder.writeInt8(Number(Boolean(supply_closed)));
+  builder.writeInt32(kind);
   builder.writeInt64(BigInt(owner ?? 0));
   builder.writeInt64(BigInt(joint ?? 0));
   return builder.offset();

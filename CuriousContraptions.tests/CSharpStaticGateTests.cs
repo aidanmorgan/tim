@@ -691,7 +691,7 @@ public sealed class CSharpStaticGateTests
         "elements/Springboard/Springboard.csproj", "elements/StateLatch/StateLatch.csproj", "elements/SystemClock/SystemClock.csproj",
         "elements/Wall/Wall.csproj", "elements/Weight/Weight.csproj", "elements/RopeAnchor/RopeAnchor.csproj",
         "elements/Pulley/Pulley.csproj", "elements/ImpactLever/ImpactLever.csproj",
-        "elements/Trampoline/Trampoline.csproj",
+        "elements/Trampoline/Trampoline.csproj", "elements/Motor/Motor.csproj",
     ];
     private static readonly string[] RequiredAnalyzers =
     [

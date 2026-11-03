@@ -214,7 +214,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     {
         _ = godot;
         var hinges = Packages().Where(package => package.Declaration is IHingeElement).ToArray();
-        Assert.Equal(["ImpactLever"], hinges.Select(package => package.Package));
+        Assert.Equal(["ImpactLever", "Motor"], hinges.Select(package => package.Package).Order());
         foreach (var package in hinges)
         {
             var element = (IHingeElement)package.Declaration;
@@ -278,6 +278,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                     RuntimeShape.Box => (X: m * (b * b + c * c) / 3, Y: m * (a * a + c * c) / 3, Z: m * (a * a + b * b) / 3),
                     _ => throw new InvalidOperationException($"{package.Package}: no closed-form inertia for a dynamic {collider.Shape}.")
                 };
+                // The moments are compared in the collider's own axes (a cylinder's axis is its local Y), which are the body's principal
+                // axes only when the declared principal frame is the collider's turn: the Motor's rotor lays its axial moment on the
+                // hinge's +Z through Rx(90°), the same turn as its cylinder. A frame and pose agree to within a quaternion's sign.
+                var frame = body.MassProperties.PrincipalFrame;
+                var pose = collider.Pose.Rotation;
+                Assert.True(MathF.Abs(frame.X * pose.X + frame.Y * pose.Y + frame.Z * pose.Z + frame.W * pose.W) >= 1f - 1e-6f,
+                    $"{package.Package}: body {body.Id.Value} principal frame {frame} is not its first collider's turn {pose}.");
                 var offset = scene.Layout.GetBodyOffset(body.Id) + PhysicsGpuAbi.BodyPrincipalInertiaOffset;
                 double Moment(int axis) => System.Buffers.Binary.BinaryPrimitives.ReadSingleLittleEndian(
                     admitted.AsSpan(offset + axis * PhysicsGpuAbi.PrincipalInertiaBytes));
@@ -508,6 +515,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, .8f,
                     Admits(value => WorkshopInput.Generic(new PartId("switch"), Owner, 0, 3, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), (float)value)]))), [])
             ],
+            "motor" =>
+            [
+                ("speed", ParameterUnit.RadianPerSecond, ParameterKind.Real, Lane.Single, 6f, Generic(new PartId("motor"), "speed"), []),
+                ("torque", ParameterUnit.NewtonMetre, ParameterKind.Real, Lane.Single, 20f, Generic(new PartId("motor"), "torque"), [])
+            ],
             "trampoline" =>
             [
                 ("tension", ParameterUnit.NewtonPerMetre, ParameterKind.Real, Lane.Single, 300f, Generic(new PartId("trampoline"), "tension"), []),
@@ -530,7 +542,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),

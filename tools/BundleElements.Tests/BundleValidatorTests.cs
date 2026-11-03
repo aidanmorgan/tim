@@ -171,6 +171,64 @@ public sealed class BundleValidatorTests
                 error => error.Detail.Contains(".Presentation.DriverCurve", StringComparison.Ordinal));
     }
 
+    // Story 11.1a (CAT-042): a committed drive binding is an on/off level, shown at once (Linear, no duration) or blended over its
+    // declared time (SmoothStep, a positive duration), as the Motor's supply lamp is. A SmoothStep without a duration and a timed Linear
+    // binding are each refused.
+    [Fact]
+    public void ACommittedDriveBindingIsInstantLinearOrATimedSmoothStep()
+    {
+        var lamp = new PresentationBinding("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorDrive,
+            85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None);
+        static IReadOnlyList<Bundle.BundleError> Check(PresentationBinding binding, PrismaticDriveDescriptor? drive)
+        {
+            var candidate = Bundle.BundleSchema.Entry(new Fixture
+            {
+                Parameters = Fixture.SpringParameters, Ports = [Fixture.PowerIn], Sliders = [Fixture.Slider() with { Drive = drive }]
+            });
+            return Bundle.BundleValidator.Validate([new("Fixture", candidate with { Presentation = candidate.Presentation with { Bindings = [binding] } })]);
+        }
+        Assert.Empty(Check(lamp, Fixture.Drive()));
+        Assert.Empty(Check(lamp with { Curve = PresentationCurve.Linear, Duration = 0f }, Fixture.Drive()));
+        foreach (var invalid in new[] { lamp with { Duration = 0f }, lamp with { Curve = PresentationCurve.Linear } })
+            Assert.Contains(Check(invalid, Fixture.Drive()), error => error.Detail.Contains(".Presentation.DriverCurve", StringComparison.Ordinal));
+        // The binding reads only a driven slot of its owner: on an owner with no driven slider or hinge it would read nothing.
+        Assert.Contains(Check(lamp, null), error => error.Detail.Contains(".Presentation.ActuatorDrive", StringComparison.Ordinal));
+    }
+
+    // Story 11.1a: a drive value bound to a parameter reads it in the drive value's own unit; a slider's maximum effort is in newtons.
+    [Fact]
+    public void AParameterBoundSliderDriveValueMustBeInItsOwnUnit()
+    {
+        static IReadOnlyList<Bundle.BundleError> UnitErrors(ParameterUnit unit) => Bundle.BundleValidator.Validate([new("FixtureDrive", Bundle.BundleSchema.Entry(new Fixture
+        {
+            Parameters = [.. Fixture.SpringParameters, new("effort", unit, ParameterKind.Real, 1f, 60f, 20f, [])],
+            Ports = [Fixture.PowerIn],
+            Sliders = [Fixture.Slider() with { Drive = Fixture.Drive() with { MaxEffort = MechanicalValue.FromParameter("effort") } }]
+        }))]);
+        Assert.Empty(UnitErrors(ParameterUnit.Newton));
+        var refused = Assert.Single(UnitErrors(ParameterUnit.Watt));
+        Assert.Equal((Bundle.BundleErrorCode.OutOfRange, "FixtureDrive.Sliders[0].Drive.MaxEffort: outside its declared range"), (refused.Code, refused.Detail));
+    }
+
+    // Story 11.1a: a committed blocked-state binding reads a prismatic drive's moving contact, which only a driven slider has (a revolute
+    // slot reports none): admitted on a driven slider, refused on the same fixture with its slider undriven.
+    [Fact]
+    public void ACommittedActuatorStateBindingNeedsADrivenSlider()
+    {
+        var state = new PresentationBinding("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorState,
+            85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None);
+        static IReadOnlyList<Bundle.BundleError> Check(PrismaticDriveDescriptor? drive, PresentationBinding binding)
+        {
+            var candidate = Bundle.BundleSchema.Entry(new Fixture
+            {
+                Parameters = Fixture.SpringParameters, Ports = [Fixture.PowerIn], Sliders = [Fixture.Slider() with { Drive = drive }]
+            });
+            return Bundle.BundleValidator.Validate([new("Fixture", candidate with { Presentation = candidate.Presentation with { Bindings = [binding] } })]);
+        }
+        Assert.Empty(Check(Fixture.Drive(), state));
+        Assert.Contains(Check(null, state), error => error.Detail.Contains(".Presentation.ActuatorState", StringComparison.Ordinal));
+    }
+
     // Story 10.2a (CAT-067 D3): a body mass bound to a parameter names one declared Real kilogram parameter whose whole range lies in
     // the compiled mass domain [1/1024, 1024] kg, on a dynamic body, and the fixed declared mass is that parameter's default (one truth).
     // A cylinder's radial lanes are bound together or not at all, so every evaluation keeps X = Z.
@@ -1129,6 +1187,20 @@ public sealed class BundleValidatorTests
         Refused(With(powered, Drive(MathF.BitDecrement(-128f), 2f)), "Hinges[0].Drive.TargetSpeed");
         Refused(With(powered, Drive(6f, 0f)), "Hinges[0].Drive.MaxTorque");
         Refused(With(powered, Drive(float.NaN, 2f)), "Hinges[0].Drive.TargetSpeed.Constant", Bundle.BundleErrorCode.NonFinite);
+
+        // Story 11.1a: a drive bound to parameters reads a target in rad/s and a torque in N·m; a parameter in any other unit is refused.
+        var bound = full with { Drive = new(MechanicalValue.FromParameter("speed"), MechanicalValue.FromParameter("torque")) };
+        Bundle.BundleEntry Parameterised(ParameterUnit speed, ParameterUnit torque) => powered with
+        {
+            Metadata = powered.Metadata with
+            {
+                Parameters = [.. powered.Metadata.Parameters, new("speed", speed, ParameterKind.Real, 0f, 20f, 6f, []),
+                    new("torque", torque, ParameterKind.Real, .1f, 100f, 20f, [])]
+            }
+        };
+        Assert.Empty(Check(With(Parameterised(ParameterUnit.RadianPerSecond, ParameterUnit.NewtonMetre), bound)));
+        Refused(With(Parameterised(ParameterUnit.MetrePerSecond, ParameterUnit.NewtonMetre), bound), "Hinges[0].Drive.TargetSpeed");
+        Refused(With(Parameterised(ParameterUnit.RadianPerSecond, ParameterUnit.Joule), bound), "Hinges[0].Drive.MaxTorque");
     }
 
     // engine-revolute-drive: a drive is supplied only through a consumer node, which the compiler builds for a part with a PowerIn input

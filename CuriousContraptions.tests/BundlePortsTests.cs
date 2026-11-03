@@ -130,6 +130,7 @@ public sealed class BundlePortsTests
             new(-1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1)), new(WorkshopSocket.TieB, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1))], new(2, 1, 0, 1)),
         ["trampoline"] = ([], new(1, 0, 0, 0)),
+        ["motor"] = ([Electrical(WorkshopSocket.PowerIn, In, -.55f, 0f, 0f)], new(2, 1, 0, 1)),
         ["bumper"] = ([Electrical(WorkshopSocket.PowerIn, In, 0f, 0f, .65f)], new(1, 0, 0, 0)),
         ["clock"] = ([Electrical(WorkshopSocket.PowerIn, In, -.78f, 0f, 0f), Activation(WorkshopSocket.ActivationOut, Out, Pulse, .78f, 0f, 0f)],
             new(1, 0, 0, 0)),

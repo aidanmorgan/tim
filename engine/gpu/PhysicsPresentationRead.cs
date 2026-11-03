@@ -39,12 +39,24 @@ public readonly record struct ElectricalLogicRead(GpuBodyId Owner, ElectricalInp
     };
 }
 
-/// <summary>The exact drive input consumed by one committed physics tick, with its resulting axial motion and whether its moving
-/// body was in solver contact with a body other than its base during that tick.</summary>
+/// <summary>One drive slot's exact supply input consumed by a committed physics tick, with its resulting motion, keyed by the typed
+/// <see cref="SupplyConsumer"/> that names the slot's joint. Every prismatic slot comes first, then every revolute slot, each in
+/// identity order. A prismatic slot reads its axial offset (m) and speed (m/s) between its limits, and whether its moving body was in
+/// solver contact with a body other than its base during that tick. A revolute slot's coordinate is its committed signed travel (rad),
+/// accumulated without wrapping, so a Continuous hinge's travel is not bounded by the ±π it reports as its limits; its speed is the
+/// relative spin about the hinge axis (rad/s), and it reports no moving contact.</summary>
 public readonly record struct ActuatorDriveRead(
-    PrismaticConstraintId Joint, GpuBodyId Owner, bool SupplyClosed, bool MovingContact, float Coordinate, float Speed, float Lower,
+    SupplyConsumer Drive, GpuBodyId Owner, bool SupplyClosed, bool MovingContact, float Coordinate, float Speed, float Lower,
     float Upper)
 {
+    /// <summary>The slot order: prismatic slots before revolute slots, each by joint identity.</summary>
+    public (SupplyConsumerKind Kind, ulong Joint) Slot => (Drive.Kind, Drive.Kind switch
+    {
+        SupplyConsumerKind.PrismaticDrive => Drive.PrismaticJoint.Value,
+        SupplyConsumerKind.RevoluteDrive => Drive.RevoluteJoint.Value,
+        _ => throw new InvalidOperationException("Undefined actuator drive kind.")
+    });
+
     /// <summary>The game-grade envelope's resting contact slop, 0.5 mm: a coordinate within it of a stop is at that stop.</summary>
     public const float StopSlop = 5e-4f;
     /// <summary>The game-grade envelope's at-rest linear speed, 0.01 m/s (its sleep threshold): slower axial motion is at rest.</summary>
@@ -56,7 +68,8 @@ public readonly record struct ActuatorDriveRead(
     public bool Blocked => MovingContact && Coordinate > Lower + StopSlop && Coordinate < Upper - StopSlop && MathF.Abs(Speed) < RestSpeed;
     public void Validate()
     {
-        if (Joint.Value == 0 || Owner.Value == 0 || !float.IsFinite(Coordinate) || !float.IsFinite(Speed) ||
+        if (!Enum.IsDefined(Drive.Kind) || Slot.Joint == 0 || Owner.Value == 0 ||
+            (Drive.Kind == SupplyConsumerKind.RevoluteDrive && MovingContact) || !float.IsFinite(Coordinate) || !float.IsFinite(Speed) ||
             !float.IsFinite(Lower) || !float.IsFinite(Upper) || Lower > Upper)
             throw new ArgumentException("Invalid committed actuator observation.");
     }
@@ -125,8 +138,8 @@ public readonly struct PhysicsPresentationRead
         for (var i = 0; i < actuators.Length; i++)
         {
             actuators[i].Validate();
-            if (i > 0 && actuators[i - 1].Joint.Value >= actuators[i].Joint.Value)
-                throw new ArgumentException("Actuator observations require ordered unique identities.");
+            if (i > 0 && actuators[i - 1].Slot.CompareTo(actuators[i].Slot) >= 0)
+                throw new ArgumentException("Actuator observations require ordered unique drive slots.");
         }
         for (var i = 0; i < loads.Length; i++)
         {
@@ -155,9 +168,10 @@ public static partial class PhysicsGpuAbi
     public static PhysicsPresentationRead ReadPresentation(ReadOnlySpan<byte> bytes, PhysicsTickInputs inputs, bool admission)
     {
         var layout = Layout(bytes);
-        var actuators = new ActuatorDriveRead[layout.Prismatics];
+        // One row per drive slot: every prismatic slot, then every revolute slot. A slot's supply is the very input of this tick.
+        var actuators = new ActuatorDriveRead[layout.Prismatics + layout.Revolutes];
         Span<PrismaticRow> rows = stackalloc PrismaticRow[PrismaticRows.Count];
-        for (var i = 0; i < actuators.Length; i++)
+        for (var i = 0; i < layout.Prismatics; i++)
         {
             var joint = ReadPrismatic(bytes, i);
             var record = bytes.Slice(layout.PrismaticOffset(i), PrismaticBytes);
@@ -170,8 +184,23 @@ public static partial class PhysicsGpuAbi
                 Vector3.Dot(axial.LinearB, PresentationVector(b, BodyVelocityOffset)) +
                 Vector3.Dot(axial.AngularA, PresentationVector(a, BodyAngularVelocityOffset)) +
                 Vector3.Dot(axial.AngularB, PresentationVector(b, BodyAngularVelocityOffset));
-            actuators[i] = new(joint.Id, joint.BodyA, !admission && inputs.SupplyClosed[i], ReadPrismaticMovingContact(bytes, i),
-                axial.Error, speed, joint.Lower, joint.Upper);
+            actuators[i] = new(SupplyConsumer.Prismatic(joint.Id), joint.BodyA, !admission && inputs.SupplyClosed[i],
+                ReadPrismaticMovingContact(bytes, i), axial.Error, speed, joint.Lower, joint.Upper);
+        }
+        Span<RevoluteRow> hinge = stackalloc RevoluteRow[RevoluteRows.Count];
+        for (var i = 0; i < layout.Revolutes; i++)
+        {
+            var slot = layout.Prismatics + i;
+            var joint = ReadRevolute(bytes, i);
+            var record = bytes.Slice(layout.RevoluteOffset(i), RevoluteBytes);
+            var a = bytes.Slice(layout.BodyOffset((int)R32(record, RevoluteBodyAOffset)), BodyBytes);
+            var b = bytes.Slice(layout.BodyOffset((int)R32(record, RevoluteBodyBOffset)), BodyBytes);
+            RevoluteRows.Prepare(PresentationFrame(a), PresentationFrame(b), joint.FrameA, joint.FrameB, joint.Lower, joint.Upper, hinge);
+            var axial = hinge[(int)RevoluteRowKind.Axial];
+            var spin = Vector3.Dot(axial.AngularA, PresentationVector(a, BodyAngularVelocityOffset)) +
+                Vector3.Dot(axial.AngularB, PresentationVector(b, BodyAngularVelocityOffset));
+            actuators[slot] = new(SupplyConsumer.Revolute(joint.Id), joint.BodyA, !admission && inputs.SupplyClosed[slot], false,
+                ReadRevoluteState(bytes, i).Travel, spin, joint.Lower, joint.Upper);
         }
         var loads = new ContactLoadSensorRead[ReadContactLoadCount(bytes)];
         for (var i = 0; i < loads.Length; i++) loads[i] = ReadContactLoadSensor(bytes, i);

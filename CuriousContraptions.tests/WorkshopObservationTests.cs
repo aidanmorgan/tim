@@ -657,7 +657,13 @@ public sealed class WorkshopObservationTests
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         await transport.Construct(PuzzleCatalogue.CreateSolution(new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(1f)));
         var response = transport.Client.Observation.Query(transport.Client.Observation.Session, WorkshopObservationQuery.Committed).Value;
-        var pres = new PhysicsPresentationRead(response.Read.Presentation.Actuators.ToArray(), response.Read.Presentation.Loads.ToArray(),
+        // Story 11.1a: one prismatic and one revolute drive slot, the revolute with the lower identity (slots order by kind first).
+        ActuatorDriveRead[] drives =
+        [
+            new(SupplyConsumer.Prismatic(new(9007199254740983)), new(9007199254740981), true, true, .5f, -.25f, 0f, 1.55f),
+            new(SupplyConsumer.Revolute(new(9007199254740979)), new(9007199254740977), false, false, 7.5f, 6f, -MathF.PI, MathF.PI)
+        ];
+        var pres = new PhysicsPresentationRead(drives, response.Read.Presentation.Loads.ToArray(),
             response.Read.Presentation.Logic.ToArray(), response.Read.Presentation.Ropes.ToArray(), [new(new(9007199254740991), 1.25f, 3.125f)],
             [new(new(9007199254740989), .375f)]);
         var read = response.Read with { Epoch = new(9007199254740993), Tick = new(9007199254740995),
@@ -671,6 +677,10 @@ public sealed class WorkshopObservationTests
         Assert.Equal("9007199254740991", pulley.Fields["pulley"]);
         Assert.Equal(1.25f, pulley.Fields["travel"]);
         Assert.Equal(3.125f, pulley.Fields["angle"]);
+        var actuators = Assert.IsType<ExternalObject>(projected.Fields["actuators"]).Items;
+        // The projected kinds are the literal values the TypeScript SupplyConsumerKind declares: PrismaticDrive 0, RevoluteDrive 1.
+        Assert.Equal([(0, "9007199254740983", "9007199254740981", true), (1, "9007199254740979", "9007199254740977", false)],
+            actuators.Select(row => ((int)row.Fields["kind"]!, (string)row.Fields["joint"]!, (string)row.Fields["owner"]!, (bool)row.Fields["supplyClosed"]!)));
         var surface = Assert.Single(Assert.IsType<ExternalObject>(projected.Fields["surfaces"]).Items);
         Assert.Equal("9007199254740989", surface.Fields["frame"]);
         Assert.Equal(.375f, surface.Fields["deflection"]);

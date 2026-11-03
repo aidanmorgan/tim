@@ -333,7 +333,8 @@ public sealed class CompiledSceneBoundaryTests
     }
 
     /// <summary>engine-revolute-drive: the compiled lever with its hinge made Continuous (full-turn limits), a supplied drive on it and a
-    /// consumer node on the lever naming that drive with its typed kind. No shipped package declares a drive yet (the Motor is 11.1a).</summary>
+    /// consumer node on the lever naming that drive with its typed kind: a negative target and torque no shipped package declares (the
+    /// Motor's compiled drive is covered by MotorTests).</summary>
     private static WorkshopCompiledScene DrivenLeverScene()
     {
         var compiled = WorkshopSceneCompiler.Compile(LeverConstruction, new(101, 206), new(7));

@@ -551,12 +551,16 @@ public static partial class WorkshopWireFlatBuffers
         return W.CapabilitySupplyConsumerRecord.EndCapabilitySupplyConsumerRecord(b);
     }
 
-    /// <summary>The wire's kind selects the identity type its joint is decoded as; an undefined kind is refused.</summary>
     private static CuriousContraptions.Gpu.SupplyConsumer DecodeCapabilitySupplyConsumerRecord(W.CapabilitySupplyConsumerRecord row) =>
-        ObservationEnum<CuriousContraptions.Gpu.SupplyConsumerKind>(row.Kind) switch
+        SupplyConsumerOf(row.Kind, row.Joint);
+
+    /// <summary>The wire's kind selects the identity type its joint is decoded as; an undefined kind is refused. Shared by the compiled
+    /// consumer record and the committed actuator drive record.</summary>
+    private static CuriousContraptions.Gpu.SupplyConsumer SupplyConsumerOf(uint kind, ulong joint) =>
+        ObservationEnum<CuriousContraptions.Gpu.SupplyConsumerKind>(kind) switch
         {
-            CuriousContraptions.Gpu.SupplyConsumerKind.PrismaticDrive => CuriousContraptions.Gpu.SupplyConsumer.Prismatic(new(row.Joint)),
-            CuriousContraptions.Gpu.SupplyConsumerKind.RevoluteDrive => CuriousContraptions.Gpu.SupplyConsumer.Revolute(new(row.Joint)),
+            CuriousContraptions.Gpu.SupplyConsumerKind.PrismaticDrive => CuriousContraptions.Gpu.SupplyConsumer.Prismatic(new(joint)),
+            CuriousContraptions.Gpu.SupplyConsumerKind.RevoluteDrive => CuriousContraptions.Gpu.SupplyConsumer.Revolute(new(joint)),
             _ => throw new ArgumentException("Undefined supply consumer kind.")
         };
 

@@ -30,7 +30,7 @@ export const SNAPSHOT_SCHEMA = {
         TimerRecord: { kind: 'struct', fields: [["node", "uint64"], ["phase", "uint32"], ["started_tick", "uint64"], ["due_tick", "uint64"], ["input_kind", "uint32"], ["input_ordinal", "uint32"], ["input_phase", "float"], ["input_approach_speed", "float"], ["input_emitter", "uint64"], ["cause_source", "uint64"], ["cause_body", "uint64"], ["cause_collider", "uint64"], ["cause_ordinal", "uint32"], ["cause_phase", "float"]] },
         ActivationMemoryRecord: { kind: 'struct', fields: [["node", "uint64"], ["kind", "uint32"], ["count", "uint32"], ["last_ordinal", "uint32"], ["last_phase", "float"], ["phase", "uint32"], ["due_tick", "uint64"]] },
         ElectricalLogicRecord: { kind: 'struct', fields: [["owner", "uint64"], ["inputs", "uint8"], ["supplied", "bool"], ["active", "bool"]] },
-        ActuatorDriveRecord: { kind: 'struct', fields: [["joint", "uint64"], ["owner", "uint64"], ["supply_closed", "bool"], ["moving_contact", "bool"], ["coordinate", "float"], ["speed", "float"], ["lower", "float"], ["upper", "float"]] },
+        ActuatorDriveRecord: { kind: 'struct', fields: [["joint", "uint64"], ["owner", "uint64"], ["kind", "uint32"], ["supply_closed", "bool"], ["moving_contact", "bool"], ["coordinate", "float"], ["speed", "float"], ["lower", "float"], ["upper", "float"]] },
         ContactLoadRecord: { kind: 'struct', fields: [["sensor", "uint64"], ["frame", "uint64"], ["region", "uint64"], ["measured_mass", "float"], ["phase", "uint32"]] },
         ClockStamp: { kind: 'struct', fields: [["time", "int64"], ["uncertainty", "uint64"], ["domain", "uint8"]] },
         ElectricalControl: { kind: 'struct', fields: [["owner", "uint64"], ["enabled", "uint8"]] },

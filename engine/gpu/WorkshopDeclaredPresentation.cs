@@ -22,6 +22,9 @@ public sealed class WorkshopDeclaredPresentation
         public required CompiledPresentationBinding Declaration;
         public required AnimationTargetId Target;
         public ActivationNodeDeclaration Node;
+        /// <summary>The driven slots the owner's compiled consumer node names: a committed-drive binding reads only these rows, never an
+        /// undriven slot the same owner also carries.</summary>
+        public System.Collections.Immutable.ImmutableArray<SupplyConsumer> Drives = [];
         public float Capacity;
         public AnimationHandle? Handle;
         public float Input;
@@ -57,9 +60,12 @@ public sealed class WorkshopDeclaredPresentation
         foreach (var binding in construction.Presentation)
         {
             var declaration = binding.Declaration;
+            var drives = System.Collections.Immutable.ImmutableArray<SupplyConsumer>.Empty;
+            foreach (var node in construction.Physics.SupplyGraph.Nodes)
+                if (node.Owner == binding.Owner && node.Kind == SupplyNodeKind.Consumer && !node.Consumers.IsDefault) drives = node.Consumers;
             tracks.Add(new Track { Owner = binding.Owner, Index = binding.Binding, Declaration = declaration,
                 Target = binding.Target, Node = binding.Activation, Value = declaration.From, Rest = declaration.From,
-                Capacity = binding.SourceCapacity });
+                Capacity = binding.SourceCapacity, Drives = drives });
         }
         _tracks = tracks.ToArray();
         _batch = new();
@@ -348,7 +354,7 @@ public sealed class WorkshopDeclaredPresentation
             case PresentationDriver.CommittedActuatorDrive:
             case PresentationDriver.CommittedActuatorState:
                 foreach (var actuator in read.Presentation.Actuators)
-                    if (actuator.Owner == track.Owner)
+                    if (actuator.Owner == track.Owner && track.Drives.Contains(actuator.Drive))
                         return d.Driver == PresentationDriver.CommittedActuatorState && actuator.Blocked ? .5f : actuator.SupplyClosed ? 1 : 0;
                 break;
             case PresentationDriver.CommittedContactLoadPhase:

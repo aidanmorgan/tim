@@ -263,8 +263,8 @@ public static partial class WorkshopWireFlatBuffers
             for (var i = read.Presentation.Actuators.Length - 1; i >= 0; i--)
             {
                 var a = read.Presentation.Actuators[i];
-                ActuatorDriveRecord.CreateActuatorDriveRecord(builder, a.Joint.Value, a.Owner.Value, a.SupplyClosed, a.MovingContact,
-                    a.Coordinate, a.Speed, a.Lower, a.Upper);
+                ActuatorDriveRecord.CreateActuatorDriveRecord(builder, a.Slot.Joint, a.Owner.Value, (uint)a.Drive.Kind, a.SupplyClosed,
+                    a.MovingContact, a.Coordinate, a.Speed, a.Lower, a.Upper);
             }
             actuatorOffset = builder.EndVector();
         }
@@ -531,7 +531,8 @@ public static partial class WorkshopWireFlatBuffers
         for (var i = 0; i < actuatorValues.Length; i++)
         {
             var a = fb.ActuatorDrives(i)!.Value;
-            actuatorValues[i] = new(new(a.Joint), new(a.Owner), a.SupplyClosed, a.MovingContact, a.Coordinate, a.Speed, a.Lower, a.Upper);
+            actuatorValues[i] = new(SupplyConsumerOf(a.Kind, a.Joint), new(a.Owner), a.SupplyClosed, a.MovingContact, a.Coordinate, a.Speed,
+                a.Lower, a.Upper);
         }
         var loadValues = new ContactLoadSensorRead[fb.ContactLoadsLength];
         for (var i = 0; i < loadValues.Length; i++)

@@ -78,10 +78,11 @@ public static class PresentationDriverRules
                     PresentationDriver.CommittedOscillatorPhase => curve == PresentationCurve.ExponentialFollow && duration == 0 && overlap == PresentationOverlap.Replace,
                     PresentationDriver.CommittedOscillatorPulse => curve == PresentationCurve.LinearDecay && duration > 0 && overlap == PresentationOverlap.Maximum,
                     PresentationDriver.CommittedContactLoadPhase => curve == PresentationCurve.CubicSmoothStep && duration > 0 && overlap == PresentationOverlap.Replace,
-                    PresentationDriver.CommittedTimerActive => overlap == PresentationOverlap.Replace &&
+                    // A committed on/off level: shown at once, or blended over its declared time (the Motor's supply lamp, CAT-042).
+                    PresentationDriver.CommittedTimerActive or PresentationDriver.CommittedActuatorDrive => overlap == PresentationOverlap.Replace &&
                         ((curve == PresentationCurve.Linear && duration == 0) || (curve == PresentationCurve.SmoothStep && duration > 0)),
                     PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
-                        PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState or
+                        PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorState or
                         PresentationDriver.CommittedWheelAngle or PresentationDriver.CommittedSurfaceDeflection =>
                             curve == PresentationCurve.Linear && duration == 0 && overlap == PresentationOverlap.Replace,
                     _ => false

@@ -157,9 +157,13 @@ struct ElectricalLogicRecord {
     active: bool;
 }
 
+// One drive slot: prismatic slots first, then revolute slots. kind is the SupplyConsumerKind naming joint's table; a revolute slot's
+// coordinate is its committed signed travel (rad, unwrapped, so a Continuous hinge's travel exceeds its reported ±π limits) and its
+// speed the relative spin about its axis (rad/s).
 struct ActuatorDriveRecord {
     joint: uint64;
     owner: uint64;
+    kind: uint32;
     supply_closed: bool;
     // C-Gate: the moving body took a positive normal contact impulse from a body other than its base during the tick.
     moving_contact: bool;

@@ -98,7 +98,11 @@ export interface ObservedActivation extends ObservedOccurrence { readonly node: 
 export interface ObservedTimer { readonly node: string; readonly phase: ActivationTimerPhase; readonly startedTick: string; readonly dueTick: string; readonly input: ObservedOccurrence; }
 export interface ObservedContactWork { readonly id: string; readonly owner: string; readonly count: number; readonly remaining: number; readonly supplied: number; }
 export interface ObservedMemory { readonly node: string; readonly kind: ActivationNodeKind; readonly count: number; readonly ordinal: number; readonly eventPhase: number; readonly phase: OscillatorPhase; readonly dueTick: string; }
-export interface ObservedActuator { readonly joint: string; readonly owner: string; readonly supplyClosed: boolean; readonly movingContact: boolean; readonly coordinate: number; readonly speed: number; readonly lower: number; readonly upper: number; readonly blocked: boolean; }
+/** Which joint table a drive slot names: prismatic slots precede revolute slots. */
+export enum SupplyConsumerKind { PrismaticDrive = 0, RevoluteDrive = 1 }
+/** One drive slot. A revolute slot's coordinate is its committed signed travel (rad, unwrapped: a Continuous hinge's travel exceeds
+ * its reported ±π limits) and its speed its relative spin (rad/s). */
+export interface ObservedActuator { readonly kind: SupplyConsumerKind; readonly joint: string; readonly owner: string; readonly supplyClosed: boolean; readonly movingContact: boolean; readonly coordinate: number; readonly speed: number; readonly lower: number; readonly upper: number; readonly blocked: boolean; }
 export interface ObservedLoad { readonly sensor: string; readonly frame: string; readonly region: string; readonly mass: number; readonly phase: ContactLoadPhase; }
 export interface ObservedLogic { readonly owner: string; readonly inputs: ElectricalInputState; readonly supplied: boolean; readonly active: boolean; }
 export interface ObservedPulleyWheel { readonly pulley: string; readonly travel: number; readonly angle: number; }

@@ -382,7 +382,7 @@ public sealed class DeclaredPrismaticDriveTests
     [Fact]
     public void BlockedNeedsContactInteriorAndRestTogether()
     {
-        var rest = new ActuatorDriveRead(new(1), new(2), false, true, .75f, -1.1e-5f, 0f, 1.55f);
+        var rest = new ActuatorDriveRead(SupplyConsumer.Prismatic(new(1)), new(2), false, true, .75f, -1.1e-5f, 0f, 1.55f);
         Assert.True(rest.Blocked);
         Assert.False((rest with { MovingContact = false }).Blocked);
         Assert.False((rest with { Speed = ActuatorDriveRead.RestSpeed }).Blocked);

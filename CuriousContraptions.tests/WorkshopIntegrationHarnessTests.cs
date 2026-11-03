@@ -541,7 +541,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             [
                 "Motion", "ball", "bumper", "domino", "bowling", "spring", "pipe", "pipe_bend_45",
                 "pipe_bend_90", "funnel", "powered_gate", "weight", "rope_anchor", "pulley", "impact_lever", "trampoline",
-                "Goals", "basket", "lamp", "Power", "switch", "battery",
+                "Goals", "basket", "lamp", "Power", "switch", "battery", "motor",
                 "Control", "delay", "ball_detector", "pressure_plate", "counter", "clock", "latch",
                 "hold_timer", "both_gate", "electrical_nand", "electrical_nor", "electrical_or", "electrical_xor",
                 "Structure", "wall", "ramp"
