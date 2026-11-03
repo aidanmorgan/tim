@@ -69,7 +69,7 @@ internal static class TensileConstraintSolver
         ref readonly var row = ref route.Row;
         var k = ConstraintMass(route.A, row.La, row.Aa) + ConstraintMass(route.B, row.Lb, row.Ab);
         var velocity = ConstraintVelocity(route.A, row.La, row.Aa) + ConstraintVelocity(route.B, row.Lb, row.Ab);
-        var result = SoftConstraint.Solve4(Vector128.Create(k), Vector128.Create(velocity),
+        var result = SoftConstraint.Solve4(Vector128.Create(k), Vector128.Create(velocity), Vector128.Create(row.VelocityTarget),
             Vector128.Create(row.Error), Vector128.Create(row.Gamma), Vector128.Create(bias ? row.Bias : 0f),
             Vector128.Create(route.Impulse), Vector128.Create(row.Minimum), Vector128.Create(row.Maximum));
         route.Impulse = result.Accumulated.GetElement(0);

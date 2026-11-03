@@ -53,8 +53,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private PhysicsTimerRead _committedTimers, _candidateTimers;
     private PhysicsMemoryRead _committedMemory, _candidateMemory;
     private ActivationNetwork? _committedNetwork, _candidateNetwork;
-    // Supply routes compiled once at Admit: routes as indices into the admitted prismatic and source tables.
-    private sealed record CompiledSupply(CompiledSupplyGraph Graph, int Prismatics, int Sources);
+    // Supply routes compiled once at Admit: routes as indices into the admitted drive-slot and source tables.
+    private sealed record CompiledSupply(CompiledSupplyGraph Graph, int Sources);
     private CompiledSupply? _committedSupply, _candidateSupply;
     private PassageSensorTracker _committedPassageTracker = PassageSensorTracker.Empty;
     private PassageSensorTracker _candidatePassageTracker = PassageSensorTracker.Empty;
@@ -117,7 +117,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             .Where(t => t.Declaration.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedWheelAngle)
             .Select(t => t.Owner).Distinct().ToArray();
         return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence, construction.Activation,
-            new(scene.SupplyGraph, scene.Prismatics.Length, scene.Electrical.Sources.Length), new PhysicsTickInputs([], []) { Pulleys = pulleys }, scene);
+            new(scene.SupplyGraph, scene.Electrical.Sources.Length), new PhysicsTickInputs([], []) { Pulleys = pulleys }, scene);
     }
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)
     {
@@ -151,7 +151,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 if (controls is null) throw new ArgumentException("Advance requires tick controls.");
                 scheduled = network.AdvanceScheduled(new(_committedActivations, _committedTimers, _committedMemory), expectedTick);
                 var checkpoint = scheduled.State;
-                inputs = PhysicsTickInputs.Compose(supply.Graph, supply.Prismatics, controls,
+                inputs = PhysicsTickInputs.Compose(supply.Graph, controls,
                     owner => network.ContactClosed(checkpoint.Activations, checkpoint.Timers, owner));
             }
             if(operation==WorkshopGpuOperation.Admit)

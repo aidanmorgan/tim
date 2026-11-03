@@ -117,7 +117,7 @@ public static class BundleSchema
 }
 
 /// <summary>The bundle's source-generated serialisation contract. Every enum the schema reaches has its exact-name converter here
-/// (BundleSchemaTests checks the list against the schema's type graph).</summary>
+/// (the guard in BundleRoundTripTests checks the list against the schema's type graph).</summary>
 [JsonSourceGenerationOptions(
     WriteIndented = true,
     NewLine = "\n",
@@ -131,6 +131,7 @@ public static class BundleSchema
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<RopeAttachmentRole>),
         typeof(ExactEnumConverter<PortSocket>),        typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
+        typeof(ExactEnumConverter<RevoluteTravel>),
         typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>),typeof(ExactEnumConverter<TimerCompletionPolicy>),
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),
         typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>),

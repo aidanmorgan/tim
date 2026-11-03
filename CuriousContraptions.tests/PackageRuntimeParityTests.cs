@@ -235,6 +235,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                     $"{where}: limits [{hinge.LowerLimit}, {hinge.UpperLimit}] declared, [{joint.Lower}, {joint.Upper}] compiled.");
                 var frictionTorque = hinge.FrictionTorque.Evaluate(defaults);
                 Assert.True(frictionTorque == joint.FrictionTorque, $"{where}: friction torque {frictionTorque} declared, {joint.FrictionTorque} compiled.");
+                Assert.True(hinge.Travel == joint.Travel, $"{where}: travel {hinge.Travel} declared, {joint.Travel} compiled.");
+                var compiledDrive = scene.RevoluteDrives.ToArray().Where(drive => drive.Joint == joint.Id).ToArray();
+                if (hinge.Drive is { } drive)
+                    Assert.Equal([new RevoluteDriveDeclaration(joint.Id, drive.TargetSpeed.Evaluate(defaults), drive.MaxTorque.Evaluate(defaults))], compiledDrive);
+                else Assert.Empty(compiledDrive);
                 Assert.Equal(hinge.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled, joint.Collision);
                 var moving = scene.Bodies.ToArray().Single(body => body.Id == joint.BodyB);
                 AssertBody(where + ".MovingBody", KinematicMode.Dynamic, MassFixtures.Evaluate(hinge.MovingBody.MassFrame, element.Metadata.Parameters).Mass, hinge.MovingBody.MassFrame.LinearDrag,

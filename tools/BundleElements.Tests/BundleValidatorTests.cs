@@ -615,6 +615,14 @@ public sealed class BundleValidatorTests
                 Sliders = [Fixture.Slider() with { MovingBody = Fixture.Slider().MovingBody with { MassFrame = Fixture.Slider().MovingBody.MassFrame with { Mass = MassScalar.Constant(float.NaN) } } }]
             })));
 
+    /// <summary>The Powered Gate's mechanical payload (a frame and one slider) without its drive, borrowed as a moving-child shape by
+    /// capabilities that refuse one. A switched contact cannot supply a drive, which is refused on its own (engine-revolute-drive).</summary>
+    private static Bundle.MechanicalPayload UndrivenGate(IReadOnlyList<Bundle.BundleEntry> bundle)
+    {
+        var mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical!;
+        return mechanical with { Sliders = [.. mechanical.Sliders.Select(slider => slider with { Drive = null })] };
+    }
+
     // C-Gate (9A.19): a supplied drive is declaration data; the bundle refuses one the runtime could not admit.
     private static string[] DriveErrors(Abstractions.Mechanical.PrismaticDriveDescriptor drive, bool powerIn = true, int sliders = 1) =>
         Errors(("FixtureDrive", new Fixture
@@ -629,7 +637,7 @@ public sealed class BundleValidatorTests
 
     [Fact]
     public void ADrivenSliderWithoutAPowerInIsRefused() =>
-        Assert.Equal(["BUNDLE007 FixtureDrive.Sliders[0].Drive: a supplied drive requires an electrical PowerIn input"],
+        Assert.Equal(["BUNDLE007 FixtureDrive.Sliders[0].Drive: a supplied drive requires an electrical PowerIn input on a consumer (no supply capability)"],
             DriveErrors(Fixture.Drive(), powerIn: false));
 
     [Fact]
@@ -826,8 +834,9 @@ public sealed class BundleValidatorTests
         // A Static frame (no Dynamic body, no slider) and a level ActivationOut.
         Refused(plate with { Mechanical = plate.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic, MassFrame = MassFrameDeclaration.Constant(1f, Vector3.Zero, Vector3.One, Quaternion.Identity, 0f, Vector3.Zero) } }, "ContactLoad.Body");
         Refused(plate with { Mechanical = null }, "ContactLoad.Body");
-        // A contact-load source requires a static frame without moving children; use the gate's valid slider.
-        var slider = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical!.Sliders[0];
+        // A contact-load source requires a static frame without moving children; use the gate's valid slider, without its drive (a
+        // switched contact cannot supply a drive, which is refused on its own).
+        var slider = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical!.Sliders[0] with { Drive = null };
         Refused(plate with { Mechanical = plate.Mechanical! with { Sliders = [slider] },
             Presentation = plate.Presentation with { Bodies = [new("Visual/Moving", new(1), Vector3.Zero)] } }, "ContactLoad.Body");
         var activation = plate.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
@@ -954,7 +963,7 @@ public sealed class BundleValidatorTests
         // Not Dynamic, no slider: another package's Static frame is admitted.
         Assert.Empty(Check(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical }));
         Refused(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "PulseCount.Body");
-        Refused(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical,
+        Refused(counter with { Mechanical = UndrivenGate(bundle),
             Presentation = counter.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }, "PulseCount.Body");
         Assert.Contains(Check(counter with { Colliders = [] }), error => error.Detail.StartsWith("Candidate.PulseCount.Body:", StringComparison.Ordinal));
         // One node-selecting capability: a valid passage aperture on a Static frame beside it is refused, and only for that.
@@ -994,7 +1003,7 @@ public sealed class BundleValidatorTests
         Refused(latch with { Electrical = latch.Electrical! with { Supply = null } }, "Memory.Supply");
         // Not Dynamic, no slider.
         Refused(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "Memory.Body");
-        Refused(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical,
+        Refused(latch with { Mechanical = UndrivenGate(bundle),
             Presentation = latch.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }, "Memory.Body");
         Assert.Empty(Check(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical }));
         // One node-selecting capability: a valid indicator on a declared Level input beside it is refused, and only for that.
@@ -1078,6 +1087,81 @@ public sealed class BundleValidatorTests
         var negativeInfinity = Check(WithFriction(float.NegativeInfinity));
         Assert.Equal([Bundle.BundleErrorCode.NonFinite, Bundle.BundleErrorCode.OutOfRange], negativeInfinity.Select(error => error.Code).Order());
         Assert.All(negativeInfinity, error => Assert.StartsWith("Candidate.Hinges[0].FrictionTorque", error.Detail, StringComparison.Ordinal));
+    }
+
+    // engine-revolute-drive: a hinge's travel is a defined RevoluteTravel. Continuous travel requires exactly the full-turn limits
+    // [−π, π] and no axial spring. A supplied drive requires the owner's electrical PowerIn input, a target speed within ±128 rad/s (the
+    // angular envelope) and a positive maximum torque; each boundary value is admitted and the value one step beyond it refused.
+    [Fact]
+    public void HingeCapabilityValidatesTravelAndTheSuppliedDrive()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var lever = Bundle.BundleSchema.Read(generated.Json!).Elements.Single(entry => entry.Metadata.Id == "impact_lever");
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) =>
+            Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+        var hinge = lever.Mechanical!.Hinges[0];
+        Bundle.BundleEntry With(Bundle.BundleEntry entry, RevoluteHingeDescriptor value) =>
+            entry with { Mechanical = entry.Mechanical! with { Hinges = [value] } };
+        var full = hinge with { LowerLimit = -MathF.PI, UpperLimit = MathF.PI, Travel = RevoluteTravel.Continuous };
+
+        Assert.Empty(Check(With(lever, full)));
+        Refused(With(lever, hinge with { Travel = RevoluteTravel.Continuous }), "Hinges[0].Travel");
+        Refused(With(lever, full with { UpperLimit = MathF.BitDecrement(MathF.PI) }), "Hinges[0].Travel");
+        Refused(With(lever, full with { Stiffness = MechanicalValue.Fixed(1f) }), "Hinges[0].Stiffness");
+        Refused(With(lever, hinge with { Travel = (RevoluteTravel)2 }), "Hinges[0].Travel", Bundle.BundleErrorCode.UndefinedEnum);
+
+        var driven = full with { Drive = new(MechanicalValue.Fixed(6f), MechanicalValue.Fixed(2f)) };
+        Refused(With(lever, driven), "Hinges[0].Drive", Bundle.BundleErrorCode.UnresolvedReference);
+        var powered = lever with
+        {
+            Ports = [.. lever.Ports, new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, Vector3.Zero, Vector3.UnitZ)]
+        };
+        RevoluteHingeDescriptor Drive(float target, float torque) =>
+            full with { Drive = new(MechanicalValue.Fixed(target), MechanicalValue.Fixed(torque)) };
+        Assert.Empty(Check(With(powered, Drive(128f, 2f))));
+        Assert.Empty(Check(With(powered, Drive(-128f, float.Epsilon))));
+        Refused(With(powered, Drive(MathF.BitIncrement(128f), 2f)), "Hinges[0].Drive.TargetSpeed");
+        Refused(With(powered, Drive(MathF.BitDecrement(-128f), 2f)), "Hinges[0].Drive.TargetSpeed");
+        Refused(With(powered, Drive(6f, 0f)), "Hinges[0].Drive.MaxTorque");
+        Refused(With(powered, Drive(float.NaN, 2f)), "Hinges[0].Drive.TargetSpeed.Constant", Bundle.BundleErrorCode.NonFinite);
+    }
+
+    // engine-revolute-drive: a drive is supplied only through a consumer node, which the compiler builds for a part with a PowerIn input
+    // and no supply capability of its own. A part that declares one (here the Pressure Plate's switched contact) compiles another node
+    // kind, so a driven joint on it is refused, for either joint kind, while the same driven joint on a consumer is admitted.
+    [Fact]
+    public void ADriveOnAPartWithItsOwnSupplyCapabilityIsRefusedForEitherJointKind()
+    {
+        var bundle = Bundle.BundleSchema.Read(BundleGenerator.Generate(TestRepository.Root).Json!).Elements;
+        var contact = bundle.Single(entry => entry.Metadata.Id == "pressure_plate").Electrical;
+        Assert.Equal(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, contact!.Supply!.Value.Kind);
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static bool RefusesDrive(Bundle.BundleEntry candidate, string path) => Check(candidate).Any(error =>
+            error.Code == Bundle.BundleErrorCode.UnresolvedReference && error.Detail.StartsWith($"Candidate.{path}.Drive:", StringComparison.Ordinal));
+
+        var gate = bundle.Single(entry => entry.Metadata.Id == "powered_gate");
+        Assert.NotNull(gate.Mechanical!.Sliders[0].Drive);
+        Assert.False(RefusesDrive(gate, "Sliders[0]"));
+        Assert.True(RefusesDrive(gate with { Electrical = contact }, "Sliders[0]"));
+
+        var lever = bundle.Single(entry => entry.Metadata.Id == "impact_lever");
+        var hinge = lever.Mechanical!.Hinges[0] with
+        {
+            LowerLimit = -MathF.PI, UpperLimit = MathF.PI, Travel = RevoluteTravel.Continuous,
+            Drive = new(MechanicalValue.Fixed(6f), MechanicalValue.Fixed(2f))
+        };
+        var driven = lever with
+        {
+            Ports = [.. lever.Ports, new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, Vector3.Zero, Vector3.UnitZ)],
+            Mechanical = lever.Mechanical with { Hinges = [hinge] }
+        };
+        Assert.Empty(Check(driven));
+        Assert.True(RefusesDrive(driven with { Electrical = contact }, "Hinges[0]"));
     }
 
     [Fact]

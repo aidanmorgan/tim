@@ -215,8 +215,8 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.Equal(battery.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Source).Owner);
         Assert.Equal(gate.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Consumer).Owner);
         bool NoContact(GpuBodyId owner)=>throw new InvalidOperationException("Direct supply consulted a contact.");
-        Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new([ElectricalEnable.Enabled]),NoContact).SupplyClosed[0]);
-        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new([ElectricalEnable.Disabled]),NoContact).SupplyClosed[0]);
+        Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph,new([ElectricalEnable.Enabled]),NoContact).SupplyClosed[0]);
+        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph,new([ElectricalEnable.Disabled]),NoContact).SupplyClosed[0]);
         Assert.Empty(scene.Electrical.Bindings.ToArray());
         Assert.Equal(0f,scene.Bodies.ToArray().Single(body=>body.Id==scene.Prismatics.ToArray().Single(joint => joint.BodyA == gate.Id).BodyB).LinearDrag.Value);
     }
@@ -229,7 +229,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var scene=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(gate1,gate2,battery1,battery2),
             Connections:new(Supply(battery1.Id,gate1.Id),Supply(battery2.Id,gate2.Id))),new(1,1));
         var enables=scene.Electrical.Sources.ToArray().Select(source=>source.Owner==battery1.Id?ElectricalEnable.Disabled:ElectricalEnable.Enabled).ToArray();
-        var closed=PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new(enables),_=>true).SupplyClosed;
+        var closed=PhysicsTickInputs.Compose(scene.SupplyGraph,new(enables),_=>true).SupplyClosed;
         Assert.False(closed[Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate1.Id)]);
         Assert.True(closed[Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate2.Id)]);
     }
@@ -245,13 +245,13 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
             Connections:new(Supply(battery.Id,plate.Id),Supply(plate.Id,gate.Id)));
         var scene=WorkshopPhysicsCompiler.Compile(construction,new(1,1));
         Assert.Equal(plate.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Contact).Owner);
-        bool Closed(ElectricalEnable enable,bool contact)=>PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,
+        bool Closed(ElectricalEnable enable,bool contact)=>PhysicsTickInputs.Compose(scene.SupplyGraph,
             new([enable]),owner=>owner==plate.Id?contact:throw new InvalidOperationException()).SupplyClosed[0];
         Assert.True(Closed(ElectricalEnable.Enabled,true));Assert.False(Closed(ElectricalEnable.Enabled,false));Assert.False(Closed(ElectricalEnable.Disabled,true));
         var unsupplied=WorkshopPhysicsCompiler.Compile(construction with {Connections=new(Supply(plate.Id,gate.Id))},new(1,1));
-        Assert.False(PhysicsTickInputs.Compose(unsupplied.SupplyGraph,1,new([ElectricalEnable.Enabled]),_=>true).SupplyClosed[0]);
+        Assert.False(PhysicsTickInputs.Compose(unsupplied.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true).SupplyClosed[0]);
         var ungated=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(battery,plate),Connections:new(Supply(battery.Id,plate.Id))),new(1,1));
-        Assert.Empty(PhysicsTickInputs.Compose(ungated.SupplyGraph,0,new([ElectricalEnable.Enabled]),_=>true).SupplyClosed);
+        Assert.Empty(PhysicsTickInputs.Compose(ungated.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true).SupplyClosed);
         Assert.Equal(plate.Id,Assert.Single(ungated.ContactLoadSensors.ToArray()).Frame);
     }
 
@@ -261,14 +261,17 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var gate=Gate(1);var battery=Battery(2,ElectricalEnable.Enabled);
         var scene=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(gate,battery)),new(1,1));
         CompiledSupplyGraph Admit(SupplyNodeDeclaration[] nodes,params SupplyEdge[] edges)=>new(nodes,edges,
-            scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies);
+            scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,scene.Bodies);
         var source=new SupplyNodeDeclaration(battery.Id,SupplyNodeKind.Source,scene.Electrical.Sources[0].Id);
-        var consumer=new SupplyNodeDeclaration(gate.Id,SupplyNodeKind.Consumer,Consumers:[scene.Prismatics[0].Id]);
+        var consumer=new SupplyNodeDeclaration(gate.Id,SupplyNodeKind.Consumer,Consumers:[SupplyConsumer.Prismatic(scene.Prismatics[0].Id)]);
         Assert.Equal(2,Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn)).Nodes.Length);
         Assert.Throws<ArgumentException>(()=>Admit([source with {Kind=(SupplyNodeKind)99}]));
         Assert.Throws<ArgumentException>(()=>Admit([source with {Source=default}]));
         Assert.Throws<ArgumentException>(()=>Admit([source,source]));
-        Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumers=[new(999)]}]));
+        Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumers=[SupplyConsumer.Prismatic(new(999))]}]));
+        // A consumer names its joint with its drive kind's own identity type: a revolute consumer carrying the gate prismatic's identity
+        // value names no revolute and is refused. (An undefined kind cannot be constructed; the wire decode refuses one.)
+        Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumers=[SupplyConsumer.Revolute(new(scene.Prismatics[0].Id.Value))]}]));
         Assert.Throws<ArgumentException>(()=>Admit([new(scene.Prismatics.ToArray().Single(joint => joint.BodyA == gate.Id).BodyB,SupplyNodeKind.Contact)]));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(gate.Id,battery.Id,WorkshopSocket.PowerIn)));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn),new(battery.Id,gate.Id,WorkshopSocket.PowerIn)));

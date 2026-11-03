@@ -5339,8 +5339,13 @@ frictionTorque():number {
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
+travel():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
 static startCapabilityRevoluteConstraintDeclarationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -5385,6 +5390,10 @@ static addCollision(builder:flatbuffers.Builder, collision:number) {
 
 static addFrictionTorque(builder:flatbuffers.Builder, frictionTorque:number) {
   builder.addFieldFloat32(10, frictionTorque, 0.0);
+}
+
+static addTravel(builder:flatbuffers.Builder, travel:number) {
+  builder.addFieldInt32(11, travel, 0);
 }
 
 static endCapabilityRevoluteConstraintDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -5589,6 +5598,61 @@ static createCapabilityQuaternionRecord(builder:flatbuffers.Builder, x:number, y
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export class CapabilitySupplyConsumerRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilitySupplyConsumerRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilitySupplyConsumerRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilitySupplyConsumerRecord):CapabilitySupplyConsumerRecord {
+  return (obj || new CapabilitySupplyConsumerRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilitySupplyConsumerRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilitySupplyConsumerRecord):CapabilitySupplyConsumerRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilitySupplyConsumerRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+kind():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
+joint():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+static startCapabilitySupplyConsumerRecord(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+}
+
+static addKind(builder:flatbuffers.Builder, kind:number) {
+  builder.addFieldInt32(0, kind, 0);
+}
+
+static addJoint(builder:flatbuffers.Builder, joint:bigint) {
+  builder.addFieldInt64(1, joint, BigInt('0'));
+}
+
+static endCapabilitySupplyConsumerRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilitySupplyConsumerRecord(builder:flatbuffers.Builder, kind:number, joint:bigint):flatbuffers.Offset {
+  CapabilitySupplyConsumerRecord.startCapabilitySupplyConsumerRecord(builder);
+  CapabilitySupplyConsumerRecord.addKind(builder, kind);
+  CapabilitySupplyConsumerRecord.addJoint(builder, joint);
+  return CapabilitySupplyConsumerRecord.endCapabilitySupplyConsumerRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 export class CapabilitySupplyNodeDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -5622,9 +5686,9 @@ source():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
-consumers(index: number):bigint|null {
+consumers(index: number, obj?:CapabilitySupplyConsumerRecord):CapabilitySupplyConsumerRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
+  return offset ? (obj || new CapabilitySupplyConsumerRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 consumersLength():number {
@@ -5657,16 +5721,16 @@ static addConsumers(builder:flatbuffers.Builder, consumersOffset:flatbuffers.Off
   builder.addFieldOffset(3, consumersOffset, 0);
 }
 
-static createConsumersVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
-  builder.startVector(8, data.length, 8);
+static createConsumersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
-    builder.addInt64(data[i]!);
+    builder.addOffset(data[i]!);
   }
   return builder.endVector();
 }
 
 static startConsumersVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(8, numElems, 8);
+  builder.startVector(4, numElems, 4);
 }
 
 static addOperation(builder:flatbuffers.Builder, operation:number) {
@@ -6004,6 +6068,71 @@ static createCapabilityPrismaticDriveDeclarationRecord(builder:flatbuffers.Build
   CapabilityPrismaticDriveDeclarationRecord.addMaxEffort(builder, maxEffort);
   CapabilityPrismaticDriveDeclarationRecord.addMaxPower(builder, maxPower);
   return CapabilityPrismaticDriveDeclarationRecord.endCapabilityPrismaticDriveDeclarationRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+export class CapabilityRevoluteDriveDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityRevoluteDriveDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityRevoluteDriveDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRevoluteDriveDeclarationRecord):CapabilityRevoluteDriveDeclarationRecord {
+  return (obj || new CapabilityRevoluteDriveDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityRevoluteDriveDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRevoluteDriveDeclarationRecord):CapabilityRevoluteDriveDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityRevoluteDriveDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+joint():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+targetSpeed():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maxTorque():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCapabilityRevoluteDriveDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addJoint(builder:flatbuffers.Builder, joint:bigint) {
+  builder.addFieldInt64(0, joint, BigInt('0'));
+}
+
+static addTargetSpeed(builder:flatbuffers.Builder, targetSpeed:number) {
+  builder.addFieldFloat32(1, targetSpeed, 0.0);
+}
+
+static addMaxTorque(builder:flatbuffers.Builder, maxTorque:number) {
+  builder.addFieldFloat32(2, maxTorque, 0.0);
+}
+
+static endCapabilityRevoluteDriveDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCapabilityRevoluteDriveDeclarationRecord(builder:flatbuffers.Builder, joint:bigint, targetSpeed:number, maxTorque:number):flatbuffers.Offset {
+  CapabilityRevoluteDriveDeclarationRecord.startCapabilityRevoluteDriveDeclarationRecord(builder);
+  CapabilityRevoluteDriveDeclarationRecord.addJoint(builder, joint);
+  CapabilityRevoluteDriveDeclarationRecord.addTargetSpeed(builder, targetSpeed);
+  CapabilityRevoluteDriveDeclarationRecord.addMaxTorque(builder, maxTorque);
+  return CapabilityRevoluteDriveDeclarationRecord.endCapabilityRevoluteDriveDeclarationRecord(builder);
 }
 }
 
@@ -7560,8 +7689,18 @@ compliantSurfacesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+revoluteDrives(index: number, obj?:CapabilityRevoluteDriveDeclarationRecord):CapabilityRevoluteDriveDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 68);
+  return offset ? (obj || new CapabilityRevoluteDriveDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+revoluteDrivesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 68);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(32);
+  builder.startObject(33);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -7989,6 +8128,22 @@ static createCompliantSurfacesVector(builder:flatbuffers.Builder, data:flatbuffe
 }
 
 static startCompliantSurfacesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addRevoluteDrives(builder:flatbuffers.Builder, revoluteDrivesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(32, revoluteDrivesOffset, 0);
+}
+
+static createRevoluteDrivesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startRevoluteDrivesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 

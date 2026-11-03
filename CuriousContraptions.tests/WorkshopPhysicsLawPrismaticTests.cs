@@ -272,7 +272,7 @@ public sealed class WorkshopPhysicsLawPrismaticTests
                     var result = SoftConstraint.Solve4(
                         Vector128.Create(ConstraintBodyImpulse.ConstraintMass(j.A, r.La, r.Aa) + ConstraintBodyImpulse.ConstraintMass(j.B, r.Lb, r.Ab), 0, 0, 0),
                         Vector128.Create(ConstraintBodyImpulse.ConstraintVelocity(j.A, r.La, r.Aa) + ConstraintBodyImpulse.ConstraintVelocity(j.B, r.Lb, r.Ab), 0, 0, 0),
-                        Vector128.Create(r.Error, 0, 0, 0), Vector128.Create(r.Gamma, 0, 0, 0), Vector128.Create(r.Bias, 0, 0, 0),
+                        Vector128.Create(r.VelocityTarget, 0, 0, 0), Vector128.Create(r.Error, 0, 0, 0), Vector128.Create(r.Gamma, 0, 0, 0), Vector128.Create(r.Bias, 0, 0, 0),
                         Vector128.Create(j.Impulses[row], 0, 0, 0), Vector128.Create(r.Minimum, 0, 0, 0), Vector128.Create(float.MaxValue, 0, 0, 0));
                     j.Impulses[row] = result.Accumulated.GetElement(0);
                     PrismaticConstraintSolver.ApplyConstraintImpulse(j, r, result.Delta.GetElement(0));

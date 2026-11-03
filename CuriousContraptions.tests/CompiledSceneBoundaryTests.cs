@@ -332,6 +332,116 @@ public sealed class CompiledSceneBoundaryTests
         }
     }
 
+    /// <summary>engine-revolute-drive: the compiled lever with its hinge made Continuous (full-turn limits), a supplied drive on it and a
+    /// consumer node on the lever naming that drive with its typed kind. No shipped package declares a drive yet (the Motor is 11.1a).</summary>
+    private static WorkshopCompiledScene DrivenLeverScene()
+    {
+        var compiled = WorkshopSceneCompiler.Compile(LeverConstruction, new(101, 206), new(7));
+        var physics = compiled.Physics;
+        var hinge = Assert.Single(physics.Revolutes.ToArray()) with
+        {
+            Lower = -MathF.PI, Upper = MathF.PI, Travel = CuriousContraptions.Abstractions.Mechanical.RevoluteTravel.Continuous
+        };
+        SupplyNodeDeclaration consumer = new(hinge.BodyA, SupplyNodeKind.Consumer, Consumers: [SupplyConsumer.Revolute(hinge.Id)]);
+        return new WorkshopCompiledScene(compiled.Identity, compiled.Revision, compiled.Settings,
+            new PhysicsSceneDeclaration(physics.Document, physics.NextIdentity, physics.Bodies, physics.Colliders, physics.Materials,
+                physics.Sensors, physics.Guides, physics.Triggers, physics.ContactWorks, physics.OrientationSensors,
+                physics.Electrical.Sources.ToArray(), physics.Electrical.Bindings.ToArray(), physics.Prismatics,
+                [.. physics.SupplyGraph.Nodes.ToArray(), consumer], physics.SupplyGraph.Edges.ToArray(), physics.ContactLoadSensors,
+                physics.PrismaticDrives, physics.TensileSpans, revolutes: [hinge], revoluteDrives: [new(hinge.Id, -7.5f, 3.25f)]),
+            compiled.Activation, compiled.Presentation, compiled.Owners, compiled.EditableSources);
+    }
+
+    // engine-revolute-drive: the hinge's travel, its drive (a negative target and a torque no other field carries) and the typed consumer
+    // that names it decode unchanged from the command wire.
+    [Fact]
+    public void ADrivenContinuousHingeAndItsTypedConsumerCrossTheCommandWire()
+    {
+        var scene = DrivenLeverScene();
+
+        var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(Construct(scene))).Scene!.Physics;
+
+        Assert.Equal(scene.Physics.Revolutes.ToArray(), decoded.Revolutes.ToArray());
+        Assert.Equal(scene.Physics.RevoluteDrives.ToArray(), decoded.RevoluteDrives.ToArray());
+        Assert.Equal(scene.Physics.SupplyGraph.Nodes.ToArray().Select(node => node.Consumers.IsDefault ? [] : node.Consumers.ToArray()),
+            decoded.SupplyGraph.Nodes.ToArray().Select(node => node.Consumers.ToArray()));
+    }
+
+    public enum DriveDefect
+    {
+        UndefinedTravel, ContinuousNarrowLower, ContinuousWithSpring, NaNTargetSpeed, OverspeedTarget, ZeroTorque, UndefinedConsumerKind
+    }
+
+    /// <summary>A Construct command carrying <paramref name="scene"/>, encoded with every scalar written even at its default, so a zero
+    /// field (such as the continuous hinge's stiffness) has a slot to poison.</summary>
+    private static byte[] CommandWithEveryField(WorkshopCompiledScene scene)
+    {
+        var builder = new FlatBufferBuilder(1024) { ForceDefaults = true };
+        var installation = WorkshopWireFlatBuffers.EncodeCompiledScene(builder, scene);
+        var sessionBytes = new byte[RuntimeSessionId.ByteLength];
+        new RuntimeSessionId(101, 206).WriteTo(sessionBytes);
+        var session = CuriousContraptions.Wire.WorkshopCommand.CreateSessionVector(builder, sessionBytes);
+        CuriousContraptions.Wire.WorkshopCommand.StartWorkshopCommand(builder);
+        CuriousContraptions.Wire.WorkshopCommand.AddSequence(builder, 1);
+        CuriousContraptions.Wire.WorkshopCommand.AddKind(builder, CuriousContraptions.Wire.CommandKind.Construct);
+        CuriousContraptions.Wire.WorkshopCommand.AddEpoch(builder, 1);
+        CuriousContraptions.Wire.WorkshopCommand.AddRevision(builder, 1);
+        CuriousContraptions.Wire.WorkshopCommand.AddRevisionKind(builder, (uint)ExpectedRevisionKind.Exact);
+        CuriousContraptions.Wire.WorkshopCommand.AddSession(builder, session);
+        CuriousContraptions.Wire.WorkshopCommand.AddCadence(builder, 1);
+        CuriousContraptions.Wire.WorkshopCommand.AddProjection(builder, 1);
+        CuriousContraptions.Wire.WorkshopCommand.AddScene(builder, installation);
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopCommand.EndWorkshopCommand(builder).Value,
+            WorkshopWireFlatBuffers.CommandIdentifier);
+        return builder.SizedByteArray();
+    }
+
+    // engine-revolute-drive: a revolute row with an undefined travel, a continuous row whose lower limit is not −π or that carries a
+    // spring, a drive row whose target speed is NaN or beyond the 128 rad/s envelope or whose torque is zero, and a consumer naming an
+    // undefined drive kind are each refused at the command decode boundary.
+    [Theory]
+    [InlineData(DriveDefect.UndefinedTravel)]
+    [InlineData(DriveDefect.ContinuousNarrowLower)]
+    [InlineData(DriveDefect.ContinuousWithSpring)]
+    [InlineData(DriveDefect.NaNTargetSpeed)]
+    [InlineData(DriveDefect.OverspeedTarget)]
+    [InlineData(DriveDefect.ZeroTorque)]
+    [InlineData(DriveDefect.UndefinedConsumerKind)]
+    public void MalformedDriveRowsRefuseAtTheCommandBoundary(DriveDefect defect)
+    {
+        var request = CommandWithEveryField(DrivenLeverScene());
+        Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(request).Scene!.Physics.RevoluteDrives.ToArray());
+        var buffer = new ByteBuffer(request);
+        var scene = Child(new Table(4 + buffer.GetInt(4), buffer), 11); // WorkshopCommand.scene
+        switch (defect)
+        {
+            case DriveDefect.UndefinedTravel: // CompiledSceneRecord.revolutes[0].travel := 2
+                BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 30)), 11)), 2);
+                break;
+            case DriveDefect.ContinuousNarrowLower: // revolutes[0].lower := −3 (a continuous hinge's limits are exactly [−π, π])
+                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 30)), 5)), -3f);
+                break;
+            case DriveDefect.ContinuousWithSpring: // revolutes[0].stiffness := 10
+                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 30)), 7)), 10f);
+                break;
+            case DriveDefect.NaNTargetSpeed: // CompiledSceneRecord.revolute_drives[0].target_speed := NaN
+                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 32)), 1)), float.NaN);
+                break;
+            case DriveDefect.OverspeedTarget:
+                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 32)), 1)), MathF.BitIncrement(128f));
+                break;
+            case DriveDefect.ZeroTorque: // revolute_drives[0].max_torque := 0
+                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 32)), 2)), 0f);
+                break;
+            case DriveDefect.UndefinedConsumerKind: // supply_nodes[last].consumers[0].kind := 2
+                BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(Slot(Assert.Single(Rows(Rows(scene, 18)[^1], 3)), 0)), 2);
+                break;
+            default: throw new ArgumentOutOfRangeException(nameof(defect));
+        }
+
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(request)).Reason);
+    }
+
     private static WorkshopConstruction TrampolineConstruction => new(new(2), WorkshopCadenceSettings.Default(), new(
         WorkshopInput.Generic(new PartId("trampoline"), new(1), 0, 3, 0, 0, 0, 0, 1)));
 

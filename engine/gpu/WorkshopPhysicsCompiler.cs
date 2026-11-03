@@ -34,9 +34,20 @@ public static class WorkshopPhysicsCompiler
         var prismatics = new List<PrismaticConstraintDeclaration>(4);
         var drives = new List<PrismaticDriveDeclaration>(4);
         var revolutes = new List<RevoluteConstraintDeclaration>(4);
+        var revoluteDrives = new List<RevoluteDriveDeclaration>(4);
         var compliantSurfaces = new List<CompliantSurfaceDeclaration>(4);
         var topology = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of);
         var supplyNodes = topology.Nodes.ToArray();
+        // A declared drive is enabled by its owner's PowerIn route: the owner's consumer node names the driven joint.
+        void Consume(GpuBodyId owner, SupplyConsumer consumer)
+        {
+            var slot = Array.FindIndex(supplyNodes, node => node.Owner == owner && node.Kind == SupplyNodeKind.Consumer);
+            if (slot < 0) throw new ArgumentException("A supplied drive requires its owner's declared electrical input.");
+            supplyNodes[slot] = supplyNodes[slot] with
+            {
+                Consumers = supplyNodes[slot].Consumers.IsDefault ? [consumer] : supplyNodes[slot].Consumers.Add(consumer)
+            };
+        }
         var electricalSources = new List<ElectricalSourceDeclaration>(4);
         var orientationSensors = new List<OrientationSensorDeclaration>(4);
         var contactLoads = new List<ContactLoadSensorDeclaration>(4);
@@ -102,10 +113,7 @@ public static class WorkshopPhysicsCompiler
                 if (slider.Drive is not { } drive) continue;
                 drives.Add(new(joint, drive.Target.Evaluate(parameters), drive.MaxSpeed.Evaluate(parameters),
                     drive.StoppingAcceleration.Evaluate(parameters), drive.MaxEffort.Evaluate(parameters), drive.MaxPower.Evaluate(parameters)));
-                // The declared drive is enabled by the owner's PowerIn route: its consumer node drives this slider.
-                var slot = Array.FindIndex(supplyNodes, node => node.Owner == instance.Id && node.Kind == SupplyNodeKind.Consumer);
-                if (slot < 0) throw new ArgumentException("A supplied drive requires its owner's declared electrical input.");
-                supplyNodes[slot] = supplyNodes[slot] with { Consumers = supplyNodes[slot].Consumers.IsDefault ? [joint] : supplyNodes[slot].Consumers.Add(joint) };
+                Consume(instance.Id, SupplyConsumer.Prismatic(joint));
             }
             for (var i = 0; i < hinges.Count; i++)
             {
@@ -136,9 +144,12 @@ public static class WorkshopPhysicsCompiler
                 var joint = rows.Hinges[i].Joint;
                 revolutes.Add(new(joint, instance.Id, moving,
                     new(hinge.BaseFrame.Position, hinge.BaseFrame.Rotation), new(hinge.MovingFrame.Position, hinge.MovingFrame.Rotation),
-                    hinge.LowerLimit, hinge.UpperLimit, hinge.Stiffness.Evaluate(parameters), hinge.Damping.Evaluate(parameters),
+                    hinge.LowerLimit, hinge.UpperLimit, hinge.Travel, hinge.Stiffness.Evaluate(parameters), hinge.Damping.Evaluate(parameters),
                     hinge.FrictionTorque.Evaluate(parameters),
                     hinge.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
+                if (hinge.Drive is not { } rotary) continue;
+                revoluteDrives.Add(new(joint, rotary.TargetSpeed.Evaluate(parameters), rotary.MaxTorque.Evaluate(parameters)));
+                Consume(instance.Id, SupplyConsumer.Revolute(joint));
             }
             if (mechanical?.CompliantSurface is { } compliant)
             {
@@ -300,7 +311,7 @@ public static class WorkshopPhysicsCompiler
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(identities[link.Source].Source, identities[link.Target].Work)).ToArray(), prismatics.ToArray(),
             supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray(),
-            compliantSurfaces.ToArray());
+            compliantSurfaces.ToArray(), revoluteDrives.ToArray());
     }
     /// <summary>The finite electrical store a declared Source compiles for one owner, from its own store parameters as f32: the
     /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>

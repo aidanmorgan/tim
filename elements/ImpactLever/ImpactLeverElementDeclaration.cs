@@ -93,6 +93,7 @@ public sealed class ImpactLeverElementDeclaration : IHingeElement, ISceneGeometr
             MovingFrame: new(Vector3.Zero, Quaternion.Identity),
             LowerLimit: -MathF.PI / 6f,
             UpperLimit: MathF.PI / 6f,
+            Travel: RevoluteTravel.Limited,
             Stiffness: MechanicalValue.Fixed(0f),
             Damping: MechanicalValue.Fixed(0f),
             // Story 10.3b: 2 N m of hinge friction holds an equal resting load indefinitely (the 4 kg pair's inverted-pendulum
@@ -112,6 +113,7 @@ public sealed class ImpactLeverElementDeclaration : IHingeElement, ISceneGeometr
                     PrincipalFrame: Quaternion.Identity,
                     LinearDrag: 0f,
                     Gravity: new Vector3(0f, -9.81f, 0f)),
-                Colliders: []))
+                Colliders: []),
+            Drive: null)
     ];
 }

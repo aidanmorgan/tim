@@ -118,22 +118,41 @@ public readonly record struct HingeBodyDescriptor(
     MassFrameDeclaration MassFrame,
     IReadOnlyList<ColliderDescriptor> Colliders);
 
+/// <summary>How far a revolute hinge may turn. <see cref="Limited"/> stops it at its declared limits; <see cref="Continuous"/> lets it
+/// turn without end, its stop rows inert through bounds set to zero (its limits are then exactly [−π, π] and it has no axial spring).</summary>
+public enum RevoluteTravel : uint
+{
+    Limited = 0,
+    Continuous = 1
+}
+
+/// <summary>A supplied velocity drive on one revolute hinge, enabled while the element's PowerIn supply route is closed. It drives the
+/// moving body's spin about the hinge axis, relative to the base, toward <see cref="TargetSpeed"/> (rad/s, signed, within the angular
+/// speed envelope) with a torque of at most <see cref="MaxTorque"/> (N·m, positive). Unsupplied, it applies no torque.</summary>
+public readonly record struct RevoluteDriveDescriptor(
+    MechanicalValue TargetSpeed,
+    MechanicalValue MaxTorque);
+
 /// <summary>One revolute hinge joining the element's base body to a moving body. At rest the two frames coincide; the moving body
-/// may rotate from <see cref="LowerLimit"/> to <see cref="UpperLimit"/> (radians) around the base frame's local Z. The axial spring's stiffness
+/// may rotate from <see cref="LowerLimit"/> to <see cref="UpperLimit"/> (radians) around the base frame's local Z, or without end when
+/// its <see cref="Travel"/> is <see cref="RevoluteTravel.Continuous"/>. The axial spring's stiffness
 /// and damping, and the starting angle, are the element parameters these keys name. <see cref="FrictionTorque"/> is the hinge's
 /// Coulomb friction torque (N·m, finite and at least 0): the pivot holds while the net torque about its axis is below it and turns,
-/// resisted by it, once the net torque is above.</summary>
+/// resisted by it, once the net torque is above. <see cref="Drive"/> is the hinge's supplied velocity drive, or null for a passive
+/// hinge.</summary>
 public readonly record struct RevoluteHingeDescriptor(
     HingeFrame BaseFrame,
     HingeFrame MovingFrame,
     float LowerLimit,
     float UpperLimit,
+    RevoluteTravel Travel,
     MechanicalValue Stiffness,
     MechanicalValue Damping,
     MechanicalValue FrictionTorque,
     MechanicalValue InitialAngle,
     bool BodiesCollide,
-    HingeBodyDescriptor MovingBody);
+    HingeBodyDescriptor MovingBody,
+    RevoluteDriveDescriptor? Drive);
 
 /// <summary>A mechanical element whose base body carries moving bodies on revolute hinges.</summary>
 public interface IHingeElement : IMechanicalElement

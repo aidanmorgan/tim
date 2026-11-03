@@ -6,8 +6,32 @@ using CuriousContraptions.Abstractions.Electrical;
 namespace CuriousContraptions.Gpu;
 
 public enum SupplyNodeKind { Source, Contact, Consumer, LogicGate }
+
+/// <summary>Which kind of declared drive a consumer node's route enables.</summary>
+public enum SupplyConsumerKind : uint { PrismaticDrive, RevoluteDrive }
+
+/// <summary>A typed reference from a consumer node to one driven joint: a prismatic drive named by its prismatic identity, or a
+/// revolute drive named by its revolute identity. Only the two factories construct one, so a kind always carries its own identity
+/// type; the other identity is unset.</summary>
+public readonly record struct SupplyConsumer
+{
+    private SupplyConsumer(SupplyConsumerKind kind, PrismaticConstraintId prismaticJoint, RevoluteConstraintId revoluteJoint)
+    {
+        Kind = kind; PrismaticJoint = prismaticJoint; RevoluteJoint = revoluteJoint;
+    }
+
+    public SupplyConsumerKind Kind { get; }
+    /// <summary>The driven prismatic, for <see cref="SupplyConsumerKind.PrismaticDrive"/>; unset otherwise.</summary>
+    public PrismaticConstraintId PrismaticJoint { get; }
+    /// <summary>The driven revolute, for <see cref="SupplyConsumerKind.RevoluteDrive"/>; unset otherwise.</summary>
+    public RevoluteConstraintId RevoluteJoint { get; }
+
+    public static SupplyConsumer Prismatic(PrismaticConstraintId joint) => new(SupplyConsumerKind.PrismaticDrive, joint, default);
+    public static SupplyConsumer Revolute(RevoluteConstraintId joint) => new(SupplyConsumerKind.RevoluteDrive, default, joint);
+}
+
 public readonly record struct SupplyNodeDeclaration(GpuBodyId Owner, SupplyNodeKind Kind,
-    ElectricalSourceId Source = default, ImmutableArray<PrismaticConstraintId> Consumers = default, LogicGateOperation? Operation = null);
+    ElectricalSourceId Source = default, ImmutableArray<SupplyConsumer> Consumers = default, LogicGateOperation? Operation = null);
 public readonly record struct SupplyEdge(GpuBodyId Source, GpuBodyId Target, WorkshopSocket Input);
 public readonly record struct SupplyResolution(bool[] Consumers, ElectricalLogicRead[] Logic);
 
@@ -37,16 +61,21 @@ public sealed class CompiledSupplyGraph
     private readonly int[][] _components;
     private readonly bool[] _cyclic;
     public ReadOnlySpan<SupplyNodeDeclaration> Nodes => _nodes;
+    /// <summary>The number of drive slots a resolution closes or opens: every admitted prismatic slot first, then every admitted
+    /// revolute slot, each in its table's identity order. A joint without a drive keeps an always-open slot.</summary>
+    public int DriveSlots { get; }
     public CompiledSupplyGraph(ReadOnlySpan<SupplyNodeDeclaration> nodes, ReadOnlySpan<SupplyEdge> edges,
-        ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> consumers,
-        ReadOnlySpan<PrismaticDriveDeclaration> drives, ReadOnlySpan<RigidBodyDeclaration> bodies)
+        ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> prismatics,
+        ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives, ReadOnlySpan<RevoluteConstraintDeclaration> revolutes,
+        ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives, ReadOnlySpan<RigidBodyDeclaration> bodies)
     {
         _nodes = nodes.ToArray(); _edges = edges.ToArray();
         _sources = new int[nodes.Length]; _consumers = new int[nodes.Length][];
+        DriveSlots = prismatics.Length + revolutes.Length;
         Array.Fill(_sources, -1);
         var slots = new System.Collections.Generic.Dictionary<GpuBodyId,int>(16);
         var inputs = new System.Collections.Generic.List<(int Source, WorkshopSocket Input)>[nodes.Length];
-        var seenConsumers = new System.Collections.Generic.HashSet<PrismaticConstraintId>(4);
+        var seenConsumers = new System.Collections.Generic.HashSet<SupplyConsumer>(4);
         for (var i=0;i<nodes.Length;i++)
         {
             var node=nodes[i]; inputs[i]=new(4); _consumers[i]=[];
@@ -70,20 +99,43 @@ public sealed class CompiledSupplyGraph
             {
                 if (node.Source != default) throw new ArgumentException("Electrical consumer cannot declare a source.");
                 var admitted = new System.Collections.Generic.List<int>(4);
-                if (!node.Consumers.IsDefaultOrEmpty) foreach (var joint in node.Consumers)
+                if (!node.Consumers.IsDefaultOrEmpty) foreach (var consumer in node.Consumers)
                 {
+                    // A consumer names one owned joint that declares a drive of its kind; its slot is the joint's drive slot.
                     var slot = -1;
-                    for (var c=0;c<consumers.Length;c++)
-                        if (consumers[c].Id==joint && consumers[c].BodyA==node.Owner) slot=c;
-                    var supplied=false;
-                    foreach(var drive in drives) if(drive.Joint==joint) supplied=true;
-                    if (slot<0 || !supplied || !seenConsumers.Add(joint))
-                        throw new ArgumentException("Electrical consumer requires unique admitted driven actuators.");
+                    var supplied = false;
+                    switch (consumer.Kind)
+                    {
+                        case SupplyConsumerKind.PrismaticDrive:
+                            for (var c=0;c<prismatics.Length;c++)
+                                if (prismatics[c].Id==consumer.PrismaticJoint && prismatics[c].BodyA==node.Owner) slot=c;
+                            foreach(var drive in prismaticDrives) if(drive.Joint==consumer.PrismaticJoint) supplied=true;
+                            break;
+                        case SupplyConsumerKind.RevoluteDrive:
+                            for (var r=0;r<revolutes.Length;r++)
+                                if (revolutes[r].Id==consumer.RevoluteJoint && revolutes[r].BodyA==node.Owner) slot=prismatics.Length+r;
+                            foreach(var drive in revoluteDrives) if(drive.Joint==consumer.RevoluteJoint) supplied=true;
+                            break;
+                        default:
+                            throw new ArgumentException("Electrical consumer names an undefined drive kind.");
+                    }
+                    if (slot<0 || !supplied)
+                        throw new ArgumentException("Electrical consumer names no driven joint its node owns.");
+                    if (!seenConsumers.Add(consumer))
+                        throw new ArgumentException("Electrical consumer names a driven joint more than once.");
                     admitted.Add(slot);
                 }
                 _consumers[i]=admitted.ToArray();
             }
         }
+        // Every declared drive of either kind is consumed by exactly one consumer node (uniqueness is checked above): a drive no route
+        // names could never be supplied.
+        foreach (var drive in prismaticDrives)
+            if (!seenConsumers.Contains(SupplyConsumer.Prismatic(drive.Joint)))
+                throw new ArgumentException("A declared prismatic drive has no consumer node.");
+        foreach (var drive in revoluteDrives)
+            if (!seenConsumers.Contains(SupplyConsumer.Revolute(drive.Joint)))
+                throw new ArgumentException("A declared revolute drive has no consumer node.");
         var seenEdges=new System.Collections.Generic.HashSet<SupplyEdge>(16);
         foreach(var edge in edges)
         {
@@ -108,7 +160,7 @@ public sealed class CompiledSupplyGraph
     }
     public ElectricalLogicRead[] NeutralReads() => _nodes.Where(node=>node.Kind==SupplyNodeKind.LogicGate)
         .OrderBy(node=>node.Owner.Value).Select(node=>new ElectricalLogicRead(node.Owner,ElectricalInputState.Neither,false,false)).ToArray();
-    public SupplyResolution Resolve(int consumers, WorkshopTickControls controls, Func<GpuBodyId,bool> contactClosed)
+    public SupplyResolution Resolve(WorkshopTickControls controls, Func<GpuBodyId,bool> contactClosed)
     {
         ArgumentNullException.ThrowIfNull(contactClosed);
         var powered = new bool[_nodes.Length];
@@ -131,7 +183,7 @@ public sealed class CompiledSupplyGraph
                     if (!powered[i] && _nodes[i].Kind!=SupplyNodeKind.Source && Active(i)) { powered[i]=true; changed=_cyclic[c]; }
             }
         }
-        var closed=new bool[consumers];
+        var closed=new bool[DriveSlots];
         var logic=new System.Collections.Generic.List<ElectricalLogicRead>(4);
         for(var i=0;i<_nodes.Length;i++)
         {
@@ -264,23 +316,28 @@ public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
     }
 }
 
-/// <summary>Everything one physics step reads besides the committed world: per-source enables and, per prismatic record,
-/// whether its compiled supply route is closed this tick. Data flows one way: committed discrete state → next physics step.</summary>
+/// <summary>Everything one physics step reads besides the committed world: per-source enables and, per drive slot (every prismatic
+/// record, then every revolute record), whether its compiled supply route is closed this tick. Data flows one way: committed discrete
+/// state → next physics step.</summary>
 public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] SupplyClosed, ElectricalLogicRead[]? Logic = null)
 {
     public RopeSpanId[] Cuts { get; init; } = [];
     public GpuBodyId[] Pulleys { get; init; } = [];
     public static PhysicsTickInputs Admission { get; } = new([], []);
-    public static PhysicsTickInputs Compose(CompiledSupplyGraph graph, int prismatics, WorkshopTickControls controls,
-        Func<GpuBodyId, bool> contactClosed)
+    public static PhysicsTickInputs Compose(CompiledSupplyGraph graph, WorkshopTickControls controls, Func<GpuBodyId, bool> contactClosed)
     {
-        var resolved=graph.Resolve(prismatics,controls,contactClosed);
+        var resolved=graph.Resolve(controls,contactClosed);
         return new(controls.SourceEnable,resolved.Consumers,resolved.Logic) { Cuts = controls.Cuts, Pulleys = controls.Pulleys };
     }
-    public void Validate(int sources, int prismatics)
+    /// <summary>Refuses inputs that differ from the admitted tables: one defined enable per source, and one supply flag per drive slot
+    /// (<paramref name="driven"/>: whether each slot declares a drive), closed only on a slot that declares one.</summary>
+    public void Validate(int sources, ReadOnlySpan<bool> driven)
     {
         if (SourceEnable is null || SupplyClosed is null || SourceEnable.Length != sources ||
-            SupplyClosed.Length != prismatics || SourceEnable.Any(value => !Enum.IsDefined(value)))
-            throw new ArgumentException("Physics tick inputs differ from the admitted source and prismatic tables.");
+            SupplyClosed.Length != driven.Length || SourceEnable.Any(value => !Enum.IsDefined(value)))
+            throw new ArgumentException("Physics tick inputs differ from the admitted source and drive-slot tables.");
+        for (var slot = 0; slot < driven.Length; slot++)
+            if (SupplyClosed[slot] && !driven[slot])
+                throw new ArgumentException("Physics tick inputs close the supply of a slot that declares no drive.");
     }
 }

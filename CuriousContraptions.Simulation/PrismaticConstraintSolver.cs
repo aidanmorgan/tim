@@ -14,11 +14,19 @@ internal struct ConstraintRowData
     public Vector3 Aa;
     public Vector3 Ab;
     public float Error;
+    /// <summary>The row's own relative-velocity target (zero for every row but a velocity drive). No pass gates it, unlike bias, so a
+    /// relax pass keeps it.</summary>
+    public float VelocityTarget;
     public float Gamma;
     public float Bias;
     public float Minimum;
     /// <summary>The accumulated impulse's upper bound (float.MaxValue for a row bounded only below).</summary>
     public float Maximum;
+
+    /// <summary>A stored impulse clamped to this row's current [<see cref="Minimum"/>, <see cref="Maximum"/>], as the solver projects
+    /// it: the warm start applies only an impulse the row could hold now, so a bound that narrowed since the last substep (a drive
+    /// whose supply opened) never kicks.</summary>
+    public readonly float Bounded(float impulse) => MathF.Min(Maximum, MathF.Max(Minimum, impulse));
 }
 
 internal sealed class SimJoint
@@ -102,6 +110,7 @@ internal static class PrismaticConstraintSolver
         Span<float> accum = stackalloc float[4];
         Span<float> mins = stackalloc float[4];
         Span<float> maxs = stackalloc float[4];
+        Span<float> targets = stackalloc float[4];
 
         Span<int> remaining = stackalloc int[count];
         Span<int> groupIndices = stackalloc int[4];
@@ -118,6 +127,7 @@ internal static class PrismaticConstraintSolver
 
                 var vInvMass = Vector128.Create(invMass, 0f, 0f, 0f);
                 var vVel = Vector128.Create(vel, 0f, 0f, 0f);
+                var vTarget = Vector128.Create(row.VelocityTarget, 0f, 0f, 0f);
                 var vError = Vector128.Create(row.Error, 0f, 0f, 0f);
                 var vGamma = Vector128.Create(row.Gamma, 0f, 0f, 0f);
                 var vBias = Vector128.Create(bias, 0f, 0f, 0f);
@@ -125,7 +135,7 @@ internal static class PrismaticConstraintSolver
                 var vMin = Vector128.Create(row.Minimum, 0f, 0f, 0f);
                 var vMax = Vector128.Create(row.Maximum, 0f, 0f, 0f);
 
-                var result = SoftConstraint.Solve4(vInvMass, vVel, vError, vGamma, vBias, vAccum, vMin, vMax);
+                var result = SoftConstraint.Solve4(vInvMass, vVel, vTarget, vError, vGamma, vBias, vAccum, vMin, vMax);
                 joint.Impulses[rowIndex] = result.Accumulated.GetElement(0);
                 ApplyConstraintImpulse(joint, joint.Rows[rowIndex], result.Delta.GetElement(0));
                 continue;
@@ -180,6 +190,7 @@ internal static class PrismaticConstraintSolver
                         accum[lane] = joint.Impulses[rowIndex];
                         mins[lane] = row.Minimum;
                         maxs[lane] = row.Maximum;
+                        targets[lane] = row.VelocityTarget;
                     }
                     else
                     {
@@ -191,11 +202,13 @@ internal static class PrismaticConstraintSolver
                         accum[lane] = 0f;
                         mins[lane] = 0f;
                         maxs[lane] = 0f;
+                        targets[lane] = 0f;
                     }
                 }
 
                 var vInvMass = Vector128.Create(invMasses[0], invMasses[1], invMasses[2], invMasses[3]);
                 var vVel = Vector128.Create(vels[0], vels[1], vels[2], vels[3]);
+                var vTarget = Vector128.Create(targets[0], targets[1], targets[2], targets[3]);
                 var vError = Vector128.Create(errors[0], errors[1], errors[2], errors[3]);
                 var vGamma = Vector128.Create(gammas[0], gammas[1], gammas[2], gammas[3]);
                 var vBias = Vector128.Create(biases[0], biases[1], biases[2], biases[3]);
@@ -203,7 +216,7 @@ internal static class PrismaticConstraintSolver
                 var vMin = Vector128.Create(mins[0], mins[1], mins[2], mins[3]);
                 var vMax = Vector128.Create(maxs[0], maxs[1], maxs[2], maxs[3]);
 
-                var result = SoftConstraint.Solve4(vInvMass, vVel, vError, vGamma, vBias, vAccum, vMin, vMax);
+                var result = SoftConstraint.Solve4(vInvMass, vVel, vTarget, vError, vGamma, vBias, vAccum, vMin, vMax);
 
                 for (var lane = 0; lane < groupCount; lane++)
                 {

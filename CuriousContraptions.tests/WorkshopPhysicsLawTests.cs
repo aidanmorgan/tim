@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Simulation;
 
@@ -234,16 +235,41 @@ internal sealed class LawScene
     }
     private readonly List<CompliantSurfaceDeclaration> _compliantSurfaces = [];
 
-    /// <summary>A generic revolute joint (Story 10.3b): free about the frames' shared local Z, limited to [lower, upper], with no axial
-    /// spring and the declared Coulomb friction torque.</summary>
+    /// <summary>A generic revolute joint (Story 10.3b): free about the frames' shared local Z, limited to [lower, upper] or continuous
+    /// (engine-revolute-drive), with no axial spring and the declared Coulomb friction torque.</summary>
     public RevoluteConstraintId Revolute(GpuBodyId a, GpuBodyId b, ConstraintFrame frameA, ConstraintFrame frameB, float lower, float upper,
-        float frictionTorque, ConnectedCollision collision = ConnectedCollision.Disabled)
+        float frictionTorque, ConnectedCollision collision = ConnectedCollision.Disabled, RevoluteTravel travel = RevoluteTravel.Limited)
     {
         var id = new RevoluteConstraintId(_next++);
-        _revolutes.Add(new(id, a, b, frameA, frameB, lower, upper, 0f, 0f, frictionTorque, collision));
+        _revolutes.Add(new(id, a, b, frameA, frameB, lower, upper, travel, 0f, 0f, frictionTorque, collision));
         return id;
     }
     private readonly List<RevoluteConstraintDeclaration> _revolutes = [];
+
+    /// <summary>Declares a supplied velocity drive on <paramref name="joint"/> (engine-revolute-drive).</summary>
+    public void RevoluteDrive(RevoluteConstraintId joint, float targetSpeed, float maxTorque) =>
+        _revoluteDrives.Add(new(joint, targetSpeed, maxTorque));
+    private readonly List<RevoluteDriveDeclaration> _revoluteDrives = [];
+
+    /// <summary>An electrical source owned by <paramref name="owner"/> (an ample store) and its supply graph source node.</summary>
+    public ElectricalSourceDeclaration Source(GpuBodyId owner, ElectricalEnable enabled = ElectricalEnable.Enabled)
+    {
+        var source = new ElectricalSourceDeclaration(new(_next++), owner, new(1000f), new(100f), 1f, enabled);
+        _sources.Add(source);
+        _supplyNodes.Add(new(owner, SupplyNodeKind.Source, source.Id));
+        return source;
+    }
+
+    /// <summary>A consumer node on <paramref name="owner"/> driving <paramref name="drives"/>, wired to <paramref name="source"/>'s
+    /// owner through PowerIn when one is given (otherwise never supplied).</summary>
+    public void Consumer(GpuBodyId owner, ElectricalSourceDeclaration? source, params SupplyConsumer[] drives)
+    {
+        _supplyNodes.Add(new(owner, SupplyNodeKind.Consumer, Consumers: [.. drives]));
+        if (source is { } wired) _supplyEdges.Add(new(wired.Owner, owner, WorkshopSocket.PowerIn));
+    }
+    private readonly List<ElectricalSourceDeclaration> _sources = [];
+    private readonly List<SupplyNodeDeclaration> _supplyNodes = [];
+    private readonly List<SupplyEdge> _supplyEdges = [];
 
     public void DeclareMassFrame(GpuBodyId body, Vector3 moments, Vector3 centre = default, Quaternion? principalFrame = null)
     {
@@ -254,11 +280,32 @@ internal sealed class LawScene
             new(q.X, q.Y, q.Z, q.W), new(moments.X), new(moments.Y), new(moments.Z)) };
     }
 
-    public LawWorld Admit(SimulationCadence cadence = SimulationCadence.Hz120)
+    /// <summary>Admits the scene. Every declared drive must be consumed by exactly one consumer node; unless
+    /// <paramref name="consumeUnnamedDrives"/> is false, each drive no explicit <see cref="Consumer"/> names gets one, without a route,
+    /// on its joint's base (engine-direct tests then close its slot through <see cref="LawWorld.Step"/>'s supplied flag).</summary>
+    public LawWorld Admit(SimulationCadence cadence = SimulationCadence.Hz120, bool consumeUnnamedDrives = true)
     {
+        var nodes = new List<SupplyNodeDeclaration>(_supplyNodes);
+        if (consumeUnnamedDrives)
+        {
+            var named = nodes.Where(node => !node.Consumers.IsDefault).SelectMany(node => node.Consumers).ToHashSet();
+            var unnamed = _drives.Select(drive => (Joint: _prismatics.Where(joint => joint.Id == drive.Joint).Select(joint => joint.BodyA),
+                    Consumer: SupplyConsumer.Prismatic(drive.Joint)))
+                .Concat(_revoluteDrives.Select(drive => (Joint: _revolutes.Where(joint => joint.Id == drive.Joint).Select(joint => joint.BodyA),
+                    Consumer: SupplyConsumer.Revolute(drive.Joint))))
+                .Where(pair => pair.Joint.Any() && !named.Contains(pair.Consumer))
+                .GroupBy(pair => pair.Joint.Single(), pair => pair.Consumer);
+            foreach (var owner in unnamed)
+            {
+                var index = nodes.FindIndex(node => node.Owner == owner.Key && node.Kind == SupplyNodeKind.Consumer);
+                if (index < 0) nodes.Add(new(owner.Key, SupplyNodeKind.Consumer, Consumers: [.. owner]));
+                else nodes[index] = nodes[index] with { Consumers = nodes[index].Consumers.AddRange(owner) };
+            }
+        }
         var scene = new PhysicsSceneDeclaration(new(1, 2), _next, [.. _bodies], [.. _colliders], [.. _materials], [], [],
             contactWorks: [.. _contactWorks], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics],
-            prismaticDrives: [.. _drives], revolutes: [.. _revolutes], compliantSurfaces: [.. _compliantSurfaces]);
+            prismaticDrives: [.. _drives], revolutes: [.. _revolutes], compliantSurfaces: [.. _compliantSurfaces],
+            electricalSources: [.. _sources], supplyNodes: [.. nodes], supplyEdges: [.. _supplyEdges], revoluteDrives: [.. _revoluteDrives]);
         return new(scene, PhysicsGpuAbi.Admission(scene, new(1), new(cadence, PhysicalStepProfile.Canonical480Hz, new(1))), cadence);
     }
 }
@@ -346,8 +393,14 @@ internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, S
         var source = (byte[])admitted.Clone();
         var candidate = new byte[source.Length];
         var interactions = InitialInteractions;
-        // Every prismatic's route is closed when supplied (C-Gate), as the compiled supply graph would close it.
-        var inputs = new PhysicsTickInputs([], Enumerable.Repeat(supplied, scene.Prismatics.Length).ToArray());
+        // Every driven slot's route is closed when supplied (C-Gate), as the compiled supply graph would close it; a slot without a
+        // declared drive is never closed. Each declared source keeps its authored enable.
+        var prismaticDrives = scene.PrismaticDrives.ToArray();
+        var revoluteDrives = scene.RevoluteDrives.ToArray();
+        var driven = scene.Prismatics.ToArray().Select(joint => prismaticDrives.Any(drive => drive.Joint == joint.Id))
+            .Concat(scene.Revolutes.ToArray().Select(joint => revoluteDrives.Any(drive => drive.Joint == joint.Id)));
+        var inputs = new PhysicsTickInputs(scene.Electrical.Sources.ToArray().Select(source => source.Enabled).ToArray(),
+            driven.Select(slot => supplied && slot).ToArray());
         for (var tick = 1; tick <= ticks; tick++)
         {
             interactions = engine.Advance(source, candidate, inputs, interactions);

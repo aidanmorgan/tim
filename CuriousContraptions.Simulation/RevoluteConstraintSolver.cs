@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.Intrinsics;
+using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Gpu;
 using static CuriousContraptions.Simulation.ConstraintBodyImpulse;
 
@@ -18,10 +19,22 @@ internal sealed class SimRevoluteJoint
     public Quaternion Qb;
     public float Lower;
     public float Upper;
+    /// <summary>The declared travel: Continuous sets both stop rows' bounds to zero.</summary>
+    public RevoluteTravel Travel;
     public float Stiffness;
     public float Damping;
     /// <summary>The declared Coulomb friction torque (N·m) bounding the friction row.</summary>
     public float FrictionTorque;
+    /// <summary>The drive row's velocity target ω_t (rad/s); 0 without a declared drive.</summary>
+    public float DriveTargetSpeed;
+    /// <summary>The drive's maximum torque τ_d (N·m); 0 without a declared drive, so its row is bounded to [0, 0].</summary>
+    public float DriveMaxTorque;
+    /// <summary>Refreshed each tick from the compiled supply route feeding the owner's PowerIn; false for an undriven hinge.</summary>
+    public bool SupplyClosed;
+    /// <summary>The committed signed travel (rad): the sum of relative axial ω·h over every substep since admission.</summary>
+    public float TravelAngle;
+    /// <summary>The committed positive drive work (J): the sum of max(0, λ_drive·ω_rel) over every substep since admission.</summary>
+    public float Work;
     public SoftConstraintCoefficients Soft;
     public uint Collision;
     public float[] Impulses = new float[RevoluteRows.Count];
@@ -49,8 +62,21 @@ internal static class RevoluteConstraintSolver
             float bias;
             float minimum;
             var maximum = 3.4028234663852886e38f;
+            var target = 0f;
 
-            if (i == (int)RevoluteRowKind.Friction)
+            if (i == (int)RevoluteRowKind.Drive)
+            {
+                // The supplied velocity drive: a velocity-level row (zero error, no bias, no softness) whose own velocity target ω_t
+                // survives every pass, with an accumulated impulse bounded by ±τ_d·h while supplied and [0, 0] while not. An
+                // undeclared drive has τ_d = 0, so its row is the same row held at zero.
+                var limit = RevoluteRows.DriveImpulseLimit(joint.DriveMaxTorque, joint.SupplyClosed);
+                gamma = 0f;
+                bias = 0f;
+                target = joint.DriveTargetSpeed;
+                minimum = -limit;
+                maximum = limit;
+            }
+            else if (i == (int)RevoluteRowKind.Friction)
             {
                 // Coulomb friction about the axis: a velocity-level row (zero error, no bias, no softness) that drives the relative spin
                 // toward zero with an accumulated impulse bounded by ±τ·h, so it holds below the friction torque and only resists above it.
@@ -77,10 +103,12 @@ internal static class RevoluteConstraintSolver
             else if (IsStop(i))
             {
                 // The prismatic stop law: an open stop (error >= 0) is speculative and admits closing the whole gap within the
-                // substep; only a penetrated stop is pushed out at the joint's 0.2 / h position rate.
+                // substep; only a penetrated stop is pushed out at the joint's 0.2 / h position rate. Continuous travel bounds the stop
+                // to [0, 0], so it never acts (RevoluteRows.StopImpulseLimit).
                 gamma = 0f;
                 bias = (row.Error >= 0f ? 1f : 0.2f) / h;
                 minimum = 0f;
+                maximum = RevoluteRows.StopImpulseLimit(joint.Travel);
             }
             else
             {
@@ -96,6 +124,7 @@ internal static class RevoluteConstraintSolver
                 Aa = row.AngularA,
                 Ab = row.AngularB,
                 Error = row.Error,
+                VelocityTarget = target,
                 Gamma = gamma,
                 Bias = bias,
                 Minimum = minimum,
@@ -123,6 +152,7 @@ internal static class RevoluteConstraintSolver
         Span<float> accum = stackalloc float[4];
         Span<float> mins = stackalloc float[4];
         Span<float> maxs = stackalloc float[4];
+        Span<float> targets = stackalloc float[4];
 
         Span<int> remaining = stackalloc int[count];
         Span<int> groupIndices = stackalloc int[4];
@@ -144,6 +174,7 @@ internal static class RevoluteConstraintSolver
 
                 var vInvMass = Vector128.Create(invMass, 0f, 0f, 0f);
                 var vVel = Vector128.Create(vel, 0f, 0f, 0f);
+                var vTarget = Vector128.Create(row.VelocityTarget, 0f, 0f, 0f);
                 var vError = Vector128.Create(row.Error, 0f, 0f, 0f);
                 var vGamma = Vector128.Create(row.Gamma, 0f, 0f, 0f);
                 var vBias = Vector128.Create(bias, 0f, 0f, 0f);
@@ -151,7 +182,7 @@ internal static class RevoluteConstraintSolver
                 var vMin = Vector128.Create(row.Minimum, 0f, 0f, 0f);
                 var vMax = Vector128.Create(row.Maximum, 0f, 0f, 0f);
 
-                var result = SoftConstraint.Solve4(vInvMass, vVel, vError, vGamma, vBias, vAccum, vMin, vMax);
+                var result = SoftConstraint.Solve4(vInvMass, vVel, vTarget, vError, vGamma, vBias, vAccum, vMin, vMax);
                 joint.Impulses[rowIndex] = result.Accumulated.GetElement(0);
                 ApplyConstraintImpulse(joint, joint.Rows[rowIndex], result.Delta.GetElement(0));
                 continue;
@@ -207,6 +238,7 @@ internal static class RevoluteConstraintSolver
                             accum[lane] = 0f;
                             mins[lane] = 0f;
                             maxs[lane] = 0f;
+                            targets[lane] = 0f;
                         }
                         else
                         {
@@ -219,6 +251,7 @@ internal static class RevoluteConstraintSolver
                             accum[lane] = joint.Impulses[rowIndex];
                             mins[lane] = row.Minimum;
                             maxs[lane] = row.Maximum;
+                            targets[lane] = row.VelocityTarget;
                         }
                     }
                     else
@@ -231,11 +264,13 @@ internal static class RevoluteConstraintSolver
                         accum[lane] = 0f;
                         mins[lane] = 0f;
                         maxs[lane] = 0f;
+                        targets[lane] = 0f;
                     }
                 }
 
                 var vInvMass = Vector128.Create(invMasses[0], invMasses[1], invMasses[2], invMasses[3]);
                 var vVel = Vector128.Create(vels[0], vels[1], vels[2], vels[3]);
+                var vTarget = Vector128.Create(targets[0], targets[1], targets[2], targets[3]);
                 var vError = Vector128.Create(errors[0], errors[1], errors[2], errors[3]);
                 var vGamma = Vector128.Create(gammas[0], gammas[1], gammas[2], gammas[3]);
                 var vBias = Vector128.Create(biases[0], biases[1], biases[2], biases[3]);
@@ -243,7 +278,7 @@ internal static class RevoluteConstraintSolver
                 var vMin = Vector128.Create(mins[0], mins[1], mins[2], mins[3]);
                 var vMax = Vector128.Create(maxs[0], maxs[1], maxs[2], maxs[3]);
 
-                var result = SoftConstraint.Solve4(vInvMass, vVel, vError, vGamma, vBias, vAccum, vMin, vMax);
+                var result = SoftConstraint.Solve4(vInvMass, vVel, vTarget, vError, vGamma, vBias, vAccum, vMin, vMax);
 
                 for (var lane = 0; lane < groupCount; lane++)
                 {

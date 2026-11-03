@@ -203,6 +203,7 @@
         <Compile Include="VendoredFlatBuffersIdentityTests.cs" />
         <Compile Include="ImpactLeverTests.cs" />
         <Compile Include="RevoluteHingeFrictionTests.cs" />
+        <Compile Include="RevoluteDriveTests.cs" />
         <Compile Include="TrampolineTests.cs" />
     </ItemGroup>
 

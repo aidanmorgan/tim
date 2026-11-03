@@ -27,7 +27,13 @@ This is the Story 7.0 CAT-042-D declaration readiness spec for the electric moto
 
 ### Constraints and joints
 - One revolute hinge about local +Z at the rotor centre joins the rotor to the housing. Travel is unbounded in both directions, and collision between the connected bodies is disabled. Source: `parts/MotorPart.cs@a6c914e:L30-L35`.
-- The hinge drive is a bounded motor row; see Work and energy stores. No joint declaration exists in `engine/gpu/*` yet.
+- The hinge drive is a bounded motor row; see Work and energy stores.
+- **Generic capabilities the Motor declares (engine slice `engine-revolute-drive`).** The Motor adds no motor code; its package declares one `RevoluteHingeDescriptor` that uses these generic hinge capabilities:
+  - `Travel: RevoluteTravel.Continuous` with limits exactly [−π, π] and no axial spring. The stop rows stay inert, so the shaft turns without end.
+  - `Drive: RevoluteDriveDescriptor(TargetSpeed, MaxTorque)`, bound to the `speed` and `torque` parameters. This is one velocity-level row on the hinge axis. It drives the rotor's relative spin toward ω_t, and its accumulated impulse is clamped to ±τ_d·h while supplied and to [0, 0] otherwise. The same expression bounds solver and admission.
+  - Supply through the owner's `PowerIn` port. The compiler names the hinge's drive as a typed `SupplyConsumer.Revolute` on the Motor's consumer node; the bundle validator refuses a driven hinge without an electrical PowerIn input.
+  - **Committed state per hinge:** the supplied flag, the signed travel (the sum of ω_rel·h) and the positive drive work Σ max(0, λ_drive·ω_rel). Run and Reset zero all three. Read them with `PhysicsGpuAbi.ReadRevoluteState`.
+  - **Effects:** a stalled or braking drive adds no work, and an unsupplied rotor coasts, slowed only by any declared `FrictionTorque`. Battery drain is deferred to its own slice ([deferred work](../../../_bmad-output/implementation-artifacts/deferred-work.md#powered-part-demand-drain)), and so is a run-time adjustable target.
 
 ### Typed sockets and ports
 | Socket | Domain | Direction | Local position (m) | Source |
@@ -46,6 +52,7 @@ This is the Story 7.0 CAT-042-D declaration readiness spec for the electric moto
 - Each tick's motor supply is the target shaft speed (= the speed input), the maximum effort (= torque while supplied, else 0), the available work (torque × speed × Δt) and the maximum power (torque × speed). Source: `parts/MotorPart.cs@a6c914e:L91-L97`.
 - Zero effort disables actuation, and zero work permits only dissipative braking (`engine/physics/PhysicsMotorCommand.cs@a6c914e:L5-L22`). An unsupplied rotor therefore coasts freely.
 - Supplied work is cumulative and committed. It reads back without callbacks and resets to 0 on Reset (`parts/MotorPart.cs@a6c914e:L28-L29`, `CuriousContraptions.tests/MotorAccountingOwnershipTests.cs@a6c914e:L28-L76`).
+- Derivation, to be confirmed in 11.1a (open question 6): the generic drive row would meet the legacy allowance and power cap through its bound alone. Each substep's impulse is at most τ_d·h, so it delivers at most τ_d·|ω_t| of power and τ_d·ω·Δt of work, and nothing at stall, with no separate work budget. The committed work is the hinge's positive drive work (Constraints and joints).
 
 ### Parameters
 | Name | Type | Range | Default | Unit | Source |
@@ -169,9 +176,9 @@ Follow the [CAT-042 row](../requirements.md#current-cat-042) and Story 11.1; do 
 1. Admitted f32 ranges and units for `speed` (legacy 0–20 rad/s) and `torque` (legacy (0, 100] N·m): unspecified — owner decision.
 2. Rotor collider primitive (legacy 24-gon prism) under the current Sphere/Box/Plane set: unspecified — owner decision.
 3. Rotor contact material: legacy inherits restitution 1, friction 0.3: unspecified — owner decision.
-4. Whether motor work debits a finite battery store (Story 8.1) or only needs a binary supply: unspecified — owner decision.
-5. Whether `speed` stays a runtime scalar control during Run (legacy `SpeedInput`) or is configuration only: unspecified — owner decision.
-6. Whether the per-tick work allowance torque·speed·Δt and power cap torque·speed are retained as the bounded-supply law: unspecified — owner decision.
+4. Whether motor work debits a finite battery store (Story 8.1) or only needs a binary supply: **decided and deferred** (owner, 3 November 2026). Supply is binary for now; the drain becomes one demand law for every powered part (EL-196) in its own slice ([deferred work](../../../_bmad-output/implementation-artifacts/deferred-work.md#powered-part-demand-drain)).
+5. Whether `speed` stays a runtime scalar control during Run (legacy `SpeedInput`) or is configuration only: unspecified — owner decision. A run-time adjustable drive target is scheduled as its own engine slice after 11.1a (`engine-revolute-drive-target`, [TODO](../../../TODO.md)); until it lands, `speed` is a placement parameter.
+6. Whether the per-tick work allowance torque·speed·Δt and power cap torque·speed are retained as the bounded-supply law: unspecified — owner decision, to be confirmed in Story 11.1a. Derivation (`engine-revolute-drive`, not an owner decision): the generic drive row's impulse is at most τ_d·h each substep, so it delivers at most τ_d·|ω|·Δt of work and τ_d·|ω_t| of power, which would meet both without a separate budget; see Work and energy stores.
 7. `turned` goal semantics: cumulative absolute travel ≥ 2π (legacy) versus signed winding: unspecified — owner decision.
 8. Cylinder collider and cylinder inertia for the rotor: Story 10.1 (ENGINE-CYLINDER), scheduled before the first shaft wheel by the owner on 9 Oct 2026.
 9. **Epic story vs requirement conflict.** Story 11.1 says cutting motor power "decelerates the belt to a halt under friction". CAT-042 says supply loss adds no work and does not erase momentum, and any damping is an explicit physical law ([CAT-042](../requirements.md#current-cat-042)); the legacy rotor coasts at constant speed (fact 10). Which governs, and which explicit friction law, if any, stops the belt? Unspecified — owner decision.

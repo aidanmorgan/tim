@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Numerics;
 using System.Runtime.Intrinsics;
+using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Simulation;
@@ -45,6 +46,8 @@ internal sealed class WorkshopPhysicsEngine
     private int[] _loadFrames = new int[4];
     private float[] _loadMass = new float[4];
     private float[] _elecBefore = new float[4], _elecLimits = new float[4], _elecAfter = new float[4];
+    // Whether each drive slot (every prismatic, then every revolute) declares a drive, read once per tick to validate the inputs.
+    private bool[] _drivenSlots = new bool[4];
 
     /// <summary>A cleared span of exactly <paramref name="count"/> rows, growing the owned array only when it is too short.</summary>
     private static Span<T> Scratch<T>(ref T[] array, int count)
@@ -74,7 +77,7 @@ internal sealed class WorkshopPhysicsEngine
         _storeIndices = new(4); _balances = new(4); _capacities = new(4); _credits = new(4);
         _bodyPool = new(16); _colliderPool = new(32); _jointPool = new(4); _revoluteJointPool = new(4); _manifoldPool = new(16);
         _loadCounted = new GpuBodyId[64]; _loadDeclarations = new ContactLoadSensorDeclaration[4]; _loadFrames = new int[4]; _loadMass = new float[4];
-        _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4];
+        _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4]; _drivenSlots = new bool[4];
         _restitutionStamp = 0;
         _probeContacts.Clear(); _probeCollider = new();
         _tensile.Clear(); _tensilePool.Clear();
@@ -270,7 +273,12 @@ internal sealed class WorkshopPhysicsEngine
             BinaryPrimitives.WriteSingleLittleEndian(span.Slice(layout.ContactWorkOffset(work) + PhysicsGpuAbi.ContactWorkSuppliedOffset, 4), 0f);
 
         var supplyCount = layout.ElectricalSources;
-        inputs.Validate(supplyCount, layout.Prismatics);
+        Span<bool> driven = Scratch(ref _drivenSlots, layout.Prismatics + layout.Revolutes);
+        for (var p = 0; p < layout.Prismatics; p++)
+            driven[p] = (PrismaticDriveKind)ReadU32(span, layout.PrismaticOffset(p) + PhysicsGpuAbi.PrismaticDriveKindOffset) == PrismaticDriveKind.Supplied;
+        for (var r = 0; r < layout.Revolutes; r++)
+            driven[layout.Prismatics + r] = (RevoluteDriveKind)ReadU32(span, layout.RevoluteOffset(r) + PhysicsGpuAbi.RevoluteDriveKindOffset) == RevoluteDriveKind.Supplied;
+        inputs.Validate(supplyCount, driven);
         for (var supply = 0; supply < supplyCount; supply++)
             WriteF32(span, layout.ElectricalSourceOffset(supply) + PhysicsGpuAbi.ElectricalSourceDebitOffset, 0f);
 
@@ -567,6 +575,14 @@ internal sealed class WorkshopPhysicsEngine
             joint.Stiffness = stiffness;
             joint.Damping = damping;
             joint.FrictionTorque = frictionTorque;
+            joint.Travel = (RevoluteTravel)ReadU32(span, revoluteOffset + PhysicsGpuAbi.RevoluteTravelKindOffset);
+            // An undriven record's drive values are zero, so its drive row is bounded to [0, 0].
+            joint.DriveTargetSpeed = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteDriveTargetSpeedOffset);
+            joint.DriveMaxTorque = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteDriveMaxTorqueOffset);
+            // Revolute supply slots follow the prismatic ones (CompiledSupplyGraph's drive-slot order).
+            joint.SupplyClosed = inputs.SupplyClosed[layout.Prismatics + index];
+            joint.TravelAngle = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteTravelOffset);
+            joint.Work = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteWorkOffset);
             joint.Soft = soft;
             joint.Collision = collision;
 
@@ -854,14 +870,23 @@ internal sealed class WorkshopPhysicsEngine
             foreach (var joint in _joints)
             {
                 PrismaticConstraintSolver.PrepareJointRows(joint, dt);
+                // Warm start: each stored impulse is first clamped to its row's current bounds.
                 for (var row = 0; row < 8; row++)
+                {
+                    joint.Impulses[row] = joint.Rows[row].Bounded(joint.Impulses[row]);
                     PrismaticConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
+                }
             }
             foreach (var joint in _revoluteJoints)
             {
                 RevoluteConstraintSolver.PrepareJointRows(joint, dt);
+                // Warm start: each stored impulse is first clamped to its row's current bounds, so a drive impulse from a supplied
+                // substep never acts on an unsupplied one.
                 for (var row = 0; row < RevoluteRows.Count; row++)
+                {
+                    joint.Impulses[row] = joint.Rows[row].Bounded(joint.Impulses[row]);
                     RevoluteConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
+                }
             }
             foreach (var tensile in _tensile)
             {
@@ -990,8 +1015,19 @@ internal sealed class WorkshopPhysicsEngine
             }
             foreach (var joint in _revoluteJoints)
             {
+                // After relax, with this substep's final impulses: the relative axial spin ω_rel (the drive row's Jacobian, prepared on
+                // the relax pose) advances the signed travel by ω_rel·h, and the drive's final impulse adds its positive work
+                // max(0, λ_drive·ω_rel). Braking and stall add nothing.
+                ref readonly var drive = ref joint.Rows[(int)RevoluteRowKind.Drive];
+                var spin = ConstraintBodyImpulse.ConstraintVelocity(joint.A, drive.La, drive.Aa) +
+                    ConstraintBodyImpulse.ConstraintVelocity(joint.B, drive.Lb, drive.Ab);
+                joint.TravelAngle += spin * dt;
+                joint.Work += MathF.Max(0f, joint.Impulses[(int)RevoluteRowKind.Drive] * spin);
                 for (var row = 0; row < PhysicsGpuAbi.RevoluteRowCount; row++)
                     WriteF32(span, joint.Offset + PhysicsGpuAbi.RevoluteImpulseOffset + row * 4, joint.Impulses[row]);
+                WriteU32(span, joint.Offset + PhysicsGpuAbi.RevoluteSuppliedOffset, joint.SupplyClosed ? 1u : 0u);
+                WriteF32(span, joint.Offset + PhysicsGpuAbi.RevoluteTravelOffset, joint.TravelAngle);
+                WriteF32(span, joint.Offset + PhysicsGpuAbi.RevoluteWorkOffset, joint.Work);
             }
 
             WorkshopConstraintSolver.RestitutionPass(_manifolds, _restitutionBodies, ++_restitutionStamp);

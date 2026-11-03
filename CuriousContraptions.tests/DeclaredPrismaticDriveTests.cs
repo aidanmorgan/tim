@@ -76,7 +76,7 @@ public sealed class DeclaredPrismaticDriveTests
             MechanicalValue.Fixed(60f), MechanicalValue.Fixed(120f)), declared);
         var joint = Assert.Single(scene.Prismatics.ToArray());
         Assert.Equal(new PrismaticDriveDeclaration(joint.Id, 1.55f, 2.8f, 14f, 60f, 120f), Assert.Single(scene.PrismaticDrives.ToArray()));
-        Assert.Equal(joint.Id, Assert.Single(scene.SupplyGraph.Nodes.ToArray().Single(node => node.Owner == gate.Id).Consumers));
+        Assert.Equal(SupplyConsumer.Prismatic(joint.Id), Assert.Single(scene.SupplyGraph.Nodes.ToArray().Single(node => node.Owner == gate.Id).Consumers));
         // The admitted world carries the same drive; a slider without one (the springboard) carries none.
         var world = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         Assert.Equal(scene.PrismaticDrives[0], PhysicsGpuAbi.ReadPrismaticDrive(world, 0));
@@ -178,11 +178,12 @@ public sealed class DeclaredPrismaticDriveTests
         var source = new ElectricalSourceDeclaration(new(1000),battery,new(1000),new(100),1,
             enabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         SupplyNodeDeclaration[] nodes = [new(battery,SupplyNodeKind.Source,source.Id),
-            new(frame,SupplyNodeKind.Consumer,Consumers:[..joints])];
+            new(frame,SupplyNodeKind.Consumer,Consumers:[..joints.Select(SupplyConsumer.Prismatic)])];
         SupplyEdge[] edges = [new(battery,frame,WorkshopSocket.PowerIn)];
-        var graph = new CompiledSupplyGraph(nodes,edges,[source],baseScene.Prismatics,baseScene.PrismaticDrives,baseScene.Bodies);
+        var graph = new CompiledSupplyGraph(nodes,edges,[source],baseScene.Prismatics,baseScene.PrismaticDrives,[],[],baseScene.Bodies);
         Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph(
-            [nodes[0],nodes[1] with { Consumers=[joints[0],joints[0]] }],edges,[source],baseScene.Prismatics,baseScene.PrismaticDrives,baseScene.Bodies));
+            [nodes[0],nodes[1] with { Consumers=[SupplyConsumer.Prismatic(joints[0]),SupplyConsumer.Prismatic(joints[0])] }],edges,[source],
+            baseScene.Prismatics,baseScene.PrismaticDrives,[],[],baseScene.Bodies));
         var scene = new PhysicsSceneDeclaration(baseScene.Document,1001,baseScene.Bodies,baseScene.Colliders,
             baseScene.Materials,[],[],prismatics:baseScene.Prismatics,prismaticDrives:baseScene.PrismaticDrives,
             electricalSources:[source],supplyNodes:nodes,supplyEdges:edges);
@@ -193,7 +194,7 @@ public sealed class DeclaredPrismaticDriveTests
         var paths = new[] { new List<Substep>(),new List<Substep>() };
         for (var tick=0;tick<480;tick++)
         {
-            var input = PhysicsTickInputs.Compose(graph,2,new([source.Enabled]),_=>false);
+            var input = PhysicsTickInputs.Compose(graph,new([source.Enabled]),_=>false);
             interactions = engine.Advance(current,candidate,input,interactions);
             (current,candidate)=(candidate,current);
             for(var i=0;i<2;i++) paths[i].AddRange(Pieces(Motion(current),moving[i].Value));
@@ -276,25 +277,31 @@ public sealed class DeclaredPrismaticDriveTests
                     ConstraintFrame.Identity, -.2f, 2f, 3f, .5f, ConnectedCollision.Disabled);
             scene.Drive(joint, 1.2f, 1.6f, 8f, 16f, 12f);
             var drive = new PrismaticDriveDeclaration(joint, 1.2f, 1.6f, 8f, 16f, 12f);
+            // The hand-built scene keeps the admitted scene's supply graph (its consumer names this joint), so only the drive differs.
             return scene.Admit().Scene is var admitted && change(drive) == drive ? admitted
                 : new(new(1, 2), admitted.NextIdentity, admitted.Bodies, admitted.Colliders, admitted.Materials, [], [],
-                    prismatics: admitted.Prismatics, prismaticDrives: [change(drive)]);
+                    electricalSources: admitted.Electrical.Sources, prismatics: admitted.Prismatics,
+                    supplyNodes: admitted.SupplyGraph.Nodes, supplyEdges: admitted.SupplyGraph.Edges, prismaticDrives: [change(drive)]);
         }
+        void Invalid(Func<PrismaticDriveDeclaration, PrismaticDriveDeclaration> change) =>
+            Assert.Equal("Invalid prismatic drive declaration.", Assert.Throws<ArgumentException>(() => Admit(change)).Message);
         Assert.Single(Admit(drive => drive).PrismaticDrives.ToArray());
-        Assert.Throws<ArgumentException>(() => Admit(drive => drive with { Target = 2.5f }));     // beyond the upper limit
-        Assert.Throws<ArgumentException>(() => Admit(drive => drive with { Target = -.3f }));    // below the lower limit
-        Assert.Throws<ArgumentException>(() => Admit(drive => drive with { MaxSpeed = 0f }));
-        Assert.Throws<ArgumentException>(() => Admit(drive => drive with { MaxSpeed = 65f }));   // beyond the envelope's 64 m/s
-        Assert.Throws<ArgumentException>(() => Admit(drive => drive with { StoppingAcceleration = -1f }));
-        Assert.Throws<ArgumentException>(() => Admit(drive => drive with { MaxEffort = float.NaN }));
-        Assert.Throws<ArgumentException>(() => Admit(drive => drive with { MaxPower = float.PositiveInfinity }));
-        Assert.Throws<ArgumentException>(() => Admit(drive => drive with { Joint = new(999) }));
+        Assert.Equal(1f, Assert.Single(Admit(drive => drive with { Target = 1f }).PrismaticDrives.ToArray()).Target); // hand-built control
+        Invalid(drive => drive with { Target = 2.5f });     // beyond the upper limit
+        Invalid(drive => drive with { Target = -.3f });    // below the lower limit
+        Invalid(drive => drive with { MaxSpeed = 0f });
+        Invalid(drive => drive with { MaxSpeed = 65f });   // beyond the envelope's 64 m/s
+        Invalid(drive => drive with { StoppingAcceleration = -1f });
+        Invalid(drive => drive with { MaxEffort = float.NaN });
+        Invalid(drive => drive with { MaxPower = float.PositiveInfinity });
+        Assert.Equal("A prismatic drive requires one admitted joint whose moving body is dynamic.",
+            Assert.Throws<ArgumentException>(() => Admit(drive => drive with { Joint = new(999) })).Message);
         Assert.Throws<ArgumentException>(() => Admit(drive => drive, dynamicMoving: false)); // the drive moves a static body
         // A route may drive only a slider that declares a drive: the springboard's passive slider is never a consumer.
         var spring = WorkshopInput.Generic(new PartId("spring"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var passive = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new(spring)), new(1, 2));
-        Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph([new(spring.Id, SupplyNodeKind.Consumer, Consumers: [passive.Prismatics[0].Id])],
-            [], [], passive.Prismatics, passive.PrismaticDrives, passive.Bodies));
+        Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph([new(spring.Id, SupplyNodeKind.Consumer, Consumers: [SupplyConsumer.Prismatic(passive.Prismatics[0].Id)])],
+            [], [], passive.Prismatics, passive.PrismaticDrives, [], [], passive.Bodies));
     }
 
     [Fact]
@@ -756,7 +763,8 @@ public static class NativeTwoDriveScenario
         Assert.Equal(2, owned.Length);
         Assert.Equal(2, owned.Select(joint => joint.BodyB).Distinct().Count());
         var route = Assert.Single(scene.SupplyGraph.Nodes.ToArray(), node => node.Owner == owner.Id);
-        Assert.Equal(owned.Select(joint => joint.Id).OrderBy(id => id.Value), route.Consumers.OrderBy(id => id.Value));
+        Assert.Equal(owned.Select(joint => SupplyConsumer.Prismatic(joint.Id)).OrderBy(id => id.PrismaticJoint.Value),
+            route.Consumers.OrderBy(id => id.PrismaticJoint.Value));
         var current = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var candidate = new byte[current.Length];
         var engine = new WorkshopPhysicsEngine();
@@ -764,7 +772,7 @@ public static class NativeTwoDriveScenario
         for (var tick = 0; tick < 480; tick++)
         {
             var sources = PhysicsGpuAbi.ReadElectrical(current);
-            var input = PhysicsTickInputs.Compose(scene.SupplyGraph, owned.Length, WorkshopTickControls.For(sources, (_, value) => value), _ => false);
+            var input = PhysicsTickInputs.Compose(scene.SupplyGraph, WorkshopTickControls.For(sources, (_, value) => value), _ => false);
             interactions = engine.Advance(current, candidate, input, interactions);
             (current, candidate) = (candidate, current);
         }

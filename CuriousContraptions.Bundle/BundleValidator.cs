@@ -101,7 +101,7 @@ public static class BundleValidator
                 else Defined($"Events[{i}].Kind", entry.Events[i].Kind);
                 if (!kinds.Add(entry.Events[i].Kind)) OutOfRange($"Events[{i}].Kind");
             }
-            if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports);
+            if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports, entry.Electrical?.Supply);
             if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports, entry.Metadata.Parameters);
             // A run-time control is declared only on a Source store's enable state: the one value ConfigureElectrical changes.
             var runControlled = entry.Electrical?.Supply?.Store?.Enable;
@@ -393,7 +393,8 @@ public static class BundleValidator
             Finite(path + ".Material.BounceThreshold", collider.Material.BounceThreshold);
         }
 
-        private void Mechanical(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
+        private void Mechanical(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
+            SupplyCapabilityDescriptor? supply)
         {
             Defined("KinematicMode", mechanical.KinematicMode);
             Defined("Payload", mechanical.Payload);
@@ -410,11 +411,15 @@ public static class BundleValidator
             for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters);
             for (var i = 0; i < mechanical.Hinges.Count; i++) Hinge($"Hinges[{i}]", mechanical.Hinges[i], parameters);
             // The owner's PowerIn route enables every declared drive; each retains its own physical limits.
-            var driven = mechanical.Sliders.Select((slider, index) => (slider, index)).Where(pair => pair.slider.Drive is not null).ToArray();
-            if (driven.Length > 0 && !ports.Any(port => port.Socket == PortSocket.PowerIn && port.Domain == SimulationDomain.Electrical &&
-                    port.Direction == PortDirection.Input))
+            var driven = mechanical.Sliders.Select((slider, index) => (Path: $"Sliders[{index}]", Driven: slider.Drive is not null))
+                .Concat(mechanical.Hinges.Select((hinge, index) => (Path: $"Hinges[{index}]", Driven: hinge.Drive is not null)))
+                .Where(pair => pair.Driven).ToArray();
+            // The owner compiles a consumer node only when it has an electrical PowerIn input and declares no supply capability of its
+            // own (a source, switched contact or logic gate compiles another node kind, so its drives could never be supplied).
+            if (driven.Length > 0 && (supply is not null || !ports.Any(port => port.Socket == PortSocket.PowerIn &&
+                    port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input)))
                 errors.Add(new(BundleErrorCode.UnresolvedReference,
-                    $"{source}.Sliders[{driven[0].index}].Drive: a supplied drive requires an electrical PowerIn input"));
+                    $"{source}.{driven[0].Path}.Drive: a supplied drive requires an electrical PowerIn input on a consumer (no supply capability)"));
             if (mechanical.Capture is { } capture)
             {
                 Volume("Capture",capture.Minimum,capture.Maximum);
@@ -642,6 +647,20 @@ public static class BundleValidator
             for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
             if (body.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.{path}.MovingBody.Colliders: a body declares no collider"));
+            Defined(path + ".Travel", hinge.Travel);
+            // Continuous travel turns without end: its limits are exactly the full turn [−π, π] and it carries no axial spring, whose
+            // pull toward a wrapped angle would reverse at ±π.
+            if (hinge.Travel == RevoluteTravel.Continuous)
+            {
+                if (hinge.LowerLimit != -MathF.PI || hinge.UpperLimit != MathF.PI) OutOfRange(path + ".Travel");
+                if (hinge.Stiffness.Source != MechanicalValueSource.Constant || hinge.Stiffness.Constant != 0f) OutOfRange(path + ".Stiffness");
+            }
+            if (hinge.Drive is { } drive)
+            {
+                // A signed target within the game-grade angular speed envelope (128 rad/s); a positive finite torque bound.
+                DriveValue(path + ".Drive.TargetSpeed", drive.TargetSpeed, parameters, -128f, 128f, positive: false);
+                DriveValue(path + ".Drive.MaxTorque", drive.MaxTorque, parameters, 0f, float.MaxValue, positive: true);
+            }
         }
 
         /// <summary>One drive value inside [minimum, maximum] (excluding a zero bound when <paramref name="positive"/>): a constant

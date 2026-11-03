@@ -206,6 +206,12 @@
   evidence: Story 10.5 review loop 4: a 1 kg Weight thrown onto the bed by a 12 m/s straddle still drifts at about 0.4 m/s after 8 s (`ABodyThatTipsFullyOntoTheBedSettlesWithEverySampleOnTopAndItsSagWithinTheOffsetBias`, which therefore bounds only states and sag, not drift). The owner deferred the law on 2 November 2026 rather than build it inside Story 10.5.
   destination: a separate engine slice. Intended law: tangential friction (and rolling resistance for spheres) applied per bearing sample, energy-removing only, with its own edge-case analysis (crossing the footprint edge, offsets, stroke floor contact, stacked loads); it then re-qualifies the Trampoline's resting and sliding cases. It must also re-derive `ABodyLeavingTheFootprintBelowTheRestPlaneIsDisarmed`, which relies on free sliding to force the under-rail exit (Story 10.5 loop-5 Blind 5).
 
+<a id="powered-part-demand-drain"></a>
+- source_spec: `_bmad-output/implementation-artifacts/spec-engine-revolute-drive.md` (owner decision, 3 November 2026)
+  summary: Supply to a drive is binary. A closed PowerIn route enables a prismatic or revolute drive, but the drive's work does not debit the source's finite store, so a Battery never runs down by driving a Motor or a Powered Gate. EL-196 asks that a finite store supply its loads through bounded energy and power.
+  evidence: `engine-revolute-drive` commits each hinge's positive drive work (`PhysicsGpuAbi.ReadRevoluteState`) but debits nothing. `ElectricalSupply.Allocate` debits only bindings to contact-work stores. CAT-042 open question 4 (whether motor work debits a finite battery store) was decided by the owner on 3 November 2026: deferred to its own slice.
+  destination: a separate engine slice: one demand law for every powered part (EL-196), debiting each drive's committed positive work (and any declared standing demand) from its route's sources within their power bounds, with an exhausted source opening the route. It re-qualifies the Powered Gate and Motor supply cases.
+
 ## Owner-requested subtask — remove core warm-up (26 October 2026)
 
 - **Outcome / owner:** `engine-remove-core-warmup`, assigned to the backlog coordinator for a fresh bounded Auto slice after the float-policy adoption. Owner direction: “remove the warmup out of the core code, it shouldnt be there”.

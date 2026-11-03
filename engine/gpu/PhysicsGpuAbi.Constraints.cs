@@ -39,9 +39,10 @@ public static partial class PhysicsGpuAbi
     public const int PrismaticRowCount = 8;
 
     // Row: identity U64 at 0, body A and body B slots, frame A and frame B, f32 lower and upper limits, f32 stiffness and damping,
-    // connected-collision U32 and the f32 friction torque (all immutable after admission); then one committed f32 impulse per
-    // RevoluteRowKind and zero padding to the 16-byte row multiple.
-    public const int RevoluteBytes = 144;
+    // connected-collision U32, the f32 friction torque, the U32 travel kind, the U32 drive kind and the f32 drive target speed and
+    // maximum torque (all immutable after admission, the bytes before RevoluteImpulseOffset); then one committed f32 impulse per
+    // RevoluteRowKind, the committed U32 supplied flag, f32 travel and f32 drive work, and zero padding to the 16-byte row multiple.
+    public const int RevoluteBytes = 176;
     public const int RevoluteBodyAOffset = 8;
     public const int RevoluteBodyBOffset = 12;
     public const int RevoluteFrameAOffset = 16;
@@ -53,10 +54,26 @@ public static partial class PhysicsGpuAbi
     public const int RevoluteCollisionOffset = 88;
     /// <summary>The hinge's f32 Coulomb friction torque (N·m).</summary>
     public const int RevoluteFrictionTorqueOffset = 92;
-    public const int RevoluteImpulseOffset = 96;
-    /// <summary>The rows of one revolute joint (three linear, two transverse angular, the axial spring, two stops, friction): structural.</summary>
+    /// <summary>u32 <see cref="CuriousContraptions.Abstractions.Mechanical.RevoluteTravel"/>.</summary>
+    public const int RevoluteTravelKindOffset = 96;
+    /// <summary>u32 <see cref="RevoluteDriveKind"/>.</summary>
+    public const int RevoluteDriveKindOffset = 100;
+    /// <summary>Two f32 drive values (target speed rad/s, maximum torque N·m); both zero for <see cref="RevoluteDriveKind.None"/>.</summary>
+    public const int RevoluteDriveTargetSpeedOffset = 104;
+    public const int RevoluteDriveMaxTorqueOffset = 108;
+    public const int RevoluteDriveBytes = 8;
+    public const int RevoluteImpulseOffset = 112;
+    /// <summary>The rows of one revolute joint (three linear, two transverse angular, the axial spring, two stops, friction, drive):
+    /// structural.</summary>
     public const int RevoluteRowCount = RevoluteRows.Count;
-    private const int RevolutePaddingOffset = 132;
+    /// <summary>u32 0 or 1, written every substep: whether the hinge's drive supply route was closed for this tick (always 0 for an
+    /// undriven hinge). Zero at admission.</summary>
+    public const int RevoluteSuppliedOffset = 152;
+    /// <summary>f32 signed travel (rad): the accumulated relative axial ω·h since admission. Zero at admission.</summary>
+    public const int RevoluteTravelOffset = 156;
+    /// <summary>f32 positive drive work (J): the accumulated max(0, λ_drive·ω_rel) since admission. Zero at admission.</summary>
+    public const int RevoluteWorkOffset = 160;
+    private const int RevolutePaddingOffset = 164;
 
     // Compliant surface row (Story 10.5): identity U64 at 0, frame body slot, then the f32 declaration (arrival depth, half extents,
     // rest height, stroke, tension, damping ratio) in its first CompliantSurfaceDeclarationBytes, which never change after admission;
@@ -202,8 +219,42 @@ public static partial class PhysicsGpuAbi
             WriteEnergy(record, RevoluteDampingOffset, value.Damping);
             U32(record, RevoluteCollisionOffset, (uint)value.Collision);
             WriteEnergy(record, RevoluteFrictionTorqueOffset, value.FrictionTorque);
+            U32(record, RevoluteTravelKindOffset, (uint)value.Travel);
+            foreach (var drive in scene.RevoluteDrives)
+            {
+                if (drive.Joint != value.Id) continue;
+                U32(record, RevoluteDriveKindOffset, (uint)RevoluteDriveKind.Supplied);
+                WriteEnergy(record, RevoluteDriveTargetSpeedOffset, drive.TargetSpeed);
+                WriteEnergy(record, RevoluteDriveMaxTorqueOffset, drive.MaxTorque);
+            }
         }
     }
+
+    /// <summary>The supplied drive of the world's revolute <paramref name="index"/>, or null when it declares none.</summary>
+    public static RevoluteDriveDeclaration? ReadRevoluteDrive(ReadOnlySpan<byte> data, int index)
+    {
+        var joint = ReadRevolute(data, index);
+        var record = data.Slice(Layout(data).RevoluteOffset(index), RevoluteBytes);
+        return (RevoluteDriveKind)R32(record, RevoluteDriveKindOffset) == RevoluteDriveKind.None ? null : RevoluteDriveOf(joint, record);
+    }
+
+    /// <summary>The committed supplied flag, signed travel and positive drive work of the world's revolute <paramref name="index"/>.
+    /// Refuses a supplied flag other than 0 or 1 (or 1 on an undriven hinge), a non-finite travel, and a work that is negative or
+    /// non-finite.</summary>
+    public static RevoluteStateRead ReadRevoluteState(ReadOnlySpan<byte> data, int index)
+    {
+        var drive = ReadRevoluteDrive(data, index);
+        var record = data.Slice(Layout(data).RevoluteOffset(index), RevoluteBytes);
+        var supplied = R32(record, RevoluteSuppliedOffset);
+        var travel = RF(record, RevoluteTravelOffset);
+        var work = RF(record, RevoluteWorkOffset);
+        if (supplied > 1 || (supplied == 1 && drive is null) || !float.IsFinite(travel) || !float.IsFinite(work) || work < 0f)
+            throw new ArgumentException("Invalid revolute committed state.");
+        return new(supplied == 1, travel, work);
+    }
+
+    private static RevoluteDriveDeclaration RevoluteDriveOf(RevoluteConstraintDeclaration joint, ReadOnlySpan<byte> record) =>
+        new(joint.Id, RF(record, RevoluteDriveTargetSpeedOffset), RF(record, RevoluteDriveMaxTorqueOffset));
 
     public static RevoluteConstraintDeclaration ReadRevolute(ReadOnlySpan<byte> data, int index)
     {
@@ -213,17 +264,22 @@ public static partial class PhysicsGpuAbi
         var record = data.Slice(layout.RevoluteOffset(index), RevoluteBytes);
         var a = R32(record, RevoluteBodyAOffset);
         var b = R32(record, RevoluteBodyBOffset);
+        var drive = (RevoluteDriveKind)R32(record, RevoluteDriveKindOffset);
         if (a >= R32(data, HeaderBodyCountOffset) || b >= R32(data, HeaderBodyCountOffset) ||
             R32(record, RevoluteCollisionOffset) > (uint)ConnectedCollision.Enabled ||
+            !Enum.IsDefined(drive) || (drive == RevoluteDriveKind.None && !AllZero(record.Slice(RevoluteDriveTargetSpeedOffset, RevoluteDriveBytes))) ||
             !AllZero(record[RevolutePaddingOffset..]))
             throw new ArgumentException("Invalid revolute record.");
         var result = new RevoluteConstraintDeclaration(new(R64(record, RecordIdentityOffset)),
             new(R64(data, layout.BodyOffset((int)a))), new(R64(data, layout.BodyOffset((int)b))),
             ReadConstraintFrame(record, RevoluteFrameAOffset), ReadConstraintFrame(record, RevoluteFrameBOffset),
             RF(record, RevoluteLowerOffset), RF(record, RevoluteUpperOffset),
+            (CuriousContraptions.Abstractions.Mechanical.RevoluteTravel)R32(record, RevoluteTravelKindOffset),
             RF(record, RevoluteStiffnessOffset), RF(record, RevoluteDampingOffset), RF(record, RevoluteFrictionTorqueOffset),
             (ConnectedCollision)R32(record, RevoluteCollisionOffset));
         result.Validate();
+        // A supplied record carries a valid drive for this joint (a target within the angular envelope, a positive torque).
+        if (drive == RevoluteDriveKind.Supplied) RevoluteDriveOf(result, record).Validate(result);
         return result;
     }
 
@@ -236,16 +292,25 @@ public static partial class PhysicsGpuAbi
             var offset = layout.RevoluteOffset(i);
             if (!candidate.Slice(offset, RevoluteImpulseOffset).SequenceEqual(source.Slice(offset, RevoluteImpulseOffset)))
                 throw new ArgumentException("Revolute declaration changed.");
-            // Three linear, two transverse angular, the axial spring, lower/upper unilateral stops, then friction within ±τ·h.
+            var state = ReadRevoluteState(candidate, i);
+            var maxTorque = ReadRevoluteDrive(candidate, i)?.MaxTorque ?? 0f;
+            // Three linear, two transverse angular, the axial spring, lower/upper unilateral stops within the travel's stop bound,
+            // friction within ±τ·h, then the drive within the bound the solver clamped it to for the committed supplied flag.
+            var stopLimit = RevoluteRows.StopImpulseLimit(joint.Travel);
             var frictionLimit = RevoluteRows.FrictionImpulseLimit(joint.FrictionTorque);
+            var driveLimit = RevoluteRows.DriveImpulseLimit(maxTorque, state.Supplied);
             for (var row = 0; row < RevoluteRowCount; row++)
             {
                 var kind = (RevoluteRowKind)row;
                 var impulse = RF(candidate, offset + RevoluteImpulseOffset + row * 4);
-                if (!float.IsFinite(impulse) || (RevoluteRows.IsStop(kind) && impulse < 0) ||
-                    (kind == RevoluteRowKind.Friction && MathF.Abs(impulse) > frictionLimit))
+                if (!float.IsFinite(impulse) || (RevoluteRows.IsStop(kind) && (impulse < 0 || impulse > stopLimit)) ||
+                    (kind == RevoluteRowKind.Friction && MathF.Abs(impulse) > frictionLimit) ||
+                    (kind == RevoluteRowKind.Drive && MathF.Abs(impulse) > driveLimit))
                     throw new ArgumentException("Invalid revolute impulse.");
             }
+            // Positive work only accumulates.
+            if (state.Work < RF(source, offset + RevoluteWorkOffset))
+                throw new ArgumentException("Revolute drive work decreased.");
         }
     }
 

@@ -32,6 +32,43 @@ public sealed class BundleRoundTripTests
         AssertEntry(declaration, entry);
     }
 
+    // engine-revolute-drive: a hinge's travel is a closed enum written by its exact member name, like every other bundle enum; its
+    // number is refused on read.
+    [Fact]
+    public void AHingeTravelIsWrittenByNameAndItsNumberIsRefused()
+    {
+        var json = BundleSchema.Write([Declaration("ImpactLever")]);
+
+        Assert.Contains("\"Travel\": \"Limited\"", json, StringComparison.Ordinal);
+        Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace("\"Travel\": \"Limited\"", "\"Travel\": 0", StringComparison.Ordinal)));
+    }
+
+    // Guard: every enum the bundle schema's type graph reaches (from BundleDocument through public properties, collection elements and
+    // nullable values) has an exact-name converter in the source-generated context, so no enum is written as a number.
+    [Fact]
+    public void GuardEveryEnumInTheBundleSchemaHasAnExactNameConverter()
+    {
+        var context = typeof(BundleSchema).Assembly.GetType("CuriousContraptions.Bundle.BundleJsonContext", throwOnError: true)!;
+        var options = context.GetCustomAttribute<System.Text.Json.Serialization.JsonSourceGenerationOptionsAttribute>()!;
+        var converted = options.Converters!.Where(type => type.IsGenericType && type.GetGenericTypeDefinition().Name.StartsWith("ExactEnumConverter", StringComparison.Ordinal))
+            .Select(type => type.GetGenericArguments()[0]).ToHashSet();
+        var reached = new HashSet<Type>();
+        var pending = new Stack<Type>([typeof(BundleDocument)]);
+        while (pending.TryPop(out var type))
+        {
+            if (!reached.Add(type)) continue;
+            if (type.IsEnum) continue;
+            if (type.IsArray) pending.Push(type.GetElementType()!);
+            foreach (var argument in type.IsGenericType ? type.GetGenericArguments() : []) pending.Push(argument);
+            if (type.Namespace?.StartsWith("CuriousContraptions", StringComparison.Ordinal) == true)
+                foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) pending.Push(property.PropertyType);
+        }
+        var enums = reached.Where(type => type.IsEnum).ToArray();
+
+        Assert.Contains(typeof(RevoluteTravel), enums); // guard: the walk reaches the hinge descriptor
+        Assert.Empty(enums.Where(type => !converted.Contains(type)).Select(type => type.FullName));
+    }
+
     [Fact]
     public void SignedZeroAndSubnormalValuesRoundTripBitForBit()
     {

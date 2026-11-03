@@ -510,15 +510,18 @@ public sealed class WorkshopPhysicsEngineTests
     };
 
     /// <summary>Steps the admitted world with the production tick inputs of an unswitched, battery-free scene: no source
-    /// enables and every prismatic's switched supply open, as PhysicsTickInputs.Compose yields without routes.</summary>
-    internal static void StepWorld(byte[] admitted, int ticks, Action<int, byte[], PhysicsInteractionSnapshot> observe, int prismatics = 0, int enabledSources = 0)
+    /// enables and every drive slot's (each prismatic's, then each revolute's) switched supply open, as PhysicsTickInputs.Compose
+    /// yields without routes.</summary>
+    internal static void StepWorld(byte[] admitted, int ticks, Action<int, byte[], PhysicsInteractionSnapshot> observe, int enabledSources = 0)
     {
         var engine = new WorkshopPhysicsEngine();
         engine.Reset();
         var source = admitted;
         var candidate = new byte[admitted.Length];
         var interactions = PhysicsInteractionSnapshot.Empty;
-        var inputs = new PhysicsTickInputs(Enumerable.Repeat(ElectricalEnable.Enabled, enabledSources).ToArray(), new bool[prismatics]);
+        var layout = PhysicsGpuAbi.Layout(admitted);
+        var inputs = new PhysicsTickInputs(Enumerable.Repeat(ElectricalEnable.Enabled, enabledSources).ToArray(),
+            new bool[layout.Prismatics + layout.Revolutes]);
         for (var tick = 1; tick <= ticks; tick++)
         {
             interactions = engine.Advance(source, candidate, inputs, interactions);
@@ -576,7 +579,7 @@ public sealed class WorkshopPhysicsEngineTests
         StepWorld(admitted, 10 * TicksPerSecond, (tick, world, interactions) =>
         {
             if (capturedAt == 0 && interactions.Captures.Values.Any(value => value.Residence.OccurrenceCount > 0)) capturedAt = tick;
-        }, scene.Prismatics.Length);
+        });
         Assert.True(captures == capturedAt > 0, $"offset {offset} m capture expected {captures}, first capture tick {capturedAt}");
     }
 

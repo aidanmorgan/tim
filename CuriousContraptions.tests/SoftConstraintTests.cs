@@ -38,16 +38,18 @@ public sealed class SoftConstraintTests
     {
         var inverseMass = Vector128.Create(4f, .5f, 2f, 1f);
         var velocity = Vector128.Create(-3f, 2f, -1f, 4f);
+        // Each row's own velocity target shifts the relative velocity it drives toward; lane 2 keeps the zero target.
+        var target = Vector128.Create(1.5f, -.5f, 0f, 2f);
         var error = Vector128.Create(-.1f, .04f, -.02f, .03f);
         var gamma = Vector128.Create(2f, 3f, 0f, 1f);
         var bias = Vector128.Create(4f, 2f, 0f, 3f);
         var old = Vector128.Create(.2f, -.3f, 4f, 0f);
         var lo = Vector128.Create(float.NegativeInfinity, -1f, 0f, 0f);
         var hi = Vector128.Create(float.PositiveInfinity, 0f, 2f, 1f);
-        var result = SoftConstraint.Solve4(inverseMass, velocity, error, gamma, bias, old, lo, hi);
+        var result = SoftConstraint.Solve4(inverseMass, velocity, target, error, gamma, bias, old, lo, hi);
         for (var lane = 0; lane < 4; lane++)
         {
-            var increment = -(velocity.GetElement(lane) + (double)bias.GetElement(lane) * error.GetElement(lane) +
+            var increment = -(velocity.GetElement(lane) - (double)target.GetElement(lane) + (double)bias.GetElement(lane) * error.GetElement(lane) +
                 gamma.GetElement(lane) * (double)old.GetElement(lane)) / (inverseMass.GetElement(lane) + (double)gamma.GetElement(lane));
             var expected = Math.Clamp(old.GetElement(lane) + increment, lo.GetElement(lane), hi.GetElement(lane));
             Assert.InRange(Math.Abs(result.Accumulated.GetElement(lane) - expected), 0, 1e-6);
@@ -61,7 +63,7 @@ public sealed class SoftConstraintTests
     {
         var old = Vector128.Create(.25f);
         var result = SoftConstraint.Solve4(Vector128.Create(1f, 0f, 1f, 1f),
-            Vector128.Create(float.NaN, 1f, float.MaxValue, -1f), Vector128<float>.Zero,
+            Vector128.Create(float.NaN, 1f, float.MaxValue, -1f), Vector128<float>.Zero, Vector128<float>.Zero,
             Vector128.Create(0f), Vector128.Create(0f), old,
             Vector128.Create(float.NegativeInfinity), Vector128.Create(float.PositiveInfinity));
         Assert.Equal(.25f, result.Accumulated.GetElement(0));
@@ -140,7 +142,7 @@ public sealed class SoftConstraintTests
 
     private static ConstraintRowImpulse Row(float inverseMass, float velocity, float error,
         SoftConstraintCoefficients soft, float accumulated) =>
-        SoftConstraint.Solve4(Vector128.Create(inverseMass), Vector128.Create(velocity), Vector128.Create(error),
+        SoftConstraint.Solve4(Vector128.Create(inverseMass), Vector128.Create(velocity), Vector128<float>.Zero, Vector128.Create(error),
             Vector128.Create(soft.Gamma), Vector128.Create(soft.BiasRate), Vector128.Create(accumulated),
             Vector128.Create(float.NegativeInfinity), Vector128.Create(float.PositiveInfinity));
 }

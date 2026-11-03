@@ -1867,6 +1867,7 @@ public struct CapabilityRevoluteConstraintDeclarationRecord : IFlatbufferObject
   public float Damping { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public uint Collision { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
   public float FrictionTorque { get { int o = __p.__offset(24); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public uint Travel { get { int o = __p.__offset(26); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
 
   public static Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord> CreateCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder,
       ulong id = 0,
@@ -1879,11 +1880,13 @@ public struct CapabilityRevoluteConstraintDeclarationRecord : IFlatbufferObject
       float stiffness = 0.0f,
       float damping = 0.0f,
       uint collision = 0,
-      float friction_torque = 0.0f) {
-    builder.StartTable(11);
+      float friction_torque = 0.0f,
+      uint travel = 0) {
+    builder.StartTable(12);
     CapabilityRevoluteConstraintDeclarationRecord.AddBodyB(builder, body_b);
     CapabilityRevoluteConstraintDeclarationRecord.AddBodyA(builder, body_a);
     CapabilityRevoluteConstraintDeclarationRecord.AddId(builder, id);
+    CapabilityRevoluteConstraintDeclarationRecord.AddTravel(builder, travel);
     CapabilityRevoluteConstraintDeclarationRecord.AddFrictionTorque(builder, friction_torque);
     CapabilityRevoluteConstraintDeclarationRecord.AddCollision(builder, collision);
     CapabilityRevoluteConstraintDeclarationRecord.AddDamping(builder, damping);
@@ -1895,7 +1898,7 @@ public struct CapabilityRevoluteConstraintDeclarationRecord : IFlatbufferObject
     return CapabilityRevoluteConstraintDeclarationRecord.EndCapabilityRevoluteConstraintDeclarationRecord(builder);
   }
 
-  public static void StartCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder) { builder.StartTable(11); }
+  public static void StartCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder) { builder.StartTable(12); }
   public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
   public static void AddBodyA(FlatBufferBuilder builder, ulong bodyA) { builder.AddUlong(1, bodyA, 0); }
   public static void AddBodyB(FlatBufferBuilder builder, ulong bodyB) { builder.AddUlong(2, bodyB, 0); }
@@ -1907,6 +1910,7 @@ public struct CapabilityRevoluteConstraintDeclarationRecord : IFlatbufferObject
   public static void AddDamping(FlatBufferBuilder builder, float damping) { builder.AddFloat(8, damping, 0.0f); }
   public static void AddCollision(FlatBufferBuilder builder, uint collision) { builder.AddUint(9, collision, 0); }
   public static void AddFrictionTorque(FlatBufferBuilder builder, float frictionTorque) { builder.AddFloat(10, frictionTorque, 0.0f); }
+  public static void AddTravel(FlatBufferBuilder builder, uint travel) { builder.AddUint(11, travel, 0); }
   public static Offset<CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecord> EndCapabilityRevoluteConstraintDeclarationRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 10);  // frame_a
@@ -1932,6 +1936,55 @@ static public class CapabilityRevoluteConstraintDeclarationRecordVerify
       && verifier.VerifyField(tablePos, 20 /*Damping*/, 4 /*float*/, 4, false)
       && verifier.VerifyField(tablePos, 22 /*Collision*/, 4 /*uint*/, 4, false)
       && verifier.VerifyField(tablePos, 24 /*FrictionTorque*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 26 /*Travel*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct CapabilityRevoluteDriveDeclarationRecord : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static CapabilityRevoluteDriveDeclarationRecord GetRootAsCapabilityRevoluteDriveDeclarationRecord(ByteBuffer _bb) { return GetRootAsCapabilityRevoluteDriveDeclarationRecord(_bb, new CapabilityRevoluteDriveDeclarationRecord()); }
+  public static CapabilityRevoluteDriveDeclarationRecord GetRootAsCapabilityRevoluteDriveDeclarationRecord(ByteBuffer _bb, CapabilityRevoluteDriveDeclarationRecord obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public CapabilityRevoluteDriveDeclarationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Joint { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public float TargetSpeed { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float MaxTorque { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+
+  public static Offset<CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord> CreateCapabilityRevoluteDriveDeclarationRecord(FlatBufferBuilder builder,
+      ulong joint = 0,
+      float target_speed = 0.0f,
+      float max_torque = 0.0f) {
+    builder.StartTable(3);
+    CapabilityRevoluteDriveDeclarationRecord.AddJoint(builder, joint);
+    CapabilityRevoluteDriveDeclarationRecord.AddMaxTorque(builder, max_torque);
+    CapabilityRevoluteDriveDeclarationRecord.AddTargetSpeed(builder, target_speed);
+    return CapabilityRevoluteDriveDeclarationRecord.EndCapabilityRevoluteDriveDeclarationRecord(builder);
+  }
+
+  public static void StartCapabilityRevoluteDriveDeclarationRecord(FlatBufferBuilder builder) { builder.StartTable(3); }
+  public static void AddJoint(FlatBufferBuilder builder, ulong joint) { builder.AddUlong(0, joint, 0); }
+  public static void AddTargetSpeed(FlatBufferBuilder builder, float targetSpeed) { builder.AddFloat(1, targetSpeed, 0.0f); }
+  public static void AddMaxTorque(FlatBufferBuilder builder, float maxTorque) { builder.AddFloat(2, maxTorque, 0.0f); }
+  public static Offset<CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord> EndCapabilityRevoluteDriveDeclarationRecord(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord>(o);
+  }
+}
+
+
+static public class CapabilityRevoluteDriveDeclarationRecordVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Joint*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 6 /*TargetSpeed*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 8 /*MaxTorque*/, 4 /*float*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -2141,6 +2194,49 @@ static public class CapabilityRigidMassPropertiesRecordVerify
   }
 }
 
+public struct CapabilitySupplyConsumerRecord : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static CapabilitySupplyConsumerRecord GetRootAsCapabilitySupplyConsumerRecord(ByteBuffer _bb) { return GetRootAsCapabilitySupplyConsumerRecord(_bb, new CapabilitySupplyConsumerRecord()); }
+  public static CapabilitySupplyConsumerRecord GetRootAsCapabilitySupplyConsumerRecord(ByteBuffer _bb, CapabilitySupplyConsumerRecord obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public CapabilitySupplyConsumerRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public uint Kind { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong Joint { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+
+  public static Offset<CuriousContraptions.Wire.CapabilitySupplyConsumerRecord> CreateCapabilitySupplyConsumerRecord(FlatBufferBuilder builder,
+      uint kind = 0,
+      ulong joint = 0) {
+    builder.StartTable(2);
+    CapabilitySupplyConsumerRecord.AddJoint(builder, joint);
+    CapabilitySupplyConsumerRecord.AddKind(builder, kind);
+    return CapabilitySupplyConsumerRecord.EndCapabilitySupplyConsumerRecord(builder);
+  }
+
+  public static void StartCapabilitySupplyConsumerRecord(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void AddKind(FlatBufferBuilder builder, uint kind) { builder.AddUint(0, kind, 0); }
+  public static void AddJoint(FlatBufferBuilder builder, ulong joint) { builder.AddUlong(1, joint, 0); }
+  public static Offset<CuriousContraptions.Wire.CapabilitySupplyConsumerRecord> EndCapabilitySupplyConsumerRecord(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.CapabilitySupplyConsumerRecord>(o);
+  }
+}
+
+
+static public class CapabilitySupplyConsumerRecordVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Kind*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 6 /*Joint*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct CapabilitySupplyEdgeRecord : IFlatbufferObject
 {
   private Table __p;
@@ -2202,14 +2298,8 @@ public struct CapabilitySupplyNodeDeclarationRecord : IFlatbufferObject
   public ulong Owner { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public uint Kind { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
   public ulong Source { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
-  public ulong Consumers(int j) { int o = __p.__offset(10); return o != 0 ? __p.bb.GetUlong(__p.__vector(o) + j * 8) : (ulong)0; }
+  public CuriousContraptions.Wire.CapabilitySupplyConsumerRecord? Consumers(int j) { int o = __p.__offset(10); return o != 0 ? (CuriousContraptions.Wire.CapabilitySupplyConsumerRecord?)(new CuriousContraptions.Wire.CapabilitySupplyConsumerRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int ConsumersLength { get { int o = __p.__offset(10); return o != 0 ? __p.__vector_len(o) : 0; } }
-#if ENABLE_SPAN_T
-  public Span<ulong> GetConsumersBytes() { return __p.__vector_as_span<ulong>(10, 8); }
-#else
-  public ArraySegment<byte>? GetConsumersBytes() { return __p.__vector_as_arraysegment(10); }
-#endif
-  public ulong[] GetConsumersArray() { return __p.__vector_as_array<ulong>(10); }
   public uint? Operation { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint?)null; } }
 
   public static Offset<CuriousContraptions.Wire.CapabilitySupplyNodeDeclarationRecord> CreateCapabilitySupplyNodeDeclarationRecord(FlatBufferBuilder builder,
@@ -2232,11 +2322,11 @@ public struct CapabilitySupplyNodeDeclarationRecord : IFlatbufferObject
   public static void AddKind(FlatBufferBuilder builder, uint kind) { builder.AddUint(1, kind, 0); }
   public static void AddSource(FlatBufferBuilder builder, ulong source) { builder.AddUlong(2, source, 0); }
   public static void AddConsumers(FlatBufferBuilder builder, VectorOffset consumersOffset) { builder.AddOffset(3, consumersOffset.Value, 0); }
-  public static VectorOffset CreateConsumersVector(FlatBufferBuilder builder, ulong[] data) { builder.StartVector(8, data.Length, 8); for (int i = data.Length - 1; i >= 0; i--) builder.AddUlong(data[i]); return builder.EndVector(); }
-  public static VectorOffset CreateConsumersVectorBlock(FlatBufferBuilder builder, ulong[] data) { builder.StartVector(8, data.Length, 8); builder.Add(data); return builder.EndVector(); }
-  public static VectorOffset CreateConsumersVectorBlock(FlatBufferBuilder builder, ArraySegment<ulong> data) { builder.StartVector(8, data.Count, 8); builder.Add(data); return builder.EndVector(); }
-  public static VectorOffset CreateConsumersVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<ulong>(dataPtr, sizeInBytes); return builder.EndVector(); }
-  public static void StartConsumersVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(8, numElems, 8); }
+  public static VectorOffset CreateConsumersVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilitySupplyConsumerRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateConsumersVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilitySupplyConsumerRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateConsumersVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CapabilitySupplyConsumerRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateConsumersVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CapabilitySupplyConsumerRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartConsumersVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static void AddOperation(FlatBufferBuilder builder, uint? operation) { builder.AddUint(4, operation); }
   public static Offset<CuriousContraptions.Wire.CapabilitySupplyNodeDeclarationRecord> EndCapabilitySupplyNodeDeclarationRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
@@ -2253,7 +2343,7 @@ static public class CapabilitySupplyNodeDeclarationRecordVerify
       && verifier.VerifyField(tablePos, 4 /*Owner*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 6 /*Kind*/, 4 /*uint*/, 4, false)
       && verifier.VerifyField(tablePos, 8 /*Source*/, 8 /*ulong*/, 8, false)
-      && verifier.VerifyVectorOfData(tablePos, 10 /*Consumers*/, 8 /*ulong*/, false)
+      && verifier.VerifyVectorOfTables(tablePos, 10 /*Consumers*/, CuriousContraptions.Wire.CapabilitySupplyConsumerRecordVerify.Verify, false)
       && verifier.VerifyField(tablePos, 12 /*Operation*/, 4 /*uint*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
@@ -2768,6 +2858,8 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public int RevolutesLength { get { int o = __p.__offset(64); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.CompliantSurfaceRecord? CompliantSurfaces(int j) { int o = __p.__offset(66); return o != 0 ? (CuriousContraptions.Wire.CompliantSurfaceRecord?)(new CuriousContraptions.Wire.CompliantSurfaceRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int CompliantSurfacesLength { get { int o = __p.__offset(66); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord? RevoluteDrives(int j) { int o = __p.__offset(68); return o != 0 ? (CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord?)(new CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int RevoluteDrivesLength { get { int o = __p.__offset(68); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<CuriousContraptions.Wire.CompiledSceneRecord> CreateCompiledSceneRecord(FlatBufferBuilder builder,
       ulong identity = 0,
@@ -2801,13 +2893,15 @@ public struct CompiledSceneRecord : IFlatbufferObject
       VectorOffset editable_sourcesOffset = default(VectorOffset),
       VectorOffset presentationOffset = default(VectorOffset),
       VectorOffset revolutesOffset = default(VectorOffset),
-      VectorOffset compliant_surfacesOffset = default(VectorOffset)) {
-    builder.StartTable(32);
+      VectorOffset compliant_surfacesOffset = default(VectorOffset),
+      VectorOffset revolute_drivesOffset = default(VectorOffset)) {
+    builder.StartTable(33);
     CompiledSceneRecord.AddNextIdentity(builder, next_identity);
     CompiledSceneRecord.AddDocumentHigh(builder, document_high);
     CompiledSceneRecord.AddDocumentLow(builder, document_low);
     CompiledSceneRecord.AddRevision(builder, revision);
     CompiledSceneRecord.AddIdentity(builder, identity);
+    CompiledSceneRecord.AddRevoluteDrives(builder, revolute_drivesOffset);
     CompiledSceneRecord.AddCompliantSurfaces(builder, compliant_surfacesOffset);
     CompiledSceneRecord.AddRevolutes(builder, revolutesOffset);
     CompiledSceneRecord.AddPresentation(builder, presentationOffset);
@@ -2838,7 +2932,7 @@ public struct CompiledSceneRecord : IFlatbufferObject
     return CompiledSceneRecord.EndCompiledSceneRecord(builder);
   }
 
-  public static void StartCompiledSceneRecord(FlatBufferBuilder builder) { builder.StartTable(32); }
+  public static void StartCompiledSceneRecord(FlatBufferBuilder builder) { builder.StartTable(33); }
   public static void AddIdentity(FlatBufferBuilder builder, ulong identity) { builder.AddUlong(0, identity, 0); }
   public static void AddRevision(FlatBufferBuilder builder, ulong revision) { builder.AddUlong(1, revision, 0); }
   public static void AddSettings(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityWorkshopCadenceSettingsRecord> settingsOffset) { builder.AddOffset(2, settingsOffset.Value, 0); }
@@ -2996,6 +3090,12 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CompliantSurfaceRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
   public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CompliantSurfaceRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartCompliantSurfacesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddRevoluteDrives(FlatBufferBuilder builder, VectorOffset revoluteDrivesOffset) { builder.AddOffset(32, revoluteDrivesOffset.Value, 0); }
+  public static VectorOffset CreateRevoluteDrivesVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateRevoluteDrivesVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRevoluteDrivesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRevoluteDrivesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartRevoluteDrivesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<CuriousContraptions.Wire.CompiledSceneRecord> EndCompiledSceneRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 8);  // settings
@@ -3041,6 +3141,7 @@ static public class CompiledSceneRecordVerify
       && verifier.VerifyVectorOfTables(tablePos, 62 /*Presentation*/, CuriousContraptions.Wire.CompiledPresentationRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 64 /*Revolutes*/, CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 66 /*CompliantSurfaces*/, CuriousContraptions.Wire.CompliantSurfaceRecordVerify.Verify, false)
+      && verifier.VerifyVectorOfTables(tablePos, 68 /*RevoluteDrives*/, CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecordVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

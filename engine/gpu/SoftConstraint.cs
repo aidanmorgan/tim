@@ -43,16 +43,17 @@ public readonly record struct ConstraintRowImpulse(Vector128<float> Accumulated,
 public static class SoftConstraint
 {
     /// <summary>
-    /// Solve Jv + biasRate*C + gamma*lambda = 0. Project the accumulated impulse,
+    /// Solve Jv − velocityTarget + biasRate*C + gamma*lambda = 0. Project the accumulated impulse,
     /// never the incremental impulse. Bounds and finite declarations are admitted before stepping.
+    /// The velocity target is a row's own term (zero for a row that only removes relative velocity), so a pass that drops bias keeps it.
     /// A non-finite numerical candidate leaves that lane's finite impulse unchanged.
     /// </summary>
     public static ConstraintRowImpulse Solve4(Vector128<float> inverseEffectiveMass,
-        Vector128<float> velocity, Vector128<float> error, Vector128<float> gamma,
+        Vector128<float> velocity, Vector128<float> velocityTarget, Vector128<float> error, Vector128<float> gamma,
         Vector128<float> biasRate, Vector128<float> accumulated, Vector128<float> minimum,
         Vector128<float> maximum)
     {
-        var delta = -(velocity + biasRate * error + gamma * accumulated) /
+        var delta = -(velocity - velocityTarget + biasRate * error + gamma * accumulated) /
             (inverseEffectiveMass + gamma);
         var next = Vector128.Min(maximum, Vector128.Max(minimum, accumulated + delta));
         // Scalar validity masks do not change the four-wide numerical law; a bad lane cannot

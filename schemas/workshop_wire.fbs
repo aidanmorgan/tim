@@ -493,6 +493,7 @@ table CapabilityRevoluteConstraintDeclarationRecord {
     damping: float;
     collision: uint;
     friction_torque: float;
+    travel: uint;
 }
 
 table CapabilityConstraintFrameRecord {
@@ -513,11 +514,16 @@ table CapabilityQuaternionRecord {
     w: float;
 }
 
+table CapabilitySupplyConsumerRecord {
+    kind: uint;
+    joint: ulong;
+}
+
 table CapabilitySupplyNodeDeclarationRecord {
     owner: ulong;
     kind: uint;
     source: ulong;
-    consumers: [ulong];
+    consumers: [CapabilitySupplyConsumerRecord];
     operation: uint = null;
 }
 
@@ -549,6 +555,12 @@ table CapabilityPrismaticDriveDeclarationRecord {
     stopping_acceleration: float;
     max_effort: float;
     max_power: float;
+}
+
+table CapabilityRevoluteDriveDeclarationRecord {
+    joint: ulong;
+    target_speed: float;
+    max_torque: float;
 }
 
 table CapabilityActivationNodeDeclarationRecord {
@@ -711,6 +723,7 @@ table CompiledSceneRecord {
     presentation: [CompiledPresentationRecord];
     revolutes: [CapabilityRevoluteConstraintDeclarationRecord];
     compliant_surfaces: [CompliantSurfaceRecord];
+    revolute_drives: [CapabilityRevoluteDriveDeclarationRecord];
 }
 
 root_type WorkshopResponse;
