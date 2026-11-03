@@ -335,3 +335,10 @@ Implementer hook: exit 0, Anvil clean, 127/0/0. Red-first: all 30 Motor tests fa
 **Process disclosures:**
 - In loop 1 the implementer edited one file with `sed -i`, validated three new files' Anvil content only by preview, and briefly wrote a stray placeholder file to the coordinator scratchpad before deleting it.
 - The coordinator skipped the advisor checkpoint before finalising this spec plan; it built on the reviewed engine slice.
+
+## Publication receipt — 4 November 2026
+
+- **Commit:** `5603a834f754c13106b2a64db5450715163bffe9`, pushed as a fast-forward of `origin/main` from `61c32d993f46350ff157de2167b21639ee66749b`. The coordinator confirmed afterwards that remote `main` equals that SHA.
+- **Approval:** the five-layer Auto review, plus two independent re-review rounds ending in Pass. Owner decisions are dated 3 and 4 November 2026.
+- **Tests:** the full local round passed 5,516/0/0 (`Skipped: 0`) on the committed content. The normal hook passed 127/0/0.
+- **Not verified:** CI build, Pages artifact and deployment were not monitored, per the owner instruction of 29 October 2026. Browser qualification is pending until the post-catalogue phase.
