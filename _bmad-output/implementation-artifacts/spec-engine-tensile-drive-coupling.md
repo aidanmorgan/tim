@@ -315,3 +315,10 @@ Status: done (4 November 2026).
 - The implementer wrote two edits before their Anvil call: the first `RopeTests.cs` edit and one comment-only `MotorTests.cs` edit. Each was validated straight after and returned `allow`.
 - The coordinator skipped the advisor checkpoint before handing off this spec, relying on the measured diagnosis of the one-line rule. The advisor's pre-commit audit ran before commit and found three items, all fixed: this disclosure, the lifecycle evidence above, and a TODO check.
 - The coordinator's own spec edits (status, triage log, follow-up flag, re-review notes, this result) were written without an Anvil call first. The final spec content was then validated with Anvil before commit.
+
+## Publication receipt — 4 November 2026
+
+- **Commit:** `c2637290826d2d3d188f8de06b7276d6de281931`, pushed as a fast-forward of `origin/main` from `557c7de4bfc4854af8c63436487c4254be3c961a`. The coordinator confirmed afterwards that remote `main` equals that SHA.
+- **Approval:** the five-layer Auto review plus two independent re-reviews, both Pass; the advisor's pre-commit audit items were fixed. The owner's decision of 4 November 2026 scheduled the slice.
+- **Tests:** the full local round passed 5,524/0/0 (`Skipped: 0`) on the committed code and tests; only spec record text changed after it. The commit's normal hook passed 127/0/0, Anvil clean.
+- **Not verified:** CI build, Pages artifact and deployment were not monitored, per the owner instruction of 29 October 2026. Browser qualification is pending until the post-catalogue phase.

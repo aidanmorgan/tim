@@ -2,19 +2,17 @@
 
 **Outcome:** implement every required named puzzle element and variant, then browser qualification; preserve unlimited Workshop and 150 progressively taught levels.
 
-**Latest publication:** Story 11.1a Motor (CAT-042), `5603a834f754c13106b2a64db5450715163bffe9`, fast-forward from `61c32d99`.
-- The Motor package is declaration data on the generic hinge drive. Its supply lamp reads the generalised actuator read (one row per drive slot).
-- Drive values now require units.
-- Full local round 5,516/0/0 (`Skipped: 0`) and normal hooks 127/0/0.
-- Five Auto layers (one Forward-Only doc finding fixed), plus two independent re-review rounds.
-- [Receipt](./_bmad-output/implementation-artifacts/spec-11-1a-motor.md#publication-receipt--4-november-2026).
+**Latest publication:** engine slice `engine-tensile-drive-coupling`, `c2637290826d2d3d188f8de06b7276d6de281931`, fast-forward from `557c7de4`.
+- A tensile (rope) row is rigid in relax, like contacts: stabilisation softness acts only in the solve pass. A rope can now hold a supplied Motor at rest.
+- The two 11.1a rope cases are restored (recorded assertions plus review guards), with a new lift case, a static-hang theory and a rope-held prismatic drive.
+- Full local round 5,524/0/0 (`Skipped: 0`) and normal hooks 127/0/0.
+- Five Auto layers plus two independent re-reviews, Pass.
+- [Receipt](./_bmad-output/implementation-artifacts/spec-engine-tensile-drive-coupling.md#publication-receipt--4-november-2026).
 - CI/deployment and browser qualification remain unverified.
 
-**Candidate in review:** engine slice `engine-tensile-drive-coupling` ([spec](./_bmad-output/implementation-artifacts/spec-engine-tensile-drive-coupling.md)), staged, not yet committed. A tensile (rope) row is now rigid in relax, like contacts: stabilisation softness acts only in the solve pass. This removes the false committed velocity that let a rope-held Motor creep or slip. The two rope cases from [deferred work](./_bmad-output/implementation-artifacts/deferred-work.md#tensile-revolute-drive-creep) are restored with their recorded assertions unchanged, plus review guards and a new lift case, and pass. Step-04 review and publication remain.
+**Current slice:** engine slice `engine-revolute-drive-target`: a run-time adjustable drive target speed (the legacy runtime `speed` input, CAT-042 open question 5).
 
-**Current slice (next):** engine slice `engine-revolute-drive-target`: a run-time adjustable drive target speed (the legacy runtime `speed` input, CAT-042 open question 5).
-
-**Blocker / owner / retry:** none. Start from published main, after the candidate above is published, in a fresh worktree with a fresh implementer.
+**Blocker / owner / retry:** none. Start from published main in a fresh worktree with a fresh implementer.
 
 **Next acceptance check:** the `engine-revolute-drive-target` spec's matrix through the real compiled Motor package, then the full local round and step-04 review.
 
