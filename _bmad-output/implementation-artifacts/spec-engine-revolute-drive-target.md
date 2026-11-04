@@ -347,3 +347,10 @@ Status: done (4 November 2026). No blocking condition.
 - No shipped run control uses the `Clamp` policy.
 - A future part that binds a run-controlled parameter to a second compiled field would leave that field at its authored value. 11.1b Conveyor must check this before declaring a run-controlled speed.
 - Process disclosures: the implementer recorded that some first-round writes were validated by preview or partial patch, and one was written before its check. The final staged snapshot's hook Anvil scan is clean.
+
+## Publication receipt — 4 November 2026
+
+- **Commit:** `66da1ae76afceb74089b36f054c175dafe7fcaea`, pushed as a fast-forward of `origin/main` from `015e902d09950d10a333c61c541c6b579993938b`. The coordinator confirmed afterwards that remote `main` equals that SHA.
+- **Approval:** the five-layer Auto review plus one independent re-review of the fix delta, Pass; the advisor's pre-commit audit items (the Forward-Only triage row split, the staged-path audit) were done before commit.
+- **Tests:** the full local round passed 5,578/0/0 (`Skipped: 0`) on the committed code and tests; only spec record text changed after it. The commit's normal hook passed 127/0/0, Anvil clean.
+- **Not verified:** CI build, Pages artifact and deployment were not monitored, per the owner instruction of 29 October 2026. Browser qualification is pending until the post-catalogue phase; the [run-control observation](deferred-work.md#run-control-observation) is queued for it.

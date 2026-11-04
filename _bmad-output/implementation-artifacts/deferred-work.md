@@ -231,6 +231,12 @@
   evidence: this predates `engine-tensile-drive-coupling`, which only renamed the tensile parameter from `bias` to `solvePass`. Behaviour is unaffected: each caller in `WorkshopPhysicsEngine` passes `true` in the solve sweeps and `false` in the relax sweeps.
   destination: a later engine hygiene slice. It replaces the `bool` parameters and `ContactPass` with one solver pass enum, updates every caller, and deletes the old form, with no alias.
 
+<a id="run-control-observation"></a>
+- source_spec: `_bmad-output/implementation-artifacts/spec-engine-revolute-drive-target.md` (review pass 1, 4 November 2026)
+  summary: The browser observation projects each source's committed enable (`WorkshopObservationProjection.Response`, `CommittedObservation.electrical[].enabled`) but not the committed hinge drive target that `WorkshopRead.DriveTargets` now carries. So the queued browser case for "speed during Run" (CAT-042) has no committed-state observation of the target.
+  evidence: `engine-revolute-drive-target` (main `66da1ae7`) added the committed drive read to `WorkshopRead` and the wire, but no current consumer reads it from the browser observation. Native tests assert the committed target directly.
+  destination: the post-catalogue browser E2E phase. With its first browser case for a run-time speed change, project the committed drive targets (owner and target) into the observation and its TS type, alongside the electrical enables.
+
 ## Owner-requested subtask — remove core warm-up (26 October 2026)
 
 - **Outcome / owner:** `engine-remove-core-warmup`, assigned to the backlog coordinator for a fresh bounded Auto slice after the float-policy adoption. Owner direction: “remove the warmup out of the core code, it shouldnt be there”.
