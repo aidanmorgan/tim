@@ -78,12 +78,21 @@ public sealed class MotorTests
     private static GpuBodyId Rotor(WorkshopConstruction construction, GpuBodyId motor) =>
         construction.Instances.Identities[motor].Hinges[0].Body;
 
-    /// <summary>One committed tick: the rotor's linear and angular velocity, its axial spin about the mount's hinge axis, the committed
-    /// drive state of the scene's one hinge and the supply lamp's colour.</summary>
-    private readonly record struct Tick(int Index, Vector3 Position, Vector3 Velocity, Vector3 Angular, float Spin,
+    /// <summary>One committed tick: the rotor's linear and angular velocity, its committed orientation, its axial spin about the mount's
+    /// hinge axis, the committed drive state of the scene's one hinge and the supply lamp's colour.</summary>
+    private readonly record struct Tick(int Index, Vector3 Position, Vector3 Velocity, Vector3 Angular, Quaternion Rotation, float Spin,
         RevoluteStateRead State, Vector3 Lamp)
     {
         public float Kinetic => .5f * RotorMass * Velocity.LengthSquared() + .5f * RotorInertia * Angular.LengthSquared();
+    }
+
+    /// <summary>The signed angle (rad, within ±π) the committed rotor pose turned about the world <paramref name="axis"/> from one tick to
+    /// another: the swing of the relative rotation to·from⁻¹ about that axis (q and −q are the same rotation).</summary>
+    private static float PoseTurn(Tick from, Tick to, Vector3 axis)
+    {
+        var relative = to.Rotation * Quaternion.Conjugate(from.Rotation);
+        if (relative.W < 0f) relative = Quaternion.Negate(relative);
+        return 2f * MathF.Atan2(Vector3.Dot(new Vector3(relative.X, relative.Y, relative.Z), axis), relative.W);
     }
 
     private sealed class Probe(WorkshopIntegrationHarness harness, GpuBodyId owner, GpuBodyId rotor, Vector3 axis)
@@ -106,7 +115,8 @@ public sealed class MotorTests
             float Channel(int binding) => BitConverter.UInt32BitsToSingle(
                 Assert.Single(samples, sample => sample.Owner == owner && sample.Binding == binding).Value.CanonicalBits);
             return new((int)read.Tick.Value, position, new(body.Body.Velocity.X, body.Body.Velocity.Y, body.Body.Velocity.Z), angular,
-                Vector3.Dot(angular, axis), state, new(Channel(0), Channel(1), Channel(2)));
+                new(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W), Vector3.Dot(angular, axis), state,
+                new(Channel(0), Channel(1), Channel(2)));
         }
 
         /// <summary>Advances the presentation clock past the committed tick (a later frame of the animation worker).</summary>
@@ -430,9 +440,8 @@ public sealed class MotorTests
     private static Func<WorkshopCompiledScene, WorkshopCompiledScene> HangSpan(WorkshopConstruction construction, GpuBodyId motor,
         GpuBodyId weight) => WithSpans(physics => [Span(physics, Rotor(construction, motor), Rim, weight, WeightTie, HangLength)]);
 
-    // Speed 0 (owner, 4 November 2026: proved on an unloaded shaft; the rope-loaded brake is the engine-tensile-drive-coupling slice's
-    // acceptance): a supplied Motor at speed 0 is supplied at every tick of a second, yet its rotor stays at rest and the drive does no
-    // work beyond the slack. Nothing torques the shaft (gravity acts through the hinge axis), so any spin would come from a speed
+    // Speed 0 on an unloaded shaft (the rope-loaded brake is ASuppliedMotorAtSpeedZeroHoldsItsLoadedShaftStill): a supplied Motor at
+    // speed 0 is supplied at every tick of a second, yet its rotor stays at rest and the drive does no work beyond the slack. Nothing torques the shaft (gravity acts through the hinge axis), so any spin would come from a speed
     // parameter that was not evaluated to 0 (the default 6 rad/s is reached within two ticks, with 0.4 J of work). The slack is the
     // energy slack at speed 0 (its 0.01 J floor): the drive row still solves residual joint velocities each substep.
     [Fact]
@@ -447,12 +456,114 @@ public sealed class MotorTests
             $"tick {tick.Index}: supplied {tick.State.Supplied}, spin {tick.Spin}, work {tick.State.Work}"));
     }
 
+    // Speed 0 holding a rim load (engine-tensile-drive-coupling): a supplied Motor at speed 0 brakes the 1 kg Weight hung on its rim rope.
+    // The load torque m·g·r = 2.94 N·m lies between the bearing friction and τ_d, so the drive holds it: over 2 s the committed travel
+    // stays within 0.01 rad and the work within LoadSlack at every tick, and the pose agrees with that ledger (the Weight stays within
+    // r·0.01 rad = 3 mm of its height at Run). Control, the Battery unwired (one cause): the load turns the shaft past −0.5 rad within 2 s.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ASuppliedMotorAtSpeedZeroHoldsItsLoadedShaftStill(bool supplied)
+    {
+        Assert.True(LoadTorque > FrictionTorque && LoadTorque < DefaultTorque);
+        var motor = MotorPart(speed: 0f);
+        var (construction, weight) = Hung(motor, supplied);
+        var (harness, probe) = await Start(construction, motor.Id, fixture: HangSpan(construction, motor.Id, weight.Id));
+        await using var _ = harness;
+        var start = WeightState(harness.Committed, weight.Id).Position.Y;
+        var drop = 0f;
+        for (var i = 0; i < 2 * TicksPerSecond; i++)
+        {
+            await probe.Advance(1);
+            drop = MathF.Max(drop, MathF.Abs(WeightState(harness.Committed, weight.Id).Position.Y - start));
+        }
+        var ticks = probe.Ticks;
+
+        if (!supplied)
+        {
+            Assert.True(ticks.Any(tick => tick.State.Travel < -.5f),
+                $"Unbraked, the load turned the shaft only to {ticks.Min(tick => tick.State.Travel):F3} rad");
+            return;
+        }
+        Assert.All(ticks, tick => Assert.True(MathF.Abs(tick.State.Travel) <= .01f && tick.State.Work <= LoadSlack,
+            $"tick {tick.Index}: the braked shaft is at {tick.State.Travel:F4} rad with work {tick.State.Work:E2} J"));
+        Assert.True(drop <= RotorRadius * .01f, $"The braked load moved {drop * 1000f:F3} mm from its height at Run");
+    }
+
+    // Lift (engine-tensile-drive-coupling, review pass 1): a supplied Motor that wins raises its rope-hung 1 kg Weight. Speed 1 rad/s,
+    // default torque 20 N·m against the 2.94 N·m load. At this speed the rim stays near level for the half second observed (it turns
+    // about 0.5 rad), so the rope stays near vertical and the load follows the rim's height. Every bound is derived from the fixture:
+    // - Ramp: the coupled inertia I + m·r² = 0.1125 kg·m² reaches ω_t under τ_d − τ_f − m·g·r = 17 N·m within one tick. The rope is
+    //   the shared soft law (60 Hz, ζ = 10) on the row's inverse mass. That mass sums both ends and does not see the hinge: the
+    //   Weight's 1/m, the rotor's 1/m_rotor and its r²/I, 1 + 2 + 4 = 7 kg⁻¹. So k = ω²/7 and c = 20·ω/7, and the stretch transient
+    //   decays with c/k = 20/ω = 53 ms, whatever the mass. The spin and the rise are checked from the ramp plus three of those time
+    //   constants.
+    // - Spin: the target within the existing 2 % allowance.
+    // - Rise, at every settled tick: the Weight rises by the rim's rise r·sin θ, θ that tick's committed pose turn, within the steady
+    //   rope stretch m·g·7/ω² = 0.48 mm, plus the swing the rim's sideways shift Δx = r·(1 − cos θ) can give the 1.5 m pendulum (at most 2Δx/L, lowering the load by
+    //   (L + tie)·φ²/2 with the tie 0.34 m above the Weight's origin; 2.2 mm at θ = 0.5).
+    // - Energy at every tick: rotor kinetic energy plus the load's kinetic energy and potential energy gain is at most the work plus
+    //   LoadSlack, as in the overload case.
+    // - The ledger does not over-charge once settled: the work over the settled window is at most that window's energy gain plus the
+    //   bearing loss τ_f·|Δtravel| plus LoadSlack. The spin-up's one-off ledger over-count (½·τ_d·h·ω_t) and the rope's dissipation
+    //   while it yanks the load to rim speed are both before the window. The rope's elastic take-up is left out of the ledger and of
+    //   the gain alike.
+    [Fact]
+    public async Task ASuppliedMotorThatWinsLiftsItsRopeHungLoadAndChargesOnlyWhatItLifts()
+    {
+        const float speed = 1f;
+        const float ropeHz = 60f;
+        var ropeOmega = 2f * MathF.PI * ropeHz;
+        var rowInverseMass = 1f / WeightMass + 1f / RotorMass + RotorRadius * RotorRadius / RotorInertia;
+        var coupled = RotorInertia + WeightMass * RotorRadius * RotorRadius;
+        var ramp = coupled * speed / (DefaultTorque - FrictionTorque - LoadTorque);
+        var settled = (int)MathF.Ceiling((ramp + 3f * 20f / ropeOmega) * TicksPerSecond);
+        var motor = MotorPart(speed: speed);
+        var (construction, weight) = Hung(motor, supplied: true);
+        var (harness, probe) = await Start(construction, motor.Id, fixture: HangSpan(construction, motor.Id, weight.Id));
+        await using var _ = harness;
+        var start = WeightState(harness.Committed, weight.Id).Position.Y;
+        var gains = new List<float>();
+        var heights = new List<float>();
+        for (var i = 0; i < TicksPerSecond / 2; i++)
+        {
+            var tick = (await probe.Advance(1))[0];
+            var load = WeightState(harness.Committed, weight.Id);
+            heights.Add(load.Position.Y - start);
+            gains.Add(tick.Kinetic + .5f * WeightMass * load.Velocity.LengthSquared() + WeightMass * Gravity * (load.Position.Y - start));
+        }
+        var ticks = probe.Ticks;
+
+        Assert.All(ticks, tick => Assert.True(tick.State.Supplied, $"tick {tick.Index}: the lifting drive is unsupplied"));
+        Assert.All(ticks.Skip(settled - 1), tick => Assert.True(MathF.Abs(tick.Spin - speed) <= SpeedAllowance(speed),
+            $"tick {tick.Index}: lifting, the rotor spins at {tick.Spin:F4} rad/s, target {speed} rad/s"));
+
+        var stretch = WeightMass * Gravity * rowInverseMass / (ropeOmega * ropeOmega);
+        Assert.All(ticks.Zip(heights).Skip(settled - 1), pair =>
+        {
+            var turned = PoseTurn(probe.Initial, pair.First, Vector3.UnitZ);
+            var rimRise = RotorRadius * MathF.Sin(turned);
+            var swing = 2f * RotorRadius * (1f - MathF.Cos(turned)) / HangLength;
+            var allowance = stretch + (HangLength + WeightTie.Y) * swing * swing / 2f;
+            Assert.True(MathF.Abs(pair.Second - rimRise) <= allowance,
+                $"tick {pair.First.Index}: after {turned:F4} rad the load rose {pair.Second * 1000f:F3} mm; the rim rose {rimRise * 1000f:F3} mm (allowance {allowance * 1000f:F3} mm)");
+        });
+
+        Assert.All(ticks.Zip(gains), pair => Assert.True(pair.Second <= pair.First.State.Work + LoadSlack,
+            $"tick {pair.First.Index}: rotor and load gained {pair.Second:F4} J against {pair.First.State.Work:F4} J of work"));
+        var from = settled - 1;
+        var charged = ticks[^1].State.Work - ticks[from].State.Work;
+        var lifted = gains[^1] - gains[from];
+        var bearing = FrictionTorque * MathF.Abs(ticks[^1].State.Travel - ticks[from].State.Travel);
+        Assert.True(charged <= lifted + bearing + LoadSlack,
+            $"Settled, the drive charged {charged:F4} J for {lifted:F4} J of lift and {bearing:F4} J of bearing loss");
+    }
+
     // Overload: a Motor with torque 1 N·m against the 2.94 N·m rim load is back-driven clockwise past −0.5 rad. The drive is supplied
     // at every tick and resists: the same load on the Motor unwired turns the shaft past −0.5 rad sooner. Through that descent the drive
     // only resists, so its work stays within LoadSlack; it never decreases at any tick; and the rotor's and Weight's mechanical energy
-    // above their start never exceeds the work plus LoadSlack. The load hangs on a rim rope, whose coupling with a supplied drive is the
-    // engine-tensile-drive-coupling slice's (deferred work); here the rope only carries a load that wins, and is never asked to hold the
-    // drive at rest, so this case is to be re-run when that slice lands.
+    // above their start never exceeds the work plus LoadSlack. The load hangs on the same rim rope as the held cases; here the load
+    // wins and the rope is never asked to hold the drive at rest.
     [Fact]
     public async Task AnOverloadedMotorIsBackDrivenAndAddsNoWorkWhileItIs()
     {
@@ -497,8 +608,50 @@ public sealed class MotorTests
             (body.Body.Cell.Z + body.Body.Local.Z) / 16f), new(body.Body.Velocity.X, body.Body.Velocity.Y, body.Body.Velocity.Z));
     }
 
-    // Stall, as a locked shaft (CAT-042 harvest row 12; owner, 4 November 2026: the rope-tied stall is the engine-tensile-drive-coupling
-    // slice's acceptance): a second, Limited hinge appended between the rotor and the static Battery turns about X
+    // Stall against a rim rope (CAT-042 harvest row 12; engine-tensile-drive-coupling): the rotor's rim point is tied by a 1.001 m span
+    // to the static housing point 1 m below it, and the drive at its defaults pulls the rim up into the rope. Taking the ticks from
+    // 0.25 s on as held, the shaft turns at most 0.01 rad over the held second and its travel stays below 0.02 rad at every held tick,
+    // and the work grows over the held second by at most τ_d·|turn| + slack. 120 J (τ_d·ω_t·1 s) is only the drive's power bound; a
+    // free rotor at the defaults pays 0.405 J of spin-up plus 0.3 W of bearing loss, so the slack is what separates a held shaft from a
+    // turning one. The energy oracle holds at every tick.
+    //
+    // Guards (review pass 1): the drive is supplied at every tick, and the rim really took up the rope's 1 mm of slack, so a drive that
+    // never pulled (unsupplied, or turning away from the rope) fails. Taut, the rim has turned the slack over the radius, 1 mm / 0.3 m =
+    // 3.33 mrad (the chord's second-order term is below 1e-8 rad); each held tick's committed pose is past 90 % of that. The rope pulls
+    // only at or beyond its length, so a held rotor cannot sit short of it. The pose, not only the ledger, is bounded: the committed
+    // rotor turns at most the same 0.01 rad about its axis over the held second. The ledger samples the velocity after relax, which a
+    // rigid rope row has projected to rest, so only the pose shows a creep in the solve pass.
+    [Fact]
+    public async Task AStalledMotorDoesNoWorkOnceItsShaftIsHeld()
+    {
+        const float slack = .001f;
+        var motor = MotorPart();
+        var construction = Supplied(motor);
+        var housing = new Vector3(RotorRadius, -1f, RotorCentre.Z);
+        var (harness, probe) = await Start(construction, motor.Id, fixture: WithSpans(physics =>
+            [Span(physics, Rotor(construction, motor.Id), Rim, motor.Id, housing, 1f + slack)]));
+        await using var _ = harness;
+        var ticks = await probe.Advance(TicksPerSecond * 5 / 4);
+        var held = ticks.Skip(TicksPerSecond / 4 - 1).ToList();
+
+        Assert.All(ticks, tick => Assert.True(tick.State.Supplied, $"tick {tick.Index}: the stalled drive is unsupplied"));
+        Assert.All(held, tick => Assert.True(PoseTurn(probe.Initial, tick, Vector3.UnitZ) >= .9f * slack / RotorRadius,
+            $"tick {tick.Index}: the rim has turned only {PoseTurn(probe.Initial, tick, Vector3.UnitZ):E3} rad, short of the rope's slack"));
+        var poseTurn = PoseTurn(held[0], held[^1], Vector3.UnitZ);
+        Assert.True(MathF.Abs(poseTurn) <= .01f, $"The tied rotor's pose turned {poseTurn:F4} rad while held");
+
+        var turn = held[^1].State.Travel - held[0].State.Travel;
+        Assert.True(MathF.Abs(turn) <= .01f, $"The tied shaft turned {turn:F4} rad while held (travel {ticks[^1].State.Travel:F4} rad)");
+        Assert.All(held, tick => Assert.True(MathF.Abs(tick.State.Travel) < .02f,
+            $"tick {tick.Index}: the held shaft is at {tick.State.Travel:F4} rad"));
+        var paid = held[^1].State.Work - held[0].State.Work;
+        Assert.True(paid <= DefaultTorque * MathF.Abs(turn) + EnergySlack(DefaultSpeed),
+            $"Over the held second the stalled drive did {paid:F4} J for a {turn:F4} rad turn");
+        AssertEnergy(ticks, DefaultSpeed, DefaultTorque);
+    }
+
+    // Stall, as a locked shaft (CAT-042 harvest row 12; the rope-tied stall is AStalledMotorDoesNoWorkOnceItsShaftIsHeld): a second,
+    // Limited hinge appended between the rotor and the static Battery turns about X
     // through the rotor centre, so its angular rows lock the rotor's spin about Z. The supplied drive saturates against the lock and the
     // shaft does not turn: over 1 s its travel stays within 0.01 rad and its work within the slack. A ledger counting τ_d·ω_t instead of
     // λ·ω_rel would show up to 120 J (the power bound over 1 s); a free rotor at the defaults pays only 0.405 J of spin-up plus 0.3 W of

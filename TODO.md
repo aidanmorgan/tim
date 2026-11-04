@@ -10,20 +10,18 @@
 - [Receipt](./_bmad-output/implementation-artifacts/spec-11-1a-motor.md#publication-receipt--4-november-2026).
 - CI/deployment and browser qualification remain unverified.
 
-**Current slice:** engine slice `engine-tensile-drive-coupling` (owner, 4 November 2026). The problem: a rope cannot hold a supplied hinge drive at rest.
-- A rim-tied rotor creeps at 0.0082 rad/s per N·m.
-- A speed-0 drive lifts a rope-hung load at +0.0075 rad/s.
+**Candidate in review:** engine slice `engine-tensile-drive-coupling` ([spec](./_bmad-output/implementation-artifacts/spec-engine-tensile-drive-coupling.md)), staged, not yet committed. A tensile (rope) row is now rigid in relax, like contacts: stabilisation softness acts only in the solve pass. This removes the false committed velocity that let a rope-held Motor creep or slip. The two rope cases from [deferred work](./_bmad-output/implementation-artifacts/deferred-work.md#tensile-revolute-drive-creep) are restored with their recorded assertions unchanged, plus review guards and a new lift case, and pass. Step-04 review and publication remain.
 
-Fix it generically in how tensile spans and hinge drives are solved together, before any part can tie a rope to a driven shaft.
+**Current slice (next):** engine slice `engine-revolute-drive-target`: a run-time adjustable drive target speed (the legacy runtime `speed` input, CAT-042 open question 5).
 
-**Blocker / owner / retry:** none. Start from published main in a fresh worktree with a fresh implementer.
+**Blocker / owner / retry:** none. Start from published main, after the candidate above is published, in a fresh worktree with a fresh implementer.
 
-**Next acceptance check:** the two rope cases recorded in [deferred work](./_bmad-output/implementation-artifacts/deferred-work.md#tensile-revolute-drive-creep), restored with their assertions unchanged, plus the Motor overload case re-run. Then the full local round and step-04 review.
+**Next acceptance check:** the `engine-revolute-drive-target` spec's matrix through the real compiled Motor package, then the full local round and step-04 review.
 
 **Order:**
-1. Engine slice `engine-tensile-drive-coupling` (current): a rope cannot hold a supplied hinge drive at rest, so a rim-tied rotor creeps (0.0082 rad/s per N·m) and a speed-0 drive lifts a rope-hung load (+0.0075 rad/s). Fix it generically in how tensile spans and hinge drives are solved together, before any part can tie a rope to a driven shaft. Its acceptance is the two rope cases in [deferred work](./_bmad-output/implementation-artifacts/deferred-work.md#tensile-revolute-drive-creep).
-2. Engine slice `engine-revolute-drive-target`: a run-time adjustable drive target speed (the legacy runtime `speed` input, CAT-042 open question 5). It is its own slice, after 11.1a, and is not a prerequisite of it.
-3. The remaining Epic 11 children in dependency order: 11.1b Conveyor, 11.2a Clutch, 11.2b Reverse transmission, 11.3 Linear pusher, 11.4a Wound spring and the remaining 11.4 child. Then the split 12.x and 13.x children, then 14.0, 14.2, 14.1, 14.3 and 14.4.
+1. Engine slice `engine-revolute-drive-target` (current): a run-time adjustable drive target speed (the legacy runtime `speed` input, CAT-042 open question 5).
+2. Story 11.1b Conveyor.
+3. The remaining Epic 11 children in dependency order: 11.2a Clutch, 11.2b Reverse transmission, 11.3 Linear pusher, 11.4a Wound spring and the remaining 11.4 child. Then the split 12.x and 13.x children, then 14.0, 14.2, 14.1, 14.3 and 14.4.
 4. Remaining `named-*` slices under the identity ledger's family and dependency order.
 5. Engine follow-ups queued in [deferred work](./_bmad-output/implementation-artifacts/deferred-work.md), each scheduled by its destination. These include [compliant-surface friction](./_bmad-output/implementation-artifacts/deferred-work.md#compliant-surface-friction) and the [powered-part demand drain](./_bmad-output/implementation-artifacts/deferred-work.md#powered-part-demand-drain) (EL-196 battery drain, owner, 3 November 2026).
 

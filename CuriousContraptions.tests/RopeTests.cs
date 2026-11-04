@@ -40,6 +40,91 @@ public sealed class RopeTests
         Assert.True(Height(slack.Committed) < 2.3f);
     }
 
+    // ---- a taut rope at rest commits rest (engine-tensile-drive-coupling) ----------------------------------------------------------
+
+    /// <summary>The observed window for a load held at rest: 3 s, the first second left to settle.</summary>
+    private const int RestTicks = 360, SettleTicks = 120;
+    /// <summary>The 0.5 mm resting envelope (m) of the game-grade envelope: how far a load held at rest may wander over the observed
+    /// window.</summary>
+    private const float RestingEnvelope = .0005f;
+    /// <summary>The committed speed (m/s) a load held at rest may read. Committed body velocity is published state, read through
+    /// <see cref="WorkshopRead"/> by every consumer of the committed world. A load held at rest by a rope must read as rest, as a
+    /// bench-held load does. Integrated over the run, that reading must not imply motion beyond the resting envelope. The assertions
+    /// cover the 2 s after the 1 s settle; the divisor is the full 3 s run, the more conservative choice, so |v| ≤ 0.5 mm / 3 s. A
+    /// tensile row soft in relax committed g/(2ζω + hω²) = 1.25 mm/s on a static hang, whatever the mass, while
+    /// the pose held still. This is a test bound, distinct from the engine's 0.01 m/s actuator rest speed.</summary>
+    private const float HeldRestSpeed = RestingEnvelope / 3f;
+
+    public enum Support { Rope, Bench }
+
+    // A Weight hanging at rest on a taut rope from a static anchor reads as rest through its committed velocity, as one resting on the
+    // bench does. The control is the same Weight and anchor, unconnected, on the bench, whose contact is already rigid in relax. The
+    // rope case first checks that the rope carries the load: it stays within 0.1 m of its hang height, far above the bench. Both cases
+    // check the recipe's "no drift over 3 s" pose control, applied to the 2 s after the 1 s settle: the settled height spread stays
+    // within the 0.5 mm envelope. That control held before this slice; only the committed velocity failed. Two masses, since the
+    // defect is mass-independent while the rope's tension is not.
+    [Theory]
+    [InlineData(1f, Support.Rope)]
+    [InlineData(6.8f, Support.Rope)]
+    [InlineData(1f, Support.Bench)]
+    public async Task ALoadAtRestOnATautRopeCommitsNoVelocityLikeOneRestingOnTheBench(float mass, Support support)
+    {
+        var anchor = WorkshopInput.Generic(new("rope_anchor"), new(1), 0f, 6f, -.18f, 0f, 0f, 0f, 1f);
+        var tie = DeclaredPorts.Current.LocalPosition(WeightTests.Placed(2, 0, 0, 0, mass), WorkshopSocket.Tie).Y;
+        var hang = 3f - tie;
+        var bench = (float)WorkshopConstruction.WorkbenchSurface.Value;
+        var weight = WeightTests.Placed(2, 0, support == Support.Rope ? hang : bench, 0, mass);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight), Connections:
+            support == Support.Rope
+                ? new(new WorkshopConnection(anchor.Id, WorkshopSocket.Tie, weight.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, 3f))
+                : WorkshopConnections.Empty);
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+        var reads = await harness.Advance(RestTicks);
+
+        Assert.All(reads, read => Assert.InRange(Height(read), support == Support.Rope ? hang - .1f : bench - RestingEnvelope,
+            support == Support.Rope ? hang + .1f : bench + RestingEnvelope));
+        var settled = reads.Skip(SettleTicks).Select(Height).ToList();
+        Assert.True(settled.Max() - settled.Min() <= RestingEnvelope,
+            $"the {mass} kg Weight at rest on the {support} drifted {(settled.Max() - settled.Min()) * 1000f:F3} mm over the settled ticks");
+        Assert.All(reads.Skip(SettleTicks), read =>
+        {
+            Assert.True(read.Bodies.TryGet(weight.Id, out var body));
+            Assert.True(MathF.Abs(body.Body.Velocity.Y) <= HeldRestSpeed,
+                $"tick {read.Tick.Value}: the {mass} kg Weight at rest on the {support} commits Vy {body.Body.Velocity.Y:E3} m/s");
+        });
+    }
+
+    // Genericity: the same rule holds a supplied prismatic drive. A 1 kg slider driven up toward a 1.2 m target is stopped 0.5 m up by
+    // a rope to its static frame; the drive keeps pushing at its 16 N effort. Once settled it holds short of its target, its rope taut
+    // (within the 0.5 mm envelope of the rope's length), and reads as rest through its committed axial velocity (HeldRestSpeed). A
+    // rope soft in relax committed T·m_inv/(2ζω + hω²) ≈ 0.6 mm/s here.
+    [Fact]
+    public void ASuppliedPrismaticDriveHeldByARopeHoldsShortOfItsTargetAndCommitsRest()
+    {
+        const float rope = .5f;
+        var declared = new LawScene(bench: false);
+        var frame = declared.StaticBox(new(0, 5, 0), new(.2f, .2f, .2f));
+        var moving = declared.Box(new(0, 5, 0), new(.25f, .25f, .25f), 1f, LawMaterial.Domino);
+        var joint = declared.Prismatic(frame, moving, ConstraintFrame.Identity, ConstraintFrame.Identity, -.2f, 2f, 3f, .5f,
+            ConnectedCollision.Disabled);
+        declared.Drive(joint, 1.2f, 1.6f, 8f, 16f, 12f);
+        var s = declared.Admit().Scene;
+        var span = new TensileSpanDeclaration(new(s.NextIdentity), new(s.NextIdentity + 1), 0, frame, Vector3.Zero, moving, Vector3.Zero,
+            rope, true);
+        var scene = new PhysicsSceneDeclaration(s.Document, s.NextIdentity + 2, s.Bodies, s.Colliders, s.Materials, [], [],
+            prismatics: s.Prismatics, supplyNodes: s.SupplyGraph.Nodes.ToArray(), supplyEdges: s.SupplyGraph.Edges.ToArray(),
+            prismaticDrives: s.PrismaticDrives, tensileSpans: [span]);
+        var world = new LawWorld(scene, PhysicsGpuAbi.Admission(scene, new(1),
+            new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1))), SimulationCadence.Hz120);
+
+        var held = new List<LawBody>();
+        world.Step(RestTicks, (tick, state) => { if (tick > SettleTicks) held.Add(state[moving]); }, supplied: true);
+
+        Assert.All(held, body => Assert.InRange(body.Position.Y - 5f, rope - RestingEnvelope, rope + RestingEnvelope));
+        Assert.All(held, body => Assert.True(MathF.Abs(body.Velocity.Y) <= HeldRestSpeed,
+            $"the slider held by its rope commits an axial velocity of {body.Velocity.Y:E3} m/s"));
+    }
+
     [Theory]
     [InlineData(.05f)]
     [InlineData(200f)]

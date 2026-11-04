@@ -63,14 +63,17 @@ internal static class TensileConstraintSolver
         ApplyBodyImpulse(route.B, route.Row.Lb, route.Row.Ab, impulse);
     }
 
-    public static void Solve(SimTensileRoute route, bool bias)
+    /// <summary>One sweep of the length row. Its softness is stabilisation, not a declared spring, so like a contact row it acts only
+    /// in the solve pass: in relax the row is rigid (γ = 0) with no bias. A row soft in relax converges to Jv = −γλ there and commits
+    /// that false lengthening velocity, F·m_inv/(2ζω + hω²), on a load the rope holds at rest.</summary>
+    public static void Solve(SimTensileRoute route, bool solvePass)
     {
         if (!route.Active) return;
         ref readonly var row = ref route.Row;
         var k = ConstraintMass(route.A, row.La, row.Aa) + ConstraintMass(route.B, row.Lb, row.Ab);
         var velocity = ConstraintVelocity(route.A, row.La, row.Aa) + ConstraintVelocity(route.B, row.Lb, row.Ab);
         var result = SoftConstraint.Solve4(Vector128.Create(k), Vector128.Create(velocity), Vector128.Create(row.VelocityTarget),
-            Vector128.Create(row.Error), Vector128.Create(row.Gamma), Vector128.Create(bias ? row.Bias : 0f),
+            Vector128.Create(row.Error), Vector128.Create(solvePass ? row.Gamma : 0f), Vector128.Create(solvePass ? row.Bias : 0f),
             Vector128.Create(route.Impulse), Vector128.Create(row.Minimum), Vector128.Create(row.Maximum));
         route.Impulse = result.Accumulated.GetElement(0);
         Apply(route, result.Delta.GetElement(0));
