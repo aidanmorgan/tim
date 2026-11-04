@@ -2845,7 +2845,7 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public ArraySegment<byte>? GetOwnersBytes() { return __p.__vector_as_arraysegment(58); }
 #endif
   public ulong[] GetOwnersArray() { return __p.__vector_as_array<ulong>(58); }
-  public CuriousContraptions.Wire.RunControlRecord? RunControls(int j) { int o = __p.__offset(60); return o != 0 ? (CuriousContraptions.Wire.RunControlRecord?)(new CuriousContraptions.Wire.RunControlRecord()).__assign(__p.__vector(o) + j * 24, __p.bb) : null; }
+  public CuriousContraptions.Wire.RunControlRecord? RunControls(int j) { int o = __p.__offset(60); return o != 0 ? (CuriousContraptions.Wire.RunControlRecord?)(new CuriousContraptions.Wire.RunControlRecord()).__assign(__p.__vector(o) + j * 32, __p.bb) : null; }
   public int RunControlsLength { get { int o = __p.__offset(60); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.CompiledPresentationRecord? Presentation(int j) { int o = __p.__offset(62); return o != 0 ? (CuriousContraptions.Wire.CompiledPresentationRecord?)(new CuriousContraptions.Wire.CompiledPresentationRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int PresentationLength { get { int o = __p.__offset(62); return o != 0 ? __p.__vector_len(o) : 0; } }
@@ -3062,7 +3062,7 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public static VectorOffset CreateOwnersVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<ulong>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartOwnersVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(8, numElems, 8); }
   public static void AddRunControls(FlatBufferBuilder builder, VectorOffset runControlsOffset) { builder.AddOffset(28, runControlsOffset.Value, 0); }
-  public static void StartRunControlsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(24, numElems, 8); }
+  public static void StartRunControlsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
   public static void AddPresentation(FlatBufferBuilder builder, VectorOffset presentationOffset) { builder.AddOffset(29, presentationOffset.Value, 0); }
   public static VectorOffset CreatePresentationVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CompiledPresentationRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
   public static VectorOffset CreatePresentationVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CompiledPresentationRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
@@ -3128,7 +3128,7 @@ static public class CompiledSceneRecordVerify
       && verifier.VerifyField(tablePos, 54 /*ActivationSubsteps*/, 4 /*uint*/, 4, false)
       && verifier.VerifyVectorOfData(tablePos, 56 /*ContactOwners*/, 8 /*ulong*/, false)
       && verifier.VerifyVectorOfData(tablePos, 58 /*Owners*/, 8 /*ulong*/, false)
-      && verifier.VerifyVectorOfData(tablePos, 60 /*RunControls*/, 24 /*CuriousContraptions.Wire.RunControlRecord*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 60 /*RunControls*/, 32 /*CuriousContraptions.Wire.RunControlRecord*/, false)
       && verifier.VerifyVectorOfTables(tablePos, 62 /*Presentation*/, CuriousContraptions.Wire.CompiledPresentationRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 64 /*Revolutes*/, CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 66 /*CompliantSurfaces*/, CuriousContraptions.Wire.CompliantSurfaceRecordVerify.Verify, false)
@@ -4221,6 +4221,25 @@ public enum ResponseKind : byte
   Read = 1,
 };
 
+public struct RevoluteDriveTargetRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public RevoluteDriveTargetRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Owner { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public float TargetSpeed { get { return __p.bb.GetFloat(__p.bb_pos + 8); } }
+
+  public static Offset<CuriousContraptions.Wire.RevoluteDriveTargetRecord> CreateRevoluteDriveTargetRecord(FlatBufferBuilder builder, ulong Owner, float TargetSpeed) {
+    builder.Prep(8, 16);
+    builder.Pad(4);
+    builder.PutFloat(TargetSpeed);
+    builder.PutUlong(Owner);
+    return new Offset<CuriousContraptions.Wire.RevoluteDriveTargetRecord>(builder.Offset);
+  }
+}
+
 public struct RopeSpanReadRecord : IFlatbufferObject
 {
   private Table __p;
@@ -4313,6 +4332,7 @@ public struct RunControlCommandRecord : IFlatbufferObject
 public enum RunControlLane : byte
 {
   SourceEnable = 1,
+  RevoluteDriveTarget = 2,
 };
 
 public struct RunControlRecord : IFlatbufferObject
@@ -4326,9 +4346,13 @@ public struct RunControlRecord : IFlatbufferObject
   public ulong Owner { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
   public uint LaneIndex { get { return __p.bb.GetUint(__p.bb_pos + 16); } }
   public byte Lane { get { return __p.bb.Get(__p.bb_pos + 20); } }
+  public float Minimum { get { return __p.bb.GetFloat(__p.bb_pos + 24); } }
+  public float Maximum { get { return __p.bb.GetFloat(__p.bb_pos + 28); } }
 
-  public static Offset<CuriousContraptions.Wire.RunControlRecord> CreateRunControlRecord(FlatBufferBuilder builder, ulong Id, ulong Owner, uint LaneIndex, byte Lane) {
-    builder.Prep(8, 24);
+  public static Offset<CuriousContraptions.Wire.RunControlRecord> CreateRunControlRecord(FlatBufferBuilder builder, ulong Id, ulong Owner, uint LaneIndex, byte Lane, float Minimum, float Maximum) {
+    builder.Prep(8, 32);
+    builder.PutFloat(Maximum);
+    builder.PutFloat(Minimum);
     builder.Pad(3);
     builder.PutByte(Lane);
     builder.PutUint(LaneIndex);
@@ -4928,8 +4952,10 @@ public struct WorkshopResponse : IFlatbufferObject
   public int PulleyWheelsLength { get { int o = __p.__offset(60); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.CompliantSurfaceReadRecord? CompliantSurfaces(int j) { int o = __p.__offset(62); return o != 0 ? (CuriousContraptions.Wire.CompliantSurfaceReadRecord?)(new CuriousContraptions.Wire.CompliantSurfaceReadRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int CompliantSurfacesLength { get { int o = __p.__offset(62); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.RevoluteDriveTargetRecord? DriveTargets(int j) { int o = __p.__offset(64); return o != 0 ? (CuriousContraptions.Wire.RevoluteDriveTargetRecord?)(new CuriousContraptions.Wire.RevoluteDriveTargetRecord()).__assign(__p.__vector(o) + j * 16, __p.bb) : null; }
+  public int DriveTargetsLength { get { int o = __p.__offset(64); return o != 0 ? __p.__vector_len(o) : 0; } }
 
-  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(30); }
+  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(31); }
   public static void AddSequence(FlatBufferBuilder builder, ulong sequence) { builder.AddUlong(0, sequence, 0); }
   public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.ResponseKind kind) { builder.AddByte(1, (byte)kind, 0); }
   public static void AddOutcome(FlatBufferBuilder builder, CuriousContraptions.Wire.CommandOutcome outcome) { builder.AddByte(2, (byte)outcome, 0); }
@@ -4995,6 +5021,8 @@ public struct WorkshopResponse : IFlatbufferObject
   public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
   public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartCompliantSurfacesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddDriveTargets(FlatBufferBuilder builder, VectorOffset driveTargetsOffset) { builder.AddOffset(30, driveTargetsOffset.Value, 0); }
+  public static void StartDriveTargetsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(16, numElems, 8); }
   public static Offset<CuriousContraptions.Wire.WorkshopResponse> EndWorkshopResponse(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.WorkshopResponse>(o);
@@ -5039,6 +5067,7 @@ static public class WorkshopResponseVerify
       && verifier.VerifyTable(tablePos, 58 /*Scene*/, CuriousContraptions.Wire.CompiledSceneRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 60 /*PulleyWheels*/, CuriousContraptions.Wire.PulleyWheelReadRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 62 /*CompliantSurfaces*/, CuriousContraptions.Wire.CompliantSurfaceReadRecordVerify.Verify, false)
+      && verifier.VerifyVectorOfData(tablePos, 64 /*DriveTargets*/, 16 /*CuriousContraptions.Wire.RevoluteDriveTargetRecord*/, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

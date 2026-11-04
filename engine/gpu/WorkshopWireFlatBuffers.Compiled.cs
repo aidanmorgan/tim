@@ -824,7 +824,8 @@ public static partial class WorkshopWireFlatBuffers
         for (var i = scene.RunControls.Length - 1; i >= 0; i--)
         {
             var control = scene.RunControls[i];
-            W.RunControlRecord.CreateRunControlRecord(b, control.Id.Value, control.Owner.Value, checked((uint)control.LaneIndex), (byte)control.Lane);
+            W.RunControlRecord.CreateRunControlRecord(b, control.Id.Value, control.Owner.Value, checked((uint)control.LaneIndex), (byte)control.Lane,
+                control.Minimum, control.Maximum);
         }
         var runControls = b.EndVector();
         var presentation = W.CompiledSceneRecord.CreatePresentationVector(b, scene.Presentation.Select(track =>
@@ -921,7 +922,7 @@ public static partial class WorkshopWireFlatBuffers
                 Enumerable.Range(0, row.OwnersLength).Select(i => new GpuBodyId(row.Owners(i))),
                 Enumerable.Range(0, row.RunControlsLength).Select(i => Required(row.RunControls(i), "RunControls")).Select(control =>
                     new RunControlRow(new(control.Id), new(control.Owner), (CuriousContraptions.Abstractions.RunControlLane)control.Lane,
-                        checked((int)control.LaneIndex))));
+                        checked((int)control.LaneIndex), control.Minimum, control.Maximum)));
         }
         catch (Exception error) when (error is ArgumentException or InvalidOperationException or OverflowException)
         { throw new WireFaultException(WireFaultReason.OutOfRange, "Invalid compiled scene capabilities.", error); }

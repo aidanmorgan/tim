@@ -113,7 +113,7 @@ public sealed class WorkshopFormatTests
         Assert.Equal(["sequence", "kind", "outcome", "reason", "phase", "epoch", "tick", "revision", "publication", "master_generation",
             "cadence", "projection", "session", "capture", "bodies", "captures", "activations", "timers", "contact_works",
             "electrical", "activation_memory", "motion", "memory", "actuator_drives", "contact_loads", "electrical_logic", "ropes", "scene", "pulley_wheels",
-            "compliant_surfaces"], Fields("table WorkshopResponse"));
+            "compliant_surfaces", "drive_targets"], Fields("table WorkshopResponse"));
         Assert.Equal(["frame", "deflection"], Fields("table CompliantSurfaceReadRecord"));
         Assert.Equal(["used_before", "used_after", "duration_ticks", "frequency", "allocated_before", "allocated_after", "collections_before",
             "collections_after"], Fields("struct MemoryObservationRecord"));

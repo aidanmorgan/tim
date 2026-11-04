@@ -147,11 +147,13 @@ public sealed class SourceStoreInstanceTests
         Assert.All(TestBundle.Entries.Where(entry => entry.Metadata.Id != "battery"), entry => Assert.Null(entry.Electrical?.Supply?.Store));
     }
 
-    // The run-time control is the declaration's: a Source store whose enable state is RunControl has one; the same store declared
-    // BuildOnly, a store-less supply part and a part without a supply have none.
+    // The run-time control is the declaration's: a Source store whose enable state is RunControl has one, and so does the Motor, whose
+    // RunControl speed is its one driven hinge's target (engine-revolute-drive-target). The same store declared BuildOnly, a store-less
+    // supply part and a part without a supply have none.
     [Fact]
-    public void ARunTimeControlExistsOnlyWhereTheStoreDeclaresItsEnableStateRunEditable()
+    public void ARunTimeControlExistsOnlyWhereThePackageDeclaresABoundParameterRunEditable()
     {
+        Assert.Equal(new[] { new DeclaredRunControl(new("speed"), RunControlLane.RevoluteDriveTarget) }, DeclaredPhysics.RunControls(new PartId("motor")));
         var entry = DeclaredPhysics.Of(new PartId("battery"));
         Assert.Equal(new[] { new DeclaredRunControl(new("enabled"), RunControlLane.SourceEnable) }, DeclaredPhysics.RunControls(entry));
         Assert.Equal(DeclaredPhysics.RunControls(entry), DeclaredPhysics.RunControls(new PartId("battery")));

@@ -9,8 +9,10 @@ namespace CuriousContraptions.Elements.Motor;
 
 /// <summary>The Electric motor (CAT-042, Story 11.1a): a static housing carrying a dynamic rotor on a continuous revolute hinge about
 /// its local +Z. Electricity on PowerIn supplies the hinge's velocity drive, which turns the rotor counterclockwise about +Z toward the
-/// <c>speed</c> parameter with at most the <c>torque</c> parameter; unpowered, 0.05 N·m of bearing friction spins it down. The supply
-/// lamp follows the drive's committed supplied state. The Drive socket and its mechanical coupling are Story 11.1b.</summary>
+/// <c>speed</c> parameter with at most the <c>torque</c> parameter; unpowered, 0.05 N·m of bearing friction spins it down. The speed is
+/// also a run-time control (owner, 3 November 2026): during Run it sets the drive's committed target from the next physics step, and
+/// Reset and a save keep the authored speed. The torque is build-only. The supply lamp follows the drive's committed supplied state. The
+/// Drive socket and its mechanical coupling are Story 11.1b.</summary>
 public sealed class MotorElementDeclaration : IHingeElement, IElectricalElement, ISceneGeometryElement
 {
     private const float RotorMass = .5f;
@@ -36,7 +38,8 @@ public sealed class MotorElementDeclaration : IHingeElement, IElectricalElement,
         ScenePath: "res://elements/Motor/motor.tscn",
         Parameters:
         [
-            new("speed", ParameterUnit.RadianPerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 20f, Default: 6f, Options: []),
+            new("speed", ParameterUnit.RadianPerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 20f, Default: 6f, Options: [],
+                RunEdit: ParameterRunEdit.RunControl),
             // The floor is twice the bearing friction, so the weakest Motor still starts (CAT-042 §6).
             new("torque", ParameterUnit.NewtonMetre, ParameterKind.Real, Minimum: .1f, Maximum: 100f, Default: 20f, Options: [])
         ]);

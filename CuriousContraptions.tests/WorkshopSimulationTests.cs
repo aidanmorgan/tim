@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 using Xunit;
 
@@ -524,6 +525,174 @@ public sealed class WorkshopSimulationTests
         Assert.Equal([ElectricalEnable.Enabled], device.Controls[1].SourceEnable);
     }
 
+    // engine-revolute-drive-target: a lone Motor (unsupplied) compiles one RevoluteDriveTarget row; its authored speed is 6 rad/s.
+    private static readonly GpuBodyId DrivenOwner = new(7);
+    private static WorkshopConstruction DriveConstruction() => new(new(2), Settings, new(WorkshopInput.Generic(new PartId("motor"), DrivenOwner,
+        0, 4, 0, 0, 0, 0, 1, new([new(new("speed"), 6f), new(new("torque"), 20f)]))));
+    private static float Target(WorkshopRead read) => read.RunControl(DrivenOwner, RunControlLane.RevoluteDriveTarget).Scalar;
+
+    private static async Task<RunControlRow> RunDriven(WorkshopSimulation simulation, ControlledDevice device)
+    {
+        await simulation.Initialize();
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(DriveConstruction())).AsTask();
+        device.CompleteAdmission(0);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await admission).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        return Assert.Single(simulation.Scene.RunControls);
+    }
+
+    // The committed target is validated on every advanced read: a candidate that does not commit the held speed (here it keeps the
+    // previous target) faults the advance with InvalidRead. Control: the same candidate committing the held value is applied and reads it.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ACandidateThatDropsAHeldSpeedControlFaultsTheAdvance(bool dropped)
+    {
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
+        var row = await RunDriven(simulation, device);
+        Assert.Equal(6f, Target(simulation.Committed));
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureRunControl(new(DrivenOwner, row.Id, RunControlValue.Of(12f))).Outcome);
+        var source = simulation.Committed;
+
+        var advance = simulation.Advance().AsTask();
+        Assert.Equal([12f], device.Controls[0].DriveTarget);
+        device.CompleteAdvance(0, dropped ? read => read with { DriveTargets = source.DriveTargets } : (Func<WorkshopRead, WorkshopRead>?)null);
+        var result = await advance;
+
+        if (dropped)
+        {
+            Assert.Equal((WorkshopCommandOutcome.Faulted, WorkshopRejection.InvalidRead), (result.Outcome, result.Reason));
+            Assert.Equal(WorkshopSimulationPhase.Faulted, simulation.Phase);
+        }
+        else
+        {
+            Assert.Equal(WorkshopCommandOutcome.Applied, result.Outcome);
+            Assert.Equal(12f, Target(simulation.Committed));
+        }
+    }
+
+    // Without a held control the committed target must stay the previous one: a candidate that changes it unasked faults the advance.
+    [Fact]
+    public async Task ACandidateThatChangesTheTargetWithoutAHeldControlFaultsTheAdvance()
+    {
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
+        _ = await RunDriven(simulation, device);
+        var source = simulation.Committed;
+        var advance = simulation.Advance().AsTask();
+        Assert.Equal([6f], device.Controls[0].DriveTarget);
+        device.CompleteAdvance(0, read => read with { DriveTargets = new([source.DriveTargets[0] with { TargetSpeed = 12f }]) });
+        var result = await advance;
+        Assert.Equal((WorkshopCommandOutcome.Faulted, WorkshopRejection.InvalidRead), (result.Outcome, result.Reason));
+    }
+
+    // A held speed survives a discarded tick and a cancelled Reset: the next committed step still hands it to the engine. A committed
+    // Reset then clears it, and the following run hands the engine the authored target again.
+    [Fact]
+    public async Task AHeldSpeedSurvivesADiscardedTickAndACancelledResetAndACommittedResetClearsIt()
+    {
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
+        var row = await RunDriven(simulation, device);
+        var faster = RunControlValue.Of(12f);
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureRunControl(new(DrivenOwner, row.Id, faster)).Outcome);
+
+        var discarded = simulation.Advance().AsTask();
+        var cancelled = simulation.Reset().AsTask();
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.CancelPending().Outcome);
+        device.CompleteAdmission(1);
+        Assert.Equal(WorkshopCommandOutcome.Cancelled, (await cancelled).Outcome);
+        device.CompleteAdvance(0);
+        Assert.Equal(WorkshopCommandOutcome.Superseded, (await discarded).Outcome);
+        Assert.Equal((new SimulationTick(0), 6f), (simulation.Committed.Tick, Target(simulation.Committed)));
+        Assert.Equal(faster, simulation.HeldRunControl(row.Id));
+
+        var next = simulation.Advance().AsTask();
+        device.CompleteAdvance(1);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await next).Outcome);
+        Assert.Equal([12f], device.Controls[1].DriveTarget);
+        Assert.Equal(12f, Target(simulation.Committed));
+
+        var reset = simulation.Reset().AsTask();
+        device.CompleteAdmission(2);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await reset).Outcome);
+        Assert.Null(simulation.HeldRunControl(row.Id));
+        Assert.Equal(6f, Target(simulation.Committed));
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        var after = simulation.Advance().AsTask();
+        device.CompleteAdvance(2);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await after).Outcome);
+        Assert.Equal([6f], device.Controls[2].DriveTarget);
+    }
+
+    public enum DriveReadDefect { Target, Owner, Missing, Extra }
+
+    /// <summary>The drive-target read <paramref name="read"/> with one defect: another target, a foreign owner, no row, or a second row.</summary>
+    private static PhysicsDriveTargetRead Defective(WorkshopRead read, DriveReadDefect defect) => defect switch
+    {
+        DriveReadDefect.Target => new([read.DriveTargets[0] with { TargetSpeed = 7f }]),
+        DriveReadDefect.Owner => new([read.DriveTargets[0] with { Owner = new(999) }]),
+        DriveReadDefect.Missing => default,
+        DriveReadDefect.Extra => new([read.DriveTargets[0], read.DriveTargets[0]]),
+        _ => throw new ArgumentOutOfRangeException(nameof(defect))
+    };
+
+    // Admission must commit exactly the compiled drive table's declared targets under their owners: an admission read with another
+    // target, a foreign owner, no drive row or an extra one is refused (Faulted, InvalidRead), nothing is committed and the scene is not
+    // installed. Control: the same admission served unchanged is applied (RunDriven).
+    [Theory]
+    [InlineData(DriveReadDefect.Target)]
+    [InlineData(DriveReadDefect.Owner)]
+    [InlineData(DriveReadDefect.Missing)]
+    [InlineData(DriveReadDefect.Extra)]
+    public async Task AnAdmissionReadWithoutTheDeclaredDriveTargetsIsRefused(DriveReadDefect defect)
+    {
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
+        await simulation.Initialize();
+        var commits = device.Commits;
+        var scene = simulation.Scene.Identity;
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(DriveConstruction())).AsTask();
+        device.CompleteAdmission(0, read => read with { DriveTargets = Defective(read, defect) });
+        var result = await admission;
+        Assert.Equal((WorkshopCommandOutcome.Faulted, WorkshopRejection.InvalidRead), (result.Outcome, result.Reason));
+        Assert.Equal((commits, scene), (device.Commits, simulation.Scene.Identity));
+    }
+
+    // Every advanced read keeps each drive row's owner and the drive population: a candidate whose drive row names a foreign owner,
+    // or that drops or adds a row, faults the advance even when its target is the authorised one, and nothing is committed.
+    [Theory]
+    [InlineData(DriveReadDefect.Owner)]
+    [InlineData(DriveReadDefect.Missing)]
+    [InlineData(DriveReadDefect.Extra)]
+    public async Task AnAdvancedReadWithAForeignOrMissingDriveRowFaultsTheAdvance(DriveReadDefect defect)
+    {
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
+        _ = await RunDriven(simulation, device);
+        var commits = device.Commits;
+        var advance = simulation.Advance().AsTask();
+        device.CompleteAdvance(0, read => read with { DriveTargets = Defective(read, defect) });
+        var result = await advance;
+        Assert.Equal((WorkshopCommandOutcome.Faulted, WorkshopRejection.InvalidRead), (result.Outcome, result.Reason));
+        Assert.Equal((commits, new SimulationTick(0)), (device.Commits, simulation.Committed.Tick));
+    }
+
+    // While Paused a second speed control replaces the first; the next Step hands the engine the second and commits it.
+    [Fact]
+    public async Task APausedSpeedControlIsReplacedByASecondAndAppliedByTheNextStep()
+    {
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
+        var row = await RunDriven(simulation, device);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Pause()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureRunControl(new(DrivenOwner, row.Id, RunControlValue.Of(10f))).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureRunControl(new(DrivenOwner, row.Id, RunControlValue.Of(14f))).Outcome);
+        Assert.Equal(RunControlValue.Of(14f), simulation.HeldRunControl(row.Id));
+        Assert.Equal(6f, Target(simulation.Committed));
+
+        var step = simulation.Step().AsTask();
+        device.CompleteAdvance(0);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await step).Outcome);
+        Assert.Equal([14f], device.Controls[0].DriveTarget);
+        Assert.Equal(14f, Target(simulation.Committed));
+    }
+
     [Theory]
     [InlineData(0UL, 1UL)]
     [InlineData(23UL, 24UL)]
@@ -846,10 +1015,12 @@ public sealed class WorkshopSimulationTests
             _advances.Add((source, sequence, completion));
             return new(completion.Task);
         }
-        public void CompleteAdmission(int index)
+        /// <summary>Answers Admit <paramref name="index"/> with the scene's admission read; <paramref name="transform"/> then changes it.</summary>
+        public void CompleteAdmission(int index, Func<WorkshopRead, WorkshopRead>? transform = null)
         {
             var request = Admissions[index];
-            request.Completion.SetResult(new(request.Sequence, Initial(request.Construction, request.Epoch)));
+            var read = Initial(request.Construction, request.Epoch);
+            request.Completion.SetResult(new(request.Sequence, transform is null ? read : transform(read)));
         }
         public static WorkshopRead Initial(WorkshopCompiledScene construction, SimulationEpoch epoch)
         {
@@ -859,19 +1030,25 @@ public sealed class WorkshopSimulationTests
             var network = construction.Activation;
             return new(epoch, new(0), PhysicsGpuAbi.ReadDynamicBodies(bytes),
                 Activations: network.Clear(), Timers: network.ClearTimers(),
-                ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes, PhysicsInteractionSnapshot.Empty).Stores, Electrical: PhysicsGpuAbi.ReadElectrical(bytes));
+                ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes, PhysicsInteractionSnapshot.Empty).Stores, Electrical: PhysicsGpuAbi.ReadElectrical(bytes),
+                DriveTargets: PhysicsGpuAbi.ReadDriveTargets(bytes));
         }
         public void FailAdvance(int index) => _advances[index].Completion.SetException(new InvalidOperationException("Injected old transport failure."));
+        /// <summary>Answers Advance <paramref name="index"/> as the engine would: the next tick of the source, committing the drive
+        /// targets its tick controls carried; <paramref name="transform"/> then changes that candidate.</summary>
         public void CompleteAdvance(int index, Func<WorkshopRead, WorkshopRead>? transform = null)
         {
             var (source, sequence, completion) = _advances[index];
             var tick = source.Tick.Value + 1;
+            var targets = Controls[index].DriveTarget;
             var read = source with
             {
                 Revision = default,
                 Tick = new(tick),
                 Bodies = new(Enumerable.Range(0, source.Bodies.Count).Select(i =>
-                    source.Bodies[i] with { Body = source.Bodies[i].Body with { Tick = tick } }).ToArray())
+                    source.Bodies[i] with { Body = source.Bodies[i].Body with { Tick = tick } }).ToArray()),
+                DriveTargets = new(Enumerable.Range(0, source.DriveTargets.Count).Select(i =>
+                    source.DriveTargets[i] with { TargetSpeed = targets[i] }).ToArray())
             };
             completion.SetResult(new(sequence, transform is null ? read : transform(read)));
         }

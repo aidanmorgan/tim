@@ -205,8 +205,9 @@ internal sealed class WorkshopPhysicsEngine
 
     }
 
-    /// <summary>One step from the committed world. Besides the world bytes it reads only the explicit tick inputs: per-source enables
-    /// and per-prismatic switched-supply state (compiled routes × committed switch contacts). No authoring or host state is read.</summary>
+    /// <summary>One step from the committed world. Besides the world bytes it reads only the explicit tick inputs: per-source enables,
+    /// per-drive-slot switched-supply state (compiled routes × committed switch contacts) and per-revolute-drive target speeds. No
+    /// authoring or host state is read.</summary>
     public PhysicsInteractionSnapshot Advance(ReadOnlyMemory<byte> source, Memory<byte> candidate, PhysicsTickInputs inputs, PhysicsInteractionSnapshot committedInteractions)
     {
         ArgumentNullException.ThrowIfNull(inputs);
@@ -276,9 +277,18 @@ internal sealed class WorkshopPhysicsEngine
         Span<bool> driven = Scratch(ref _drivenSlots, layout.Prismatics + layout.Revolutes);
         for (var p = 0; p < layout.Prismatics; p++)
             driven[p] = (PrismaticDriveKind)ReadU32(span, layout.PrismaticOffset(p) + PhysicsGpuAbi.PrismaticDriveKindOffset) == PrismaticDriveKind.Supplied;
+        var revoluteDrives = 0;
         for (var r = 0; r < layout.Revolutes; r++)
+        {
             driven[layout.Prismatics + r] = (RevoluteDriveKind)ReadU32(span, layout.RevoluteOffset(r) + PhysicsGpuAbi.RevoluteDriveKindOffset) == RevoluteDriveKind.Supplied;
-        inputs.Validate(supplyCount, driven);
+            if (driven[layout.Prismatics + r]) revoluteDrives++;
+        }
+        inputs.Validate(supplyCount, driven, revoluteDrives);
+        // engine-revolute-drive-target: each driven revolute commits this tick's target before its substeps. The world's revolutes and
+        // the compiled drive table are both in joint identity order, so a driven revolute's rank among the driven ones is its drive index.
+        for (int r = 0, drive = 0; r < layout.Revolutes; r++)
+            if (driven[layout.Prismatics + r])
+                WriteF32(span, layout.RevoluteOffset(r) + PhysicsGpuAbi.RevoluteDriveTargetSpeedOffset, inputs.DriveTarget[drive++]);
         for (var supply = 0; supply < supplyCount; supply++)
             WriteF32(span, layout.ElectricalSourceOffset(supply) + PhysicsGpuAbi.ElectricalSourceDebitOffset, 0f);
 

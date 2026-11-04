@@ -104,11 +104,16 @@ public static class BundleValidator
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports, entry.Electrical?.Supply);
             if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports, entry.Metadata.Parameters);
             // A run-time control is declared only on a parameter bound to exactly one run-controllable lane: the lane its compiled
-            // run-control row drives.
+            // run-control row drives. A drive-target control also requires exactly one driven hinge on its part, so the owner's drive
+            // slot is unique.
             for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
-                if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl &&
-                    RunControlBindings.Lanes(entry, entry.Metadata.Parameters[i].Key).Count != 1)
+            {
+                if (entry.Metadata.Parameters[i].RunEdit != ParameterRunEdit.RunControl) continue;
+                var lanes = RunControlBindings.Lanes(entry, entry.Metadata.Parameters[i].Key);
+                if (lanes.Count != 1 || (lanes[0] == RunControlLane.RevoluteDriveTarget &&
+                        entry.Mechanical?.Hinges.Count(hinge => hinge.Drive is not null) != 1))
                     OutOfRange($"Metadata.Parameters[{i}].RunEdit");
+            }
             if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Colliders);
             if (entry.Fluid is { } fluid) Fluid(fluid);
         }

@@ -17,7 +17,7 @@
 
 **Blocker / owner / retry:** none. Start from published main `30fcfb56` in a fresh worktree with a fresh implementer.
 
-**Next acceptance check:** the `engine-revolute-drive-target` spec's matrix through the real compiled Motor package, then the full local round and step-04 review.
+**Next acceptance check:** the implementation candidate is staged on branch `engine-revolute-drive-target` (not committed) with the spec's matrix tests through the real compiled Motor package; next are the step-04 review layers, then publication. After publication the current slice becomes Story 11.1b.
 
 **Order:**
 1. Engine slice `engine-revolute-drive-target` (current): the `RevoluteDriveTarget` lane, the Motor `speed` run control and its numeric UI control (CAT-042 open question 5).

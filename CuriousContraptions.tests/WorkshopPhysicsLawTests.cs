@@ -400,7 +400,7 @@ internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, S
         var driven = scene.Prismatics.ToArray().Select(joint => prismaticDrives.Any(drive => drive.Joint == joint.Id))
             .Concat(scene.Revolutes.ToArray().Select(joint => revoluteDrives.Any(drive => drive.Joint == joint.Id)));
         var inputs = new PhysicsTickInputs(scene.Electrical.Sources.ToArray().Select(source => source.Enabled).ToArray(),
-            driven.Select(slot => supplied && slot).ToArray());
+            driven.Select(slot => supplied && slot).ToArray()) { DriveTarget = revoluteDrives.Select(drive => drive.TargetSpeed).ToArray() };
         for (var tick = 1; tick <= ticks; tick++)
         {
             interactions = engine.Advance(source, candidate, inputs, interactions);

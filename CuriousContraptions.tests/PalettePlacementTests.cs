@@ -1690,6 +1690,76 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { Release(bumper); }
     }
 
+    // engine-revolute-drive-target: a Scalar run control (the Motor's speed) renders while Running as a label (parameter, units and
+    // committed value), a field named after the parameter and a Set button, never the build editor. Text, NaN and infinity are refused as
+    // the build editor refuses them, and −1 and 20.001 as the parameter's typed OutOfRange edit rejection (its policy is Reject); none
+    // sends a command. The per-frame refresh never overwrites the typed field. 12 sends one typed scalar control for the next physics
+    // step, shown as queued, with no construction edit; a refused answer says so. A locked Motor shows its committed value with a disabled
+    // Set button and no field.
+    [Fact]
+    public void TheNumericRunControlSendsATypedScalarAndRefusesInvalidInputBeforeSending()
+    {
+        var (scene, client) = BenchScene(new PartId("motor"), PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Choices(scene);
+            var owner = Assert.Single(scene.World.Construction.Instances).Id;
+            var authored = scene.World.Construction;
+            LineEdit Field() => Assert.Single(Descendants<LineEdit>(choices), field => field.Name == "speed");
+            Label Value() => Assert.Single(Descendants<Label>(choices), label => label.Text.StartsWith("speed:", StringComparison.Ordinal));
+            Button Set() => Assert.Single(Descendants<Button>(choices), button => button.Text == "Set speed");
+            string Status() => Assert.Single(Descendants<Label>(scene), label => label.Name == "WorkshopStatus").Text;
+            client.Phase = WorkshopSimulationPhase.Running;
+            Phase(scene, WorkshopSimulationPhase.Running);
+            Refresh(scene);
+            Assert.DoesNotContain(Descendants<Button>(choices), button => button.Text == "Configure");
+            Assert.Equal(("speed: 6 rad/s", "6"), (Value().Text, Field().Text));
+            foreach (var (text, status) in new[]
+            {
+                ("-1", "speed must be between 0 and 20 rad/s."), ("20.001", "speed must be between 0 and 20 rad/s."),
+                ("fast", "Enter valid parameter values."), ("NaN", "Enter valid parameter values."), ("Infinity", "Enter valid parameter values."),
+            })
+            {
+                Field().Text = text;
+                Set().EmitSignal(Button.SignalName.Pressed);
+                Assert.Equal(status, Status());
+                Assert.Empty(client.Controls);
+                Assert.Equal(authored, scene.World.Construction);
+            }
+            Field().Text = "12";
+            scene._PhysicsProcess(0);
+            Assert.Equal("12", Field().Text);
+            Set().EmitSignal(Button.SignalName.Pressed);
+            var row = Assert.Single(client.RunControls);
+            Assert.Equal([new WorkshopRunControl(owner, row.Id, RunControlValue.Of(12f))], client.Controls);
+            Assert.Equal("speed change accepted for the next physics step.", Status());
+            Assert.Equal("speed: 6 rad/s (queued)", Value().Text);
+            Assert.Equal(authored, scene.World.Construction);
+            // The rebuilt panel's field shows the queued value, so a second Set resends it rather than the old committed speed.
+            Assert.Equal("12", Field().Text);
+            Set().EmitSignal(Button.SignalName.Pressed);
+            Assert.Equal([new WorkshopRunControl(owner, row.Id, RunControlValue.Of(12f)), new WorkshopRunControl(owner, row.Id, RunControlValue.Of(12f))],
+                client.Controls);
+            Assert.All(client.Commands, command => Assert.True(command.Kind != WorkshopCommandKind.ConfigureRunControl || command.Construction is null));
+            client.Answer = PlacementAnswer.Rejected;
+            Field().Text = "8";
+            Set().EmitSignal(Button.SignalName.Pressed);
+            Assert.Equal("speed change was not applied.", Status());
+            client.Answer = PlacementAnswer.Applied;
+            // A locked Motor compiles no row: its committed value shows with a disabled Set button and no field.
+            Phase(scene, WorkshopSimulationPhase.Building);
+            Install(scene, authored with { Instances = new(Assert.IsType<WorkshopGenericInstance>(Assert.Single(authored.Instances)) with { Locked = true }) });
+            Phase(scene, WorkshopSimulationPhase.Running);
+            Refresh(scene);
+            Assert.Empty(Descendants<LineEdit>(choices));
+            Assert.Equal("speed: 6 rad/s", Value().Text);
+            Assert.True(Set().Disabled);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
     // Story 9A.39 D3: every Choice parameter renders as an option list of its declared names, the Receiver's capture participation too;
     // picking an option applies its index as one Undo, and Cancel changes nothing.
     [Fact]
@@ -2019,7 +2089,8 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var response = new WorkshopResponse(new((ulong)Commands.Count), WorkshopResponseKind.Acknowledgement, result,
                 Phase, new WorkshopRead(Epoch, new(0), bodies, Revision,
                     new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000)),
-                    Electrical: admission is null ? default : PhysicsGpuAbi.ReadElectrical(admission)),
+                    Electrical: admission is null ? default : PhysicsGpuAbi.ReadElectrical(admission),
+                    DriveTargets: admission is null ? default : PhysicsGpuAbi.ReadDriveTargets(admission)),
                 Session: new(1, 1), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
             var delivery = new WorkshopDelivery(response, true);
             if (Answer == PlacementAnswer.Pending)

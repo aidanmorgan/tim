@@ -384,7 +384,7 @@ public sealed class EventRingProducerTests
         Assert.Empty(ring.Records);
         // A candidate for tick 120 (the first pulse), staged and then discarded.
         var committed = ring.Committed;
-        var candidate = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed.Electrical, []));
+        var candidate = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed, []));
         Assert.Equal(120UL, candidate.Read.Tick.Value);
         ring.Device.Discard(new(999_999));
         Assert.Empty(ring.Device.Events.Pending);
@@ -410,7 +410,7 @@ public sealed class EventRingProducerTests
         await using var ring = await WorkshopIntegrationHarness.Running(Periodic(1f, 9));
         await ring.Advance(119);
         var committed = ring.Committed;
-        _ = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed.Electrical, []));
+        _ = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed, []));
         ring.Device.Discard(new(999_999));
         await ring.Advance(1);
         var record = Assert.Single(ring.Records);

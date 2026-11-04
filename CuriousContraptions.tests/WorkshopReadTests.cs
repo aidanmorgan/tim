@@ -80,6 +80,13 @@ public sealed class WorkshopReadTests
         Assert.True(surfaced.HasSameContent(Surface(.1f)));
         Assert.False(surfaced.HasSameContent(Surface(.2f)));
         Assert.False(first.HasSameContent(surfaced));
+        // A committed drive target is read content too (engine-revolute-drive-target): 6 rad/s through the wire is the same read,
+        // 12 rad/s or a read without the drive row is a new one.
+        WorkshopRead Driven(float target) => Wire(read with { DriveTargets = new([new(new(3), target)]) });
+        var driven = Driven(6f);
+        Assert.True(driven.HasSameContent(Driven(6f)));
+        Assert.False(driven.HasSameContent(Driven(12f)));
+        Assert.False(first.HasSameContent(driven));
     }
 
     [Fact]

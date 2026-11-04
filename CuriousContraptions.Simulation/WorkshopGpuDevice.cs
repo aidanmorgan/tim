@@ -54,7 +54,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private PhysicsMemoryRead _committedMemory, _candidateMemory;
     private ActivationNetwork? _committedNetwork, _candidateNetwork;
     // Supply routes compiled once at Admit: routes as indices into the admitted drive-slot and source tables.
-    private sealed record CompiledSupply(CompiledSupplyGraph Graph, int Sources);
+    private sealed record CompiledSupply(CompiledSupplyGraph Graph, int Sources, int Drives);
     private CompiledSupply? _committedSupply, _candidateSupply;
     private PassageSensorTracker _committedPassageTracker = PassageSensorTracker.Empty;
     private PassageSensorTracker _candidatePassageTracker = PassageSensorTracker.Empty;
@@ -117,7 +117,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             .Where(t => t.Declaration.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedWheelAngle)
             .Select(t => t.Owner).Distinct().ToArray();
         return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence, construction.Activation,
-            new(scene.SupplyGraph, scene.Electrical.Sources.Length), new PhysicsTickInputs([], []) { Pulleys = pulleys }, scene);
+            new(scene.SupplyGraph, scene.Electrical.Sources.Length, scene.RevoluteDrives.Length), new PhysicsTickInputs([], []) { Pulleys = pulleys }, scene);
     }
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)
     {
@@ -128,7 +128,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             throw new ArgumentException("Advance does not own the committed physical world.");
         var network = _committedNetwork ?? throw new InvalidOperationException("No committed activation declarations.");
         var supply = _committedSupply ?? throw new InvalidOperationException("No committed supply-route table.");
-        controls.Validate(supply.Sources);
+        controls.Validate(supply.Sources, supply.Drives);
         // One-way: committed discrete switch state and the player's source enables decide this step's supply routes.
         var targetTick = new SimulationTick(checked(committed.Tick.Value + 1));
         return Stage(ReadOnlyMemory<byte>.Empty, WorkshopGpuOperation.Advance, _committedProfile, targetTick, sequence,
@@ -238,7 +238,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 expectedTick, bodies,
                 Captures: _candidateCaptures, Activations: _candidateActivations, Timers: _candidateTimers,
                 Motion: validated.Motion, ContactWorks: contactWorks.Stores, Electrical: electrical, Memory: _candidateMemory,
-                Presentation: PhysicsGpuAbi.ReadPresentation(bytes.Span, inputs, operation == WorkshopGpuOperation.Admit));
+                Presentation: PhysicsGpuAbi.ReadPresentation(bytes.Span, inputs, operation == WorkshopGpuOperation.Admit),
+                DriveTargets: PhysicsGpuAbi.ReadDriveTargets(bytes.Span));
             _candidateWorld = bytes;
             _candidateProfile = profile;
 #if PLAYTEST

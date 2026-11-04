@@ -772,7 +772,8 @@ public static class NativeTwoDriveScenario
         for (var tick = 0; tick < 480; tick++)
         {
             var sources = PhysicsGpuAbi.ReadElectrical(current);
-            var input = PhysicsTickInputs.Compose(scene.SupplyGraph, WorkshopTickControls.For(sources, []), _ => false);
+            var input = PhysicsTickInputs.Compose(scene.SupplyGraph,
+                new WorkshopTickControls(Enumerable.Range(0, sources.Count).Select(i => sources[i].Enabled).ToArray()), _ => false);
             interactions = engine.Advance(current, candidate, input, interactions);
             (current, candidate) = (candidate, current);
         }

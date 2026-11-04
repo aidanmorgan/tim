@@ -63,7 +63,8 @@ export enum ElectricalEnable {
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export enum RunControlLane {
-  SourceEnable = 1
+  SourceEnable = 1,
+  RevoluteDriveTarget = 2
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
@@ -925,17 +926,60 @@ lane():number {
   return this.bb!.readUint8(this.bb_pos + 20);
 }
 
-static sizeOf():number {
-  return 24;
+minimum():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
 }
 
-static createRunControlRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, lane_index: number, lane: number):flatbuffers.Offset {
-  builder.prep(8, 24);
+maximum():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createRunControlRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, lane_index: number, lane: number, minimum: number, maximum: number):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.writeFloat32(maximum);
+  builder.writeFloat32(minimum);
   builder.pad(3);
   builder.writeInt8(lane);
   builder.writeInt32(lane_index);
   builder.writeInt64(BigInt(owner ?? 0));
   builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+export class RevoluteDriveTargetRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):RevoluteDriveTargetRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+owner():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+targetSpeed():number {
+  return this.bb!.readFloat32(this.bb_pos + 8);
+}
+
+static sizeOf():number {
+  return 16;
+}
+
+static createRevoluteDriveTargetRecord(builder:flatbuffers.Builder, owner: bigint, target_speed: number):flatbuffers.Offset {
+  builder.prep(8, 16);
+  builder.pad(4);
+  builder.writeFloat32(target_speed);
+  builder.writeInt64(BigInt(owner ?? 0));
   return builder.offset();
 }
 
@@ -1305,8 +1349,18 @@ compliantSurfacesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+driveTargets(index: number, obj?:RevoluteDriveTargetRecord):RevoluteDriveTargetRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 64);
+  return offset ? (obj || new RevoluteDriveTargetRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 16, this.bb!) : null;
+}
+
+driveTargetsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 64);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(30);
+  builder.startObject(31);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1527,6 +1581,14 @@ static createCompliantSurfacesVector(builder:flatbuffers.Builder, data:flatbuffe
 
 static startCompliantSurfacesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
+}
+
+static addDriveTargets(builder:flatbuffers.Builder, driveTargetsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(30, driveTargetsOffset, 0);
+}
+
+static startDriveTargetsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(16, numElems, 8);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -7726,7 +7788,7 @@ ownersLength():number {
 
 runControls(index: number, obj?:RunControlRecord):RunControlRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 60);
-  return offset ? (obj || new RunControlRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 24, this.bb!) : null;
+  return offset ? (obj || new RunControlRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
 }
 
 runControlsLength():number {
@@ -8147,7 +8209,7 @@ static addRunControls(builder:flatbuffers.Builder, runControlsOffset:flatbuffers
 }
 
 static startRunControlsVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(24, numElems, 8);
+  builder.startVector(32, numElems, 8);
 }
 
 static addPresentation(builder:flatbuffers.Builder, presentationOffset:flatbuffers.Offset) {

@@ -481,8 +481,8 @@ public sealed class BundleValidatorTests
     }
 
     // engine-run-control-table: a RunControl parameter binds exactly one run-controllable lane, found by the one generic resolver
-    // (today a Source store's enable state is the SourceEnable lane). A RunControl parameter bound to no lane, such as the store's
-    // capacity or the enable of a part without a store, is refused. Several bindings become constructible with the second lane.
+    // (a Source store's enable state is the SourceEnable lane). A RunControl parameter bound to no lane, such as the store's capacity or
+    // the enable of a part without a store, is refused. Several bindings: ADriveTargetRunControlBindsOneLaneOnAPartWithExactlyOneDrivenHinge.
     [Fact]
     public void ARunControlParameterBindsExactlyOneRunControllableLane()
     {
@@ -498,8 +498,48 @@ public sealed class BundleValidatorTests
             error.Code == Bundle.BundleErrorCode.OutOfRange && error.Detail.Contains("Metadata.Parameters[3].RunEdit", StringComparison.Ordinal));
     }
 
+    // engine-revolute-drive-target: a hinge drive whose TargetSpeed is a parameter binds that parameter to the RevoluteDriveTarget lane,
+    // once per such hinge. The shipped Motor's RunControl speed binds exactly one lane and is admitted; its torque binds none, so a
+    // RunControl torque is refused. A speed bound by two hinges binds two lanes and is refused, and a part whose RunControl drive target
+    // sits beside a second driven hinge is refused because its owner's drive slot would not be unique. Each refusal's control is the same
+    // part with the parameter BuildOnly.
     [Fact]
-    public void ARunControlIsDeclaredOnlyOnASourceStoreEnableAndAChoiceIsNeverClamped()
+    public void ADriveTargetRunControlBindsOneLaneOnAPartWithExactlyOneDrivenHinge()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var motor = Bundle.BundleSchema.Read(generated.Json!).Elements.Single(entry => entry.Metadata.Id == "motor");
+        static bool RunEditRefused(Bundle.BundleEntry candidate, int parameter) => Bundle.BundleValidator.Validate([new("Motor", candidate)])
+            .Any(error => error.Code == Bundle.BundleErrorCode.OutOfRange &&
+                error.Detail.Contains($"Metadata.Parameters[{parameter}].RunEdit", StringComparison.Ordinal));
+        static Bundle.BundleEntry RunEdit(Bundle.BundleEntry entry, string key, ParameterRunEdit edit) => entry with
+        {
+            Metadata = entry.Metadata with { Parameters = entry.Metadata.Parameters.Select(p => p.Key == key ? p with { RunEdit = edit } : p).ToArray() }
+        };
+        Assert.Equal(("speed", ParameterRunEdit.RunControl), (motor.Metadata.Parameters[0].Key, motor.Metadata.Parameters[0].RunEdit));
+        Assert.Equal([RunControlLane.RevoluteDriveTarget], Bundle.RunControlBindings.Lanes(motor, "speed"));
+        Assert.Empty(Bundle.RunControlBindings.Lanes(motor, "torque"));
+        Assert.Empty(Bundle.BundleValidator.Validate([new("Motor", motor)]));
+        Assert.True(RunEditRefused(RunEdit(motor, "torque", ParameterRunEdit.RunControl), 1));
+
+        var hinge = motor.Mechanical!.Hinges[0];
+        var twice = motor with { Mechanical = motor.Mechanical with { Hinges = [hinge, hinge] } };
+        Assert.Equal([RunControlLane.RevoluteDriveTarget, RunControlLane.RevoluteDriveTarget], Bundle.RunControlBindings.Lanes(twice, "speed"));
+        Assert.True(RunEditRefused(twice, 0));
+        Assert.False(RunEditRefused(RunEdit(twice, "speed", ParameterRunEdit.BuildOnly), 0));
+
+        var beside = motor with { Mechanical = motor.Mechanical with
+        {
+            Hinges = [hinge, hinge with { Drive = new(MechanicalValue.Fixed(6f), MechanicalValue.FromParameter("torque")) }]
+        } };
+        Assert.Equal([RunControlLane.RevoluteDriveTarget], Bundle.RunControlBindings.Lanes(beside, "speed"));
+        Assert.True(RunEditRefused(beside, 0));
+        Assert.False(RunEditRefused(RunEdit(beside, "speed", ParameterRunEdit.BuildOnly), 0));
+    }
+
+    // Recorded rename (engine-revolute-drive-target): formerly ARunControlIsDeclaredOnlyOnASourceStoreEnableAndAChoiceIsNeverClamped. A
+    // second lane exists, so the rule is "only on a parameter bound to a lane"; the assertions are unchanged.
+    [Fact]
+    public void ARunControlIsDeclaredOnlyOnABoundParameterAndAChoiceIsNeverClamped()
     {
         Assert.Empty(CheckSource(StoreParameters, Store));
         // The enable state may also be build-only: the package then offers no run-time control.
@@ -509,7 +549,7 @@ public sealed class BundleValidatorTests
         Assert.NotEmpty(CheckSource(Replace("enabled", p => p with { RunEdit = (ParameterRunEdit)7 }), Store));
         Assert.Contains(CheckSource(Replace("enabled", p => p with { EditorPolicy = ParameterEditorPolicy.Clamp }), Store),
             error => error.Detail.Contains("Metadata.Parameters[3].EditorPolicy", StringComparison.Ordinal));
-        // Off a Source: no parameter may be run-editable.
+        // A parameter bound to no lane (here a Choice on a part without a store or drive) may not be run-editable.
         Assert.NotEmpty(Errors(("Fixture", new Fixture { Parameters =
             [new("participation", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"], RunEdit: ParameterRunEdit.RunControl)] })));
         Assert.NotEmpty(Errors(("Fixture", new Fixture { Parameters =

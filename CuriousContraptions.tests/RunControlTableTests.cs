@@ -180,6 +180,204 @@ public sealed class RunControlTableTests
         Assert.Equal(RunControlValue.Of(control), (await harness.Advance(1))[0].RunControl(Source, RunControlLane.SourceEnable));
     }
 
+    // ---- the RevoluteDriveTarget lane (engine-revolute-drive-target) ---------------------------------------------------------------
+
+    private static readonly GpuBodyId LockedMotor = new(11), Supply = new(12), Motor = new(13);
+
+    private static WorkshopGenericInstance MotorAt(GpuBodyId id, float x, float speed) =>
+        WorkshopInput.Generic(new PartId("motor"), id, x, 4, 0, 0, 0, 0, 1, new([new(new("speed"), speed), new(new("torque"), 20f)]));
+
+    /// <summary>A locked Motor at speed 4, a Battery and an unlocked Motor at speed 6 that the Battery supplies. The locked Motor is placed
+    /// first, so its hinge is the lower identity and the unlocked Motor's drive is not the first of the drive table.</summary>
+    private static WorkshopConstruction DriveBench(ElectricalEnable enabled = ElectricalEnable.Enabled) => new(new(2), WorkshopCadenceSettings.Default(), new(
+            MotorAt(LockedMotor, -4, 4f) with { Locked = true },
+            PlacedParts.Battery(Supply, 3, 4, 0, enabled: enabled),
+            MotorAt(Motor, 0, 6f)),
+        Connections: new(new WorkshopConnection(Supply, WorkshopSocket.Supply, Motor, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+
+    private static WorkshopCompiledScene DriveScene() => WorkshopSceneCompiler.Compile(DriveBench(), new(101, 206), new(7));
+
+    /// <summary>The position in the compiled drive table of the drive on the hinge <paramref name="owner"/> carries.</summary>
+    private static int DriveIndex(PhysicsSceneDeclaration physics, GpuBodyId owner)
+    {
+        var revolutes = physics.Revolutes.ToArray();
+        return Array.FindIndex(physics.RevoluteDrives.ToArray(), drive => revolutes.Single(joint => joint.Id == drive.Joint).BodyA == owner);
+    }
+
+    private static float Target(WorkshopRead read, GpuBodyId owner) => read.RunControl(owner, RunControlLane.RevoluteDriveTarget).Scalar;
+
+    // Run compiles a RevoluteDriveTarget row for the unlocked Motor's speed with the declared parameter's bounds [0, 20] rad/s, at the
+    // index of its drive in the compiled drive table (here the second: the locked Motor's hinge is the lower identity). The locked Motor
+    // compiles its drive but no row; the Battery's SourceEnable row carries zero bounds.
+    [Fact]
+    public void RunCompilesADriveTargetRowWithItsParameterBoundsAtItsDriveIndex()
+    {
+        var scene = DriveScene();
+        Assert.Equal(2, scene.Physics.RevoluteDrives.Length);
+        var drive = Assert.Single(scene.RunControls, row => row.Lane == RunControlLane.RevoluteDriveTarget);
+        Assert.Equal((Motor, 0f, 20f), (drive.Owner, drive.Minimum, drive.Maximum));
+        Assert.Equal(1, DriveIndex(scene.Physics, Motor));
+        Assert.Equal(DriveIndex(scene.Physics, Motor), drive.LaneIndex);
+        var enable = Assert.Single(scene.RunControls, row => row.Lane == RunControlLane.SourceEnable);
+        Assert.Equal((Supply, 0f, 0f), (enable.Owner, enable.Minimum, enable.Maximum));
+        Assert.DoesNotContain(scene.RunControls, row => row.Owner == LockedMotor);
+    }
+
+    // A compiled RevoluteDriveTarget row resolves only to a drive its owner's hinge carries, and carries finite ordered bounds within the
+    // ±128 rad/s angular envelope; an Enable row carries zero bounds. Each refused row has an admitted neighbour: the envelope limits
+    // themselves, a single-value range, and the locked Motor's own slot under its own owner.
+    [Fact]
+    public void TheCompiledTableRefusesDriveTargetRowsWithInvalidBoundsOrSlots()
+    {
+        var scene = DriveScene();
+        var drive = Assert.Single(scene.RunControls, row => row.Lane == RunControlLane.RevoluteDriveTarget);
+        var enable = Assert.Single(scene.RunControls, row => row.Lane == RunControlLane.SourceEnable);
+        var locked = DriveIndex(scene.Physics, LockedMotor);
+        WorkshopCompiledScene With(params RunControlRow[] rows) => new(scene.Identity, scene.Revision, scene.Settings, scene.Physics,
+            scene.Activation, scene.Presentation, scene.Owners, rows);
+        foreach (var admitted in new[]
+        {
+            drive with { Minimum = -AngularVelocity.MaximumSpeed, Maximum = AngularVelocity.MaximumSpeed },
+            drive with { Minimum = 5f, Maximum = 5f },
+            drive with { Owner = LockedMotor, LaneIndex = locked },
+        })
+            Assert.Equal([enable, admitted], With(enable, admitted).RunControls);
+        foreach (var refused in new[]
+        {
+            enable with { Maximum = 1f },
+            enable with { Minimum = -1f },
+            drive with { Minimum = float.NaN },
+            drive with { Maximum = float.PositiveInfinity },
+            drive with { Minimum = 3f, Maximum = 2f },
+            drive with { Maximum = MathF.BitIncrement(AngularVelocity.MaximumSpeed) },
+            drive with { Minimum = MathF.BitDecrement(-AngularVelocity.MaximumSpeed) },
+            drive with { LaneIndex = locked },
+            drive with { LaneIndex = 2 },
+            drive with { LaneIndex = -1 },
+            drive with { Owner = Supply },
+        })
+            Assert.Throws<ArgumentException>(() => With(enable, refused));
+    }
+
+    // The bounded rows cross the compiled-scene codec unchanged, every field of each; the committed drive read crosses the response
+    // wire with each owner and its committed target, in drive-table order (the shared harness decodes every read it serves). A drive
+    // read row naming no owner or carrying a non-finite or over-envelope target is refused at construction, which is the decoder's.
+    [Fact]
+    public async Task TheBoundedRowsAndTheCommittedDriveReadRoundTripEveryField()
+    {
+        var compiled = DriveScene();
+        Assert.Equal(compiled.RunControls,
+            WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(Construct(compiled))).Scene!.RunControls);
+
+        await using var harness = await WorkshopIntegrationHarness.Running(DriveBench());
+        var read = harness.Committed;
+        var physics = harness.Simulation.Scene.Physics;
+        Assert.Equal(2, read.DriveTargets.Count);
+        Assert.Equal((LockedMotor, 4f), (read.DriveTargets[DriveIndex(physics, LockedMotor)].Owner, read.DriveTargets[DriveIndex(physics, LockedMotor)].TargetSpeed));
+        Assert.Equal((Motor, 6f), (read.DriveTargets[DriveIndex(physics, Motor)].Owner, read.DriveTargets[DriveIndex(physics, Motor)].TargetSpeed));
+        Assert.Equal(4f, Target(read, LockedMotor));
+        foreach (var invalid in new RevoluteDriveTargetRead[] { new(default, 1f), new(Motor, float.NaN), new(Motor, MathF.BitIncrement(AngularVelocity.MaximumSpeed)) })
+            Assert.Throws<ArgumentException>(() => new PhysicsDriveTargetRead([invalid]));
+    }
+
+    // The speed control admits its declared bounds inclusively (0 and 20 rad/s, each committed by the next step) and refuses a value one
+    // step beyond either, and −1 and 20.001, with RunControlOutOfRange: nothing is held and the committed target is unchanged. An Enable
+    // value on the speed row is refused as a kind mismatch. The worker never clamps.
+    [Fact]
+    public async Task ASpeedAtItsBoundsIsAppliedAndOneBeyondIsRefusedOutOfRangeChangingNothing()
+    {
+        await using var harness = await WorkshopIntegrationHarness.Running(DriveBench());
+        var row = Assert.Single(harness.Simulation.Scene.RunControls, row => row.Lane == RunControlLane.RevoluteDriveTarget);
+        foreach (var (value, reason) in new (RunControlValue, WorkshopRejection)[]
+        {
+            (RunControlValue.Of(-1f), WorkshopRejection.RunControlOutOfRange),
+            (RunControlValue.Of(MathF.BitDecrement(0f)), WorkshopRejection.RunControlOutOfRange),
+            (RunControlValue.Of(MathF.BitIncrement(20f)), WorkshopRejection.RunControlOutOfRange),
+            (RunControlValue.Of(20.001f), WorkshopRejection.RunControlOutOfRange),
+            (RunControlValue.Of(ElectricalEnable.Enabled), WorkshopRejection.RunControlKindMismatch),
+        })
+        {
+            var refused = (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: new(Motor, row.Id, value))).Result;
+            Assert.Equal((WorkshopCommandOutcome.Rejected, reason), (refused.Outcome, refused.Reason));
+            Assert.Null(harness.Simulation.HeldRunControl(row.Id));
+        }
+        Assert.Equal(6f, Target((await harness.Advance(1))[0], Motor));
+        foreach (var bound in new[] { 0f, 20f })
+        {
+            await harness.Require(WorkshopCommandKind.ConfigureRunControl, runControl: new(Motor, row.Id, RunControlValue.Of(bound)));
+            Assert.Equal(bound, Target((await harness.Advance(1))[0], Motor));
+        }
+    }
+
+    // Two lanes controlled before one step apply on the same committed step: the Battery's enable and the Motor's speed. At the default
+    // 120 Hz cadence every tick crosses an electrical phase, so the enable applies on that step too. A later control on the speed alone
+    // leaves the enable as committed.
+    [Fact]
+    public async Task ControlsOnTwoLanesApplyOnTheSameCommittedStepAndALaterOneLeavesTheOtherLane()
+    {
+        await using var harness = await WorkshopIntegrationHarness.Running(DriveBench(ElectricalEnable.Disabled));
+        Assert.Equal(SimulationCadence.Hz120, harness.Simulation.Scene.Settings.Simulation);
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+            runControl: harness.RunControl(Supply, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)));
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+            runControl: harness.RunControl(Motor, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(12f)));
+        Assert.Equal((ElectricalEnable.Disabled, 6f), (Enable(harness.Committed, Supply), Target(harness.Committed, Motor)));
+
+        var both = (await harness.Advance(1))[0];
+        Assert.Equal((ElectricalEnable.Enabled, 12f), (Enable(both, Supply), Target(both, Motor)));
+
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+            runControl: harness.RunControl(Motor, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(8f)));
+        var later = (await harness.Advance(1))[0];
+        Assert.Equal((ElectricalEnable.Enabled, 8f, 4f), (Enable(later, Supply), Target(later, Motor), Target(later, LockedMotor)));
+    }
+
+    // No electrical phase gates a drive target. At 240 Hz a tick is two 480 Hz substeps and an electrical phase falls every fourth
+    // substep, so the second tick after Run crosses none. Controls sent before it: the speed is committed on that tick, while the enable
+    // waits for the third tick, the next phase.
+    [Fact]
+    public async Task ADriveTargetAppliesOnATickWithoutAnElectricalPhase()
+    {
+        var bench = DriveBench(ElectricalEnable.Disabled);
+        await using var harness = await WorkshopIntegrationHarness.Running(bench with { Settings = bench.Settings with { Simulation = SimulationCadence.Hz240 } });
+        await harness.Advance(1);
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+            runControl: harness.RunControl(Supply, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)));
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+            runControl: harness.RunControl(Motor, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(12f)));
+        var noPhase = (await harness.Advance(1))[0];
+        Assert.Equal((ElectricalEnable.Disabled, 12f), (Enable(noPhase, Supply), Target(noPhase, Motor)));
+        var phase = (await harness.Advance(1))[0];
+        Assert.Equal((ElectricalEnable.Enabled, 12f), (Enable(phase, Supply), Target(phase, Motor)));
+    }
+
+    // The engine maps each driven revolute to its drive by rank among the driven ones, never by revolute index. An undriven Impact
+    // Lever hinge sorts first, so the supplied Motor's drive index (0) differs from its revolute index (1); a second, unsupplied Motor
+    // follows. Setting the first Motor to 12 commits 12 on its own drive only, the second keeps its 6, and the first Motor's shaft
+    // reaches 12 within 2 % (MotorTests.SpeedAllowance) once its ramp has passed.
+    [Fact]
+    public async Task TheEngineMapsEachDriveTargetByDriveRankPastAnUndrivenHinge()
+    {
+        GpuBodyId lever = new(21), first = new(22), source = new(23), second = new(24);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
+                WorkshopInput.Generic(new PartId("impact_lever"), lever, -8, 4, 0, 0, 0, 0, 1),
+                MotorAt(first, 0, 6f), PlacedParts.Battery(source, 3, 4, 0), MotorAt(second, 8, 6f)),
+            Connections: new(new WorkshopConnection(source, WorkshopSocket.Supply, first, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+        var physics = harness.Simulation.Scene.Physics;
+        var revolutes = physics.Revolutes.ToArray();
+        Assert.Equal((3, 2), (revolutes.Length, physics.RevoluteDrives.Length));
+        Assert.Equal(lever, revolutes[0].BodyA);
+        Assert.Equal((first, 0), (revolutes[1].BodyA, DriveIndex(physics, first)));
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+            runControl: harness.RunControl(first, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(12f)));
+        var reads = await harness.Advance(30);
+        Assert.All(reads, read => Assert.Equal((12f, 6f), (Target(read, first), Target(read, second))));
+        var rotor = construction.Instances.Identities[first].Hinges[0].Body;
+        Assert.True(reads[^1].Bodies.TryGet(rotor, out var body));
+        Assert.True(MathF.Abs(body.AngularVelocity.Z - 12f) <= .02f * 12f, $"The first Motor's shaft spins at {body.AngularVelocity.Z} rad/s");
+    }
+
     private static WorkshopCommand Configure(CommandSequence sequence, WorkshopRunControl control) =>
         new(sequence, WorkshopCommandKind.ConfigureRunControl, new(1), default, null, RevisionKind: ExpectedRevisionKind.Any,
             Session: Session, Cadence: new(1), Projection: new(1), RunControl: control);

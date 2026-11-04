@@ -95,7 +95,16 @@ public sealed class RevoluteDriveTests
         /// <summary>Advances one committed tick with the given source enables (one per declared source, in source order).</summary>
         public async Task Advance(ElectricalEnable[] enables)
         {
-            var candidate = await _device.Advance(_read, new(++_sequence), new WorkshopTickControls(enables));
+            var candidate = await _device.Advance(_read, new(++_sequence),
+                new WorkshopTickControls(enables) { DriveTarget = WorkshopTickControls.For(_read, []).DriveTarget });
+            _device.Commit(candidate.Sequence); _device.Discard(candidate.Sequence);
+            _read = candidate.Read;
+        }
+
+        /// <summary>Advances and commits one tick with exactly <paramref name="controls"/>: a boundary or refusal case's raw controls.</summary>
+        public async Task AdvanceWith(WorkshopTickControls controls)
+        {
+            var candidate = await _device.Advance(_read, new(++_sequence), controls);
             _device.Commit(candidate.Sequence); _device.Discard(candidate.Sequence);
             _read = candidate.Read;
         }
@@ -741,6 +750,111 @@ public sealed class RevoluteDriveTests
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadRevolute(poisoned, 0));
     }
 
+    public enum CandidateEdit { CommittedTarget, DriveKind, MaxTorque, FrictionTorque, TargetBeyondEnvelope, NonFiniteTarget }
+
+    // engine-revolute-drive-target: the drive target (byte 104) is committed state, so the candidate lock covers every other
+    // declaration byte. A candidate may commit a new finite target within the ±128 rad/s envelope; a changed drive kind, maximum torque
+    // or friction torque is refused as a changed declaration, and a target beyond the envelope or not finite by the record rule.
+    [Theory]
+    [InlineData(CandidateEdit.CommittedTarget)]
+    [InlineData(CandidateEdit.DriveKind)]
+    [InlineData(CandidateEdit.MaxTorque)]
+    [InlineData(CandidateEdit.FrictionTorque)]
+    [InlineData(CandidateEdit.TargetBeyondEnvelope)]
+    [InlineData(CandidateEdit.NonFiniteTarget)]
+    public void TheCandidateLockCoversEveryDeclarationByteButTheCommittedTarget(CandidateEdit edit)
+    {
+        var (scene, _) = Rotor();
+        var source = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        var offset = scene.Layout.GetRevoluteOffset(scene.Revolutes[0].Id.Value);
+        var candidate = (byte[])source.Clone();
+        var record = candidate.AsSpan(offset, PhysicsGpuAbi.RevoluteBytes);
+        switch (edit)
+        {
+            case CandidateEdit.CommittedTarget: BinaryPrimitives.WriteSingleLittleEndian(record[PhysicsGpuAbi.RevoluteDriveTargetSpeedOffset..], -AngularVelocity.MaximumSpeed); break;
+            case CandidateEdit.DriveKind: BinaryPrimitives.WriteUInt32LittleEndian(record[PhysicsGpuAbi.RevoluteDriveKindOffset..], (uint)RevoluteDriveKind.None);
+                record.Slice(PhysicsGpuAbi.RevoluteDriveTargetSpeedOffset, PhysicsGpuAbi.RevoluteDriveBytes).Clear(); break;
+            case CandidateEdit.MaxTorque: BinaryPrimitives.WriteSingleLittleEndian(record[PhysicsGpuAbi.RevoluteDriveMaxTorqueOffset..], MaxTorque * 2f); break;
+            case CandidateEdit.FrictionTorque: BinaryPrimitives.WriteSingleLittleEndian(record[PhysicsGpuAbi.RevoluteFrictionTorqueOffset..], .5f); break;
+            case CandidateEdit.TargetBeyondEnvelope: BinaryPrimitives.WriteSingleLittleEndian(record[PhysicsGpuAbi.RevoluteDriveTargetSpeedOffset..], MathF.BitIncrement(AngularVelocity.MaximumSpeed)); break;
+            case CandidateEdit.NonFiniteTarget: BinaryPrimitives.WriteSingleLittleEndian(record[PhysicsGpuAbi.RevoluteDriveTargetSpeedOffset..], float.PositiveInfinity); break;
+            default: throw new ArgumentOutOfRangeException(nameof(edit));
+        }
+        void Validate() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
+        if (edit == CandidateEdit.CommittedTarget)
+        {
+            Validate();
+            Assert.Equal(-AngularVelocity.MaximumSpeed, PhysicsGpuAbi.ReadRevoluteDrive(candidate, 0)!.Value.TargetSpeed);
+        }
+        else Assert.Throws<ArgumentException>(Validate);
+    }
+
+    // The committed drive-target read has one row per driven hinge, in drive-table order: the hinge's base body as owner and its
+    // committed target, the admitted declaration's at admission. An undriven hinge has no row.
+    [Fact]
+    public void TheDriveTargetReadCarriesEachDrivenHingesOwnerAndCommittedTarget()
+    {
+        var (scene, _) = Rotor(targetSpeed: -3.5f);
+        var admitted = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        var read = PhysicsGpuAbi.ReadDriveTargets(admitted);
+        Assert.Equal((1, new RevoluteDriveTargetRead(scene.Revolutes[0].BodyA, -3.5f)), (read.Count, read[0]));
+
+        var (undriven, _, _, _) = Hinged();
+        Assert.Equal(0, PhysicsGpuAbi.ReadDriveTargets(undriven.Admit().Admitted).Count);
+    }
+
+    public enum TargetDefect { Missing, Extra, NaN, PositiveInfinity, NegativeInfinity, BeyondEnvelope, BelowEnvelope }
+
+    // Every tick input names exactly one finite target within the ±128 rad/s envelope per compiled drive. A missing or extra target, NaN,
+    // ±∞ and a value one step beyond either envelope bound are refused with an ArgumentException at the engine's Advance and at the
+    // device's Advance. At the device nothing is committed: the committed target is still the declared one, and the scene then advances
+    // with its declared target. Boundary controls: exactly ±128 rad/s advance at both the engine and the device, and the device commits
+    // each.
+    [Theory]
+    [InlineData(TargetDefect.Missing)]
+    [InlineData(TargetDefect.Extra)]
+    [InlineData(TargetDefect.NaN)]
+    [InlineData(TargetDefect.PositiveInfinity)]
+    [InlineData(TargetDefect.NegativeInfinity)]
+    [InlineData(TargetDefect.BeyondEnvelope)]
+    [InlineData(TargetDefect.BelowEnvelope)]
+    public async Task TickInputsWithoutOneAdmittedTargetPerDriveAreRefusedAtTheEngineAndTheDevice(TargetDefect defect)
+    {
+        float[] targets = defect switch
+        {
+            TargetDefect.Missing => [],
+            TargetDefect.Extra => [TargetSpeed, TargetSpeed],
+            TargetDefect.NaN => [float.NaN],
+            TargetDefect.PositiveInfinity => [float.PositiveInfinity],
+            TargetDefect.NegativeInfinity => [float.NegativeInfinity],
+            TargetDefect.BeyondEnvelope => [MathF.BitIncrement(AngularVelocity.MaximumSpeed)],
+            TargetDefect.BelowEnvelope => [MathF.BitDecrement(-AngularVelocity.MaximumSpeed)],
+            _ => throw new ArgumentOutOfRangeException(nameof(defect))
+        };
+        var (scene, _) = Rotor();
+        var admitted = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        var engine = new WorkshopPhysicsEngine();
+        engine.Reset();
+        PhysicsInteractionSnapshot Step(float[] values) => engine.Advance(admitted, new byte[admitted.Length],
+            new PhysicsTickInputs([ElectricalEnable.Enabled], [true]) { DriveTarget = values }, PhysicsInteractionSnapshot.Empty);
+        Assert.Throws<ArgumentException>(() => Step(targets));
+        _ = Step([TargetSpeed]);
+        _ = Step([AngularVelocity.MaximumSpeed]);
+        _ = Step([-AngularVelocity.MaximumSpeed]);
+
+        await using var rig = await Rig.Admit(scene);
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            rig.AdvanceWith(new WorkshopTickControls([ElectricalEnable.Enabled]) { DriveTarget = targets }));
+        Assert.Equal(TargetSpeed, PhysicsGpuAbi.ReadDriveTargets(rig.World)[0].TargetSpeed);
+        await rig.Advance([ElectricalEnable.Enabled]);
+        Assert.Equal(TargetSpeed, PhysicsGpuAbi.ReadDriveTargets(rig.World)[0].TargetSpeed);
+        foreach (var bound in new[] { AngularVelocity.MaximumSpeed, -AngularVelocity.MaximumSpeed })
+        {
+            await rig.AdvanceWith(new WorkshopTickControls([ElectricalEnable.Enabled]) { DriveTarget = [bound] });
+            Assert.Equal(bound, PhysicsGpuAbi.ReadDriveTargets(rig.World)[0].TargetSpeed);
+        }
+    }
+
     public enum StateDefect
     {
         SuppliedFlagTwo, DriveBeyondItsBound, DriveWhileUnsupplied, WorkDecreased, WorkNegative, WorkNaN, TravelNaN, TravelInfinite,
@@ -827,7 +941,8 @@ public sealed class RevoluteDriveTests
         {
             var engine = new WorkshopPhysicsEngine();
             engine.Reset();
-            return engine.Advance(world.Admitted, new byte[world.Admitted.Length], new PhysicsTickInputs([], [closed]), PhysicsInteractionSnapshot.Empty);
+            return engine.Advance(world.Admitted, new byte[world.Admitted.Length],
+                new PhysicsTickInputs([], [closed]) { DriveTarget = PhysicsGpuAbi.ReadDriveTargets(world.Admitted).TargetSpeeds() }, PhysicsInteractionSnapshot.Empty);
         }
 
         _ = Advance(false);

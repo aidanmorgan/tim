@@ -33,11 +33,16 @@ public static class WorkshopSceneCompiler
             var owner = (WorkshopGenericInstance)instance;
             var capacity = DeclaredPhysics.SourceStore(owner.PartId) is { } store
                 ? owner.Parameters[new ParameterId(store.Capacity)] : 0;
-            // Each declared run-time control of an unlocked part compiles one row; a locked part offers none.
+            // Each declared run-time control of an unlocked part compiles one row; a locked part offers none. A scalar lane's row carries
+            // its declared parameter's bounds; an enable lane's carries none.
             if (!owner.Locked)
                 foreach (var control in DeclaredPhysics.RunControls(owner.PartId))
+                {
+                    var declared = DeclaredPhysics.Of(owner.PartId).Metadata.Parameters.Single(parameter => parameter.Key == control.Parameter.Value);
+                    var scalar = RunControlLanes.ValueKind(control.Lane) == RunControlValueKind.Scalar;
                     runControls.Add(new(new RunControlId(checked((ulong)runControls.Count + 1)), owner.Id, control.Lane,
-                        RunControlLanes.Slot(physics, control.Lane, owner.Id)));
+                        RunControlLanes.Slot(physics, control.Lane, owner.Id), scalar ? declared.Minimum : 0f, scalar ? declared.Maximum : 0f));
+                }
             for (var i = 0; i < bindings.Count; i++)
                 tracks.Add(new(new AnimationTargetId(WorkshopDeclaredPresentation.TargetBase + (ulong)tracks.Count),
                     owner.Id, i, CompileBinding(bindings[i]), node, capacity));

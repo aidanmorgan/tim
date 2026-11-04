@@ -1897,7 +1897,8 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         engine.Reset();
         var source = (byte[])world.Admitted.Clone();
-        return (source, new byte[source.Length], new PhysicsTickInputs([], new bool[world.Scene.SupplyGraph.DriveSlots]));
+        return (source, new byte[source.Length],
+            new PhysicsTickInputs([], new bool[world.Scene.SupplyGraph.DriveSlots]) { DriveTarget = PhysicsGpuAbi.ReadDriveTargets(source).TargetSpeeds() });
     }
 
     private static List<byte[]> Run(WorkshopPhysicsEngine engine, LawWorld world, int ticks)

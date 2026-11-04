@@ -40,9 +40,10 @@ public enum ParameterEditorPolicy : byte { Reject, Clamp }
 public enum ParameterRunEdit : byte { BuildOnly, RunControl }
 
 /// <summary>The engine lane a RunControl parameter drives while Running or Paused (closed set; 0 is undefined). A RunControl parameter
-/// binds exactly one lane, resolved from its package's declared capabilities: today a Source store's enable state is the SourceEnable
-/// lane. The compiled run-control table names each row's lane.</summary>
-public enum RunControlLane : byte { SourceEnable = 1 }
+/// binds exactly one lane, resolved from its package's declared capabilities: a Source store's enable state is the SourceEnable lane,
+/// and a hinge drive's target speed is the RevoluteDriveTarget lane (its part declares exactly one driven hinge). The compiled
+/// run-control table names each row's lane.</summary>
+public enum RunControlLane : byte { SourceEnable = 1, RevoluteDriveTarget = 2 }
 
 public readonly record struct ParameterDescriptor(
     string Key,

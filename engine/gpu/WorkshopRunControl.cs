@@ -42,9 +42,11 @@ public readonly record struct RunControlValue
     };
 }
 
-/// <summary>One compiled run-control row: a declared RunControl parameter of one unlocked instance and the lane slot it drives. A
-/// SourceEnable row's lane index is its owner's source in compiled source order.</summary>
-public readonly record struct RunControlRow(RunControlId Id, GpuBodyId Owner, RunControlLane Lane, int LaneIndex);
+/// <summary>One compiled run-control row: a declared RunControl parameter of one unlocked instance, the lane slot it drives and the
+/// parameter's declared bounds. A SourceEnable row's lane index is its owner's source in compiled source order, and its bounds are zero;
+/// a RevoluteDriveTarget row's lane index is its owner's drive in the compiled drive table, and a scalar outside its bounds is refused.</summary>
+public readonly record struct RunControlRow(RunControlId Id, GpuBodyId Owner, RunControlLane Lane, int LaneIndex, float Minimum,
+    float Maximum);
 
 /// <summary>Explicit player input: one declared parameter edited during Run. The next committed step applies the value to the row's
 /// lane; the control never edits the authored construction, so Reset and a save keep the authored value.</summary>
@@ -61,6 +63,7 @@ public static class RunControlLanes
     public static RunControlValueKind ValueKind(RunControlLane lane) => lane switch
     {
         RunControlLane.SourceEnable => RunControlValueKind.Enable,
+        RunControlLane.RevoluteDriveTarget => RunControlValueKind.Scalar,
         _ => throw new ArgumentOutOfRangeException(nameof(lane), lane, "Undefined run-control lane.")
     };
 
@@ -72,8 +75,33 @@ public static class RunControlLanes
         {
             RunControlLane.SourceEnable => row.LaneIndex >= 0 && row.LaneIndex < physics.Electrical.Sources.Length &&
                 physics.Electrical.Sources[row.LaneIndex].Owner == row.Owner,
+            RunControlLane.RevoluteDriveTarget => row.LaneIndex >= 0 && row.LaneIndex < physics.RevoluteDrives.Length &&
+                DriveOwner(physics, row.LaneIndex) == row.Owner,
             _ => false
         };
+    }
+
+    /// <summary>Whether a row's declared bounds are its lane's: zero on an Enable lane, finite and ordered within the angular speed
+    /// envelope on a RevoluteDriveTarget lane.</summary>
+    public static bool BoundsAdmitted(RunControlRow row) => row.Lane switch
+    {
+        RunControlLane.SourceEnable => row.Minimum == 0f && row.Maximum == 0f,
+        RunControlLane.RevoluteDriveTarget => float.IsFinite(row.Minimum) && float.IsFinite(row.Maximum) && row.Minimum <= row.Maximum &&
+            row.Minimum >= -AngularVelocity.MaximumSpeed && row.Maximum <= AngularVelocity.MaximumSpeed,
+        _ => false
+    };
+
+    /// <summary>Whether <paramref name="value"/> lies within the row's declared bounds; an enable has none.</summary>
+    public static bool WithinBounds(RunControlRow row, RunControlValue value) =>
+        value.Kind != RunControlValueKind.Scalar || (value.Scalar >= row.Minimum && value.Scalar <= row.Maximum);
+
+    /// <summary>The owner of drive <paramref name="index"/> in the compiled drive table: the base body of the hinge it drives.</summary>
+    private static GpuBodyId DriveOwner(PhysicsSceneDeclaration physics, int index)
+    {
+        var joint = physics.RevoluteDrives[index].Joint;
+        foreach (var revolute in physics.Revolutes)
+            if (revolute.Id == joint) return revolute.BodyA;
+        throw new ArgumentException("A compiled drive names no admitted revolute.");
     }
 
     /// <summary>The lane slot through which <paramref name="owner"/> is driven on <paramref name="lane"/> in the installed physics.</summary>
@@ -83,6 +111,9 @@ public static class RunControlLanes
         if (lane == RunControlLane.SourceEnable)
             for (var i = 0; i < physics.Electrical.Sources.Length; i++)
                 if (physics.Electrical.Sources[i].Owner == owner) return i;
+        if (lane == RunControlLane.RevoluteDriveTarget)
+            for (var i = 0; i < physics.RevoluteDrives.Length; i++)
+                if (DriveOwner(physics, i) == owner) return i;
         throw new ArgumentException("The owner has no slot on this run-control lane.");
     }
 
@@ -93,6 +124,9 @@ public static class RunControlLanes
         if (lane == RunControlLane.SourceEnable)
             for (var i = 0; i < read.Electrical.Count; i++)
                 if (read.Electrical[i].Owner == owner) return RunControlValue.Of(read.Electrical[i].Enabled);
+        if (lane == RunControlLane.RevoluteDriveTarget)
+            for (var i = 0; i < read.DriveTargets.Count; i++)
+                if (read.DriveTargets[i].Owner == owner) return RunControlValue.Of(read.DriveTargets[i].TargetSpeed);
         throw new ArgumentException("The committed read carries no slot for this owner on this run-control lane.");
     }
 

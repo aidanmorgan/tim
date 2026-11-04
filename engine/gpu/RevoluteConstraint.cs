@@ -53,3 +53,48 @@ public readonly record struct RevoluteDriveDeclaration(RevoluteConstraintId Join
 /// <summary>One revolute's committed drive state: whether its supply route was closed for the committed tick, its signed travel (rad)
 /// and its positive drive work (J), each zero at admission (Run and Reset).</summary>
 public readonly record struct RevoluteStateRead(bool Supplied, float Travel, float Work);
+
+/// <summary>One driven revolute's committed drive target (engine-revolute-drive-target): the base body of its hinge, which owns the
+/// drive, and the target speed (rad/s) the next step drives toward. Admission commits the declared target; a RevoluteDriveTarget run
+/// control changes it from the next committed step.</summary>
+public readonly record struct RevoluteDriveTargetRead(GpuBodyId Owner, float TargetSpeed)
+{
+    public void Validate()
+    {
+        if (Owner.Value == 0 || !float.IsFinite(TargetSpeed) || MathF.Abs(TargetSpeed) > AngularVelocity.MaximumSpeed)
+            throw new ArgumentException("Invalid committed drive target.");
+    }
+}
+
+/// <summary>Every driven revolute's committed target, in compiled drive-table order (sorted by joint identity). Exactly the compiled
+/// drive population; each row is validated at construction, which is also the response decoder's.</summary>
+public readonly struct PhysicsDriveTargetRead
+{
+    private readonly RevoluteDriveTargetRead[]? _values;
+    public int Count => _values?.Length ?? 0;
+    public RevoluteDriveTargetRead this[int index] => index >= 0 && index < Count ? _values![index] :
+        throw new ArgumentOutOfRangeException(nameof(index));
+
+    public PhysicsDriveTargetRead(ReadOnlySpan<RevoluteDriveTargetRead> values)
+    {
+        var copy = values.ToArray();
+        foreach (var value in copy) value.Validate();
+        _values = copy;
+    }
+
+    /// <summary>Each row's committed target speed, in drive-table order: the tick input that keeps every target as committed.</summary>
+    public float[] TargetSpeeds()
+    {
+        var speeds = new float[Count];
+        for (var i = 0; i < speeds.Length; i++) speeds[i] = _values![i].TargetSpeed;
+        return speeds;
+    }
+
+    public bool HasSameBits(PhysicsDriveTargetRead other)
+    {
+        if (Count != other.Count) return false;
+        for (var i = 0; i < Count; i++)
+            if (this[i].Owner != other[i].Owner || !F32Bits.Equal(this[i].TargetSpeed, other[i].TargetSpeed)) return false;
+        return true;
+    }
+}

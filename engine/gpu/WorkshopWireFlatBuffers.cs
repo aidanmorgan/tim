@@ -42,7 +42,7 @@ public static partial class WorkshopWireFlatBuffers
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
-        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 30, _ => 0 };
+        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 31, _ => 0 };
         if (fieldCount != 0)
         {
             var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
@@ -297,6 +297,15 @@ public static partial class WorkshopWireFlatBuffers
             }
             electricalOffset = builder.EndVector();
         }
+        // engine-revolute-drive-target: every driven revolute's committed target, in compiled drive-table order.
+        VectorOffset? driveTargetOffset = null;
+        if (read.DriveTargets.Count > 0)
+        {
+            Wire.WorkshopResponse.StartDriveTargetsVector(builder, read.DriveTargets.Count);
+            for (var i = read.DriveTargets.Count - 1; i >= 0; i--)
+                RevoluteDriveTargetRecord.CreateRevoluteDriveTargetRecord(builder, read.DriveTargets[i].Owner.Value, read.DriveTargets[i].TargetSpeed);
+            driveTargetOffset = builder.EndVector();
+        }
 
         VectorOffset? contactWorksOffset = null;
         if (read.ContactWorks.Count > 0)
@@ -412,6 +421,7 @@ public static partial class WorkshopWireFlatBuffers
         if (timersOffset.HasValue) Wire.WorkshopResponse.AddTimers(builder, timersOffset.Value);
         if (contactWorksOffset.HasValue) Wire.WorkshopResponse.AddContactWorks(builder, contactWorksOffset.Value);
         if (electricalOffset.HasValue) Wire.WorkshopResponse.AddElectrical(builder, electricalOffset.Value);
+        if (driveTargetOffset.HasValue) Wire.WorkshopResponse.AddDriveTargets(builder, driveTargetOffset.Value);
         if (memoryOffset.HasValue) Wire.WorkshopResponse.AddActivationMemory(builder, memoryOffset.Value);
         if (motion.HasValue) Wire.WorkshopResponse.AddMotion(builder, motion.Value);
         if (response.Memory is { } observed)
@@ -503,6 +513,12 @@ public static partial class WorkshopWireFlatBuffers
             var e = fb.Electrical(i)!.Value;
             sources[i] = new ElectricalSourceRead(new ElectricalSourceId(e.Id), new GpuBodyId(e.Owner), new Joules(e.Remaining), new Joules(e.Debit), (ElectricalEnable)e.Enabled);
         }
+        var driveTargets = new RevoluteDriveTargetRead[fb.DriveTargetsLength];
+        for (var i = 0; i < driveTargets.Length; i++)
+        {
+            var d = fb.DriveTargets(i)!.Value;
+            driveTargets[i] = new RevoluteDriveTargetRead(new GpuBodyId(d.Owner), d.TargetSpeed);
+        }
 
         var ropeValues = new RopeSpanRead[fb.RopesLength];
         for (var i = 0; i < ropeValues.Length; i++)
@@ -560,7 +576,8 @@ public static partial class WorkshopWireFlatBuffers
 
         var read = new WorkshopRead(epoch, tick, bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores),
-            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, pulleyValues, surfaceValues));
+            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, pulleyValues, surfaceValues),
+            new PhysicsDriveTargetRead(driveTargets));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);
 

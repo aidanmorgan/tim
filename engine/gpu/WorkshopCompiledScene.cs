@@ -63,13 +63,13 @@ public sealed class WorkshopCompiledScene
         var owners = Owners.ToHashSet();
         if (owners.Count != Owners.Length || Owners.Any(owner => owner.Value == 0 || !bodies.Contains(owner)))
             throw new ArgumentException("Compiled scene ownership is invalid.");
-        // Each row resolves: a unique nonzero id, an installed owner, a defined lane, at most one row per lane slot, and a slot that
-        // exists and belongs to the row's owner.
+        // Each row resolves: a unique nonzero id, an installed owner, a defined lane, at most one row per lane slot, a slot that exists
+        // and belongs to the row's owner, and bounds its lane admits (zero on an enable lane).
         var ids = new HashSet<RunControlId>(RunControls.Length);
         var slots = new HashSet<(RunControlLane, int)>(RunControls.Length);
         foreach (var row in RunControls)
             if (row.Id.Value == 0 || !ids.Add(row.Id) || !owners.Contains(row.Owner) || !Enum.IsDefined(row.Lane) ||
-                !slots.Add((row.Lane, row.LaneIndex)) || !RunControlLanes.Resolves(row, Physics))
+                !slots.Add((row.Lane, row.LaneIndex)) || !RunControlLanes.Resolves(row, Physics) || !RunControlLanes.BoundsAdmitted(row))
                 throw new ArgumentException("Compiled run-control table is invalid.");
         if (Activation.Substeps != Settings.PhysicalStepsPerCommit)
             throw new ArgumentException("Compiled activation cadence differs from physics.");

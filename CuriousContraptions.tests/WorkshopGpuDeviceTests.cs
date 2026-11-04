@@ -313,7 +313,7 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(0U, network.Memory(admitted.Read.Memory, counter.Id).Count);
         device.Commit(admitted.Sequence); device.Discard(admitted.Sequence);
 
-        var controls = WorkshopTickControls.For(admitted.Read.Electrical, []);
+        var controls = WorkshopTickControls.For(admitted.Read, []);
         var committedWorld = (byte[])transport.Record.Clone();
         var superseded = await device.Advance(admitted.Read, new(2), controls);
         Assert.Equal(OscillatorPhase.Running, network.Memory(superseded.Read.Memory, clock.Id).Phase);

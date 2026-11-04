@@ -54,7 +54,8 @@ enum ElectricalEnable : uint8 {
 
 // The engine lane a compiled run-control row drives (closed set; 0 is undefined).
 enum RunControlLane : uint8 {
-    SourceEnable = 1
+    SourceEnable = 1,
+    RevoluteDriveTarget = 2
 }
 
 // Which field of a run-control value carries it (closed set; 0 is undefined). The other field is zero.
@@ -210,12 +211,21 @@ struct RunControlCommandRecord {
     enable: ElectricalEnable;
 }
 
-// One compiled run-control row: a declared RunControl parameter of one unlocked instance and the lane slot it drives.
+// One compiled run-control row: a declared RunControl parameter of one unlocked instance, the lane slot it drives and the declared
+// parameter's bounds (zero on an Enable-kind lane).
 struct RunControlRecord {
     id: uint64;
     owner: uint64;
     lane_index: uint32;
     lane: uint8;
+    minimum: float;
+    maximum: float;
+}
+
+// One driven revolute's committed drive target, in compiled drive-table order: the hinge's base body and its target speed (rad/s).
+struct RevoluteDriveTargetRecord {
+    owner: uint64;
+    target_speed: float;
 }
 
 
@@ -277,6 +287,8 @@ table WorkshopResponse {
     pulley_wheels: [PulleyWheelReadRecord];
     // Story 10.5: every compliant surface's committed bed deflection, ordered by frame.
     compliant_surfaces: [CompliantSurfaceReadRecord];
+    // engine-revolute-drive-target: every driven revolute's committed target speed, in compiled drive-table order.
+    drive_targets: [RevoluteDriveTargetRecord];
 }
 
 table WorkshopCommand {

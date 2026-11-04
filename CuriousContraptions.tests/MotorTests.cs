@@ -79,9 +79,9 @@ public sealed class MotorTests
         construction.Instances.Identities[motor].Hinges[0].Body;
 
     /// <summary>One committed tick: the rotor's linear and angular velocity, its committed orientation, its axial spin about the mount's
-    /// hinge axis, the committed drive state of the scene's one hinge and the supply lamp's colour.</summary>
+    /// hinge axis, the committed drive state of the scene's one hinge, the supply lamp's colour and the Motor's committed target speed.</summary>
     private readonly record struct Tick(int Index, Vector3 Position, Vector3 Velocity, Vector3 Angular, Quaternion Rotation, float Spin,
-        RevoluteStateRead State, Vector3 Lamp)
+        RevoluteStateRead State, Vector3 Lamp, float Target)
     {
         public float Kinetic => .5f * RotorMass * Velocity.LengthSquared() + .5f * RotorInertia * Angular.LengthSquared();
     }
@@ -116,7 +116,7 @@ public sealed class MotorTests
                 Assert.Single(samples, sample => sample.Owner == owner && sample.Binding == binding).Value.CanonicalBits);
             return new((int)read.Tick.Value, position, new(body.Body.Velocity.X, body.Body.Velocity.Y, body.Body.Velocity.Z), angular,
                 new(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W), Vector3.Dot(angular, axis), state,
-                new(Channel(0), Channel(1), Channel(2)));
+                new(Channel(0), Channel(1), Channel(2)), read.RunControl(owner, RunControlLane.RevoluteDriveTarget).Scalar);
         }
 
         /// <summary>Advances the presentation clock past the committed tick (a later frame of the animation worker).</summary>
@@ -379,6 +379,113 @@ public sealed class MotorTests
         // The power bound τ_d·|ω_t|·t counts from Run, not from the enable, so only the no-creation side is checked here.
         Assert.All(driven, tick => Assert.True(tick.Kinetic <= tick.State.Work + EnergySlack(DefaultSpeed),
             $"tick {tick.Index}: rotor kinetic energy {tick.Kinetic:F4} J exceeds the drive's work {tick.State.Work:F4} J"));
+    }
+
+    // ---- speed during Run (engine-revolute-drive-target) -----------------------------------------------------------------------------
+
+    /// <summary>Sends the Motor's speed run control: one ConfigureRunControl on its RevoluteDriveTarget row.</summary>
+    private static Task<WorkshopCommandResult> SetSpeed(WorkshopIntegrationHarness harness, GpuBodyId motor, float speed) =>
+        harness.Require(WorkshopCommandKind.ConfigureRunControl,
+            runControl: harness.RunControl(motor, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(speed)));
+
+    // Speed up during Run (owner, 3 November 2026; CAT-042 open question 5). A supplied Motor at its authored 6 rad/s is set to 12 rad/s.
+    // The committed target stays 6 until the next committed step, which reads 12, as does every later tick. The shaft is within 2 % of
+    // 12 rad/s once the ramp for Δω = 6 rad/s (I·Δω/(τ_d − τ_f) plus a tick) and one more tick of latency have passed, and holds it for a
+    // second. The authored construction keeps speed 6. The drive's work stays within τ_d·max|ω_t|·t from Run (12 rad/s), and the rotor
+    // never holds more kinetic energy than the drive did work.
+    [Fact]
+    public async Task ASpeedChangeDuringRunDrivesTheShaftToTheNewSpeedFromTheNextCommittedStep()
+    {
+        const float faster = 12f;
+        var motor = MotorPart();
+        var construction = Supplied(motor);
+        var (harness, probe) = await Start(construction, motor.Id);
+        await using var _ = harness;
+        var before = (await probe.Advance(TicksPerSecond / 2))[^1];
+        Assert.True(MathF.Abs(before.Spin - DefaultSpeed) <= SpeedAllowance(DefaultSpeed), $"Before the change: {before}");
+        Assert.Equal(DefaultSpeed, before.Target);
+
+        await SetSpeed(harness, motor.Id, faster);
+        Assert.Equal(DefaultSpeed, probe.Observe().Target);
+        var after = await probe.Advance(TicksPerSecond);
+
+        Assert.All(after, tick => Assert.Equal(faster, tick.Target));
+        Assert.All(after.Skip(RampTicks(faster - DefaultSpeed, DefaultTorque)), tick => Assert.True(
+            MathF.Abs(tick.Spin - faster) <= SpeedAllowance(faster), $"tick {tick.Index}: the rotor spins at {tick.Spin:F3} rad/s, target {faster} rad/s"));
+        Assert.Equal(construction, harness.Construction);
+        AssertEnergy(probe.Ticks, faster, DefaultTorque);
+    }
+
+    // Speed down to 0 during Run. The committed target reads 0 from the next committed step. Braking is helped by the bearing friction,
+    // so the 6 rad/s ramp plus one tick of latency is a conservative bound; from then the supplied shaft stays within the rest envelope
+    // (speed 0 has no 2 % allowance) for a second. Control: the same shaft without the change still spins at 6 rad/s.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ASpeedOfZeroDuringRunBringsTheShaftToRestAndHoldsIt(bool changed)
+    {
+        var motor = MotorPart();
+        var (harness, probe) = await Start(Supplied(motor), motor.Id);
+        await using var _ = harness;
+        await probe.Advance(TicksPerSecond / 2);
+
+        if (changed) await SetSpeed(harness, motor.Id, 0f);
+        var after = await probe.Advance(TicksPerSecond);
+
+        var target = changed ? 0f : DefaultSpeed;
+        Assert.All(after, tick => Assert.True(tick.State.Supplied && tick.Target == target, $"tick {tick.Index}: {tick}"));
+        Assert.All(after.Skip(RampTicks(DefaultSpeed, DefaultTorque)), tick => Assert.True(changed
+                ? MathF.Abs(tick.Spin) <= RestSpin : MathF.Abs(tick.Spin - DefaultSpeed) <= SpeedAllowance(DefaultSpeed),
+            $"tick {tick.Index}: the rotor spins at {tick.Spin:F3} rad/s, target {target} rad/s"));
+    }
+
+    // Speed set while unsupplied: with the Battery disabled the speed control 12 is committed on the next step while the shaft stays at
+    // rest and unsupplied. Once the Battery is enabled the shaft spins up from rest to the committed 12 rad/s within its ramp plus a tick.
+    [Fact]
+    public async Task ASpeedSetWhileUnsuppliedIsCommittedAndDrivesTheShaftOnceSupplied()
+    {
+        const float faster = 12f;
+        var motor = MotorPart();
+        var construction = Supplied(motor, enabled: ElectricalEnable.Disabled);
+        var battery = construction.Instances[1].Id;
+        var (harness, probe) = await Start(construction, motor.Id);
+        await using var _ = harness;
+
+        await SetSpeed(harness, motor.Id, faster);
+        var idle = await probe.Advance(TicksPerSecond / 4);
+        Assert.All(idle, tick => Assert.True(tick.Target == faster && !tick.State.Supplied && MathF.Abs(tick.Spin) < RestSpin,
+            $"tick {tick.Index} before the enable: {tick}"));
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+            runControl: harness.RunControl(battery, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)));
+        var driven = await probe.Advance(TicksPerSecond / 2);
+
+        Assert.All(driven.Skip(RampTicks(faster, DefaultTorque) - 1), tick => Assert.True(MathF.Abs(tick.Spin - faster) <= SpeedAllowance(faster),
+            $"tick {tick.Index}: the rotor spins at {tick.Spin:F3} rad/s after the enable, target {faster} rad/s"));
+    }
+
+    // A speed change never reaches the authored construction: a save made during Run after the change holds the authored 6 rad/s, and a
+    // committed Reset clears the held control and re-admits the authored target, which the next run keeps.
+    [Fact]
+    public async Task ASaveDuringRunAndResetKeepTheAuthoredSpeedAfterASpeedChange()
+    {
+        var motor = MotorPart();
+        var construction = Supplied(motor);
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+        await harness.Advance(30);
+        await SetSpeed(harness, motor.Id, 12f);
+        var changed = await harness.Advance(30);
+        Assert.All(changed, read => Assert.Equal(12f, read.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget).Scalar));
+
+        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new(harness.Construction, new(9)))).Construction;
+        Assert.Equal(construction, loaded);
+        Assert.Equal(DefaultSpeed, Assert.IsType<WorkshopGenericInstance>(loaded.Instances[0]).Parameters[new("speed")]);
+
+        var row = harness.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(12f)).Control;
+        await harness.Reset();
+        Assert.Null(harness.Simulation.HeldRunControl(row));
+        Assert.Equal(DefaultSpeed, harness.Committed.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget).Scalar);
+        await harness.Run();
+        Assert.All(await harness.Advance(2), read => Assert.Equal(DefaultSpeed, read.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget).Scalar));
     }
 
     // Supply routed through a switched element: a Battery powers an Either gate whose output wires the Motor's PowerIn; a second Battery

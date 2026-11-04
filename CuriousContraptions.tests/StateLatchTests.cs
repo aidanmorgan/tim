@@ -396,11 +396,11 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph, on, _ => true).SupplyClosed[0]);
         Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph, on, _ => false).SupplyClosed[0]);
         Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph, off, _ => true).SupplyClosed[0]);
-        Assert.Throws<ArgumentException>(() => new PhysicsTickInputs([ElectricalEnable.Enabled], []).Validate(1, [true]));
+        Assert.Throws<ArgumentException>(() => new PhysicsTickInputs([ElectricalEnable.Enabled], []).Validate(1, [true], 0));
         // A closed slot is admitted only where a drive is declared.
-        new PhysicsTickInputs([ElectricalEnable.Enabled], [true]).Validate(1, [true]);
-        Assert.Throws<ArgumentException>(() => new PhysicsTickInputs([ElectricalEnable.Enabled], [true]).Validate(1, [false]));
-        Assert.Throws<ArgumentException>(() => new WorkshopTickControls([(ElectricalEnable)9]).Validate(1));
+        new PhysicsTickInputs([ElectricalEnable.Enabled], [true]).Validate(1, [true], 0);
+        Assert.Throws<ArgumentException>(() => new PhysicsTickInputs([ElectricalEnable.Enabled], [true]).Validate(1, [false], 0));
+        Assert.Throws<ArgumentException>(() => new WorkshopTickControls([(ElectricalEnable)9]).Validate(1, 0));
 
 
 

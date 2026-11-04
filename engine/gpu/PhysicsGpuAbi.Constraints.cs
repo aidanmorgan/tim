@@ -39,9 +39,11 @@ public static partial class PhysicsGpuAbi
     public const int PrismaticRowCount = 8;
 
     // Row: identity U64 at 0, body A and body B slots, frame A and frame B, f32 lower and upper limits, f32 stiffness and damping,
-    // connected-collision U32, the f32 friction torque, the U32 travel kind, the U32 drive kind and the f32 drive target speed and
-    // maximum torque (all immutable after admission, the bytes before RevoluteImpulseOffset); then one committed f32 impulse per
-    // RevoluteRowKind, the committed U32 supplied flag, f32 travel and f32 drive work, and zero padding to the 16-byte row multiple.
+    // connected-collision U32, the f32 friction torque, the U32 travel kind, the U32 drive kind, the f32 committed drive target speed and
+    // the f32 maximum torque. Every byte before RevoluteImpulseOffset is immutable after admission except the drive target, which
+    // admission writes from the declaration and each tick writes from its tick input (engine-revolute-drive-target); then one committed
+    // f32 impulse per RevoluteRowKind, the committed U32 supplied flag, f32 travel and f32 drive work, and zero padding to the 16-byte
+    // row multiple.
     public const int RevoluteBytes = 176;
     public const int RevoluteBodyAOffset = 8;
     public const int RevoluteBodyBOffset = 12;
@@ -58,7 +60,8 @@ public static partial class PhysicsGpuAbi
     public const int RevoluteTravelKindOffset = 96;
     /// <summary>u32 <see cref="RevoluteDriveKind"/>.</summary>
     public const int RevoluteDriveKindOffset = 100;
-    /// <summary>Two f32 drive values (target speed rad/s, maximum torque N·m); both zero for <see cref="RevoluteDriveKind.None"/>.</summary>
+    /// <summary>Two f32 drive values (the committed target speed rad/s, the immutable maximum torque N·m); both zero for
+    /// <see cref="RevoluteDriveKind.None"/>. The target is the one target field: every reader takes the committed value.</summary>
     public const int RevoluteDriveTargetSpeedOffset = 104;
     public const int RevoluteDriveMaxTorqueOffset = 108;
     public const int RevoluteDriveBytes = 8;
@@ -230,12 +233,27 @@ public static partial class PhysicsGpuAbi
         }
     }
 
-    /// <summary>The supplied drive of the world's revolute <paramref name="index"/>, or null when it declares none.</summary>
+    /// <summary>The supplied drive of the world's revolute <paramref name="index"/>, with its committed target, or null when it declares
+    /// none.</summary>
     public static RevoluteDriveDeclaration? ReadRevoluteDrive(ReadOnlySpan<byte> data, int index)
     {
         var joint = ReadRevolute(data, index);
         var record = data.Slice(Layout(data).RevoluteOffset(index), RevoluteBytes);
         return (RevoluteDriveKind)R32(record, RevoluteDriveKindOffset) == RevoluteDriveKind.None ? null : RevoluteDriveOf(joint, record);
+    }
+
+    /// <summary>Every supplied revolute's committed drive target, in world revolute order (joint identity order, which is the compiled
+    /// drive-table order): the hinge's base body and the committed target.</summary>
+    public static PhysicsDriveTargetRead ReadDriveTargets(ReadOnlySpan<byte> data)
+    {
+        var layout = Layout(data);
+        var count = 0;
+        for (var i = 0; i < layout.Revolutes; i++) if (ReadRevoluteDrive(data, i) is not null) count++;
+        var values = new RevoluteDriveTargetRead[count];
+        var next = 0;
+        for (var i = 0; i < layout.Revolutes; i++)
+            if (ReadRevoluteDrive(data, i) is { } drive) values[next++] = new(ReadRevolute(data, i).BodyA, drive.TargetSpeed);
+        return new(values);
     }
 
     /// <summary>The committed supplied flag, signed travel and positive drive work of the world's revolute <paramref name="index"/>.
@@ -290,7 +308,11 @@ public static partial class PhysicsGpuAbi
         {
             var joint = ReadRevolute(candidate, i);
             var offset = layout.RevoluteOffset(i);
-            if (!candidate.Slice(offset, RevoluteImpulseOffset).SequenceEqual(source.Slice(offset, RevoluteImpulseOffset)))
+            // The declaration is locked except the committed drive target, which the record rule (ReadRevolute above) checks: finite,
+            // within the angular envelope, and zero when undriven.
+            if (!candidate.Slice(offset, RevoluteDriveTargetSpeedOffset).SequenceEqual(source.Slice(offset, RevoluteDriveTargetSpeedOffset)) ||
+                !candidate.Slice(offset + RevoluteDriveMaxTorqueOffset, RevoluteImpulseOffset - RevoluteDriveMaxTorqueOffset)
+                    .SequenceEqual(source.Slice(offset + RevoluteDriveMaxTorqueOffset, RevoluteImpulseOffset - RevoluteDriveMaxTorqueOffset)))
                 throw new ArgumentException("Revolute declaration changed.");
             var state = ReadRevoluteState(candidate, i);
             var maxTorque = ReadRevoluteDrive(candidate, i)?.MaxTorque ?? 0f;

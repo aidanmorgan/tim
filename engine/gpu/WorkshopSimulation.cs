@@ -12,19 +12,20 @@ public enum WorkshopCommandOutcome { Applied, Rejected, Superseded, Faulted, Can
 public enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, WrongRevision = 3, WrongPhase = 4,
     GpuAdmission = 5, InvalidRead = 7, IdentityExhausted = 8, StaleGeneration = 9, Cancelled = 10, AlreadyCommitted = 11,
     Capacity = 12, ReliableStalled = 13, Transport = 14, UnknownRopeSpan = 15, RopeAlreadyCut = 16,
-    UnknownRunControl = 17, ForeignRunControl = 18, RunControlKindMismatch = 19 }
+    UnknownRunControl = 17, ForeignRunControl = 18, RunControlKindMismatch = 19, RunControlOutOfRange = 20 }
 public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
 public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, PhysicsBodyReadSet Bodies, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
     PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default,
-    PhysicsMemoryRead Memory = default, PhysicsPresentationRead Presentation = default);
+    PhysicsMemoryRead Memory = default, PhysicsPresentationRead Presentation = default, PhysicsDriveTargetRead DriveTargets = default);
 public readonly record struct WorkshopGpuCandidate(CommandSequence Sequence, WorkshopRead Read);
 
 /// <summary>Implemented only by the simulation worker's WebGPU adapter. No numerical host alternative.</summary>
 public interface IWorkshopGpuDevice : IAsyncDisposable
 {
     ValueTask<WorkshopGpuCandidate> Admit(WorkshopCompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence);
-    /// <summary>One physics step from the committed world. The controls carry every player input the step reads (per-source enables);
-    /// the device adds committed switch state for its compiled switched supplies. Physics never reads authoring state.</summary>
+    /// <summary>One physics step from the committed world. The controls carry every player input the step reads (per-source enables
+    /// and per-drive target speeds); the device adds committed switch state for its compiled switched supplies. Physics never reads
+    /// authoring state.</summary>
     ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls);
     // Swap candidate buffers only after host validation. Discard is idempotent, nonthrowing, and
     // sequence-specific; a superseded request cannot free a newer candidate or committed buffers.
@@ -92,8 +93,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     /// <summary>The value held for row <paramref name="id"/>, or null when no control is held for it.</summary>
     public RunControlValue? HeldRunControl(RunControlId id) => _runControls.TryGetValue(id, out var held) ? held.Value : null;
     /// <summary>Holds a typed run control for the next committed step. Refused while another operation is pending, outside Running
-    /// or Paused, for an id the compiled table does not have, for an owner other than the row's, and for a value kind the row's
-    /// lane does not take.</summary>
+    /// or Paused, for an id the compiled table does not have, for an owner other than the row's, for a value kind the row's lane does
+    /// not take, and for a scalar outside the row's declared bounds.</summary>
     public WorkshopCommandResult ConfigureRunControl(WorkshopRunControl control)
     {
         if (!control.IsCanonical) throw new ArgumentException("Invalid run control.", nameof(control));
@@ -102,6 +103,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         if (!Scene.TryRunControl(control.Control, out var row)) return Reject(WorkshopRejection.UnknownRunControl);
         if (row.Owner != control.Owner) return Reject(WorkshopRejection.ForeignRunControl);
         if (RunControlLanes.ValueKind(row.Lane) != control.Value.Kind) return Reject(WorkshopRejection.RunControlKindMismatch);
+        // The worker refuses a value outside the row's declared bounds; only the player's editor may clamp.
+        if (!RunControlLanes.WithinBounds(row, control.Value)) return Reject(WorkshopRejection.RunControlOutOfRange);
         _runControls[row.Id] = (row, control.Value);
         return Applied();
     }
@@ -331,7 +334,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             var pulleys = Scene.Presentation
                 .Where(t => t.Declaration.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedWheelAngle)
                 .Select(t => t.Owner).Distinct().ToArray();
-            var candidate = await _device.Advance(source, new(owner), WorkshopTickControls.For(source.Electrical, _runControls.Values) with { Cuts = cuts, Pulleys = pulleys });
+            var candidate = await _device.Advance(source, new(owner), WorkshopTickControls.For(source, _runControls.Values) with { Cuts = cuts, Pulleys = pulleys });
             var read = CandidateRead(candidate, owner);
             if (!Owns(owner)) return Superseded(owner);
             ValidateAdvancedRead(source, read);
@@ -536,6 +539,16 @@ public sealed class WorkshopSimulation : IAsyncDisposable
                 !actual.Remaining.HasSameBits(source.InitialEnergy) || actual.Debit.Value != 0)
                 throw new ArgumentException("Admission retained source work.");
         }
+        // Admission commits each compiled drive's declared target, in drive-table order, owned by its hinge's base body.
+        if (read.DriveTargets.Count != physics.RevoluteDrives.Length) throw new ArgumentException("Admission drive population changed.");
+        for (var i = 0; i < read.DriveTargets.Count; i++)
+        {
+            var drive = physics.RevoluteDrives[i];
+            var owner = default(GpuBodyId);
+            foreach (var joint in physics.Revolutes) if (joint.Id == drive.Joint) owner = joint.BodyA;
+            if (read.DriveTargets[i].Owner != owner || !F32Bits.Equal(read.DriveTargets[i].TargetSpeed, drive.TargetSpeed))
+                throw new ArgumentException("Admission did not commit the declared drive target.");
+        }
         // The occurrence rows are device-private (Story 9A.23 D9): the device admits them against the scene; the read carries the stores.
         read.ContactWorks.ValidateScene(physics);
         var network = construction.Activation;
@@ -579,10 +592,17 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         {
             var hasPhase = (motion.LastOrdinal + 3) / 4 > (motion.FirstOrdinal + 3) / 4;
             // Every source keeps its committed enable unless a held control drives it; an electrical phase applies the held value.
-            var expected = WorkshopTickControls.For(source.Electrical, hasPhase ? _runControls.Values : []).SourceEnable;
+            var expected = WorkshopTickControls.For(source, hasPhase ? _runControls.Values : []).SourceEnable;
             for (var i = 0; i < read.Electrical.Count; i++)
                 if (read.Electrical[i].Enabled != expected[i]) throw new ArgumentException("Electrical phase did not apply the authorised enable state.");
         }
+        // Every driven revolute keeps its owner and commits the held target when a control drives it, its previous target otherwise.
+        // No electrical phase gates a drive target: it applies on every committed step.
+        var targets = WorkshopTickControls.For(source, _runControls.Values).DriveTarget;
+        if (read.DriveTargets.Count != targets.Length) throw new ArgumentException("Committed drive population changed.");
+        for (var i = 0; i < targets.Length; i++)
+            if (read.DriveTargets[i].Owner != source.DriveTargets[i].Owner || !F32Bits.Equal(read.DriveTargets[i].TargetSpeed, targets[i]))
+                throw new ArgumentException("Committed drive target differs from the authorised target.");
         read.Bodies.ValidateTime(read.Epoch, read.Tick);
         read.Captures.ValidateAdvance(source.Captures);
         var bistable = BistableNodes();
