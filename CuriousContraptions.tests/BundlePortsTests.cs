@@ -125,7 +125,7 @@ public sealed class BundlePortsTests
         ["rope_anchor"] = ([new(WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(0f, 0f, .18f), RopeAttachmentRole.Anchor)], new(1, 0, 0, 0)),
         ["pulley"] = ([new(WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
-            new(0f, .4f, .12f), RopeAttachmentRole.Guide)], new(1, 0, 0, 0)),
+            new(0f, .4f, .12f), RopeAttachmentRole.Guide, GuideRadius: 0.4f, GuideOffset: new(0f, 0f, .12f))], new(1, 0, 0, 0)),
         ["impact_lever"] = ([new(WorkshopSocket.TieA, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(-1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1)), new(WorkshopSocket.TieB, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1))], new(2, 1, 0, 1)),

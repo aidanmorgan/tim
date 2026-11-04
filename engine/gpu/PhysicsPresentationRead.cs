@@ -75,12 +75,12 @@ public readonly record struct ActuatorDriveRead(
     }
 }
 
-public readonly record struct PulleyWheelRead(GpuBodyId Pulley, float Travel, float Angle)
+public readonly record struct RopeGuideRead(RopeGuideId Guide, float Travel, float Angle)
 {
     public void Validate()
     {
-        if (Pulley.Value == 0 || !float.IsFinite(Travel) || !float.IsFinite(Angle))
-            throw new ArgumentException("Invalid committed pulley observation.");
+        if (Guide.Value == 0 || !float.IsFinite(Travel) || !float.IsFinite(Angle))
+            throw new ArgumentException("Invalid committed rope guide observation.");
     }
 }
 
@@ -100,8 +100,8 @@ public readonly struct PhysicsPresentationRead
 {
     private readonly RopeSpanRead[]? _ropes;
     public ReadOnlySpan<RopeSpanRead> Ropes => _ropes;
-    private readonly PulleyWheelRead[]? _pulleys;
-    public ReadOnlySpan<PulleyWheelRead> Pulleys => _pulleys;
+    private readonly RopeGuideRead[]? _guides;
+    public ReadOnlySpan<RopeGuideRead> Guides => _guides;
     private readonly CompliantSurfaceRead[]? _surfaces;
     public ReadOnlySpan<CompliantSurfaceRead> Surfaces => _surfaces;
     private readonly ActuatorDriveRead[]? _actuators;
@@ -111,7 +111,7 @@ public readonly struct PhysicsPresentationRead
     public ReadOnlySpan<ActuatorDriveRead> Actuators => _actuators;
     public ReadOnlySpan<ContactLoadSensorRead> Loads => _loads;
     public PhysicsPresentationRead(ReadOnlySpan<ActuatorDriveRead> actuators, ReadOnlySpan<ContactLoadSensorRead> loads, ReadOnlySpan<ElectricalLogicRead> logic = default,
-        ReadOnlySpan<RopeSpanRead> ropes = default, ReadOnlySpan<PulleyWheelRead> pulleys = default,
+        ReadOnlySpan<RopeSpanRead> ropes = default, ReadOnlySpan<RopeGuideRead> guides = default,
         ReadOnlySpan<CompliantSurfaceRead> surfaces = default)
     {
         for (var i = 0; i < surfaces.Length; i++)
@@ -128,13 +128,13 @@ public readonly struct PhysicsPresentationRead
                 throw new ArgumentException("Rope observations require ordered unique identities.");
         }
         _ropes = ropes.ToArray();
-        for (var i = 0; i < pulleys.Length; i++)
+        for (var i = 0; i < guides.Length; i++)
         {
-            pulleys[i].Validate();
-            if (i > 0 && pulleys[i - 1].Pulley.Value >= pulleys[i].Pulley.Value)
-                throw new ArgumentException("Pulley observations require ordered unique identities.");
+            guides[i].Validate();
+            if (i > 0 && guides[i - 1].Guide.Value >= guides[i].Guide.Value)
+                throw new ArgumentException("Rope guide observations require ordered unique identities.");
         }
-        _pulleys = pulleys.ToArray();
+        _guides = guides.ToArray();
         for (var i = 0; i < actuators.Length; i++)
         {
             actuators[i].Validate();
@@ -159,7 +159,7 @@ public readonly struct PhysicsPresentationRead
     }
     public bool HasSameBits(PhysicsPresentationRead other) =>
         Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads) && Logic.SequenceEqual(other.Logic) && Ropes.SequenceEqual(other.Ropes) &&
-        Pulleys.SequenceEqual(other.Pulleys) && Surfaces.SequenceEqual(other.Surfaces);
+        Guides.SequenceEqual(other.Guides) && Surfaces.SequenceEqual(other.Surfaces);
 }
 
 public static partial class PhysicsGpuAbi
@@ -205,11 +205,11 @@ public static partial class PhysicsGpuAbi
         var loads = new ContactLoadSensorRead[ReadContactLoadCount(bytes)];
         for (var i = 0; i < loads.Length; i++) loads[i] = ReadContactLoadSensor(bytes, i);
         var ropes = new RopeSpanRead[layout.TensileSpans];
-        var pulleyMap = new Dictionary<GpuBodyId, (float Travel, float Angle)>();
-        if (inputs.Pulleys is { Length: > 0 })
+        var guideMap = new Dictionary<RopeGuideId, (float Travel, float Angle)>();
+        if (inputs.Guides is { Length: > 0 })
         {
-            foreach (var p in inputs.Pulleys)
-                pulleyMap.TryAdd(p, (0f, 0f));
+            foreach (var g in inputs.Guides)
+                guideMap.TryAdd(g.Id, (0f, 0f));
         }
 
         var rawSpans = new (TensileSpanDeclaration Span, Vector3 From, Vector3 To, float Length, RopeIntegrity Integrity, float Impulse, float Travel, RopeSpanId CutSpan, Vector3 FrameBPos, Quaternion FrameBRot)[layout.TensileSpans];
@@ -238,21 +238,37 @@ public static partial class PhysicsGpuAbi
             var travel = ordered.Length > 0 ? ordered[0].raw.Travel : 0f;
             var impulse = ordered.Length > 0 ? ordered[0].raw.Impulse : 0f;
 
-            var guides = new (Vector3 Position, Quaternion Rotation)[ordered.Length > 1 ? ordered.Length - 1 : 0];
+            var routeGuides = new RouteGuideFrame[ordered.Length > 1 ? ordered.Length - 1 : 0];
             for (var i = 0; i < ordered.Length - 1; i++)
             {
+                var guideBody = ordered[i].raw.Span.BodyB;
+                var radius = ordered[i].raw.Span.GuideRadius;
+                var offset = ordered[i].raw.Span.GuideOffset;
                 if (ordered[i].raw.Span.BodyB == ordered[i + 1].raw.Span.BodyA)
                 {
-                    var guideBody = ordered[i].raw.Span.BodyB;
-                    var angle = ((travel / RopeGeometry.PulleyRadius) % MathF.Tau + MathF.Tau) % MathF.Tau;
-                    pulleyMap[guideBody] = (travel, angle);
+                    var angle = radius > 0f
+                        ? ((travel / radius) % MathF.Tau + MathF.Tau) % MathF.Tau
+                        : 0f;
+                    if (inputs.Guides is { Length: > 0 })
+                    {
+                        foreach (var g in inputs.Guides)
+                        {
+                            if (g.Body == guideBody &&
+                                MathF.Abs(g.Radius - radius) < 1e-4f &&
+                                Vector3.DistanceSquared(g.Offset, offset) < 1e-4f)
+                            {
+                                guideMap[g.Id] = (travel, angle);
+                                break;
+                            }
+                        }
+                    }
                 }
-                guides[i] = (ordered[i].raw.FrameBPos, ordered[i].raw.FrameBRot);
+                routeGuides[i] = new(ordered[i].raw.FrameBPos, ordered[i].raw.FrameBRot, radius, offset);
             }
 
             var terminalA = ordered[0].raw.From;
             var terminalB = ordered[^1].raw.To;
-            var evaluated = RopeGeometry.EvaluateRoute(terminalA, terminalB, guides);
+            var evaluated = RopeGeometry.EvaluateRoute(terminalA, terminalB, routeGuides);
             var totalLength = evaluated.TotalLength;
             var totalMax = ordered.Sum(x => x.raw.Span.MaximumLength);
             var isCutOrIncomplete = ordered.Any(x => x.raw.Integrity == RopeIntegrity.Cut || !x.raw.Span.Complete);
@@ -268,12 +284,12 @@ public static partial class PhysicsGpuAbi
             }
         }
 
-        var pulleys = pulleyMap.OrderBy(kv => kv.Key.Value)
-            .Select(kv => new PulleyWheelRead(kv.Key, kv.Value.Travel, kv.Value.Angle)).ToArray();
+        var guides = guideMap.OrderBy(kv => kv.Key.Value)
+            .Select(kv => new RopeGuideRead(kv.Key, kv.Value.Travel, kv.Value.Angle)).ToArray();
         var surfaces = new CompliantSurfaceRead[layout.CompliantSurfaces];
         for (var i = 0; i < surfaces.Length; i++) surfaces[i] = ReadCompliantSurfaceDeflection(bytes, i);
         Array.Sort(surfaces, (a, b) => a.Frame.Value.CompareTo(b.Frame.Value));
-        return new(actuators, loads, inputs.Logic, ropes, pulleys, surfaces);
+        return new(actuators, loads, inputs.Logic, ropes, guides, surfaces);
     }
     private static Vector3 PresentationVector(ReadOnlySpan<byte> body, int offset) =>
         new(RF(body, offset), RF(body, offset + 4), RF(body, offset + 8));

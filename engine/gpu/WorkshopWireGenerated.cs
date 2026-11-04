@@ -2195,6 +2195,46 @@ static public class CapabilityRigidMassPropertiesRecordVerify
   }
 }
 
+public struct CapabilityRopeGuideRecord : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static CapabilityRopeGuideRecord GetRootAsCapabilityRopeGuideRecord(ByteBuffer _bb) { return GetRootAsCapabilityRopeGuideRecord(_bb, new CapabilityRopeGuideRecord()); }
+  public static CapabilityRopeGuideRecord GetRootAsCapabilityRopeGuideRecord(ByteBuffer _bb, CapabilityRopeGuideRecord obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public CapabilityRopeGuideRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Id { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong Body { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public float Radius { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public CuriousContraptions.Wire.Vec3f? Offset { get { int o = __p.__offset(10); return o != 0 ? (CuriousContraptions.Wire.Vec3f?)(new CuriousContraptions.Wire.Vec3f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+
+  public static void StartCapabilityRopeGuideRecord(FlatBufferBuilder builder) { builder.StartTable(4); }
+  public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
+  public static void AddBody(FlatBufferBuilder builder, ulong body) { builder.AddUlong(1, body, 0); }
+  public static void AddRadius(FlatBufferBuilder builder, float radius) { builder.AddFloat(2, radius, 0.0f); }
+  public static void AddOffset(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Vec3f> offsetOffset) { builder.AddStruct(3, offsetOffset.Value, 0); }
+  public static Offset<CuriousContraptions.Wire.CapabilityRopeGuideRecord> EndCapabilityRopeGuideRecord(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.CapabilityRopeGuideRecord>(o);
+  }
+}
+
+
+static public class CapabilityRopeGuideRecordVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Id*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 6 /*Body*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 8 /*Radius*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 10 /*Offset*/, 12 /*CuriousContraptions.Wire.Vec3f*/, 4, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct CapabilitySupplyConsumerRecord : IFlatbufferObject
 {
   private Table __p;
@@ -2855,6 +2895,8 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public int CompliantSurfacesLength { get { int o = __p.__offset(66); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord? RevoluteDrives(int j) { int o = __p.__offset(68); return o != 0 ? (CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord?)(new CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int RevoluteDrivesLength { get { int o = __p.__offset(68); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.CapabilityRopeGuideRecord? RopeGuides(int j) { int o = __p.__offset(70); return o != 0 ? (CuriousContraptions.Wire.CapabilityRopeGuideRecord?)(new CuriousContraptions.Wire.CapabilityRopeGuideRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int RopeGuidesLength { get { int o = __p.__offset(70); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<CuriousContraptions.Wire.CompiledSceneRecord> CreateCompiledSceneRecord(FlatBufferBuilder builder,
       ulong identity = 0,
@@ -2889,13 +2931,15 @@ public struct CompiledSceneRecord : IFlatbufferObject
       VectorOffset presentationOffset = default(VectorOffset),
       VectorOffset revolutesOffset = default(VectorOffset),
       VectorOffset compliant_surfacesOffset = default(VectorOffset),
-      VectorOffset revolute_drivesOffset = default(VectorOffset)) {
-    builder.StartTable(33);
+      VectorOffset revolute_drivesOffset = default(VectorOffset),
+      VectorOffset rope_guidesOffset = default(VectorOffset)) {
+    builder.StartTable(34);
     CompiledSceneRecord.AddNextIdentity(builder, next_identity);
     CompiledSceneRecord.AddDocumentHigh(builder, document_high);
     CompiledSceneRecord.AddDocumentLow(builder, document_low);
     CompiledSceneRecord.AddRevision(builder, revision);
     CompiledSceneRecord.AddIdentity(builder, identity);
+    CompiledSceneRecord.AddRopeGuides(builder, rope_guidesOffset);
     CompiledSceneRecord.AddRevoluteDrives(builder, revolute_drivesOffset);
     CompiledSceneRecord.AddCompliantSurfaces(builder, compliant_surfacesOffset);
     CompiledSceneRecord.AddRevolutes(builder, revolutesOffset);
@@ -2927,7 +2971,7 @@ public struct CompiledSceneRecord : IFlatbufferObject
     return CompiledSceneRecord.EndCompiledSceneRecord(builder);
   }
 
-  public static void StartCompiledSceneRecord(FlatBufferBuilder builder) { builder.StartTable(33); }
+  public static void StartCompiledSceneRecord(FlatBufferBuilder builder) { builder.StartTable(34); }
   public static void AddIdentity(FlatBufferBuilder builder, ulong identity) { builder.AddUlong(0, identity, 0); }
   public static void AddRevision(FlatBufferBuilder builder, ulong revision) { builder.AddUlong(1, revision, 0); }
   public static void AddSettings(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityWorkshopCadenceSettingsRecord> settingsOffset) { builder.AddOffset(2, settingsOffset.Value, 0); }
@@ -3087,6 +3131,12 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public static VectorOffset CreateRevoluteDrivesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
   public static VectorOffset CreateRevoluteDrivesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartRevoluteDrivesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddRopeGuides(FlatBufferBuilder builder, VectorOffset ropeGuidesOffset) { builder.AddOffset(33, ropeGuidesOffset.Value, 0); }
+  public static VectorOffset CreateRopeGuidesVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityRopeGuideRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateRopeGuidesVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityRopeGuideRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRopeGuidesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.CapabilityRopeGuideRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRopeGuidesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CapabilityRopeGuideRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartRopeGuidesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<CuriousContraptions.Wire.CompiledSceneRecord> EndCompiledSceneRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 8);  // settings
@@ -3133,6 +3183,7 @@ static public class CompiledSceneRecordVerify
       && verifier.VerifyVectorOfTables(tablePos, 64 /*Revolutes*/, CuriousContraptions.Wire.CapabilityRevoluteConstraintDeclarationRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 66 /*CompliantSurfaces*/, CuriousContraptions.Wire.CompliantSurfaceRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 68 /*RevoluteDrives*/, CuriousContraptions.Wire.CapabilityRevoluteDriveDeclarationRecordVerify.Verify, false)
+      && verifier.VerifyVectorOfTables(tablePos, 70 /*RopeGuides*/, CuriousContraptions.Wire.CapabilityRopeGuideRecordVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -3883,54 +3934,6 @@ public struct ObservationSlot : IFlatbufferObject
   }
 }
 
-public struct PulleyWheelReadRecord : IFlatbufferObject
-{
-  private Table __p;
-  public ByteBuffer ByteBuffer { get { return __p.bb; } }
-  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
-  public static PulleyWheelReadRecord GetRootAsPulleyWheelReadRecord(ByteBuffer _bb) { return GetRootAsPulleyWheelReadRecord(_bb, new PulleyWheelReadRecord()); }
-  public static PulleyWheelReadRecord GetRootAsPulleyWheelReadRecord(ByteBuffer _bb, PulleyWheelReadRecord obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
-  public PulleyWheelReadRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
-
-  public ulong Pulley { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
-  public float Travel { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float Angle { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-
-  public static Offset<CuriousContraptions.Wire.PulleyWheelReadRecord> CreatePulleyWheelReadRecord(FlatBufferBuilder builder,
-      ulong pulley = 0,
-      float travel = 0.0f,
-      float angle = 0.0f) {
-    builder.StartTable(3);
-    PulleyWheelReadRecord.AddPulley(builder, pulley);
-    PulleyWheelReadRecord.AddAngle(builder, angle);
-    PulleyWheelReadRecord.AddTravel(builder, travel);
-    return PulleyWheelReadRecord.EndPulleyWheelReadRecord(builder);
-  }
-
-  public static void StartPulleyWheelReadRecord(FlatBufferBuilder builder) { builder.StartTable(3); }
-  public static void AddPulley(FlatBufferBuilder builder, ulong pulley) { builder.AddUlong(0, pulley, 0); }
-  public static void AddTravel(FlatBufferBuilder builder, float travel) { builder.AddFloat(1, travel, 0.0f); }
-  public static void AddAngle(FlatBufferBuilder builder, float angle) { builder.AddFloat(2, angle, 0.0f); }
-  public static Offset<CuriousContraptions.Wire.PulleyWheelReadRecord> EndPulleyWheelReadRecord(FlatBufferBuilder builder) {
-    int o = builder.EndTable();
-    return new Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>(o);
-  }
-}
-
-
-static public class PulleyWheelReadRecordVerify
-{
-  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
-  {
-    return verifier.VerifyTableStart(tablePos)
-      && verifier.VerifyField(tablePos, 4 /*Pulley*/, 8 /*ulong*/, 8, false)
-      && verifier.VerifyField(tablePos, 6 /*Travel*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 8 /*Angle*/, 4 /*float*/, 4, false)
-      && verifier.VerifyTableEnd(tablePos);
-  }
-}
-
 public struct Quat4f : IFlatbufferObject
 {
   private Struct __p;
@@ -4240,6 +4243,54 @@ public struct RevoluteDriveTargetRecord : IFlatbufferObject
   }
 }
 
+public struct RopeGuideReadRecord : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static RopeGuideReadRecord GetRootAsRopeGuideReadRecord(ByteBuffer _bb) { return GetRootAsRopeGuideReadRecord(_bb, new RopeGuideReadRecord()); }
+  public static RopeGuideReadRecord GetRootAsRopeGuideReadRecord(ByteBuffer _bb, RopeGuideReadRecord obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public RopeGuideReadRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Guide { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public float Travel { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Angle { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+
+  public static Offset<CuriousContraptions.Wire.RopeGuideReadRecord> CreateRopeGuideReadRecord(FlatBufferBuilder builder,
+      ulong guide = 0,
+      float travel = 0.0f,
+      float angle = 0.0f) {
+    builder.StartTable(3);
+    RopeGuideReadRecord.AddGuide(builder, guide);
+    RopeGuideReadRecord.AddAngle(builder, angle);
+    RopeGuideReadRecord.AddTravel(builder, travel);
+    return RopeGuideReadRecord.EndRopeGuideReadRecord(builder);
+  }
+
+  public static void StartRopeGuideReadRecord(FlatBufferBuilder builder) { builder.StartTable(3); }
+  public static void AddGuide(FlatBufferBuilder builder, ulong guide) { builder.AddUlong(0, guide, 0); }
+  public static void AddTravel(FlatBufferBuilder builder, float travel) { builder.AddFloat(1, travel, 0.0f); }
+  public static void AddAngle(FlatBufferBuilder builder, float angle) { builder.AddFloat(2, angle, 0.0f); }
+  public static Offset<CuriousContraptions.Wire.RopeGuideReadRecord> EndRopeGuideReadRecord(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<CuriousContraptions.Wire.RopeGuideReadRecord>(o);
+  }
+}
+
+
+static public class RopeGuideReadRecordVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyField(tablePos, 4 /*Guide*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 6 /*Travel*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 8 /*Angle*/, 4 /*float*/, 4, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
 public struct RopeSpanReadRecord : IFlatbufferObject
 {
   private Table __p;
@@ -4402,8 +4453,10 @@ public struct TensileSpanRecord : IFlatbufferObject
   public CuriousContraptions.Wire.Vec3f? LocalB { get { int o = __p.__offset(16); return o != 0 ? (CuriousContraptions.Wire.Vec3f?)(new CuriousContraptions.Wire.Vec3f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public float MaximumLength { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public bool Complete { get { int o = __p.__offset(20); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+  public float GuideRadius { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public CuriousContraptions.Wire.Vec3f? GuideOffset { get { int o = __p.__offset(24); return o != 0 ? (CuriousContraptions.Wire.Vec3f?)(new CuriousContraptions.Wire.Vec3f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
 
-  public static void StartTensileSpanRecord(FlatBufferBuilder builder) { builder.StartTable(9); }
+  public static void StartTensileSpanRecord(FlatBufferBuilder builder) { builder.StartTable(11); }
   public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
   public static void AddRoute(FlatBufferBuilder builder, ulong route) { builder.AddUlong(1, route, 0); }
   public static void AddOrder(FlatBufferBuilder builder, uint order) { builder.AddUint(2, order, 0); }
@@ -4413,6 +4466,8 @@ public struct TensileSpanRecord : IFlatbufferObject
   public static void AddLocalB(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Vec3f> localBOffset) { builder.AddStruct(6, localBOffset.Value, 0); }
   public static void AddMaximumLength(FlatBufferBuilder builder, float maximumLength) { builder.AddFloat(7, maximumLength, 0.0f); }
   public static void AddComplete(FlatBufferBuilder builder, bool complete) { builder.AddBool(8, complete, false); }
+  public static void AddGuideRadius(FlatBufferBuilder builder, float guideRadius) { builder.AddFloat(9, guideRadius, 0.0f); }
+  public static void AddGuideOffset(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Vec3f> guideOffsetOffset) { builder.AddStruct(10, guideOffsetOffset.Value, 0); }
   public static Offset<CuriousContraptions.Wire.TensileSpanRecord> EndTensileSpanRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.TensileSpanRecord>(o);
@@ -4434,6 +4489,8 @@ static public class TensileSpanRecordVerify
       && verifier.VerifyField(tablePos, 16 /*LocalB*/, 12 /*CuriousContraptions.Wire.Vec3f*/, 4, false)
       && verifier.VerifyField(tablePos, 18 /*MaximumLength*/, 4 /*float*/, 4, false)
       && verifier.VerifyField(tablePos, 20 /*Complete*/, 1 /*bool*/, 1, false)
+      && verifier.VerifyField(tablePos, 22 /*GuideRadius*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 24 /*GuideOffset*/, 12 /*CuriousContraptions.Wire.Vec3f*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -4948,8 +5005,8 @@ public struct WorkshopResponse : IFlatbufferObject
   public CuriousContraptions.Wire.RopeSpanReadRecord? Ropes(int j) { int o = __p.__offset(56); return o != 0 ? (CuriousContraptions.Wire.RopeSpanReadRecord?)(new CuriousContraptions.Wire.RopeSpanReadRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int RopesLength { get { int o = __p.__offset(56); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.CompiledSceneRecord? Scene { get { int o = __p.__offset(58); return o != 0 ? (CuriousContraptions.Wire.CompiledSceneRecord?)(new CuriousContraptions.Wire.CompiledSceneRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
-  public CuriousContraptions.Wire.PulleyWheelReadRecord? PulleyWheels(int j) { int o = __p.__offset(60); return o != 0 ? (CuriousContraptions.Wire.PulleyWheelReadRecord?)(new CuriousContraptions.Wire.PulleyWheelReadRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
-  public int PulleyWheelsLength { get { int o = __p.__offset(60); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.RopeGuideReadRecord? RopeGuides(int j) { int o = __p.__offset(60); return o != 0 ? (CuriousContraptions.Wire.RopeGuideReadRecord?)(new CuriousContraptions.Wire.RopeGuideReadRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int RopeGuidesLength { get { int o = __p.__offset(60); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.CompliantSurfaceReadRecord? CompliantSurfaces(int j) { int o = __p.__offset(62); return o != 0 ? (CuriousContraptions.Wire.CompliantSurfaceReadRecord?)(new CuriousContraptions.Wire.CompliantSurfaceReadRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int CompliantSurfacesLength { get { int o = __p.__offset(62); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.RevoluteDriveTargetRecord? DriveTargets(int j) { int o = __p.__offset(64); return o != 0 ? (CuriousContraptions.Wire.RevoluteDriveTargetRecord?)(new CuriousContraptions.Wire.RevoluteDriveTargetRecord()).__assign(__p.__vector(o) + j * 16, __p.bb) : null; }
@@ -5009,12 +5066,12 @@ public struct WorkshopResponse : IFlatbufferObject
   public static VectorOffset CreateRopesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.RopeSpanReadRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartRopesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static void AddScene(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CompiledSceneRecord> sceneOffset) { builder.AddOffset(27, sceneOffset.Value, 0); }
-  public static void AddPulleyWheels(FlatBufferBuilder builder, VectorOffset pulleyWheelsOffset) { builder.AddOffset(28, pulleyWheelsOffset.Value, 0); }
-  public static VectorOffset CreatePulleyWheelsVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
-  public static VectorOffset CreatePulleyWheelsVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
-  public static VectorOffset CreatePulleyWheelsVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
-  public static VectorOffset CreatePulleyWheelsVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.PulleyWheelReadRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
-  public static void StartPulleyWheelsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddRopeGuides(FlatBufferBuilder builder, VectorOffset ropeGuidesOffset) { builder.AddOffset(28, ropeGuidesOffset.Value, 0); }
+  public static VectorOffset CreateRopeGuidesVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.RopeGuideReadRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateRopeGuidesVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.RopeGuideReadRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRopeGuidesVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.RopeGuideReadRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateRopeGuidesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.RopeGuideReadRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartRopeGuidesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static void AddCompliantSurfaces(FlatBufferBuilder builder, VectorOffset compliantSurfacesOffset) { builder.AddOffset(29, compliantSurfacesOffset.Value, 0); }
   public static VectorOffset CreateCompliantSurfacesVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
   public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
@@ -5065,7 +5122,7 @@ static public class WorkshopResponseVerify
       && verifier.VerifyVectorOfData(tablePos, 54 /*ElectricalLogic*/, 16 /*CuriousContraptions.Wire.ElectricalLogicRecord*/, false)
       && verifier.VerifyVectorOfTables(tablePos, 56 /*Ropes*/, CuriousContraptions.Wire.RopeSpanReadRecordVerify.Verify, false)
       && verifier.VerifyTable(tablePos, 58 /*Scene*/, CuriousContraptions.Wire.CompiledSceneRecordVerify.Verify, false)
-      && verifier.VerifyVectorOfTables(tablePos, 60 /*PulleyWheels*/, CuriousContraptions.Wire.PulleyWheelReadRecordVerify.Verify, false)
+      && verifier.VerifyVectorOfTables(tablePos, 60 /*RopeGuides*/, CuriousContraptions.Wire.RopeGuideReadRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 62 /*CompliantSurfaces*/, CuriousContraptions.Wire.CompliantSurfaceReadRecordVerify.Verify, false)
       && verifier.VerifyVectorOfData(tablePos, 64 /*DriveTargets*/, 16 /*CuriousContraptions.Wire.RevoluteDriveTargetRecord*/, false)
       && verifier.VerifyTableEnd(tablePos);

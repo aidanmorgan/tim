@@ -632,10 +632,10 @@ public sealed class RopeTests
         var tieB = DeclaredPorts.Current.LocalPosition(b, WorkshopSocket.Tie);
         var posA = new Vector3(-2.4f, heightA, 0f) + tieA;
         var posB = new Vector3(2.4f, heightB, 0f) + tieB;
-        var guides = new (Vector3 Position, Quaternion Rotation)[]
+        var guides = new RouteGuideFrame[]
         {
-            (new(-2f, 6f, -.12f), Quaternion.Identity),
-            (new(2f, 6f, -.12f), Quaternion.Identity)
+            new(new(-2f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f)),
+            new(new(2f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f))
         };
         var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides);
         var len = totalLength ?? evaluated.TotalLength;
@@ -698,7 +698,7 @@ public sealed class RopeTests
         Assert.InRange(MathF.Abs(measuredA - expectedA) / expectedA, 0f, 0.10f);
 
         // Wheel rotation proportional to rope travel Δθ = Δs / 0.4 rad
-        var pulleys = world.Committed.Presentation.Pulleys.ToArray();
+        var pulleys = world.Committed.Presentation.Guides.ToArray();
         Assert.Equal(2, pulleys.Length);
         var ropeTravel = MathF.Abs(deltaB);
         var expectedAngle = (ropeTravel / 0.4f) % MathF.Tau;
@@ -719,10 +719,10 @@ public sealed class RopeTests
         var b = scene.Cylinder(new(2.4f, 3f, 0f), .2f, .2f, 10f, LawMaterial.Domino, Quaternion.Identity, gravity: -9.81f);
         var posA = new Vector3(-2.4f, 3.2f, 0f);
         var posB = new Vector3(2.4f, 3.2f, 0f);
-        var guides = new (Vector3 Position, Quaternion Rotation)[]
+        var guides = new RouteGuideFrame[]
         {
-            (new(-2f, 6f, -.12f), Quaternion.Identity),
-            (new(2f, 6f, -.12f), Quaternion.Identity)
+            new(new(-2f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f)),
+            new(new(2f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f))
         };
         var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides);
         var totalLength = evaluated.TotalLength;
@@ -730,12 +730,13 @@ public sealed class RopeTests
         var span0 = (totalLength - 4f) * .5f;
         var spans = new TensileSpanDeclaration[]
         {
-            new(new(1), new(1), 0, a, new(0, .2f, 0), p1, new(0, .4f, .12f), span0, true),
-            new(new(2), new(1), 1, p1, new(0, .4f, .12f), p2, new(0, .4f, .12f), 4f, true),
+            new(new(1), new(1), 0, a, new(0, .2f, 0), p1, new(0, .4f, .12f), span0, true, 0.4f, new(0f, 0f, 0.12f)),
+            new(new(2), new(1), 1, p1, new(0, .4f, .12f), p2, new(0, .4f, .12f), 4f, true, 0.4f, new(0f, 0f, 0.12f)),
             new(new(3), new(1), 2, p2, new(0, .4f, .12f), b, new(0, .2f, 0), span0, true),
         };
         var physicsScene = new PhysicsSceneDeclaration(compiled.Document, compiled.NextIdentity,
-            compiled.Bodies, compiled.Colliders, compiled.Materials, [], [], tensileSpans: spans);
+            compiled.Bodies, compiled.Colliders, compiled.Materials, [], [], tensileSpans: spans,
+            ropeGuides: [new(new(1), p1, 0.4f, new(0f, 0f, 0.12f)), new(new(2), p2, 0.4f, new(0f, 0f, 0.12f))]);
         var world = new LawWorld(physicsScene, PhysicsGpuAbi.Admission(physicsScene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1))), SimulationCadence.Hz120);
 
@@ -764,9 +765,9 @@ public sealed class RopeTests
         var tieWeight = DeclaredPorts.Current.LocalPosition(weight, WorkshopSocket.Tie);
         var posAnchor = new Vector3(-2f, 6f, 0f);
         var posWeight = new Vector3(0.4f, 3f, 0f) + tieWeight;
-        var guides = new (Vector3 Position, Quaternion Rotation)[]
+        var guides = new RouteGuideFrame[]
         {
-            (new(0f, 6f, -.12f), Quaternion.Identity)
+            new(new(0f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f))
         };
         var evaluated = RopeGeometry.EvaluateRoute(posAnchor, posWeight, guides);
         var totalLength = evaluated.TotalLength;

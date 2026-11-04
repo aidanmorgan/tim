@@ -301,17 +301,36 @@ public static class WorkshopPhysicsCompiler
                 var portB = DeclaredPorts.Current.Of(instanceB.PartId).ToArray().Single(p => p.Socket == b.Socket);
                 var bodyA = ResolvePortBody(instanceA.Id, portA.Body);
                 var bodyB = ResolvePortBody(instanceB.Id, portB.Body);
+                var isGuide = order < route.Spans.Length - 1 && portB.AttachmentRole == RopeAttachmentRole.Guide;
+                var guideRadius = isGuide ? portB.GuideRadius : 0f;
+                var guideOffset = isGuide ? portB.GuideOffset : Vector3.Zero;
                 tensile.Add(new(new((ulong)tensile.Count + 1), new((ulong)routeIndex + 1), (uint)order,
                     bodyA, DeclaredPorts.Current.LocalPosition(instanceA, a.Socket),
                     bodyB, DeclaredPorts.Current.LocalPosition(instanceB, b.Socket),
-                    route.Spans[order].RopeLength!.Value, route.Complete));
+                    route.Spans[order].RopeLength!.Value, route.Complete,
+                    guideRadius, guideOffset));
+            }
+        }
+        var ropeGuides = new List<RopeGuideDeclaration>();
+        foreach (var instance in construction.Instances.OfType<WorkshopGenericInstance>().OrderBy(i => i.Id.Value))
+        {
+            var ports = DeclaredPorts.Current.Of(instance.PartId);
+            foreach (var port in ports)
+            {
+                if (port.AttachmentRole == RopeAttachmentRole.Guide)
+                {
+                    var guideId = new RopeGuideId((ulong)ropeGuides.Count + 1);
+                    var guideBody = ResolvePortBody(instance.Id, port.Body);
+                    ropeGuides.Add(new(guideId, guideBody, port.GuideRadius, port.GuideOffset));
+                }
             }
         }
         return new(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(identities[link.Source].Source, identities[link.Target].Work)).ToArray(), prismatics.ToArray(),
             supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray(),
-            compliantSurfaces.ToArray(), revoluteDrives.ToArray());
+            compliantSurfaces.ToArray(), revoluteDrives.ToArray(),
+            ropeGuides: ropeGuides.ToArray());
     }
     /// <summary>The finite electrical store a declared Source compiles for one owner, from its own store parameters as f32: the
     /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>

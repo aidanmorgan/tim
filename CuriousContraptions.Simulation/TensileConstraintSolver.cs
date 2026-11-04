@@ -6,12 +6,26 @@ using static CuriousContraptions.Simulation.ConstraintBodyImpulse;
 
 namespace CuriousContraptions.Simulation;
 
+internal sealed class SimTensileGuide
+{
+    public SimBody Body;
+    public float Radius;
+    public Vector3 Offset;
+
+    public SimTensileGuide(SimBody body, float radius, Vector3 offset)
+    {
+        Body = body;
+        Radius = radius;
+        Offset = offset;
+    }
+}
+
 internal sealed class SimTensileRoute
 {
     public SimBody A = null!;
     public SimBody B = null!;
     public Vector3 LocalA, LocalB;
-    public SimBody[] Guides = [];
+    public SimTensileGuide[] Guides = [];
     public float Maximum, Impulse, Travel;
     public bool Complete, Cut, Active;
     public ConstraintRowData Row;
@@ -27,9 +41,10 @@ internal static class TensileConstraintSolver
         var a = route.A.Position + Vector3.Transform(route.LocalA, route.A.Rotation);
         var b = route.B.Position + Vector3.Transform(route.LocalB, route.B.Rotation);
 
-        var guides = new (Vector3 Position, Quaternion Rotation)[route.Guides.Length];
+        var guides = new RouteGuideFrame[route.Guides.Length];
         for (var i = 0; i < route.Guides.Length; i++)
-            guides[i] = (route.Guides[i].Position, route.Guides[i].Rotation);
+            guides[i] = new(route.Guides[i].Body.Position, route.Guides[i].Body.Rotation,
+                            route.Guides[i].Radius, route.Guides[i].Offset);
 
         var evaluated = RopeGeometry.EvaluateRoute(a, b, guides);
         var length = evaluated.TotalLength;

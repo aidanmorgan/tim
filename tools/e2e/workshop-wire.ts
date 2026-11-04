@@ -1329,12 +1329,12 @@ scene(obj?:CompiledSceneRecord):CompiledSceneRecord|null {
   return offset ? (obj || new CompiledSceneRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
-pulleyWheels(index: number, obj?:PulleyWheelReadRecord):PulleyWheelReadRecord|null {
+ropeGuides(index: number, obj?:RopeGuideReadRecord):RopeGuideReadRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 60);
-  return offset ? (obj || new PulleyWheelReadRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new RopeGuideReadRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
-pulleyWheelsLength():number {
+ropeGuidesLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 60);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
@@ -1551,11 +1551,11 @@ static addScene(builder:flatbuffers.Builder, sceneOffset:flatbuffers.Offset) {
   builder.addFieldOffset(27, sceneOffset, 0);
 }
 
-static addPulleyWheels(builder:flatbuffers.Builder, pulleyWheelsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(28, pulleyWheelsOffset, 0);
+static addRopeGuides(builder:flatbuffers.Builder, ropeGuidesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(28, ropeGuidesOffset, 0);
 }
 
-static createPulleyWheelsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+static createRopeGuidesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]!);
@@ -1563,7 +1563,7 @@ static createPulleyWheelsVector(builder:flatbuffers.Builder, data:flatbuffers.Of
   return builder.endVector();
 }
 
-static startPulleyWheelsVector(builder:flatbuffers.Builder, numElems:number) {
+static startRopeGuidesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
@@ -7166,25 +7166,25 @@ static endRopeSpanReadRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export class PulleyWheelReadRecord {
+export class RopeGuideReadRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):PulleyWheelReadRecord {
+  __init(i:number, bb:flatbuffers.ByteBuffer):RopeGuideReadRecord {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-static getRootAsPulleyWheelReadRecord(bb:flatbuffers.ByteBuffer, obj?:PulleyWheelReadRecord):PulleyWheelReadRecord {
-  return (obj || new PulleyWheelReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+static getRootAsRopeGuideReadRecord(bb:flatbuffers.ByteBuffer, obj?:RopeGuideReadRecord):RopeGuideReadRecord {
+  return (obj || new RopeGuideReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-static getSizePrefixedRootAsPulleyWheelReadRecord(bb:flatbuffers.ByteBuffer, obj?:PulleyWheelReadRecord):PulleyWheelReadRecord {
+static getSizePrefixedRootAsRopeGuideReadRecord(bb:flatbuffers.ByteBuffer, obj?:RopeGuideReadRecord):RopeGuideReadRecord {
   bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new PulleyWheelReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new RopeGuideReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-pulley():bigint {
+guide():bigint {
   const offset = this.bb!.__offset(this.bb_pos, 4);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
@@ -7199,12 +7199,12 @@ angle():number {
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-static startPulleyWheelReadRecord(builder:flatbuffers.Builder) {
+static startRopeGuideReadRecord(builder:flatbuffers.Builder) {
   builder.startObject(3);
 }
 
-static addPulley(builder:flatbuffers.Builder, pulley:bigint) {
-  builder.addFieldInt64(0, pulley, BigInt('0'));
+static addGuide(builder:flatbuffers.Builder, guide:bigint) {
+  builder.addFieldInt64(0, guide, BigInt('0'));
 }
 
 static addTravel(builder:flatbuffers.Builder, travel:number) {
@@ -7215,17 +7215,17 @@ static addAngle(builder:flatbuffers.Builder, angle:number) {
   builder.addFieldFloat32(2, angle, 0.0);
 }
 
-static endPulleyWheelReadRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+static endRopeGuideReadRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createPulleyWheelReadRecord(builder:flatbuffers.Builder, pulley:bigint, travel:number, angle:number):flatbuffers.Offset {
-  PulleyWheelReadRecord.startPulleyWheelReadRecord(builder);
-  PulleyWheelReadRecord.addPulley(builder, pulley);
-  PulleyWheelReadRecord.addTravel(builder, travel);
-  PulleyWheelReadRecord.addAngle(builder, angle);
-  return PulleyWheelReadRecord.endPulleyWheelReadRecord(builder);
+static createRopeGuideReadRecord(builder:flatbuffers.Builder, guide:bigint, travel:number, angle:number):flatbuffers.Offset {
+  RopeGuideReadRecord.startRopeGuideReadRecord(builder);
+  RopeGuideReadRecord.addGuide(builder, guide);
+  RopeGuideReadRecord.addTravel(builder, travel);
+  RopeGuideReadRecord.addAngle(builder, angle);
+  return RopeGuideReadRecord.endRopeGuideReadRecord(builder);
 }
 }
 
@@ -7349,8 +7349,18 @@ complete():boolean {
   return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
 }
 
+guideRadius():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+guideOffset(obj?:Vec3f):Vec3f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
 static startTensileSpanRecord(builder:flatbuffers.Builder) {
-  builder.startObject(9);
+  builder.startObject(11);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -7387,6 +7397,14 @@ static addMaximumLength(builder:flatbuffers.Builder, maximumLength:number) {
 
 static addComplete(builder:flatbuffers.Builder, complete:boolean) {
   builder.addFieldInt8(8, +complete, +false);
+}
+
+static addGuideRadius(builder:flatbuffers.Builder, guideRadius:number) {
+  builder.addFieldFloat32(9, guideRadius, 0.0);
+}
+
+static addGuideOffset(builder:flatbuffers.Builder, guideOffsetOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(10, guideOffsetOffset, 0);
 }
 
 static endTensileSpanRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -7519,6 +7537,73 @@ static createCompliantSurfaceRecord(builder:flatbuffers.Builder, id:bigint, body
   CompliantSurfaceRecord.addArrivalDepth(builder, arrivalDepth);
   return CompliantSurfaceRecord.endCompliantSurfaceRecord(builder);
 }
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+export class CapabilityRopeGuideRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CapabilityRopeGuideRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCapabilityRopeGuideRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRopeGuideRecord):CapabilityRopeGuideRecord {
+  return (obj || new CapabilityRopeGuideRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCapabilityRopeGuideRecord(bb:flatbuffers.ByteBuffer, obj?:CapabilityRopeGuideRecord):CapabilityRopeGuideRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CapabilityRopeGuideRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+body():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+radius():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+offset(obj?:Vec3f):Vec3f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+static startCapabilityRopeGuideRecord(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addBody(builder:flatbuffers.Builder, body:bigint) {
+  builder.addFieldInt64(1, body, BigInt('0'));
+}
+
+static addRadius(builder:flatbuffers.Builder, radius:number) {
+  builder.addFieldFloat32(2, radius, 0.0);
+}
+
+static addOffset(builder:flatbuffers.Builder, offsetOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(3, offsetOffset, 0);
+}
+
+static endCapabilityRopeGuideRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
@@ -7836,8 +7921,18 @@ revoluteDrivesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+ropeGuides(index: number, obj?:CapabilityRopeGuideRecord):CapabilityRopeGuideRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 70);
+  return offset ? (obj || new CapabilityRopeGuideRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+ropeGuidesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 70);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(33);
+  builder.startObject(34);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -8273,6 +8368,22 @@ static createRevoluteDrivesVector(builder:flatbuffers.Builder, data:flatbuffers.
 }
 
 static startRevoluteDrivesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addRopeGuides(builder:flatbuffers.Builder, ropeGuidesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(33, ropeGuidesOffset, 0);
+}
+
+static createRopeGuidesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startRopeGuidesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 

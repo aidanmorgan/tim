@@ -227,16 +227,16 @@ public static partial class WorkshopWireFlatBuffers
             ropeOffsets[i] = RopeSpanReadRecord.EndRopeSpanReadRecord(builder);
         }
         var ropesVector = Wire.WorkshopResponse.CreateRopesVector(builder, ropeOffsets);
-        VectorOffset? pulleyOffset = null;
-        if (!read.Presentation.Pulleys.IsEmpty)
+        VectorOffset? guideOffset = null;
+        if (!read.Presentation.Guides.IsEmpty)
         {
-            var pulleyOffsets = new Offset<Wire.PulleyWheelReadRecord>[read.Presentation.Pulleys.Length];
-            for (var i = 0; i < read.Presentation.Pulleys.Length; i++)
+            var guideOffsets = new Offset<Wire.RopeGuideReadRecord>[read.Presentation.Guides.Length];
+            for (var i = 0; i < read.Presentation.Guides.Length; i++)
             {
-                var p = read.Presentation.Pulleys[i];
-                pulleyOffsets[i] = Wire.PulleyWheelReadRecord.CreatePulleyWheelReadRecord(builder, p.Pulley.Value, p.Travel, p.Angle);
+                var g = read.Presentation.Guides[i];
+                guideOffsets[i] = Wire.RopeGuideReadRecord.CreateRopeGuideReadRecord(builder, g.Guide.Value, g.Travel, g.Angle);
             }
-            pulleyOffset = Wire.WorkshopResponse.CreatePulleyWheelsVector(builder, pulleyOffsets);
+            guideOffset = Wire.WorkshopResponse.CreateRopeGuidesVector(builder, guideOffsets);
         }
         VectorOffset? surfaceOffset = null;
         if (!read.Presentation.Surfaces.IsEmpty)
@@ -395,7 +395,7 @@ public static partial class WorkshopWireFlatBuffers
         Wire.WorkshopResponse.StartWorkshopResponse(builder);
         if (logicOffset.HasValue) Wire.WorkshopResponse.AddElectricalLogic(builder,logicOffset.Value);
         Wire.WorkshopResponse.AddRopes(builder, ropesVector);
-        if (pulleyOffset.HasValue) Wire.WorkshopResponse.AddPulleyWheels(builder, pulleyOffset.Value);
+        if (guideOffset.HasValue) Wire.WorkshopResponse.AddRopeGuides(builder, guideOffset.Value);
         if (surfaceOffset.HasValue) Wire.WorkshopResponse.AddCompliantSurfaces(builder, surfaceOffset.Value);
         if (actuatorOffset.HasValue) Wire.WorkshopResponse.AddActuatorDrives(builder, actuatorOffset.Value);
         if (loadOffset.HasValue) Wire.WorkshopResponse.AddContactLoads(builder, loadOffset.Value);
@@ -529,11 +529,11 @@ public static partial class WorkshopWireFlatBuffers
                 new(a.X, a.Y, a.Z), new(b.X, b.Y, b.Z), row.MaximumLength, row.CurrentLength,
                 (RopeIntegrity)row.Integrity, (RopeState)row.State, new(row.CutSpan));
         }
-        var pulleyValues = new PulleyWheelRead[fb.PulleyWheelsLength];
-        for (var i = 0; i < pulleyValues.Length; i++)
+        var guideValues = new RopeGuideRead[fb.RopeGuidesLength];
+        for (var i = 0; i < guideValues.Length; i++)
         {
-            var row = Required(fb.PulleyWheels(i), "pulley observation");
-            pulleyValues[i] = new(new(row.Pulley), row.Travel, row.Angle);
+            var row = Required(fb.RopeGuides(i), "rope guide observation");
+            guideValues[i] = new(new(row.Guide), row.Travel, row.Angle);
         }
         var surfaceValues = new CompliantSurfaceRead[fb.CompliantSurfacesLength];
         for (var i = 0; i < surfaceValues.Length; i++)
@@ -576,7 +576,7 @@ public static partial class WorkshopWireFlatBuffers
 
         var read = new WorkshopRead(epoch, tick, bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores),
-            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, pulleyValues, surfaceValues),
+            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, guideValues, surfaceValues),
             new PhysicsDriveTargetRead(driveTargets));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);

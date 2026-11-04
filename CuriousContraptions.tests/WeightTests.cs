@@ -900,10 +900,10 @@ public sealed class WeightTests(ITestOutputHelper output)
         var tieB = DeclaredPorts.Current.LocalPosition(b, WorkshopSocket.Tie);
         var posA = new Vector3(-2.4f, heightA, 0f) + tieA;
         var posB = new Vector3(2.4f, heightB, 0f) + tieB;
-        var guides = new (Vector3 Position, Quaternion Rotation)[]
+        var guides = new RouteGuideFrame[]
         {
-            (new(-2f, 6f, -.12f), Quaternion.Identity),
-            (new(2f, 6f, -.12f), Quaternion.Identity)
+            new(new(-2f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f)),
+            new(new(2f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f))
         };
         var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides);
         var len = evaluated.TotalLength;

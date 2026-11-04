@@ -276,6 +276,8 @@ public sealed class PhysicsSceneDeclaration
     private readonly RevoluteDriveDeclaration[] _revoluteDrives;
     /// <summary>The supplied velocity drives, at most one per revolute, sorted by joint identity.</summary>
     public ReadOnlySpan<RevoluteDriveDeclaration> RevoluteDrives => _revoluteDrives;
+    private readonly RopeGuideDeclaration[] _ropeGuides;
+    public ReadOnlySpan<RopeGuideDeclaration> RopeGuides => _ropeGuides;
     public CompiledSupplyGraph SupplyGraph { get; }
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
@@ -314,7 +316,8 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<TensileSpanDeclaration> tensileSpans = default,
         ReadOnlySpan<RevoluteConstraintDeclaration> revolutes = default,
         ReadOnlySpan<CompliantSurfaceDeclaration> compliantSurfaces = default,
-        ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives = default)
+        ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives = default,
+        ReadOnlySpan<RopeGuideDeclaration> ropeGuides = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
@@ -465,13 +468,24 @@ public sealed class PhysicsSceneDeclaration
             foreach (var span in route.Values)
             {
                 if (span.Order != order++ || (previous is { } prior &&
-                    (prior.BodyB != span.BodyA || prior.LocalB != span.LocalA)) ||
+                    (prior.BodyB != span.BodyA || prior.LocalB != span.LocalA || prior.GuideRadius <= 0f || !float.IsFinite(prior.GuideRadius))) ||
                     !visited.Add(span.BodyA))
                     throw new ArgumentException("Tensile route must be one ordered acyclic chain.");
                 previous = span;
             }
             if (previous is { } last && !visited.Add(last.BodyB)) throw new ArgumentException("Tensile route closes a cycle.");
         }
+        var guideIds = new HashSet<RopeGuideId>();
+        foreach (var guide in ropeGuides)
+        {
+            guide.Validate();
+            if (!guideIds.Add(guide.Id))
+                throw new ArgumentException("Rope guides require unique identities.");
+            if (!bodyMap.ContainsKey(guide.Body))
+                throw new ArgumentException("Rope guide requires an admitted body.");
+        }
+        _ropeGuides = ropeGuides.ToArray();
+        Array.Sort(_ropeGuides, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         _prismatics = prismatics.ToArray();
         Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         _revolutes = revolutes.ToArray();

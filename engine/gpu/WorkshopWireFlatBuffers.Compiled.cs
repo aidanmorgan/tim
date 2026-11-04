@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 using Google.FlatBuffers;
 using W = CuriousContraptions.Wire;
 
@@ -17,14 +18,34 @@ public static partial class WorkshopWireFlatBuffers
         W.TensileSpanRecord.AddLocalA(b, W.Vec3f.CreateVec3f(b, value.LocalA.X, value.LocalA.Y, value.LocalA.Z));
         W.TensileSpanRecord.AddLocalB(b, W.Vec3f.CreateVec3f(b, value.LocalB.X, value.LocalB.Y, value.LocalB.Z));
         W.TensileSpanRecord.AddMaximumLength(b, value.MaximumLength); W.TensileSpanRecord.AddComplete(b, value.Complete);
+        W.TensileSpanRecord.AddGuideRadius(b, value.GuideRadius);
+        W.TensileSpanRecord.AddGuideOffset(b, W.Vec3f.CreateVec3f(b, value.GuideOffset.X, value.GuideOffset.Y, value.GuideOffset.Z));
         return W.TensileSpanRecord.EndTensileSpanRecord(b);
     }
 
     private static TensileSpanDeclaration DecodeTensile(W.TensileSpanRecord row)
     {
         var a = Required(row.LocalA, "tensile local A"); var b = Required(row.LocalB, "tensile local B");
+        var offset = row.GuideOffset;
+        var guideOffset = offset.HasValue ? new Vector3(offset.Value.X, offset.Value.Y, offset.Value.Z) : Vector3.Zero;
         return new(new(row.Id), new(row.Route), row.Order, new(row.BodyA), new(a.X, a.Y, a.Z),
-            new(row.BodyB), new(b.X, b.Y, b.Z), row.MaximumLength, row.Complete);
+            new(row.BodyB), new(b.X, b.Y, b.Z), row.MaximumLength, row.Complete, row.GuideRadius, guideOffset);
+    }
+
+    private static Offset<W.CapabilityRopeGuideRecord> EncodeRopeGuide(FlatBufferBuilder b, RopeGuideDeclaration value)
+    {
+        W.CapabilityRopeGuideRecord.StartCapabilityRopeGuideRecord(b);
+        W.CapabilityRopeGuideRecord.AddId(b, value.Id.Value);
+        W.CapabilityRopeGuideRecord.AddBody(b, value.Body.Value);
+        W.CapabilityRopeGuideRecord.AddRadius(b, value.Radius);
+        W.CapabilityRopeGuideRecord.AddOffset(b, W.Vec3f.CreateVec3f(b, value.Offset.X, value.Offset.Y, value.Offset.Z));
+        return W.CapabilityRopeGuideRecord.EndCapabilityRopeGuideRecord(b);
+    }
+
+    private static RopeGuideDeclaration DecodeRopeGuide(W.CapabilityRopeGuideRecord row)
+    {
+        var offset = Required(row.Offset, "rope guide offset");
+        return new(new(row.Id), new(row.Body), row.Radius, new(offset.X, offset.Y, offset.Z));
     }
 
     private static Offset<W.CompliantSurfaceRecord> EncodeCompliantSurface(FlatBufferBuilder b, CompliantSurfaceDeclaration value) =>
@@ -815,6 +836,8 @@ public static partial class WorkshopWireFlatBuffers
         var contact_load_sensors = W.CompiledSceneRecord.CreateContactLoadSensorsVector(b, scene.Physics.ContactLoadSensors.ToArray().Select(value => EncodeCapabilityContactLoadSensorDeclarationRecord(b, value)).ToArray());
         var prismatic_drives = W.CompiledSceneRecord.CreatePrismaticDrivesVector(b, scene.Physics.PrismaticDrives.ToArray().Select(value => EncodeCapabilityPrismaticDriveDeclarationRecord(b, value)).ToArray());
         var revolute_drives = W.CompiledSceneRecord.CreateRevoluteDrivesVector(b, scene.Physics.RevoluteDrives.ToArray().Select(value => EncodeCapabilityRevoluteDriveDeclarationRecord(b, value)).ToArray());
+        var rope_guides = scene.Physics.RopeGuides.IsEmpty ? default :
+            W.CompiledSceneRecord.CreateRopeGuidesVector(b, scene.Physics.RopeGuides.ToArray().Select(v => EncodeRopeGuide(b, v)).ToArray());
         var activation_nodes = W.CompiledSceneRecord.CreateActivationNodesVector(b, scene.Activation.Nodes.ToArray().Select(value => EncodeCapabilityActivationNodeDeclarationRecord(b, value)).ToArray());
         var activation_edges = W.CompiledSceneRecord.CreateActivationEdgesVector(b, scene.Activation.Edges.ToArray().Select(value => EncodeCapabilityActivationEdgeRecord(b, value)).ToArray());
         var passage_sensors = W.CompiledSceneRecord.CreatePassageSensorsVector(b, scene.Activation.PassageSensors.ToArray().Select(value => EncodeCapabilityPassageSensorDeclarationRecord(b, value)).ToArray());
@@ -875,6 +898,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddRevolutes(b, revolutes);
         W.CompiledSceneRecord.AddCompliantSurfaces(b, compliant_surfaces);
         W.CompiledSceneRecord.AddRevoluteDrives(b, revolute_drives);
+        if (rope_guides.Value != 0) W.CompiledSceneRecord.AddRopeGuides(b, rope_guides);
         return W.CompiledSceneRecord.EndCompiledSceneRecord(b);
     }
 
@@ -901,13 +925,16 @@ public static partial class WorkshopWireFlatBuffers
             var revolute_drives = Enumerable.Range(0, row.RevoluteDrivesLength).Select(i => DecodeCapabilityRevoluteDriveDeclarationRecord(Required(row.RevoluteDrives(i), "RevoluteDrives"))).ToArray();
             var tensile = Enumerable.Range(0, row.TensileSpansLength).Select(i => DecodeTensile(Required(row.TensileSpans(i), "TensileSpans"))).ToArray();
             var compliant_surfaces = Enumerable.Range(0, row.CompliantSurfacesLength).Select(i => DecodeCompliantSurface(Required(row.CompliantSurfaces(i), "CompliantSurfaces"))).ToArray();
+            var rope_guides = Enumerable.Range(0, row.RopeGuidesLength).Select(i =>
+                DecodeRopeGuide(Required(row.RopeGuides(i), "rope guide declaration"))).ToArray();
             var activation_nodes = Enumerable.Range(0, row.ActivationNodesLength).Select(i => DecodeCapabilityActivationNodeDeclarationRecord(Required(row.ActivationNodes(i), "ActivationNodes"))).ToArray();
             var activation_edges = Enumerable.Range(0, row.ActivationEdgesLength).Select(i => DecodeCapabilityActivationEdgeRecord(Required(row.ActivationEdges(i), "ActivationEdges"))).ToArray();
             var passage_sensors = Enumerable.Range(0, row.PassageSensorsLength).Select(i => DecodeCapabilityPassageSensorDeclarationRecord(Required(row.PassageSensors(i), "PassageSensors"))).ToArray();
             var physics = new PhysicsSceneDeclaration(new(row.DocumentLow, row.DocumentHigh), row.NextIdentity,
                 bodies, colliders, materials, sensors, guides, triggers, contact_works, orientation_sensors,
                 electrical_sources, electrical_bindings, prismatics, supply_nodes, supply_edges, contact_load_sensors, prismatic_drives, tensile,
-                revolutes: revolutes, compliantSurfaces: compliant_surfaces, revoluteDrives: revolute_drives);
+                revolutes: revolutes, compliantSurfaces: compliant_surfaces, revoluteDrives: revolute_drives,
+                ropeGuides: rope_guides);
             var activation = new ActivationNetwork(activation_nodes, activation_edges, row.ActivationSubsteps, passage_sensors,
                 Enumerable.Range(0, row.ContactOwnersLength).Select(i => new GpuBodyId(row.ContactOwners(i))).ToArray());
             var presentation = Enumerable.Range(0, row.PresentationLength).Select(i =>

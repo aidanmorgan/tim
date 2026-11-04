@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public static partial class PhysicsGpuAbi
 {
-    public const int TensileSpanBytes = 80;
+    public const int TensileSpanBytes = 96;
     public const int TensileRouteOffset = 8;
     public const int TensileOrderOffset = 16;
     public const int TensileBodyAOffset = 20;
@@ -18,6 +18,8 @@ public static partial class PhysicsGpuAbi
     public const int TensileCutSpanOffset = 64;
     public const int TensileImpulseOffset = 72;
     public const int TensileTravelOffset = 76;
+    public const int TensileGuideRadiusOffset = 80;
+    public const int TensileGuideOffsetOffset = 84;
 
     private static void WriteTensileAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
     {
@@ -35,6 +37,8 @@ public static partial class PhysicsGpuAbi
             U32(row, TensileCompleteOffset, value.Complete ? 1u : 0u);
             U32(row, TensileIntegrityOffset, (uint)RopeIntegrity.Intact);
             F32(row, TensileTravelOffset, 0f);
+            F32(row, TensileGuideRadiusOffset, value.GuideRadius);
+            F32Vector(row, TensileGuideOffsetOffset, value.GuideOffset.X, value.GuideOffset.Y, value.GuideOffset.Z);
         }
     }
 
@@ -48,17 +52,22 @@ public static partial class PhysicsGpuAbi
         var impulse = RF(row, TensileImpulseOffset);
         var travel = RF(row, TensileTravelOffset);
         var cut = R64(row, TensileCutSpanOffset);
+        var guideRadius = RF(row, TensileGuideRadiusOffset);
+        var guideOffset = new Vector3(RF(row, TensileGuideOffsetOffset), RF(row, TensileGuideOffsetOffset + 4), RF(row, TensileGuideOffsetOffset + 8));
         if (a >= layout.Bodies || b >= layout.Bodies || R32(row, TensileCompleteOffset) > 1 ||
             !Enum.IsDefined(integrity) || (integrity == RopeIntegrity.Intact) != (cut == 0) ||
             !float.IsFinite(impulse) || impulse < 0f || (integrity == RopeIntegrity.Cut && impulse != 0f) ||
-            !float.IsFinite(travel))
+            !float.IsFinite(travel) ||
+            !float.IsFinite(guideRadius) || guideRadius < 0f ||
+            !float.IsFinite(guideOffset.X) || !float.IsFinite(guideOffset.Y) || !float.IsFinite(guideOffset.Z))
             throw new ArgumentException("Invalid tensile span.");
         var value = new TensileSpanDeclaration(new(R64(row, 0)), new(R64(row, TensileRouteOffset)),
             R32(row, TensileOrderOffset), new(R64(data, layout.BodyOffset((int)a))),
             new(RF(row, TensileLocalAOffset), RF(row, TensileLocalAOffset + 4), RF(row, TensileLocalAOffset + 8)),
             new(R64(data, layout.BodyOffset((int)b))),
             new(RF(row, TensileLocalBOffset), RF(row, TensileLocalBOffset + 4), RF(row, TensileLocalBOffset + 8)),
-            RF(row, TensileMaximumOffset), R32(row, TensileCompleteOffset) == 1);
+            RF(row, TensileMaximumOffset), R32(row, TensileCompleteOffset) == 1,
+            guideRadius, guideOffset);
         value.Validate();
         return value;
     }
@@ -75,6 +84,8 @@ public static partial class PhysicsGpuAbi
             if (R32(source, offset + TensileIntegrityOffset) == (uint)RopeIntegrity.Cut &&
                 (!candidate.Slice(offset + TensileIntegrityOffset, 12).SequenceEqual(source.Slice(offset + TensileIntegrityOffset, 12))))
                 throw new ArgumentException("A committed cut cannot heal.");
+            if (!candidate.Slice(offset + TensileGuideRadiusOffset, 16).SequenceEqual(source.Slice(offset + TensileGuideRadiusOffset, 16)))
+                throw new ArgumentException("Tensile declaration changed.");
         }
     }
 }

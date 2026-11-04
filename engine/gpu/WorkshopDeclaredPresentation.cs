@@ -32,6 +32,7 @@ public sealed class WorkshopDeclaredPresentation
         public uint Count;
         public float Value;
         public float Rest;
+        public RopeGuideId Guide;
         public bool Visible = true;
         public Track Copy() => (Track)MemberwiseClone();
     }
@@ -57,15 +58,27 @@ public sealed class WorkshopDeclaredPresentation
         _time = new(checked(endpoint.Read.Tick.Value * construction.Settings.PhysicalStepsPerCommit));
         _substeps = construction.Settings.PhysicalStepsPerCommit;
         var tracks = new List<Track>(construction.Presentation.Length);
+        var guideIndexByOwner = new Dictionary<GpuBodyId, int>();
         foreach (var binding in construction.Presentation)
         {
             var declaration = binding.Declaration;
             var drives = System.Collections.Immutable.ImmutableArray<SupplyConsumer>.Empty;
             foreach (var node in construction.Physics.SupplyGraph.Nodes)
                 if (node.Owner == binding.Owner && node.Kind == SupplyNodeKind.Consumer && !node.Consumers.IsDefault) drives = node.Consumers;
+            var guide = default(RopeGuideId);
+            if (declaration.Driver == PresentationDriver.CommittedWheelAngle)
+            {
+                var idx = guideIndexByOwner.GetValueOrDefault(binding.Owner, 0);
+                guideIndexByOwner[binding.Owner] = idx + 1;
+                var ownerGuides = new List<RopeGuideDeclaration>();
+                foreach (var g in construction.Physics.RopeGuides)
+                    if (g.Body == binding.Owner) ownerGuides.Add(g);
+                if (ownerGuides.Count > 0)
+                    guide = ownerGuides[idx % ownerGuides.Count].Id;
+            }
             tracks.Add(new Track { Owner = binding.Owner, Index = binding.Binding, Declaration = declaration,
                 Target = binding.Target, Node = binding.Activation, Value = declaration.From, Rest = declaration.From,
-                Capacity = binding.SourceCapacity, Drives = drives });
+                Capacity = binding.SourceCapacity, Drives = drives, Guide = guide });
         }
         _tracks = tracks.ToArray();
         _batch = new();
@@ -366,9 +379,9 @@ public sealed class WorkshopDeclaredPresentation
                     }
                 break;
             case PresentationDriver.CommittedWheelAngle:
-                foreach (var pulley in read.Presentation.Pulleys)
-                    if (pulley.Pulley == track.Owner)
-                        return pulley.Angle;
+                foreach (var guide in read.Presentation.Guides)
+                    if (guide.Guide == track.Guide)
+                        return guide.Angle;
                 break;
             case PresentationDriver.CommittedSurfaceDeflection:
                 foreach (var surface in read.Presentation.Surfaces)

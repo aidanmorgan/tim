@@ -47,7 +47,9 @@ public readonly record struct PortDescriptor(
     Vector3 Normal,
     RopeAttachmentRole AttachmentRole = RopeAttachmentRole.None,
     PortPositionBinding? PositionBinding = null,
-    PackageBodyIndex Body = default);
+    PackageBodyIndex Body = default,
+    float GuideRadius = 0f,
+    Vector3 GuideOffset = default);
 
 public enum RopeAttachmentRole : byte { None = 0, Anchor = 1, Load = 2, Guide = 3 }
 

@@ -234,16 +234,16 @@ internal static class WorkshopObservationProjection
             logic.Push(row);
         }
         value.SetProperty("logic", logic);
-        using var pulleys = T.Array();
-        foreach (var source in read.Presentation.Pulleys)
+        using var guides = T.Array();
+        foreach (var source in read.Presentation.Guides)
         {
             using var row = T.Object();
-            row.SetProperty("pul" + "ley", Exact(source.Pulley.Value));
+            row.SetProperty("guide", Exact(source.Guide.Value));
             row.SetProperty("travel", source.Travel);
             row.SetProperty("angle", source.Angle);
-            pulleys.Push(row);
+            guides.Push(row);
         }
-        value.SetProperty("pulleys", pulleys);
+        value.SetProperty("guides", guides);
         using var surfaces = T.Array();
         foreach (var source in read.Presentation.Surfaces)
         {

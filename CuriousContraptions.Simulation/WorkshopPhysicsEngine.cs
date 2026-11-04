@@ -484,9 +484,12 @@ internal sealed class WorkshopPhysicsEngine
 
             if (list.Count > 1)
             {
-                var guides = new SimBody[list.Count - 1];
+                var guides = new SimTensileGuide[list.Count - 1];
                 for (var i = 0; i < list.Count - 1; i++)
-                    guides[i] = _allBodies[(int)ReadU32(span, list[i].Offset + PhysicsGpuAbi.TensileBodyBOffset)];
+                {
+                    var body = _allBodies[(int)ReadU32(span, list[i].Offset + PhysicsGpuAbi.TensileBodyBOffset)];
+                    guides[i] = new(body, list[i].Declared.GuideRadius, list[i].Declared.GuideOffset);
+                }
                 route.Guides = guides;
             }
             else

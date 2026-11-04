@@ -5,7 +5,13 @@ namespace CuriousContraptions.Gpu;
 
 public enum RopeWinding { Clockwise = -1, CounterClockwise = 1 }
 
-public readonly record struct PulleyArc(
+public readonly record struct RouteGuideFrame(
+    Vector3 Position,
+    Quaternion Rotation,
+    float Radius,
+    Vector3 Offset = default);
+
+public readonly record struct RouteGuideArc(
     Vector3 Entry,
     Vector3 Exit,
     float StartAngle,
@@ -17,15 +23,13 @@ public readonly record struct EvaluatedRopeRoute(
     Vector3 TangentB,
     Vector3 UnitA,
     Vector3 UnitB,
-    PulleyArc[] Arcs,
+    RouteGuideArc[] Arcs,
     float TotalLength);
 
 /// <summary>Pure cosmetic and kinematic polyline evaluation.</summary>
 public static class RopeGeometry
 {
     public const int Segments = 24;
-    public const float PulleyRadius = 0.4f;
-    public const float PulleySocketDepth = 0.12f;
 
     public static Vector3[] Evaluate(Vector3 from, Vector3 to, float maximum, RopeState state)
     {
@@ -73,7 +77,7 @@ public static class RopeGeometry
     public static EvaluatedRopeRoute EvaluateRoute(
         Vector3 terminalA,
         Vector3 terminalB,
-        ReadOnlySpan<(Vector3 Position, Quaternion Rotation)> guides)
+        ReadOnlySpan<RouteGuideFrame> guides)
     {
         if (guides.Length == 0)
         {
@@ -92,16 +96,19 @@ public static class RopeGeometry
         var exits = new Vector3[k];
         var startAngles = new float[k];
         var sweeps = new float[k];
-        var arcs = new PulleyArc[k];
+        var arcs = new RouteGuideArc[k];
 
         for (var i = 0; i < k; i++)
         {
             var g = guides[i];
-            centers[i] = g.Position + Vector3.Transform(new Vector3(0f, 0f, PulleySocketDepth), g.Rotation);
+            if (!float.IsFinite(g.Radius) || g.Radius <= 0f || !Finite(g.Position) || !Finite(g.Offset) ||
+                !float.IsFinite(g.Rotation.X) || !float.IsFinite(g.Rotation.Y) || !float.IsFinite(g.Rotation.Z) || !float.IsFinite(g.Rotation.W))
+                throw new ArgumentException("Invalid rope guide geometry.");
+            centers[i] = g.Position + Vector3.Transform(g.Offset, g.Rotation);
             axisX[i] = Vector3.Transform(Vector3.UnitX, g.Rotation);
             axisY[i] = Vector3.Transform(Vector3.UnitY, g.Rotation);
             axisZ[i] = Vector3.Transform(Vector3.UnitZ, g.Rotation);
-            entries[i] = centers[i] + axisY[i] * PulleyRadius;
+            entries[i] = centers[i] + axisY[i] * g.Radius;
             exits[i] = entries[i];
         }
 
@@ -109,6 +116,7 @@ public static class RopeGeometry
         {
             for (var i = 0; i < k; i++)
             {
+                var r = guides[i].Radius;
                 var prevPoint = i == 0 ? terminalA : exits[i - 1];
                 var nextPoint = i == k - 1 ? terminalB : entries[i + 1];
 
@@ -118,14 +126,14 @@ public static class RopeGeometry
                 var inLocal = new Vector2(Vector3.Dot(toPrev, axisX[i]), Vector3.Dot(toPrev, axisY[i]));
                 var outLocal = new Vector2(Vector3.Dot(toNext, axisX[i]), Vector3.Dot(toNext, axisY[i]));
 
-                var winding = ChooseWinding(inLocal, outLocal);
-                var (entryAngle, exitAngle, sweep) = TangentAngles(inLocal, outLocal, winding);
+                var winding = ChooseWinding(inLocal, outLocal, r);
+                var (entryAngle, exitAngle, sweep) = TangentAngles(inLocal, outLocal, winding, r);
 
                 startAngles[i] = entryAngle;
                 sweeps[i] = sweep;
 
-                var entryLocal = new Vector2(PulleyRadius * MathF.Cos(entryAngle), PulleyRadius * MathF.Sin(entryAngle));
-                var exitLocal = new Vector2(PulleyRadius * MathF.Cos(exitAngle), PulleyRadius * MathF.Sin(exitAngle));
+                var entryLocal = new Vector2(r * MathF.Cos(entryAngle), r * MathF.Sin(entryAngle));
+                var exitLocal = new Vector2(r * MathF.Cos(exitAngle), r * MathF.Sin(exitAngle));
 
                 entries[i] = centers[i] + axisX[i] * entryLocal.X + axisY[i] * entryLocal.Y;
                 exits[i] = centers[i] + axisX[i] * exitLocal.X + axisY[i] * exitLocal.Y;
@@ -138,7 +146,7 @@ public static class RopeGeometry
 
         for (var i = 0; i < k; i++)
         {
-            var arcLen = PulleyRadius * MathF.Abs(sweeps[i]);
+            var arcLen = guides[i].Radius * MathF.Abs(sweeps[i]);
             totalLength += arcLen;
             if (i < k - 1) totalLength += Vector3.Distance(exits[i], entries[i + 1]);
             arcs[i] = new(entries[i], exits[i], startAngles[i], sweeps[i], arcLen);
@@ -151,13 +159,13 @@ public static class RopeGeometry
     }
 
     private static (float EntryAngle, float ExitAngle, float Sweep) TangentAngles(
-        Vector2 inLocal, Vector2 outLocal, RopeWinding winding)
+        Vector2 inLocal, Vector2 outLocal, RopeWinding winding, float radius)
     {
         var sign = (int)winding;
         var dIn = inLocal.Length();
         var dOut = outLocal.Length();
-        var alphaIn = MathF.Acos(Math.Clamp(PulleyRadius / MathF.Max(dIn, PulleyRadius), 0f, 1f));
-        var alphaOut = MathF.Acos(Math.Clamp(PulleyRadius / MathF.Max(dOut, PulleyRadius), 0f, 1f));
+        var alphaIn = MathF.Acos(Math.Clamp(radius / MathF.Max(dIn, radius), 0f, 1f));
+        var alphaOut = MathF.Acos(Math.Clamp(radius / MathF.Max(dOut, radius), 0f, 1f));
         var thetaIn = MathF.Atan2(inLocal.Y, inLocal.X);
         var thetaOut = MathF.Atan2(outLocal.Y, outLocal.X);
         var entryAngle = thetaIn + sign * alphaIn;
@@ -168,10 +176,10 @@ public static class RopeGeometry
 
     private static float PosMod(float val, float mod) => ((val % mod) + mod) % mod;
 
-    private static RopeWinding ChooseWinding(Vector2 inLocal, Vector2 outLocal)
+    private static RopeWinding ChooseWinding(Vector2 inLocal, Vector2 outLocal, float radius)
     {
-        var (cwIn, _, cwSweep) = TangentAngles(inLocal, outLocal, RopeWinding.Clockwise);
-        var (ccwIn, _, ccwSweep) = TangentAngles(inLocal, outLocal, RopeWinding.CounterClockwise);
+        var (cwIn, _, cwSweep) = TangentAngles(inLocal, outLocal, RopeWinding.Clockwise, radius);
+        var (ccwIn, _, ccwSweep) = TangentAngles(inLocal, outLocal, RopeWinding.CounterClockwise, radius);
         float MeanHeight(float start, float sweep) => MathF.Abs(sweep) < 1e-5f
             ? MathF.Sin(start)
             : (-MathF.Cos(start + sweep) + MathF.Cos(start)) / sweep;

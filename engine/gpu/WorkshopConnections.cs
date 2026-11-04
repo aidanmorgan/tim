@@ -19,7 +19,9 @@ public enum WorkshopSignalKind : uint { Pulse = 1, Level = 2 }
 /// (metres), the wire artwork's endpoint.</summary>
 public readonly record struct WorkshopPort(WorkshopSocket Socket, WorkshopConnectionDomain Domain, WorkshopPortDirection Direction,
     WorkshopSignalKind? Signal, Vector3 LocalPosition, RopeAttachmentRole AttachmentRole = RopeAttachmentRole.None, PortPositionBinding? PositionBinding = null,
-    CuriousContraptions.Abstractions.PackageBodyIndex Body = default);
+    CuriousContraptions.Abstractions.PackageBodyIndex Body = default,
+    float GuideRadius = 0f,
+    Vector3 GuideOffset = default);
 public readonly record struct WorkshopConnection(GpuBodyId Source, WorkshopSocket Output, GpuBodyId Target,
     WorkshopSocket Input, WorkshopConnectionDomain Domain, float? RopeLength = null);
 

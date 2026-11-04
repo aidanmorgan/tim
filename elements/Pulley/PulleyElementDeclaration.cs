@@ -19,7 +19,8 @@ public sealed class PulleyElementDeclaration : IMechanicalElement, ISceneGeometr
     public IReadOnlyList<PortDescriptor> Ports =>
     [
         new(PortSocket.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, null,
-            new(0f, .4f, .12f), Vector3.UnitY, RopeAttachmentRole.Guide)
+            new(0f, .4f, .12f), Vector3.UnitY, RopeAttachmentRole.Guide,
+            GuideRadius: 0.4f, GuideOffset: new(0f, 0f, .12f))
     ];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(1f, .3f, 0f, .1f))];

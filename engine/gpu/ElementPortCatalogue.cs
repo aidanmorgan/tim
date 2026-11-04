@@ -34,6 +34,8 @@ public enum ElementPortRejection : uint
     NonFinitePosition = 9,
     /// <summary>The element does not declare the socket asked about.</summary>
     UndeclaredSocket = 10,
+    /// <summary>A declared parameter, radius, or coordinate is out of range.</summary>
+    OutOfRange = 11,
 }
 
 /// <summary>A refused port declaration or port question. The registry reports a refused declaration as an invalid bundle, with this
@@ -120,7 +122,22 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         if (!Enum.IsDefined(port.AttachmentRole) ||
             (domain == WorkshopConnectionDomain.Rope) != (port.AttachmentRole != RopeAttachmentRole.None))
             throw Refused(ElementPortRejection.SocketDisagrees, element, index, "declares an invalid attachment role");
-        return new(socket, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body);
+        if (port.AttachmentRole == RopeAttachmentRole.Guide)
+        {
+            if (!float.IsFinite(port.GuideRadius) || port.GuideRadius <= 0f)
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a non-positive or non-finite guide radius");
+            if (!float.IsFinite(port.GuideOffset.X) || !float.IsFinite(port.GuideOffset.Y) || !float.IsFinite(port.GuideOffset.Z))
+                throw Refused(ElementPortRejection.NonFinitePosition, element, index, "declares a non-finite guide offset");
+        }
+        else
+        {
+            if (port.GuideRadius != 0f)
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a guide radius on a non-guide port");
+            if (port.GuideOffset != Vector3.Zero)
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a guide offset on a non-guide port");
+        }
+        return new(socket, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body,
+            port.GuideRadius, port.GuideOffset);
     }
 
     /// <summary>The domain and direction each socket is: the activation sockets carry signals, Supply feeds and PowerIn draws.</summary>

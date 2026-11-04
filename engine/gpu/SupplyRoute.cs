@@ -302,7 +302,7 @@ public static class SupplyCycles
 public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 {
     public RopeSpanId[] Cuts { get; init; } = [];
-    public GpuBodyId[] Pulleys { get; init; } = [];
+    public RopeGuideDeclaration[] Guides { get; init; } = [];
     /// <summary>Every compiled drive's target speed (rad/s) for this step, in drive-table order: exactly one per drive.</summary>
     public float[] DriveTarget { get; init; } = [];
     /// <summary>The committed enables and drive targets, with each held run control applied to the lane slot its row drives.</summary>
@@ -337,14 +337,14 @@ public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] SupplyClosed, ElectricalLogicRead[]? Logic = null)
 {
     public RopeSpanId[] Cuts { get; init; } = [];
-    public GpuBodyId[] Pulleys { get; init; } = [];
+    public RopeGuideDeclaration[] Guides { get; init; } = [];
     /// <summary>Every revolute drive's target speed (rad/s) for this step, in drive-table order: exactly one per driven revolute.</summary>
     public float[] DriveTarget { get; init; } = [];
     public static PhysicsTickInputs Admission { get; } = new([], []);
     public static PhysicsTickInputs Compose(CompiledSupplyGraph graph, WorkshopTickControls controls, Func<GpuBodyId, bool> contactClosed)
     {
         var resolved=graph.Resolve(controls,contactClosed);
-        return new(controls.SourceEnable,resolved.Consumers,resolved.Logic) { Cuts = controls.Cuts, Pulleys = controls.Pulleys, DriveTarget = controls.DriveTarget };
+        return new(controls.SourceEnable,resolved.Consumers,resolved.Logic) { Cuts = controls.Cuts, Guides = controls.Guides, DriveTarget = controls.DriveTarget };
     }
     /// <summary>Refuses inputs that differ from the admitted tables: one defined enable per source, one supply flag per drive slot
     /// (<paramref name="driven"/>: whether each slot declares a drive), closed only on a slot that declares one, and one admitted target

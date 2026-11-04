@@ -109,6 +109,7 @@
         <Compile Include="ElectricalXorTests.cs" />
         <Compile Include="WeightTests.cs" />
         <Compile Include="RopeTests.cs" />
+        <Compile Include="RopeGuideTests.cs" />
         <Compile Include="SwitchElectricalTests.cs" />
         <Compile Include="LatchSupplyFixtureTests.cs" />
         <Compile Include="WorkshopBumperTests.cs" />

@@ -673,10 +673,10 @@ public sealed class WorkshopObservationTests
         Assert.Equal("18446744073709551615", projected.Fields["sequence"]);
         Assert.Equal("9007199254740993", projected.Fields["epoch"]);
         Assert.Equal((int)WorkshopSimulationPhase.Building, projected.Fields["phase"]);
-        var pulley = Assert.Single(Assert.IsType<ExternalObject>(projected.Fields["pulleys"]).Items);
-        Assert.Equal("9007199254740991", pulley.Fields["pulley"]);
-        Assert.Equal(1.25f, pulley.Fields["travel"]);
-        Assert.Equal(3.125f, pulley.Fields["angle"]);
+        var guide = Assert.Single(Assert.IsType<ExternalObject>(projected.Fields["guides"]).Items);
+        Assert.Equal("9007199254740991", guide.Fields["guide"]);
+        Assert.Equal(1.25f, guide.Fields["travel"]);
+        Assert.Equal(3.125f, guide.Fields["angle"]);
         var actuators = Assert.IsType<ExternalObject>(projected.Fields["actuators"]).Items;
         // The projected kinds are the literal values the TypeScript SupplyConsumerKind declares: PrismaticDrive 0, RevoluteDrive 1.
         Assert.Equal([(0, "9007199254740983", "9007199254740981", true), (1, "9007199254740979", "9007199254740977", false)],

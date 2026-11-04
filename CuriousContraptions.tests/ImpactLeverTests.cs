@@ -423,10 +423,10 @@ public sealed class ImpactLeverTests
         var tieLever = new Vector3(-1.8f, 3f, 0f);
         var tieWeight = new Vector3(-4.0f, 4.5f, 0f) + DeclaredPorts.Current.LocalPosition(weight, WorkshopSocket.Tie);
 
-        var guides = new (Vector3 Position, Quaternion Rotation)[]
+        var guides = new RouteGuideFrame[]
         {
-            (new(-1.8f, 6f, -.12f), Quaternion.Identity),
-            (new(-4.0f, 6f, -.12f), Quaternion.Identity)
+            new(new(-1.8f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f)),
+            new(new(-4.0f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f))
         };
         var evaluated = RopeGeometry.EvaluateRoute(tieLever, tieWeight, guides);
         var len = evaluated.TotalLength;
@@ -525,10 +525,10 @@ public sealed class ImpactLeverTests
         var tieLever = new Vector3(1.8f, 3f, 0f);
         var tieWeight = new Vector3(4.0f, 4.5f, 0f) + DeclaredPorts.Current.LocalPosition(weight, WorkshopSocket.Tie);
 
-        var guides = new (Vector3 Position, Quaternion Rotation)[]
+        var guides = new RouteGuideFrame[]
         {
-            (new(1.8f, 6f, -.12f), Quaternion.Identity),
-            (new(4.0f, 6f, -.12f), Quaternion.Identity)
+            new(new(1.8f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f)),
+            new(new(4.0f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f))
         };
         var evaluated = RopeGeometry.EvaluateRoute(tieLever, tieWeight, guides);
         var len = evaluated.TotalLength;

@@ -367,6 +367,17 @@ public static class BundleValidator
             }
             else if (port.AttachmentRole != RopeAttachmentRole.None || port.Socket is PortSocket.Tie or PortSocket.TieA or PortSocket.TieB)
                 OutOfRange(path + ".AttachmentRole");
+            if (port.AttachmentRole == RopeAttachmentRole.Guide)
+            {
+                if (!float.IsFinite(port.GuideRadius) || port.GuideRadius <= 0f)
+                    OutOfRange(path + ".GuideRadius");
+                Finite(path + ".GuideOffset", port.GuideOffset);
+            }
+            else
+            {
+                if (port.GuideRadius != 0f) OutOfRange(path + ".GuideRadius");
+                if (port.GuideOffset != Vector3.Zero) OutOfRange(path + ".GuideOffset");
+            }
             if (port.Body.Value < 0 || port.Body.Value > childBodies)
                 OutOfRange(path + ".Body");
             if (port.PositionBinding is { } binding)
