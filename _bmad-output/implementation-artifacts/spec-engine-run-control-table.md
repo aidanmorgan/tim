@@ -296,3 +296,10 @@ Status: done (4 November 2026). No blocking condition.
 - `RunControlValueKind.Scalar` exists before any lane takes it; the next slice's speed lane is its first user.
 - `WorkshopRunControl.cs.uid` keeps the deleted file's Godot UID. Nothing references it.
 - Coordinator disclosure: one triage-log line was written before its own Anvil call. It was validated straight after and its content is unchanged.
+
+## Publication receipt — 4 November 2026
+
+- **Commit:** `30fcfb56218342e4b94bea6cb86eff4c671dc6cb`, pushed as a fast-forward of `origin/main` from `78ff003caeae80ff33f00b5e4ada4b0bf40e7316`. The coordinator confirmed afterwards that remote `main` equals that SHA.
+- **Approval:** the five-layer Auto review plus one independent re-review of the fix delta, Pass; the advisor's pre-commit audit items (follow-up triage entry, superseded evidence note) were fixed before commit.
+- **Tests:** the full local round passed 5,538/0/0 (`Skipped: 0`) on the committed code and tests; only spec record text changed after it. The commit's normal hook passed 127/0/0, Anvil clean.
+- **Not verified:** CI build, Pages artifact and deployment were not monitored, per the owner instruction of 29 October 2026. Browser qualification is pending until the post-catalogue phase.
