@@ -37,12 +37,13 @@ public static class WorkshopAuthoringFlatBuffers
             throw new WireFaultException(WireFaultReason.VerifierRejected, "Unsupported authored puzzle fields.");
         return result;
     }
-    /// <summary>Current authored puzzle tables have ten fields and require their final assistance vector.
+    /// <summary>Current authored puzzle tables have ten or eleven fields and require their assistance vector.
     /// Reject unknown table fields before decoding; never reinterpret a superseded table layout.</summary>
     private static bool CurrentPuzzleTable(ByteBuffer buffer, string identifier)
     {
         const int savedConstructionField = 1, constructionPuzzleField = 2;
-        const int puzzleVtableBytes = 4 + 2 * 10;
+        const int minPuzzleVtableBytes = 4 + 2 * 10;
+        const int maxPuzzleVtableBytes = 4 + 2 * 11;
         var constructionField = identifier switch
         {
             WorkshopSaveCodec.Identifier => savedConstructionField,
@@ -55,7 +56,8 @@ public static class WorkshopAuthoringFlatBuffers
         var puzzle = Reference(construction, constructionPuzzleField);
         if (puzzle == 0) return true;
         var vtable = checked(puzzle - buffer.GetInt(puzzle));
-        return buffer.GetUshort(vtable) == puzzleVtableBytes;
+        var size = buffer.GetUshort(vtable);
+        return size is minPuzzleVtableBytes or maxPuzzleVtableBytes;
 
         int Reference(int table, int field)
         {
@@ -126,6 +128,7 @@ public static class WorkshopAuthoringFlatBuffers
             PuzzleRecord.AddGoalTarget(builder, goalTarget);
             PuzzleRecord.AddGoalDelay(builder, puzzle.Goal.MinimumDuration.Value);
             PuzzleRecord.AddAssistance(builder, assistVec);
+            PuzzleRecord.AddInteractionTarget(builder, puzzle.InteractionTarget.Value);
             puzzleOffset = PuzzleRecord.EndPuzzleRecord(builder);
         }
 
@@ -245,9 +248,12 @@ public static class WorkshopAuthoringFlatBuffers
             if (profiles.Any(profile => !profile.HasAuthoredShape()))
                 throw new WireFaultException(WireFaultReason.OutOfRange,
                     "An authored puzzle's assistance knots must be finite, non-negative and at precisions 0, 0.45 and 1.");
-            puzzle = new WorkshopPuzzle(new PuzzleId(p.Id ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing puzzle identity.")), (WorkshopPlacementMode)p.Placement, new(p.Precision),
+            var puzzleId = new PuzzleId(p.Id ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing puzzle identity."));
+            GpuBodyId interactionTarget = new(p.InteractionTarget);
+            puzzle = new WorkshopPuzzle(puzzleId, (WorkshopPlacementMode)p.Placement, new(p.Precision),
                 p.InventoryPart != null ? new PartId(p.InventoryPart) : default, p.InventoryCount, goal,
-                profiles[0], profiles[1], profiles[2]);
+                profiles[0], profiles[1], profiles[2],
+                InteractionTarget: interactionTarget);
         }
 
         // No instance or connection limit (Story 9R.5b): the record's own vectors are the population.

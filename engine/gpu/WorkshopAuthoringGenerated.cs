@@ -294,6 +294,7 @@ public struct PuzzleRecord : IFlatbufferObject
   public float GoalDelay { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public CuriousContraptions.Wire.AssistanceKnotRecord? Assistance(int j) { int o = __p.__offset(22); return o != 0 ? (CuriousContraptions.Wire.AssistanceKnotRecord?)(new CuriousContraptions.Wire.AssistanceKnotRecord()).__assign(__p.__vector(o) + j * 44, __p.bb) : null; }
   public int AssistanceLength { get { int o = __p.__offset(22); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public ulong InteractionTarget { get { int o = __p.__offset(24); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
 
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> CreatePuzzleRecord(FlatBufferBuilder builder,
       StringOffset idOffset = default(StringOffset),
@@ -305,8 +306,10 @@ public struct PuzzleRecord : IFlatbufferObject
       ulong goal_body = 0,
       ulong goal_target = 0,
       float goal_delay = 0.0f,
-      VectorOffset assistanceOffset = default(VectorOffset)) {
-    builder.StartTable(10);
+      VectorOffset assistanceOffset = default(VectorOffset),
+      ulong interaction_target = 0) {
+    builder.StartTable(11);
+    PuzzleRecord.AddInteractionTarget(builder, interaction_target);
     PuzzleRecord.AddGoalTarget(builder, goal_target);
     PuzzleRecord.AddGoalBody(builder, goal_body);
     PuzzleRecord.AddAssistance(builder, assistanceOffset);
@@ -320,7 +323,7 @@ public struct PuzzleRecord : IFlatbufferObject
     return PuzzleRecord.EndPuzzleRecord(builder);
   }
 
-  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(10); }
+  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(11); }
   public static void AddId(FlatBufferBuilder builder, StringOffset idOffset) { builder.AddOffset(0, idOffset.Value, 0); }
   public static void AddPlacement(FlatBufferBuilder builder, uint placement) { builder.AddUint(1, placement, 0); }
   public static void AddPrecision(FlatBufferBuilder builder, float precision) { builder.AddFloat(2, precision, 0.0f); }
@@ -332,6 +335,7 @@ public struct PuzzleRecord : IFlatbufferObject
   public static void AddGoalDelay(FlatBufferBuilder builder, float goalDelay) { builder.AddFloat(8, goalDelay, 0.0f); }
   public static void AddAssistance(FlatBufferBuilder builder, VectorOffset assistanceOffset) { builder.AddOffset(9, assistanceOffset.Value, 0); }
   public static void StartAssistanceVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(44, numElems, 4); }
+  public static void AddInteractionTarget(FlatBufferBuilder builder, ulong interactionTarget) { builder.AddUlong(10, interactionTarget, 0); }
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> EndPuzzleRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 4);  // id
@@ -356,6 +360,7 @@ static public class PuzzleRecordVerify
       && verifier.VerifyField(tablePos, 18 /*GoalTarget*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 20 /*GoalDelay*/, 4 /*float*/, 4, false)
       && verifier.VerifyVectorOfData(tablePos, 22 /*Assistance*/, 44 /*CuriousContraptions.Wire.AssistanceKnotRecord*/, true)
+      && verifier.VerifyField(tablePos, 24 /*InteractionTarget*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

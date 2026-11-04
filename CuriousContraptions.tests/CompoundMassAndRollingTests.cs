@@ -873,7 +873,7 @@ public sealed class CompoundPassageBoundaryTests
 public sealed class CurrentPuzzleShapeTests
 {
     [Theory]
-    [InlineData(10)]
+    [InlineData(11)]
     [InlineData(13)]
     public void AuthoredSaveRefusesUnknownPuzzleFieldsBeforeDomainDecoding(int extraField)
     {

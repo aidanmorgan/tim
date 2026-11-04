@@ -87,7 +87,11 @@ public sealed class BundleValidatorTests
             ("dynamic owner", With(work, strength) with { Mechanical = entry.Mechanical! with
                 { ContactWork = work, KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic } }),
             ("slider owner", With(work, [.. Fixture.SpringParameters, strength]) with { Mechanical = entry.Mechanical! with
-                { ContactWork = work, Sliders = [Fixture.Slider()] } })
+                { ContactWork = work, Sliders = [Fixture.Slider()] } }),
+            ("undefined target kind", With(work with { Target = new TargetSelector((TargetSelectorKind)99) }, strength)),
+            ("empty named target", With(work with { Target = new TargetSelector(TargetSelectorKind.Named, "") }, strength)),
+            ("whitespace named target", With(work with { Target = new TargetSelector(TargetSelectorKind.Named, "   ") }, strength)),
+            ("dynamic with named target string", With(work with { Target = new TargetSelector(TargetSelectorKind.AllDynamic, "fixture") }, strength))
         }) Assert.True(Check(candidate).Any(error => error.Detail.Contains(".ContactWork.", StringComparison.Ordinal)), name);
     }
 
@@ -330,6 +334,9 @@ public sealed class BundleValidatorTests
         Assert.NotEmpty(Check(entry with { Ports = [] }));
         // A contact owns its node alone: a declared memory beside it is refused.
         Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Memory = new(PortSocket.SetIn, PortSocket.ResetIn) } }));
+        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Contact = new("speed", Target: new TargetSelector((TargetSelectorKind)99)) } }));
+        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Contact = new("speed", Target: new TargetSelector(TargetSelectorKind.Named, "")) } }));
+        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Contact = new("speed", Target: new TargetSelector(TargetSelectorKind.AllDynamic, "fixture")) } }));
         foreach (var parameter in new[]
         {
             entry.Metadata.Parameters[0] with { Unit = ParameterUnit.Second },

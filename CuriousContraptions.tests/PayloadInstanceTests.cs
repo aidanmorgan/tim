@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
+using TargetSelector = CuriousContraptions.Abstractions.TargetSelector;
 using CuriousContraptions.Wire;
 using Google.FlatBuffers;
 
@@ -141,20 +142,20 @@ public sealed class PayloadInstanceTests
     public void LessonTriggersAndBumpersNameTheLessonPayload()
     {
         var named = 0;
-        foreach (var lesson in new[] { "first_principles", "spring_forward", "ready_to_rebound", "bumper_sidekick", "bumper_depth",
-                     "wall_and_bumper", "domino_effect", "delayed_signal", "clear_pipe", "gentle_bend", "quarter_bend", "joined_pipe" })
+        foreach (var lesson in new[] { "bumper_sidekick", "bumper_depth", "wall_and_bumper", "delayed_signal" })
         {
             var level = PuzzleCatalogue.Create(new(lesson), new(1), WorkshopCadenceSettings.Default(), new(11), new(.45f));
-            // A lesson that offers a Bumper gets one placed from its inventory, so the player's Bumper is named too.
             if (WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(new PartId("bumper")))
                 level = level.WithInstance(WorkshopInput.Generic(new PartId("bumper"), new(900), 3, 1, 0, 0, 0, 0, 1));
             var payload = Assert.Single(level.Instances, instance => instance.PartId == new PartId("ball")).Id;
             var scene = WorkshopPhysicsCompiler.Compile(level, new(1, 2));
             foreach (var targets in scene.Triggers.ToArray().Select(t => t.Targets).Concat(scene.ContactWorks.ToArray().Select(w => w.Targets)))
             {
-                Assert.Equal(new BodyTargetSet(BodyTargetKind.NamedBody, payload), targets);
-                named++;
+                Assert.Equal(BodyTargetKind.AllDynamic, targets.Kind);
             }
+            var target = WorkshopPhysicsCompiler.ResolveTarget(TargetSelector.Named("interaction_target"), level.Puzzle, level.Instances);
+            Assert.Equal(new BodyTargetSet(BodyTargetKind.NamedBody, payload), target);
+            named++;
             var free = WorkshopPhysicsCompiler.Compile(level with { Puzzle = default }, new(1, 2));
             Assert.All(free.Triggers.ToArray().Select(t => t.Targets).Concat(free.ContactWorks.ToArray().Select(w => w.Targets)),
                 targets => Assert.Equal(BodyTargetKind.AllDynamic, targets.Kind));

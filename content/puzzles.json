@@ -3293,6 +3293,7 @@
   {
     "id": "bumper_sidekick",
     "availability": "Playable",
+    "interaction_target": "fixture_1",
     "title": "A little sidekick",
     "subtitle": "10 / Round rebounds",
     "description": "Use the pinball bumper to bounce the orange ball into the receiver.",
@@ -3764,6 +3765,7 @@
   {
     "id": "bumper_depth",
     "availability": "Playable",
+    "interaction_target": "fixture_1",
     "title": "Bounce into depth",
     "subtitle": "11 / Round rebounds",
     "description": "Send the ball across the workbench's depth with a round bumper.",
@@ -4514,6 +4516,7 @@
   {
     "id": "wall_and_bumper",
     "availability": "Playable",
+    "interaction_target": "fixture_1",
     "title": "Build the rebound",
     "subtitle": "13 / Build a barrier",
     "description": "Place both the launcher and its return wall to deliver the ball into the basket on the left.",
@@ -8262,6 +8265,7 @@
   {
     "id": "delayed_signal",
     "availability": "Playable",
+    "interaction_target": "fixture_1",
     "title": "Wait for it",
     "subtitle": "23 / Delayed commands",
     "description": "Light the lamp only after the delay box finishes its countdown.",

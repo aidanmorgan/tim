@@ -199,14 +199,15 @@ public static class WorkshopPhysicsCompiler
             if (DeclaredPhysics.SourceStore(owner.PartId) is { } store)
                 electricalSources.Add(ElectricalSourceFor(identities[owner.Id].Source, owner.Id, store, owner.Parameters));
         foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
-            if (DeclaredPhysics.Of(trigger.PartId).Signal?.Contact is { } contact &&
-                (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null))
-                triggers.Add(new(identities[trigger.Id].Trigger, trigger.Id, Targets(construction),
+            if (DeclaredPhysics.Of(trigger.PartId).Signal?.Contact is { } contact)
+                triggers.Add(new(identities[trigger.Id].Trigger, trigger.Id,
+                    ResolveTarget(contact.Target, construction.Puzzle, construction.Instances),
                     new(trigger.Parameters[new ParameterId(contact.ThresholdParameter)])));
         foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
-            if (DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWork is { } work &&
-                (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null))
-                contactWorks.Add(ContactWorkFor(identities[owner.Id].Work, owner.Id, Targets(construction), work, owner.Parameters));
+            if (DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWork is { } work)
+                contactWorks.Add(ContactWorkFor(identities[owner.Id].Work, owner.Id,
+                    ResolveTarget(work.Target, construction.Puzzle, construction.Instances),
+                    work, owner.Parameters));
         // A declared contact-load sensor compiles its row for every owner, wired or not, in instance order.
         foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
             if (DeclaredPhysics.Of(owner.PartId).Signal?.ContactLoad is { } load)
@@ -380,12 +381,37 @@ public static class WorkshopPhysicsCompiler
             [.. load.SupportingColliders.Select(index => identities[owner.Id].Colliders[index])]);
     }
 
-    private static BodyTargetSet Targets(WorkshopConstruction construction) => !construction.Puzzle.Id.IsAuthored
-        ? new(BodyTargetKind.AllDynamic, default)
-        : new(BodyTargetKind.NamedBody, FirstPayload(construction)?.Id ?? throw new ArgumentException("Missing named puzzle body."));
+    internal static BodyTargetSet ResolveTarget(TargetSelector selector, WorkshopPuzzle puzzle, WorkshopInstances instances)
+    {
+        return selector.Kind switch
+        {
+            TargetSelectorKind.AllDynamic => new(BodyTargetKind.AllDynamic, default),
+            TargetSelectorKind.AllPayloads => new(BodyTargetKind.AllPayloads, default),
+            TargetSelectorKind.Named => ResolveNamedTarget(selector.NamedTarget, puzzle, instances),
+            _ => throw new ArgumentException("Undefined target selector kind.")
+        };
+    }
 
-    /// <summary>The lesson's named body: the first payload in instance order.</summary>
-    private static IWorkshopInstance? FirstPayload(WorkshopConstruction construction) =>
-        construction.Instances.FirstOrDefault(instance => DeclaredPhysics.IsPayload(instance.PartId));
+    internal static BodyTargetSet ResolveNamedTarget(string? namedTarget, WorkshopPuzzle puzzle, WorkshopInstances instances)
+    {
+        if (string.IsNullOrWhiteSpace(namedTarget))
+            throw new ArgumentException("Named target selector requires a non-empty name.");
+
+        if (ulong.TryParse(namedTarget, out var id) && id > 0)
+        {
+            var targetId = new GpuBodyId(id);
+            if (!instances.Any(i => i.Id == targetId))
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, $"Unknown named target body '{id}'.");
+            return new(BodyTargetKind.NamedBody, targetId);
+        }
+
+        if (namedTarget is "puzzle_target" or "interaction_target")
+        {
+            if (puzzle.InteractionTarget != default && instances.Any(i => i.Id == puzzle.InteractionTarget))
+                return new(BodyTargetKind.NamedBody, puzzle.InteractionTarget);
+        }
+
+        throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, $"Unknown named target '{namedTarget}'.");
+    }
 
 }

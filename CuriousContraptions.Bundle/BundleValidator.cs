@@ -480,6 +480,7 @@ public static class BundleValidator
                 if (work.CooldownPhysicalSteps is < 9 or > 14400) OutOfRange("ContactWork.CooldownPhysicalSteps");
                 if (mechanical.KinematicMode != KinematicMode.Static || mechanical.Sliders.Count != 0)
                     OutOfRange("ContactWork.Owner");
+                ValidateTargetSelector("ContactWork.Target", work.Target);
             }
             if (mechanical.CompliantSurface is { } surface)
             {
@@ -941,6 +942,7 @@ public static class BundleValidator
                     OutOfRange("Contact.Ports");
                 if (signal.Triggers.Count != 0 || signal.Timer is not null || signal.PulseCount is not null || signal.Memory is not null)
                     OutOfRange("Contact.Ownership");
+                ValidateTargetSelector("Contact.Target", contact.Target);
             }
             if (signal.Timer is { } timer)
             {
@@ -970,6 +972,20 @@ public static class BundleValidator
                 Defined($"FluidPorts[{i}].Role", port.Role);
                 Finite($"FluidPorts[{i}].MaxFlowRate", port.MaxFlowRate);
                 Finite($"FluidPorts[{i}].OperatingPressure", port.OperatingPressure);
+            }
+        }
+
+        private void ValidateTargetSelector(string path, TargetSelector selector)
+        {
+            Defined($"{path}.Kind", selector.Kind);
+            if (selector.Kind == TargetSelectorKind.Named)
+            {
+                if (string.IsNullOrWhiteSpace(selector.NamedTarget))
+                    OutOfRange($"{path}.NamedTarget");
+            }
+            else if (selector.NamedTarget is not null)
+            {
+                OutOfRange($"{path}.NamedTarget");
             }
         }
 

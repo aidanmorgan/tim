@@ -35,7 +35,7 @@ public interface ITimerElement : ISignalElement
 }
 
 /// <summary>A one-shot owner-body contact qualified by a declared f32 speed parameter.</summary>
-public readonly record struct SignalContactDescriptor(string ThresholdParameter);
+public readonly record struct SignalContactDescriptor(string ThresholdParameter, TargetSelector Target = default);
 
 public interface IContactTriggerElement : ISignalElement
 {

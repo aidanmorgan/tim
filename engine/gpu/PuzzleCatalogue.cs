@@ -12,6 +12,8 @@ public static class PuzzleCatalogue
     private static readonly Lazy<IReadOnlyDictionary<PuzzleId, PuzzleDefinition>> Definitions = new(Load);
     public static IReadOnlyList<PuzzleId> Playable => Definitions.Value.Values.OrderBy(value => value.Presentation.Order).Select(value => value.Entry.Id).ToArray();
 
+    public static bool Contains(PuzzleId id) => Definitions.Value.ContainsKey(id);
+
     internal static PuzzleDefinition Definition(PuzzleId id) =>
         Definitions.Value.TryGetValue(id, out var definition) ? definition :
             throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Unknown or unavailable puzzle.");
@@ -28,9 +30,12 @@ public static class PuzzleCatalogue
         if (!identities.ContainsKey(definition.Goal.Target))
             identities.Add(definition.Goal.Target, new(checked(first.Value + (ulong)instances.Length)));
         var inventory = definition.Inventory[0];
+        var interactionBody = definition.InteractionTarget is { } targetSlot && identities.TryGetValue(targetSlot, out var targetBody)
+            ? targetBody : default;
         var puzzle = new WorkshopPuzzle(id, WorkshopPlacementMode.Manual, precision, inventory.Part,
             checked((uint)inventory.Count), definition.CreateGoal(identities),
-            definition.Primary, definition.Target, definition.Placement);
+            definition.Primary, definition.Target, definition.Placement,
+            InteractionTarget: interactionBody);
         var construction = new WorkshopConstruction(revision, settings, new(instances.ToArray()), puzzle);
         construction.Validate();
         return construction;
@@ -100,6 +105,10 @@ public static class PuzzleCatalogue
                 puzzle.Goal.Target : new(puzzle.Goal.TargetNode.Value));
         if (definition.CreateGoal(ids) != puzzle.Goal)
             Reject(WorkshopEditRejection.PuzzleSettings, "Authored goal changed.");
+        var expectedInteraction = definition.InteractionTarget is { } targetSlot && ids.TryGetValue(targetSlot, out var targetBody)
+            ? targetBody : default;
+        if (puzzle.InteractionTarget != expectedInteraction)
+            Reject(WorkshopEditRejection.PuzzleSettings, "Authored interaction target changed.");
         foreach (var fixture in expected)
         {
             var matches = construction.Instances.Where(instance => instance.Id == fixture.Id).ToArray();

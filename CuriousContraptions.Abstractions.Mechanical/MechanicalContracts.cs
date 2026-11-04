@@ -198,7 +198,8 @@ public interface IResidenceCaptureElement : IMechanicalElement
 /// approaching faster than <see cref="Threshold"/> qualifies once per target every <see cref="CooldownPhysicalSteps"/> physical
 /// steps.</summary>
 public readonly record struct ContactWorkDescriptor(
-    string StrengthParameter, float ReferenceMass, float Threshold, uint CooldownPhysicalSteps);
+    string StrengthParameter, float ReferenceMass, float Threshold, uint CooldownPhysicalSteps,
+    TargetSelector Target = default);
 
 public interface IContactWorkElement : IMechanicalElement
 {

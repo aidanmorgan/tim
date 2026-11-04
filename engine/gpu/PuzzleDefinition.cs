@@ -25,7 +25,8 @@ internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
     ImmutableArray<AuthoredPlacement> Placements, ImmutableArray<AuthoredPlacement> Solution,
     ImmutableArray<AuthoredConnection> SolutionConnections, ImmutableArray<AuthoredInventory> Inventory,
     AuthoredGoal Goal, bool ConnectionsAllowed, PuzzlePresentation Presentation, AssistanceProfile Primary,
-    AssistanceProfile Target, AssistanceProfile Placement, AssistanceProfile Secondary)
+    AssistanceProfile Target, AssistanceProfile Placement, AssistanceProfile Secondary,
+    AuthoredSlot? InteractionTarget = null)
 {
     internal ImmutableArray<IWorkshopInstance> CreateInstances(GpuBodyId first, PuzzlePrecision precision)
     {
@@ -59,8 +60,11 @@ internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
         var instances = rows.Select((row, index) => row.Instance.Create(new(checked(first.Value + (ulong)index)), precision)).ToArray();
         var ids = rows.Select((row, index) => KeyValuePair.Create(row.Slot, instances[index].Id)).ToDictionary();
         var inventory = Inventory[0];
+        var interactionBody = InteractionTarget is { } targetSlot && ids.TryGetValue(targetSlot, out var targetBody)
+            ? targetBody : default;
         var puzzle = new WorkshopPuzzle(Entry.Id, WorkshopPlacementMode.Manual, precision, inventory.Part,
-            checked((uint)inventory.Count), CreateGoal(ids), Primary, Target, Placement);
+            checked((uint)inventory.Count), CreateGoal(ids), Primary, Target, Placement,
+            InteractionTarget: interactionBody);
         var connections = new WorkshopConnections(SolutionConnections.Select(row =>
             new WorkshopConnection(ids[row.Source], row.Output, ids[row.Target], row.Input, row.Domain)).ToArray());
         return new(revision, settings, new(instances), puzzle, connections);
@@ -78,8 +82,18 @@ internal static class PuzzleDefinitionReader
             throw PuzzleContentReader.Invalid(entry.Id.Value, "availability", "puzzle is not playable");
         var where = entry.Id.Value;
         var fields = PuzzleContentReader.Fields(entry.Declaration, where);
-        AuthoredInstanceReader.Require(fields, where, "id", "availability", "title", "subtitle", "description", "hint",
-            "inventory", "solution", "solution_connections", "placements", "goal", "connections_allowed", "profiles", "presentation");
+        AuthoredSlot? interactionTarget = null;
+        if (fields.ContainsKey("interaction_target"))
+        {
+            AuthoredInstanceReader.Require(fields, where, "id", "availability", "title", "subtitle", "description", "hint",
+                "inventory", "solution", "solution_connections", "placements", "goal", "connections_allowed", "profiles", "presentation", "interaction_target");
+            interactionTarget = new AuthoredSlot(PuzzleContentReader.Text(fields, "interaction_target", where));
+        }
+        else
+        {
+            AuthoredInstanceReader.Require(fields, where, "id", "availability", "title", "subtitle", "description", "hint",
+                "inventory", "solution", "solution_connections", "placements", "goal", "connections_allowed", "profiles", "presentation");
+        }
         var placements = ImmutableArray.CreateBuilder<AuthoredPlacement>();
         var slots = new HashSet<AuthoredSlot>(16);
         foreach (var row in AuthoredInstanceReader.Rows(fields["placements"], where + ".placements"))
@@ -91,6 +105,8 @@ internal static class PuzzleDefinitionReader
             placements.Add(new(slot, AuthoredInstanceReader.Parse(values["instance"], where + "." + slot.Value)));
         }
         if (placements.Count == 0) throw PuzzleContentReader.Invalid(where, "placements", "empty fixed layout");
+        if (interactionTarget is { } authoredTarget && !slots.Contains(authoredTarget))
+            throw PuzzleContentReader.Invalid(where, "interaction_target", "unknown placement slot");
         var inventory = ImmutableArray.CreateBuilder<AuthoredInventory>();
         var parts = new HashSet<PartId>(16);
         foreach (var row in AuthoredInstanceReader.Rows(fields["inventory"], where + ".inventory"))
@@ -178,7 +194,8 @@ internal static class PuzzleDefinitionReader
             AuthoredInstanceReader.Profile(profiles["primary"], where),
             AuthoredInstanceReader.Profile(profiles["target"], where),
             AuthoredInstanceReader.Profile(profiles["placement"], where),
-            AuthoredInstanceReader.Profile(profiles["secondary"], where));
+            AuthoredInstanceReader.Profile(profiles["secondary"], where),
+            interactionTarget);
         var complete = definition.CreateSolution(new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
         complete.Instances.Validate();
         complete.Connections.Validate(complete.Instances);

@@ -67,7 +67,8 @@ public readonly record struct AssistanceProfile(AssistanceKnot Forgiving, Assist
 
 public readonly record struct WorkshopPuzzle(PuzzleId Id, WorkshopPlacementMode Placement,
     PuzzlePrecision Precision, PartId InventoryPart, uint InventoryCount, WorkshopGoal Goal,
-    AssistanceProfile PrimaryAssistance, AssistanceProfile TargetAssistance, AssistanceProfile PlacementAssistance)
+    AssistanceProfile PrimaryAssistance, AssistanceProfile TargetAssistance, AssistanceProfile PlacementAssistance,
+    GpuBodyId InteractionTarget = default)
 {
     public AssistanceProfile SecondaryAssistance => Id.IsAuthored ? PuzzleCatalogue.Definition(Id).Secondary : default;
 
