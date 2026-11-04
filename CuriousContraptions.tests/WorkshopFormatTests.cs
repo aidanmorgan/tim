@@ -117,7 +117,7 @@ public sealed class WorkshopFormatTests
         Assert.Equal(["frame", "deflection"], Fields("table CompliantSurfaceReadRecord"));
         Assert.Equal(["used_before", "used_after", "duration_ticks", "frequency", "allocated_before", "allocated_after", "collections_before",
             "collections_after"], Fields("struct MemoryObservationRecord"));
-        Assert.Equal(["sequence", "kind", "epoch", "revision", "revision_kind", "session", "cadence", "projection", "electrical",
+        Assert.Equal(["sequence", "kind", "epoch", "revision", "revision_kind", "session", "cadence", "projection", "run_control",
             "cut_span", "target", "scene"], Fields("table WorkshopCommand"));
         // The generated settings struct takes exactly the six words (builder plus six arguments).
         Assert.Equal(7, typeof(CuriousContraptions.Wire.CadenceSettingsRecord).GetMethod("CreateCadenceSettingsRecord")!.GetParameters().Length);

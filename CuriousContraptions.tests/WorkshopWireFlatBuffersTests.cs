@@ -69,7 +69,7 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Equal(run.Projection, decoded.Projection);
         Assert.Null(decoded.Scene);
         Assert.Null(decoded.Target);
-        Assert.Null(decoded.Electrical);
+        Assert.Null(decoded.RunControl);
     }
 
     [Fact]
@@ -101,17 +101,33 @@ public sealed class WorkshopWireFlatBuffersTests
     }
 
     [Fact]
-    public void Command_ConfigureElectrical_RoundTrips()
+    public void Command_ConfigureRunControl_RoundTrips()
     {
-        var electrical = new WorkshopElectricalControl(new(42), ElectricalEnable.Enabled);
-        var cmd = new WorkshopCommand(new(3), WorkshopCommandKind.ConfigureElectrical, new(1), default, null,
+        var control = new WorkshopRunControl(new(42), new(5), RunControlValue.Of(ElectricalEnable.Enabled));
+        var cmd = new WorkshopCommand(new(3), WorkshopCommandKind.ConfigureRunControl, new(1), default, null,
             RevisionKind: ExpectedRevisionKind.Any, Session: Session, Cadence: new(1), Projection: new(1),
-            Electrical: electrical);
+            RunControl: control);
         var encoded = WorkshopWireFlatBuffers.EncodeCommand(cmd);
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(encoded);
         Assert.Equal(cmd.Sequence, decoded.Sequence);
         Assert.Equal(cmd.Kind, decoded.Kind);
-        Assert.Equal(electrical, decoded.Electrical);
+        Assert.Equal(control, decoded.RunControl);
+    }
+
+    // The encoder refuses a ConfigureRunControl it could not represent canonically: no control, a zero owner or row id, a non-finite
+    // value, or a control on another command kind.
+    [Fact]
+    public void Command_ConfigureRunControl_RefusesANonCanonicalControlAtTheEncoder()
+    {
+        var control = new WorkshopRunControl(new(42), new(5), RunControlValue.Of(ElectricalEnable.Enabled));
+        var cmd = new WorkshopCommand(new(3), WorkshopCommandKind.ConfigureRunControl, new(1), default, null,
+            RevisionKind: ExpectedRevisionKind.Any, Session: Session, Cadence: new(1), Projection: new(1), RunControl: control);
+        Assert.NotEmpty(WorkshopWireFlatBuffers.EncodeCommand(cmd));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(cmd with { RunControl = null }));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(cmd with { RunControl = control with { Owner = new(0) } }));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(cmd with { RunControl = control with { Control = new(0) } }));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(cmd with { RunControl = control with { Value = RunControlValue.Of(float.NaN) } }));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(cmd with { Kind = WorkshopCommandKind.Pause }));
     }
 
     [Fact]

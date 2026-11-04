@@ -44,7 +44,7 @@ public sealed class ElectricalNorTests
     /// <summary>The balls latch their switches with the bottom supply Disabled; only then is the supply offered (or kept off).</summary>
     private static Task<List<List<WorkshopRead>>> LatchThenSupply(WorkshopConstruction construction,bool supply)=>
         WorkshopIntegrationHarness.ObservePhases(construction,([],120),
-            ([new(new(Supply),supply?ElectricalEnable.Enabled:ElectricalEnable.Disabled)],90));
+            ([new(new(Supply),RunControlValue.Of(supply?ElectricalEnable.Enabled:ElectricalEnable.Disabled))],90));
 
     [Theory]
     [InlineData(ElectricalInputState.Neither,true,true)]
@@ -165,8 +165,8 @@ public sealed class ElectricalNorTests
             Assert.False(Logic(read,nor).Active);Assert.False(Powered(read));AssertBladeStill(read,BladeY(built));
         });
         NoFixedCapacityTests.AssertSameState(built,reset,"reconvergent Neither gate Reset");
-        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([new(new(1),ElectricalEnable.Disabled)],90),
-            ([new(new(1),ElectricalEnable.Enabled)],40));
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled))],90),
+            ([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],40));
         Assert.All(phases[0],read=>{Assert.Equal(ElectricalInputState.Neither,Logic(read,nor).Inputs);Assert.True(Logic(read,nor).Active);Assert.True(Powered(read));});
         Assert.True(BladeY(phases[0][^1])>BladeY(built)+.2f); // the control: the same consumer really opens on the 00 row
         Assert.All(phases[1],read=>
@@ -306,13 +306,13 @@ public sealed class ElectricalNorTests
             Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,Consumer)));
 
     /// <summary>Battery controls reaching each row in turn: 00, 10, 01, 11 supplied, then 00 without supply.</summary>
-    internal static readonly (WorkshopElectricalControl[] Controls,ElectricalInputState Inputs,bool Supplied,bool Active)[] Rows=
+    internal static readonly ((GpuBodyId Owner,RunControlValue Value)[] Controls,ElectricalInputState Inputs,bool Supplied,bool Active)[] Rows=
     [
         ([],ElectricalInputState.Neither,true,true),
-        ([new(new(1),ElectricalEnable.Enabled)],ElectricalInputState.FirstOnly,true,false),
-        ([new(new(1),ElectricalEnable.Disabled),new(new(2),ElectricalEnable.Enabled)],ElectricalInputState.SecondOnly,true,false),
-        ([new(new(1),ElectricalEnable.Enabled)],ElectricalInputState.Both,true,false),
-        ([new(new(1),ElectricalEnable.Disabled),new(new(2),ElectricalEnable.Disabled),new(new(3),ElectricalEnable.Disabled)],ElectricalInputState.Neither,false,false)
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],ElectricalInputState.FirstOnly,true,false),
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled)),new(new(2),RunControlValue.Of(ElectricalEnable.Enabled))],ElectricalInputState.SecondOnly,true,false),
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],ElectricalInputState.Both,true,false),
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled)),new(new(2),RunControlValue.Of(ElectricalEnable.Disabled)),new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],ElectricalInputState.Neither,false,false)
     ];
 
     [Fact]

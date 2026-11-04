@@ -181,7 +181,7 @@ public sealed class MotorTests
                 physics.SupplyGraph.Nodes.ToArray(), physics.SupplyGraph.Edges.ToArray(), physics.ContactLoadSensors,
                 physics.PrismaticDrives, [.. physics.TensileSpans.ToArray(), .. spans], [.. physics.Revolutes.ToArray(), .. revolutes],
                 physics.CompliantSurfaces, physics.RevoluteDrives),
-            compiled.Activation, compiled.Presentation, compiled.Owners, compiled.EditableSources);
+            compiled.Activation, compiled.Presentation, compiled.Owners, compiled.RunControls);
     }
 
     private static Func<WorkshopCompiledScene, WorkshopCompiledScene> WithSpans(
@@ -336,7 +336,7 @@ public sealed class MotorTests
         await using var _ = harness;
         var before = (await probe.Advance(TicksPerSecond / 2))[^1];
         Assert.True(MathF.Abs(before.Spin - DefaultSpeed) <= SpeedAllowance(DefaultSpeed), $"Before the cut: {before}");
-        await harness.Require(WorkshopCommandKind.ConfigureElectrical, electrical: new(battery, ElectricalEnable.Disabled));
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(battery, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)));
         var after = await probe.Advance(4 * TicksPerSecond);
 
         Assert.All(after, tick => Assert.True((tick.State.Supplied, tick.State.Work) == (false, before.State.Work),
@@ -369,7 +369,7 @@ public sealed class MotorTests
         Assert.All(idle, tick => Assert.True(!tick.State.Supplied && MathF.Abs(tick.Spin) < RestSpin && tick.State.Work == 0f,
             $"tick {tick.Index} before the enable: {tick}"));
         AssertColour(Slate, idle[^1].Lamp, "before the enable");
-        await harness.Require(WorkshopCommandKind.ConfigureElectrical, electrical: new(battery, ElectricalEnable.Enabled));
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(battery, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)));
         var driven = await probe.Advance(TicksPerSecond / 2);
 
         Assert.All(driven.Skip(RampTicks(DefaultSpeed, DefaultTorque) - 1), tick => Assert.True(MathF.Abs(tick.Spin - DefaultSpeed) <= SpeedAllowance(DefaultSpeed),

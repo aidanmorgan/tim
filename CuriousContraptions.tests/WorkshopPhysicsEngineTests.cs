@@ -731,7 +731,7 @@ public sealed class WorkshopPhysicsEngineTests
     }
 
     // Story 9R.3: each directly wired Powered Gate follows its own battery's committed player enable during a run. Every bench runs
-    // the production WorkshopSimulation; the only player input is the typed in-run ConfigureElectrical command between Advances.
+    // the production WorkshopSimulation; the only player input is the typed in-run ConfigureRunControl command between Advances.
     private const float GateHeight = 3f;
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
         WorkshopInput.Generic(new PartId("powered_gate"), new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
@@ -745,13 +745,13 @@ public sealed class WorkshopPhysicsEngineTests
     private const float ClosedTravel = .2f, OpenTravel = 1.3f;
 
     /// <summary>Runs the construction through the production simulation in phases: each phase first applies its in-run supply
-    /// controls through ConfigureElectrical, then advances its ticks. Returns every phase's committed reads.</summary>
+    /// controls through ConfigureRunControl, then advances its ticks. Returns every phase's committed reads.</summary>
     [Fact]
     public async Task AnAuthoredDisabledBatteryOpensItsGateWhenEnabledInRun()
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0, ElectricalEnable.Disabled);
         var phases = await WorkshopIntegrationHarness.ObservePhases(Free(gate, battery) with { Connections = new(Wire(battery.Id, gate.Id)) },
-            ([], TicksPerSecond), ([new(battery.Id, ElectricalEnable.Enabled)], 2 * TicksPerSecond));
+            ([], TicksPerSecond), ([new(battery.Id, RunControlValue.Of(ElectricalEnable.Enabled))], 2 * TicksPerSecond));
         Assert.All(phases[0], read => Assert.True(Travel(read, gate) < ClosedTravel, $"closed before Enable, travel {Travel(read, gate)}"));
         Assert.True(Travel(phases[1][^1], gate) > OpenTravel, $"open after in-run Enable, travel {Travel(phases[1][^1], gate)}");
     }
@@ -761,7 +761,7 @@ public sealed class WorkshopPhysicsEngineTests
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0, ElectricalEnable.Enabled);
         var phases = await WorkshopIntegrationHarness.ObservePhases(Free(gate, battery) with { Connections = new(Wire(battery.Id, gate.Id)) },
-            ([], 2 * TicksPerSecond), ([new(battery.Id, ElectricalEnable.Disabled)], 2 * TicksPerSecond));
+            ([], 2 * TicksPerSecond), ([new(battery.Id, RunControlValue.Of(ElectricalEnable.Disabled))], 2 * TicksPerSecond));
         Assert.True(Travel(phases[0][^1], gate) > OpenTravel, $"open before Disable, travel {Travel(phases[0][^1], gate)}");
         Assert.True(Travel(phases[1][^1], gate) < ClosedTravel, $"closed after in-run Disable, travel {Travel(phases[1][^1], gate)}");
     }
@@ -774,7 +774,7 @@ public sealed class WorkshopPhysicsEngineTests
         var battery1 = Battery(3, -3, ElectricalEnable.Enabled); var battery2 = Battery(4, 3, ElectricalEnable.Enabled);
         var phases = await WorkshopIntegrationHarness.ObservePhases(Free(gate1, gate2, battery1, battery2) with
             { Connections = new(Wire(battery1.Id, gate1.Id), Wire(battery2.Id, gate2.Id)) },
-            ([], 2 * TicksPerSecond), ([new(battery1.Id, ElectricalEnable.Disabled)], 2 * TicksPerSecond));
+            ([], 2 * TicksPerSecond), ([new(battery1.Id, RunControlValue.Of(ElectricalEnable.Disabled))], 2 * TicksPerSecond));
         Assert.True(Travel(phases[0][^1], gate1) > OpenTravel && Travel(phases[0][^1], gate2) > OpenTravel, "both gates open before B1 is disabled");
         Assert.True(Travel(phases[1][^1], gate1) < ClosedTravel, $"G1 closes, travel {Travel(phases[1][^1], gate1)}");
         Assert.All(phases[1], read => Assert.True(Travel(read, gate2) > OpenTravel, $"G2 stays open, travel {Travel(read, gate2)}"));
@@ -786,7 +786,7 @@ public sealed class WorkshopPhysicsEngineTests
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0, ElectricalEnable.Disabled);
         var phases = await WorkshopIntegrationHarness.ObservePhases(Free(gate, battery),
-            ([], TicksPerSecond), ([new(battery.Id, ElectricalEnable.Enabled)], 2 * TicksPerSecond));
+            ([], TicksPerSecond), ([new(battery.Id, RunControlValue.Of(ElectricalEnable.Enabled))], 2 * TicksPerSecond));
         Assert.All(phases.SelectMany(reads => reads), read => Assert.True(Travel(read, gate) < ClosedTravel, $"travel {Travel(read, gate)}"));
     }
 

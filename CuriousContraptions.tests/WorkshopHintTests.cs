@@ -363,6 +363,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         public AuthorityRevision Revision => default;
         public WorkshopCommandIdentity? Pending => null;
         public WorkshopTransportState TransportState => WorkshopTransportState.Ready;
+        public System.Collections.Immutable.ImmutableArray<RunControlRow> RunControls => [];
         public float? Next, Goal;
         public WorkshopResponse? NextRead;
         public bool HoldReset;
@@ -396,7 +397,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
         public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
         {
             Assert.Equal(WorkshopCommandKind.Reset, kind);
             if (HoldReset) { _reset = new(); return _reset.Task; }

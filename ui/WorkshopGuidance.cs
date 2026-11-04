@@ -327,7 +327,7 @@ public partial class Workshop
         var target = _preview ?? _selected;
         _cancelButton.Visible = !_inRun && (_tool is not null || _linkSource is not null);
         _connectionChoices.Visible = (CanEdit && (_selected is not null || _linkSource is not null)) ||
-            (_selected?.Definition?.PartId is { } selectedPart && (DeclaredPhysics.HasRunControlledSource(selectedPart) ||
+            (_selected?.Definition?.PartId is { } selectedPart && (DeclaredPhysics.RunControls(selectedPart).Count != 0 ||
                 World.Registry.Ports.Has(selectedPart, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional)) &&
                 World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused);
         _removeButton.Visible = _preview == null && _selected is { Locked: false };

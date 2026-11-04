@@ -45,7 +45,7 @@ public sealed class ElectricalOrTests
     /// <summary>The balls latch their switches with the bottom supply Disabled; only then is the supply offered (or kept off).</summary>
     private static Task<List<List<WorkshopRead>>> LatchThenSupply(WorkshopConstruction construction,bool supply)=>
         WorkshopIntegrationHarness.ObservePhases(construction,([],120),
-            ([new(new(Supply),supply?ElectricalEnable.Enabled:ElectricalEnable.Disabled)],90));
+            ([new(new(Supply),RunControlValue.Of(supply?ElectricalEnable.Enabled:ElectricalEnable.Disabled))],90));
 
     [Theory]
     [InlineData(ElectricalInputState.Neither,true,false)]
@@ -159,8 +159,8 @@ public sealed class ElectricalOrTests
             Link(2,a),Link(2,b),Link(b,Consumer)));
         construction.Validate();
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],60),
-            ([new(new(1),ElectricalEnable.Enabled)],90),([new(new(1),ElectricalEnable.Disabled)],60),
-            ([new(new(1),ElectricalEnable.Enabled)],60),([new(new(2),ElectricalEnable.Disabled)],60));
+            ([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],90),([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled))],60),
+            ([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],60),([new(new(2),RunControlValue.Of(ElectricalEnable.Disabled))],60));
         var rest=BladeY(phases[0][0]);
         void Off(WorkshopRead read,bool condition,bool supplied)
         {
@@ -325,13 +325,13 @@ public sealed class ElectricalOrTests
             Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,Consumer)));
 
     /// <summary>Battery controls reaching each row in turn: 00, 10, 01, 11 supplied, then 11 without supply.</summary>
-    internal static readonly (WorkshopElectricalControl[] Controls,ElectricalInputState Inputs,bool Supplied,bool Active)[] Rows=
+    internal static readonly ((GpuBodyId Owner,RunControlValue Value)[] Controls,ElectricalInputState Inputs,bool Supplied,bool Active)[] Rows=
     [
         ([],ElectricalInputState.Neither,true,false),
-        ([new(new(1),ElectricalEnable.Enabled)],ElectricalInputState.FirstOnly,true,true),
-        ([new(new(1),ElectricalEnable.Disabled),new(new(2),ElectricalEnable.Enabled)],ElectricalInputState.SecondOnly,true,true),
-        ([new(new(1),ElectricalEnable.Enabled)],ElectricalInputState.Both,true,true),
-        ([new(new(3),ElectricalEnable.Disabled)],ElectricalInputState.Both,false,false)
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],ElectricalInputState.FirstOnly,true,true),
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled)),new(new(2),RunControlValue.Of(ElectricalEnable.Enabled))],ElectricalInputState.SecondOnly,true,true),
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],ElectricalInputState.Both,true,true),
+        ([new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],ElectricalInputState.Both,false,false)
     ];
 
     [Fact]

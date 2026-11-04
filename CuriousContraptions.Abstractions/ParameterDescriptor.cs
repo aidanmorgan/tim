@@ -39,6 +39,11 @@ public enum ParameterEditorPolicy : byte { Reject, Clamp }
 /// construction, so Reset and a save keep the authored value.</summary>
 public enum ParameterRunEdit : byte { BuildOnly, RunControl }
 
+/// <summary>The engine lane a RunControl parameter drives while Running or Paused (closed set; 0 is undefined). A RunControl parameter
+/// binds exactly one lane, resolved from its package's declared capabilities: today a Source store's enable state is the SourceEnable
+/// lane. The compiled run-control table names each row's lane.</summary>
+public enum RunControlLane : byte { SourceEnable = 1 }
+
 public readonly record struct ParameterDescriptor(
     string Key,
     ParameterUnit Unit,

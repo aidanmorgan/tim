@@ -26,8 +26,10 @@ enum CommandKind : uint32 {
     Resume = 8,
     Step = 9,
     Save = 10,
-    ConfigureElectrical = 11,
+    // 11 is retired (the deleted electrical control) and undefined: it refuses as an unknown command.
     CutRope = 13,
+    // One declared parameter edited during Run: its compiled run-control row's id and a typed value.
+    ConfigureRunControl = 14,
     // The stopped memory observation query (Story 9A.3): its acknowledgement carries WorkshopResponse.memory.
     ObserveMemory = 12
 }
@@ -48,6 +50,17 @@ enum ResponseKind : uint8 {
 enum ElectricalEnable : uint8 {
     Disabled = 0,
     Enabled = 1
+}
+
+// The engine lane a compiled run-control row drives (closed set; 0 is undefined).
+enum RunControlLane : uint8 {
+    SourceEnable = 1
+}
+
+// Which field of a run-control value carries it (closed set; 0 is undefined). The other field is zero.
+enum RunControlValueKind : uint8 {
+    Enable = 1,
+    Scalar = 2
 }
 
 struct Vec3f {
@@ -187,9 +200,22 @@ struct ClockStamp {
     domain: uint8;
 }
 
-struct ElectricalControl {
+// One ConfigureRunControl command: the owner, the compiled row id and the typed value. A struct field cannot name an enum without a
+// zero member, so kind carries a RunControlValueKind and lane a RunControlLane as their uint8 values; decoders refuse undefined ones.
+struct RunControlCommandRecord {
     owner: uint64;
-    enabled: uint8;
+    control: uint64;
+    scalar: float;
+    kind: uint8;
+    enable: ElectricalEnable;
+}
+
+// One compiled run-control row: a declared RunControl parameter of one unlocked instance and the lane slot it drives.
+struct RunControlRecord {
+    id: uint64;
+    owner: uint64;
+    lane_index: uint32;
+    lane: uint8;
 }
 
 
@@ -262,7 +288,7 @@ table WorkshopCommand {
     session: [uint8];
     cadence: uint64;
     projection: uint64;
-    electrical: ElectricalControl;
+    run_control: RunControlCommandRecord;
     cut_span: ulong = null;
     target: CommandIdentityRecord;
     scene: CompiledSceneRecord;
@@ -723,7 +749,7 @@ table CompiledSceneRecord {
     activation_substeps: uint;
     contact_owners: [ulong];
     owners: [ulong];
-    editable_sources: [ulong];
+    run_controls: [RunControlRecord];
     presentation: [CompiledPresentationRecord];
     revolutes: [CapabilityRevoluteConstraintDeclarationRecord];
     compliant_surfaces: [CompliantSurfaceRecord];

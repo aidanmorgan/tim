@@ -133,9 +133,12 @@ public partial class MachineWorld
         return new(delivery.Response.Result, delivery.Applicable);
     }
 
-    public async Task<WorkshopCompletion> ConfigureElectrical(GpuBodyId owner, ElectricalEnable enabled)
+    /// <summary>The installed compiled scene's run-control table; empty before an installation.</summary>
+    public System.Collections.Immutable.ImmutableArray<RunControlRow> RunControls => _workshopClient?.RunControls ?? [];
+
+    public async Task<WorkshopCompletion> ConfigureRunControl(WorkshopRunControl control)
     {
-        var delivery = await ExecuteWorkshop(WorkshopCommandKind.ConfigureElectrical, electrical: new(owner, enabled));
+        var delivery = await ExecuteWorkshop(WorkshopCommandKind.ConfigureRunControl, runControl: control);
         return new(delivery.Response.Result, delivery.Applicable);
     }
 
@@ -159,7 +162,7 @@ public partial class MachineWorld
         return new(response.Result, delivery.Applicable);
     }
 
-    private async Task<WorkshopDelivery> ExecuteWorkshop(WorkshopCommandKind kind, WorkshopConstruction? next = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
+    private async Task<WorkshopDelivery> ExecuteWorkshop(WorkshopCommandKind kind, WorkshopConstruction? next = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
     {
         var client = _workshopClient ?? throw new InvalidOperationException("GPU worker is not ready.");
         if (_workshopPending) throw new InvalidOperationException("A Workshop command is pending.");
@@ -171,12 +174,12 @@ public partial class MachineWorld
             WorkshopCommandKind.Construct => WorkshopPhase.Admitting,
             WorkshopCommandKind.Run => WorkshopPhase.Starting,
             WorkshopCommandKind.Reset => WorkshopPhase.Resetting,
-            WorkshopCommandKind.Pause or WorkshopCommandKind.Resume or WorkshopCommandKind.Step or WorkshopCommandKind.Save or WorkshopCommandKind.ConfigureElectrical or WorkshopCommandKind.CutRope => previous,
+            WorkshopCommandKind.Pause or WorkshopCommandKind.Resume or WorkshopCommandKind.Step or WorkshopCommandKind.Save or WorkshopCommandKind.ConfigureRunControl or WorkshopCommandKind.CutRope => previous,
             _ => throw new ArgumentException("Unsupported scene command.")
         };
         try
         {
-            var delivery = await client.Execute(kind, next, electrical: electrical, cut: cut);
+            var delivery = await client.Execute(kind, next, runControl: runControl, cut: cut);
             var response = delivery.Response;
             if (_workshopRemoved || operation != _workshopOperation) return new(response, false);
             if (!delivery.Applicable) return new(response, false);

@@ -173,7 +173,7 @@ public partial class Workshop : Node3D
         label.AddThemeColorOverride("font_color", color ?? Cream);
         return label;
     }
-    private static WorkshopButton Button(string text, Action action, bool accent = false, Texture2D? icon = null)
+    private static WorkshopButton Button(string text, Action? action, bool accent = false, Texture2D? icon = null)
     {
         var button = new WorkshopButton { Text = text, CustomMinimumSize = new(40, 40), MouseDefaultCursorShape = Control.CursorShape.PointingHand };
         button.AddThemeFontSizeOverride("font_size", 15);
@@ -199,7 +199,7 @@ public partial class Workshop : Node3D
             button.TooltipText = "";
             button.AddThemeConstantOverride("icon_max_width", 20);
         }
-        button.Pressed += action;
+        if (action is not null) button.Pressed += action;
         return button;
     }
     private VBoxContainer Panel(Vector2 at, Vector2 size)

@@ -40,7 +40,7 @@ public sealed class ElectricalNandTests
 
     private static Task<List<List<WorkshopRead>>> LatchThenSupply(WorkshopConstruction construction,bool supply)=>
         WorkshopIntegrationHarness.ObservePhases(construction,([],120),
-            ([new(new(Supply),supply?ElectricalEnable.Enabled:ElectricalEnable.Disabled)],90));
+            ([new(new(Supply),RunControlValue.Of(supply?ElectricalEnable.Enabled:ElectricalEnable.Disabled))],90));
 
     [Theory]
     [InlineData(ElectricalInputState.Neither,true,true)]
@@ -145,7 +145,7 @@ public sealed class ElectricalNandTests
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(
             Link(1,nand,WorkshopSocket.FirstIn),Link(1,either,WorkshopSocket.FirstIn),Link(2,either),
             Link(either,nand,WorkshopSocket.SecondIn),Link(2,nand),Link(nand,Consumer)));
-        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],90),([new(new(1),ElectricalEnable.Enabled)],40));
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],90),([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],40));
         Assert.All(phases[0],read=>{Assert.Equal(ElectricalInputState.Neither,Logic(read,nand).Inputs);Assert.True(Logic(read,nand).Active);Assert.True(Powered(read));});
         Assert.True(BladeY(phases[0][^1])>BladeY(phases[0][0])+.2f);
         Assert.All(phases[1],read=>
@@ -319,13 +319,13 @@ public sealed class ElectricalNandTests
         Assert.Throws<ArgumentException>(()=>WorkshopMessages.ValidatePresentationOwners(Replace(phases[0][^1],row with {Active=false}),CompiledSceneFixture.Compile(construction)));
     }
 
-    internal static void ElectricalWorkshopControls(out WorkshopElectricalControl[] none,out WorkshopElectricalControl[] first,
-        out WorkshopElectricalControl[] both,out WorkshopElectricalControl[] noSupply)
+    internal static void ElectricalWorkshopControls(out (GpuBodyId Owner,RunControlValue Value)[] none,out (GpuBodyId Owner,RunControlValue Value)[] first,
+        out (GpuBodyId Owner,RunControlValue Value)[] both,out (GpuBodyId Owner,RunControlValue Value)[] noSupply)
     {
         none=[];
-        first=[new(new(1),ElectricalEnable.Enabled)];
-        both=[new(new(2),ElectricalEnable.Enabled)];
-        noSupply=[new(new(3),ElectricalEnable.Disabled)];
+        first=[new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))];
+        both=[new(new(2),RunControlValue.Of(ElectricalEnable.Enabled))];
+        noSupply=[new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))];
     }
 }
 
@@ -337,7 +337,7 @@ public sealed class ElectricalNandPresentationTests(NativeSceneFixture godot)
     {
         var construction=ElectricalNandTests.BatteryMachine();
         ElectricalNandTests.ElectricalWorkshopControls(out var none,out _,out var both,out _);
-        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,(none,2),([new(new(1),ElectricalEnable.Enabled)],2),(both,2));
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,(none,2),([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],2),(both,2));
         var registry=new PartRegistry();registry.Load();
         var part=registry.Create(ElectricalNandTests.Kind);
         try

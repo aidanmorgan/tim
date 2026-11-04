@@ -361,9 +361,9 @@ public sealed class EventRingProducerTests
     {
         await using var ring = await WorkshopIntegrationHarness.Running(Periodic(1f, 9));
         await ring.Advance(10);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(new(1), ElectricalEnable.Disabled))).Result.Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: ring.RunControl(new(1), RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Result.Outcome);
         await ring.Advance(10);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(new(1), ElectricalEnable.Enabled))).Result.Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: ring.RunControl(new(1), RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)))).Result.Outcome);
         await ring.Advance(10);
         var powered = ring.Of(SimulationEventKind.ElectricalPowered).ToArray();
         Assert.Equal(Edges(ring.Reads, read => read.Electrical[0].Available), powered.Select(record => (record.Tick, record.Level)));
@@ -384,7 +384,7 @@ public sealed class EventRingProducerTests
         Assert.Empty(ring.Records);
         // A candidate for tick 120 (the first pulse), staged and then discarded.
         var committed = ring.Committed;
-        var candidate = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed.Electrical, ring.Simulation.ElectricalState));
+        var candidate = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed.Electrical, []));
         Assert.Equal(120UL, candidate.Read.Tick.Value);
         ring.Device.Discard(new(999_999));
         Assert.Empty(ring.Device.Events.Pending);
@@ -410,7 +410,7 @@ public sealed class EventRingProducerTests
         await using var ring = await WorkshopIntegrationHarness.Running(Periodic(1f, 9));
         await ring.Advance(119);
         var committed = ring.Committed;
-        _ = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed.Electrical, ring.Simulation.ElectricalState));
+        _ = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed.Electrical, []));
         ring.Device.Discard(new(999_999));
         await ring.Advance(1);
         var record = Assert.Single(ring.Records);

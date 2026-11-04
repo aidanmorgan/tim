@@ -13,11 +13,12 @@ internal sealed class WorkshopIntegrationClient(WorkshopIntegrationHarness harne
     public AuthorityRevision Revision => harness.Committed.Revision;
     public WorkshopCommandIdentity? Pending => harness.Executor.Pending;
     public WorkshopTransportState TransportState => WorkshopTransportState.Ready;
+    public System.Collections.Immutable.ImmutableArray<RunControlRow> RunControls => harness.Simulation.Scene.RunControls;
 
     public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
+        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
     {
-        var command = harness.Command(kind, construction, target, settings, electrical, cut);
+        var command = harness.Command(kind, construction, target, settings, runControl, cut);
         var order = _cursor.ReadOrder;
         var response = await harness.Dispatch(command);
         var prepared = _cursor.PrepareAcknowledgement(command, response, order, false);

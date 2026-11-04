@@ -44,7 +44,7 @@ public sealed class ElectricalXorTests
     /// <summary>The balls latch their switches with the bottom supply Disabled; only then is the supply offered (or kept off).</summary>
     private static Task<List<List<WorkshopRead>>> LatchThenSupply(WorkshopConstruction construction,bool supply)=>
         WorkshopIntegrationHarness.ObservePhases(construction,([],120),
-            ([new(new(Supply),supply?ElectricalEnable.Enabled:ElectricalEnable.Disabled)],90));
+            ([new(new(Supply),RunControlValue.Of(supply?ElectricalEnable.Enabled:ElectricalEnable.Disabled))],90));
 
     [Theory]
     [InlineData(ElectricalInputState.Neither,true,false)]
@@ -207,8 +207,8 @@ public sealed class ElectricalXorTests
         var construction=OrLoopFeedingXor(true);
         construction.Validate();
         Assert.Equal(construction,WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Forged(construction,10)).Construction);
-        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],40),([new(new(1),ElectricalEnable.Enabled)],90),
-            ([new(new(1),ElectricalEnable.Disabled)],40));
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],40),([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],90),
+            ([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled))],40));
         var rest=BladeY(phases[0][0]);
         Assert.All(phases[0],read=>{Assert.False(Logic(read,4).Active);Assert.False(Logic(read).Active);AssertBladeStill(read,rest);});
         Assert.All(phases[1],read=>
@@ -321,13 +321,13 @@ public sealed class ElectricalXorTests
             Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,Consumer)));
 
     /// <summary>Battery controls reaching each row in turn: 00, 10, 01, 11 supplied, then 01 without supply.</summary>
-    internal static readonly (WorkshopElectricalControl[] Controls,ElectricalInputState Inputs,bool Supplied,bool Active)[] Rows=
+    internal static readonly ((GpuBodyId Owner,RunControlValue Value)[] Controls,ElectricalInputState Inputs,bool Supplied,bool Active)[] Rows=
     [
         ([],ElectricalInputState.Neither,true,false),
-        ([new(new(1),ElectricalEnable.Enabled)],ElectricalInputState.FirstOnly,true,true),
-        ([new(new(1),ElectricalEnable.Disabled),new(new(2),ElectricalEnable.Enabled)],ElectricalInputState.SecondOnly,true,true),
-        ([new(new(1),ElectricalEnable.Enabled)],ElectricalInputState.Both,true,false),
-        ([new(new(1),ElectricalEnable.Disabled),new(new(3),ElectricalEnable.Disabled)],ElectricalInputState.SecondOnly,false,false)
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],ElectricalInputState.FirstOnly,true,true),
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled)),new(new(2),RunControlValue.Of(ElectricalEnable.Enabled))],ElectricalInputState.SecondOnly,true,true),
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],ElectricalInputState.Both,true,false),
+        ([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled)),new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],ElectricalInputState.SecondOnly,false,false)
     ];
 
     [Fact]

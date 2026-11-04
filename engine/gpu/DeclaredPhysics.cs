@@ -7,6 +7,9 @@ using CuriousContraptions.Bundle;
 
 namespace CuriousContraptions.Gpu;
 
+/// <summary>One declared run-time control of a part: its RunControl parameter and the one lane that parameter binds.</summary>
+public readonly record struct DeclaredRunControl(CuriousContraptions.Abstractions.ParameterId Parameter, CuriousContraptions.Abstractions.RunControlLane Lane);
+
 /// <summary>The immutable physical declarations baked into the process's element bundle.</summary>
 public static class DeclaredPhysics
 {
@@ -76,14 +79,13 @@ public static class DeclaredPhysics
     public static CuriousContraptions.Abstractions.Electrical.SupplySourceStoreDescriptor? SourceStore(PartId part) =>
         Of(part).Electrical?.Supply?.Store;
 
-    /// <summary>Whether the part declares a run-time control: its Source store's enable state is a RunControl parameter.</summary>
-    public static bool HasRunControlledSource(PartId part) => HasRunControlledSource(Of(part));
+    /// <summary>The part's declared run-time controls, in parameter order: each RunControl parameter with the one lane it binds.</summary>
+    public static IReadOnlyList<DeclaredRunControl> RunControls(PartId part) => RunControls(Of(part));
 
-    /// <summary>Whether this declaration's Source store declares its enable state run-editable.</summary>
-    public static bool HasRunControlledSource(BundleEntry entry) => entry.Electrical?.Supply?.Store is { } store &&
-        entry.Metadata.Parameters.Any(parameter => parameter.Key == store.Enable &&
-            parameter.RunEdit == CuriousContraptions.Abstractions.ParameterRunEdit.RunControl);
-
+    /// <summary>This declaration's run-time controls. The admitted bundle binds each RunControl parameter to exactly one lane.</summary>
+    public static IReadOnlyList<DeclaredRunControl> RunControls(BundleEntry entry) => entry.Metadata.Parameters
+        .Where(parameter => parameter.RunEdit == CuriousContraptions.Abstractions.ParameterRunEdit.RunControl)
+        .Select(parameter => new DeclaredRunControl(new(parameter.Key), RunControlBindings.Lanes(entry, parameter.Key).Single())).ToArray();
     /// <summary>Explicit package capability; collision geometry never determines capture eligibility.</summary>
     public static bool IsPayload(PartId part) => Of(part).Mechanical?.Payload == PayloadPolicy.CaptureTarget;
 

@@ -61,7 +61,7 @@ public sealed class WorkshopCommandExecutor(IWorkshopGpuDevice device, IWorkshop
                 case WorkshopCommandKind.Pause: result = await Simulation.Pause(); break;
                 case WorkshopCommandKind.Resume: result = await Simulation.Resume(); break;
                 case WorkshopCommandKind.Step: result = await Simulation.Step(); break;
-                case WorkshopCommandKind.ConfigureElectrical: result = Simulation.ConfigureElectrical(command.Electrical!.Value); break;
+                case WorkshopCommandKind.ConfigureRunControl: result = Simulation.ConfigureRunControl(command.RunControl!.Value); break;
                 case WorkshopCommandKind.CutRope: result = Simulation.CutRope(command.Cut!.Value); break;
                 case WorkshopCommandKind.Save: result = Simulation.Save(); break;
                 case WorkshopCommandKind.Construct: result = await Simulation.Construct(command.Scene!); break;

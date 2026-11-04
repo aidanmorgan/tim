@@ -110,8 +110,8 @@ public sealed class BothGateTests
         }
         construction=construction with {Instances=new(parts),Connections=new(links.ToArray())};
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],90),
-            ([new(new(1),ElectricalEnable.Disabled),new(new(2),ElectricalEnable.Disabled),new(new(3),ElectricalEnable.Disabled)],10),
-            ([new(new(1),ElectricalEnable.Enabled),new(new(2),ElectricalEnable.Enabled),new(new(3),ElectricalEnable.Enabled)],30));
+            ([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled)),new(new(2),RunControlValue.Of(ElectricalEnable.Disabled)),new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],10),
+            ([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled)),new(new(2),RunControlValue.Of(ElectricalEnable.Enabled)),new(new(3),RunControlValue.Of(ElectricalEnable.Enabled))],30));
         Assert.All(phases[0],read=>Assert.True(Drive(read).SupplyClosed));
         Assert.All(phases[1],read=>
         {
@@ -171,7 +171,7 @@ public sealed class BothGateTests
                 .With(new(new(7),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.SetIn,WorkshopConnectionDomain.Activation))
                 .With(new(new(8),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.ResetIn,WorkshopConnectionDomain.Activation))};
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],(int)(rate + rate / 6)),
-            ([new(new(3),ElectricalEnable.Disabled)],(int)(rate / 12)),([new(new(3),ElectricalEnable.Enabled)],(int)(rate / 3)));
+            ([new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],(int)(rate / 12)),([new(new(3),RunControlValue.Of(ElectricalEnable.Enabled))],(int)(rate / 3)));
         var reads=phases.SelectMany(rows=>rows).ToArray();
         WorkshopRead At(ulong tick)=>reads.Single(read=>read.Tick.Value==tick);
         Assert.False(Drive(At(rate)).SupplyClosed);Assert.True(Drive(At(rate + 1)).SupplyClosed);
@@ -255,7 +255,7 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
     {
         var construction=BothGateTests.Machine();
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],2),
-            ([new(new(3),ElectricalEnable.Disabled)],2),([new(new(1),ElectricalEnable.Disabled)],2));
+            ([new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],2),([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled))],2));
         var first=phases[0][^1];var noSupply=phases[1][^1];var secondOnly=phases[2][^1];
         var evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),Response(first,1));
         var registry=new PartRegistry();registry.Load();

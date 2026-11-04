@@ -440,7 +440,7 @@ public sealed class WorkshopSimulationTests
     }
 
     // Story 9R.3 D4: Reset alone restores the authored enable. The in-run control survives a Reset that never commits (cancelled),
-    // and is cleared only once a Reset commits, so the Build-phase ElectricalState is the authored one again.
+    // and is cleared only once a Reset commits, so no control is held in the Build phase and the authored enable applies again.
     [Fact]
     public async Task ACommittedResetClearsInRunSupplyControlsAndACancelledOneKeepsThem()
     {
@@ -451,20 +451,77 @@ public sealed class WorkshopSimulationTests
         device.CompleteAdmission(0);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await admission).Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureElectrical(new(battery.Id, ElectricalEnable.Enabled)).Outcome);
-        Assert.Equal(ElectricalEnable.Enabled, simulation.ElectricalState(battery.Id, ElectricalEnable.Disabled));
+        var row = Assert.Single(simulation.Scene.RunControls);
+        var enabled = RunControlValue.Of(ElectricalEnable.Enabled);
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureRunControl(new(battery.Id, row.Id, enabled)).Outcome);
+        Assert.Equal(enabled, simulation.HeldRunControl(row.Id));
 
         var cancelled = simulation.Reset().AsTask();
         Assert.Equal(WorkshopCommandOutcome.Applied, simulation.CancelPending().Outcome);
         device.CompleteAdmission(1);
         Assert.Equal(WorkshopCommandOutcome.Cancelled, (await cancelled).Outcome);
-        Assert.Equal(ElectricalEnable.Enabled, simulation.ElectricalState(battery.Id, ElectricalEnable.Disabled));
+        Assert.Equal(enabled, simulation.HeldRunControl(row.Id));
 
         var reset = simulation.Reset().AsTask();
         device.CompleteAdmission(2);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await reset).Outcome);
         Assert.Equal(WorkshopSimulationPhase.Building, simulation.Phase);
-        Assert.Equal(ElectricalEnable.Disabled, simulation.ElectricalState(battery.Id, ElectricalEnable.Disabled));
+        Assert.Null(simulation.HeldRunControl(row.Id));
+    }
+
+    // engine-run-control-table: a control sent while another operation is pending is refused Busy and holds nothing; the pending tick
+    // carries the authored enable.
+    [Fact]
+    public async Task AControlWhileAnOperationIsPendingIsRefusedBusy()
+    {
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
+        await simulation.Initialize();
+        var battery = PlacedParts.Battery(new(7), 0, 3, 0, enabled: ElectricalEnable.Disabled);
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(new(new(2), Settings, new(battery)))).AsTask();
+        device.CompleteAdmission(0);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await admission).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        var row = Assert.Single(simulation.Scene.RunControls);
+        var pending = simulation.Advance().AsTask();
+        var refused = simulation.ConfigureRunControl(new(battery.Id, row.Id, RunControlValue.Of(ElectricalEnable.Enabled)));
+        Assert.Equal((WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy), (refused.Outcome, refused.Reason));
+        Assert.Null(simulation.HeldRunControl(row.Id));
+        device.CompleteAdvance(0);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await pending).Outcome);
+        Assert.Equal([ElectricalEnable.Disabled], device.Controls[0].SourceEnable);
+    }
+
+    // engine-run-control-table: a tick that is discarded (its Advance superseded by a Reset that is then cancelled) keeps the held
+    // control, and the next committed step still hands it to the engine.
+    [Fact]
+    public async Task ADiscardedTickKeepsTheHeldControlForTheNextCommittedStep()
+    {
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
+        await simulation.Initialize();
+        var battery = PlacedParts.Battery(new(7), 0, 3, 0, enabled: ElectricalEnable.Disabled);
+        var admission = simulation.Construct(CompiledSceneFixture.Compile(new(new(2), Settings, new(battery)))).AsTask();
+        device.CompleteAdmission(0);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await admission).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        var row = Assert.Single(simulation.Scene.RunControls);
+        var enabled = RunControlValue.Of(ElectricalEnable.Enabled);
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureRunControl(new(battery.Id, row.Id, enabled)).Outcome);
+
+        var discarded = simulation.Advance().AsTask();
+        var reset = simulation.Reset().AsTask();
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.CancelPending().Outcome);
+        device.CompleteAdmission(1);
+        Assert.Equal(WorkshopCommandOutcome.Cancelled, (await reset).Outcome);
+        device.CompleteAdvance(0);
+        Assert.Equal(WorkshopCommandOutcome.Superseded, (await discarded).Outcome);
+        Assert.Equal(new SimulationTick(0), simulation.Committed.Tick);
+        Assert.Equal(enabled, simulation.HeldRunControl(row.Id));
+
+        var next = simulation.Advance().AsTask();
+        device.CompleteAdvance(1);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await next).Outcome);
+        Assert.Equal(new SimulationTick(1), simulation.Committed.Tick);
+        Assert.Equal([ElectricalEnable.Enabled], device.Controls[1].SourceEnable);
     }
 
     [Theory]
@@ -780,8 +837,11 @@ public sealed class WorkshopSimulationTests
             Admissions.Add(new(construction, epoch, sequence, completion));
             return new(completion.Task);
         }
+        /// <summary>The controls each Advance handed the device, in request order.</summary>
+        public readonly List<WorkshopTickControls> Controls = [];
         public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead source, CommandSequence sequence, WorkshopTickControls controls)
         {
+            Controls.Add(controls);
             var completion = new TaskCompletionSource<WorkshopGpuCandidate>();
             _advances.Add((source, sequence, completion));
             return new(completion.Task);

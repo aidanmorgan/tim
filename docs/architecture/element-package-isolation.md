@@ -104,6 +104,7 @@ Committed body poses stream through a lock-free `SharedArrayBuffer` triple-buffe
 ### 2.2 Commands and queries
 - **Commands** are typed (`WorkshopCommandKind`), sequence-checked by `WorkshopCommandRouter`, validated at the domain boundary and answered with a receipt.
 - **Queries** read committed state without side effects: the published read model (`WorkshopRead`), the pose ring, and typed queries on the same transport.
+- **In-run parameters** take one generic path: a package declares a parameter `ParameterRunEdit.RunControl` bound to exactly one run-controllable lane (`RunControlLane`); Run compiles the run-control table of rows (id, owner, lane, lane index); the one `ConfigureRunControl` command carries (owner, id, typed value) for the next committed step; and each row's committed value is read from its committed lane. No element adds its own run-time command (engine-run-control-table).
 
 ### 2.3 Event ring (one-shot occurrences)
 One-shot occurrences (impacts, passage crossings, captures, contact-load edges, signal triggers, threshold reached, memory changed, supply switched) are published once at their commit point to a single-producer, multi-consumer ring (Disruptor pattern). The producer advances a global sequence; each consumer (Animation worker, audio, UI) keeps its own cursor and filters raw records by domain, capability kind or magnitude without allocation. Level states are never ring events; consumers read them from committed state.

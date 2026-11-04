@@ -57,7 +57,7 @@ public sealed class LatchSupplyFixtureTests
 
     /// <summary>Construct, Run, the phases (each applies its in-run battery controls, then advances), Reset, and optionally a second
     /// Run of `replay` ticks — all on the production WorkshopSimulation. Records the authored construction after every tick.</summary>
-    private static async Task<Trace> Run(WorkshopConstruction construction, int replay, params (WorkshopElectricalControl[] Controls, int Ticks)[] phases)
+    private static async Task<Trace> Run(WorkshopConstruction construction, int replay, params ((GpuBodyId Owner, RunControlValue Value)[] Controls, int Ticks)[] phases)
     {
         await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)),
@@ -69,7 +69,9 @@ public sealed class LatchSupplyFixtureTests
         var reads = new List<WorkshopRead>(); var during = new List<WorkshopConstruction>();
         foreach (var (controls, ticks) in phases)
         {
-            foreach (var control in controls) Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureElectrical(control).Outcome);
+            foreach (var (owner, value) in controls)
+                Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureRunControl(
+                    WorkshopIntegrationHarness.RunControl(simulation.Scene, owner, value)).Outcome);
             for (var tick = 0; tick < ticks; tick++)
             {
                 Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
@@ -246,8 +248,8 @@ public sealed class LatchSupplyFixtureTests
     [Fact]
     public async Task SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet()
     {
-        var trace = await Run(Machine(null), 0, ([], 120), ([new(new(Battery), ElectricalEnable.Disabled)], 40),
-            ([new(new(Battery), ElectricalEnable.Enabled)], 60));
+        var trace = await Run(Machine(null), 0, ([], 120), ([new(new(Battery), RunControlValue.Of(ElectricalEnable.Disabled))], 40),
+            ([new(new(Battery), RunControlValue.Of(ElectricalEnable.Enabled))], 60));
         var reads = trace.Reads; var set = Strike(reads, SwitchA);
         var (on, off, restored) = (reads.Take(120).ToList(), reads.Skip(120).Take(40).ToList(), reads.Skip(160).ToList());
         Assert.True(Drive(on[^1]).SupplyClosed && Drive(on[^1]).Coordinate > .5f);
@@ -322,7 +324,7 @@ public sealed class LatchSupplyFixtureTests
     [Fact]
     public async Task RunResetRestoresLatchOffBladeClosedAuthoredBattery()
     {
-        var trace = await Run(Machine(null), 150, ([], 150), ([new(new(Battery), ElectricalEnable.Disabled)], 5));
+        var trace = await Run(Machine(null), 150, ([], 150), ([new(new(Battery), RunControlValue.Of(ElectricalEnable.Disabled))], 5));
         var reads = trace.Reads;
         // Non-vacuous: the run set the latch, opened the blade and ended with the battery disabled in Run.
         Assert.True(Latched(reads[^1], Latch) && Latched(reads[^1], Lamp) && reads.Max(read => Drive(read).Coordinate) > 1f);

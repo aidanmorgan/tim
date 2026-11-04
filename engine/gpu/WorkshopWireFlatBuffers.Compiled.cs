@@ -820,7 +820,13 @@ public static partial class WorkshopWireFlatBuffers
         var passage_sensors = W.CompiledSceneRecord.CreatePassageSensorsVector(b, scene.Activation.PassageSensors.ToArray().Select(value => EncodeCapabilityPassageSensorDeclarationRecord(b, value)).ToArray());
         var contacts = W.CompiledSceneRecord.CreateContactOwnersVector(b, scene.Activation.ContactOwners.Select(owner => owner.Value).ToArray());
         var owners = W.CompiledSceneRecord.CreateOwnersVector(b, scene.Owners.Select(owner => owner.Value).ToArray());
-        var editable = W.CompiledSceneRecord.CreateEditableSourcesVector(b, scene.EditableSources.Select(owner => owner.Value).ToArray());
+        W.CompiledSceneRecord.StartRunControlsVector(b, scene.RunControls.Length);
+        for (var i = scene.RunControls.Length - 1; i >= 0; i--)
+        {
+            var control = scene.RunControls[i];
+            W.RunControlRecord.CreateRunControlRecord(b, control.Id.Value, control.Owner.Value, checked((uint)control.LaneIndex), (byte)control.Lane);
+        }
+        var runControls = b.EndVector();
         var presentation = W.CompiledSceneRecord.CreatePresentationVector(b, scene.Presentation.Select(track =>
         {
             var declaration = EncodeCapabilityPresentationBindingRecord(b, track.Declaration);
@@ -863,7 +869,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddActivationSubsteps(b, scene.Activation.Substeps);
         W.CompiledSceneRecord.AddContactOwners(b, contacts);
         W.CompiledSceneRecord.AddOwners(b, owners);
-        W.CompiledSceneRecord.AddEditableSources(b, editable);
+        W.CompiledSceneRecord.AddRunControls(b, runControls);
         W.CompiledSceneRecord.AddPresentation(b, presentation);
         W.CompiledSceneRecord.AddRevolutes(b, revolutes);
         W.CompiledSceneRecord.AddCompliantSurfaces(b, compliant_surfaces);
@@ -913,7 +919,9 @@ public static partial class WorkshopWireFlatBuffers
             return new(new(row.Identity), new(row.Revision), DecodeCapabilityWorkshopCadenceSettingsRecord(Required(row.Settings, "settings")),
                 physics, activation, presentation,
                 Enumerable.Range(0, row.OwnersLength).Select(i => new GpuBodyId(row.Owners(i))),
-                Enumerable.Range(0, row.EditableSourcesLength).Select(i => new GpuBodyId(row.EditableSources(i))));
+                Enumerable.Range(0, row.RunControlsLength).Select(i => Required(row.RunControls(i), "RunControls")).Select(control =>
+                    new RunControlRow(new(control.Id), new(control.Owner), (CuriousContraptions.Abstractions.RunControlLane)control.Lane,
+                        checked((int)control.LaneIndex))));
         }
         catch (Exception error) when (error is ArgumentException or InvalidOperationException or OverflowException)
         { throw new WireFaultException(WireFaultReason.OutOfRange, "Invalid compiled scene capabilities.", error); }

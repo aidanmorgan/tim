@@ -26,18 +26,29 @@ public sealed class WorkshopCompiledScene
     public ActivationNetwork Activation { get; }
     public ImmutableArray<CompiledPresentationTrack> Presentation { get; }
     public ImmutableArray<GpuBodyId> Owners { get; }
-    public ImmutableArray<GpuBodyId> EditableSources { get; }
+    /// <summary>The run-control table: one row per declared RunControl parameter of an unlocked instance, each naming the lane slot
+    /// it drives while Running or Paused.</summary>
+    public ImmutableArray<RunControlRow> RunControls { get; }
 
     public WorkshopCompiledScene(CompiledSceneId identity, ConstructionRevision revision, WorkshopCadenceSettings settings,
         PhysicsSceneDeclaration physics, ActivationNetwork activation, IEnumerable<CompiledPresentationTrack> presentation,
-        IEnumerable<GpuBodyId> owners, IEnumerable<GpuBodyId> editableSources)
+        IEnumerable<GpuBodyId> owners, IEnumerable<RunControlRow> runControls)
     {
         Identity = identity; Revision = revision; Settings = settings;
         Physics = physics ?? throw new ArgumentNullException(nameof(physics));
         Activation = activation ?? throw new ArgumentNullException(nameof(activation));
         Presentation = presentation.ToImmutableArray(); Owners = owners.ToImmutableArray();
-        EditableSources = editableSources.ToImmutableArray();
+        RunControls = runControls.ToImmutableArray();
         Validate();
+    }
+
+    /// <summary>The compiled row named <paramref name="id"/>, if the table has one.</summary>
+    public bool TryRunControl(RunControlId id, out RunControlRow row)
+    {
+        foreach (var candidate in RunControls)
+            if (candidate.Id == id) { row = candidate; return true; }
+        row = default;
+        return false;
     }
 
     public bool OwnsCapture(CapturePairKey pair) =>
@@ -50,10 +61,16 @@ public sealed class WorkshopCompiledScene
         Settings.Validate();
         var bodies = Physics.Bodies.ToArray().Select(body => body.Id).ToHashSet();
         var owners = Owners.ToHashSet();
-        if (owners.Count != Owners.Length || Owners.Any(owner => owner.Value == 0 || !bodies.Contains(owner)) ||
-            EditableSources.Distinct().Count() != EditableSources.Length ||
-            EditableSources.Any(owner => !owners.Contains(owner) || !Physics.Electrical.Sources.ToArray().Any(source => source.Owner == owner)))
+        if (owners.Count != Owners.Length || Owners.Any(owner => owner.Value == 0 || !bodies.Contains(owner)))
             throw new ArgumentException("Compiled scene ownership is invalid.");
+        // Each row resolves: a unique nonzero id, an installed owner, a defined lane, at most one row per lane slot, and a slot that
+        // exists and belongs to the row's owner.
+        var ids = new HashSet<RunControlId>(RunControls.Length);
+        var slots = new HashSet<(RunControlLane, int)>(RunControls.Length);
+        foreach (var row in RunControls)
+            if (row.Id.Value == 0 || !ids.Add(row.Id) || !owners.Contains(row.Owner) || !Enum.IsDefined(row.Lane) ||
+                !slots.Add((row.Lane, row.LaneIndex)) || !RunControlLanes.Resolves(row, Physics))
+                throw new ArgumentException("Compiled run-control table is invalid.");
         if (Activation.Substeps != Settings.PhysicalStepsPerCommit)
             throw new ArgumentException("Compiled activation cadence differs from physics.");
         var nodes = Activation.Nodes.ToArray();

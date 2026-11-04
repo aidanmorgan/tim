@@ -17,7 +17,8 @@ public partial class Workshop
     private readonly List<MeshInstance3D> _connectionKnots = new();
     private readonly HashSet<(SimulationEpoch Epoch, RopeSpanId Span)> _queuedCuts = new();
 
-    private static WorkshopButton SignalButton(string label, Action action)
+    /// <summary>A compact text button; a null action leaves it inert (a control shown without an action).</summary>
+    private static WorkshopButton SignalButton(string label, Action? action)
     {
         var button = Button(label, action); button.Text = label; button.Icon = null;
         button.AddThemeFontSizeOverride("font_size", 12); return button;
@@ -54,7 +55,7 @@ public partial class Workshop
     }
     private void ClearConnectionChoices()
     {
-        _runControlToggle = null;
+        _runControlViews.Clear();
         if (_connectionChoices is null) return;
         foreach (var child in _connectionChoices.GetChildren()) { _connectionChoices.RemoveChild(child); child.QueueFree(); }
     }

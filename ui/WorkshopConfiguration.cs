@@ -20,8 +20,8 @@ public partial class Workshop
         if (part.Definition.Parameters.Count == 0) return;
         // While the machine runs, a part offers only what its package declares run-editable.
         if (World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused &&
-            DeclaredPhysics.HasRunControlledSource(instance.PartId))
-        { AddRunControl(instance); return; }
+            DeclaredPhysics.RunControls(instance.PartId) is { Count: > 0 } runControls)
+        { AddRunControls(instance, runControls); return; }
         var configure = SignalButton("Configure", () =>
         {
             if (!CanEdit || instance.Locked) return;
@@ -72,69 +72,77 @@ public partial class Workshop
         _connectionChoices.AddChild(configure);
     }
 
-    // The run-time control of a declared Source store's enable state (Story 9A.39). A click is a typed ConfigureElectrical
-    // command for the next physics step; it changes the running world only, so the authored value, Undo, Reset and a save are
-    // untouched. An accepted change shows as queued until a later committed tick of the same epoch reports it; a second click
-    // while paused reverses it.
-    private Button? _runControlToggle;
-    private GpuBodyId _runControlObservedOwner;
-    private ElectricalEnable _runControlObservedState;
-    private readonly System.Collections.Generic.Dictionary<GpuBodyId, (ulong Epoch, ulong Tick, ElectricalEnable Enabled)> _runControlQueued = new(16);
+    // The run-time controls a package declares (Story 9A.39; engine-run-control-table). Each is found through the declaration and the
+    // installed run-control table, by owner and lane, and renders its typed value: an enable is a supply toggle. A click is one typed
+    // ConfigureRunControl command for the next physics step; it changes the running world only, so the authored value, Undo, Reset
+    // and a save are untouched. An accepted change shows as queued until a later committed tick of the same epoch reports it; a
+    // second click while paused reverses it. A locked part compiles no row: its control shows its committed value, disabled, with no
+    // action.
+    private readonly System.Collections.Generic.List<(GpuBodyId Owner, RunControlLane Lane, Button View)> _runControlViews = new(4);
+    private readonly System.Collections.Generic.Dictionary<RunControlId, (ulong Epoch, ulong Tick, RunControlValue Value)> _runControlQueued = new(16);
     private bool _runControlSending;
 
-    private ElectricalEnable RunControlIntent(GpuBodyId owner, ElectricalEnable committed)
+    /// <summary>What a control shows: the owner's committed lane value, unless an accepted change to its row is still queued (until a
+    /// later committed tick of the same epoch reports it).</summary>
+    private RunControlValue RunControlIntent(GpuBodyId owner, RunControlLane lane)
     {
         var read = World.WorkshopRead;
-        if (_runControlQueued.TryGetValue(owner, out var pending))
+        var committed = read.RunControl(owner, lane);
+        if (RunControlLanes.Find(World.RunControls, owner, lane) is { } row && _runControlQueued.TryGetValue(row.Id, out var pending))
         {
             if (pending.Epoch != read.Epoch.Value ||
-                (read.Tick.Value > pending.Tick && committed == pending.Enabled))
-                _runControlQueued.Remove(owner);
-            else return pending.Enabled;
+                (read.Tick.Value > pending.Tick && committed == pending.Value))
+                _runControlQueued.Remove(row.Id);
+            else return pending.Value;
         }
         return committed;
     }
 
-    private string RunControlText(GpuBodyId owner, ElectricalEnable intent) =>
-        (intent == ElectricalEnable.Enabled ? "Disable supply" : "Enable supply") +
-        (_runControlQueued.ContainsKey(owner) ? " (queued)" : "");
+    private string RunControlText(GpuBodyId owner, RunControlLane lane)
+    {
+        var intent = RunControlIntent(owner, lane);
+        var queued = RunControlLanes.Find(World.RunControls, owner, lane) is { } row && _runControlQueued.ContainsKey(row.Id);
+        return intent.Kind switch
+        {
+            RunControlValueKind.Enable => intent.Enable == ElectricalEnable.Enabled ? "Disable supply" : "Enable supply",
+            _ => throw new System.Diagnostics.UnreachableException("No declared run-time control takes a scalar value yet.")
+        } + (queued ? " (queued)" : "");
+    }
+
+    /// <summary>The value one click sends: an enable control reverses the value it shows.</summary>
+    private static RunControlValue RunControlNext(RunControlValue intent) => intent.Kind switch
+    {
+        RunControlValueKind.Enable => RunControlValue.Of(intent.Enable == ElectricalEnable.Enabled ? ElectricalEnable.Disabled : ElectricalEnable.Enabled),
+        _ => throw new System.Diagnostics.UnreachableException("No declared run-time control takes a scalar value yet.")
+    };
 
     private void RefreshRunControlObservation()
     {
-        if (_runControlToggle is null) return;
-        for (var i = 0; i < World.WorkshopRead.Electrical.Count; i++)
+        foreach (var (owner, lane, view) in _runControlViews) view.Text = RunControlText(owner, lane);
+    }
+
+    private void AddRunControls(WorkshopGenericInstance instance, System.Collections.Generic.IReadOnlyList<DeclaredRunControl> controls)
+    {
+        var owner = instance.Id;
+        foreach (var declared in controls)
         {
-            var read = World.WorkshopRead.Electrical[i];
-            if (read.Owner != _runControlObservedOwner) continue;
-            _runControlObservedState = RunControlIntent(read.Owner, read.Enabled);
-            _runControlToggle.Text = RunControlText(read.Owner, _runControlObservedState);
-            return;
+            var lane = declared.Lane;
+            var row = RunControlLanes.Find(World.RunControls, owner, lane);
+            var view = SignalButton(RunControlText(owner, lane), row is { } compiled
+                ? () => ApplyRunControl(new(owner, compiled.Id, RunControlNext(RunControlIntent(owner, lane))))
+                : null);
+            view.Disabled = row is null || _gpuPending || _runControlSending;
+            _connectionChoices.AddChild(view);
+            _runControlViews.Add((owner, lane, view));
         }
     }
 
-    private void AddRunControl(WorkshopGenericInstance instance)
+    private async void ApplyRunControl(WorkshopRunControl control)
     {
-        var owner = instance.Id;
-        var store = DeclaredPhysics.SourceStore(instance.PartId) ??
-            throw new System.Diagnostics.UnreachableException("A run-time control requires a declared Source store.");
-        var state = WorkshopPhysicsCompiler.ElectricalSourceFor(World.Construction.Instances.Identities[owner].Source, owner, store, instance.Parameters).Enabled;
-        for (var i = 0; i < World.WorkshopRead.Electrical.Count; i++)
-            if (World.WorkshopRead.Electrical[i].Owner == owner) state = World.WorkshopRead.Electrical[i].Enabled;
-        _runControlObservedOwner = owner;
-        _runControlObservedState = RunControlIntent(owner, state);
-        var toggle = SignalButton(RunControlText(owner, _runControlObservedState),
-            () => ApplyRunControl(owner, _runControlObservedState == ElectricalEnable.Enabled ? ElectricalEnable.Disabled : ElectricalEnable.Enabled));
-        toggle.Disabled = instance.Locked || _gpuPending || _runControlSending;
-        _connectionChoices.AddChild(toggle);
-        _runControlToggle = toggle;
-    }
-
-    private async void ApplyRunControl(GpuBodyId owner, ElectricalEnable enabled)
-    {
-        try { await ApplyRunControlAsync(owner, enabled); }
+        try { await ApplyRunControlAsync(control); }
         catch (Exception error) { HandlerFailed(nameof(ApplyRunControl), error); }
     }
-    private async Task ApplyRunControlAsync(GpuBodyId owner, ElectricalEnable enabled)
+    private async Task ApplyRunControlAsync(WorkshopRunControl control)
     {
         if (_gpuPending || _runControlSending) return;
         _runControlSending = true;
@@ -142,10 +150,10 @@ public partial class Workshop
         var tick = World.WorkshopRead.Tick.Value;
         try
         {
-            var result = await World.ConfigureElectrical(owner, enabled);
+            var result = await World.ConfigureRunControl(control);
             var accepted = result.Result.Outcome == WorkshopCommandOutcome.Applied && World.WorkshopRead.Epoch.Value == epoch;
             if (accepted)
-                _runControlQueued[owner] = (epoch, tick, enabled);
+                _runControlQueued[control.Control] = (epoch, tick, control.Value);
             if (!_workshopUiRemoved)
             {
                 _status.Text = accepted

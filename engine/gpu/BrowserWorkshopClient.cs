@@ -153,13 +153,15 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         }
     }
 
-    public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
+    public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
     {
         _memoryQuery.AdmitCommand(kind);
-        return ExecuteCore(kind, construction, target, settings, electrical, cut);
+        return ExecuteCore(kind, construction, target, settings, runControl, cut);
     }
 
-    private async Task<WorkshopDelivery> ExecuteCore(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
+    public System.Collections.Immutable.ImmutableArray<RunControlRow> RunControls => _compiledScene?.RunControls ?? [];
+
+    private async Task<WorkshopDelivery> ExecuteCore(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         if (kind == WorkshopCommandKind.Construct && _constructionOwner is not null)
@@ -168,7 +170,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         if (_sequence == ulong.MaxValue) throw new InvalidOperationException("Workshop command sequence is exhausted.");
         var sequence = new CommandSequence(_sequence + 1);
         // Pause targets the current drained endpoint; physical commits may advance after B sends it.
-        var revisionKind = kind is WorkshopCommandKind.Pause or WorkshopCommandKind.Reset or WorkshopCommandKind.Cancel or WorkshopCommandKind.Dispose or WorkshopCommandKind.ConfigureElectrical
+        var revisionKind = kind is WorkshopCommandKind.Pause or WorkshopCommandKind.Reset or WorkshopCommandKind.Cancel or WorkshopCommandKind.Dispose or WorkshopCommandKind.ConfigureRunControl
             or WorkshopCommandKind.ObserveMemory or WorkshopCommandKind.CutRope
             ? ExpectedRevisionKind.Any : ExpectedRevisionKind.Exact;
         WorkshopConstruction? authored = kind switch
@@ -182,7 +184,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             ? WorkshopSceneCompiler.Compile(source, new(Peer.Session.Low, Peer.Session.High), new(sequence.Value)) : null;
         var command = new WorkshopCommand(sequence, kind, Epoch,
             revisionKind == ExpectedRevisionKind.Any ? default : Revision, scene, target, revisionKind, Peer.Session,
-            _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default, electrical, cut);
+            _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default, runControl, cut);
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         if (authored is { } original) _observation.Associate(command, original);
         if (kind == WorkshopCommandKind.Run) _observation.BeginRun(command);

@@ -166,7 +166,7 @@ public sealed class CompiledSceneBoundaryTests
         Assert.NotEqual(-1, trackIndex);
         tracks[trackIndex] = tracks[trackIndex] with { Declaration = tracks[trackIndex].Declaration with { From = .25f } };
         var scene = new WorkshopCompiledScene(original.Identity, original.Revision, original.Settings,
-            original.Physics, original.Activation, tracks, original.Owners, original.EditableSources);
+            original.Physics, original.Activation, tracks, original.Owners, original.RunControls);
         var command = world.Command(WorkshopCommandKind.Construct, construction) with { Scene = scene };
         var request = WorkshopWireFlatBuffers.EncodeCommand(command);
         var response = WorkshopWireFlatBuffers.EncodeResponse(world.Latest with { Scene = scene });
@@ -241,7 +241,7 @@ public sealed class CompiledSceneBoundaryTests
                 physics.Electrical.Sources.ToArray(), physics.Electrical.Bindings.ToArray(), physics.Prismatics,
                 physics.SupplyGraph.Nodes.ToArray(), physics.SupplyGraph.Edges.ToArray(), physics.ContactLoadSensors, physics.PrismaticDrives,
                 physics.TensileSpans, revolutes: [varied]),
-            compiled.Activation, compiled.Presentation, compiled.Owners, compiled.EditableSources);
+            compiled.Activation, compiled.Presentation, compiled.Owners, compiled.RunControls);
 
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(Construct(scene))).Scene!;
 
@@ -350,7 +350,7 @@ public sealed class CompiledSceneBoundaryTests
                 physics.Electrical.Sources.ToArray(), physics.Electrical.Bindings.ToArray(), physics.Prismatics,
                 [.. physics.SupplyGraph.Nodes.ToArray(), consumer], physics.SupplyGraph.Edges.ToArray(), physics.ContactLoadSensors,
                 physics.PrismaticDrives, physics.TensileSpans, revolutes: [hinge], revoluteDrives: [new(hinge.Id, -7.5f, 3.25f)]),
-            compiled.Activation, compiled.Presentation, compiled.Owners, compiled.EditableSources);
+            compiled.Activation, compiled.Presentation, compiled.Owners, compiled.RunControls);
     }
 
     // engine-revolute-drive: the hinge's travel, its drive (a negative target and a torque no other field carries) and the typed consumer

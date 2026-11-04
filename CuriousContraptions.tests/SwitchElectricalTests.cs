@@ -71,8 +71,8 @@ public sealed class SwitchElectricalTests
     [Fact]
     public async Task SupplyLossAndRestorationDoNotEraseOrReplayImpactMemory()
     {
-        var phases=await WorkshopIntegrationHarness.ObservePhases(Machine(),([],100),([new(new(3),ElectricalEnable.Disabled)],30),
-            ([new(new(3),ElectricalEnable.Enabled)],30));
+        var phases=await WorkshopIntegrationHarness.ObservePhases(Machine(),([],100),([new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],30),
+            ([new(new(3),RunControlValue.Of(ElectricalEnable.Enabled))],30));
         Assert.Contains(phases[0],Powered);Assert.All(phases[1],read=>Assert.False(Powered(read)));
         Assert.All(phases[2],read=>Assert.True(Powered(read)));
         var first=Activation(phases[0][^1],2);
@@ -119,8 +119,8 @@ public sealed class SwitchElectricalTests
             WorkshopInput.Generic(new PartId("switch"),new(6),-8,1,0,0,0,0,1),
             WorkshopInput.Generic(new PartId("ball"),new(7),-8,3,0,0,0,0,1)}).ToArray()),
             Connections=new(Power(3,2),Power(2,6),Power(6,2),Power(6,4),Signal(2,5))};
-        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],100),([new(new(3),ElectricalEnable.Disabled)],30),
-            ([new(new(3),ElectricalEnable.Enabled)],30));
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],100),([new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],30),
+            ([new(new(3),RunControlValue.Of(ElectricalEnable.Enabled))],30));
         Assert.True(Powered(phases[0][^1]));Assert.All(phases[1],read=>Assert.False(Powered(read)));Assert.All(phases[2],read=>Assert.True(Powered(read)));
         foreach(var owner in new ulong[]{2,6})
         {

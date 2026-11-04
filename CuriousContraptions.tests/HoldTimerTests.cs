@@ -203,9 +203,9 @@ public sealed class HoldTimerTests
     public async Task SupplyLossNeverPausesAndRestorationAfterExpiryNeverReplays()
     {
         var phases=await WorkshopIntegrationHarness.ObservePhases(Construction(2f),
-            ([],80),([new(new(4),ElectricalEnable.Disabled)],40),
-            ([new(new(4),ElectricalEnable.Enabled)],40),([new(new(4),ElectricalEnable.Disabled)],200),
-            ([new(new(4),ElectricalEnable.Enabled)],20));
+            ([],80),([new(new(4),RunControlValue.Of(ElectricalEnable.Disabled))],40),
+            ([new(new(4),RunControlValue.Of(ElectricalEnable.Enabled))],40),([new(new(4),RunControlValue.Of(ElectricalEnable.Disabled))],200),
+            ([new(new(4),RunControlValue.Of(ElectricalEnable.Enabled))],20));
         var counting=phases[0].First(read=>State(read).Phase==ActivationTimerPhase.Counting);
         var due=State(counting).DueTick;
         Assert.All(phases[1],read=>Assert.False(Powered(read)));

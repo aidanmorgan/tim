@@ -25,7 +25,7 @@ public static class WorkshopSceneCompiler
         var activation = WorkshopActivationCompiler.Compile(construction);
         var nodes = activation.Nodes.ToArray();
         var tracks = new List<CompiledPresentationTrack>(16);
-        var editable = new List<GpuBodyId>(16);
+        var runControls = new List<RunControlRow>(16);
         foreach (var instance in construction.Instances)
         {
             var bindings = DeclaredPhysics.Of(instance.PartId).Presentation.Bindings;
@@ -33,12 +33,16 @@ public static class WorkshopSceneCompiler
             var owner = (WorkshopGenericInstance)instance;
             var capacity = DeclaredPhysics.SourceStore(owner.PartId) is { } store
                 ? owner.Parameters[new ParameterId(store.Capacity)] : 0;
-            if (!owner.Locked && DeclaredPhysics.HasRunControlledSource(owner.PartId)) editable.Add(owner.Id);
+            // Each declared run-time control of an unlocked part compiles one row; a locked part offers none.
+            if (!owner.Locked)
+                foreach (var control in DeclaredPhysics.RunControls(owner.PartId))
+                    runControls.Add(new(new RunControlId(checked((ulong)runControls.Count + 1)), owner.Id, control.Lane,
+                        RunControlLanes.Slot(physics, control.Lane, owner.Id)));
             for (var i = 0; i < bindings.Count; i++)
                 tracks.Add(new(new AnimationTargetId(WorkshopDeclaredPresentation.TargetBase + (ulong)tracks.Count),
                     owner.Id, i, CompileBinding(bindings[i]), node, capacity));
         }
         return new(identity, construction.Revision, construction.Settings, physics, activation, tracks,
-            construction.Instances.Select(instance => instance.Id), editable);
+            construction.Instances.Select(instance => instance.Id), runControls);
     }
 }

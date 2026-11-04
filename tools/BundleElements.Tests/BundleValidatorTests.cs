@@ -480,6 +480,24 @@ public sealed class BundleValidatorTests
             { Supply = new(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply, Store: Store) } })]));
     }
 
+    // engine-run-control-table: a RunControl parameter binds exactly one run-controllable lane, found by the one generic resolver
+    // (today a Source store's enable state is the SourceEnable lane). A RunControl parameter bound to no lane, such as the store's
+    // capacity or the enable of a part without a store, is refused. Several bindings become constructible with the second lane.
+    [Fact]
+    public void ARunControlParameterBindsExactlyOneRunControllableLane()
+    {
+        var source = Source(StoreParameters, Store);
+        Assert.Equal([RunControlLane.SourceEnable], Bundle.RunControlBindings.Lanes(source, "enabled"));
+        Assert.Empty(Bundle.RunControlBindings.Lanes(source, "capacity"));
+        Assert.Empty(Bundle.RunControlBindings.Lanes(Source(StoreParameters, null), "enabled"));
+        Assert.Empty(CheckSource(StoreParameters, Store));
+        Assert.Contains(CheckSource(Replace("capacity", p => p with { RunEdit = ParameterRunEdit.RunControl }), Store), error =>
+            error.Code == Bundle.BundleErrorCode.OutOfRange && error.Detail.Contains("Metadata.Parameters[0].RunEdit", StringComparison.Ordinal));
+        // A RunControl enable on a part without a store binds no lane and is refused by the validator.
+        Assert.Contains(CheckSource(StoreParameters, null), error =>
+            error.Code == Bundle.BundleErrorCode.OutOfRange && error.Detail.Contains("Metadata.Parameters[3].RunEdit", StringComparison.Ordinal));
+    }
+
     [Fact]
     public void ARunControlIsDeclaredOnlyOnASourceStoreEnableAndAChoiceIsNeverClamped()
     {

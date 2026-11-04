@@ -297,16 +297,25 @@ public static class SupplyCycles
     }
 }
 
-/// <summary>Player controls the discrete owner hands to one physics step: the enable state of every admitted source, in source order.</summary>
+/// <summary>Player controls the discrete owner hands to one physics step: the enable state of every admitted source, in source order.
+/// This is where a held SourceEnable run control reaches the engine.</summary>
 public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 {
     public RopeSpanId[] Cuts { get; init; } = [];
     public GpuBodyId[] Pulleys { get; init; } = [];
-    public static WorkshopTickControls For(PhysicsElectricalRead committed, Func<GpuBodyId, ElectricalEnable, ElectricalEnable> enable)
+    /// <summary>The committed enables, with each held run control applied to the lane slot its row drives.</summary>
+    public static WorkshopTickControls For(PhysicsElectricalRead committed,
+        System.Collections.Generic.IEnumerable<(RunControlRow Row, RunControlValue Value)> held)
     {
-        ArgumentNullException.ThrowIfNull(enable);
+        ArgumentNullException.ThrowIfNull(held);
         var values = new ElectricalEnable[committed.Count];
-        for (var i = 0; i < values.Length; i++) values[i] = enable(committed[i].Owner, committed[i].Enabled);
+        for (var i = 0; i < values.Length; i++) values[i] = committed[i].Enabled;
+        foreach (var (row, value) in held)
+            switch (row.Lane)
+            {
+                case CuriousContraptions.Abstractions.RunControlLane.SourceEnable: values[row.LaneIndex] = value.Enable; break;
+                default: throw new ArgumentOutOfRangeException(nameof(held), row.Lane, "Undefined run-control lane.");
+            }
         return new(values);
     }
     public void Validate(int sources)

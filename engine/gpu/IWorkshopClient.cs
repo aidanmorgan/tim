@@ -21,8 +21,10 @@ internal interface IWorkshopClient : IAsyncDisposable
     AuthorityRevision Revision { get; }
     WorkshopCommandIdentity? Pending { get; }
     WorkshopTransportState TransportState { get; }
+    /// <summary>The installed compiled scene's run-control table; empty before an installation.</summary>
+    System.Collections.Immutable.ImmutableArray<RunControlRow> RunControls { get; }
     Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null);
+        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null);
     Task<WorkshopDelivery> CancelPending();
     bool TryRead(out WorkshopResponse response);
     bool TryPresent(ulong frame, out WorkshopPresentationSample sample);

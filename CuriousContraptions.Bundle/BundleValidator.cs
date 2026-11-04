@@ -103,10 +103,11 @@ public static class BundleValidator
             }
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports, entry.Electrical?.Supply);
             if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports, entry.Metadata.Parameters);
-            // A run-time control is declared only on a Source store's enable state: the one value ConfigureElectrical changes.
-            var runControlled = entry.Electrical?.Supply?.Store?.Enable;
+            // A run-time control is declared only on a parameter bound to exactly one run-controllable lane: the lane its compiled
+            // run-control row drives.
             for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
-                if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl && entry.Metadata.Parameters[i].Key != runControlled)
+                if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl &&
+                    RunControlBindings.Lanes(entry, entry.Metadata.Parameters[i].Key).Count != 1)
                     OutOfRange($"Metadata.Parameters[{i}].RunEdit");
             if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Colliders);
             if (entry.Fluid is { } fluid) Fluid(fluid);

@@ -131,7 +131,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
     }
 
     public WorkshopCommand Command(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
+        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
     {
         var sequence = new CommandSequence(checked(_sequence + 1));
         WorkshopCompiledScene? scene = null;
@@ -150,7 +150,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         return new(sequence, kind, Latest.Read.Epoch.Value == 0 ? new(1) : Latest.Read.Epoch,
             Latest.Read.Revision, scene, target, Session: _host.Session,
             Cadence: _host.Schedule?.Revision ?? default, Projection: _host.Schedule?.World.Epoch ?? default,
-            Electrical: electrical, Cut: cut);
+            RunControl: runControl, Cut: cut);
     }
 
     private readonly WorkshopClientCursor _cursor = new(new(101, 206));
@@ -171,12 +171,28 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         return response;
     }
     public Task<WorkshopResponse> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null) =>
-        Dispatch(Command(kind, construction, target, settings, electrical, cut));
+        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null) =>
+        Dispatch(Command(kind, construction, target, settings, runControl, cut));
+    /// <summary>The typed control that sets <paramref name="owner"/>'s <paramref name="lane"/> to <paramref name="value"/>, through its
+    /// row in the installed run-control table. The owner must have a row on that lane.</summary>
+    public WorkshopRunControl RunControl(GpuBodyId owner, CuriousContraptions.Abstractions.RunControlLane lane, RunControlValue value) =>
+        RunControl(Simulation.Scene, owner, lane, value);
+
+    /// <summary>The typed control that sets <paramref name="owner"/>'s <paramref name="lane"/> in <paramref name="scene"/>'s run-control
+    /// table, found through <see cref="RunControlLanes.Find"/>. The owner must have a row on that lane.</summary>
+    public static WorkshopRunControl RunControl(WorkshopCompiledScene scene, GpuBodyId owner, CuriousContraptions.Abstractions.RunControlLane lane,
+        RunControlValue value) =>
+        new(owner, (RunControlLanes.Find(scene.RunControls, owner, lane) ??
+            throw new InvalidOperationException($"Owner {owner.Value} has no {lane} run control.")).Id, value);
+
+    /// <summary>The typed control that sets the one lane of <paramref name="owner"/>'s rows that takes <paramref name="value"/>'s kind.</summary>
+    public static WorkshopRunControl RunControl(WorkshopCompiledScene scene, GpuBodyId owner, RunControlValue value) =>
+        RunControl(scene, owner, scene.RunControls.Where(row => row.Owner == owner).Select(row => row.Lane)
+            .Single(lane => RunControlLanes.ValueKind(lane) == value.Kind), value);
     public async Task<WorkshopCommandResult> Require(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
+        WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
     {
-        var response = await Execute(kind, construction, settings: settings, electrical: electrical, cut: cut);
+        var response = await Execute(kind, construction, settings: settings, runControl: runControl, cut: cut);
         Assert.Equal(WorkshopCommandOutcome.Applied, response.Result.Outcome);
         return response.Result;
     }
@@ -294,13 +310,14 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         return (harness.Reads, harness.Ledgers);
     }
     public static async Task<List<List<WorkshopRead>>> ObservePhases(WorkshopConstruction construction,
-        params (WorkshopElectricalControl[] Controls, int Ticks)[] phases)
+        params ((GpuBodyId Owner, RunControlValue Value)[] Controls, int Ticks)[] phases)
     {
         await using var harness = await Running(construction);
         var result = new List<List<WorkshopRead>>();
         foreach (var (controls, ticks) in phases)
         {
-            foreach (var control in controls) await harness.Require(WorkshopCommandKind.ConfigureElectrical, electrical: control);
+            foreach (var (owner, value) in controls)
+                await harness.Require(WorkshopCommandKind.ConfigureRunControl, runControl: RunControl(harness.Simulation.Scene, owner, value));
             result.Add(await harness.Advance(ticks));
         }
         return result;

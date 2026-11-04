@@ -31,9 +31,9 @@ export enum CommandKind {
   Resume = 8,
   Step = 9,
   Save = 10,
-  ConfigureElectrical = 11,
   ObserveMemory = 12,
-  CutRope = 13
+  CutRope = 13,
+  ConfigureRunControl = 14
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
@@ -58,6 +58,19 @@ export enum ResponseKind {
 export enum ElectricalEnable {
   Disabled = 0,
   Enabled = 1
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+export enum RunControlLane {
+  SourceEnable = 1
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+export enum RunControlValueKind {
+  Enable = 1,
+  Scalar = 2
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
@@ -839,10 +852,10 @@ static createClockStamp(builder:flatbuffers.Builder, time: bigint, uncertainty: 
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export class ElectricalControl {
+export class RunControlCommandRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):ElectricalControl {
+  __init(i:number, bb:flatbuffers.ByteBuffer):RunControlCommandRecord {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -852,19 +865,77 @@ owner():bigint {
   return this.bb!.readUint64(this.bb_pos);
 }
 
-enabled():number {
-  return this.bb!.readUint8(this.bb_pos + 8);
+control():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+scalar():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+kind():number {
+  return this.bb!.readUint8(this.bb_pos + 20);
+}
+
+enable():ElectricalEnable {
+  return this.bb!.readUint8(this.bb_pos + 21);
 }
 
 static sizeOf():number {
-  return 16;
+  return 24;
 }
 
-static createElectricalControl(builder:flatbuffers.Builder, owner: bigint, enabled: number):flatbuffers.Offset {
-  builder.prep(8, 16);
-  builder.pad(7);
-  builder.writeInt8(enabled);
+static createRunControlCommandRecord(builder:flatbuffers.Builder, owner: bigint, control: bigint, scalar: number, kind: number, enable: ElectricalEnable):flatbuffers.Offset {
+  builder.prep(8, 24);
+  builder.pad(2);
+  builder.writeInt8(enable);
+  builder.writeInt8(kind);
+  builder.writeFloat32(scalar);
+  builder.writeInt64(BigInt(control ?? 0));
   builder.writeInt64(BigInt(owner ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+export class RunControlRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):RunControlRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+owner():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+laneIndex():number {
+  return this.bb!.readUint32(this.bb_pos + 16);
+}
+
+lane():number {
+  return this.bb!.readUint8(this.bb_pos + 20);
+}
+
+static sizeOf():number {
+  return 24;
+}
+
+static createRunControlRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, lane_index: number, lane: number):flatbuffers.Offset {
+  builder.prep(8, 24);
+  builder.pad(3);
+  builder.writeInt8(lane);
+  builder.writeInt32(lane_index);
+  builder.writeInt64(BigInt(owner ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
   return builder.offset();
 }
 
@@ -1543,9 +1614,9 @@ projection():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
-electrical(obj?:ElectricalControl):ElectricalControl|null {
+runControl(obj?:RunControlCommandRecord):RunControlCommandRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 20);
-  return offset ? (obj || new ElectricalControl()).__init(this.bb_pos + offset, this.bb!) : null;
+  return offset ? (obj || new RunControlCommandRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 cutSpan():bigint|null {
@@ -1611,8 +1682,8 @@ static addProjection(builder:flatbuffers.Builder, projection:bigint) {
   builder.addFieldInt64(7, projection, BigInt('0'));
 }
 
-static addElectrical(builder:flatbuffers.Builder, electricalOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(8, electricalOffset, 0);
+static addRunControl(builder:flatbuffers.Builder, runControlOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(8, runControlOffset, 0);
 }
 
 static addCutSpan(builder:flatbuffers.Builder, cutSpan:bigint) {
@@ -7653,12 +7724,12 @@ ownersLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-editableSources(index: number):bigint|null {
+runControls(index: number, obj?:RunControlRecord):RunControlRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 60);
-  return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
+  return offset ? (obj || new RunControlRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 24, this.bb!) : null;
 }
 
-editableSourcesLength():number {
+runControlsLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 60);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
@@ -8071,20 +8142,12 @@ static startOwnersVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(8, numElems, 8);
 }
 
-static addEditableSources(builder:flatbuffers.Builder, editableSourcesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(28, editableSourcesOffset, 0);
+static addRunControls(builder:flatbuffers.Builder, runControlsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(28, runControlsOffset, 0);
 }
 
-static createEditableSourcesVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
-  builder.startVector(8, data.length, 8);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addInt64(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startEditableSourcesVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(8, numElems, 8);
+static startRunControlsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(24, numElems, 8);
 }
 
 static addPresentation(builder:flatbuffers.Builder, presentationOffset:flatbuffers.Offset) {
@@ -9106,7 +9169,7 @@ export interface MockCommandParams {
     cadence?: bigint;
     projection?: bigint;
     settings?: Record<string, unknown>;
-    electrical?: { owner?: bigint; enabled?: number };
+    runControl?: { owner?: bigint; control?: bigint; scalar?: number; kind?: RunControlValueKind; enable?: ElectricalEnable };
     target?: {
         sequence?: bigint;
         epoch?: bigint;
@@ -9131,13 +9194,16 @@ export function encodeWorkshopCommand(params: MockCommandParams): Buffer {
     if (sessionOffset !== null) WorkshopCommand.addSession(builder, sessionOffset);
     if (params.cadence !== undefined) WorkshopCommand.addCadence(builder, params.cadence);
     if (params.projection !== undefined) WorkshopCommand.addProjection(builder, params.projection);
-    if (params.electrical) {
-        const electOffset = ElectricalControl.createElectricalControl(
+    if (params.runControl) {
+        const controlOffset = RunControlCommandRecord.createRunControlCommandRecord(
             builder,
-            params.electrical.owner ?? 0n,
-            params.electrical.enabled ?? 0
+            params.runControl.owner ?? 0n,
+            params.runControl.control ?? 0n,
+            params.runControl.scalar ?? 0,
+            params.runControl.kind ?? RunControlValueKind.Enable,
+            params.runControl.enable ?? ElectricalEnable.Disabled
         );
-        WorkshopCommand.addElectrical(builder, electOffset);
+        WorkshopCommand.addRunControl(builder, controlOffset);
     }
     if (params.target) {
         const t = params.target;

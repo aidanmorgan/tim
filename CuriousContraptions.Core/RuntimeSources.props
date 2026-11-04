@@ -65,7 +65,6 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopCompiledScene.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopDeclaredPresentation.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopDiagnostics.cs" />
-    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopElectricalControl.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopGpuProfile.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopHint.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopMemoryObservation.cs" />
@@ -76,6 +75,7 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopPresentationWire.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopRead.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopReliableReadLedger.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopRunControl.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopRuntimeValues.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopSchedule.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopSimulation.cs" />

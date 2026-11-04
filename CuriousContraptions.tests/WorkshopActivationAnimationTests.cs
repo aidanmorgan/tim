@@ -94,6 +94,26 @@ public sealed class WorkshopActivationAnimationTests
     }
 
 
+    // engine-run-control-table: the production client's run-control table (the one the UI reads) is the installed worker scene's; a
+    // control built from its row and sent through the client applies, and the next committed source enable flips.
+    [Fact]
+    public async Task TheClientRunControlTableIsTheInstalledTableAndItsRowDrivesTheNextCommittedEnable()
+    {
+        using var session = new NativeClient();
+        var battery = PlacedParts.Battery(new(1), 0, 1, 0, enabled: ElectricalEnable.Disabled);
+        await session.Construct(new(new(1), WorkshopCadenceSettings.Default(), new(battery)));
+        var row = Assert.Single(session.Client.RunControls);
+        Assert.Equal(session.InstalledScene.RunControls, session.Client.RunControls);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await session.Client.Execute(WorkshopCommandKind.Run)).Response.Result.Outcome);
+        var sent = await session.Client.Execute(WorkshopCommandKind.ConfigureRunControl,
+            runControl: new(battery.Id, row.Id, RunControlValue.Of(ElectricalEnable.Enabled)));
+        Assert.Equal(WorkshopCommandOutcome.Applied, sent.Response.Result.Outcome);
+        const CuriousContraptions.Abstractions.RunControlLane lane = CuriousContraptions.Abstractions.RunControlLane.SourceEnable;
+        Assert.Equal(RunControlValue.Of(ElectricalEnable.Disabled), session.Committed.RunControl(battery.Id, lane));
+        await session.Advance(1);
+        Assert.Equal(RunControlValue.Of(ElectricalEnable.Enabled), session.Committed.RunControl(battery.Id, lane));
+    }
+
     [Fact]
     public async Task EveryOneShotBindingIsADeclaredTargetOfItsOwner()
     {
@@ -369,6 +389,7 @@ public sealed class WorkshopActivationAnimationTests
         private readonly WorkshopClockPeer _peer = new(Session, new(1), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);
         public BrowserWorkshopClient Client { get; }
         public WorkshopCompiledScene InstalledScene => _world.Simulation.Scene;
+        public WorkshopRead Committed => _world.Committed;
         public WorkshopSchedule Schedule => _installed!.Value;
         public List<ChannelControl> Controls { get; } = [];
         public bool HoldPreparation { get; set; }

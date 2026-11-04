@@ -153,17 +153,17 @@ public sealed class SourceStoreInstanceTests
     public void ARunTimeControlExistsOnlyWhereTheStoreDeclaresItsEnableStateRunEditable()
     {
         var entry = DeclaredPhysics.Of(new PartId("battery"));
-        Assert.True(DeclaredPhysics.HasRunControlledSource(entry));
-        Assert.True(DeclaredPhysics.HasRunControlledSource(new PartId("battery")));
+        Assert.Equal(new[] { new DeclaredRunControl(new("enabled"), RunControlLane.SourceEnable) }, DeclaredPhysics.RunControls(entry));
+        Assert.Equal(DeclaredPhysics.RunControls(entry), DeclaredPhysics.RunControls(new PartId("battery")));
         var buildOnly = entry with { Metadata = entry.Metadata with { Parameters = entry.Metadata.Parameters
             .Select(parameter => parameter with { RunEdit = ParameterRunEdit.BuildOnly }).ToArray() } };
-        Assert.False(DeclaredPhysics.HasRunControlledSource(buildOnly));
-        Assert.False(DeclaredPhysics.HasRunControlledSource(new PartId("powered_gate")));
-        Assert.False(DeclaredPhysics.HasRunControlledSource(new PartId("switch")));
-        Assert.False(DeclaredPhysics.HasRunControlledSource(new PartId("ball")));
+        Assert.Empty(DeclaredPhysics.RunControls(buildOnly));
+        Assert.Empty(DeclaredPhysics.RunControls(new PartId("powered_gate")));
+        Assert.Empty(DeclaredPhysics.RunControls(new PartId("switch")));
+        Assert.Empty(DeclaredPhysics.RunControls(new PartId("ball")));
     }
 
-    // ---------- the run-time control (ConfigureElectrical) ----------
+    // ---------- the run-time control (ConfigureRunControl) ----------
 
     // A Running control is applied for the next physics tick: the committed source reports it, the gate's supply opens or closes with
     // it, and the authored construction, its revision and its value are untouched.
@@ -175,7 +175,7 @@ public sealed class SourceStoreInstanceTests
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var open = await harness.Advance(120);
         Assert.True(Blade(open[^1]).SupplyClosed);
-        var receipt = (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result;
+        var receipt = (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Result;
         Assert.Equal((WorkshopCommandOutcome.Applied, WorkshopRejection.None), (receipt.Outcome, receipt.Reason));
         Assert.Equal(authored, harness.Construction);
         var next = await harness.Advance(1);
@@ -184,7 +184,7 @@ public sealed class SourceStoreInstanceTests
         var closing = await harness.Advance(360);
         Assert.All(closing, read => Assert.False(Blade(read).SupplyClosed));
         Assert.InRange(Blade(closing[^1]).Coordinate, -1e-2f, 1e-2f);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Enabled))).Result.Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)))).Result.Outcome);
         var again = await harness.Advance(1);
         Assert.Equal(ElectricalEnable.Enabled, SourceRead(again[0]).Enabled);
         Assert.True(Blade(again[0]).SupplyClosed);
@@ -207,8 +207,8 @@ public sealed class SourceStoreInstanceTests
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var first = await harness.Advance(30);
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Pause)).Result).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result.Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Enabled))).Result.Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Result.Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)))).Result.Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Resume)).Result).Outcome);
         var reversed = first.Concat(await harness.Advance(90)).ToList();
         foreach (var run in new[] { plain, reversed })
@@ -218,7 +218,7 @@ public sealed class SourceStoreInstanceTests
             Assert.True(Blade(run[^1]).Coordinate > .2f);
         }
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Pause)).Result).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result.Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Result.Outcome);
         Assert.Equal(ElectricalEnable.Enabled, SourceRead(harness.Committed).Enabled);
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Resume)).Result).Outcome);
         var resumed = await harness.Advance(1);
@@ -226,8 +226,27 @@ public sealed class SourceStoreInstanceTests
         Assert.False(Blade(resumed[0]).SupplyClosed);
     }
 
-    // The control is refused outside a run, and for any owner but an unlocked part whose package declares a run-controlled store:
-    // a locked source, the gate, a ball, an unknown identity.
+    // A control held while Paused is applied by a Step, as by Resume: the stepped committed read carries the held value.
+    [Fact]
+    public async Task APausedControlIsAppliedByTheNextStep()
+    {
+        await using var harness = await WorkshopIntegrationHarness.Building(GateBench(PlacedParts.Battery(Source, 3, 3, 0)));
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
+        await harness.Advance(30);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Pause)).Result).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureRunControl,
+            runControl: harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Result.Outcome);
+        Assert.Equal(ElectricalEnable.Enabled, SourceRead(harness.Committed).Enabled);
+        var tick = harness.Committed.Tick.Value;
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Step)).Result).Outcome);
+        Assert.Equal(tick + 1, harness.Committed.Tick.Value);
+        Assert.Equal(ElectricalEnable.Disabled, SourceRead(harness.Committed).Enabled);
+        Assert.False(Blade(harness.Committed).SupplyClosed);
+    }
+
+    // The control is refused outside a run, and for any owner but the unlocked part whose compiled row it names: a locked source
+    // (which compiles no row), the gate, a ball and an unknown identity are each refused as foreign to the battery's row
+    // (engine-run-control-table: the typed ForeignRunControl replaces the former catch-all InvalidConstruction).
     [Fact]
     public async Task TheControlIsRefusedOutsideARunAndForAnyOwnerWithoutARunControlledStore()
     {
@@ -235,13 +254,14 @@ public sealed class SourceStoreInstanceTests
         bench = bench with { Instances = bench.Instances.With(WorkshopInput.Generic(new PartId("ball"), Ball, -3, 3, 0, 0, 0, 0, 1))
             .With(PlacedParts.Battery(new(8), 6, 3, 0) with { Locked = true }) };
         await using var harness = await WorkshopIntegrationHarness.Building(bench);
-        var build = (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result;
+        var build = (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Result;
         Assert.Equal((WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase), (build.Outcome, build.Reason));
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
+        var control = harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled));
         foreach (var owner in new GpuBodyId[] { new(8), Gate, Ball, new(99) })
         {
-            var refused = (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(owner, ElectricalEnable.Disabled))).Result;
-            Assert.Equal((WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction), (refused.Outcome, refused.Reason));
+            var refused = (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: control with { Owner = owner })).Result;
+            Assert.Equal((WorkshopCommandOutcome.Rejected, WorkshopRejection.ForeignRunControl), (refused.Outcome, refused.Reason));
         }
         var reads = await harness.Advance(2);
         Assert.All(reads, read => Assert.Equal(ElectricalEnable.Enabled, SourceRead(read).Enabled));
@@ -265,7 +285,7 @@ public sealed class SourceStoreInstanceTests
         var built = harness.Committed;
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         await harness.Advance(60);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result.Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Result.Outcome);
         var disabled = await harness.Advance(60);
         Assert.All(disabled, read => Assert.Equal(ElectricalEnable.Disabled, SourceRead(read).Enabled));
         var saved = WorkshopSaveCodec.Encode(new(harness.Construction, new(9)));
@@ -274,7 +294,7 @@ public sealed class SourceStoreInstanceTests
         Assert.Equal(1f, Assert.IsType<WorkshopGenericInstance>(loaded.Instances[1]).Parameters[new("enabled")]);
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Reset)).Result).Outcome);
         NoFixedCapacityTests.AssertSameState(built, harness.Committed, "Reset");
-        Assert.Equal(ElectricalEnable.Enabled, harness.Simulation.ElectricalState(Source, ElectricalEnable.Enabled));
+        Assert.Null(harness.Simulation.HeldRunControl(harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)).Control));
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var replay = await harness.Advance(180);
 

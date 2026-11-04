@@ -93,12 +93,12 @@ public static partial class WorkshopWireFlatBuffers
         command.Session.Validate();
         var hasScene = command.Kind is WorkshopCommandKind.Initialize or WorkshopCommandKind.Construct or WorkshopCommandKind.ConfigureCadence;
         command.Scene?.Validate();
-        command.Electrical?.Validate();
         if (!Enum.IsDefined(command.Kind) || !Enum.IsDefined(command.RevisionKind) ||
             (command.RevisionKind == ExpectedRevisionKind.Any && command.Revision.Value != 0) ||
             (command.Kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && command.RevisionKind != ExpectedRevisionKind.Exact) ||
             command.Sequence.Value == 0 || hasScene != (command.Scene is not null) ||
-            (command.Kind == WorkshopCommandKind.ConfigureElectrical) != command.Electrical.HasValue ||
+            (command.Kind == WorkshopCommandKind.ConfigureRunControl) != command.RunControl.HasValue ||
+            command.RunControl is { IsCanonical: false } ||
             (command.Kind == WorkshopCommandKind.CutRope) != command.Cut.HasValue || command.Cut is { Value: 0 } ||
             (command.Kind == WorkshopCommandKind.Initialize
                 ? command.Cadence.Value != 0 || command.Projection.Value != 0
@@ -121,8 +121,9 @@ public static partial class WorkshopWireFlatBuffers
         Wire.WorkshopCommand.AddCadence(builder, command.Cadence.Value);
         Wire.WorkshopCommand.AddProjection(builder, command.Projection.Value);
         if (command.Cut is { } cut) Wire.WorkshopCommand.AddCutSpan(builder, cut.Value);
-        if (command.Electrical is { } electrical)
-            Wire.WorkshopCommand.AddElectrical(builder, ElectricalControl.CreateElectricalControl(builder, electrical.Owner.Value, (byte)electrical.Enabled));
+        if (command.RunControl is { } control)
+            Wire.WorkshopCommand.AddRunControl(builder, RunControlCommandRecord.CreateRunControlCommandRecord(builder, control.Owner.Value,
+                control.Control.Value, control.Value.Scalar, (byte)control.Value.Kind, (Wire.ElectricalEnable)control.Value.Enable));
         if (command.Target is { } identity)
             Wire.WorkshopCommand.AddTarget(builder, CommandIdentityRecord.CreateCommandIdentityRecord(builder,
                 identity.Sequence.Value, identity.Epoch.Value, identity.Revision.Value, identity.Cadence.Value, identity.Projection.Value));
@@ -152,7 +153,7 @@ public static partial class WorkshopWireFlatBuffers
             sequence.Value == 0 ||
             (kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && revisionKind != ExpectedRevisionKind.Exact) ||
             hasScene != fb.Scene.HasValue ||
-            (kind == WorkshopCommandKind.ConfigureElectrical) != fb.Electrical.HasValue ||
+            (kind == WorkshopCommandKind.ConfigureRunControl) != fb.RunControl.HasValue ||
             (kind == WorkshopCommandKind.CutRope) != fb.CutSpan.HasValue || fb.CutSpan == 0 ||
             (kind == WorkshopCommandKind.Cancel) != fb.Target.HasValue)
             throw new ArgumentException("Unsupported Workshop command shape.");
@@ -165,16 +166,19 @@ public static partial class WorkshopWireFlatBuffers
                 throw new ArgumentException("Cancel target must have a complete original identity.");
         }
 
-        WorkshopElectricalControl? electrical = null;
-        if (fb.Electrical is { } e)
+        WorkshopRunControl? runControl = null;
+        if (fb.RunControl is { } r)
         {
-            electrical = new WorkshopElectricalControl(new GpuBodyId(e.Owner), (ElectricalEnable)e.Enabled);
-            electrical.Value.Validate();
+            if (r.Owner == 0 || r.Control == 0 ||
+                !RunControlValue.TryCreate((RunControlValueKind)r.Kind, (ElectricalEnable)(byte)r.Enable, r.Scalar, out var value))
+                throw new WireFaultException(WireFaultReason.OutOfRange,
+                    $"The run control names value kind {r.Kind}, enable state {(byte)r.Enable} or a non-finite or non-zero unused scalar, or no owner or row.");
+            runControl = new(new GpuBodyId(r.Owner), new RunControlId(r.Control), value);
         }
 
         var scene = fb.Scene is { } record ? DecodeCompiledScene(record) : null;
         return new WorkshopCommand(sequence, kind, new(fb.Epoch), new(fb.Revision), scene,
-            target, revisionKind, session, cadence, projection, electrical, fb.CutSpan is { } cut ? new RopeSpanId(cut) : null);
+            target, revisionKind, session, cadence, projection, runControl, fb.CutSpan is { } cut ? new RopeSpanId(cut) : null);
     }
 
     public static byte[] ReadIdentity(WorkshopResponse response)

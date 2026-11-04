@@ -218,8 +218,8 @@ public sealed class ClockGuardTests
     [Fact]
     public async Task SupplyLostAtTheDeadlineSuppressesThePulseAndRestoreStartsAFreshInterval()
     {
-        var phases = await WorkshopIntegrationHarness.ObservePhases(Bench(1f), ([], 119), ([new(Source, ElectricalEnable.Disabled)], 31),
-            ([new(Source, ElectricalEnable.Enabled)], 300));
+        var phases = await WorkshopIntegrationHarness.ObservePhases(Bench(1f), ([], 119), ([new(Source, RunControlValue.Of(ElectricalEnable.Disabled))], 31),
+            ([new(Source, RunControlValue.Of(ElectricalEnable.Enabled))], 300));
         Assert.Equal((OscillatorPhase.Running, 120UL, 0U), (Row(phases[0][^1], Owner).Phase, Row(phases[0][^1], Owner).DueTick, Row(phases[0][^1], Owner).Count));
         Assert.All(phases[1], read => Assert.Equal((OscillatorPhase.Stopped, 0U), (Row(read, Owner).Phase, Row(read, Owner).Count)));
         Assert.Equal(120UL, phases[1][0].Tick.Value);

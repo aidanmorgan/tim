@@ -11,7 +11,8 @@ public enum WorkshopCommandOutcome { Applied, Rejected, Superseded, Faulted, Can
 // Story 9.4b deleted that path; 6 is undefined on the wire and rejects.
 public enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, WrongRevision = 3, WrongPhase = 4,
     GpuAdmission = 5, InvalidRead = 7, IdentityExhausted = 8, StaleGeneration = 9, Cancelled = 10, AlreadyCommitted = 11,
-    Capacity = 12, ReliableStalled = 13, Transport = 14, UnknownRopeSpan = 15, RopeAlreadyCut = 16 }
+    Capacity = 12, ReliableStalled = 13, Transport = 14, UnknownRopeSpan = 15, RopeAlreadyCut = 16,
+    UnknownRunControl = 17, ForeignRunControl = 18, RunControlKindMismatch = 19 }
 public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
 public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, PhysicsBodyReadSet Bodies, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
     PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default,
@@ -85,21 +86,24 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         _pendingCuts.Add(declared.Route, span);
         return Applied();
     }
-    private readonly Dictionary<GpuBodyId, ElectricalEnable> _electricalControls = new(16);
-    public ElectricalEnable ElectricalState(GpuBodyId owner, ElectricalEnable previous) =>
-        _electricalControls.TryGetValue(owner, out var state) ? state : previous;
-    public WorkshopCommandResult ConfigureElectrical(WorkshopElectricalControl control)
+    // Held run controls by compiled row. Each applies on every committed step until a lifecycle point (Construct, Configure, Run from
+    // Building, a committed Reset) clears the table; a discarded or cancelled operation keeps it.
+    private readonly Dictionary<RunControlId, (RunControlRow Row, RunControlValue Value)> _runControls = new(16);
+    /// <summary>The value held for row <paramref name="id"/>, or null when no control is held for it.</summary>
+    public RunControlValue? HeldRunControl(RunControlId id) => _runControls.TryGetValue(id, out var held) ? held.Value : null;
+    /// <summary>Holds a typed run control for the next committed step. Refused while another operation is pending, outside Running
+    /// or Paused, for an id the compiled table does not have, for an owner other than the row's, and for a value kind the row's
+    /// lane does not take.</summary>
+    public WorkshopCommandResult ConfigureRunControl(WorkshopRunControl control)
     {
-        control.Validate();
-        if (_pending != 0) return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy);
-        if (Phase is not (WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused))
-            return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase);
-        if (Scene.EditableSources.Contains(control.Owner))
-        {
-            _electricalControls[control.Owner] = control.Enabled;
-            return new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);
-        }
-        return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction);
+        if (!control.IsCanonical) throw new ArgumentException("Invalid run control.", nameof(control));
+        if (_pending != 0) return Reject(WorkshopRejection.Busy);
+        if (Phase is not (WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused)) return Reject(WorkshopRejection.WrongPhase);
+        if (!Scene.TryRunControl(control.Control, out var row)) return Reject(WorkshopRejection.UnknownRunControl);
+        if (row.Owner != control.Owner) return Reject(WorkshopRejection.ForeignRunControl);
+        if (RunControlLanes.ValueKind(row.Lane) != control.Value.Kind) return Reject(WorkshopRejection.RunControlKindMismatch);
+        _runControls[row.Id] = (row, control.Value);
+        return Applied();
     }
     private readonly IWorkshopGpuDevice _device;
     private readonly IWorkshopCaptureClock _clock;
@@ -218,9 +222,9 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             await _installation.Prepare(new(owner), read, candidate, Profile, WorkshopSimulationPhase.Building);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
-            _electricalControls.Clear();
+            _runControls.Clear();
             Scene = candidate;
-            _electricalControls.Clear();
+            _runControls.Clear();
             Committed = read;
             _epoch = epoch.Value;
             Phase = WorkshopSimulationPhase.Building;
@@ -266,7 +270,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             var read = Committed with { Revision = nextRevision };
             await _installation.Prepare(new(owner), read, Scene, Profile, target);
             if (!Owns(owner)) return Superseded(owner);
-            if (expected == WorkshopSimulationPhase.Building) _electricalControls.Clear();
+            if (expected == WorkshopSimulationPhase.Building) _runControls.Clear();
             Committed = read; Phase = target;
             return Applied();
         }
@@ -299,7 +303,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             await _installation.Prepare(new(owner), read, construction, profile, WorkshopSimulationPhase.Building);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
-            _electricalControls.Clear();
+            _runControls.Clear();
             Scene = construction; Profile = profile; Committed = read; Phase = WorkshopSimulationPhase.Building;
             return Applied();
         }
@@ -327,7 +331,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             var pulleys = Scene.Presentation
                 .Where(t => t.Declaration.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedWheelAngle)
                 .Select(t => t.Owner).Distinct().ToArray();
-            var candidate = await _device.Advance(source, new(owner), WorkshopTickControls.For(source.Electrical, ElectricalState) with { Cuts = cuts, Pulleys = pulleys });
+            var candidate = await _device.Advance(source, new(owner), WorkshopTickControls.For(source.Electrical, _runControls.Values) with { Cuts = cuts, Pulleys = pulleys });
             var read = CandidateRead(candidate, owner);
             if (!Owns(owner)) return Superseded(owner);
             ValidateAdvancedRead(source, read);
@@ -372,7 +376,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
             // Reset alone restores the authored enable: in-run supply controls end with the run they changed.
-            _electricalControls.Clear();
+            _runControls.Clear();
             _pendingCuts.Clear();
             Committed = read;
             _epoch = epoch.Value;
@@ -574,11 +578,10 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         if (read.Motion is { } motion)
         {
             var hasPhase = (motion.LastOrdinal + 3) / 4 > (motion.FirstOrdinal + 3) / 4;
+            // Every source keeps its committed enable unless a held control drives it; an electrical phase applies the held value.
+            var expected = WorkshopTickControls.For(source.Electrical, hasPhase ? _runControls.Values : []).SourceEnable;
             for (var i = 0; i < read.Electrical.Count; i++)
-            {
-                var expected = hasPhase ? ElectricalState(source.Electrical[i].Owner, source.Electrical[i].Enabled) : source.Electrical[i].Enabled;
-                if (read.Electrical[i].Enabled != expected) throw new ArgumentException("Electrical phase did not apply the authorised enable state.");
-            }
+                if (read.Electrical[i].Enabled != expected[i]) throw new ArgumentException("Electrical phase did not apply the authorised enable state.");
         }
         read.Bodies.ValidateTime(read.Epoch, read.Tick);
         read.Captures.ValidateAdvance(source.Captures);

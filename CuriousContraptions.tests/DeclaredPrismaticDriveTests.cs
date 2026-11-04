@@ -414,7 +414,7 @@ public sealed class DeclaredPrismaticDriveTests
             { Connections = new(Power(battery.Id, gate.Id)) };
         await using var simulation = await WorkshopIntegrationHarness.Running(construction);
         if (authoredEnabled)
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Require(WorkshopCommandKind.ConfigureElectrical, electrical: new(battery.Id, ElectricalEnable.Disabled))).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Require(WorkshopCommandKind.ConfigureRunControl, runControl: simulation.RunControl(battery.Id, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Outcome);
         CanonicalBody Ball(WorkshopRead read) =>
             Enumerable.Range(0, read.Bodies.Count).Select(i => read.Bodies[i].Body).Single(row => row.Id == ball.Id);
         Vector3 LocalCentre(WorkshopRead read)
@@ -443,7 +443,7 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.InRange(held, -.5f, -.39f); // guard: resting upstream against the closed blade, inside the entry mouth
         Resting(simulation.Committed);
         Assert.False(simulation.Committed.Presentation.Actuators[0].SupplyClosed);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Require(WorkshopCommandKind.ConfigureElectrical, electrical: new(battery.Id, ElectricalEnable.Enabled))).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Require(WorkshopCommandKind.ConfigureRunControl, runControl: simulation.RunControl(battery.Id, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)))).Outcome);
         var along = new List<float>();
         for (var tick = 0; tick < 300; tick++)
         {
@@ -467,13 +467,13 @@ public sealed class DeclaredPrismaticDriveTests
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.Require(WorkshopCommandKind.Run)).Outcome);
             if (authoredEnabled)
-                Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.Require(WorkshopCommandKind.ConfigureElectrical, electrical: new(battery.Id, ElectricalEnable.Disabled))).Outcome);
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.Require(WorkshopCommandKind.ConfigureRunControl, runControl: replay.RunControl(battery.Id, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Outcome);
             for (var tick = 0; tick < 180; tick++)
                 Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.AdvanceOne()).Outcome);
             Assert.InRange(Along(replay.Committed), -.5f, -.39f);
             Resting(replay.Committed);
             Assert.False(replay.Committed.Presentation.Actuators[0].SupplyClosed);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.Require(WorkshopCommandKind.ConfigureElectrical, electrical: new(battery.Id, ElectricalEnable.Enabled))).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.Require(WorkshopCommandKind.ConfigureRunControl, runControl: replay.RunControl(battery.Id, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)))).Outcome);
             for (var tick = 0; tick < 300; tick++)
                 Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.AdvanceOne()).Outcome);
             Assert.True(Along(replay.Committed) > .49f);
@@ -772,7 +772,7 @@ public static class NativeTwoDriveScenario
         for (var tick = 0; tick < 480; tick++)
         {
             var sources = PhysicsGpuAbi.ReadElectrical(current);
-            var input = PhysicsTickInputs.Compose(scene.SupplyGraph, WorkshopTickControls.For(sources, (_, value) => value), _ => false);
+            var input = PhysicsTickInputs.Compose(scene.SupplyGraph, WorkshopTickControls.For(sources, []), _ => false);
             interactions = engine.Advance(current, candidate, input, interactions);
             (current, candidate) = (candidate, current);
         }

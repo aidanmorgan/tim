@@ -1629,7 +1629,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     }
 
     // Story 9A.39: while Running or Paused the panel offers exactly what the package declares run-editable: one supply toggle for the
-    // store's enable state (not the build editor). A click is a typed ConfigureElectrical command for the next physics step; it shows as
+    // store's enable state (not the build editor). A click is a typed ConfigureRunControl command for the next physics step; it shows as
     // queued, a second click reverses it, and it never edits the construction or records an Undo. A locked source's toggle is disabled.
     [Fact]
     public void TheRunControlToggleSendsTypedControlsWithoutEditingAndAppearsOnlyForADeclaredRunControl()
@@ -1656,9 +1656,10 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 Assert.Equal("Supply change accepted for the next physics step.", Assert.Single(Descendants<Label>(scene), label => label.Name == "WorkshopStatus").Text);
                 Assert.Equal(authored, scene.World.Construction);
             }
-            Assert.Equal([new(owner, ElectricalEnable.Disabled), new(owner, ElectricalEnable.Enabled), new(owner, ElectricalEnable.Disabled),
-                new(owner, ElectricalEnable.Enabled)], client.Controls);
-            Assert.All(client.Commands, command => Assert.True(command.Kind != WorkshopCommandKind.ConfigureElectrical || command.Construction is null));
+            var control = Assert.Single(client.RunControls).Id;
+            Assert.Equal([new(owner, control, RunControlValue.Of(ElectricalEnable.Disabled)), new(owner, control, RunControlValue.Of(ElectricalEnable.Enabled)),
+                new(owner, control, RunControlValue.Of(ElectricalEnable.Disabled)), new(owner, control, RunControlValue.Of(ElectricalEnable.Enabled))], client.Controls);
+            Assert.All(client.Commands, command => Assert.True(command.Kind != WorkshopCommandKind.ConfigureRunControl || command.Construction is null));
             // Reset retires the queued intent: the toggle again shows the committed (here authored) state.
             Action(scene, "↶ Reset");
             Phase(scene, WorkshopSimulationPhase.Running);
@@ -1974,8 +1975,11 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         }
         public List<(WorkshopCommandKind Kind, WorkshopConstruction? Construction)> Commands { get; } = [];
         public int EditCount => Commands.Count(command => command.Kind == WorkshopCommandKind.Construct);
-        /// <summary>Each run-time electrical control the scene sent, in order.</summary>
-        public List<WorkshopElectricalControl> Controls { get; } = [];
+        /// <summary>Each run-time control the scene sent, in order.</summary>
+        public List<WorkshopRunControl> Controls { get; } = [];
+        /// <summary>The run-control table the shared compiler builds for the admitted construction.</summary>
+        public System.Collections.Immutable.ImmutableArray<RunControlRow> RunControls =>
+            _construction is { } admitted ? CompiledSceneFixture.Compile(admitted).RunControls : [];
         /// <summary>The phase every answer reports (a Building workshop unless a test runs one).</summary>
         public WorkshopSimulationPhase Phase { get; set; } = WorkshopSimulationPhase.Building;
         public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
@@ -1991,7 +1995,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
         public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
         {
             Phase = kind switch
             {
@@ -2001,18 +2005,21 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 _ => Phase
             };
             Commands.Add((kind, construction));
-            if (electrical is { } control) Controls.Add(control);
+            if (runControl is { } control) Controls.Add(control);
             if (NextFailure is { } failure) { NextFailure = null; throw failure; }
             var result = Answer != PlacementAnswer.Rejected
                 ? new WorkshopCommandResult(WorkshopCommandOutcome.Applied, WorkshopRejection.None)
                 : new WorkshopCommandResult(WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction);
             if (construction is { } candidate && Answer != PlacementAnswer.Rejected) _construction = candidate;
-            var bodies=_construction is { } authored ? PhysicsGpuAbi.ReadDynamicBodies(PhysicsGpuAbi.Admission(
-                WorkshopPhysicsCompiler.Compile(authored,new(1,1)),Epoch,
-                new(authored.Settings.Simulation,authored.Settings.Physical,new(1)))) : default;
+            // The answer carries the construction's admission state: its dynamic bodies and, as every installed read does, each
+            // compiled source's committed enable.
+            var admission=_construction is { } authored ? PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(authored,new(1,1)),Epoch,
+                new(authored.Settings.Simulation,authored.Settings.Physical,new(1))) : null;
+            var bodies=admission is null ? default : PhysicsGpuAbi.ReadDynamicBodies(admission);
             var response = new WorkshopResponse(new((ulong)Commands.Count), WorkshopResponseKind.Acknowledgement, result,
                 Phase, new WorkshopRead(Epoch, new(0), bodies, Revision,
-                    new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000))),
+                    new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000)),
+                    Electrical: admission is null ? default : PhysicsGpuAbi.ReadElectrical(admission)),
                 Session: new(1, 1), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
             var delivery = new WorkshopDelivery(response, true);
             if (Answer == PlacementAnswer.Pending)

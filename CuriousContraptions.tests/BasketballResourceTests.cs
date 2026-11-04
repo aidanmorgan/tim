@@ -391,13 +391,14 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public SimulationEpoch Epoch => new(1);
         public AuthorityRevision Revision => new(1);
         public WorkshopCommandIdentity? Pending => null;
+        public System.Collections.Immutable.ImmutableArray<RunControlRow> RunControls => [];
         public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) { Retire(); Controls++; }
         public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out CuriousContraptions.Presentation.AnimationOpacity opacity)
         { Retire(); Frames++; opacity = default; return true; }
         public void SetDeclaredVisible(GpuBodyId owner, bool visible) { }
         public bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out System.Collections.Generic.IReadOnlyList<DeclaredPresentationSample> samples) { samples = System.Array.Empty<DeclaredPresentationSample>(); return false; }
         public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null) =>
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null) =>
             throw new InvalidOperationException("Commands are outside this UI binding fixture.");
         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No cancellable test transport request.");
         public bool TryRead(out WorkshopResponse response)
@@ -426,8 +427,9 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public WorkshopCommandIdentity? Pending => null;
         public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
         public WorkshopTransportState TransportState => WorkshopTransportState.Ready;
+        public System.Collections.Immutable.ImmutableArray<RunControlRow> RunControls => [];
         public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null, RopeSpanId? cut = null)
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
         {
             var command = new WorkshopCommand(new(++_sequence), kind, Epoch, Revision, construction is { } authored ? CompiledSceneFixture.Compile(authored) : null, target, Session: Session, Cadence: new(1), Projection: new(1));
             var dispatched = _cursor.ReadOrder;

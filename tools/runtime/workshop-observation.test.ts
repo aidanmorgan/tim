@@ -629,8 +629,13 @@ test('observation enums preserve canonical external command, refusal, state and 
     assert.equal(value.WorkshopCommandKind.Run, 2);
     assert.equal(value.WorkshopCommandKind.ObserveMemory, 12);
     assert.equal(value.WorkshopCommandKind.CutRope, 13);
+    assert.equal(value.WorkshopCommandKind.ConfigureRunControl, 14);
+    assert.equal(value.WorkshopCommandKind[11], undefined);
     assert.equal(value.WorkshopRejection.UnknownRopeSpan, 15);
     assert.equal(value.WorkshopRejection.RopeAlreadyCut, 16);
+    assert.equal(value.WorkshopRejection.UnknownRunControl, 17);
+    assert.equal(value.WorkshopRejection.ForeignRunControl, 18);
+    assert.equal(value.WorkshopRejection.RunControlKindMismatch, 19);
     assert.equal(value.WorkshopConnectionDomain.Rope, 3);
     assert.equal(value.WorkshopSocket.Tie, 9);
     assert.equal(value.WorkshopRejection.InvalidRead, 7);

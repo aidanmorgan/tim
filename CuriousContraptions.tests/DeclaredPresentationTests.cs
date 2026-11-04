@@ -386,7 +386,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var battery = PlacedParts.Battery(new(1), 0, 3, 0, capacity, power, fraction);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery));
         var phases = await WorkshopIntegrationHarness.ObservePhases(construction, ([], 1),
-            ([new(battery.Id, ElectricalEnable.Disabled)], 1));
+            ([new(battery.Id, RunControlValue.Of(ElectricalEnable.Disabled))], 1));
         var registry = new PartRegistry(); registry.Load();
         var part = registry.Create(new PartId("battery"));
         try
