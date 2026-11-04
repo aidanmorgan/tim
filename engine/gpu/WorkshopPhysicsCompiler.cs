@@ -19,6 +19,32 @@ public static class WorkshopPhysicsCompiler
         new(mass.PrincipalFrame.X, mass.PrincipalFrame.Y, mass.PrincipalFrame.Z, mass.PrincipalFrame.W),
         new(mass.PrincipalMoments.X), new(mass.PrincipalMoments.Y), new(mass.PrincipalMoments.Z));
 
+    public static (Vector3 Position, Quaternion Rotation) SliderMovingTransform(
+        Vector3 ownerPosition, Quaternion ownerRotation,
+        ConstraintFrame baseFrame, ConstraintFrame movingFrame, float compression)
+    {
+        var rJointA = Quaternion.Multiply(ownerRotation, baseFrame.Rotation);
+        var rB = Quaternion.Normalize(Quaternion.Multiply(rJointA, Quaternion.Conjugate(movingFrame.Rotation)));
+        var axisWorld = Vector3.Transform(Vector3.UnitY, rJointA);
+        var localAnchorAInWorld = Vector3.Transform(baseFrame.Position, ownerRotation);
+        var localAnchorBInWorld = Vector3.Transform(movingFrame.Position, rB);
+        var pB = ownerPosition + (localAnchorAInWorld - axisWorld * compression - localAnchorBInWorld);
+        return (pB, rB);
+    }
+
+    public static (Vector3 Position, Quaternion Rotation) HingeMovingTransform(
+        Vector3 ownerPosition, Quaternion ownerRotation,
+        ConstraintFrame baseFrame, ConstraintFrame movingFrame, float initialAngleRad)
+    {
+        var rJointA = Quaternion.Multiply(ownerRotation, baseFrame.Rotation);
+        var rAngle = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, initialAngleRad);
+        var rB = Quaternion.Normalize(Quaternion.Multiply(Quaternion.Multiply(rJointA, rAngle), Quaternion.Conjugate(movingFrame.Rotation)));
+        var localAnchorAInWorld = Vector3.Transform(baseFrame.Position, ownerRotation);
+        var localAnchorBInWorld = Vector3.Transform(movingFrame.Position, rB);
+        var pB = ownerPosition + (localAnchorAInWorld - localAnchorBInWorld);
+        return (pB, rB);
+    }
+
 
     public static PhysicsSceneDeclaration Compile(WorkshopConstruction construction, PhysicsDocumentId document)
     {
@@ -92,17 +118,20 @@ public static class WorkshopPhysicsCompiler
                 var slider = sliders[i];
                 var moving = rows.Sliders[i].Body;
                 var compression = slider.Compression.Evaluate(parameters);
-                var offset = slider.BaseFrame.Position - slider.MovingFrame.Position - Vector3.UnitY * compression;
-                var rotation = new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W);
-                var displacement = Vector3.Transform(offset, rotation);
-                var x = WorkshopInput.Position((instance.Cell.X + instance.Local.X) / 16f + displacement.X);
-                var y = WorkshopInput.Position((instance.Cell.Y + instance.Local.Y) / 16f + displacement.Y);
-                var z = WorkshopInput.Position((instance.Cell.Z + instance.Local.Z) / 16f + displacement.Z);
+                var rA = new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W);
+                var pA = new Vector3((instance.Cell.X + instance.Local.X) / 16f, (instance.Cell.Y + instance.Local.Y) / 16f, (instance.Cell.Z + instance.Local.Z) / 16f);
+                var (pB, rB) = SliderMovingTransform(pA, rA,
+                    new(slider.BaseFrame.Position, slider.BaseFrame.Rotation),
+                    new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
+                    compression);
+                var x = WorkshopInput.Position(pB.X);
+                var y = WorkshopInput.Position(pB.Y);
+                var z = WorkshopInput.Position(pB.Z);
                 var body = slider.MovingBody;
                 var movingMass = body.MassFrame.Evaluate(values);
                 movingMass.Validate(KinematicMode.Dynamic);
                 bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
-                    instance.Rotation, default, default, new(movingMass.Mass),
+                    CanonicalRotation.Normalize(rB.X, rB.Y, rB.Z, rB.W), default, default, new(movingMass.Mass),
                     new(movingMass.Gravity.X, movingMass.Gravity.Y, movingMass.Gravity.Z), new(movingMass.LinearDrag), MassProperties(movingMass)));
                 AddGeometry(moving, rows.Sliders[i].Material, rows.Sliders[i].Colliders, body.Colliders);
                 var joint = rows.Sliders[i].Joint;
@@ -121,24 +150,21 @@ public static class WorkshopPhysicsCompiler
                 var moving = rows.Hinges[i].Body;
                 var initialAngleDeg = hinge.InitialAngle.Evaluate(parameters);
                 var initialAngleRad = initialAngleDeg * (MathF.PI / 180f);
-                var instanceRotation = new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W);
-                var basePos = hinge.BaseFrame.Position;
-                var baseRot = hinge.BaseFrame.Rotation;
-                var angleRot = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, initialAngleRad);
-                var combinedLocalRot = Quaternion.Multiply(baseRot, angleRot);
-                var movingOffset = Vector3.Transform(hinge.MovingFrame.Position, combinedLocalRot);
-                var offset = basePos - movingOffset;
-                var displacement = Vector3.Transform(offset, instanceRotation);
-                var x = WorkshopInput.Position((instance.Cell.X + instance.Local.X) / 16f + displacement.X);
-                var y = WorkshopInput.Position((instance.Cell.Y + instance.Local.Y) / 16f + displacement.Y);
-                var z = WorkshopInput.Position((instance.Cell.Z + instance.Local.Z) / 16f + displacement.Z);
-                var worldMovingRot = Quaternion.Multiply(instanceRotation, combinedLocalRot);
+                var rA = new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W);
+                var pA = new Vector3((instance.Cell.X + instance.Local.X) / 16f, (instance.Cell.Y + instance.Local.Y) / 16f, (instance.Cell.Z + instance.Local.Z) / 16f);
+                var (pB, rB) = HingeMovingTransform(pA, rA,
+                    new(hinge.BaseFrame.Position, hinge.BaseFrame.Rotation),
+                    new(hinge.MovingFrame.Position, hinge.MovingFrame.Rotation),
+                    initialAngleRad);
+                var x = WorkshopInput.Position(pB.X);
+                var y = WorkshopInput.Position(pB.Y);
+                var z = WorkshopInput.Position(pB.Z);
 
                 var body = hinge.MovingBody;
                 var movingMass = body.MassFrame.Evaluate(values);
                 movingMass.Validate(KinematicMode.Dynamic);
                 bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
-                    new(worldMovingRot.X, worldMovingRot.Y, worldMovingRot.Z, worldMovingRot.W), default, default, new(movingMass.Mass),
+                    CanonicalRotation.Normalize(rB.X, rB.Y, rB.Z, rB.W), default, default, new(movingMass.Mass),
                     new(movingMass.Gravity.X, movingMass.Gravity.Y, movingMass.Gravity.Z), new(movingMass.LinearDrag), MassProperties(movingMass)));
                 AddGeometry(moving, rows.Hinges[i].Material, rows.Hinges[i].Colliders, body.Colliders);
                 var joint = rows.Hinges[i].Joint;

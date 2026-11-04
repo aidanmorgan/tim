@@ -618,8 +618,10 @@ public static class BundleValidator
         {
             Finite(path + ".BaseFrame.Position", slider.BaseFrame.Position);
             Finite(path + ".BaseFrame.Rotation", slider.BaseFrame.Rotation);
+            if (float.IsFinite(slider.BaseFrame.Rotation.LengthSquared()) && MathF.Abs(slider.BaseFrame.Rotation.LengthSquared() - 1f) > 1e-4f) OutOfRange(path + ".BaseFrame.Rotation");
             Finite(path + ".MovingFrame.Position", slider.MovingFrame.Position);
             Finite(path + ".MovingFrame.Rotation", slider.MovingFrame.Rotation);
+            if (float.IsFinite(slider.MovingFrame.Rotation.LengthSquared()) && MathF.Abs(slider.MovingFrame.Rotation.LengthSquared() - 1f) > 1e-4f) OutOfRange(path + ".MovingFrame.Rotation");
             if (Finite(path + ".LowerLimit", slider.LowerLimit) & Finite(path + ".UpperLimit", slider.UpperLimit))
             {
                 if (slider.LowerLimit > 0f) OutOfRange(path + ".LowerLimit");
@@ -650,10 +652,10 @@ public static class BundleValidator
         {
             Finite(path + ".BaseFrame.Position", hinge.BaseFrame.Position);
             Finite(path + ".BaseFrame.Rotation", hinge.BaseFrame.Rotation);
-            if (MathF.Abs(hinge.BaseFrame.Rotation.LengthSquared() - 1f) > 1e-4f) OutOfRange(path + ".BaseFrame.Rotation");
+            if (float.IsFinite(hinge.BaseFrame.Rotation.LengthSquared()) && MathF.Abs(hinge.BaseFrame.Rotation.LengthSquared() - 1f) > 1e-4f) OutOfRange(path + ".BaseFrame.Rotation");
             Finite(path + ".MovingFrame.Position", hinge.MovingFrame.Position);
             Finite(path + ".MovingFrame.Rotation", hinge.MovingFrame.Rotation);
-            if (MathF.Abs(hinge.MovingFrame.Rotation.LengthSquared() - 1f) > 1e-4f) OutOfRange(path + ".MovingFrame.Rotation");
+            if (float.IsFinite(hinge.MovingFrame.Rotation.LengthSquared()) && MathF.Abs(hinge.MovingFrame.Rotation.LengthSquared() - 1f) > 1e-4f) OutOfRange(path + ".MovingFrame.Rotation");
             if (Finite(path + ".LowerLimit", hinge.LowerLimit) & Finite(path + ".UpperLimit", hinge.UpperLimit))
             {
                 if (hinge.LowerLimit < -MathF.PI || hinge.LowerLimit > MathF.PI) OutOfRange(path + ".LowerLimit");
