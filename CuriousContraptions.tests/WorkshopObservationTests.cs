@@ -408,7 +408,7 @@ public sealed class WorkshopObservationTests
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(WorkshopInput.Generic(new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
                 PlacedParts.Bumper(new(6), 0, 3, 0, 8f), PlacedParts.Battery(new(3), 3, 1, 0)),
-            Connections: new(new WorkshopConnection(new(3), WorkshopSocket.Supply, new(6), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+            Connections: new(new WorkshopConnection(new(3), PortId.Supply, new(6), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         await transport.Construct(construction);
         var client = transport.Client; var port = client.Observation;
         Assert.False(port.Query(port.Session, WorkshopObservationQuery.Committed).Value.Read.CarriesBalanceTransfer());
@@ -471,7 +471,7 @@ public sealed class WorkshopObservationTests
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(WorkshopInput.Generic(new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
                 PlacedParts.Bumper(new(6), 0, 3, 0, 8f), PlacedParts.Battery(new(3), 3, 1, 0)),
-            Connections: new(new WorkshopConnection(new(3), WorkshopSocket.Supply, new(6), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+            Connections: new(new WorkshopConnection(new(3), PortId.Supply, new(6), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         await transport.Construct(construction);
         var port = transport.Client.Observation;
         var first = true;
@@ -583,13 +583,13 @@ public sealed class WorkshopObservationTests
         var balanced = Assert.IsType<ExternalObject>(Assert.IsType<ExternalObject>(puzzle.Fields["primary"]).Fields["balanced"]);
         Assert.Equal(construction.Puzzle.PrimaryAssistance.Balanced.CaptureMargin.Value, balanced.Fields["captureMargin"]);
         Assert.Equal(11, balanced.Fields.Count);
-        var connected = construction with { Connections = new(new WorkshopConnection(new(1), WorkshopSocket.ActivationOut,
-            new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
+        var connected = construction with { Connections = new(new WorkshopConnection(new(1), PortId.ActivationOut,
+            new(2), PortId.ActivationIn, WorkshopConnectionDomain.Activation)) };
         using var wired = WorkshopObservationProjection.Construction<ExternalObject>(new(command.Scene!.Identity, command with { Scene = null }, connected));
         var connection = Assert.Single(Assert.IsType<ExternalObject>(wired.Fields["connections"]).Items);
         Assert.Equal((int)WorkshopConnectionDomain.Activation, connection.Fields["domain"]);
-        Assert.Equal((int)WorkshopSocket.ActivationOut, connection.Fields["output"]);
-        Assert.Equal((int)WorkshopSocket.ActivationIn, connection.Fields["input"]);
+        Assert.Equal("ActivationOut", connection.Fields["output"]);
+        Assert.Equal("ActivationIn", connection.Fields["input"]);
         Assert.Null(WorkshopObservationProjection.OccurrenceKind(default));
         Assert.Throws<ArgumentException>(() => WorkshopObservationProjection.OccurrenceKind(new((ActivationOccurrenceKind)99, new(1), default, default)));
         Assert.Equal(7, WorkshopObservationProjection.EnumValue(WorkshopRejection.InvalidRead));
@@ -623,7 +623,7 @@ public sealed class WorkshopObservationTests
         await transport.Construct(new(new(2), WorkshopCadenceSettings.Default(),
             new(WorkshopInput.Generic(new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
                 PlacedParts.Bumper(new(6), 0, 3, 0, 8f), PlacedParts.Battery(new(3), 3, 1, 0)),
-            Connections: new(new WorkshopConnection(new(3), WorkshopSocket.Supply, new(6), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical))));
+            Connections: new(new WorkshopConnection(new(3), PortId.Supply, new(6), PortId.PowerIn, WorkshopConnectionDomain.Electrical))));
         var first = port.OpenEvents(port.Session).Value; var second = port.OpenEvents(port.Session).Value;
         SimulationEpoch previous = default;
         for (var run = 0; run < 2; run++)

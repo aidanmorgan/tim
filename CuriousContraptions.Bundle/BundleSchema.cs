@@ -127,10 +127,11 @@ public static class BundleSchema
     Converters =
     [
         typeof(Vector2Converter), typeof(Vector3Converter), typeof(QuaternionConverter), typeof(ParameterIdConverter), typeof(PackageBodyIndexConverter),
+        typeof(PortIdConverter),
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<RopeAttachmentRole>),
-        typeof(ExactEnumConverter<PortSocket>),        typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
+        typeof(ExactEnumConverter<PortRole>), typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
         typeof(ExactEnumConverter<RevoluteTravel>), typeof(ExactEnumConverter<TargetSelectorKind>),
         typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>),typeof(ExactEnumConverter<TimerCompletionPolicy>),
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),
@@ -186,6 +187,22 @@ internal sealed class ParameterIdConverter : JsonConverter<ParameterId>
     public override void Write(Utf8JsonWriter writer, ParameterId value, JsonSerializerOptions options)
     {
         if (value == default) throw new JsonException("A mass binding requires a parameter identity.");
+        writer.WriteStringValue(value.Value);
+    }
+}
+
+internal sealed class PortIdConverter : JsonConverter<PortId>
+{
+    public override PortId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType != JsonTokenType.String || string.IsNullOrWhiteSpace(reader.GetString()))
+            throw new JsonException("A port requires an identity.");
+        return new(reader.GetString()!);
+    }
+
+    public override void Write(Utf8JsonWriter writer, PortId value, JsonSerializerOptions options)
+    {
+        if (value == default) throw new JsonException("A port requires an identity.");
         writer.WriteStringValue(value.Value);
     }
 }

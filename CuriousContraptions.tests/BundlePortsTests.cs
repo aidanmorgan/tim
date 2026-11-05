@@ -95,10 +95,10 @@ public sealed class DeclaredPortsFixture
 /// <see cref="PortDescriptor"/> list, and its footprint only from its declaration.</summary>
 public sealed class BundlePortsTests
 {
-    private static WorkshopPort Activation(WorkshopSocket socket, WorkshopPortDirection direction, WorkshopSignalKind signal, float x, float y, float z) =>
-        new(socket, WorkshopConnectionDomain.Activation, direction, signal, new(x, y, z));
-    private static WorkshopPort Electrical(WorkshopSocket socket, WorkshopPortDirection direction, float x, float y, float z) =>
-        new(socket, WorkshopConnectionDomain.Electrical, direction, null, new(x, y, z));
+    private static WorkshopPort Activation(PortId socket, WorkshopPortDirection direction, WorkshopSignalKind signal, float x, float y, float z) =>
+        new(socket, Enum.Parse<PortRole>(socket.Value), WorkshopConnectionDomain.Activation, direction, signal, new(x, y, z));
+    private static WorkshopPort Electrical(PortId socket, WorkshopPortDirection direction, float x, float y, float z) =>
+        new(socket, Enum.Parse<PortRole>(socket.Value), WorkshopConnectionDomain.Electrical, direction, null, new(x, y, z));
 
     private const WorkshopPortDirection In = WorkshopPortDirection.Input;
     private const WorkshopPortDirection Out = WorkshopPortDirection.Output;
@@ -109,53 +109,53 @@ public sealed class BundlePortsTests
     /// copied from the deleted engine port switch tables and the packages.</summary>
     private static readonly Dictionary<string, (WorkshopPort[] Ports, ElementFootprint Footprint)> Golden = new(StringComparer.Ordinal)
     {
-        ["both_gate"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_nand"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_nor"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_or"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_xor"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["both_gate"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["electrical_nand"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["electrical_nor"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["electrical_or"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["electrical_xor"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
         ["ball"] = ([], new(1, 1, 0, 0)),
-        ["ball_detector"] = ([Activation(WorkshopSocket.ActivationOut, Out, Pulse, 0f, 1.12f, 0f)], new(1, 0, 0, 0)),
+        ["ball_detector"] = ([Activation(PortId.ActivationOut, Out, Pulse, 0f, 1.12f, 0f)], new(1, 0, 0, 0)),
         ["basket"] = ([], new(1, 0, 0, 0)),
-        ["battery"] = ([Electrical(WorkshopSocket.Supply, Out, 0f, .62f, 0f)], new(1, 0, 0, 0)),
+        ["battery"] = ([Electrical(PortId.Supply, Out, 0f, .62f, 0f)], new(1, 0, 0, 0)),
         ["bowling"] = ([], new(1, 1, 0, 0)),
-        ["weight"] = ([new(WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+        ["weight"] = ([new(PortId.Tie, PortRole.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(0f, 4f * (.5771f * .136734f) + .5771f * .453070f, 0f), RopeAttachmentRole.Load,
             new(new("mass"), new(0f, .5771f * .136734f, 0f), new(0f, .5771f * .453070f, 0f)))], new(1, 1, 0, 0)),
-        ["rope_anchor"] = ([new(WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+        ["rope_anchor"] = ([new(PortId.Tie, PortRole.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(0f, 0f, .18f), RopeAttachmentRole.Anchor)], new(1, 0, 0, 0)),
-        ["pulley"] = ([new(WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+        ["pulley"] = ([new(PortId.Tie, PortRole.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(0f, .4f, .12f), RopeAttachmentRole.Guide, GuideRadius: 0.4f, GuideOffset: new(0f, 0f, .12f))], new(1, 0, 0, 0)),
-        ["impact_lever"] = ([new(WorkshopSocket.TieA, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
-            new(-1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1)), new(WorkshopSocket.TieB, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+        ["impact_lever"] = ([new(PortId.TieA, PortRole.TieA, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+            new(-1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1)), new(PortId.TieB, PortRole.TieB, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1))], new(2, 1, 0, 1)),
         ["trampoline"] = ([], new(1, 0, 0, 0)),
-        ["motor"] = ([Electrical(WorkshopSocket.PowerIn, In, -.55f, 0f, 0f)], new(2, 1, 0, 1)),
-        ["bumper"] = ([Electrical(WorkshopSocket.PowerIn, In, 0f, 0f, .65f)], new(1, 0, 0, 0)),
-        ["clock"] = ([Electrical(WorkshopSocket.PowerIn, In, -.78f, 0f, 0f), Activation(WorkshopSocket.ActivationOut, Out, Pulse, .78f, 0f, 0f)],
+        ["motor"] = ([Electrical(PortId.PowerIn, In, -.55f, 0f, 0f)], new(2, 1, 0, 1)),
+        ["bumper"] = ([Electrical(PortId.PowerIn, In, 0f, 0f, .65f)], new(1, 0, 0, 0)),
+        ["clock"] = ([Electrical(PortId.PowerIn, In, -.78f, 0f, 0f), Activation(PortId.ActivationOut, Out, Pulse, .78f, 0f, 0f)],
             new(1, 0, 0, 0)),
-        ["counter"] = ([Activation(WorkshopSocket.ActivationIn, In, Pulse, 0f, .72f, .1f), Activation(WorkshopSocket.ActivationOut, Out, Pulse, 0f, -.72f, .1f),
-            Electrical(WorkshopSocket.PowerIn, In, -.93f, 0f, 0f), Electrical(WorkshopSocket.Supply, Out, .93f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["delay"] = ([Activation(WorkshopSocket.ActivationIn, In, Pulse, -.72f, 0f, 0f), Activation(WorkshopSocket.ActivationOut, Out, Pulse, .72f, 0f, 0f)],
+        ["counter"] = ([Activation(PortId.ActivationIn, In, Pulse, 0f, .72f, .1f), Activation(PortId.ActivationOut, Out, Pulse, 0f, -.72f, .1f),
+            Electrical(PortId.PowerIn, In, -.93f, 0f, 0f), Electrical(PortId.Supply, Out, .93f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["delay"] = ([Activation(PortId.ActivationIn, In, Pulse, -.72f, 0f, 0f), Activation(PortId.ActivationOut, Out, Pulse, .72f, 0f, 0f)],
             new(1, 0, 0, 0)),
-        ["domino"] = ([Activation(WorkshopSocket.ActivationOut, Out, Pulse, 0f, .55f, 0f)], new(1, 1, 0, 0)),
+        ["domino"] = ([Activation(PortId.ActivationOut, Out, Pulse, 0f, .55f, 0f)], new(1, 1, 0, 0)),
         ["funnel"] = ([], new(1, 0, 0, 0)),
-        ["hold_timer"] = ([Activation(WorkshopSocket.ActivationIn, In, Pulse, 0f, .65f, .2f), Electrical(WorkshopSocket.PowerIn, In, -.78f, 0f, 0f), Electrical(WorkshopSocket.Supply, Out, .78f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["lamp"] = ([Activation(WorkshopSocket.ActivationIn, In, Level, 0f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["latch"] = ([Activation(WorkshopSocket.SetIn, In, Pulse, -.45f, .72f, 0f), Activation(WorkshopSocket.ResetIn, In, Pulse, .45f, .72f, 0f),
-            Electrical(WorkshopSocket.PowerIn, In, -.93f, 0f, 0f), Activation(WorkshopSocket.ActivationOut, Out, Level, 0f, -.56f, .38f),
-            Electrical(WorkshopSocket.Supply, Out, .93f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["hold_timer"] = ([Activation(PortId.ActivationIn, In, Pulse, 0f, .65f, .2f), Electrical(PortId.PowerIn, In, -.78f, 0f, 0f), Electrical(PortId.Supply, Out, .78f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["lamp"] = ([Activation(PortId.ActivationIn, In, Level, 0f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["latch"] = ([Activation(PortId.SetIn, In, Pulse, -.45f, .72f, 0f), Activation(PortId.ResetIn, In, Pulse, .45f, .72f, 0f),
+            Electrical(PortId.PowerIn, In, -.93f, 0f, 0f), Activation(PortId.ActivationOut, Out, Level, 0f, -.56f, .38f),
+            Electrical(PortId.Supply, Out, .93f, 0f, 0f)], new(1, 0, 0, 0)),
         ["pipe"] = ([], new(1, 0, 0, 0)),
         ["pipe_bend_45"] = ([], new(1, 0, 0, 0)),
         ["pipe_bend_90"] = ([], new(1, 0, 0, 0)),
-        ["powered_gate"] = ([Electrical(WorkshopSocket.PowerIn, In, 0f, 1.65f, .92f)], new(2, 1, 1, 0)),
-        ["pressure_plate"] = ([Electrical(WorkshopSocket.PowerIn, In, -1.18f, -.08f, 0f), Activation(WorkshopSocket.ActivationOut, Out, Level, 0f, -.08f, 1.18f),
-            Electrical(WorkshopSocket.Supply, Out, 1.18f, -.08f, 0f)], new(1, 0, 0, 0)),
+        ["powered_gate"] = ([Electrical(PortId.PowerIn, In, 0f, 1.65f, .92f)], new(2, 1, 1, 0)),
+        ["pressure_plate"] = ([Electrical(PortId.PowerIn, In, -1.18f, -.08f, 0f), Activation(PortId.ActivationOut, Out, Level, 0f, -.08f, 1.18f),
+            Electrical(PortId.Supply, Out, 1.18f, -.08f, 0f)], new(1, 0, 0, 0)),
         ["ramp"] = ([], new(1, 0, 0, 0)),
         ["spring"] = ([], new(2, 1, 1, 0)),
-        ["switch"] = ([Activation(WorkshopSocket.ActivationOut, Out, Pulse, .45f, 0f, .4f),
-            Electrical(WorkshopSocket.PowerIn, In, -.58f, 0f, 0f),
-            Electrical(WorkshopSocket.Supply, Out, .58f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["switch"] = ([Activation(PortId.ActivationOut, Out, Pulse, .45f, 0f, .4f),
+            Electrical(PortId.PowerIn, In, -.58f, 0f, 0f),
+            Electrical(PortId.Supply, Out, .58f, 0f, 0f)], new(1, 0, 0, 0)),
         ["wall"] = ([], new(1, 0, 0, 0)),
     };
 
@@ -184,13 +184,12 @@ public sealed class BundlePortsTests
     [Fact]
     public void TheInstalledPortsAreTheBundles() => Assert.Equal(TestBundle.Ports, DeclaredPorts.Current);
 
-    /// <summary>The bundle's socket set and the engine's are one closed set: the same names with the same wire values.</summary>
+    /// <summary>Every declared PortRole is a defined value.</summary>
     [Fact]
-    public void EveryBundleSocketIsTheEngineSocketOfTheSameNameAndValue()
+    public void EveryPortRoleIsDefined()
     {
-        Assert.Equal(Enum.GetNames<PortSocket>(), Enum.GetNames<WorkshopSocket>());
-        foreach (var socket in Enum.GetValues<PortSocket>())
-            Assert.Equal(Enum.GetName(socket), Enum.GetName((WorkshopSocket)(uint)socket));
+        foreach (var role in Enum.GetValues<PortRole>())
+            Assert.True(Enum.IsDefined(role));
     }
 
     /// <summary>The catalogue reads the bundle: a moved, reordered or removed port in the bundle text is what the runtime sees.</summary>
@@ -204,30 +203,30 @@ public sealed class BundlePortsTests
             Ports = [original.Ports[1] with { LocalPosition = new Vector3(.25f, .5f, -.75f) }, original.Ports[0]]
         };
         var catalogue = ElementPortCatalogue.FromBundle(TestBundle.Entries.Select(entry => entry.Metadata.Id == "counter" ? moved : entry));
-        Assert.Equal([WorkshopSocket.ActivationOut, WorkshopSocket.ActivationIn], catalogue.Of(counter).ToArray().Select(port => port.Socket));
-        Assert.Equal(new Vector3(.25f, .5f, -.75f), catalogue.LocalPosition(counter, WorkshopSocket.ActivationOut));
-        Assert.False(catalogue.Has(counter, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, In));
-        Assert.True(TestBundle.Ports.Has(counter, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, In));
+        Assert.Equal([PortId.ActivationOut, PortId.ActivationIn], catalogue.Of(counter).ToArray().Select(port => port.Id));
+        Assert.Equal(new Vector3(.25f, .5f, -.75f), catalogue.LocalPosition(counter, PortId.ActivationOut));
+        Assert.False(catalogue.Has(counter, PortId.PowerIn, WorkshopConnectionDomain.Electrical, In));
+        Assert.True(TestBundle.Ports.Has(counter, PortId.PowerIn, WorkshopConnectionDomain.Electrical, In));
     }
 
     public static TheoryData<string, PortDescriptor, ElementPortRejection> InvalidPorts => new()
     {
-        { "bidirectional", Port(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Bidirectional, PortSignalKind.Pulse), ElementPortRejection.SocketDisagrees },
-        { "undefined direction", Port(PortSocket.ActivationOut, SimulationDomain.Signal, (PortDirection)7, PortSignalKind.Pulse), ElementPortRejection.UnsupportedDirection },
-        { "audio domain", Port(PortSocket.PowerIn, SimulationDomain.Audio, PortDirection.Input, null), ElementPortRejection.UnsupportedDomain },
-        { "combined domain", Port(PortSocket.PowerIn, SimulationDomain.Electrical | SimulationDomain.Signal, PortDirection.Input, null), ElementPortRejection.UnsupportedDomain },
-        { "undefined socket", Port((PortSocket)255, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse), ElementPortRejection.UndefinedSocket },
-        { "activation socket on the electrical domain", Port(PortSocket.ActivationOut, SimulationDomain.Electrical, PortDirection.Output, null), ElementPortRejection.SocketDisagrees },
-        { "input socket declared as an output", Port(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Output, null), ElementPortRejection.SocketDisagrees },
-        { "signal kind on an electrical port", Port(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, PortSignalKind.Level), ElementPortRejection.SignalKindDisagrees },
-        { "signal port without a kind", Port(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, null), ElementPortRejection.SignalKindDisagrees },
-        { "undefined signal kind", Port(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, (PortSignalKind)9), ElementPortRejection.SignalKindDisagrees },
-        { "non-finite anchor", Port(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse) with { LocalPosition = new(0f, float.NaN, 0f) },
+        { "bidirectional", Port(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Bidirectional, PortRole.ActivationOut, PortSignalKind.Pulse), ElementPortRejection.SocketDisagrees },
+        { "undefined direction", Port(PortId.ActivationOut, SimulationDomain.Signal, (PortDirection)7, PortRole.ActivationOut, PortSignalKind.Pulse), ElementPortRejection.UnsupportedDirection },
+        { "audio domain", Port(PortId.PowerIn, SimulationDomain.Audio, PortDirection.Input, PortRole.PowerIn, null), ElementPortRejection.UnsupportedDomain },
+        { "combined domain", Port(PortId.PowerIn, SimulationDomain.Electrical | SimulationDomain.Signal, PortDirection.Input, PortRole.PowerIn, null), ElementPortRejection.UnsupportedDomain },
+        { "undefined role", Port(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, (PortRole)255, PortSignalKind.Pulse), ElementPortRejection.UndefinedSocket },
+        { "activation socket on the electrical domain", Port(PortId.ActivationOut, SimulationDomain.Electrical, PortDirection.Output, PortRole.ActivationOut, null), ElementPortRejection.SocketDisagrees },
+        { "input socket declared as an output", Port(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Output, PortRole.PowerIn, null), ElementPortRejection.SocketDisagrees },
+        { "signal kind on an electrical port", Port(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, PortSignalKind.Level), ElementPortRejection.SignalKindDisagrees },
+        { "signal port without a kind", Port(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, null), ElementPortRejection.SignalKindDisagrees },
+        { "undefined signal kind", Port(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, (PortSignalKind)9), ElementPortRejection.SignalKindDisagrees },
+        { "non-finite anchor", Port(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Pulse) with { LocalPosition = new(0f, float.NaN, 0f) },
             ElementPortRejection.NonFinitePosition },
     };
 
-    private static PortDescriptor Port(PortSocket socket, SimulationDomain domain, PortDirection direction, PortSignalKind? signal) =>
-        new(socket, domain, direction, signal, Vector3.Zero, Vector3.UnitY);
+    private static PortDescriptor Port(PortId id, SimulationDomain domain, PortDirection direction, PortRole role, PortSignalKind? signal) =>
+        new(id, domain, direction, role, signal, Vector3.Zero, Vector3.UnitY);
 
     /// <summary>Owner rule: an invalid declaration is refused structurally with a typed reason that names the element and port.</summary>
     [Theory]
@@ -242,7 +241,7 @@ public sealed class BundlePortsTests
     [Fact]
     public void ADuplicateSocketOrElementIsRefused()
     {
-        var port = Port(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null);
+        var port = Port(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null);
         Assert.Equal(ElementPortRejection.DuplicateSocket,
             Assert.Throws<ElementPortRejectedException>(() => ElementPortCatalogue.Declare([(new PartId("fixture"), [port, port])])).Reason);
         Assert.Equal(ElementPortRejection.DuplicateElement,
@@ -255,24 +254,24 @@ public sealed class BundlePortsTests
     {
         Assert.Equal(ElementPortRejection.UnknownElement, Assert.Throws<ElementPortRejectedException>(() => TestBundle.Ports.Of(new PartId("kite"))).Reason);
         Assert.Equal(ElementPortRejection.UndeclaredSocket,
-            Assert.Throws<ElementPortRejectedException>(() => TestBundle.Ports.LocalPosition(new PartId("lamp"), WorkshopSocket.Supply)).Reason);
+            Assert.Throws<ElementPortRejectedException>(() => TestBundle.Ports.LocalPosition(new PartId("lamp"), PortId.Supply)).Reason);
         Assert.Equal(ElementPortRejection.UndeclaredSocket,
-            Assert.Throws<ElementPortRejectedException>(() => TestBundle.Ports.Signal(new PartId("battery"), WorkshopSocket.Supply, Out)).Reason);
-        Assert.False(TestBundle.Ports.Has(new PartId("kite"), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, In));
+            Assert.Throws<ElementPortRejectedException>(() => TestBundle.Ports.Signal(new PartId("battery"), PortId.Supply, Out)).Reason);
+        Assert.False(TestBundle.Ports.Has(new PartId("kite"), PortId.PowerIn, WorkshopConnectionDomain.Electrical, In));
     }
 
-    /// <summary>The bundle read is the typing boundary: a socket is written by its exact name, and an unknown name or a number is
+    /// <summary>The bundle read is the typing boundary: a role is written by its exact name, and an unknown name or a number is
     /// refused structurally before any port is admitted.</summary>
     [Theory]
-    [InlineData("\"Socket\": \"Kite\"")]
-    [InlineData("\"Socket\": \"powerin\"")]
-    [InlineData("\"Socket\": 8")]
+    [InlineData("\"Role\": \"Kite\"")]
+    [InlineData("\"Role\": \"powerin\"")]
+    [InlineData("\"Role\": 8")]
     public void TheBundleRefusesAnUnknownSocketName(string replacement)
     {
-        const string declared = "\"Socket\": \"PowerIn\"";
+        const string declared = "\"Role\": \"PowerIn\"";
         Assert.Contains(declared, TestBundle.Json, StringComparison.Ordinal);
         var refused = Assert.Throws<InvalidDataException>(() => PartRegistry.Read(TestBundle.Json.Replace(declared, replacement, StringComparison.Ordinal)));
-        Assert.Contains("PortSocket", refused.Message, StringComparison.Ordinal);
+        Assert.Contains("PortRole", refused.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -295,27 +294,27 @@ public sealed class BundlePortsTests
     [Fact]
     public void AWrongDomainOrOutputToOutputLinkIsStillRefused()
     {
-        Validate(new(new(1), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation));
-        Validate(new(new(3), WorkshopSocket.Supply, new(4), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical));
+        Validate(new(new(1), PortId.ActivationOut, new(2), PortId.ActivationIn, WorkshopConnectionDomain.Activation));
+        Validate(new(new(3), PortId.Supply, new(4), PortId.PowerIn, WorkshopConnectionDomain.Electrical));
         // Wrong domain: the switch's activation output declared as an electrical link, and the battery's supply into an activation input.
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,
-            () => Validate(new(new(1), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Electrical)));
+            () => Validate(new(new(1), PortId.ActivationOut, new(2), PortId.ActivationIn, WorkshopConnectionDomain.Electrical)));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,
-            () => Validate(new(new(3), WorkshopSocket.Supply, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+            () => Validate(new(new(3), PortId.Supply, new(2), PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         // Output to output: the switch's output into the delay's output, and the battery's supply into the counter's supply.
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,
-            () => Validate(new(new(1), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation)));
+            () => Validate(new(new(1), PortId.ActivationOut, new(2), PortId.ActivationOut, WorkshopConnectionDomain.Activation)));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,
-            () => Validate(new(new(3), WorkshopSocket.Supply, new(4), WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical)));
+            () => Validate(new(new(3), PortId.Supply, new(4), PortId.Supply, WorkshopConnectionDomain.Electrical)));
         // A socket the bundle does not declare on that part: the delay has no Reset input, and the wall declares no port at all.
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,
-            () => Validate(new(new(1), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ResetIn, WorkshopConnectionDomain.Activation)));
+            () => Validate(new(new(1), PortId.ActivationOut, new(2), PortId.ResetIn, WorkshopConnectionDomain.Activation)));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,
-            () => Validate(new(new(1), WorkshopSocket.ActivationOut, new(7), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+            () => Validate(new(new(1), PortId.ActivationOut, new(7), PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         // The declared level kinds still decide: the latch's level output lights only a Signal lamp.
-        Validate(new(new(5), WorkshopSocket.ActivationOut, new(6), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation));
+        Validate(new(new(5), PortId.ActivationOut, new(6), PortId.ActivationIn, WorkshopConnectionDomain.Activation));
         EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
-            () => Validate(new(new(5), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+            () => Validate(new(new(5), PortId.ActivationOut, new(2), PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
     }
 
     private static readonly string Root = twodog.Engine.ResolveProjectDir();
@@ -377,7 +376,7 @@ public sealed class BundlePortLocatorTests(NativeSceneFixture godot)
             {
                 foreach (var port in declaration.Ports)
                 {
-                    var name = port.Socket.ToString();
+                    var name = port.Id.ToString();
                     var path = LocatorPath(package, port);
                     var locator = root.GetNodeOrNull<Node3D>(path);
                     if (locator is null) Assert.Fail($"{package.Package}: no {path} locator for its declared {name} port.");
@@ -389,7 +388,7 @@ public sealed class BundlePortLocatorTests(NativeSceneFixture godot)
                 {
                     var name = locator.Name.ToString()["Loc_Port_".Length..];
                     var at = root.GetPathTo(locator).ToString();
-                    Assert.True(Mouths.Contains(name) || declaration.Ports.Any(port => port.Socket.ToString() == name && LocatorPath(package, port) == at),
+                    Assert.True(Mouths.Contains(name) || declaration.Ports.Any(port => port.Id.ToString() == name && LocatorPath(package, port) == at),
                         $"{package.Package}: {at} names no declared socket on its owning body.");
                 }
             }
@@ -403,9 +402,9 @@ public sealed class BundlePortLocatorTests(NativeSceneFixture godot)
     /// directly under the owning body's declared scene root.</summary>
     private static string LocatorPath(BundlePackage package, PortDescriptor port)
     {
-        if (port.Body.Value == 0) return $"Loc_Port_{port.Socket}";
+        if (port.Body.Value == 0) return $"Loc_Port_{port.Id}";
         var geometry = Assert.IsAssignableFrom<ISceneGeometryElement>(package.Declaration);
         Assert.InRange(port.Body.Value, 1, geometry.SceneBodies.Count - 1);
-        return $"{geometry.SceneBodies[port.Body.Value].Root}/Loc_Port_{port.Socket}";
+        return $"{geometry.SceneBodies[port.Body.Value].Root}/Loc_Port_{port.Id}";
     }
 }

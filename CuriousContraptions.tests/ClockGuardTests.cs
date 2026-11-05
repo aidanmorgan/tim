@@ -12,9 +12,9 @@ public sealed class ClockGuardTests
     private static readonly GpuBodyId Source = new(1), Owner = new(2), Counter = new(3);
 
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.ActivationOut, target, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        new(source, PortId.ActivationOut, target, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
 
     /// <summary>Battery (1) → clock (2) of an interval, and the clock's ActivationOut → a counter (3, target 9). Unwired leaves only the
     /// signal link.</summary>

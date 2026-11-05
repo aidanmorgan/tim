@@ -34,7 +34,7 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, IIndicato
     /// <summary>The only input that admits a level: a lamp then follows that one level output alone.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)
+        new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
@@ -61,5 +61,5 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, IIndicato
 
     /// <summary>The lamp indicates on its ActivationIn: fed by a level output it follows that level, otherwise it holds its first
     /// input until Reset.</summary>
-    public SignalIndicatorDescriptor Indicator => new(PortSocket.ActivationIn);
+    public SignalIndicatorDescriptor Indicator => new(PortId.ActivationIn);
 }

@@ -8,7 +8,7 @@ namespace CuriousContraptions.Gpu;
 /// <summary>Main-owned graph admission using declared roles, independent of package identities.</summary>
 public static class RopeTopology
 {
-    public readonly record struct Endpoint(GpuBodyId Body, WorkshopSocket Socket) : IComparable<Endpoint>
+    public readonly record struct Endpoint(GpuBodyId Body, PortId Socket) : IComparable<Endpoint>
     {
         public static bool operator <(Endpoint left, Endpoint right) => left.CompareTo(right) < 0;
         public static bool operator >(Endpoint left, Endpoint right) => left.CompareTo(right) > 0;
@@ -35,8 +35,8 @@ public static class RopeTopology
             var a = new Endpoint(edge.Source, edge.Output);
             var b = new Endpoint(edge.Target, edge.Input);
             if (a.Body.Value == 0 || b.Body.Value == 0 || a.Body == b.Body ||
-                edge.Output is not (WorkshopSocket.Tie or WorkshopSocket.TieA or WorkshopSocket.TieB) ||
-                edge.Input is not (WorkshopSocket.Tie or WorkshopSocket.TieA or WorkshopSocket.TieB) ||
+                string.IsNullOrWhiteSpace(edge.Output.Value) ||
+                string.IsNullOrWhiteSpace(edge.Input.Value) ||
                 edge.RopeLength is not { } length || !float.IsFinite(length) || length < .05f || length > 200f ||
                 !seen.Add(a.CompareTo(b) < 0 ? (a, b) : (b, a)))
                 Refuse("Invalid or duplicate rope span.");

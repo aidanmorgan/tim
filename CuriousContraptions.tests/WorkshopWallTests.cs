@@ -142,7 +142,7 @@ public sealed class WorkshopWallTests
     {
         var wall = Wall(WallFixture.Default);
         Assert.Empty(DeclaredPorts.Current.Of(new PartId("wall")).ToArray());
-        Assert.False(DeclaredPorts.Current.Has(new PartId("wall"), WorkshopSocket.ActivationIn,
+        Assert.False(DeclaredPorts.Current.Has(new PartId("wall"), PortId.ActivationIn,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         // Free play has no per-kind wall count; only the compiled table capacities limit the population.
         new WorkshopInstances(wall, wall with { Id = new(3) }).Validate();
@@ -151,8 +151,8 @@ public sealed class WorkshopWallTests
         var construction = Saved(WallFixture.Default).Construction.WithInstance(
             PlacedParts.Lamp(new(3), 3, 2, 0, 0, 0, 0, 1)) with
         {
-            Connections = new(new WorkshopConnection(wall.Id, WorkshopSocket.ActivationOut,
-                new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation))
+            Connections = new(new WorkshopConnection(wall.Id, PortId.ActivationOut,
+                new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation))
         };
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => construction.Validate());
     }

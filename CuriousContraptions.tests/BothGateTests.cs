@@ -33,8 +33,8 @@ public sealed class BothGateTests
     }
 
     internal static readonly PartId Kind=new("both_gate");
-    internal static WorkshopConnection Link(ulong source,ulong target,WorkshopSocket input=WorkshopSocket.PowerIn)=>
-        new(new(source),WorkshopSocket.Supply,new(target),input,WorkshopConnectionDomain.Electrical);
+    internal static WorkshopConnection Link(ulong source,ulong target,PortId input=default)=>
+        new(new(source),PortId.Supply,new(target),input == default ? PortId.PowerIn : input,WorkshopConnectionDomain.Electrical);
     internal static WorkshopConstruction Machine(ElectricalInputState inputs=ElectricalInputState.Both,bool supply=true)=>
         new(new(2),WorkshopCadenceSettings.Default(),new(
             Battery(1,-8,(inputs & ElectricalInputState.FirstOnly)!=0),
@@ -42,7 +42,7 @@ public sealed class BothGateTests
             Battery(3,-2,supply),
             WorkshopInput.Generic(Kind,new(4),3,3,0,0,0,0,1),
             WorkshopInput.Generic(new PartId("powered_gate"),new(5),9,3,0,0,0,0,1)),
-            Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,5)));
+            Connections:new(Link(1,4,PortId.FirstIn),Link(2,4,PortId.SecondIn),Link(3,4),Link(4,5)));
     private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), (float)(x), 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     internal static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=4)=>read.Presentation.Logic.ToArray().Single(row=>row.Owner.Value==owner);
     private static ActuatorDriveRead Drive(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==5);
@@ -98,8 +98,8 @@ public sealed class BothGateTests
         var construction=Machine();
         var parts=construction.Instances.Concat(new IWorkshopInstance[]{WorkshopInput.Generic(Kind,new(6),6,3,-3,0,0,0,1)}).ToArray();
         var links=construction.Connections.Where(link=>link.Target.Value!=5).ToList();
-        links.AddRange([Link(4,6,WorkshopSocket.FirstIn),Link(4,6,WorkshopSocket.SecondIn),Link(3,6),Link(6,5)]);
-        if(cycle) links.AddRange([Link(6,4,WorkshopSocket.FirstIn),Link(6,4,WorkshopSocket.SecondIn),Link(6,4)]);
+        links.AddRange([Link(4,6,PortId.FirstIn),Link(4,6,PortId.SecondIn),Link(3,6),Link(6,5)]);
+        if(cycle) links.AddRange([Link(6,4,PortId.FirstIn),Link(6,4,PortId.SecondIn),Link(6,4)]);
         if(reverse)
         {
             GpuBodyId Id(GpuBodyId value)=>value.Value switch {4=>new(6),6=>new(4),_=>value};
@@ -133,8 +133,8 @@ public sealed class BothGateTests
             WorkshopInput.Generic(Kind,new(7),-6,3,-3,0,0,0,1),
             WorkshopInput.Generic(Kind,new(8),-9,3,-3,0,0,0,1)}).ToArray();
         var links=construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Activation).ToList();
-        links.AddRange([Link(4,3),Link(4,7,WorkshopSocket.FirstIn),Link(4,7,WorkshopSocket.SecondIn),
-            Link(3,7),Link(7,8,WorkshopSocket.FirstIn),Link(7,8,WorkshopSocket.SecondIn),Link(3,8),
+        links.AddRange([Link(4,3),Link(4,7,PortId.FirstIn),Link(4,7,PortId.SecondIn),
+            Link(3,7),Link(7,8,PortId.FirstIn),Link(7,8,PortId.SecondIn),Link(3,8),
             Link(8,7),Link(8,5)]);
         construction=construction with {Instances=new(parts),Connections=new(links.ToArray())};
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
@@ -168,8 +168,8 @@ public sealed class BothGateTests
             PlacedParts.Clock(new(8),-3,3,3,0,0,0,1,1.5f)}).ToArray()),
             Connections=construction.Connections.Without(Link(3,4)).With(Link(3,6)).With(Link(6,4))
                 .With(Link(1,7)).With(Link(1,8))
-                .With(new(new(7),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.SetIn,WorkshopConnectionDomain.Activation))
-                .With(new(new(8),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.ResetIn,WorkshopConnectionDomain.Activation))};
+                .With(new(new(7),PortId.ActivationOut,new(6),PortId.SetIn,WorkshopConnectionDomain.Activation))
+                .With(new(new(8),PortId.ActivationOut,new(6),PortId.ResetIn,WorkshopConnectionDomain.Activation))};
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],(int)(rate + rate / 6)),
             ([new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],(int)(rate / 12)),([new(new(3),RunControlValue.Of(ElectricalEnable.Enabled))],(int)(rate / 3)));
         var reads=phases.SelectMany(rows=>rows).ToArray();
@@ -194,8 +194,8 @@ public sealed class BothGateTests
         var conditionOnly=construction with {Connections=construction.Connections.Without(Link(3,4))};
         Assert.Empty(WorkshopSupplyCompiler.Compile(conditionOnly,DeclaredPhysics.Of).UpstreamSources(clock.Id));
         Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)255,true,true));
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,WorkshopSocket.FirstIn))}).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,(WorkshopSocket)255))}).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,PortId.FirstIn))}).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,new PortId("invalid")))}).Validate());
         Assert.DoesNotContain(DeclaredPorts.Current.Of(Kind).ToArray(),port=>port.Domain==WorkshopConnectionDomain.Activation);
     }
     [Fact]

@@ -421,7 +421,7 @@ public sealed class ImpactLeverTests
         var weight = WeightTests.Placed(4, -4.0f, 4.5f, 0f, 4f);
 
         var tieLever = new Vector3(-1.8f, 3f, 0f);
-        var tieWeight = new Vector3(-4.0f, 4.5f, 0f) + DeclaredPorts.Current.LocalPosition(weight, WorkshopSocket.Tie);
+        var tieWeight = new Vector3(-4.0f, 4.5f, 0f) + DeclaredPorts.Current.LocalPosition(weight, PortId.Tie);
 
         var guides = new RouteGuideFrame[]
         {
@@ -435,9 +435,9 @@ public sealed class ImpactLeverTests
         var span1 = 2.2f; // distance between pulleys
         var span2 = len - span0 - span1;
 
-        var link0 = new WorkshopConnection(lever.Id, WorkshopSocket.TieA, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
-        var link1 = new WorkshopConnection(p1.Id, WorkshopSocket.Tie, p2.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
-        var link2 = new WorkshopConnection(p2.Id, WorkshopSocket.Tie, weight.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span2);
+        var link0 = new WorkshopConnection(lever.Id, PortId.TieA, p1.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span0);
+        var link1 = new WorkshopConnection(p1.Id, PortId.Tie, p2.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span1);
+        var link2 = new WorkshopConnection(p2.Id, PortId.Tie, weight.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span2);
 
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(lever, p1, p2, weight),
@@ -523,7 +523,7 @@ public sealed class ImpactLeverTests
         var weight = WeightTests.Placed(4, 4.0f, 4.5f, 0f, 4f);
 
         var tieLever = new Vector3(1.8f, 3f, 0f);
-        var tieWeight = new Vector3(4.0f, 4.5f, 0f) + DeclaredPorts.Current.LocalPosition(weight, WorkshopSocket.Tie);
+        var tieWeight = new Vector3(4.0f, 4.5f, 0f) + DeclaredPorts.Current.LocalPosition(weight, PortId.Tie);
 
         var guides = new RouteGuideFrame[]
         {
@@ -537,9 +537,9 @@ public sealed class ImpactLeverTests
         var span1 = 2.2f; // distance between pulleys
         var span2 = len - span0 - span1;
 
-        var link0 = new WorkshopConnection(lever.Id, WorkshopSocket.TieB, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
-        var link1 = new WorkshopConnection(p1.Id, WorkshopSocket.Tie, p2.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
-        var link2 = new WorkshopConnection(p2.Id, WorkshopSocket.Tie, weight.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span2);
+        var link0 = new WorkshopConnection(lever.Id, PortId.TieB, p1.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span0);
+        var link1 = new WorkshopConnection(p1.Id, PortId.Tie, p2.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span1);
+        var link2 = new WorkshopConnection(p2.Id, PortId.Tie, weight.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span2);
 
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(lever, p1, p2, weight),

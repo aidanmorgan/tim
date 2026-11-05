@@ -325,8 +325,8 @@ public sealed class WorkshopSaveRejectionTests
             "undefined simulation cadence" => One(ramp) with { Simulation = 99 },
             "undefined receiver participation" => One(receiver.WithParameter(new("capture_participation"), 99f)),
             "undefined battery enable" => One(battery.WithParameter(new("enabled"), 7f)),
-            "undefined connection domain" => new([battery, lamp], [new(2, 3, 99, (uint)WorkshopSocket.Supply, (uint)WorkshopSocket.PowerIn)]),
-            "undefined connection socket" => new([battery, lamp], [new(2, 3, electrical, 999, (uint)WorkshopSocket.PowerIn)]),
+            "undefined connection domain" => new([battery, lamp], [new(2, 3, 99, 0, 0)]),
+            "undefined connection socket" => new([battery, lamp], [new(2, 3, electrical, 999, 0)]),
             "NaN ramp length" => One(ramp.WithParameter(new("length"), float.NaN)),
             "infinite local position" => One(ramp.With(Field.Local, (float.PositiveInfinity, 0f, 0f))),
             "NaN rotation" => One(ramp.With(Field.Rotation, (0f, float.NaN, 0f, 1f))),
@@ -344,9 +344,9 @@ public sealed class WorkshopSaveRejectionTests
             "unknown element" => One(ramp.Clone().Also(i => i.Part = "tennis")),
             "no element" => One(ramp.Clone().Also(i => i.Part = "")),
             "duplicate instance" => new([ramp, ramp], []),
-            "dangling connection" => new([battery], [new(2, 77, electrical, (uint)WorkshopSocket.Supply, (uint)WorkshopSocket.PowerIn)]),
+            "dangling connection" => new([battery], [new(2, 77, electrical, 0, 0)]),
             "ramp to ramp electrical connection" => new([ramp, ramp.With(Field.Id, 2UL)],
-                [new(1, 2, electrical, (uint)WorkshopSocket.Supply, (uint)WorkshopSocket.PowerIn)]),
+                [new(1, 2, electrical, 0, 0)]),
             "allocator at an existing identity" => One(ramp) with { NextBodyId = 1 },
             _ => throw new ArgumentOutOfRangeException(nameof(name)),
         };
@@ -555,7 +555,7 @@ public sealed class WorkshopSaveRejectionTests
     public void FuzzedSavesAreRefusedOrDecodedAndNothingElse()
     {
         var instances = EveryKind().Select(FromProduction).ToArray();
-        var save = new Save(instances, [new(9, 22, (uint)WorkshopConnectionDomain.Electrical, (uint)WorkshopSocket.Supply, (uint)WorkshopSocket.PowerIn)]);
+        var save = new Save(instances, [new(9, 22, (uint)WorkshopConnectionDomain.Electrical, 0, 0)]);
         var valid = Bytes(save);
         Assert.Equal(instances.Length, WorkshopSaveCodec.Decode(SaveFixture.Elements,valid).Construction.Instances.Count);
         var random = new Random(9_2);

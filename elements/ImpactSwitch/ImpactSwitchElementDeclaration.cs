@@ -37,9 +37,9 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContac
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(.45f, 0f, .4f), Vector3.UnitZ),
-        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new(-.58f, 0f, 0f), -Vector3.UnitX),
-        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new(.58f, 0f, 0f), Vector3.UnitX)
+        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, new Vector3(.45f, 0f, .4f), Vector3.UnitZ),
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new(-.58f, 0f, 0f), -Vector3.UnitX),
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new(.58f, 0f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The base, then the button.</summary>
@@ -68,7 +68,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContac
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply);
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes => [new("switched_contact", ElectricalRole.Switch, 12f, .05f, 0f, 100f)];
 
     public SignalContactDescriptor Contact => new("trigger_threshold");

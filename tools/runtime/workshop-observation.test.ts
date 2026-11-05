@@ -638,7 +638,7 @@ test('observation enums preserve canonical external command, refusal, state and 
     assert.equal(value.WorkshopRejection.RunControlKindMismatch, 19);
     assert.equal(value.WorkshopRejection.RunControlOutOfRange, 20);
     assert.equal(value.WorkshopConnectionDomain.Rope, 3);
-    assert.equal(value.WorkshopSocket.Tie, 9);
+    assert.equal(value.PortRole.Tie, 9);
     assert.equal(value.WorkshopRejection.InvalidRead, 7);
     assert.equal(value.WorkshopRejection[6], undefined);
     assert.equal(value.WorkshopSimulationPhase.Running, 5);

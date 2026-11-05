@@ -9,10 +9,10 @@ namespace CuriousContraptions.Gpu;
 /// <summary>Main-owned compilation of one installation for simulation, animation and native execution.</summary>
 public static class WorkshopSceneCompiler
 {
-    private static CompiledPresentationBinding CompileBinding(PresentationBinding binding) =>
+    private static CompiledPresentationBinding CompileBinding(PresentationBinding binding, PartId partId) =>
         new(binding.Property, binding.Driver, binding.From, binding.To, binding.Curve, binding.Duration,
             binding.Overlap, binding.Threshold, binding.Phase, binding.Response, binding.Intermediate,
-            binding.Socket, binding.Event, binding.EventMagnitude);
+            binding.Socket.HasValue ? DeclaredPorts.Current.Role(partId, binding.Socket.Value) : null, binding.Event, binding.EventMagnitude);
 
     public static WorkshopCompiledScene Compile(WorkshopConstruction construction, PhysicsDocumentId document, CompiledSceneId identity)
     {
@@ -45,7 +45,7 @@ public static class WorkshopSceneCompiler
                 }
             for (var i = 0; i < bindings.Count; i++)
                 tracks.Add(new(new AnimationTargetId(WorkshopDeclaredPresentation.TargetBase + (ulong)tracks.Count),
-                    owner.Id, i, CompileBinding(bindings[i]), node, capacity));
+                    owner.Id, i, CompileBinding(bindings[i], owner.PartId), node, capacity));
         }
         return new(identity, construction.Revision, construction.Settings, physics, activation, tracks,
             construction.Instances.Select(instance => instance.Id), runControls);

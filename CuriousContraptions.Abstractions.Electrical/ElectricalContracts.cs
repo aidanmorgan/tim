@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Abstractions.Electrical;
 
@@ -47,7 +48,7 @@ public static class ElectricalSourceEnvelope
 
 /// <summary>A declared supply route. A Source declares its finite <see cref="Store"/>; no other kind declares one.</summary>
 public readonly record struct SupplyCapabilityDescriptor(
-    SupplyCapabilityKind Kind, PortSocket? Input, PortSocket Output, LogicGateOperation? Operation = null,
+    SupplyCapabilityKind Kind, PortId? Input, PortId Output, LogicGateOperation? Operation = null,
     SupplySourceStoreDescriptor? Store = null);
 
 public interface ISupplyElement : IElectricalElement

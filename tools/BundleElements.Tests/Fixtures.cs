@@ -19,7 +19,7 @@ public sealed class Fixture : ISliderElement
 
     /// <summary>An electrical PowerIn input port, which a driven slider requires.</summary>
     public static PortDescriptor PowerIn =>
-        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, Vector3.Zero, Vector3.UnitZ);
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ);
 
     public static IReadOnlyList<ParameterDescriptor> SpringParameters =>
     [

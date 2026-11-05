@@ -116,14 +116,24 @@ internal static class WorkshopSavePrevalidation
         for (var i = 0; i < links.Length; i++)
         {
             var link = record.Connections(i)!.Value;
-            var connection = new WorkshopConnection(new(link.Source), (WorkshopSocket)link.FromSocket, new(link.Target),
-                (WorkshopSocket)link.ToSocket, (WorkshopConnectionDomain)link.Domain, link.HasRopeLength ? link.RopeLength : null);
+            var sourceId = new GpuBodyId(link.Source);
+            var targetId = new GpuBodyId(link.Target);
+            if (!parts.TryGetValue(sourceId, out var sourcePart) || !parts.TryGetValue(targetId, out var targetPart))
+                throw Refuse(WorkshopSaveRejection.UnresolvedReference, "A saved connection names a part the save does not hold.");
+            if (!Enum.IsDefined((WorkshopConnectionDomain)link.Domain))
+                throw Refuse(WorkshopSaveRejection.UndefinedEnum, "A saved connection names an undefined domain or socket.");
+            var sourcePorts = DeclaredPorts.Current.Of(sourcePart);
+            var targetPorts = DeclaredPorts.Current.Of(targetPart);
+            if (sourcePorts.Length == 0 || targetPorts.Length == 0)
+                throw Refuse(WorkshopSaveRejection.InvalidConnection, "A saved connection names a part that declares no ports.");
+            if (link.FromSocket >= (uint)sourcePorts.Length || link.ToSocket >= (uint)targetPorts.Length)
+                throw Refuse(WorkshopSaveRejection.UndefinedEnum, "A saved connection names an undefined domain or socket.");
+            var outputPort = sourcePorts[(int)link.FromSocket].Id;
+            var inputPort = targetPorts[(int)link.ToSocket].Id;
+            var connection = new WorkshopConnection(sourceId, outputPort, targetId,
+                inputPort, (WorkshopConnectionDomain)link.Domain, link.HasRopeLength ? link.RopeLength : null);
             if (!link.HasRopeLength && link.RopeLength != 0f)
                 throw Refuse(WorkshopSaveRejection.OutOfRange, "Unowned saved rope length.");
-            if (!Enum.IsDefined(connection.Domain) || !Enum.IsDefined(connection.Output) || !Enum.IsDefined(connection.Input))
-                throw Refuse(WorkshopSaveRejection.UndefinedEnum, "A saved connection names an undefined domain or socket.");
-            if (!parts.ContainsKey(connection.Source) || !parts.ContainsKey(connection.Target))
-                throw Refuse(WorkshopSaveRejection.UnresolvedReference, "A saved connection names a part the save does not hold.");
             links[i] = connection;
         }
         // The connection rules themselves (WorkshopConnections), over the saved part identities: their typed refusal is this one.

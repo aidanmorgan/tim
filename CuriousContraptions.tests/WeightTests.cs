@@ -49,7 +49,7 @@ public sealed class WeightTests(ITestOutputHelper output)
         Assert.Equal(4f, MassFixtures.Evaluate(entry.Mechanical.MassFrame, entry.Metadata.Parameters).Mass);
         Assert.Equal(CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder, entry.Colliders[0].ShapeKind);
         Assert.Equal(RopeAttachmentRole.Load, Assert.Single(entry.Ports).AttachmentRole);
-        Assert.Equal(WorkshopSocket.Tie, Assert.Single(DeclaredPorts.Current.Of(Weight).ToArray()).Socket);
+        Assert.Equal(PortId.Tie, Assert.Single(DeclaredPorts.Current.Of(Weight).ToArray()).Id);
         Assert.Empty(entry.Events);
         // A cylinder is never the payload (only a lone dynamic sphere is), so no capture, trigger or work store targets it.
         Assert.False(DeclaredPhysics.IsPayload(Weight));
@@ -848,7 +848,7 @@ public sealed class WeightTests(ITestOutputHelper output)
 
         var weightInstance = Placed(2, tieX, tieY - tieOffset, tieZ, mass);
 
-        var connection = new WorkshopConnection(new(1), WorkshopSocket.Tie, new(2), WorkshopSocket.Tie,
+        var connection = new WorkshopConnection(new(1), PortId.Tie, new(2), PortId.Tie,
             WorkshopConnectionDomain.Rope, ropeLength);
 
         return new(new(2), WorkshopCadenceSettings.Default(),
@@ -896,8 +896,8 @@ public sealed class WeightTests(ITestOutputHelper output)
         var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
         var p2 = WorkshopInput.Generic(new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
         var b = Placed(4, 2.4f, heightB, 0f, massB);
-        var tieA = DeclaredPorts.Current.LocalPosition(a, WorkshopSocket.Tie);
-        var tieB = DeclaredPorts.Current.LocalPosition(b, WorkshopSocket.Tie);
+        var tieA = DeclaredPorts.Current.LocalPosition(a, PortId.Tie);
+        var tieB = DeclaredPorts.Current.LocalPosition(b, PortId.Tie);
         var posA = new Vector3(-2.4f, heightA, 0f) + tieA;
         var posB = new Vector3(2.4f, heightB, 0f) + tieB;
         var guides = new RouteGuideFrame[]
@@ -917,15 +917,15 @@ public sealed class WeightTests(ITestOutputHelper output)
         WorkshopConnection link0, link1, link2;
         if (!reverseWiring)
         {
-            link0 = new WorkshopConnection(a.Id, WorkshopSocket.Tie, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
-            link1 = new WorkshopConnection(p1.Id, WorkshopSocket.Tie, p2.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
-            link2 = new WorkshopConnection(p2.Id, WorkshopSocket.Tie, b.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span2);
+            link0 = new WorkshopConnection(a.Id, PortId.Tie, p1.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span0);
+            link1 = new WorkshopConnection(p1.Id, PortId.Tie, p2.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span1);
+            link2 = new WorkshopConnection(p2.Id, PortId.Tie, b.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span2);
         }
         else
         {
-            link0 = new WorkshopConnection(b.Id, WorkshopSocket.Tie, p2.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span2);
-            link1 = new WorkshopConnection(p2.Id, WorkshopSocket.Tie, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
-            link2 = new WorkshopConnection(p1.Id, WorkshopSocket.Tie, a.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
+            link0 = new WorkshopConnection(b.Id, PortId.Tie, p2.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span2);
+            link1 = new WorkshopConnection(p2.Id, PortId.Tie, p1.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span1);
+            link2 = new WorkshopConnection(p1.Id, PortId.Tie, a.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span0);
         }
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(a, p1, p2, b),
             Connections: new(link0, link1, link2));
@@ -1236,9 +1236,9 @@ public sealed class WeightTests(ITestOutputHelper output)
             new([new(new("width"), 1.5f), new(new("height"), .5f), new(new("thickness"), 1.5f)]));
         var a = Placed(1, -2.0f, 3.0f, 0f, 4.0f);
         var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
-        var tieA = DeclaredPorts.Current.LocalPosition(a, WorkshopSocket.Tie);
+        var tieA = DeclaredPorts.Current.LocalPosition(a, PortId.Tie);
         var span = Vector3.Distance(new Vector3(-2f, 3f, 0f) + tieA, new Vector3(-2f, 6f, -.12f));
-        var openConnection = new WorkshopConnection(a.Id, WorkshopSocket.Tie, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span);
+        var openConnection = new WorkshopConnection(a.Id, PortId.Tie, p1.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(a, p1, shelf),
             Connections: new(openConnection));
 

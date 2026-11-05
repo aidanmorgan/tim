@@ -27,7 +27,7 @@ public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, Gpu
     TimerCompletionPolicy Completion = TimerCompletionPolicy.Latch, TimerBoundary Boundary = TimerBoundary.BeforePhysics,
     TimerElapsedSignal ElapsedSignal = TimerElapsedSignal.Activation);
 /// <summary>One routed signal; Input names the target socket (ActivationIn, or SetIn/ResetIn on a State Latch).</summary>
-public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target, WorkshopSocket Input);
+public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target, PortRole Input);
 
 public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId Owner, ActivationPhase Phase,
     GpuEventSourceId Source, GpuBodyId Body, GpuColliderId Collider, uint EventOrdinal,
@@ -204,8 +204,8 @@ public sealed class ActivationNetwork
                 IsLevelSource(_nodes[Slot(edge.Source)].Kind) != (_nodes[Slot(edge.Target)].Kind == ActivationNodeKind.LevelIndicator) ||
                 _nodes[Slot(edge.Target)].Kind is ActivationNodeKind.ContactSource or ActivationNodeKind.OrientationSource or ActivationNodeKind.PassageSource or ActivationNodeKind.Oscillator or ActivationNodeKind.ContactLoadSource ||
                 (_nodes[Slot(edge.Target)].Kind == ActivationNodeKind.StateLatch
-                    ? edge.Input is not (WorkshopSocket.SetIn or WorkshopSocket.ResetIn)
-                    : edge.Input != WorkshopSocket.ActivationIn))
+                    ? edge.Input is not (PortRole.SetIn or PortRole.ResetIn)
+                    : edge.Input != PortRole.ActivationIn))
                 throw new ArgumentException("Unsupported activation edge.");
         foreach (var node in _nodes)
             if (node.Kind == ActivationNodeKind.LevelIndicator && _edges.Count(edge => edge.Target == node.Id) != 1)
@@ -509,7 +509,7 @@ public sealed class ActivationNetwork
                 }
                 else if (_nodes[target].Kind == ActivationNodeKind.StateLatch)
                 {
-                    if (edge.Input == WorkshopSocket.ResetIn) latchRequests[target] |= StateLatchRequest.Reset;
+                    if (edge.Input == PortRole.ResetIn) latchRequests[target] |= StateLatchRequest.Reset;
                     else if ((latchRequests[target] & StateLatchRequest.Set) == 0 || Compare(occurrence, latchSetBy[target]) < 0)
                     { latchRequests[target] |= StateLatchRequest.Set; latchSetBy[target] = occurrence; }
                 }
@@ -662,7 +662,7 @@ public sealed class ActivationNetwork
             var occurrence = value.Occurrence;
             ValidateOccurrence(occurrence, end, scene);
             if (node.Kind == ActivationNodeKind.StateLatch &&
-                !_edges.ToArray().Any(edge => edge.Target == node.Id && edge.Input == WorkshopSocket.SetIn && edge.Source == occurrence.Emitter))
+                !_edges.ToArray().Any(edge => edge.Target == node.Id && edge.Input == PortRole.SetIn && edge.Source == occurrence.Emitter))
                 throw new ArgumentException("State latch memory is not owned by a routed Set.");
             if (node.Kind == ActivationNodeKind.ContactSource &&
                 (occurrence.Kind != ActivationOccurrenceKind.Contact || occurrence.Emitter != node.Id || occurrence.Cause.Source.Value != node.Trigger.Value))

@@ -31,7 +31,7 @@ public sealed class F32LaneRoundTripTests
             PlacedParts.Domino(Tile, -6, (float)(-.46 + .55), 0, 0, 0, 0, 1),
             PlacedParts.Lamp(Lamp, -6, 1, 2, 0, 0, 0, 1),
             PlacedParts.Bumper(Bumper, 6, 1, 0, strength: Strength)),
-            Connections: new([new(Tile, WorkshopSocket.ActivationOut, Lamp, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)]));
+            Connections: new([new(Tile, PortId.ActivationOut, Lamp, PortId.ActivationIn, WorkshopConnectionDomain.Activation)]));
     }
 
     private static uint Bits(float value) => BitConverter.SingleToUInt32Bits(value);

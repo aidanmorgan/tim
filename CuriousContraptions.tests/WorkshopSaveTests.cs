@@ -642,8 +642,8 @@ public sealed class WorkshopSaveTests
     {
         var trigger = WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1);
-        var link = new WorkshopConnection(trigger.Id, WorkshopSocket.ActivationOut, lamp.Id,
-            WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        var link = new WorkshopConnection(trigger.Id, PortId.ActivationOut, lamp.Id,
+            PortId.ActivationIn, WorkshopConnectionDomain.Activation);
         return new(new(new(4), WorkshopCadenceSettings.Default(), new(trigger, lamp), Connections: new(link)), new(4));
     }
 
@@ -670,11 +670,11 @@ public sealed class WorkshopSaveTests
         {
             link with { Domain = WorkshopConnectionDomain.Electrical },
             link with { Domain = (WorkshopConnectionDomain)99 },
-            link with { Output = WorkshopSocket.PowerIn },
-            link with { Input = WorkshopSocket.Supply },
+            link with { Output = PortId.PowerIn },
+            link with { Input = PortId.Supply },
             link with { Source = link.Target, Target = link.Source },
             link with { Target = new(99) }, link with { Target = link.Source },
-            link with { Input = (WorkshopSocket)99 }
+            link with { Input = new PortId("invalid") }
         })
             EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (construction with { Connections = new(invalid) }).Validate());
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (construction with { Connections = new(link, link) }).Validate());
@@ -710,11 +710,13 @@ public sealed class WorkshopSaveTests
     }
 
     [Theory]
-    [InlineData(99UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn, WorkshopSaveRejection.UnresolvedReference)]
-    [InlineData(2UL, 99UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn, WorkshopSaveRejection.UnresolvedReference)]
-    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Electrical, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn, WorkshopSaveRejection.InvalidConnection)]
-    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationIn, (uint)WorkshopSocket.ActivationIn, WorkshopSaveRejection.InvalidConnection)]
-    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationOut, WorkshopSaveRejection.InvalidConnection)]
+    [InlineData(99UL, 3UL, (uint)WorkshopConnectionDomain.Activation, 0u, 0u, WorkshopSaveRejection.UnresolvedReference)]
+    [InlineData(2UL, 99UL, (uint)WorkshopConnectionDomain.Activation, 0u, 0u, WorkshopSaveRejection.UnresolvedReference)]
+    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Electrical, 0u, 0u, WorkshopSaveRejection.InvalidConnection)]
+    [InlineData(3UL, 3UL, (uint)WorkshopConnectionDomain.Activation, 0u, 0u, WorkshopSaveRejection.InvalidConnection)]
+    [InlineData(2UL, 2UL, (uint)WorkshopConnectionDomain.Activation, 0u, 0u, WorkshopSaveRejection.InvalidConnection)]
+    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Activation, 0u, 99u, WorkshopSaveRejection.UndefinedEnum)]
+    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Activation, 99u, 0u, WorkshopSaveRejection.UndefinedEnum)]
     public void SerializedInvalidConnectionsRejectBeforeAdmission(ulong source, ulong target, uint domain, uint fromSocket, uint toSocket, WorkshopSaveRejection reason)
     {
         var save = ActivationSaved();

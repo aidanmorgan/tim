@@ -926,8 +926,8 @@ public sealed class CompoundIdentityRefusalTests
         {
             InvalidEdit.DuplicateOwner => invalid with { Instances = new(first, second, tile, tile) },
             InvalidEdit.ExhaustedIdentity => invalid with { Instances = new(first, second, ((WorkshopGenericInstance)tile) with { Id = new(ulong.MaxValue) }) },
-            InvalidEdit.ForeignConnection => invalid with { Connections = new(new WorkshopConnection(new(999), WorkshopSocket.ActivationOut,
-                tile.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) },
+            InvalidEdit.ForeignConnection => invalid with { Connections = new(new WorkshopConnection(new(999), PortId.ActivationOut,
+                tile.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation)) },
             _ => throw new ArgumentOutOfRangeException(nameof(edit))
         };
         if (edit == InvalidEdit.ExhaustedIdentity)

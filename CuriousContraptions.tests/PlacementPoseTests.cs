@@ -199,8 +199,8 @@ public sealed class PlacementPoseTests
             placed.Add(PlacedParts.Domino(new(id), (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W)));
         }
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([.. placed]), Connections: new(
-            new WorkshopConnection(battery.Id, WorkshopSocket.Supply, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
-            new WorkshopConnection(plate.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+            new WorkshopConnection(battery.Id, PortId.Supply, plate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
+            new WorkshopConnection(plate.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         var reads = (await WorkshopIntegrationHarness.ObservePhases(bench, ([], 2 * 120)))[0];
         var load = reads[^1].Presentation.Loads[0];
         Assert.True(reads[^1].Bodies.TryGet(bench.Instances.Identities[gate.Id].Sliders[0].Body, out var blade));

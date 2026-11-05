@@ -10,7 +10,7 @@ public sealed class DominoEffectTests
     private const double Upright = -0.46 + .55;
     private static WorkshopConstruction Lesson(float precision = default) =>
         PuzzleCatalogue.Create(new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
-    private static readonly WorkshopConnection EndToLamp = new(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+    private static readonly WorkshopConnection EndToLamp = new(new(2), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Solved(WorkshopConstruction lesson)
     {
         var result = lesson;
@@ -75,7 +75,7 @@ public sealed class DominoEffectTests
         Assert.Equal(new PuzzleId("delayed_signal"), PuzzleCatalogue.WithPrecision(PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f)), new(.5f)).Puzzle.Id);
         Assert.Equal(.5f, PuzzleCatalogue.WithPrecision(lesson, new(.5f)).Puzzle.Precision.Value);
         // A Domino offers no activation input: wiring into one is rejected before any admission.
-        var intoDomino = new WorkshopConnection(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        var intoDomino = new WorkshopConnection(new(3), PortId.ActivationOut, new(2), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (lesson with { Connections = new(intoDomino) }).Validate());
     }
 

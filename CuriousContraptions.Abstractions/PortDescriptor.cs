@@ -17,9 +17,7 @@ public enum PortSignalKind : byte
     Level = 2
 }
 
-/// <summary>The closed set of sockets an element can declare (Story 9A.17). A scene's socket locator is named
-/// <c>Loc_Port_&lt;PortSocket&gt;</c> exactly. The numbers are the sockets' wire and save values.</summary>
-public enum PortSocket : uint
+public enum PortRole : uint
 {
     ActivationOut = 1,
     SetIn = 2,
@@ -31,23 +29,27 @@ public enum PortSocket : uint
     PowerIn = 8,
     Tie = 9,
     TieA = 10,
-    TieB = 11
+    TieB = 11,
+    Drive = 12,
+    DriveIn = 13
 }
 
-/// <summary>One declared socket, and the only source of its domain, direction, signal kind and anchor position (Story 9A.17).
+/// <summary>One declared socket, and the only source of its domain, direction, signal kind and anchor position.
 /// <see cref="Signal"/> is declared on every signal port and null on every other port; <see cref="LocalPosition"/> is the anchor in
 /// the frame of the owning <see cref="Body"/> (metres): the element's local frame for body 0, otherwise that moving body's frame. Its
-/// scene locator is a direct child of that body's scene root (Story 10.3a).</summary>
+/// scene locator is a direct child of that body's scene root.</summary>
 public readonly record struct PortDescriptor(
-    PortSocket Socket,
+    PortId Id,
     SimulationDomain Domain,
     PortDirection Direction,
+    PortRole Role,
     PortSignalKind? Signal,
     Vector3 LocalPosition,
     Vector3 Normal,
     RopeAttachmentRole AttachmentRole = RopeAttachmentRole.None,
     PortPositionBinding? PositionBinding = null,
     PackageBodyIndex Body = default,
+    float CoordinatePerRadian = 0f,
     float GuideRadius = 0f,
     Vector3 GuideOffset = default);
 

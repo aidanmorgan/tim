@@ -12,7 +12,7 @@ public sealed class DominoGuardTests
     private static readonly GpuBodyId End = new(2), Lamp = new(3);
 
     private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.ActivationOut, target, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        new(source, PortId.ActivationOut, target, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] links) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
 

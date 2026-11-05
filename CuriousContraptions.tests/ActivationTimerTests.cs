@@ -21,7 +21,7 @@ public sealed class ActivationTimerTests
             new(owner),new(1),1,scene.Colliders.ToArray().First(c=>c.Body.Value==owner).Id,ordinal,0f,new(1f));
         return (WorkshopActivationCompiler.Compile(construction),scene,Event(2,10),Event(5,20));
     }
-    private static WorkshopConnection Link(ulong a,ulong b) => new(new(a),WorkshopSocket.ActivationOut,new(b),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation);
+    private static WorkshopConnection Link(ulong a,ulong b) => new(new(a),PortId.ActivationOut,new(b),PortId.ActivationIn,WorkshopConnectionDomain.Activation);
     private static ActivationLatch Node(PhysicsActivationRead read,ulong id)
     {
         for(var i=0;i<read.Count;i++) if(read[i].Node.Value==id)return read[i];

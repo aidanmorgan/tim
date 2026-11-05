@@ -8,7 +8,7 @@ using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopConnectionDomain : uint { Activation = 1, Electrical = 2, Rope = 3 }
+public enum WorkshopConnectionDomain : uint { Activation = 1, Electrical = 2, Rope = 3, Mechanical = 4 }
 public enum WorkshopPortDirection : uint { Input = 1, Output = 2, Bidirectional = 3 }
 /// <summary>What an activation port carries (Story 9R.5): an output declares what it emits, an input the strongest signal it admits.
 /// A Pulse is one occurrence; a Level is a committed high/low value (the latch's memory, a declared sensor's held contact load). An input that
@@ -17,13 +17,13 @@ public enum WorkshopSignalKind : uint { Pulse = 1, Level = 2 }
 /// <summary>One declared socket, admitted from the element bundle (<see cref="ElementPortCatalogue"/>). Signal is declared on every
 /// activation port and absent (null) on every electrical port; LocalPosition is the declared f32 anchor in the part's local frame
 /// (metres), the wire artwork's endpoint.</summary>
-public readonly record struct WorkshopPort(WorkshopSocket Socket, WorkshopConnectionDomain Domain, WorkshopPortDirection Direction,
+public readonly record struct WorkshopPort(PortId Id, PortRole Role, WorkshopConnectionDomain Domain, WorkshopPortDirection Direction,
     WorkshopSignalKind? Signal, Vector3 LocalPosition, RopeAttachmentRole AttachmentRole = RopeAttachmentRole.None, PortPositionBinding? PositionBinding = null,
     CuriousContraptions.Abstractions.PackageBodyIndex Body = default,
     float GuideRadius = 0f,
     Vector3 GuideOffset = default);
-public readonly record struct WorkshopConnection(GpuBodyId Source, WorkshopSocket Output, GpuBodyId Target,
-    WorkshopSocket Input, WorkshopConnectionDomain Domain, float? RopeLength = null);
+public readonly record struct WorkshopConnection(GpuBodyId Source, PortId Output, GpuBodyId Target,
+    PortId Input, WorkshopConnectionDomain Domain, float? RopeLength = null);
 
 /// <summary>Immutable authored edges; neither storage nor connection validation executes activation. There is no connection limit
 /// (Story 9R.5b).</summary>
@@ -32,19 +32,29 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
     private readonly WorkshopConnection[] _items;
     public static WorkshopConnections Empty { get; } = new();
     public WorkshopConnections(params WorkshopConnection[] items) => _items = (WorkshopConnection[])items.Clone();
-    public static WorkshopConnection MeasureRope(WorkshopInstances instances, GpuBodyId source, GpuBodyId target)
+    public static WorkshopConnection MeasureRope(WorkshopInstances instances, GpuBodyId source, GpuBodyId target, PortId output = default, PortId input = default)
     {
-        Vector3 Attachment(GpuBodyId owner)
+        output = output == default ? DefaultRopePort(source) : output;
+        input = input == default ? DefaultRopePort(target) : input;
+        Vector3 Attachment(GpuBodyId owner, PortId portId)
         {
             if (instances.SingleOrDefault(p => p.Id == owner) is not WorkshopGenericInstance instance)
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Absent rope endpoint.");
-            var local = DeclaredPorts.Current.LocalPosition(instance, WorkshopSocket.Tie);
+            var local = DeclaredPorts.Current.LocalPosition(instance, portId);
             return new Vector3((instance.Cell.X + instance.Local.X) / 16f, (instance.Cell.Y + instance.Local.Y) / 16f,
                 (instance.Cell.Z + instance.Local.Z) / 16f) + Vector3.Transform(local,
                 new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W));
         }
-        var link = new WorkshopConnection(source, WorkshopSocket.Tie, target, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope,
-            Vector3.Distance(Attachment(source), Attachment(target)));
+        PortId DefaultRopePort(GpuBodyId owner)
+        {
+            if (instances.SingleOrDefault(p => p.Id == owner) is not WorkshopGenericInstance instance)
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Absent rope endpoint.");
+            foreach (var p in DeclaredPorts.Current.Of(instance.PartId))
+                if (p.Domain == WorkshopConnectionDomain.Rope) return p.Id;
+            return PortId.Tie;
+        }
+        var link = new WorkshopConnection(source, output, target, input, WorkshopConnectionDomain.Rope,
+            Vector3.Distance(Attachment(source, output), Attachment(target, input)));
         new WorkshopConnections(link).Validate(instances);
         return link;
     }
@@ -78,7 +88,7 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
         foreach (var link in _items)
         {
             if (link.Source.Value == 0 || link.Target.Value == 0 || link.Source == link.Target ||
-                !Enum.IsDefined(link.Output) || !Enum.IsDefined(link.Input) ||
+                string.IsNullOrWhiteSpace(link.Output.Value) || string.IsNullOrWhiteSpace(link.Input.Value) ||
                 !Enum.IsDefined(link.Domain) || !seen.Add(link))
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported or duplicate connection.");
             var source = partOf(link.Source);
@@ -91,11 +101,13 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Connection does not own matching declared ports.");
             if (link.Domain != WorkshopConnectionDomain.Rope && link.RopeLength is not null)
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Only rope connections carry length.");
+            var outRole = ports.Role(source.Value, link.Output);
+            var inRole = ports.Role(target.Value, link.Input);
             if (link.Domain == WorkshopConnectionDomain.Activation)
             {
-                if (link.Output != WorkshopSocket.ActivationOut)
+                if (outRole != PortRole.ActivationOut)
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported activation output.");
-                if (link.Input is not (WorkshopSocket.ActivationIn or WorkshopSocket.SetIn or WorkshopSocket.ResetIn))
+                if (inRole is not (PortRole.ActivationIn or PortRole.SetIn or PortRole.ResetIn))
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported activation input.");
                 // A level output (the latch, a declared contact-load sensor) drives only an input that admits a level (a declared indicator input), and such an
                 // input then follows that one level alone. The rule reads the declared port kinds, never the part identity.
@@ -103,6 +115,8 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                     ports.Signal(target.Value, link.Input, WorkshopPortDirection.Input) != WorkshopSignalKind.Level)
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.LevelDrivesLevelInputOnly, "A level output can only light a Signal lamp.");
                 var feeds = _items.Where(other => other.Domain == WorkshopConnectionDomain.Activation && other.Target == link.Target && other.Input == link.Input).ToArray();
+                if (feeds.Count(f => f.Source == link.Source) > 1)
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Duplicate activation connection from same source to same input.");
                 if (feeds.Length > 1 && feeds.Any(other => partOf(other.Source) is { } feeder &&
                         ports.Has(feeder, other.Output, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output) &&
                         ports.Signal(feeder, other.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
@@ -110,25 +124,29 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
             }
             else if (link.Domain == WorkshopConnectionDomain.Electrical)
             {
-                if (link.Output != WorkshopSocket.Supply || link.Input is not (WorkshopSocket.PowerIn or WorkshopSocket.FirstIn or WorkshopSocket.SecondIn))
+                if (outRole != PortRole.Supply || inRole is not (PortRole.PowerIn or PortRole.FirstIn or PortRole.SecondIn))
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported electrical socket.");
                 foreach (var previous in seen)
+                {
+                    if (previous != link && previous.Source == link.Source && previous.Target == link.Target && previous.Input == link.Input && previous.Domain == WorkshopConnectionDomain.Electrical)
+                        throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Duplicate electrical connection from same source to same input.");
                     if (previous != link && previous.Target == link.Target && previous.Input == link.Input &&
                         previous.Domain == WorkshopConnectionDomain.Electrical &&
                         DeclaredPhysics.Of(target.Value).Electrical?.Supply?.Kind is not (SupplyCapabilityKind.SwitchedContact or SupplyCapabilityKind.LogicGate))
                         throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied, "This power input already has a supplier.");
+                }
             }
             else if (link.Domain == WorkshopConnectionDomain.Rope)
             {
-                if (link.Output is not (WorkshopSocket.Tie or WorkshopSocket.TieA or WorkshopSocket.TieB) ||
-                    link.Input is not (WorkshopSocket.Tie or WorkshopSocket.TieA or WorkshopSocket.TieB))
+                if (outRole is not (PortRole.Tie or PortRole.TieA or PortRole.TieB) ||
+                    inRole is not (PortRole.Tie or PortRole.TieA or PortRole.TieB))
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported rope socket.");
                 if (link.RopeLength is not { } length || !float.IsFinite(length) || length < .05f || length > 200f)
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Rope length must be between 0.05 and 200 metres.");
             }
         }
         _ = RopeTopology.Compile(_items, endpoint =>
-            ports.Of(partOf(endpoint.Body)!.Value).ToArray().Single(port => port.Socket == endpoint.Socket).AttachmentRole);
+            ports.Of(partOf(endpoint.Body)!.Value).ToArray().Single(port => port.Id == endpoint.Socket).AttachmentRole);
         // Every electrical wire is a potential path, open contacts included: a loop through a nonmonotone gate is refused here, in
         // build mode, before any construction or solve sees it. The rule reads each part's declared gate law, never its identity.
         var loop = SupplyCycles.NonmonotoneCycle(

@@ -53,7 +53,7 @@ public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryEl
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(0f, .62f, 0f), Vector3.UnitY)
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new Vector3(0f, .62f, 0f), Vector3.UnitY)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
@@ -67,7 +67,7 @@ public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryEl
 
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.Source, null, PortSocket.Supply,
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.Source, null, PortId.Supply,
         Store: new("capacity", "power_limit", "initial_charge", "enabled"));
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>

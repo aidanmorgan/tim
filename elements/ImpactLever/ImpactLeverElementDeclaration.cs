@@ -39,9 +39,10 @@ public sealed class ImpactLeverElementDeclaration : IHingeElement, ISceneGeometr
     public IReadOnlyList<PortDescriptor> Ports =>
     [
         new(
-            PortSocket.TieA,
+            PortId.TieA,
             SimulationDomain.Rope,
             PortDirection.Bidirectional,
+            PortRole.TieA,
             null,
             new(-1.8f, 0f, 0f),
             -Vector3.UnitX,
@@ -49,9 +50,10 @@ public sealed class ImpactLeverElementDeclaration : IHingeElement, ISceneGeometr
             null,
             new PackageBodyIndex(1)),
         new(
-            PortSocket.TieB,
+            PortId.TieB,
             SimulationDomain.Rope,
             PortDirection.Bidirectional,
+            PortRole.TieB,
             null,
             new(1.8f, 0f, 0f),
             Vector3.UnitX,

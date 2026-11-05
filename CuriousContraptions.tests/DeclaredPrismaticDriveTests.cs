@@ -14,7 +14,7 @@ public sealed class DeclaredPrismaticDriveTests
 {
     private const float H = 1f / 480f; // the canonical physical substep
     private static WorkshopConnection Power(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
 
     /// <summary>One substep state of a body: its centre of mass and linear velocity, from the committed motion pieces.</summary>
     private readonly record struct Substep(Vector3 Centre, Vector3 Velocity);
@@ -179,7 +179,7 @@ public sealed class DeclaredPrismaticDriveTests
             enabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         SupplyNodeDeclaration[] nodes = [new(battery,SupplyNodeKind.Source,source.Id),
             new(frame,SupplyNodeKind.Consumer,Consumers:[..joints.Select(SupplyConsumer.Prismatic)])];
-        SupplyEdge[] edges = [new(battery,frame,WorkshopSocket.PowerIn)];
+        SupplyEdge[] edges = [new(battery,frame,PortRole.PowerIn)];
         var graph = new CompiledSupplyGraph(nodes,edges,[source],baseScene.Prismatics,baseScene.PrismaticDrives,[],[],baseScene.Bodies);
         Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph(
             [nodes[0],nodes[1] with { Consumers=[SupplyConsumer.Prismatic(joints[0]),SupplyConsumer.Prismatic(joints[0])] }],edges,[source],
@@ -757,7 +757,7 @@ public static class NativeTwoDriveScenario
         var owner = WorkshopInput.Generic(new(entry.Metadata.Id), new(1), 0, 5, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 4, 5, 0, enabled: enabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(owner, battery))
-            { Connections = new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, owner.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)) };
+            { Connections = new(new WorkshopConnection(battery.Id, PortId.Supply, owner.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) };
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var owned = scene.Prismatics.ToArray().Where(joint => joint.BodyA == owner.Id).ToArray();
         Assert.Equal(2, owned.Length);

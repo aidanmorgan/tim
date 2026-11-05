@@ -39,9 +39,9 @@ public sealed class PlateGuardTests
     private static WorkshopGenericInstance Battery(ulong id, double z) => PlacedParts.Battery(new(id), 3, (float)(GateHeight), (float)(z));
     private static IWorkshopInstance Lamp(ulong id, double z) => PlacedParts.Lamp(new(id), 6, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.ActivationOut, target, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        new(source, PortId.ActivationOut, target, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] links) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
 

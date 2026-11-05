@@ -15,9 +15,9 @@ public sealed class NoFixedCapacityTests
     private static WorkshopConstruction Bench(IReadOnlyList<IWorkshopInstance> instances, params WorkshopConnection[] links) =>
         new(new(2), WorkshopCadenceSettings.Default(), new([.. instances]), Connections: new(links));
     private static WorkshopConnection Signal(GpuBodyId a, GpuBodyId b) =>
-        new(a, WorkshopSocket.ActivationOut, b, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        new(a, PortId.ActivationOut, b, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConnection Supply(GpuBodyId a, GpuBodyId b) =>
-        new(a, WorkshopSocket.Supply, b, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(a, PortId.Supply, b, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     private static int Dynamic(PhysicsSceneDeclaration scene) => scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic);
 
     /// <summary>One row of parts along x, 1.6 m apart, so no moving part starts inside a neighbour.</summary>

@@ -20,14 +20,14 @@ public static class WorkshopSupplyCompiler
                 nodes.Add(new(instance.Id,SupplyNodeKind.Contact));
             else if(kind==SupplyCapabilityKind.LogicGate)
                 nodes.Add(new(instance.Id,SupplyNodeKind.LogicGate, Operation: entry.Electrical!.Supply!.Value.Operation));
-            else if(entry.Ports.Any(port=>port.Socket==CuriousContraptions.Abstractions.PortSocket.PowerIn))
+            else if(entry.Ports.Any(port=>port.Role==CuriousContraptions.Abstractions.PortRole.PowerIn))
                 nodes.Add(new(instance.Id,SupplyNodeKind.Consumer));
         }
         var byOwner=nodes.ToDictionary(node=>node.Owner);
         var edges=construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical &&
             byOwner.TryGetValue(link.Source,out var from) && from.Kind!=SupplyNodeKind.Consumer &&
             byOwner.TryGetValue(link.Target,out var to) && to.Kind!=SupplyNodeKind.Source)
-            .Select(link=>new SupplyEdge(link.Source,link.Target,link.Input)).ToArray();
+            .Select(link=>new SupplyEdge(link.Source,link.Target,DeclaredPorts.Current.Role(construction.Instances.Single(i=>i.Id==link.Target).PartId,link.Input))).ToArray();
         return new(nodes.ToArray(),edges);
     }
 }

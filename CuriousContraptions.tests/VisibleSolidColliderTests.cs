@@ -689,7 +689,7 @@ public sealed class VisibleSolidColliderTests
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([
                 Place(new PartId("switch"), Element, new(0, (float)Y, 0), tip),
                 Place(new PartId("lamp"), Lamp, new(6, (float)Y, 0), NumQuaternion.Identity), BallAt(new(.33f, (float)Y + 1, z))],
-            new WorkshopConnection(Element, WorkshopSocket.ActivationOut, Lamp, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+            new WorkshopConnection(Element, PortId.ActivationOut, Lamp, PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         await ring.Advance(90);
         // Below the tipped base's lowest corner, (0.55 + 0.5)/√2 = 0.742 m under the origin, less the radius, the ball is past it.
         var past = Y - (.55 + .5) / Math.Sqrt(2) - BallRadius;
@@ -712,7 +712,7 @@ public sealed class VisibleSolidColliderTests
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([
                 Place(new PartId("switch"), Element, new(0, (float)Y, 0), NumQuaternion.Identity),
                 Place(new PartId("lamp"), Lamp, new(6, (float)Y, 0), NumQuaternion.Identity), BallAt(new(.58f, (float)(rest + .5), 0))],
-            new WorkshopConnection(Element, WorkshopSocket.ActivationOut, Lamp, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+            new WorkshopConnection(Element, PortId.ActivationOut, Lamp, PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         await ring.Advance(90);
         double lowest = double.PositiveInfinity, fastest = 0;
         foreach (var read in ring.Reads)

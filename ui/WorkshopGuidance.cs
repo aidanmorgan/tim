@@ -1,4 +1,5 @@
 using Godot;
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 using System;
 using System.Linq;
@@ -328,7 +329,7 @@ public partial class Workshop
         _cancelButton.Visible = !_inRun && (_tool is not null || _linkSource is not null);
         _connectionChoices.Visible = (CanEdit && (_selected is not null || _linkSource is not null)) ||
             (_selected?.Definition?.PartId is { } selectedPart && (DeclaredPhysics.RunControls(selectedPart).Count != 0 ||
-                World.Registry.Ports.Has(selectedPart, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional)) &&
+                World.Registry.Ports.Has(selectedPart, PortRole.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional)) &&
                 World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused);
         _removeButton.Visible = _preview == null && _selected is { Locked: false };
         _partTools.Visible = !_inRun && target is { Locked: false } && !_rotationGizmo.Dragging && !_optionsPanel.Visible;

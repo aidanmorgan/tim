@@ -12,7 +12,7 @@ public sealed class ElectricalXorTests
     internal static readonly PartId Kind=new("electrical_xor");
     private const ulong Supply=7, Gate=8, Consumer=9;
     private static readonly bool[] XorTruth=[false,true,true,false]; // rows 00, 01, 10, 11 (CAT-027 X1)
-    private static WorkshopConnection Link(ulong source,ulong target,WorkshopSocket input=WorkshopSocket.PowerIn)=>BothGateTests.Link(source,target,input);
+    private static WorkshopConnection Link(ulong source,ulong target,PortId input=default)=>BothGateTests.Link(source,target,input == default ? PortId.PowerIn : input);
     private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), (float)(x), 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     private static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=Gate)=>BothGateTests.Logic(read,owner);
     private static bool Powered(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==Consumer).SupplyClosed;
@@ -36,7 +36,7 @@ public sealed class ElectricalXorTests
         var gate=WorkshopInput.Generic(Kind,new(Gate),3,3,0,0,0,0,1);
         if(gateFirst) parts.Insert(0,gate); else parts.Add(gate);
         parts.Add(WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1));
-        var links=new[]{Link(1,3),Link(2,4),Link(3,Gate,WorkshopSocket.FirstIn),Link(4,Gate,WorkshopSocket.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)};
+        var links=new[]{Link(1,3),Link(2,4),Link(3,Gate,PortId.FirstIn),Link(4,Gate,PortId.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)};
         if(reverseLinks) Array.Reverse(links);
         return new(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(links));
     }
@@ -166,13 +166,13 @@ public sealed class ElectricalXorTests
             WorkshopInput.Generic(Kind,new(xor),3,3,0,0,0,0,1),
             WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)};
         if(gateFirst) parts.Reverse();
-        var links=new[]{Link(1,xor,WorkshopSocket.FirstIn),Link(2,either),Link(either,xor,WorkshopSocket.SecondIn),Link(2,xor),Link(xor,Consumer)};
+        var links=new[]{Link(1,xor,PortId.FirstIn),Link(2,either),Link(either,xor,PortId.SecondIn),Link(2,xor),Link(xor,Consumer)};
         if(reverseLinks) Array.Reverse(links);
         var single=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(links));
         var (built,control,_)=await WorkshopIntegrationHarness.ObserveReset(single,90);
         Assert.All(control,read=>{Assert.Equal(ElectricalInputState.FirstOnly,Logic(read,xor).Inputs);Assert.True(Logic(read,xor).Active);Assert.True(Powered(read));});
         Assert.True(BladeY(control[^1])>BladeY(built)+.2f); // the control: the same consumer really opens on the 10 row
-        var wired=links.Append(Link(1,either,WorkshopSocket.FirstIn)).ToArray();
+        var wired=links.Append(Link(1,either,PortId.FirstIn)).ToArray();
         if(reverseLinks) Array.Reverse(wired);
         var reconvergent=single with {Connections=new(wired)};
         var (rest,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(reconvergent,90);
@@ -195,11 +195,11 @@ public sealed class ElectricalXorTests
             WorkshopInput.Generic(ElectricalOrTests.Kind,new(6),-4,3,-6,0,0,0,1),
             WorkshopInput.Generic(Kind,new(Gate),3,3,0,0,0,0,1),
             WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
-            Connections:new(Link(4,6,WorkshopSocket.FirstIn),Link(1,4,WorkshopSocket.SecondIn),Link(2,4),Link(2,6),
-                Link(6,Gate,WorkshopSocket.FirstIn),Link(2,Gate),Link(Gate,Consumer)));
+            Connections:new(Link(4,6,PortId.FirstIn),Link(1,4,PortId.SecondIn),Link(2,4),Link(2,6),
+                Link(6,Gate,PortId.FirstIn),Link(2,Gate),Link(Gate,Consumer)));
         return closed?construction with {Connections=construction.Connections.With(OrLoopClosing)}:construction;
     }
-    internal static readonly WorkshopConnection OrLoopClosing=Link(6,4,WorkshopSocket.FirstIn);
+    internal static readonly WorkshopConnection OrLoopClosing=Link(6,4,PortId.FirstIn);
 
     [Fact]
     public async Task OrLoopFeedingTheGateIsAdmittedAndPowersIt()
@@ -232,17 +232,17 @@ public sealed class ElectricalXorTests
         var supply=Battery(1,-8,true);
         var (parts,links,closing,ids)=loop switch
         {
-            FeedbackLoop.XorToXor => (new[]{supply,Xor(4,0),Xor(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
-                Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
+            FeedbackLoop.XorToXor => (new[]{supply,Xor(4,0),Xor(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,PortId.FirstIn)},
+                Link(6,4,PortId.FirstIn),"4, 6"),
             // X9: Xor → Or → Xor.
-            FeedbackLoop.WithOr => (new[]{supply,Xor(4,0),Either(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
-                Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
-            FeedbackLoop.WithNand => (new[]{supply,Xor(4,0),Nand(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
-                Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
+            FeedbackLoop.WithOr => (new[]{supply,Xor(4,0),Either(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,PortId.FirstIn)},
+                Link(6,4,PortId.SecondIn),"4, 6"),
+            FeedbackLoop.WithNand => (new[]{supply,Xor(4,0),Nand(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,PortId.FirstIn)},
+                Link(6,4,PortId.SecondIn),"4, 6"),
             // X8/X10: Xor output → switch PowerIn, switch Supply → Xor FirstIn, with the contact open.
             FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Xor(4,0),WorkshopInput.Generic(new PartId("switch"),new(6),4,1,0,0,0,0,1)},
-                new[]{Link(1,4),Link(4,6)},Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
-            FeedbackLoop.EnteringPowerIn => (new[]{supply,Xor(4,0),Either(6,4)},new[]{Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
+                new[]{Link(1,4),Link(4,6)},Link(6,4,PortId.FirstIn),"4, 6"),
+            FeedbackLoop.EnteringPowerIn => (new[]{supply,Xor(4,0),Either(6,4)},new[]{Link(1,6),Link(4,6,PortId.FirstIn)},
                 Link(6,4),"4, 6"),
             _ => throw new ArgumentOutOfRangeException(nameof(loop))
         };
@@ -286,7 +286,7 @@ public sealed class ElectricalXorTests
         var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
         var edges=WorkshopSupplyCompiler.Compile(open,DeclaredPhysics.Of).Edges;
         _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,scene.Bodies);
-        var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,closing.Input)).ToArray();
+        var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,Enum.Parse<PortRole>(closing.Input.Value))).ToArray();
         var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,scene.Bodies));
         Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",invariant.Message);
     }
@@ -305,9 +305,9 @@ public sealed class ElectricalXorTests
         }
         Assert.Equal(LogicGateOperation.Xor,DeclaredPhysics.Of(Kind).Electrical!.Supply!.Value.Operation);
         var construction=SwitchMachine(ElectricalInputState.Neither,true);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,(WorkshopSocket)255))}).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,new PortId("invalid")))}).Validate());
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(
-            new(new(3),WorkshopSocket.ActivationOut,new(Gate),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation))}).Validate());
+            new(new(3),PortId.ActivationOut,new(Gate),PortId.ActivationIn,WorkshopConnectionDomain.Activation))}).Validate());
         Assert.DoesNotContain(DeclaredPorts.Current.Of(Kind).ToArray(),port=>port.Domain==WorkshopConnectionDomain.Activation);
     }
 
@@ -318,7 +318,7 @@ public sealed class ElectricalXorTests
             Battery(1,-8,false),Battery(2,-5,false),Battery(3,-2,true),
             WorkshopInput.Generic(Kind,new(4),3,3,0,0,0,0,1),
             WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
-            Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,Consumer)));
+            Connections:new(Link(1,4,PortId.FirstIn),Link(2,4,PortId.SecondIn),Link(3,4),Link(4,Consumer)));
 
     /// <summary>Battery controls reaching each row in turn: 00, 10, 01, 11 supplied, then 01 without supply.</summary>
     internal static readonly ((GpuBodyId Owner,RunControlValue Value)[] Controls,ElectricalInputState Inputs,bool Supplied,bool Active)[] Rows=

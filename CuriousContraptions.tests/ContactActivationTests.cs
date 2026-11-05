@@ -94,7 +94,7 @@ public sealed class ContactActivationTests
     {
         var construction = Construction();
         if (connected) construction = construction with { Connections = new(new WorkshopConnection(new(2),
-            WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
+            PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)) };
         var source = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var collider = source.Colliders.ToArray().First(c => c.Body == new GpuBodyId(2));
         return (WorkshopActivationCompiler.Compile(construction), new(source.Triggers[0].Id, new(2), new(1),
@@ -149,8 +149,8 @@ public sealed class ContactActivationTests
     [Fact]
     public void ReadContractRejectsWrongIdentityRouteInitialAndFutureActivation()
     {
-        var construction = Construction() with { Connections = new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut,
-            new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
+        var construction = Construction() with { Connections = new(new WorkshopConnection(new(2), PortId.ActivationOut,
+            new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)) };
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var (network, impact) = Activation();
         var active = Consume(network, network.Clear(), new[] { impact });
@@ -182,7 +182,7 @@ public sealed class ContactActivationTests
                 new([new(new ParameterId("trigger_threshold"), 1.234567f)])),
             PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
         if (connected) construction = construction with { Connections = new(new WorkshopConnection(new(2),
-            WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
+            PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)) };
         var saved = new WorkshopSavedConstruction(construction, new(4));
         var bytes = WorkshopSaveCodec.Encode(saved);
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
@@ -243,7 +243,7 @@ public sealed class ContactActivationTests
             var construction = Construction() with { Instances = new(
                 WorkshopInput.Generic(new PartId("ball"),new(1), -.88f, .85f, 0, 0, 0, 0, 1), trigger,
                 PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
-                Connections = new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
+                Connections = new(new WorkshopConnection(new(2), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)) };
             var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
             Assert.Equal(threshold, Assert.Single(scene.Triggers.ToArray()).Threshold.Value);
             var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));

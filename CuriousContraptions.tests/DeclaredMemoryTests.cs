@@ -19,8 +19,8 @@ public sealed class DeclaredMemoryTests
         Assert.Equal(new CuriousContraptions.Abstractions.Signal.SignalPulseCountDescriptor("target_count"), counter.PulseCount);
         Assert.Null(counter.Memory);
         var latch = DeclaredPhysics.Of(new PartId("latch")).Signal!;
-        Assert.Equal(new CuriousContraptions.Abstractions.Signal.SignalMemoryDescriptor(CuriousContraptions.Abstractions.PortSocket.SetIn,
-            CuriousContraptions.Abstractions.PortSocket.ResetIn), latch.Memory);
+        Assert.Equal(new CuriousContraptions.Abstractions.Signal.SignalMemoryDescriptor(CuriousContraptions.Abstractions.PortId.SetIn,
+            CuriousContraptions.Abstractions.PortId.ResetIn), latch.Memory);
         Assert.Null(latch.PulseCount);
         // Exactly these two packages declare either capability.
         Assert.Equal([new PartId("counter"), new PartId("latch")], SaveFixture.Elements.Where(part => DeclaredPhysics.Of(part).Signal is { } signal &&

@@ -18,13 +18,13 @@ public sealed class LatchSupplyFixtureTests
     private static readonly (float Sin, float Cos) Tilt = MathF.SinCos(TiltDegrees * MathF.PI / 180f);
 
     private static WorkshopConnection Power(ulong source, ulong target) =>
-        new(new(source), WorkshopSocket.Supply, new(target), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
-    private static WorkshopConnection Signal(ulong source, ulong target, WorkshopSocket input) =>
-        new(new(source), WorkshopSocket.ActivationOut, new(target), input, WorkshopConnectionDomain.Activation);
+        new(new(source), PortId.Supply, new(target), PortId.PowerIn, WorkshopConnectionDomain.Electrical);
+    private static WorkshopConnection Signal(ulong source, ulong target, PortId input) =>
+        new(new(source), PortId.ActivationOut, new(target), input, WorkshopConnectionDomain.Activation);
     private static readonly WorkshopConnection[] FiveConnections =
     [
-        Power(Battery, Latch), Power(Latch, Gate), Signal(SwitchA, Latch, WorkshopSocket.SetIn), Signal(SwitchB, Latch, WorkshopSocket.ResetIn),
-        Signal(Latch, Lamp, WorkshopSocket.ActivationIn)
+        Power(Battery, Latch), Power(Latch, Gate), Signal(SwitchA, Latch, PortId.SetIn), Signal(SwitchB, Latch, PortId.ResetIn),
+        Signal(Latch, Lamp, PortId.ActivationIn)
     ];
 
     /// <summary>The one fixture builder (spec D5/D7). Ball B's drop height times Switch B's strike; null leaves Switch B unstruck.

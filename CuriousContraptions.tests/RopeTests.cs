@@ -13,7 +13,7 @@ public sealed class RopeTests
         var anchor = WorkshopInput.Generic(new("rope_anchor"), new(1), 0f, 6f, -.18f, 0f, 0f, 0f, 1f);
         var weight = WeightTests.Placed(2, 0, 3 - .57710344f, 0, 4f);
         return new(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight), Connections: connected
-            ? new(new WorkshopConnection(new(1), WorkshopSocket.Tie, new(2), WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, length))
+            ? new(new WorkshopConnection(new(1), PortId.Tie, new(2), PortId.Tie, WorkshopConnectionDomain.Rope, length))
             : WorkshopConnections.Empty);
     }
 
@@ -70,13 +70,13 @@ public sealed class RopeTests
     public async Task ALoadAtRestOnATautRopeCommitsNoVelocityLikeOneRestingOnTheBench(float mass, Support support)
     {
         var anchor = WorkshopInput.Generic(new("rope_anchor"), new(1), 0f, 6f, -.18f, 0f, 0f, 0f, 1f);
-        var tie = DeclaredPorts.Current.LocalPosition(WeightTests.Placed(2, 0, 0, 0, mass), WorkshopSocket.Tie).Y;
+        var tie = DeclaredPorts.Current.LocalPosition(WeightTests.Placed(2, 0, 0, 0, mass), PortId.Tie).Y;
         var hang = 3f - tie;
         var bench = (float)WorkshopConstruction.WorkbenchSurface.Value;
         var weight = WeightTests.Placed(2, 0, support == Support.Rope ? hang : bench, 0, mass);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight), Connections:
             support == Support.Rope
-                ? new(new WorkshopConnection(anchor.Id, WorkshopSocket.Tie, weight.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, 3f))
+                ? new(new WorkshopConnection(anchor.Id, PortId.Tie, weight.Id, PortId.Tie, WorkshopConnectionDomain.Rope, 3f))
                 : WorkshopConnections.Empty);
         await using var harness = await WorkshopIntegrationHarness.Running(construction);
         var reads = await harness.Advance(RestTicks);
@@ -229,7 +229,7 @@ public sealed class RopeTests
     [Fact]
     public void OpenGuideTopologyIsIncompleteAndCyclesOrBranchesRefuse()
     {
-        WorkshopConnection Edge(ulong a, ulong b) => new(new(a), WorkshopSocket.Tie, new(b), WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, 1f);
+        WorkshopConnection Edge(ulong a, ulong b) => new(new(a), PortId.Tie, new(b), PortId.Tie, WorkshopConnectionDomain.Rope, 1f);
         RopeAttachmentRole Role(RopeTopology.Endpoint endpoint) => endpoint.Body.Value == 1 ? RopeAttachmentRole.Load : RopeAttachmentRole.Guide;
         var route = Assert.Single(RopeTopology.Compile([Edge(2, 1), Edge(3, 2)], Role));
         Assert.False(route.Complete); Assert.Equal(new GpuBodyId(1), route.Attachments[0].Body);
@@ -250,7 +250,7 @@ public sealed class RopeTests
     public void TieTracksTheActualMassScaledEye(float mass)
     {
         var instance = WeightTests.Placed(2, 0, 3, 0, mass);
-        var tie = DeclaredPorts.Current.LocalPosition(instance, WorkshopSocket.Tie);
+        var tie = DeclaredPorts.Current.LocalPosition(instance, PortId.Tie);
         var expected = .5771f * (.136734f * mass + .453070f);
         Assert.InRange(MathF.Abs(tie.Y - expected), 0f, 1e-6f); // bounded linear evaluation roundoff, metres
         Assert.Equal(0f, tie.X); Assert.Equal(0f, tie.Z);
@@ -268,7 +268,7 @@ public sealed class RopeTests
             var a = new GpuBodyId((ulong)i * 2 + 1); var b = new GpuBodyId(a.Value + 1);
             parts.Add(WorkshopInput.Generic(new("rope_anchor"), a, x, 6f, z - .18f, 0, 0, 0, 1));
             parts.Add(WeightTests.Placed(b.Value, x, 3f - .57710344f, z, 4));
-            links.Add(new(a, WorkshopSocket.Tie, b, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, 3f));
+            links.Add(new(a, PortId.Tie, b, PortId.Tie, WorkshopConnectionDomain.Rope, 3f));
         }
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts.ToArray()), Connections: new(links.ToArray()));
         await using var world = await WorkshopIntegrationHarness.Running(construction);
@@ -343,7 +343,7 @@ public sealed class RopeTests
         var lower = WeightTests.Placed(1, 0, -.46f, 0, 4f);
         var upper = WeightTests.Placed(2, 0, 2, 0, 4f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(lower, upper),
-            Connections: new(new WorkshopConnection(lower.Id, WorkshopSocket.Tie, upper.Id, WorkshopSocket.Tie,
+            Connections: new(new WorkshopConnection(lower.Id, PortId.Tie, upper.Id, PortId.Tie,
                 WorkshopConnectionDomain.Rope, 10f)));
         foreach (var cut in new[] { false, true })
         {
@@ -628,8 +628,8 @@ public sealed class RopeTests
         var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
         var p2 = WorkshopInput.Generic(new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
         var b = WeightTests.Placed(4, 2.4f, heightB, 0f, massB);
-        var tieA = DeclaredPorts.Current.LocalPosition(a, WorkshopSocket.Tie);
-        var tieB = DeclaredPorts.Current.LocalPosition(b, WorkshopSocket.Tie);
+        var tieA = DeclaredPorts.Current.LocalPosition(a, PortId.Tie);
+        var tieB = DeclaredPorts.Current.LocalPosition(b, PortId.Tie);
         var posA = new Vector3(-2.4f, heightA, 0f) + tieA;
         var posB = new Vector3(2.4f, heightB, 0f) + tieB;
         var guides = new RouteGuideFrame[]
@@ -643,9 +643,9 @@ public sealed class RopeTests
         var remaining = MathF.Max(0.1f, len - span1);
         var span0 = remaining * 0.5f;
         var span2 = remaining * 0.5f;
-        var link0 = new WorkshopConnection(a.Id, WorkshopSocket.Tie, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
-        var link1 = new WorkshopConnection(p1.Id, WorkshopSocket.Tie, p2.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
-        var link2 = new WorkshopConnection(p2.Id, WorkshopSocket.Tie, b.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span2);
+        var link0 = new WorkshopConnection(a.Id, PortId.Tie, p1.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span0);
+        var link1 = new WorkshopConnection(p1.Id, PortId.Tie, p2.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span1);
+        var link2 = new WorkshopConnection(p2.Id, PortId.Tie, b.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span2);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(a, p1, p2, b),
             Connections: new(link0, link1, link2));
         return (construction, a.Id, p1.Id, p2.Id, b.Id, len);
@@ -762,7 +762,7 @@ public sealed class RopeTests
         var anchor = WorkshopInput.Generic(new("rope_anchor"), new(1), -2f, 6f, -.18f, 0, 0, 0, 1);
         var pulley = WorkshopInput.Generic(new("pulley"), new(2), 0f, 6f, -.12f, 0, 0, 0, 1);
         var weight = WeightTests.Placed(3, 0.4f, 3f, 0f, 4f);
-        var tieWeight = DeclaredPorts.Current.LocalPosition(weight, WorkshopSocket.Tie);
+        var tieWeight = DeclaredPorts.Current.LocalPosition(weight, PortId.Tie);
         var posAnchor = new Vector3(-2f, 6f, 0f);
         var posWeight = new Vector3(0.4f, 3f, 0f) + tieWeight;
         var guides = new RouteGuideFrame[]
@@ -773,8 +773,8 @@ public sealed class RopeTests
         var totalLength = evaluated.TotalLength;
         var span0 = Vector3.Distance(posAnchor, new Vector3(0f, 6.4f, 0f));
         var span1 = totalLength - span0;
-        var link0 = new WorkshopConnection(anchor.Id, WorkshopSocket.Tie, pulley.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
-        var link1 = new WorkshopConnection(pulley.Id, WorkshopSocket.Tie, weight.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
+        var link0 = new WorkshopConnection(anchor.Id, PortId.Tie, pulley.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span0);
+        var link1 = new WorkshopConnection(pulley.Id, PortId.Tie, weight.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(anchor, pulley, weight),
             Connections: new(link0, link1));
 
@@ -893,7 +893,7 @@ public sealed class RopeTests
     public void MalformedGuideLengthsRefuseAtomically(float length)
     {
         WorkshopConnection Edge(ulong a, ulong b, float len) =>
-            new(new(a), WorkshopSocket.Tie, new(b), WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, len);
+            new(new(a), PortId.Tie, new(b), PortId.Tie, WorkshopConnectionDomain.Rope, len);
         RopeAttachmentRole Role(RopeTopology.Endpoint endpoint) =>
             endpoint.Body.Value is 2 or 3 ? RopeAttachmentRole.Guide : RopeAttachmentRole.Load;
 
@@ -905,7 +905,7 @@ public sealed class RopeTests
     public void MalformedGuideTopologyBranchingCycleAndGuideEndpointsRefuse()
     {
         WorkshopConnection Edge(ulong a, ulong b) =>
-            new(new(a), WorkshopSocket.Tie, new(b), WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, 1f);
+            new(new(a), PortId.Tie, new(b), PortId.Tie, WorkshopConnectionDomain.Rope, 1f);
         RopeAttachmentRole Role(RopeTopology.Endpoint endpoint) =>
             endpoint.Body.Value is 2 or 3 ? RopeAttachmentRole.Guide : RopeAttachmentRole.Load;
 

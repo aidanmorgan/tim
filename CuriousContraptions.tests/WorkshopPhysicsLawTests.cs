@@ -265,7 +265,7 @@ internal sealed class LawScene
     public void Consumer(GpuBodyId owner, ElectricalSourceDeclaration? source, params SupplyConsumer[] drives)
     {
         _supplyNodes.Add(new(owner, SupplyNodeKind.Consumer, Consumers: [.. drives]));
-        if (source is { } wired) _supplyEdges.Add(new(wired.Owner, owner, WorkshopSocket.PowerIn));
+        if (source is { } wired) _supplyEdges.Add(new(wired.Owner, owner, PortRole.PowerIn));
     }
     private readonly List<ElectricalSourceDeclaration> _sources = [];
     private readonly List<SupplyNodeDeclaration> _supplyNodes = [];

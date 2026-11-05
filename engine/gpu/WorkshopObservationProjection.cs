@@ -73,8 +73,8 @@ internal static class WorkshopObservationProjection
         using var connections = T.Array();
         foreach (var connection in source.Connections)
         {
-            using var item = T.Object(); item.SetProperty("source", Exact(connection.Source.Value)); item.SetProperty("output", EnumValue(connection.Output));
-            item.SetProperty("target", Exact(connection.Target.Value)); item.SetProperty("input", EnumValue(connection.Input)); item.SetProperty("domain", EnumValue(connection.Domain)); connections.Push(item);
+            using var item = T.Object(); item.SetProperty("source", Exact(connection.Source.Value)); item.SetProperty("output", connection.Output.Value);
+            item.SetProperty("target", Exact(connection.Target.Value)); item.SetProperty("input", connection.Input.Value); item.SetProperty("domain", EnumValue(connection.Domain)); connections.Push(item);
         }
         value.SetProperty("connections", connections);
         return value;

@@ -219,7 +219,7 @@ public sealed class ContactWorkInstanceTests
         var battery = PlacedParts.Battery(Source, 3, 1, 0, powerLimit: 10f);
         var bench = Drop(new PartId("bowling"), 6, 8f);
         bench = bench with { Instances = bench.Instances.With(battery) };
-        if (wired) bench = bench with { Connections = new(new WorkshopConnection(Source, WorkshopSocket.Supply, Owner, WorkshopSocket.PowerIn,
+        if (wired) bench = bench with { Connections = new(new WorkshopConnection(Source, PortId.Supply, Owner, PortId.PowerIn,
             WorkshopConnectionDomain.Electrical)) };
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
         Assert.Equal(wired ? 1 : 0, scene.Electrical.Bindings.Length);
@@ -238,8 +238,8 @@ public sealed class ContactWorkInstanceTests
         var battery = PlacedParts.Battery(Source, 3, 1, 0);
         var toggle = WorkshopInput.Generic(new PartId("switch"), new(4), 5, 1, 0, 0, 0, 0, 1);
         var bench = Free(PlacedParts.Bumper(Owner, 0, 3, 0), battery, toggle) with { Connections = new(
-            new WorkshopConnection(Source, WorkshopSocket.Supply, toggle.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
-            new WorkshopConnection(toggle.Id, WorkshopSocket.Supply, Owner, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)) };
+            new WorkshopConnection(Source, PortId.Supply, toggle.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
+            new WorkshopConnection(toggle.Id, PortId.Supply, Owner, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) };
         EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
     }
 
@@ -254,8 +254,8 @@ public sealed class ContactWorkInstanceTests
             PlacedParts.Bumper(Owner, 0, 3, 0, (float)(strength), qz: rotation.Z, qw: rotation.W),
             PlacedParts.Battery(Source, 3, 1, 0)) with
         {
-            Connections = new(new WorkshopConnection(Source, WorkshopSocket.Supply, Owner,
-                WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical))
+            Connections = new(new WorkshopConnection(Source, PortId.Supply, Owner,
+                PortId.PowerIn, WorkshopConnectionDomain.Electrical))
         };
         var bench = Bench(.1);
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));

@@ -135,26 +135,26 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var ports = DeclaredPorts.Current.Of(new PartId("counter")).ToArray();
         Assert.Equal(4, ports.Length);
 
-        var actIn = ports.First(p => p.Socket == WorkshopSocket.ActivationIn);
+        var actIn = ports.First(p => p.Id == PortId.ActivationIn);
         Assert.Equal(WorkshopConnectionDomain.Activation, actIn.Domain);
         Assert.Equal(WorkshopPortDirection.Input, actIn.Direction);
 
-        var actOut = ports.First(p => p.Socket == WorkshopSocket.ActivationOut);
+        var actOut = ports.First(p => p.Id == PortId.ActivationOut);
         Assert.Equal(WorkshopConnectionDomain.Activation, actOut.Domain);
         Assert.Equal(WorkshopPortDirection.Output, actOut.Direction);
 
-        var powerIn = ports.First(p => p.Socket == WorkshopSocket.PowerIn);
+        var powerIn = ports.First(p => p.Id == PortId.PowerIn);
         Assert.Equal(WorkshopConnectionDomain.Electrical, powerIn.Domain);
         Assert.Equal(WorkshopPortDirection.Input, powerIn.Direction);
 
-        var supply = ports.First(p => p.Socket == WorkshopSocket.Supply);
+        var supply = ports.First(p => p.Id == PortId.Supply);
         Assert.Equal(WorkshopConnectionDomain.Electrical, supply.Domain);
         Assert.Equal(WorkshopPortDirection.Output, supply.Direction);
 
-        Assert.Equal(new System.Numerics.Vector3(0f, 0.72f, 0.1f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), WorkshopSocket.ActivationIn));
-        Assert.Equal(new System.Numerics.Vector3(0f, -0.72f, 0.1f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), WorkshopSocket.ActivationOut));
-        Assert.Equal(new System.Numerics.Vector3(-0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), WorkshopSocket.PowerIn));
-        Assert.Equal(new System.Numerics.Vector3(0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), WorkshopSocket.Supply));
+        Assert.Equal(new System.Numerics.Vector3(0f, 0.72f, 0.1f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), PortId.ActivationIn));
+        Assert.Equal(new System.Numerics.Vector3(0f, -0.72f, 0.1f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), PortId.ActivationOut));
+        Assert.Equal(new System.Numerics.Vector3(-0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), PortId.PowerIn));
+        Assert.Equal(new System.Numerics.Vector3(0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("counter"), PortId.Supply));
     }
 
     // C-Memory (D3): the target is the declared WholeNumber target_count, [1, 9], default 3 (the former placement value, so a newly
@@ -182,16 +182,16 @@ public sealed class CounterTests(NativeSceneFixture godot)
 
         var instances = new WorkshopInstances(counter, detector, lamp, battery, gate);
 
-        var conn1 = new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
-        var conn2 = new WorkshopConnection(counter.Id, WorkshopSocket.ActivationOut, lamp.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
-        var conn3 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, counter.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
-        var conn4 = new WorkshopConnection(counter.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        var conn1 = new WorkshopConnection(detector.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
+        var conn2 = new WorkshopConnection(counter.Id, PortId.ActivationOut, lamp.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
+        var conn3 = new WorkshopConnection(battery.Id, PortId.Supply, counter.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
+        var conn4 = new WorkshopConnection(counter.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
 
         var connections = new WorkshopConnections(conn1, conn2, conn3, conn4);
         connections.Validate(instances);
 
         // Invalid: Activation on electrical socket
-        var invalidConn = new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Activation);
+        var invalidConn = new WorkshopConnection(detector.Id, PortId.ActivationOut, counter.Id, PortId.PowerIn, WorkshopConnectionDomain.Activation);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(invalidConn).Validate(instances));
     }
 
@@ -203,7 +203,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(3), 2, 0, 0, 0, 0, 0, 1);
 
         // Without battery connected: gate blade drag is 0
-        var connNoBattery = new WorkshopConnection(counter.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        var connNoBattery = new WorkshopConnection(counter.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var constructionUnpowered = new WorkshopConstruction(
             new(1),
             WorkshopCadenceSettings.Default(),
@@ -222,7 +222,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
 
         // With battery connected to counter PowerIn and counter Supply to gate PowerIn the gate is a switched route resolved per tick from
         // the Counter's committed contact; the blade carries no mode-encoding drag.
-        var connBattery = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, counter.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        var connBattery = new WorkshopConnection(battery.Id, PortId.Supply, counter.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var constructionPowered = new WorkshopConstruction(
             new(1),
             WorkshopCadenceSettings.Default(),
@@ -243,8 +243,8 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var counter = PlacedParts.Counter(new(2), 0, 0, 0, 0, 0, 0, 1, 3);
         var lamp = PlacedParts.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
 
-        var conn1 = new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
-        var conn2 = new WorkshopConnection(counter.Id, WorkshopSocket.ActivationOut, lamp.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        var conn1 = new WorkshopConnection(detector.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
+        var conn2 = new WorkshopConnection(counter.Id, PortId.ActivationOut, lamp.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
 
         var construction = new WorkshopConstruction(
             new(1),
@@ -327,7 +327,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var detector = PlacedParts.Detector(new(1), -2, 0, 0, 0, 0, 0, 1);
         var counter = PlacedParts.Counter(new(2), 0, 0, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([detector, counter]),
-            Connections: new([new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn,
+            Connections: new([new WorkshopConnection(detector.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn,
                 WorkshopConnectionDomain.Activation)]));
         var network = WorkshopActivationCompiler.Compile(construction);
         var sensor = construction.Instances.Identities[detector.Id].Passage;

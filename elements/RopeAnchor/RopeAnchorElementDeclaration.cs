@@ -14,7 +14,7 @@ public sealed class RopeAnchorElementDeclaration : IMechanicalElement, ISceneGeo
     public ElementFootprint Footprint => new(1, 0, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, null,
+        new(PortId.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, PortRole.Tie, null,
             new(0f, 0f, .18f), Vector3.UnitZ, RopeAttachmentRole.Anchor)
     ];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];

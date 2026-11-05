@@ -14,7 +14,7 @@ public sealed record BundlePackage(string Package, IPuzzleElementDeclaration Dec
 /// (Stories 9A.14 and 9A.18: a missing icon fails the bundle build).</summary>
 public static partial class PackageValidator
 {
-    /// <summary>The scene-resource naming boundary: a socket locator is <c>Loc_Port_&lt;PortSocket&gt;</c>, and a tube mouth locator
+    /// <summary>The scene-resource naming boundary: a socket locator is <c>Loc_Port_&lt;PortId&gt;</c>, and a tube mouth locator
     /// (Story 9R.6) is <c>Loc_Port_mouth_start</c> or <c>Loc_Port_mouth_end</c>.</summary>
     private const string LocatorPrefix = "Loc_Port_";
     private static readonly HashSet<string> TubeMouths = new(StringComparer.Ordinal) { "mouth_start", "mouth_end" };
@@ -61,14 +61,14 @@ public static partial class PackageValidator
             {
                 if (!locators.TryAdd(locator.Name, locator))
                     errors.Add(new(BundleErrorCode.UndeclaredPortLocator, $"{scene}: {LocatorPrefix}{locator.Name} appears more than once"));
-                else if (!TubeMouths.Contains(locator.Name) && !package.Declaration.Ports.Any(port => Enum.GetName(port.Socket) == locator.Name))
+                else if (!TubeMouths.Contains(locator.Name) && !package.Declaration.Ports.Any(port => port.Id.Value == locator.Name))
                     errors.Add(new(BundleErrorCode.UndeclaredPortLocator, $"{scene}: {LocatorPrefix}{locator.Name} names no declared socket or tube mouth"));
             }
             for (var i = 0; i < package.Declaration.Ports.Count; i++)
             {
                 var port = package.Declaration.Ports[i];
-                var name = Enum.GetName(port.Socket);
-                if (name is null) continue; // An undefined socket is refused by the declaration's own validation.
+                var name = port.Id.Value;
+                if (string.IsNullOrWhiteSpace(name)) continue;
                 var where = $"{package.Package}.Ports[{i}]";
                 string expectedParent;
                 if (port.Body.Value == 0) expectedParent = ".";
@@ -118,27 +118,29 @@ public static partial class PackageValidator
         {
             var node = LocatorNode().Match(lines[i]);
             if (!node.Success) continue;
-            Vector3? origin = Vector3.Zero;
-            for (var j = i + 1; j < lines.Length && !lines[j].StartsWith('['); j++)
-            {
-                if (!lines[j].StartsWith("transform = ", StringComparison.Ordinal)) continue;
-                origin = Origin(TransformLine().Match(lines[j]));
-            }
+            var name = node.Groups["name"].Value;
             var parent = ParentAttribute().Match(node.Groups["attributes"].Value);
-            yield return new(node.Groups["name"].Value, parent.Success ? parent.Groups["parent"].Value : ".", origin);
+            Vector3? origin = Vector3.Zero;
+            while (++i < lines.Length && !lines[i].StartsWith('['))
+            {
+                var transform = TransformLine().Match(lines[i]);
+                if (!transform.Success) continue;
+                origin = Origin(transform.Groups["values"].Value);
+                break;
+            }
+            yield return new(name, parent.Success ? parent.Groups["parent"].Value : ".", origin);
         }
     }
 
-    /// <summary>A Transform3D is a basis of nine values followed by the origin's three.</summary>
-    private static Vector3? Origin(Match transform)
+    /// <summary>A Transform3D value's origin vector, or null when the transform is malformed.</summary>
+    private static Vector3? Origin(string values)
     {
-        if (!transform.Success) return null;
-        var values = transform.Groups["values"].Value.Split(',', StringSplitOptions.TrimEntries);
-        if (values.Length != 12) return null;
-        var numbers = new float[3];
-        for (var i = 0; i < 3; i++)
-            if (!float.TryParse(values[9 + i], NumberStyles.Float, CultureInfo.InvariantCulture, out numbers[i]) || !float.IsFinite(numbers[i])) return null;
-        return new(numbers[0], numbers[1], numbers[2]);
+        var parts = values.Split(',').Select(part => part.Trim()).ToArray();
+        if (parts.Length != 12) return null;
+        return float.TryParse(parts[9], NumberStyles.Float, CultureInfo.InvariantCulture, out var x) &
+               float.TryParse(parts[10], NumberStyles.Float, CultureInfo.InvariantCulture, out var y) &
+               float.TryParse(parts[11], NumberStyles.Float, CultureInfo.InvariantCulture, out var z)
+            ? new Vector3(x, y, z) : null;
     }
 
     private static void Asset(string root, string package, string field, string path, List<BundleError> errors)
@@ -147,13 +149,12 @@ public static partial class PackageValidator
             errors.Add(new(BundleErrorCode.MissingAsset, $"{package}.{field}: '{path}' is not a file in elements/{package}/"));
     }
 
-    /// <summary>The file a package asset path names inside the package's own directory, or null when it names none.</summary>
-    private static string? PackageFile(string root, string package, string path)
+    private static string? PackageFile(string root, string package, string resourcePath)
     {
         var prefix = $"res://elements/{package}/";
-        var relative = path.StartsWith(prefix, StringComparison.Ordinal) ? path["res://".Length..] : null;
-        if (relative is null || relative.Contains("..", StringComparison.Ordinal)) return null;
-        var file = Path.Combine(root, relative);
+        if (!resourcePath.StartsWith(prefix, StringComparison.Ordinal)) return null;
+        var relative = resourcePath[prefix.Length..];
+        var file = Path.Combine(root, "elements", package, relative);
         return File.Exists(file) ? file : null;
     }
 }

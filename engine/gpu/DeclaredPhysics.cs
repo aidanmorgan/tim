@@ -36,6 +36,37 @@ public static class DeclaredPhysics
         }
     }
 
+    internal static IDisposable Scoped(IEnumerable<BundleEntry> additional)
+    {
+        ArgumentNullException.ThrowIfNull(additional);
+        lock (Gate)
+        {
+            var previous = _entries;
+            var builder = (_entries ?? ImmutableDictionary<PartId, BundleEntry>.Empty).ToBuilder();
+            foreach (var entry in additional)
+                builder[new PartId(entry.Metadata.Id)] = entry;
+            _entries = builder.ToImmutable();
+            return new Scope(previous);
+        }
+    }
+
+    private sealed class Scope : IDisposable
+    {
+        private ImmutableDictionary<PartId, BundleEntry>? _previous;
+        private bool _disposed;
+        public Scope(ImmutableDictionary<PartId, BundleEntry>? previous) => _previous = previous;
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            lock (Gate)
+            {
+                _entries = _previous;
+                _previous = null;
+            }
+        }
+    }
+
     public static IReadOnlyDictionary<string, float> Parameters(IWorkshopInstance instance) =>
         ((WorkshopGenericInstance)instance).Parameters.ToBundleValues();
 

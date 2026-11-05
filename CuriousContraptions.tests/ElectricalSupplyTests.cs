@@ -15,7 +15,7 @@ public sealed class ElectricalSupplyTests
     {
         var battery = PlacedParts.Battery(new(1), 0, 0, 0, 3600.0002f, 120.00001f, .1234567f, enabled);
         var bumper = WorkshopInput.Generic(new PartId("bumper"), new(2), 3, 4, 0, 0, 0, 0, 1);
-        var link = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, bumper.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        var link = new WorkshopConnection(battery.Id, PortId.Supply, bumper.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(battery, bumper), Connections: new(link));
         construction.Validate();

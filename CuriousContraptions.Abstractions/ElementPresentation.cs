@@ -41,7 +41,7 @@ public enum PresentationEventMagnitude : byte { Any, Positive }
 public readonly record struct PresentationBinding(
     string Node, PresentationProperty Property, PresentationDriver Driver,
     float From, float To, PresentationCurve Curve, float Duration,
-    PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortSocket? Socket = null,
+    PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortId? Socket = null,
     SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
@@ -89,4 +89,3 @@ public static class PresentationDriverRules
                 };
 
 }
-

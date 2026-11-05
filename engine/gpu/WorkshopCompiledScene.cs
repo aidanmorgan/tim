@@ -11,7 +11,7 @@ namespace CuriousContraptions.Gpu;
 public readonly record struct CompiledSceneId(ulong Value);
 public readonly record struct CompiledPresentationBinding(PresentationProperty Property, PresentationDriver Driver,
     float From, float To, PresentationCurve Curve, float Duration, PresentationOverlap Overlap, float Threshold,
-    PresentationTimerPhase Phase, float Response, float? Intermediate, PortSocket? Socket,
+    PresentationTimerPhase Phase, float Response, float? Intermediate, PortRole? Socket,
     SimulationEventKind Event, PresentationEventMagnitude EventMagnitude);
 public readonly record struct CompiledPresentationTrack(AnimationTargetId Target, GpuBodyId Owner, int Binding,
     CompiledPresentationBinding Declaration, ActivationNodeDeclaration Activation, float SourceCapacity);
@@ -104,7 +104,7 @@ public sealed class WorkshopCompiledScene
                 !Enum.IsDefined(d.EventMagnitude) || (d.Socket is { } socket && !Enum.IsDefined(socket)) ||
 
                 (d.Driver == PresentationDriver.CommittedElectricalSocket) != d.Socket.HasValue ||
-                (d.Socket is { } electricalSocket && electricalSocket is not (PortSocket.FirstIn or PortSocket.SecondIn or PortSocket.PowerIn or PortSocket.Supply)) ||
+                (d.Socket is { } electricalSocket && electricalSocket is not (PortRole.FirstIn or PortRole.SecondIn or PortRole.PowerIn or PortRole.Supply)) ||
                 !PresentationDriverRules.Supports(d.Driver, d.Curve, d.Duration, d.Overlap) ||
                 (d.Curve == PresentationCurve.ExponentialFollow ? d.Response <= 0 : d.Response != 0) ||
                 (d.Driver == PresentationDriver.CommittedTimerPhase && d.Phase == PresentationTimerPhase.None) ||

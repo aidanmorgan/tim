@@ -12,7 +12,7 @@ public sealed class DeclaredOrientationTests
 {
     private static readonly double Upright = (double)WorkshopConstruction.WorkbenchSurface.Value + .55;
     private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.ActivationOut, target, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        new(source, PortId.ActivationOut, target, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] links) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
 

@@ -2099,7 +2099,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         var anchorPart = WorkshopInput.Generic(new("rope_anchor"), new(1), TetherAnchor.X, TetherAnchor.Y, TetherAnchor.Z - .18f, 0, 0, 0, 1);
         var weight = WeightTests.Placed(2, TetherAnchor.X, baseY, TetherAnchor.Z, TetherMass);
         return new(new(2), WorkshopCadenceSettings.Default(), new(anchorPart, weight, Bed(3)),
-            Connections: new(new WorkshopConnection(new(1), WorkshopSocket.Tie, new(2), WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, ropeLength)));
+            Connections: new(new WorkshopConnection(new(1), PortId.Tie, new(2), PortId.Tie, WorkshopConnectionDomain.Rope, ropeLength)));
     }
 
     // Harvest row 22. Taut: the rope is cut so the hanging Weight's base rests a 2 cm gap above the bed's rest plane, over a bed it

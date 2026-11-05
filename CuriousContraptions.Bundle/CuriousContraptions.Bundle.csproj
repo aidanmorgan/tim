@@ -14,4 +14,7 @@
     <ProjectReference Include="../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
     <ProjectReference Include="../CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="CuriousContraptions.tests" />
+  </ItemGroup>
 </Project>

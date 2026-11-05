@@ -21,7 +21,7 @@ public sealed class EventRingConsumerTests
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, WorkshopConnection[] links) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
     private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.ActivationOut, target, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        new(source, PortId.ActivationOut, target, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopResponse Response(WorkshopRead read, ulong publication, ulong projection = 1) =>
         new(default, WorkshopResponseKind.Read, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
             read, new(101, 206), new(publication), new(1), new(1), new(projection), new(read.Tick.Value));

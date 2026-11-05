@@ -88,7 +88,7 @@ public sealed class WorkshopIntegrationHarnessTests
         var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         return new(new(2), settings, new(gate, battery), Connections: wired
-            ? new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)) : new());
+            ? new(new WorkshopConnection(battery.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) : new());
     }
 
     [Theory]
@@ -159,7 +159,7 @@ public sealed class WorkshopIntegrationHarnessTests
         var invalid = harness.Construction with
         {
             Revision = new(harness.Construction.Revision.Value + 1),
-            Connections = new(new WorkshopConnection(new(2), WorkshopSocket.Supply, new(999), WorkshopSocket.PowerIn,
+            Connections = new(new WorkshopConnection(new(2), PortId.Supply, new(999), PortId.PowerIn,
                 WorkshopConnectionDomain.Electrical))
         };
         var refusal = await Assert.ThrowsAsync<WorkshopEditRejectedException>(() => harness.Execute(WorkshopCommandKind.Construct, invalid));
@@ -373,7 +373,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             var anchor = WorkshopInput.Generic(new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
             var weight = WeightTests.Placed(2, 1, 2, 0, 4);
             await scene.World.ReplaceConstruction(new(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight)));
-            await scene.ChangeConnectionAsync(new(anchor.Id, WorkshopSocket.Tie, weight.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope), true);
+            await scene.ChangeConnectionAsync(new(anchor.Id, PortId.Tie, weight.Id, PortId.Tie, WorkshopConnectionDomain.Rope), true);
             var link = Assert.Single(scene.World.Construction.Connections);
             void Frame() { scene.World._Process(0); scene._Process(0); }
             Frame();
@@ -457,7 +457,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             var anchor = WorkshopInput.Generic(new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
             var weight = WeightTests.Placed(2, 0, 2, 0, 4);
             await scene.World.ReplaceConstruction(new(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight)));
-            var request = new WorkshopConnection(anchor.Id, WorkshopSocket.Tie, weight.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope);
+            var request = new WorkshopConnection(anchor.Id, PortId.Tie, weight.Id, PortId.Tie, WorkshopConnectionDomain.Rope);
             await scene.ChangeConnectionAsync(request, true);
             var connected = Assert.Single(scene.World.Construction.Connections);
             // Anchor eye is y=6; the four-kilogram load eye is y=2+0.57710344.
@@ -616,7 +616,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             Assert.Equal(0, Assert.IsType<WorkshopGenericInstance>(scene.World.Construction.Instances[1]).Parameters[new("enabled")]);
             await scene.UndoAsync();
             Assert.Equal(1, Assert.IsType<WorkshopGenericInstance>(scene.World.Construction.Instances[1]).Parameters[new("enabled")]);
-            var link = new WorkshopConnection(source.Id, WorkshopSocket.Supply, instances[0].Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+            var link = new WorkshopConnection(source.Id, PortId.Supply, instances[0].Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
             await scene.ChangeConnectionAsync(link, true);
             Assert.Single(scene.World.Construction.Connections);
             await scene.ChangeConnectionAsync(link, false);

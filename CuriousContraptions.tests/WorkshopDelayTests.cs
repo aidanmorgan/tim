@@ -33,8 +33,8 @@ public sealed class WorkshopDelayTests
         var lamp = PlacedParts.Lamp(new(2), 3, 2, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(trigger, lamp, Delay(8.9375f)), Connections: new(
-                new(new(1), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
-                new(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+                new(new(1), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation),
+                new(new(3), PortId.ActivationOut, new(2), PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var saved = new WorkshopSavedConstruction(construction, new(4));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
@@ -96,24 +96,24 @@ public sealed class WorkshopDelayTests
         new WorkshopInstances(instances[4],instances[5],
             WorkshopInput.Generic(new PartId("switch"), new(9),3,1,0,0,0,0,1)).Validate();
         foreach (var edge in new[] {
-            new WorkshopConnection(new(8),WorkshopSocket.ActivationIn,new(7),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation),
-            new WorkshopConnection(new(5),WorkshopSocket.ActivationOut,new(8),WorkshopSocket.ActivationOut,WorkshopConnectionDomain.Activation),
-            new WorkshopConnection(new(8),WorkshopSocket.ActivationOut,new(7),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Electrical) })
+            new WorkshopConnection(new(8),PortId.ActivationIn,new(7),PortId.ActivationIn,WorkshopConnectionDomain.Activation),
+            new WorkshopConnection(new(5),PortId.ActivationOut,new(8),PortId.ActivationOut,WorkshopConnectionDomain.Activation),
+            new WorkshopConnection(new(8),PortId.ActivationOut,new(7),PortId.ActivationIn,WorkshopConnectionDomain.Electrical) })
             EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (construction with {Connections=new(edge)}).Validate());
     }
     [Fact]
     public void PortsAndPuzzlePopulationRemainBounded()
     {
-        Assert.True(DeclaredPorts.Current.Has(new PartId("delay"), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
-        Assert.True(DeclaredPorts.Current.Has(new PartId("delay"), WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
-        Assert.False(DeclaredPorts.Current.Has(new PartId("delay"), WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output));
+        Assert.True(DeclaredPorts.Current.Has(new PartId("delay"), PortId.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
+        Assert.True(DeclaredPorts.Current.Has(new PartId("delay"), PortId.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
+        Assert.False(DeclaredPorts.Current.Has(new PartId("delay"), PortId.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output));
         new WorkshopInstances(Delay(1f), Delay(2f) with {Id=new(4)}).Validate(); // No per-kind delay count in free play.
         var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(Delay(1f)).Validate());
     }
 
     private static WorkshopConnection Signal(ulong source, ulong target) =>
-        new(new(source), WorkshopSocket.ActivationOut, new(target), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        new(new(source), PortId.ActivationOut, new(target), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static ActivationLatch Lamp(WorkshopRead read) =>
         Enumerable.Range(0, read.Activations.Count).Select(i => read.Activations[i]).Single(value => value.Owner.Value == 4);
 

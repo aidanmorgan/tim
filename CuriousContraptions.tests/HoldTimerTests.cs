@@ -13,9 +13,9 @@ public sealed class HoldTimerTests
         WorkshopInput.Generic(Kind, new(3), 3, 2, 0, 0, 0, 0, 1,
             new([new(new ParameterId("hold_seconds"), seconds)]));
     private static WorkshopConnection Signal(ulong from, ulong to) =>
-        new(new(from), WorkshopSocket.ActivationOut, new(to), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        new(new(from), PortId.ActivationOut, new(to), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConnection Power(ulong from, ulong to) =>
-        new(new(from), WorkshopSocket.Supply, new(to), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(new(from), PortId.Supply, new(to), PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     internal static ActivationTimerState State(WorkshopRead read) =>
         Enumerable.Range(0, read.Timers.Count).Select(i => read.Timers[i]).Single(row => row.Node.Value == 3);
     private static ActuatorDriveRead Blade(WorkshopRead read) =>
@@ -177,10 +177,10 @@ public sealed class HoldTimerTests
         };
         var network = new ActivationNetwork(nodes,
         [
-            new(new(1),new(2),WorkshopSocket.ActivationIn),new(new(1),new(3),WorkshopSocket.ActivationIn),
-            new(new(2),new(3),WorkshopSocket.ActivationIn),new(new(2),new(4),WorkshopSocket.ActivationIn),
-            new(new(2),new(6),WorkshopSocket.ResetIn),new(new(5),new(4),WorkshopSocket.ActivationIn),
-            new(new(5),new(6),WorkshopSocket.SetIn)
+            new(new(1),new(2),PortRole.ActivationIn),new(new(1),new(3),PortRole.ActivationIn),
+            new(new(2),new(3),PortRole.ActivationIn),new(new(2),new(4),PortRole.ActivationIn),
+            new(new(2),new(6),PortRole.ResetIn),new(new(5),new(4),PortRole.ActivationIn),
+            new(new(5),new(6),PortRole.SetIn)
         ], contacts: [new(3)]);
         var first = new ContactTriggerRead(new(9),new(1),new(99),1,new(100),0,0f,new(1f));
         var initial = network.Consume(network.Clear(),network.ClearTimers(),[first],new(0),[],memory:network.ClearMemory());

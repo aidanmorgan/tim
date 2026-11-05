@@ -647,7 +647,7 @@ public sealed class WorkshopPhysicsEngineTests
         var battery = PlacedParts.Battery(new(1), 2, 1, 0, powerLimit: 10f);
         var bumper = WorkshopInput.Generic(new PartId("bumper"), new(2), 0, 1, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), Settings, new(battery, bumper), Connections: new(
-            new WorkshopConnection(battery.Id, WorkshopSocket.Supply, bumper.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+            new WorkshopConnection(battery.Id, PortId.Supply, bumper.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         var admitted = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)), new(1),
             new(cadence, PhysicalStepProfile.Canonical480Hz, new(1)));
         BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(PhysicsGpuAbi.Layout(admitted).ContactWorkOffset(0) + PhysicsGpuAbi.ContactWorkAvailableOffset), 0f);
@@ -738,7 +738,7 @@ public sealed class WorkshopPhysicsEngineTests
     private static WorkshopGenericInstance Battery(ulong id, double z, ElectricalEnable enabled) =>
         PlacedParts.Battery(new(id), 3, (float)(GateHeight), (float)(z), enabled: enabled);
     private static WorkshopConnection Wire(GpuBodyId battery, GpuBodyId gate) =>
-        new(battery, WorkshopSocket.Supply, gate, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(battery, PortId.Supply, gate, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     /// <summary>The blade's travel along its prismatic above the gate frame (closed ≈ 0, fully open ≈ 1.55 m).</summary>
     private static float Travel(WorkshopRead read, WorkshopGenericInstance gate) =>
         read.Presentation.Actuators.ToArray().Single(row => row.Owner == gate.Id).Coordinate;

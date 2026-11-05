@@ -131,16 +131,16 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var ports = DeclaredPorts.Current.Of(new PartId("clock")).ToArray();
         Assert.Equal(2, ports.Length);
 
-        var powerIn = ports.First(p => p.Socket == WorkshopSocket.PowerIn);
+        var powerIn = ports.First(p => p.Id == PortId.PowerIn);
         Assert.Equal(WorkshopConnectionDomain.Electrical, powerIn.Domain);
         Assert.Equal(WorkshopPortDirection.Input, powerIn.Direction);
 
-        var actOut = ports.First(p => p.Socket == WorkshopSocket.ActivationOut);
+        var actOut = ports.First(p => p.Id == PortId.ActivationOut);
         Assert.Equal(WorkshopConnectionDomain.Activation, actOut.Domain);
         Assert.Equal(WorkshopPortDirection.Output, actOut.Direction);
 
-        Assert.Equal(new System.Numerics.Vector3(-0.78f, 0f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("clock"), WorkshopSocket.PowerIn));
-        Assert.Equal(new System.Numerics.Vector3(0.78f, 0f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("clock"), WorkshopSocket.ActivationOut));
+        Assert.Equal(new System.Numerics.Vector3(-0.78f, 0f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("clock"), PortId.PowerIn));
+        Assert.Equal(new System.Numerics.Vector3(0.78f, 0f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("clock"), PortId.ActivationOut));
     }
 
     [Fact]
@@ -172,14 +172,14 @@ public sealed class ClockTests(NativeSceneFixture godot)
 
         var instances = new WorkshopInstances(clock, battery, counter);
 
-        var conn1 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
-        var conn2 = new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        var conn1 = new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
+        var conn2 = new WorkshopConnection(clock.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
 
         var connections = new WorkshopConnections(conn1, conn2);
         connections.Validate(instances);
 
         // Invalid: Activation on electrical socket
-        var invalidConn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Electrical);
+        var invalidConn = new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.ActivationOut, WorkshopConnectionDomain.Electrical);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(invalidConn).Validate(instances));
     }
 
@@ -190,8 +190,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var counter = PlacedParts.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
 
-        var conn1 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
-        var conn2 = new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        var conn1 = new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
+        var conn2 = new WorkshopConnection(clock.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
 
         var construction = new WorkshopConstruction(
             new(1),
@@ -240,7 +240,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var clock = PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var counter = PlacedParts.Counter(new(2), 2, 0, 0, 0, 0, 0, 1, 5);
 
-        var conn = new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        var conn = new WorkshopConnection(clock.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
 
         var construction = new WorkshopConstruction(
             new(1),
@@ -274,7 +274,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
         var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
 
-        var conn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        var conn = new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
 
         var construction = new WorkshopConstruction(
             new(1),
@@ -337,7 +337,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
         var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([battery, clock]),
-            Connections: new([new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)]));
+            Connections: new([new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)]));
         var network = WorkshopActivationCompiler.Compile(construction);
         var powered = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery.Id, new Joules(3600f), default, ElectricalEnable.Enabled)]);
         var cleared = network.Memory(network.ClearMemory(), clock.Id);
@@ -395,7 +395,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     {
         var clock = PlacedParts.Clock(new(10), 1, 2, 3, 0, 0, 0, 1, 2.5f);
         var battery = PlacedParts.Battery(new(20), -2, 0, 0);
-        var conn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        var conn = new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
 
         var construction = new WorkshopConstruction(
             new(5),

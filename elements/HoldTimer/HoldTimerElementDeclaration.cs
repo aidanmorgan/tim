@@ -23,16 +23,16 @@ public sealed class HoldTimerElementDeclaration : ITimerElement, ISupplyElement,
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new(0f,.65f,.2f), Vector3.UnitY),
-        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new(-.78f,0f,0f), -Vector3.UnitX),
-        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new(.78f,0f,0f), Vector3.UnitX)
+        new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Pulse, new(0f,.65f,.2f), Vector3.UnitY),
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new(-.78f,0f,0f), -Vector3.UnitX),
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new(.78f,0f,0f), Vector3.UnitX)
     ];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(1f,.3f,0f,.1f))];
     public IReadOnlyList<EventDescriptor> Events => [];
     public IReadOnlyList<SignalTriggerDescriptor> Triggers => [new("activation", SignalTriggerMode.Pulse,1f,.1f)];
     public SignalTimerDescriptor Timer => new("hold_seconds", TimerCompletionPolicy.Rearm, TimerBoundary.BeforeNetworks, TimerElapsedSignal.None);
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply);
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes => [new("switched_contact", ElectricalRole.Switch,12f,.05f,0f,100f)];
     public ElementPresentation Presentation => new(.95f, PresentationAxes.None,
     [

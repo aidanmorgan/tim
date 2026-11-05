@@ -858,7 +858,7 @@ public sealed class WorkshopSimulationTests
             WorkshopInput.Generic(new PartId("ball"),new(1),0,3,0,0,0,0,1),
             WorkshopInput.Generic(new PartId("switch"), new(2),0,1,0,0,0,0,1),
             WorkshopInput.Generic(new PartId("delay"), new(3), -3, 1, 0, 0, 0, 0, 1)),
-            Connections:new(new WorkshopConnection(new(2),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)));
+            Connections:new(new WorkshopConnection(new(2),PortId.ActivationOut,new(3),PortId.ActivationIn,WorkshopConnectionDomain.Activation)));
         var admission = simulation.Construct(CompiledSceneFixture.Compile(construction)).AsTask(); device.CompleteAdmission(0); await admission;
         await simulation.Run(); await simulation.Pause();
         var before = simulation.Committed; var commits = device.Commits;

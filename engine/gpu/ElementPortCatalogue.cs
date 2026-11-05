@@ -18,21 +18,21 @@ public enum ElementPortRejection : uint
     UnknownElement = 1,
     /// <summary>Two declarations name the same element.</summary>
     DuplicateElement = 2,
-    /// <summary>One element declares the same socket twice.</summary>
+    /// <summary>One element declares the same port twice.</summary>
     DuplicateSocket = 3,
-    /// <summary>The socket is not a defined <see cref="PortSocket"/>.</summary>
+    /// <summary>The port has no identity or names an undefined role.</summary>
     UndefinedSocket = 4,
-    /// <summary>The engine connects only the Signal (activation) and Electrical domains.</summary>
+    /// <summary>The engine connects only the Signal (activation), Electrical, and Rope domains.</summary>
     UnsupportedDomain = 5,
-    /// <summary>A port is an input or an output; the engine has no bidirectional port.</summary>
+    /// <summary>A port is an input, an output, or bidirectional; the engine connects only supported directions per domain.</summary>
     UnsupportedDirection = 6,
-    /// <summary>The declared domain or direction is not the socket's own (an activation output is Signal and Output, and so on).</summary>
+    /// <summary>The declared domain or direction is not the role's own (an activation output is Signal and Output, and so on).</summary>
     SocketDisagrees = 7,
-    /// <summary>A Signal port without a defined signal kind, or an Electrical port with one.</summary>
+    /// <summary>A Signal port without a defined signal kind, or an Electrical or Rope port with one.</summary>
     SignalKindDisagrees = 8,
     /// <summary>The anchor position is not finite.</summary>
     NonFinitePosition = 9,
-    /// <summary>The element does not declare the socket asked about.</summary>
+    /// <summary>The element does not declare the port asked about.</summary>
     UndeclaredSocket = 10,
     /// <summary>A declared parameter, radius, or coordinate is out of range.</summary>
     OutOfRange = 11,
@@ -76,8 +76,8 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             for (var i = 0; i < declared.Count; i++)
             {
                 var port = Admit(element, i, declared[i]);
-                if (admitted.Any(previous => previous.Socket == port.Socket))
-                    throw Refused(ElementPortRejection.DuplicateSocket, element, i, $"declares {port.Socket} more than once");
+                if (admitted.Any(previous => previous.Id == port.Id))
+                    throw Refused(ElementPortRejection.DuplicateSocket, element, i, $"declares {port.Id} more than once");
                 admitted.Add(port);
             }
             ports.Add(element, admitted.MoveToImmutable());
@@ -85,12 +85,36 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         return new(ports.ToImmutable());
     }
 
-    /// <summary>The engine's typed port for one declaration: its socket fixes its domain and direction, which the declaration must
-    /// state the same way, and a Signal port declares the signal kind it emits or admits.</summary>
+    /// <summary>Returns a new catalogue containing these ports plus the additional declarations.</summary>
+    public ElementPortCatalogue Extend(IEnumerable<(PartId Element, IReadOnlyList<PortDescriptor> Ports)> additional)
+    {
+        ArgumentNullException.ThrowIfNull(additional);
+        var builder = _ports.ToBuilder();
+        foreach (var (element, declared) in additional)
+        {
+            ArgumentNullException.ThrowIfNull(declared);
+            if (builder.ContainsKey(element))
+                throw new ElementPortRejectedException(ElementPortRejection.DuplicateElement, $"The element '{element}' declares its ports twice.");
+            var admitted = ImmutableArray.CreateBuilder<WorkshopPort>(declared.Count);
+            for (var i = 0; i < declared.Count; i++)
+            {
+                var port = Admit(element, i, declared[i]);
+                if (admitted.Any(previous => previous.Id == port.Id))
+                    throw Refused(ElementPortRejection.DuplicateSocket, element, i, $"declares {port.Id} more than once");
+                admitted.Add(port);
+            }
+            builder.Add(element, admitted.MoveToImmutable());
+        }
+        return new(builder.ToImmutable());
+    }
+
+    /// <summary>The engine's typed port for one declaration: validates port identity, role, domain, direction, and signal kind.</summary>
     private static WorkshopPort Admit(PartId element, int index, PortDescriptor port)
     {
-        if (!Enum.IsDefined(port.Socket))
-            throw Refused(ElementPortRejection.UndefinedSocket, element, index, $"names the undefined socket {(uint)port.Socket}");
+        if (string.IsNullOrWhiteSpace(port.Id.Value))
+            throw Refused(ElementPortRejection.UndefinedSocket, element, index, "A port needs an identity.");
+        if (!Enum.IsDefined(port.Role))
+            throw Refused(ElementPortRejection.UndefinedSocket, element, index, $"names the undefined role {(uint)port.Role}");
         var domain = port.Domain switch
         {
             SimulationDomain.Signal => WorkshopConnectionDomain.Activation,
@@ -105,9 +129,17 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             PortDirection.Bidirectional => WorkshopPortDirection.Bidirectional,
             _ => throw Refused(ElementPortRejection.UnsupportedDirection, element, index, $"declares the direction {port.Direction}, which the engine does not connect")
         };
-        var socket = Socket(port.Socket);
-        if (Own(socket) != (domain, direction))
-            throw Refused(ElementPortRejection.SocketDisagrees, element, index, $"declares {port.Socket} as {port.Domain} {port.Direction}");
+        var roleAgrees = port.Role switch
+        {
+            PortRole.ActivationOut => domain == WorkshopConnectionDomain.Activation && direction == WorkshopPortDirection.Output,
+            PortRole.ActivationIn or PortRole.SetIn or PortRole.ResetIn => domain == WorkshopConnectionDomain.Activation && direction == WorkshopPortDirection.Input,
+            PortRole.Supply => domain == WorkshopConnectionDomain.Electrical && direction == WorkshopPortDirection.Output,
+            PortRole.PowerIn or PortRole.FirstIn or PortRole.SecondIn => domain == WorkshopConnectionDomain.Electrical && direction == WorkshopPortDirection.Input,
+            PortRole.Tie or PortRole.TieA or PortRole.TieB => domain == WorkshopConnectionDomain.Rope && direction == WorkshopPortDirection.Bidirectional,
+            _ => true
+        };
+        if (!roleAgrees)
+            throw Refused(ElementPortRejection.SocketDisagrees, element, index, $"declares {port.Role} as {port.Domain} {port.Direction}");
         WorkshopSignalKind? signal = (domain, port.Signal) switch
         {
             (WorkshopConnectionDomain.Activation, PortSignalKind.Pulse) => WorkshopSignalKind.Pulse,
@@ -136,25 +168,9 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             if (port.GuideOffset != Vector3.Zero)
                 throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a guide offset on a non-guide port");
         }
-        return new(socket, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body,
+        return new(port.Id, port.Role, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body,
             port.GuideRadius, port.GuideOffset);
     }
-
-    /// <summary>The domain and direction each socket is: the activation sockets carry signals, Supply feeds and PowerIn draws.</summary>
-    private static (WorkshopConnectionDomain, WorkshopPortDirection) Own(WorkshopSocket socket) => socket switch
-    {
-        WorkshopSocket.ActivationOut => (WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output),
-        WorkshopSocket.SetIn or WorkshopSocket.ResetIn or WorkshopSocket.ActivationIn => (WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input),
-        WorkshopSocket.Supply => (WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output),
-        WorkshopSocket.PowerIn or WorkshopSocket.FirstIn or WorkshopSocket.SecondIn => (WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input),
-        WorkshopSocket.Tie or WorkshopSocket.TieA or WorkshopSocket.TieB => (WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional),
-        _ => throw new ArgumentOutOfRangeException(nameof(socket), socket, "Undefined socket.")
-    };
-
-    /// <summary>The engine socket a declared port socket names: the two closed sets share their values. An undefined one is refused.</summary>
-    public static WorkshopSocket Socket(PortSocket socket) => Enum.IsDefined(socket)
-        ? (WorkshopSocket)(uint)socket
-        : throw new ArgumentOutOfRangeException(nameof(socket), socket, "Undefined socket.");
 
     private static ElementPortRejectedException Refused(ElementPortRejection reason, PartId element, int index, string detail) =>
         new(reason, $"'{element}'.Ports[{index}] {detail}.");
@@ -167,46 +183,63 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         _ports.TryGetValue(element, out var ports) ? ports.AsSpan()
             : throw new ElementPortRejectedException(ElementPortRejection.UnknownElement, $"The element '{element}' is not in the loaded bundle.");
 
-    /// <summary>Whether the element declares this socket in this domain and direction; an element the bundle does not declare owns
+    /// <summary>Whether the element declares this port in this domain and direction; an element the bundle does not declare owns
     /// no port.</summary>
-    public bool Has(PartId element, WorkshopSocket socket, WorkshopConnectionDomain domain, WorkshopPortDirection direction)
+    public bool Has(PartId element, PortId portId, WorkshopConnectionDomain domain, WorkshopPortDirection direction)
     {
         if (!_ports.TryGetValue(element, out var ports)) return false;
         foreach (var port in ports)
-            if (port.Socket == socket && port.Domain == domain && port.Direction == direction) return true;
+            if (port.Id == portId && port.Domain == domain && port.Direction == direction) return true;
         return false;
     }
 
+    /// <summary>Whether the element declares a port with this role, domain and direction.</summary>
+    public bool Has(PartId element, PortRole role, WorkshopConnectionDomain domain, WorkshopPortDirection direction)
+    {
+        if (!_ports.TryGetValue(element, out var ports)) return false;
+        foreach (var port in ports)
+            if (port.Role == role && port.Domain == domain && port.Direction == direction) return true;
+        return false;
+    }
+
+    /// <summary>The declared role of one port.</summary>
+    public PortRole Role(PartId element, PortId portId)
+    {
+        foreach (var port in Of(element))
+            if (port.Id == portId) return port.Role;
+        throw new ElementPortRejectedException(ElementPortRejection.UndeclaredSocket, $"'{element}' declares no port '{portId}'.");
+    }
+
     /// <summary>The declared signal kind of one activation port: what an output emits, or the strongest an input admits.</summary>
-    public WorkshopSignalKind Signal(PartId element, WorkshopSocket socket, WorkshopPortDirection direction)
+    public WorkshopSignalKind Signal(PartId element, PortId portId, WorkshopPortDirection direction)
     {
         foreach (var port in Of(element))
-            if (port.Socket == socket && port.Domain == WorkshopConnectionDomain.Activation && port.Direction == direction && port.Signal is { } signal)
+            if (port.Id == portId && port.Domain == WorkshopConnectionDomain.Activation && port.Direction == direction && port.Signal is { } signal)
                 return signal;
-        throw new ElementPortRejectedException(ElementPortRejection.UndeclaredSocket, $"'{element}' declares no activation {direction} {socket}.");
+        throw new ElementPortRejectedException(ElementPortRejection.UndeclaredSocket, $"'{element}' declares no activation {direction} port '{portId}'.");
     }
 
-    /// <summary>The declared f32 anchor of one socket in the element's local frame (metres).</summary>
-    public Vector3 LocalPosition(PartId element, WorkshopSocket socket)
+    /// <summary>The declared f32 anchor of one port in the element's local frame (metres).</summary>
+    public Vector3 LocalPosition(PartId element, PortId portId)
     {
         foreach (var port in Of(element))
-            if (port.Socket == socket) return port.LocalPosition;
-        throw new ElementPortRejectedException(ElementPortRejection.UndeclaredSocket, $"'{element}' declares no {socket} socket.");
+            if (port.Id == portId) return port.LocalPosition;
+        throw new ElementPortRejectedException(ElementPortRejection.UndeclaredSocket, $"'{element}' declares no port '{portId}'.");
     }
 
-    /// <summary>Evaluates the socket using this instance's admitted parameter values.</summary>
-    public Vector3 LocalPosition(WorkshopGenericInstance instance, WorkshopSocket socket)
+    /// <summary>Evaluates the port using this instance's admitted parameter values.</summary>
+    public Vector3 LocalPosition(WorkshopGenericInstance instance, PortId portId)
     {
         foreach (var port in Of(instance.PartId))
-            if (port.Socket == socket)
+            if (port.Id == portId)
             {
                 var position = port.PositionBinding is { } binding
                     ? binding.Evaluate(instance.Parameters[binding.Parameter]) : port.LocalPosition;
                 if (!float.IsFinite(position.X) || !float.IsFinite(position.Y) || !float.IsFinite(position.Z))
-                    throw new ElementPortRejectedException(ElementPortRejection.NonFinitePosition, "Socket evaluation is not finite.");
+                    throw new ElementPortRejectedException(ElementPortRejection.NonFinitePosition, "Port evaluation is not finite.");
                 return position;
             }
-        throw new ElementPortRejectedException(ElementPortRejection.UndeclaredSocket, "The instance does not declare this socket.");
+        throw new ElementPortRejectedException(ElementPortRejection.UndeclaredSocket, $"The instance does not declare port '{portId}'.");
     }
 
     public bool Equals(ElementPortCatalogue? other) =>
@@ -244,6 +277,34 @@ public static class DeclaredPorts
             if (_current is { } installed && !installed.Equals(catalogue))
                 throw new InvalidOperationException("A different element bundle's ports are already installed in this process.");
             Volatile.Write(ref _current, catalogue);
+        }
+    }
+
+    internal static IDisposable Scoped(ElementPortCatalogue catalogue)
+    {
+        ArgumentNullException.ThrowIfNull(catalogue);
+        lock (Gate)
+        {
+            var previous = _current;
+            Volatile.Write(ref _current, catalogue);
+            return new Scope(previous);
+        }
+    }
+
+    private sealed class Scope : IDisposable
+    {
+        private ElementPortCatalogue? _previous;
+        private bool _disposed;
+        public Scope(ElementPortCatalogue? previous) => _previous = previous;
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            lock (Gate)
+            {
+                Volatile.Write(ref _current, _previous);
+                _previous = null;
+            }
         }
     }
 }

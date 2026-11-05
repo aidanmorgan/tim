@@ -44,9 +44,9 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
     /// <summary>Story 9R.5 D3/D4: the level ActivationOut on the +Z edge, level with the supply sockets, precedes Supply.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-1.18f, -.08f, 0f), -Vector3.UnitX),
-        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Level, new Vector3(0f, -.08f, 1.18f), Vector3.UnitZ),
-        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(1.18f, -.08f, 0f), Vector3.UnitX)
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(-1.18f, -.08f, 0f), -Vector3.UnitX),
+        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Level, new Vector3(0f, -.08f, 1.18f), Vector3.UnitZ),
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new Vector3(1.18f, -.08f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The base slab and the top face that carries the contact load.</summary>
@@ -75,7 +75,7 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

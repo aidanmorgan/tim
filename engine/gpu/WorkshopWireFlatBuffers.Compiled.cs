@@ -597,7 +597,7 @@ public static partial class WorkshopWireFlatBuffers
     private static CuriousContraptions.Gpu.SupplyEdge DecodeCapabilitySupplyEdgeRecord(W.CapabilitySupplyEdgeRecord row) => new(
         new CuriousContraptions.Gpu.GpuBodyId(row.Source),
         new CuriousContraptions.Gpu.GpuBodyId(row.Target),
-        ObservationEnum<CuriousContraptions.Gpu.WorkshopSocket>(row.Input));
+        ObservationEnum<CuriousContraptions.Abstractions.PortRole>(row.Input));
 
     private static Offset<W.CapabilityContactLoadSensorDeclarationRecord> EncodeCapabilityContactLoadSensorDeclarationRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.ContactLoadSensorDeclaration value)
     {
@@ -719,7 +719,7 @@ public static partial class WorkshopWireFlatBuffers
     private static CuriousContraptions.Gpu.ActivationEdge DecodeCapabilityActivationEdgeRecord(W.CapabilityActivationEdgeRecord row) => new(
         new CuriousContraptions.Gpu.ActivationNodeId(row.Source),
         new CuriousContraptions.Gpu.ActivationNodeId(row.Target),
-        ObservationEnum<CuriousContraptions.Gpu.WorkshopSocket>(row.Input));
+        ObservationEnum<CuriousContraptions.Abstractions.PortRole>(row.Input));
 
     private static Offset<W.CapabilityPassageSensorDeclarationRecord> EncodeCapabilityPassageSensorDeclarationRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.PassageSensorDeclaration value)
     {
@@ -778,7 +778,7 @@ public static partial class WorkshopWireFlatBuffers
         ObservationEnum<CuriousContraptions.Abstractions.PresentationTimerPhase>(row.Phase),
         row.Response,
         row.Intermediate is { } intermediate ? intermediate : null,
-        row.Socket is { } socket ? ObservationEnum<CuriousContraptions.Abstractions.PortSocket>(socket) : null,
+        row.Socket is { } socket ? ObservationEnum<CuriousContraptions.Abstractions.PortRole>(socket) : null,
         ObservationEnum<CuriousContraptions.Abstractions.SimulationEventKind>(row.Event),
         ObservationEnum<CuriousContraptions.Abstractions.PresentationEventMagnitude>(row.EventMagnitude));
 

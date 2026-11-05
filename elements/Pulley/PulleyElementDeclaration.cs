@@ -18,7 +18,7 @@ public sealed class PulleyElementDeclaration : IMechanicalElement, ISceneGeometr
     public ElementFootprint Footprint => new(1, 0, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, null,
+        new(PortId.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, PortRole.Tie, null,
             new(0f, .4f, .12f), Vector3.UnitY, RopeAttachmentRole.Guide,
             GuideRadius: 0.4f, GuideOffset: new(0f, 0f, .12f))
     ];

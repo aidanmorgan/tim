@@ -13,10 +13,10 @@ public sealed class MemoryGuardTests
     private static readonly double Floor = (double)WorkshopConstruction.WorkbenchSurface.Value;
     private static readonly double Half45 = Math.Sqrt(.5);
 
-    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, WorkshopSocket input = WorkshopSocket.ActivationIn) =>
-        new(source, WorkshopSocket.ActivationOut, target, input, WorkshopConnectionDomain.Activation);
+    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, PortId input = default) =>
+        new(source, PortId.ActivationOut, target, input == default ? PortId.ActivationIn : input, WorkshopConnectionDomain.Activation);
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] links) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
 
@@ -222,8 +222,8 @@ public sealed class MemoryGuardTests
     {
         var bench = Bench([PlacedParts.Clock(SetClock, -3, 3, 0, 0, 0, 0, 1, 1f), PlacedParts.Clock(ResetClock, -3, 3, 3, 0, 0, 0, 1, 1.5f),
                 PlacedParts.Latch(Latch, 0, 3, 0, 0, 0, 0, 1), PlacedParts.Battery(LatchBattery, -6, 3, 0), PlacedParts.Lamp(LevelLamp, 3, 3, 0, 0, 0, 0, 1)],
-            Supply(LatchBattery, SetClock), Supply(LatchBattery, ResetClock), Signal(SetClock, Latch, WorkshopSocket.SetIn),
-            Signal(ResetClock, Latch, WorkshopSocket.ResetIn), Signal(Latch, LevelLamp));
+            Supply(LatchBattery, SetClock), Supply(LatchBattery, ResetClock), Signal(SetClock, Latch, PortId.SetIn),
+            Signal(ResetClock, Latch, PortId.ResetIn), Signal(Latch, LevelLamp));
         var network = WorkshopActivationCompiler.Compile(bench);
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(720);
@@ -252,7 +252,7 @@ public sealed class MemoryGuardTests
     {
         var bench = Bench([PlacedParts.Clock(SetClock, -3, 3, 0, 0, 0, 0, 1, 1f), PlacedParts.Latch(Latch, 0, 3, 0, 0, 0, 0, 1),
                 PlacedParts.Battery(LatchBattery, -6, 3, 0), PlacedParts.Lamp(LevelLamp, 3, 3, 0, 0, 0, 0, 1)],
-            Supply(LatchBattery, SetClock), Signal(SetClock, Latch, WorkshopSocket.SetIn), Signal(SetClock, Latch, WorkshopSocket.ResetIn),
+            Supply(LatchBattery, SetClock), Signal(SetClock, Latch, PortId.SetIn), Signal(SetClock, Latch, PortId.ResetIn),
             Signal(Latch, LevelLamp));
         var network = WorkshopActivationCompiler.Compile(bench);
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
@@ -279,8 +279,8 @@ public sealed class MemoryGuardTests
         var lamp = PlacedParts.Lamp(new(5), -3, 0, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(latch, other, counter, delay, lamp);
         new WorkshopConnections(Signal(latch.Id, lamp.Id)).Validate(instances);
-        foreach (var link in new[] { Signal(latch.Id, counter.Id), Signal(latch.Id, delay.Id), Signal(latch.Id, other.Id, WorkshopSocket.SetIn),
-                     Signal(latch.Id, other.Id, WorkshopSocket.ResetIn) })
+        foreach (var link in new[] { Signal(latch.Id, counter.Id), Signal(latch.Id, delay.Id), Signal(latch.Id, other.Id, PortId.SetIn),
+                     Signal(latch.Id, other.Id, PortId.ResetIn) })
             EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly, () => new WorkshopConnections(link).Validate(instances));
     }
 
@@ -327,7 +327,7 @@ public sealed class MemoryGuardTests
                 WorkshopInput.Generic(new PartId("ball"), new(20), 0, 3, 0, 0, 0, 0, 1),
                 WorkshopInput.Generic(new PartId("ball"), new(21), -12, (float)(plateY + .08 + .345 + 2), 0, 0, 0, 0, 1),
                 WorkshopInput.Generic(new PartId("ball"), new(22), 12, (float)(Floor + .34 + 3), 0, 0, 0, 0, 1)],
-            Signal(new(1), new(2)), Signal(new(1), new(3)), Signal(new(1), new(4)), Signal(new(1), new(5), WorkshopSocket.SetIn),
+            Signal(new(1), new(2)), Signal(new(1), new(3)), Signal(new(1), new(4)), Signal(new(1), new(5), PortId.SetIn),
             Signal(new(5), new(6)), Supply(new(10), new(9)));
     }
 

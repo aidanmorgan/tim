@@ -13,8 +13,8 @@ namespace CuriousContraptions.Tests;
 public sealed class DeclaredIndicatorPassageTests
 {
     private static readonly double H = Math.Sqrt(.5);
-    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, WorkshopSocket input = WorkshopSocket.ActivationIn) =>
-        new(source, WorkshopSocket.ActivationOut, target, input, WorkshopConnectionDomain.Activation);
+    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, PortId input = default) =>
+        new(source, PortId.ActivationOut, target, input == default ? PortId.ActivationIn : input, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] links) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
     private static ActivationNodeDeclaration Node(ActivationNetwork network, GpuBodyId owner) =>
@@ -57,12 +57,12 @@ public sealed class DeclaredIndicatorPassageTests
         var latch = PlacedParts.Latch(new(2), -3, 1, 0, 0, 0, 0, 1);
         var hit = WorkshopInput.Generic(new PartId("switch"), new(3), 0, 4, 0, 0, 0, 0, 1);
         var level = Bench([lamp, latch, hit], Signal(latch.Id, lamp.Id));
-        Assert.Equal(ActivationNodeKind.LevelIndicator, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortSocket.ActivationIn), level));
-        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortSocket.SetIn), level));
-        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(hit.Id, new(PortSocket.ActivationIn), level));
+        Assert.Equal(ActivationNodeKind.LevelIndicator, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortId.ActivationIn), level));
+        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortId.SetIn), level));
+        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(hit.Id, new(PortId.ActivationIn), level));
         var pulse = Bench([lamp, latch, hit], Signal(hit.Id, lamp.Id));
-        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortSocket.ActivationIn), pulse));
-        Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopActivationCompiler.IndicatorKind(lamp.Id, new((PortSocket)255), level));
+        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortId.ActivationIn), pulse));
+        Assert.Throws<ArgumentException>(() => new SignalIndicatorDescriptor(new("")));
     }
 
     // ---------- the aperture law (production tracker, compiled sensor) ----------

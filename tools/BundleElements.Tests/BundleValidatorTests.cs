@@ -87,11 +87,7 @@ public sealed class BundleValidatorTests
             ("dynamic owner", With(work, strength) with { Mechanical = entry.Mechanical! with
                 { ContactWork = work, KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic } }),
             ("slider owner", With(work, [.. Fixture.SpringParameters, strength]) with { Mechanical = entry.Mechanical! with
-                { ContactWork = work, Sliders = [Fixture.Slider()] } }),
-            ("undefined target kind", With(work with { Target = new TargetSelector((TargetSelectorKind)99) }, strength)),
-            ("empty named target", With(work with { Target = new TargetSelector(TargetSelectorKind.Named, "") }, strength)),
-            ("whitespace named target", With(work with { Target = new TargetSelector(TargetSelectorKind.Named, "   ") }, strength)),
-            ("dynamic with named target string", With(work with { Target = new TargetSelector(TargetSelectorKind.AllDynamic, "fixture") }, strength))
+                { ContactWork = work, Sliders = [Fixture.Slider()] } })
         }) Assert.True(Check(candidate).Any(error => error.Detail.Contains(".ContactWork.", StringComparison.Ordinal)), name);
     }
 
@@ -325,7 +321,7 @@ public sealed class BundleValidatorTests
         var entry = Bundle.BundleSchema.Entry(new Fixture
         {
             Parameters = [new("speed", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 64f, .8f, [], ParameterEditorPolicy.Clamp)],
-            Ports = [new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
+            Ports = [new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
         }) with { Domains = [SimulationDomain.Signal], Mechanical = null,
             Signal = new([], null, new("speed")) };
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
@@ -333,10 +329,7 @@ public sealed class BundleValidatorTests
         Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Contact = new("unknown") } }));
         Assert.NotEmpty(Check(entry with { Ports = [] }));
         // A contact owns its node alone: a declared memory beside it is refused.
-        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Memory = new(PortSocket.SetIn, PortSocket.ResetIn) } }));
-        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Contact = new("speed", Target: new TargetSelector((TargetSelectorKind)99)) } }));
-        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Contact = new("speed", Target: new TargetSelector(TargetSelectorKind.Named, "")) } }));
-        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Contact = new("speed", Target: new TargetSelector(TargetSelectorKind.AllDynamic, "fixture")) } }));
+        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Memory = new(PortId.SetIn, PortId.ResetIn) } }));
         foreach (var parameter in new[]
         {
             entry.Metadata.Parameters[0] with { Unit = ParameterUnit.Second },
@@ -353,8 +346,8 @@ public sealed class BundleValidatorTests
         {
             Parameters = [new("seconds", ParameterUnit.Second, ParameterKind.Real, .1f, 12f, 1f, [])],
             Ports = [
-                new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX),
-                new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
+                new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX),
+                new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
         }) with
         {
             Domains = [SimulationDomain.Signal], Mechanical = null,
@@ -374,7 +367,7 @@ public sealed class BundleValidatorTests
             Assert.NotEmpty(Check(timer with { Signal = timer.Signal! with { Timer = policy } }));
         var silent = timer with
         {
-            Ports = timer.Ports.Where(port => port.Socket != PortSocket.ActivationOut).ToArray(),
+            Ports = timer.Ports.Where(port => port.Id != PortId.ActivationOut).ToArray(),
             Signal = timer.Signal! with { Timer = new("seconds", TimerCompletionPolicy.Rearm, TimerBoundary.BeforeNetworks, TimerElapsedSignal.None) }
         };
         Assert.Empty(Check(silent));
@@ -387,20 +380,20 @@ public sealed class BundleValidatorTests
         {
             Domains = [SimulationDomain.Electrical], Signal = null,
             Metadata = timer.Metadata with { Parameters = StoreParameters },
-            Ports = [new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, Vector3.Zero, Vector3.UnitX)],
+            Ports = [new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, Vector3.Zero, Vector3.UnitX)],
             Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
-                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortSocket.Supply, Store: Store))
+                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortId.Supply, Store: Store))
         };
         var logic=supply with
         {
             Metadata=timer.Metadata,
             Ports=[
-                new(PortSocket.FirstIn,SimulationDomain.Electrical,PortDirection.Input,null,Vector3.Zero,Vector3.UnitX),
-                new(PortSocket.SecondIn,SimulationDomain.Electrical,PortDirection.Input,null,Vector3.Zero,Vector3.UnitX),
-                new(PortSocket.PowerIn,SimulationDomain.Electrical,PortDirection.Input,null,Vector3.Zero,Vector3.UnitX),
-                new(PortSocket.Supply,SimulationDomain.Electrical,PortDirection.Output,null,Vector3.Zero,Vector3.UnitX)],
+                new(PortId.FirstIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.FirstIn,null,Vector3.Zero,Vector3.UnitX),
+                new(PortId.SecondIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.SecondIn,null,Vector3.Zero,Vector3.UnitX),
+                new(PortId.PowerIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.PowerIn,null,Vector3.Zero,Vector3.UnitX),
+                new(PortId.Supply,SimulationDomain.Electrical,PortDirection.Output,PortRole.Supply,null,Vector3.Zero,Vector3.UnitX)],
             Electrical=new([new("logic",Abstractions.Electrical.ElectricalRole.LogicGate,12f,.1f,0f,100f)],
-                new(Abstractions.Electrical.SupplyCapabilityKind.LogicGate,PortSocket.PowerIn,PortSocket.Supply,Abstractions.Electrical.LogicGateOperation.And))
+                new(Abstractions.Electrical.SupplyCapabilityKind.LogicGate,PortId.PowerIn,PortId.Supply,Abstractions.Electrical.LogicGateOperation.And))
         };
         Assert.Empty(Check(logic));
         Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=null}}}));
@@ -410,13 +403,13 @@ public sealed class BundleValidatorTests
         Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Xor}}}));
         Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)5}}}));
         Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)255}}}));
-        Assert.NotEmpty(Check(logic with {Ports=logic.Ports.Where(port=>port.Socket!=PortSocket.SecondIn).ToArray()}));
+        Assert.NotEmpty(Check(logic with {Ports=logic.Ports.Where(port=>port.Id!=PortId.SecondIn).ToArray()}));
         Assert.NotEmpty(Check(supply with {Electrical=supply.Electrical! with {Supply=supply.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.And}}}));
         Assert.Empty(Check(supply));
         Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with
-            { Supply = new((Abstractions.Electrical.SupplyCapabilityKind)255, null, PortSocket.Supply) } }));
+            { Supply = new((Abstractions.Electrical.SupplyCapabilityKind)255, null, PortId.Supply) } }));
         Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with
-            { Supply = new(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply) } }));
+            { Supply = new(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply) } }));
         Assert.NotEmpty(Check(supply with { Ports = [] }));
         Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with { Nodes = [] } }));
     }
@@ -440,9 +433,9 @@ public sealed class BundleValidatorTests
         return entry with
         {
             Domains = [SimulationDomain.Mechanical, SimulationDomain.Electrical],
-            Ports = [new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, Vector3.Zero, Vector3.UnitX)],
+            Ports = [new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, Vector3.Zero, Vector3.UnitX)],
             Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
-                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortSocket.Supply, Store: store))
+                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortId.Supply, Store: store))
         };
     }
 
@@ -484,7 +477,7 @@ public sealed class BundleValidatorTests
         // A store on anything but a Source is refused.
         var gate = Source(StoreParameters, Store);
         Assert.NotEmpty(Bundle.BundleValidator.Validate([new("Fixture", gate with { Electrical = gate.Electrical! with
-            { Supply = new(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply, Store: Store) } })]));
+            { Supply = new(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply, Store: Store) } })]));
     }
 
     // engine-run-control-table: a RunControl parameter binds exactly one run-controllable lane, found by the one generic resolver
@@ -609,7 +602,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void APortNormalMustBeAUnitDirection()
     {
-        PortDescriptor Port(Vector3 normal) => new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse,
+        PortDescriptor Port(Vector3 normal) => new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse,
             Vector3.Zero, normal);
         Assert.Empty(Errors(("Fixture", new Fixture { Ports = [Port(-Vector3.UnitY)] })));
         Assert.Equal(["BUNDLE006 FixtureNormal.Ports[0].Normal: outside its declared range"],
@@ -820,15 +813,15 @@ public sealed class BundleValidatorTests
         }
         Assert.Empty(Check(lamp));
         Assert.Empty(Check(detector));
-        Assert.Equal(new SignalIndicatorDescriptor(PortSocket.ActivationIn), lamp.Signal!.Indicator);
+        Assert.Equal(new SignalIndicatorDescriptor(PortId.ActivationIn), lamp.Signal!.Indicator);
         Assert.Equal(new SignalPassageDescriptor(.65f, .02f), detector.Signal!.Passage);
 
         // The indicator's input: declared, Signal, an input, and admitting a level.
-        Refused(lamp with { Signal = lamp.Signal with { Indicator = new(PortSocket.SetIn) } }, "Indicator.Input");
-        Refused(lamp with { Signal = lamp.Signal with { Indicator = new((PortSocket)255) } }, "Indicator.Input", Bundle.BundleErrorCode.UndefinedEnum);
+        Refused(lamp with { Signal = lamp.Signal with { Indicator = new(PortId.SetIn) } }, "Indicator.Input");
+        Refused(lamp with { Signal = lamp.Signal with { Indicator = new(new PortId("unknown")) } }, "Indicator.Input");
         Refused(lamp with { Ports = [lamp.Ports[0] with { Signal = PortSignalKind.Pulse }] }, "Indicator.Input");
-        var levelInputs = lamp with { Ports = [.. lamp.Ports, new(PortSocket.SetIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, Vector3.UnitY)] };
-        Assert.Empty(Check(levelInputs with { Signal = lamp.Signal with { Indicator = new(PortSocket.SetIn) } }));
+        var levelInputs = lamp with { Ports = [.. lamp.Ports, new(PortId.SetIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Level, Vector3.Zero, Vector3.UnitY)] };
+        Assert.Empty(Check(levelInputs with { Signal = lamp.Signal with { Indicator = new(PortId.SetIn) } }));
 
         // The aperture: finite, each end of each range admitted, one step beyond refused.
         Bundle.BundleEntry Aperture(float radius, float clearance) => detector with { Signal = detector.Signal with { Passage = new(radius, clearance) } };
@@ -847,8 +840,8 @@ public sealed class BundleValidatorTests
         // One node-selecting capability: a valid indicator beside the aperture is refused, and only for that.
         var both = detector with
         {
-            Ports = [.. detector.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
-            Signal = detector.Signal with { Indicator = new(PortSocket.ActivationIn) }
+            Ports = [.. detector.Ports, new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
+            Signal = detector.Signal with { Indicator = new(PortId.ActivationIn) }
         };
         Refused(both, "Capability");
         Assert.Empty(Check(both with { Signal = both.Signal! with { Passage = null } }));
@@ -856,7 +849,7 @@ public sealed class BundleValidatorTests
         {
             Signal = lamp.Signal with { Triggers = [], Contact = new("speed") },
             Metadata = lamp.Metadata with { Parameters = [new("speed", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 64f, .8f, [], ParameterEditorPolicy.Clamp)] },
-            Ports = [.. lamp.Ports, new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)]
+            Ports = [.. lamp.Ports, new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)]
         };
         Refused(contact, "Capability");
         Assert.Empty(Check(contact with { Signal = contact.Signal! with { Indicator = null } }));
@@ -896,8 +889,8 @@ public sealed class BundleValidatorTests
         // One node-selecting capability: a valid indicator beside the threshold is refused, and only for that.
         var both = domino with
         {
-            Ports = [.. domino.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
-            Signal = domino.Signal with { Indicator = new(PortSocket.ActivationIn) }
+            Ports = [.. domino.Ports, new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
+            Signal = domino.Signal with { Indicator = new(PortId.ActivationIn) }
         };
         Refused(both, "Capability");
         Assert.Empty(Check(both with { Signal = both.Signal! with { Orientation = null } }));
@@ -962,15 +955,15 @@ public sealed class BundleValidatorTests
         var slider = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical!.Sliders[0] with { Drive = null };
         Refused(plate with { Mechanical = plate.Mechanical! with { Sliders = [slider] },
             Presentation = plate.Presentation with { Bodies = [new("Visual/Moving", new(1), Vector3.Zero)] } }, "ContactLoad.Body");
-        var activation = plate.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
+        var activation = plate.Ports.Single(port => port.Id == PortId.ActivationOut);
         Refused(plate with { Ports = [.. plate.Ports.Where(port => port != activation), activation with { Signal = PortSignalKind.Pulse }] }, "ContactLoad.Ports");
         Refused(plate with { Ports = [.. plate.Ports.Where(port => port != activation)] }, "ContactLoad.Ports");
 
         // One node-selecting capability: a valid indicator beside the sensor is refused, and only for that.
         var both = plate with
         {
-            Ports = [.. plate.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
-            Signal = plate.Signal with { Indicator = new(PortSocket.ActivationIn) }
+            Ports = [.. plate.Ports, new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
+            Signal = plate.Signal with { Indicator = new(PortId.ActivationIn) }
         };
         Refused(both, "Capability");
         Assert.Empty(Check(both with { Signal = both.Signal! with { ContactLoad = null } }));
@@ -1008,13 +1001,13 @@ public sealed class BundleValidatorTests
         Refused(Parameter(parameter with { Minimum = 0f }), "Oscillator.IntervalParameter");
         Assert.Empty(Check(Parameter(parameter with { Minimum = float.Epsilon })));
         // A source: a Pulse ActivationOut and no ActivationIn.
-        var activation = clock.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
+        var activation = clock.Ports.Single(port => port.Id == PortId.ActivationOut);
         Refused(clock with { Ports = [.. clock.Ports.Where(port => port != activation), activation with { Signal = PortSignalKind.Level }] }, "Oscillator.Ports");
         Refused(clock with { Ports = [.. clock.Ports.Where(port => port != activation)] }, "Oscillator.Ports");
-        Refused(clock with { Ports = [.. clock.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, Vector3.Zero, -Vector3.UnitY)] },
+        Refused(clock with { Ports = [.. clock.Ports, new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Pulse, Vector3.Zero, -Vector3.UnitY)] },
             "Oscillator.Ports");
         // Supplied: its PowerIn route into a Consumer node.
-        Refused(clock with { Ports = [.. clock.Ports.Where(port => port.Socket != PortSocket.PowerIn)] }, "Oscillator.Supply");
+        Refused(clock with { Ports = [.. clock.Ports.Where(port => port.Id != PortId.PowerIn)] }, "Oscillator.Supply");
         var consumer = Assert.Single(clock.Electrical!.Nodes);
         Refused(clock with { Electrical = clock.Electrical with { Nodes = [consumer with { Role = Abstractions.Electrical.ElectricalRole.Switch }] } }, "Oscillator.Supply");
         // A Static frame: another package's Static frame is admitted; a Dynamic body or a frame with a slider is refused.
@@ -1076,8 +1069,8 @@ public sealed class BundleValidatorTests
         Refused(Parameter(parameter with { Maximum = 10f }), "PulseCount.TargetParameter");
         Assert.Empty(Check(Parameter(parameter with { Minimum = 2f, Maximum = 8f })));
         // A Pulse ActivationIn and a Pulse ActivationOut.
-        var input = counter.Ports.Single(port => port.Socket == PortSocket.ActivationIn);
-        var output = counter.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
+        var input = counter.Ports.Single(port => port.Id == PortId.ActivationIn);
+        var output = counter.Ports.Single(port => port.Id == PortId.ActivationOut);
         Refused(counter with { Ports = [.. counter.Ports.Where(port => port != input)] }, "PulseCount.Ports");
         Refused(counter with { Ports = [.. counter.Ports.Where(port => port != input), input with { Signal = PortSignalKind.Level }] }, "PulseCount.Ports");
         Refused(counter with { Ports = [.. counter.Ports.Where(port => port != output), output with { Signal = PortSignalKind.Level }] }, "PulseCount.Ports");
@@ -1107,20 +1100,19 @@ public sealed class BundleValidatorTests
         var (bundle, Check, Refused) = Capabilities();
         var latch = bundle.Single(entry => entry.Metadata.Id == "latch");
         Assert.Empty(Check(latch));
-        Assert.Equal(new SignalMemoryDescriptor(PortSocket.SetIn, PortSocket.ResetIn), latch.Signal!.Memory);
+        Assert.Equal(new SignalMemoryDescriptor(PortId.SetIn, PortId.ResetIn), latch.Signal!.Memory);
         Bundle.BundleEntry With(SignalMemoryDescriptor memory) => latch with { Signal = latch.Signal with { Memory = memory } };
         // The inputs: swapped, the same input twice, a socket the law does not read, or an undefined socket.
-        Refused(With(new(PortSocket.ResetIn, PortSocket.SetIn)), "Memory.Inputs");
-        Refused(With(new(PortSocket.SetIn, PortSocket.SetIn)), "Memory.Inputs");
-        Refused(With(new(PortSocket.ActivationIn, PortSocket.ResetIn)), "Memory.Inputs");
-        var undefined = Assert.Single(Check(With(new((PortSocket)250, PortSocket.ResetIn))));
-        Assert.Equal((Bundle.BundleErrorCode.UndefinedEnum, true), (undefined.Code, undefined.Detail.StartsWith("Candidate.Memory.Inputs:", StringComparison.Ordinal)));
+        Refused(With(new(PortId.ResetIn, PortId.SetIn)), "Memory.Inputs");
+        Refused(With(new(PortId.SetIn, PortId.SetIn)), "Memory.Inputs");
+        Refused(With(new(PortId.ActivationIn, PortId.ResetIn)), "Memory.Inputs");
+        Refused(With(new(new PortId("unknown"), PortId.ResetIn)), "Memory.Inputs");
         // Each input must be a declared Pulse input.
-        var reset = latch.Ports.Single(port => port.Socket == PortSocket.ResetIn);
+        var reset = latch.Ports.Single(port => port.Id == PortId.ResetIn);
         Refused(latch with { Ports = [.. latch.Ports.Where(port => port != reset)] }, "Memory.Inputs");
         Refused(latch with { Ports = [.. latch.Ports.Where(port => port != reset), reset with { Signal = PortSignalKind.Level }] }, "Memory.Inputs");
         // A Level ActivationOut.
-        var output = latch.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
+        var output = latch.Ports.Single(port => port.Id == PortId.ActivationOut);
         Refused(latch with { Ports = [.. latch.Ports.Where(port => port != output), output with { Signal = PortSignalKind.Pulse }] }, "Memory.Ports");
         // A SwitchedContact supply.
         Refused(latch with { Electrical = latch.Electrical! with { Supply = null } }, "Memory.Supply");
@@ -1132,8 +1124,8 @@ public sealed class BundleValidatorTests
         // One node-selecting capability: a valid indicator on a declared Level input beside it is refused, and only for that.
         Refused(latch with
         {
-            Ports = [.. latch.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, Vector3.UnitY)],
-            Signal = latch.Signal with { Indicator = new(PortSocket.ActivationIn) }
+            Ports = [.. latch.Ports, new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Level, Vector3.Zero, Vector3.UnitY)],
+            Signal = latch.Signal with { Indicator = new(PortId.ActivationIn) }
         }, "Capability");
     }
 
@@ -1242,7 +1234,7 @@ public sealed class BundleValidatorTests
         Refused(With(lever, driven), "Hinges[0].Drive", Bundle.BundleErrorCode.UnresolvedReference);
         var powered = lever with
         {
-            Ports = [.. lever.Ports, new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, Vector3.Zero, Vector3.UnitZ)]
+            Ports = [.. lever.Ports, new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ)]
         };
         RevoluteHingeDescriptor Drive(float target, float torque) =>
             full with { Drive = new(MechanicalValue.Fixed(target), MechanicalValue.Fixed(torque)) };
@@ -1294,7 +1286,7 @@ public sealed class BundleValidatorTests
         };
         var driven = lever with
         {
-            Ports = [.. lever.Ports, new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, Vector3.Zero, Vector3.UnitZ)],
+            Ports = [.. lever.Ports, new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ)],
             Mechanical = lever.Mechanical with { Hinges = [hinge] }
         };
         Assert.Empty(Check(driven));

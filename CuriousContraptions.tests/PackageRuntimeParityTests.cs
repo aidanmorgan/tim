@@ -44,7 +44,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         // The compiler declares this threshold on a wired tile's orientation sensor.
         var wiredTile = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(PlacedParts.Domino(new(1), 0, 3, 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)),
-            Connections: new(new WorkshopConnection(new(1), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn,
+            Connections: new(new WorkshopConnection(new(1), PortId.ActivationOut, new(2), PortId.ActivationIn,
                 WorkshopConnectionDomain.Activation))), new(1, 2));
         var compiledDegrees = 2 * Math.Acos((double)Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold.CosineHalfAngle) * 180 / Math.PI;
         var declaredDegrees = Math.Acos(Assert.Single(domino.Triggers).Threshold) * 180 / Math.PI;
@@ -59,12 +59,12 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         Assert.Equal(((float)Math.Cos(Math.PI / 8)), (compiledThreshold.CosineHalfAngle));
         // C-Memory: the counter's target is its declared parameter, and the latch's memory reads the two inputs the shared law reads.
         Assert.Equal("target_count", ((Abstractions.Signal.IPulseCountElement)packages["counter"]).PulseCount.TargetParameter);
-        Assert.Equal(new Abstractions.Signal.SignalMemoryDescriptor(Abstractions.PortSocket.SetIn, Abstractions.PortSocket.ResetIn),
+        Assert.Equal(new Abstractions.Signal.SignalMemoryDescriptor(Abstractions.PortId.SetIn, Abstractions.PortId.ResetIn),
             ((Abstractions.Signal.IMemoryElement)packages["latch"]).Memory);
         // Story 9A.22: every package's declared event kinds equal its compiled rows' kinds (EventRingProducerTests).
         // C-Lamp+Detector: the lamp's declared indicator input selects its node, and the detector's declared f32 aperture is the
         // compiled passage sensor's radius and rearm clearance, as numeric f32 values.
-        Assert.Equal(Abstractions.PortSocket.ActivationIn, ((Abstractions.Signal.IIndicatorElement)packages["lamp"]).Indicator.Input);
+        Assert.Equal(Abstractions.PortId.ActivationIn, ((Abstractions.Signal.IIndicatorElement)packages["lamp"]).Indicator.Input);
         var aperture = ((Abstractions.Signal.IPassageSensorElement)packages["ball_detector"]).Passage;
         Assert.Equal((.65f, .02f), (aperture.ApertureRadius, aperture.RearmClearance));
         var sensor = Assert.Single(WorkshopActivationCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1),

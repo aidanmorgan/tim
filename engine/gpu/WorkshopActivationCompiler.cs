@@ -12,7 +12,7 @@ public static class WorkshopActivationCompiler
     public static ActivationNetwork Compile(WorkshopConstruction construction)
     {
         construction.Validate();
-        var nodes = new List<ActivationNodeDeclaration>(16); var edges = new List<ActivationEdge>(16);
+        var nodes = new List<ActivationNodeDeclaration>(16);
         var passageSensors = new List<PassageSensorDeclaration>(4);
         foreach (var instance in construction.Instances)
         {
@@ -58,12 +58,21 @@ public static class WorkshopActivationCompiler
                     powerSource, construction.Instances.Identities[periodic.Id].Colliders[0]));
             }
         }
-        foreach (var link in construction.Connections)
-            if (link.Domain == WorkshopConnectionDomain.Activation) edges.Add(new(new(link.Source.Value), new(link.Target.Value), link.Input));
+        var edges = Edges(construction);
         return new(nodes.ToArray(), edges.ToArray(), new WorkshopGpuProfile(construction.Settings.Simulation,
             construction.Settings.Physical, new(1)).Substeps, passageSensors.ToArray(),
             construction.Instances.Where(instance => DeclaredPhysics.Of(instance.PartId).Electrical?.Supply?.Kind ==
                 CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact).Select(instance=>instance.Id).ToArray());
+    }
+
+    /// <summary>Compiles the authored activation links into typed activation edges.</summary>
+    public static IReadOnlyList<ActivationEdge> Edges(WorkshopConstruction construction)
+    {
+        var edges = new List<ActivationEdge>(16);
+        foreach (var link in construction.Connections)
+            if (link.Domain == WorkshopConnectionDomain.Activation)
+                edges.Add(new(new(link.Source.Value), new(link.Target.Value), DeclaredPorts.Current.Role(construction.Instances.Single(i => i.Id == link.Target).PartId, link.Input)));
+        return edges;
     }
 
     /// <summary>The node a declared pulse count or memory compiles to (null for any other declaration): a pulse count counts toward
@@ -81,9 +90,8 @@ public static class WorkshopActivationCompiler
     /// follow that level (LevelIndicator); any other wiring, or none, holds its first input (StickyFirstInput).</summary>
     public static ActivationNodeKind IndicatorKind(GpuBodyId owner, SignalIndicatorDescriptor indicator, WorkshopConstruction construction)
     {
-        var input = ElementPortCatalogue.Socket(indicator.Input);
         return construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&
-            link.Target == owner && link.Input == input && construction.Instances.Any(source => source.Id == link.Source &&
+            link.Target == owner && link.Input == indicator.Input && construction.Instances.Any(source => source.Id == link.Source &&
                 DeclaredPorts.Current.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
             ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput;
     }

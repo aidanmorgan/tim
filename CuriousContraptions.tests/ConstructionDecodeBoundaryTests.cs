@@ -13,6 +13,8 @@ using CuriousContraptions.Abstractions;
 // guard or the wire's typed fault; the save rejects with its typed refusal and nothing else. Positive controls use the identical
 // hand-built record, so a rejection cannot come from a malformed fixture.
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using CuriousContraptions.Gpu;
 using Xunit;
 
@@ -207,5 +209,50 @@ public sealed class ConstructionDecodeBoundaryTests
             Assert.Equal(WorkshopSaveRejection.Truncated,
                 Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,save.AsSpan(0, length))).Reason);
         }
+    }
+
+    [Fact]
+    public void OutOfRangePortIndexDecoding_ThrowsWireFaultExceptionOutOfRange()
+    {
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var batteryString = builder.CreateString("battery");
+        CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
+        CuriousContraptions.Wire.InstanceRecord.AddId(builder, 1);
+        CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, batteryString);
+        CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, 0, 0, 0));
+        CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, 0, 0, 0));
+        CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
+        var sourceInstance = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
+
+        var lampString = builder.CreateString("lamp");
+        CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
+        CuriousContraptions.Wire.InstanceRecord.AddId(builder, 2);
+        CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, lampString);
+        CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, 0, 0, 0));
+        CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, 0, 0, 0));
+        CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
+        var targetInstance = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
+        var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [sourceInstance, targetInstance]);
+
+        // Connection with out-of-range FromSocket (e.g. 99u when battery has 1 port)
+        CuriousContraptions.Wire.ConstructionRecord.StartConnectionsVector(builder, 1);
+        CuriousContraptions.Wire.ConnectionRecord.CreateConnectionRecord(builder, 1, 2, (uint)WorkshopConnectionDomain.Electrical, 99u, 0u, false, 0f);
+        var connections = builder.EndVector();
+
+        var settings = WorkshopCadenceSettings.Default();
+        CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
+        CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
+            builder, (uint)settings.Simulation, (uint)settings.Physical,
+            (uint)settings.Animation, (uint)settings.Presentation, settings.PresentationRate.Numerator, settings.PresentationRate.Denominator));
+        CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instances);
+        CuriousContraptions.Wire.ConstructionRecord.AddConnections(builder, connections);
+        var record = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
+        builder.Finish(record.Value);
+
+        var byteBuffer = new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray());
+        var cr = CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(byteBuffer);
+        var fault = Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(cr));
+        Assert.Equal(WireFaultReason.OutOfRange, fault.Reason);
     }
 }

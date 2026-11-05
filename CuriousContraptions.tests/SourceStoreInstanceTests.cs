@@ -13,7 +13,7 @@ public sealed class SourceStoreInstanceTests
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
 
     private static WorkshopConnection Power(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
 
     /// <summary>A Powered Gate at the origin and a source beside it, wired Supply → PowerIn unless <paramref name="wired"/> is false.</summary>
     private static WorkshopConstruction GateBench(WorkshopGenericInstance source, bool wired = true) =>
@@ -73,10 +73,10 @@ public sealed class SourceStoreInstanceTests
         var unwired = GateBench(PlacedParts.Battery(Source, 3, 3, 0), wired: false);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (unwired with { Connections = new(Power(Gate, Source)) }).Validate());
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (unwired with { Connections = new(
-            new WorkshopConnection(Source, WorkshopSocket.Supply, Gate, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Activation)) }).Validate());
+            new WorkshopConnection(Source, PortId.Supply, Gate, PortId.PowerIn, WorkshopConnectionDomain.Activation)) }).Validate());
         var withSwitch = unwired with { Instances = unwired.Instances.With(WorkshopInput.Generic(new PartId("switch"), new(7), -3, 1, 0, 0, 0, 0, 1)) };
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (withSwitch with { Connections = new(
-            new WorkshopConnection(new(7), WorkshopSocket.ActivationOut, Source, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) }).Validate());
+            new WorkshopConnection(new(7), PortId.ActivationOut, Source, PortId.ActivationIn, WorkshopConnectionDomain.Activation)) }).Validate());
     }
 
     // ---------- the finite store ----------

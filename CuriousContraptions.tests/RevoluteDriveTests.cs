@@ -691,8 +691,8 @@ public sealed class RevoluteDriveTests
         var lever = TestBundle.Entry(new PartId("impact_lever"));
         CuriousContraptions.Bundle.BundleEntry Driven(float target) => lever with
         {
-            Ports = [.. lever.Ports, new(CuriousContraptions.Abstractions.PortSocket.PowerIn, CuriousContraptions.Abstractions.SimulationDomain.Electrical,
-                CuriousContraptions.Abstractions.PortDirection.Input, null, Vector3.Zero, Vector3.UnitZ)],
+            Ports = [.. lever.Ports, new(CuriousContraptions.Abstractions.PortId.PowerIn, CuriousContraptions.Abstractions.SimulationDomain.Electrical,
+                CuriousContraptions.Abstractions.PortDirection.Input, CuriousContraptions.Abstractions.PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ)],
             Mechanical = lever.Mechanical! with
             {
                 Hinges = [lever.Mechanical.Hinges[0] with

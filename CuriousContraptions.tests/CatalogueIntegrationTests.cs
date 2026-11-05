@@ -171,7 +171,7 @@ public sealed class CatalogueIntegrationTests
             var bench = LatchSupplyFixtureTests.Machine(null);
             bench = bench with { Settings = bench.Settings with { Simulation = cadence } };
             if (!connected) bench = bench with { Connections = bench.Connections.Without(
-                new WorkshopConnection(new(4), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.SetIn, WorkshopConnectionDomain.Activation)) };
+                new WorkshopConnection(new(4), PortId.ActivationOut, new(2), PortId.SetIn, WorkshopConnectionDomain.Activation)) };
             var rate = (int)bench.Settings.SimulationRate.Numerator;
             var saved = new WorkshopSavedConstruction(bench, new(10));
             var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
@@ -296,9 +296,9 @@ public sealed class CatalogueIntegrationTests
     }
 
     private static WorkshopConnection Power(ulong source, ulong target) =>
-        new(new(source), WorkshopSocket.Supply, new(target), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(new(source), PortId.Supply, new(target), PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopConnection Signal(ulong source, ulong target) =>
-        new(new(source), WorkshopSocket.ActivationOut, new(target), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        new(new(source), PortId.ActivationOut, new(target), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static ActuatorDriveRead Blade(WorkshopRead read, ulong owner) =>
         read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == owner);
     private static ActivationMemory Memory(WorkshopRead read, ulong owner) =>

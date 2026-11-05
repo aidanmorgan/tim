@@ -194,7 +194,7 @@ public sealed class CompiledSceneBoundaryTests
             switch (defect)
             {
                 case PresentationDefect.InvalidElectricalSocket:
-                    Write(11, (uint)CuriousContraptions.Abstractions.PortSocket.ActivationIn); break;
+                    Write(11, (uint)CuriousContraptions.Abstractions.PortRole.ActivationIn); break;
                 case PresentationDefect.NonfiniteFrom:
                     BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(binding, 2)), float.NaN); break;
                 case PresentationDefect.MissingSocket:

@@ -44,7 +44,7 @@ export enum WorkshopPlacementMode { Manual }
 export enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, WrongRevision = 3, WrongPhase = 4, GpuAdmission = 5, InvalidRead = 7, IdentityExhausted = 8, StaleGeneration = 9, Cancelled = 10, AlreadyCommitted = 11, Capacity = 12, ReliableStalled = 13, Transport = 14, UnknownRopeSpan = 15, RopeAlreadyCut = 16, UnknownRunControl = 17, ForeignRunControl = 18, RunControlKindMismatch = 19, RunControlOutOfRange = 20 }
 export enum WorkshopRuntimeRole { Browser = 1, Simulation = 2, Animation = 3 }
 export enum WorkshopSimulationPhase { Uninitialized, Initializing, Building, Admitting, Starting, Running, Paused, Completed, Resetting, Faulted, Disposed }
-export enum WorkshopSocket { ActivationOut = 1, SetIn = 2, ResetIn = 3, ActivationIn = 4, FirstIn = 5, SecondIn = 6, Supply = 7, PowerIn = 8, Tie = 9 }
+export enum PortRole { ActivationOut = 1, SetIn = 2, ResetIn = 3, ActivationIn = 4, FirstIn = 5, SecondIn = 6, Supply = 7, PowerIn = 8, Tie = 9, TieA = 10, TieB = 11, Drive = 12, DriveIn = 13 }
 // Event/cause phases are fractional time quantities, not closed state sets.
 export type ObservationValue = null | boolean | number | string | ObservationObject | readonly ObservationValue[];
 export interface ObservationObject { readonly [field: string]: ObservationValue; }
@@ -153,7 +153,7 @@ export interface ObservedConstruction {
     readonly instances: readonly { readonly id: string; readonly part: string; readonly locked: boolean; readonly cell: ObservationVector;
         readonly local: ObservationVector; readonly rotation: ObservationRotation;
         readonly parameters: readonly { readonly id: string; readonly value: number }[] }[];
-    readonly connections: readonly { readonly source: string; readonly output: WorkshopSocket; readonly target: string; readonly input: WorkshopSocket; readonly domain: WorkshopConnectionDomain }[];
+    readonly connections: readonly { readonly source: string; readonly output: string; readonly target: string; readonly input: string; readonly domain: WorkshopConnectionDomain }[];
 }
 export interface ObservedTraceSample {
     readonly epoch: string; readonly tick: string;

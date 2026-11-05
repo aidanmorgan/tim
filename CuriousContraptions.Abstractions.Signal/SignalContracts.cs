@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Numerics;
+using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Abstractions.Signal;
 
@@ -44,7 +45,7 @@ public interface IContactTriggerElement : ISignalElement
 
 /// <summary>An indicator on one declared Signal input that admits a level. Wired from a level output it follows that level; any other
 /// wiring (or none) holds its first committed input until Reset.</summary>
-public readonly record struct SignalIndicatorDescriptor(PortSocket Input);
+public readonly record struct SignalIndicatorDescriptor(PortId Input);
 
 public interface IIndicatorElement : ISignalElement
 {
@@ -108,7 +109,7 @@ public interface IPulseCountElement : ISignalElement
 /// <summary>A bistable memory. A pulse on the declared <see cref="Set"/> input turns it On and one on <see cref="Reset"/> turns it Off;
 /// requests of one tick resolve together at its boundary and Reset dominates. Memory is committed state (it needs no supply); its
 /// Level ActivationOut and its switched contact follow it.</summary>
-public readonly record struct SignalMemoryDescriptor(PortSocket Set, PortSocket Reset);
+public readonly record struct SignalMemoryDescriptor(PortId Set, PortId Reset);
 
 public interface IMemoryElement : ISignalElement
 {

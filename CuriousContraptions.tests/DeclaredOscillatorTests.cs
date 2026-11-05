@@ -14,7 +14,7 @@ public sealed class DeclaredOscillatorTests
 
     private static WorkshopConstruction Bench(float seconds, bool supplied) => new(new(2), WorkshopCadenceSettings.Default(),
         new(PlacedParts.Battery(Source, -3, 3, 0), PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, seconds)),
-        Connections: supplied ? new(new WorkshopConnection(Source, WorkshopSocket.Supply, Owner, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)) : new());
+        Connections: supplied ? new(new WorkshopConnection(Source, PortId.Supply, Owner, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) : new());
 
     // The declared capability selects the oscillator node with every field the record arm set: the owner's identity, the interval in
     // whole ticks, the PowerIn route's one upstream source (none when unsupplied) and the frame's first collider. Each value is stated.
@@ -40,7 +40,7 @@ public sealed class DeclaredOscillatorTests
     {
         GpuBodyId first = new(1), second = new(2), latch = new(3), clock = new(4);
         static WorkshopConnection Wire(GpuBodyId source, GpuBodyId target) =>
-            new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+            new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(PlacedParts.Battery(first, -6, 3, 0), PlacedParts.Battery(second, -6, 6, 0), PlacedParts.Latch(latch, -3, 3, 0, 0, 0, 0, 1),
                 PlacedParts.Clock(clock, 0, 3, 0, 0, 0, 0, 1, 1f)),

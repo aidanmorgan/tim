@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Numerics;
 
@@ -29,13 +30,13 @@ public readonly record struct ElectricalLogicRead(GpuBodyId Owner, ElectricalInp
         if (Owner.Value==0 || !Enum.IsDefined(Inputs) || (Active && !Supplied))
             throw new ArgumentException("Invalid committed electrical logic observation.");
     }
-    public bool At(WorkshopSocket socket) => socket switch
+    public bool At(PortRole role) => role switch
     {
-        WorkshopSocket.FirstIn => (Inputs & ElectricalInputState.FirstOnly)!=0,
-        WorkshopSocket.SecondIn => (Inputs & ElectricalInputState.SecondOnly)!=0,
-        WorkshopSocket.PowerIn => Supplied,
-        WorkshopSocket.Supply => Active,
-        _ => throw new ArgumentOutOfRangeException(nameof(socket))
+        PortRole.FirstIn => (Inputs & ElectricalInputState.FirstOnly)!=0,
+        PortRole.SecondIn => (Inputs & ElectricalInputState.SecondOnly)!=0,
+        PortRole.PowerIn => Supplied,
+        PortRole.Supply => Active,
+        _ => throw new ArgumentOutOfRangeException(nameof(role))
     };
 }
 

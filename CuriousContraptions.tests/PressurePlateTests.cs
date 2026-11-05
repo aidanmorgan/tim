@@ -106,13 +106,13 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         // Story 9R.5 D4: ActivationOut (a level) is listed before Supply, as on the latch, so the drawer keeps the Supply row.
         Assert.Equal(
-            [new WorkshopPort(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null, new(-1.18f, -.08f, 0f)),
-             new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level, new(0f, -.08f, 1.18f)),
-             new WorkshopPort(WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null, new(1.18f, -.08f, 0f))],
+            [new WorkshopPort(PortId.PowerIn, PortRole.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null, new(-1.18f, -.08f, 0f)),
+             new WorkshopPort(PortId.ActivationOut, PortRole.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level, new(0f, -.08f, 1.18f)),
+             new WorkshopPort(PortId.Supply, PortRole.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null, new(1.18f, -.08f, 0f))],
             DeclaredPorts.Current.Of(new PartId("pressure_plate")).ToArray());
-        Assert.Equal(new Vector3(-1.18f, -0.08f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("pressure_plate"), WorkshopSocket.PowerIn));
-        Assert.Equal(new Vector3(1.18f, -0.08f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("pressure_plate"), WorkshopSocket.Supply));
-        Assert.Equal(new Vector3(0f, -0.08f, 1.18f), DeclaredPorts.Current.LocalPosition(new PartId("pressure_plate"), WorkshopSocket.ActivationOut));
+        Assert.Equal(new Vector3(-1.18f, -0.08f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("pressure_plate"), PortId.PowerIn));
+        Assert.Equal(new Vector3(1.18f, -0.08f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("pressure_plate"), PortId.Supply));
+        Assert.Equal(new Vector3(0f, -0.08f, 1.18f), DeclaredPorts.Current.LocalPosition(new PartId("pressure_plate"), PortId.ActivationOut));
     }
 
     [Fact]
@@ -125,12 +125,12 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var instances = new WorkshopInstances(plate, battery, switchPart);
 
         // Valid electrical connection from battery Supply to plate PowerIn
-        var validConn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        var validConn = new WorkshopConnection(battery.Id, PortId.Supply, plate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var validConnections = new WorkshopConnections(validConn);
         validConnections.Validate(instances);
 
         // Invalid: Activation connection to plate PowerIn must be rejected
-        var invalidConn = new WorkshopConnection(switchPart.Id, WorkshopSocket.ActivationOut, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Activation);
+        var invalidConn = new WorkshopConnection(switchPart.Id, PortId.ActivationOut, plate.Id, PortId.PowerIn, WorkshopConnectionDomain.Activation);
         var invalidConnections = new WorkshopConnections(invalidConn);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => invalidConnections.Validate(instances));
     }
@@ -311,7 +311,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     }
 
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
 
     // The Construct command round-trips a plate as its generic instance: id, pose, lock and minimum_mass bit for bit.
     [Theory]
@@ -696,8 +696,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     private const int HoldTicks = 12; // ticks(0.1 s, 120 Hz); stated by the spec, not read back from the declaration under test
     private const string LevelRefusal = "A level output can only light a Signal lamp.";
     private static IWorkshopInstance LampAt(ulong id, double z = 0) => PlacedParts.Lamp(new(id), 6, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
-    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, WorkshopSocket input = WorkshopSocket.ActivationIn) =>
-        new(source, WorkshopSocket.ActivationOut, target, input, WorkshopConnectionDomain.Activation);
+    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, PortId input = default) =>
+        new(source, PortId.ActivationOut, target, input == default ? PortId.ActivationIn : input, WorkshopConnectionDomain.Activation);
     private static bool Latched(PhysicsActivationRead values, GpuBodyId owner)
     {
         for (var i = 0; i < values.Count; i++) if (values[i].Owner == owner) return values[i].Phase == ActivationPhase.Latched;
@@ -722,8 +722,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var hit = WorkshopInput.Generic(new PartId("switch"), new(6), 3, (float)(GateHeight), 3, 0, 0, 0, 1);
         var instances = new WorkshopInstances(plate, lamp, counter, delay, latch, hit);
         new WorkshopConnections(Signal(plate.Id, lamp.Id)).Validate(instances);
-        foreach (var (target, input) in new[] { (counter.Id, WorkshopSocket.ActivationIn), (delay.Id, WorkshopSocket.ActivationIn),
-                     (latch.Id, WorkshopSocket.SetIn), (latch.Id, WorkshopSocket.ResetIn) })
+        foreach (var (target, input) in new[] { (counter.Id, PortId.ActivationIn), (delay.Id, PortId.ActivationIn),
+                     (latch.Id, PortId.SetIn), (latch.Id, PortId.ResetIn) })
             Assert.Equal(LevelRefusal, EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
                 () => new WorkshopConnections(Signal(plate.Id, target, input)).Validate(instances)).Message);
         // A lamp that follows the plate's level takes no other signal; a pulse source alone still drives a (sticky) lamp.
@@ -775,10 +775,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var lamp = new ActivationNodeDeclaration(new(2), new(2), ActivationNodeKind.LevelIndicator, default);
         var timer = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.Timer, default, 5);
         var hit = new ActivationNodeDeclaration(new(4), new(4), ActivationNodeKind.ContactSource, new(8));
-        _ = new ActivationNetwork([level, lamp], [new(level.Id, lamp.Id, WorkshopSocket.ActivationIn)]);
-        Assert.Throws<ArgumentException>(() => new ActivationNetwork([level, timer], [new(level.Id, timer.Id, WorkshopSocket.ActivationIn)]));
+        _ = new ActivationNetwork([level, lamp], [new(level.Id, lamp.Id, PortRole.ActivationIn)]);
+        Assert.Throws<ArgumentException>(() => new ActivationNetwork([level, timer], [new(level.Id, timer.Id, PortRole.ActivationIn)]));
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([level, lamp, hit],
-            [new(level.Id, lamp.Id, WorkshopSocket.ActivationIn), new(hit.Id, lamp.Id, WorkshopSocket.ActivationIn)]));
+            [new(level.Id, lamp.Id, PortRole.ActivationIn), new(hit.Id, lamp.Id, PortRole.ActivationIn)]));
         // The hold is declared exactly on a contact-load level.
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([level with { ReleaseHoldTicks = 0 }], []));
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([timer with { ReleaseHoldTicks = 12 }], []));

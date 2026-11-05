@@ -79,7 +79,6 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopRuntimeValues.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopSchedule.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopSimulation.cs" />
-    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopSocket.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopTickLoop.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopTraceRecord.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopTurnRegistry.cs" />

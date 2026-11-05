@@ -314,7 +314,7 @@ public static class WorkshopPhysicsCompiler
 
         var routes = RopeTopology.Compile(construction.Connections, endpoint =>
             DeclaredPorts.Current.Of(construction.Instances.Single(p => p.Id == endpoint.Body).PartId).ToArray()
-                .Single(port => port.Socket == endpoint.Socket).AttachmentRole);
+                .Single(port => port.Id == endpoint.Socket).AttachmentRole);
         var tensile = new List<TensileSpanDeclaration>();
         for (var routeIndex = 0; routeIndex < routes.Length; routeIndex++)
         {
@@ -324,8 +324,8 @@ public static class WorkshopPhysicsCompiler
                 var a = route.Attachments[order]; var b = route.Attachments[order + 1];
                 var instanceA = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == a.Body);
                 var instanceB = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == b.Body);
-                var portA = DeclaredPorts.Current.Of(instanceA.PartId).ToArray().Single(p => p.Socket == a.Socket);
-                var portB = DeclaredPorts.Current.Of(instanceB.PartId).ToArray().Single(p => p.Socket == b.Socket);
+                var portA = DeclaredPorts.Current.Of(instanceA.PartId).ToArray().Single(p => p.Id == a.Socket);
+                var portB = DeclaredPorts.Current.Of(instanceB.PartId).ToArray().Single(p => p.Id == b.Socket);
                 var bodyA = ResolvePortBody(instanceA.Id, portA.Body);
                 var bodyB = ResolvePortBody(instanceB.Id, portB.Body);
                 var isGuide = order < route.Spans.Length - 1 && portB.AttachmentRole == RopeAttachmentRole.Guide;

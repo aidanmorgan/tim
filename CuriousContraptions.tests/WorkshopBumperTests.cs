@@ -505,7 +505,7 @@ public sealed class WorkshopBumperTests
         var construction = Construction(8f);
         var bumper = Assert.IsType<WorkshopGenericInstance>(construction.Instances[1]);
         construction.WithInstance(bumper with { Id = new(3) }).Validate(); // No per-kind bumper count in free play.
-        Assert.False(DeclaredPorts.Current.Has(new PartId("bumper"), WorkshopSocket.ActivationOut,
+        Assert.False(DeclaredPorts.Current.Has(new PartId("bumper"), PortId.ActivationOut,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
     }
 }

@@ -250,7 +250,7 @@ public sealed class WorkshopGpuDeviceTests
             WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1),
             PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(new PartId("delay"), new(4), -3, 1, 0, 0, 0, 0, 1)), Connections: new(new WorkshopConnection(
-                new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+                new(2), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var first = await device.Admit(CompiledSceneFixture.Compile(construction), new(1), Profile, new(1));
         device.Commit(first.Sequence); device.Discard(first.Sequence);
         Assert.Equal(ActivationTimerPhase.Ready, first.Read.Timers[0].Phase);
@@ -304,8 +304,8 @@ public sealed class WorkshopGpuDeviceTests
         var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var counter = PlacedParts.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
         var construction = new WorkshopConstruction(new(1), Settings, new(battery, clock, counter), Connections: new(
-            new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
-            new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+            new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
+            new WorkshopConnection(clock.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var network = WorkshopActivationCompiler.Compile(construction);
         var admitted = await device.Admit(CompiledSceneFixture.Compile(construction), new(1), Profile, new(1));
         Assert.Equal(network.ClearMemory().Count, admitted.Read.Memory.Count);

@@ -63,7 +63,7 @@ public sealed class MotorTests
     }
 
     private static WorkshopConnection Power(GpuBodyId battery, GpuBodyId motor) =>
-        new(battery, WorkshopSocket.Supply, motor, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(battery, PortId.Supply, motor, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
 
     /// <summary>A Motor and a Battery (id 2), wired Supply → PowerIn when <paramref name="wired"/>.</summary>
     private static WorkshopConstruction Supplied(WorkshopGenericInstance motor, bool wired = true,
@@ -318,7 +318,7 @@ public sealed class MotorTests
         var motor = MotorPart();
         var button = WorkshopInput.Generic(new PartId("switch"), new(3), -3, 4, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(motor, button);
-        var wire = new WorkshopConnection(button.Id, WorkshopSocket.ActivationOut, motor.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Activation);
+        var wire = new WorkshopConnection(button.Id, PortId.ActivationOut, motor.Id, PortId.PowerIn, WorkshopConnectionDomain.Activation);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(wire).Validate(instances));
     }
 
@@ -503,9 +503,9 @@ public sealed class MotorTests
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(motor, supply, input, gate))
         {
             Connections = new(
-                new WorkshopConnection(supply.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
-                new WorkshopConnection(input.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.FirstIn, WorkshopConnectionDomain.Electrical),
-                new WorkshopConnection(gate.Id, WorkshopSocket.Supply, motor.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical))
+                new WorkshopConnection(supply.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
+                new WorkshopConnection(input.Id, PortId.Supply, gate.Id, PortId.FirstIn, WorkshopConnectionDomain.Electrical),
+                new WorkshopConnection(gate.Id, PortId.Supply, motor.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical))
         };
         var (harness, probe) = await Start(construction, motor.Id);
         await using var _ = harness;
@@ -995,7 +995,7 @@ public sealed class MotorTests
     {
         var entry = TestBundle.Entry(Motor);
         Assert.Empty(BundleValidator.Validate([new("motor", entry)]));
-        var unpowered = entry with { Ports = entry.Ports.Where(port => port.Socket != PortSocket.PowerIn).ToArray() };
+        var unpowered = entry with { Ports = entry.Ports.Where(port => port.Id != PortId.PowerIn).ToArray() };
 
         var error = Assert.Single(BundleValidator.Validate([new("motor", unpowered)]));
         Assert.Equal(BundleErrorCode.UnresolvedReference, error.Code);
@@ -1065,7 +1065,7 @@ public sealed class MotorRotorArtTests(NativeSceneFixture godot)
         var battery = PlacedParts.Battery(new(2), 3, 4, 0);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(motor, battery))
         {
-            Connections = new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, motor.Id, WorkshopSocket.PowerIn,
+            Connections = new(new WorkshopConnection(battery.Id, PortId.Supply, motor.Id, PortId.PowerIn,
                 WorkshopConnectionDomain.Electrical))
         };
         var rotor = construction.Instances.Identities[motor.Id].Hinges[0].Body;

@@ -8,7 +8,7 @@ public sealed class OrientationSensorTests
 {
     private const double Upright = -0.46 + .55;
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
-    private static readonly WorkshopConnection Wire = new(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+    private static readonly WorkshopConnection Wire = new(new(2), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Construction(bool wired = true) => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Generic(new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1),
             PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1),
@@ -124,12 +124,12 @@ public sealed class OrientationSensorTests
         // Node declarations: an orientation source names exactly its sensor and never a trigger; nothing routes into a source.
         var owner = new GpuBodyId(2); var sensorId = new GpuOrientationSensorId(sensor.Id.Value);
         var lamp = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.StickyFirstInput, default);
-        _ = new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default, 0, sensorId), lamp], [new(new(2), new(3), WorkshopSocket.ActivationIn)]);
+        _ = new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default, 0, sensorId), lamp], [new(new(2), new(3), PortRole.ActivationIn)]);
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default), lamp], []));
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, new(5), 0, sensorId), lamp], []));
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.ContactSource, new(5), 0, sensorId), lamp], []));
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.StickyFirstInput, default, 0, sensorId), lamp], []));
-        Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default, 0, sensorId), lamp], [new(new(3), new(2), WorkshopSocket.ActivationIn)]));
+        Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default, 0, sensorId), lamp], [new(new(3), new(2), PortRole.ActivationIn)]));
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default, 0, sensorId),
             new(new(4), new(4), ActivationNodeKind.OrientationSource, default, 0, sensorId)], []));
     }
@@ -262,8 +262,8 @@ public sealed class OrientationSensorTests
         var delayed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(WorkshopInput.Generic(new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1),
                 PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("delay"), new(4), 0, 1, 0, 0, 0, 0, 1)),
-            Connections: new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut, new(4), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
-                new WorkshopConnection(new(4), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+            Connections: new(new WorkshopConnection(new(2), PortId.ActivationOut, new(4), PortId.ActivationIn, WorkshopConnectionDomain.Activation),
+                new WorkshopConnection(new(4), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var scene = WorkshopPhysicsCompiler.Compile(delayed, new(1, 2));
         var network = WorkshopActivationCompiler.Compile(delayed);
         var sensor = scene.OrientationSensors[0];
@@ -287,14 +287,14 @@ public sealed class OrientationSensorTests
     [Fact]
     public void WiringIntoADominoRejectsAndAnyNumberOfWiredSourcesCompiles()
     {
-        var intoDomino = new WorkshopConnection(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        var intoDomino = new WorkshopConnection(new(3), PortId.ActivationOut, new(2), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (Construction(false) with { Connections = new(intoDomino) }).Validate());
         var items = new List<IWorkshopInstance>();
         for (var i = 1; i <= 8; i++) items.Add(PlacedParts.Domino(new((ulong)i), (float)(-6 + i), (float)(Upright), 0, 0, 0, 0, 1));
         items.Add(PlacedParts.Lamp(new(9), 4, 1, 0, 0, 0, 0, 1));
         var instances = new WorkshopInstances([.. items]);
         instances.Validate();
-        WorkshopConnection Link(int source) => new(new((ulong)source), WorkshopSocket.ActivationOut, new(9), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        WorkshopConnection Link(int source) => new(new((ulong)source), PortId.ActivationOut, new(9), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
         var seven = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instances, Connections: new([.. Enumerable.Range(1, 7).Select(Link)]));
         seven.Validate();
         Assert.Equal(8, (int)WorkshopActivationCompiler.Compile(seven).Clear().Count);

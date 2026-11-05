@@ -16,9 +16,9 @@ public sealed class EventRingProducerTests
     private static readonly double Half45 = Math.Sqrt(.5);
 
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
-    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, WorkshopSocket input = WorkshopSocket.ActivationIn) =>
-        new(source, WorkshopSocket.ActivationOut, target, input, WorkshopConnectionDomain.Activation);
+        new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
+    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, PortId input = default) =>
+        new(source, PortId.ActivationOut, target, input == default ? PortId.ActivationIn : input, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, WorkshopConnection[] links, SimulationCadence cadence = SimulationCadence.Hz120) =>
         new(new(2), WorkshopCadenceSettings.Default() with { Simulation = cadence }, new(instances), Connections: new(links));
 
@@ -321,7 +321,7 @@ public sealed class EventRingProducerTests
         var latch = PlacedParts.Latch(new(3), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 3, 0);
         return Bench([set, reset, latch, battery], [Supply(battery.Id, set.Id), Supply(battery.Id, reset.Id),
-            Signal(set.Id, latch.Id, WorkshopSocket.SetIn), Signal(reset.Id, latch.Id, WorkshopSocket.ResetIn)]);
+            Signal(set.Id, latch.Id, PortId.SetIn), Signal(reset.Id, latch.Id, PortId.ResetIn)]);
     }
 
     [Fact]
@@ -346,7 +346,7 @@ public sealed class EventRingProducerTests
         var set = PlacedParts.Clock(new(1), -3, 3, 0, 0, 0, 0, 1, 1f);
         var latch = PlacedParts.Latch(new(3), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 3, 0);
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([set, latch, battery], [Supply(battery.Id, set.Id), Signal(set.Id, latch.Id, WorkshopSocket.SetIn)]));
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([set, latch, battery], [Supply(battery.Id, set.Id), Signal(set.Id, latch.Id, PortId.SetIn)]));
         await ring.Advance(600);
         var memory = Assert.Single(ring.Of(SimulationEventKind.MemoryChanged));
         Assert.Equal((120UL, 1u, 3UL), (memory.Tick, memory.Level, memory.Source));
@@ -748,7 +748,7 @@ public sealed class EventRingProducerTests
             var part = PackageRuntimeParityTests.Placed(id);
             IWorkshopInstance[] parts = [part, WorkshopInput.Generic(new PartId("ball"), new(2), 6, 3, 0, 0, 0, 0, 1)];
             WorkshopConnection[] links = [];
-            if (DeclaredPorts.Current.Has(id, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output))
+            if (DeclaredPorts.Current.Has(id, PortId.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output))
             {
                 parts = [.. parts, PlacedParts.Lamp(new(3), -6, 3, 0, 0, 0, 0, 1)];
                 links = [Signal(part.Id, new(3))];

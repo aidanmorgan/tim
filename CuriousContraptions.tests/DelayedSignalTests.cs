@@ -61,8 +61,8 @@ public sealed class DelayedSignalTests
         var save = new WorkshopSavedConstruction(construction, new(4));
         Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(save)));
         var changed = construction.WithInstance(WorkshopInput.Generic(new PartId("delay"), new(4), 0, 1, 0, 0, 0, 0, 1));
-        changed = changed with { Connections = new(new(new(2),WorkshopSocket.ActivationOut,new(4),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation),
-            new(new(4),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)) };
+        changed = changed with { Connections = new(new(new(2),PortId.ActivationOut,new(4),PortId.ActivationIn,WorkshopConnectionDomain.Activation),
+            new(new(4),PortId.ActivationOut,new(3),PortId.ActivationIn,WorkshopConnectionDomain.Activation)) };
         Assert.Equal(changed, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(changed,new(5)))).Construction);
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => changed.WithInstance(WorkshopInput.Generic(new PartId("basket"), new(5),0,1,0,0,0,0,1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(Payloads.First(construction) with { Locked=false }).Validate());

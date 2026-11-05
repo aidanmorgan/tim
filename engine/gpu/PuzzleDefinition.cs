@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.Json;
+using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Gpu;
 
@@ -10,8 +11,8 @@ public sealed record PuzzlePresentation(int Order, string Title, string Task, st
     string Status, string PrecisionStatus);
 
 internal sealed record AuthoredPlacement(AuthoredSlot Slot, AuthoredInstanceTemplate Instance);
-internal readonly record struct AuthoredConnection(AuthoredSlot Source, WorkshopSocket Output,
-    AuthoredSlot Target, WorkshopSocket Input, WorkshopConnectionDomain Domain);
+internal readonly record struct AuthoredConnection(AuthoredSlot Source, PortId Output,
+    AuthoredSlot Target, PortId Input, WorkshopConnectionDomain Domain);
 internal sealed record AuthoredInventory(PartId Part, int Count, AssistanceProfile Assistance,
     bool GoalTarget, AuthoredInstanceTemplate? Configuration)
 {
@@ -174,8 +175,8 @@ internal static class PuzzleDefinitionReader
             if (!slots.Contains(source) || !slots.Contains(target))
                 throw PuzzleContentReader.Invalid(where, "solution_connections", "unknown explicit slot");
             connections.Add(new(source,
-                AuthoredInstanceReader.Closed<WorkshopSocket>(PuzzleContentReader.Text(values, "output", where), where),
-                target, AuthoredInstanceReader.Closed<WorkshopSocket>(PuzzleContentReader.Text(values, "input", where), where),
+                new PortId(PuzzleContentReader.Text(values, "output", where)),
+                target, new PortId(PuzzleContentReader.Text(values, "input", where)),
                 AuthoredInstanceReader.Closed<WorkshopConnectionDomain>(PuzzleContentReader.Text(values, "domain", where), where)));
         }
         if (connections.Count != 0 && !AuthoredInstanceReader.Boolean(fields["connections_allowed"], where))

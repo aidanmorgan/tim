@@ -35,7 +35,7 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(0f, 1.65f, .92f), Vector3.UnitZ)
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(0f, 1.65f, .92f), Vector3.UnitZ)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];

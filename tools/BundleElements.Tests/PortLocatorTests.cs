@@ -9,7 +9,7 @@ namespace CuriousContraptions.BundleElements.Tests;
 /// (Story 9R.6). Any mismatch fails the bundle build.</summary>
 public sealed class PortLocatorTests
 {
-    private static PortDescriptor PowerIn(Vector3 at) => new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, at, -Vector3.UnitX);
+    private static PortDescriptor PowerIn(Vector3 at) => new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, at, -Vector3.UnitX);
 
     private const string Header = "[gd_scene format=3]\n\n[node name=\"Fixture\" type=\"Node3D\"]\n\n";
 
@@ -73,7 +73,7 @@ public sealed class PortLocatorTests
 
     /// <summary>A rope tie on body <paramref name="body"/> at x = -1.8 m in that body's frame, like the Impact Lever's TieA.</summary>
     private static PortDescriptor BodyTie(int body) =>
-        new(PortSocket.TieA, SimulationDomain.Rope, PortDirection.Bidirectional, null, new(-1.8f, 0f, 0f), -Vector3.UnitX,
+        new(PortId.TieA, SimulationDomain.Rope, PortDirection.Bidirectional, PortRole.TieA, null, new(-1.8f, 0f, 0f), -Vector3.UnitX,
             RopeAttachmentRole.Load, null, new PackageBodyIndex(body));
 
     private const string BeamBody = "[node name=\"Visual\" type=\"Node3D\" parent=\".\"]\n\n[node name=\"Beam\" type=\"Node3D\" parent=\"Visual\"]\n\n";
@@ -112,8 +112,8 @@ public sealed class PortLocatorTests
         Assert.Empty(PackageValidator.Locators(TestRepository.Root, PackageDiscovery.Discover(TestRepository.Root).Packages));
 
     [Fact]
-    public void ADuplicatePortSocketIsRefused() =>
-        Assert.Equal(["BUNDLE014 FixturePorts.Ports[1].Socket: PowerIn is declared more than once"],
+    public void ADuplicatePortIdIsRefused() =>
+        Assert.Equal(["BUNDLE014 FixturePorts.Ports[1].Id: PowerIn is declared more than once"],
             PackageValidator.Validate([new("FixturePorts", new Fixture { Ports = [PowerIn(Vector3.Zero), PowerIn(Vector3.UnitX)] })])
                 .Select(error => error.ToString()));
 
@@ -121,7 +121,7 @@ public sealed class PortLocatorTests
     public void ASignalKindIsDeclaredExactlyOnSignalPorts()
     {
         PortDescriptor Port(SimulationDomain domain, PortSignalKind? signal) =>
-            new(PortSocket.ActivationOut, domain, PortDirection.Output, signal, Vector3.Zero, Vector3.UnitY);
+            new(PortId.ActivationOut, domain, PortDirection.Output, PortRole.ActivationOut, signal, Vector3.Zero, Vector3.UnitY);
         Assert.Empty(PackageValidator.Validate([new("Fixture", new Fixture { Ports = [Port(SimulationDomain.Signal, PortSignalKind.Pulse)] })]));
         Assert.Equal(["BUNDLE015 FixtureSignal.Ports[0].Signal: a Signal port declares its signal kind and no other port does"],
             PackageValidator.Validate([new("FixtureSignal", new Fixture { Ports = [Port(SimulationDomain.Signal, null)] })]).Select(error => error.ToString()));
@@ -131,8 +131,8 @@ public sealed class PortLocatorTests
     }
 
     [Fact]
-    public void AnUndefinedSocketIsRefused() =>
-        Assert.Equal(["BUNDLE003 FixtureSocket.Ports[0].Socket: undefined enum value"],
-            PackageValidator.Validate([new("FixtureSocket", new Fixture { Ports = [PowerIn(Vector3.Zero) with { Socket = (PortSocket)99 }] })])
+    public void AnUndefinedRoleIsRefused() =>
+        Assert.Equal(["BUNDLE003 FixtureSocket.Ports[0].Role: undefined enum value"],
+            PackageValidator.Validate([new("FixtureSocket", new Fixture { Ports = [PowerIn(Vector3.Zero) with { Role = (PortRole)99 }] })])
                 .Select(error => error.ToString()));
 }

@@ -205,7 +205,7 @@ public sealed class RopeGuideTests
         var anchor = WorkshopInput.Generic(new("rope_anchor"), new(1), 0f, 6f, -.18f, 0f, 0f, 0f, 1f);
         var weight = WeightTests.Placed(2, 0f, 3f, 0f, 4f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight),
-            Connections: new(new WorkshopConnection(new(1), WorkshopSocket.Tie, new(2), WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, 3f)));
+            Connections: new(new WorkshopConnection(new(1), PortId.Tie, new(2), PortId.Tie, WorkshopConnectionDomain.Rope, 3f)));
 
         await using var harness = await WorkshopIntegrationHarness.Running(construction);
         Assert.Empty(harness.Committed.Presentation.Guides.ToArray());
@@ -310,8 +310,8 @@ public sealed class RopeGuideTests
         var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
         var p2 = WorkshopInput.Generic(new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
         var b = WeightTests.Placed(4, 2.4f, 3.5f, 0f, 6f);
-        var tieA = DeclaredPorts.Current.LocalPosition(a, WorkshopSocket.Tie);
-        var tieB = DeclaredPorts.Current.LocalPosition(b, WorkshopSocket.Tie);
+        var tieA = DeclaredPorts.Current.LocalPosition(a, PortId.Tie);
+        var tieB = DeclaredPorts.Current.LocalPosition(b, PortId.Tie);
         var posA = new Vector3(-2.4f, 2.5f, 0f) + tieA;
         var posB = new Vector3(2.4f, 3.5f, 0f) + tieB;
         var guides = new RouteGuideFrame[]
@@ -325,9 +325,9 @@ public sealed class RopeGuideTests
         var remaining = MathF.Max(0.1f, len - span1);
         var span0 = remaining * 0.5f;
         var span2 = remaining * 0.5f;
-        var link0 = new WorkshopConnection(a.Id, WorkshopSocket.Tie, p1.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span0);
-        var link1 = new WorkshopConnection(p1.Id, WorkshopSocket.Tie, p2.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span1);
-        var link2 = new WorkshopConnection(p2.Id, WorkshopSocket.Tie, b.Id, WorkshopSocket.Tie, WorkshopConnectionDomain.Rope, span2);
+        var link0 = new WorkshopConnection(a.Id, PortId.Tie, p1.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span0);
+        var link1 = new WorkshopConnection(p1.Id, PortId.Tie, p2.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span1);
+        var link2 = new WorkshopConnection(p2.Id, PortId.Tie, b.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span2);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(a, p1, p2, b),
             Connections: new(link0, link1, link2));
 

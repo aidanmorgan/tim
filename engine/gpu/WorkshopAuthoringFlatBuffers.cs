@@ -166,7 +166,35 @@ public static class WorkshopAuthoringFlatBuffers
             for (var i = construction.Connections.Count - 1; i >= 0; i--)
             {
                 var link = construction.Connections[i];
-                ConnectionRecord.CreateConnectionRecord(builder, link.Source.Value, link.Target.Value, (uint)link.Domain, (uint)link.Output, (uint)link.Input, link.RopeLength.HasValue, link.RopeLength.GetValueOrDefault());
+                var sourceInstance = construction.Instances.FirstOrDefault(inst => inst.Id == link.Source);
+                var targetInstance = construction.Instances.FirstOrDefault(inst => inst.Id == link.Target);
+                if (sourceInstance is null || targetInstance is null)
+                {
+                    if (validate)
+                        throw new WireFaultException(WireFaultReason.OutOfRange, "Connection endpoint names an unowned instance.");
+                    ConnectionRecord.CreateConnectionRecord(builder, link.Source.Value, link.Target.Value, (uint)link.Domain, 0u, 0u, link.RopeLength.HasValue, link.RopeLength.GetValueOrDefault());
+                    continue;
+                }
+                var sourcePorts = DeclaredPorts.Current.Of(sourceInstance.PartId);
+                var targetPorts = DeclaredPorts.Current.Of(targetInstance.PartId);
+                var fromIndex = -1;
+                for (var p = 0; p < sourcePorts.Length; p++)
+                {
+                    if (sourcePorts[p].Id == link.Output) { fromIndex = p; break; }
+                }
+                var toIndex = -1;
+                for (var p = 0; p < targetPorts.Length; p++)
+                {
+                    if (targetPorts[p].Id == link.Input) { toIndex = p; break; }
+                }
+                if (fromIndex < 0 || toIndex < 0)
+                {
+                    if (validate)
+                        throw new WireFaultException(WireFaultReason.OutOfRange, "Connection endpoint names an undeclared port index.");
+                }
+                var fromSocket = fromIndex >= 0 ? (uint)fromIndex : 0u;
+                var toSocket = toIndex >= 0 ? (uint)toIndex : 0u;
+                ConnectionRecord.CreateConnectionRecord(builder, link.Source.Value, link.Target.Value, (uint)link.Domain, fromSocket, toSocket, link.RopeLength.HasValue, link.RopeLength.GetValueOrDefault());
             }
             connectionsVector = builder.EndVector();
         }
@@ -260,13 +288,29 @@ public static class WorkshopAuthoringFlatBuffers
         var instances = new IWorkshopInstance[cr.InstancesLength];
         for (var i = 0; i < instances.Length; i++) instances[i] = MapInstance(cr.Instances(i)!.Value);
 
+        var instanceMap = new Dictionary<GpuBodyId, IWorkshopInstance>(instances.Length);
+        foreach (var inst in instances)
+        {
+            if (!instanceMap.TryAdd(inst.Id, inst))
+                throw new ArgumentException("Duplicate instance identity in construction.");
+        }
         var links = new WorkshopConnection[cr.ConnectionsLength];
         for (var i = 0; i < links.Length; i++)
         {
             var conn = cr.Connections(i)!.Value;
             if (!conn.HasRopeLength && conn.RopeLength != 0f)
                 throw new WireFaultException(WireFaultReason.OutOfRange, "Unowned rope length.");
-            links[i] = new(new(conn.Source), (WorkshopSocket)conn.FromSocket, new(conn.Target), (WorkshopSocket)conn.ToSocket, (WorkshopConnectionDomain)conn.Domain,
+            var sourceId = new GpuBodyId(conn.Source);
+            var targetId = new GpuBodyId(conn.Target);
+            if (!instanceMap.TryGetValue(sourceId, out var sourceInst) || !instanceMap.TryGetValue(targetId, out var targetInst))
+                throw new WireFaultException(WireFaultReason.OutOfRange, "Connection names unknown instance.");
+            var sourcePorts = DeclaredPorts.Current.Of(sourceInst.PartId);
+            var targetPorts = DeclaredPorts.Current.Of(targetInst.PartId);
+            if (conn.FromSocket >= (uint)sourcePorts.Length || conn.ToSocket >= (uint)targetPorts.Length)
+                throw new WireFaultException(WireFaultReason.OutOfRange, "Connection port index out of range.");
+            var outputPort = sourcePorts[(int)conn.FromSocket].Id;
+            var inputPort = targetPorts[(int)conn.ToSocket].Id;
+            links[i] = new(sourceId, outputPort, targetId, inputPort, (WorkshopConnectionDomain)conn.Domain,
                 conn.HasRopeLength ? conn.RopeLength : null);
         }
 

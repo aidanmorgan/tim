@@ -12,7 +12,7 @@ public sealed class ElectricalNandTests
     internal static readonly PartId Kind=new("electrical_nand");
     private const ulong Supply=7, Gate=8, Consumer=9;
     private static readonly bool[] NandTruth=[true,true,true,false]; // rows 00, 01, 10, 11 (CAT-024 D1)
-    private static WorkshopConnection Link(ulong source,ulong target,WorkshopSocket input=WorkshopSocket.PowerIn)=>BothGateTests.Link(source,target,input);
+    private static WorkshopConnection Link(ulong source,ulong target,PortId input=default)=>BothGateTests.Link(source,target,input == default ? PortId.PowerIn : input);
     private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), (float)(x), 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     private static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=Gate)=>BothGateTests.Logic(read,owner);
     private static bool Powered(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==Consumer).SupplyClosed;
@@ -33,7 +33,7 @@ public sealed class ElectricalNandTests
         var gate=WorkshopInput.Generic(Kind,new(Gate),3,3,0,0,0,0,1);
         if(gateFirst) parts.Insert(0,gate); else parts.Add(gate);
         parts.Add(WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1));
-        var links=new[]{Link(1,3),Link(2,4),Link(3,Gate,WorkshopSocket.FirstIn),Link(4,Gate,WorkshopSocket.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)};
+        var links=new[]{Link(1,3),Link(2,4),Link(3,Gate,PortId.FirstIn),Link(4,Gate,PortId.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)};
         if(reverseLinks) Array.Reverse(links);
         return new(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(links));
     }
@@ -143,8 +143,8 @@ public sealed class ElectricalNandTests
             WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)};
         if(gateFirst) parts.Reverse();
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(
-            Link(1,nand,WorkshopSocket.FirstIn),Link(1,either,WorkshopSocket.FirstIn),Link(2,either),
-            Link(either,nand,WorkshopSocket.SecondIn),Link(2,nand),Link(nand,Consumer)));
+            Link(1,nand,PortId.FirstIn),Link(1,either,PortId.FirstIn),Link(2,either),
+            Link(either,nand,PortId.SecondIn),Link(2,nand),Link(nand,Consumer)));
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],90),([new(new(1),RunControlValue.Of(ElectricalEnable.Enabled))],40));
         Assert.All(phases[0],read=>{Assert.Equal(ElectricalInputState.Neither,Logic(read,nand).Inputs);Assert.True(Logic(read,nand).Active);Assert.True(Powered(read));});
         Assert.True(BladeY(phases[0][^1])>BladeY(phases[0][0])+.2f);
@@ -167,9 +167,9 @@ public sealed class ElectricalNandTests
             WorkshopInput.Generic(BothGateTests.Kind,new(6),-6,3,-3,0,0,0,1),
             Battery(Supply,-2,true),
             WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
-            Connections:new(Link(4,6,WorkshopSocket.FirstIn),Link(4,6,WorkshopSocket.SecondIn),Link(4,6),
-                Link(6,4,WorkshopSocket.FirstIn),Link(6,4,WorkshopSocket.SecondIn),Link(6,4),
-                Link(4,Gate,WorkshopSocket.FirstIn),Link(6,Gate,WorkshopSocket.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)));
+            Connections:new(Link(4,6,PortId.FirstIn),Link(4,6,PortId.SecondIn),Link(4,6),
+                Link(6,4,PortId.FirstIn),Link(6,4,PortId.SecondIn),Link(6,4),
+                Link(4,Gate,PortId.FirstIn),Link(6,Gate,PortId.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)));
         construction.Validate();
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,60);
         Assert.All(reads,read=>
@@ -190,16 +190,16 @@ public sealed class ElectricalNandTests
         var supply=Battery(1,-8,true);
         var (parts,links,closing,ids)=loop switch
         {
-            FeedbackLoop.NandToNand => (new[]{supply,Nand(4,0),Nand(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
-                Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
-            FeedbackLoop.ThroughBothGate => (new[]{supply,Nand(4,0),Both(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn),Link(4,6,WorkshopSocket.SecondIn)},
-                Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
-            FeedbackLoop.ThroughOr => (new[]{supply,Nand(4,0),Either(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
-                Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
+            FeedbackLoop.NandToNand => (new[]{supply,Nand(4,0),Nand(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,PortId.FirstIn)},
+                Link(6,4,PortId.FirstIn),"4, 6"),
+            FeedbackLoop.ThroughBothGate => (new[]{supply,Nand(4,0),Both(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,PortId.FirstIn),Link(4,6,PortId.SecondIn)},
+                Link(6,4,PortId.SecondIn),"4, 6"),
+            FeedbackLoop.ThroughOr => (new[]{supply,Nand(4,0),Either(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,PortId.FirstIn)},
+                Link(6,4,PortId.SecondIn),"4, 6"),
             FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Nand(4,0),WorkshopInput.Generic(new PartId("switch"),new(6),4,1,0,0,0,0,1)},
-                new[]{Link(1,4),Link(4,6)},Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
+                new[]{Link(1,4),Link(4,6)},Link(6,4,PortId.FirstIn),"4, 6"),
             FeedbackLoop.EnteringPowerIn => (new[]{supply,Nand(4,0),Both(6,4),Both(7,8)},
-                new[]{Link(1,6),Link(1,7),Link(4,7,WorkshopSocket.FirstIn),Link(7,6,WorkshopSocket.FirstIn)},
+                new[]{Link(1,6),Link(1,7),Link(4,7,PortId.FirstIn),Link(7,6,PortId.FirstIn)},
                 Link(6,4),"4, 6, 7"),
             _ => throw new ArgumentOutOfRangeException(nameof(loop))
         };
@@ -245,13 +245,13 @@ public sealed class ElectricalNandTests
     public void LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(int bothGates,string named)
     {
         var parts=new List<IWorkshopInstance>{Battery(1,-8,true),WorkshopInput.Generic(Kind,new(4),0,3,0,0,0,0,1)};
-        var links=new List<WorkshopConnection>{Link(1,4),Link(4,10,WorkshopSocket.FirstIn),Link(9+(ulong)bothGates,4,WorkshopSocket.FirstIn)};
+        var links=new List<WorkshopConnection>{Link(1,4),Link(4,10,PortId.FirstIn),Link(9+(ulong)bothGates,4,PortId.FirstIn)};
         for(var i=0;i<bothGates;i++)
         {
             var id=10+(ulong)i;
             parts.Add(WorkshopInput.Generic(BothGateTests.Kind,new(id),(float)(-12+3*(i%8)),3,(float)(-3-2*(i/8)),0,0,0,1)); // within the bench range
             links.Add(Link(1,id));
-            if(i>0) links.Add(Link(id-1,id,WorkshopSocket.FirstIn));
+            if(i>0) links.Add(Link(id-1,id,PortId.FirstIn));
         }
         var looped=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(links.ToArray()));
         var refusal=EditRefusal.Is(WorkshopEditRejection.NonmonotoneFeedback,looped.Validate);
@@ -269,7 +269,7 @@ public sealed class ElectricalNandTests
         var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
         var edges=WorkshopSupplyCompiler.Compile(open,DeclaredPhysics.Of).Edges;
         _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,scene.Bodies);
-        var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,closing.Input)).ToArray();
+        var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,Enum.Parse<PortRole>(closing.Input.Value))).ToArray();
         var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,scene.Bodies));
         Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",invariant.Message);
     }
@@ -285,9 +285,9 @@ public sealed class ElectricalNandTests
         Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone((LogicGateOperation)5));
         Assert.Equal(LogicGateOperation.Nand,DeclaredPhysics.Of(Kind).Electrical!.Supply!.Value.Operation);
         var construction=SwitchMachine(ElectricalInputState.Neither,true);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,(WorkshopSocket)255))}).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,new PortId("invalid")))}).Validate());
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(
-            new(new(3),WorkshopSocket.ActivationOut,new(Gate),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation))}).Validate());
+            new(new(3),PortId.ActivationOut,new(Gate),PortId.ActivationIn,WorkshopConnectionDomain.Activation))}).Validate());
         Assert.DoesNotContain(DeclaredPorts.Current.Of(Kind).ToArray(),port=>port.Domain==WorkshopConnectionDomain.Activation);
     }
 
@@ -297,7 +297,7 @@ public sealed class ElectricalNandTests
             Battery(1,-8,false),Battery(2,-5,false),Battery(3,-2,true),
             WorkshopInput.Generic(Kind,new(4),3,3,0,0,0,0,1),
             WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
-            Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,Consumer)));
+            Connections:new(Link(1,4,PortId.FirstIn),Link(2,4,PortId.SecondIn),Link(3,4),Link(4,Consumer)));
 
     [Fact]
     public async Task CommittedReadsFollowEveryRowAndAdmissionIsNeutral()

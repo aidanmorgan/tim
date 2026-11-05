@@ -19,7 +19,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
         {
             Connections = connected
-                ? new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical))
+                ? new(new WorkshopConnection(battery.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical))
                 : new()
         };
         var reads = await WorkshopIntegrationHarness.Observe(construction, 2);
@@ -132,8 +132,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var counter = PlacedParts.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
             Connections: new(
-                new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
-                new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+                new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
+                new WorkshopConnection(clock.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 150);
         var evaluator = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reads[1], 1));
         var network = WorkshopActivationCompiler.Compile(construction);
@@ -218,8 +218,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
         var counter = PlacedParts.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
-            Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
-                new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+            Connections: new(new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
+                new WorkshopConnection(clock.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 120);
         var follow = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reads[30], 1));
         var start = Time(reads[30]);
@@ -275,7 +275,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var battery = PlacedParts.Battery(new(1), -3, 3, 0);
         var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
-            Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+            Connections: new(new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 30);
         var pulseRead = reads[15];
         var start = Time(pulseRead);
@@ -316,12 +316,12 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(setClock, resetClock, latch, battery, lamp, delay),
             Connections: new(
-                new(battery.Id, WorkshopSocket.Supply, setClock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
-                new(battery.Id, WorkshopSocket.Supply, resetClock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
-                new(setClock.Id, WorkshopSocket.ActivationOut, latch.Id, WorkshopSocket.SetIn, WorkshopConnectionDomain.Activation),
-                new(resetClock.Id, WorkshopSocket.ActivationOut, latch.Id, WorkshopSocket.ResetIn, WorkshopConnectionDomain.Activation),
-                new(latch.Id, WorkshopSocket.ActivationOut, lamp.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
-                new(setClock.Id, WorkshopSocket.ActivationOut, delay.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+                new(battery.Id, PortId.Supply, setClock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
+                new(battery.Id, PortId.Supply, resetClock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
+                new(setClock.Id, PortId.ActivationOut, latch.Id, PortId.SetIn, WorkshopConnectionDomain.Activation),
+                new(resetClock.Id, PortId.ActivationOut, latch.Id, PortId.ResetIn, WorkshopConnectionDomain.Activation),
+                new(latch.Id, PortId.ActivationOut, lamp.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation),
+                new(setClock.Id, PortId.ActivationOut, delay.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 180);
         var registry = new PartRegistry(); registry.Load();
         var latchPart = registry.Create(new PartId("latch"));
@@ -414,7 +414,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var battery = PlacedParts.Battery(new(1), -3, 3, 0);
         var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
-            Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+            Connections: new(new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 15);
         var endpoint = Response(reads[15], 1) with { Scene = CompiledSceneFixture.Compile(construction) };
         var start = Time(reads[15]);

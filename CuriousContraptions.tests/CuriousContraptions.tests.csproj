@@ -32,6 +32,8 @@
 
     <ItemGroup>
         <Using Include="Xunit" />
+        <Using Include="CuriousContraptions.Abstractions.PortId" Alias="PortId" />
+        <Using Include="CuriousContraptions.Abstractions.PortRole" Alias="PortRole" />
     </ItemGroup>
 
     <!-- CSharpStaticGateTests parses every C# source with the SDK's own Roslyn (as tools/Ownership does). -->
@@ -187,6 +189,7 @@
         <Compile Include="ArchitectureDocsConsistencyTests.cs" />
         <Compile Include="PackageRuntimeParityTests.cs" />
         <Compile Include="BundlePortsTests.cs" />
+        <Compile Include="PackageLocalPortsTests.cs" />
         <!-- The shipped worker's physics engine and transport, stepped natively (Story 9.4b). -->
         <Compile Include="WorkshopPhysicsEngineTests.cs" />
         <Compile Include="DeclaredPresentationTests.cs" />

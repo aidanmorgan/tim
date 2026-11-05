@@ -57,10 +57,10 @@ public sealed class CounterElementDeclaration : IPulseCountElement, ISupplyEleme
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(0f, .72f, .1f), Vector3.UnitY),
-        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(0f, -.72f, .1f), -Vector3.UnitY),
-        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
-        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
+        new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Pulse, new Vector3(0f, .72f, .1f), Vector3.UnitY),
+        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, new Vector3(0f, -.72f, .1f), -Vector3.UnitY),
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The housing and its foot.</summary>
@@ -80,7 +80,7 @@ public sealed class CounterElementDeclaration : IPulseCountElement, ISupplyEleme
     /// <summary>Each crossing counts once; the input that reaches target_count emits once and closes the contact until Reset (CAT-020).</summary>
     public SignalPulseCountDescriptor PulseCount => new("target_count");
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

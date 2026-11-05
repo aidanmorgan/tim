@@ -119,11 +119,11 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var ports = DeclaredPorts.Current.Of(new PartId("powered_gate"));
         Assert.Equal(1, ports.Length);
         var port = ports[0];
-        Assert.Equal(WorkshopSocket.PowerIn, port.Socket);
+        Assert.Equal(PortId.PowerIn, port.Id);
         Assert.Equal(WorkshopConnectionDomain.Electrical, port.Domain);
         Assert.Equal(WorkshopPortDirection.Input, port.Direction);
 
-        var localPos = DeclaredPorts.Current.LocalPosition(new PartId("powered_gate"), WorkshopSocket.PowerIn);
+        var localPos = DeclaredPorts.Current.LocalPosition(new PartId("powered_gate"), PortId.PowerIn);
         Assert.Equal(new System.Numerics.Vector3(0f, 1.65f, 0.92f), localPos);
     }
 
@@ -137,12 +137,12 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var instances = new WorkshopInstances(gate, battery, switchPart);
 
         // Valid electrical connection from battery Supply to gate PowerIn
-        var validConn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        var validConn = new WorkshopConnection(battery.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var validConnections = new WorkshopConnections(validConn);
         validConnections.Validate(instances);
 
         // Invalid: Activation connection to gate PowerIn must be rejected
-        var invalidConn = new WorkshopConnection(switchPart.Id, WorkshopSocket.ActivationOut, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Activation);
+        var invalidConn = new WorkshopConnection(switchPart.Id, PortId.ActivationOut, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Activation);
         var invalidConnections = new WorkshopConnections(invalidConn);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => invalidConnections.Validate(instances));
     }
@@ -195,7 +195,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     }
 
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopGenericInstance Gate(ulong id, double z = 0) =>
         WorkshopInput.Generic(new PartId("powered_gate"), new(id), 0, 0, (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Battery(ulong id, ElectricalEnable enabled, double z = 0) =>
@@ -264,7 +264,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
             scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,scene.Bodies);
         var source=new SupplyNodeDeclaration(battery.Id,SupplyNodeKind.Source,scene.Electrical.Sources[0].Id);
         var consumer=new SupplyNodeDeclaration(gate.Id,SupplyNodeKind.Consumer,Consumers:[SupplyConsumer.Prismatic(scene.Prismatics[0].Id)]);
-        Assert.Equal(2,Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn)).Nodes.Length);
+        Assert.Equal(2,Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,PortRole.PowerIn)).Nodes.Length);
         Assert.Throws<ArgumentException>(()=>Admit([source with {Kind=(SupplyNodeKind)99}]));
         Assert.Throws<ArgumentException>(()=>Admit([source with {Source=default}]));
         Assert.Throws<ArgumentException>(()=>Admit([source,source]));
@@ -273,9 +273,9 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         // value names no revolute and is refused. (An undefined kind cannot be constructed; the wire decode refuses one.)
         Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumers=[SupplyConsumer.Revolute(new(scene.Prismatics[0].Id.Value))]}]));
         Assert.Throws<ArgumentException>(()=>Admit([new(scene.Prismatics.ToArray().Single(joint => joint.BodyA == gate.Id).BodyB,SupplyNodeKind.Contact)]));
-        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(gate.Id,battery.Id,WorkshopSocket.PowerIn)));
-        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn),new(battery.Id,gate.Id,WorkshopSocket.PowerIn)));
-        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,new(999),WorkshopSocket.PowerIn)));
+        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(gate.Id,battery.Id,PortRole.PowerIn)));
+        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,PortRole.PowerIn),new(battery.Id,gate.Id,PortRole.PowerIn)));
+        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,new(999),PortRole.PowerIn)));
     }
 
     [Fact]

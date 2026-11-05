@@ -480,12 +480,17 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Empty(Cancel(scene));
             Assert.Equal(commands,client.EditCount);
 
-            foreach(var socket in new[]{WorkshopSocket.FirstIn,WorkshopSocket.SecondIn,WorkshopSocket.PowerIn})
+            foreach(var role in new[]{PortRole.FirstIn,PortRole.SecondIn,PortRole.PowerIn})
             {
                 Choose();
-                Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==socket).EmitSignal(Button.SignalName.Pressed);
+                Assert.Single(Buttons(),button=>(PortRole)button.GetMeta("socket").AsInt32()==role).EmitSignal(Button.SignalName.Pressed);
                 var link=Assert.Single(scene.World.Construction.Connections);
-                Assert.Equal(socket,link.Input);
+                var expectedId = role switch {
+                    PortRole.FirstIn => PortId.FirstIn,
+                    PortRole.SecondIn => PortId.SecondIn,
+                    _ => PortId.PowerIn
+                };
+                Assert.Equal(expectedId,link.Input);
                 Assert.Equal(WorkshopConnectionDomain.Electrical,link.Domain);
 
                 var saved=new WorkshopSavedConstruction(scene.World.Construction,new(6));
@@ -523,7 +528,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Equal(3,Buttons().Count()); // first, second and bottom supply: no default socket
             Assert.All(Buttons(),button=>Assert.NotNull(button.Icon));
             var commands=client.EditCount;
-            Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==closing.Input).EmitSignal(Button.SignalName.Pressed);
+            Assert.Single(Buttons(),button=>(PortRole)button.GetMeta("socket").AsInt32()==(PortRole)Enum.Parse<PortRole>(closing.Input.Value)).EmitSignal(Button.SignalName.Pressed);
             Assert.Equal(open,scene.World.Construction);
             Assert.Equal(commands,client.EditCount);
 
@@ -564,7 +569,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Equal(3,Buttons().Count()); // first, second and bottom supply: no default socket
             Assert.All(Buttons(),button=>Assert.NotNull(button.Icon));
             var commands=client.EditCount;
-            Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==closing.Input).EmitSignal(Button.SignalName.Pressed);
+            Assert.Single(Buttons(),button=>(PortRole)button.GetMeta("socket").AsInt32()==(PortRole)Enum.Parse<PortRole>(closing.Input.Value)).EmitSignal(Button.SignalName.Pressed);
             Assert.Equal(open,scene.World.Construction);
             Assert.Equal(commands,client.EditCount);
 
@@ -605,7 +610,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Equal(3,Buttons().Count()); // first, second and bottom supply: no default socket
             Assert.All(Buttons(),button=>Assert.NotNull(button.Icon));
             var commands=client.EditCount;
-            Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==closing.Input).EmitSignal(Button.SignalName.Pressed);
+            Assert.Single(Buttons(),button=>(PortRole)button.GetMeta("socket").AsInt32()==(PortRole)Enum.Parse<PortRole>(closing.Input.Value)).EmitSignal(Button.SignalName.Pressed);
             if(ids is null)
             {
                 Assert.Contains(closing,scene.World.Construction.Connections);
@@ -656,7 +661,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Equal(3,Buttons().Count()); // first, second and bottom supply: no default socket
             Assert.All(Buttons(),button=>Assert.NotNull(button.Icon));
             var commands=client.EditCount;
-            Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==closing.Input).EmitSignal(Button.SignalName.Pressed);
+            Assert.Single(Buttons(),button=>(PortRole)button.GetMeta("socket").AsInt32()==(PortRole)Enum.Parse<PortRole>(closing.Input.Value)).EmitSignal(Button.SignalName.Pressed);
             if(ids is null)
             {
                 Assert.Contains(closing,scene.World.Construction.Connections);

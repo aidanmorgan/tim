@@ -98,11 +98,11 @@ public sealed class WorkshopDominoTests
             Assert.Throws<ArgumentException>(() => (domino with { Parameters = new([new(new(forged), 1f)]) }).Validate());
         Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(2), 0, 65, 0, 0, 0, 0, 1));
         Assert.Throws<ArgumentException>(() => PlacedParts.Domino(new(2), 0, 0, 0, 0, 0, 0, 0));
-        Assert.Equal([new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Pulse,
+        Assert.Equal([new WorkshopPort(PortId.ActivationOut, PortRole.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Pulse,
             new(0f, .55f, 0f))], DeclaredPorts.Current.Of(new PartId("domino")).ToArray());
-        Assert.True(DeclaredPorts.Current.Has(new PartId("domino"), WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
-        Assert.False(DeclaredPorts.Current.Has(new PartId("domino"), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
-        Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("domino"), WorkshopSocket.ActivationOut));
+        Assert.True(DeclaredPorts.Current.Has(new PartId("domino"), PortId.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
+        Assert.False(DeclaredPorts.Current.Has(new PartId("domino"), PortId.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
+        Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("domino"), PortId.ActivationOut));
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1))), new(1, 2)).World;

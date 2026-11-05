@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Numerics;
+using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Gpu;
 
@@ -95,7 +96,7 @@ public static class WorkshopMessages
                 {
                     found=true;
                     var expected=logic.Supplied && CompiledSupplyGraph.Evaluate(node.Operation!.Value,
-                        logic.At(WorkshopSocket.FirstIn),logic.At(WorkshopSocket.SecondIn));
+                        logic.At(PortRole.FirstIn),logic.At(PortRole.SecondIn));
                     if(logic.Active!=expected || (read.Tick.Value==0 &&
                         (logic.Inputs!=ElectricalInputState.Neither || logic.Supplied || logic.Active)))
                         throw new ArgumentException("Electrical logic observation contradicts its declared operation or admission state.");

@@ -32,11 +32,11 @@ public sealed class StateLatchElementDeclaration : IMemoryElement, ISupplyElemen
     /// <summary>The level output is high while memory is On (owner decision 18 Oct 2026) and is listed before Supply.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.SetIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(-.45f, .72f, 0f), Vector3.UnitY),
-        new(PortSocket.ResetIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(.45f, .72f, 0f), Vector3.UnitY),
-        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
-        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Level, new Vector3(0f, -.56f, .38f), Vector3.UnitZ),
-        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
+        new(PortId.SetIn, SimulationDomain.Signal, PortDirection.Input, PortRole.SetIn, PortSignalKind.Pulse, new Vector3(-.45f, .72f, 0f), Vector3.UnitY),
+        new(PortId.ResetIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ResetIn, PortSignalKind.Pulse, new Vector3(.45f, .72f, 0f), Vector3.UnitY),
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
+        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Level, new Vector3(0f, -.56f, .38f), Vector3.UnitZ),
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The housing and its foot.</summary>
@@ -55,9 +55,9 @@ public sealed class StateLatchElementDeclaration : IMemoryElement, ISupplyElemen
     public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 
     /// <summary>SetIn turns the memory On and ResetIn turns it Off; a same-tick pair resolves to Reset (CAT-037).</summary>
-    public SignalMemoryDescriptor Memory => new(PortSocket.SetIn, PortSocket.ResetIn);
+    public SignalMemoryDescriptor Memory => new(PortId.SetIn, PortId.ResetIn);
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

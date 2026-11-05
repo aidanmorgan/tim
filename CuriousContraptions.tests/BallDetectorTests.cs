@@ -104,8 +104,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         var lamp = PlacedParts.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
         var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 10, 0, 0, 0, 0, 1);
         var connection = new WorkshopConnection(
-            new GpuBodyId(10), WorkshopSocket.ActivationOut,
-            new GpuBodyId(20), WorkshopSocket.ActivationIn,
+            new GpuBodyId(10), PortId.ActivationOut,
+            new GpuBodyId(20), PortId.ActivationIn,
             WorkshopConnectionDomain.Activation);
 
         var construction = new WorkshopConstruction(
@@ -135,7 +135,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(ActivationNodeKind.StickyFirstInput, lampNode.Kind);
 
         Assert.Equal(1, network.Edges.Length);
-        Assert.Equal(new ActivationEdge(detectorNode.Id, lampNode.Id, WorkshopSocket.ActivationIn), network.Edges[0]);
+        Assert.Equal(new ActivationEdge(detectorNode.Id, lampNode.Id, PortRole.ActivationIn), network.Edges[0]);
 
         Assert.Equal(1, network.PassageSensors.Length);
         var sensor = network.PassageSensors[0];
@@ -159,8 +159,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         var lamp = PlacedParts.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
 
         var connection = new WorkshopConnection(
-            detector.Id, WorkshopSocket.ActivationOut,
-            lamp.Id, WorkshopSocket.ActivationIn,
+            detector.Id, PortId.ActivationOut,
+            lamp.Id, PortId.ActivationIn,
             WorkshopConnectionDomain.Activation);
 
         var ballId = new GpuBodyId(2);
@@ -500,8 +500,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
         var connection = new WorkshopConnection(
-            new GpuBodyId(10), WorkshopSocket.ActivationOut,
-            new GpuBodyId(20), WorkshopSocket.ActivationIn,
+            new GpuBodyId(10), PortId.ActivationOut,
+            new GpuBodyId(20), PortId.ActivationIn,
             WorkshopConnectionDomain.Activation);
 
         var construction = new WorkshopConstruction(

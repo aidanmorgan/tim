@@ -83,12 +83,12 @@ public static class BundleValidator
             if ((footprint.Bodies > 0 || entry.Mechanical is not null) && entry.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.Colliders: a body declares no collider"));
             var childBodies = (entry.Mechanical?.Sliders.Count ?? 0) + (entry.Mechanical?.Hinges.Count ?? 0);
-            var sockets = new HashSet<PortSocket>(4);
+            var portsSeen = new HashSet<PortId>(4);
             for (var i = 0; i < entry.Ports.Count; i++)
             {
                 Port($"Ports[{i}]", entry.Ports[i], entry.Metadata.Parameters, childBodies);
-                if (!sockets.Add(entry.Ports[i].Socket))
-                    errors.Add(new(BundleErrorCode.DuplicatePort, $"{source}.Ports[{i}].Socket: {entry.Ports[i].Socket} is declared more than once"));
+                if (!portsSeen.Add(entry.Ports[i].Id))
+                    errors.Add(new(BundleErrorCode.DuplicatePort, $"{source}.Ports[{i}].Id: {entry.Ports[i].Id} is declared more than once"));
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
@@ -172,9 +172,8 @@ public static class BundleValidator
                 if ((binding.Driver == PresentationDriver.CommittedElectricalSocket) != binding.Socket.HasValue ||
                     (binding.Socket is { } socket &&
                         (electrical?.Supply?.Kind != SupplyCapabilityKind.LogicGate ||
-                         !ports.Any(port => port.Socket == socket && port.Domain == SimulationDomain.Electrical))))
+                         !ports.Any(port => port.Id == socket && port.Domain == SimulationDomain.Electrical))))
                     OutOfRange("Presentation.Socket");
-                if (binding.Socket is { } boundSocket) Defined("Presentation.Socket", boundSocket);
                 // A committed oscillator binding reads the row only a declared oscillator compiles.
                 if (binding.Driver is PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedOscillatorPulse &&
                     signal?.Oscillator is null)
@@ -351,7 +350,8 @@ public static class BundleValidator
 
         private void Port(string path, PortDescriptor port, IReadOnlyList<ParameterDescriptor> parameters, int childBodies)
         {
-            Defined(path + ".Socket", port.Socket);
+            Text(path + ".Id", port.Id.Value);
+            Defined(path + ".Role", port.Role);
             Defined(path + ".Domain", port.Domain);
             Defined(path + ".Direction", port.Direction);
             if (port.Signal is { } signal) Defined(path + ".Signal", signal);
@@ -362,10 +362,10 @@ public static class BundleValidator
             Defined(path + ".AttachmentRole", port.AttachmentRole);
             if (port.Domain == SimulationDomain.Rope)
             {
-                if (port.Socket is not (PortSocket.Tie or PortSocket.TieA or PortSocket.TieB) || port.Direction != PortDirection.Bidirectional ||
+                if (port.Role is not (PortRole.Tie or PortRole.TieA or PortRole.TieB) || port.Direction != PortDirection.Bidirectional ||
                     port.AttachmentRole == RopeAttachmentRole.None) OutOfRange(path + ".AttachmentRole");
             }
-            else if (port.AttachmentRole != RopeAttachmentRole.None || port.Socket is PortSocket.Tie or PortSocket.TieA or PortSocket.TieB)
+            else if (port.AttachmentRole != RopeAttachmentRole.None || port.Role is PortRole.Tie or PortRole.TieA or PortRole.TieB)
                 OutOfRange(path + ".AttachmentRole");
             if (port.AttachmentRole == RopeAttachmentRole.Guide)
             {
@@ -440,7 +440,7 @@ public static class BundleValidator
                 .Where(pair => pair.Driven).ToArray();
             // The owner compiles a consumer node only when it has an electrical PowerIn input and declares no supply capability of its
             // own (a source, switched contact or logic gate compiles another node kind, so its drives could never be supplied).
-            if (driven.Length > 0 && (supply is not null || !ports.Any(port => port.Socket == PortSocket.PowerIn &&
+            if (driven.Length > 0 && (supply is not null || !ports.Any(port => port.Role == PortRole.PowerIn &&
                     port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input)))
                 errors.Add(new(BundleErrorCode.UnresolvedReference,
                     $"{source}.{driven[0].Path}.Drive: a supplied drive requires an electrical PowerIn input on a consumer (no supply capability)"));
@@ -735,8 +735,8 @@ public static class BundleValidator
                 if ((supply.Kind == SupplyCapabilityKind.Source) != supply.Store.HasValue) OutOfRange("Supply.Store");
                 if (supply.Store is { } store) SourceStore(store, parameters);
                 Defined("Supply.Kind", supply.Kind);
-                Defined("Supply.Output", supply.Output);
-                if (supply.Input is { } input) Defined("Supply.Input", input);
+                if (string.IsNullOrWhiteSpace(supply.Output.Value)) OutOfRange("Supply.Output");
+                if (supply.Input is { } input && string.IsNullOrWhiteSpace(input.Value)) OutOfRange("Supply.Input");
                 var role = supply.Kind switch
                 {
                     SupplyCapabilityKind.Source => ElectricalRole.Source,
@@ -747,14 +747,12 @@ public static class BundleValidator
                 if (supply.Operation is { } operation) Defined("Supply.Operation", operation);
                 if ((supply.Kind == SupplyCapabilityKind.LogicGate) != supply.Operation.HasValue ||
                     (supply.Kind == SupplyCapabilityKind.LogicGate &&
-                        (!ports.Any(port => port.Socket == PortSocket.FirstIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
-                         !ports.Any(port => port.Socket == PortSocket.SecondIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input))))
+                        (!ports.Any(port => port.Role == PortRole.FirstIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
+                         !ports.Any(port => port.Role == PortRole.SecondIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input))))
                     OutOfRange("Supply.Operation");
                 if (!electrical.Nodes.Any(node => node.Role == role) ||
-                    supply.Output != PortSocket.Supply ||
-                    (supply.Kind == SupplyCapabilityKind.Source ? supply.Input is not null : supply.Input != PortSocket.PowerIn) ||
-                    !ports.Any(port => port.Socket == supply.Output && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Output) ||
-                    (supply.Input is { } incoming && !ports.Any(port => port.Socket == incoming && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input)))
+                    !ports.Any(port => port.Id == supply.Output && port.Role == PortRole.Supply && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Output) ||
+                    (supply.Kind == SupplyCapabilityKind.Source ? supply.Input is not null : (supply.Input is not { } inPort || !ports.Any(port => port.Id == inPort && port.Role == PortRole.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input))))
                     OutOfRange("Supply");
             }
             for (var i = 0; i < electrical.Nodes.Count; i++)
@@ -822,8 +820,8 @@ public static class BundleValidator
                         parameter.Unit == ParameterUnit.None && parameter.Minimum >= 1f && parameter.Maximum <= 9f))
                     OutOfRange("PulseCount.TargetParameter");
                 // It counts Pulse inputs on its ActivationIn and emits a Pulse on its ActivationOut.
-                if (!ports.Any(port => port.Socket == PortSocket.ActivationIn && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse) ||
-                        !ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                if (!ports.Any(port => port.Role == PortRole.ActivationIn && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse) ||
+                        !ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
                     OutOfRange("PulseCount.Ports");
                 // The reached target closes a switched contact.
                 if (electrical?.Supply?.Kind != SupplyCapabilityKind.SwitchedContact)
@@ -834,13 +832,14 @@ public static class BundleValidator
             if (signal.Memory is { } memory)
             {
                 // Set and Reset are the two distinct Pulse inputs the shared memory law reads (SetIn turns it On, ResetIn Off).
-                bool PulseInput(PortSocket socket) => ports.Any(port => port.Socket == socket && port.Domain == SimulationDomain.Signal &&
-                    port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse);
-                if (!Enum.IsDefined(memory.Set) || !Enum.IsDefined(memory.Reset)) Undefined("Memory.Inputs");
-                else if (memory.Set != PortSocket.SetIn || memory.Reset != PortSocket.ResetIn || !PulseInput(memory.Set) || !PulseInput(memory.Reset))
+                bool PulseInput(PortId portId, PortRole expectedRole) =>
+                    ports.Any(port => port.Id == portId && port.Role == expectedRole && port.Domain == SimulationDomain.Signal &&
+                        port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse);
+                if (string.IsNullOrWhiteSpace(memory.Set.Value) || string.IsNullOrWhiteSpace(memory.Reset.Value) ||
+                    memory.Set == memory.Reset || !PulseInput(memory.Set, PortRole.SetIn) || !PulseInput(memory.Reset, PortRole.ResetIn))
                     OutOfRange("Memory.Inputs");
                 // Memory drives a Level ActivationOut.
-                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
+                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
                     OutOfRange("Memory.Ports");
                 // Memory On closes a switched contact.
                 if (electrical?.Supply?.Kind != SupplyCapabilityKind.SwitchedContact)
@@ -855,11 +854,11 @@ public static class BundleValidator
                         parameter.Unit == ParameterUnit.Second && float.IsFinite(parameter.Minimum) && parameter.Minimum > 0f))
                     OutOfRange("Oscillator.IntervalParameter");
                 // A source: a Pulse ActivationOut and no ActivationIn.
-                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse) ||
-                        ports.Any(port => port.Socket == PortSocket.ActivationIn))
+                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse) ||
+                        ports.Any(port => port.Role == PortRole.ActivationIn))
                     OutOfRange("Oscillator.Ports");
                 // Supplied through its PowerIn route into a Consumer node.
-                if (!ports.Any(port => port.Socket == PortSocket.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
+                if (!ports.Any(port => port.Role == PortRole.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
                         electrical?.Nodes.Any(node => node.Role == ElectricalRole.Consumer) != true)
                     OutOfRange("Oscillator.Supply");
                 // A Static frame without sliders and with a collider: each pulse names the frame's first declared collider through its compiled identity map.
@@ -896,7 +895,7 @@ public static class BundleValidator
                     OutOfRange("ContactLoad.ReleaseHoldSeconds");
                 if (mechanical is not { KinematicMode: KinematicMode.Static, Sliders.Count: 0, Hinges.Count: 0 })
                     OutOfRange("ContactLoad.Body");
-                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
+                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
                     OutOfRange("ContactLoad.Ports");
             }
             if (signal.Orientation is { } orientation)
@@ -905,15 +904,15 @@ public static class BundleValidator
                 if (Finite("Orientation.ThresholdDegrees", orientation.ThresholdDegrees) &&
                         !(orientation.ThresholdDegrees >= 4f && orientation.ThresholdDegrees <= 179f))
                     OutOfRange("Orientation.ThresholdDegrees");
-                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
                     OutOfRange("Orientation.Ports");
                 if (mechanical?.KinematicMode != KinematicMode.Dynamic)
                     OutOfRange("Orientation.Body");
             }
             if (signal.Indicator is { } indicator)
             {
-                if (!Enum.IsDefined(indicator.Input)) Undefined("Indicator.Input");
-                else if (!ports.Any(port => port.Socket == indicator.Input && port.Domain == SimulationDomain.Signal &&
+                if (string.IsNullOrWhiteSpace(indicator.Input.Value) ||
+                    !ports.Any(port => port.Id == indicator.Input && port.Role == PortRole.ActivationIn && port.Domain == SimulationDomain.Signal &&
                         port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Level))
                     OutOfRange("Indicator.Input");
             }
@@ -923,7 +922,7 @@ public static class BundleValidator
                     OutOfRange("Passage.ApertureRadius");
                 if (Finite("Passage.RearmClearance", passage.RearmClearance) && !(passage.RearmClearance >= .001f && passage.RearmClearance <= 10f))
                     OutOfRange("Passage.RearmClearance");
-                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
                     OutOfRange("Passage.Ports");
                 if (mechanical?.KinematicMode != KinematicMode.Static)
                     OutOfRange("Passage.Frame");
@@ -940,7 +939,7 @@ public static class BundleValidator
                 Real("Contact.ThresholdParameter", contact.ThresholdParameter, parameters);
                 if (!parameters.Any(parameter => parameter.Key == contact.ThresholdParameter && parameter.Unit == ParameterUnit.MetrePerSecond && parameter.Minimum >= 0f && parameter.Maximum <= 64f))
                     OutOfRange("Contact.ThresholdParameter");
-                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
                     OutOfRange("Contact.Ports");
                 if (signal.Triggers.Count != 0 || signal.Timer is not null || signal.PulseCount is not null || signal.Memory is not null)
                     OutOfRange("Contact.Ownership");
@@ -955,8 +954,8 @@ public static class BundleValidator
                 if ((timer.Completion == TimerCompletionPolicy.Rearm && (timer.ElapsedSignal != TimerElapsedSignal.None || timer.Boundary != TimerBoundary.BeforeNetworks)) ||
                     (timer.Completion == TimerCompletionPolicy.Latch && (timer.ElapsedSignal != TimerElapsedSignal.Activation || timer.Boundary != TimerBoundary.BeforePhysics)))
                     OutOfRange("Timer.Policy");
-                if (!ports.Any(port => port.Socket == PortSocket.ActivationIn && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse) ||
-                    (timer.ElapsedSignal == TimerElapsedSignal.Activation && !ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse)))
+                if (!ports.Any(port => port.Role == PortRole.ActivationIn && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse) ||
+                    (timer.ElapsedSignal == TimerElapsedSignal.Activation && !ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse)))
                     OutOfRange("Timer.Ports");
                 if (!parameters.Any(parameter => parameter.Key == timer.DurationParameter && parameter.Unit == ParameterUnit.Second && parameter.Minimum > 0f))
                     OutOfRange("Timer.DurationParameter");

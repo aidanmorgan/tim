@@ -18,10 +18,10 @@ public sealed class LampDetectorGuardTests
     private static readonly double Rearm = Plane + Clearance + BallRadius; // local +X down: upstream is above the plane
     private static readonly double Half45 = Math.Sqrt(.5);
 
-    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, WorkshopSocket input = WorkshopSocket.ActivationIn) =>
-        new(source, WorkshopSocket.ActivationOut, target, input, WorkshopConnectionDomain.Activation);
+    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, PortId input = default) =>
+        new(source, PortId.ActivationOut, target, input == default ? PortId.ActivationIn : input, WorkshopConnectionDomain.Activation);
     private static WorkshopConnection Power(GpuBodyId source, GpuBodyId target) =>
-        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+        new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] links) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
 
@@ -244,7 +244,7 @@ public sealed class LampDetectorGuardTests
         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
         var sticky = PlacedParts.Lamp(new(6), 3, 3, 0, 0, 0, 0, 1);
         var bench = Bench([setClock, resetClock, latch, battery, lamp, sticky], Power(battery.Id, setClock.Id), Power(battery.Id, resetClock.Id),
-            Signal(setClock.Id, latch.Id, WorkshopSocket.SetIn), Signal(resetClock.Id, latch.Id, WorkshopSocket.ResetIn),
+            Signal(setClock.Id, latch.Id, PortId.SetIn), Signal(resetClock.Id, latch.Id, PortId.ResetIn),
             Signal(latch.Id, lamp.Id), Signal(setClock.Id, sticky.Id));
         var network = WorkshopActivationCompiler.Compile(bench);
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 300);

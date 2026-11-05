@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Immutable;
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.Gpu;
@@ -32,7 +33,7 @@ public readonly record struct SupplyConsumer
 
 public readonly record struct SupplyNodeDeclaration(GpuBodyId Owner, SupplyNodeKind Kind,
     ElectricalSourceId Source = default, ImmutableArray<SupplyConsumer> Consumers = default, LogicGateOperation? Operation = null);
-public readonly record struct SupplyEdge(GpuBodyId Source, GpuBodyId Target, WorkshopSocket Input);
+public readonly record struct SupplyEdge(GpuBodyId Source, GpuBodyId Target, PortRole Input);
 public readonly record struct SupplyResolution(bool[] Consumers, ElectricalLogicRead[] Logic);
 
 /// <summary>Declared topology shared by physical supply projection and source provenance queries.</summary>
@@ -43,7 +44,7 @@ public sealed record SupplyTopology(SupplyNodeDeclaration[] Nodes, SupplyEdge[] 
         var seen=new System.Collections.Generic.HashSet<GpuBodyId>(16);
         var pending=new System.Collections.Generic.Queue<GpuBodyId>(16); pending.Enqueue(target);
         while(pending.TryDequeue(out var current))
-            if(seen.Add(current)) foreach(var edge in Edges) if(edge.Target==current && edge.Input==WorkshopSocket.PowerIn) pending.Enqueue(edge.Source);
+            if(seen.Add(current)) foreach(var edge in Edges) if(edge.Target==current && edge.Input==PortRole.PowerIn) pending.Enqueue(edge.Source);
         return Nodes.Where(node=>node.Kind==SupplyNodeKind.Source && seen.Contains(node.Owner))
             .Select(node=>node.Owner).OrderBy(owner=>owner.Value).ToArray();
     }
@@ -57,7 +58,7 @@ public sealed class CompiledSupplyGraph
     public ReadOnlySpan<SupplyEdge> Edges => _edges;
     private readonly int[] _sources;
     private readonly int[][] _consumers;
-    private readonly (int Source, WorkshopSocket Input)[][] _inputs;
+    private readonly (int Source, PortRole Input)[][] _inputs;
     private readonly int[][] _components;
     private readonly bool[] _cyclic;
     public ReadOnlySpan<SupplyNodeDeclaration> Nodes => _nodes;
@@ -74,7 +75,7 @@ public sealed class CompiledSupplyGraph
         DriveSlots = prismatics.Length + revolutes.Length;
         Array.Fill(_sources, -1);
         var slots = new System.Collections.Generic.Dictionary<GpuBodyId,int>(16);
-        var inputs = new System.Collections.Generic.List<(int Source, WorkshopSocket Input)>[nodes.Length];
+        var inputs = new System.Collections.Generic.List<(int Source, PortRole Input)>[nodes.Length];
         var seenConsumers = new System.Collections.Generic.HashSet<SupplyConsumer>(4);
         for (var i=0;i<nodes.Length;i++)
         {
@@ -141,8 +142,8 @@ public sealed class CompiledSupplyGraph
         {
             if(!slots.TryGetValue(edge.Source,out var from) || !slots.TryGetValue(edge.Target,out var to) || from==to ||
                 !seenEdges.Add(edge) || nodes[from].Kind==SupplyNodeKind.Consumer || nodes[to].Kind==SupplyNodeKind.Source ||
-                (edge.Input != WorkshopSocket.PowerIn &&
-                    (nodes[to].Kind != SupplyNodeKind.LogicGate || edge.Input is not (WorkshopSocket.FirstIn or WorkshopSocket.SecondIn))))
+                (edge.Input != PortRole.PowerIn &&
+                    (nodes[to].Kind != SupplyNodeKind.LogicGate || edge.Input is not (PortRole.FirstIn or PortRole.SecondIn))))
                 throw new ArgumentException("Electrical graph edge is unsupported or duplicated.");
             inputs[to].Add((from,edge.Input));
         }
@@ -190,18 +191,18 @@ public sealed class CompiledSupplyGraph
             foreach (var consumer in _consumers[i]) closed[consumer]=powered[i];
             if(_nodes[i].Kind==SupplyNodeKind.LogicGate)
                 logic.Add(new(_nodes[i].Owner,
-                    (Input(i,WorkshopSocket.FirstIn) ? ElectricalInputState.FirstOnly : ElectricalInputState.Neither) |
-                    (Input(i,WorkshopSocket.SecondIn) ? ElectricalInputState.SecondOnly : ElectricalInputState.Neither),
-                    Input(i,WorkshopSocket.PowerIn),powered[i]));
+                    (Input(i,PortRole.FirstIn) ? ElectricalInputState.FirstOnly : ElectricalInputState.Neither) |
+                    (Input(i,PortRole.SecondIn) ? ElectricalInputState.SecondOnly : ElectricalInputState.Neither),
+                    Input(i,PortRole.PowerIn),powered[i]));
         }
         return new(closed,logic.OrderBy(row=>row.Owner.Value).ToArray());
-        bool Input(int node, WorkshopSocket socket) => _inputs[node].Any(edge=>edge.Input==socket && powered[edge.Source]);
+        bool Input(int node, PortRole socket) => _inputs[node].Any(edge=>edge.Input==socket && powered[edge.Source]);
         bool Active(int i) => _nodes[i].Kind switch
         {
-            SupplyNodeKind.Contact => Input(i,WorkshopSocket.PowerIn) && contacts[i],
-            SupplyNodeKind.Consumer => Input(i,WorkshopSocket.PowerIn),
-            SupplyNodeKind.LogicGate => Input(i,WorkshopSocket.PowerIn) && Evaluate(_nodes[i].Operation!.Value,
-                Input(i,WorkshopSocket.FirstIn),Input(i,WorkshopSocket.SecondIn)),
+            SupplyNodeKind.Contact => Input(i,PortRole.PowerIn) && contacts[i],
+            SupplyNodeKind.Consumer => Input(i,PortRole.PowerIn),
+            SupplyNodeKind.LogicGate => Input(i,PortRole.PowerIn) && Evaluate(_nodes[i].Operation!.Value,
+                Input(i,PortRole.FirstIn),Input(i,PortRole.SecondIn)),
             _ => throw new ArgumentException("Unsupported electrical node.")
         };
     }

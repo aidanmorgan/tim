@@ -48,7 +48,7 @@ public sealed class MotorElementDeclaration : IHingeElement, IElectricalElement,
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-.55f, 0f, 0f), -Vector3.UnitX)
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(-.55f, 0f, 0f), -Vector3.UnitX)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];

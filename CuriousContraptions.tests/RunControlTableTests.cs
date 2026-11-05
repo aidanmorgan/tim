@@ -19,7 +19,7 @@ public sealed class RunControlTableTests
             PlacedParts.Battery(Source, 3, 3, 0, enabled: enabled),
             WorkshopInput.Generic(new PartId("ball"), Ball, -3, 3, 0, 0, 0, 0, 1),
             PlacedParts.Battery(LockedSource, 6, 3, 0) with { Locked = true }),
-        Connections: new(new WorkshopConnection(Source, WorkshopSocket.Supply, Gate, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+        Connections: new(new WorkshopConnection(Source, PortId.Supply, Gate, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
 
     private static WorkshopCompiledScene Compiled() => WorkshopSceneCompiler.Compile(Bench(), new(101, 206), new(7));
 
@@ -193,7 +193,7 @@ public sealed class RunControlTableTests
             MotorAt(LockedMotor, -4, 4f) with { Locked = true },
             PlacedParts.Battery(Supply, 3, 4, 0, enabled: enabled),
             MotorAt(Motor, 0, 6f)),
-        Connections: new(new WorkshopConnection(Supply, WorkshopSocket.Supply, Motor, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+        Connections: new(new WorkshopConnection(Supply, PortId.Supply, Motor, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
 
     private static WorkshopCompiledScene DriveScene() => WorkshopSceneCompiler.Compile(DriveBench(), new(101, 206), new(7));
 
@@ -362,7 +362,7 @@ public sealed class RunControlTableTests
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
                 WorkshopInput.Generic(new PartId("impact_lever"), lever, -8, 4, 0, 0, 0, 0, 1),
                 MotorAt(first, 0, 6f), PlacedParts.Battery(source, 3, 4, 0), MotorAt(second, 8, 6f)),
-            Connections: new(new WorkshopConnection(source, WorkshopSocket.Supply, first, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+            Connections: new(new WorkshopConnection(source, PortId.Supply, first, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         await using var harness = await WorkshopIntegrationHarness.Running(construction);
         var physics = harness.Simulation.Scene.Physics;
         var revolutes = physics.Revolutes.ToArray();

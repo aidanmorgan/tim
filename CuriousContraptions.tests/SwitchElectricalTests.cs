@@ -5,8 +5,8 @@ namespace CuriousContraptions.Tests;
 
 public sealed class SwitchElectricalTests
 {
-    private static WorkshopConnection Power(ulong source,ulong target)=>new(new(source),WorkshopSocket.Supply,new(target),WorkshopSocket.PowerIn,WorkshopConnectionDomain.Electrical);
-    private static WorkshopConnection Signal(ulong source,ulong target)=>new(new(source),WorkshopSocket.ActivationOut,new(target),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation);
+    private static WorkshopConnection Power(ulong source,ulong target)=>new(new(source),PortId.Supply,new(target),PortId.PowerIn,WorkshopConnectionDomain.Electrical);
+    private static WorkshopConnection Signal(ulong source,ulong target)=>new(new(source),PortId.ActivationOut,new(target),PortId.ActivationIn,WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Machine(float x=0f,float threshold=.8f)
     {
         return new(new(2),WorkshopCadenceSettings.Default(),new(

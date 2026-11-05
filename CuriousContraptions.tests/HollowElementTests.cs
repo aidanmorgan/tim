@@ -91,7 +91,7 @@ public sealed class HollowElementTests
         var lamp = WorkshopInput.Generic(new PartId("lamp"), new(3), 3, 2, 0, 0, 0, 0, 1);
         var construction = Bench(pipe, detector, lamp, BallAt(new(0, 7.2f, 0))) with
         {
-            Connections = new([new(Second, WorkshopSocket.ActivationOut, lamp.Id, WorkshopSocket.ActivationIn,
+            Connections = new([new(Second, PortId.ActivationOut, lamp.Id, PortId.ActivationIn,
                 WorkshopConnectionDomain.Activation)])
         };
         await using var ring = await WorkshopIntegrationHarness.Building(construction);
