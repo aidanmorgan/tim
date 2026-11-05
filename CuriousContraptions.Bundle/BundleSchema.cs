@@ -130,6 +130,7 @@ public static class BundleSchema
         typeof(PortIdConverter),
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
+        typeof(ExactEnumConverter<CoordinateKind>),
         typeof(ExactEnumConverter<RopeAttachmentRole>),
         typeof(ExactEnumConverter<PortRole>), typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
         typeof(ExactEnumConverter<RevoluteTravel>), typeof(ExactEnumConverter<TargetSelectorKind>),

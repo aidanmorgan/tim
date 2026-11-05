@@ -22,7 +22,7 @@ public enum ElementPortRejection : uint
     DuplicateSocket = 3,
     /// <summary>The port has no identity or names an undefined role.</summary>
     UndefinedSocket = 4,
-    /// <summary>The engine connects only the Signal (activation), Electrical, and Rope domains.</summary>
+    /// <summary>The engine connects only the Signal (activation), Electrical, Rope and Mechanical domains.</summary>
     UnsupportedDomain = 5,
     /// <summary>A port is an input, an output, or bidirectional; the engine connects only supported directions per domain.</summary>
     UnsupportedDirection = 6,
@@ -120,6 +120,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             SimulationDomain.Signal => WorkshopConnectionDomain.Activation,
             SimulationDomain.Electrical => WorkshopConnectionDomain.Electrical,
             SimulationDomain.Rope => WorkshopConnectionDomain.Rope,
+            SimulationDomain.Mechanical => WorkshopConnectionDomain.Mechanical,
             _ => throw Refused(ElementPortRejection.UnsupportedDomain, element, index, $"declares the domain {port.Domain}, which the engine does not connect")
         };
         var direction = port.Direction switch
@@ -136,7 +137,9 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             PortRole.Supply => domain == WorkshopConnectionDomain.Electrical && direction == WorkshopPortDirection.Output,
             PortRole.PowerIn or PortRole.FirstIn or PortRole.SecondIn => domain == WorkshopConnectionDomain.Electrical && direction == WorkshopPortDirection.Input,
             PortRole.Tie or PortRole.TieA or PortRole.TieB => domain == WorkshopConnectionDomain.Rope && direction == WorkshopPortDirection.Bidirectional,
-            _ => true
+            PortRole.Drive => domain == WorkshopConnectionDomain.Mechanical && direction == WorkshopPortDirection.Output,
+            PortRole.DriveIn => domain == WorkshopConnectionDomain.Mechanical && direction == WorkshopPortDirection.Input,
+            _ => false
         };
         if (!roleAgrees)
             throw Refused(ElementPortRejection.SocketDisagrees, element, index, $"declares {port.Role} as {port.Domain} {port.Direction}");
@@ -146,6 +149,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             (WorkshopConnectionDomain.Activation, PortSignalKind.Level) => WorkshopSignalKind.Level,
             (WorkshopConnectionDomain.Electrical, null) => null,
             (WorkshopConnectionDomain.Rope, null) => null,
+            (WorkshopConnectionDomain.Mechanical, null) => null,
             _ => throw Refused(ElementPortRejection.SignalKindDisagrees, element, index,
                 $"declares the signal kind '{port.Signal}' on a {port.Domain} port")
         };
@@ -168,8 +172,22 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             if (port.GuideOffset != Vector3.Zero)
                 throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a guide offset on a non-guide port");
         }
+        if (domain == WorkshopConnectionDomain.Mechanical)
+        {
+            if (port.Coordinate is not { Kind: CoordinateKind.Revolute, Index: >= 0 })
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares no coordinate reference or an unsupported coordinate kind");
+            if (!float.IsFinite(port.CoordinatePerRadian) || port.CoordinatePerRadian == 0f)
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a non-finite or zero coordinate-per-radian ratio");
+        }
+        else
+        {
+            if (port.Coordinate is not null)
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a coordinate reference on a non-mechanical port");
+            if (port.CoordinatePerRadian != 0f)
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares coordinate-per-radian on a non-mechanical port");
+        }
         return new(port.Id, port.Role, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body,
-            port.GuideRadius, port.GuideOffset);
+            port.GuideRadius, port.GuideOffset, port.Coordinate, port.CoordinatePerRadian);
     }
 
     private static ElementPortRejectedException Refused(ElementPortRejection reason, PartId element, int index, string detail) =>

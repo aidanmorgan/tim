@@ -11,6 +11,13 @@ namespace CuriousContraptions.Simulation;
 
 internal sealed class WorkshopPhysicsEngine
 {
+    private readonly MechanicalTransmissionDeclaration[] _declaredTransmissions;
+
+    public WorkshopPhysicsEngine(ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default)
+    {
+        _declaredTransmissions = transmissions.ToArray();
+    }
+
     private Dictionary<ContactFeatureIdentity, float> _contactCache = new(64);
     private HashSet<ContactFeatureSetKey> _normalContactSets = new(16);
     private Dictionary<ContactFeatureSetKey, FrictionWarmStart> _frictionCache = new(16);
@@ -29,6 +36,8 @@ internal sealed class WorkshopPhysicsEngine
     private List<SimCollider> _colliders = new(32);
     private List<SimJoint> _joints = new(4);
     private List<SimRevoluteJoint> _revoluteJoints = new(4);
+    private readonly List<SimMechanicalTransmission> _transmissions = [];
+    private readonly Dictionary<RevoluteConstraintId, SimRevoluteJoint> _revoluteJointMap = new(4);
     private readonly List<SimTensileRoute> _tensile = new(4);
     private readonly List<SimTensileRoute> _tensilePool = new(4);
     private List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
@@ -80,6 +89,7 @@ internal sealed class WorkshopPhysicsEngine
         _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4]; _drivenSlots = new bool[4];
         _restitutionStamp = 0;
         _probeContacts.Clear(); _probeCollider = new();
+        _transmissions.Clear(); _revoluteJointMap.Clear();
         _tensile.Clear(); _tensilePool.Clear();
         _bvh.Reset();
     }
@@ -317,6 +327,7 @@ internal sealed class WorkshopPhysicsEngine
 
         _staticBodies.Clear();
         _dynamicBodies.Clear();
+        _revoluteJointMap.Clear();
         _allBodies.Clear();
 
         for (var slot = 0; slot < bodyCount; slot++)
@@ -580,6 +591,8 @@ internal sealed class WorkshopPhysicsEngine
 
             while (_revoluteJointPool.Count <= index) _revoluteJointPool.Add(new SimRevoluteJoint());
             var joint = _revoluteJointPool[index];
+            var revoluteId = new RevoluteConstraintId(BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(revoluteOffset + PhysicsGpuAbi.RecordIdentityOffset, 8)));
+            _revoluteJointMap[revoluteId] = joint;
             joint.Offset = revoluteOffset;
             joint.A = _allBodies[aSlot];
             joint.B = _allBodies[bSlot];
@@ -603,6 +616,17 @@ internal sealed class WorkshopPhysicsEngine
                 joint.Impulses[imp] = ReadF32(span, revoluteOffset + PhysicsGpuAbi.RevoluteImpulseOffset + imp * 4);
 
             _revoluteJoints.Add(joint);
+        }
+
+        _transmissions.Clear();
+        foreach (var declaration in _declaredTransmissions)
+        {
+            _transmissions.Add(new SimMechanicalTransmission
+            {
+                DrivingJoint = _revoluteJointMap[declaration.DrivingJoint],
+                DrivenJoint = _revoluteJointMap[declaration.DrivenJoint],
+                Ratio = declaration.Ratio
+            });
         }
 
         var dt = WorkshopConstraintSolver.SubstepSeconds;
@@ -901,6 +925,10 @@ internal sealed class WorkshopPhysicsEngine
                     RevoluteConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
                 }
             }
+            foreach (var transmission in _transmissions)
+            {
+                MechanicalTransmissionSolver.Prepare(transmission);
+            }
             foreach (var tensile in _tensile)
             {
                 TensileConstraintSolver.Prepare(tensile, dt);
@@ -913,6 +941,7 @@ internal sealed class WorkshopPhysicsEngine
             {
                 PrismaticConstraintSolver.SweepConstraints(_joints, true);
                 RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, true);
+                foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Solve(transmission);
                 foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, true);
                 WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Solve, softCoeffs, dt);
             }
@@ -996,10 +1025,12 @@ internal sealed class WorkshopPhysicsEngine
             }
 
             foreach (var tensile in _tensile) TensileConstraintSolver.Prepare(tensile, dt);
+            foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Prepare(transmission);
             for (var iteration = 0; iteration < WorkshopConstraintSolver.RelaxIterations; iteration++)
             {
                 PrismaticConstraintSolver.SweepConstraints(_joints, false);
                 RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, false);
+                foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Solve(transmission);
                 foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, false);
                 WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Relax, softCoeffs, dt);
             }

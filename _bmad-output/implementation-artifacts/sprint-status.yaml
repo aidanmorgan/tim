@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-29-2026
+last_updated: 11-05-2026
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -533,6 +533,8 @@ development_status:
   cat-023c-offset-centre-of-mass: backlog # before next Domino-dependent level and catalogue closure
   catalogue-native-closure: backlog # requires native 15.0 + all required modes/integrations; conjunction only
   post-catalogue-browser-qualification: backlog # disabled until every CAT/named criterion passes native proof
+
+  9a-46e-mechanical-coordinate-bindings: review # full local 5657/0/0; hooks and six-layer review pending; no publication; next 46f then 46g–m before Conveyor
 
   # Individual children of grouped parents; source contracts in epics.md#catalogue-slice-ownership.
   11-1a-motor: backlog

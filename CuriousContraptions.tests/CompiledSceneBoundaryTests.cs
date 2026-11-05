@@ -521,13 +521,13 @@ public sealed class CompiledSceneBoundaryTests
         var offset = table.__offset(4 + field * 2);
         return offset == 0 ? 0 : table.bb.GetUint(table.bb_pos + offset);
     }
-    private static int Slot(Table table, int field)
+    internal static int Slot(Table table, int field)
     {
         var offset = table.__offset(4 + field * 2);
         Assert.NotEqual(0, offset); return table.bb_pos + offset;
     }
-    private static Table Child(Table table, int field) => new(table.__indirect(Slot(table, field)), table.bb);
-    private static Table[] Rows(Table table, int field)
+    internal static Table Child(Table table, int field) => new(table.__indirect(Slot(table, field)), table.bb);
+    internal static Table[] Rows(Table table, int field)
     {
         var offset = table.__offset(4 + field * 2);
         Assert.NotEqual(0, offset);

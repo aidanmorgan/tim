@@ -34,6 +34,14 @@ public enum PortRole : uint
     DriveIn = 13
 }
 
+public enum CoordinateKind : byte
+{
+    Revolute = 1,
+    Prismatic = 2
+}
+
+public readonly record struct CoordinateReference(CoordinateKind Kind, int Index);
+
 /// <summary>One declared socket, and the only source of its domain, direction, signal kind and anchor position.
 /// <see cref="Signal"/> is declared on every signal port and null on every other port; <see cref="LocalPosition"/> is the anchor in
 /// the frame of the owning <see cref="Body"/> (metres): the element's local frame for body 0, otherwise that moving body's frame. Its
@@ -49,6 +57,7 @@ public readonly record struct PortDescriptor(
     RopeAttachmentRole AttachmentRole = RopeAttachmentRole.None,
     PortPositionBinding? PositionBinding = null,
     PackageBodyIndex Body = default,
+    CoordinateReference? Coordinate = null,
     float CoordinatePerRadian = 0f,
     float GuideRadius = 0f,
     Vector3 GuideOffset = default);

@@ -352,12 +352,31 @@ public static class WorkshopPhysicsCompiler
                 }
             }
         }
+        var transmissions = new List<MechanicalTransmissionDeclaration>();
+        foreach (var link in construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Mechanical))
+        {
+            var sourceInstance = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == link.Source);
+            var targetInstance = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == link.Target);
+            var sourcePort = DeclaredPorts.Current.Of(sourceInstance.PartId).ToArray().Single(p => p.Id == link.Output);
+            var targetPort = DeclaredPorts.Current.Of(targetInstance.PartId).ToArray().Single(p => p.Id == link.Input);
+
+            var sourceCoord = WorkshopConnections.MechanicalCoordinate(sourceInstance.PartId, sourcePort);
+            var targetCoord = WorkshopConnections.MechanicalCoordinate(targetInstance.PartId, targetPort);
+
+            var drivingJoint = identities[sourceInstance.Id].Hinges[sourceCoord.Index].Joint;
+            var drivenJoint = identities[targetInstance.Id].Hinges[targetCoord.Index].Joint;
+            var ratio = sourcePort.CoordinatePerRadian / targetPort.CoordinatePerRadian;
+
+            var transmissionId = new MechanicalTransmissionId((ulong)transmissions.Count + 1);
+            transmissions.Add(new(transmissionId, drivingJoint, drivenJoint, ratio));
+        }
         return new(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(identities[link.Source].Source, identities[link.Target].Work)).ToArray(), prismatics.ToArray(),
             supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray(),
             compliantSurfaces.ToArray(), revoluteDrives.ToArray(),
-            ropeGuides: ropeGuides.ToArray());
+            ropeGuides: ropeGuides.ToArray(),
+            transmissions: transmissions.ToArray());
     }
     /// <summary>The finite electrical store a declared Source compiles for one owner, from its own store parameters as f32: the
     /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>

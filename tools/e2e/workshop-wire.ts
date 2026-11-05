@@ -7608,6 +7608,81 @@ static endCapabilityRopeGuideRecord(builder:flatbuffers.Builder):flatbuffers.Off
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export class MechanicalTransmissionRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):MechanicalTransmissionRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsMechanicalTransmissionRecord(bb:flatbuffers.ByteBuffer, obj?:MechanicalTransmissionRecord):MechanicalTransmissionRecord {
+  return (obj || new MechanicalTransmissionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsMechanicalTransmissionRecord(bb:flatbuffers.ByteBuffer, obj?:MechanicalTransmissionRecord):MechanicalTransmissionRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new MechanicalTransmissionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+drivingHinge():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+drivenHinge():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+ratio():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startMechanicalTransmissionRecord(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addDrivingHinge(builder:flatbuffers.Builder, drivingHinge:bigint) {
+  builder.addFieldInt64(1, drivingHinge, BigInt('0'));
+}
+
+static addDrivenHinge(builder:flatbuffers.Builder, drivenHinge:bigint) {
+  builder.addFieldInt64(2, drivenHinge, BigInt('0'));
+}
+
+static addRatio(builder:flatbuffers.Builder, ratio:number) {
+  builder.addFieldFloat32(3, ratio, 0.0);
+}
+
+static endMechanicalTransmissionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createMechanicalTransmissionRecord(builder:flatbuffers.Builder, id:bigint, drivingHinge:bigint, drivenHinge:bigint, ratio:number):flatbuffers.Offset {
+  MechanicalTransmissionRecord.startMechanicalTransmissionRecord(builder);
+  MechanicalTransmissionRecord.addId(builder, id);
+  MechanicalTransmissionRecord.addDrivingHinge(builder, drivingHinge);
+  MechanicalTransmissionRecord.addDrivenHinge(builder, drivenHinge);
+  MechanicalTransmissionRecord.addRatio(builder, ratio);
+  return MechanicalTransmissionRecord.endMechanicalTransmissionRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 export class CompiledSceneRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -7931,8 +8006,18 @@ ropeGuidesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+transmissions(index: number, obj?:MechanicalTransmissionRecord):MechanicalTransmissionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 72);
+  return offset ? (obj || new MechanicalTransmissionRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+transmissionsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 72);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(34);
+  builder.startObject(35);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -8387,6 +8472,22 @@ static startRopeGuidesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
+static addTransmissions(builder:flatbuffers.Builder, transmissionsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(34, transmissionsOffset, 0);
+}
+
+static createTransmissionsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startTransmissionsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 8) // settings
@@ -8833,8 +8934,13 @@ assistanceLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+interactionTarget():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
 static startPuzzleRecord(builder:flatbuffers.Builder) {
-  builder.startObject(10);
+  builder.startObject(11);
 }
 
 static addId(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset) {
@@ -8881,6 +8987,10 @@ static startAssistanceVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(44, numElems, 4);
 }
 
+static addInteractionTarget(builder:flatbuffers.Builder, interactionTarget:bigint) {
+  builder.addFieldInt64(10, interactionTarget, BigInt('0'));
+}
+
 static endPuzzleRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 4) // id
@@ -8888,7 +8998,7 @@ static endPuzzleRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalDelay:number, assistanceOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalDelay:number, assistanceOffset:flatbuffers.Offset, interactionTarget:bigint):flatbuffers.Offset {
   PuzzleRecord.startPuzzleRecord(builder);
   PuzzleRecord.addId(builder, idOffset);
   PuzzleRecord.addPlacement(builder, placement);
@@ -8900,6 +9010,7 @@ static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offs
   PuzzleRecord.addGoalTarget(builder, goalTarget);
   PuzzleRecord.addGoalDelay(builder, goalDelay);
   PuzzleRecord.addAssistance(builder, assistanceOffset);
+  PuzzleRecord.addInteractionTarget(builder, interactionTarget);
   return PuzzleRecord.endPuzzleRecord(builder);
 }
 }

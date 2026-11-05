@@ -250,6 +250,9 @@ internal sealed class LawScene
     public void RevoluteDrive(RevoluteConstraintId joint, float targetSpeed, float maxTorque) =>
         _revoluteDrives.Add(new(joint, targetSpeed, maxTorque));
     private readonly List<RevoluteDriveDeclaration> _revoluteDrives = [];
+    private readonly List<MechanicalTransmissionDeclaration> _transmissions = [];
+    public void Transmission(RevoluteConstraintId source, RevoluteConstraintId target, float ratio) =>
+        _transmissions.Add(new(new(_next++), source, target, ratio));
 
     /// <summary>An electrical source owned by <paramref name="owner"/> (an ample store) and its supply graph source node.</summary>
     public ElectricalSourceDeclaration Source(GpuBodyId owner, ElectricalEnable enabled = ElectricalEnable.Enabled)
@@ -305,7 +308,7 @@ internal sealed class LawScene
         var scene = new PhysicsSceneDeclaration(new(1, 2), _next, [.. _bodies], [.. _colliders], [.. _materials], [], [],
             contactWorks: [.. _contactWorks], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics],
             prismaticDrives: [.. _drives], revolutes: [.. _revolutes], compliantSurfaces: [.. _compliantSurfaces],
-            electricalSources: [.. _sources], supplyNodes: [.. nodes], supplyEdges: [.. _supplyEdges], revoluteDrives: [.. _revoluteDrives]);
+            electricalSources: [.. _sources], supplyNodes: [.. nodes], supplyEdges: [.. _supplyEdges], revoluteDrives: [.. _revoluteDrives], transmissions: [.. _transmissions]);
         return new(scene, PhysicsGpuAbi.Admission(scene, new(1), new(cadence, PhysicalStepProfile.Canonical480Hz, new(1))), cadence);
     }
 }
@@ -388,7 +391,7 @@ internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, S
     /// canonical, [-0.5, 0.5), on every tick (the host rejects a remainder that rounds to 0.5).</summary>
     public LawState Step(int ticks, Action<int, LawState>? observe = null, bool supplied = false, WorkshopPhysicsEngine? engine = null)
     {
-        engine ??= new WorkshopPhysicsEngine();
+        engine ??= new WorkshopPhysicsEngine(scene.Transmissions);
         engine.Reset();
         var source = (byte[])admitted.Clone();
         var candidate = new byte[source.Length];

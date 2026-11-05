@@ -21,7 +21,9 @@ public readonly record struct WorkshopPort(PortId Id, PortRole Role, WorkshopCon
     WorkshopSignalKind? Signal, Vector3 LocalPosition, RopeAttachmentRole AttachmentRole = RopeAttachmentRole.None, PortPositionBinding? PositionBinding = null,
     CuriousContraptions.Abstractions.PackageBodyIndex Body = default,
     float GuideRadius = 0f,
-    Vector3 GuideOffset = default);
+    Vector3 GuideOffset = default,
+    CoordinateReference? Coordinate = null,
+    float CoordinatePerRadian = 0f);
 public readonly record struct WorkshopConnection(GpuBodyId Source, PortId Output, GpuBodyId Target,
     PortId Input, WorkshopConnectionDomain Domain, float? RopeLength = null);
 
@@ -85,6 +87,8 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
         if (_items.Length == 0) return;
         var ports = DeclaredPorts.Current;
         var seen = new HashSet<WorkshopConnection>(16);
+        var mechanicalOutputs = new HashSet<(GpuBodyId, CoordinateReference)>();
+        var mechanicalInputs = new HashSet<(GpuBodyId, CoordinateReference)>();
         foreach (var link in _items)
         {
             if (link.Source.Value == 0 || link.Target.Value == 0 || link.Source == link.Target ||
@@ -144,6 +148,20 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                 if (link.RopeLength is not { } length || !float.IsFinite(length) || length < .05f || length > 200f)
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Rope length must be between 0.05 and 200 metres.");
             }
+            else if (link.Domain == WorkshopConnectionDomain.Mechanical)
+            {
+                if (outRole != PortRole.Drive || inRole != PortRole.DriveIn)
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported mechanical socket.");
+                var output = ports.Of(source.Value).ToArray().Single(port => port.Id == link.Output);
+                var input = ports.Of(target.Value).ToArray().Single(port => port.Id == link.Input);
+                var sourceCoordinate = MechanicalCoordinate(source.Value, output);
+                var targetCoordinate = MechanicalCoordinate(target.Value, input);
+                var ratio = output.CoordinatePerRadian / input.CoordinatePerRadian;
+                if (!float.IsFinite(ratio) || ratio == 0f)
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Mechanical ratio must be representable, finite and nonzero.");
+                if (!mechanicalOutputs.Add((link.Source, sourceCoordinate)) || !mechanicalInputs.Add((link.Target, targetCoordinate)))
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Duplicate mechanical drive connection to the same coordinate role.");
+            }
         }
         _ = RopeTopology.Compile(_items, endpoint =>
             ports.Of(partOf(endpoint.Body)!.Value).ToArray().Single(port => port.Id == endpoint.Socket).AttachmentRole);
@@ -161,6 +179,15 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                 $"Break the wire loop through parts {named}{rest}. This gate's output cannot feed its own inputs.");
         }
     }
+    internal static CoordinateReference MechanicalCoordinate(PartId part, WorkshopPort port)
+    {
+        if (port.Coordinate is not { Kind: CoordinateKind.Revolute } coordinate ||
+            coordinate.Index < 0 || coordinate.Index >= (DeclaredPhysics.Of(part).Mechanical?.Hinges.Count ?? 0) ||
+            !float.IsFinite(port.CoordinatePerRadian) || port.CoordinatePerRadian == 0f)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Mechanical endpoint requires an existing revolute coordinate and finite nonzero scale.");
+        return coordinate;
+    }
+
     /// <summary>How many part ids a feedback refusal names before it counts the remainder.</summary>
     internal const int LoopPartsNamed = 4;
     public bool Equals(WorkshopConnections? other) =>

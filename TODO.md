@@ -2,21 +2,16 @@
 
 **Outcome:** implement every required named puzzle element and variant, then browser qualification; preserve unlimited Workshop and 150 progressively taught levels.
 
-**Latest publication:** engine slice `engine-revolute-drive-target`, `66da1ae76afceb74089b36f054c175dafe7fcaea`, fast-forward from `015e902d`.
-- The Motor's `speed` is adjustable during Run (owner, 3 November 2026; CAT-042 open question 5) through the generic run-control lane `RevoluteDriveTarget`. The hinge record's target is one committed field written each tick; rows carry the declared bounds and refuse `RunControlOutOfRange`; the run panel has a numeric control.
-- Full local round 5,578/0/0 (`Skipped: 0`) and normal hooks 127/0/0.
-- Five Auto layers plus one independent re-review of the fix delta, Pass.
-- [Receipt](./_bmad-output/implementation-artifacts/spec-engine-revolute-drive-target.md#publication-receipt--4-november-2026). The run-control table it builds on is `engine-run-control-table` at `30fcfb56` ([receipt](./_bmad-output/implementation-artifacts/spec-engine-run-control-table.md#publication-receipt--4-november-2026)).
-- CI/deployment and browser qualification remain unverified.
+**Latest publication:** Story 9A.46d package-local ports, `c36abf99a3051811ac8de6ac75dfe9bf262d6a85`. [Receipt](./_bmad-output/implementation-artifacts/spec-9a-46d-package-local-ports.md#verification). CI/deployment and browser qualification remain unverified.
 
-**Current slice:** Story 11.1b Conveyor. It must also carry, from the `engine-revolute-drive-target` review: before declaring any run-controlled speed, confirm the parameter feeds only its lane binding (a run control changes only its lane, so any other compiled use of the same parameter would keep its authored value), or add that validator rule.
+**Current slice:** Story 9A.46e mechanical coordinate bindings. Implementation complete; full local round 5,657/0/0 (Skipped: 0), main project 22m33s. Normal hooks and six-layer independent review are pending. [Contract and evidence](./_bmad-output/implementation-artifacts/spec-9a-46e-mechanical-coordinate-bindings.md#verification).
 
-**Blocker / owner / retry:** none. Start from published main `66da1ae7` in a fresh worktree with a fresh implementer.
+**Blocker / owner / retry:** review candidate preparation owned by `/root/coordinate_implementer`; coordinator owns independent review and publication approval. No publication yet.
 
-**Next acceptance check:** the Story 11.1b spec's matrix through the real compiled Conveyor package, then the full local round and step-04 review.
+**Next acceptance check:** normal hooks on the local candidate commit, then the six Auto review layers and scope/simplification approval on that SHA.
 
 **Order:**
-1. Story 11.1b Conveyor (current).
+1. Finish Story 9A.46e; then 9A.46f driven-surface bindings and 9A.46g–m before Story 11.1b Conveyor (owner, 4 November 2026). Conveyor retains the carried review obligation: before declaring any run-controlled speed, confirm the parameter feeds only its lane binding, or add that validator rule.
 2. The remaining Epic 11 children in dependency order: 11.2a Clutch, 11.2b Reverse transmission, 11.3 Linear pusher, 11.4a Wound spring and the remaining 11.4 child. Then the split 12.x and 13.x children, then 14.0, 14.2, 14.1, 14.3 and 14.4.
 3. Remaining `named-*` slices under the identity ledger's family and dependency order.
 4. Engine follow-ups queued in [deferred work](./_bmad-output/implementation-artifacts/deferred-work.md), each scheduled by its destination. These include [compliant-surface friction](./_bmad-output/implementation-artifacts/deferred-work.md#compliant-surface-friction), the [powered-part demand drain](./_bmad-output/implementation-artifacts/deferred-work.md#powered-part-demand-drain) (EL-196 battery drain, owner, 3 November 2026) and the [run-control observation](./_bmad-output/implementation-artifacts/deferred-work.md#run-control-observation) for the browser phase.

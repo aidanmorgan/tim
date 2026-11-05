@@ -1,4 +1,6 @@
 using System;
+using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Abstractions;
@@ -16,6 +18,7 @@ internal sealed class BrowserGpuTransport(IEventRingPublication events) : IWorks
     private PhysicsInteractionSnapshot _currentInteractions=PhysicsInteractionSnapshot.Empty;
     private PhysicsInteractionSnapshot _candidateInteractions=PhysicsInteractionSnapshot.Empty;
     private WorkshopPhysicsEngine? _engine = new();
+    private WorkshopPhysicsEngine? _admissionEngine;
     private bool _readyCandidate;
     private bool _candidateAdmission;
     private bool _eventsPrepared;
@@ -41,7 +44,12 @@ internal sealed class BrowserGpuTransport(IEventRingPublication events) : IWorks
         {
             if (input.Length != PhysicsGpuAbi.ByteLength(input.Span))
                 throw new ArgumentException("Invalid GPU candidate input length.");
-            (_engine ??= new()).Reset();
+            var layout = PhysicsGpuAbi.Layout(input.Span);
+            var joints = new HashSet<RevoluteConstraintId>();
+            for (var i = 0; i < layout.Revolutes; i++)
+                joints.Add(new(BinaryPrimitives.ReadUInt64LittleEndian(input.Span.Slice(layout.RevoluteOffset(i) + PhysicsGpuAbi.RecordIdentityOffset, 8))));
+            MechanicalTransmissionDeclaration.ValidateAll(inputs.AdmissionTransmissions, joints);
+            _admissionEngine = new(inputs.AdmissionTransmissions);
             var candidate = Candidate(input.Length, true);
             _preparedSpare = new byte[_candidateBuffer.Length];
             input.CopyTo(candidate);
@@ -49,6 +57,8 @@ internal sealed class BrowserGpuTransport(IEventRingPublication events) : IWorks
         }
         else if (operation == WorkshopGpuOperation.Advance)
         {
+            if (inputs.AdmissionTransmissions.Length != 0)
+                throw new ArgumentException("Transmission topology is installed only during admission.");
             _candidateInteractions=_engine!.Advance(_currentBuffer.AsMemory(0, _currentLength), Candidate(_currentLength, false), inputs, _currentInteractions);
         }
         else
@@ -101,6 +111,7 @@ internal sealed class BrowserGpuTransport(IEventRingPublication events) : IWorks
     {
         if (!_readyCandidate || !_eventsPrepared) throw new InvalidOperationException("Physical and event candidates must both be prepared.");
         events.Commit();
+        if (_candidateAdmission) { _engine = _admissionEngine!; _admissionEngine = null; }
         _eventsPrepared = false;
         var retired = _currentBuffer;
         _currentBuffer = _candidateBuffer;
@@ -116,6 +127,7 @@ internal sealed class BrowserGpuTransport(IEventRingPublication events) : IWorks
     public void Discard()
     {
         events.Discard();
+        _admissionEngine = null;
         if (_candidateAdmission) _candidateBuffer = _preparedSpare ?? _candidateBuffer;
         _preparedSpare = null;
         _candidateLength = 0;

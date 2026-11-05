@@ -742,6 +742,14 @@ table CapabilityRopeGuideRecord {
     offset: Vec3f;
 }
 
+// One bilateral mechanical transmission link between revolute joints.
+table MechanicalTransmissionRecord {
+    id: ulong;
+    driving_hinge: ulong;
+    driven_hinge: ulong;
+    ratio: float;
+}
+
 table CompiledSceneRecord {
     identity: ulong;
     revision: ulong;
@@ -777,6 +785,7 @@ table CompiledSceneRecord {
     compliant_surfaces: [CompliantSurfaceRecord];
     revolute_drives: [CapabilityRevoluteDriveDeclarationRecord];
     rope_guides: [CapabilityRopeGuideRecord];
+    transmissions: [MechanicalTransmissionRecord];
 }
 
 root_type WorkshopResponse;

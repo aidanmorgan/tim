@@ -86,7 +86,7 @@ public static class BundleValidator
             var portsSeen = new HashSet<PortId>(4);
             for (var i = 0; i < entry.Ports.Count; i++)
             {
-                Port($"Ports[{i}]", entry.Ports[i], entry.Metadata.Parameters, childBodies);
+                Port($"Ports[{i}]", entry.Ports[i], entry.Metadata.Parameters, childBodies, entry.Mechanical);
                 if (!portsSeen.Add(entry.Ports[i].Id))
                     errors.Add(new(BundleErrorCode.DuplicatePort, $"{source}.Ports[{i}].Id: {entry.Ports[i].Id} is declared more than once"));
             }
@@ -348,7 +348,7 @@ public static class BundleValidator
                 OutOfRange(path + ".Options");
         }
 
-        private void Port(string path, PortDescriptor port, IReadOnlyList<ParameterDescriptor> parameters, int childBodies)
+        private void Port(string path, PortDescriptor port, IReadOnlyList<ParameterDescriptor> parameters, int childBodies, MechanicalPayload? mechanical)
         {
             Text(path + ".Id", port.Id.Value);
             Defined(path + ".Role", port.Role);
@@ -367,6 +367,37 @@ public static class BundleValidator
             }
             else if (port.AttachmentRole != RopeAttachmentRole.None || port.Role is PortRole.Tie or PortRole.TieA or PortRole.TieB)
                 OutOfRange(path + ".AttachmentRole");
+            if (port.Domain == SimulationDomain.Mechanical)
+            {
+                if (port.Role is not (PortRole.Drive or PortRole.DriveIn))
+                    OutOfRange(path + ".Role");
+                if (port.Role == PortRole.Drive && port.Direction != PortDirection.Output)
+                    OutOfRange(path + ".Direction");
+                if (port.Role == PortRole.DriveIn && port.Direction != PortDirection.Input)
+                    OutOfRange(path + ".Direction");
+                if (port.Coordinate is not { } coordinate)
+                {
+                    OutOfRange(path + ".Coordinate");
+                }
+                else
+                {
+                    if (coordinate.Kind != CoordinateKind.Revolute)
+                        OutOfRange(path + ".Coordinate.Kind");
+                    if (coordinate.Index < 0 || coordinate.Index >= (mechanical?.Hinges.Count ?? 0))
+                        OutOfRange(path + ".Coordinate.Index");
+                }
+                if (!float.IsFinite(port.CoordinatePerRadian) || port.CoordinatePerRadian == 0f)
+                    OutOfRange(path + ".CoordinatePerRadian");
+            }
+            else
+            {
+                if (port.Role is PortRole.Drive or PortRole.DriveIn)
+                    OutOfRange(path + ".Role");
+                if (port.Coordinate.HasValue)
+                    OutOfRange(path + ".Coordinate");
+                if (port.CoordinatePerRadian != 0f)
+                    OutOfRange(path + ".CoordinatePerRadian");
+            }
             if (port.AttachmentRole == RopeAttachmentRole.Guide)
             {
                 if (!float.IsFinite(port.GuideRadius) || port.GuideRadius <= 0f)

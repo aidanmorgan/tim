@@ -114,8 +114,9 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         var scene = construction.Physics;
         if (scene.Document != document) throw new ArgumentException("Compiled scene belongs to another document.");
         var guides = scene.RopeGuides.ToArray();
+        var transmissions = scene.Transmissions.ToArray();
         return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence, construction.Activation,
-            new(scene.SupplyGraph, scene.Electrical.Sources.Length, scene.RevoluteDrives.Length), new PhysicsTickInputs([], []) { Guides = guides }, scene);
+            new(scene.SupplyGraph, scene.Electrical.Sources.Length, scene.RevoluteDrives.Length), new PhysicsTickInputs([], []) { Guides = guides, AdmissionTransmissions = transmissions }, scene);
     }
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)
     {
@@ -155,7 +156,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             if(operation==WorkshopGpuOperation.Admit)
             {
                 _triggerScratch = new ContactTriggerRead[4]; _orientationScratch = new OrientationSensorRead[4]; _passageScratch = new PassageSensorRead[4]; _loadScratch = new ContactLoadSensorRead[4];
-                inputs = new([], [], supply.Graph.NeutralReads()) { Cuts = inputs.Cuts, Guides = inputs.Guides };
+                inputs = new([], [], supply.Graph.NeutralReads()) { Cuts = inputs.Cuts, Guides = inputs.Guides, AdmissionTransmissions = inputs.AdmissionTransmissions };
             }
             await EnsureInitialized();
             await transport.Stage(input, operation, inputs);

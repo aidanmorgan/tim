@@ -48,6 +48,12 @@ public static partial class WorkshopWireFlatBuffers
         return new(new(row.Id), new(row.Body), row.Radius, new(offset.X, offset.Y, offset.Z));
     }
 
+    private static Offset<W.MechanicalTransmissionRecord> EncodeMechanicalTransmission(FlatBufferBuilder b, MechanicalTransmissionDeclaration value) =>
+        W.MechanicalTransmissionRecord.CreateMechanicalTransmissionRecord(b, value.Id.Value, value.DrivingJoint.Value, value.DrivenJoint.Value, value.Ratio);
+
+    private static MechanicalTransmissionDeclaration DecodeMechanicalTransmission(W.MechanicalTransmissionRecord row) =>
+        new(new(row.Id), new(row.DrivingHinge), new(row.DrivenHinge), row.Ratio);
+
     private static Offset<W.CompliantSurfaceRecord> EncodeCompliantSurface(FlatBufferBuilder b, CompliantSurfaceDeclaration value) =>
         W.CompliantSurfaceRecord.CreateCompliantSurfaceRecord(b, value.Id.Value, value.Body.Value, value.HalfX, value.HalfZ,
             value.RestHeight, value.MaxStroke, value.Tension, value.DampingRatio, value.ArrivalDepth);
@@ -838,6 +844,8 @@ public static partial class WorkshopWireFlatBuffers
         var revolute_drives = W.CompiledSceneRecord.CreateRevoluteDrivesVector(b, scene.Physics.RevoluteDrives.ToArray().Select(value => EncodeCapabilityRevoluteDriveDeclarationRecord(b, value)).ToArray());
         var rope_guides = scene.Physics.RopeGuides.IsEmpty ? default :
             W.CompiledSceneRecord.CreateRopeGuidesVector(b, scene.Physics.RopeGuides.ToArray().Select(v => EncodeRopeGuide(b, v)).ToArray());
+        var transmissions = scene.Physics.Transmissions.IsEmpty ? default :
+            W.CompiledSceneRecord.CreateTransmissionsVector(b, scene.Physics.Transmissions.ToArray().Select(v => EncodeMechanicalTransmission(b, v)).ToArray());
         var activation_nodes = W.CompiledSceneRecord.CreateActivationNodesVector(b, scene.Activation.Nodes.ToArray().Select(value => EncodeCapabilityActivationNodeDeclarationRecord(b, value)).ToArray());
         var activation_edges = W.CompiledSceneRecord.CreateActivationEdgesVector(b, scene.Activation.Edges.ToArray().Select(value => EncodeCapabilityActivationEdgeRecord(b, value)).ToArray());
         var passage_sensors = W.CompiledSceneRecord.CreatePassageSensorsVector(b, scene.Activation.PassageSensors.ToArray().Select(value => EncodeCapabilityPassageSensorDeclarationRecord(b, value)).ToArray());
@@ -899,6 +907,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddCompliantSurfaces(b, compliant_surfaces);
         W.CompiledSceneRecord.AddRevoluteDrives(b, revolute_drives);
         if (rope_guides.Value != 0) W.CompiledSceneRecord.AddRopeGuides(b, rope_guides);
+        if (transmissions.Value != 0) W.CompiledSceneRecord.AddTransmissions(b, transmissions);
         return W.CompiledSceneRecord.EndCompiledSceneRecord(b);
     }
 
@@ -927,6 +936,8 @@ public static partial class WorkshopWireFlatBuffers
             var compliant_surfaces = Enumerable.Range(0, row.CompliantSurfacesLength).Select(i => DecodeCompliantSurface(Required(row.CompliantSurfaces(i), "CompliantSurfaces"))).ToArray();
             var rope_guides = Enumerable.Range(0, row.RopeGuidesLength).Select(i =>
                 DecodeRopeGuide(Required(row.RopeGuides(i), "rope guide declaration"))).ToArray();
+            var transmissions = Enumerable.Range(0, row.TransmissionsLength).Select(i =>
+                DecodeMechanicalTransmission(Required(row.Transmissions(i), "transmissions"))).ToArray();
             var activation_nodes = Enumerable.Range(0, row.ActivationNodesLength).Select(i => DecodeCapabilityActivationNodeDeclarationRecord(Required(row.ActivationNodes(i), "ActivationNodes"))).ToArray();
             var activation_edges = Enumerable.Range(0, row.ActivationEdgesLength).Select(i => DecodeCapabilityActivationEdgeRecord(Required(row.ActivationEdges(i), "ActivationEdges"))).ToArray();
             var passage_sensors = Enumerable.Range(0, row.PassageSensorsLength).Select(i => DecodeCapabilityPassageSensorDeclarationRecord(Required(row.PassageSensors(i), "PassageSensors"))).ToArray();
@@ -934,7 +945,7 @@ public static partial class WorkshopWireFlatBuffers
                 bodies, colliders, materials, sensors, guides, triggers, contact_works, orientation_sensors,
                 electrical_sources, electrical_bindings, prismatics, supply_nodes, supply_edges, contact_load_sensors, prismatic_drives, tensile,
                 revolutes: revolutes, compliantSurfaces: compliant_surfaces, revoluteDrives: revolute_drives,
-                ropeGuides: rope_guides);
+                ropeGuides: rope_guides, transmissions: transmissions);
             var activation = new ActivationNetwork(activation_nodes, activation_edges, row.ActivationSubsteps, passage_sensors,
                 Enumerable.Range(0, row.ContactOwnersLength).Select(i => new GpuBodyId(row.ContactOwners(i))).ToArray());
             var presentation = Enumerable.Range(0, row.PresentationLength).Select(i =>

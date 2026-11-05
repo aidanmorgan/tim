@@ -16,6 +16,39 @@ public readonly record struct GpuMaterialId(ulong Value);
 public readonly record struct GpuSensorId(ulong Value);
 public readonly record struct GpuForceId(ulong Value);
 public readonly record struct CompliantSurfaceId(ulong Value);
+public readonly record struct MechanicalTransmissionId(ulong Value);
+public readonly record struct MechanicalTransmissionDeclaration(
+    MechanicalTransmissionId Id,
+    RevoluteConstraintId DrivingJoint,
+    RevoluteConstraintId DrivenJoint,
+    float Ratio)
+{
+    public void Validate()
+    {
+        if (Id.Value == 0) throw new ArgumentException("Mechanical transmission identity is required.");
+        if (DrivingJoint.Value == 0 || DrivenJoint.Value == 0 || DrivingJoint == DrivenJoint)
+            throw new ArgumentException("A mechanical transmission requires distinct admitted revolute joints.");
+        if (!float.IsFinite(Ratio) || Ratio == 0f)
+            throw new ArgumentException("Transmission ratio must be finite and nonzero.");
+    }
+
+    public static void ValidateAll(ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions, IReadOnlySet<RevoluteConstraintId> joints)
+    {
+        var ids = new HashSet<MechanicalTransmissionId>();
+        var outputs = new HashSet<RevoluteConstraintId>();
+        var inputs = new HashSet<RevoluteConstraintId>();
+        foreach (var transmission in transmissions)
+        {
+            transmission.Validate();
+            if (!ids.Add(transmission.Id))
+                throw new ArgumentException("Duplicate mechanical transmission identity.");
+            if (!outputs.Add(transmission.DrivingJoint) || !inputs.Add(transmission.DrivenJoint))
+                throw new ArgumentException("Mechanical coordinates support one connection per role.");
+            if (!joints.Contains(transmission.DrivingJoint) || !joints.Contains(transmission.DrivenJoint))
+                throw new ArgumentException("A mechanical transmission requires admitted revolute joints.");
+        }
+    }
+}
 
 /// <summary>A compiled compliant surface. <see cref="ArrivalDepth"/> is its declared arrival depth a (finite, 0 &lt; a &lt; MaxStroke / 2).</summary>
 public readonly record struct CompliantSurfaceDeclaration(
@@ -278,6 +311,8 @@ public sealed class PhysicsSceneDeclaration
     public ReadOnlySpan<RevoluteDriveDeclaration> RevoluteDrives => _revoluteDrives;
     private readonly RopeGuideDeclaration[] _ropeGuides;
     public ReadOnlySpan<RopeGuideDeclaration> RopeGuides => _ropeGuides;
+    private readonly MechanicalTransmissionDeclaration[] _transmissions;
+    public ReadOnlySpan<MechanicalTransmissionDeclaration> Transmissions => _transmissions;
     public CompiledSupplyGraph SupplyGraph { get; }
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
@@ -317,7 +352,8 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<RevoluteConstraintDeclaration> revolutes = default,
         ReadOnlySpan<CompliantSurfaceDeclaration> compliantSurfaces = default,
         ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives = default,
-        ReadOnlySpan<RopeGuideDeclaration> ropeGuides = default)
+        ReadOnlySpan<RopeGuideDeclaration> ropeGuides = default,
+        ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
@@ -520,6 +556,9 @@ public sealed class PhysicsSceneDeclaration
         }
         _revoluteDrives = revoluteDrives.ToArray();
         Array.Sort(_revoluteDrives, (a, b) => a.Joint.Value.CompareTo(b.Joint.Value));
+        MechanicalTransmissionDeclaration.ValidateAll(transmissions, _revolutes.Select(joint => joint.Id).ToHashSet());
+        _transmissions = transmissions.ToArray();
+        Array.Sort(_transmissions, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);
         Electrical = new(electricalSources, electricalBindings, bodies, contactWorks);
         SupplyGraph = new(supplyNodes, supplyEdges, Electrical.Sources, _prismatics, _prismaticDrives, _revolutes, _revoluteDrives, bodies);

@@ -213,6 +213,7 @@
         <Compile Include="MotorTests.cs" />
         <Compile Include="RunControlTableTests.cs" />
         <Compile Include="JointFrameTests.cs" />
+        <Compile Include="MechanicalCoordinateBindingsTests.cs" />
     </ItemGroup>
 
     <!-- Godot project location: the parent directory (hosts are nested inside
