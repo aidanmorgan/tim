@@ -37,7 +37,7 @@ internal sealed class WorkshopPhysicsEngine
     private List<SimJoint> _joints = new(4);
     private List<SimRevoluteJoint> _revoluteJoints = new(4);
     private readonly List<SimMechanicalTransmission> _transmissions = [];
-    private readonly Dictionary<RevoluteConstraintId, SimRevoluteJoint> _revoluteJointMap = new(4);
+    private bool _transmissionsResolved;
     private readonly List<SimTensileRoute> _tensile = new(4);
     private readonly List<SimTensileRoute> _tensilePool = new(4);
     private List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
@@ -89,7 +89,7 @@ internal sealed class WorkshopPhysicsEngine
         _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4]; _drivenSlots = new bool[4];
         _restitutionStamp = 0;
         _probeContacts.Clear(); _probeCollider = new();
-        _transmissions.Clear(); _revoluteJointMap.Clear();
+        _transmissions.Clear(); _transmissionsResolved = false;
         _tensile.Clear(); _tensilePool.Clear();
         _bvh.Reset();
     }
@@ -327,7 +327,7 @@ internal sealed class WorkshopPhysicsEngine
 
         _staticBodies.Clear();
         _dynamicBodies.Clear();
-        _revoluteJointMap.Clear();
+        var revoluteJointMap = _transmissionsResolved ? null : new Dictionary<RevoluteConstraintId, SimRevoluteJoint>();
         _allBodies.Clear();
 
         for (var slot = 0; slot < bodyCount; slot++)
@@ -591,8 +591,11 @@ internal sealed class WorkshopPhysicsEngine
 
             while (_revoluteJointPool.Count <= index) _revoluteJointPool.Add(new SimRevoluteJoint());
             var joint = _revoluteJointPool[index];
-            var revoluteId = new RevoluteConstraintId(BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(revoluteOffset + PhysicsGpuAbi.RecordIdentityOffset, 8)));
-            _revoluteJointMap[revoluteId] = joint;
+            if (revoluteJointMap is not null)
+            {
+                var revoluteId = new RevoluteConstraintId(BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(revoluteOffset + PhysicsGpuAbi.RecordIdentityOffset, 8)));
+                revoluteJointMap.Add(revoluteId, joint);
+            }
             joint.Offset = revoluteOffset;
             joint.A = _allBodies[aSlot];
             joint.B = _allBodies[bSlot];
@@ -618,15 +621,20 @@ internal sealed class WorkshopPhysicsEngine
             _revoluteJoints.Add(joint);
         }
 
-        _transmissions.Clear();
-        foreach (var declaration in _declaredTransmissions)
+        // Resolve the admitted topology once per epoch. The referenced pool objects above
+        // refresh from committed state every tick; each row and its scratch remain owned here.
+        if (revoluteJointMap is not null)
         {
-            _transmissions.Add(new SimMechanicalTransmission
+            foreach (var declaration in _declaredTransmissions)
             {
-                DrivingJoint = _revoluteJointMap[declaration.DrivingJoint],
-                DrivenJoint = _revoluteJointMap[declaration.DrivenJoint],
-                Ratio = declaration.Ratio
-            });
+                _transmissions.Add(new SimMechanicalTransmission
+                {
+                    DrivingJoint = revoluteJointMap[declaration.DrivingJoint],
+                    DrivenJoint = revoluteJointMap[declaration.DrivenJoint],
+                    Ratio = declaration.Ratio
+                });
+            }
+            _transmissionsResolved = true;
         }
 
         var dt = WorkshopConstraintSolver.SubstepSeconds;

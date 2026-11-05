@@ -4,11 +4,11 @@
 
 **Latest publication:** Story 9A.46d package-local ports, `c36abf99a3051811ac8de6ac75dfe9bf262d6a85`. [Receipt](./_bmad-output/implementation-artifacts/spec-9a-46d-package-local-ports.md#verification). CI/deployment and browser qualification remain unverified.
 
-**Current slice:** Story 9A.46e mechanical coordinate bindings. Implementation complete; full local round 5,657/0/0 (Skipped: 0), main project 22m33s. Normal hooks and six-layer independent review are pending. [Contract and evidence](./_bmad-output/implementation-artifacts/spec-9a-46e-mechanical-coordinate-bindings.md#verification).
+**Current slice:** Story 9A.46e mechanical coordinate bindings. Both confirmed review repairs implemented and accepted by affected reviewers on source/targeted proof. Repair full local round 5,658/0/0 (Skipped: 0), main project 22m16s. Normal repair hooks and final exact-commit acceptance/scope check are pending. [Contract and evidence](./_bmad-output/implementation-artifacts/spec-9a-46e-mechanical-coordinate-bindings.md#verification).
 
-**Blocker / owner / retry:** review candidate preparation owned by `/root/coordinate_implementer`; coordinator owns independent review and publication approval. No publication yet.
+**Blocker / owner / retry:** repair candidate preparation owned by `/root/coordinate_implementer`; coordinator owns independent review and publication approval. No publication yet.
 
-**Next acceptance check:** normal hooks on the local candidate commit, then the six Auto review layers and scope/simplification approval on that SHA.
+**Next acceptance check:** normal hooks on the local repair commit, then final evidence and scope/simplification approval on that SHA; six-layer review and affected repair re-review are recorded in the native spec.
 
 **Order:**
 1. Finish Story 9A.46e; then 9A.46f driven-surface bindings and 9A.46g–m before Story 11.1b Conveyor (owner, 4 November 2026). Conveyor retains the carried review obligation: before declaring any run-controlled speed, confirm the parameter feeds only its lane binding, or add that validator rule.

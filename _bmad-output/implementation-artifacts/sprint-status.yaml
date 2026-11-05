@@ -534,7 +534,7 @@ development_status:
   catalogue-native-closure: backlog # requires native 15.0 + all required modes/integrations; conjunction only
   post-catalogue-browser-qualification: backlog # disabled until every CAT/named criterion passes native proof
 
-  9a-46e-mechanical-coordinate-bindings: review # full local 5657/0/0; hooks and six-layer review pending; no publication; next 46f then 46g–m before Conveyor
+  9a-46e-mechanical-coordinate-bindings: review # repair full local 5658/0/0; affected re-review Scoped Pass; repair hooks/final exact-commit acceptance pending; no publication; next 46f then 46g–m before Conveyor
 
   # Individual children of grouped parents; source contracts in epics.md#catalogue-slice-ownership.
   11-1a-motor: backlog

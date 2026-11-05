@@ -126,6 +126,48 @@ public sealed class MechanicalCoordinateBindingsTests
     }
 
     [Fact]
+    public void BundleJson_PreservesDeclaredCoordinateAndCompilesSignedRatio()
+    {
+        var (authoredDriver, authoredDriven) = CreateUnfamiliarPackages();
+        authoredDriven = authoredDriven with { Metadata = authoredDriven.Metadata with { PaletteOrder = 101 } };
+        authoredDriver = authoredDriver with
+        {
+            Presentation = authoredDriver.Presentation with
+            {
+                Bodies = [new("Slider", new(1), Vector3.Zero), new("FirstRotor", new(2), Vector3.Zero),
+                    new("SecondRotor", new(3), new(0, 0, 2))]
+            },
+            Ports = authoredDriver.Ports.Select(port => port.Domain == SimulationDomain.Mechanical
+                ? port with { CoordinatePerRadian = -2f } : port).ToImmutableArray()
+        };
+        var decoded = PartRegistry.Read(BundleSchema.WriteEntries([authoredDriver, authoredDriven]));
+        var mixedDriver = Assert.Single(decoded, entry => entry.Metadata.Id == MixedDriverPart.Value);
+        var driven = Assert.Single(decoded, entry => entry.Metadata.Id == DrivenPart.Value);
+        var endpoint = Assert.Single(mixedDriver.Ports, port => port.Domain == SimulationDomain.Mechanical);
+        Assert.Equal(new CoordinateReference(CoordinateKind.Revolute, 1), endpoint.Coordinate);
+        Assert.Equal(-2f, endpoint.CoordinatePerRadian);
+        Assert.Equal(new CoordinateReference(CoordinateKind.Revolute, 0), Assert.Single(driven.Ports).Coordinate);
+        Assert.Equal(4f, Assert.Single(driven.Ports).CoordinatePerRadian);
+
+        using var physicsScope = DeclaredPhysics.Scoped(decoded);
+        using var portScope = DeclaredPorts.Scoped(TestBundle.Ports.Extend([
+            (MixedDriverPart, mixedDriver.Ports), (DrivenPart, driven.Ports)]));
+        var driverInstance = WorkshopInput.Generic(MixedDriverPart, new(10), 0, 4, 0, 0, 0, 0, 1);
+        var drivenInstance = WorkshopInput.Generic(DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
+            new([driverInstance, drivenInstance]), Connections: new([new WorkshopConnection(
+                driverInstance.Id, new PortId("mech_drive"), drivenInstance.Id, new PortId("mech_in"),
+                WorkshopConnectionDomain.Mechanical)]));
+        construction.Validate();
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var transmission = Assert.Single(scene.Transmissions.ToArray());
+        Assert.Equal(construction.Instances.Identities[driverInstance.Id].Hinges[1].Joint, transmission.DrivingJoint);
+        Assert.Equal(construction.Instances.Identities[drivenInstance.Id].Hinges[0].Joint, transmission.DrivenJoint);
+        // Canonical authored scales define the signed ratio exactly: -2 / 4.
+        Assert.Equal(-0.5f, transmission.Ratio);
+    }
+
+    [Fact]
     public void DeclaredCoordinate_SecondHingeOnMixedSliderHingePackage_CompilesExactJoint()
     {
         var (mixedDriver, driven) = CreateUnfamiliarPackages();
