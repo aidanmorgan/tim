@@ -4,14 +4,14 @@
 
 **Latest publication:** Story 9A.46d package-local ports, `c36abf99a3051811ac8de6ac75dfe9bf262d6a85`. [Receipt](./_bmad-output/implementation-artifacts/spec-9a-46d-package-local-ports.md#verification). CI/deployment and browser qualification remain unverified.
 
-**Current slice:** Story 9A.46e mechanical coordinate bindings. Both confirmed review repairs implemented and accepted by affected reviewers on source/targeted proof. Repair full local round 5,658/0/0 (Skipped: 0), main project 22m16s. Normal repair hooks and final exact-commit acceptance/scope check are pending. [Contract and evidence](./_bmad-output/implementation-artifacts/spec-9a-46e-mechanical-coordinate-bindings.md#verification).
+**Current slice:** Story 9A.46e mechanical coordinate bindings is implementation-complete and independently accepted on code candidate `3322ff4a54941afeba007ac4e03e0eb3fbbca641`. Repair full local round 5,658/0/0 (Skipped: 0), normal hooks 127/0/0; six-layer review, affected repair re-review and final scope/simplification Pass. [Acceptance and evidence](./_bmad-output/implementation-artifacts/spec-9a-46e-mechanical-coordinate-bindings.md#review-triage-log). Publication is pending; the later receipt commit changes only status/evidence documents.
 
-**Blocker / owner / retry:** repair candidate preparation owned by `/root/coordinate_implementer`; coordinator owns independent review and publication approval. No publication yet.
+**Blocker / owner / retry:** no implementation blocker. `/root/coordinate_implementer` prepares the receipt-only commit; coordinator verifies that delta and authorizes publication. No push observed yet.
 
-**Next acceptance check:** normal hooks on the local repair commit, then final evidence and scope/simplification approval on that SHA; six-layer review and affected repair re-review are recorded in the native spec.
+**Next acceptance check:** normal finalization hooks and coordinator verification of the metadata-only commit, then authorized publication. Start Story 9A.46f from published main afterward.
 
 **Order:**
-1. Finish Story 9A.46e; then 9A.46f driven-surface bindings and 9A.46g–m before Story 11.1b Conveyor (owner, 4 November 2026). Conveyor retains the carried review obligation: before declaring any run-controlled speed, confirm the parameter feeds only its lane binding, or add that validator rule.
+1. After publishing approved Story 9A.46e, start 9A.46f driven-surface bindings and 9A.46g–m before Story 11.1b Conveyor (owner, 4 November 2026). Conveyor retains the carried review obligation: before declaring any run-controlled speed, confirm the parameter feeds only its lane binding, or add that validator rule.
 2. The remaining Epic 11 children in dependency order: 11.2a Clutch, 11.2b Reverse transmission, 11.3 Linear pusher, 11.4a Wound spring and the remaining 11.4 child. Then the split 12.x and 13.x children, then 14.0, 14.2, 14.1, 14.3 and 14.4.
 3. Remaining `named-*` slices under the identity ledger's family and dependency order.
 4. Engine follow-ups queued in [deferred work](./_bmad-output/implementation-artifacts/deferred-work.md), each scheduled by its destination. These include [compliant-surface friction](./_bmad-output/implementation-artifacts/deferred-work.md#compliant-surface-friction), the [powered-part demand drain](./_bmad-output/implementation-artifacts/deferred-work.md#powered-part-demand-drain) (EL-196 battery drain, owner, 3 November 2026) and the [run-control observation](./_bmad-output/implementation-artifacts/deferred-work.md#run-control-observation) for the browser phase.

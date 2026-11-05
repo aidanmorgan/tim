@@ -3,8 +3,8 @@ title: 'Story 9A.46e: Connect mechanical ports to declared coordinates'
 type: 'feature'
 created: '2026-11-05'
 baseline_revision: c36abf99a3051811ac8de6ac75dfe9bf262d6a85
-status: 'in-review'
-review_loop_iteration: 0
+status: 'done'
+review_loop_iteration: 1
 followup_review_recommended: false
 context:
   - '{project-root}/docs/testing-guidance.md'
@@ -115,6 +115,20 @@ deferred: []
 ## Spec Change Log
 
 ## Review Triage Log
+
+### AutoRunResult — final independent acceptance, 5 November 2026
+
+- **Result:** Pass; implementation done. `followup_review_recommended=false`: both confirmed patches were fixed and independently re-reviewed, with no remaining confirmed finding or required-now gap.
+- **Approved code candidate:** `3322ff4a54941afeba007ac4e03e0eb3fbbca641`; original baseline `c36abf99a3051811ac8de6ac75dfe9bf262d6a85`. Actual implementation owner: `/root/coordinate_implementer`. Final independent reviewer: `/root/coordinate_engineering_review`.
+- **Review resolution:** six Auto layers completed; two confirmed patches fixed, six descriptive divergences refuted with rationale below, zero deferred defects. Verification and engineering affected re-review preceded the final full round. Final engineering acceptance inspected all 25 owned files and both code commits since baseline, checked actual fresh evidence and returned Pass.
+- **Evidence:** full repair round **5658 passed / 0 failed / Skipped: 0**, main 22m16s; five matching zero-warning/error compiler captures under `/private/tmp/tim-isolated-9a46e/.anvil/repair-verification/`; normal repair hooks **127 passed / 0 failed / Skipped: 0**, Anvil clean, `/private/tmp/tim-isolated-9a46e/.anvil/repair-commit-hooks-9a46e.txt`. Commands, executor, environment and invalidating inputs are recorded in Verification.
+- **Publication:** approved code candidate is 3322ff4a; the later finalization commit changes only this receipt, TODO and sprint status. Neither local identity is an observed push. Publication remains pending coordinator verification/authorization; remote build/artifact/deployment qualification is unverified.
+- **Rule applicability:** the newly adopted maintainability gate explicitly exempts 9A.46e, which finishes under its starting rules (current BMAD loop protocol Maintainability gate and E9; coordinator verified). No maintainability run or qualification is claimed; the gate applies from 9A.46f. No unrelated policy/tool changes are imported.
+- **Deferred qualification:** post-catalogue browser, device/performance and global qualification remain unverified at their existing named gates. No deferred defect was introduced.
+
+### Final diff scope — Pass
+
+Actual reviewer `/root/coordinate_engineering_review` completed the sequential final scope/simplification check on candidate `3322ff4a54941afeba007ac4e03e0eb3fbbca641` against original baseline `c36abf99a3051811ac8de6ac75dfe9bf262d6a85`, covering all 25 owned files and both code commits. Kept the typed declaration/admission/compiler/wire/solver/lifecycle closure, necessary tests, generated companions and native status evidence. Epoch resolution state and the separate admission engine are necessary to retain scratch and preserve atomic installation; existing shared helpers are reused. Generated interaction_target output matches the existing schema. Removed per-tick transmission allocation/resolution and retained no alternate path. No further materially justified simplification was found. No remaining confirmed finding or required-now evidence gap: **Pass**. Accurate receipt-only finalization does not change runtime/test/schema inputs or reopen this approved scope.
 
 ### 2026-11-05 — Auto implementation review, candidate 251ce8692443529546cd5d8963b7963b5eaec0b6
 
