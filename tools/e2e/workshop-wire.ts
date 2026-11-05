@@ -479,12 +479,18 @@ causePhase():number {
   return this.bb!.readFloat32(this.bb_pos + 76);
 }
 
-static sizeOf():number {
-  return 80;
+causeKind():number {
+  return this.bb!.readUint32(this.bb_pos + 80);
 }
 
-static createActivationRecord(builder:flatbuffers.Builder, node: bigint, owner: bigint, source: bigint, body: bigint, collider: bigint, phase: number, event_ordinal: number, event_phase: number, approach_speed: number, kind: number, emitter: bigint, cause_ordinal: number, cause_phase: number):flatbuffers.Offset {
-  builder.prep(8, 80);
+static sizeOf():number {
+  return 88;
+}
+
+static createActivationRecord(builder:flatbuffers.Builder, node: bigint, owner: bigint, source: bigint, body: bigint, collider: bigint, phase: number, event_ordinal: number, event_phase: number, approach_speed: number, kind: number, emitter: bigint, cause_ordinal: number, cause_phase: number, cause_kind: number):flatbuffers.Offset {
+  builder.prep(8, 88);
+  builder.pad(4);
+  builder.writeInt32(cause_kind);
   builder.writeFloat32(cause_phase);
   builder.writeInt32(cause_ordinal);
   builder.writeInt64(BigInt(emitter ?? 0));
@@ -571,12 +577,18 @@ causePhase():number {
   return this.bb!.readFloat32(this.bb_pos + 84);
 }
 
-static sizeOf():number {
-  return 88;
+causeKind():number {
+  return this.bb!.readUint32(this.bb_pos + 88);
 }
 
-static createTimerRecord(builder:flatbuffers.Builder, node: bigint, phase: number, started_tick: bigint, due_tick: bigint, input_kind: number, input_ordinal: number, input_phase: number, input_approach_speed: number, input_emitter: bigint, cause_source: bigint, cause_body: bigint, cause_collider: bigint, cause_ordinal: number, cause_phase: number):flatbuffers.Offset {
-  builder.prep(8, 88);
+static sizeOf():number {
+  return 96;
+}
+
+static createTimerRecord(builder:flatbuffers.Builder, node: bigint, phase: number, started_tick: bigint, due_tick: bigint, input_kind: number, input_ordinal: number, input_phase: number, input_approach_speed: number, input_emitter: bigint, cause_source: bigint, cause_body: bigint, cause_collider: bigint, cause_ordinal: number, cause_phase: number, cause_kind: number):flatbuffers.Offset {
+  builder.prep(8, 96);
+  builder.pad(4);
+  builder.writeInt32(cause_kind);
   builder.writeFloat32(cause_phase);
   builder.writeInt32(cause_ordinal);
   builder.writeInt64(BigInt(cause_collider ?? 0));
@@ -1216,7 +1228,7 @@ capturesLength():number {
 
 activations(index: number, obj?:ActivationRecord):ActivationRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 36);
-  return offset ? (obj || new ActivationRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 80, this.bb!) : null;
+  return offset ? (obj || new ActivationRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 88, this.bb!) : null;
 }
 
 activationsLength():number {
@@ -1226,7 +1238,7 @@ activationsLength():number {
 
 timers(index: number, obj?:TimerRecord):TimerRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 38);
-  return offset ? (obj || new TimerRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 88, this.bb!) : null;
+  return offset ? (obj || new TimerRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 96, this.bb!) : null;
 }
 
 timersLength():number {
@@ -1452,7 +1464,7 @@ static addActivations(builder:flatbuffers.Builder, activationsOffset:flatbuffers
 }
 
 static startActivationsVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(80, numElems, 8);
+  builder.startVector(88, numElems, 8);
 }
 
 static addTimers(builder:flatbuffers.Builder, timersOffset:flatbuffers.Offset) {
@@ -1460,7 +1472,7 @@ static addTimers(builder:flatbuffers.Builder, timersOffset:flatbuffers.Offset) {
 }
 
 static startTimersVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(88, numElems, 8);
+  builder.startVector(96, numElems, 8);
 }
 
 static addContactWorks(builder:flatbuffers.Builder, contactWorksOffset:flatbuffers.Offset) {
@@ -6343,38 +6355,33 @@ powerSource():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
-collider():bigint {
+contactLoad():bigint {
   const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
-contactLoad():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
-  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
-}
-
 releaseHoldTicks():number {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 completion():number {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
+  const offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 boundary():number {
-  const offset = this.bb!.__offset(this.bb_pos, 32);
+  const offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 elapsedSignal():number {
-  const offset = this.bb!.__offset(this.bb_pos, 34);
+  const offset = this.bb!.__offset(this.bb_pos, 32);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 static startCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(16);
+  builder.startObject(15);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -6417,28 +6424,24 @@ static addPowerSource(builder:flatbuffers.Builder, powerSource:bigint) {
   builder.addFieldInt64(9, powerSource, BigInt('0'));
 }
 
-static addCollider(builder:flatbuffers.Builder, collider:bigint) {
-  builder.addFieldInt64(10, collider, BigInt('0'));
-}
-
 static addContactLoad(builder:flatbuffers.Builder, contactLoad:bigint) {
-  builder.addFieldInt64(11, contactLoad, BigInt('0'));
+  builder.addFieldInt64(10, contactLoad, BigInt('0'));
 }
 
 static addReleaseHoldTicks(builder:flatbuffers.Builder, releaseHoldTicks:number) {
-  builder.addFieldInt32(12, releaseHoldTicks, 0);
+  builder.addFieldInt32(11, releaseHoldTicks, 0);
 }
 
 static addCompletion(builder:flatbuffers.Builder, completion:number) {
-  builder.addFieldInt32(13, completion, 0);
+  builder.addFieldInt32(12, completion, 0);
 }
 
 static addBoundary(builder:flatbuffers.Builder, boundary:number) {
-  builder.addFieldInt32(14, boundary, 0);
+  builder.addFieldInt32(13, boundary, 0);
 }
 
 static addElapsedSignal(builder:flatbuffers.Builder, elapsedSignal:number) {
-  builder.addFieldInt32(15, elapsedSignal, 0);
+  builder.addFieldInt32(14, elapsedSignal, 0);
 }
 
 static endCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -6446,7 +6449,7 @@ static endCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder)
   return offset;
 }
 
-static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, kind:number, trigger:bigint, durationTicks:number, sensor:bigint, passage:bigint, targetCount:number, intervalTicks:number, powerSource:bigint, collider:bigint, contactLoad:bigint, releaseHoldTicks:number, completion:number, boundary:number, elapsedSignal:number):flatbuffers.Offset {
+static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, kind:number, trigger:bigint, durationTicks:number, sensor:bigint, passage:bigint, targetCount:number, intervalTicks:number, powerSource:bigint, contactLoad:bigint, releaseHoldTicks:number, completion:number, boundary:number, elapsedSignal:number):flatbuffers.Offset {
   CapabilityActivationNodeDeclarationRecord.startCapabilityActivationNodeDeclarationRecord(builder);
   CapabilityActivationNodeDeclarationRecord.addId(builder, id);
   CapabilityActivationNodeDeclarationRecord.addOwner(builder, owner);
@@ -6458,7 +6461,6 @@ static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Build
   CapabilityActivationNodeDeclarationRecord.addTargetCount(builder, targetCount);
   CapabilityActivationNodeDeclarationRecord.addIntervalTicks(builder, intervalTicks);
   CapabilityActivationNodeDeclarationRecord.addPowerSource(builder, powerSource);
-  CapabilityActivationNodeDeclarationRecord.addCollider(builder, collider);
   CapabilityActivationNodeDeclarationRecord.addContactLoad(builder, contactLoad);
   CapabilityActivationNodeDeclarationRecord.addReleaseHoldTicks(builder, releaseHoldTicks);
   CapabilityActivationNodeDeclarationRecord.addCompletion(builder, completion);

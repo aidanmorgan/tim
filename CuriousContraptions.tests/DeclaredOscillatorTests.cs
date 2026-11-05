@@ -17,7 +17,7 @@ public sealed class DeclaredOscillatorTests
         Connections: supplied ? new(new WorkshopConnection(Source, PortId.Supply, Owner, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) : new());
 
     // The declared capability selects the oscillator node with every field the record arm set: the owner's identity, the interval in
-    // whole ticks, the PowerIn route's one upstream source (none when unsupplied) and the frame's first collider. Each value is stated.
+    // whole ticks, the PowerIn route's one upstream source (none when unsupplied) and its node-owned pulse origin. Each value is stated.
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -25,7 +25,7 @@ public sealed class DeclaredOscillatorTests
     {
         var node = Assert.Single(WorkshopActivationCompiler.Compile(Bench(2.5f, supplied)).Nodes.ToArray());
         Assert.Equal(new ActivationNodeDeclaration(new(2), Owner, ActivationNodeKind.Oscillator, default, 0, default, default, 0, 300,
-            supplied ? Source : default, Bench(2.5f, supplied).Instances.Identities[Owner].Colliders[0]), node);
+            supplied ? Source : default), node);
     }
 
     // D2 (review B1): more than one upstream source on the clock's PowerIn is refused by the oscillator arm itself, with its own message.

@@ -964,7 +964,7 @@ public sealed class MotorTests
 
         System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(at + 16), 2);
 
-        Assert.Equal("Undefined observation discriminant.", Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes)).Message);
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes)).Reason);
     }
 
     // ---- compiler hookup and admission ----------------------------------------------------------------------------------------------

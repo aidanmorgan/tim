@@ -59,9 +59,8 @@ public sealed class WorkshopCompiledScene
     {
         if (Identity.Value == 0 || Revision.Value == 0) throw new ArgumentException("Compiled scene identity is absent.");
         Settings.Validate();
-        var bodies = Physics.Bodies.ToArray().Select(body => body.Id).ToHashSet();
         var owners = Owners.ToHashSet();
-        if (owners.Count != Owners.Length || Owners.Any(owner => owner.Value == 0 || !bodies.Contains(owner)))
+        if (owners.Count != Owners.Length || Owners.Any(owner => owner.Value == 0))
             throw new ArgumentException("Compiled scene ownership is invalid.");
         // Each row resolves: a unique nonzero id, an installed owner, a defined lane, at most one row per lane slot, a slot that exists
         // and belongs to the row's owner, and bounds its lane admits (zero on an enable lane).
@@ -73,19 +72,19 @@ public sealed class WorkshopCompiledScene
                 throw new ArgumentException("Compiled run-control table is invalid.");
         if (Activation.Substeps != Settings.PhysicalStepsPerCommit)
             throw new ArgumentException("Compiled activation cadence differs from physics.");
+        if (Physics.SupplyGraph.Nodes.ToArray().Any(node => !owners.Contains(node.Owner)))
+            throw new ArgumentException("Electrical owner is outside the installed scene.");
         var nodes = Activation.Nodes.ToArray();
         var triggers = Physics.Triggers.ToArray();
         var orientations = Physics.OrientationSensors.ToArray();
         var loads = Physics.ContactLoadSensors.ToArray();
         var passages = Activation.PassageSensors.ToArray();
-        var colliders = Physics.Colliders.ToArray();
         var sources = Physics.Electrical.Sources.ToArray();
         if (passages.Any(sensor => !owners.Contains(sensor.Frame)) || nodes.Any(node =>
             node.Trigger.Value != 0 && !triggers.Any(row => row.Id == node.Trigger && row.Owner == node.Owner) ||
             node.Sensor.Value != 0 && !orientations.Any(row => row.Id == node.Sensor && row.Body == node.Owner) ||
             node.ContactLoad.Value != 0 && !loads.Any(row => row.Id == node.ContactLoad && row.Frame == node.Owner) ||
             node.Passage.Value != 0 && !passages.Any(row => row.Id == node.Passage && row.Frame == node.Owner) ||
-            node.Collider.Value != 0 && !colliders.Any(row => row.Id == node.Collider && row.Body == node.Owner) ||
             node.PowerSource.Value != 0 && !sources.Any(row => row.Owner == node.PowerSource)))
             throw new ArgumentException("Compiled activation references a foreign capability.");
         if (nodes.Any(node => !owners.Contains(node.Owner)))

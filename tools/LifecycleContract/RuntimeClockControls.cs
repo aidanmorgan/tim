@@ -4,7 +4,7 @@ namespace CuriousContraptions.LifecycleDesign;
 
 internal enum RuntimeClockCase
 {
-    ExactNativeConversion, NativeRangeRejection, PackedReservation, StartupAndIdentity,
+    ExactNativeConversion, NativeRangeRejection, CapacityReservation, StartupAndIdentity,
     ExactNormativeInterval, DriftRounding, ExpiryAndFreshStartup, DisjointRequiresFreshEight,
     CausalCapture, HalfwidthBoundary, ReplacementRebase, RecoveryKeepsCurrentMappings,
     HorizonBoundary, MaximumSampleReservation, RecoveryRejectsUnrelatedCaptureTriggers,
@@ -31,7 +31,7 @@ internal static class RuntimeClockControls
         }
         Check(RuntimeClockCase.ExactNativeConversion, ExactNativeConversion);
         Check(RuntimeClockCase.NativeRangeRejection, NativeRangeRejection);
-        Check(RuntimeClockCase.PackedReservation, PackedReservation);
+        Check(RuntimeClockCase.CapacityReservation, CapacityReservation);
         Check(RuntimeClockCase.StartupAndIdentity, StartupAndIdentity);
         Check(RuntimeClockCase.ExactNormativeInterval, ExactNormativeInterval);
         Check(RuntimeClockCase.DriftRounding, DriftRounding);
@@ -290,15 +290,26 @@ internal static class RuntimeClockControls
         Require(map.State == ClockMappingState.Ready && map.ValidProbeCount == 8);
     }
 
-    private static void PackedReservation()
+    private static void CapacityReservation()
     {
-        var type = typeof(WorkshopClockMapping);
-        var slot = type.GetNestedType("ClockSlot", System.Reflection.BindingFlags.NonPublic)!;
-        Require(System.Runtime.InteropServices.Marshal.SizeOf(slot) == 24);
         RequireEqual(WorkshopClockMapping.BookkeepingBytes, 280);
-        RequireEqual(WorkshopClockMapping.ProbeCapacity * 24 + 80, 272);
-        Require(type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            .Count(field => field.FieldType.IsArray) == 1);
+        var map = new WorkshopClockMapping(Peer);
+        for (var i = 0; i < WorkshopClockMapping.ProbeCapacity - 1; i++)
+        {
+            Accept(map, i * WorkshopClockMapping.StartupSpacing);
+            Require(!map.IsQualified && map.ValidProbeCount == i + 1);
+        }
+        Accept(map, (WorkshopClockMapping.ProbeCapacity - 1) * WorkshopClockMapping.StartupSpacing);
+        Require(map.IsQualified && map.ValidProbeCount == WorkshopClockMapping.ProbeCapacity);
+        // Refresh replaces an old sample without growing the public reservation.
+        Accept(map, 320_000_000);
+        Require(map.ValidProbeCount == WorkshopClockMapping.ProbeCapacity && map.IsQualified);
+        var pending = map.BeginProbe(new(570_000_000))!.Value;
+        Require(map.BeginProbe(new(570_000_001)) is null && map.Pending == pending);
+        var reply = new ClockReply(pending with { Sequence = new(pending.Sequence.Value + 1) },
+            new(620_000_000), new(620_000_000), new(570_000_002), Derived);
+        Require(map.Receive(reply).Outcome == ClockProbeOutcome.WrongIdentity && map.Pending == pending);
+
     }
 
     private static void NativeRangeRejection()

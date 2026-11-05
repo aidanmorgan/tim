@@ -219,7 +219,7 @@ public static partial class WorkshopWireFlatBuffers
                 TimerRecord.CreateTimerRecord(builder, t.Node.Value, (uint)t.Phase, t.StartedTick, t.DueTick, (uint)t.Input.Kind,
                     t.Input.Time.Ordinal, (float)t.Input.Time.Phase, (float)t.Input.Cause.ApproachSpeed.Value, t.Input.Emitter.Value,
                     t.Input.Cause.Source.Value, t.Input.Cause.Body.Value, t.Input.Cause.Collider.Value, t.Input.Cause.Time.Ordinal,
-                    (float)t.Input.Cause.Time.Phase);
+                    (float)t.Input.Cause.Time.Phase, (uint)t.Input.Cause.Kind);
             }
             timersOffset = builder.EndVector();
         }
@@ -237,7 +237,7 @@ public static partial class WorkshopWireFlatBuffers
                 var a = read.Activations[i];
                 ActivationRecord.CreateActivationRecord(builder, a.Node.Value, a.Owner.Value, a.Source.Value, a.Body.Value, a.Collider.Value,
                     (uint)a.Phase, a.EventOrdinal, (float)a.EventPhase, (float)a.ApproachSpeed.Value, (uint)a.Kind, a.Emitter.Value,
-                    a.CauseOrdinal, (float)a.CausePhase);
+                    a.CauseOrdinal, (float)a.CausePhase, (uint)a.CauseKind);
             }
             activationsOffset = builder.EndVector();
         }
@@ -512,6 +512,15 @@ public static partial class WorkshopWireFlatBuffers
 
     public static WorkshopResponse DecodeResponse(ReadOnlySpan<byte> bytes)
     {
+        try { return DecodeResponseRecord(bytes); }
+        catch (Exception error) when (error is ArgumentException or OverflowException)
+        {
+            throw new WireFaultException(WireFaultReason.OutOfRange, "Invalid committed response fields.", error);
+        }
+    }
+
+    private static WorkshopResponse DecodeResponseRecord(ReadOnlySpan<byte> bytes)
+    {
         var fb = Wire.WorkshopResponse.GetRootAsWorkshopResponse(OpenFrame(bytes, ResponseIdentifier, WorkshopResponseVerify.Verify));
         var session = RequiredSession(fb.GetSessionArray());
 
@@ -560,7 +569,7 @@ public static partial class WorkshopWireFlatBuffers
             actValues[i] = new ActivationLatch(new ActivationNodeId(a.Node), new GpuBodyId(a.Owner), (ActivationPhase)a.Phase,
                 new GpuEventSourceId(a.Source), new GpuBodyId(a.Body), new GpuColliderId(a.Collider), a.EventOrdinal, a.EventPhase,
                 new ContactSpeed(a.ApproachSpeed), (ActivationOccurrenceKind)a.Kind, new ActivationNodeId(a.Emitter),
-                a.CauseOrdinal, a.CausePhase);
+                a.CauseOrdinal, a.CausePhase, (ActivationCauseKind)a.CauseKind);
         }
 
         var timerValues = new ActivationTimerState[fb.TimersLength];
@@ -569,11 +578,15 @@ public static partial class WorkshopWireFlatBuffers
             var t = fb.Timers(i)!.Value;
             var timerPhase = (ActivationTimerPhase)t.Phase;
             ActivationOccurrence input = default;
+            if (timerPhase == ActivationTimerPhase.Ready && (t.InputKind != 0 || t.InputOrdinal != 0 ||
+                t.InputPhase != 0f || t.InputApproachSpeed != 0f || t.InputEmitter != 0 || t.CauseSource != 0 ||
+                t.CauseBody != 0 || t.CauseCollider != 0 || t.CauseOrdinal != 0 || t.CausePhase != 0f || t.CauseKind != 0))
+                throw new WireFaultException(WireFaultReason.OutOfRange, "Ready timer retained provenance.");
             if (timerPhase != ActivationTimerPhase.Ready)
                 input = new ActivationOccurrence((ActivationOccurrenceKind)t.InputKind, new ActivationNodeId(t.InputEmitter),
                     new ActivationTime(t.InputOrdinal, t.InputPhase),
                     new ActivationCause(new GpuEventSourceId(t.CauseSource), new GpuBodyId(t.CauseBody), new GpuColliderId(t.CauseCollider),
-                        new ActivationTime(t.CauseOrdinal, t.CausePhase), new ContactSpeed(t.InputApproachSpeed)));
+                        new ActivationTime(t.CauseOrdinal, t.CausePhase), new ContactSpeed(t.InputApproachSpeed), (ActivationCauseKind)t.CauseKind));
             timerValues[i] = new ActivationTimerState(new ActivationNodeId(t.Node), timerPhase, t.StartedTick, t.DueTick, input);
         }
 

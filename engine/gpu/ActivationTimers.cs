@@ -6,6 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 namespace CuriousContraptions.Gpu;
 
 public enum ActivationOccurrenceKind : uint { Contact = 1, TimerElapsed = 2, Orientation = 3, Passage = 4, ThresholdReached = 5, OscillatorTick = 6, ContactLoad = 7 }
+public enum ActivationCauseKind : uint { Unknown = 0, Physical = 1, Node = 2 }
 public enum ActivationTimerPhase : uint { Ready, Counting, Finished }
 
 /// <summary>Canonical physical boundary time, also used for integer-boundary controller outputs.</summary>
@@ -39,19 +40,20 @@ public readonly record struct ActivationTime(uint Ordinal, float Phase) : ICompa
     }
 }
 
-/// <summary>Identity of a declared physical event source (contact trigger or orientation sensor) in the document identity space.</summary>
+/// <summary>Identity of a declared event source (a physical sensor or an originating activation node) in the document identity space.</summary>
 public readonly record struct GpuEventSourceId(ulong Value);
 
-/// <summary>Physical provenance survives routing and delay without impersonating the delayed occurrence.</summary>
+/// <summary>Typed provenance survives routing and delay without impersonating the delayed occurrence.</summary>
 public readonly record struct ActivationCause(GpuEventSourceId Source, GpuBodyId Body,
-    GpuColliderId Collider, ActivationTime Time, ContactSpeed ApproachSpeed)
+    GpuColliderId Collider, ActivationTime Time, ContactSpeed ApproachSpeed, ActivationCauseKind Kind)
 {
     public void Validate()
     {
         Time.Validate();
-        if (Source.Value == 0 || Body.Value == 0 || Collider.Value == 0 ||
+        if (Source.Value == 0 || Body.Value == 0 || Kind is not (ActivationCauseKind.Physical or ActivationCauseKind.Node) ||
+            (Kind == ActivationCauseKind.Physical ? Collider.Value == 0 : Collider.Value != 0 || ApproachSpeed.Value != 0f || Time.Phase != 0f) ||
             !float.IsFinite((float)ApproachSpeed.Value) || (float)ApproachSpeed.Value < 0f || (float)ApproachSpeed.Value > 4096f)
-            throw new ArgumentException("Invalid physical activation provenance.");
+            throw new ArgumentException("Invalid activation provenance.");
     }
 }
 

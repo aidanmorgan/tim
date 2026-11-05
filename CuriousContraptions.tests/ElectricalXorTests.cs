@@ -285,9 +285,9 @@ public sealed class ElectricalXorTests
         var (open,closing,_)=LoopCase(FeedbackLoop.WithOr);
         var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
         var edges=WorkshopSupplyCompiler.Compile(open,DeclaredPhysics.Of).Edges;
-        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,scene.Bodies);
+        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives);
         var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,Enum.Parse<PortRole>(closing.Input.Value))).ToArray();
-        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,scene.Bodies));
+        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives));
         Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",invariant.Message);
     }
 

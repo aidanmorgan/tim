@@ -712,7 +712,7 @@ public sealed class WorkshopWireTests
         builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, WorkshopWireFlatBuffers.ResponseIdentifier);
         var binary = builder.SizedByteArray();
         Assert.Equal(admitted, Record.Exception(() => WorkshopWireFlatBuffers.DecodeResponse(binary)) is null);
-        if (!admitted) Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(binary));
+        if (!admitted) Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(binary));
     }
 
     [Theory]
@@ -1345,7 +1345,7 @@ public sealed class WorkshopWireTests
         var row = bytes.AsSpan().IndexOf(BitConverter.GetBytes(sensor));
         Assert.True(row > 0, "the capture row");
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(row + 16), phase);
-        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes));
+        Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes));
     }
 
     [Fact]

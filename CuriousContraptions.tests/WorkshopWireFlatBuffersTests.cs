@@ -354,7 +354,7 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Throws<ArgumentException>(() => Encoded((WorkshopRejection)6));
         five[at] = reason;
         if (admitted) Assert.Equal((WorkshopRejection)reason, WorkshopWireFlatBuffers.DecodeResponse(five).Result.Reason);
-        else Assert.Contains("discriminant", Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(five)).Message);
+        else Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(five)).Reason);
     }
 
     [Fact]
@@ -392,7 +392,7 @@ public sealed class WorkshopWireFlatBuffersTests
 
         var elec = new ElectricalSourceRead(new(50), new(1), new Joules(100f), new Joules(5f), ElectricalEnable.Enabled);
         var electrical = new PhysicsElectricalRead(new[] { elec });
-        var cause = new ActivationCause(new(2), new(1), new(3), new(1, .1234567f), new(1.234567f));
+        var cause = new ActivationCause(new(2), new(1), new(3), new(1, .1234567f), new(1.234567f), ActivationCauseKind.Physical);
         var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Contact, new(2), cause.Time, cause);
         var activation = ActivationLatch.From(new(new(2), new(2), ActivationNodeKind.ContactSource, new(2)), occurrence);
         var timer = ActivationTimerState.Ready(new(4)).Trigger(new(new(4), 12), occurrence, 4);

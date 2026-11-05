@@ -98,7 +98,7 @@ public interface IOscillatorElement : ISignalElement
 
 /// <summary>A pulse counter. Each distinct input occurrence on the owner's Pulse ActivationIn adds one to its committed count (the
 /// count keeps counting past the target); the input that brings the count to the WholeNumber parameter <see cref="TargetParameter"/>
-/// (1–9) emits once on its Pulse ActivationOut and closes its switched contact until Reset.</summary>
+/// (1–9) emits once on its Pulse ActivationOut. If separately declared, its switched contact follows the reached state until Reset.</summary>
 public readonly record struct SignalPulseCountDescriptor(string TargetParameter);
 
 public interface IPulseCountElement : ISignalElement
@@ -108,7 +108,7 @@ public interface IPulseCountElement : ISignalElement
 
 /// <summary>A bistable memory. A pulse on the declared <see cref="Set"/> input turns it On and one on <see cref="Reset"/> turns it Off;
 /// requests of one tick resolve together at its boundary and Reset dominates. Memory is committed state (it needs no supply); its
-/// Level ActivationOut and its switched contact follow it.</summary>
+/// Level ActivationOut follows it, as does a separately declared switched contact.</summary>
 public readonly record struct SignalMemoryDescriptor(PortId Set, PortId Reset);
 
 public interface IMemoryElement : ISignalElement

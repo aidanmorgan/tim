@@ -22,7 +22,7 @@ public enum SimulationLatchPhase : uint { Off = 0, On = 1 }
 [Flags]
 public enum StateLatchRequest : uint { None = 0, Set = 1, Reset = 2 }
 public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, GpuBodyId Owner,
-    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerSource = default, GpuColliderId Collider = default,
+    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerSource = default,
     GpuContactLoadSensorId ContactLoad = default, uint ReleaseHoldTicks = 0,
     TimerCompletionPolicy Completion = TimerCompletionPolicy.Latch, TimerBoundary Boundary = TimerBoundary.BeforePhysics,
     TimerElapsedSignal ElapsedSignal = TimerElapsedSignal.Activation);
@@ -32,14 +32,14 @@ public readonly record struct ActivationEdge(ActivationNodeId Source, Activation
 public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId Owner, ActivationPhase Phase,
     GpuEventSourceId Source, GpuBodyId Body, GpuColliderId Collider, uint EventOrdinal,
     float EventPhase, ContactSpeed ApproachSpeed, ActivationOccurrenceKind Kind = default,
-    ActivationNodeId Emitter = default, uint CauseOrdinal = 0, float CausePhase = default)
+    ActivationNodeId Emitter = default, uint CauseOrdinal = 0, float CausePhase = default, ActivationCauseKind CauseKind = ActivationCauseKind.Unknown)
 {
     public ActivationOccurrence Occurrence => new(Kind, Emitter, new(EventOrdinal, EventPhase),
-        new(Source, Body, Collider, new(CauseOrdinal, CausePhase), ApproachSpeed));
+        new(Source, Body, Collider, new(CauseOrdinal, CausePhase), ApproachSpeed, CauseKind));
     public static ActivationLatch From(ActivationNodeDeclaration node, ActivationOccurrence occurrence) =>
         new(node.Id, node.Owner, ActivationPhase.Latched, occurrence.Cause.Source, occurrence.Cause.Body,
             occurrence.Cause.Collider, occurrence.Time.Ordinal, occurrence.Time.Phase, occurrence.Cause.ApproachSpeed,
-            occurrence.Kind, occurrence.Emitter, occurrence.Cause.Time.Ordinal, occurrence.Cause.Time.Phase);
+            occurrence.Kind, occurrence.Emitter, occurrence.Cause.Time.Ordinal, occurrence.Cause.Time.Phase, occurrence.Cause.Kind);
     public static ActivationLatch Clear(ActivationNodeDeclaration node) => new(node.Id, node.Owner,
         ActivationPhase.Clear, default, default, default, 0, 0f, new(0f));
     public void Validate()
@@ -52,7 +52,7 @@ public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId O
         {
             if (Source.Value != 0 || Body.Value != 0 || Collider.Value != 0 || EventOrdinal != 0 ||
                 EventPhase != 0f || ApproachSpeed.Value != 0f ||
-                Kind != 0 || Emitter.Value != 0 || CauseOrdinal != 0 || CausePhase != 0f)
+                CauseKind != ActivationCauseKind.Unknown || Kind != 0 || Emitter.Value != 0 || CauseOrdinal != 0 || CausePhase != 0f)
                 throw new ArgumentException("Clear activation retained an event.");
         }
         else Occurrence.Validate();
@@ -175,7 +175,7 @@ public sealed class ActivationNetwork
                 (node.Kind == ActivationNodeKind.ContactLoadSource ? node.ReleaseHoldTicks == 0 : node.ReleaseHoldTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Timer ? node.DurationTicks == 0 : node.DurationTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Counter ? node.TargetCount < 1 || node.TargetCount > 9 : node.TargetCount != 0) ||
-                (node.Kind == ActivationNodeKind.Oscillator ? node.IntervalTicks == 0 : (node.IntervalTicks != 0 || node.PowerSource.Value != 0 || node.Collider.Value != 0)))
+                (node.Kind == ActivationNodeKind.Oscillator ? node.IntervalTicks == 0 : (node.IntervalTicks != 0 || node.PowerSource.Value != 0)))
                 throw new ArgumentException("Invalid activation node declaration.");
             if (node.Kind == ActivationNodeKind.Timer)
             {
@@ -377,7 +377,7 @@ public sealed class ActivationNetwork
             if (item.OccurrenceCount == 0) continue;
             var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Contact, _nodes[slot].Id, time,
-                new(new(item.Id.Value), item.Target, item.Collider, time, item.ApproachSpeed));
+                new(new(item.Id.Value), item.Target, item.Collider, time, item.ApproachSpeed, ActivationCauseKind.Physical));
             occurrence.Validate();
             if (time.CompareTo(end) > 0) throw new ArgumentException("Future contact occurrence.");
             if (values[slot].Phase == ActivationPhase.Latched)
@@ -418,7 +418,7 @@ public sealed class ActivationNetwork
             }
             var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, _nodes[slot].Id, time,
-                new(new(item.Id.Value), item.Body, item.Collider, time, new(0f)));
+                new(new(item.Id.Value), item.Body, item.Collider, time, new(0f), ActivationCauseKind.Physical));
             occurrence.Validate();
             if (time.CompareTo(end) > 0) throw new ArgumentException("Future orientation occurrence.");
             if (values[slot].Phase == ActivationPhase.Latched)
@@ -444,7 +444,7 @@ public sealed class ActivationNetwork
             if (item.Phase != PassageSensorPhase.Fired) continue;
             var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Passage, _nodes[slot].Id, time,
-                new(new(item.Id.Value), item.Body, item.Collider, time, new(item.Speed.Value)));
+                new(new(item.Id.Value), item.Body, item.Collider, time, new(item.Speed.Value), ActivationCauseKind.Physical));
             occurrence.Validate();
             if (time.CompareTo(end) > 0) throw new ArgumentException("Future passage occurrence.");
             if (values[slot].Phase == ActivationPhase.Latched)
@@ -500,9 +500,7 @@ public sealed class ActivationNetwork
                 rows[slot] = rows[slot] with { Count = checked(rows[slot].Count + 1), DueTick = checked(rows[slot].DueTick + node.IntervalTicks) };
 
                 var time = ActivationTime.Boundary(boundary, _substeps);
-                var colliderId = node.Collider.Value != 0 ? node.Collider : new(node.Id.Value);
-                var sourceId = new GpuEventSourceId(colliderId.Value);
-                var cause = new ActivationCause(sourceId, node.Owner, colliderId, time, new(0f));
+                var cause = new ActivationCause(new(node.Id.Value), node.Owner, default, time, new(0f), ActivationCauseKind.Node);
                 var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.OscillatorTick, node.Id, time, cause);
                 occurrence.Validate();
                 Push(ref count, occurrence);
@@ -636,7 +634,7 @@ public sealed class ActivationNetwork
             rows[memory] = rows[memory] with { DueTick = checked(boundary.Value + hold) };
             if (values[slot].Phase == ActivationPhase.Latched) continue;
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.ContactLoad, _nodes[slot].Id, end,
-                new(new(item.Sensor.Value), item.Frame, item.Region, end, new(0f)));
+                new(new(item.Sensor.Value), item.Frame, item.Region, end, new(0f), ActivationCauseKind.Physical));
             occurrence.Validate();
             values[slot] = ActivationLatch.From(_nodes[slot], occurrence);
             _transitions.Add(new(ActivationTransitionKind.LevelChanged, _nodes[slot].Id, occurrence, 0, ActivationPhase.Latched));
@@ -670,6 +668,16 @@ public sealed class ActivationNetwork
             timers[i].Validate();
             if (timers[i].Node != _timers[i].Node) throw new ArgumentException("Timer checkpoint identity changed.");
         }
+    }
+
+    internal void ValidateOrigins(PhysicsActivationRead values, PhysicsTimerRead timers, SimulationTick tick, PhysicsSceneDeclaration scene)
+    {
+        ValidatePopulation(values, timers);
+        var end = ActivationTime.Boundary(tick, _substeps);
+        for (var i = 0; i < values.Count; i++)
+            if (values[i].Phase == ActivationPhase.Latched) ValidateOccurrence(values[i].Occurrence, end, scene);
+        for (var i = 0; i < timers.Count; i++)
+            if (timers[i].Phase != ActivationTimerPhase.Ready) ValidateOccurrence(timers[i].Input, end, scene);
     }
 
     public void ValidateRead(PhysicsActivationRead values, PhysicsTimerRead timers, SimulationTick tick,
@@ -771,6 +779,19 @@ public sealed class ActivationNetwork
             _ => ActivationNodeKind.Timer
         };
         if (emitter < 0 || _nodes[emitter].Kind != expectedKind) throw new ArgumentException("Foreign activation emitter.");
+        if (occurrence.Cause.Kind == ActivationCauseKind.Node)
+        {
+            var origin = Slot(new(occurrence.Cause.Source.Value));
+            if (origin < 0 || _nodes[origin].Kind != ActivationNodeKind.Oscillator ||
+                _nodes[origin].Owner != occurrence.Cause.Body ||
+                occurrence.Cause.Time.Ordinal % _substeps != 0 ||
+                occurrence.Kind is not (ActivationOccurrenceKind.OscillatorTick or ActivationOccurrenceKind.ThresholdReached or ActivationOccurrenceKind.TimerElapsed) ||
+                (occurrence.Kind == ActivationOccurrenceKind.OscillatorTick && origin != emitter))
+                throw new ArgumentException("Activation cause names no originating node.");
+            return;
+        }
+        if (occurrence.Kind == ActivationOccurrenceKind.OscillatorTick)
+            throw new ArgumentException("Scheduled node output has physical provenance.");
         // The document allocates every physical identity once, so one source id names at most one trigger or sensor.
         ContactTriggerDeclaration? trigger = null; OrientationSensorDeclaration? sensor = null; PassageSensorDeclaration? passage = null;
         foreach (var candidate in scene.Triggers) if (candidate.Id.Value == occurrence.Cause.Source.Value) trigger = candidate;
@@ -778,17 +799,6 @@ public sealed class ActivationNetwork
         foreach (var candidate in _passageSensors) if (candidate.Id.Value == occurrence.Cause.Source.Value) passage = candidate;
         ContactLoadSensorDeclaration? load = null;
         foreach (var candidate in scene.ContactLoadSensors) if (candidate.Id.Value == occurrence.Cause.Source.Value) load = candidate;
-        var isOscillatorSource = false;
-        for (var i = 0; i < _nodes.Length; i++)
-        {
-            if (_nodes[i].Kind == ActivationNodeKind.Oscillator &&
-                (_nodes[i].Collider.Value != 0 ? _nodes[i].Collider.Value : _nodes[i].Id.Value) == occurrence.Cause.Source.Value &&
-                _nodes[i].Owner == occurrence.Cause.Body)
-            {
-                isOscillatorSource = true;
-                break;
-            }
-        }
         GpuBodyId colliderOwner;
         if (trigger is { } contact)
         {
@@ -811,15 +821,9 @@ public sealed class ActivationNetwork
         }
         else if (passage is { } through)
         {
-            if ((occurrence.Kind != ActivationOccurrenceKind.Passage && occurrence.Kind != ActivationOccurrenceKind.ThresholdReached) ||
+            if (occurrence.Kind is not (ActivationOccurrenceKind.Passage or ActivationOccurrenceKind.ThresholdReached or ActivationOccurrenceKind.TimerElapsed) ||
                 (occurrence.Kind == ActivationOccurrenceKind.Passage && through.Frame != _nodes[emitter].Owner))
                 throw new ArgumentException("Activation cause differs from the declared passage sensor.");
-            colliderOwner = occurrence.Cause.Body;
-        }
-        else if (isOscillatorSource)
-        {
-            if (occurrence.Kind == ActivationOccurrenceKind.OscillatorTick && occurrence.Cause.Body != _nodes[emitter].Owner)
-                throw new ArgumentException("Activation cause differs from the declared oscillator.");
             colliderOwner = occurrence.Cause.Body;
         }
         else if (load is { } row)
@@ -834,7 +838,7 @@ public sealed class ActivationNetwork
         var dynamicTarget = false;
         foreach (var body in scene.Bodies)
             if (body.Id == occurrence.Cause.Body && body.Motion == RigidMotionKind.Dynamic) dynamicTarget = true;
-        if (!dynamicTarget && !isOscillatorSource && load is null) throw new ArgumentException("Activation cause target is not dynamic.");
+        if (!dynamicTarget && load is null) throw new ArgumentException("Activation cause target is not dynamic.");
         var owned = false;
         foreach (var collider in scene.Colliders)
             if (collider.Id == occurrence.Cause.Collider && collider.Body == colliderOwner) owned = true;

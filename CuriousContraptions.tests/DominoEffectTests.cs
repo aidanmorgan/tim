@@ -84,7 +84,7 @@ public sealed class DominoEffectTests
     {
         var goal = Lesson().Puzzle.Goal;
         var time = new ActivationTime(300,0f);
-        var cause = new ActivationCause(new(7), new(2), new(9), time, new(0f));
+        var cause = new ActivationCause(new(7), new(2), new(9), time, new(0f), ActivationCauseKind.Physical);
         var end = new ActivationNodeDeclaration(new(2), new(2), ActivationNodeKind.OrientationSource, default, 0, new(7));
         var lamp = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.StickyFirstInput, default);
         var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, new(2), time, cause);

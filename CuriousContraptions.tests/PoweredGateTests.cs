@@ -261,7 +261,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var gate=Gate(1);var battery=Battery(2,ElectricalEnable.Enabled);
         var scene=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(gate,battery)),new(1,1));
         CompiledSupplyGraph Admit(SupplyNodeDeclaration[] nodes,params SupplyEdge[] edges)=>new(nodes,edges,
-            scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,scene.Bodies);
+            scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives);
         var source=new SupplyNodeDeclaration(battery.Id,SupplyNodeKind.Source,scene.Electrical.Sources[0].Id);
         var consumer=new SupplyNodeDeclaration(gate.Id,SupplyNodeKind.Consumer,Consumers:[SupplyConsumer.Prismatic(scene.Prismatics[0].Id)]);
         Assert.Equal(2,Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,PortRole.PowerIn)).Nodes.Length);
@@ -272,7 +272,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         // A consumer names its joint with its drive kind's own identity type: a revolute consumer carrying the gate prismatic's identity
         // value names no revolute and is refused. (An undefined kind cannot be constructed; the wire decode refuses one.)
         Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumers=[SupplyConsumer.Revolute(new(scene.Prismatics[0].Id.Value))]}]));
-        Assert.Throws<ArgumentException>(()=>Admit([new(scene.Prismatics.ToArray().Single(joint => joint.BodyA == gate.Id).BodyB,SupplyNodeKind.Contact)]));
+        Assert.Throws<ArgumentException>(()=>Admit([new(default,SupplyNodeKind.Contact)]));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(gate.Id,battery.Id,PortRole.PowerIn)));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,PortRole.PowerIn),new(battery.Id,gate.Id,PortRole.PowerIn)));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,new(999),PortRole.PowerIn)));

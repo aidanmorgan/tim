@@ -180,10 +180,10 @@ public sealed class DeclaredPrismaticDriveTests
         SupplyNodeDeclaration[] nodes = [new(battery,SupplyNodeKind.Source,source.Id),
             new(frame,SupplyNodeKind.Consumer,Consumers:[..joints.Select(SupplyConsumer.Prismatic)])];
         SupplyEdge[] edges = [new(battery,frame,PortRole.PowerIn)];
-        var graph = new CompiledSupplyGraph(nodes,edges,[source],baseScene.Prismatics,baseScene.PrismaticDrives,[],[],baseScene.Bodies);
+        var graph = new CompiledSupplyGraph(nodes,edges,[source],baseScene.Prismatics,baseScene.PrismaticDrives,[],[]);
         Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph(
             [nodes[0],nodes[1] with { Consumers=[SupplyConsumer.Prismatic(joints[0]),SupplyConsumer.Prismatic(joints[0])] }],edges,[source],
-            baseScene.Prismatics,baseScene.PrismaticDrives,[],[],baseScene.Bodies));
+            baseScene.Prismatics,baseScene.PrismaticDrives,[],[]));
         var scene = new PhysicsSceneDeclaration(baseScene.Document,1001,baseScene.Bodies,baseScene.Colliders,
             baseScene.Materials,[],[],prismatics:baseScene.Prismatics,prismaticDrives:baseScene.PrismaticDrives,
             electricalSources:[source],supplyNodes:nodes,supplyEdges:edges);
@@ -301,7 +301,7 @@ public sealed class DeclaredPrismaticDriveTests
         var spring = WorkshopInput.Generic(new PartId("spring"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var passive = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new(spring)), new(1, 2));
         Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph([new(spring.Id, SupplyNodeKind.Consumer, Consumers: [SupplyConsumer.Prismatic(passive.Prismatics[0].Id)])],
-            [], [], passive.Prismatics, passive.PrismaticDrives, [], [], passive.Bodies));
+            [], [], passive.Prismatics, passive.PrismaticDrives, [], []));
     }
 
     [Fact]

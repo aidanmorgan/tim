@@ -960,6 +960,56 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         scene._PhysicsProcess(0);
     }
 
+
+    [Fact]
+    public async Task TravelParameterEditsPreserveRevisionAndUndoWhenRejected()
+    {
+        var (scene, client) = BenchScene(new("motor"), PlacementAnswer.Applied);
+        try
+        {
+            var motor = scene.World.Registry.Physics.Single(entry => entry.Metadata.Id == "motor");
+            var collider = motor.Colliders.Select((row, index) => (row, index)).First(item =>
+                item.row.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Box &&
+                item.row.Rotation == System.Numerics.Quaternion.Identity).index;
+            var changed = motor with
+            {
+                Metadata = motor.Metadata with { Parameters = motor.Metadata.Parameters.Append(
+                    new ParameterDescriptor("travel", ParameterUnit.MetrePerRadian, ParameterKind.Real, .1f, .3f, .2f, [],
+                        EditorPolicy: ParameterEditorPolicy.Reject)).ToArray() },
+                Mechanical = motor.Mechanical! with { DrivenSurfaces =
+                    [new(new(1), new(0), new(collider), CuriousContraptions.Abstractions.Mechanical.BoxFace.PositiveY,
+                        new(CoordinateKind.Revolute, 0), System.Numerics.Vector3.UnitX,
+                        CuriousContraptions.Abstractions.Mechanical.MechanicalValue.FromParameter("travel"))] }
+            };
+            scene.World.Registry.Load(CuriousContraptions.Bundle.BundleSchema.WriteEntries(
+                scene.World.Registry.Physics.Select(entry => entry.Metadata.Id == "motor" ? changed : entry).ToArray()));
+            using var physics = DeclaredPhysics.Scoped([changed]);
+            using var ports = DeclaredPorts.Scoped(scene.World.Registry.Ports);
+            Assert.Empty(ClickBench(scene));
+            var placed = scene.World.Construction;
+            var instance = (WorkshopGenericInstance)Assert.Single(placed.Instances);
+            var values = instance.Parameters.ToDictionary(); values[new("travel")] = .3f;
+            await scene.ApplyDeclaredParametersAsync(instance.Id, new(values));
+            var edited = scene.World.Construction;
+            Assert.Equal(.3f, Assert.Single(CompiledSceneFixture.Compile(edited).Physics.DrivenSurfaces.ToArray()).TravelPerRadian);
+            foreach (var invalid in new[] { .4f, float.NaN })
+            {
+                values[new("travel")] = invalid;
+                await scene.ApplyDeclaredParametersAsync(instance.Id, new(values));
+                Assert.Equal(edited, scene.World.Construction);
+                Assert.Equal(edited.Revision, scene.World.Construction.Revision);
+            }
+            var refusals = scene.Diagnostics.Snapshot().OfType<WorkshopFaultDiagnostic>().ToArray();
+            Assert.Equal(2, refusals.Length);
+            Assert.All(refusals, failure => Assert.Equal(WorkshopFaultKind.Rejection, failure.Kind));
+            Assert.Empty(Undo(scene));
+            Assert.Equal(placed.Instances, scene.World.Construction.Instances);
+            Assert.Equal(.2f, Assert.Single(CompiledSceneFixture.Compile(scene.World.Construction).Physics.DrivenSurfaces.ToArray()).TravelPerRadian);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
     public static TheoryData<PartId, ParameterId, string, string[]> ParameterUndoCases() => new()
     {
         { new PartId("delay"), new("delay_seconds"), "2.5", ["0", "13", "NaN", "Infinity"] },

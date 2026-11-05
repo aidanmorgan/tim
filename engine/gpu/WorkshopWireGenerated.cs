@@ -56,9 +56,12 @@ public struct ActivationRecord : IFlatbufferObject
   public ulong Emitter { get { return __p.bb.GetUlong(__p.bb_pos + 64); } }
   public uint CauseOrdinal { get { return __p.bb.GetUint(__p.bb_pos + 72); } }
   public float CausePhase { get { return __p.bb.GetFloat(__p.bb_pos + 76); } }
+  public uint CauseKind { get { return __p.bb.GetUint(__p.bb_pos + 80); } }
 
-  public static Offset<CuriousContraptions.Wire.ActivationRecord> CreateActivationRecord(FlatBufferBuilder builder, ulong Node, ulong Owner, ulong Source, ulong Body, ulong Collider, uint Phase, uint EventOrdinal, float EventPhase, float ApproachSpeed, uint Kind, ulong Emitter, uint CauseOrdinal, float CausePhase) {
-    builder.Prep(8, 80);
+  public static Offset<CuriousContraptions.Wire.ActivationRecord> CreateActivationRecord(FlatBufferBuilder builder, ulong Node, ulong Owner, ulong Source, ulong Body, ulong Collider, uint Phase, uint EventOrdinal, float EventPhase, float ApproachSpeed, uint Kind, ulong Emitter, uint CauseOrdinal, float CausePhase, uint CauseKind) {
+    builder.Prep(8, 88);
+    builder.Pad(4);
+    builder.PutUint(CauseKind);
     builder.PutFloat(CausePhase);
     builder.PutUint(CauseOrdinal);
     builder.PutUlong(Emitter);
@@ -274,12 +277,11 @@ public struct CapabilityActivationNodeDeclarationRecord : IFlatbufferObject
   public uint TargetCount { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
   public uint IntervalTicks { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
   public ulong PowerSource { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
-  public ulong Collider { get { int o = __p.__offset(24); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
-  public ulong ContactLoad { get { int o = __p.__offset(26); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
-  public uint ReleaseHoldTicks { get { int o = __p.__offset(28); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
-  public uint Completion { get { int o = __p.__offset(30); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
-  public uint Boundary { get { int o = __p.__offset(32); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
-  public uint ElapsedSignal { get { int o = __p.__offset(34); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public ulong ContactLoad { get { int o = __p.__offset(24); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public uint ReleaseHoldTicks { get { int o = __p.__offset(26); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint Completion { get { int o = __p.__offset(28); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint Boundary { get { int o = __p.__offset(30); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public uint ElapsedSignal { get { int o = __p.__offset(32); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
 
   public static Offset<CuriousContraptions.Wire.CapabilityActivationNodeDeclarationRecord> CreateCapabilityActivationNodeDeclarationRecord(FlatBufferBuilder builder,
       ulong id = 0,
@@ -292,15 +294,13 @@ public struct CapabilityActivationNodeDeclarationRecord : IFlatbufferObject
       uint target_count = 0,
       uint interval_ticks = 0,
       ulong power_source = 0,
-      ulong collider = 0,
       ulong contact_load = 0,
       uint release_hold_ticks = 0,
       uint completion = 0,
       uint boundary = 0,
       uint elapsed_signal = 0) {
-    builder.StartTable(16);
+    builder.StartTable(15);
     CapabilityActivationNodeDeclarationRecord.AddContactLoad(builder, contact_load);
-    CapabilityActivationNodeDeclarationRecord.AddCollider(builder, collider);
     CapabilityActivationNodeDeclarationRecord.AddPowerSource(builder, power_source);
     CapabilityActivationNodeDeclarationRecord.AddPassage(builder, passage);
     CapabilityActivationNodeDeclarationRecord.AddSensor(builder, sensor);
@@ -318,7 +318,7 @@ public struct CapabilityActivationNodeDeclarationRecord : IFlatbufferObject
     return CapabilityActivationNodeDeclarationRecord.EndCapabilityActivationNodeDeclarationRecord(builder);
   }
 
-  public static void StartCapabilityActivationNodeDeclarationRecord(FlatBufferBuilder builder) { builder.StartTable(16); }
+  public static void StartCapabilityActivationNodeDeclarationRecord(FlatBufferBuilder builder) { builder.StartTable(15); }
   public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
   public static void AddOwner(FlatBufferBuilder builder, ulong owner) { builder.AddUlong(1, owner, 0); }
   public static void AddKind(FlatBufferBuilder builder, uint kind) { builder.AddUint(2, kind, 0); }
@@ -329,12 +329,11 @@ public struct CapabilityActivationNodeDeclarationRecord : IFlatbufferObject
   public static void AddTargetCount(FlatBufferBuilder builder, uint targetCount) { builder.AddUint(7, targetCount, 0); }
   public static void AddIntervalTicks(FlatBufferBuilder builder, uint intervalTicks) { builder.AddUint(8, intervalTicks, 0); }
   public static void AddPowerSource(FlatBufferBuilder builder, ulong powerSource) { builder.AddUlong(9, powerSource, 0); }
-  public static void AddCollider(FlatBufferBuilder builder, ulong collider) { builder.AddUlong(10, collider, 0); }
-  public static void AddContactLoad(FlatBufferBuilder builder, ulong contactLoad) { builder.AddUlong(11, contactLoad, 0); }
-  public static void AddReleaseHoldTicks(FlatBufferBuilder builder, uint releaseHoldTicks) { builder.AddUint(12, releaseHoldTicks, 0); }
-  public static void AddCompletion(FlatBufferBuilder builder, uint completion) { builder.AddUint(13, completion, 0); }
-  public static void AddBoundary(FlatBufferBuilder builder, uint boundary) { builder.AddUint(14, boundary, 0); }
-  public static void AddElapsedSignal(FlatBufferBuilder builder, uint elapsedSignal) { builder.AddUint(15, elapsedSignal, 0); }
+  public static void AddContactLoad(FlatBufferBuilder builder, ulong contactLoad) { builder.AddUlong(10, contactLoad, 0); }
+  public static void AddReleaseHoldTicks(FlatBufferBuilder builder, uint releaseHoldTicks) { builder.AddUint(11, releaseHoldTicks, 0); }
+  public static void AddCompletion(FlatBufferBuilder builder, uint completion) { builder.AddUint(12, completion, 0); }
+  public static void AddBoundary(FlatBufferBuilder builder, uint boundary) { builder.AddUint(13, boundary, 0); }
+  public static void AddElapsedSignal(FlatBufferBuilder builder, uint elapsedSignal) { builder.AddUint(14, elapsedSignal, 0); }
   public static Offset<CuriousContraptions.Wire.CapabilityActivationNodeDeclarationRecord> EndCapabilityActivationNodeDeclarationRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.CapabilityActivationNodeDeclarationRecord>(o);
@@ -357,12 +356,11 @@ static public class CapabilityActivationNodeDeclarationRecordVerify
       && verifier.VerifyField(tablePos, 18 /*TargetCount*/, 4 /*uint*/, 4, false)
       && verifier.VerifyField(tablePos, 20 /*IntervalTicks*/, 4 /*uint*/, 4, false)
       && verifier.VerifyField(tablePos, 22 /*PowerSource*/, 8 /*ulong*/, 8, false)
-      && verifier.VerifyField(tablePos, 24 /*Collider*/, 8 /*ulong*/, 8, false)
-      && verifier.VerifyField(tablePos, 26 /*ContactLoad*/, 8 /*ulong*/, 8, false)
-      && verifier.VerifyField(tablePos, 28 /*ReleaseHoldTicks*/, 4 /*uint*/, 4, false)
-      && verifier.VerifyField(tablePos, 30 /*Completion*/, 4 /*uint*/, 4, false)
-      && verifier.VerifyField(tablePos, 32 /*Boundary*/, 4 /*uint*/, 4, false)
-      && verifier.VerifyField(tablePos, 34 /*ElapsedSignal*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 24 /*ContactLoad*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 26 /*ReleaseHoldTicks*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 28 /*Completion*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 30 /*Boundary*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 32 /*ElapsedSignal*/, 4 /*uint*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -4690,9 +4688,12 @@ public struct TimerRecord : IFlatbufferObject
   public ulong CauseCollider { get { return __p.bb.GetUlong(__p.bb_pos + 72); } }
   public uint CauseOrdinal { get { return __p.bb.GetUint(__p.bb_pos + 80); } }
   public float CausePhase { get { return __p.bb.GetFloat(__p.bb_pos + 84); } }
+  public uint CauseKind { get { return __p.bb.GetUint(__p.bb_pos + 88); } }
 
-  public static Offset<CuriousContraptions.Wire.TimerRecord> CreateTimerRecord(FlatBufferBuilder builder, ulong Node, uint Phase, ulong StartedTick, ulong DueTick, uint InputKind, uint InputOrdinal, float InputPhase, float InputApproachSpeed, ulong InputEmitter, ulong CauseSource, ulong CauseBody, ulong CauseCollider, uint CauseOrdinal, float CausePhase) {
-    builder.Prep(8, 88);
+  public static Offset<CuriousContraptions.Wire.TimerRecord> CreateTimerRecord(FlatBufferBuilder builder, ulong Node, uint Phase, ulong StartedTick, ulong DueTick, uint InputKind, uint InputOrdinal, float InputPhase, float InputApproachSpeed, ulong InputEmitter, ulong CauseSource, ulong CauseBody, ulong CauseCollider, uint CauseOrdinal, float CausePhase, uint CauseKind) {
+    builder.Prep(8, 96);
+    builder.Pad(4);
+    builder.PutUint(CauseKind);
     builder.PutFloat(CausePhase);
     builder.PutUint(CauseOrdinal);
     builder.PutUlong(CauseCollider);
@@ -5103,9 +5104,9 @@ public struct WorkshopResponse : IFlatbufferObject
   public int BodiesLength { get { int o = __p.__offset(32); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.CaptureLatchRead? Captures(int j) { int o = __p.__offset(34); return o != 0 ? (CuriousContraptions.Wire.CaptureLatchRead?)(new CuriousContraptions.Wire.CaptureLatchRead()).__assign(__p.__vector(o) + j * 32, __p.bb) : null; }
   public int CapturesLength { get { int o = __p.__offset(34); return o != 0 ? __p.__vector_len(o) : 0; } }
-  public CuriousContraptions.Wire.ActivationRecord? Activations(int j) { int o = __p.__offset(36); return o != 0 ? (CuriousContraptions.Wire.ActivationRecord?)(new CuriousContraptions.Wire.ActivationRecord()).__assign(__p.__vector(o) + j * 80, __p.bb) : null; }
+  public CuriousContraptions.Wire.ActivationRecord? Activations(int j) { int o = __p.__offset(36); return o != 0 ? (CuriousContraptions.Wire.ActivationRecord?)(new CuriousContraptions.Wire.ActivationRecord()).__assign(__p.__vector(o) + j * 88, __p.bb) : null; }
   public int ActivationsLength { get { int o = __p.__offset(36); return o != 0 ? __p.__vector_len(o) : 0; } }
-  public CuriousContraptions.Wire.TimerRecord? Timers(int j) { int o = __p.__offset(38); return o != 0 ? (CuriousContraptions.Wire.TimerRecord?)(new CuriousContraptions.Wire.TimerRecord()).__assign(__p.__vector(o) + j * 88, __p.bb) : null; }
+  public CuriousContraptions.Wire.TimerRecord? Timers(int j) { int o = __p.__offset(38); return o != 0 ? (CuriousContraptions.Wire.TimerRecord?)(new CuriousContraptions.Wire.TimerRecord()).__assign(__p.__vector(o) + j * 96, __p.bb) : null; }
   public int TimersLength { get { int o = __p.__offset(38); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.ContactWorkStoreRecord? ContactWorks(int j) { int o = __p.__offset(40); return o != 0 ? (CuriousContraptions.Wire.ContactWorkStoreRecord?)(new CuriousContraptions.Wire.ContactWorkStoreRecord()).__assign(__p.__vector(o) + j * 32, __p.bb) : null; }
   public int ContactWorksLength { get { int o = __p.__offset(40); return o != 0 ? __p.__vector_len(o) : 0; } }
@@ -5163,9 +5164,9 @@ public struct WorkshopResponse : IFlatbufferObject
   public static void AddCaptures(FlatBufferBuilder builder, VectorOffset capturesOffset) { builder.AddOffset(15, capturesOffset.Value, 0); }
   public static void StartCapturesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
   public static void AddActivations(FlatBufferBuilder builder, VectorOffset activationsOffset) { builder.AddOffset(16, activationsOffset.Value, 0); }
-  public static void StartActivationsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(80, numElems, 8); }
+  public static void StartActivationsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(88, numElems, 8); }
   public static void AddTimers(FlatBufferBuilder builder, VectorOffset timersOffset) { builder.AddOffset(17, timersOffset.Value, 0); }
-  public static void StartTimersVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(88, numElems, 8); }
+  public static void StartTimersVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(96, numElems, 8); }
   public static void AddContactWorks(FlatBufferBuilder builder, VectorOffset contactWorksOffset) { builder.AddOffset(18, contactWorksOffset.Value, 0); }
   public static void StartContactWorksVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
   public static void AddElectrical(FlatBufferBuilder builder, VectorOffset electricalOffset) { builder.AddOffset(19, electricalOffset.Value, 0); }
@@ -5236,8 +5237,8 @@ static public class WorkshopResponseVerify
       && verifier.VerifyField(tablePos, 30 /*Capture*/, 24 /*CuriousContraptions.Wire.ClockStamp*/, 8, false)
       && verifier.VerifyVectorOfData(tablePos, 32 /*Bodies*/, 88 /*CuriousContraptions.Wire.BodyRead*/, false)
       && verifier.VerifyVectorOfData(tablePos, 34 /*Captures*/, 32 /*CuriousContraptions.Wire.CaptureLatchRead*/, false)
-      && verifier.VerifyVectorOfData(tablePos, 36 /*Activations*/, 80 /*CuriousContraptions.Wire.ActivationRecord*/, false)
-      && verifier.VerifyVectorOfData(tablePos, 38 /*Timers*/, 88 /*CuriousContraptions.Wire.TimerRecord*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 36 /*Activations*/, 88 /*CuriousContraptions.Wire.ActivationRecord*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 38 /*Timers*/, 96 /*CuriousContraptions.Wire.TimerRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 40 /*ContactWorks*/, 32 /*CuriousContraptions.Wire.ContactWorkStoreRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 42 /*Electrical*/, 32 /*CuriousContraptions.Wire.ElectricalSourceRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 44 /*ActivationMemory*/, 40 /*CuriousContraptions.Wire.ActivationMemoryRecord*/, false)

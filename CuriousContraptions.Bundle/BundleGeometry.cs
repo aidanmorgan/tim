@@ -22,7 +22,7 @@ public static class BundleGeometry
 
     public static IReadOnlyList<ColliderDescriptor> Colliders(BundleEntry entry, IReadOnlyDictionary<string, float>? supplied = null)
     {
-        if (entry.Colliders.Count == 0) throw new ArgumentException($"'{entry.Metadata.Id}' has no baked colliders.");
+        if (entry.Colliders.Count == 0 && (entry.Footprint.Bodies != 0 || entry.Mechanical is not null)) throw new ArgumentException($"'{entry.Metadata.Id}' has no baked colliders.");
         var parameters = Parameters(entry, supplied);
         var colliders = entry.Colliders.ToArray();
         foreach (var binding in entry.ColliderBindings)

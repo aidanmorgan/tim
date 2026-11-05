@@ -301,9 +301,10 @@ public sealed class WireFaultTests
         foreach (var file in new[] { "engine/gpu/WorkshopWire.cs", "engine/gpu/WorkshopActivationWire.cs", "engine/gpu/WorkshopTimerWire.cs",
                      "engine/gpu/WorkshopContactWorkWire.cs" })
             Assert.False(File.Exists(Path.Combine(root, file)), $"{file} is re-added.");
-        // No retry/alternate decoder: only the declared-parameter external boundary translates its
-        // validation exception into a typed wire refusal. Keep that exact catch separate from the codec-wide pin.
+        // No retry/alternate decoder: the named parameter and response boundaries translate invalid
+        // canonical fields into typed refusals. Keep both exact catches separate from the codec-wide pin.
         var parameterBoundaries = 0;
+        var responseBoundaries = 0;
         foreach (var codec in new[] { "engine/gpu/WorkshopCommandRouter.cs", "engine/gpu/WorkshopWireFlatBuffers.cs",
                      "engine/gpu/WorkshopSaveCodec.cs", "engine/gpu/WorkshopSavePrevalidation.cs", "engine/gpu/WorkshopAuthoringFlatBuffers.cs" })
         {
@@ -322,10 +323,24 @@ public sealed class WireFaultTests
                     Assert.Equal("WireFaultReason.OutOfRange", fault.ArgumentList!.Arguments[0].Expression.ToString());
                     Assert.Equal(clause.Declaration!.Identifier.ValueText, fault.ArgumentList.Arguments[2].Expression.ToString());
                 }
+                else if (codec == "engine/gpu/WorkshopWireFlatBuffers.cs" &&
+                    clause.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault()?.Identifier.ValueText == "DecodeResponse")
+                {
+                    responseBoundaries++;
+                    Assert.Equal("Exception", clause.Declaration?.Type.ToString());
+                    var name = clause.Declaration!.Identifier.ValueText;
+                    Assert.Equal(name + " is ArgumentException or OverflowException", clause.Filter?.FilterExpression.ToString());
+                    var refusal = Assert.IsType<ThrowStatementSyntax>(Assert.Single(clause.Block.Statements));
+                    var fault = Assert.IsType<ObjectCreationExpressionSyntax>(refusal.Expression);
+                    Assert.Equal("WireFaultException", fault.Type.ToString());
+                    Assert.Equal("WireFaultReason.OutOfRange", fault.ArgumentList!.Arguments[0].Expression.ToString());
+                    Assert.Equal(name, fault.ArgumentList.Arguments[2].Expression.ToString());
+                }
                 else Assert.Contains(clause.Declaration?.Type.ToString() ?? "(all)", AdmittedCatches);
             }
         }
         Assert.Equal(1, parameterBoundaries);
+        Assert.Equal(1, responseBoundaries);
         Assert.DoesNotContain("catch (ArgumentException)", File.ReadAllText(Path.Combine(root, "engine/gpu/BrowserWorkshopClient.cs")), StringComparison.Ordinal);
     }
 

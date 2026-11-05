@@ -153,6 +153,7 @@ internal static class WorkshopObservationProjection
             row.SetProperty("emitter", Exact(source.Emitter.Value));
             row.SetProperty("causeOrdinal", source.CauseOrdinal);
             row.SetProperty("causePhase", source.CausePhase);
+            row.SetProperty("causeKind", EnumValue(source.CauseKind));
             activations.Push(row);
         }
         value.SetProperty("activations", activations);
@@ -277,6 +278,7 @@ internal static class WorkshopObservationProjection
         value.SetProperty("collider", Exact(source.Cause.Collider.Value));
         value.SetProperty("causeOrdinal", source.Cause.Time.Ordinal);
         value.SetProperty("causePhase", source.Cause.Time.Phase);
+        value.SetProperty("causeKind", EnumValue(source.Cause.Kind));
         value.SetProperty("approachSpeed", source.Cause.ApproachSpeed.Value);
         return value;
     }

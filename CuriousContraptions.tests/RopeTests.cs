@@ -592,7 +592,7 @@ public sealed class RopeTests
                 BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(WireSlot(rope, 1)), 999); break;
             default: throw new ArgumentOutOfRangeException(nameof(defect));
         }
-        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes));
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes)).Reason);
         Assert.Equal(before, world.Committed);
         Assert.Equal(before.Presentation.Ropes.ToArray(), WorkshopWireFlatBuffers.DecodeResponse(valid).Read.Presentation.Ropes.ToArray());
         await world.Advance(2);

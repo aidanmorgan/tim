@@ -707,7 +707,6 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityActivationNodeDeclarationRecord.AddTargetCount(b, value.TargetCount);
         W.CapabilityActivationNodeDeclarationRecord.AddIntervalTicks(b, value.IntervalTicks);
         W.CapabilityActivationNodeDeclarationRecord.AddPowerSource(b, value.PowerSource.Value);
-        W.CapabilityActivationNodeDeclarationRecord.AddCollider(b, value.Collider.Value);
         W.CapabilityActivationNodeDeclarationRecord.AddContactLoad(b, value.ContactLoad.Value);
         W.CapabilityActivationNodeDeclarationRecord.AddReleaseHoldTicks(b, value.ReleaseHoldTicks);
         W.CapabilityActivationNodeDeclarationRecord.AddCompletion(b, (uint)value.Completion);
@@ -727,7 +726,6 @@ public static partial class WorkshopWireFlatBuffers
         row.TargetCount,
         row.IntervalTicks,
         new CuriousContraptions.Gpu.GpuBodyId(row.PowerSource),
-        new CuriousContraptions.Gpu.GpuColliderId(row.Collider),
         new CuriousContraptions.Gpu.GpuContactLoadSensorId(row.ContactLoad),
         row.ReleaseHoldTicks,
         ObservationEnum<CuriousContraptions.Abstractions.Signal.TimerCompletionPolicy>(row.Completion),

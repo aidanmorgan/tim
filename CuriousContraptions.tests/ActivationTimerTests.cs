@@ -114,7 +114,7 @@ public sealed class ActivationTimerTests
         Assert.Throws<ArgumentException>(()=>new ActivationTime(0,-1f).CeilingTick(4));
         foreach (var invalid in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity, 2048f, MathF.BitDecrement(-2048f) })
             Assert.Throws<ArgumentException>(() => new ActivationTime(1, invalid).Validate());
-        var cause=new ActivationCause(new(1),new(1),new(1),new(uint.MaxValue,0f),new(1f));
+        var cause=new ActivationCause(new(1),new(1),new(1),new(uint.MaxValue,0f),new(1f), ActivationCauseKind.Physical);
         var input=new ActivationOccurrence(ActivationOccurrenceKind.Contact,new(1),cause.Time,cause);
         Assert.Throws<OverflowException>(()=>ActivationTimerState.Ready(new(2)).Trigger(new(new(2),1440),input,4));
         Assert.Throws<ArgumentException>(() => (input with {Kind=ActivationOccurrenceKind.TimerElapsed,Time=new(uint.MaxValue,.25f)}).Validate());

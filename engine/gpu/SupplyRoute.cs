@@ -68,7 +68,7 @@ public sealed class CompiledSupplyGraph
     public CompiledSupplyGraph(ReadOnlySpan<SupplyNodeDeclaration> nodes, ReadOnlySpan<SupplyEdge> edges,
         ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> prismatics,
         ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives, ReadOnlySpan<RevoluteConstraintDeclaration> revolutes,
-        ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives, ReadOnlySpan<RigidBodyDeclaration> bodies)
+        ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives)
     {
         _nodes = nodes.ToArray(); _edges = edges.ToArray();
         _sources = new int[nodes.Length]; _consumers = new int[nodes.Length][];
@@ -81,7 +81,7 @@ public sealed class CompiledSupplyGraph
         {
             var node=nodes[i]; inputs[i]=new(4); _consumers[i]=[];
             if (!Enum.IsDefined(node.Kind) || !slots.TryAdd(node.Owner,i) ||
-                !bodies.ToArray().Any(body=>body.Id==node.Owner))
+                node.Owner.Value == 0)
                 throw new ArgumentException("Electrical graph node requires a unique admitted owner and defined kind.");
             if ((node.Kind==SupplyNodeKind.LogicGate) != node.Operation.HasValue ||
                 (node.Operation is { } operation && !Enum.IsDefined(operation)))
@@ -93,8 +93,8 @@ public sealed class CompiledSupplyGraph
             }
             else if(node.Kind is SupplyNodeKind.Contact or SupplyNodeKind.LogicGate)
             {
-                if(node.Source!=default || !node.Consumers.IsDefaultOrEmpty || !bodies.ToArray().Any(body=>body.Id==node.Owner && body.Motion==RigidMotionKind.Static))
-                    throw new ArgumentException("Electrical contact requires one static owner.");
+                if(node.Source!=default || !node.Consumers.IsDefaultOrEmpty)
+                    throw new ArgumentException("Electrical contact cannot carry a source or drive consumers.");
             }
             else
             {

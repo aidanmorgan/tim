@@ -221,6 +221,14 @@ public static class WorkshopPhysicsCompiler
             foreach (var instance in construction.Instances)
             {
                 var entry = DeclaredPhysics.Of(instance.PartId);
+                if (entry.Footprint.Bodies == 0)
+                {
+                    if (entry.Mechanical is not null || entry.Colliders.Count != 0 || entry.ColliderBindings.Count != 0 ||
+                        entry.Presentation.Bodies.Count != 0 || entry.Footprint.MovingBodies != 0 ||
+                        entry.Footprint.PrismaticConstraints != 0 || entry.Footprint.RevoluteConstraints != 0)
+                        throw new ArgumentException("Logical owner declares inconsistent physical geometry.");
+                    continue;
+                }
                 var rows = identities[instance.Id];
                 var parameters = DeclaredPhysics.Parameters(instance);
                 var shapes = BundleGeometry.Colliders(entry, parameters);

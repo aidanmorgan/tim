@@ -708,7 +708,7 @@ public sealed class WorkshopObservationTests
         Assert.Equal("18446744073709551615", clockDto.Fields["count"]);
     }
 
-    private sealed class ExternalObject : IWorkshopObservationObject<ExternalObject>
+    internal sealed class ExternalObject : IWorkshopObservationObject<ExternalObject>
     {
         public Dictionary<string, object?> Fields { get; } = new();
         public List<ExternalObject> Items { get; } = [];

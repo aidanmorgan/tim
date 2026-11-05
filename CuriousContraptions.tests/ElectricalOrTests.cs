@@ -289,7 +289,7 @@ public sealed class ElectricalOrTests
             var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
             var edges=WorkshopSupplyCompiler.Compile(open,DeclaredPhysics.Of).Edges;
             var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,Enum.Parse<PortRole>(closing.Input.Value))).ToArray();
-            CompiledSupplyGraph Build()=>new(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,scene.Bodies);
+            CompiledSupplyGraph Build()=>new(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives);
             if(admitted) _=Build();
             else Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",Assert.Throws<ArgumentException>(Build).Message);
         }

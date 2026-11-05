@@ -71,7 +71,10 @@ public sealed class RevoluteDriveTests
         {
             _device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), physics.Document);
             var empty = CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty));
-            _scene = new WorkshopCompiledScene(empty.Identity, empty.Revision, empty.Settings, physics, empty.Activation, [], [], []);
+            // LawScene.Source/Consumer explicitly author the logical source/base owners.
+            // Rotor bodies remain physical children, not additional logical owners.
+            var owners = physics.SupplyGraph.Nodes.ToArray().Select(node => node.Owner);
+            _scene = new WorkshopCompiledScene(empty.Identity, empty.Revision, empty.Settings, physics, empty.Activation, [], owners, []);
         }
 
         public PhysicsSceneDeclaration Physics => _scene.Physics;

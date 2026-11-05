@@ -333,8 +333,8 @@ public static class WorkshopAuthoringFlatBuffers
         var local = new LocalPosition(l.X, l.Y, l.Z);
         var rotation = new CanonicalRotation(r.X, r.Y, r.Z, r.W);
 
-        if (!DeclaredPhysics.Contains(partId) || DeclaredPhysics.Of(partId).Colliders.Count == 0)
-            throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names unknown physical element '{partId}'.");
+        if (!DeclaredPhysics.Contains(partId))
+            throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names unknown element '{partId}'.");
         return new WorkshopGenericInstance(partId, id, cell, local, rotation, locked)
             { Parameters = DecodeParameters(inst, partId) };
     }

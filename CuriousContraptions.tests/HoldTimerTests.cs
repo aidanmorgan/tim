@@ -148,7 +148,7 @@ public sealed class HoldTimerTests
     {
         var declaration=new ActivationTimerDeclaration(new(1),12,TimerCompletionPolicy.Rearm,TimerBoundary.BeforeNetworks,TimerElapsedSignal.None);
         var first=new ActivationOccurrence(ActivationOccurrenceKind.Contact,new(2),new(0,0),
-            new(new(2),new(3),new(4),new(0,0),new(1f)));
+            new(new(2),new(3),new(4),new(0,0),new(1f),ActivationCauseKind.Physical));
         var counting=ActivationTimerState.Ready(new(1)).Trigger(declaration,first,4);
         var busy=first with {Time=new(4,0),Cause=first.Cause with {Time=new(4,0)}};
         Assert.Equal(counting,counting.Trigger(declaration,busy,4));

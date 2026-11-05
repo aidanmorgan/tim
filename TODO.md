@@ -6,9 +6,9 @@
 
 **Current slice:** Story 9A.46f driven-surface bindings, implementation on the published baseline. [Native spec](./_bmad-output/implementation-artifacts/spec-9a-46f-driven-surface-bindings.md). Preserve the separate dirty Conveyor candidate; no package import or approval.
 
-**Blocker / owner / retry:** no technical dependency blocker. Retained implementation owner `/root/surface_implementer`; independent planning audit passed. All 12 baseline maintainability violations have been refactored; the final pre-handoff whole-codebase gate passed with zero violations. Full local verification passed 5,709/0/0 (Skipped: 0); normal hooks and independent implementation review remain pending.
+**Blocker / owner / retry:** retained owner `/root/surface_implementer` completed all confirmed review repairs; independent affected source review and final whole-baseline scope/simplification passed. Fresh post-review E9 passes with zero violations. Original candidate e4749ffd and its proof remain historical; no unresolved source finding remains.
 
-**Next acceptance check:** prepare the local review-candidate commit through normal hooks, then six-layer independent Auto review. All 51 native surface, formatter and populated bundle boundary cases and the full 5,709-test round pass with zero skips. Superseded interrupted full rounds are not accepted.
+**Next acceptance check:** normal hooks and local repair commit, then independent exact-SHA acceptance. Matching normal compiler captures are clean; authoritative full round **5,736 passed, 0 failed, Skipped: 0**, main duration 22 m 53 s. [Final evidence](./_bmad-output/implementation-artifacts/spec-9a-46f-driven-surface-bindings.md#final-fixture-repaired-verification-and-local-candidate). No push before SnapshotApproval; prior failed/interrupted rounds remain unaccepted. Remote/browser qualification remains pending.
 
 **Order:**
 1. Complete 9A.46f driven-surface bindings, then 9A.46g–m before Story 11.1b Conveyor (owner, 4 November 2026). Conveyor retains the carried review obligation: before declaring any run-controlled speed, confirm the parameter feeds only its lane binding, or add that validator rule.

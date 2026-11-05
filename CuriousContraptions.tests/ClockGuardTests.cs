@@ -66,8 +66,10 @@ public sealed class ClockGuardTests
         Assert.Equal(ActivationPhase.Clear, Latch(reads[119]).Phase);
         var first = Latch(reads[120]);
         Assert.Equal((ActivationPhase.Latched, ActivationOccurrenceKind.OscillatorTick, new ActivationNodeId(Owner.Value), Owner,
-                Bench(1f).Instances.Identities[Owner].Colliders[0], 480U),
+                default(GpuColliderId), 480U),
             (first.Phase, first.Kind, first.Emitter, first.Body, first.Collider, first.EventOrdinal));
+        Assert.Equal(ActivationCauseKind.Node, first.CauseKind);
+        Assert.Equal(new GpuEventSourceId(Owner.Value), first.Source);
         Assert.All(reads.Skip(120), read => Assert.Equal(first, Latch(read)));
         foreach (var tick in new[] { 120, 240, 360, 480, 600 })
         {

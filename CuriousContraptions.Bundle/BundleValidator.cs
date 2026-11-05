@@ -82,6 +82,10 @@ public static class BundleValidator
             // Any entry with a body (a declared footprint body, or a mechanical payload) needs a collider, whatever its domains.
             if ((footprint.Bodies > 0 || entry.Mechanical is not null) && entry.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.Colliders: a body declares no collider"));
+            if (footprint.Bodies == 0 && (entry.Mechanical is not null || entry.Colliders.Count != 0 ||
+                entry.ColliderBindings.Count != 0 || entry.Presentation.Bodies.Count != 0 ||
+                footprint.MovingBodies != 0 || footprint.PrismaticConstraints != 0 || footprint.RevoluteConstraints != 0))
+                OutOfRange("Footprint.PhysicalOwnership");
             var childBodies = (entry.Mechanical?.Sliders.Count ?? 0) + (entry.Mechanical?.Hinges.Count ?? 0);
             var portsSeen = new HashSet<PortId>(4);
             for (var i = 0; i < entry.Ports.Count; i++)
@@ -845,9 +849,9 @@ public static class BundleValidator
                     (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) +
                     (signal.PulseCount is null ? 0 : 1) + (signal.Memory is null ? 0 : 1) > 1)
                 OutOfRange("Capability");
-            ValidateSignalPulseCount(signal, parameters, ports, mechanical, electrical, colliders);
-            ValidateSignalMemory(signal, ports, mechanical, electrical, colliders);
-            ValidateSignalOscillator(signal, parameters, ports, mechanical, electrical, colliders);
+            ValidateSignalPulseCount(signal, parameters, ports);
+            ValidateSignalMemory(signal, ports);
+            ValidateSignalOscillator(signal, parameters, ports, electrical);
             ValidateSignalContactLoad(signal, parameters, ports, mechanical, colliders);
             ValidateSignalOrientation(signal, ports, mechanical);
             ValidateSignalIndicator(signal, ports);
@@ -863,7 +867,7 @@ public static class BundleValidator
             ValidateSignalTimer(signal, parameters, ports);
         }
 
-        private void ValidateSignalPulseCount(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
+        private void ValidateSignalPulseCount(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
         {
             if (signal.PulseCount is { } count)
             {
@@ -875,15 +879,10 @@ public static class BundleValidator
                 if (!ports.Any(port => port.Role == PortRole.ActivationIn && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse) ||
                         !ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
                     OutOfRange("PulseCount.Ports");
-                // The reached target closes a switched contact.
-                if (electrical?.Supply?.Kind != SupplyCapabilityKind.SwitchedContact)
-                    OutOfRange("PulseCount.Supply");
-                if ((mechanical is { } frame && (frame.KinematicMode == KinematicMode.Dynamic || frame.Sliders.Count != 0 || frame.Hinges.Count != 0)) || colliders.Count == 0)
-                    OutOfRange("PulseCount.Body");
             }
         }
 
-        private void ValidateSignalMemory(SignalPayload signal, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
+        private void ValidateSignalMemory(SignalPayload signal, IReadOnlyList<PortDescriptor> ports)
         {
             if (signal.Memory is { } memory)
             {
@@ -897,15 +896,10 @@ public static class BundleValidator
                 // Memory drives a Level ActivationOut.
                 if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
                     OutOfRange("Memory.Ports");
-                // Memory On closes a switched contact.
-                if (electrical?.Supply?.Kind != SupplyCapabilityKind.SwitchedContact)
-                    OutOfRange("Memory.Supply");
-                if ((mechanical is { } frame && (frame.KinematicMode == KinematicMode.Dynamic || frame.Sliders.Count != 0 || frame.Hinges.Count != 0)) || colliders.Count == 0)
-                    OutOfRange("Memory.Body");
             }
         }
 
-        private void ValidateSignalOscillator(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
+        private void ValidateSignalOscillator(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical)
         {
             if (signal.Oscillator is { } oscillator)
             {
@@ -921,9 +915,6 @@ public static class BundleValidator
                 if (!ports.Any(port => port.Role == PortRole.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
                         electrical?.Nodes.Any(node => node.Role == ElectricalRole.Consumer) != true)
                     OutOfRange("Oscillator.Supply");
-                // A Static frame without sliders and with a collider: each pulse names the frame's first declared collider through its compiled identity map.
-                if ((mechanical is { } frame && (frame.KinematicMode != KinematicMode.Static || frame.Sliders.Count != 0 || frame.Hinges.Count != 0)) || colliders.Count == 0)
-                    OutOfRange("Oscillator.Body");
             }
         }
 

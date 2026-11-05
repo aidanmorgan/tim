@@ -215,6 +215,7 @@
         <Compile Include="JointFrameTests.cs" />
         <Compile Include="MechanicalCoordinateBindingsTests.cs" />
         <Compile Include="DrivenSurfaceBindingTests.cs" />
+        <Compile Include="IndependentSignalCompositionTests.cs" />
     </ItemGroup>
 
     <!-- Godot project location: the parent directory (hosts are nested inside

@@ -648,4 +648,73 @@ public sealed class DrivenSurfaceBindingTests
         Assert.InRange((load.Body.Cell.Y + load.Body.Local.Y) / 16f, 4.25f, 4.35f);
     }
 
+
+    internal static BundleEntry ParameterBedEntry()
+    {
+        var bed = BedEntry();
+        return bed with
+        {
+            Metadata = bed.Metadata with { Parameters = bed.Metadata.Parameters.Append(
+                new ParameterDescriptor("travel", ParameterUnit.MetrePerRadian, ParameterKind.Real, .1f, .3f, .2f, [],
+                    EditorPolicy: ParameterEditorPolicy.Reject)).ToArray() },
+            Mechanical = bed.Mechanical! with { DrivenSurfaces =
+                [bed.Mechanical.DrivenSurfaces[0] with { TravelPerRadian = MechanicalValue.FromParameter("travel") }] }
+        };
+    }
+
+    [Fact]
+    public async Task AuthoredTravelOverridesChangeCompiledTravelAndActualCargoTransport()
+    {
+        await using var slow = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        await using var fast = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        var entries = PartRegistry.Read(BundleSchema.WriteEntries([ParameterBedEntry(), CargoEntry()]));
+        using var physics = DeclaredPhysics.Scoped(entries);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend(entries.Select(entry => (new PartId(entry.Metadata.Id), entry.Ports))));
+        async Task<float> Run(WorkshopIntegrationHarness harness, float travel)
+        {
+            var construction = Construction();
+            var bed = (WorkshopGenericInstance)construction.Instances.Single(instance => instance.Id == new GpuBodyId(2));
+            var parameters = bed.Parameters.ToDictionary(); parameters[new("travel")] = travel;
+            construction = construction.WithInstance(bed with { Parameters = new(parameters) });
+            // A fresh installation has revision 2; the authored edit remains in its instance values.
+            construction = construction with { Revision = new(2) };
+            await harness.Require(WorkshopCommandKind.Construct, construction);
+            Assert.Equal(travel, Assert.Single(harness.Simulation.Scene.Physics.DrivenSurfaces.ToArray()).TravelPerRadian);
+            await harness.Run(); await harness.Advance(120);
+            Assert.True(harness.Committed.Bodies.TryGet(new(3), out var cargo));
+            Assert.InRange((cargo.Body.Cell.Y + cargo.Body.Local.Y) / 16f, 4.25f, 4.35f);
+            return (cargo.Body.Cell.X + cargo.Body.Local.X) / 16f;
+        }
+        var slowX = await Run(slow, .1f); var fastX = await Run(fast, .3f);
+        Assert.True(slowX > .1f && fastX > slowX + .2f,
+            "Different authored travel must produce a visibly different load advance (20 cm) in one second.");
+    }
+
+    [Theory]
+    [InlineData(1, true)]
+    [InlineData(12, true)]
+    [InlineData(12, false)]
+    public async Task LaterSurfaceRowsDriveTheirOwnCargoWhileAnOrdinaryFaceDoesNot(int count, bool selected)
+    {
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        var bed = BedEntry(); var cargo = CargoEntry();
+        bed = bed with
+        {
+            Colliders = Enumerable.Range(0, count).Select(i => Box(new(.3f, .15f, .3f), new(i - 6f, 0, 0))).ToArray(),
+            Mechanical = bed.Mechanical! with { DrivenSurfaces = Enumerable.Range(0, count).Select(i =>
+                bed.Mechanical.DrivenSurfaces[0] with { Id = new((uint)i + 1), Collider = new(i),
+                    Face = selected ? BoxFace.PositiveY : BoxFace.NegativeY }).ToArray() }
+        };
+        using var physics = DeclaredPhysics.Scoped([bed, cargo]);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Bed, bed.Ports), (Cargo, cargo.Ports)]));
+        var x = count - 7f;
+        var construction = Construction().WithInstance(WorkshopInput.Generic(Cargo, new(3), x, 4.3f, 0, 0, 0, 0, 1)) with { Revision = new(2) };
+        await harness.Require(WorkshopCommandKind.Construct, construction);
+        await harness.Run(); await harness.Advance(40);
+        Assert.True(harness.Committed.Bodies.TryGet(new(3), out var load));
+        var travel = (load.Body.Cell.X + load.Body.Local.X) / 16f - x;
+        if (selected) Assert.True(travel > .1f, "The last installed row must carry its contacting load at least 10 cm.");
+        else Assert.InRange(travel, -.05f, .05f);
+    }
+
 }

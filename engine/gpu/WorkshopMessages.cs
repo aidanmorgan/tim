@@ -55,6 +55,7 @@ public static class WorkshopMessages
 
     internal static void ValidatePresentationOwners(WorkshopRead read, WorkshopCompiledScene construction)
     {
+        construction.Activation.ValidateOrigins(read.Activations, read.Timers, read.Tick, construction.Physics);
         var expectedRopes = read.Epoch.Value == 0 ? 0 : construction.Physics.TensileSpans.Length;
         if (read.Presentation.Ropes.Length != expectedRopes) throw new ArgumentException("Rope observation population differs from its installation.");
         var cutOwners = new System.Collections.Generic.Dictionary<RopeSpanId, RopeRouteId>();

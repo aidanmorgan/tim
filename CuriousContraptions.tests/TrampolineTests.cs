@@ -579,7 +579,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
             case SurfaceReadWireDefect.NoFrame: BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(0)), 0); break;
             default: throw new ArgumentOutOfRangeException(nameof(defect));
         }
-        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes));
+        Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes));
         Assert.Equal(before.Presentation.Surfaces.ToArray(), WorkshopWireFlatBuffers.DecodeResponse(valid).Read.Presentation.Surfaces.ToArray());
     }
 

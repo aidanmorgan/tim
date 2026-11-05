@@ -132,6 +132,7 @@ struct ActivationRecord {
     emitter: uint64;
     cause_ordinal: uint32;
     cause_phase: float;
+    cause_kind: uint32;
 }
 
 struct TimerRecord {
@@ -149,6 +150,7 @@ struct TimerRecord {
     cause_collider: uint64;
     cause_ordinal: uint32;
     cause_phase: float;
+    cause_kind: uint32;
 }
 
 // Committed Counter / System Clock memory of one activation node (Story 9R.1 D3). kind is the ActivationNodeKind (Counter 6,
@@ -616,7 +618,6 @@ table CapabilityActivationNodeDeclarationRecord {
     target_count: uint;
     interval_ticks: uint;
     power_source: ulong;
-    collider: ulong;
     contact_load: ulong;
     release_hold_ticks: uint;
     completion: uint;

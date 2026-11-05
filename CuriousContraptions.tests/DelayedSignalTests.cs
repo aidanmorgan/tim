@@ -101,7 +101,7 @@ public sealed class DelayedSignalTests
     {
         var goal = Lesson(1f).Puzzle.Goal;
         var source = new ActivationTime(100,12f);
-        var cause = new ActivationCause(new(7),new(1),new(9),source,new(2f));
+        var cause = new ActivationCause(new(7),new(1),new(9),source,new(2f), ActivationCauseKind.Physical);
         var sourceNode = new ActivationNodeDeclaration(new(2),new(2),ActivationNodeKind.ContactSource,new(7));
         var targetNode = new ActivationNodeDeclaration(new(3),new(3),ActivationNodeKind.StickyFirstInput,default);
         var trigger = ActivationLatch.From(sourceNode,new(ActivationOccurrenceKind.Contact,new(2),source,cause));

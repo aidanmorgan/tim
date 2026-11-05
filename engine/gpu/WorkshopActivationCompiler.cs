@@ -45,7 +45,7 @@ public static class WorkshopActivationCompiler
                     ContactLoad: construction.Instances.Identities[instance.Id].ContactLoad,
                     ReleaseHoldTicks: ActivationTimerDeclaration.Duration(load.ReleaseHoldSeconds, construction.Settings.Simulation)));
             // A declared oscillator pulses while its PowerIn route has one upstream source: its interval compiles to whole ticks of this
-            // construction's cadence, and each pulse names the frame's first collider.
+            // construction's cadence. Each pulse retains its declared node as its origin.
             else if (instance is WorkshopGenericInstance periodic && DeclaredPhysics.Of(instance.PartId).Signal?.Oscillator is { } oscillator)
             {
                 var sources = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of).UpstreamSources(periodic.Id);
@@ -55,7 +55,7 @@ public static class WorkshopActivationCompiler
                 var intervalTicks = ActivationTimerDeclaration.Duration(periodic.Parameters[new ParameterId(oscillator.IntervalParameter)],
                     construction.Settings.Simulation);
                 nodes.Add(new(new(periodic.Id.Value), periodic.Id, ActivationNodeKind.Oscillator, default, 0, default, default, 0, intervalTicks,
-                    powerSource, construction.Instances.Identities[periodic.Id].Colliders[0]));
+                    powerSource));
             }
         }
         var edges = Edges(construction);

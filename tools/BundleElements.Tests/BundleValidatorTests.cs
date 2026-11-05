@@ -974,7 +974,7 @@ public sealed class BundleValidatorTests
     // it is the seventh node-selecting capability, and a committed oscillator presentation binding requires it. Every refusal is one
     // BundleError naming its field, never a throw. Controls: the shipped clock, the parameter's range ends and an explicit Static frame.
     [Fact]
-    public void TheOscillatorIsATypedSuppliedStaticPulseSourceExclusiveAndCoupledToItsBindings()
+    public void TheOscillatorIsATypedSuppliedPulseSourceExclusiveAndCoupledToItsBindings()
     {
         var generated = BundleGenerator.Generate(TestRepository.Root);
         var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
@@ -1010,13 +1010,13 @@ public sealed class BundleValidatorTests
         Refused(clock with { Ports = [.. clock.Ports.Where(port => port.Id != PortId.PowerIn)] }, "Oscillator.Supply");
         var consumer = Assert.Single(clock.Electrical!.Nodes);
         Refused(clock with { Electrical = clock.Electrical with { Nodes = [consumer with { Role = Abstractions.Electrical.ElectricalRole.Switch }] } }, "Oscillator.Supply");
-        // A Static frame: another package's Static frame is admitted; a Dynamic body or a frame with a slider is refused.
+        // A Static frame: another package's Static frame is admitted; dynamic and jointed compositions are independent of the signal law.
         var wall = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical!;
         Assert.Empty(Check(clock with { Mechanical = wall }));
-        Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "Oscillator.Body");
-        Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical,
-            Presentation = clock.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }, "Oscillator.Body");
-        Assert.Contains(Check(clock with { Colliders = [] }), error => error.Detail.StartsWith("Candidate.Oscillator.Body:", StringComparison.Ordinal));
+        Assert.Empty(Check(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }));
+        Assert.Empty(Check(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical,
+            Presentation = clock.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }));
+        Assert.Empty(Check(clock with { Footprint = default, Colliders = [] }));
 
         // One node-selecting capability: a valid passage aperture on the same Static frame is refused, and only for that (the control
         // drops the oscillator with its committed oscillator bindings).
@@ -1074,14 +1074,14 @@ public sealed class BundleValidatorTests
         Refused(counter with { Ports = [.. counter.Ports.Where(port => port != input)] }, "PulseCount.Ports");
         Refused(counter with { Ports = [.. counter.Ports.Where(port => port != input), input with { Signal = PortSignalKind.Level }] }, "PulseCount.Ports");
         Refused(counter with { Ports = [.. counter.Ports.Where(port => port != output), output with { Signal = PortSignalKind.Level }] }, "PulseCount.Ports");
-        // A SwitchedContact supply.
-        Refused(counter with { Electrical = counter.Electrical! with { Supply = null } }, "PulseCount.Supply");
-        // Not Dynamic, no slider: another package's Static frame is admitted.
+        // A switched contact is optional composition.
+        Assert.Empty(Check(counter with { Electrical = counter.Electrical! with { Supply = null } }));
+        // Physical composition is independent of counting.
         Assert.Empty(Check(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical }));
-        Refused(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "PulseCount.Body");
-        Refused(counter with { Mechanical = UndrivenGate(bundle),
-            Presentation = counter.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }, "PulseCount.Body");
-        Assert.Contains(Check(counter with { Colliders = [] }), error => error.Detail.StartsWith("Candidate.PulseCount.Body:", StringComparison.Ordinal));
+        Assert.Empty(Check(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }));
+        Assert.Empty(Check(counter with { Mechanical = UndrivenGate(bundle),
+            Presentation = counter.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }));
+        Assert.Empty(Check(counter with { Footprint = default, Colliders = [] }));
         // One node-selecting capability: a valid passage aperture on a Static frame beside it is refused, and only for that.
         var wall = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical;
         Refused(counter with { Mechanical = wall, Signal = counter.Signal with { Passage = new(.5f, .1f) } }, "Capability");
@@ -1092,7 +1092,7 @@ public sealed class BundleValidatorTests
     }
 
     // C-Memory (D1): the memory reads the two Pulse inputs the shared Set/Reset law reads (SetIn, ResetIn), drives a Level ActivationOut,
-    // closes a SwitchedContact supply and sits on a frame that is not Dynamic, has no slider and has a collider; it is a node-selecting
+    // optionally controls a separately declared switched contact and composes with physical bodies; it is a node-selecting
     // capability. Each refusal is one BundleError naming its field; an undefined socket is an undefined enum. Control: the shipped latch.
     [Fact]
     public void TheMemoryReadsSetAndResetPulsesDrivesALevelAndSwitchesItsContactExclusively()
@@ -1115,11 +1115,11 @@ public sealed class BundleValidatorTests
         var output = latch.Ports.Single(port => port.Id == PortId.ActivationOut);
         Refused(latch with { Ports = [.. latch.Ports.Where(port => port != output), output with { Signal = PortSignalKind.Pulse }] }, "Memory.Ports");
         // A SwitchedContact supply.
-        Refused(latch with { Electrical = latch.Electrical! with { Supply = null } }, "Memory.Supply");
-        // Not Dynamic, no slider.
-        Refused(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "Memory.Body");
-        Refused(latch with { Mechanical = UndrivenGate(bundle),
-            Presentation = latch.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }, "Memory.Body");
+        Assert.Empty(Check(latch with { Electrical = latch.Electrical! with { Supply = null } }));
+        // Physical composition is independent of memory.
+        Assert.Empty(Check(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }));
+        Assert.Empty(Check(latch with { Mechanical = UndrivenGate(bundle),
+            Presentation = latch.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }));
         Assert.Empty(Check(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical }));
         // One node-selecting capability: a valid indicator on a declared Level input beside it is refused, and only for that.
         Refused(latch with
