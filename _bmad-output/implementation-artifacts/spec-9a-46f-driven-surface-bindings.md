@@ -2,7 +2,7 @@
 title: '9A.46f — Drive each declared contact surface from its own coordinate'
 type: 'refactor'
 created: '2026-11-05'
-status: 'in-review'
+status: 'done'
 baseline_revision: '648d067056293a4d045faf88e6937db38ad26dbf'
 review_loop_iteration: 1
 followup_review_recommended: false
@@ -420,3 +420,11 @@ Retained command executor `/root/surface_implementer` completed matching normal 
 The authoritative full solution round completed exit 0: game **5,214**, WorkerAotGuard **17**, Coverage **77**, BundleElements **236**, E2eRunner **192**; total **5,736 passed, 0 failed, Skipped: 0**. Main duration **22 m 53 s**; overall elapsed approximately **22 m 59 s** (12:54:45–13:17:44 UTC). Raw `/Users/aidan/dev/personal/tim/.anvil/9a46f-normal-verification/full-solution-fixture-repair.log`; same documented command, Debug/net10.0, SDK 10.0.403, Node 26.12.1 and explicit browser deferral. Previous failed/interrupted rounds remain unaccepted historical evidence.
 
 Normal hooks and bounded local repair commit are next, executed by the retained owner, raw `.anvil/review-repair-commit.log`. Only this candidate checkout's owned files will be staged; primary policy/Conveyor work remains separate. The resulting full canonical SHA and hook terminal result are reported in the handoff, not self-embedded. Relevant product, generated input, dependency or configuration edits invalidate affected proof/approval; evidence-only notes do not. Independent exact-SHA acceptance remains pending. No push is authorized; remote build/artifact/deployment and browser/release qualification remain unverified/deferred.
+
+### Terminal receipt — approved product, publication pending
+
+Independent reviewer `/root/surface_engineering_review` issued **SnapshotApproval / implementation Scoped Pass** for exact product commit **48d65419e03cb6f6f150a14f6a2f76ed5862334d**, against original baseline **648d067056293a4d045faf88e6937db38ad26dbf**. Coordinator reconciled all six review layers, affected repairs, full-baseline scope/simplification and final proof: authoritative **5,736 passed / 0 failed / Skipped: 0**, five applicable clean normal compiler logs, post-review E9 zero violations, normal hooks **127 passed / 0 failed / Skipped: 0**, Anvil zero findings. Raw product hook/commit log: `.anvil/review-repair-commit.log`. No confirmed finding remains; status is done and followup_review_recommended remains false.
+
+The approved product SHA above is distinct from the subsequent receipt-only commit. This receipt changes only native status/evidence and the current TODO; no existing 46f sprint-status row was present to update. Retained owner `/root/surface_implementer` executes normal receipt-commit hooks, raw `.anvil/review-receipt-commit.log`, and reports that commit identity/result separately. No product input changed, so accepted runtime, build, E9 and scope evidence remains applicable.
+
+**Publication:** push and remote-SHA verification are pending; coordinator will inspect the receipt-only delta before authorizing push. These are the only remaining publication checks. CI production build, Pages artifact, deployment and browser/release qualification are **unverified**; no CI wait or browser gate is introduced. Next slice is 9A.46g from published main after this receipt is published and its remote SHA verified. Original immutable intent, baseline, review_loop_iteration 1 and all KEEP obligations remain unchanged.
