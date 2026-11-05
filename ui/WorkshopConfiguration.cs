@@ -244,7 +244,7 @@ public partial class Workshop
         }
     }
 
-    private static string ParameterUnits(CuriousContraptions.Abstractions.ParameterUnit unit) => unit switch
+    internal static string ParameterUnits(CuriousContraptions.Abstractions.ParameterUnit unit) => unit switch
     {
         CuriousContraptions.Abstractions.ParameterUnit.None => "",
         CuriousContraptions.Abstractions.ParameterUnit.Metre => "m",
@@ -260,6 +260,7 @@ public partial class Workshop
         CuriousContraptions.Abstractions.ParameterUnit.RadianPerSecond => "rad/s",
         CuriousContraptions.Abstractions.ParameterUnit.NewtonMetre => "N·m",
         CuriousContraptions.Abstractions.ParameterUnit.Newton => "N",
+        CuriousContraptions.Abstractions.ParameterUnit.MetrePerRadian => "m/rad",
         _ => throw new System.Diagnostics.UnreachableException("The admitted schema contains an undefined parameter unit.")
     };
 

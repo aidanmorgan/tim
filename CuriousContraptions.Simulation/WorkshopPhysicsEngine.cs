@@ -12,10 +12,13 @@ namespace CuriousContraptions.Simulation;
 internal sealed class WorkshopPhysicsEngine
 {
     private readonly MechanicalTransmissionDeclaration[] _declaredTransmissions;
+    private readonly DrivenSurfaceDeclaration[] _declaredSurfaces;
+    private readonly List<SimDrivenSurface> _surfaces = [];
 
-    public WorkshopPhysicsEngine(ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default)
+    public WorkshopPhysicsEngine(ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default, ReadOnlySpan<DrivenSurfaceDeclaration> surfaces = default)
     {
         _declaredTransmissions = transmissions.ToArray();
+        _declaredSurfaces = surfaces.ToArray();
     }
 
     private Dictionary<ContactFeatureIdentity, float> _contactCache = new(64);
@@ -89,7 +92,7 @@ internal sealed class WorkshopPhysicsEngine
         _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4]; _drivenSlots = new bool[4];
         _restitutionStamp = 0;
         _probeContacts.Clear(); _probeCollider = new();
-        _transmissions.Clear(); _transmissionsResolved = false;
+        _transmissions.Clear(); _surfaces.Clear(); _transmissionsResolved = false;
         _tensile.Clear(); _tensilePool.Clear();
         _bvh.Reset();
     }
@@ -231,25 +234,7 @@ internal sealed class WorkshopPhysicsEngine
         var span = candidate.Span;
         // Story 9R.5b: every table offset is this world's own (its header's populations); no table has a fixed capacity.
         var layout = PhysicsGpuAbi.Layout(span);
-        foreach (var cut in inputs.Cuts)
-        {
-            var route = default(RopeRouteId);
-            for (var i = 0; i < layout.TensileSpans; i++)
-            {
-                var declared = PhysicsGpuAbi.ReadTensileSpan(span, i);
-                if (declared.Id == cut) route = declared.Route;
-            }
-            if (route.Value == 0) throw new ArgumentException("Unknown cut span.");
-            for (var i = 0; i < layout.TensileSpans; i++)
-            {
-                if (PhysicsGpuAbi.ReadTensileSpan(span, i).Route != route) continue;
-                var offset = layout.TensileSpanOffset(i);
-                BinaryPrimitives.WriteUInt32LittleEndian(span[(offset + PhysicsGpuAbi.TensileIntegrityOffset)..], (uint)RopeIntegrity.Cut);
-                BinaryPrimitives.WriteUInt64LittleEndian(span[(offset + PhysicsGpuAbi.TensileCutSpanOffset)..], cut.Value);
-                WriteF32(span, offset + PhysicsGpuAbi.TensileImpulseOffset, 0f);
-            }
-        }
-
+        ApplyCuts(span, layout, inputs);
         // Motion is a closed ABI discriminant. Refuse the entire candidate before clocks,
         // bodies or solver state advance; every downstream motion value is typed.
         for (var slot = 0; slot < layout.Bodies; slot++)
@@ -330,6 +315,75 @@ internal sealed class WorkshopPhysicsEngine
         var revoluteJointMap = _transmissionsResolved ? null : new Dictionary<RevoluteConstraintId, SimRevoluteJoint>();
         _allBodies.Clear();
 
+        ReadBodies(span, layout, bodyCount);
+        ReadColliders(span, layout, colliderCount);
+        ReadTensileRoutes(span, layout);
+        ReadPrismatics(span, layout, inputs);
+        ReadRevolutes(span, layout, inputs, revoluteJointMap);
+        var dt = WorkshopConstraintSolver.SubstepSeconds;
+        PrepareBroadphase(dt, steps);
+        // Story 9R.4: every compiled contact-load row, read once per tick. A row's tick measurement is the maximum qualifying mass
+        // of its substeps (D2), written over the copied source state so a removed body reads Empty on the very next tick.
+        var loadRows = layout.ContactLoads;
+        Span<ContactLoadSensorDeclaration> loadDeclarations = Scratch(ref _loadDeclarations, loadRows);
+        Span<int> loadFrames = Scratch(ref _loadFrames, loadRows);
+        Span<float> loadMass = Scratch(ref _loadMass, loadRows);
+        for (var row = 0; row < loadRows; row++)
+        {
+            loadDeclarations[row] = PhysicsGpuAbi.ReadContactLoadDeclaration(span, row);
+            loadFrames[row] = (int)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(
+                layout.ContactLoadOffset(row) + PhysicsGpuAbi.ContactLoadFrameOffset, 4));
+            loadMass[row] = 0f;
+        }
+
+        AdvanceSubsteps(span, layout, inputs, steps, sourceOrdinal, loadDeclarations, loadFrames, loadMass, workStates);
+        for (var row = 0; row < loadRows; row++)
+        {
+            var record = span.Slice(layout.ContactLoadOffset(row), PhysicsGpuAbi.ContactLoadSensorBytes);
+            BinaryPrimitives.WriteUInt32LittleEndian(record[PhysicsGpuAbi.ContactLoadPhaseOffset..], (uint)loadDeclarations[row].PhaseOf(loadMass[row]));
+            BinaryPrimitives.WriteSingleLittleEndian(record[PhysicsGpuAbi.ContactLoadMassOffset..], loadMass[row]);
+        }
+
+        CommitResidence(span, layout, committedInteractions, captureStates, sourceOrdinal, nextOrdinal, dt);
+        foreach (var b in _dynamicBodies)
+        {
+            BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + PhysicsGpuAbi.BodyCellOffset, 4), b.CellX);
+            BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + PhysicsGpuAbi.BodyCellOffset + sizeof(int), 4), b.CellY);
+            BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + PhysicsGpuAbi.BodyCellOffset + 2 * sizeof(int), 4), b.CellZ);
+            WriteVector(span, b.BodyOffset + PhysicsGpuAbi.BodyLocalOffset, b.LocalX, b.LocalY, b.LocalZ);
+            WriteVector(span, b.BodyOffset + PhysicsGpuAbi.BodyRotationOffset, b.Qx, b.Qy, b.Qz);
+            WriteF32(span, b.BodyOffset + PhysicsGpuAbi.BodyRotationOffset + PhysicsGpuAbi.VectorBytes, b.Qw);
+            WriteVector(span, b.BodyOffset + PhysicsGpuAbi.BodyVelocityOffset, b.Vx, b.Vy, b.Vz);
+            WriteVector(span, b.BodyOffset + PhysicsGpuAbi.BodyAngularVelocityOffset, b.Wx, b.Wy, b.Wz);
+        }
+        return new(captureStates.ToImmutable(),workStates.ToImmutable());
+    }
+
+    private static void ApplyCuts(Span<byte> span, PhysicsWorldLayout layout, PhysicsTickInputs inputs)
+    {
+        foreach (var cut in inputs.Cuts)
+        {
+            var route = default(RopeRouteId);
+            for (var i = 0; i < layout.TensileSpans; i++)
+            {
+                var declared = PhysicsGpuAbi.ReadTensileSpan(span, i);
+                if (declared.Id == cut) route = declared.Route;
+            }
+            if (route.Value == 0) throw new ArgumentException("Unknown cut span.");
+            for (var i = 0; i < layout.TensileSpans; i++)
+            {
+                if (PhysicsGpuAbi.ReadTensileSpan(span, i).Route != route) continue;
+                var offset = layout.TensileSpanOffset(i);
+                BinaryPrimitives.WriteUInt32LittleEndian(span[(offset + PhysicsGpuAbi.TensileIntegrityOffset)..], (uint)RopeIntegrity.Cut);
+                BinaryPrimitives.WriteUInt64LittleEndian(span[(offset + PhysicsGpuAbi.TensileCutSpanOffset)..], cut.Value);
+                WriteF32(span, offset + PhysicsGpuAbi.TensileImpulseOffset, 0f);
+            }
+        }
+
+    }
+
+    private void ReadBodies(ReadOnlySpan<byte> span, PhysicsWorldLayout layout, uint bodyCount)
+    {
         for (var slot = 0; slot < bodyCount; slot++)
         {
             var bodyOffset = layout.BodyOffset(slot);
@@ -416,6 +470,10 @@ internal sealed class WorkshopPhysicsEngine
             }
         }
 
+    }
+
+    private void ReadColliders(ReadOnlySpan<byte> span, PhysicsWorldLayout layout, uint colliderCount)
+    {
         _colliders.Clear();
         for (var c = 0; c < colliderCount; c++)
         {
@@ -465,6 +523,10 @@ internal sealed class WorkshopPhysicsEngine
 
         }
 
+    }
+
+    private void ReadTensileRoutes(ReadOnlySpan<byte> span, PhysicsWorldLayout layout)
+    {
         _joints.Clear();
         _revoluteJoints.Clear();
         _tensile.Clear();
@@ -529,6 +591,10 @@ internal sealed class WorkshopPhysicsEngine
             route.Row = default;
             _tensile.Add(route);
         }
+    }
+
+    private void ReadPrismatics(ReadOnlySpan<byte> span, PhysicsWorldLayout layout, PhysicsTickInputs inputs)
+    {
         for (var index = 0; index < layout.Prismatics; index++)
         {
             var prismaticOffset = layout.PrismaticOffset(index);
@@ -570,6 +636,10 @@ internal sealed class WorkshopPhysicsEngine
             _joints.Add(joint);
         }
 
+    }
+
+    private void ReadRevolutes(ReadOnlySpan<byte> span, PhysicsWorldLayout layout, PhysicsTickInputs inputs, Dictionary<RevoluteConstraintId, SimRevoluteJoint>? revoluteJointMap)
+    {
         var revoluteCount = layout.Revolutes;
         for (var index = 0; index < revoluteCount; index++)
         {
@@ -634,12 +704,22 @@ internal sealed class WorkshopPhysicsEngine
                     Ratio = declaration.Ratio
                 });
             }
+            foreach (var declaration in _declaredSurfaces)
+            {
+                var collider = _colliders.Single(value => value.Id == declaration.Collider.Value);
+                _surfaces.Add(new SimDrivenSurface
+                {
+                    Collider = collider, Source = revoluteJointMap[declaration.Source], Face = declaration.Face,
+                    LocalDirection = declaration.LocalDirection, TravelPerRadian = declaration.TravelPerRadian
+                });
+            }
             _transmissionsResolved = true;
         }
 
-        var dt = WorkshopConstraintSolver.SubstepSeconds;
-        var softCoeffs = SoftCoefficients.MakeSoft(WorkshopConstraintSolver.ContactHertz, WorkshopConstraintSolver.ContactDampingRatio, dt);
+    }
 
+    private void PrepareBroadphase(float dt, int steps)
+    {
         _bvh.Clear();
         var tickTime = dt * steps;
         const float velocitySlop = 0.05f;
@@ -715,457 +795,10 @@ internal sealed class WorkshopPhysicsEngine
             _candidatePairs.Add((colA, colB));
         });
 
-        // Story 9R.4: every compiled contact-load row, read once per tick. A row's tick measurement is the maximum qualifying mass
-        // of its substeps (D2), written over the copied source state so a removed body reads Empty on the very next tick.
-        var loadRows = layout.ContactLoads;
-        Span<ContactLoadSensorDeclaration> loadDeclarations = Scratch(ref _loadDeclarations, loadRows);
-        Span<int> loadFrames = Scratch(ref _loadFrames, loadRows);
-        Span<float> loadMass = Scratch(ref _loadMass, loadRows);
-        for (var row = 0; row < loadRows; row++)
-        {
-            loadDeclarations[row] = PhysicsGpuAbi.ReadContactLoadDeclaration(span, row);
-            loadFrames[row] = (int)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(
-                layout.ContactLoadOffset(row) + PhysicsGpuAbi.ContactLoadFrameOffset, 4));
-            loadMass[row] = 0f;
-        }
+    }
 
-        for (var s = 0; s < steps; s++)
-        {
-            // Box2D v3 prepares contacts before integrating velocities: the restitution approach is the substep-start velocity.
-            foreach (var b in _dynamicBodies)
-            {
-                b.V0 = b.LinearVelocity;
-                b.W0 = b.AngularVelocity;
-            }
-
-            if ((sourceOrdinal + s) % 4 == 0)
-            {
-                for (var supply = 0; supply < supplyCount; supply++)
-                {
-                    var supplyOffset = layout.ElectricalSourceOffset(supply);
-                    var nextEnabled = inputs.SourceEnable[supply];
-                    WriteU32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceEnableOffset, (uint)nextEnabled);
-
-                    _storeIndices.Clear();
-                    _balances.Clear();
-                    _capacities.Clear();
-                    _credits.Clear();
-
-                    for (var route = 0; route < layout.ElectricalBindings; route++)
-                    {
-                        var bindingOffset = layout.ElectricalBindingOffset(route);
-                        if (ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingSourceOffset) != supply) continue;
-                        var targetStore = (int)ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingStorageOffset);
-                        var storeOffset = layout.ContactWorkOffset(targetStore);
-                        _storeIndices.Add(storeOffset);
-                        _balances.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.ContactWorkAvailableOffset));
-                        _capacities.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.ContactWorkPreloadOffset));
-                        _credits.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.ContactWorkSuppliedOffset));
-                    }
-
-                    var count = _storeIndices.Count;
-                    // Per-source load scratch, grown to the largest fan-out this world has (no load capacity).
-                    Span<float> elecBefore = Scratch(ref _elecBefore, count);
-                    Span<float> elecLimits = Scratch(ref _elecLimits, count);
-                    Span<float> elecAfter = Scratch(ref _elecAfter, count);
-                    for (var i = 0; i < count; i++)
-                    {
-                        elecBefore[i] = _balances[i];
-                        elecLimits[i] = _capacities[i];
-                    }
-
-                    var bal = ReadF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceRemainingOffset);
-                    var pwr = ReadF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceMaximumPowerOffset);
-                    var deb = ReadF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceDebitOffset);
-                    var transfer = ElectricalSupply.Allocate((ElectricalEnable)nextEnabled, bal, pwr, elecBefore, elecLimits, elecAfter);
-
-                    WriteF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceRemainingOffset, transfer.Remaining);
-                    WriteF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceDebitOffset, deb + transfer.Debit);
-                    for (var load = 0; load < count; load++)
-                    {
-                        WriteF32(span, _storeIndices[load] + PhysicsGpuAbi.ContactWorkAvailableOffset, elecAfter[load]);
-                        WriteF32(span, _storeIndices[load] + PhysicsGpuAbi.ContactWorkSuppliedOffset, _credits[load] + (elecAfter[load] - elecBefore[load]));
-                    }
-                }
-            }
-
-            var guideCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderGuideCountOffset, 4));
-            foreach(var targetBody in _dynamicBodies)
-            {
-                var bestDistance=float.PositiveInfinity;
-                var bestOwner=ulong.MaxValue; var bestGuide=ulong.MaxValue;
-                var bestAcceleration=Vector3.Zero;
-            for (var g = 0; g < guideCount; g++)
-            {
-                var guideOffset = layout.GuideOffset(g);
-                var frameSlot = (int)ReadU32(span, guideOffset + PhysicsGpuAbi.GuideFrameOffset);
-                var named=ReadU32(span,guideOffset+PhysicsGpuAbi.GuideTargetOffset);
-                var kind=(BodyTargetKind)ReadU32(span,guideOffset+PhysicsGpuAbi.GuideTargetKindOffset);
-                if(!PhysicsGpuAbi.MatchesTarget(span,kind,named,(uint)targetBody.BodySlot)) continue;
-                var minimum = ReadVector(span, guideOffset + PhysicsGpuAbi.GuideMinimumOffset);
-                var maximum = ReadVector(span, guideOffset + PhysicsGpuAbi.GuideMaximumOffset);
-                var (minX, minY, minZ) = (minimum.X, minimum.Y, minimum.Z);
-                var (maxX, maxY, maxZ) = (maximum.X, maximum.Y, maximum.Z);
-                var maxAcc = ReadF32(span, guideOffset + PhysicsGpuAbi.GuideMaximumAccelerationOffset);
-                var supportHeight = ReadF32(span, guideOffset + PhysicsGpuAbi.GuideSupportHeightOffset);
-                var supportMargin = ReadF32(span, guideOffset + PhysicsGpuAbi.GuideSupportMarginOffset);
-
-                if (maxAcc <= 0f) continue;
-                if (!_allBodies.TryGetValue(frameSlot, out var frameBody)) continue;
-
-                var up = WorkshopCollisionKernels.RotateVector(frameBody.Rotation, Vector3.UnitY);
-                var lowest = float.PositiveInfinity;
-                foreach (var child in _colliders)
-                {
-                    if (child.Body != targetBody) continue;
-                    WorkshopCollisionKernels.RefreshCollider(child);
-                    var point = WorkshopCollisionKernels.SupportPoint(child, -up);
-                    lowest = MathF.Min(lowest, Vector3.Dot(point - frameBody.Position, up));
-                }
-                var rel = targetBody.Position - frameBody.Position;
-                var loc = WorkshopCollisionKernels.InvRotateVector(frameBody.Rotation, rel);
-                var locV = WorkshopCollisionKernels.InvRotateVector(frameBody.Rotation, targetBody.LinearVelocity);
-
-                var inside = loc.X >= minX && loc.X <= maxX &&
-                             loc.Y >= minY && loc.Y <= maxY &&
-                             loc.Z >= minZ && loc.Z <= maxZ &&
-                             lowest >= supportHeight - supportMargin &&
-                             locV.Y <= 0f;
-
-                if (inside)
-                {
-                    var flatLen = MathF.Sqrt(loc.X * loc.X + loc.Z * loc.Z);
-                    var accScale = -maxAcc / MathF.Max(1.0f, flatLen);
-                    var aloc = new Vector3(loc.X * accScale, 0f, loc.Z * accScale);
-                    var aWorld = WorkshopCollisionKernels.RotateVector(frameBody.Rotation, aloc);
-                    var distance=loc.X*loc.X+loc.Z*loc.Z;
-                    var owner=(ulong)frameBody.BodyIdHigh<<32 | frameBody.BodyIdLow;
-                    var guide=BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(guideOffset+PhysicsGpuAbi.RecordIdentityOffset,8));
-                    if(distance<bestDistance || (distance==bestDistance && (owner<bestOwner || (owner==bestOwner && guide<bestGuide))))
-                    { bestDistance=distance; bestOwner=owner; bestGuide=guide; bestAcceleration=aWorld; }
-                }
-            }
-                targetBody.Vx+=bestAcceleration.X*dt;
-                targetBody.Vz+=bestAcceleration.Z*dt;
-            }
-
-            // Each declared drive follows its own compiled route (SimJoint.SupplyClosed), closed from committed state, never a timer.
-            PrismaticConstraintSolver.ApplySuppliedDrives(_joints, dt);
-            // Compliant membranes are external forces like gravity, inside the restitution pass's pre-solve energy bound.
-            ApplyCompliantMembranes(span, layout, dt);
-
-            foreach (var b in _dynamicBodies)
-            {
-                b.Vx += b.Gx * dt;
-                b.Vy += b.Gy * dt;
-                b.Vz += b.Gz * dt;
-                var decay = MathF.Exp(-b.Drag * dt);
-                b.Vx *= decay;
-                b.Vy *= decay;
-                b.Vz *= decay;
-                b.PreSolveKinetic = WorkshopConstraintSolver.Kinetic(b, b.LinearVelocity, b.AngularVelocity);
-            }
-
-            foreach (var c in _colliders)
-                if (c.Body.Motion == RigidMotionKind.Dynamic) WorkshopCollisionKernels.RefreshCollider(c);
-
-            _contacts.Clear();
-            _manifolds.Clear();
-            foreach (var pair in _candidatePairs)
-            {
-                var colA = pair.ColA;
-                var colB = pair.ColB;
-                if (colA.Index > colB.Index) (colA, colB) = (colB, colA);
-
-                var bA = colA.Body;
-                var bB = colB.Body;
-                var relSpeed = (bA.LinearVelocity - bB.LinearVelocity).Length() +
-                    bA.AngularVelocity.Length() * WorkshopCollisionKernels.SweepReach(colA) +
-                    bB.AngularVelocity.Length() * WorkshopCollisionKernels.SweepReach(colB);
-
-                var first = _contacts.Count;
-                var margin = WorkshopConstraintSolver.SpeculativeSlop + relSpeed * dt;
-                WorkshopCollisionKernels.GenerateManifold(colA, colB, margin, _contacts);
-                WorkshopCollisionKernels.AdvanceSpeculativeSphereContact(colA, colB, margin, dt, _contacts, first, _probeCollider, _probeContacts);
-                if (_contacts.Count > first)
-                {
-                    while (_manifoldPool.Count <= _manifolds.Count) _manifoldPool.Add(new ContactManifold());
-                    var manifold = _manifoldPool[_manifolds.Count];
-                    manifold.Points.Clear();
-                    for (var i = first; i < _contacts.Count; i++) manifold.Points.Add(_contacts[i]);
-                    _manifolds.Add(manifold);
-                }
-            }
-
-            WorkshopCollisionKernels.RemoveInternalFeatures(_manifolds, _contacts);
-            WorkshopCollisionKernels.GroupRigidSupports(_manifolds, _contacts, _manifoldPool);
-            foreach (var b in _dynamicBodies)
-            {
-                b.Cm0 = b.CentreOfMass;
-                b.Q0 = b.Rotation;
-            }
-            foreach (var c in _contacts) WorkshopConstraintSolver.PrepareContact(c, _contactCache);
-            foreach (var m in _manifolds)
-            {
-                WorkshopConstraintSolver.PrepareNormalBlocks(m, dt, _normalContactSets);
-                WorkshopFrictionSolver.Prepare(m, _frictionCache);
-                WorkshopConstraintSolver.PrepareRolling(m, dt);
-            }
-
-            foreach (var joint in _joints)
-            {
-                PrismaticConstraintSolver.PrepareJointRows(joint, dt);
-                // Warm start: each stored impulse is first clamped to its row's current bounds.
-                for (var row = 0; row < 8; row++)
-                {
-                    joint.Impulses[row] = joint.Rows[row].Bounded(joint.Impulses[row]);
-                    PrismaticConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
-                }
-            }
-            foreach (var joint in _revoluteJoints)
-            {
-                RevoluteConstraintSolver.PrepareJointRows(joint, dt);
-                // Warm start: each stored impulse is first clamped to its row's current bounds, so a drive impulse from a supplied
-                // substep never acts on an unsupplied one.
-                for (var row = 0; row < RevoluteRows.Count; row++)
-                {
-                    joint.Impulses[row] = joint.Rows[row].Bounded(joint.Impulses[row]);
-                    RevoluteConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
-                }
-            }
-            foreach (var transmission in _transmissions)
-            {
-                MechanicalTransmissionSolver.Prepare(transmission);
-            }
-            foreach (var tensile in _tensile)
-            {
-                TensileConstraintSolver.Prepare(tensile, dt);
-                TensileConstraintSolver.Apply(tensile, tensile.Impulse);
-            }
-            foreach (var c in _contacts) WorkshopConstraintSolver.WarmStartContact(c);
-            foreach (var m in _manifolds) WorkshopFrictionSolver.WarmStart(m);
-
-            for (var iteration = 0; iteration < WorkshopConstraintSolver.SolverIterations; iteration++)
-            {
-                PrismaticConstraintSolver.SweepConstraints(_joints, true);
-                RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, true);
-                foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Solve(transmission);
-                foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, true);
-                WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Solve, softCoeffs, dt);
-            }
-
-            foreach (var b in _dynamicBodies)
-            {
-                WorkshopConstraintSolver.ClampVelocity(b);
-                var prevCellX = b.CellX; var prevCellY = b.CellY; var prevCellZ = b.CellZ;
-                var prevLocX = b.LocalX; var prevLocY = b.LocalY; var prevLocZ = b.LocalZ;
-                var prevQ = b.Rotation; var prevV = b.LinearVelocity; var prevW = b.AngularVelocity;
-                var prevRelativeRotation = b.TickRelativeRotation;
-
-                var wLen = b.AngularVelocity.Length();
-                var halfAngle = wLen * dt * 0.5f;
-                // The analytic sin(w dt/2)/w limit also handles underflow in the length calculation.
-                var sAngle = wLen == 0f ? dt * 0.5f : MathF.Sin(halfAngle) / wLen;
-                var dq = new Quaternion(b.Wx * sAngle, b.Wy * sAngle, b.Wz * sAngle, MathF.Cos(halfAngle));
-                b.TickRelativeRotation = Quaternion.Normalize(Quaternion.Multiply(dq, b.TickRelativeRotation));
-                var nq = Quaternion.Normalize(Quaternion.Multiply(b.TickRelativeRotation, b.TickStartRotation));
-
-                var cm = b.CentreOfMass + b.LinearVelocity * dt;
-                var offset = Vector3.Transform(b.ComLocal, nq);
-                var nPos = cm - offset;
-
-                b.LocalX += (nPos.X - b.Px) * 16.0f;
-                b.LocalY += (nPos.Y - b.Py) * 16.0f;
-                b.LocalZ += (nPos.Z - b.Pz) * 16.0f;
-                b.Qx = nq.X; b.Qy = nq.Y; b.Qz = nq.Z; b.Qw = nq.W;
-
-                var carryX = (int)MathF.Floor(b.LocalX + 0.5f);
-                var carryY = (int)MathF.Floor(b.LocalY + 0.5f);
-                var carryZ = (int)MathF.Floor(b.LocalZ + 0.5f);
-                b.CellX += carryX; b.LocalX -= carryX;
-                b.CellY += carryY; b.LocalY -= carryY;
-                b.CellZ += carryZ; b.LocalZ -= carryZ;
-
-                b.Px = (b.CellX + b.LocalX) / 16.0f;
-                b.Py = (b.CellY + b.LocalY) / 16.0f;
-                b.Pz = (b.CellZ + b.LocalZ) / 16.0f;
-
-                if (!float.IsFinite(b.Px + b.Py + b.Pz + b.Qx + b.Qy + b.Qz + b.Qw + b.Vx + b.Vy + b.Vz + b.Wx + b.Wy + b.Wz))
-                {
-                    b.CellX = prevCellX; b.CellY = prevCellY; b.CellZ = prevCellZ;
-                    b.LocalX = prevLocX; b.LocalY = prevLocY; b.LocalZ = prevLocZ;
-                    b.Px = (b.CellX + b.LocalX) / 16.0f;
-                    b.Py = (b.CellY + b.LocalY) / 16.0f;
-                    b.Pz = (b.CellZ + b.LocalZ) / 16.0f;
-                    b.Qx = prevQ.X; b.Qy = prevQ.Y; b.Qz = prevQ.Z; b.Qw = prevQ.W;
-                    b.TickRelativeRotation = prevRelativeRotation;
-                    b.Vx = b.Vy = b.Vz = b.Wx = b.Wy = b.Wz = 0f;
-                }
-                WorkshopCollisionKernels.UpdateDynamicFrame(b);
-            }
-
-            foreach (var route in _tensile)
-            {
-                if (route.Active)
-                {
-                    var aPoint = route.A.Position + Vector3.Transform(route.LocalA, route.A.Rotation);
-                    var bPoint = route.B.Position + Vector3.Transform(route.LocalB, route.B.Rotation);
-                    var vA = route.A.LinearVelocity + Vector3.Cross(route.A.AngularVelocity, aPoint - route.A.CentreOfMass);
-                    var vB = route.B.LinearVelocity + Vector3.Cross(route.B.AngularVelocity, bPoint - route.B.CentreOfMass);
-                    var termA = Vector3.Dot(route.UnitA, vA);
-                    var termB = -Vector3.Dot(route.UnitB, vB);
-                    var vTravel = (route.A.InvMass > 0f && route.B.InvMass > 0f) ? (termA + termB) * 0.5f : (route.A.InvMass > 0f ? termA : termB);
-                    route.Travel += vTravel * dt;
-                }
-            }
-
-            foreach (var joint in _joints)
-            {
-                var softRowError = joint.Rows[(int)PrismaticRowKind.Spring].Error;
-                PrismaticConstraintSolver.PrepareJointRows(joint, dt);
-                joint.Rows[(int)PrismaticRowKind.Spring].Error = softRowError;
-            }
-            foreach (var joint in _revoluteJoints)
-            {
-                var axialError = joint.Rows[(int)RevoluteRowKind.Axial].Error;
-                RevoluteConstraintSolver.PrepareJointRows(joint, dt);
-                joint.Rows[(int)RevoluteRowKind.Axial].Error = axialError;
-            }
-
-            foreach (var tensile in _tensile) TensileConstraintSolver.Prepare(tensile, dt);
-            foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Prepare(transmission);
-            for (var iteration = 0; iteration < WorkshopConstraintSolver.RelaxIterations; iteration++)
-            {
-                PrismaticConstraintSolver.SweepConstraints(_joints, false);
-                RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, false);
-                foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Solve(transmission);
-                foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, false);
-                WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Relax, softCoeffs, dt);
-            }
-
-            foreach (var tensile in _tensile)
-            {
-                foreach (var offset in tensile.Offsets)
-                {
-                    WriteF32(span, offset + PhysicsGpuAbi.TensileImpulseOffset, tensile.Impulse);
-                    WriteF32(span, offset + PhysicsGpuAbi.TensileTravelOffset, tensile.Travel);
-                }
-            }
-            foreach (var joint in _joints)
-            {
-                for (var row = 0; row < PhysicsGpuAbi.PrismaticRowCount; row++)
-                    WriteF32(span, joint.Offset + PhysicsGpuAbi.PrismaticImpulseOffset + row * 4, joint.Impulses[row]);
-                // The committed moving-contact lane: a positive normal impulse on the moving body from anything but its base.
-                foreach (var c in _contacts)
-                    if (c.LambdaN > 0f && ((c.A == joint.B && c.B != joint.A) || (c.B == joint.B && c.A != joint.A)))
-                    {
-                        joint.MovingContact = true;
-                        break;
-                    }
-                BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(joint.Offset + PhysicsGpuAbi.PrismaticMovingContactOffset, 4),
-                    joint.MovingContact ? 1u : 0u);
-            }
-            foreach (var joint in _revoluteJoints)
-            {
-                // After relax, with this substep's final impulses: the relative axial spin ω_rel (the drive row's Jacobian, prepared on
-                // the relax pose) advances the signed travel by ω_rel·h, and the drive's final impulse adds its positive work
-                // max(0, λ_drive·ω_rel). Braking and stall add nothing.
-                ref readonly var drive = ref joint.Rows[(int)RevoluteRowKind.Drive];
-                var spin = ConstraintBodyImpulse.ConstraintVelocity(joint.A, drive.La, drive.Aa) +
-                    ConstraintBodyImpulse.ConstraintVelocity(joint.B, drive.Lb, drive.Ab);
-                joint.TravelAngle += spin * dt;
-                joint.Work += MathF.Max(0f, joint.Impulses[(int)RevoluteRowKind.Drive] * spin);
-                for (var row = 0; row < PhysicsGpuAbi.RevoluteRowCount; row++)
-                    WriteF32(span, joint.Offset + PhysicsGpuAbi.RevoluteImpulseOffset + row * 4, joint.Impulses[row]);
-                WriteU32(span, joint.Offset + PhysicsGpuAbi.RevoluteSuppliedOffset, joint.SupplyClosed ? 1u : 0u);
-                WriteF32(span, joint.Offset + PhysicsGpuAbi.RevoluteTravelOffset, joint.TravelAngle);
-                WriteF32(span, joint.Offset + PhysicsGpuAbi.RevoluteWorkOffset, joint.Work);
-            }
-
-            WorkshopConstraintSolver.RestitutionPass(_manifolds, _restitutionBodies, ++_restitutionStamp);
-            // Loads are read after the restitution pass: a point that carried normal impulse presses its face even from the gap.
-            if (loadRows > 0) MeasureContactLoads(loadDeclarations[..loadRows], loadFrames[..loadRows], loadMass[..loadRows]);
-            foreach (var b in _dynamicBodies) WorkshopConstraintSolver.SettleVelocity(b);
-            // Each sample's contact state and the bed's deflection follow this substep's resulting pose; the next substep's force reads them.
-            UpdateCompliantContacts(span, layout);
-
-            _contactCache.Clear();
-            _normalContactSets.Clear();
-            _frictionCache.Clear();
-            foreach (var c in _contacts) _contactCache[c.Key] = c.LambdaN;
-            foreach (var m in _manifolds)
-            {
-                _normalContactSets.Add(m.NormalWarmStartKey);
-                for (var block = 0; block < m.NormalBlockCount; block++)
-                    _normalContactSets.Add(m.NormalBlocks[block].Key);
-                WorkshopFrictionSolver.Store(m, _frictionCache);
-            }
-
-            // A point that carried normal impulse this substep, touching or speculative, is a contact (Box2D v3 hit events).
-            foreach (var c in _contacts)
-            {
-                if (c.MaxImpulse <= 0f) continue;
-                if (c.A.Motion == RigidMotionKind.Dynamic && c.B.Motion == RigidMotionKind.Static) EmitContactEvents(span, layout, c.ColB, c.A, -c.RelVel, c.Normal, c, s, sourceOrdinal, workStates);
-                else if (c.B.Motion == RigidMotionKind.Dynamic && c.A.Motion == RigidMotionKind.Static) EmitContactEvents(span, layout, c.ColA, c.B, -c.RelVel, -c.Normal, c, s, sourceOrdinal, workStates);
-            }
-
-            var orientationCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderOrientationSensorCountOffset, 4));
-            for (var o = 0; o < orientationCount; o++)
-            {
-                var oOffset = layout.OrientationSensorOffset(o);
-                if (ReadU32(span, oOffset + PhysicsGpuAbi.OrientationSensorPhaseOffset) != (uint)OrientationSensorPhase.Armed) continue;
-                var sensedSlot = (int)ReadU32(span, oOffset + PhysicsGpuAbi.OrientationSensorBodyOffset);
-                if (!_allBodies.TryGetValue(sensedSlot, out var sensed)) continue;
-
-                var declaredXyz = ReadVector(span, oOffset + PhysicsGpuAbi.OrientationSensorRotationOffset);
-                var qDeclared = new Quaternion(declaredXyz,
-                    ReadF32(span, oOffset + PhysicsGpuAbi.OrientationSensorRotationOffset + PhysicsGpuAbi.VectorBytes));
-
-                var alignment = MathF.Abs(sensed.Qx * qDeclared.X + sensed.Qy * qDeclared.Y + sensed.Qz * qDeclared.Z + sensed.Qw * qDeclared.W);
-                if (alignment <= ReadF32(span, oOffset + PhysicsGpuAbi.OrientationSensorCosineOffset))
-                {
-                    WriteU32(span, oOffset + PhysicsGpuAbi.OrientationSensorPhaseOffset, (uint)OrientationSensorPhase.Fired);
-                    WriteU32(span, oOffset + PhysicsGpuAbi.OrientationSensorOrdinalOffset, sourceOrdinal + (uint)s + 1);
-                    WriteF32(span, oOffset + PhysicsGpuAbi.OrientationSensorEventPhaseOffset, 0f);
-                }
-            }
-
-            foreach (var b in _dynamicBodies)
-            {
-                var pieceOffset = motionOffset + PhysicsMotionRead.HeaderBytes + (b.DynamicIndex * steps + s) * PhysicsMotionRead.PieceBytes;
-                span.Slice(pieceOffset, PhysicsMotionRead.PieceBytes).Clear();
-                var pieceSpan = span.Slice(pieceOffset, PhysicsMotionRead.PieceBytes);
-
-                WriteU32(pieceSpan, PhysicsMotionRead.KindOffset, (uint)PhysicsMotionKind.FreePolynomial);
-                WriteU32(pieceSpan, PhysicsMotionRead.StartOrdinalOffset, sourceOrdinal + (uint)s);
-                WriteU32(pieceSpan, PhysicsMotionRead.EndOrdinalOffset, sourceOrdinal + (uint)s + 1);
-                WriteU32(pieceSpan, PhysicsMotionRead.AnchorOrdinalOffset, sourceOrdinal + (uint)s);
-                WriteF32(pieceSpan, PhysicsMotionRead.StartPhaseOffset, 0f);
-                WriteF32(pieceSpan, PhysicsMotionRead.EndPhaseOffset, 0f);
-                WriteF32(pieceSpan, PhysicsMotionRead.AnchorPhaseOffset, 0f);
-                WriteU32(pieceSpan, PhysicsMotionRead.FrequencyOffset, WorkshopCadenceSettings.PhysicalFrequency);
-                WriteU32(pieceSpan, PhysicsMotionRead.OwnerOffset, b.BodyIdLow);
-                WriteU32(pieceSpan, PhysicsMotionRead.OwnerOffset + sizeof(uint), b.BodyIdHigh);
-                BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset, 4), b.CellX);
-                BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset + sizeof(int), 4), b.CellY);
-                BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset + 2 * sizeof(int), 4), b.CellZ);
-                WriteVector(pieceSpan, PhysicsMotionRead.CentreRemainderOffset, b.LocalX, b.LocalY, b.LocalZ);
-                WriteF32(pieceSpan, PhysicsMotionRead.DragRateOffset, b.Drag);
-                WriteVector(pieceSpan, PhysicsMotionRead.RotationOffset, b.Qx, b.Qy, b.Qz);
-                WriteF32(pieceSpan, PhysicsMotionRead.RotationOffset + PhysicsGpuAbi.VectorBytes, b.Qw);
-                WriteVector(pieceSpan, PhysicsMotionRead.VelocityOffset, b.Vx, b.Vy, b.Vz);
-                WriteVector(pieceSpan, PhysicsMotionRead.AngularVelocityOffset, b.Wx, b.Wy, b.Wz);
-                WriteVector(pieceSpan, PhysicsMotionRead.GravityOffset, b.Gx, b.Gy, b.Gz);
-            }
-        }
-
-        for (var row = 0; row < loadRows; row++)
-        {
-            var record = span.Slice(layout.ContactLoadOffset(row), PhysicsGpuAbi.ContactLoadSensorBytes);
-            BinaryPrimitives.WriteUInt32LittleEndian(record[PhysicsGpuAbi.ContactLoadPhaseOffset..], (uint)loadDeclarations[row].PhaseOf(loadMass[row]));
-            BinaryPrimitives.WriteSingleLittleEndian(record[PhysicsGpuAbi.ContactLoadMassOffset..], loadMass[row]);
-        }
-
+    private void CommitResidence(Span<byte> span, PhysicsWorldLayout layout, PhysicsInteractionSnapshot committedInteractions, ImmutableDictionary<CapturePairKey, CapturePairState>.Builder captureStates, uint sourceOrdinal, uint nextOrdinal, float dt)
+    {
         var totalCaptured = 0u;
         var sensorCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderSensorCountOffset, 4));
         for (var i = 0; i < sensorCount; i++)
@@ -1254,18 +887,490 @@ internal sealed class WorkshopPhysicsEngine
 
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderCapturedCountOffset, 4), totalCaptured);
 
+    }
+
+    private void AdvanceSubsteps(Span<byte> span, PhysicsWorldLayout layout, PhysicsTickInputs inputs, int steps, uint sourceOrdinal, Span<ContactLoadSensorDeclaration> loadDeclarations, Span<int> loadFrames, Span<float> loadMass, ImmutableDictionary<WorkPairKey, ContactWorkOccurrence>.Builder workStates)
+    {
+        var dt = WorkshopConstraintSolver.SubstepSeconds;
+        var softCoeffs = SoftCoefficients.MakeSoft(WorkshopConstraintSolver.ContactHertz, WorkshopConstraintSolver.ContactDampingRatio, dt);
+        var loadRows = loadDeclarations.Length;
+        var motionOffset = layout.MotionOffset;
+        for (var s = 0; s < steps; s++)
+        {
+            // Box2D v3 prepares contacts before integrating velocities: the restitution approach is the substep-start velocity.
+            foreach (var b in _dynamicBodies)
+            {
+                b.V0 = b.LinearVelocity;
+                b.W0 = b.AngularVelocity;
+            }
+
+            TransferSupply(span, layout, inputs, sourceOrdinal, s);
+            ApplyGuides(span, layout, dt);
+            // Each declared drive follows its own compiled route (SimJoint.SupplyClosed), closed from committed state, never a timer.
+            PrismaticConstraintSolver.ApplySuppliedDrives(_joints, dt);
+            // Compliant membranes are external forces like gravity, inside the restitution pass's pre-solve energy bound.
+            ApplyCompliantMembranes(span, layout, dt);
+
+            foreach (var b in _dynamicBodies)
+            {
+                b.Vx += b.Gx * dt;
+                b.Vy += b.Gy * dt;
+                b.Vz += b.Gz * dt;
+                var decay = MathF.Exp(-b.Drag * dt);
+                b.Vx *= decay;
+                b.Vy *= decay;
+                b.Vz *= decay;
+                b.PreSolveKinetic = WorkshopConstraintSolver.Kinetic(b, b.LinearVelocity, b.AngularVelocity);
+            }
+
+            foreach (var c in _colliders)
+                if (c.Body.Motion == RigidMotionKind.Dynamic) WorkshopCollisionKernels.RefreshCollider(c);
+
+            PrepareContacts(dt);
+            WarmStartConstraints(dt);
+            for (var iteration = 0; iteration < WorkshopConstraintSolver.SolverIterations; iteration++)
+            {
+                PrismaticConstraintSolver.SweepConstraints(_joints, true);
+                RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, true);
+                foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Solve(transmission);
+                foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, true);
+                WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Solve, softCoeffs, dt);
+            }
+
+            IntegrateBodies(dt);
+            PrepareRelaxation(dt);
+            for (var iteration = 0; iteration < WorkshopConstraintSolver.RelaxIterations; iteration++)
+            {
+                PrismaticConstraintSolver.SweepConstraints(_joints, false);
+                RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, false);
+                foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Solve(transmission);
+                foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, false);
+                WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Relax, softCoeffs, dt);
+            }
+
+            CommitConstraints(span, dt);
+            WorkshopConstraintSolver.RestitutionPass(_manifolds, _restitutionBodies, ++_restitutionStamp);
+            // Loads are read after the restitution pass: a point that carried normal impulse presses its face even from the gap.
+            if (loadRows > 0) MeasureContactLoads(loadDeclarations[..loadRows], loadFrames[..loadRows], loadMass[..loadRows]);
+            foreach (var b in _dynamicBodies) WorkshopConstraintSolver.SettleVelocity(b);
+            // Each sample's contact state and the bed's deflection follow this substep's resulting pose; the next substep's force reads them.
+            UpdateCompliantContacts(span, layout);
+
+            CommitContactObservations(span, layout, sourceOrdinal, s, workStates);
+            CommitMotion(span, motionOffset, steps, s, sourceOrdinal);
+        }
+
+    }
+
+    private void TransferSupply(Span<byte> span, PhysicsWorldLayout layout, PhysicsTickInputs inputs, uint sourceOrdinal, int s)
+    {
+        var supplyCount = layout.ElectricalSources;
+        if ((sourceOrdinal + s) % 4 == 0)
+        {
+            for (var supply = 0; supply < supplyCount; supply++)
+            {
+                var supplyOffset = layout.ElectricalSourceOffset(supply);
+                var nextEnabled = inputs.SourceEnable[supply];
+                WriteU32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceEnableOffset, (uint)nextEnabled);
+
+                _storeIndices.Clear();
+                _balances.Clear();
+                _capacities.Clear();
+                _credits.Clear();
+
+                for (var route = 0; route < layout.ElectricalBindings; route++)
+                {
+                    var bindingOffset = layout.ElectricalBindingOffset(route);
+                    if (ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingSourceOffset) != supply) continue;
+                    var targetStore = (int)ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingStorageOffset);
+                    var storeOffset = layout.ContactWorkOffset(targetStore);
+                    _storeIndices.Add(storeOffset);
+                    _balances.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.ContactWorkAvailableOffset));
+                    _capacities.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.ContactWorkPreloadOffset));
+                    _credits.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.ContactWorkSuppliedOffset));
+                }
+
+                var count = _storeIndices.Count;
+                // Per-source load scratch, grown to the largest fan-out this world has (no load capacity).
+                Span<float> elecBefore = Scratch(ref _elecBefore, count);
+                Span<float> elecLimits = Scratch(ref _elecLimits, count);
+                Span<float> elecAfter = Scratch(ref _elecAfter, count);
+                for (var i = 0; i < count; i++)
+                {
+                    elecBefore[i] = _balances[i];
+                    elecLimits[i] = _capacities[i];
+                }
+
+                var bal = ReadF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceRemainingOffset);
+                var pwr = ReadF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceMaximumPowerOffset);
+                var deb = ReadF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceDebitOffset);
+                var transfer = ElectricalSupply.Allocate((ElectricalEnable)nextEnabled, bal, pwr, elecBefore, elecLimits, elecAfter);
+
+                WriteF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceRemainingOffset, transfer.Remaining);
+                WriteF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceDebitOffset, deb + transfer.Debit);
+                for (var load = 0; load < count; load++)
+                {
+                    WriteF32(span, _storeIndices[load] + PhysicsGpuAbi.ContactWorkAvailableOffset, elecAfter[load]);
+                    WriteF32(span, _storeIndices[load] + PhysicsGpuAbi.ContactWorkSuppliedOffset, _credits[load] + (elecAfter[load] - elecBefore[load]));
+                }
+            }
+        }
+
+    }
+
+    private void ApplyGuides(ReadOnlySpan<byte> span, PhysicsWorldLayout layout, float dt)
+    {
+        var guideCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderGuideCountOffset, 4));
+        foreach(var targetBody in _dynamicBodies)
+        {
+            var bestDistance=float.PositiveInfinity;
+            var bestOwner=ulong.MaxValue; var bestGuide=ulong.MaxValue;
+            var bestAcceleration=Vector3.Zero;
+        for (var g = 0; g < guideCount; g++)
+        {
+            var guideOffset = layout.GuideOffset(g);
+            var frameSlot = (int)ReadU32(span, guideOffset + PhysicsGpuAbi.GuideFrameOffset);
+            var named=ReadU32(span,guideOffset+PhysicsGpuAbi.GuideTargetOffset);
+            var kind=(BodyTargetKind)ReadU32(span,guideOffset+PhysicsGpuAbi.GuideTargetKindOffset);
+            if(!PhysicsGpuAbi.MatchesTarget(span,kind,named,(uint)targetBody.BodySlot)) continue;
+            var minimum = ReadVector(span, guideOffset + PhysicsGpuAbi.GuideMinimumOffset);
+            var maximum = ReadVector(span, guideOffset + PhysicsGpuAbi.GuideMaximumOffset);
+            var (minX, minY, minZ) = (minimum.X, minimum.Y, minimum.Z);
+            var (maxX, maxY, maxZ) = (maximum.X, maximum.Y, maximum.Z);
+            var maxAcc = ReadF32(span, guideOffset + PhysicsGpuAbi.GuideMaximumAccelerationOffset);
+            var supportHeight = ReadF32(span, guideOffset + PhysicsGpuAbi.GuideSupportHeightOffset);
+            var supportMargin = ReadF32(span, guideOffset + PhysicsGpuAbi.GuideSupportMarginOffset);
+
+            if (maxAcc <= 0f) continue;
+            if (!_allBodies.TryGetValue(frameSlot, out var frameBody)) continue;
+
+            var up = WorkshopCollisionKernels.RotateVector(frameBody.Rotation, Vector3.UnitY);
+            var lowest = float.PositiveInfinity;
+            foreach (var child in _colliders)
+            {
+                if (child.Body != targetBody) continue;
+                WorkshopCollisionKernels.RefreshCollider(child);
+                var point = WorkshopCollisionKernels.SupportPoint(child, -up);
+                lowest = MathF.Min(lowest, Vector3.Dot(point - frameBody.Position, up));
+            }
+            var rel = targetBody.Position - frameBody.Position;
+            var loc = WorkshopCollisionKernels.InvRotateVector(frameBody.Rotation, rel);
+            var locV = WorkshopCollisionKernels.InvRotateVector(frameBody.Rotation, targetBody.LinearVelocity);
+
+            var inside = loc.X >= minX && loc.X <= maxX &&
+                         loc.Y >= minY && loc.Y <= maxY &&
+                         loc.Z >= minZ && loc.Z <= maxZ &&
+                         lowest >= supportHeight - supportMargin &&
+                         locV.Y <= 0f;
+
+            if (inside)
+            {
+                var flatLen = MathF.Sqrt(loc.X * loc.X + loc.Z * loc.Z);
+                var accScale = -maxAcc / MathF.Max(1.0f, flatLen);
+                var aloc = new Vector3(loc.X * accScale, 0f, loc.Z * accScale);
+                var aWorld = WorkshopCollisionKernels.RotateVector(frameBody.Rotation, aloc);
+                var distance=loc.X*loc.X+loc.Z*loc.Z;
+                var owner=(ulong)frameBody.BodyIdHigh<<32 | frameBody.BodyIdLow;
+                var guide=BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(guideOffset+PhysicsGpuAbi.RecordIdentityOffset,8));
+                if(distance<bestDistance || (distance==bestDistance && (owner<bestOwner || (owner==bestOwner && guide<bestGuide))))
+                { bestDistance=distance; bestOwner=owner; bestGuide=guide; bestAcceleration=aWorld; }
+            }
+        }
+            targetBody.Vx+=bestAcceleration.X*dt;
+            targetBody.Vz+=bestAcceleration.Z*dt;
+        }
+
+    }
+
+    private void PrepareContacts(float dt)
+    {
+        _contacts.Clear();
+        _manifolds.Clear();
+        foreach (var pair in _candidatePairs)
+        {
+            var colA = pair.ColA;
+            var colB = pair.ColB;
+            if (colA.Index > colB.Index) (colA, colB) = (colB, colA);
+
+            var bA = colA.Body;
+            var bB = colB.Body;
+            var relSpeed = (bA.LinearVelocity - bB.LinearVelocity).Length() +
+                bA.AngularVelocity.Length() * WorkshopCollisionKernels.SweepReach(colA) +
+                bB.AngularVelocity.Length() * WorkshopCollisionKernels.SweepReach(colB);
+
+            var first = _contacts.Count;
+            var margin = WorkshopConstraintSolver.SpeculativeSlop + relSpeed * dt;
+            WorkshopCollisionKernels.GenerateManifold(colA, colB, margin, _contacts);
+            WorkshopCollisionKernels.AdvanceSpeculativeSphereContact(colA, colB, margin, dt, _contacts, first, _probeCollider, _probeContacts);
+            if (_contacts.Count > first)
+            {
+                while (_manifoldPool.Count <= _manifolds.Count) _manifoldPool.Add(new ContactManifold());
+                var manifold = _manifoldPool[_manifolds.Count];
+                manifold.Points.Clear();
+                for (var i = first; i < _contacts.Count; i++) manifold.Points.Add(_contacts[i]);
+                _manifolds.Add(manifold);
+            }
+        }
+
+        WorkshopCollisionKernels.RemoveInternalFeatures(_manifolds, _contacts);
+        WorkshopCollisionKernels.GroupRigidSupports(_manifolds, _contacts, _manifoldPool);
         foreach (var b in _dynamicBodies)
         {
-            BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + PhysicsGpuAbi.BodyCellOffset, 4), b.CellX);
-            BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + PhysicsGpuAbi.BodyCellOffset + sizeof(int), 4), b.CellY);
-            BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + PhysicsGpuAbi.BodyCellOffset + 2 * sizeof(int), 4), b.CellZ);
-            WriteVector(span, b.BodyOffset + PhysicsGpuAbi.BodyLocalOffset, b.LocalX, b.LocalY, b.LocalZ);
-            WriteVector(span, b.BodyOffset + PhysicsGpuAbi.BodyRotationOffset, b.Qx, b.Qy, b.Qz);
-            WriteF32(span, b.BodyOffset + PhysicsGpuAbi.BodyRotationOffset + PhysicsGpuAbi.VectorBytes, b.Qw);
-            WriteVector(span, b.BodyOffset + PhysicsGpuAbi.BodyVelocityOffset, b.Vx, b.Vy, b.Vz);
-            WriteVector(span, b.BodyOffset + PhysicsGpuAbi.BodyAngularVelocityOffset, b.Wx, b.Wy, b.Wz);
+            b.Cm0 = b.CentreOfMass;
+            b.Q0 = b.Rotation;
         }
-        return new(captureStates.ToImmutable(),workStates.ToImmutable());
+        foreach (var c in _contacts) WorkshopConstraintSolver.PrepareContact(c, _contactCache);
+        foreach (var m in _manifolds)
+        {
+            WorkshopConstraintSolver.PrepareNormalBlocks(m, dt, _normalContactSets);
+            WorkshopFrictionSolver.Prepare(m, _frictionCache, _surfaces);
+            WorkshopConstraintSolver.PrepareRolling(m, dt);
+        }
+
+    }
+
+    private void WarmStartConstraints(float dt)
+    {
+        foreach (var joint in _joints)
+        {
+            PrismaticConstraintSolver.PrepareJointRows(joint, dt);
+            // Warm start: each stored impulse is first clamped to its row's current bounds.
+            for (var row = 0; row < 8; row++)
+            {
+                joint.Impulses[row] = joint.Rows[row].Bounded(joint.Impulses[row]);
+                PrismaticConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
+            }
+        }
+        foreach (var joint in _revoluteJoints)
+        {
+            RevoluteConstraintSolver.PrepareJointRows(joint, dt);
+            // Warm start: each stored impulse is first clamped to its row's current bounds, so a drive impulse from a supplied
+            // substep never acts on an unsupplied one.
+            for (var row = 0; row < RevoluteRows.Count; row++)
+            {
+                joint.Impulses[row] = joint.Rows[row].Bounded(joint.Impulses[row]);
+                RevoluteConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
+            }
+        }
+        foreach (var transmission in _transmissions)
+        {
+            MechanicalTransmissionSolver.Prepare(transmission);
+        }
+        foreach (var tensile in _tensile)
+        {
+            TensileConstraintSolver.Prepare(tensile, dt);
+            TensileConstraintSolver.Apply(tensile, tensile.Impulse);
+        }
+        foreach (var c in _contacts) WorkshopConstraintSolver.WarmStartContact(c);
+        foreach (var m in _manifolds) WorkshopFrictionSolver.WarmStart(m);
+
+    }
+
+    private void IntegrateBodies(float dt)
+    {
+        foreach (var b in _dynamicBodies)
+        {
+            WorkshopConstraintSolver.ClampVelocity(b);
+            var prevCellX = b.CellX; var prevCellY = b.CellY; var prevCellZ = b.CellZ;
+            var prevLocX = b.LocalX; var prevLocY = b.LocalY; var prevLocZ = b.LocalZ;
+            var prevQ = b.Rotation;
+            var prevRelativeRotation = b.TickRelativeRotation;
+
+            var wLen = b.AngularVelocity.Length();
+            var halfAngle = wLen * dt * 0.5f;
+            // The analytic sin(w dt/2)/w limit also handles underflow in the length calculation.
+            var sAngle = wLen == 0f ? dt * 0.5f : MathF.Sin(halfAngle) / wLen;
+            var dq = new Quaternion(b.Wx * sAngle, b.Wy * sAngle, b.Wz * sAngle, MathF.Cos(halfAngle));
+            b.TickRelativeRotation = Quaternion.Normalize(Quaternion.Multiply(dq, b.TickRelativeRotation));
+            var nq = Quaternion.Normalize(Quaternion.Multiply(b.TickRelativeRotation, b.TickStartRotation));
+
+            var cm = b.CentreOfMass + b.LinearVelocity * dt;
+            var offset = Vector3.Transform(b.ComLocal, nq);
+            var nPos = cm - offset;
+
+            b.LocalX += (nPos.X - b.Px) * 16.0f;
+            b.LocalY += (nPos.Y - b.Py) * 16.0f;
+            b.LocalZ += (nPos.Z - b.Pz) * 16.0f;
+            b.Qx = nq.X; b.Qy = nq.Y; b.Qz = nq.Z; b.Qw = nq.W;
+
+            var carryX = (int)MathF.Floor(b.LocalX + 0.5f);
+            var carryY = (int)MathF.Floor(b.LocalY + 0.5f);
+            var carryZ = (int)MathF.Floor(b.LocalZ + 0.5f);
+            b.CellX += carryX; b.LocalX -= carryX;
+            b.CellY += carryY; b.LocalY -= carryY;
+            b.CellZ += carryZ; b.LocalZ -= carryZ;
+
+            b.Px = (b.CellX + b.LocalX) / 16.0f;
+            b.Py = (b.CellY + b.LocalY) / 16.0f;
+            b.Pz = (b.CellZ + b.LocalZ) / 16.0f;
+
+            if (!float.IsFinite(b.Px + b.Py + b.Pz + b.Qx + b.Qy + b.Qz + b.Qw + b.Vx + b.Vy + b.Vz + b.Wx + b.Wy + b.Wz))
+            {
+                b.CellX = prevCellX; b.CellY = prevCellY; b.CellZ = prevCellZ;
+                b.LocalX = prevLocX; b.LocalY = prevLocY; b.LocalZ = prevLocZ;
+                b.Px = (b.CellX + b.LocalX) / 16.0f;
+                b.Py = (b.CellY + b.LocalY) / 16.0f;
+                b.Pz = (b.CellZ + b.LocalZ) / 16.0f;
+                b.Qx = prevQ.X; b.Qy = prevQ.Y; b.Qz = prevQ.Z; b.Qw = prevQ.W;
+                b.TickRelativeRotation = prevRelativeRotation;
+                b.Vx = b.Vy = b.Vz = b.Wx = b.Wy = b.Wz = 0f;
+            }
+            WorkshopCollisionKernels.UpdateDynamicFrame(b);
+        }
+
+    }
+
+    private void PrepareRelaxation(float dt)
+    {
+        foreach (var route in _tensile)
+        {
+            if (route.Active)
+            {
+                var aPoint = route.A.Position + Vector3.Transform(route.LocalA, route.A.Rotation);
+                var bPoint = route.B.Position + Vector3.Transform(route.LocalB, route.B.Rotation);
+                var vA = route.A.LinearVelocity + Vector3.Cross(route.A.AngularVelocity, aPoint - route.A.CentreOfMass);
+                var vB = route.B.LinearVelocity + Vector3.Cross(route.B.AngularVelocity, bPoint - route.B.CentreOfMass);
+                var termA = Vector3.Dot(route.UnitA, vA);
+                var termB = -Vector3.Dot(route.UnitB, vB);
+                var vTravel = (route.A.InvMass > 0f && route.B.InvMass > 0f) ? (termA + termB) * 0.5f : (route.A.InvMass > 0f ? termA : termB);
+                route.Travel += vTravel * dt;
+            }
+        }
+
+        foreach (var joint in _joints)
+        {
+            var softRowError = joint.Rows[(int)PrismaticRowKind.Spring].Error;
+            PrismaticConstraintSolver.PrepareJointRows(joint, dt);
+            joint.Rows[(int)PrismaticRowKind.Spring].Error = softRowError;
+        }
+        foreach (var joint in _revoluteJoints)
+        {
+            var axialError = joint.Rows[(int)RevoluteRowKind.Axial].Error;
+            RevoluteConstraintSolver.PrepareJointRows(joint, dt);
+            joint.Rows[(int)RevoluteRowKind.Axial].Error = axialError;
+        }
+
+        foreach (var tensile in _tensile) TensileConstraintSolver.Prepare(tensile, dt);
+        foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Prepare(transmission);
+    }
+
+    private void CommitConstraints(Span<byte> span, float dt)
+    {
+        foreach (var tensile in _tensile)
+        {
+            foreach (var offset in tensile.Offsets)
+            {
+                WriteF32(span, offset + PhysicsGpuAbi.TensileImpulseOffset, tensile.Impulse);
+                WriteF32(span, offset + PhysicsGpuAbi.TensileTravelOffset, tensile.Travel);
+            }
+        }
+        foreach (var joint in _joints)
+        {
+            for (var row = 0; row < PhysicsGpuAbi.PrismaticRowCount; row++)
+                WriteF32(span, joint.Offset + PhysicsGpuAbi.PrismaticImpulseOffset + row * 4, joint.Impulses[row]);
+            // The committed moving-contact lane: a positive normal impulse on the moving body from anything but its base.
+            foreach (var c in _contacts)
+                if (c.LambdaN > 0f && ((c.A == joint.B && c.B != joint.A) || (c.B == joint.B && c.A != joint.A)))
+                {
+                    joint.MovingContact = true;
+                    break;
+                }
+            BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(joint.Offset + PhysicsGpuAbi.PrismaticMovingContactOffset, 4),
+                joint.MovingContact ? 1u : 0u);
+        }
+        foreach (var joint in _revoluteJoints)
+        {
+            // After relax, with this substep's final impulses: the relative axial spin ω_rel (the drive row's Jacobian, prepared on
+            // the relax pose) advances the signed travel by ω_rel·h, and the drive's final impulse adds its positive work
+            // max(0, λ_drive·ω_rel). Braking and stall add nothing.
+            ref readonly var drive = ref joint.Rows[(int)RevoluteRowKind.Drive];
+            var spin = ConstraintBodyImpulse.ConstraintVelocity(joint.A, drive.La, drive.Aa) +
+                ConstraintBodyImpulse.ConstraintVelocity(joint.B, drive.Lb, drive.Ab);
+            joint.TravelAngle += spin * dt;
+            joint.Work += MathF.Max(0f, joint.Impulses[(int)RevoluteRowKind.Drive] * spin);
+            for (var row = 0; row < PhysicsGpuAbi.RevoluteRowCount; row++)
+                WriteF32(span, joint.Offset + PhysicsGpuAbi.RevoluteImpulseOffset + row * 4, joint.Impulses[row]);
+            WriteU32(span, joint.Offset + PhysicsGpuAbi.RevoluteSuppliedOffset, joint.SupplyClosed ? 1u : 0u);
+            WriteF32(span, joint.Offset + PhysicsGpuAbi.RevoluteTravelOffset, joint.TravelAngle);
+            WriteF32(span, joint.Offset + PhysicsGpuAbi.RevoluteWorkOffset, joint.Work);
+        }
+
+    }
+
+    private void CommitContactObservations(Span<byte> span, PhysicsWorldLayout layout, uint sourceOrdinal, int s, ImmutableDictionary<WorkPairKey, ContactWorkOccurrence>.Builder workStates)
+    {
+        _contactCache.Clear();
+        _normalContactSets.Clear();
+        _frictionCache.Clear();
+        foreach (var c in _contacts) _contactCache[c.Key] = c.LambdaN;
+        foreach (var m in _manifolds)
+        {
+            _normalContactSets.Add(m.NormalWarmStartKey);
+            for (var block = 0; block < m.NormalBlockCount; block++)
+                _normalContactSets.Add(m.NormalBlocks[block].Key);
+            WorkshopFrictionSolver.Store(m, _frictionCache);
+        }
+
+        // A point that carried normal impulse this substep, touching or speculative, is a contact (Box2D v3 hit events).
+        foreach (var c in _contacts)
+        {
+            if (c.MaxImpulse <= 0f) continue;
+            if (c.A.Motion == RigidMotionKind.Dynamic && c.B.Motion == RigidMotionKind.Static) EmitContactEvents(span, layout, c.ColB, c.A, -c.RelVel, c.Normal, c, s, sourceOrdinal, workStates);
+            else if (c.B.Motion == RigidMotionKind.Dynamic && c.A.Motion == RigidMotionKind.Static) EmitContactEvents(span, layout, c.ColA, c.B, -c.RelVel, -c.Normal, c, s, sourceOrdinal, workStates);
+        }
+
+        var orientationCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderOrientationSensorCountOffset, 4));
+        for (var o = 0; o < orientationCount; o++)
+        {
+            var oOffset = layout.OrientationSensorOffset(o);
+            if (ReadU32(span, oOffset + PhysicsGpuAbi.OrientationSensorPhaseOffset) != (uint)OrientationSensorPhase.Armed) continue;
+            var sensedSlot = (int)ReadU32(span, oOffset + PhysicsGpuAbi.OrientationSensorBodyOffset);
+            if (!_allBodies.TryGetValue(sensedSlot, out var sensed)) continue;
+
+            var declaredXyz = ReadVector(span, oOffset + PhysicsGpuAbi.OrientationSensorRotationOffset);
+            var qDeclared = new Quaternion(declaredXyz,
+                ReadF32(span, oOffset + PhysicsGpuAbi.OrientationSensorRotationOffset + PhysicsGpuAbi.VectorBytes));
+
+            var alignment = MathF.Abs(sensed.Qx * qDeclared.X + sensed.Qy * qDeclared.Y + sensed.Qz * qDeclared.Z + sensed.Qw * qDeclared.W);
+            if (alignment <= ReadF32(span, oOffset + PhysicsGpuAbi.OrientationSensorCosineOffset))
+            {
+                WriteU32(span, oOffset + PhysicsGpuAbi.OrientationSensorPhaseOffset, (uint)OrientationSensorPhase.Fired);
+                WriteU32(span, oOffset + PhysicsGpuAbi.OrientationSensorOrdinalOffset, sourceOrdinal + (uint)s + 1);
+                WriteF32(span, oOffset + PhysicsGpuAbi.OrientationSensorEventPhaseOffset, 0f);
+            }
+        }
+
+    }
+
+    private void CommitMotion(Span<byte> span, int motionOffset, int steps, int s, uint sourceOrdinal)
+    {
+        foreach (var b in _dynamicBodies)
+        {
+            var pieceOffset = motionOffset + PhysicsMotionRead.HeaderBytes + (b.DynamicIndex * steps + s) * PhysicsMotionRead.PieceBytes;
+            span.Slice(pieceOffset, PhysicsMotionRead.PieceBytes).Clear();
+            var pieceSpan = span.Slice(pieceOffset, PhysicsMotionRead.PieceBytes);
+
+            WriteU32(pieceSpan, PhysicsMotionRead.KindOffset, (uint)PhysicsMotionKind.FreePolynomial);
+            WriteU32(pieceSpan, PhysicsMotionRead.StartOrdinalOffset, sourceOrdinal + (uint)s);
+            WriteU32(pieceSpan, PhysicsMotionRead.EndOrdinalOffset, sourceOrdinal + (uint)s + 1);
+            WriteU32(pieceSpan, PhysicsMotionRead.AnchorOrdinalOffset, sourceOrdinal + (uint)s);
+            WriteF32(pieceSpan, PhysicsMotionRead.StartPhaseOffset, 0f);
+            WriteF32(pieceSpan, PhysicsMotionRead.EndPhaseOffset, 0f);
+            WriteF32(pieceSpan, PhysicsMotionRead.AnchorPhaseOffset, 0f);
+            WriteU32(pieceSpan, PhysicsMotionRead.FrequencyOffset, WorkshopCadenceSettings.PhysicalFrequency);
+            WriteU32(pieceSpan, PhysicsMotionRead.OwnerOffset, b.BodyIdLow);
+            WriteU32(pieceSpan, PhysicsMotionRead.OwnerOffset + sizeof(uint), b.BodyIdHigh);
+            BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset, 4), b.CellX);
+            BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset + sizeof(int), 4), b.CellY);
+            BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset + 2 * sizeof(int), 4), b.CellZ);
+            WriteVector(pieceSpan, PhysicsMotionRead.CentreRemainderOffset, b.LocalX, b.LocalY, b.LocalZ);
+            WriteF32(pieceSpan, PhysicsMotionRead.DragRateOffset, b.Drag);
+            WriteVector(pieceSpan, PhysicsMotionRead.RotationOffset, b.Qx, b.Qy, b.Qz);
+            WriteF32(pieceSpan, PhysicsMotionRead.RotationOffset + PhysicsGpuAbi.VectorBytes, b.Qw);
+            WriteVector(pieceSpan, PhysicsMotionRead.VelocityOffset, b.Vx, b.Vy, b.Vz);
+            WriteVector(pieceSpan, PhysicsMotionRead.AngularVelocityOffset, b.Wx, b.Wy, b.Wz);
+            WriteVector(pieceSpan, PhysicsMotionRead.GravityOffset, b.Gx, b.Gy, b.Gz);
+        }
     }
 
     /// <summary>Every declared compliant surface (Story 10.5, CAT-065 §2) as a massless unilateral spring-damper bed on its static frame,

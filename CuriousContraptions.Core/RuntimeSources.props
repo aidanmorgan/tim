@@ -93,6 +93,8 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopConstraintSolver.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopDynamicBvh.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopFrictionSolver.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/SimDrivenSurface.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/DrivenSurfaceAdmission.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopGpuDevice.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopHollowKernels.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/MechanicalTransmissionSolver.cs" />

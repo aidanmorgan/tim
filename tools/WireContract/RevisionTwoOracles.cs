@@ -151,17 +151,30 @@ public static class RevisionTwoOracles
     public static IReadOnlyList<RevisionTwoResult> Run()
     {
         var results=new List<RevisionTwoResult>();
-        void Require(bool value){if(!value)throw new InvalidOperationException("Oracle mismatch.");}
-        void Reject(Action action)
-        {
-            try{action();}catch(ArgumentException){return;}
-            throw new InvalidOperationException("Invalid fixture accepted.");
-        }
         void Check(RevisionTwoCase id,Action action)
         {
             try{action();results.Add(new(id,true,"Passed"));}
             catch(Exception error) when(error is InvalidOperationException or ArgumentException){results.Add(new(id,false,error.Message));}
         }
+        CheckValueMappings(Check);
+        CheckLeaseAccounting(Check);
+        CheckRequestWindows(Check);
+        CheckCapacityBoundaries(Check);
+        CheckBindingIdentity(Check);
+        CheckQueryLifecycle(Check);
+        CheckWaveProgress(Check);
+        return results;
+    }
+    private static void Require(bool value){if(!value)throw new InvalidOperationException("Oracle mismatch.");}
+    private static void Reject(Action action)
+        {
+            try{action();}catch(ArgumentException){return;}
+            throw new InvalidOperationException("Invalid fixture accepted.");
+        }
+    private static RequestIdentity Id(long generation, ulong sequence) => new(new(generation), new(sequence));
+
+    private static void CheckValueMappings(Action<RevisionTwoCase, Action> Check)
+    {
         Check(RevisionTwoCase.AxisX,()=>Require(Direction(Axis.X)==new Vector(1,0,0)));
         Check(RevisionTwoCase.AxisY,()=>Require(Direction(Axis.Y)==new Vector(0,1,0)));
         Check(RevisionTwoCase.AxisZ,()=>Require(Direction(Axis.Z)==new Vector(0,0,1)));
@@ -172,6 +185,10 @@ public static class RevisionTwoOracles
         Check(RevisionTwoCase.ColourEndpoints,()=>Colours(new(.1,.2,.3,.5),new(.6,.7,.8,.5),.5));
         Check(RevisionTwoCase.ColourAlphaReject,()=>Reject(()=>Colours(new(.1,.2,.3,.4),new(.6,.7,.8,.5),.5)));
         Check(RevisionTwoCase.ColourNonfiniteReject,()=>Reject(()=>Colours(new(double.NaN,0,0,1),new(0,0,0,1),1)));
+    }
+
+    private static void CheckLeaseAccounting(Action<RevisionTwoCase, Action> Check)
+    {
         Edge Full()
         {
             var edge=new Edge();
@@ -209,7 +226,10 @@ public static class RevisionTwoOracles
             for(var n=1;n<=32;n++)Require(96+18*n<=80+4+30*n&&96+18*n<=80+4+42*n);
             Require(94<=96);
         });
-        RequestIdentity Id(long generation,ulong sequence)=>new(new(generation),new(sequence));
+    }
+
+    private static void CheckRequestWindows(Action<RevisionTwoCase, Action> Check)
+    {
         var oldFirst=Id(11,1);var oldSecond=Id(11,2);var reset=Id(11,3);var fresh=Id(12,1);
         var barrier=new Window(136);
         Check(RevisionTwoCase.BarrierIdentity,()=>
@@ -230,6 +250,10 @@ public static class RevisionTwoOracles
         });
         Check(RevisionTwoCase.AnimationRequestOwner,()=>Reject(()=>ContractFixture.Validate(
             new(MessageKind.AnimationCommands,RuntimeRole.Simulation,RuntimeRole.Animation,200,0,11,1))));
+    }
+
+    private static void CheckCapacityBoundaries(Action<RevisionTwoCase, Action> Check)
+    {
         var animation=new Window(128);var registrations=0;
         Check(RevisionTwoCase.AnimationDefinitionDuplicate,()=>
         {if(animation.Admit(Id(7,1)))registrations++;Require(!animation.Admit(Id(7,1))&&registrations==1);animation.Commit(Id(7,1));});
@@ -248,6 +272,10 @@ public static class RevisionTwoOracles
         Check(RevisionTwoCase.RangeEqual,()=>Reject(()=>ScalarRange(2,2)));
         Check(RevisionTwoCase.RangeOverflow,()=>Reject(()=>ScalarRange(-1e308,1e308)));
         Check(RevisionTwoCase.AngleOverflow,()=>Reject(()=>ScalarRange(0,1,-1e308,1e308)));
+    }
+
+    private static void CheckBindingIdentity(Action<RevisionTwoCase, Action> Check)
+    {
         var first=new ActiveBinding(new(7),new(1),new(50),Property.PropagationDistance,new(100),new(4));
         var sample=new Sample(new(7),new(1),new(50),Property.PropagationDistance,new(5),.5);
         var replacement=first with{Instance=new(2),Descriptor=new(101)};
@@ -271,6 +299,10 @@ public static class RevisionTwoOracles
             Require(!Presented(new(1),new(11),new(20))&&!Presented(new(2),new(11),new(19))&&
                 Presented(new(2),new(11),new(20)));
         });
+    }
+
+    private static void CheckQueryLifecycle(Action<RevisionTwoCase, Action> Check)
+    {
         var read=new QueryStamp(Id(11,1),new(40),QueryOutcome.Found);
         static bool Current(QueryStamp value,Generation generation,Revision revision)=>
             value.Identity.Generation==generation&&value.Required==revision&&value.Outcome==QueryOutcome.Found;
@@ -309,6 +341,10 @@ public static class RevisionTwoOracles
         });
         Check(RevisionTwoCase.QueryCompletedBarrier,()=>Require(
             ResolveQuery(read,true,QueryTransition.Barrier)==read));
+    }
+
+    private static void CheckWaveProgress(Action<RevisionTwoCase, Action> Check)
+    {
         static bool Near(double a,double b)=>Math.Abs(a-b)<1e-12;
         Check(RevisionTwoCase.WaveEarlyReceipt,()=>Require(
             Near(Wave(.1,false,.1).Distance,1.2)&&Near(Wave(.1,true,.1).Distance,1.2)&&
@@ -324,6 +360,7 @@ public static class RevisionTwoOracles
             !Wave(.65,true,.1).Complete&&Wave(.7,true,.1).Complete));
         Check(RevisionTwoCase.WaveLostReceipt,()=>Require(Wave(.7,false,.1)==(.1,false)&&
             Wave(10,false,.1)==(.1,false)&&Wave(10,true,.1)==(8,true)));
-        return results;
     }
+
+
 }

@@ -1,3 +1,4 @@
+using System.Numerics;
 using System;
 using System.Collections.Generic;
 using CuriousContraptions.Abstractions.Mechanical;
@@ -313,6 +314,8 @@ public sealed class PhysicsSceneDeclaration
     public ReadOnlySpan<RopeGuideDeclaration> RopeGuides => _ropeGuides;
     private readonly MechanicalTransmissionDeclaration[] _transmissions;
     public ReadOnlySpan<MechanicalTransmissionDeclaration> Transmissions => _transmissions;
+    private readonly DrivenSurfaceDeclaration[] _drivenSurfaces;
+    public ReadOnlySpan<DrivenSurfaceDeclaration> DrivenSurfaces => _drivenSurfaces;
     public CompiledSupplyGraph SupplyGraph { get; }
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
@@ -353,164 +356,18 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<CompliantSurfaceDeclaration> compliantSurfaces = default,
         ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives = default,
         ReadOnlySpan<RopeGuideDeclaration> ropeGuides = default,
-        ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default)
+        ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default,
+        ReadOnlySpan<DrivenSurfaceDeclaration> drivenSurfaces = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
         var ids = new HashSet<ulong>(64);
-        var bodyMap = new Dictionary<GpuBodyId, RigidBodyDeclaration>(16);
-        var materialIds = new HashSet<GpuMaterialId>(32);
-        var dynamicCount = 0;
-        foreach (var body in bodies)
-        {
-            body.Validate(); Identity(body.Id.Value, nextIdentity, ids);
-            bodyMap.Add(body.Id, body);
-            if (body.Motion == RigidMotionKind.Dynamic) dynamicCount++;
-        }
-        foreach (var material in materials)
-        {
-            material.Validate(); Identity(material.Id.Value, nextIdentity, ids);
-            materialIds.Add(material.Id);
-        }
-        var dynamicColliders = new HashSet<GpuBodyId>(16);
-        foreach (var collider in colliders)
-        {
-            collider.Validate(); Identity(collider.Id.Value, nextIdentity, ids);
-            if (!bodyMap.TryGetValue(collider.Body, out var body) || !materialIds.Contains(collider.Material))
-                throw new ArgumentException("Collider refers to an absent body or material.");
-            if (body.Motion == RigidMotionKind.Dynamic)
-            {
-                if (collider.Shape == ColliderShapeKind.Plane)
-                    throw new ArgumentException("A dynamic body cannot own an infinite plane.");
-                dynamicColliders.Add(body.Id);
-            }
-        }
-        if (dynamicColliders.Count != dynamicCount)
-            throw new ArgumentException("Every dynamic body requires collision geometry.");
-        var sensorOwners = new HashSet<(GpuBodyId,BodyTargetSet)>(4);
-        foreach (var sensor in sensors)
-        {
-            sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
-            if (!bodyMap.TryGetValue(sensor.Frame, out var frame) || frame.Motion != RigidMotionKind.Static ||
-                !sensorOwners.Add((sensor.Frame,sensor.Targets)) || (sensor.Targets.Kind==BodyTargetKind.NamedBody &&
-                    (!bodyMap.TryGetValue(sensor.Targets.Body,out var target) || target.Motion!=RigidMotionKind.Dynamic)))
-                throw new ArgumentException("Residence requires an admitted static frame and dynamic target.");
-        }
-        var guidedBodies = new HashSet<(GpuBodyId,BodyTargetSet)>(4);
-        foreach (var guide in guides)
-        {
-            guide.Validate(); Identity(guide.Id.Value, nextIdentity, ids);
-            if (!bodyMap.TryGetValue(guide.Frame, out var frame) || frame.Motion != RigidMotionKind.Static ||
-                !guidedBodies.Add((guide.Frame,guide.Targets)) || (guide.Targets.Kind==BodyTargetKind.NamedBody &&
-                    (!bodyMap.TryGetValue(guide.Targets.Body,out var target) || target.Motion!=RigidMotionKind.Dynamic)))
-                throw new ArgumentException("Guide requires a static frame and unique admitted target policy.");
-        }
-        var owners = new HashSet<GpuBodyId>(4);
-        foreach (var trigger in triggers)
-        {
-            trigger.Validate(); Identity(trigger.Id.Value, nextIdentity, ids);
-            if (!bodyMap.TryGetValue(trigger.Owner, out var owner) || owner.Motion != RigidMotionKind.Static ||
-                (trigger.Targets.Kind == BodyTargetKind.NamedBody &&
-                    (!bodyMap.TryGetValue(trigger.Targets.Body, out var target) || target.Motion != RigidMotionKind.Dynamic)) ||
-                !owners.Add(trigger.Owner))
-                throw new ArgumentException("Contact trigger requires a unique static owner and dynamic target.");
-            var colliderFound = false;
-            foreach (var collider in colliders) if (collider.Body == trigger.Owner) colliderFound = true;
-            if (!colliderFound) throw new ArgumentException("Contact trigger owner has no physical collider.");
-        }
-        var workOwners = new HashSet<GpuBodyId>(4);
-        foreach (var work in contactWorks)
-        {
-            work.Validate(); Identity(work.Id.Value, nextIdentity, ids);
-            if (!bodyMap.TryGetValue(work.Owner, out var owner) || owner.Motion != RigidMotionKind.Static ||
-                (work.Targets.Kind == BodyTargetKind.NamedBody &&
-                    (!bodyMap.TryGetValue(work.Targets.Body, out var target) || target.Motion != RigidMotionKind.Dynamic)) ||
-                !workOwners.Add(work.Owner))
-                throw new ArgumentException("Contact work requires one reservoir per static owner and a dynamic target.");
-            var colliderFound = false;
-            foreach (var collider in colliders) if (collider.Body == work.Owner) colliderFound = true;
-            if (!colliderFound) throw new ArgumentException("Contact work owner has no physical collider.");
-        }
-        var sensed = new HashSet<GpuBodyId>(4);
-        foreach (var sensor in orientationSensors)
-        {
-            sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
-            if (!bodyMap.TryGetValue(sensor.Body, out var body) || body.Motion != RigidMotionKind.Dynamic ||
-                !dynamicColliders.Contains(sensor.Body) || !sensed.Add(sensor.Body))
-                throw new ArgumentException("Orientation sensor requires one uniquely sensed dynamic body with its collider.");
-            // "Angle from the admitted pose" is a document invariant, not a compiler courtesy.
-            if (body.Rotation != sensor.Initial) throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
-        }
-        var loadFrames = new HashSet<GpuBodyId>(4);
-        foreach (var sensor in contactLoadSensors)
-        {
-            sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
-            foreach (var member in sensor.SupportingColliders)
-            {
-                var owned = false;
-                foreach (var collider in colliders) if (collider.Id == member && collider.Body == sensor.Frame) owned = true;
-                if (!owned) throw new ArgumentException("Contact-load member is absent or owned by another body.");
-            }
-            var faceOwned = false;
-            foreach (var collider in colliders) if (collider.Id == sensor.Region && collider.Body == sensor.Frame) faceOwned = true;
-            if (!bodyMap.TryGetValue(sensor.Frame, out var frame) || frame.Motion != RigidMotionKind.Static || !faceOwned ||
-                !loadFrames.Add(sensor.Frame))
-                throw new ArgumentException("A contact-load row requires one row per static frame and a sensing face that frame owns.");
-        }
-        var pairs = new HashSet<(GpuBodyId, GpuBodyId)>(16);
-        foreach (var joint in prismatics)
-        {
-            joint.Validate(); Identity(joint.Id.Value, nextIdentity, ids);
-            if (!bodyMap.TryGetValue(joint.BodyA, out var a) || !bodyMap.TryGetValue(joint.BodyB, out var b) ||
-                (a.Motion != RigidMotionKind.Dynamic && b.Motion != RigidMotionKind.Dynamic) ||
-                !pairs.Add(joint.BodyA.Value < joint.BodyB.Value ? (joint.BodyA, joint.BodyB) : (joint.BodyB, joint.BodyA)))
-                throw new ArgumentException("A prismatic joint requires a unique admitted pair with a dynamic body.");
-        }
-        foreach (var joint in revolutes)
-        {
-            joint.Validate(); Identity(joint.Id.Value, nextIdentity, ids);
-            if (!bodyMap.TryGetValue(joint.BodyA, out var a) || !bodyMap.TryGetValue(joint.BodyB, out var b) ||
-                (a.Motion != RigidMotionKind.Dynamic && b.Motion != RigidMotionKind.Dynamic) ||
-                !pairs.Add(joint.BodyA.Value < joint.BodyB.Value ? (joint.BodyA, joint.BodyB) : (joint.BodyB, joint.BodyA)))
-                throw new ArgumentException("A revolute joint requires a unique admitted pair with a dynamic body.");
-        }
-        var spanIds = new HashSet<RopeSpanId>();
-        var routeOrders = new HashSet<(RopeRouteId, uint)>();
-        foreach (var span in tensileSpans)
-        {
-            span.Validate();
-            if (!spanIds.Add(span.Id) || !routeOrders.Add((span.Route, span.Order)) ||
-                !bodyMap.TryGetValue(span.BodyA, out var a) || !bodyMap.TryGetValue(span.BodyB, out var b) ||
-                a.Motion is not (RigidMotionKind.Static or RigidMotionKind.Dynamic) ||
-                b.Motion is not (RigidMotionKind.Static or RigidMotionKind.Dynamic))
-                throw new ArgumentException("Tensile span requires unique identities and admitted participants.");
-            if (span.Complete && a.Motion == RigidMotionKind.Static && b.Motion == RigidMotionKind.Static &&
-                System.Numerics.Vector3.Distance(Attachment(a, span.LocalA), Attachment(b, span.LocalB)) > span.MaximumLength)
-                throw new ArgumentException("An immovable rope exceeds its authored length.");
-        }
-        _tensileSpans = tensileSpans.ToArray();
-        Array.Sort(_tensileSpans, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
-        var orderedRoutes = new Dictionary<RopeRouteId, SortedDictionary<uint, TensileSpanDeclaration>>();
-        foreach (var span in _tensileSpans)
-        {
-            if (!orderedRoutes.TryGetValue(span.Route, out var ordered)) orderedRoutes.Add(span.Route, ordered = new());
-            ordered.Add(span.Order, span);
-        }
-        foreach (var route in orderedRoutes.Values)
-        {
-            uint order = 0;
-            TensileSpanDeclaration? previous = null;
-            var visited = new HashSet<GpuBodyId>();
-            foreach (var span in route.Values)
-            {
-                if (span.Order != order++ || (previous is { } prior &&
-                    (prior.BodyB != span.BodyA || prior.LocalB != span.LocalA || prior.GuideRadius <= 0f || !float.IsFinite(prior.GuideRadius))) ||
-                    !visited.Add(span.BodyA))
-                    throw new ArgumentException("Tensile route must be one ordered acyclic chain.");
-                previous = span;
-            }
-            if (previous is { } last && !visited.Add(last.BodyB)) throw new ArgumentException("Tensile route closes a cycle.");
-        }
+        var (bodyMap, dynamicCount, dynamicColliders) = ValidateGeometry(bodies, colliders, materials, nextIdentity, ids);
+        ValidateSpatialPolicies(sensors, guides, bodyMap, nextIdentity, ids);
+        ValidateContactPolicies(triggers, contactWorks, colliders, bodyMap, nextIdentity, ids);
+        ValidateObservations(orientationSensors, contactLoadSensors, colliders, dynamicColliders, bodyMap, nextIdentity, ids);
+        ValidateJoints(prismatics, revolutes, bodyMap, nextIdentity, ids);
+        _tensileSpans = ValidateTensile(tensileSpans, bodyMap);
         var guideIds = new HashSet<RopeGuideId>();
         foreach (var guide in ropeGuides)
         {
@@ -556,6 +413,10 @@ public sealed class PhysicsSceneDeclaration
         }
         _revoluteDrives = revoluteDrives.ToArray();
         Array.Sort(_revoluteDrives, (a, b) => a.Joint.Value.CompareTo(b.Joint.Value));
+        DrivenSurfaceDeclaration.ValidateAll(drivenSurfaces, colliders, _revolutes);
+        foreach (var surface in drivenSurfaces) Identity(surface.Id.Value, nextIdentity, ids);
+        _drivenSurfaces = drivenSurfaces.ToArray();
+        Array.Sort(_drivenSurfaces, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         MechanicalTransmissionDeclaration.ValidateAll(transmissions, _revolutes.Select(joint => joint.Id).ToHashSet());
         _transmissions = transmissions.ToArray();
         Array.Sort(_transmissions, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
@@ -582,6 +443,185 @@ public sealed class PhysicsSceneDeclaration
             _compliantSurfaces.Length);
         _ = World.ByteLength;
         Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes, _compliantSurfaces);
+    }
+
+    private static (Dictionary<GpuBodyId, RigidBodyDeclaration> Bodies, int DynamicCount, HashSet<GpuBodyId> DynamicColliders) ValidateGeometry(ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders, ReadOnlySpan<ContactMaterialDeclaration> materials, ulong nextIdentity, HashSet<ulong> ids)
+    {
+        var bodyMap = new Dictionary<GpuBodyId, RigidBodyDeclaration>(16);
+        var materialIds = new HashSet<GpuMaterialId>(32);
+        var dynamicCount = 0;
+        foreach (var body in bodies)
+        {
+            body.Validate(); Identity(body.Id.Value, nextIdentity, ids);
+            bodyMap.Add(body.Id, body);
+            if (body.Motion == RigidMotionKind.Dynamic) dynamicCount++;
+        }
+        foreach (var material in materials)
+        {
+            material.Validate(); Identity(material.Id.Value, nextIdentity, ids);
+            materialIds.Add(material.Id);
+        }
+        var dynamicColliders = new HashSet<GpuBodyId>(16);
+        foreach (var collider in colliders)
+        {
+            collider.Validate(); Identity(collider.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(collider.Body, out var body) || !materialIds.Contains(collider.Material))
+                throw new ArgumentException("Collider refers to an absent body or material.");
+            if (body.Motion == RigidMotionKind.Dynamic)
+            {
+                if (collider.Shape == ColliderShapeKind.Plane)
+                    throw new ArgumentException("A dynamic body cannot own an infinite plane.");
+                dynamicColliders.Add(body.Id);
+            }
+        }
+        if (dynamicColliders.Count != dynamicCount)
+            throw new ArgumentException("Every dynamic body requires collision geometry.");
+        return (bodyMap, dynamicCount, dynamicColliders);
+    }
+
+    private static void ValidateSpatialPolicies(ReadOnlySpan<ResidenceSensorDeclaration> sensors, ReadOnlySpan<PlanarGuideDeclaration> guides, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap, ulong nextIdentity, HashSet<ulong> ids)
+    {
+        var sensorOwners = new HashSet<(GpuBodyId,BodyTargetSet)>(4);
+        foreach (var sensor in sensors)
+        {
+            sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(sensor.Frame, out var frame) || frame.Motion != RigidMotionKind.Static ||
+                !sensorOwners.Add((sensor.Frame,sensor.Targets)) || (sensor.Targets.Kind==BodyTargetKind.NamedBody &&
+                    (!bodyMap.TryGetValue(sensor.Targets.Body,out var target) || target.Motion!=RigidMotionKind.Dynamic)))
+                throw new ArgumentException("Residence requires an admitted static frame and dynamic target.");
+        }
+        var guidedBodies = new HashSet<(GpuBodyId,BodyTargetSet)>(4);
+        foreach (var guide in guides)
+        {
+            guide.Validate(); Identity(guide.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(guide.Frame, out var frame) || frame.Motion != RigidMotionKind.Static ||
+                !guidedBodies.Add((guide.Frame,guide.Targets)) || (guide.Targets.Kind==BodyTargetKind.NamedBody &&
+                    (!bodyMap.TryGetValue(guide.Targets.Body,out var target) || target.Motion!=RigidMotionKind.Dynamic)))
+                throw new ArgumentException("Guide requires a static frame and unique admitted target policy.");
+        }
+    }
+
+    private static void ValidateContactPolicies(ReadOnlySpan<ContactTriggerDeclaration> triggers, ReadOnlySpan<ContactWorkDeclaration> contactWorks, ReadOnlySpan<ColliderDeclaration> colliders, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap, ulong nextIdentity, HashSet<ulong> ids)
+    {
+        var owners = new HashSet<GpuBodyId>(4);
+        foreach (var trigger in triggers)
+        {
+            trigger.Validate(); Identity(trigger.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(trigger.Owner, out var owner) || owner.Motion != RigidMotionKind.Static ||
+                (trigger.Targets.Kind == BodyTargetKind.NamedBody &&
+                    (!bodyMap.TryGetValue(trigger.Targets.Body, out var target) || target.Motion != RigidMotionKind.Dynamic)) ||
+                !owners.Add(trigger.Owner))
+                throw new ArgumentException("Contact trigger requires a unique static owner and dynamic target.");
+            var colliderFound = false;
+            foreach (var collider in colliders) if (collider.Body == trigger.Owner) colliderFound = true;
+            if (!colliderFound) throw new ArgumentException("Contact trigger owner has no physical collider.");
+        }
+        var workOwners = new HashSet<GpuBodyId>(4);
+        foreach (var work in contactWorks)
+        {
+            work.Validate(); Identity(work.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(work.Owner, out var owner) || owner.Motion != RigidMotionKind.Static ||
+                (work.Targets.Kind == BodyTargetKind.NamedBody &&
+                    (!bodyMap.TryGetValue(work.Targets.Body, out var target) || target.Motion != RigidMotionKind.Dynamic)) ||
+                !workOwners.Add(work.Owner))
+                throw new ArgumentException("Contact work requires one reservoir per static owner and a dynamic target.");
+            var colliderFound = false;
+            foreach (var collider in colliders) if (collider.Body == work.Owner) colliderFound = true;
+            if (!colliderFound) throw new ArgumentException("Contact work owner has no physical collider.");
+        }
+    }
+
+    private static void ValidateObservations(ReadOnlySpan<OrientationSensorDeclaration> orientationSensors, ReadOnlySpan<ContactLoadSensorDeclaration> contactLoadSensors, ReadOnlySpan<ColliderDeclaration> colliders, HashSet<GpuBodyId> dynamicColliders, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap, ulong nextIdentity, HashSet<ulong> ids)
+    {
+        var sensed = new HashSet<GpuBodyId>(4);
+        foreach (var sensor in orientationSensors)
+        {
+            sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(sensor.Body, out var body) || body.Motion != RigidMotionKind.Dynamic ||
+                !dynamicColliders.Contains(sensor.Body) || !sensed.Add(sensor.Body))
+                throw new ArgumentException("Orientation sensor requires one uniquely sensed dynamic body with its collider.");
+            // "Angle from the admitted pose" is a document invariant, not a compiler courtesy.
+            if (body.Rotation != sensor.Initial) throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
+        }
+        var loadFrames = new HashSet<GpuBodyId>(4);
+        foreach (var sensor in contactLoadSensors)
+        {
+            sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
+            foreach (var member in sensor.SupportingColliders)
+            {
+                var owned = false;
+                foreach (var collider in colliders) if (collider.Id == member && collider.Body == sensor.Frame) owned = true;
+                if (!owned) throw new ArgumentException("Contact-load member is absent or owned by another body.");
+            }
+            var faceOwned = false;
+            foreach (var collider in colliders) if (collider.Id == sensor.Region && collider.Body == sensor.Frame) faceOwned = true;
+            if (!bodyMap.TryGetValue(sensor.Frame, out var frame) || frame.Motion != RigidMotionKind.Static || !faceOwned ||
+                !loadFrames.Add(sensor.Frame))
+                throw new ArgumentException("A contact-load row requires one row per static frame and a sensing face that frame owns.");
+        }
+    }
+
+    private static void ValidateJoints(ReadOnlySpan<PrismaticConstraintDeclaration> prismatics, ReadOnlySpan<RevoluteConstraintDeclaration> revolutes, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap, ulong nextIdentity, HashSet<ulong> ids)
+    {
+        var pairs = new HashSet<(GpuBodyId, GpuBodyId)>(16);
+        foreach (var joint in prismatics)
+        {
+            joint.Validate(); Identity(joint.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(joint.BodyA, out var a) || !bodyMap.TryGetValue(joint.BodyB, out var b) ||
+                (a.Motion != RigidMotionKind.Dynamic && b.Motion != RigidMotionKind.Dynamic) ||
+                !pairs.Add(joint.BodyA.Value < joint.BodyB.Value ? (joint.BodyA, joint.BodyB) : (joint.BodyB, joint.BodyA)))
+                throw new ArgumentException("A prismatic joint requires a unique admitted pair with a dynamic body.");
+        }
+        foreach (var joint in revolutes)
+        {
+            joint.Validate(); Identity(joint.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(joint.BodyA, out var a) || !bodyMap.TryGetValue(joint.BodyB, out var b) ||
+                (a.Motion != RigidMotionKind.Dynamic && b.Motion != RigidMotionKind.Dynamic) ||
+                !pairs.Add(joint.BodyA.Value < joint.BodyB.Value ? (joint.BodyA, joint.BodyB) : (joint.BodyB, joint.BodyA)))
+                throw new ArgumentException("A revolute joint requires a unique admitted pair with a dynamic body.");
+        }
+    }
+
+    private static TensileSpanDeclaration[] ValidateTensile(ReadOnlySpan<TensileSpanDeclaration> tensileSpans, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap)
+    {
+        var spanIds = new HashSet<RopeSpanId>();
+        var routeOrders = new HashSet<(RopeRouteId, uint)>();
+        foreach (var span in tensileSpans)
+        {
+            span.Validate();
+            if (!spanIds.Add(span.Id) || !routeOrders.Add((span.Route, span.Order)) ||
+                !bodyMap.TryGetValue(span.BodyA, out var a) || !bodyMap.TryGetValue(span.BodyB, out var b) ||
+                a.Motion is not (RigidMotionKind.Static or RigidMotionKind.Dynamic) ||
+                b.Motion is not (RigidMotionKind.Static or RigidMotionKind.Dynamic))
+                throw new ArgumentException("Tensile span requires unique identities and admitted participants.");
+            if (span.Complete && a.Motion == RigidMotionKind.Static && b.Motion == RigidMotionKind.Static &&
+                System.Numerics.Vector3.Distance(Attachment(a, span.LocalA), Attachment(b, span.LocalB)) > span.MaximumLength)
+                throw new ArgumentException("An immovable rope exceeds its authored length.");
+        }
+        var sortedSpans = tensileSpans.ToArray();
+        Array.Sort(sortedSpans, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        var orderedRoutes = new Dictionary<RopeRouteId, SortedDictionary<uint, TensileSpanDeclaration>>();
+        foreach (var span in sortedSpans)
+        {
+            if (!orderedRoutes.TryGetValue(span.Route, out var ordered)) orderedRoutes.Add(span.Route, ordered = new());
+            ordered.Add(span.Order, span);
+        }
+        foreach (var route in orderedRoutes.Values)
+        {
+            uint order = 0;
+            TensileSpanDeclaration? previous = null;
+            var visited = new HashSet<GpuBodyId>();
+            foreach (var span in route.Values)
+            {
+                if (span.Order != order++ || (previous is { } prior &&
+                    (prior.BodyB != span.BodyA || prior.LocalB != span.LocalA || prior.GuideRadius <= 0f || !float.IsFinite(prior.GuideRadius))) ||
+                    !visited.Add(span.BodyA))
+                    throw new ArgumentException("Tensile route must be one ordered acyclic chain.");
+                previous = span;
+            }
+            if (previous is { } last && !visited.Add(last.BodyB)) throw new ArgumentException("Tensile route closes a cycle.");
+        }
+        return sortedSpans;
     }
 
     private static void Identity(ulong id, ulong next, HashSet<ulong> identities)
@@ -619,4 +659,51 @@ internal static class PhysicsDeclarationBounds
     /// <summary>Canonical positive zero: the all-zero f32 bit pattern (−0 is not zero here).</summary>
     internal static bool Zero(float value) => BitConverter.SingleToUInt32Bits(value) == 0;
     internal static bool Zero(float x, float y, float z) => Zero(x) && Zero(y) && Zero(z);
+}
+
+public readonly record struct DrivenSurfaceId(ulong Value);
+
+public readonly record struct DrivenSurfaceDeclaration(
+    DrivenSurfaceId Id, GpuBodyId Carrier, GpuColliderId Collider, BoxFace Face,
+    RevoluteConstraintId Source, Vector3 LocalDirection, float TravelPerRadian)
+{
+    public void Validate()
+    {
+        if (Id.Value == 0 || Carrier.Value == 0 || Collider.Value == 0 || Source.Value == 0 || !Enum.IsDefined(Face))
+            throw new ArgumentException("Invalid driven surface identity or face.");
+        var length = LocalDirection.LengthSquared();
+        if (!float.IsFinite(length) || MathF.Abs(length - 1f) > 1e-4f ||
+            !float.IsFinite(TravelPerRadian) || TravelPerRadian == 0f)
+            throw new ArgumentException("Driven surface requires a unit tangent and finite nonzero travel.");
+        // A contact has at most six bodies and two surface contributions. Bound its
+        // physical wrench using the admitted 16 m geometry/COM domain and minimum
+        // principal inertia, so neither the unnormalised mass nor its cross terms overflow.
+        var angularBound = 48f * MathF.Sqrt(3f) + 2f * MathF.Abs(TravelPerRadian);
+        var massBound = 6f * angularBound * angularBound / PrincipalInertia.Minimum;
+        // The existing eigensolve also multiplies diagonal mass entries.
+        if (!float.IsFinite(massBound * massBound))
+            throw new ArgumentException("Driven surface coupled inertia is not representable.");
+    }
+
+    public static void ValidateAll(ReadOnlySpan<DrivenSurfaceDeclaration> surfaces,
+        ReadOnlySpan<ColliderDeclaration> colliders, ReadOnlySpan<RevoluteConstraintDeclaration> joints)
+    {
+        var geometry = colliders.ToArray().ToDictionary(collider => collider.Id);
+        var sources = joints.ToArray().Select(joint => joint.Id).ToHashSet();
+        var ids = new HashSet<DrivenSurfaceId>();
+        var faces = new HashSet<(GpuColliderId, BoxFace)>();
+        foreach (var surface in surfaces)
+        {
+            surface.Validate();
+            if (!ids.Add(surface.Id) || !faces.Add((surface.Collider, surface.Face)) ||
+                !geometry.TryGetValue(surface.Collider, out var collider) ||
+                collider.Body != surface.Carrier || collider.Shape != ColliderShapeKind.Box ||
+                !sources.Contains(surface.Source))
+                throw new ArgumentException("Driven surface references must resolve uniquely.");
+            var q = collider.Pose.Rotation;
+            var normal = Vector3.Transform(BoxFaces.Normal(surface.Face), new Quaternion(q.X, q.Y, q.Z, q.W));
+            if (MathF.Abs(Vector3.Dot(normal, surface.LocalDirection)) > 1e-4f)
+                throw new ArgumentException("Driven surface tangent must lie in its selected face.");
+        }
+    }
 }

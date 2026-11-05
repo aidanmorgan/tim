@@ -54,7 +54,7 @@ public sealed class MechanicalCoordinateBindingsTests
             [],
             [slider],
             [hinge0, hinge1],
-            null);
+            null, []);
 
         var mixedEntry = motorEntry with
         {
@@ -98,7 +98,7 @@ public sealed class MechanicalCoordinateBindingsTests
             [],
             [],
             [unpoweredHinge],
-            null);
+            null, []);
 
         var drivenEntry = motorEntry with
         {

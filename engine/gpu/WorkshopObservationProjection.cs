@@ -339,198 +339,241 @@ internal static class WorkshopObservationProjection
         }
         return value;
     }
+    private static void ProjectDiagnostic<T>(ref T value, WorkshopPresentationDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        var sample = record.Sample; var scene = record.Scene; var evidence = sample.Evidence;
+        value.SetProperty("cadence", Exact(record.Cadence.Value)); value.SetProperty("pulse", Exact(record.Pulse.Value));
+        value.SetProperty("selected", record.Selected); value.SetProperty("appliedAt", Exact(record.AppliedAt.Value));
+        value.SetProperty("quality", WorkshopObservationProjection.EnumValue(sample.Quality)); value.SetProperty("frame", Exact(scene.Frame));
+        value.SetProperty("positionWrites", scene.PositionWrites); value.SetProperty("partCount", scene.PartCount);
+        value.SetProperty("simulationOrdinal", Exact(scene.SimulationTime.Ordinal)); value.SetProperty("simulationPhase", scene.SimulationTime.Phase);
+        value.SetProperty("sampleOrdinal", Exact(sample.SimulationTime.Time.Ordinal)); value.SetProperty("samplePhase", sample.SimulationTime.Time.Phase);
+        if (sample.DisplayWall is { } wall) value.SetProperty("displayWall", Exact(wall.Value));
+        value.SetProperty("selectedAt", Exact(evidence.SelectedAt.Value)); value.SetProperty("clockEpoch", Exact(evidence.ClockEpoch));
+        value.SetProperty("displayEpoch", Exact(evidence.DisplayEpoch)); value.SetProperty("world", Exact(evidence.WorldEpoch.Value));
+        using var position = Vector<T>(scene.X, scene.Y, scene.Z); value.SetProperty("position", position);
+        using var rotation = Vector<T>(scene.Qx, scene.Qy, scene.Qz); rotation.SetProperty("w", scene.Qw); value.SetProperty("rotation", rotation);
+        if (evidence.Latest is { } latest) { using var endpoint = Endpoint<T>(latest); value.SetProperty("latest", endpoint); }
+        if (evidence.Before is { } before) { using var endpoint = Endpoint<T>(before); value.SetProperty("before", endpoint); }
+        if (evidence.After is { } after) { using var endpoint = Endpoint<T>(after); value.SetProperty("after", endpoint); }
+        using var bodies = T.Array();
+        for (var i = 0; i < sample.Bodies.Count; i++)
+        {
+            var body = sample.Bodies[i]; using var item = T.Object(); item.SetProperty("id", Exact(body.Id.Value));
+            using var cell = Cell<T>(body.Cell); item.SetProperty("cell", cell);
+            using var local = Vector<T>(body.Local.X, body.Local.Y, body.Local.Z); item.SetProperty("local", local);
+            using var orientation = Vector<T>(body.Rotation.X, body.Rotation.Y, body.Rotation.Z);
+            orientation.SetProperty("w", body.Rotation.W); item.SetProperty("rotation", orientation); bodies.Push(item);
+        }
+        value.SetProperty("bodies", bodies);
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, WorkshopAnimationDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        var sample = record.Sample;
+        value.SetProperty("cadence", Exact(record.Cadence.Value)); value.SetProperty("kind", WorkshopObservationProjection.EnumValue(record.Kind));
+        value.SetProperty("target", Exact(sample.Target.Value)); value.SetProperty("world", Exact(sample.World.Value));
+        value.SetProperty("generation", Exact(sample.Generation)); value.SetProperty("pulse", Exact(sample.Pulse.Value));
+        value.SetProperty("appliedAt", Exact(sample.AppliedAt.Value)); value.SetProperty("value", sample.Value);
+        value.SetProperty("ordinal", sample.EventOrdinal); value.SetProperty("eventPhase", sample.EventPhase);
+        value.SetProperty("property", WorkshopObservationProjection.EnumValue(sample.Property));
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, WorkshopClockSampleDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        using var probe = Probe<T>(record.Probe); value.SetProperty("probe", probe);
+        if (record.Reply is { } reply) { using var item = Reply<T>(reply); value.SetProperty("reply", item); }
+        using var offset = Interval<T>(record.Offset); value.SetProperty("offset", offset);
+        value.SetProperty("outcome", WorkshopObservationProjection.EnumValue(record.Outcome)); value.SetProperty("received", Exact(record.Received.Value));
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, WorkshopCaptureDiagnostic record, WorkshopAuthoredScene? authored) where T : IWorkshopObservationObject<T>
+    {
+        value.SetProperty("kind", WorkshopObservationProjection.EnumValue(record.Kind));
+        value.SetProperty("stage", WorkshopObservationProjection.EnumValue(record.Stage));
+        value.SetProperty("identity", Exact(record.Identity));
+        value.SetProperty("epoch", Exact(record.Epoch.Value));
+        value.SetProperty("cadence", WorkshopObservationProjection.EnumValue(record.Profile.Cadence));
+        value.SetProperty("physical", WorkshopObservationProjection.EnumValue(record.Profile.Physical));
+        value.SetProperty("revision", Exact(record.Profile.Revision.Value));
+        value.SetProperty("end", WorkshopObservationProjection.EnumValue(record.End));
+        value.SetProperty("status", WorkshopObservationProjection.EnumValue(record.Status));
+        value.SetProperty("expectedCount", record.ExpectedCount);
+        value.SetProperty("count", record.Count);
+        value.SetProperty("chunk", record.Chunk);
+        value.SetProperty("chunks", record.Chunks);
+        value.SetProperty("first", record.First);
+
+        using var samples = T.Array();
+        foreach (var sample in record.Samples) { using var item = TraceSample<T>(sample); samples.Push(item); }
+        value.SetProperty("samples", samples);
+        using var durations = Durations<T>(record.Milliseconds); value.SetProperty("durations", durations);
+        if (record.Scene is { } scene)
+        {
+            if (authored is not { } original || original.Scene != scene)
+                throw new ArgumentException("Capture has no original authored scene association.");
+            using var item = Construction<T>(original); value.SetProperty("construction", item);
+        }
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, WorkshopTransferDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        using var response = Response<T>(record.Response); value.SetProperty("response", response);
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, WorkshopTickFailureDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        value.SetProperty("outcome", WorkshopObservationProjection.EnumValue(record.Result.Outcome));
+        value.SetProperty("reason", WorkshopObservationProjection.EnumValue(record.Result.Reason));
+        value.SetProperty("fault", WorkshopObservationProjection.EnumValue(record.Fault));
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, WorkshopDebtDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        value.SetProperty("tick", Exact(record.CommittedTick.Value));
+        value.SetProperty("reason", WorkshopObservationProjection.EnumValue(record.Reason));
+        value.SetProperty("oldestUnreceipted", Exact(record.OldestUnreceipted.Value));
+        value.SetProperty("ageMilliseconds", Exact(record.AgeMilliseconds));
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, AnimationDeferralDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        value.SetProperty("cause", WorkshopObservationProjection.EnumValue(record.Cause));
+        value.SetProperty("count", Exact(record.Count));
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, ClockDerivationDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        value.SetProperty("report", WorkshopObservationProjection.EnumValue(record.Report));
+        value.SetProperty("outcome", WorkshopObservationProjection.EnumValue(record.Outcome));
+        value.SetProperty("epoch", record.Epoch.Value);
+        value.SetProperty("correction", Exact(record.Correction));
+        value.SetProperty("qualified", record.Qualified);
+        value.SetProperty("startupAttempts", record.StartupAttempts);
+        value.SetProperty("startupOutliers", record.StartupOutliers);
+        value.SetProperty("startupInconclusive", record.StartupInconclusive);
+        value.SetProperty("startupUnanswered", record.StartupUnanswered);
+        value.SetProperty("checks", Exact(record.Checks));
+        value.SetProperty("slews", Exact(record.Slews));
+        value.SetProperty("rederivations", Exact(record.Rederivations));
+        value.SetProperty("inconclusive", Exact(record.Inconclusive));
+        value.SetProperty("unanswered", Exact(record.Unanswered));
+        value.SetProperty("checkRetries", Exact(record.CheckRetries));
+        if (record.PendingCorrection is { } pendingCorrection) value.SetProperty("pendingCorrection", Exact(pendingCorrection));
+        if (record.AdmittedLower is { } admittedLower) value.SetProperty("admittedLower", Exact(admittedLower));
+        if (record.AdmittedUpper is { } admittedUpper) value.SetProperty("admittedUpper", Exact(admittedUpper));
+
+        if (record.Exchange is { } exchange) { using var item = T.Object(); item.SetProperty("before", Exact(exchange.Before));
+            item.SetProperty("master", Exact(exchange.Master)); item.SetProperty("after", Exact(exchange.After));
+            item.SetProperty("epoch", exchange.Epoch.Value); value.SetProperty("exchange", item); }
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, ClockWideOffsetDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        value.SetProperty("offset", Exact(record.Offset));
+        value.SetProperty("admittedLower", Exact(record.AdmittedLower));
+        value.SetProperty("admittedUpper", Exact(record.AdmittedUpper));
+        value.SetProperty("declaredUncertainty", Exact(record.DeclaredUncertainty));
+        value.SetProperty("count", Exact(record.Count));
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, ClockLateRenewalDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        value.SetProperty("role", WorkshopObservationProjection.EnumValue(record.Role));
+        value.SetProperty("count", Exact(record.Count));
+        value.SetProperty("lapseAge", Exact(record.LapseAge));
+        value.SetProperty("exchanges", record.Exchanges);
+        value.SetProperty("renewedAt", Exact(record.RenewedAt.Value));
+        value.SetProperty("displayEpoch", Exact(record.DisplayEpoch));
+        using var retained = Interval<T>(record.Retained); value.SetProperty("retained", retained);
+        using var fresh = Interval<T>(record.Fresh); value.SetProperty("fresh", fresh);
+        if (record.Derivation is { } derivation) value.SetProperty("derivation", derivation.Value);
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, ClockReplyRejectedDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        value.SetProperty("role", WorkshopObservationProjection.EnumValue(record.Role));
+        value.SetProperty("count", Exact(record.Count));
+        value.SetProperty("length", record.Length);
+        value.SetProperty("received", Exact(record.Received.Value));
+        value.SetProperty("detail", record.Detail);
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, ClockRecalibrationDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        value.SetProperty("cause", WorkshopObservationProjection.EnumValue(record.Cause));
+        value.SetProperty("count", Exact(record.Count));
+        value.SetProperty("stateBefore", WorkshopObservationProjection.EnumValue(record.StateBefore));
+        value.SetProperty("displayEpoch", Exact(record.DisplayEpoch));
+        value.SetProperty("at", Exact(record.At.Value));
+        value.SetProperty("recoveryStarted", Exact(record.RecoveryStarted.Value));
+        value.SetProperty("recoverySends", record.RecoverySends);
+        using var peer = Peer<T>(record.Peer); value.SetProperty("peer", peer);
+        if (record.Derivation is { } derivation) value.SetProperty("derivation", derivation.Value);
+
+        if (record.Pending is { } pending) { using var item = Probe<T>(pending); value.SetProperty("pending", item); }
+        if (record.Reply is { } reply) { using var item = Reply<T>(reply); value.SetProperty("reply", item); }
+        using var slots = T.Array();
+        foreach (var slot in record.Slots) { using var item = Interval<T>(slot.Interval);
+            item.SetProperty("receipt", Exact(slot.Receipt.Value)); item.SetProperty("sequence", Exact(slot.Sequence.Value)); slots.Push(item); }
+        value.SetProperty("slots", slots);
+    }
+
+    private static void ProjectDiagnostic<T>(ref T value, WorkshopFaultDiagnostic record) where T : IWorkshopObservationObject<T>
+    {
+        value.SetProperty("kind", WorkshopObservationProjection.EnumValue(record.Kind));
+        value.SetProperty("site", WorkshopObservationProjection.EnumValue(record.Site));
+        value.SetProperty("exceptionType", record.ExceptionType);
+        value.SetProperty("detail", record.Detail);
+    }
+
     internal static T Diagnostic<T>(WorkshopDiagnostic source, WorkshopAuthoredScene? authored = null) where T : IWorkshopObservationObject<T>
     {
         var value = T.Object(); value.SetProperty("category", WorkshopObservationProjection.EnumValue(source.Category));
         switch (source)
         {
             case WorkshopFaultDiagnostic record:
-            {
-                value.SetProperty("kind", WorkshopObservationProjection.EnumValue(record.Kind));
-                value.SetProperty("site", WorkshopObservationProjection.EnumValue(record.Site));
-                value.SetProperty("exceptionType", record.ExceptionType);
-                value.SetProperty("detail", record.Detail);
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case ClockRecalibrationDiagnostic record:
-            {
-                value.SetProperty("cause", WorkshopObservationProjection.EnumValue(record.Cause));
-                value.SetProperty("count", Exact(record.Count));
-                value.SetProperty("stateBefore", WorkshopObservationProjection.EnumValue(record.StateBefore));
-                value.SetProperty("displayEpoch", Exact(record.DisplayEpoch));
-                value.SetProperty("at", Exact(record.At.Value));
-                value.SetProperty("recoveryStarted", Exact(record.RecoveryStarted.Value));
-                value.SetProperty("recoverySends", record.RecoverySends);
-                using var peer = Peer<T>(record.Peer); value.SetProperty("peer", peer);
-                if (record.Derivation is { } derivation) value.SetProperty("derivation", derivation.Value);
-
-                if (record.Pending is { } pending) { using var item = Probe<T>(pending); value.SetProperty("pending", item); }
-                if (record.Reply is { } reply) { using var item = Reply<T>(reply); value.SetProperty("reply", item); }
-                using var slots = T.Array();
-                foreach (var slot in record.Slots) { using var item = Interval<T>(slot.Interval);
-                    item.SetProperty("receipt", Exact(slot.Receipt.Value)); item.SetProperty("sequence", Exact(slot.Sequence.Value)); slots.Push(item); }
-                value.SetProperty("slots", slots);
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case ClockReplyRejectedDiagnostic record:
-            {
-                value.SetProperty("role", WorkshopObservationProjection.EnumValue(record.Role));
-                value.SetProperty("count", Exact(record.Count));
-                value.SetProperty("length", record.Length);
-                value.SetProperty("received", Exact(record.Received.Value));
-                value.SetProperty("detail", record.Detail);
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case ClockLateRenewalDiagnostic record:
-            {
-                value.SetProperty("role", WorkshopObservationProjection.EnumValue(record.Role));
-                value.SetProperty("count", Exact(record.Count));
-                value.SetProperty("lapseAge", Exact(record.LapseAge));
-                value.SetProperty("exchanges", record.Exchanges);
-                value.SetProperty("renewedAt", Exact(record.RenewedAt.Value));
-                value.SetProperty("displayEpoch", Exact(record.DisplayEpoch));
-                using var retained = Interval<T>(record.Retained); value.SetProperty("retained", retained);
-                using var fresh = Interval<T>(record.Fresh); value.SetProperty("fresh", fresh);
-                if (record.Derivation is { } derivation) value.SetProperty("derivation", derivation.Value);
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case ClockWideOffsetDiagnostic record:
-            {
-                value.SetProperty("offset", Exact(record.Offset));
-                value.SetProperty("admittedLower", Exact(record.AdmittedLower));
-                value.SetProperty("admittedUpper", Exact(record.AdmittedUpper));
-                value.SetProperty("declaredUncertainty", Exact(record.DeclaredUncertainty));
-                value.SetProperty("count", Exact(record.Count));
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case ClockDerivationDiagnostic record:
-            {
-                value.SetProperty("report", WorkshopObservationProjection.EnumValue(record.Report));
-                value.SetProperty("outcome", WorkshopObservationProjection.EnumValue(record.Outcome));
-                value.SetProperty("epoch", record.Epoch.Value);
-                value.SetProperty("correction", Exact(record.Correction));
-                value.SetProperty("qualified", record.Qualified);
-                value.SetProperty("startupAttempts", record.StartupAttempts);
-                value.SetProperty("startupOutliers", record.StartupOutliers);
-                value.SetProperty("startupInconclusive", record.StartupInconclusive);
-                value.SetProperty("startupUnanswered", record.StartupUnanswered);
-                value.SetProperty("checks", Exact(record.Checks));
-                value.SetProperty("slews", Exact(record.Slews));
-                value.SetProperty("rederivations", Exact(record.Rederivations));
-                value.SetProperty("inconclusive", Exact(record.Inconclusive));
-                value.SetProperty("unanswered", Exact(record.Unanswered));
-                value.SetProperty("checkRetries", Exact(record.CheckRetries));
-                if (record.PendingCorrection is { } pendingCorrection) value.SetProperty("pendingCorrection", Exact(pendingCorrection));
-                if (record.AdmittedLower is { } admittedLower) value.SetProperty("admittedLower", Exact(admittedLower));
-                if (record.AdmittedUpper is { } admittedUpper) value.SetProperty("admittedUpper", Exact(admittedUpper));
-
-                if (record.Exchange is { } exchange) { using var item = T.Object(); item.SetProperty("before", Exact(exchange.Before));
-                    item.SetProperty("master", Exact(exchange.Master)); item.SetProperty("after", Exact(exchange.After));
-                    item.SetProperty("epoch", exchange.Epoch.Value); value.SetProperty("exchange", item); }
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case AnimationDeferralDiagnostic record:
-            {
-                value.SetProperty("cause", WorkshopObservationProjection.EnumValue(record.Cause));
-                value.SetProperty("count", Exact(record.Count));
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case WorkshopDebtDiagnostic record:
-            {
-                value.SetProperty("tick", Exact(record.CommittedTick.Value));
-                value.SetProperty("reason", WorkshopObservationProjection.EnumValue(record.Reason));
-                value.SetProperty("oldestUnreceipted", Exact(record.OldestUnreceipted.Value));
-                value.SetProperty("ageMilliseconds", Exact(record.AgeMilliseconds));
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case WorkshopTickFailureDiagnostic record:
-            {
-                value.SetProperty("outcome", WorkshopObservationProjection.EnumValue(record.Result.Outcome));
-                value.SetProperty("reason", WorkshopObservationProjection.EnumValue(record.Result.Reason));
-                value.SetProperty("fault", WorkshopObservationProjection.EnumValue(record.Fault));
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case WorkshopTransferDiagnostic record:
-            {
-                using var response = Response<T>(record.Response); value.SetProperty("response", response);
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case WorkshopCaptureDiagnostic record:
-            {
-                value.SetProperty("kind", WorkshopObservationProjection.EnumValue(record.Kind));
-                value.SetProperty("stage", WorkshopObservationProjection.EnumValue(record.Stage));
-                value.SetProperty("identity", Exact(record.Identity));
-                value.SetProperty("epoch", Exact(record.Epoch.Value));
-                value.SetProperty("cadence", WorkshopObservationProjection.EnumValue(record.Profile.Cadence));
-                value.SetProperty("physical", WorkshopObservationProjection.EnumValue(record.Profile.Physical));
-                value.SetProperty("revision", Exact(record.Profile.Revision.Value));
-                value.SetProperty("end", WorkshopObservationProjection.EnumValue(record.End));
-                value.SetProperty("status", WorkshopObservationProjection.EnumValue(record.Status));
-                value.SetProperty("expectedCount", record.ExpectedCount);
-                value.SetProperty("count", record.Count);
-                value.SetProperty("chunk", record.Chunk);
-                value.SetProperty("chunks", record.Chunks);
-                value.SetProperty("first", record.First);
-
-                using var samples = T.Array();
-                foreach (var sample in record.Samples) { using var item = TraceSample<T>(sample); samples.Push(item); }
-                value.SetProperty("samples", samples);
-                using var durations = Durations<T>(record.Milliseconds); value.SetProperty("durations", durations);
-                if (record.Scene is { } scene)
-                {
-                    if (authored is not { } original || original.Scene != scene)
-                        throw new ArgumentException("Capture has no original authored scene association.");
-                    using var item = Construction<T>(original); value.SetProperty("construction", item);
-                }
+                ProjectDiagnostic(ref value, record, authored);
                 break;
-            }
             case WorkshopClockSampleDiagnostic record:
-            {
-                using var probe = Probe<T>(record.Probe); value.SetProperty("probe", probe);
-                if (record.Reply is { } reply) { using var item = Reply<T>(reply); value.SetProperty("reply", item); }
-                using var offset = Interval<T>(record.Offset); value.SetProperty("offset", offset);
-                value.SetProperty("outcome", WorkshopObservationProjection.EnumValue(record.Outcome)); value.SetProperty("received", Exact(record.Received.Value));
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case WorkshopAnimationDiagnostic record:
-            {
-                var sample = record.Sample;
-                value.SetProperty("cadence", Exact(record.Cadence.Value)); value.SetProperty("kind", WorkshopObservationProjection.EnumValue(record.Kind));
-                value.SetProperty("target", Exact(sample.Target.Value)); value.SetProperty("world", Exact(sample.World.Value));
-                value.SetProperty("generation", Exact(sample.Generation)); value.SetProperty("pulse", Exact(sample.Pulse.Value));
-                value.SetProperty("appliedAt", Exact(sample.AppliedAt.Value)); value.SetProperty("value", sample.Value);
-                value.SetProperty("ordinal", sample.EventOrdinal); value.SetProperty("eventPhase", sample.EventPhase);
-                value.SetProperty("property", WorkshopObservationProjection.EnumValue(sample.Property));
+                ProjectDiagnostic(ref value, record);
                 break;
-            }
             case WorkshopPresentationDiagnostic record:
-            {
-                var sample = record.Sample; var scene = record.Scene; var evidence = sample.Evidence;
-                value.SetProperty("cadence", Exact(record.Cadence.Value)); value.SetProperty("pulse", Exact(record.Pulse.Value));
-                value.SetProperty("selected", record.Selected); value.SetProperty("appliedAt", Exact(record.AppliedAt.Value));
-                value.SetProperty("quality", WorkshopObservationProjection.EnumValue(sample.Quality)); value.SetProperty("frame", Exact(scene.Frame));
-                value.SetProperty("positionWrites", scene.PositionWrites); value.SetProperty("partCount", scene.PartCount);
-                value.SetProperty("simulationOrdinal", Exact(scene.SimulationTime.Ordinal)); value.SetProperty("simulationPhase", scene.SimulationTime.Phase);
-                value.SetProperty("sampleOrdinal", Exact(sample.SimulationTime.Time.Ordinal)); value.SetProperty("samplePhase", sample.SimulationTime.Time.Phase);
-                if (sample.DisplayWall is { } wall) value.SetProperty("displayWall", Exact(wall.Value));
-                value.SetProperty("selectedAt", Exact(evidence.SelectedAt.Value)); value.SetProperty("clockEpoch", Exact(evidence.ClockEpoch));
-                value.SetProperty("displayEpoch", Exact(evidence.DisplayEpoch)); value.SetProperty("world", Exact(evidence.WorldEpoch.Value));
-                using var position = Vector<T>(scene.X, scene.Y, scene.Z); value.SetProperty("position", position);
-                using var rotation = Vector<T>(scene.Qx, scene.Qy, scene.Qz); rotation.SetProperty("w", scene.Qw); value.SetProperty("rotation", rotation);
-                if (evidence.Latest is { } latest) { using var endpoint = Endpoint<T>(latest); value.SetProperty("latest", endpoint); }
-                if (evidence.Before is { } before) { using var endpoint = Endpoint<T>(before); value.SetProperty("before", endpoint); }
-                if (evidence.After is { } after) { using var endpoint = Endpoint<T>(after); value.SetProperty("after", endpoint); }
-                using var bodies = T.Array();
-                for (var i = 0; i < sample.Bodies.Count; i++)
-                {
-                    var body = sample.Bodies[i]; using var item = T.Object(); item.SetProperty("id", Exact(body.Id.Value));
-                    using var cell = Cell<T>(body.Cell); item.SetProperty("cell", cell);
-                    using var local = Vector<T>(body.Local.X, body.Local.Y, body.Local.Z); item.SetProperty("local", local);
-                    using var orientation = Vector<T>(body.Rotation.X, body.Rotation.Y, body.Rotation.Z);
-                    orientation.SetProperty("w", body.Rotation.W); item.SetProperty("rotation", orientation); bodies.Push(item);
-                }
-                value.SetProperty("bodies", bodies); break;
-            }
+                ProjectDiagnostic(ref value, record);
+                break;
             default: throw new ArgumentException("Unsupported diagnostic payload.", nameof(source));
         }
         return value;

@@ -172,6 +172,47 @@ public static class SourceInventory
                 nullableContextOptions: inputs.Nullable, checkOverflow: inputs.Checked));
     }
 
+    private static Dictionary<ISymbol, (SyntaxNode Node, StorageForm Form)> CollectDeclarations((SyntaxTree Tree, CSharpCompilation Compilation)[] trees)
+    {
+        var declared = new Dictionary<ISymbol, (SyntaxNode Node, StorageForm Form)>(SymbolEqualityComparer.Default);
+        foreach (var (tree, ownerCompilation) in trees)
+        {
+            var model = ownerCompilation.GetSemanticModel(tree);
+            foreach (var node in tree.GetRoot().DescendantNodes())
+            {
+                ISymbol? symbol = null;
+                StorageForm form = default;
+                switch (node)
+                {
+                    case VariableDeclaratorSyntax variable when variable.Parent?.Parent is FieldDeclarationSyntax:
+                        symbol = model.GetDeclaredSymbol(variable); form = StorageForm.Field; break;
+                    case VariableDeclaratorSyntax variable when variable.Parent?.Parent is EventFieldDeclarationSyntax:
+                        symbol = model.GetDeclaredSymbol(variable); form = StorageForm.Event; break;
+                    case PropertyDeclarationSyntax property:
+                        symbol = model.GetDeclaredSymbol(property); form = StorageForm.Property; break;
+                    case IndexerDeclarationSyntax indexer:
+                        symbol = model.GetDeclaredSymbol(indexer); form = StorageForm.Property; break;
+                    case EventDeclarationSyntax eventDeclaration:
+                        symbol = model.GetDeclaredSymbol(eventDeclaration); form = StorageForm.Event; break;
+                    case ParameterSyntax parameter when parameter.Parent?.Parent is TypeDeclarationSyntax and not RecordDeclarationSyntax:
+                        symbol = model.GetDeclaredSymbol(parameter); form = StorageForm.PrimaryCapture; break;
+                }
+                if (symbol is IFieldSymbol { IsConst: true }) continue;
+                if (symbol is not null) declared.Add(symbol, (node, form));
+            }
+            foreach (var record in tree.GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>())
+            {
+                if (model.GetDeclaredSymbol(record) is not INamedTypeSymbol type || record.ParameterList is null) continue;
+                foreach (var parameter in record.ParameterList.Parameters)
+                {
+                    var property = type.GetMembers(parameter.Identifier.ValueText).OfType<IPropertySymbol>().SingleOrDefault();
+                    if (property is not null && !declared.ContainsKey(property)) declared.Add(property, (parameter, StorageForm.RecordProperty));
+                }
+            }
+        }
+        return declared;
+    }
+
     internal static OwnershipSnapshot Inspect(string root,
         (InspectionContext Kind, CSharpCompilation Compilation, ProjectInputs Inputs)[] contexts,
         SourcePath[] supplementalInputs)
@@ -220,42 +261,7 @@ public static class SourceInventory
             context.Inputs.BindingPaths.Select(path => new SourcePath(path)).ToArray(),
             context.Inputs.References.Select(path => new SourcePath(path)).ToArray()))
             .ToArray();
-        var declared = new Dictionary<ISymbol, (SyntaxNode Node, StorageForm Form)>(SymbolEqualityComparer.Default);
-        foreach (var (tree, ownerCompilation) in trees)
-        {
-            var model = ownerCompilation.GetSemanticModel(tree);
-            foreach (var node in tree.GetRoot().DescendantNodes())
-            {
-                ISymbol? symbol = null;
-                StorageForm form = default;
-                switch (node)
-                {
-                    case VariableDeclaratorSyntax variable when variable.Parent?.Parent is FieldDeclarationSyntax:
-                        symbol = model.GetDeclaredSymbol(variable); form = StorageForm.Field; break;
-                    case VariableDeclaratorSyntax variable when variable.Parent?.Parent is EventFieldDeclarationSyntax:
-                        symbol = model.GetDeclaredSymbol(variable); form = StorageForm.Event; break;
-                    case PropertyDeclarationSyntax property:
-                        symbol = model.GetDeclaredSymbol(property); form = StorageForm.Property; break;
-                    case IndexerDeclarationSyntax indexer:
-                        symbol = model.GetDeclaredSymbol(indexer); form = StorageForm.Property; break;
-                    case EventDeclarationSyntax eventDeclaration:
-                        symbol = model.GetDeclaredSymbol(eventDeclaration); form = StorageForm.Event; break;
-                    case ParameterSyntax parameter when parameter.Parent?.Parent is TypeDeclarationSyntax and not RecordDeclarationSyntax:
-                        symbol = model.GetDeclaredSymbol(parameter); form = StorageForm.PrimaryCapture; break;
-                }
-                if (symbol is IFieldSymbol { IsConst: true }) continue;
-                if (symbol is not null) declared.Add(symbol, (node, form));
-            }
-            foreach (var record in tree.GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>())
-            {
-                if (model.GetDeclaredSymbol(record) is not INamedTypeSymbol type || record.ParameterList is null) continue;
-                foreach (var parameter in record.ParameterList.Parameters)
-                {
-                    var property = type.GetMembers(parameter.Identifier.ValueText).OfType<IPropertySymbol>().SingleOrDefault();
-                    if (property is not null && !declared.ContainsKey(property)) declared.Add(property, (parameter, StorageForm.RecordProperty));
-                }
-            }
-        }
+        var declared = CollectDeclarations(trees);
         var uses = declared.Keys.ToDictionary(symbol => symbol, _ => new List<UseSite>(), SymbolEqualityComparer.Default);
         var names = declared.Keys.GroupBy(symbol => symbol.Name).ToDictionary(group => group.Key, group => group.ToArray(), StringComparer.Ordinal);
         var identities = declared.Keys.ToDictionary(Identity, symbol => symbol, StringComparer.Ordinal);

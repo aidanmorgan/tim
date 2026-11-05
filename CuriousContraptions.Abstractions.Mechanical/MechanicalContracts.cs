@@ -224,3 +224,31 @@ public interface ICompliantSurfaceElement : IMechanicalElement
 {
     CompliantSurfaceDescriptor CompliantSurface { get; }
 }
+
+public readonly record struct LocalDrivenSurfaceId(uint Value);
+public readonly record struct BodyColliderIndex(int Value);
+public enum BoxFace : byte { PositiveX, NegativeX, PositiveY, NegativeY, PositiveZ, NegativeZ }
+
+/// <summary>Uniform tangential travel on one explicit box face, coupled to an explicit revolute coordinate.</summary>
+public readonly record struct DrivenSurfaceDescriptor(
+    LocalDrivenSurfaceId Id, PackageBodyIndex Carrier, BodyColliderIndex Collider,
+    BoxFace Face, CoordinateReference Source, Vector3 LocalDirection, MechanicalValue TravelPerRadian);
+
+public interface IDrivenSurfaceElement : IMechanicalElement
+{
+    IReadOnlyList<DrivenSurfaceDescriptor> DrivenSurfaces { get; }
+}
+
+public static class BoxFaces
+{
+    public static Vector3 Normal(BoxFace face) => face switch
+    {
+        BoxFace.PositiveX => Vector3.UnitX,
+        BoxFace.NegativeX => -Vector3.UnitX,
+        BoxFace.PositiveY => Vector3.UnitY,
+        BoxFace.NegativeY => -Vector3.UnitY,
+        BoxFace.PositiveZ => Vector3.UnitZ,
+        BoxFace.NegativeZ => -Vector3.UnitZ,
+        _ => throw new ArgumentException("Undefined box face.")
+    };
+}

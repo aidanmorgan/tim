@@ -35,6 +35,7 @@ public sealed record BundleEntry(
 public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDeclaration MassFrame, PayloadPolicy Payload,
     IReadOnlyList<AnchorPointDescriptor> AnchorPoints, IReadOnlyList<PrismaticSliderDescriptor> Sliders,
     IReadOnlyList<RevoluteHingeDescriptor> Hinges, CompliantSurfaceDescriptor? CompliantSurface,
+    IReadOnlyList<DrivenSurfaceDescriptor> DrivenSurfaces,
     ResidenceCaptureDescriptor? Capture = null, ContactWorkDescriptor? ContactWork = null);
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
@@ -65,6 +66,7 @@ public static class BundleSchema
                     mechanical is ISliderElement slider ? slider.Sliders : [],
                     mechanical is IHingeElement hinge ? hinge.Hinges : [],
                     mechanical is ICompliantSurfaceElement compliant ? compliant.CompliantSurface : null,
+                    mechanical is IDrivenSurfaceElement driven ? driven.DrivenSurfaces : [],
                     mechanical is IResidenceCaptureElement capture ? capture.Capture : null,
                     mechanical is IContactWorkElement work ? work.ContactWork : null) : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.Supply : null) : null,
@@ -133,7 +135,7 @@ public static class BundleSchema
         typeof(ExactEnumConverter<CoordinateKind>),
         typeof(ExactEnumConverter<RopeAttachmentRole>),
         typeof(ExactEnumConverter<PortRole>), typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
-        typeof(ExactEnumConverter<RevoluteTravel>), typeof(ExactEnumConverter<TargetSelectorKind>),
+        typeof(ExactEnumConverter<BoxFace>), typeof(ExactEnumConverter<RevoluteTravel>), typeof(ExactEnumConverter<TargetSelectorKind>),
         typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>),typeof(ExactEnumConverter<TimerCompletionPolicy>),
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),
         typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>),

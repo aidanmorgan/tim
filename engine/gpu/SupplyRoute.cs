@@ -341,6 +341,7 @@ public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] S
     public RopeGuideDeclaration[] Guides { get; init; } = [];
     /// <summary>Every revolute drive's target speed (rad/s) for this step, in drive-table order: exactly one per driven revolute.</summary>
     public float[] DriveTarget { get; init; } = [];
+    public DrivenSurfaceDeclaration[] AdmissionDrivenSurfaces { get; init; } = [];
     public MechanicalTransmissionDeclaration[] AdmissionTransmissions { get; init; } = [];
     public static PhysicsTickInputs Admission { get; } = new([], []);
     public static PhysicsTickInputs Compose(CompiledSupplyGraph graph, WorkshopTickControls controls, Func<GpuBodyId, bool> contactClosed)

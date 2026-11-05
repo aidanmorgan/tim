@@ -50,6 +50,8 @@ internal sealed class ContactPatch
     public float RelaxedLambdaR1, RelaxedLambdaR2;
     public Vector3[] ProjectedSupport = new Vector3[64];
     public bool[] SupportMembers = new bool[64];
+    public SimDrivenSurface? SurfaceA, SurfaceB;
+    public readonly FrictionJacobian Jacobian = new();
     public readonly List<ContactPoint> Supporting = new(64);
 
     public void Reserve(int count)
@@ -65,6 +67,7 @@ internal sealed class ContactPatch
     public void Reset()
     {
         Points.Clear(); Supporting.Clear(); Key = null!;
+        SurfaceA = SurfaceB = null;
         AnchorA = AnchorB = Normal = T1 = T2 = Lambda = Roll1 = Roll2 = Vector3.Zero;
         Radius = RollingMass1 = RollingMass2 = LambdaR1 = LambdaR2 = 0f; Supported = false;
         RelaxedLambda = Vector3.Zero; RelaxedLambdaR1 = RelaxedLambdaR2 = 0f;
@@ -93,7 +96,7 @@ internal static class WorkshopFrictionSolver
         return y != 0 ? y : a.Z.CompareTo(b.Z);
     }
 
-    public static void Prepare(ContactManifold manifold, Dictionary<ContactFeatureSetKey, FrictionWarmStart> cache)
+    public static void Prepare(ContactManifold manifold, Dictionary<ContactFeatureSetKey, FrictionWarmStart> cache, IReadOnlyList<SimDrivenSurface> surfaces)
     {
         manifold.Patches.Clear();
         foreach (var patch in manifold.PatchPool) patch.Reset();
@@ -108,9 +111,16 @@ internal static class WorkshopFrictionSolver
         });
         foreach (var c in ordered)
         {
+            SimDrivenSurface? surfaceA = null, surfaceB = null;
+            foreach (var surface in surfaces)
+            {
+                if (surface.Owns(c.ColA, -c.Normal)) surfaceA = surface;
+                if (surface.Owns(c.ColB, c.Normal)) surfaceB = surface;
+            }
             ContactPatch? match = null;
             foreach (var patch in manifold.Patches)
             {
+                if (patch.SurfaceA != surfaceA || patch.SurfaceB != surfaceB) continue;
                 var compatible = true;
                 foreach (var member in patch.Points)
                     compatible &= PhysicalTolerance.CompatibleContactNormals(c.Normal, member.Normal,
@@ -123,6 +133,7 @@ internal static class WorkshopFrictionSolver
             {
                 if (manifold.PatchPool.Count == manifold.Patches.Count) manifold.PatchPool.Add(new ContactPatch());
                 match = manifold.PatchPool[manifold.Patches.Count];
+                match.SurfaceA = surfaceA; match.SurfaceB = surfaceB;
                 manifold.Patches.Add(match);
             }
             match.Points.Add(c);
@@ -187,7 +198,7 @@ internal static class WorkshopFrictionSolver
             squared += offset.LengthSquared();
         }
         var radius = MathF.Sqrt(squared / count);
-        if (p.Supported && p.AnchorA == anchorA && p.AnchorB == anchorB && p.Radius == radius) return;
+        if (p.Supported && p.AnchorA == anchorA && p.AnchorB == anchorB && p.Radius == radius && p.Jacobian.FramesUnchanged()) return;
         // The old wrench belongs to its old centre and radius. Remove it before
         // rebuilding the basis; no difference of coordinates spans two geometries.
         if (p.Lambda != Vector3.Zero) Apply(p, -p.Lambda);
@@ -202,16 +213,10 @@ internal static class WorkshopFrictionSolver
             p.AngularB[i] = Vector3.Cross(p.AnchorB, p.Linear[i]);
         }
         p.AngularA[2] = p.AngularB[2] = p.Radius * p.Normal;
+        p.Jacobian.Build(p);
         for (var i = 0; i < 3; i++)
             for (var j = i; j < 3; j++)
-            {
-                var k = 0f;
-                if (c.A.Motion == RigidMotionKind.Dynamic) k += c.A.InvMass * Vector3.Dot(p.Linear[i], p.Linear[j]) +
-                    WorkshopCollisionKernels.InverseInertiaCoupling(c.A, p.AngularA[i], p.AngularA[j]);
-                if (c.B.Motion == RigidMotionKind.Dynamic) k += c.B.InvMass * Vector3.Dot(p.Linear[i], p.Linear[j]) +
-                    WorkshopCollisionKernels.InverseInertiaCoupling(c.B, p.AngularB[i], p.AngularB[j]);
-                p.Mass[i * 3 + j] = p.Mass[j * 3 + i] = k;
-            }
+                p.Mass[i * 3 + j] = p.Mass[j * 3 + i] = p.Jacobian.Mass(i, j);
         Diagonalize(p);
     }
 
@@ -239,15 +244,7 @@ internal static class WorkshopFrictionSolver
             cache[p.Key] = new(p.Lambda.X * p.T1 + p.Lambda.Y * p.T2, p.Lambda.Z * p.Radius * p.Normal);
     }
 
-    private static void Apply(ContactPatch p, Vector3 delta)
-    {
-        var c = p.Points[0];
-        var force = delta.X * p.T1 + delta.Y * p.T2;
-        WorkshopCollisionKernels.ApplyImpulse(c.A, force, p.AnchorA);
-        WorkshopCollisionKernels.ApplyImpulse(c.B, -force, p.AnchorB);
-        Angular(c.A, delta.Z * p.Radius * p.Normal);
-        Angular(c.B, -delta.Z * p.Radius * p.Normal);
-    }
+    private static void Apply(ContactPatch p, Vector3 delta) => p.Jacobian.Apply(delta);
 
     private static void Angular(SimBody body, Vector3 torque)
     {
@@ -309,8 +306,7 @@ internal static class WorkshopFrictionSolver
             var c = p.Points[0];
             for (var i = 0; i < 3; i++)
             {
-                free[i] = Vector3.Dot(p.Linear[i], c.A.LinearVelocity - c.B.LinearVelocity) +
-                    Vector3.Dot(p.AngularA[i], c.A.AngularVelocity) - Vector3.Dot(p.AngularB[i], c.B.AngularVelocity) -
+                free[i] = p.Jacobian.Velocity(i) -
                     p.Mass[i * 3] * p.Lambda.X - p.Mass[i * 3 + 1] * p.Lambda.Y - p.Mass[i * 3 + 2] * p.Lambda.Z;
             }
             var q = p.Eigenvectors;

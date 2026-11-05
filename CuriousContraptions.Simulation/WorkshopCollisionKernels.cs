@@ -1680,10 +1680,6 @@ internal static partial class WorkshopCollisionKernels
         var rimRegimeA = tA > SideAlignment && tA < EdgeFaceAlignment;
         var rimRegimeB = tB > SideAlignment && tB < EdgeFaceAlignment;
         var first = outList.Count;
-        void Add(List<ContactPoint> list, Vector3 p, float gap, int feature)
-        {
-            if (gap <= margin) list.Add(CylinderContact(colA, colB, n, p, gap, feature, supportA, supportB));
-        }
 
         if (rimRegimeA || rimRegimeB)
         {
@@ -1692,9 +1688,9 @@ internal static partial class WorkshopCollisionKernels
             var p = exact ? (closest.OnA + closest.OnB) * 0.5f
                 : rimRegimeA && rimRegimeB ? (ra + rb) * 0.5f : rimRegimeA ? ra - separation * 0.5f * n : rb + separation * 0.5f * n;
             var detail = (Vector3.Dot(ra - pa, aa) >= 0f ? 0 : 1) | (Vector3.Dot(rb - pb, ab) >= 0f ? 0 : 2);
-            Add(outList, p, separation, Feature(CylinderFeature.Rim, detail));
+            AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, p, separation, Feature(CylinderFeature.Rim, detail));
         }
-        else if (tA >= EdgeFaceAlignment && tB >= EdgeFaceAlignment) DiscOnDisc();
+        else if (tA >= EdgeFaceAlignment && tB >= EdgeFaceAlignment) DiscOnDisc(colA, colB, n, margin, supportA, supportB, outList);
         else if (tA >= EdgeFaceAlignment) Chord(colA, colB, n, 0);
         else if (tB >= EdgeFaceAlignment) Chord(colB, colA, -n, 4);
         else if (MathF.Abs(Vector3.Dot(aa, ab)) >= LineAlignment)
@@ -1713,12 +1709,12 @@ internal static partial class WorkshopCollisionKernels
                 // surface curving away rather than a pairing along the pair normal (review F4).
                 var s0 = pa + lo * aa + u;
                 var g0 = SideDistance(Solid.Of(colB), s0, out var b0);
-                Add(outList, (s0 + b0) * 0.5f, g0, Feature(CylinderFeature.Side, 0));
+                AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, (s0 + b0) * 0.5f, g0, Feature(CylinderFeature.Side, 0));
                 if (hi - lo > 1e-6f)
                 {
                     var s1 = pa + hi * aa + u;
                     var g1 = SideDistance(Solid.Of(colB), s1, out var b1);
-                    Add(outList, (s1 + b1) * 0.5f, g1, Feature(CylinderFeature.Side, 1));
+                    AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, (s1 + b1) * 0.5f, g1, Feature(CylinderFeature.Side, 1));
                 }
             }
         }
@@ -1727,7 +1723,7 @@ internal static partial class WorkshopCollisionKernels
             var (ga, gaLength) = Generator(colA, -n);
             var (gb, gbLength) = Generator(colB, n);
             var (sa, sb) = ClosestPoints(ga, gaLength, gb, gbLength);
-            Add(outList, exact ? (closest.OnA + closest.OnB) * 0.5f : (sa + sb) * 0.5f, separation, Feature(CylinderFeature.Side, 2));
+            AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, exact ? (closest.OnA + closest.OnB) * 0.5f : (sa + sb) * 0.5f, separation, Feature(CylinderFeature.Side, 2));
             // Side emission rule (review F4): each facing-generator end within the margin joins as its own row, measured by its radial
             // signed gap to the other side with its own radial normal, so a skewed side's far end is a speculative row before it lands.
             SideEnd(ga, colB, true, 16);
@@ -1756,57 +1752,6 @@ internal static partial class WorkshopCollisionKernels
                 supportA, supportB));
         }
 
-        // A's facing cap is the reference disc; B's facing cap is measured along A's cap normal.
-        void DiscOnDisc()
-        {
-            var sA = Vector3.Dot(n, aa) > 0f ? -1f : 1f;
-            var capNA = sA * aa;
-            var ccA = pa + sA * colA.Hy * aa;
-            var sB = Vector3.Dot(n, ab) >= 0f ? 1f : -1f;
-            var capNB = sB * ab;
-            var ccB = pb + sB * colB.Hy * ab;
-            var denom = Vector3.Dot(capNA, capNB);
-            var capBits = (sA > 0f ? 0 : 1) | (sB > 0f ? 0 : 2);
-            var limitA = colA.Radius * (1f + InsideTolerance);
-            var limitB = colB.Radius * (1f + InsideTolerance);
-            var candidates = new List<ContactPoint>(20);
-            // Eight fixed samples of each rim, and each rim's point deepest toward the other cap.
-            for (var k = 0; k < 9; k++)
-            {
-                var rim = ccA + colA.Radius * (k < 8 ? RimDirection(colA, k) : RadialUnit(-capNB, aa, colA.U0));
-                var gap = Vector3.Dot(ccB - rim, capNB) / denom;
-                if (Radial(rim + gap * capNA - ccB, ab).LengthSquared() <= limitB * limitB)
-                    Add(candidates, rim + gap * 0.5f * capNA, gap, Feature(CylinderFeature.CapSample, (capBits << 4) | k));
-                var other = ccB + colB.Radius * (k < 8 ? RimDirection(colB, k) : RadialUnit(-capNA, ab, colB.U0));
-                if (Radial(other - ccA, aa).LengthSquared() <= limitA * limitA)
-                {
-                    var otherGap = Vector3.Dot(other - ccA, capNA);
-                    Add(candidates, other - otherGap * 0.5f * capNA, otherGap, Feature(CylinderFeature.PartnerSample, (capBits << 4) | k));
-                }
-            }
-            // The two rims' crossings, in A's cap plane (B's rim projected as a circle within the cap tolerance).
-            var cx = Vector3.Dot(ccB - ccA, colA.U0);
-            var cy = Vector3.Dot(ccB - ccA, colA.U2);
-            var d = MathF.Sqrt(cx * cx + cy * cy);
-            if (d > 1e-6f && d < colA.Radius + colB.Radius && d > MathF.Abs(colA.Radius - colB.Radius))
-            {
-                var along = (d * d + colA.Radius * colA.Radius - colB.Radius * colB.Radius) / (2f * d);
-                var across = MathF.Sqrt(MathF.Max(0f, colA.Radius * colA.Radius - along * along));
-                var ex = cx / d;
-                var ey = cy / d;
-                for (var root = 0; root < 2; root++)
-                {
-                    var sign = root == 0 ? 1f : -1f;
-                    var p = ccA + (along * ex - sign * across * ey) * colA.U0 + (along * ey + sign * across * ex) * colA.U2;
-                    var gap = Vector3.Dot(ccB - p, capNB) / denom;
-                    Add(candidates, p + gap * 0.5f * capNA, gap, Feature(CylinderFeature.RimCrossing, (capBits << 1) | root));
-                }
-            }
-            if (candidates.Count == 0) return;
-            ReduceManifold(candidates, n);
-            outList.AddRange(candidates);
-        }
-
         // The generator of the side cylinder facing the cap, clipped to the cap disc: at most two points.
         void Chord(SimCollider capCyl, SimCollider sideCyl, Vector3 towardCap, int detail)
         {
@@ -1821,14 +1766,75 @@ internal static partial class WorkshopCollisionKernels
             if (t0 > t1) return;
             var p0 = start + t0 * length;
             var g0 = Vector3.Dot(p0 - cc, capN);
-            Add(outList, p0 - g0 * 0.5f * capN, g0, Feature(CylinderFeature.Side, detail | (s > 0f ? 0 : 2)));
+            AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, p0 - g0 * 0.5f * capN, g0, Feature(CylinderFeature.Side, detail | (s > 0f ? 0 : 2)));
             if (t1 - t0 > 1e-6f)
             {
                 var p1 = start + t1 * length;
                 var g1 = Vector3.Dot(p1 - cc, capN);
-                Add(outList, p1 - g1 * 0.5f * capN, g1, Feature(CylinderFeature.Side, detail | 1 | (s > 0f ? 0 : 2)));
+                AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, p1 - g1 * 0.5f * capN, g1, Feature(CylinderFeature.Side, detail | 1 | (s > 0f ? 0 : 2)));
             }
         }
+    }
+
+    private static void AddCylinderContact(SimCollider colA, SimCollider colB, Vector3 normal, float margin,
+        ContactSupport supportA, ContactSupport supportB, List<ContactPoint> list, Vector3 point, float gap, int feature)
+    {
+        if (gap <= margin) list.Add(CylinderContact(colA, colB, normal, point, gap, feature, supportA, supportB));
+    }
+
+    // A's facing cap is the reference disc; B's facing cap is measured along A's cap normal.
+    private static void DiscOnDisc(SimCollider colA, SimCollider colB, Vector3 n, float margin,
+        ContactSupport supportA, ContactSupport supportB, List<ContactPoint> outList)
+    {
+        var aa = colA.U1; var ab = colB.U1;
+        var pa = colA.Position; var pb = colB.Position;
+
+        var sA = Vector3.Dot(n, aa) > 0f ? -1f : 1f;
+        var capNA = sA * aa;
+        var ccA = pa + sA * colA.Hy * aa;
+        var sB = Vector3.Dot(n, ab) >= 0f ? 1f : -1f;
+        var capNB = sB * ab;
+        var ccB = pb + sB * colB.Hy * ab;
+        var denom = Vector3.Dot(capNA, capNB);
+        var capBits = (sA > 0f ? 0 : 1) | (sB > 0f ? 0 : 2);
+        var limitA = colA.Radius * (1f + InsideTolerance);
+        var limitB = colB.Radius * (1f + InsideTolerance);
+        var candidates = new List<ContactPoint>(20);
+        // Eight fixed samples of each rim, and each rim's point deepest toward the other cap.
+        for (var k = 0; k < 9; k++)
+        {
+            var rim = ccA + colA.Radius * (k < 8 ? RimDirection(colA, k) : RadialUnit(-capNB, aa, colA.U0));
+            var gap = Vector3.Dot(ccB - rim, capNB) / denom;
+            if (Radial(rim + gap * capNA - ccB, ab).LengthSquared() <= limitB * limitB)
+                AddCylinderContact(colA, colB, n, margin, supportA, supportB, candidates, rim + gap * 0.5f * capNA, gap, Feature(CylinderFeature.CapSample, (capBits << 4) | k));
+            var other = ccB + colB.Radius * (k < 8 ? RimDirection(colB, k) : RadialUnit(-capNA, ab, colB.U0));
+            if (Radial(other - ccA, aa).LengthSquared() <= limitA * limitA)
+            {
+                var otherGap = Vector3.Dot(other - ccA, capNA);
+                AddCylinderContact(colA, colB, n, margin, supportA, supportB, candidates, other - otherGap * 0.5f * capNA, otherGap, Feature(CylinderFeature.PartnerSample, (capBits << 4) | k));
+            }
+        }
+        // The two rims' crossings, in A's cap plane (B's rim projected as a circle within the cap tolerance).
+        var cx = Vector3.Dot(ccB - ccA, colA.U0);
+        var cy = Vector3.Dot(ccB - ccA, colA.U2);
+        var d = MathF.Sqrt(cx * cx + cy * cy);
+        if (d > 1e-6f && d < colA.Radius + colB.Radius && d > MathF.Abs(colA.Radius - colB.Radius))
+        {
+            var along = (d * d + colA.Radius * colA.Radius - colB.Radius * colB.Radius) / (2f * d);
+            var across = MathF.Sqrt(MathF.Max(0f, colA.Radius * colA.Radius - along * along));
+            var ex = cx / d;
+            var ey = cy / d;
+            for (var root = 0; root < 2; root++)
+            {
+                var sign = root == 0 ? 1f : -1f;
+                var p = ccA + (along * ex - sign * across * ey) * colA.U0 + (along * ey + sign * across * ex) * colA.U2;
+                var gap = Vector3.Dot(ccB - p, capNB) / denom;
+                AddCylinderContact(colA, colB, n, margin, supportA, supportB, candidates, p + gap * 0.5f * capNA, gap, Feature(CylinderFeature.RimCrossing, (capBits << 1) | root));
+            }
+        }
+        if (candidates.Count == 0) return;
+        ReduceManifold(candidates, n);
+        outList.AddRange(candidates);
     }
 
     /// <summary>A sphere's speculative contact (positive gap, closing within two substeps h: the solve stops what this substep

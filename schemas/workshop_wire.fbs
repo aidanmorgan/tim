@@ -750,6 +750,16 @@ table MechanicalTransmissionRecord {
     ratio: float;
 }
 
+table DrivenSurfaceRecord {
+    id: ulong;
+    carrier: ulong;
+    collider: ulong;
+    face: ubyte;
+    source: ulong;
+    direction: Vec3f (required);
+    travel_per_radian: float;
+}
+
 table CompiledSceneRecord {
     identity: ulong;
     revision: ulong;
@@ -786,6 +796,7 @@ table CompiledSceneRecord {
     revolute_drives: [CapabilityRevoluteDriveDeclarationRecord];
     rope_guides: [CapabilityRopeGuideRecord];
     transmissions: [MechanicalTransmissionRecord];
+    driven_surfaces: [DrivenSurfaceRecord] (required);
 }
 
 root_type WorkshopResponse;

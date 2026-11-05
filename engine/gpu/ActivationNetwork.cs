@@ -332,6 +332,39 @@ public sealed class ActivationNetwork
         var count = 0;
         var deferred = stage == EvaluationStage.Scheduled ? new List<ActivationOccurrence>(32) : null;
         foreach (var occurrence in scheduledOccurrences) Push(ref count, occurrence);
+        QueueContacts(events, values, end, ref count);
+        QueueOrientations(orientations, values, end, stage, ref count);
+        QueuePassages(passages, values, end, ref count);
+        if (stage == EvaluationStage.Physical) CommitContactLoads(values, rows, contactLoads, boundary, end);
+        QueueTimedOccurrences(timers, rows, electrical, boundary, stage, ref count);
+        RouteOccurrences(values, rows, timers, latchRequests, latchSetBy, boundary, stage, scheduledOccurrences, deferred, ref count);
+        // Every request routed this tick resolves at the boundary: Reset dominates, otherwise Set, otherwise memory holds.
+        for (var i = 0; i < _nodes.Length; i++)
+        {
+            if (_nodes[i].Kind != ActivationNodeKind.StateLatch) continue;
+            var current = values[i].Phase == ActivationPhase.Latched ? SimulationLatchPhase.On : SimulationLatchPhase.Off;
+            var next = (latchRequests[i] & StateLatchRequest.Reset) != 0 ? SimulationLatchPhase.Off :
+                (latchRequests[i] & StateLatchRequest.Set) != 0 ? SimulationLatchPhase.On : current;
+            if (next == current) continue;
+            values[i] = next == SimulationLatchPhase.On ? ActivationLatch.From(_nodes[i], latchSetBy[i]) : ActivationLatch.Clear(_nodes[i]);
+            _transitions.Add(new(ActivationTransitionKind.LevelChanged, _nodes[i].Id, values[i].Phase == ActivationPhase.Latched ? latchSetBy[i] : default,
+                0, values[i].Phase));
+        }
+        // A level ActivationOut (latch memory, a held contact load): each level indicator mirrors its source's settled value on the same boundary.
+        foreach (var edge in _edges)
+        {
+            var source = Slot(edge.Source);
+            if (!IsLevelSource(_nodes[source].Kind)) continue;
+            var target = Slot(edge.Target);            values[target] = values[source].Phase == ActivationPhase.Latched
+                ? ActivationLatch.From(_nodes[target], values[source].Occurrence) : ActivationLatch.Clear(_nodes[target]);
+        }
+        deferredOccurrences = deferred?.ToArray() ?? [];
+        return new(new(values[.._nodes.Length]), new(timers[.._timers.Length]), new(rows[.._memoryNodes.Length]),
+            new(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(_transitions)));
+    }
+
+    private void QueueContacts(ReadOnlySpan<ContactTriggerRead> events, Span<ActivationLatch> values, ActivationTime end, ref int count)
+    {
         for (var i = 0; i < events.Length; i++)
         {
             var item = events[i]; var slot = -1;
@@ -356,6 +389,10 @@ public sealed class ActivationNetwork
             }
             Push(ref count, occurrence);
         }
+    }
+
+    private void QueueOrientations(ReadOnlySpan<OrientationSensorRead> orientations, Span<ActivationLatch> values, ActivationTime end, EvaluationStage stage, ref int count)
+    {
         // Every orientation source must be read each tick: a missing read would silently leave its owner unlatched.
         for (var i = 0; i < _nodes.Length; i++)
         {
@@ -391,6 +428,10 @@ public sealed class ActivationNetwork
             }
             Push(ref count, occurrence);
         }
+    }
+
+    private void QueuePassages(ReadOnlySpan<PassageSensorRead> passages, Span<ActivationLatch> values, ActivationTime end, ref int count)
+    {
         for (var i = 0; i < passages.Length; i++)
         {
             var item = passages[i]; var slot = -1;
@@ -415,7 +456,10 @@ public sealed class ActivationNetwork
             }
             Push(ref count, occurrence);
         }
-        if (stage == EvaluationStage.Physical) CommitContactLoads(values, rows, contactLoads, boundary, end);
+    }
+
+    private void QueueTimedOccurrences(Span<ActivationTimerState> timers, Span<ActivationMemory> rows, PhysicsElectricalRead electrical, SimulationTick boundary, EvaluationStage stage, ref int count)
+    {
         for (var pass = 0; pass < 2; pass++)
             for (var i = 0; i < _timers.Length; i++)
             {
@@ -464,6 +508,10 @@ public sealed class ActivationNetwork
                 Push(ref count, occurrence);
             }
         }
+    }
+
+    private void RouteOccurrences(Span<ActivationLatch> values, Span<ActivationMemory> rows, Span<ActivationTimerState> timers, Span<StateLatchRequest> latchRequests, Span<ActivationOccurrence> latchSetBy, SimulationTick boundary, EvaluationStage stage, ReadOnlySpan<ActivationOccurrence> scheduledOccurrences, List<ActivationOccurrence>? deferred, ref int count)
+    {
         // Every source emits once. At most one physical event and one timer event per node;
         // positive integer durations prevent instantaneous timer cycles.
         while (count != 0)
@@ -541,29 +589,6 @@ public sealed class ActivationNetwork
                 }
             }
         }
-        // Every request routed this tick resolves at the boundary: Reset dominates, otherwise Set, otherwise memory holds.
-        for (var i = 0; i < _nodes.Length; i++)
-        {
-            if (_nodes[i].Kind != ActivationNodeKind.StateLatch) continue;
-            var current = values[i].Phase == ActivationPhase.Latched ? SimulationLatchPhase.On : SimulationLatchPhase.Off;
-            var next = (latchRequests[i] & StateLatchRequest.Reset) != 0 ? SimulationLatchPhase.Off :
-                (latchRequests[i] & StateLatchRequest.Set) != 0 ? SimulationLatchPhase.On : current;
-            if (next == current) continue;
-            values[i] = next == SimulationLatchPhase.On ? ActivationLatch.From(_nodes[i], latchSetBy[i]) : ActivationLatch.Clear(_nodes[i]);
-            _transitions.Add(new(ActivationTransitionKind.LevelChanged, _nodes[i].Id, values[i].Phase == ActivationPhase.Latched ? latchSetBy[i] : default,
-                0, values[i].Phase));
-        }
-        // A level ActivationOut (latch memory, a held contact load): each level indicator mirrors its source's settled value on the same boundary.
-        foreach (var edge in _edges)
-        {
-            var source = Slot(edge.Source);
-            if (!IsLevelSource(_nodes[source].Kind)) continue;
-            var target = Slot(edge.Target);            values[target] = values[source].Phase == ActivationPhase.Latched
-                ? ActivationLatch.From(_nodes[target], values[source].Occurrence) : ActivationLatch.Clear(_nodes[target]);
-        }
-        deferredOccurrences = deferred?.ToArray() ?? [];
-        return new(new(values[.._nodes.Length]), new(timers[.._timers.Length]), new(rows[.._memoryNodes.Length]),
-            new(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(_transitions)));
     }
 
     /// <summary>The level sources: a State Latch's memory and a contact-load row's held level. Each drives level indicators only.</summary>

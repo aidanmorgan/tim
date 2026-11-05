@@ -121,6 +121,16 @@ Every existing puzzle element is converted forward to its `elements/<Name>/` pac
 2. **Strict Zero Backwards Compatibility:** Never create backwards-compatibility shims, wrappers, adapters, parallel loaders or migrations. Structurally invalid input is rejected atomically. Git history is the permanent archive.
 3. **Status:** the [isolation authority's Current status](architecture/element-package-isolation.md#current-status) lists every remaining violation with its owning story.
 
+## Driven contact surfaces
+
+A mechanical declaration may supply an empty or demand-sized collection of driven surfaces. Every row names a unique local surface ID, a package body, an index in that body's collider collection, one box-face enum, an explicit revolute coordinate, a carrier-local unit tangent and signed travel in metres per radian. Collider rotation transforms the face normal; the tangent lies in that face. One writer owns each collider face. Unsupported shape/kind, unresolved or conflicting identity, nonfinite/zero travel and run-controlled travel parameters are refused before installation. Build-only travel parameters use the metre-per-radian unit and an entirely nonzero admitted range.
+
+The current compiled wire always carries the surface collection, including when empty. Admission resolves all carrier/collider/source ownership atomically and refuses coefficients whose coupled physical-wrench arithmetic cannot fit the existing f32 geometry/inertia domain. Run and Reset install the same explicit bindings; saved construction restores them through the current declaration compiler.
+
+For each contacting driven side, physical added velocity is `g * qdot * direction`, where `qdot` uses both source bodies and the source joint's actual frame. Exact collider and planar face ownership is established before friction grouping. A load spanning ordinary and driven geometry retains separate friction patches. Both driven sides contribute to one relative-slip law. Linear/angular Jacobian contributions are summed by actual body before velocity, effective mass and impulse application, including shared-body cross terms. The same reciprocal law brakes or back-drives finite source inertia. Cached rows are rebuilt when their body frames change; construction/Reset retire their lifetime. This introduces no package identity branch, copied-speed actuator or independent solver.
+
+Native proof and deferred browser qualification are recorded in [9A.46f](../_bmad-output/implementation-artifacts/spec-9a-46f-driven-surface-bindings.md). Powered-source actual-demand debit retains its separately named delivery owner.
+
 ## Stable identities and construction
 
 A construction owns a nonzero 128-bit DocumentId and monotonically allocated nonzero U64 identities. Typed entity, body, collider, joint, connection, capability, observable, target and goal IDs share the document allocator; deleted values are never reissued. Allocation is transactional and exhaustion rejects. A failed unpublished candidate restores the allocator exactly, with no escaped ID.

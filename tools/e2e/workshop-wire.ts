@@ -7683,6 +7683,101 @@ static createMechanicalTransmissionRecord(builder:flatbuffers.Builder, id:bigint
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export class DrivenSurfaceRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):DrivenSurfaceRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsDrivenSurfaceRecord(bb:flatbuffers.ByteBuffer, obj?:DrivenSurfaceRecord):DrivenSurfaceRecord {
+  return (obj || new DrivenSurfaceRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsDrivenSurfaceRecord(bb:flatbuffers.ByteBuffer, obj?:DrivenSurfaceRecord):DrivenSurfaceRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new DrivenSurfaceRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+carrier():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+collider():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+face():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+source():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+direction(obj?:Vec3f):Vec3f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+travelPerRadian():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startDrivenSurfaceRecord(builder:flatbuffers.Builder) {
+  builder.startObject(7);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addCarrier(builder:flatbuffers.Builder, carrier:bigint) {
+  builder.addFieldInt64(1, carrier, BigInt('0'));
+}
+
+static addCollider(builder:flatbuffers.Builder, collider:bigint) {
+  builder.addFieldInt64(2, collider, BigInt('0'));
+}
+
+static addFace(builder:flatbuffers.Builder, face:number) {
+  builder.addFieldInt8(3, face, 0);
+}
+
+static addSource(builder:flatbuffers.Builder, source:bigint) {
+  builder.addFieldInt64(4, source, BigInt('0'));
+}
+
+static addDirection(builder:flatbuffers.Builder, directionOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(5, directionOffset, 0);
+}
+
+static addTravelPerRadian(builder:flatbuffers.Builder, travelPerRadian:number) {
+  builder.addFieldFloat32(6, travelPerRadian, 0.0);
+}
+
+static endDrivenSurfaceRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 14) // direction
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 export class CompiledSceneRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -8016,8 +8111,18 @@ transmissionsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+drivenSurfaces(index: number, obj?:DrivenSurfaceRecord):DrivenSurfaceRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 74);
+  return offset ? (obj || new DrivenSurfaceRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+drivenSurfacesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 74);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(35);
+  builder.startObject(36);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -8488,9 +8593,26 @@ static startTransmissionsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
+static addDrivenSurfaces(builder:flatbuffers.Builder, drivenSurfacesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(35, drivenSurfacesOffset, 0);
+}
+
+static createDrivenSurfacesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startDrivenSurfacesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 8) // settings
+  builder.requiredField(offset, 74) // driven_surfaces
   return offset;
 }
 

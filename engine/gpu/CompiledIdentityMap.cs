@@ -14,7 +14,7 @@ public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArr
     ImmutableArray<CompiledSliderIdentities> Sliders, GpuContactTriggerId Trigger, GpuOrientationSensorId Orientation,
     GpuContactLoadSensorId ContactLoad, ElectricalSourceId Source, GpuContactWorkId Work, GpuPassageSensorId Passage,
     CompiledCaptureIdentities Capture, ImmutableArray<CompiledHingeIdentities> Hinges,
-    CompliantSurfaceId CompliantSurface);
+    CompliantSurfaceId CompliantSurface, ImmutableArray<DrivenSurfaceId> DrivenSurfaces);
 
 /// <summary>One immutable scene-sized allocation shared by every consumer of an authored instance collection.</summary>
 public sealed class CompiledIdentityMap
@@ -91,8 +91,10 @@ public sealed class CompiledIdentityMap
             var capture = entry.Mechanical?.Capture is not null
                 ? new CompiledCaptureIdentities(new(Allocate()),new(Allocate())) : default;
             var compliant = entry.Mechanical?.CompliantSurface is not null ? new CompliantSurfaceId(Allocate()) : default;
+            var surfaces = ImmutableArray.CreateBuilder<DrivenSurfaceId>();
+            foreach (var surface in entry.Mechanical?.DrivenSurfaces ?? []) surfaces.Add(new(Allocate()));
             parts.Add(instance.Id, new(material, colliders, sliders.ToImmutable(), trigger, orientation, load, source, work,
-                passage, capture, hinges.ToImmutable(), compliant));
+                passage, capture, hinges.ToImmutable(), compliant, surfaces.ToImmutable()));
         }
         _parts = parts.ToImmutable(); _owners = owners.ToImmutable(); NextIdentity = next;
     }

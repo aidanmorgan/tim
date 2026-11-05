@@ -92,6 +92,7 @@ public static class BundleValidator
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
+            errors.AddRange(DrivenSurfaceValidation.Validate(entry));
             Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Signal, entry.Events, childBodies);
             // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
             var kinds = new HashSet<SimulationEventKind>(4);
@@ -844,6 +845,26 @@ public static class BundleValidator
                     (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) +
                     (signal.PulseCount is null ? 0 : 1) + (signal.Memory is null ? 0 : 1) > 1)
                 OutOfRange("Capability");
+            ValidateSignalPulseCount(signal, parameters, ports, mechanical, electrical, colliders);
+            ValidateSignalMemory(signal, ports, mechanical, electrical, colliders);
+            ValidateSignalOscillator(signal, parameters, ports, mechanical, electrical, colliders);
+            ValidateSignalContactLoad(signal, parameters, ports, mechanical, colliders);
+            ValidateSignalOrientation(signal, ports, mechanical);
+            ValidateSignalIndicator(signal, ports);
+            ValidateSignalPassage(signal, ports, mechanical);
+            for (var i = 0; i < signal.Triggers.Count; i++)
+            {
+                var trigger = signal.Triggers[i];
+                Defined($"Triggers[{i}].Mode", trigger.Mode);
+                Finite($"Triggers[{i}].Threshold", trigger.Threshold);
+                Finite($"Triggers[{i}].PulseDurationSeconds", trigger.PulseDurationSeconds);
+            }
+            ValidateSignalContact(signal, parameters, ports);
+            ValidateSignalTimer(signal, parameters, ports);
+        }
+
+        private void ValidateSignalPulseCount(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
+        {
             if (signal.PulseCount is { } count)
             {
                 // The target is a declared WholeNumber parameter without a unit whose admitted range lies inside the network's [1, 9].
@@ -860,6 +881,10 @@ public static class BundleValidator
                 if ((mechanical is { } frame && (frame.KinematicMode == KinematicMode.Dynamic || frame.Sliders.Count != 0 || frame.Hinges.Count != 0)) || colliders.Count == 0)
                     OutOfRange("PulseCount.Body");
             }
+        }
+
+        private void ValidateSignalMemory(SignalPayload signal, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
+        {
             if (signal.Memory is { } memory)
             {
                 // Set and Reset are the two distinct Pulse inputs the shared memory law reads (SetIn turns it On, ResetIn Off).
@@ -878,6 +903,10 @@ public static class BundleValidator
                 if ((mechanical is { } frame && (frame.KinematicMode == KinematicMode.Dynamic || frame.Sliders.Count != 0 || frame.Hinges.Count != 0)) || colliders.Count == 0)
                     OutOfRange("Memory.Body");
             }
+        }
+
+        private void ValidateSignalOscillator(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
+        {
             if (signal.Oscillator is { } oscillator)
             {
                 // The interval is a declared Real second parameter with a finite positive admitted minimum (never a zero-tick interval).
@@ -896,6 +925,10 @@ public static class BundleValidator
                 if ((mechanical is { } frame && (frame.KinematicMode != KinematicMode.Static || frame.Sliders.Count != 0 || frame.Hinges.Count != 0)) || colliders.Count == 0)
                     OutOfRange("Oscillator.Body");
             }
+        }
+
+        private void ValidateSignalContactLoad(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical, IReadOnlyList<ColliderDescriptor> colliders)
+        {
             if (signal.ContactLoad is { } load)
             {
                 // The minimum mass is a declared Real kilogram parameter with a positive admitted minimum.
@@ -929,6 +962,10 @@ public static class BundleValidator
                 if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
                     OutOfRange("ContactLoad.Ports");
             }
+        }
+
+        private void ValidateSignalOrientation(SignalPayload signal, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical)
+        {
             if (signal.Orientation is { } orientation)
             {
                 // The compiled half-angle cosine admits 4° to 179° (OrientationThreshold.Degrees).
@@ -940,6 +977,10 @@ public static class BundleValidator
                 if (mechanical?.KinematicMode != KinematicMode.Dynamic)
                     OutOfRange("Orientation.Body");
             }
+        }
+
+        private void ValidateSignalIndicator(SignalPayload signal, IReadOnlyList<PortDescriptor> ports)
+        {
             if (signal.Indicator is { } indicator)
             {
                 if (string.IsNullOrWhiteSpace(indicator.Input.Value) ||
@@ -947,6 +988,10 @@ public static class BundleValidator
                         port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Level))
                     OutOfRange("Indicator.Input");
             }
+        }
+
+        private void ValidateSignalPassage(SignalPayload signal, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical)
+        {
             if (signal.Passage is { } passage)
             {
                 if (Finite("Passage.ApertureRadius", passage.ApertureRadius) && !(passage.ApertureRadius >= .01f && passage.ApertureRadius <= 10f))
@@ -958,13 +1003,10 @@ public static class BundleValidator
                 if (mechanical?.KinematicMode != KinematicMode.Static)
                     OutOfRange("Passage.Frame");
             }
-            for (var i = 0; i < signal.Triggers.Count; i++)
-            {
-                var trigger = signal.Triggers[i];
-                Defined($"Triggers[{i}].Mode", trigger.Mode);
-                Finite($"Triggers[{i}].Threshold", trigger.Threshold);
-                Finite($"Triggers[{i}].PulseDurationSeconds", trigger.PulseDurationSeconds);
-            }
+        }
+
+        private void ValidateSignalContact(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
+        {
             if (signal.Contact is { } contact)
             {
                 Real("Contact.ThresholdParameter", contact.ThresholdParameter, parameters);
@@ -976,6 +1018,10 @@ public static class BundleValidator
                     OutOfRange("Contact.Ownership");
                 ValidateTargetSelector("Contact.Target", contact.Target);
             }
+        }
+
+        private void ValidateSignalTimer(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
+        {
             if (signal.Timer is { } timer)
             {
                 Real("Timer.DurationParameter", timer.DurationParameter, parameters);

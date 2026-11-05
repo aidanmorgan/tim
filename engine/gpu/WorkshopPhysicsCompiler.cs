@@ -45,27 +45,69 @@ public static class WorkshopPhysicsCompiler
         return (pB, rB);
     }
 
+    public static PhysicsSceneDeclaration Compile(WorkshopConstruction construction, PhysicsDocumentId document) =>
+        new Compilation(construction, document).Build();
 
-    public static PhysicsSceneDeclaration Compile(WorkshopConstruction construction, PhysicsDocumentId document)
+    private sealed class Compilation
     {
-        construction.Validate();
-        var identities = construction.Instances.Identities;
-        var bodies = new List<RigidBodyDeclaration>(16);
-        var colliders = new List<ColliderDeclaration>(32);
-        var materials = new List<ContactMaterialDeclaration>(32);
-        var sensors = new List<ResidenceSensorDeclaration>(4);
-        var guides = new List<PlanarGuideDeclaration>(4);
-        var triggers = new List<ContactTriggerDeclaration>(4);
-        var contactWorks = new List<ContactWorkDeclaration>(4);
-        var prismatics = new List<PrismaticConstraintDeclaration>(4);
-        var drives = new List<PrismaticDriveDeclaration>(4);
-        var revolutes = new List<RevoluteConstraintDeclaration>(4);
-        var revoluteDrives = new List<RevoluteDriveDeclaration>(4);
-        var compliantSurfaces = new List<CompliantSurfaceDeclaration>(4);
-        var topology = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of);
-        var supplyNodes = topology.Nodes.ToArray();
-        // A declared drive is enabled by its owner's PowerIn route: the owner's consumer node names the driven joint.
-        void Consume(GpuBodyId owner, SupplyConsumer consumer)
+        private readonly WorkshopConstruction construction;
+        private readonly PhysicsDocumentId document;
+        private readonly CompiledIdentityMap identities;
+        private readonly SupplyTopology topology;
+        private readonly SupplyNodeDeclaration[] supplyNodes;
+        private readonly List<RigidBodyDeclaration> bodies = new(16);
+        private readonly List<ColliderDeclaration> colliders = new(32);
+        private readonly List<ContactMaterialDeclaration> materials = new(32);
+        private readonly List<ResidenceSensorDeclaration> sensors = new(4);
+        private readonly List<PlanarGuideDeclaration> guides = new(4);
+        private readonly List<ContactTriggerDeclaration> triggers = new(4);
+        private readonly List<ContactWorkDeclaration> contactWorks = new(4);
+        private readonly List<PrismaticConstraintDeclaration> prismatics = new(4);
+        private readonly List<PrismaticDriveDeclaration> drives = new(4);
+        private readonly List<RevoluteConstraintDeclaration> revolutes = new(4);
+        private readonly List<RevoluteDriveDeclaration> revoluteDrives = new(4);
+        private readonly List<CompliantSurfaceDeclaration> compliantSurfaces = new(4);
+        private readonly List<DrivenSurfaceDeclaration> drivenSurfaces = new();
+        private readonly List<ElectricalSourceDeclaration> electricalSources = new(4);
+        private readonly List<OrientationSensorDeclaration> orientationSensors = new(4);
+        private readonly List<ContactLoadSensorDeclaration> contactLoads = new(4);
+
+        public Compilation(WorkshopConstruction construction, PhysicsDocumentId document)
+        {
+            construction.Validate();
+            this.construction = construction;
+            this.document = document;
+            identities = construction.Instances.Identities;
+            topology = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of);
+            supplyNodes = topology.Nodes.ToArray();
+        }
+
+        public PhysicsSceneDeclaration Build()
+        {
+            var plane = identities.Plane;
+            var planeMaterial = identities.PlaneMaterial;
+            var height = WorkshopInput.Position(WorkshopConstruction.WorkbenchSurface.Value);
+            bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0),
+                new(0f, height.Local, 0f), CanonicalRotation.Identity, default, default, new(0f), default, new(0f), default));
+            // Static surfaces and boxes declare zero rolling resistance; only a ball material carries a coefficient.
+            materials.Add(new(planeMaterial, new(1f), new(.1f), new(.3f), new(0f)));
+            colliders.Add(new(identities.PlaneCollider, plane, planeMaterial,
+                ColliderShapeKind.Plane, RigidLocalPose.Identity, new(0f), default));
+            CompileBodies();
+            var contactWorkOwners = CompileSensors();
+            ValidateHollowPlacement();
+            var (tensile, ropeGuides, transmissions) = CompileConnections();
+            return new(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
+                construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
+                    .Select(link => new ElectricalStorageBinding(identities[link.Source].Source, identities[link.Target].Work)).ToArray(), prismatics.ToArray(),
+                supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray(),
+                compliantSurfaces.ToArray(), revoluteDrives.ToArray(),
+                ropeGuides: ropeGuides.ToArray(),
+                transmissions: transmissions.ToArray(), drivenSurfaces: drivenSurfaces.ToArray());
+        }
+
+        // A declared drive is enabled by its owner's PowerIn route.
+        private void Consume(GpuBodyId owner, SupplyConsumer consumer)
         {
             var slot = Array.FindIndex(supplyNodes, node => node.Owner == owner && node.Kind == SupplyNodeKind.Consumer);
             if (slot < 0) throw new ArgumentException("A supplied drive requires its owner's declared electrical input.");
@@ -74,45 +116,37 @@ public static class WorkshopPhysicsCompiler
                 Consumers = supplyNodes[slot].Consumers.IsDefault ? [consumer] : supplyNodes[slot].Consumers.Add(consumer)
             };
         }
-        var electricalSources = new List<ElectricalSourceDeclaration>(4);
-        var orientationSensors = new List<OrientationSensorDeclaration>(4);
-        var contactLoads = new List<ContactLoadSensorDeclaration>(4);
-        var plane = identities.Plane;
-        var planeMaterial = identities.PlaneMaterial;
-        var height = WorkshopInput.Position(WorkshopConstruction.WorkbenchSurface.Value);
-        bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0),
-            new(0f, height.Local, 0f), CanonicalRotation.Identity, default, default, new(0f), default, new(0f), default));
-        // Static surfaces and boxes declare zero rolling resistance; only a ball material carries a coefficient.
-        materials.Add(new(planeMaterial, new(1f), new(.1f), new(.3f), new(0f)));
-        colliders.Add(new(identities.PlaneCollider, plane, planeMaterial,
-            ColliderShapeKind.Plane, RigidLocalPose.Identity, new(0f), default));
-        foreach (var instance in construction.Instances)
+
+        private void AddGeometry(GpuBodyId owner, GpuMaterialId material, IReadOnlyList<GpuColliderId> colliderIdentities,
+            IReadOnlyList<CuriousContraptions.Abstractions.ColliderDescriptor> shapes)
         {
-            var entry = DeclaredPhysics.Of(instance.PartId);
-            var rows = identities[instance.Id];
-            var parameters = DeclaredPhysics.Parameters(instance);
-            var shapes = BundleGeometry.Colliders(entry, parameters);
-            var mechanical = entry.Mechanical;
-            var values = parameters.ToDictionary(pair => new ParameterId(pair.Key), pair => pair.Value);
-            var mass = mechanical is { } declared ? declared.MassFrame.Evaluate(values) : default;
-            var mode = (mechanical?.KinematicMode ?? KinematicMode.Static) switch
+            var surface = shapes[0].Material;
+            if (shapes.Any(shape => shape.Material != surface))
+                throw new ArgumentException("One compiled body must declare one contact material.");
+            materials.Add(new(material, new(surface.Restitution), new(surface.BounceThreshold),
+                new(surface.Friction), new(surface.RollingResistance)));
+            for (var i = 0; i < shapes.Count; i++)
             {
-                KinematicMode.Static => RigidMotionKind.Static,
-                KinematicMode.Dynamic => RigidMotionKind.Dynamic,
-                _ => throw new ArgumentException("Unsupported authored body mode.")
-            };
-            if (mechanical is not null) mass.Validate(mechanical.KinematicMode);
-            var sliders = mechanical?.Sliders ?? [];
-            var hinges = mechanical?.Hinges ?? [];
-            if (entry.Footprint.Bodies != 1 + sliders.Count + hinges.Count ||
-                entry.Footprint.MovingBodies != sliders.Count + hinges.Count + (mode == RigidMotionKind.Dynamic ? 1 : 0) ||
-                entry.Footprint.PrismaticConstraints != sliders.Count ||
-                entry.Footprint.RevoluteConstraints != hinges.Count)
-                throw new ArgumentException("Physical declaration disagrees with its compiled footprint.");
-            bodies.Add(new(instance.Id, mode, instance.Cell, instance.Local, instance.Rotation, default, default,
-                new(mass.Mass), new(mass.Gravity.X, mass.Gravity.Y, mass.Gravity.Z), new(mass.LinearDrag),
-                mode == RigidMotionKind.Dynamic ? MassProperties(mass) : default, entry.Mechanical?.Payload ?? PayloadPolicy.None));
-            AddGeometry(instance.Id, rows.Material, rows.Colliders, shapes);
+                var shape = DeclaredPhysics.Admit(shapes[i]);
+                colliders.Add(new(colliderIdentities[i], owner, material, shape.ShapeKind,
+                    shape.LocalPose, new(shape.Radius), shape.HalfExtents));
+            }
+        }
+
+        private GpuBodyId ResolvePortBody(GpuBodyId instanceId, CuriousContraptions.Abstractions.PackageBodyIndex bodyIndex)
+        {
+            if (bodyIndex.Value == 0) return instanceId;
+            var partIds = identities[instanceId];
+            if (bodyIndex.Value <= partIds.Sliders.Length)
+                return partIds.Sliders[bodyIndex.Value - 1].Body;
+            var hingeIndex = bodyIndex.Value - 1 - partIds.Sliders.Length;
+            if (hingeIndex < partIds.Hinges.Length)
+                return partIds.Hinges[hingeIndex].Body;
+            throw new ArgumentException($"Invalid port body index {bodyIndex.Value} for {instanceId}");
+        }
+
+        private void CompileSliders(IWorkshopInstance instance, CompiledPartIdentities rows, IReadOnlyDictionary<string, float> parameters, IReadOnlyDictionary<ParameterId, float> values, IReadOnlyList<PrismaticSliderDescriptor> sliders)
+        {
             for (var i = 0; i < sliders.Count; i++)
             {
                 var slider = sliders[i];
@@ -144,6 +178,10 @@ public static class WorkshopPhysicsCompiler
                     drive.StoppingAcceleration.Evaluate(parameters), drive.MaxEffort.Evaluate(parameters), drive.MaxPower.Evaluate(parameters)));
                 Consume(instance.Id, SupplyConsumer.Prismatic(joint));
             }
+        }
+
+        private void CompileHinges(IWorkshopInstance instance, CompiledPartIdentities rows, IReadOnlyDictionary<string, float> parameters, IReadOnlyDictionary<ParameterId, float> values, IReadOnlyList<RevoluteHingeDescriptor> hinges)
+        {
             for (var i = 0; i < hinges.Count; i++)
             {
                 var hinge = hinges[i];
@@ -177,207 +215,231 @@ public static class WorkshopPhysicsCompiler
                 revoluteDrives.Add(new(joint, rotary.TargetSpeed.Evaluate(parameters), rotary.MaxTorque.Evaluate(parameters)));
                 Consume(instance.Id, SupplyConsumer.Revolute(joint));
             }
-            if (mechanical?.CompliantSurface is { } compliant)
+        }
+        private void CompileBodies()
+        {
+            foreach (var instance in construction.Instances)
             {
-                compliantSurfaces.Add(new CompliantSurfaceDeclaration(
-                    rows.CompliantSurface,
-                    instance.Id,
-                    compliant.HalfExtents.X,
-                    compliant.HalfExtents.Y,
-                    compliant.RestHeight,
-                    compliant.MaxStroke,
-                    compliant.ArrivalDepth,
-                    compliant.Tension.Evaluate(parameters),
-                    compliant.DampingRatio.Evaluate(parameters)));
-            }
-        }
-        // A declared orientation threshold compiles its sensor only while its owner is wired, in instance order.
-        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
-            if (DeclaredPhysics.Of(owner.PartId).Signal?.Orientation is { } orientation && construction.Connections.HasSource(owner.Id))
-                orientationSensors.Add(OrientationSensorFor(owner, orientation, identities));
-        foreach (var frame in construction.Instances.OfType<WorkshopGenericInstance>())
-        {
-            if (DeclaredPhysics.Of(frame.PartId).Mechanical?.Capture is not { } capture) continue;
-            var parameters = frame.Parameters.ToBundleValues();
-            // The declared f32 capture and guide values compile exactly; the upper bound is Y + margin with one f32 rounding.
-            var margin = capture.UpperMargin.Evaluate(parameters);
-            var speed = new LinearSpeed(capture.SpeedLimit.Evaluate(parameters));
-            var dwell = new DurationSeconds(capture.Dwell.Evaluate(parameters));
-            var participation = parameters[capture.ParticipationParameter] switch
-            {
-                0f => SensorParticipation.Disabled,
-                1f => SensorParticipation.Enabled,
-                _ => throw new ArgumentException("Undefined declared capture participation.")
-            };
-            var captureRows = identities[frame.Id].Capture;
-            sensors.Add(new(captureRows.Sensor, frame.Id, new(BodyTargetKind.AllPayloads,default), RigidLocalPose.Identity,
-                new(capture.Minimum.X,capture.Minimum.Y,capture.Minimum.Z),
-                new(capture.Maximum.X,capture.Maximum.Y+margin,capture.Maximum.Z),
-                speed,dwell,participation));
-            var guide = capture.Guide;
-            guides.Add(new(captureRows.Guide,frame.Id,new(BodyTargetKind.AllPayloads,default),RigidLocalPose.Identity,
-                new(guide.Minimum.X,guide.Minimum.Y,guide.Minimum.Z),
-                new(guide.Maximum.X,guide.Maximum.Y,guide.Maximum.Z),
-                new(guide.SupportHeight),new(guide.SupportMargin.Evaluate(parameters)),
-                new(guide.MaximumAcceleration.Evaluate(parameters))));
-        }
-        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
-            if (DeclaredPhysics.SourceStore(owner.PartId) is { } store)
-                electricalSources.Add(ElectricalSourceFor(identities[owner.Id].Source, owner.Id, store, owner.Parameters));
-        foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
-            if (DeclaredPhysics.Of(trigger.PartId).Signal?.Contact is { } contact)
-                triggers.Add(new(identities[trigger.Id].Trigger, trigger.Id,
-                    ResolveTarget(contact.Target, construction.Puzzle, construction.Instances),
-                    new(trigger.Parameters[new ParameterId(contact.ThresholdParameter)])));
-        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
-            if (DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWork is { } work)
-                contactWorks.Add(ContactWorkFor(identities[owner.Id].Work, owner.Id,
-                    ResolveTarget(work.Target, construction.Puzzle, construction.Instances),
-                    work, owner.Parameters));
-        // A declared contact-load sensor compiles its row for every owner, wired or not, in instance order.
-        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
-            if (DeclaredPhysics.Of(owner.PartId).Signal?.ContactLoad is { } load)
-                contactLoads.Add(ContactLoadSensorFor(owner, load, identities));
-        var contactWorkOwners = contactWorks.Select(cw => cw.Owner).ToHashSet();
-        foreach(var link in construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target)))
-        {
-            var sources=topology.UpstreamSources(link.Target);
-            if(sources.Length!=1 || sources[0]!=link.Source)
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
-                    "Finite-work storage requires one direct declared source; switched storage routing is unsupported.");
-        }
-
-
-        void AddGeometry(GpuBodyId owner, GpuMaterialId material, IReadOnlyList<GpuColliderId> colliderIdentities,
-            IReadOnlyList<CuriousContraptions.Abstractions.ColliderDescriptor> shapes)
-        {
-            var surface = shapes[0].Material;
-            if (shapes.Any(shape => shape.Material != surface))
-                throw new ArgumentException("One compiled body must declare one contact material.");
-            materials.Add(new(material, new(surface.Restitution), new(surface.BounceThreshold),
-                new(surface.Friction), new(surface.RollingResistance)));
-            for (var i = 0; i < shapes.Count; i++)
-            {
-                var shape = DeclaredPhysics.Admit(shapes[i]);
-                colliders.Add(new(colliderIdentities[i], owner, material, shape.ShapeKind,
-                    shape.LocalPose, new(shape.Radius), shape.HalfExtents));
-            }
-        }
-
-        // Only independently authored dynamic partners are checked. A constrained
-        // child belongs to its parent's mechanism and retains its declared joint.
-        var bodyById = bodies.ToDictionary(body => body.Id);
-        var hollowColliders = colliders.Where(c => HollowSolid.IsHollow(c.Shape)).ToArray();
-        foreach (var partner in colliders.Where(c => bodyById[c.Body].Motion == RigidMotionKind.Dynamic))
-        {
-            var (partnerCentre, partnerTurn) = WorldPose(partner);
-            var convex = new HollowPartner(partner.Shape, partnerCentre,
-                Vector3.Transform(Vector3.UnitX, partnerTurn), Vector3.Transform(Vector3.UnitY, partnerTurn),
-                Vector3.Transform(Vector3.UnitZ, partnerTurn), partner.Radius.Value,
-                partner.HalfExtents.X, partner.HalfExtents.Y, partner.HalfExtents.Z);
-            foreach (var hollowCollider in hollowColliders)
-            {
-                if (hollowCollider.Body == partner.Body || identities.IsChild(hollowCollider.Body, partner.Body)) continue;
-                var (centre, rotation) = WorldPose(hollowCollider);
-                var solid = new HollowSolid(hollowCollider.Shape, centre,
-                    Vector3.Transform(Vector3.UnitX, rotation), Vector3.Transform(Vector3.UnitY, rotation),
-                    Vector3.Transform(Vector3.UnitZ, rotation), hollowCollider.Radius.Value,
-                    hollowCollider.HalfExtents.X, hollowCollider.HalfExtents.Y, hollowCollider.HalfExtents.Z);
-                if (HollowContactQuery.Overlaps(convex, solid, HollowContactQuery.PlacementSlop))
-                    throw new WorkshopEditRejectedException(WorkshopEditRejection.InitialOverlap, "A dynamic payload initially overlaps a hollow wall.");
-            }
-        }
-
-        (Vector3 Centre, Quaternion Rotation) WorldPose(ColliderDeclaration collider)
-        {
-            var body = bodyById[collider.Body];
-            var bodyRotation = new Quaternion(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W);
-            var local = collider.Pose;
-            var localRotation = new Quaternion(local.Rotation.X, local.Rotation.Y, local.Rotation.Z, local.Rotation.W);
-            var centre = new Vector3((body.Cell.X + body.Local.X) / 16f, (body.Cell.Y + body.Local.Y) / 16f,
-                (body.Cell.Z + body.Local.Z) / 16f);
-            centre += Vector3.Transform(new Vector3(local.Translation.X, local.Translation.Y, local.Translation.Z), bodyRotation);
-            return (centre, Quaternion.Normalize(bodyRotation * localRotation));
-        }
-
-        GpuBodyId ResolvePortBody(GpuBodyId instanceId, CuriousContraptions.Abstractions.PackageBodyIndex bodyIndex)
-        {
-            if (bodyIndex.Value == 0) return instanceId;
-            var partIds = identities[instanceId];
-            if (bodyIndex.Value <= partIds.Sliders.Length)
-                return partIds.Sliders[bodyIndex.Value - 1].Body;
-            var hingeIndex = bodyIndex.Value - 1 - partIds.Sliders.Length;
-            if (hingeIndex < partIds.Hinges.Length)
-                return partIds.Hinges[hingeIndex].Body;
-            throw new ArgumentException($"Invalid port body index {bodyIndex.Value} for {instanceId}");
-        }
-
-        var routes = RopeTopology.Compile(construction.Connections, endpoint =>
-            DeclaredPorts.Current.Of(construction.Instances.Single(p => p.Id == endpoint.Body).PartId).ToArray()
-                .Single(port => port.Id == endpoint.Socket).AttachmentRole);
-        var tensile = new List<TensileSpanDeclaration>();
-        for (var routeIndex = 0; routeIndex < routes.Length; routeIndex++)
-        {
-            var route = routes[routeIndex];
-            for (var order = 0; order < route.Spans.Length; order++)
-            {
-                var a = route.Attachments[order]; var b = route.Attachments[order + 1];
-                var instanceA = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == a.Body);
-                var instanceB = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == b.Body);
-                var portA = DeclaredPorts.Current.Of(instanceA.PartId).ToArray().Single(p => p.Id == a.Socket);
-                var portB = DeclaredPorts.Current.Of(instanceB.PartId).ToArray().Single(p => p.Id == b.Socket);
-                var bodyA = ResolvePortBody(instanceA.Id, portA.Body);
-                var bodyB = ResolvePortBody(instanceB.Id, portB.Body);
-                var isGuide = order < route.Spans.Length - 1 && portB.AttachmentRole == RopeAttachmentRole.Guide;
-                var guideRadius = isGuide ? portB.GuideRadius : 0f;
-                var guideOffset = isGuide ? portB.GuideOffset : Vector3.Zero;
-                tensile.Add(new(new((ulong)tensile.Count + 1), new((ulong)routeIndex + 1), (uint)order,
-                    bodyA, DeclaredPorts.Current.LocalPosition(instanceA, a.Socket),
-                    bodyB, DeclaredPorts.Current.LocalPosition(instanceB, b.Socket),
-                    route.Spans[order].RopeLength!.Value, route.Complete,
-                    guideRadius, guideOffset));
-            }
-        }
-        var ropeGuides = new List<RopeGuideDeclaration>();
-        foreach (var instance in construction.Instances.OfType<WorkshopGenericInstance>().OrderBy(i => i.Id.Value))
-        {
-            var ports = DeclaredPorts.Current.Of(instance.PartId);
-            foreach (var port in ports)
-            {
-                if (port.AttachmentRole == RopeAttachmentRole.Guide)
+                var entry = DeclaredPhysics.Of(instance.PartId);
+                var rows = identities[instance.Id];
+                var parameters = DeclaredPhysics.Parameters(instance);
+                var shapes = BundleGeometry.Colliders(entry, parameters);
+                var mechanical = entry.Mechanical;
+                var values = parameters.ToDictionary(pair => new ParameterId(pair.Key), pair => pair.Value);
+                var mass = mechanical is { } declared ? declared.MassFrame.Evaluate(values) : default;
+                var mode = (mechanical?.KinematicMode ?? KinematicMode.Static) switch
                 {
-                    var guideId = new RopeGuideId((ulong)ropeGuides.Count + 1);
-                    var guideBody = ResolvePortBody(instance.Id, port.Body);
-                    ropeGuides.Add(new(guideId, guideBody, port.GuideRadius, port.GuideOffset));
+                    KinematicMode.Static => RigidMotionKind.Static,
+                    KinematicMode.Dynamic => RigidMotionKind.Dynamic,
+                    _ => throw new ArgumentException("Unsupported authored body mode.")
+                };
+                if (mechanical is not null) mass.Validate(mechanical.KinematicMode);
+                var sliders = mechanical?.Sliders ?? [];
+                var hinges = mechanical?.Hinges ?? [];
+                if (entry.Footprint.Bodies != 1 + sliders.Count + hinges.Count ||
+                    entry.Footprint.MovingBodies != sliders.Count + hinges.Count + (mode == RigidMotionKind.Dynamic ? 1 : 0) ||
+                    entry.Footprint.PrismaticConstraints != sliders.Count ||
+                    entry.Footprint.RevoluteConstraints != hinges.Count)
+                    throw new ArgumentException("Physical declaration disagrees with its compiled footprint.");
+                bodies.Add(new(instance.Id, mode, instance.Cell, instance.Local, instance.Rotation, default, default,
+                    new(mass.Mass), new(mass.Gravity.X, mass.Gravity.Y, mass.Gravity.Z), new(mass.LinearDrag),
+                    mode == RigidMotionKind.Dynamic ? MassProperties(mass) : default, entry.Mechanical?.Payload ?? PayloadPolicy.None));
+                AddGeometry(instance.Id, rows.Material, rows.Colliders, shapes);
+                CompileSliders(instance, rows, parameters, values, sliders);
+                CompileHinges(instance, rows, parameters, values, hinges);
+                if (mechanical is not null)
+                    for (var index = 0; index < mechanical.DrivenSurfaces.Count; index++)
+                    {
+                        var surface = mechanical.DrivenSurfaces[index];
+                        var carrier = ResolvePortBody(instance.Id, surface.Carrier);
+                        var colliderRows = surface.Carrier.Value == 0 ? rows.Colliders :
+                            surface.Carrier.Value <= rows.Sliders.Length ? rows.Sliders[surface.Carrier.Value - 1].Colliders :
+                            rows.Hinges[surface.Carrier.Value - 1 - rows.Sliders.Length].Colliders;
+                        drivenSurfaces.Add(new(rows.DrivenSurfaces[index], carrier, colliderRows[surface.Collider.Value],
+                            surface.Face, rows.Hinges[surface.Source.Index].Joint, surface.LocalDirection,
+                            surface.TravelPerRadian.Evaluate(parameters)));
+                    }
+                if (mechanical?.CompliantSurface is { } compliant)
+                {
+                    compliantSurfaces.Add(new CompliantSurfaceDeclaration(
+                        rows.CompliantSurface,
+                        instance.Id,
+                        compliant.HalfExtents.X,
+                        compliant.HalfExtents.Y,
+                        compliant.RestHeight,
+                        compliant.MaxStroke,
+                        compliant.ArrivalDepth,
+                        compliant.Tension.Evaluate(parameters),
+                        compliant.DampingRatio.Evaluate(parameters)));
                 }
             }
         }
-        var transmissions = new List<MechanicalTransmissionDeclaration>();
-        foreach (var link in construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Mechanical))
+
+        private HashSet<GpuBodyId> CompileSensors()
         {
-            var sourceInstance = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == link.Source);
-            var targetInstance = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == link.Target);
-            var sourcePort = DeclaredPorts.Current.Of(sourceInstance.PartId).ToArray().Single(p => p.Id == link.Output);
-            var targetPort = DeclaredPorts.Current.Of(targetInstance.PartId).ToArray().Single(p => p.Id == link.Input);
+            // A declared orientation threshold compiles its sensor only while its owner is wired, in instance order.
+            foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+                if (DeclaredPhysics.Of(owner.PartId).Signal?.Orientation is { } orientation && construction.Connections.HasSource(owner.Id))
+                    orientationSensors.Add(OrientationSensorFor(owner, orientation, identities));
+            foreach (var frame in construction.Instances.OfType<WorkshopGenericInstance>())
+            {
+                if (DeclaredPhysics.Of(frame.PartId).Mechanical?.Capture is not { } capture) continue;
+                var parameters = frame.Parameters.ToBundleValues();
+                // The declared f32 capture and guide values compile exactly; the upper bound is Y + margin with one f32 rounding.
+                var margin = capture.UpperMargin.Evaluate(parameters);
+                var speed = new LinearSpeed(capture.SpeedLimit.Evaluate(parameters));
+                var dwell = new DurationSeconds(capture.Dwell.Evaluate(parameters));
+                var participation = parameters[capture.ParticipationParameter] switch
+                {
+                    0f => SensorParticipation.Disabled,
+                    1f => SensorParticipation.Enabled,
+                    _ => throw new ArgumentException("Undefined declared capture participation.")
+                };
+                var captureRows = identities[frame.Id].Capture;
+                sensors.Add(new(captureRows.Sensor, frame.Id, new(BodyTargetKind.AllPayloads,default), RigidLocalPose.Identity,
+                    new(capture.Minimum.X,capture.Minimum.Y,capture.Minimum.Z),
+                    new(capture.Maximum.X,capture.Maximum.Y+margin,capture.Maximum.Z),
+                    speed,dwell,participation));
+                var guide = capture.Guide;
+                guides.Add(new(captureRows.Guide,frame.Id,new(BodyTargetKind.AllPayloads,default),RigidLocalPose.Identity,
+                    new(guide.Minimum.X,guide.Minimum.Y,guide.Minimum.Z),
+                    new(guide.Maximum.X,guide.Maximum.Y,guide.Maximum.Z),
+                    new(guide.SupportHeight),new(guide.SupportMargin.Evaluate(parameters)),
+                    new(guide.MaximumAcceleration.Evaluate(parameters))));
+            }
+            foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+                if (DeclaredPhysics.SourceStore(owner.PartId) is { } store)
+                    electricalSources.Add(ElectricalSourceFor(identities[owner.Id].Source, owner.Id, store, owner.Parameters));
+            foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
+                if (DeclaredPhysics.Of(trigger.PartId).Signal?.Contact is { } contact)
+                    triggers.Add(new(identities[trigger.Id].Trigger, trigger.Id,
+                        ResolveTarget(contact.Target, construction.Puzzle, construction.Instances),
+                        new(trigger.Parameters[new ParameterId(contact.ThresholdParameter)])));
+            foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+                if (DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWork is { } work)
+                    contactWorks.Add(ContactWorkFor(identities[owner.Id].Work, owner.Id,
+                        ResolveTarget(work.Target, construction.Puzzle, construction.Instances),
+                        work, owner.Parameters));
+            // A declared contact-load sensor compiles its row for every owner, wired or not, in instance order.
+            foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+                if (DeclaredPhysics.Of(owner.PartId).Signal?.ContactLoad is { } load)
+                    contactLoads.Add(ContactLoadSensorFor(owner, load, identities));
+            var contactWorkOwners = contactWorks.Select(cw => cw.Owner).ToHashSet();
+            foreach(var link in construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target)))
+            {
+                var sources=topology.UpstreamSources(link.Target);
+                if(sources.Length!=1 || sources[0]!=link.Source)
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
+                        "Finite-work storage requires one direct declared source; switched storage routing is unsupported.");
+            }
 
-            var sourceCoord = WorkshopConnections.MechanicalCoordinate(sourceInstance.PartId, sourcePort);
-            var targetCoord = WorkshopConnections.MechanicalCoordinate(targetInstance.PartId, targetPort);
-
-            var drivingJoint = identities[sourceInstance.Id].Hinges[sourceCoord.Index].Joint;
-            var drivenJoint = identities[targetInstance.Id].Hinges[targetCoord.Index].Joint;
-            var ratio = sourcePort.CoordinatePerRadian / targetPort.CoordinatePerRadian;
-
-            var transmissionId = new MechanicalTransmissionId((ulong)transmissions.Count + 1);
-            transmissions.Add(new(transmissionId, drivingJoint, drivenJoint, ratio));
+            return contactWorkOwners;
         }
-        return new(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
-            construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
-                .Select(link => new ElectricalStorageBinding(identities[link.Source].Source, identities[link.Target].Work)).ToArray(), prismatics.ToArray(),
-            supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray(),
-            compliantSurfaces.ToArray(), revoluteDrives.ToArray(),
-            ropeGuides: ropeGuides.ToArray(),
-            transmissions: transmissions.ToArray());
+
+        private void ValidateHollowPlacement()
+        {
+            // Only independently authored dynamic partners are checked. A constrained
+            // child belongs to its parent's mechanism and retains its declared joint.
+            var bodyById = bodies.ToDictionary(body => body.Id);
+            var hollowColliders = colliders.Where(c => HollowSolid.IsHollow(c.Shape)).ToArray();
+            foreach (var partner in colliders.Where(c => bodyById[c.Body].Motion == RigidMotionKind.Dynamic))
+            {
+                var (partnerCentre, partnerTurn) = WorldPose(partner);
+                var convex = new HollowPartner(partner.Shape, partnerCentre,
+                    Vector3.Transform(Vector3.UnitX, partnerTurn), Vector3.Transform(Vector3.UnitY, partnerTurn),
+                    Vector3.Transform(Vector3.UnitZ, partnerTurn), partner.Radius.Value,
+                    partner.HalfExtents.X, partner.HalfExtents.Y, partner.HalfExtents.Z);
+                foreach (var hollowCollider in hollowColliders)
+                {
+                    if (hollowCollider.Body == partner.Body || identities.IsChild(hollowCollider.Body, partner.Body)) continue;
+                    var (centre, rotation) = WorldPose(hollowCollider);
+                    var solid = new HollowSolid(hollowCollider.Shape, centre,
+                        Vector3.Transform(Vector3.UnitX, rotation), Vector3.Transform(Vector3.UnitY, rotation),
+                        Vector3.Transform(Vector3.UnitZ, rotation), hollowCollider.Radius.Value,
+                        hollowCollider.HalfExtents.X, hollowCollider.HalfExtents.Y, hollowCollider.HalfExtents.Z);
+                    if (HollowContactQuery.Overlaps(convex, solid, HollowContactQuery.PlacementSlop))
+                        throw new WorkshopEditRejectedException(WorkshopEditRejection.InitialOverlap, "A dynamic payload initially overlaps a hollow wall.");
+                }
+            }
+
+            (Vector3 Centre, Quaternion Rotation) WorldPose(ColliderDeclaration collider)
+            {
+                var body = bodyById[collider.Body];
+                var bodyRotation = new Quaternion(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W);
+                var local = collider.Pose;
+                var localRotation = new Quaternion(local.Rotation.X, local.Rotation.Y, local.Rotation.Z, local.Rotation.W);
+                var centre = new Vector3((body.Cell.X + body.Local.X) / 16f, (body.Cell.Y + body.Local.Y) / 16f,
+                    (body.Cell.Z + body.Local.Z) / 16f);
+                centre += Vector3.Transform(new Vector3(local.Translation.X, local.Translation.Y, local.Translation.Z), bodyRotation);
+                return (centre, Quaternion.Normalize(bodyRotation * localRotation));
+            }
+        }
+
+        private (List<TensileSpanDeclaration> Tensile, List<RopeGuideDeclaration> Guides, List<MechanicalTransmissionDeclaration> Transmissions) CompileConnections()
+        {
+            var routes = RopeTopology.Compile(construction.Connections, endpoint =>
+                DeclaredPorts.Current.Of(construction.Instances.Single(p => p.Id == endpoint.Body).PartId).ToArray()
+                    .Single(port => port.Id == endpoint.Socket).AttachmentRole);
+            var tensile = new List<TensileSpanDeclaration>();
+            for (var routeIndex = 0; routeIndex < routes.Length; routeIndex++)
+            {
+                var route = routes[routeIndex];
+                for (var order = 0; order < route.Spans.Length; order++)
+                {
+                    var a = route.Attachments[order]; var b = route.Attachments[order + 1];
+                    var instanceA = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == a.Body);
+                    var instanceB = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == b.Body);
+                    var portA = DeclaredPorts.Current.Of(instanceA.PartId).ToArray().Single(p => p.Id == a.Socket);
+                    var portB = DeclaredPorts.Current.Of(instanceB.PartId).ToArray().Single(p => p.Id == b.Socket);
+                    var bodyA = ResolvePortBody(instanceA.Id, portA.Body);
+                    var bodyB = ResolvePortBody(instanceB.Id, portB.Body);
+                    var isGuide = order < route.Spans.Length - 1 && portB.AttachmentRole == RopeAttachmentRole.Guide;
+                    var guideRadius = isGuide ? portB.GuideRadius : 0f;
+                    var guideOffset = isGuide ? portB.GuideOffset : Vector3.Zero;
+                    tensile.Add(new(new((ulong)tensile.Count + 1), new((ulong)routeIndex + 1), (uint)order,
+                        bodyA, DeclaredPorts.Current.LocalPosition(instanceA, a.Socket),
+                        bodyB, DeclaredPorts.Current.LocalPosition(instanceB, b.Socket),
+                        route.Spans[order].RopeLength!.Value, route.Complete,
+                        guideRadius, guideOffset));
+                }
+            }
+            var ropeGuides = new List<RopeGuideDeclaration>();
+            foreach (var instance in construction.Instances.OfType<WorkshopGenericInstance>().OrderBy(i => i.Id.Value))
+            {
+                var ports = DeclaredPorts.Current.Of(instance.PartId);
+                foreach (var port in ports)
+                {
+                    if (port.AttachmentRole == RopeAttachmentRole.Guide)
+                    {
+                        var guideId = new RopeGuideId((ulong)ropeGuides.Count + 1);
+                        var guideBody = ResolvePortBody(instance.Id, port.Body);
+                        ropeGuides.Add(new(guideId, guideBody, port.GuideRadius, port.GuideOffset));
+                    }
+                }
+            }
+            var transmissions = new List<MechanicalTransmissionDeclaration>();
+            foreach (var link in construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Mechanical))
+            {
+                var sourceInstance = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == link.Source);
+                var targetInstance = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == link.Target);
+                var sourcePort = DeclaredPorts.Current.Of(sourceInstance.PartId).ToArray().Single(p => p.Id == link.Output);
+                var targetPort = DeclaredPorts.Current.Of(targetInstance.PartId).ToArray().Single(p => p.Id == link.Input);
+
+                var sourceCoord = WorkshopConnections.MechanicalCoordinate(sourceInstance.PartId, sourcePort);
+                var targetCoord = WorkshopConnections.MechanicalCoordinate(targetInstance.PartId, targetPort);
+
+                var drivingJoint = identities[sourceInstance.Id].Hinges[sourceCoord.Index].Joint;
+                var drivenJoint = identities[targetInstance.Id].Hinges[targetCoord.Index].Joint;
+                var ratio = sourcePort.CoordinatePerRadian / targetPort.CoordinatePerRadian;
+
+                var transmissionId = new MechanicalTransmissionId((ulong)transmissions.Count + 1);
+                transmissions.Add(new(transmissionId, drivingJoint, drivenJoint, ratio));
+            }
+            return (tensile, ropeGuides, transmissions);
+        }
+
     }
+
     /// <summary>The finite electrical store a declared Source compiles for one owner, from its own store parameters as f32: the
     /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>
     internal static ElectricalSourceDeclaration ElectricalSourceFor(ElectricalSourceId identity, GpuBodyId owner, SupplySourceStoreDescriptor store,

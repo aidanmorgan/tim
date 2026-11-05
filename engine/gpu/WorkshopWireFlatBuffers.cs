@@ -190,6 +190,224 @@ public static partial class WorkshopWireFlatBuffers
 
     public static byte[] EncodeResponse(WorkshopResponse response) => EncodeResponse(response, new FlatBufferBuilder(4096));
 
+    private static VectorOffset? EncodeMemoryOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? memoryOffset = null;
+        if (read.Memory.Count > 0)
+        {
+            Wire.WorkshopResponse.StartActivationMemoryVector(builder, read.Memory.Count);
+            for (var i = read.Memory.Count - 1; i >= 0; i--)
+            {
+                var m = read.Memory[i];
+                ActivationMemoryRecord.CreateActivationMemoryRecord(builder, m.Node.Value, (uint)m.Kind, m.Count,
+                    m.Last.Ordinal, (float)m.Last.Phase, (uint)m.Phase, m.DueTick);
+            }
+            memoryOffset = builder.EndVector();
+        }
+        return memoryOffset;
+    }
+
+    private static VectorOffset? EncodeTimersOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? timersOffset = null;
+        if (read.Timers.Count > 0)
+        {
+            Wire.WorkshopResponse.StartTimersVector(builder, read.Timers.Count);
+            for (var i = read.Timers.Count - 1; i >= 0; i--)
+            {
+                var t = read.Timers[i];
+                TimerRecord.CreateTimerRecord(builder, t.Node.Value, (uint)t.Phase, t.StartedTick, t.DueTick, (uint)t.Input.Kind,
+                    t.Input.Time.Ordinal, (float)t.Input.Time.Phase, (float)t.Input.Cause.ApproachSpeed.Value, t.Input.Emitter.Value,
+                    t.Input.Cause.Source.Value, t.Input.Cause.Body.Value, t.Input.Cause.Collider.Value, t.Input.Cause.Time.Ordinal,
+                    (float)t.Input.Cause.Time.Phase);
+            }
+            timersOffset = builder.EndVector();
+        }
+        return timersOffset;
+    }
+
+    private static VectorOffset? EncodeActivationsOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? activationsOffset = null;
+        if (read.Activations.Count > 0)
+        {
+            Wire.WorkshopResponse.StartActivationsVector(builder, read.Activations.Count);
+            for (var i = read.Activations.Count - 1; i >= 0; i--)
+            {
+                var a = read.Activations[i];
+                ActivationRecord.CreateActivationRecord(builder, a.Node.Value, a.Owner.Value, a.Source.Value, a.Body.Value, a.Collider.Value,
+                    (uint)a.Phase, a.EventOrdinal, (float)a.EventPhase, (float)a.ApproachSpeed.Value, (uint)a.Kind, a.Emitter.Value,
+                    a.CauseOrdinal, (float)a.CausePhase);
+            }
+            activationsOffset = builder.EndVector();
+        }
+        return activationsOffset;
+    }
+
+    private static VectorOffset? EncodeCapturesOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? capturesOffset = null;
+        if (read.Captures.Count > 0)
+        {
+            Wire.WorkshopResponse.StartCapturesVector(builder, read.Captures.Count);
+            for (var i = read.Captures.Count - 1; i >= 0; i--)
+            {
+                var c = read.Captures[i];
+                CaptureLatchRead.CreateCaptureLatchRead(builder, c.Sensor.Value, c.Target.Value, (uint)c.Phase, c.EventOrdinal, c.EventPhase);
+            }
+            capturesOffset = builder.EndVector();
+        }
+        return capturesOffset;
+    }
+
+    private static VectorOffset? EncodeBodiesOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? bodiesOffset = null;
+        if (read.Bodies.Count > 0)
+        {
+            Wire.WorkshopResponse.StartBodiesVector(builder, read.Bodies.Count);
+            for (var i = read.Bodies.Count - 1; i >= 0; i--)
+            {
+                var b = read.Bodies[i];
+                BodyRead.CreateBodyRead(builder, b.Body.Id.Value,
+                    b.Body.Cell.X, b.Body.Cell.Y, b.Body.Cell.Z,
+                    b.Body.Local.X, b.Body.Local.Y, b.Body.Local.Z,
+                    b.Rotation.X, b.Rotation.Y, b.Rotation.Z, b.Rotation.W,
+                    b.LocalCentreOfMass.X, b.LocalCentreOfMass.Y, b.LocalCentreOfMass.Z,
+                    b.Body.Velocity.X, b.Body.Velocity.Y, b.Body.Velocity.Z,
+                    b.AngularVelocity.X, b.AngularVelocity.Y, b.AngularVelocity.Z);
+            }
+            bodiesOffset = builder.EndVector();
+        }
+        return bodiesOffset;
+    }
+
+    private static VectorOffset? EncodeContactWorksOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? contactWorksOffset = null;
+        if (read.ContactWorks.Count > 0)
+        {
+            Wire.WorkshopResponse.StartContactWorksVector(builder, read.ContactWorks.Count);
+            for (var i = read.ContactWorks.Count - 1; i >= 0; i--)
+            {
+                var w = read.ContactWorks[i];
+                ContactWorkStoreRecord.CreateContactWorkStoreRecord(builder, w.Id.Value, w.Owner.Value, w.OccurrenceCount, w.RemainingEnergy.Value, w.SuppliedEnergy.Value);
+            }
+            contactWorksOffset = builder.EndVector();
+        }
+        return contactWorksOffset;
+    }
+
+    private static VectorOffset? EncodeDriveTargetOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? driveTargetOffset = null;
+        if (read.DriveTargets.Count > 0)
+        {
+            Wire.WorkshopResponse.StartDriveTargetsVector(builder, read.DriveTargets.Count);
+            for (var i = read.DriveTargets.Count - 1; i >= 0; i--)
+                RevoluteDriveTargetRecord.CreateRevoluteDriveTargetRecord(builder, read.DriveTargets[i].Owner.Value, read.DriveTargets[i].TargetSpeed);
+            driveTargetOffset = builder.EndVector();
+        }
+        return driveTargetOffset;
+    }
+
+    private static VectorOffset? EncodeElectricalOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? electricalOffset = null;
+        if (read.Electrical.Count > 0)
+        {
+            Wire.WorkshopResponse.StartElectricalVector(builder, read.Electrical.Count);
+            for (var i = read.Electrical.Count - 1; i >= 0; i--)
+            {
+                var e = read.Electrical[i];
+                ElectricalSourceRecord.CreateElectricalSourceRecord(builder, e.Id.Value, e.Owner.Value, e.Remaining.Value, e.Debit.Value, (byte)e.Enabled, e.Available);
+            }
+            electricalOffset = builder.EndVector();
+        }
+        return electricalOffset;
+    }
+
+    private static VectorOffset? EncodeLoadOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? loadOffset = null;
+        if (!read.Presentation.Loads.IsEmpty)
+        {
+            Wire.WorkshopResponse.StartContactLoadsVector(builder, read.Presentation.Loads.Length);
+            for (var i = read.Presentation.Loads.Length - 1; i >= 0; i--)
+            {
+                var l = read.Presentation.Loads[i];
+                ContactLoadRecord.CreateContactLoadRecord(builder, l.Sensor.Value, l.Frame.Value, l.Region.Value, l.MeasuredMass, (uint)l.Phase);
+            }
+            loadOffset = builder.EndVector();
+        }
+        return loadOffset;
+    }
+
+    private static VectorOffset? EncodeActuatorOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? actuatorOffset = null;
+        if (!read.Presentation.Actuators.IsEmpty)
+        {
+            Wire.WorkshopResponse.StartActuatorDrivesVector(builder, read.Presentation.Actuators.Length);
+            for (var i = read.Presentation.Actuators.Length - 1; i >= 0; i--)
+            {
+                var a = read.Presentation.Actuators[i];
+                ActuatorDriveRecord.CreateActuatorDriveRecord(builder, a.Slot.Joint, a.Owner.Value, (uint)a.Drive.Kind, a.SupplyClosed,
+                    a.MovingContact, a.Coordinate, a.Speed, a.Lower, a.Upper);
+            }
+            actuatorOffset = builder.EndVector();
+        }
+        return actuatorOffset;
+    }
+
+    private static VectorOffset? EncodeLogicOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? logicOffset = null;
+        if (!read.Presentation.Logic.IsEmpty)
+        {
+            Wire.WorkshopResponse.StartElectricalLogicVector(builder, read.Presentation.Logic.Length);
+            for(var i=read.Presentation.Logic.Length-1;i>=0;i--)
+            {
+                var logic=read.Presentation.Logic[i];
+                ElectricalLogicRecord.CreateElectricalLogicRecord(builder,logic.Owner.Value,(byte)logic.Inputs,logic.Supplied,logic.Active);
+            }
+            logicOffset=builder.EndVector();
+        }
+        return logicOffset;
+    }
+
+    private static VectorOffset? EncodeSurfaceOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? surfaceOffset = null;
+        if (!read.Presentation.Surfaces.IsEmpty)
+        {
+            var surfaceOffsets = new Offset<Wire.CompliantSurfaceReadRecord>[read.Presentation.Surfaces.Length];
+            for (var i = 0; i < read.Presentation.Surfaces.Length; i++)
+            {
+                var s = read.Presentation.Surfaces[i];
+                surfaceOffsets[i] = Wire.CompliantSurfaceReadRecord.CreateCompliantSurfaceReadRecord(builder, s.Frame.Value, s.Deflection);
+            }
+            surfaceOffset = Wire.WorkshopResponse.CreateCompliantSurfacesVector(builder, surfaceOffsets);
+        }
+        return surfaceOffset;
+    }
+
+    private static VectorOffset? EncodeGuideOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? guideOffset = null;
+        if (!read.Presentation.Guides.IsEmpty)
+        {
+            var guideOffsets = new Offset<Wire.RopeGuideReadRecord>[read.Presentation.Guides.Length];
+            for (var i = 0; i < read.Presentation.Guides.Length; i++)
+            {
+                var g = read.Presentation.Guides[i];
+                guideOffsets[i] = Wire.RopeGuideReadRecord.CreateRopeGuideReadRecord(builder, g.Guide.Value, g.Travel, g.Angle);
+            }
+            guideOffset = Wire.WorkshopResponse.CreateRopeGuidesVector(builder, guideOffsets);
+        }
+        return guideOffset;
+    }
+
     /// <summary>Encodes into a caller-owned builder (cleared first), so a per-tick publisher reuses one builder's storage.</summary>
     public static byte[] EncodeResponse(WorkshopResponse response, FlatBufferBuilder builder)
     {
@@ -227,170 +445,30 @@ public static partial class WorkshopWireFlatBuffers
             ropeOffsets[i] = RopeSpanReadRecord.EndRopeSpanReadRecord(builder);
         }
         var ropesVector = Wire.WorkshopResponse.CreateRopesVector(builder, ropeOffsets);
-        VectorOffset? guideOffset = null;
-        if (!read.Presentation.Guides.IsEmpty)
-        {
-            var guideOffsets = new Offset<Wire.RopeGuideReadRecord>[read.Presentation.Guides.Length];
-            for (var i = 0; i < read.Presentation.Guides.Length; i++)
-            {
-                var g = read.Presentation.Guides[i];
-                guideOffsets[i] = Wire.RopeGuideReadRecord.CreateRopeGuideReadRecord(builder, g.Guide.Value, g.Travel, g.Angle);
-            }
-            guideOffset = Wire.WorkshopResponse.CreateRopeGuidesVector(builder, guideOffsets);
-        }
-        VectorOffset? surfaceOffset = null;
-        if (!read.Presentation.Surfaces.IsEmpty)
-        {
-            var surfaceOffsets = new Offset<Wire.CompliantSurfaceReadRecord>[read.Presentation.Surfaces.Length];
-            for (var i = 0; i < read.Presentation.Surfaces.Length; i++)
-            {
-                var s = read.Presentation.Surfaces[i];
-                surfaceOffsets[i] = Wire.CompliantSurfaceReadRecord.CreateCompliantSurfaceReadRecord(builder, s.Frame.Value, s.Deflection);
-            }
-            surfaceOffset = Wire.WorkshopResponse.CreateCompliantSurfacesVector(builder, surfaceOffsets);
-        }
-        VectorOffset? logicOffset = null;
-        if (!read.Presentation.Logic.IsEmpty)
-        {
-            Wire.WorkshopResponse.StartElectricalLogicVector(builder, read.Presentation.Logic.Length);
-            for(var i=read.Presentation.Logic.Length-1;i>=0;i--)
-            {
-                var logic=read.Presentation.Logic[i];
-                ElectricalLogicRecord.CreateElectricalLogicRecord(builder,logic.Owner.Value,(byte)logic.Inputs,logic.Supplied,logic.Active);
-            }
-            logicOffset=builder.EndVector();
-        }
-        VectorOffset? actuatorOffset = null;
-        if (!read.Presentation.Actuators.IsEmpty)
-        {
-            Wire.WorkshopResponse.StartActuatorDrivesVector(builder, read.Presentation.Actuators.Length);
-            for (var i = read.Presentation.Actuators.Length - 1; i >= 0; i--)
-            {
-                var a = read.Presentation.Actuators[i];
-                ActuatorDriveRecord.CreateActuatorDriveRecord(builder, a.Slot.Joint, a.Owner.Value, (uint)a.Drive.Kind, a.SupplyClosed,
-                    a.MovingContact, a.Coordinate, a.Speed, a.Lower, a.Upper);
-            }
-            actuatorOffset = builder.EndVector();
-        }
-        VectorOffset? loadOffset = null;
-        if (!read.Presentation.Loads.IsEmpty)
-        {
-            Wire.WorkshopResponse.StartContactLoadsVector(builder, read.Presentation.Loads.Length);
-            for (var i = read.Presentation.Loads.Length - 1; i >= 0; i--)
-            {
-                var l = read.Presentation.Loads[i];
-                ContactLoadRecord.CreateContactLoadRecord(builder, l.Sensor.Value, l.Frame.Value, l.Region.Value, l.MeasuredMass, (uint)l.Phase);
-            }
-            loadOffset = builder.EndVector();
-        }
+        var guideOffset = EncodeGuideOffset(builder, read);
+        var surfaceOffset = EncodeSurfaceOffset(builder, read);
+        var logicOffset = EncodeLogicOffset(builder, read);
+        var actuatorOffset = EncodeActuatorOffset(builder, read);
+        var loadOffset = EncodeLoadOffset(builder, read);
         var session = Session(builder, response.Session);
         VectorOffset? motion = read.Motion is { } committed ? Wire.WorkshopResponse.CreateMotionVectorBlock(builder, committed.Bytes.ToArray()) : null;
 
-        VectorOffset? electricalOffset = null;
-        if (read.Electrical.Count > 0)
-        {
-            Wire.WorkshopResponse.StartElectricalVector(builder, read.Electrical.Count);
-            for (var i = read.Electrical.Count - 1; i >= 0; i--)
-            {
-                var e = read.Electrical[i];
-                ElectricalSourceRecord.CreateElectricalSourceRecord(builder, e.Id.Value, e.Owner.Value, e.Remaining.Value, e.Debit.Value, (byte)e.Enabled, e.Available);
-            }
-            electricalOffset = builder.EndVector();
-        }
+        var electricalOffset = EncodeElectricalOffset(builder, read);
         // engine-revolute-drive-target: every driven revolute's committed target, in compiled drive-table order.
-        VectorOffset? driveTargetOffset = null;
-        if (read.DriveTargets.Count > 0)
-        {
-            Wire.WorkshopResponse.StartDriveTargetsVector(builder, read.DriveTargets.Count);
-            for (var i = read.DriveTargets.Count - 1; i >= 0; i--)
-                RevoluteDriveTargetRecord.CreateRevoluteDriveTargetRecord(builder, read.DriveTargets[i].Owner.Value, read.DriveTargets[i].TargetSpeed);
-            driveTargetOffset = builder.EndVector();
-        }
+        var driveTargetOffset = EncodeDriveTargetOffset(builder, read);
 
-        VectorOffset? contactWorksOffset = null;
-        if (read.ContactWorks.Count > 0)
-        {
-            Wire.WorkshopResponse.StartContactWorksVector(builder, read.ContactWorks.Count);
-            for (var i = read.ContactWorks.Count - 1; i >= 0; i--)
-            {
-                var w = read.ContactWorks[i];
-                ContactWorkStoreRecord.CreateContactWorkStoreRecord(builder, w.Id.Value, w.Owner.Value, w.OccurrenceCount, w.RemainingEnergy.Value, w.SuppliedEnergy.Value);
-            }
-            contactWorksOffset = builder.EndVector();
-        }
+        var contactWorksOffset = EncodeContactWorksOffset(builder, read);
 
-        VectorOffset? bodiesOffset = null;
-        if (read.Bodies.Count > 0)
-        {
-            Wire.WorkshopResponse.StartBodiesVector(builder, read.Bodies.Count);
-            for (var i = read.Bodies.Count - 1; i >= 0; i--)
-            {
-                var b = read.Bodies[i];
-                BodyRead.CreateBodyRead(builder, b.Body.Id.Value,
-                    b.Body.Cell.X, b.Body.Cell.Y, b.Body.Cell.Z,
-                    b.Body.Local.X, b.Body.Local.Y, b.Body.Local.Z,
-                    b.Rotation.X, b.Rotation.Y, b.Rotation.Z, b.Rotation.W,
-                    b.LocalCentreOfMass.X, b.LocalCentreOfMass.Y, b.LocalCentreOfMass.Z,
-                    b.Body.Velocity.X, b.Body.Velocity.Y, b.Body.Velocity.Z,
-                    b.AngularVelocity.X, b.AngularVelocity.Y, b.AngularVelocity.Z);
-            }
-            bodiesOffset = builder.EndVector();
-        }
+        var bodiesOffset = EncodeBodiesOffset(builder, read);
 
-        VectorOffset? capturesOffset = null;
-        if (read.Captures.Count > 0)
-        {
-            Wire.WorkshopResponse.StartCapturesVector(builder, read.Captures.Count);
-            for (var i = read.Captures.Count - 1; i >= 0; i--)
-            {
-                var c = read.Captures[i];
-                CaptureLatchRead.CreateCaptureLatchRead(builder, c.Sensor.Value, c.Target.Value, (uint)c.Phase, c.EventOrdinal, c.EventPhase);
-            }
-            capturesOffset = builder.EndVector();
-        }
+        var capturesOffset = EncodeCapturesOffset(builder, read);
 
-        VectorOffset? activationsOffset = null;
-        if (read.Activations.Count > 0)
-        {
-            Wire.WorkshopResponse.StartActivationsVector(builder, read.Activations.Count);
-            for (var i = read.Activations.Count - 1; i >= 0; i--)
-            {
-                var a = read.Activations[i];
-                ActivationRecord.CreateActivationRecord(builder, a.Node.Value, a.Owner.Value, a.Source.Value, a.Body.Value, a.Collider.Value,
-                    (uint)a.Phase, a.EventOrdinal, (float)a.EventPhase, (float)a.ApproachSpeed.Value, (uint)a.Kind, a.Emitter.Value,
-                    a.CauseOrdinal, (float)a.CausePhase);
-            }
-            activationsOffset = builder.EndVector();
-        }
+        var activationsOffset = EncodeActivationsOffset(builder, read);
 
-        VectorOffset? timersOffset = null;
-        if (read.Timers.Count > 0)
-        {
-            Wire.WorkshopResponse.StartTimersVector(builder, read.Timers.Count);
-            for (var i = read.Timers.Count - 1; i >= 0; i--)
-            {
-                var t = read.Timers[i];
-                TimerRecord.CreateTimerRecord(builder, t.Node.Value, (uint)t.Phase, t.StartedTick, t.DueTick, (uint)t.Input.Kind,
-                    t.Input.Time.Ordinal, (float)t.Input.Time.Phase, (float)t.Input.Cause.ApproachSpeed.Value, t.Input.Emitter.Value,
-                    t.Input.Cause.Source.Value, t.Input.Cause.Body.Value, t.Input.Cause.Collider.Value, t.Input.Cause.Time.Ordinal,
-                    (float)t.Input.Cause.Time.Phase);
-            }
-            timersOffset = builder.EndVector();
-        }
+        var timersOffset = EncodeTimersOffset(builder, read);
 
         // Committed counter and clock memory rows (Story 9R.1 D3)
-        VectorOffset? memoryOffset = null;
-        if (read.Memory.Count > 0)
-        {
-            Wire.WorkshopResponse.StartActivationMemoryVector(builder, read.Memory.Count);
-            for (var i = read.Memory.Count - 1; i >= 0; i--)
-            {
-                var m = read.Memory[i];
-                ActivationMemoryRecord.CreateActivationMemoryRecord(builder, m.Node.Value, (uint)m.Kind, m.Count,
-                    m.Last.Ordinal, (float)m.Last.Phase, (uint)m.Phase, m.DueTick);
-            }
-            memoryOffset = builder.EndVector();
-        }
+        var memoryOffset = EncodeMemoryOffset(builder, read);
 
         Wire.WorkshopResponse.StartWorkshopResponse(builder);
         if (logicOffset.HasValue) Wire.WorkshopResponse.AddElectricalLogic(builder,logicOffset.Value);
