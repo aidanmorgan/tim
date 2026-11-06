@@ -120,7 +120,7 @@ public sealed class ActivationNetwork
     private readonly ActivationTimerDeclaration[] _timers;
     private readonly PassageSensorDeclaration[] _passageSensors;
     private readonly uint _substeps;
-    // Declaration data only: the memory-row index of each node (-1 for a node without Counter/oscillator memory).
+    // Declaration data only: the memory-row index of each node (-1 for a node without committed memory).
     private readonly int[] _memorySlots;
     private readonly ActivationNodeDeclaration[] _memoryNodes;
     // Story 9R.5b: Consume's working tables, sized from this compiled network once (per Run, never per tick) instead of stack
@@ -284,7 +284,7 @@ public sealed class ActivationNetwork
         for (var i = 0; i < _timers.Length; i++) values[i] = ActivationTimerState.Ready(_timers[i].Node);
         return new(values);
     }
-    /// <summary>The admitted memory rows: every Counter at count 0 with no counted input, every oscillator Stopped with no due tick.</summary>
+    /// <summary>The admitted memory rows: every Counter at count 0 with no counted input, every oscillator Stopped with no due tick, every passage cursor empty.</summary>
     public PhysicsMemoryRead ClearMemory()
     {
         var values = new ActivationMemory[_memoryNodes.Length];
@@ -304,29 +304,30 @@ public sealed class ActivationNetwork
         }
         _pending[count++] = occurrence;
     }
-    /// <summary>The committed Counter or oscillator memory row of one owner (a query over the checkpoint; the network holds none).</summary>
+    /// <summary>The committed memory row selected by exact node ID (counter, oscillator or passage cursor; the network holds none).</summary>
     public ActivationMemory Memory(PhysicsMemoryRead values, ActivationNodeId node)
     {
         ValidateMemory(values);
         for (var i = 0; i < _memoryNodes.Length; i++)
             if (_memoryNodes[i].Id == node) return values[i];
-        throw new ArgumentException("Counter or oscillator not found for owner.");
+        throw new ArgumentException("Memory row not found for node.");
     }
+    /// <summary>The authored count target selected by exact counter node ID.</summary>
     public uint GetCounterTarget(ActivationNodeId node)
     {
         for (var i = 0; i < _nodes.Length; i++)
             if (_nodes[i].Id == node && _nodes[i].Kind == ActivationNodeKind.Counter)
                 return _nodes[i].TargetCount;
-        throw new ArgumentException("Counter not found for owner.");
+        throw new ArgumentException("Counter not found for node.");
     }
-    /// <summary>State Latch memory lives in the committed checkpoint: On is Latched with the Set occurrence, Off is Clear.</summary>
+    /// <summary>The exact memory node's committed state: On is Latched with the Set occurrence, Off is Clear.</summary>
     public SimulationLatchPhase StateLatchPhase(PhysicsActivationRead values, ActivationNodeId node)
     {
         ValidatePopulation(values, ClearTimers());
         for (var i = 0; i < _nodes.Length; i++)
             if (_nodes[i].Id == node && _nodes[i].Kind == ActivationNodeKind.StateLatch)
                 return values[i].Phase == ActivationPhase.Latched ? SimulationLatchPhase.On : SimulationLatchPhase.Off;
-        throw new ArgumentException("State latch not found for owner.");
+        throw new ArgumentException("State latch not found for node.");
     }
     /// <summary>A switched contact (State Latch, Counter or contact-load level) is closed exactly while its committed value is Latched.</summary>
     public bool ContactClosed(PhysicsActivationRead values, PhysicsTimerRead timers, GpuBodyId owner)
@@ -701,7 +702,7 @@ public sealed class ActivationNetwork
         }
     }
 
-    /// <summary>The memory rows belong to exactly this network's Counter and oscillator nodes, in node order.</summary>
+    /// <summary>The memory rows belong to exactly this network's counter, oscillator and passage nodes, in node order.</summary>
     public void ValidateMemory(PhysicsMemoryRead memory)
     {
         if (memory.Count != _memoryNodes.Length) throw new ArgumentException("Activation memory population changed.");

@@ -8,8 +8,8 @@ namespace CuriousContraptions.Tests;
 
 public sealed class ComposedPhysicalSignalTests
 {
-    private static SignalEdge Edge(string source, string target) =>
-        new(new(new(source), SignalTerminal.Output), new(new(target), SignalTerminal.Input));
+    private static SignalEdge Edge(string source, string target, SignalTerminal input = SignalTerminal.Input) =>
+        new(new(new(source), SignalTerminal.Output), new(new(target), input));
     private static ActivationNodeId Node(WorkshopConstruction bench, string local) =>
         bench.Instances.Identities[new(2)].Signals[new(local)].Node;
 
@@ -49,6 +49,9 @@ public sealed class ComposedPhysicalSignalTests
             Assert.Equal([1u, 2u], events.Select(row => row.Count));
             Assert.All(events, row => Assert.Equal(3UL, row.Other));
             Assert.True(events[1].Ordinal > events[0].Ordinal);
+            var firstLatch = SelectedLatch(harness, bench, local);
+            Assert.Equal(events[0].Ordinal, firstLatch.EventOrdinal);
+            Assert.Equal(events[0].Phase, firstLatch.EventPhase);
             var cursor = network.Memory(harness.Committed.Memory, Node(bench, local)).Dispatched;
             Assert.Equal(events[1].Ordinal, cursor.Time.Ordinal);
         }
@@ -166,6 +169,138 @@ public sealed class ComposedPhysicalSignalTests
             row => row.Sensor == identities[new(loaded)].ContactLoad).Phase);
         await harness.Reset();
         Assert.All(harness.Committed.Presentation.Loads.ToArray(), row => Assert.Equal(ContactLoadPhase.Empty, row.Phase));
+    }
+
+    private static BundleEntry DelayedPassageEntry(PartId part, bool reverse)
+    {
+        var original = TestBundle.Entry(new("ball_detector"));
+        var sensor = Assert.IsType<SignalPassageDescriptor>(Assert.Single(original.Signal!.Nodes));
+        SignalNodeDescriptor[] nodes =
+        [
+            sensor,
+            new SignalTimerDescriptor(new("delay"), new("delay_seconds"), TimerCompletionPolicy.Latch,
+                TimerBoundary.BeforePhysics, TimerElapsedSignal.Activation),
+            new SignalPulseCountDescriptor(new("count"), new("target")),
+            new SignalMemoryDescriptor(new("selected")),
+            new SignalMemoryDescriptor(new("quiet"))
+        ];
+        SignalEdge[] edges = [Edge("delay", "count"), Edge("count", "selected", SignalTerminal.Set)];
+        return original with
+        {
+            Metadata = original.Metadata with { Id = part.Value, Parameters =
+                [.. original.Metadata.Parameters, new("delay_seconds", ParameterUnit.Second, ParameterKind.Real, .01f, 4f, .25f, []),
+                 new("target", ParameterUnit.None, ParameterKind.WholeNumber, 1, 8, 1, [])] },
+            Ports = [.. original.Ports, new(new("delay_in"), SimulationDomain.Signal, PortDirection.Input,
+                PortRole.ActivationIn, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)],
+            Signal = original.Signal with { Nodes = reverse ? nodes.Reverse().ToArray() : nodes,
+                Edges = reverse ? edges.Reverse().ToArray() : edges,
+                Ports = [.. original.Signal.Ports, new(new("delay_in"), new(new("delay"), SignalTerminal.Input))] },
+            Events = [new(SimulationEventKind.Passage, new("signal")), new(SimulationEventKind.TriggerActivated, new("delay")),
+                new(SimulationEventKind.ThresholdReached, new("count")),
+                new(SimulationEventKind.MemoryChanged, new("selected")), new(SimulationEventKind.MemoryChanged, new("quiet"))],
+            Presentation = original.Presentation with { Bindings = [] }
+        };
+    }
+
+    private static ActivationLatch SelectedLatch(WorkshopIntegrationHarness harness, WorkshopConstruction bench, string local) =>
+        Assert.Single(Enumerable.Range(0, harness.Committed.Activations.Count).Select(i => harness.Committed.Activations[i]),
+            row => row.Node == Node(bench, local));
+
+    [Theory]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    public async Task PhysicalSensorDelaysOnlyItsSelectedMemoryInOneElement(bool reverse, bool connected)
+    {
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        PartId part = new("delayed_passage_memory");
+        var entry = DelayedPassageEntry(part, reverse);
+        Assert.Empty(BundleValidator.Validate([new("delayed_passage", entry)]));
+        var entries = PartRegistry.Read(BundleSchema.WriteEntries([entry]));
+        using var physics = DeclaredPhysics.Scoped(entries);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(part, entry.Ports)]));
+        var half = MathF.Sqrt(.5f);
+        var floor = WorkshopConstruction.WorkbenchSurface.Value;
+        var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Generic(part, new(2), 0, floor + .62f, 0, 0, 0, -half, half),
+            WorkshopInput.Generic(new("ball"), new(3), 0, floor + 3.34f, 0, 0, 0, 0, 1)),
+            Connections: connected ? new(new WorkshopConnection(new(2), PortId.ActivationOut, new(2), new("delay_in"),
+                WorkshopConnectionDomain.Activation)) : WorkshopConnections.Empty);
+        await harness.Require(WorkshopCommandKind.Construct, bench);
+        for (var run = 0; run < 2; run++)
+        {
+            await harness.Run();
+            await AssertDelayedPassage(harness, bench, connected);
+            await harness.Reset();
+            Assert.Equal(bench.Instances, harness.Construction.Instances);
+            foreach (var local in new[] { "signal", "delay", "count", "selected", "quiet" })
+                Assert.Equal(ActivationPhase.Clear, SelectedLatch(harness, bench, local).Phase);
+            Assert.Equal(ActivationTimerState.Ready(Node(bench, "delay")), harness.Committed.Timers[0]);
+            Assert.Equal(0u, harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, Node(bench, "count")).Count);
+            Assert.Equal(default, harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, Node(bench, "signal")).Dispatched);
+        }
+    }
+
+    private static async Task AssertDelayedPassage(WorkshopIntegrationHarness harness, WorkshopConstruction bench, bool connected)
+    {
+        var recordStart = harness.Records.Count;
+        // Finite 1.5-second stall guard; the incidental arrival tick is not an acceptance value.
+        for (var tick = 0; tick < 180 && SelectedLatch(harness, bench, "signal").Phase == ActivationPhase.Clear; tick++)
+            await harness.Advance(1);
+        var sensor = SelectedLatch(harness, bench, "signal");
+        Assert.Equal(ActivationPhase.Latched, sensor.Phase);
+        Assert.Equal(ActivationOccurrenceKind.Passage, sensor.Kind);
+        Assert.Equal(ActivationCauseKind.Physical, sensor.CauseKind);
+        Assert.Equal(new GpuBodyId(3), sensor.Body);
+        Assert.Equal(bench.Instances.Identities[new(3)].Colliders[0], sensor.Collider);
+        Assert.Equal(new GpuEventSourceId(bench.Instances.Identities[new(2)].Signals[new("signal")].Passage.Value), sensor.Source);
+        Assert.Equal(ActivationPhase.Clear, SelectedLatch(harness, bench, "selected").Phase);
+        var timer = harness.Committed.Timers[0];
+        Assert.Equal(Node(bench, "delay"), timer.Node);
+        if (connected)
+        {
+            Assert.Equal(ActivationTimerPhase.Counting, timer.Phase);
+            Assert.Equal(30UL, timer.DueTick - timer.StartedTick); // Authored quarter-second delay at 120 Hz.
+            await harness.Advance(checked((int)(timer.DueTick - harness.Committed.Tick.Value - 1)));
+            Assert.Equal(ActivationPhase.Clear, SelectedLatch(harness, bench, "selected").Phase);
+            await harness.Advance(1);
+            var elapsed = SelectedLatch(harness, bench, "delay");
+            var memory = SelectedLatch(harness, bench, "selected");
+            Assert.Equal(ActivationTimerPhase.Finished, harness.Committed.Timers[0].Phase);
+            Assert.Equal(ActivationPhase.Latched, memory.Phase);
+            Assert.Equal(new GpuBodyId(2), memory.Owner);
+            Assert.Equal(ActivationOccurrenceKind.TimerElapsed, elapsed.Kind);
+            Assert.True(elapsed.Occurrence.Time > sensor.Occurrence.Time);
+            Assert.Equal(sensor.Occurrence.Cause, elapsed.Occurrence.Cause);
+            var threshold = SelectedLatch(harness, bench, "count");
+            Assert.Equal(ActivationOccurrenceKind.ThresholdReached, threshold.Kind);
+            Assert.Equal(elapsed.Occurrence.Time, threshold.Occurrence.Time);
+            Assert.Equal(sensor.Occurrence.Cause, threshold.Occurrence.Cause);
+            Assert.True(threshold.Occurrence.Time > threshold.Occurrence.Cause.Time);
+            Assert.Throws<ArgumentException>(() => (threshold.Occurrence with
+                { Time = new(threshold.Occurrence.Cause.Time.Ordinal - 1, 0) }).Validate());
+            Assert.Equal(threshold.Occurrence, memory.Occurrence);
+            var emitted = Assert.Single(harness.Records.Skip(recordStart), row => row.Kind == SimulationEventKind.ThresholdReached);
+            Assert.Equal(new GpuEventSourceId(Node(bench, "count").Value), emitted.Source);
+            Assert.Equal(elapsed.EventOrdinal, emitted.Ordinal);
+            Assert.Equal(elapsed.EventPhase, emitted.Phase);
+            Assert.Equal(1u, emitted.Count);
+            Assert.Single(harness.Records.Skip(recordStart),
+                row => row.Kind == SimulationEventKind.MemoryChanged && row.Source == new GpuEventSourceId(Node(bench, "selected").Value));
+        }
+        else
+        {
+            await harness.Advance(120); // More than the declared delay; unwired downstream nodes must remain quiet.
+            Assert.Equal(ActivationTimerState.Ready(Node(bench, "delay")), harness.Committed.Timers[0]);
+            Assert.Equal(ActivationPhase.Clear, SelectedLatch(harness, bench, "selected").Phase);
+            Assert.Empty(harness.Of(SimulationEventKind.MemoryChanged));
+            Assert.Empty(harness.Of(SimulationEventKind.ThresholdReached));
+            Assert.Equal(0u, harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, Node(bench, "count")).Count);
+        }
+        Assert.Equal(ActivationPhase.Clear, SelectedLatch(harness, bench, "quiet").Phase);
+        Assert.DoesNotContain(harness.Of(SimulationEventKind.MemoryChanged),
+            row => row.Source == new GpuEventSourceId(Node(bench, "quiet").Value));
     }
 
 }

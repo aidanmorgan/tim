@@ -52,7 +52,7 @@ Run against the unchanged schema, this reproduces the committed file byte for by
 
 The e2e suites import one module. Its first part is flatc's per-type output joined in schema declaration order without the
 per-file imports; everything after the `hand-written helpers` marker is maintained by hand (the frame checks, the authored-state
-dump and the mock encoders) and is kept when the generated part is replaced. With `OUT` an empty scratch directory:
+dump and the mock encoders) and is kept when the generated part is replaced. Normalize the compiler's optional string-accessor parameter to `flatbuffers.Encoding` and remove its `no-explicit-any` suppression; generated code follows the same strict typing contract as handwritten code. This annotation-only postprocessing preserves the overloads and runtime expressions. With `OUT` an empty scratch directory:
 
 ```sh
 flatc --ts -o "$OUT" schemas/workshop_wire.fbs schemas/workshop_authoring.fbs
@@ -62,7 +62,7 @@ flatc --ts -o "$OUT" schemas/workshop_wire.fbs schemas/workshop_authoring.fbs
   echo
   for name in $(grep -h -E '^(enum|struct|table) ' schemas/workshop_wire.fbs schemas/workshop_authoring.fbs | awk '{print $2}' | sed 's/:.*//'); do
     file=$(echo "$name" | sed -E 's/([a-z0-9])([A-Z])/\1-\2/g' | tr 'A-Z' 'a-z')
-    grep -v -E '^// automatically generated|^import ' "$OUT/curious-contraptions/wire/$file.ts" | cat -s | sed '1{/^$/d;}'
+    grep -v -E '^// automatically generated|^import ' "$OUT/curious-contraptions/wire/$file.ts" | cat -s | sed '1{/^$/d;}; s/optionalEncoding?:any/optionalEncoding?:flatbuffers.Encoding/g; s/, @typescript-eslint\/no-explicit-any//g'
     echo
   done
 } > generated.ts   # then replace the part of tools/e2e/workshop-wire.ts above the helpers marker with generated.ts

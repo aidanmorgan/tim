@@ -6,7 +6,7 @@ using System.Threading;
 namespace CuriousContraptions.Abstractions;
 
 /// <summary>One 64-byte little-endian event ring record (Story 9A.22 D2): Sequence u64 at 0 (the seqlock word, written last),
-/// Tick u64 at 8, Kind u32 at 16, Domain u32 at 20, Source u64 at 24 (the owner body), Other u64 at 32 (a body or 0), Ordinal u32
+/// Tick u64 at 8, Kind u32 at 16, Domain u32 at 20, Source u64 at 24 (the exact producer ID defined by Kind), Other u64 at 32 (a body or 0), Ordinal u32
 /// at 40 and Phase f32 at 44 (the physical time within the run), Magnitude f32 at 48, Count u32 at 52, Level u32 at 56, and 4
 /// reserved zero bytes. Each field's meaning per kind is <see cref="SimulationEventKind"/>'s; there is no wall clock.</summary>
 public readonly record struct SimulationEventRecord(ulong Sequence, ulong Tick, SimulationEventKind Kind, GpuEventSourceId Source, ulong Other,

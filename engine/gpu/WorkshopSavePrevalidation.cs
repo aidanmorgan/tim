@@ -137,7 +137,12 @@ internal static class WorkshopSavePrevalidation
             links[i] = connection;
         }
         // The connection rules themselves (WorkshopConnections), over the saved part identities: their typed refusal is this one.
-        try { new WorkshopConnections(links).Validate(id => parts.TryGetValue(id, out var part) ? part : null); }
+        try
+        {
+            var connections = new WorkshopConnections(links);
+            connections.Validate(id => parts.TryGetValue(id, out var part) ? part : null);
+            WorkshopSignalGraph.Validate(parts, connections);
+        }
         catch (WorkshopEditRejectedException refusal)
         {
             throw new WorkshopSaveRejectedException(WorkshopSaveRejection.InvalidConnection, "This save cannot be loaded: " + refusal.Message, refusal);
