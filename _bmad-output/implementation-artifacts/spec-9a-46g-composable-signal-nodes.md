@@ -2,7 +2,7 @@
 title: '9A.46g — Compose existing signal primitives within one element'
 type: 'refactor'
 created: '2026-11-05'
-status: 'in-review'
+status: 'done'
 baseline_revision: 'a29ea7d719ce4b70bd5e96090d92f94c737c0556'
 review_loop_iteration: 2
 followup_review_recommended: false
@@ -550,3 +550,22 @@ Unqualified methods above are in ComposableSignalNodesTests. Original AC1–9 me
 - .anvil/46g-vg2-full-tests.log **exit0,5821 passed/0 failed/0 skipped**, elapsed22:53.84,0 compiler warnings/errors: native5298/0/0 (22.8825min), WorkerAotGuard17/0/0, Coverage77/0/0, Bundle237/0/0, E2eRunner192/0/0. Both connected/disconnected GateCueUsesActualCommittedDriveAndAppliesNativeMaterial cases execute the new actual native Reset assertion in this authoritative round. Existing AC/repair matrix remains fully covered by this round; prior full/focused and failed evidence remain separate.
 - Actual source delta from reviewed4e008f is four added test lines in DeclaredPresentationTests.cs; accompanying native review/evidence and TODO updates are the only other modified paths. Original190-path baseline scope, all62-path repair reviews, intent/design/KEEP and baseline remain retained. No runtime/schema/package/compiler dependency changes. Production metric/web/tool/current structural proof applicability remains established; refreshed test metrics and normal captures cover changed test source. Independent same-reviewer VG2 closure, post-review primary E9, stable test-metric applicability and final scope remain required before SnapshotApproval/publication.
 - Normal local commit uses unchanged installed hooks; raw .anvil/46g-vg2-commit.log. Actual new SHA/hook totals are reported after creation outside its own content. No push. Current status in-review means pending independent acceptance, not done. Evidence-only receipt does not invalidate completed execution; relevant source/test/generated/dependency/configuration changes do. Browser/toolchain/remote qualification remains deferred/unverified.
+
+
+### Final independent closure and sequential scope receipt
+
+- Retained Verification Gap reviewer returned **Affected Verification Pass** on exact58ac2538c5745d538734eed1a1a3a8cb8bb1a65d: VG2 closed by actual native material after ResetPhysicalVisuals; prior unaffected source/review evidence applies. No unresolved confirmed finding. Existing Blind/Edge/Forward-Only/Intent/Engineering review evidence and rejected-claim reasons remain retained, without a whole-layer restart.
+- Coordinator sequential **Final diff scope/simplification PASS** on58ac2538 against originala29ea7d719ce4b70bd5e96090d92f94c737c0556: clean190-path inventory; complete original-baseline inspection, complete62-path repair and final four-line VG2 delta, with128 unchanged sections independently reconciled. Every meaningful hunk serves composed signals, necessary current compiler/runtime/wire/package/presentation callers/tests/docs or confirmed E9/FO/ENG repair. No primary policy/Conveyor adoption.
+- Necessary exact guide ABI identity closes the same-geometry defect; shared pre/post supply law retains distinct phase semantics; bounded passage cursor retains complete batches/replay; explicit state map and InitialValue cover native construction/Reset. Simplification already removed passage scratch/duplicate API, single-joint solver duplicate, alternate fourth-point search, approximate guide lookup and unused test temporaries. No materially beneficial remaining simplification; collapsing typed maps/current wire or distinct phase samples would lose required semantics, and cosmetic/adjacent churn is unwarranted.
+- Required post-review current-primary E9 on exact58ac2538: `/opt/homebrew/bin/dotnet run --file /Users/aidan/dev/personal/tim/tools/anvil/VerifyPolicy.cs -- --maintainability --project-root /Users/aidan/dev/personal/tim/.anvil/worktrees/story-9a-46g`; .anvil/46g-post-review-maintainability.log, both metric/coupling canaries PASS, metrics0, coupling504 (contract1871/model478/intrusive26), overall **FAIL/exit1** for coupling only. Coordinator explicitly confirms required final gate satisfied under46g starting rules; coupling is nonblocking, not an overall-tool Pass. Unchanged VG2 normal+PLAYTEST test-metric supplement remains applicable: same test sources, public symbols, analyzer/configuration and20/25 thresholds. No exclusions/suppression/threshold changes.
+- Normal configurations restored after E9, .anvil/46g-post-review-normal-builds.log: PLAYTEST24.78s, host-web12.15s, solution12.82s, all0 warnings/errors. Fresh three captures at primary .anvil/46g-post-review-compiler-captures, unchanged file-tool captures linked. No normative source writes or unchanged full-suite repeat. Existing VG2 full5821/0/0 and normal hooks127/0/0 remain applicable to accepted product58ac2538; receipt-only edits do not invalidate them.
+
+## Auto Run Result
+
+Status: done
+Blocking condition: none for implementation/review; receipt-only final candidate exact-SHA SnapshotApproval and publication remain pending.
+Follow-up review recommended: false
+
+- Implemented and independently reviewed composed signal nodes plus all confirmed repair closure; original intent, baseline and ownership retained. Product candidate58ac2538c5745d538734eed1a1a3a8cb8bb1a65d has full5821/0/0, hooks127/0/0, VG2 Affected Verification Pass, applicable Engineering Scoped implementation Pass, satisfied starting-rule final E9 and final scope/simplification Pass.
+- Coordinator authorizes only native/TODO receipt completion and a local receipt-only candidate through unchanged normal hooks, raw .anvil/46g-final-receipt-commit.log. Its exact SHA and hook result are reported externally after creation; retained engineering auditor gives final exact-SHA SnapshotApproval before push. No recursive receipt manifest or self-referencing future SHA.
+- Next46h starts from published main after46g publication. Browser/toolchain execution/typecheck, detailed later qualification and remote build/artifact/deployment remain explicitly deferred/unverified; owner no-CI-wait policy applies. This done status records implementation/review completion, not publication or browser/release qualification.
