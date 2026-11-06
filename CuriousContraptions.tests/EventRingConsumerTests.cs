@@ -14,6 +14,8 @@ namespace CuriousContraptions.Tests;
 /// cue is derived from the run's own records and the declared envelope, never from the evaluator.</summary>
 public sealed class EventRingConsumerTests
 {
+    private static GpuEventSourceId EventSource(WorkshopConstruction bench, GpuBodyId owner, SimulationEventKind kind) =>
+        new(SimulationEvents.SignalSource(kind) ? bench.Instances.Identities[owner].Signals[new("signal")].Node.Value : owner.Value);
     private static readonly double Floor = (double)WorkshopConstruction.WorkbenchSurface.Value;
     private static readonly double Half45 = Math.Sqrt(.5);
     private const uint Substeps = 4; // the default 120 Hz cadence: four 480 Hz physical steps per tick
@@ -166,7 +168,7 @@ public sealed class EventRingConsumerTests
 
         Assert.Equal(3, impacts.Length);
         Assert.All(impacts, record => Assert.Equal((SimulationEventKind.Impact, SimulationDomain.Mechanical, 2UL, 1UL, 0U),
-            (record.Kind, record.Domain, record.Source, record.Other, record.Level))); // the bumper's records, striking the ball
+            (record.Kind, record.Domain, record.Source.Value, record.Other, record.Level))); // the bumper's records, striking the ball
         Assert.Equal(new ulong[] { 1, 2, 3 }, impacts.Select(record => record.Sequence).ToArray());
         Assert.Equal(new uint[] { 1, 2, 3 }, impacts.Select(record => record.Count).ToArray()); // the bumper's occurrence count
         static double Steps(SimulationEventRecord record) => record.Ordinal + record.Phase / 4096.0;
@@ -275,7 +277,7 @@ public sealed class EventRingConsumerTests
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         await run.Advance(ticks);
-        var cues = run.Delivered.Where(record => record.Source == owner.Value && record.Kind == kind).ToArray();
+        var cues = run.Delivered.Where(record => record.Source == EventSource(bench, owner, kind) && record.Kind == kind).ToArray();
         Assert.Equal(name == "detector" ? 2 : 1, cues.Length);
         Assert.Equal(run.Harness.Records.Count, run.Delivered.Count); // the cursor delivered every committed record exactly once
         var duration = (double)Duration(part);
@@ -297,7 +299,7 @@ public sealed class EventRingConsumerTests
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         await run.Advance(ticks);
-        Assert.DoesNotContain(run.Delivered, record => record.Source == owner.Value && record.Kind == kind);
+        Assert.DoesNotContain(run.Delivered, record => record.Source == EventSource(bench, owner, kind) && record.Kind == kind);
         for (var at = run.Origin; at < run.Origin + ticks / 120.0; at += .05) Assert.Equal(Cue(part, 0), run.Sample(at, owner));
     }
 
@@ -310,14 +312,14 @@ public sealed class EventRingConsumerTests
         var run = new Animation(ring, bench);
         var tick = run.Harness.Committed.Tick.Value + 1;
         SimulationEventRecord Record(ulong sequence, SimulationEventKind kind, ulong source, uint level = 0) =>
-            new(sequence, tick, kind, source, 0, checked((uint)(tick * Substeps + 1)), 0f, 0f, 0, level);
+            new(sequence, tick, kind, new(source), 0, checked((uint)(tick * Substeps + 1)), 0f, 0f, 0, level);
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [
             Record(1, SimulationEventKind.TriggerActivated, 2), // the lamp's owner, not the switch
             Record(2, SimulationEventKind.Impact, owner.Value), Record(3, SimulationEventKind.Passage, owner.Value),
             Record(4, SimulationEventKind.MemoryChanged, owner.Value, 1), Record(5, SimulationEventKind.ContactLoad, owner.Value, 1)]), run.World);
         for (var k = 0; k <= 8; k++) Assert.Equal(Cue(part, 0), run.Sample(run.Origin + .05 * k, owner));
         // The same owner's own kind cues it: the control is the filter, not a dead evaluator.
-        run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [Record(6, SimulationEventKind.TriggerActivated, owner.Value)]), run.World);
+        run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [Record(6, SimulationEventKind.TriggerActivated, EventSource(bench, owner, SimulationEventKind.TriggerActivated).Value)]), run.World);
         Assert.Equal(Cue(part, 1), run.Sample(run.Origin + 1, owner));
     }
 
@@ -329,7 +331,7 @@ public sealed class EventRingConsumerTests
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         var tick = run.Harness.Committed.Tick.Value + 2;
-        var record = new SimulationEventRecord(1, tick, kind, owner.Value, 4, checked((uint)(tick * Substeps + 3)), 1024f, 1f, 0, 0);
+        var record = new SimulationEventRecord(1, tick, kind, EventSource(bench, owner, kind), 4, checked((uint)(tick * Substeps + 3)), 1024f, 1f, 0, 0);
         Assert.Equal(3.25 / WorkshopCadenceSettings.PhysicalFrequency,
             Animation.At(record) - Animation.At(record with { Ordinal = checked((uint)(tick * Substeps)), Phase = 0f }), 12);
         var timestamp = WorkshopDeclaredPresentation.EventTime(record);
@@ -384,7 +386,7 @@ public sealed class EventRingConsumerTests
         var target = WorkshopDeclaredPresentation.Targets(CompiledSceneFixture.Compile(bench)).First(entry => entry.Owner == owner);
         var property = WorkshopDeclaredPresentation.Property(DeclaredPhysics.Of(part).Presentation.Bindings[0].Property);
         var tick = run.Harness.Committed.Tick.Value + 1;
-        SimulationEventRecord At(ulong sequence, double seconds) => new(sequence, tick, kind, owner.Value, 0,
+        SimulationEventRecord At(ulong sequence, double seconds) => new(sequence, tick, kind, EventSource(bench, owner, kind), 0,
             checked((uint)Math.Round((seconds - run.Origin) * WorkshopCadenceSettings.PhysicalFrequency + run.World.AnchorTick.Value * Substeps)), 0f, 1f, 0, 0);
         run.Presentation.SetVisible(target.Target, property, false);
         var early = At(1, run.Origin + .1);
@@ -427,7 +429,7 @@ public sealed class EventRingConsumerTests
         Assert.Equal(Cue(part, 0), run.Sample(run.Origin + .2, owner)); // the clock has reached origin + 0.2 s
         var tick = run.Harness.Committed.Tick.Value + 1;
         // Its instant is a quarter of the cue's duration before the clock (to the nearest physical step).
-        var late = new SimulationEventRecord(1, tick, DeclaredPhysics.Of(part).Presentation.Bindings[0].Event, owner.Value, 0,
+        var late = new SimulationEventRecord(1, tick, DeclaredPhysics.Of(part).Presentation.Bindings[0].Event, EventSource(bench, owner, DeclaredPhysics.Of(part).Presentation.Bindings[0].Event), 0,
             checked((uint)Math.Round((.2 - duration / 4) * WorkshopCadenceSettings.PhysicalFrequency + run.World.AnchorTick.Value * Substeps)), 0f, 1f, 0, 0);
         Assert.True(Animation.At(late) < run.Origin + .2);
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [late]), run.World);
@@ -447,7 +449,7 @@ public sealed class EventRingConsumerTests
         {
             await run.Advance(ticks);
             var cue = Assert.Single(run.Delivered, record => record.Kind == kind);
-            Assert.Equal((1UL, owner.Value), (run.Delivered[0].Sequence, cue.Source));
+            Assert.Equal((1UL, owner.Value), (run.Delivered[0].Sequence, cue.Source.Value));
             Assert.Equal(Cue(part, 0), run.Sample(Animation.At(cue) - duration / 4, owner)); // at rest before the capture
             for (var k = 0; k <= 4; k++) Assert.Equal(Cue(part, Quarter[k]), run.Sample(Animation.At(cue) + duration * k / 4, owner));
             Assert.Equal(Cue(part, 1), run.Sample(Animation.At(cue) + duration * 5 / 4, owner)); // the end value holds
@@ -477,7 +479,7 @@ public sealed class EventRingConsumerTests
         var tick = run.Harness.Committed.Tick.Value + 1;
         var epoch = run.World.WorldGeneration.Value;
         // Through the reference ring: six records into a ring of four; the reader skips the two the writer lapped.
-        var published = Enumerable.Range(0, 6).Select(i => new SimulationEventRecord((ulong)i + 1, tick, kind, owner.Value, 1,
+        var published = Enumerable.Range(0, 6).Select(i => new SimulationEventRecord((ulong)i + 1, tick, kind, EventSource(bench, owner, kind), 1,
             checked((uint)(tick * Substeps + (ulong)i)), 0f, 0f, 0, 0)).ToArray();
         var lapped = EventRingBuffer.Append(null, EventRingBuffer.Batch(new(4, 64, epoch, 4), published.AsSpan(0, 4)));
         lapped = EventRingBuffer.Append(lapped, EventRingBuffer.Batch(new(4, 64, epoch, 6), published.AsSpan(4)));
@@ -501,7 +503,7 @@ public sealed class EventRingConsumerTests
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         var tick = run.Harness.Committed.Tick.Value + 1;
-        var record = new SimulationEventRecord(3, tick, kind, owner.Value, 0, checked((uint)(tick * Substeps)), 0f, 0f, 0, 0);
+        var record = new SimulationEventRecord(3, tick, kind, EventSource(bench, owner, kind), 0, checked((uint)(tick * Substeps)), 0f, 0f, 0, 0);
         var epoch = run.World.WorldGeneration.Value;
         Assert.Throws<ArgumentException>(() => run.Presentation.AcceptEvents(new(epoch + 1, 0, [record]), run.World));
         run.Presentation.AcceptEvents(new(epoch, 0, [record]), run.World);
@@ -566,7 +568,7 @@ public sealed class EventRingConsumerTests
         var goal = CaptureGoal(new(1), new(2));
         var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
         SimulationEventRecord Record(ulong sequence, ulong tick, ulong source) =>
-            new(sequence, tick, SimulationEventKind.Impact, source, 1, checked((uint)(tick * Substeps)), 0f, 0f, 1, 0);
+            new(sequence, tick, SimulationEventKind.Impact, new(source), 1, checked((uint)(tick * Substeps)), 0f, 0f, 1, 0);
         wake.Observe(new(1, 0, [Record(1, 10, 9)]), new(9));
         Assert.False(wake.Due(new(50))); // a record from another owner never wakes the goal
         wake.Observe(new(1, 2, [Record(4, 12, 9)]), new(11));
@@ -596,16 +598,16 @@ public sealed class EventRingConsumerTests
         Assert.True(bench.Instances.Identities.TryCapture(goal.Target, goal.Body, out var capture));
         Assert.Contains(scene.Sensors.ToArray(), sensor => sensor.Id == capture.Sensor && sensor.Frame == goal.Target && sensor.Targets.Contains(goal.Body, scene.Bodies.ToArray().Single(body => body.Id == goal.Body).Payload));
         var wake = new WorkshopGoalWake(goal, scene);
-        wake.Observe(new(1, 0, [new(1, 7, SimulationEventKind.Captured, 2, 1, 28, 0f, 0f, 0, 0)]), new(6));
+        wake.Observe(new(1, 0, [new(1, 7, SimulationEventKind.Captured, new(2), 1, 28, 0f, 0f, 0, 0)]), new(6));
         Assert.Equal(7UL, wake.WakeTick);
-        var after = new WorkshopGoalWake(new(WorkshopGoalKind.ActivatedAfter, default, default, new(3), new(5)), scene);
-        after.Observe(new(1, 0, [new(1, 4, SimulationEventKind.TriggerActivated, 3, 1, 16, 0f, 0f, 0, 0)]), new(3));
+        var after = new WorkshopGoalWake(new(WorkshopGoalKind.ActivatedAfter, new(3), new(5), new("signal"), new("signal")), scene);
+        after.Observe(new(1, 0, [new(1, 4, SimulationEventKind.TriggerActivated, new(3), 1, 16, 0f, 0f, 0, 0)]), new(3));
         Assert.Equal(4UL, after.WakeTick);
         after.Evaluated(new(4), solved: false);
-        after.Observe(new(1, 0, [new(2, 9, SimulationEventKind.TriggerActivated, 77, 1, 36, 0f, 0f, 0, 0)]), new(8));
+        after.Observe(new(1, 0, [new(2, 9, SimulationEventKind.TriggerActivated, new(77), 1, 36, 0f, 0f, 0, 0)]), new(8));
         Assert.Equal(9UL, after.WakeTick); // a record from any owner: the delay box upstream of the goal's lamp
         var none = new WorkshopGoalWake(default, scene);
-        none.Observe(new(1, 0, [new(1, 4, SimulationEventKind.Captured, 2, 1, 16, 0f, 0f, 0, 0)]), new(3));
+        none.Observe(new(1, 0, [new(1, 4, SimulationEventKind.Captured, new(2), 1, 16, 0f, 0f, 0, 0)]), new(3));
         Assert.False(none.Due(new(10)));
     }
 
@@ -699,7 +701,7 @@ public sealed class EventRingConsumerTests
         var later = checked((uint)Math.Ceiling((duration + 1) * 480));
         var records = Enumerable.Range(1, 96).Select(i => {
             var ordinal = i <= 64 ? 4u : later;
-            return new SimulationEventRecord((ulong)i, (ordinal + 3u) / 4u, SimulationEventKind.Impact, 2, 1, ordinal, 0, 1, (uint)i, 0);
+            return new SimulationEventRecord((ulong)i, (ordinal + 3u) / 4u, SimulationEventKind.Impact, new(2), 1, ordinal, 0, 1, (uint)i, 0);
         }).ToArray();
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, records), run.World);
         var peak = Animation.At(records[^1]) + duration / 2;
@@ -715,10 +717,10 @@ public sealed class EventRingConsumerTests
         var bench = Bench([PlacedParts.Bumper(new(2), 0, 1, 0)], []);
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
-        var first = new SimulationEventRecord(1, 120, SimulationEventKind.Impact, 2, 1, 480, 0, 1, 1, 0);
+        var first = new SimulationEventRecord(1, 120, SimulationEventKind.Impact, new(2), 1, 480, 0, 1, 1, 0);
         var second = first with { Sequence = 2, Count = 2 };
         Assert.ThrowsAny<ArgumentException>(() => run.Presentation.AcceptEvents(
-            new(run.World.WorldGeneration.Value, 3, [first, second with { Source = 0 }]), run.World));
+            new(run.World.WorldGeneration.Value, 3, [first, second with { Source = default }]), run.World));
         Assert.Equal(0UL, run.Presentation.Lapped);
         Assert.Equal(Cue(new PartId("bumper"), 0), run.Sample(Animation.At(first) + Duration(new PartId("bumper")) / 4, new(2)));
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 3, [first, second]), run.World);

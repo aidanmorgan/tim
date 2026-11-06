@@ -116,45 +116,52 @@ public sealed class ElementIsolation
     {
         var result = new List<Lexeme>();
         var i = 0;
-        void Code(bool interpolation)
-        {
-            var depth = 0;
-            while (i < source.Length)
-            {
-                var start = i;
-                var c = source[i++];
-                if (interpolation && c == '}' && depth-- == 0) return;
-                if (c == '{') depth++;
-                if (c == '/' && i < source.Length && source[i] == '/')
-                { while (i < source.Length && source[i] != '\n') i++; continue; }
-                if (c == '/' && i < source.Length && source[i] == '*')
-                { i++; while (i + 1 < source.Length && !(source[i] == '*' && source[i + 1] == '/')) i++; i = Math.Min(source.Length, i + 2); continue; }
-                if (c is '\'' or '"' or '`')
-                {
-                    var text = new StringBuilder();
-                    while (i < source.Length)
-                    {
-                        var next = source[i++];
-                        if (next == '\\' && i < source.Length) { text.Append(next).Append(source[i++]); continue; }
-                        if (next == c) break;
-                        if (c == '`' && next == '$' && i < source.Length && source[i] == '{')
-                        {
-                            result.Add(new(Unescape(text.ToString()), start, true)); text.Clear(); i++; Code(true); start = i; continue;
-                        }
-                        text.Append(next);
-                    }
-                    result.Add(new(Unescape(text.ToString()), start, true)); continue;
-                }
-                if (char.IsLetter(c) || c is '_' or '$')
-                {
-                    while (i < source.Length && (char.IsLetterOrDigit(source[i]) || source[i] is '_' or '$')) i++;
-                    result.Add(new(source[start..i], start, false));
-                }
-                else if (c == '.') result.Add(new(".", start, false));
-            }
-        }
-        Code(false);
+        LexJavaScriptCode(source, result, ref i, false);
         return result;
+    }
+
+    private static void LexJavaScriptCode(string source, List<Lexeme> result, ref int i, bool interpolation)
+    {
+        var depth = 0;
+        while (i < source.Length)
+        {
+            var start = i;
+            var c = source[i++];
+            if (interpolation && c == '}' && depth-- == 0) return;
+            if (c == '{') depth++;
+            if (c == '/' && i < source.Length && source[i] == '/')
+            { while (i < source.Length && source[i] != '\n') i++; continue; }
+            if (c == '/' && i < source.Length && source[i] == '*')
+            { i++; while (i + 1 < source.Length && !(source[i] == '*' && source[i + 1] == '/')) i++; i = Math.Min(source.Length, i + 2); continue; }
+            if (c is '\'' or '"' or '`')
+            {
+                LexJavaScriptString(source, result, ref i, start, c);
+                continue;
+            }
+            if (char.IsLetter(c) || c is '_' or '$')
+            {
+                while (i < source.Length && (char.IsLetterOrDigit(source[i]) || source[i] is '_' or '$')) i++;
+                result.Add(new(source[start..i], start, false));
+            }
+            else if (c == '.') result.Add(new(".", start, false));
+        }
+    }
+
+    private static void LexJavaScriptString(string source, List<Lexeme> result, ref int i, int start, char c)
+    {
+        var text = new StringBuilder();
+        while (i < source.Length)
+        {
+            var next = source[i++];
+            if (next == '\\' && i < source.Length) { text.Append(next).Append(source[i++]); continue; }
+            if (next == c) break;
+            if (c == '`' && next == '$' && i < source.Length && source[i] == '{')
+            {
+                result.Add(new(Unescape(text.ToString()), start, true)); text.Clear(); i++; LexJavaScriptCode(source, result, ref i, true); start = i; continue;
+            }
+            text.Append(next);
+        }
+        result.Add(new(Unescape(text.ToString()), start, true));
     }
 
     public List<Hit> ScanJavaScript(string file, string source)

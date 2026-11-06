@@ -182,7 +182,7 @@ public sealed class CatalogueIntegrationTests
                 var built = harness.Committed;
                 await harness.Run();
                 await harness.Advance(3 * rate);
-                Assert.Contains(harness.Records, row => row.Kind == SimulationEventKind.TriggerActivated && row.Source == 4 && row.Other == 5);
+                Assert.Contains(harness.Records, row => row.Kind == SimulationEventKind.TriggerActivated && row.Source.Value == harness.Construction.Instances.Identities[new(4)].Signals[new("signal")].Node.Value && row.Other == 5);
                 Assert.Equal(connected, Blade(harness.Committed, 3).SupplyClosed);
                 Assert.True(connected ? Blade(harness.Committed, 3).Coordinate > 1 : Blade(harness.Committed, 3).Coordinate < .2f);
                 var lamp = Enumerable.Range(0, harness.Committed.Activations.Count).Select(i => harness.Committed.Activations[i]).Single(row => row.Owner.Value == 8);
@@ -260,7 +260,7 @@ public sealed class CatalogueIntegrationTests
                 var built = harness.Committed;
                 await harness.Run();
                 await harness.Advance(4 * rate);
-                Assert.Equal(guided, harness.Records.Any(row => row.Kind == SimulationEventKind.Passage && row.Source == 2 && row.Other == 4));
+                Assert.Equal(guided, harness.Records.Any(row => row.Kind == SimulationEventKind.Passage && row.Source.Value == harness.Construction.Instances.Identities[new(2)].Signals[new("signal")].Node.Value && row.Other == 4));
                 var lamp = Enumerable.Range(0, harness.Committed.Activations.Count).Select(i => harness.Committed.Activations[i]).Single(row => row.Owner.Value == 3);
                 Assert.Equal(guided ? ActivationPhase.Latched : ActivationPhase.Clear, lamp.Phase);
                 await harness.Reset();
@@ -302,5 +302,5 @@ public sealed class CatalogueIntegrationTests
     private static ActuatorDriveRead Blade(WorkshopRead read, ulong owner) =>
         read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == owner);
     private static ActivationMemory Memory(WorkshopRead read, ulong owner) =>
-        Enumerable.Range(0, read.Memory.Count).Select(i => read.Memory[i]).Single(row => row.Node.Value == owner);
+        Enumerable.Range(0, read.Memory.Count).Select(i => read.Memory[i]).Single(row => row.Node == SignalTestNodes.Only(read.Activations, new(owner)));
 }

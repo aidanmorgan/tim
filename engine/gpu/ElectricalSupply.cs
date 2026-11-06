@@ -23,16 +23,7 @@ public static class ElectricalSupply
     public static ElectricalTransfer Allocate(ElectricalEnable enabled, float sourceBalance, float maximumPower,
         ReadOnlySpan<float> balances, ReadOnlySpan<float> capacities, Span<float> nextBalances)
     {
-        if (!Enum.IsDefined(enabled) || !float.IsFinite(sourceBalance) || sourceBalance < 0 ||
-            sourceBalance > ElectricalSourceEnvelope.MaximumCapacity || !float.IsFinite(maximumPower) ||
-            maximumPower is < ElectricalSourceEnvelope.MinimumPower or > ElectricalSourceEnvelope.MaximumPower ||
-            balances.Length != capacities.Length || nextBalances.Length != balances.Length ||
-            balances.Overlaps(nextBalances) || capacities.Overlaps(nextBalances))
-            throw new ArgumentException("Invalid finite electrical allocation.");
-        for (var i = 0; i < balances.Length; i++)
-            if (!float.IsFinite(capacities[i]) || capacities[i] is < 0f or > ElectricalSourceEnvelope.MaximumCapacity ||
-                !float.IsFinite(balances[i]) || balances[i] < 0f || balances[i] > capacities[i])
-                throw new ArgumentException("Invalid electrical storage balance.");
+        ValidateAllocation(enabled, sourceBalance, maximumPower, balances, capacities, nextBalances);
 
         // All inputs have been admitted; demand and grants share one finite reservation.
         Span<float> demand = balances.Length <= StackLoads ? stackalloc float[balances.Length] : new float[balances.Length];
@@ -87,4 +78,20 @@ public static class ElectricalSupply
             remaining = MathF.Max(reservedRemaining, MathF.BitDecrement(remaining));
         return new(remaining, sourceBalance - remaining);
     }
+
+    private static void ValidateAllocation(ElectricalEnable enabled, float sourceBalance, float maximumPower,
+        ReadOnlySpan<float> balances, ReadOnlySpan<float> capacities, Span<float> nextBalances)
+    {
+        if (!Enum.IsDefined(enabled) || !float.IsFinite(sourceBalance) || sourceBalance < 0 ||
+            sourceBalance > ElectricalSourceEnvelope.MaximumCapacity || !float.IsFinite(maximumPower) ||
+            maximumPower is < ElectricalSourceEnvelope.MinimumPower or > ElectricalSourceEnvelope.MaximumPower ||
+            balances.Length != capacities.Length || nextBalances.Length != balances.Length ||
+            balances.Overlaps(nextBalances) || capacities.Overlaps(nextBalances))
+            throw new ArgumentException("Invalid finite electrical allocation.");
+        for (var i = 0; i < balances.Length; i++)
+            if (!float.IsFinite(capacities[i]) || capacities[i] is < 0f or > ElectricalSourceEnvelope.MaximumCapacity ||
+                !float.IsFinite(balances[i]) || balances[i] < 0f || balances[i] > capacities[i])
+                throw new ArgumentException("Invalid electrical storage balance.");
+    }
+
 }

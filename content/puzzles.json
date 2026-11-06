@@ -2191,6 +2191,8 @@
     ],
     "goal": {
       "kind": "ActivatedAfter",
+      "source_node": "signal",
+      "target_node": "signal",
       "source": "fixture_2",
       "target": "fixture_3",
       "minimum_seconds": 0
@@ -8614,6 +8616,8 @@
     ],
     "goal": {
       "kind": "ActivatedAfter",
+      "source_node": "signal",
+      "target_node": "signal",
       "source": "fixture_2",
       "target": "fixture_3",
       "minimum_seconds": 1

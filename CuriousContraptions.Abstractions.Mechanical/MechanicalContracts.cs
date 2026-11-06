@@ -24,13 +24,7 @@ public readonly record struct RigidBodyMassProperties(
     {
         if (!Enum.IsDefined(mode) || mode == KinematicMode.Kinematic)
             throw new ArgumentException("Unsupported mass-frame motion.");
-        if (!Finite(CentreOfMass) || !Finite(PrincipalMoments) || !Finite(Gravity) ||
-            !float.IsFinite(Mass) || !float.IsFinite(LinearDrag) ||
-            !float.IsFinite(PrincipalFrame.X) || !float.IsFinite(PrincipalFrame.Y) ||
-            !float.IsFinite(PrincipalFrame.Z) || !float.IsFinite(PrincipalFrame.W) ||
-            MathF.Abs(PrincipalFrame.LengthSquared() - 1f) > 1e-4f ||
-            Vector3.Abs(CentreOfMass).X > 16f || Vector3.Abs(CentreOfMass).Y > 16f || Vector3.Abs(CentreOfMass).Z > 16f)
-            throw new ArgumentException("Invalid mass frame.");
+        ValidateFrame();
         if (mode == KinematicMode.Static)
         {
             if (Mass != 0f || CentreOfMass != Vector3.Zero || PrincipalMoments != Vector3.Zero ||
@@ -38,6 +32,22 @@ public readonly record struct RigidBodyMassProperties(
                 throw new ArgumentException("Static mass frames must be canonical zero.");
             return;
         }
+        ValidateDynamicProperties();
+    }
+
+    private void ValidateFrame()
+    {
+        if (!Finite(CentreOfMass) || !Finite(PrincipalMoments) || !Finite(Gravity) ||
+            !float.IsFinite(Mass) || !float.IsFinite(LinearDrag) ||
+            !float.IsFinite(PrincipalFrame.X) || !float.IsFinite(PrincipalFrame.Y) ||
+            !float.IsFinite(PrincipalFrame.Z) || !float.IsFinite(PrincipalFrame.W) ||
+            MathF.Abs(PrincipalFrame.LengthSquared() - 1f) > 1e-4f ||
+            Vector3.Abs(CentreOfMass).X > 16f || Vector3.Abs(CentreOfMass).Y > 16f || Vector3.Abs(CentreOfMass).Z > 16f)
+            throw new ArgumentException("Invalid mass frame.");
+    }
+
+    private void ValidateDynamicProperties()
+    {
         if (Mass < 1f / 1024f || Mass > 1024f || LinearDrag < 0f || LinearDrag > .125f || Gravity.LengthSquared() > 256f)
             throw new ArgumentException("Mass or forces outside the physical domain.");
         var p = PrincipalMoments;

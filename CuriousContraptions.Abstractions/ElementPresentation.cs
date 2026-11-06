@@ -25,6 +25,8 @@ public enum PresentationDriver : byte
     CommittedSurfaceDeflection
 }
 
+public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2 }
+
 public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep }
 public enum PresentationOverlap : byte { Replace, SaturatingSum, Maximum }
 public enum PresentationTimerPhase : byte { None, Ready, Counting, Finished }
@@ -39,10 +41,10 @@ public enum PresentationEventMagnitude : byte { Any, Positive }
 /// every committed driver names <see cref="SimulationEventKind.None"/> and <see cref="PresentationEventMagnitude.Any"/>. Values and time
 /// are f32.</summary>
 public readonly record struct PresentationBinding(
-    string Node, PresentationProperty Property, PresentationDriver Driver,
+    string Node, PresentationProperty Property, PresentationDriver Driver, PresentationValueMapping Mapping,
     float From, float To, PresentationCurve Curve, float Duration,
     PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortId? Socket = null,
-    SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any);
+    SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any, SignalNodeId? SignalNode = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(
@@ -67,6 +69,29 @@ public sealed record ElementPresentation(
 /// <summary>The single supported driver/curve contract shared by package and compiled admission.</summary>
 public static class PresentationDriverRules
 {
+    public static bool SignalSource(PresentationDriver driver, SimulationEventKind kind) => driver is
+        PresentationDriver.CommittedActivation or PresentationDriver.CommittedCount or PresentationDriver.CommittedOscillatorPhase or
+        PresentationDriver.CommittedOscillatorPulse or PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerPhase or
+        PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTimerActive or PresentationDriver.CommittedContactLoadPhase ||
+        driver == PresentationDriver.Event && SimulationEvents.SignalSource(kind);
+
+    public static bool ContinuousNormalized(PresentationDriver driver) => driver is PresentationDriver.CommittedOscillatorPhase or
+        PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerRemaining;
+
+    public static bool SupportsMapping(PresentationDriver driver, PresentationValueMapping mapping) =>
+        mapping == PresentationValueMapping.Identity || mapping == PresentationValueMapping.SineCyclesToUnit && ContinuousNormalized(driver);
+
+    public static float Map(float input, PresentationValueMapping mapping)
+    {
+        if (!float.IsFinite(input)) throw new ArgumentException("Nonfinite presentation input.");
+        return mapping switch
+        {
+            PresentationValueMapping.Identity => input,
+            PresentationValueMapping.SineCyclesToUnit => .5f + .5f * MathF.Sin(MathF.Tau * input),
+            _ => throw new ArgumentOutOfRangeException(nameof(mapping))
+        };
+    }
+
     public static bool Supports(PresentationDriver driver, PresentationCurve curve, float duration, PresentationOverlap overlap) => driver switch
                 {
                     // Story 9A.25b: a ring-kind cue replays a Replace endpoint clip or adds a saturating pulse per record.
@@ -75,13 +100,14 @@ public static class PresentationDriverRules
                          (curve == PresentationCurve.SineSquaredPulse && overlap == PresentationOverlap.SaturatingSum)),
                     PresentationDriver.CommittedActivation or
                         PresentationDriver.CommittedCount or PresentationDriver.CommittedElectricalSocket => curve == PresentationCurve.SmoothStep && duration > 0 && overlap == PresentationOverlap.Replace,
-                    PresentationDriver.CommittedOscillatorPhase => curve == PresentationCurve.ExponentialFollow && duration == 0 && overlap == PresentationOverlap.Replace,
+                    PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTimerProgress =>
+                        curve is PresentationCurve.ExponentialFollow or PresentationCurve.Linear && duration == 0 && overlap == PresentationOverlap.Replace,
                     PresentationDriver.CommittedOscillatorPulse => curve == PresentationCurve.LinearDecay && duration > 0 && overlap == PresentationOverlap.Maximum,
                     PresentationDriver.CommittedContactLoadPhase => curve == PresentationCurve.CubicSmoothStep && duration > 0 && overlap == PresentationOverlap.Replace,
                     // A committed on/off level: shown at once, or blended over its declared time (the Motor's supply lamp, CAT-042).
                     PresentationDriver.CommittedTimerActive or PresentationDriver.CommittedActuatorDrive => overlap == PresentationOverlap.Replace &&
                         ((curve == PresentationCurve.Linear && duration == 0) || (curve == PresentationCurve.SmoothStep && duration > 0)),
-                    PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
+                    PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
                         PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorState or
                         PresentationDriver.CommittedWheelAngle or PresentationDriver.CommittedSurfaceDeflection =>
                             curve == PresentationCurve.Linear && duration == 0 && overlap == PresentationOverlap.Replace,

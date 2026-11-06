@@ -129,16 +129,7 @@ public static class PlacementPose
             bottom = MathF.Min(bottom, shape.Centre.Y - shape.SupportDistance(Vector3.Down));
             top = MathF.Max(top, shape.Centre.Y + shape.Height);
         }
-        var statics = new List<(GpuBodyId Owner, Posed Shape)>(32);
-        foreach (var instance in placed)
-        {
-            if (instance.Id == candidate.Body) continue;
-            var other = DeclaredPhysics.Of(instance.PartId);
-            if ((other.Mechanical?.KinematicMode ?? KinematicMode.Static) != KinematicMode.Static) continue;
-            var (position, turn) = TubeMouthSnap.Pose(instance);
-            foreach (var shape in Pose(BundleGeometry.Colliders(other, DeclaredPhysics.Parameters(instance)), position, turn))
-                statics.Add((instance.Id, shape));
-        }
+        var statics = StaticRestGeometry(placed, candidate.Body);
         float? rest = null;
         var owner = default(GpuBodyId);
         foreach (var item in statics)
@@ -170,6 +161,21 @@ public static class PlacementPose
         foreach (var other in statics)
             if (Array.Exists(raised, shape => Overlaps(shape, other.Shape, ContactSlop))) return (lifted, PlacementRefusal.IntoPart);
         return (lifted, PlacementRefusal.None);
+    }
+
+    private static List<(GpuBodyId Owner, Posed Shape)> StaticRestGeometry(IReadOnlyList<IWorkshopInstance> placed, GpuBodyId candidate)
+    {
+        var statics = new List<(GpuBodyId Owner, Posed Shape)>(32);
+        foreach (var instance in placed)
+        {
+            if (instance.Id == candidate) continue;
+            var other = DeclaredPhysics.Of(instance.PartId);
+            if ((other.Mechanical?.KinematicMode ?? KinematicMode.Static) != KinematicMode.Static) continue;
+            var (position, turn) = TubeMouthSnap.Pose(instance);
+            foreach (var shape in Pose(BundleGeometry.Colliders(other, DeclaredPhysics.Parameters(instance)), position, turn))
+                statics.Add((instance.Id, shape));
+        }
+        return statics;
     }
 
     private static Posed[] Pose(IReadOnlyList<ColliderDescriptor> colliders, Vector3 position, Quaternion turn)

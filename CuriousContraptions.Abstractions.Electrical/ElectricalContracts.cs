@@ -49,7 +49,7 @@ public static class ElectricalSourceEnvelope
 /// <summary>A declared supply route. A Source declares its finite <see cref="Store"/>; no other kind declares one.</summary>
 public readonly record struct SupplyCapabilityDescriptor(
     SupplyCapabilityKind Kind, PortId? Input, PortId Output, LogicGateOperation? Operation = null,
-    SupplySourceStoreDescriptor? Store = null);
+    SupplySourceStoreDescriptor? Store = null, SignalContactControl? Control = null);
 
 public interface ISupplyElement : IElectricalElement
 {

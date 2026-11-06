@@ -128,20 +128,7 @@ public sealed class PassageSensorTracker
         ArgumentNullException.ThrowIfNull(motion);
         motion.ValidateBinding(bodies, tick);
         if (motion.Substeps is not (2 or 4 or 8)) throw new ArgumentException("Passage advance requires a canonical committed motion interval.", nameof(motion));
-        var bodySlots=new Dictionary<GpuBodyId,int>(16);
-        for(var b=0;b<bodies.Count;b++)
-        {
-            if (!_admittedBodies.Contains(bodies[b].Body.Id)) throw new ArgumentException("Passage read names a foreign body.",nameof(bodies));
-            bodySlots.Add(bodies[b].Body.Id,b);
-        }
-        var participants=new Participant[_participants.Length];
-        for(var b=0;b<_participants.Length;b++)
-        {
-            var participant=_participants[b];
-            if (!bodySlots.TryGetValue(participant.Body,out var slot)) throw new ArgumentException("Passage participant is missing.",nameof(bodies));
-            var body=bodies[slot];
-            participants[b]=participant with { Previous=RenderPosition(body.Body.Cell,body.Body.Local) };
-        }
+        var participants = UpdatedParticipants(bodies);
         var previous=new Dictionary<PassagePairKey,PassageBodyState>(16);
         foreach(var state in _states) previous.Add(new(state.Sensor,state.Body),state);
         var nextStates=new List<PassageBodyState>(Math.Max(16, _states.Length));
@@ -199,6 +186,25 @@ public sealed class PassageSensorTracker
             }
         }
         return new(_sensors,participants,_admittedBodies,nextStates.ToArray(),fired.ToArray());
+    }
+
+    private Participant[] UpdatedParticipants(PhysicsBodyReadSet bodies)
+    {
+        var bodySlots=new Dictionary<GpuBodyId,int>(16);
+        for(var b=0;b<bodies.Count;b++)
+        {
+            if (!_admittedBodies.Contains(bodies[b].Body.Id)) throw new ArgumentException("Passage read names a foreign body.",nameof(bodies));
+            bodySlots.Add(bodies[b].Body.Id,b);
+        }
+        var participants=new Participant[_participants.Length];
+        for(var b=0;b<_participants.Length;b++)
+        {
+            var participant=_participants[b];
+            if (!bodySlots.TryGetValue(participant.Body,out var slot)) throw new ArgumentException("Passage participant is missing.",nameof(bodies));
+            var body=bodies[slot];
+            participants[b]=participant with { Previous=RenderPosition(body.Body.Cell,body.Body.Local) };
+        }
+        return participants;
     }
 
     private static Vector3 RenderPosition(CellOrigin cell, LocalPosition local) =>

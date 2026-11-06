@@ -114,29 +114,7 @@ internal static partial class WorkshopCollisionKernels
             for (var i = points.Count - 1; i >= 0; i--)
             {
                 var current = points[i];
-                var buried = false;
-                for (var side = 0; side < 2 && !buried; side++)
-                {
-                    var surface = side == 0 ? current.ColA : current.ColB;
-                    var partner = side == 0 ? current.B : current.A;
-                    if (surface.Shape == ShapeKind.Plane) continue;
-                    HollowContactQuery.SurfaceDistance(Partner(surface), current.Point, out var witness, out _);
-                    for (var o = 0; o < manifolds.Count && !buried; o++)
-                    {
-                        if (o == m || manifolds[o].Points.Count == 0) continue;
-                        var otherPoints = manifolds[o].Points;
-                        var first = otherPoints[0];
-                        var other = first.A == partner ? first.ColB : first.B == partner ? first.ColA : null;
-                        if (other is null || other == surface || other.Shape == ShapeKind.Plane) continue;
-                        if (other.Body != surface.Body &&
-                            !(other.Body.Motion == RigidMotionKind.Static && surface.Body.Motion == RigidMotionKind.Static)) continue;
-                        var nearest = float.PositiveInfinity;
-                        foreach (var point in otherPoints) nearest = MathF.Min(nearest, point.Gap);
-                        if (!(current.Gap > nearest + 1e-6f)) continue;
-                        if (HollowContactQuery.SurfaceDistance(Partner(other), witness, out _, out _) > SeamTolerance) continue;
-                        buried = true;
-                    }
-                }
+                var buried = IsInternalFeature(manifolds, m, current);
                 if (!buried) continue;
                 points.RemoveAt(i);
                 removed = true;
@@ -146,6 +124,34 @@ internal static partial class WorkshopCollisionKernels
         manifolds.RemoveAll(manifold => manifold.Points.Count == 0);
         contacts.Clear();
         foreach (var manifold in manifolds) contacts.AddRange(manifold.Points);
+    }
+
+    private static bool IsInternalFeature(List<ContactManifold> manifolds, int m, ContactPoint current)
+    {
+        var buried = false;
+        for (var side = 0; side < 2 && !buried; side++)
+        {
+            var surface = side == 0 ? current.ColA : current.ColB;
+            var partner = side == 0 ? current.B : current.A;
+            if (surface.Shape == ShapeKind.Plane) continue;
+            HollowContactQuery.SurfaceDistance(Partner(surface), current.Point, out var witness, out _);
+            for (var o = 0; o < manifolds.Count && !buried; o++)
+            {
+                if (o == m || manifolds[o].Points.Count == 0) continue;
+                var otherPoints = manifolds[o].Points;
+                var first = otherPoints[0];
+                var other = first.A == partner ? first.ColB : first.B == partner ? first.ColA : null;
+                if (other is null || other == surface || other.Shape == ShapeKind.Plane) continue;
+                if (other.Body != surface.Body &&
+                    !(other.Body.Motion == RigidMotionKind.Static && surface.Body.Motion == RigidMotionKind.Static)) continue;
+                var nearest = float.PositiveInfinity;
+                foreach (var point in otherPoints) nearest = MathF.Min(nearest, point.Gap);
+                if (!(current.Gap > nearest + 1e-6f)) continue;
+                if (HollowContactQuery.SurfaceDistance(Partner(other), witness, out _, out _) > SeamTolerance) continue;
+                buried = true;
+            }
+        }
+        return buried;
     }
 
     /// <summary>One rigid pair's same-material witnesses share a coupled normal support set.</summary>

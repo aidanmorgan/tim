@@ -164,6 +164,17 @@ struct ActivationMemoryRecord {
     last_phase: float;
     phase: uint32;
     due_tick: uint64;
+    dispatched_kind: uint;
+    dispatched_emitter: ulong;
+    dispatched_ordinal: uint;
+    dispatched_phase: float;
+    cause_source: ulong;
+    cause_body: ulong;
+    cause_collider: ulong;
+    cause_ordinal: uint;
+    cause_phase: float;
+    cause_speed: float;
+    cause_kind: uint;
 }
 
 struct ElectricalLogicRecord {
@@ -641,7 +652,14 @@ table CapabilityPassageSensorDeclarationRecord {
     rearm_clearance: float;
 }
 
+struct SignalContactRecord {
+    owner: ulong;
+    node: ulong;
+    state: uint;
+}
+
 table CapabilityPresentationBindingRecord {
+    mapping: uint;
     property: uint;
     driver: uint;
     from: float;
@@ -788,7 +806,7 @@ table CompiledSceneRecord {
     activation_edges: [CapabilityActivationEdgeRecord];
     passage_sensors: [CapabilityPassageSensorDeclarationRecord];
     activation_substeps: uint;
-    contact_owners: [ulong];
+    signal_contacts: [SignalContactRecord];
     owners: [ulong];
     run_controls: [RunControlRecord];
     presentation: [CompiledPresentationRecord];

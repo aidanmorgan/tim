@@ -58,25 +58,13 @@ public sealed class NoFixedCapacityTests
                 Balls(17, 0);
                 return (Bench(parts), scene => Assert.Equal(9, scene.ContactWorks.Length));
             case PopulationKind.Electrical:
-                // Nine Batteries, each wired to its own Powered Gate: nine sources, nine routes and nine connections.
-                for (var i = 0; i < 9; i++)
-                {
-                    var gate = WorkshopInput.Generic(new PartId("powered_gate"), Next(), (float)(X(2 * i)), 0, 0, 0, 0, 0, 1);
-                    var battery = PlacedParts.Battery(Next(), (float)(X(2 * i) + 1.6), 0, 0, enabled: ElectricalEnable.Enabled);
-                    parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
-                }
+                AddElectricalPopulation(Next, parts, links);
                 return (Bench(parts, [.. links]), scene => { Assert.Equal(9, scene.Electrical.Sources.Length); Assert.Equal(9, scene.SupplyGraph.Nodes.ToArray().Count(node=>node.Kind==SupplyNodeKind.Consumer && !node.Consumers.IsDefaultOrEmpty)); });
             case PopulationKind.Prismatics:
                 for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(new PartId("spring"), Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(17, scene.Prismatics.Length));
             case PopulationKind.Orientations:
-                // A Domino declares its orientation sensor only while wired: each of seventeen drives its own lamp.
-                for (var i = 0; i < 17; i++)
-                {
-                    var tile = PlacedParts.Domino(Next(), (float)(X(i)), (float)(-0.46 + .56), 0, 0, 0, 0, 1);
-                    var lamp = PlacedParts.Lamp(Next(), (float)(X(i)), 1, 3, 0, 0, 0, 1);
-                    parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
-                }
+                AddOrientationPopulation(Next, parts, links);
                 return (Bench(parts, [.. links]), scene => Assert.Equal(17, scene.OrientationSensors.Length));
             case PopulationKind.ContactLoad:
                 for (var i = 0; i < 33; i++)
@@ -94,6 +82,27 @@ public sealed class NoFixedCapacityTests
                 }
                 return (Bench(parts, [.. links]), _ => Assert.Equal(9, links.Count));
             default: throw new ArgumentException($"Unknown table '{table}'.", nameof(table));
+        }
+    }
+
+    private static void AddElectricalPopulation(Func<GpuBodyId> next, List<IWorkshopInstance> parts, List<WorkshopConnection> links)
+    {
+        // Nine Batteries, each wired to its own Powered Gate: nine sources, nine routes and nine connections.
+        for (var i = 0; i < 9; i++)
+        {
+            var gate = WorkshopInput.Generic(new PartId("powered_gate"), next(), (float)(X(2 * i)), 0, 0, 0, 0, 0, 1);
+            var battery = PlacedParts.Battery(next(), (float)(X(2 * i) + 1.6), 0, 0, enabled: ElectricalEnable.Enabled);
+            parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
+        }
+    }
+    private static void AddOrientationPopulation(Func<GpuBodyId> next, List<IWorkshopInstance> parts, List<WorkshopConnection> links)
+    {
+        // A Domino declares its orientation sensor only while wired: each of seventeen drives its own lamp.
+        for (var i = 0; i < 17; i++)
+        {
+            var tile = PlacedParts.Domino(next(), (float)(X(i)), (float)(-0.46 + .56), 0, 0, 0, 0, 1);
+            var lamp = PlacedParts.Lamp(next(), (float)(X(i)), 1, 3, 0, 0, 0, 1);
+            parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
         }
     }
 

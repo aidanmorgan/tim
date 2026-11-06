@@ -488,6 +488,30 @@ public sealed class AnimationBatch
         if (presentationTime < _presentationTime ||
             simulationTime < _simulationTime)
             throw new ArgumentOutOfRangeException(nameof(presentationTime), "Animation clocks must be finite and monotone.");
+        ValidateAdvance(presentationTime, simulationTime);
+        _sampleCount = 0;
+        _frame = frame; _presentationTime = presentationTime; _simulationTime = simulationTime;
+        var evaluated = 0;
+        var cursor = 0;
+        while (cursor < _activeCount)
+        {
+            var index = _active[cursor];
+            ref var slot = ref _slots[index];
+            EvaluateSlot(ref slot, ref evaluated);
+            if (slot.Visible && (!slot.HasPublished || slot.Value != slot.Published))
+            {
+                _samples[_sampleCount++] = new(slot.Binding, slot.Value);
+                slot.Published = slot.Value;
+                slot.HasPublished = true;
+            }
+            if (slot.Playback != AnimationPlayback.Playing) Unschedule(index);
+            else cursor++;
+        }
+        return new(evaluated, _sampleCount, _activeCount, RegisteredCount);
+    }
+
+    private void ValidateAdvance(PhysicalTime presentationTime, PhysicalTime simulationTime)
+    {
         // Validate the whole active operation before changing clocks, output, slots or occurrences.
         for (var i = 0; i < _activeCount; i++)
         {
@@ -506,67 +530,53 @@ public sealed class AnimationBatch
                 default: throw new InvalidOperationException("Unsupported animation kind.");
             }
         }
-        _sampleCount = 0;
-        _frame = frame; _presentationTime = presentationTime; _simulationTime = simulationTime;
-        var evaluated = 0;
-        var cursor = 0;
-        while (cursor < _activeCount)
+    }
+
+    private void EvaluateSlot(ref Slot slot, ref int evaluated)
+    {
+        var definition = slot.Definition!;
+        if(slot.Playback==AnimationPlayback.Playing&&slot.Kind==AnimationKind.Impulses)
         {
-            var index = _active[cursor];
-            ref var slot = ref _slots[index];
-            var definition = slot.Definition!;
-            if(slot.Playback==AnimationPlayback.Playing&&slot.Kind==AnimationKind.Impulses)
-            {
-                var envelope=slot.Impulses!.Advance(Clock(slot.Clock),slot.Visible);
-                var amount=envelope.Value;
-                slot.Value=amount==0?slot.Initial:amount==1?slot.ImpulsePeak:
-                    AnimationValue.FromScalar(slot.Initial.Property,
-                        AnimationNumbers.Interpolate(slot.Initial.Number,slot.ImpulsePeak.Number,amount));
-                if(slot.Visible)evaluated++;
-                if(slot.Impulses.Count==0)slot.Playback=AnimationPlayback.Completed;
-            }
-            else if(slot.Playback==AnimationPlayback.Playing&&slot.Kind==AnimationKind.Oscillation)
-            {
-                if(slot.Visible)
-                {
-                    var state=slot.Oscillation!.Evaluate(Clock(slot.Clock),out var completed);slot.Value=state.Position;evaluated++;
-                    if(completed)slot.Playback=AnimationPlayback.Completed;
-                }
-            }
-            else if(slot.Playback==AnimationPlayback.Playing&&slot.Kind==AnimationKind.ExponentialFollow)
-            {
-                if(slot.Visible)
-                {
-                    slot.Value=FollowAt(slot,Clock(slot.Clock));evaluated++;
-                    if(slot.Value==slot.TargetValue)slot.Playback=AnimationPlayback.Completed;
-                }
-            }
-            else if (slot.Playback == AnimationPlayback.Playing)
-            {
-                var position = Position(slot, Clock(definition.Clock));
-                var completed = AtEndpoint(slot, position);
-                if (completed)
-                {
-                    slot.Offset = AnimationPhase.Capture(position,definition.Repeat);
-                    slot.Playback = AnimationPlayback.Completed;
-                }
-                if (slot.Visible || completed)
-                {
-                    slot.Value = definition.Evaluate(position,
-                        definition.Repeat == AnimationRepeat.Once && position >= 1);
-                    evaluated++;
-                }
-            }
-            if (slot.Visible && (!slot.HasPublished || slot.Value != slot.Published))
-            {
-                _samples[_sampleCount++] = new(slot.Binding, slot.Value);
-                slot.Published = slot.Value;
-                slot.HasPublished = true;
-            }
-            if (slot.Playback != AnimationPlayback.Playing) Unschedule(index);
-            else cursor++;
+            var envelope=slot.Impulses!.Advance(Clock(slot.Clock),slot.Visible);
+            var amount=envelope.Value;
+            slot.Value=amount==0?slot.Initial:amount==1?slot.ImpulsePeak:
+                AnimationValue.FromScalar(slot.Initial.Property,
+                    AnimationNumbers.Interpolate(slot.Initial.Number,slot.ImpulsePeak.Number,amount));
+            if(slot.Visible)evaluated++;
+            if(slot.Impulses.Count==0)slot.Playback=AnimationPlayback.Completed;
         }
-        return new(evaluated, _sampleCount, _activeCount, RegisteredCount);
+        else if(slot.Playback==AnimationPlayback.Playing&&slot.Kind==AnimationKind.Oscillation)
+        {
+            if(slot.Visible)
+            {
+                var state=slot.Oscillation!.Evaluate(Clock(slot.Clock),out var completed);slot.Value=state.Position;evaluated++;
+                if(completed)slot.Playback=AnimationPlayback.Completed;
+            }
+        }
+        else if(slot.Playback==AnimationPlayback.Playing&&slot.Kind==AnimationKind.ExponentialFollow)
+        {
+            if(slot.Visible)
+            {
+                slot.Value=FollowAt(slot,Clock(slot.Clock));evaluated++;
+                if(slot.Value==slot.TargetValue)slot.Playback=AnimationPlayback.Completed;
+            }
+        }
+        else if (slot.Playback == AnimationPlayback.Playing)
+        {
+            var position = Position(slot, Clock(definition.Clock));
+            var completed = AtEndpoint(slot, position);
+            if (completed)
+            {
+                slot.Offset = AnimationPhase.Capture(position,definition.Repeat);
+                slot.Playback = AnimationPlayback.Completed;
+            }
+            if (slot.Visible || completed)
+            {
+                slot.Value = definition.Evaluate(position,
+                    definition.Repeat == AnimationRepeat.Once && position >= 1);
+                evaluated++;
+            }
+        }
     }
 
     /// <summary>Emit initial values before the adapter frees/rebinds targets. All old

@@ -746,6 +746,58 @@ internal static class WorkshopConstraintSolver
         }
         if (touched.Count == 0) return;
 
+        ExpandRestitutionSupports(manifolds, touched, stamp);
+
+        s_islandPoints ??= new(32);
+        s_islandManifolds ??= new(16);
+
+        try
+        {
+            foreach (var b in touched)
+            {
+                if (Root(b) != b) continue;
+                var root = b;
+                s_islandPoints.Clear();
+                s_islandManifolds.Clear();
+
+                GatherRestitutionIsland(root, manifolds, stamp, s_islandPoints, s_islandManifolds);
+
+                if (s_islandPoints.Count > 8)
+                {
+                    s_islandPoints.Sort((x, y) => (Bounces(y) ? 1 : 0).CompareTo(Bounces(x) ? 1 : 0));
+                    s_islandPoints.RemoveRange(8, s_islandPoints.Count - 8);
+                }
+
+                for (var i = 0; i < s_islandPoints.Count; i++)
+                    s_islandPoints[i].RelaxedLambdaN = s_islandPoints[i].LambdaN;
+                foreach (var m in s_islandManifolds)
+                    foreach (var p in m.Patches)
+                    {
+                        p.RelaxedLambda = p.Lambda;
+                        p.RelaxedLambdaR1 = p.LambdaR1;
+                        p.RelaxedLambdaR2 = p.LambdaR2;
+                    }
+
+                ApplyRestitution(s_islandPoints);
+
+                foreach (var m in s_islandManifolds)
+                {
+                    WorkshopFrictionSolver.Solve(m);
+                    SolveRolling(m);
+                }
+
+                LimitRestitutionEnergy(root, touched, s_islandPoints, s_islandManifolds);
+            }
+        }
+        finally
+        {
+            s_islandPoints.Clear();
+            s_islandManifolds.Clear();
+        }
+    }
+
+    private static void ExpandRestitutionSupports(List<ContactManifold> manifolds, List<SimBody> touched, int stamp)
+    {
         bool expanded;
         do
         {
@@ -779,124 +831,91 @@ internal static class WorkshopConstraintSolver
             }
         } while (expanded);
 
-        s_islandPoints ??= new(32);
-        s_islandManifolds ??= new(16);
+    }
 
-        try
+    private static void GatherRestitutionIsland(SimBody root, List<ContactManifold> manifolds, int stamp,
+        List<ContactPoint> points, List<ContactManifold> islandManifolds)
+    {
+        foreach (var m in manifolds)
         {
-            foreach (var b in touched)
+            if (m.Points.Count == 0) continue;
+            var c0 = m.Points[0];
+            var aInIsland = c0.A.Motion == RigidMotionKind.Dynamic && c0.A.RestitutionStamp == stamp && Root(c0.A) == root;
+            var bInIsland = c0.B.Motion == RigidMotionKind.Dynamic && c0.B.RestitutionStamp == stamp && Root(c0.B) == root;
+            if (!aInIsland && !bInIsland) continue;
+
+            var hasBounce = false;
+            foreach (var c in m.Points) hasBounce |= Bounces(c);
+            var supportsIsland = (aInIsland && bInIsland) || (aInIsland && c0.Ny > 0f) || (bInIsland && c0.Ny < 0f);
+            var startCount = points.Count;
+            for (var block = 0; block < m.NormalBlockCount; block++)
             {
-                if (Root(b) != b) continue;
-                var root = b;
-                s_islandPoints.Clear();
-                s_islandManifolds.Clear();
-
-                foreach (var m in manifolds)
+                var blockPoints = m.NormalBlocks[block].Points;
+                for (var i = 0; i < blockPoints.Count; i++)
                 {
-                    if (m.Points.Count == 0) continue;
-                    var c0 = m.Points[0];
-                    var aInIsland = c0.A.Motion == RigidMotionKind.Dynamic && c0.A.RestitutionStamp == stamp && Root(c0.A) == root;
-                    var bInIsland = c0.B.Motion == RigidMotionKind.Dynamic && c0.B.RestitutionStamp == stamp && Root(c0.B) == root;
-                    if (!aInIsland && !bInIsland) continue;
-
-                    var hasBounce = false;
-                    foreach (var c in m.Points) hasBounce |= Bounces(c);
-                    var supportsIsland = (aInIsland && bInIsland) || (aInIsland && c0.Ny > 0f) || (bInIsland && c0.Ny < 0f);
-                    var startCount = s_islandPoints.Count;
-                    for (var block = 0; block < m.NormalBlockCount; block++)
-                    {
-                        var blockPoints = m.NormalBlocks[block].Points;
-                        for (var i = 0; i < blockPoints.Count; i++)
-                        {
-                            var c = blockPoints[i];
-                            if (Bounces(c) || (!hasBounce && supportsIsland && Supports(c)))
-                                s_islandPoints.Add(c);
-                        }
-                    }
-                    if (s_islandPoints.Count > startCount)
-                        s_islandManifolds.Add(m);
+                    var c = blockPoints[i];
+                    if (Bounces(c) || (!hasBounce && supportsIsland && Supports(c)))
+                        points.Add(c);
                 }
+            }
+            if (points.Count > startCount)
+                islandManifolds.Add(m);
+        }
 
-                if (s_islandPoints.Count > 8)
+    }
+
+    private static void LimitRestitutionEnergy(SimBody root, List<SimBody> touched,
+        List<ContactPoint> points, List<ContactManifold> islandManifolds)
+    {
+        root.EnergyA = 0f; root.EnergyB = 0f; root.EnergyC = 0f; root.EnergyBudget = 0f;
+        foreach (var body in touched)
+        {
+            if (Root(body) != root) continue;
+            var dv = body.LinearVelocity - body.RelaxedV;
+            var dw = body.AngularVelocity - body.RelaxedW;
+            var relaxed = Kinetic(body, body.RelaxedV, body.RelaxedW);
+            root.EnergyA += Kinetic(body, dv, dw);
+            root.EnergyB += body.Mass * Vector3.Dot(body.RelaxedV, dv) + InertiaDot(body, body.RelaxedW, dw);
+            root.EnergyC += relaxed;
+            root.EnergyBudget += body.PreSolveKinetic - relaxed;
+        }
+
+        float a = root.EnergyA, lin = root.EnergyB, energyC = root.EnergyC, bound = energyC + MathF.Max(0f, root.EnergyBudget);
+        root.EnergyScale = 1f;
+        if (a > 0f && a + lin + energyC > bound * (1f + 1e-5f))
+        {
+            var disc = lin * lin + 4f * a * (bound - energyC);
+            root.EnergyScale = Math.Clamp((-lin + MathF.Sqrt(MathF.Max(0f, disc))) / (2f * a), 0f, 1f);
+        }
+
+        var scale = root.EnergyScale;
+        if (scale < 1f)
+        {
+            foreach (var body in touched)
+            {
+                if (Root(body) != root) continue;
+                var v = body.RelaxedV + scale * (body.LinearVelocity - body.RelaxedV);
+                var w = body.RelaxedW + scale * (body.AngularVelocity - body.RelaxedW);
+                body.Vx = v.X; body.Vy = v.Y; body.Vz = v.Z;
+                body.Wx = w.X; body.Wy = w.Y; body.Wz = w.Z;
+            }
+            foreach (var m in islandManifolds)
+            {
+                foreach (var p in m.Patches)
                 {
-                    s_islandPoints.Sort((x, y) => (Bounces(y) ? 1 : 0).CompareTo(Bounces(x) ? 1 : 0));
-                    s_islandPoints.RemoveRange(8, s_islandPoints.Count - 8);
-                }
-
-                for (var i = 0; i < s_islandPoints.Count; i++)
-                    s_islandPoints[i].RelaxedLambdaN = s_islandPoints[i].LambdaN;
-                foreach (var m in s_islandManifolds)
-                    foreach (var p in m.Patches)
-                    {
-                        p.RelaxedLambda = p.Lambda;
-                        p.RelaxedLambdaR1 = p.LambdaR1;
-                        p.RelaxedLambdaR2 = p.LambdaR2;
-                    }
-
-                ApplyRestitution(s_islandPoints);
-
-                foreach (var m in s_islandManifolds)
-                {
-                    WorkshopFrictionSolver.Solve(m);
-                    SolveRolling(m);
-                }
-
-                root.EnergyA = 0f; root.EnergyB = 0f; root.EnergyC = 0f; root.EnergyBudget = 0f;
-                foreach (var body in touched)
-                {
-                    if (Root(body) != root) continue;
-                    var dv = body.LinearVelocity - body.RelaxedV;
-                    var dw = body.AngularVelocity - body.RelaxedW;
-                    var relaxed = Kinetic(body, body.RelaxedV, body.RelaxedW);
-                    root.EnergyA += Kinetic(body, dv, dw);
-                    root.EnergyB += body.Mass * Vector3.Dot(body.RelaxedV, dv) + InertiaDot(body, body.RelaxedW, dw);
-                    root.EnergyC += relaxed;
-                    root.EnergyBudget += body.PreSolveKinetic - relaxed;
-                }
-
-                float a = root.EnergyA, lin = root.EnergyB, energyC = root.EnergyC, bound = energyC + MathF.Max(0f, root.EnergyBudget);
-                root.EnergyScale = 1f;
-                if (a > 0f && a + lin + energyC > bound * (1f + 1e-5f))
-                {
-                    var disc = lin * lin + 4f * a * (bound - energyC);
-                    root.EnergyScale = Math.Clamp((-lin + MathF.Sqrt(MathF.Max(0f, disc))) / (2f * a), 0f, 1f);
-                }
-
-                var scale = root.EnergyScale;
-                if (scale < 1f)
-                {
-                    foreach (var body in touched)
-                    {
-                        if (Root(body) != root) continue;
-                        var v = body.RelaxedV + scale * (body.LinearVelocity - body.RelaxedV);
-                        var w = body.RelaxedW + scale * (body.AngularVelocity - body.RelaxedW);
-                        body.Vx = v.X; body.Vy = v.Y; body.Vz = v.Z;
-                        body.Wx = w.X; body.Wy = w.Y; body.Wz = w.Z;
-                    }
-                    foreach (var m in s_islandManifolds)
-                    {
-                        foreach (var p in m.Patches)
-                        {
-                            p.Lambda = p.RelaxedLambda + scale * (p.Lambda - p.RelaxedLambda);
-                            p.LambdaR1 = p.RelaxedLambdaR1 + scale * (p.LambdaR1 - p.RelaxedLambdaR1);
-                            p.LambdaR2 = p.RelaxedLambdaR2 + scale * (p.LambdaR2 - p.RelaxedLambdaR2);
-                        }
-                    }
-                }
-                for (var i = 0; i < s_islandPoints.Count; i++)
-                {
-                    var pt = s_islandPoints[i];
-                    if (Bounces(pt))
-                        pt.LambdaN = pt.RelaxedLambdaN + scale * (pt.LambdaN - pt.RelaxedLambdaN);
-                    else
-                        pt.LambdaN = pt.RelaxedLambdaN;
+                    p.Lambda = p.RelaxedLambda + scale * (p.Lambda - p.RelaxedLambda);
+                    p.LambdaR1 = p.RelaxedLambdaR1 + scale * (p.LambdaR1 - p.RelaxedLambdaR1);
+                    p.LambdaR2 = p.RelaxedLambdaR2 + scale * (p.LambdaR2 - p.RelaxedLambdaR2);
                 }
             }
         }
-        finally
+        for (var i = 0; i < points.Count; i++)
         {
-            s_islandPoints.Clear();
-            s_islandManifolds.Clear();
+            var pt = points[i];
+            if (Bounces(pt))
+                pt.LambdaN = pt.RelaxedLambdaN + scale * (pt.LambdaN - pt.RelaxedLambdaN);
+            else
+                pt.LambdaN = pt.RelaxedLambdaN;
         }
     }
 

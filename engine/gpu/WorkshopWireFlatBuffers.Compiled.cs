@@ -776,6 +776,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityPresentationBindingRecord.StartCapabilityPresentationBindingRecord(b);
         W.CapabilityPresentationBindingRecord.AddProperty(b, (uint)value.Property);
         W.CapabilityPresentationBindingRecord.AddDriver(b, (uint)value.Driver);
+        W.CapabilityPresentationBindingRecord.AddMapping(b, (uint)value.Mapping);
         W.CapabilityPresentationBindingRecord.AddFrom(b, value.From);
         W.CapabilityPresentationBindingRecord.AddTo(b, value.To);
         W.CapabilityPresentationBindingRecord.AddCurve(b, (uint)value.Curve);
@@ -794,6 +795,7 @@ public static partial class WorkshopWireFlatBuffers
     private static CuriousContraptions.Gpu.CompiledPresentationBinding DecodeCapabilityPresentationBindingRecord(W.CapabilityPresentationBindingRecord row) => new(
         ObservationEnum<CuriousContraptions.Abstractions.PresentationProperty>(row.Property),
         ObservationEnum<CuriousContraptions.Abstractions.PresentationDriver>(row.Driver),
+        ObservationEnum<CuriousContraptions.Abstractions.PresentationValueMapping>(row.Mapping),
         row.From,
         row.To,
         ObservationEnum<CuriousContraptions.Abstractions.PresentationCurve>(row.Curve),
@@ -870,7 +872,11 @@ public static partial class WorkshopWireFlatBuffers
         var activation_nodes = W.CompiledSceneRecord.CreateActivationNodesVector(b, scene.Activation.Nodes.ToArray().Select(value => EncodeCapabilityActivationNodeDeclarationRecord(b, value)).ToArray());
         var activation_edges = W.CompiledSceneRecord.CreateActivationEdgesVector(b, scene.Activation.Edges.ToArray().Select(value => EncodeCapabilityActivationEdgeRecord(b, value)).ToArray());
         var passage_sensors = W.CompiledSceneRecord.CreatePassageSensorsVector(b, scene.Activation.PassageSensors.ToArray().Select(value => EncodeCapabilityPassageSensorDeclarationRecord(b, value)).ToArray());
-        var contacts = W.CompiledSceneRecord.CreateContactOwnersVector(b, scene.Activation.ContactOwners.Select(owner => owner.Value).ToArray());
+        var contactRows = scene.Activation.Contacts.ToArray();
+        W.CompiledSceneRecord.StartSignalContactsVector(b, contactRows.Length);
+        for (var i = contactRows.Length - 1; i >= 0; i--)
+            W.SignalContactRecord.CreateSignalContactRecord(b, contactRows[i].Owner.Value, contactRows[i].Node.Value, (uint)contactRows[i].State);
+        var contacts = b.EndVector();
         var owners = W.CompiledSceneRecord.CreateOwnersVector(b, scene.Owners.Select(owner => owner.Value).ToArray());
         W.CompiledSceneRecord.StartRunControlsVector(b, scene.RunControls.Length);
         for (var i = scene.RunControls.Length - 1; i >= 0; i--)
@@ -920,7 +926,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddActivationEdges(b, activation_edges);
         W.CompiledSceneRecord.AddPassageSensors(b, passage_sensors);
         W.CompiledSceneRecord.AddActivationSubsteps(b, scene.Activation.Substeps);
-        W.CompiledSceneRecord.AddContactOwners(b, contacts);
+        W.CompiledSceneRecord.AddSignalContacts(b, contacts);
         W.CompiledSceneRecord.AddOwners(b, owners);
         W.CompiledSceneRecord.AddRunControls(b, runControls);
         W.CompiledSceneRecord.AddPresentation(b, presentation);
@@ -971,7 +977,11 @@ public static partial class WorkshopWireFlatBuffers
                 revolutes: revolutes, compliantSurfaces: compliant_surfaces, revoluteDrives: revolute_drives,
                 ropeGuides: rope_guides, transmissions: transmissions, drivenSurfaces: drivenSurfaces);
             var activation = new ActivationNetwork(activation_nodes, activation_edges, row.ActivationSubsteps, passage_sensors,
-                Enumerable.Range(0, row.ContactOwnersLength).Select(i => new GpuBodyId(row.ContactOwners(i))).ToArray());
+                Enumerable.Range(0, row.SignalContactsLength).Select(i =>
+                {
+                    var contact = row.SignalContacts(i)!.Value;
+                    return new CompiledSignalContact(new(contact.Owner), new(contact.Node), ObservationEnum<CuriousContraptions.Abstractions.SignalContactState>(contact.State));
+                }).ToArray());
             var presentation = Enumerable.Range(0, row.PresentationLength).Select(i =>
             {
                 var track = Required(row.Presentation(i), "presentation");

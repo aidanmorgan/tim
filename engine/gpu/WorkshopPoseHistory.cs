@@ -106,6 +106,14 @@ public sealed class WorkshopPoseHistory
         var reseed = boundary is PresentationBoundary.Seed or PresentationBoundary.Run or PresentationBoundary.Completed ||
             _clockEpoch != clockEpoch || startsRun;
         var replace = false;
+        ValidateHistoryContinuity(response, boundary, clockEpoch, ref mapped, ref reseed, ref replace);
+        return new(this, _version, clockEpoch, response, mapped, reseed, replace,
+            boundary is PresentationBoundary.Seed or PresentationBoundary.Run or PresentationBoundary.Completed, installing);
+    }
+
+    private void ValidateHistoryContinuity(WorkshopResponse response, PresentationBoundary boundary, ulong clockEpoch,
+        ref MappedCapture? mapped, ref bool reseed, ref bool replace)
+    {
         if (_latest >= 0)
         {
             var previous = _entries[_latest];
@@ -140,8 +148,6 @@ public sealed class WorkshopPoseHistory
                 }
             }
         }
-        return new(this, _version, clockEpoch, response, mapped, reseed, replace,
-            boundary is PresentationBoundary.Seed or PresentationBoundary.Run or PresentationBoundary.Completed, installing);
     }
 
     public void Commit(Prepared prepared)
@@ -224,15 +230,7 @@ public sealed class WorkshopPoseHistory
         { Quality = PresentationQuality.AwaitingHistory; return false; }
         var requestedTime = TickTime(Schedule.World.AnchorTick).AddElapsed(default,
             PhysicalTime.FromNanoseconds(requestedMaster - Schedule.World.AnchorMaster.Value));
-        Entry? before = null, after = null;
-        for (var i = 0; i < _count; i++)
-        {
-            var item = _entries[i];
-            if (item.Mapped is null) continue;
-            var tick = item.Response.Read.Tick.Value;
-            if (TickTime(new(tick)) <= requestedTime && (before is null || tick > before.Value.Response.Read.Tick.Value)) before = item;
-            if (TickTime(new(tick)) >= requestedTime && (after is null || tick < after.Value.Response.Read.Tick.Value)) after = item;
-        }
+        var (before, after) = Bracket(requestedTime);
         if (before is not { } first || after is not { } last)
         {
             Quality = LatestAge(now) > StaleNanoseconds ? PresentationQuality.Stale : PresentationQuality.AwaitingHistory;
@@ -258,6 +256,20 @@ public sealed class WorkshopPoseHistory
         sample = new(body, new(requested), new(requestedTime), Quality, Captures: first.Response.Read.Captures,
             FeedbackCapture: first.Response.Read.Capture, Activations: first.Response.Read.Activations, Timers: first.Response.Read.Timers);
         return true;
+    }
+
+    private (Entry? Before, Entry? After) Bracket(PhysicalTime requestedTime)
+    {
+        Entry? before = null, after = null;
+        for (var i = 0; i < _count; i++)
+        {
+            var item = _entries[i];
+            if (item.Mapped is null) continue;
+            var tick = item.Response.Read.Tick.Value;
+            if (TickTime(new(tick)) <= requestedTime && (before is null || tick > before.Value.Response.Read.Tick.Value)) before = item;
+            if (TickTime(new(tick)) >= requestedTime && (after is null || tick < after.Value.Response.Read.Tick.Value)) after = item;
+        }
+        return (before, after);
     }
 
     public long LatestAge(MonotonicNanoseconds now)

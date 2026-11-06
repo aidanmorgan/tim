@@ -740,6 +740,11 @@ public sealed class CSharpStaticGateTests
         foreach (var (name, values) in PinnedSwitchValues)
             foreach (var value in run.Values(name).Where(value => !values.Contains(value, StringComparer.Ordinal)))
                 yield return $"{where}: /{name}:{value} (unpinned value)";
+        foreach (var violation in AnalyzerInputViolations(run, project, where)) yield return violation;
+    }
+
+    private static IEnumerable<string> AnalyzerInputViolations(CscRun run, string project, string where)
+    {
         // Analyzers: the four .NET analyzer and code-style assemblies, and only pinned assemblies from the SDK, or from
         // their pinned NuGet package.
         var analyzers = run.Values("analyzer").Select(run.Resolve).ToArray();
@@ -754,6 +759,11 @@ public sealed class CSharpStaticGateTests
         }
         foreach (var required in RequiredAnalyzers.Where(required => !analyzers.Any(analyzer => Path.GetFileName(analyzer) == required)))
             yield return $"{where}: compiled without {required}";
+        foreach (var violation in AnalyzerConfigurationViolations(run, project, where)) yield return violation;
+    }
+
+    private static IEnumerable<string> AnalyzerConfigurationViolations(CscRun run, string project, string where)
+    {
         // Analyzer configuration: the root .editorconfig, the SDK's analysis level, and the compile's own generated files.
         var configs = run.Values("analyzerconfig").Select(run.Resolve).ToArray();
         var rootConfig = Path.Combine(Root, ".editorconfig");

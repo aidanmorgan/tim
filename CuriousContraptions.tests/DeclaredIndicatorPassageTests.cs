@@ -43,7 +43,7 @@ public sealed class DeclaredIndicatorPassageTests
         Assert.Equal(ActivationNodeKind.LevelIndicator, Node(network, level.Id).Kind);
         var sensor = Assert.Single(network.PassageSensors.ToArray());
         Assert.Equal((ActivationNodeKind.PassageSource, sensor.Id), (Node(network, detector.Id).Kind, Node(network, detector.Id).Passage));
-        Assert.Equal(WorkshopActivationCompiler.PassageSensorFor(detector, DeclaredPhysics.Of(new PartId("ball_detector")).Signal!.Passage!.Value, bench.Instances.Identities), sensor);
+        Assert.Equal(WorkshopActivationCompiler.PassageSensorFor(detector, DeclaredPhysics.Of(new PartId("ball_detector")).Signal!.Nodes.OfType<SignalPassageDescriptor>().Single(), bench.Instances.Identities), sensor);
         Assert.Equal((detector.Id, detector.Cell, detector.Local, detector.Rotation), (sensor.Frame, sensor.Cell, sensor.Local, sensor.Rotation));
         Assert.DoesNotContain(network.Nodes.ToArray(), node => node.Owner == wall.Id);
     }
@@ -57,11 +57,12 @@ public sealed class DeclaredIndicatorPassageTests
         var latch = PlacedParts.Latch(new(2), -3, 1, 0, 0, 0, 0, 1);
         var hit = WorkshopInput.Generic(new PartId("switch"), new(3), 0, 4, 0, 0, 0, 0, 1);
         var level = Bench([lamp, latch, hit], Signal(latch.Id, lamp.Id));
-        Assert.Equal(ActivationNodeKind.LevelIndicator, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortId.ActivationIn), level));
-        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortId.SetIn), level));
-        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(hit.Id, new(PortId.ActivationIn), level));
+        var levelGraph = new WorkshopSignalGraph(level.Instances, level.Connections);
+        Assert.Equal(ActivationNodeKind.LevelIndicator, WorkshopActivationCompiler.IndicatorKind(level.Instances.Identities[lamp.Id].Signals[new("signal")].Node, levelGraph));
+        var unwired = level with { Connections = WorkshopConnections.Empty };
+        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(unwired.Instances.Identities[lamp.Id].Signals[new("signal")].Node, new(unwired.Instances, unwired.Connections)));
         var pulse = Bench([lamp, latch, hit], Signal(hit.Id, lamp.Id));
-        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortId.ActivationIn), pulse));
+        Assert.Equal(ActivationNodeKind.StickyFirstInput, WorkshopActivationCompiler.IndicatorKind(pulse.Instances.Identities[lamp.Id].Signals[new("signal")].Node, new(pulse.Instances, pulse.Connections)));
         Assert.Throws<ArgumentException>(() => new SignalIndicatorDescriptor(new("")));
     }
 
@@ -97,7 +98,7 @@ public sealed class DeclaredIndicatorPassageTests
     }
 
     private static PassageSensorDeclaration Shipped => WorkshopActivationCompiler.PassageSensorFor(PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1),
-        DeclaredPhysics.Of(new PartId("ball_detector")).Signal!.Passage!.Value, new WorkshopInstances(PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1)).Identities);
+        DeclaredPhysics.Of(new PartId("ball_detector")).Signal!.Nodes.OfType<SignalPassageDescriptor>().Single(), new WorkshopInstances(PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1)).Identities);
 
     // C-Lamp F3 (Story 9A.44 T12), on the production tracker over ticks: a detector placed off the cell grid at y = 3.03 m (cell 48,
     // remainder 0.48 cells = 0.03 m) compiles its aperture at that placed pose, so a ball crossing 0.64 m above the placed axis is inside
@@ -131,13 +132,13 @@ public sealed class DeclaredIndicatorPassageTests
     public void ASyntheticApertureCompilesItsOwnRadiusAndClearance()
     {
         var detector = PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1);
-        var narrow = WorkshopActivationCompiler.PassageSensorFor(detector, new SignalPassageDescriptor(.3f, .5f), new WorkshopInstances(detector).Identities);
-        Assert.Equal((new WorkshopInstances(detector).Identities[detector.Id].Passage, detector.Id, .3f, .5f),
+        var narrow = WorkshopActivationCompiler.PassageSensorFor(detector, new SignalPassageDescriptor(new("signal"), new(0), System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity, .3f, .5f), new WorkshopInstances(detector).Identities);
+        Assert.Equal((new WorkshopInstances(detector).Identities[detector.Id].Signals[new("signal")].Passage, detector.Id, .3f, .5f),
             (narrow.Id, narrow.Frame, narrow.Radius.Value, narrow.RearmClearance.Value));
         // The sensor sits at its owner's placed pose: a detector off the cell grid keeps its exact cell, f32 remainder and rotation
         // (C-Lamp F3: a compile that dropped the owner's local remainder would put the aperture at the cell origin).
         var offGrid = PlacedParts.Detector(new(11), .03f, 3.01f, -.02f, 0, 0, .38268343236f, .92387953251f);
-        var placed = WorkshopActivationCompiler.PassageSensorFor(offGrid, new SignalPassageDescriptor(.3f, .5f), new WorkshopInstances(offGrid).Identities);
+        var placed = WorkshopActivationCompiler.PassageSensorFor(offGrid, new SignalPassageDescriptor(new("signal"), new(0), System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity, .3f, .5f), new WorkshopInstances(offGrid).Identities);
         Assert.NotEqual(default, offGrid.Local);
         Assert.Equal((offGrid.Cell, offGrid.Local, offGrid.Rotation), (placed.Cell, placed.Local, placed.Rotation));
         Assert.Equal(1, Crossings(Shipped, -1f, 1f, .5f));
@@ -291,7 +292,7 @@ public sealed class DeclaredIndicatorPassageTests
         var instances = new WorkshopInstances(latch, lamp, counter);
         Assert.Equal("A level output can only light a Signal lamp.", EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
             () => new WorkshopConnections(Signal(latch.Id, counter.Id)).Validate(instances)).Message);
-        Assert.Equal("A lamp that follows a level output takes no other signal.", EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel,
+        Assert.Equal("A level input takes exactly one source.", EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel,
             () => new WorkshopConnections(Signal(latch.Id, lamp.Id), Signal(counter.Id, lamp.Id)).Validate(instances)).Message);
     }
 }

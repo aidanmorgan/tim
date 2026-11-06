@@ -74,14 +74,14 @@ public sealed class OrientationSensorTests
     }
 
     [Fact]
-    public void SensorAndSourceNodeCompileOnlyForAWiredDomino()
+    public void SensorAndSourceNodeCompileForEveryDeclaredDomino()
     {
         var unwired = WorkshopPhysicsCompiler.Compile(Construction(false), new(1, 2));
-        Assert.Empty(unwired.OrientationSensors.ToArray());
-        Assert.Equal(1, (int)WorkshopActivationCompiler.Compile(Construction(false)).Clear().Count);
+        Assert.Single(unwired.OrientationSensors.ToArray());
+        Assert.Equal(2, (int)WorkshopActivationCompiler.Compile(Construction(false)).Clear().Count);
         var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
         var sensor = Assert.Single(scene.OrientationSensors.ToArray());
-        Assert.Equal(Construction().Instances.Identities[new(2)].Orientation, sensor.Id);
+        Assert.Equal(Construction().Instances.Identities[new(2)].Signals[new("signal")].Orientation, sensor.Id);
         Assert.Equal(new GpuBodyId(2), sensor.Body);
         Assert.Equal(CanonicalRotation.Identity, sensor.Initial);
         Assert.Equal(OrientationThreshold.Degrees(45), sensor.Threshold);
@@ -215,14 +215,15 @@ public sealed class OrientationSensorTests
         Assert.Equal(ActivationPhase.Latched, domino.Phase); Assert.Equal(ActivationPhase.Latched, lamp.Phase);
         Assert.Equal(ActivationOccurrenceKind.Orientation, domino.Kind);
         Assert.Equal(sensor.Id.Value, domino.Source.Value); Assert.Equal(new GpuBodyId(2), domino.Body); Assert.Equal(collider, domino.Collider);
-        Assert.Equal(3u, domino.EventOrdinal); Assert.Equal(0f, domino.ApproachSpeed.Value); Assert.Equal(new ActivationNodeId(2), domino.Emitter);
+        Assert.Equal(3u, domino.EventOrdinal); Assert.Equal(0f, domino.ApproachSpeed.Value); Assert.Equal(SignalTestNodes.Only(network, new(2)), domino.Emitter);
         Assert.Equal(domino.Occurrence, lamp.Occurrence);
         // The committed stream repeats the sticky read; the latch does not change, and it never regresses.
         var replay = network.Consume(active, network.ClearTimers(), [], new(2), [fired]).Activations;
         Assert.Equal(domino, replay[0]); Assert.Equal(lamp, replay[1]);
         Assert.Throws<ArgumentException>(() => network.Consume(active, network.ClearTimers(), [], new(2), [fired with { Phase = OrientationSensorPhase.Armed, EventOrdinal = 0 }]));
         Assert.Throws<ArgumentException>(() => network.Consume(active, network.ClearTimers(), [], new(2), [fired with { EventOrdinal = 7 }]));
-        Assert.Throws<ArgumentException>(() => network.Consume(clear, network.ClearTimers(), [], new(1), [fired with { Body = new(1) }]));
+        var foreignBody = network.Consume(clear, network.ClearTimers(), [], new(1), [fired with { Body = new(1) }]);
+        Assert.Throws<ArgumentException>(() => network.ValidateRead(foreignBody.Activations, foreignBody.Timers, new(1), 4, scene));
         Assert.Throws<ArgumentException>(() => network.Consume(clear, network.ClearTimers(), [], new(1), [fired with { Id = new(99) }]));
         Assert.Throws<ArgumentException>(() => network.Consume(clear, network.ClearTimers(), [], new(1), [fired, fired]));
         Assert.Throws<ArgumentException>(() => network.Consume(clear, network.ClearTimers(), [], new(1), []));
@@ -231,7 +232,8 @@ public sealed class OrientationSensorTests
         // Read contract: the latched occurrence must name the declared sensor on its owner; foreign kinds, causes and scenes reject.
         network.ValidateRead(active, network.ClearTimers(), new(1), 4, scene);
         Assert.Throws<ArgumentException>(() => network.ValidateRead(active, network.ClearTimers(), new(0), 4, scene));
-        Assert.Throws<ArgumentException>(() => network.ValidateRead(active, network.ClearTimers(), new(1), 4, WorkshopPhysicsCompiler.Compile(Construction(false), new(1, 2))));
+        Assert.Throws<ArgumentException>(() => network.ValidateRead(active, network.ClearTimers(), new(1), 4,
+            new PhysicsSceneDeclaration(scene.Document, scene.NextIdentity, scene.Bodies, scene.Colliders, scene.Materials, [], [])));
         foreach (var changed in new[]
         {
             domino with { Kind = ActivationOccurrenceKind.Contact }, domino with { Source = new(99) }, domino with { Body = new(1) },
@@ -279,7 +281,7 @@ public sealed class OrientationSensorTests
         Assert.Equal(ActivationPhase.Latched, lamp.Phase);
         Assert.Equal(ActivationOccurrenceKind.TimerElapsed, lamp.Kind);
         Assert.Equal(sensor.Id.Value, lamp.Source.Value);
-        Assert.Equal(new ActivationNodeId(4), lamp.Emitter);
+        Assert.Equal(SignalTestNodes.Only(network, new(4)), lamp.Emitter);
         Assert.Equal(123u * 4, lamp.EventOrdinal);
         network.ValidateRead(due.Activations, due.Timers, new(123), 4, scene);
     }
@@ -297,8 +299,8 @@ public sealed class OrientationSensorTests
         WorkshopConnection Link(int source) => new(new((ulong)source), PortId.ActivationOut, new(9), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
         var seven = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instances, Connections: new([.. Enumerable.Range(1, 7).Select(Link)]));
         seven.Validate();
-        Assert.Equal(8, (int)WorkshopActivationCompiler.Compile(seven).Clear().Count);
-        Assert.Equal(7, WorkshopPhysicsCompiler.Compile(seven, new(1, 2)).OrientationSensors.Length);
+        Assert.Equal(9, (int)WorkshopActivationCompiler.Compile(seven).Clear().Count);
+        Assert.Equal(8, WorkshopPhysicsCompiler.Compile(seven, new(1, 2)).OrientationSensors.Length);
         // Owner decision, 20 Oct 2026: no activation-slot limit. The ninth node (the eighth wired Domino) compiles.
         var eight = seven with { Connections = seven.Connections.With(Link(8)) };
         eight.Validate();

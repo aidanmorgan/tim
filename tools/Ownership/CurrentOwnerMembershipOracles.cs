@@ -32,29 +32,7 @@ internal static class CurrentOwnerMembershipOracles
         var rejected = new List<Attack>();
         foreach (var attack in Enum.GetValues<Attack>())
         {
-            var engineInput = engine;
-            var consumerInput = consumers;
-            var scopeInput = scope;
-            switch (attack)
-            {
-                case Attack.ReversedRange: engineInput = engine.Replace("001–003", "003–001"); break;
-                case Attack.OverflowRange: engineInput = engine.Replace("001–003", "001–1000"); break;
-                case Attack.UnknownSyntax: engineInput = engine.Replace("001–003", "001..003"); break;
-                case Attack.MissingTable: engineInput = "## ENGINE-CORE-1"; break;
-                case Attack.MalformedHeading: scopeInput = "## S269-? Invalid"; break;
-                case Attack.MalformedSubSlice: scopeInput = "## LEGACY-0aa Two sub-slice letters"; break;
-                case Attack.UppercaseSubSlice: scopeInput = "## LEGACY-0A Uppercase sub-slice"; break;
-                case Attack.UnnumberedSubSlice: scopeInput = "## ENGINE-COREa A sub-slice letter after no numbered slice"; break;
-                case Attack.MissingCatalogueOwner: consumerInput = consumers.Replace("## CAT-001-I Ball", "## CAT-002-I Ball"); break;
-                case Attack.MalformedFixture: consumerInput = consumers.Replace("id=\"fix-001-001\"", "id=\"fix-001-002\""); break;
-                case Attack.MissingFixtureAnchor: consumerInput = consumers.Replace("<a id=\"fix-001-001\"></a>", ""); break;
-                case Attack.DuplicateFixtureTable: consumerInput = consumers + "\n## Exact fixture proof children"; break;
-                case Attack.DuplicateFixture: consumerInput = consumers + "\n" + consumers.Split('\n').Last(); break;
-                case Attack.ConflictingFixture: consumerInput = "## CAT-002-I Other\n" + consumers + "\n" + consumers.Split('\n').Last().Replace("CAT-001-V", "CAT-002-V"); break;
-                case Attack.EmptyDocument: scopeInput = ""; break;
-                default: throw new InvalidOperationException("Missing current owner rejection control.");
-            }
-            try { _ = CurrentOwnerMembership.Parse(engineInput, consumerInput, [scopeInput]); }
+            try { RejectMalformedDeclaration(attack, engine, consumers, scope); }
             catch (InvalidDataException) { rejected.Add(attack); }
             if (!rejected.Contains(attack)) throw new InvalidOperationException($"Current owner boundary accepted {attack}.");
         }
@@ -94,5 +72,33 @@ internal static class CurrentOwnerMembershipOracles
         return new { ActualHeadingCount = actualHeadingCount, Positive = true, RepeatedDeclarationsCoalesced = true, NegativeCount = rejected.Count,
             Rejected = rejected, AbsentHistoricalOwnerRejected = absentOwnerRejected, AssignmentsUnchanged = true };
     }
+    private static void RejectMalformedDeclaration(Attack attack, string engine, string consumers, string scope)
+    {
+        var engineInput = engine;
+        var consumerInput = consumers;
+        var scopeInput = scope;
+        switch (attack)
+        {
+            case Attack.ReversedRange: engineInput = engine.Replace("001–003", "003–001"); break;
+            case Attack.OverflowRange: engineInput = engine.Replace("001–003", "001–1000"); break;
+            case Attack.UnknownSyntax: engineInput = engine.Replace("001–003", "001..003"); break;
+            case Attack.MissingTable: engineInput = "## ENGINE-CORE-1"; break;
+            case Attack.MalformedHeading: scopeInput = "## S269-? Invalid"; break;
+            case Attack.MalformedSubSlice: scopeInput = "## LEGACY-0aa Two sub-slice letters"; break;
+            case Attack.UppercaseSubSlice: scopeInput = "## LEGACY-0A Uppercase sub-slice"; break;
+            case Attack.UnnumberedSubSlice: scopeInput = "## ENGINE-COREa A sub-slice letter after no numbered slice"; break;
+            case Attack.MissingCatalogueOwner: consumerInput = consumers.Replace("## CAT-001-I Ball", "## CAT-002-I Ball"); break;
+            case Attack.MalformedFixture: consumerInput = consumers.Replace("id=\"fix-001-001\"", "id=\"fix-001-002\""); break;
+            case Attack.MissingFixtureAnchor: consumerInput = consumers.Replace("<a id=\"fix-001-001\"></a>", ""); break;
+            case Attack.DuplicateFixtureTable: consumerInput = consumers + "\n## Exact fixture proof children"; break;
+            case Attack.DuplicateFixture: consumerInput = consumers + "\n" + consumers.Split('\n').Last(); break;
+            case Attack.ConflictingFixture: consumerInput = "## CAT-002-I Other\n" + consumers + "\n" + consumers.Split('\n').Last().Replace("CAT-001-V", "CAT-002-V"); break;
+            case Attack.EmptyDocument: scopeInput = ""; break;
+            default: throw new InvalidOperationException("Missing current owner rejection control.");
+        }
+        _ = CurrentOwnerMembership.Parse(engineInput, consumerInput, [scopeInput]);
+    }
+
+
 }
 

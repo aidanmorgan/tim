@@ -520,6 +520,56 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     {
         WorkshopMessages.ValidatePresentationOwners(read,construction);
         var physics = construction.Physics;
+        ValidateInitialPhysicalStores(read, physics);
+        // The occurrence rows are device-private (Story 9A.23 D9): the device admits them against the scene; the read carries the stores.
+        read.ContactWorks.ValidateScene(physics);
+        var network = construction.Activation;
+        var initial = network.Clear();
+        var timers = network.ClearTimers();
+        if (read.Timers.Count != timers.Count) throw new ArgumentException("Admission timer population changed.");
+        for (var i = 0; i < timers.Count; i++)
+            if (read.Timers[i] != timers[i]) throw new ArgumentException("Admission retained timer state.");
+        if (!read.Memory.HasSameBits(network.ClearMemory())) throw new ArgumentException("Admission retained counter or clock memory.");
+        if (read.Activations.Count != initial.Count) throw new ArgumentException("Admission activation population changed.");
+        for (var i = 0; i < initial.Count; i++)
+            if (read.Activations[i] != initial[i]) throw new ArgumentException("Admission retained activation state.");
+        if (read.Epoch != epoch || read.Tick.Value != 0)
+            throw new ArgumentException("GPU admission read does not match the construction transaction.");
+        if(read.Captures.Count!=0) throw new ArgumentException("Fresh admission contains interaction state.");
+        read.Bodies.ValidateScene(physics, epoch, read.Tick);
+    }
+
+    private void ValidateAdvancedRead(WorkshopRead source, WorkshopRead read)
+    {
+        WorkshopMessages.ValidatePresentationOwners(read,Scene);
+        ValidateRopeAdvance(source, read);
+        if (source.Tick.Value == ulong.MaxValue || read.Epoch != source.Epoch ||
+            read.Tick.Value != source.Tick.Value + 1 || read.Bodies.Count != source.Bodies.Count)
+            throw new ArgumentException("GPU tick read does not match the active transaction.");
+        if (read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count || read.ContactWorks.Count != source.ContactWorks.Count ||
+            read.Memory.Count != source.Memory.Count)
+            throw new ArgumentException("Physical read population changed.");
+        for (var i = 0; i < read.Memory.Count; i++)
+            if (read.Memory[i].Node != source.Memory[i].Node || read.Memory[i].Kind != source.Memory[i].Kind)
+                throw new ArgumentException("Committed counter or clock memory identity changed.");
+        read.ContactWorks.ValidateAdvance(source.ContactWorks);
+        read.Electrical.ValidateAdvance(source.Electrical);
+        ValidateAppliedControls(source, read);
+        read.Bodies.ValidateTime(read.Epoch, read.Tick);
+        read.Captures.ValidateAdvance(source.Captures);
+        ValidateActivationAdvance(source, read);
+        ValidateTimerAdvance(source, read);
+        for (var i = 0; i < read.Bodies.Count; i++)
+        {
+            var value = read.Bodies[i]; value.Validate();
+            if (value.Body.Id != source.Bodies[i].Body.Id ||
+                !F32Bits.Equal(value.LocalCentreOfMass, source.Bodies[i].LocalCentreOfMass))
+                throw new ArgumentException("GPU body identity or centre of mass changed.");
+        }
+    }
+
+    private static void ValidateInitialPhysicalStores(WorkshopRead read, PhysicsSceneDeclaration physics)
+    {
         if (read.ContactWorks.Count != physics.ContactWorks.Length) throw new ArgumentException("Admission work population changed.");
         for (var i = 0; i < read.ContactWorks.Count; i++)
         {
@@ -546,27 +596,10 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (read.DriveTargets[i].Owner != owner || !F32Bits.Equal(read.DriveTargets[i].TargetSpeed, drive.TargetSpeed))
                 throw new ArgumentException("Admission did not commit the declared drive target.");
         }
-        // The occurrence rows are device-private (Story 9A.23 D9): the device admits them against the scene; the read carries the stores.
-        read.ContactWorks.ValidateScene(physics);
-        var network = construction.Activation;
-        var initial = network.Clear();
-        var timers = network.ClearTimers();
-        if (read.Timers.Count != timers.Count) throw new ArgumentException("Admission timer population changed.");
-        for (var i = 0; i < timers.Count; i++)
-            if (read.Timers[i] != timers[i]) throw new ArgumentException("Admission retained timer state.");
-        if (!read.Memory.HasSameBits(network.ClearMemory())) throw new ArgumentException("Admission retained counter or clock memory.");
-        if (read.Activations.Count != initial.Count) throw new ArgumentException("Admission activation population changed.");
-        for (var i = 0; i < initial.Count; i++)
-            if (read.Activations[i] != initial[i]) throw new ArgumentException("Admission retained activation state.");
-        if (read.Epoch != epoch || read.Tick.Value != 0)
-            throw new ArgumentException("GPU admission read does not match the construction transaction.");
-        if(read.Captures.Count!=0) throw new ArgumentException("Fresh admission contains interaction state.");
-        read.Bodies.ValidateScene(physics, epoch, read.Tick);
     }
 
-    private void ValidateAdvancedRead(WorkshopRead source, WorkshopRead read)
+    private void ValidateRopeAdvance(WorkshopRead source, WorkshopRead read)
     {
-        WorkshopMessages.ValidatePresentationOwners(read,Scene);
         for (var i = 0; i < read.Presentation.Ropes.Length; i++)
         {
             var before = source.Presentation.Ropes[i]; var after = read.Presentation.Ropes[i];
@@ -574,17 +607,10 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (after.CutSpan != expectedCut || after.Integrity != (expectedCut.Value == 0 ? RopeIntegrity.Intact : RopeIntegrity.Cut))
                 throw new ArgumentException("Rope integrity changed without an admitted cut.");
         }
-        if (source.Tick.Value == ulong.MaxValue || read.Epoch != source.Epoch ||
-            read.Tick.Value != source.Tick.Value + 1 || read.Bodies.Count != source.Bodies.Count)
-            throw new ArgumentException("GPU tick read does not match the active transaction.");
-        if (read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count || read.ContactWorks.Count != source.ContactWorks.Count ||
-            read.Memory.Count != source.Memory.Count)
-            throw new ArgumentException("Physical read population changed.");
-        for (var i = 0; i < read.Memory.Count; i++)
-            if (read.Memory[i].Node != source.Memory[i].Node || read.Memory[i].Kind != source.Memory[i].Kind)
-                throw new ArgumentException("Committed counter or clock memory identity changed.");
-        read.ContactWorks.ValidateAdvance(source.ContactWorks);
-        read.Electrical.ValidateAdvance(source.Electrical);
+    }
+
+    private void ValidateAppliedControls(WorkshopRead source, WorkshopRead read)
+    {
         if (read.Motion is { } motion)
         {
             var hasPhase = (motion.LastOrdinal + 3) / 4 > (motion.FirstOrdinal + 3) / 4;
@@ -600,8 +626,10 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         for (var i = 0; i < targets.Length; i++)
             if (read.DriveTargets[i].Owner != source.DriveTargets[i].Owner || !F32Bits.Equal(read.DriveTargets[i].TargetSpeed, targets[i]))
                 throw new ArgumentException("Committed drive target differs from the authorised target.");
-        read.Bodies.ValidateTime(read.Epoch, read.Tick);
-        read.Captures.ValidateAdvance(source.Captures);
+    }
+
+    private void ValidateActivationAdvance(WorkshopRead source, WorkshopRead read)
+    {
         var bistable = BistableNodes();
         for (var i = 0; i < read.Activations.Count; i++)
         {
@@ -611,6 +639,10 @@ public sealed class WorkshopSimulation : IAsyncDisposable
                 (!bistable.Contains(after.Node) && before.Phase == ActivationPhase.Latched && after != before))
                 throw new ArgumentException("Committed activation identity or latch changed.");
         }
+    }
+
+    private void ValidateTimerAdvance(WorkshopRead source, WorkshopRead read)
+    {
         for (var i = 0; i < read.Timers.Count; i++)
         {
             var before = source.Timers[i]; var after = read.Timers[i]; after.Validate();
@@ -633,12 +665,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
                     (after.StartedTick != before.StartedTick || after.DueTick != before.DueTick || after.Input != before.Input)))
                 throw new ArgumentException("Committed timer identity or countdown changed.");
         }
-        for (var i = 0; i < read.Bodies.Count; i++)
-        {
-            var value = read.Bodies[i]; value.Validate();
-            if (value.Body.Id != source.Bodies[i].Body.Id ||
-                !F32Bits.Equal(value.LocalCentreOfMass, source.Bodies[i].LocalCentreOfMass))
-                throw new ArgumentException("GPU body identity or centre of mass changed.");
-        }
     }
+
+
 }

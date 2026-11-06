@@ -292,9 +292,23 @@ public struct PuzzleRecord : IFlatbufferObject
   public ulong GoalBody { get { int o = __p.__offset(16); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public ulong GoalTarget { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public float GoalDelay { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public CuriousContraptions.Wire.AssistanceKnotRecord? Assistance(int j) { int o = __p.__offset(22); return o != 0 ? (CuriousContraptions.Wire.AssistanceKnotRecord?)(new CuriousContraptions.Wire.AssistanceKnotRecord()).__assign(__p.__vector(o) + j * 44, __p.bb) : null; }
-  public int AssistanceLength { get { int o = __p.__offset(22); return o != 0 ? __p.__vector_len(o) : 0; } }
-  public ulong InteractionTarget { get { int o = __p.__offset(24); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public string GoalSourceNode { get { int o = __p.__offset(22); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetGoalSourceNodeBytes() { return __p.__vector_as_span<byte>(22, 1); }
+#else
+  public ArraySegment<byte>? GetGoalSourceNodeBytes() { return __p.__vector_as_arraysegment(22); }
+#endif
+  public byte[] GetGoalSourceNodeArray() { return __p.__vector_as_array<byte>(22); }
+  public string GoalTargetNode { get { int o = __p.__offset(24); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetGoalTargetNodeBytes() { return __p.__vector_as_span<byte>(24, 1); }
+#else
+  public ArraySegment<byte>? GetGoalTargetNodeBytes() { return __p.__vector_as_arraysegment(24); }
+#endif
+  public byte[] GetGoalTargetNodeArray() { return __p.__vector_as_array<byte>(24); }
+  public CuriousContraptions.Wire.AssistanceKnotRecord? Assistance(int j) { int o = __p.__offset(26); return o != 0 ? (CuriousContraptions.Wire.AssistanceKnotRecord?)(new CuriousContraptions.Wire.AssistanceKnotRecord()).__assign(__p.__vector(o) + j * 44, __p.bb) : null; }
+  public int AssistanceLength { get { int o = __p.__offset(26); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public ulong InteractionTarget { get { int o = __p.__offset(28); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
 
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> CreatePuzzleRecord(FlatBufferBuilder builder,
       StringOffset idOffset = default(StringOffset),
@@ -306,13 +320,17 @@ public struct PuzzleRecord : IFlatbufferObject
       ulong goal_body = 0,
       ulong goal_target = 0,
       float goal_delay = 0.0f,
+      StringOffset goal_source_nodeOffset = default(StringOffset),
+      StringOffset goal_target_nodeOffset = default(StringOffset),
       VectorOffset assistanceOffset = default(VectorOffset),
       ulong interaction_target = 0) {
-    builder.StartTable(11);
+    builder.StartTable(13);
     PuzzleRecord.AddInteractionTarget(builder, interaction_target);
     PuzzleRecord.AddGoalTarget(builder, goal_target);
     PuzzleRecord.AddGoalBody(builder, goal_body);
     PuzzleRecord.AddAssistance(builder, assistanceOffset);
+    PuzzleRecord.AddGoalTargetNode(builder, goal_target_nodeOffset);
+    PuzzleRecord.AddGoalSourceNode(builder, goal_source_nodeOffset);
     PuzzleRecord.AddGoalDelay(builder, goal_delay);
     PuzzleRecord.AddGoalKind(builder, goal_kind);
     PuzzleRecord.AddInventoryCount(builder, inventory_count);
@@ -323,7 +341,7 @@ public struct PuzzleRecord : IFlatbufferObject
     return PuzzleRecord.EndPuzzleRecord(builder);
   }
 
-  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(11); }
+  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(13); }
   public static void AddId(FlatBufferBuilder builder, StringOffset idOffset) { builder.AddOffset(0, idOffset.Value, 0); }
   public static void AddPlacement(FlatBufferBuilder builder, uint placement) { builder.AddUint(1, placement, 0); }
   public static void AddPrecision(FlatBufferBuilder builder, float precision) { builder.AddFloat(2, precision, 0.0f); }
@@ -333,13 +351,15 @@ public struct PuzzleRecord : IFlatbufferObject
   public static void AddGoalBody(FlatBufferBuilder builder, ulong goalBody) { builder.AddUlong(6, goalBody, 0); }
   public static void AddGoalTarget(FlatBufferBuilder builder, ulong goalTarget) { builder.AddUlong(7, goalTarget, 0); }
   public static void AddGoalDelay(FlatBufferBuilder builder, float goalDelay) { builder.AddFloat(8, goalDelay, 0.0f); }
-  public static void AddAssistance(FlatBufferBuilder builder, VectorOffset assistanceOffset) { builder.AddOffset(9, assistanceOffset.Value, 0); }
+  public static void AddGoalSourceNode(FlatBufferBuilder builder, StringOffset goalSourceNodeOffset) { builder.AddOffset(9, goalSourceNodeOffset.Value, 0); }
+  public static void AddGoalTargetNode(FlatBufferBuilder builder, StringOffset goalTargetNodeOffset) { builder.AddOffset(10, goalTargetNodeOffset.Value, 0); }
+  public static void AddAssistance(FlatBufferBuilder builder, VectorOffset assistanceOffset) { builder.AddOffset(11, assistanceOffset.Value, 0); }
   public static void StartAssistanceVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(44, numElems, 4); }
-  public static void AddInteractionTarget(FlatBufferBuilder builder, ulong interactionTarget) { builder.AddUlong(10, interactionTarget, 0); }
+  public static void AddInteractionTarget(FlatBufferBuilder builder, ulong interactionTarget) { builder.AddUlong(12, interactionTarget, 0); }
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> EndPuzzleRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 4);  // id
-    builder.Required(o, 22);  // assistance
+    builder.Required(o, 26);  // assistance
     return new Offset<CuriousContraptions.Wire.PuzzleRecord>(o);
   }
 }
@@ -359,8 +379,10 @@ static public class PuzzleRecordVerify
       && verifier.VerifyField(tablePos, 16 /*GoalBody*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 18 /*GoalTarget*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 20 /*GoalDelay*/, 4 /*float*/, 4, false)
-      && verifier.VerifyVectorOfData(tablePos, 22 /*Assistance*/, 44 /*CuriousContraptions.Wire.AssistanceKnotRecord*/, true)
-      && verifier.VerifyField(tablePos, 24 /*InteractionTarget*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyString(tablePos, 22 /*GoalSourceNode*/, false)
+      && verifier.VerifyString(tablePos, 24 /*GoalTargetNode*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 26 /*Assistance*/, 44 /*CuriousContraptions.Wire.AssistanceKnotRecord*/, true)
+      && verifier.VerifyField(tablePos, 28 /*InteractionTarget*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

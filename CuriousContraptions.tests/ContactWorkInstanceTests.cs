@@ -185,7 +185,7 @@ public sealed class ContactWorkInstanceTests
         Assert.NotEmpty(hits);
         var paid = hits.Where(hit => hit.Effect == ContactWorkEffect.Paid).ToArray();
         var pulses = ring.Records.Where(record => record.Kind == CuriousContraptions.Abstractions.SimulationEventKind.Impact &&
-            record.Source == Owner.Value && record.Magnitude > 0).ToArray();
+            record.Source.Value == Owner.Value && record.Magnitude > 0).ToArray();
         Assert.Equal(paid.Length, pulses.Length);
         // Repeated cap contacts retain the owner's per-target cooldown.
         for (var i = 1; i < hits.Length; i++)

@@ -325,6 +325,20 @@ public partial class Workshop
         RefreshConnectionArtwork(World.WorkshopRead.Presentation.Ropes);
         ApplyUiBindings();
         PanCamera(delta);
+        RefreshToolVisibility();
+        ResizePartsToolbox();
+        if (_preview == null)
+        {
+            // A dragged part shows the joint it would snap to on release; its body is not moved until then.
+            ShowSnap(_dragging && _dragMoved && _selected is { Locked: false } dragged ? MoveSnap(dragged) : null);
+            return;
+        }
+        if (_lifting || GetViewport().GuiGetHoveredControl() != null) { ShowSnap(null); return; }
+        ShowPreviewAt(WorkPoint(GetViewport().GetMousePosition(), _buildView ? (float)_depth.Value : (float)_placementHeight.Value));
+    }
+
+    private void RefreshToolVisibility()
+    {
         var target = _preview ?? _selected;
         _cancelButton.Visible = !_inRun && (_tool is not null || _linkSource is not null);
         _connectionChoices.Visible = (CanEdit && (_selected is not null || _linkSource is not null)) ||
@@ -341,15 +355,6 @@ public partial class Workshop
         _resizeModeButton.ButtonPressed = _rotationGizmo.ResizeMode;
         _moveModeButton.ButtonPressed = _rotationGizmo.MoveMode;
         _rotateModeButton.ButtonPressed = !_rotationGizmo.MoveMode && !_rotationGizmo.ResizeMode;
-        ResizePartsToolbox();
-        if (_preview == null)
-        {
-            // A dragged part shows the joint it would snap to on release; its body is not moved until then.
-            ShowSnap(_dragging && _dragMoved && _selected is { Locked: false } dragged ? MoveSnap(dragged) : null);
-            return;
-        }
-        if (_lifting || GetViewport().GuiGetHoveredControl() != null) { ShowSnap(null); return; }
-        ShowPreviewAt(WorkPoint(GetViewport().GetMousePosition(), _buildView ? (float)_depth.Value : (float)_placementHeight.Value));
     }
 
     /// <summary>The placement preview at a bench point: the composed pose the click would place, hidden when the point is outside the

@@ -6,16 +6,16 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.SignalLamp;
 
-public sealed class SignalLampElementDeclaration : IElectricalElement, IIndicatorElement, ISceneGeometryElement
+public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
         [
-            new("Visual/Bulb", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActivation, 85f / 255f, 1f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Bulb", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActivation, 101f / 255f, 240f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Bulb", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActivation, 115f / 255f, 165f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Bulb", PresentationProperty.EmissionRed, PresentationDriver.CommittedActivation, 0f, 233f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Bulb", PresentationProperty.EmissionGreen, PresentationDriver.CommittedActivation, 0f, 178f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Bulb", PresentationProperty.EmissionBlue, PresentationDriver.CommittedActivation, 0f, 76f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
+            new("Visual/Bulb", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 85f / 255f, 1f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/Bulb", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 101f / 255f, 240f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/Bulb", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 115f / 255f, 165f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/Bulb", PresentationProperty.EmissionRed, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 0f, 233f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/Bulb", PresentationProperty.EmissionGreen, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 0f, 178f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/Bulb", PresentationProperty.EmissionBlue, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 0f, 76f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(
@@ -54,12 +54,13 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, IIndicato
         new("lamp_bulb", ElectricalRole.Consumer, RatedVoltage: 12f, Resistance: 48f, Capacitance: 0f, MaxPower: 5f)
     ];
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
-    [
-        new("lamp_trigger", SignalTriggerMode.Level, Threshold: 0.5f, PulseDurationSeconds: 0f)
-    ];
 
     /// <summary>The lamp indicates on its ActivationIn: fed by a level output it follows that level, otherwise it holds its first
     /// input until Reset.</summary>
-    public SignalIndicatorDescriptor Indicator => new(PortId.ActivationIn);
+    public IReadOnlyList<SignalNodeDescriptor> SignalNodes => [new SignalIndicatorDescriptor(new("signal"))];
+    public IReadOnlyList<SignalEdge> SignalEdges => [];
+    public IReadOnlyList<SignalPortBinding> SignalPorts =>
+    [
+        new(PortId.ActivationIn, new(new("signal"), SignalTerminal.Input))
+    ];
 }

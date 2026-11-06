@@ -309,19 +309,19 @@ public sealed class WorkshopGpuDeviceTests
         var network = WorkshopActivationCompiler.Compile(construction);
         var admitted = await device.Admit(CompiledSceneFixture.Compile(construction), new(1), Profile, new(1));
         Assert.Equal(network.ClearMemory().Count, admitted.Read.Memory.Count);
-        Assert.Equal(OscillatorPhase.Stopped, network.Memory(admitted.Read.Memory, clock.Id).Phase);
-        Assert.Equal(0U, network.Memory(admitted.Read.Memory, counter.Id).Count);
+        Assert.Equal(OscillatorPhase.Stopped, network.Memory(admitted.Read.Memory, SignalTestNodes.Only(network, clock.Id)).Phase);
+        Assert.Equal(0U, network.Memory(admitted.Read.Memory, SignalTestNodes.Only(network, counter.Id)).Count);
         device.Commit(admitted.Sequence); device.Discard(admitted.Sequence);
 
         var controls = WorkshopTickControls.For(admitted.Read, []);
         var committedWorld = (byte[])transport.Record.Clone();
         var superseded = await device.Advance(admitted.Read, new(2), controls);
-        Assert.Equal(OscillatorPhase.Running, network.Memory(superseded.Read.Memory, clock.Id).Phase);
+        Assert.Equal(OscillatorPhase.Running, network.Memory(superseded.Read.Memory, SignalTestNodes.Only(network, clock.Id)).Phase);
         device.Discard(superseded.Sequence);
         transport.Record = committedWorld; // the discarded GPU candidate leaves the committed world in place
         var advanced = await device.Advance(admitted.Read, new(3), controls);
         device.Commit(advanced.Sequence); device.Discard(advanced.Sequence);
-        var running = network.Memory(advanced.Read.Memory, clock.Id);
+        var running = network.Memory(advanced.Read.Memory, SignalTestNodes.Only(network, clock.Id));
         Assert.Equal((OscillatorPhase.Running, 120UL), (running.Phase, running.DueTick));
 
         var reset = await device.Admit(CompiledSceneFixture.Compile(construction), new(2), Profile, new(4));

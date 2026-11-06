@@ -105,7 +105,7 @@ public sealed class LampDetectorGuardTests
         var count = 0U;
         foreach (var read in reads)
         {
-            var row = network.Memory(read.Memory, Tally);
+            var row = network.Memory(read.Memory, SignalTestNodes.Only(network, Tally));
             Assert.True(row.Count == count || row.Count == count + 1, $"one passage at most per tick at {read.Tick.Value}");
             if (row.Count == count + 1) passages.Add((read.Tick.Value, row.Last.Ordinal));
             count = row.Count;
@@ -150,10 +150,10 @@ public sealed class LampDetectorGuardTests
         Assert.Equal(saved, loaded);
         Assert.Equal(bench.Connections.ToArray(), loaded.Construction.Connections.ToArray());
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, Ticks);
-        var replayPassages = replay.Where(read => network.Memory(read.Memory, Tally).Count > 0)
-            .GroupBy(read => network.Memory(read.Memory, Tally).Count).Select(group => group.First()).ToArray();
+        var replayPassages = replay.Where(read => network.Memory(read.Memory, SignalTestNodes.Only(network, Tally)).Count > 0)
+            .GroupBy(read => network.Memory(read.Memory, SignalTestNodes.Only(network, Tally)).Count).Select(group => group.First()).ToArray();
         Assert.Equal(2, replayPassages.Length);
-        Assert.Equal([1U, 2U], replayPassages.Select(read => network.Memory(read.Memory, Tally).Count));
+        Assert.Equal([1U, 2U], replayPassages.Select(read => network.Memory(read.Memory, SignalTestNodes.Only(network, Tally)).Count));
         Assert.True(replayPassages[0].Tick.Value < replayPassages[1].Tick.Value);
         Assert.All(replay, read => Assert.Equal(read.Tick.Value >= replayPassages[0].Tick.Value, Lit(read, lamp)));
         Assert.All(replay, read => Assert.Equal(read.Tick.Value >= replayPassages[1].Tick.Value, Lit(read, new(5))));
@@ -248,7 +248,7 @@ public sealed class LampDetectorGuardTests
             Signal(latch.Id, lamp.Id), Signal(setClock.Id, sticky.Id));
         var network = WorkshopActivationCompiler.Compile(bench);
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 300);
-        Assert.All(reads, read => Assert.Equal(network.StateLatchPhase(read.Activations, latch.Id) == SimulationLatchPhase.On, Lit(read, lamp.Id)));
+        Assert.All(reads, read => Assert.Equal(network.StateLatchPhase(read.Activations, SignalTestNodes.Only(network, latch.Id)) == SimulationLatchPhase.On, Lit(read, lamp.Id)));
         Assert.Contains(reads, read => Lit(read, lamp.Id));
         var lit = reads.FindIndex(read => Lit(read, lamp.Id));
         Assert.Contains(reads.Skip(lit), read => !Lit(read, lamp.Id)); // it went dark again with the latch
@@ -297,7 +297,7 @@ public sealed class LampDetectorGuardTests
             var refusal = Assert.Throws<WorkshopEditRejectedException>(edit);
             Assert.Equal((ordinal, message), ((uint)refusal.Reason, refusal.Message));
         }
-        const string one = "A lamp that follows a level output takes no other signal.";
+        const string one = "A level input takes exactly one source.";
         Refused(8, one, () => new WorkshopConnections(level, Signal(hit.Id, lamp.Id)).Validate(instances));
         Refused(8, one, () => new WorkshopConnections(level, Signal(detector.Id, lamp.Id)).Validate(instances));
         Refused(8, one, () => new WorkshopConnections(level, Signal(other.Id, lamp.Id)).Validate(instances));

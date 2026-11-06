@@ -2,8 +2,7 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>Story 9A.32 suite-first guards (CAT-023 §5), written on the record path and kept byte-identical across the generic
-/// conversion: every bench is built through <see cref="PlacedParts.Domino"/> and run on the production compile and the shipped worker
+/// <summary>Domino gameplay guards (CAT-023 §5): every bench is built through <see cref="PlacedParts.Domino"/> and run on the production compile and the shipped worker
 /// engine, tick by tick.</summary>
 public sealed class DominoGuardTests
 {
@@ -42,12 +41,6 @@ public sealed class DominoGuardTests
     {
         for (var i = 0; i < read.Activations.Count; i++) if (read.Activations[i].Owner == owner) return read.Activations[i];
         throw new ArgumentException($"No node for {owner.Value}.", nameof(owner));
-    }
-
-    private static bool HasNode(WorkshopRead read, GpuBodyId owner)
-    {
-        for (var i = 0; i < read.Activations.Count; i++) if (read.Activations[i].Owner == owner) return true;
-        return false;
     }
 
     private static int FirstTick(List<WorkshopRead> run, Func<WorkshopRead, bool> predicate) => run.FindIndex(read => predicate(read));
@@ -113,14 +106,20 @@ public sealed class DominoGuardTests
     }
 
     [Fact]
-    public async Task AnUnwiredEndCompilesNoSensorOrNodeAndFiresNothingWhenItFalls()
+    public async Task AnUnwiredEndObservesItsFallButTheLampStaysDark()
     {
         var unwired = Lesson(.45f, wired: false);
-        Assert.Empty(WorkshopPhysicsCompiler.Compile(unwired, new(1, 2)).OrientationSensors.ToArray());
-        Assert.Equal([Lamp], WorkshopActivationCompiler.Compile(unwired).Nodes.ToArray().Select(node => node.Owner));
+        var ids = unwired.Instances.Identities[End].Signals[new("signal")];
+        var sensor = Assert.Single(WorkshopPhysicsCompiler.Compile(unwired, new(1, 2)).OrientationSensors.ToArray(), row => row.Id == ids.Orientation);
+        Assert.Equal(End, sensor.Body);
+        var node = Assert.Single(WorkshopActivationCompiler.Compile(unwired).Nodes.ToArray(), row => row.Id == ids.Node);
+        Assert.Equal((End, ids.Orientation), (node.Owner, node.Sensor));
         var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(unwired, Ticks);
         Assert.True(run.Max(read => Tilt(Find(read, End))) > 60, "the end tile still falls");
-        Assert.All(run, read => Assert.False(HasNode(read, End)));
+        var fired = FirstTick(run, read => LatchOf(read, End).Phase == ActivationPhase.Latched);
+        Assert.True(fired >= 0, "The declared source observes the fall even without a public wire.");
+        Assert.Equal(ids.Node, LatchOf(run[fired], End).Emitter);
+        Assert.Equal(ids.Orientation.Value, LatchOf(run[fired], End).Source.Value);
         Assert.All(run, read => Assert.Equal(ActivationPhase.Clear, LatchOf(read, Lamp).Phase));
         Assert.False(LaunchLessonSolveTests.Solved(unwired, run));
     }

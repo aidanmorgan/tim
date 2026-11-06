@@ -6,14 +6,14 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.StateLatch;
 
-public sealed class StateLatchElementDeclaration : IMemoryElement, ISupplyElement, ISceneGeometryElement
+public sealed class StateLatchElementDeclaration : ISignalElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.2f, PresentationAxes.None,
         [
-            new("Visual/Rocker", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedActivation, -.25f, .25f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/IndicatorLamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActivation, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/IndicatorLamp", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActivation, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/IndicatorLamp", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActivation, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
+            new("Visual/Rocker", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, -.25f, .25f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/IndicatorLamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/IndicatorLamp", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/IndicatorLamp", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(
@@ -48,16 +48,23 @@ public sealed class StateLatchElementDeclaration : IMemoryElement, ISupplyElemen
     ];
 
     /// <summary>One record per memory transition only (Level 1 Off→On, 0 On→Off); a redundant request publishes nothing.</summary>
-    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.MemoryChanged)];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.MemoryChanged, new("signal"))];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 
     /// <summary>SetIn turns the memory On and ResetIn turns it Off; a same-tick pair resolves to Reset (CAT-037).</summary>
-    public SignalMemoryDescriptor Memory => new(PortId.SetIn, PortId.ResetIn);
+    public IReadOnlyList<SignalNodeDescriptor> SignalNodes => [new SignalMemoryDescriptor(new("signal"))];
+    public IReadOnlyList<SignalEdge> SignalEdges => [];
+    public IReadOnlyList<SignalPortBinding> SignalPorts =>
+    [
+        new(PortId.SetIn, new(new("signal"), SignalTerminal.Set)),
+        new(PortId.ResetIn, new(new("signal"), SignalTerminal.Reset)),
+        new(PortId.ActivationOut, new(new("signal"), SignalTerminal.Output))
+    ];
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply);
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply,
+        Control: new(new("signal"), SignalContactState.Latched));
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

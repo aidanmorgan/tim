@@ -76,22 +76,7 @@ public sealed class GameFloatGuardTests
             if (node is not ExpressionSyntax expression) continue;
             var info = model.GetTypeInfo(expression);
             if (!Wider(info.Type) && !Wider(info.ConvertedType)) continue;
-            var declaration = node.AncestorsAndSelf().OfType<MemberDeclarationSyntax>().FirstOrDefault();
-            var containing = declaration is FieldDeclarationSyntax field
-                ? model.GetDeclaredSymbol(field.Declaration.Variables[0])
-                : declaration is not null ? model.GetDeclaredSymbol(declaration) : model.GetEnclosingSymbol(node.SpanStart);
-            while (containing is ILocalSymbol or IParameterSymbol) containing = containing.ContainingSymbol;
-            if (containing is not null && Adapters.Contains(Identity(containing))) continue;
-            if (model.GetSymbolInfo(node).Symbol is { } referenced && Adapters.Contains(Identity(referenced))) continue;
-            var local = node.AncestorsAndSelf().OfType<VariableDeclaratorSyntax>().FirstOrDefault() ??
-                node.AncestorsAndSelf().OfType<VariableDeclarationSyntax>().FirstOrDefault()?.Variables.FirstOrDefault();
-            if (local is not null && model.GetDeclaredSymbol(local) is ILocalSymbol variable &&
-                ObservationLocals.Contains(Identity(variable.ContainingSymbol) + "." + variable.Name)) continue;
-            if (model.GetSymbolInfo(node).Symbol is ILocalSymbol read &&
-                ObservationLocals.Contains(Identity(read.ContainingSymbol) + "." + read.Name)) continue;
-            var parameter = node.AncestorsAndSelf().OfType<ParameterSyntax>().FirstOrDefault();
-            if (parameter is not null && model.GetDeclaredSymbol(parameter) is IParameterSymbol declaredParameter &&
-                ObservationParameters.Contains(Identity(declaredParameter.ContainingSymbol) + "." + declaredParameter.Name)) continue;
+            if (IsObservationAdapter(node, model)) continue;
             // Roslyn also reports the contextual conversion on a member access's final name.
             // Normalize that name only; never walk through arithmetic or other argument descendants.
             var argumentValue = node is SimpleNameSyntax && node.Parent is MemberAccessExpressionSyntax member && member.Name == node
@@ -109,6 +94,27 @@ public sealed class GameFloatGuardTests
             hits.Add($"F32-GAME {tree.FilePath}:{at.Line + 1}:{at.Character + 1}: {node}");
         }
         return hits.Distinct(StringComparer.Ordinal).ToArray();
+    }
+
+    private static bool IsObservationAdapter(SyntaxNode node, SemanticModel model)
+    {
+        var declaration = node.AncestorsAndSelf().OfType<MemberDeclarationSyntax>().FirstOrDefault();
+        var containing = declaration is FieldDeclarationSyntax field
+            ? model.GetDeclaredSymbol(field.Declaration.Variables[0])
+            : declaration is not null ? model.GetDeclaredSymbol(declaration) : model.GetEnclosingSymbol(node.SpanStart);
+        while (containing is ILocalSymbol or IParameterSymbol) containing = containing.ContainingSymbol;
+        if (containing is not null && Adapters.Contains(Identity(containing))) return true;
+        if (model.GetSymbolInfo(node).Symbol is { } referenced && Adapters.Contains(Identity(referenced))) return true;
+        var local = node.AncestorsAndSelf().OfType<VariableDeclaratorSyntax>().FirstOrDefault() ??
+            node.AncestorsAndSelf().OfType<VariableDeclarationSyntax>().FirstOrDefault()?.Variables.FirstOrDefault();
+        if (local is not null && model.GetDeclaredSymbol(local) is ILocalSymbol variable &&
+            ObservationLocals.Contains(Identity(variable.ContainingSymbol) + "." + variable.Name)) return true;
+        if (model.GetSymbolInfo(node).Symbol is ILocalSymbol read &&
+            ObservationLocals.Contains(Identity(read.ContainingSymbol) + "." + read.Name)) return true;
+        var parameter = node.AncestorsAndSelf().OfType<ParameterSyntax>().FirstOrDefault();
+        if (parameter is not null && model.GetDeclaredSymbol(parameter) is IParameterSymbol declaredParameter &&
+            ObservationParameters.Contains(Identity(declaredParameter.ContainingSymbol) + "." + declaredParameter.Name)) return true;
+        return false;
     }
 
     [Fact]

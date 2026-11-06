@@ -37,80 +37,7 @@ public static class OwnershipOracles
             var rejected = false;
             try
             {
-                var candidate = contract;
-                var observed = snapshot;
-                switch (attack)
-                {
-                    case Attack.MissingMember: candidate = contract with { Assignments = [] }; break;
-                    case Attack.DuplicateMember: candidate = contract with { Assignments = [assignment, assignment] }; break;
-                    case Attack.UnknownMember: candidate = contract with { Assignments = [assignment with { Member = new("F:Fixture.Unknown.Values") }] }; break;
-                    case Attack.UnknownOwner: candidate = contract with { Assignments = [assignment with { Owner = (AssemblyOwner)999 }] }; break;
-                    case Attack.UnknownRule: candidate = contract with { Assignments = [assignment with { Rule = (OwnershipRule)999 }] }; break;
-                    case Attack.UnknownTask: candidate = contract with { Assignments = [assignment with { Migration = new("P0-Unknown") }] }; break;
-                    case Attack.WrongPlacement: candidate = contract with { Assignments = [assignment with { Owner = AssemblyOwner.SimulationCore }] }; break;
-                    case Attack.StaleSource: candidate = contract with { Sources = [source with { Sha256 = new string('b', 64) }] }; break;
-                    case Attack.MissingSource: candidate = contract with { Sources = [] }; break;
-                    case Attack.DuplicateSource: candidate = contract with { Sources = [source, source] }; break;
-                    case Attack.StaleWriterFingerprint:
-                        observed = snapshot with { Members = [member with { Uses = [..member.Uses,
-                            new(Source, 9, new("M:Fixture.Other.Mutate"), StateAccess.ReferenceEscape)] }] }; break;
-                    case Attack.StaleContentsFingerprint:
-                        observed = snapshot with { Members = [member with { Mutability = StorageMutability.ConstructionValue }] }; break;
-                    case Attack.UnauthorizedReader:
-                        var unknownReader = member with { Uses = [..member.Uses,
-                            new(Source, 9, new("M:Fixture.Other.Mutate"), StateAccess.Read)] };
-                        observed = snapshot with { Members = [unknownReader] };
-                        candidate = contract with { Assignments = [assignment with { MemberSha256 = OwnershipAudit.Fingerprint(unknownReader) }] };
-                        break;
-                    case Attack.UnauthorizedWriter:
-                        var changedWriter = member with { Uses = [..member.Uses,
-                            new(Source, 9, new("M:Fixture.Other.Mutate"), StateAccess.ReferenceEscape)] };
-                        observed = snapshot with { Members = [changedWriter] };
-                        candidate = contract with { Assignments = [assignment with { MemberSha256 = OwnershipAudit.Fingerprint(changedWriter) }] };
-                        break;
-                    case Attack.ReferenceContentsOmitted:
-                        var changedContents = member with { Mutability = StorageMutability.ConstructionValue };
-                        observed = snapshot with { Members = [changedContents] };
-                        candidate = contract with { Assignments = [assignment with { MemberSha256 = OwnershipAudit.Fingerprint(changedContents) }] };
-                        break;
-                    case Attack.ValidButWrongOwner:
-                        candidate = contract with { Assignments = [assignment with {
-                            Owner = AssemblyOwner.SimulationCore, Rule = OwnershipRule.SimulationAuthority }] };
-                        break;
-                    case Attack.SceneReferenceCrossing:
-                        var scene = member with
-                        {
-                            Id = new("F:CuriousContraptions.MachineWorld._parts"),
-                            Type = new("System.Collections.Generic.List<CuriousContraptions.MachinePart>")
-                        };
-                        observed = snapshot with { Members = [scene] };
-                        candidate = contract with { Assignments = [assignment with
-                        {
-                            Member = scene.Id, Owner = AssemblyOwner.Protocol, Rule = OwnershipRule.ImmutableContract,
-                            MemberSha256 = OwnershipAudit.Fingerprint(scene)
-                        }] };
-                        break;
-                    case Attack.DuplicateJsonField:
-                        var sourceJson = JsonSerializer.Serialize(source, OwnershipAudit.Json);
-                        _ = OwnershipAudit.Decode<SourceInput>(sourceJson.Insert(1,
-                            JsonSerializer.Serialize(nameof(SourceInput.Sha256)) + ":" + JsonSerializer.Serialize(source.Sha256) + ","));
-                        break;
-                    case Attack.NullAssignment:
-                        candidate = contract with { Assignments = [null!] };
-                        break;
-                    case Attack.BindingErrors:
-                        observed = snapshot with { Diagnostics = [new(InspectionContext.ProductionRelease,
-                            new("CS0001"), Source, 1, "Unresolved fixture binding.")] };
-                        break;
-                    case Attack.MissingOwnerField:
-                        var document = JsonSerializer.SerializeToNode(contract, OwnershipAudit.Json)!;
-                        document[nameof(OwnershipContract.Assignments)]![0]!.AsObject().Remove(nameof(OwnershipAssignment.Owner));
-                        candidate = document.Deserialize<OwnershipContract>(OwnershipAudit.Json)!; break;
-                    case Attack.UnknownField:
-                        candidate = JsonSerializer.Deserialize<OwnershipContract>("{\"Unsupported\":true}", OwnershipAudit.Json)!; break;
-                    default: throw new InvalidOperationException("Unimplemented oracle.");
-                }
-                OwnershipAudit.Validate(observed, candidate, tasks);
+                ValidateAttack(attack, snapshot, contract, tasks);
             }
             catch (InvalidDataException) { rejected = true; }
             catch (JsonException) { rejected = true; }
@@ -121,6 +48,87 @@ public static class OwnershipOracles
     }
 
 
+
+    private static void ValidateAttack(Attack attack, OwnershipSnapshot snapshot, OwnershipContract contract, HashSet<WorkId> tasks)
+    {
+        var member = snapshot.Members[0];
+        var source = snapshot.Sources[0];
+        var assignment = contract.Assignments[0];
+        var candidate = contract;
+        var observed = snapshot;
+        switch (attack)
+        {
+            case Attack.MissingMember: candidate = contract with { Assignments = [] }; break;
+            case Attack.DuplicateMember: candidate = contract with { Assignments = [assignment, assignment] }; break;
+            case Attack.UnknownMember: candidate = contract with { Assignments = [assignment with { Member = new("F:Fixture.Unknown.Values") }] }; break;
+            case Attack.UnknownOwner: candidate = contract with { Assignments = [assignment with { Owner = (AssemblyOwner)999 }] }; break;
+            case Attack.UnknownRule: candidate = contract with { Assignments = [assignment with { Rule = (OwnershipRule)999 }] }; break;
+            case Attack.UnknownTask: candidate = contract with { Assignments = [assignment with { Migration = new("P0-Unknown") }] }; break;
+            case Attack.WrongPlacement: candidate = contract with { Assignments = [assignment with { Owner = AssemblyOwner.SimulationCore }] }; break;
+            case Attack.StaleSource: candidate = contract with { Sources = [source with { Sha256 = new string('b', 64) }] }; break;
+            case Attack.MissingSource: candidate = contract with { Sources = [] }; break;
+            case Attack.DuplicateSource: candidate = contract with { Sources = [source, source] }; break;
+            case Attack.StaleWriterFingerprint:
+                observed = snapshot with { Members = [member with { Uses = [..member.Uses,
+                    new(Source, 9, new("M:Fixture.Other.Mutate"), StateAccess.ReferenceEscape)] }] }; break;
+            case Attack.StaleContentsFingerprint:
+                observed = snapshot with { Members = [member with { Mutability = StorageMutability.ConstructionValue }] }; break;
+            case Attack.UnauthorizedReader:
+                var unknownReader = member with { Uses = [..member.Uses,
+                    new(Source, 9, new("M:Fixture.Other.Mutate"), StateAccess.Read)] };
+                observed = snapshot with { Members = [unknownReader] };
+                candidate = contract with { Assignments = [assignment with { MemberSha256 = OwnershipAudit.Fingerprint(unknownReader) }] };
+                break;
+            case Attack.UnauthorizedWriter:
+                var changedWriter = member with { Uses = [..member.Uses,
+                    new(Source, 9, new("M:Fixture.Other.Mutate"), StateAccess.ReferenceEscape)] };
+                observed = snapshot with { Members = [changedWriter] };
+                candidate = contract with { Assignments = [assignment with { MemberSha256 = OwnershipAudit.Fingerprint(changedWriter) }] };
+                break;
+            case Attack.ReferenceContentsOmitted:
+                var changedContents = member with { Mutability = StorageMutability.ConstructionValue };
+                observed = snapshot with { Members = [changedContents] };
+                candidate = contract with { Assignments = [assignment with { MemberSha256 = OwnershipAudit.Fingerprint(changedContents) }] };
+                break;
+            case Attack.ValidButWrongOwner:
+                candidate = contract with { Assignments = [assignment with {
+                    Owner = AssemblyOwner.SimulationCore, Rule = OwnershipRule.SimulationAuthority }] };
+                break;
+            case Attack.SceneReferenceCrossing:
+                var scene = member with
+                {
+                    Id = new("F:CuriousContraptions.MachineWorld._parts"),
+                    Type = new("System.Collections.Generic.List<CuriousContraptions.MachinePart>")
+                };
+                observed = snapshot with { Members = [scene] };
+                candidate = contract with { Assignments = [assignment with
+                {
+                    Member = scene.Id, Owner = AssemblyOwner.Protocol, Rule = OwnershipRule.ImmutableContract,
+                    MemberSha256 = OwnershipAudit.Fingerprint(scene)
+                }] };
+                break;
+            case Attack.DuplicateJsonField:
+                var sourceJson = JsonSerializer.Serialize(source, OwnershipAudit.Json);
+                _ = OwnershipAudit.Decode<SourceInput>(sourceJson.Insert(1,
+                    JsonSerializer.Serialize(nameof(SourceInput.Sha256)) + ":" + JsonSerializer.Serialize(source.Sha256) + ","));
+                break;
+            case Attack.NullAssignment:
+                candidate = contract with { Assignments = [null!] };
+                break;
+            case Attack.BindingErrors:
+                observed = snapshot with { Diagnostics = [new(InspectionContext.ProductionRelease,
+                    new("CS0001"), Source, 1, "Unresolved fixture binding.")] };
+                break;
+            case Attack.MissingOwnerField:
+                var document = JsonSerializer.SerializeToNode(contract, OwnershipAudit.Json)!;
+                document[nameof(OwnershipContract.Assignments)]![0]!.AsObject().Remove(nameof(OwnershipAssignment.Owner));
+                candidate = document.Deserialize<OwnershipContract>(OwnershipAudit.Json)!; break;
+            case Attack.UnknownField:
+                candidate = JsonSerializer.Deserialize<OwnershipContract>("{\"Unsupported\":true}", OwnershipAudit.Json)!; break;
+            default: throw new InvalidOperationException("Unimplemented oracle.");
+        }
+        OwnershipAudit.Validate(observed, candidate, tasks);
+    }
 
     private static object? CheckCurrentPolicy(string? root)
     {
@@ -329,34 +337,7 @@ public static class OwnershipOracles
                 (InspectionContext.TestRelease, releaseTests, releaseTestInput)
             ];
             var snapshot = SourceInventory.Inspect(root, contexts, []);
-            if (snapshot.Diagnostics.Length != 0) throw new InvalidOperationException("Portable assembly fixture has binding errors.");
-            var animationContext = snapshot.Symbols.Single(context => context.Kind == InspectionContext.AnimationRelease);
-            var configHash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(
-                File.ReadAllBytes(Path.Combine(root, "capture.props"))));
-            if (snapshot.Sources.Count(source => source.Path == new SourcePath("animation.cs")) != 1 ||
-                snapshot.Sources.Single(source => source.Path == new SourcePath("capture.props")).Sha256 != configHash ||
-                animationContext.Assembly != new AssemblyId("CuriousContraptions.Animation") ||
-                !animationContext.CompilePaths.SequenceEqual(new[] { new SourcePath("animation.cs") }))
-                throw new InvalidOperationException("Animation source or configuration input identity differs.");
-            var slotsId = new MemberId("F:CuriousContraptions.Presentation.AnimationBatch._slots");
-            var valueId = new MemberId("P:CuriousContraptions.Presentation.AnimationBatch.Value");
-            var slots = snapshot.Members.Single(member => member.Id == slotsId);
-            var value = snapshot.Members.Single(member => member.Id == valueId);
-            if (slots.Path != new SourcePath("animation.cs") || slots.Mutability != StorageMutability.ReferencedStorage ||
-                !slots.Uses.Any(use => use.Caller == new CallerId("M:CuriousContraptions.Presentation.AnimationBatch.Advance")) ||
-                !value.Uses.Any(use => use.Caller == new CallerId("M:Hint.Read(CuriousContraptions.Presentation.AnimationBatch)~System.Double")))
-                throw new InvalidOperationException("Source-backed member or consumer identity was lost: " + JsonSerializer.Serialize(new { Slots = slots, Value = value }, OwnershipAudit.Json));
-            if (!snapshot.Calls.Any(call => call.Caller == new CallerId("M:Hint.Step(CuriousContraptions.Presentation.AnimationBatch)") &&
-                    call.Target == new CallerId("M:CuriousContraptions.Presentation.AnimationBatch.Advance") && call.Scope == DispatchScope.NamedTarget) ||
-                !snapshot.Calls.Any(call => call.Caller == new CallerId("M:ConsumerTest.Read(CuriousContraptions.Presentation.AnimationBatch)~System.Double") &&
-                    call.Target == new CallerId("M:Hint.Read(CuriousContraptions.Presentation.AnimationBatch)~System.Double") && call.Scope == DispatchScope.NamedTarget) ||
-                !snapshot.Calls.Any(call => call.Context == InspectionContext.ProductionDiagnostic &&
-                    call.Caller == new CallerId("M:Hint.DiagnosticRead(CuriousContraptions.Presentation.AnimationBatch)~System.Double") &&
-                    call.Target == new CallerId("M:CuriousContraptions.Presentation.AnimationBatch.get_Value~System.Double") &&
-                    call.Scope == DispatchScope.NamedTarget) ||
-                snapshot.Calls.Any(call => call.Context == InspectionContext.ProductionRelease &&
-                    call.Caller == new CallerId("M:Hint.DiagnosticRead(CuriousContraptions.Presentation.AnimationBatch)~System.Double")))
-                throw new InvalidOperationException("Cross-assembly caller or configuration identity differs.");
+            var (slots, value) = CheckPortableSnapshot(root, snapshot);
             var assignments = snapshot.Members.Select(member => new OwnershipAssignment(member.Id,
                 AssemblyOwner.AnimationKernel, Task, OwnershipRule.AnimationAuthority, OwnershipAudit.Fingerprint(member))).ToArray();
             var contract = new OwnershipContract(snapshot.Sources, assignments);
@@ -368,51 +349,7 @@ public static class OwnershipOracles
                 var rejected = false;
                 try
                 {
-                    var observed = snapshot;
-                    var candidate = contract;
-                    switch (attack)
-                    {
-                        case AssemblyAttack.MissingContext:
-                            _ = SourceInventory.Inspect(root, contexts.Where(context => context.Kind != InspectionContext.AnimationRelease).ToArray(), []); break;
-                        case AssemblyAttack.DuplicateContext:
-                            _ = SourceInventory.Inspect(root, [.. contexts, contexts[0]], []); break;
-                        case AssemblyAttack.UnknownContext:
-                            var unknown = contexts.ToArray(); unknown[0].Kind = (InspectionContext)999;
-                            _ = SourceInventory.Inspect(root, unknown, []); break;
-                        case AssemblyAttack.RetiredContext:
-                            var retired = contexts.ToArray(); retired[0].Kind = (InspectionContext)4;
-                            _ = SourceInventory.Inspect(root, retired, []); break;
-                        case AssemblyAttack.MissingReference:
-                            _ = SourceInventory.Compile(root, mainInput with { References = [core] }, animation); break;
-                        case AssemblyAttack.DuplicateReference:
-                            _ = SourceInventory.Compile(root, mainInput with { References = [.. mainInput.References, "CuriousContraptions.Animation.dll"] }, animation); break;
-                        case AssemblyAttack.MissingSource:
-                            _ = SourceInventory.Compile(root, animationInput with { Paths = [] }); break;
-                        case AssemblyAttack.DuplicateSource:
-                            _ = SourceInventory.Compile(root, animationInput with { Paths = ["animation.cs", "animation.cs"] }); break;
-                        case AssemblyAttack.BindingError:
-                            var broken = contexts.ToArray();
-                            broken[Array.FindIndex(broken, context => context.Kind == InspectionContext.ProductionDiagnostic)].Compilation = main.AddSyntaxTrees(CSharpSyntaxTree.ParseText("public class Broken { Undefined value; }", new CSharpParseOptions(LanguageVersion.CSharp14), path: "broken.cs"));
-                            observed = SourceInventory.Inspect(root, broken, []); break;
-                        case AssemblyAttack.MissingMember:
-                            candidate = contract with { Assignments = assignments.Where(item => item.Member != slotsId).ToArray() }; break;
-                        case AssemblyAttack.DuplicateMember:
-                            candidate = contract with { Assignments = [.. assignments, assignments[0]] }; break;
-                        case AssemblyAttack.StaleSource:
-                            candidate = contract with { Sources = snapshot.Sources.Select(source => source.Path == new SourcePath("animation.cs")
-                                ? source with { Sha256 = new string('b', 64) } : source).ToArray() }; break;
-                        case AssemblyAttack.StaleConfiguration:
-                            candidate = contract with { Sources = snapshot.Sources.Select(source => source.Path == new SourcePath("capture.props")
-                                ? source with { Sha256 = new string('b', 64) } : source).ToArray() }; break;
-                        case AssemblyAttack.StaleConsumer:
-                            observed = snapshot with { Members = snapshot.Members.Select(member => member.Id == valueId
-                                ? member with { Uses = [.. member.Uses, new(new("game.cs"), 99, new("M:Hint.Unreviewed"), StateAccess.Read)] } : member).ToArray() }; break;
-                        case AssemblyAttack.WrongOwner:
-                            candidate = contract with { Assignments = assignments.Select(item => item.Member == slotsId
-                                ? item with { Owner = AssemblyOwner.SimulationCore, Rule = OwnershipRule.SimulationAuthority } : item).ToArray() }; break;
-                        default: throw new InvalidOperationException("Unknown assembly oracle.");
-                    }
-                    OwnershipAudit.Validate(observed, candidate, tasks);
+                    ValidateAssemblyAttack(attack, root, contexts, snapshot, contract, tasks);
                 }
                 catch (InvalidDataException) { rejected = true; }
                 if (!rejected) throw new InvalidOperationException("Portable assembly oracle accepted an invalid context or ownership record.");
@@ -422,4 +359,95 @@ public static class OwnershipOracles
         }
         finally { directory.Delete(recursive: true); }
     }
+    private static (StateMember Slots, StateMember Value) CheckPortableSnapshot(string root, OwnershipSnapshot snapshot)
+    {
+        if (snapshot.Diagnostics.Length != 0) throw new InvalidOperationException("Portable assembly fixture has binding errors.");
+        var animationContext = snapshot.Symbols.Single(context => context.Kind == InspectionContext.AnimationRelease);
+        var configHash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(
+            File.ReadAllBytes(Path.Combine(root, "capture.props"))));
+        if (snapshot.Sources.Count(source => source.Path == new SourcePath("animation.cs")) != 1 ||
+            snapshot.Sources.Single(source => source.Path == new SourcePath("capture.props")).Sha256 != configHash ||
+            animationContext.Assembly != new AssemblyId("CuriousContraptions.Animation") ||
+            !animationContext.CompilePaths.SequenceEqual(new[] { new SourcePath("animation.cs") }))
+            throw new InvalidOperationException("Animation source or configuration input identity differs.");
+        var slotsId = new MemberId("F:CuriousContraptions.Presentation.AnimationBatch._slots");
+        var valueId = new MemberId("P:CuriousContraptions.Presentation.AnimationBatch.Value");
+        var slots = snapshot.Members.Single(member => member.Id == slotsId);
+        var value = snapshot.Members.Single(member => member.Id == valueId);
+        if (slots.Path != new SourcePath("animation.cs") || slots.Mutability != StorageMutability.ReferencedStorage ||
+            !slots.Uses.Any(use => use.Caller == new CallerId("M:CuriousContraptions.Presentation.AnimationBatch.Advance")) ||
+            !value.Uses.Any(use => use.Caller == new CallerId("M:Hint.Read(CuriousContraptions.Presentation.AnimationBatch)~System.Double")))
+            throw new InvalidOperationException("Source-backed member or consumer identity was lost: " + JsonSerializer.Serialize(new { Slots = slots, Value = value }, OwnershipAudit.Json));
+        if (!snapshot.Calls.Any(call => call.Caller == new CallerId("M:Hint.Step(CuriousContraptions.Presentation.AnimationBatch)") &&
+                call.Target == new CallerId("M:CuriousContraptions.Presentation.AnimationBatch.Advance") && call.Scope == DispatchScope.NamedTarget) ||
+            !snapshot.Calls.Any(call => call.Caller == new CallerId("M:ConsumerTest.Read(CuriousContraptions.Presentation.AnimationBatch)~System.Double") &&
+                call.Target == new CallerId("M:Hint.Read(CuriousContraptions.Presentation.AnimationBatch)~System.Double") && call.Scope == DispatchScope.NamedTarget) ||
+            !snapshot.Calls.Any(call => call.Context == InspectionContext.ProductionDiagnostic &&
+                call.Caller == new CallerId("M:Hint.DiagnosticRead(CuriousContraptions.Presentation.AnimationBatch)~System.Double") &&
+                call.Target == new CallerId("M:CuriousContraptions.Presentation.AnimationBatch.get_Value~System.Double") &&
+                call.Scope == DispatchScope.NamedTarget) ||
+            snapshot.Calls.Any(call => call.Context == InspectionContext.ProductionRelease &&
+                call.Caller == new CallerId("M:Hint.DiagnosticRead(CuriousContraptions.Presentation.AnimationBatch)~System.Double")))
+            throw new InvalidOperationException("Cross-assembly caller or configuration identity differs.");
+        return (slots, value);
+    }
+
+    private static void ValidateAssemblyAttack(AssemblyAttack attack, string root,
+        (InspectionContext Kind, CSharpCompilation Compilation, SourceInventory.ProjectInputs Inputs)[] contexts,
+        OwnershipSnapshot snapshot, OwnershipContract contract, HashSet<WorkId> tasks)
+    {
+        var (animation, animationInput) = (contexts[0].Compilation, contexts[0].Inputs);
+        var (main, mainInput) = (contexts[1].Compilation, contexts[1].Inputs);
+        var core = typeof(object).Assembly.Location;
+        var assignments = contract.Assignments;
+        var slotsId = new MemberId("F:CuriousContraptions.Presentation.AnimationBatch._slots");
+        var valueId = new MemberId("P:CuriousContraptions.Presentation.AnimationBatch.Value");
+        var observed = snapshot;
+        var candidate = contract;
+        switch (attack)
+        {
+            case AssemblyAttack.MissingContext:
+                _ = SourceInventory.Inspect(root, contexts.Where(context => context.Kind != InspectionContext.AnimationRelease).ToArray(), []); break;
+            case AssemblyAttack.DuplicateContext:
+                _ = SourceInventory.Inspect(root, [.. contexts, contexts[0]], []); break;
+            case AssemblyAttack.UnknownContext:
+                var unknown = contexts.ToArray(); unknown[0].Kind = (InspectionContext)999;
+                _ = SourceInventory.Inspect(root, unknown, []); break;
+            case AssemblyAttack.RetiredContext:
+                var retired = contexts.ToArray(); retired[0].Kind = (InspectionContext)4;
+                _ = SourceInventory.Inspect(root, retired, []); break;
+            case AssemblyAttack.MissingReference:
+                _ = SourceInventory.Compile(root, mainInput with { References = [core] }, animation); break;
+            case AssemblyAttack.DuplicateReference:
+                _ = SourceInventory.Compile(root, mainInput with { References = [.. mainInput.References, "CuriousContraptions.Animation.dll"] }, animation); break;
+            case AssemblyAttack.MissingSource:
+                _ = SourceInventory.Compile(root, animationInput with { Paths = [] }); break;
+            case AssemblyAttack.DuplicateSource:
+                _ = SourceInventory.Compile(root, animationInput with { Paths = ["animation.cs", "animation.cs"] }); break;
+            case AssemblyAttack.BindingError:
+                var broken = contexts.ToArray();
+                broken[Array.FindIndex(broken, context => context.Kind == InspectionContext.ProductionDiagnostic)].Compilation = main.AddSyntaxTrees(CSharpSyntaxTree.ParseText("public class Broken { Undefined value; }", new CSharpParseOptions(LanguageVersion.CSharp14), path: "broken.cs"));
+                observed = SourceInventory.Inspect(root, broken, []); break;
+            case AssemblyAttack.MissingMember:
+                candidate = contract with { Assignments = assignments.Where(item => item.Member != slotsId).ToArray() }; break;
+            case AssemblyAttack.DuplicateMember:
+                candidate = contract with { Assignments = [.. assignments, assignments[0]] }; break;
+            case AssemblyAttack.StaleSource:
+                candidate = contract with { Sources = snapshot.Sources.Select(source => source.Path == new SourcePath("animation.cs")
+                    ? source with { Sha256 = new string('b', 64) } : source).ToArray() }; break;
+            case AssemblyAttack.StaleConfiguration:
+                candidate = contract with { Sources = snapshot.Sources.Select(source => source.Path == new SourcePath("capture.props")
+                    ? source with { Sha256 = new string('b', 64) } : source).ToArray() }; break;
+            case AssemblyAttack.StaleConsumer:
+                observed = snapshot with { Members = snapshot.Members.Select(member => member.Id == valueId
+                    ? member with { Uses = [.. member.Uses, new(new("game.cs"), 99, new("M:Hint.Unreviewed"), StateAccess.Read)] } : member).ToArray() }; break;
+            case AssemblyAttack.WrongOwner:
+                candidate = contract with { Assignments = assignments.Select(item => item.Member == slotsId
+                    ? item with { Owner = AssemblyOwner.SimulationCore, Rule = OwnershipRule.SimulationAuthority } : item).ToArray() }; break;
+            default: throw new InvalidOperationException("Unknown assembly oracle.");
+        }
+        OwnershipAudit.Validate(observed, candidate, tasks);
+    }
+
+
 }

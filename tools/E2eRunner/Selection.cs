@@ -170,11 +170,7 @@ internal static class Selector
                 foreach (var changedSuite in changedSuites) add(changedSuite, $"catalogue declaration: {path}");
                 return new(path, ImpactKind.Suite, rule.Name, null, $"{changedSuites.Count} changed declarations");
             case ImpactKind.PackageBuild:
-                var buildParts = BuildImpact.Parts(path, context);
-                if (buildParts is null) return Full(FullReason.Build, "unknown/shared build change");
-                if (headBundle is null) return Full(FullReason.Unknown, "generated bundle missing");
-                foreach (var part in buildParts) SelectElement(part, path, headBundle, context.LevelParts, add);
-                return new(path, ImpactKind.Element, rule.Name, null, string.Join(",", buildParts));
+                return ClassifyBuild(path, context, rule, headBundle, add);
             case ImpactKind.NoBrowserImpact:
                 return new(path, rule.Kind, rule.Name, null, "");
             case ImpactKind.Full:
@@ -198,16 +194,7 @@ internal static class Selector
                 foreach (var part in parts) SelectElement(part, path, headBundle, context.LevelParts, add);
                 return new(path, rule.Kind, rule.Name, null, string.Join(",", parts));
             case ImpactKind.Level:
-                var baseLevels = context.ReadBase(path) is { } baseLevelText ? ImpactContext.Levels(baseLevelText) : new Dictionary<LevelId, string>();
-                var headLevels = context.ReadHead(path) is { } headLevelText ? ImpactContext.Levels(headLevelText) : new Dictionary<LevelId, string>();
-                if (baseLevels is null || headLevels is null) return Full(FullReason.Unknown, "content/puzzles.json does not parse");
-                var levels = baseLevels.Keys.Union(headLevels.Keys).Where(level =>
-                    !baseLevels.TryGetValue(level, out var was) || !headLevels.TryGetValue(level, out var now) || was != now)
-                    .OrderBy(level => level.Value, StringComparer.Ordinal).ToArray();
-                foreach (var level in levels)
-                    foreach (var declaration in SuiteCatalogue.All.Where(declaration => declaration.Levels.Contains(level)))
-                        add(declaration.Id, $"level: declares {level}");
-                return new(path, rule.Kind, rule.Name, null, levels.Length == 0 ? "no level changed" : string.Join(",", levels));
+                return ClassifyLevels(path, context, rule, add);
             case ImpactKind.WorkshopArea:
                 if (ImpactRules.AreaOf(path) is not { } area) return Full(FullReason.Unknown, "not in the area table");
                 if (area == WorkshopArea.AllInteraction) return Full(FullReason.AllInteraction, "every interaction passes through it");
@@ -217,6 +204,31 @@ internal static class Selector
             default:
                 throw new InvalidOperationException($"Undefined impact kind {rule.Kind}.");
         }
+    }
+
+    private static PathImpact ClassifyLevels(string path, ImpactContext context, PathRule rule, Action<SuiteId, string> add)
+    {
+        PathImpact Full(FullReason reason, string detail) => new(path, ImpactKind.Full, rule.Name, reason, detail);
+        var baseLevels = context.ReadBase(path) is { } baseLevelText ? ImpactContext.Levels(baseLevelText) : new Dictionary<LevelId, string>();
+        var headLevels = context.ReadHead(path) is { } headLevelText ? ImpactContext.Levels(headLevelText) : new Dictionary<LevelId, string>();
+        if (baseLevels is null || headLevels is null) return Full(FullReason.Unknown, "content/puzzles.json does not parse");
+        var levels = baseLevels.Keys.Union(headLevels.Keys).Where(level =>
+            !baseLevels.TryGetValue(level, out var was) || !headLevels.TryGetValue(level, out var now) || was != now)
+            .OrderBy(level => level.Value, StringComparer.Ordinal).ToArray();
+        foreach (var level in levels)
+            foreach (var declaration in SuiteCatalogue.All.Where(declaration => declaration.Levels.Contains(level)))
+                add(declaration.Id, $"level: declares {level}");
+        return new(path, rule.Kind, rule.Name, null, levels.Length == 0 ? "no level changed" : string.Join(",", levels));
+    }
+
+    private static PathImpact ClassifyBuild(string path, ImpactContext context, PathRule rule, IReadOnlyList<ImpactContext.BundleElement>? headBundle, Action<SuiteId, string> add)
+    {
+        PathImpact Full(FullReason reason, string detail) => new(path, ImpactKind.Full, rule.Name, reason, detail);
+        var buildParts = BuildImpact.Parts(path, context);
+        if (buildParts is null) return Full(FullReason.Build, "unknown/shared build change");
+        if (headBundle is null) return Full(FullReason.Unknown, "generated bundle missing");
+        foreach (var part in buildParts) SelectElement(part, path, headBundle, context.LevelParts, add);
+        return new(path, ImpactKind.Element, rule.Name, null, string.Join(",", buildParts));
     }
 
     private static SortedSet<PartId> ElementParts(string path)

@@ -200,7 +200,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         {
             var checkpoint = network.Consume(activations, timers, [], new(tick), [], [], electrical, memory: memory);
             activations = checkpoint.Activations; timers = checkpoint.Timers; memory = checkpoint.Memory;
-            var on = network.StateLatchPhase(activations, latch.Id) == SimulationLatchPhase.On;
+            var on = network.StateLatchPhase(activations, SignalTestNodes.Only(network, latch.Id)) == SimulationLatchPhase.On;
             Assert.Equal(on, Lit(lamp.Id)); // the level indicator mirrors the latch every tick
             if (tick == 150) { Assert.True(on); }
             if (tick == 190) { Assert.False(on); Assert.True(Lit(sticky.Id)); } // Reset at 180 darkens the follower; the sticky lamp holds
@@ -244,7 +244,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         construction.Validate();
         var network = WorkshopActivationCompiler.Compile(construction);
         Assert.Contains(network.Nodes.ToArray(), node => node.Owner == latch.Id && node.Kind == ActivationNodeKind.StateLatch);
-        Assert.Equal(2, network.Edges.ToArray().Count(edge => edge.Target.Value == latch.Id.Value));
+        Assert.Equal(2, network.Edges.ToArray().Count(edge => edge.Target == construction.Instances.Identities[latch.Id].Signals[new("signal")].Node));
 
         var transitions = new List<(ulong Tick, ActivationTransition Transition)>();
         var phases = Run(network, battery.Id, 600, transitions);
@@ -264,9 +264,9 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Equal([120UL, 180UL, 240UL, 360UL, 480UL, 540UL, 600UL], memory.Select(t => t.Tick).ToArray());
         Assert.Equal([ActivationPhase.Latched, ActivationPhase.Clear, ActivationPhase.Latched, ActivationPhase.Clear,
             ActivationPhase.Latched, ActivationPhase.Clear, ActivationPhase.Latched], memory.Select(t => t.Transition.Level).ToArray());
-        Assert.All(memory, t => Assert.Equal(new ActivationNodeId(latch.Id.Value), t.Transition.Node));
+        Assert.All(memory, t => Assert.Equal(SignalTestNodes.Only(network, latch.Id), t.Transition.Node));
 
-        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(network.Clear(), latch.Id));
+        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(network.Clear(), SignalTestNodes.Only(network, latch.Id)));
     }
 
     [Fact]
@@ -300,13 +300,13 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
             [new(set.Id, latch.Id, PortRole.SetIn), new(reset.Id, latch.Id, PortRole.ResetIn)]);
         var activations = network.Clear(); var timers = network.ClearTimers();
         for (ulong tick = 1; tick <= 9; tick++) Step(network, ref activations, ref timers, tick);
-        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(activations, latch.Owner));
+        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(activations, SignalTestNodes.Only(network, latch.Owner)));
         Step(network, ref activations, ref timers, 10, Hit(set, 10));
-        Assert.Equal(SimulationLatchPhase.On, network.StateLatchPhase(activations, latch.Owner));
+        Assert.Equal(SimulationLatchPhase.On, network.StateLatchPhase(activations, SignalTestNodes.Only(network, latch.Owner)));
         Step(network, ref activations, ref timers, 11, Hit(reset, 11));
-        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(activations, latch.Owner));
+        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(activations, SignalTestNodes.Only(network, latch.Owner)));
         Step(network, ref activations, ref timers, 12);
-        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(activations, latch.Owner));
+        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(activations, SignalTestNodes.Only(network, latch.Owner)));
     }
 
     [Fact]
@@ -322,7 +322,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
                 var activations = network.Clear(); var timers = network.ClearTimers();
                 var r = Hit(reset, 5, resetOrdinal); var s = Hit(set, 5, setOrdinal);
                 Step(network, ref activations, ref timers, 5, resetFirstInBatch ? [r, s] : [s, r]);
-                Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(activations, latch.Owner));
+                Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(activations, SignalTestNodes.Only(network, latch.Owner)));
             }
     }
 
@@ -337,16 +337,16 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
 
         // Failed tick: the Set is accumulated, then a future occurrence in the same batch faults the whole Consume.
         Assert.Throws<ArgumentException>(() => network.Consume(committed, timers, [Hit(set, 5), Hit(other, 9)], new(5), [], []));
-        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(committed, latch.Owner));
+        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(committed, SignalTestNodes.Only(network, latch.Owner)));
 
         // Discarded tick: a candidate holding the Set is never committed; retrying the boundary without it stays Off.
         var candidate = network.Consume(committed, timers, [Hit(set, 5)], new(5), [], []);
-        Assert.Equal(SimulationLatchPhase.On, network.StateLatchPhase(candidate.Activations, latch.Owner));
-        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(committed, latch.Owner));
+        Assert.Equal(SimulationLatchPhase.On, network.StateLatchPhase(candidate.Activations, SignalTestNodes.Only(network, latch.Owner)));
+        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(committed, SignalTestNodes.Only(network, latch.Owner)));
         var retried = network.Consume(committed, timers, [], new(5), [], []);
-        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(retried.Activations, latch.Owner));
+        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(retried.Activations, SignalTestNodes.Only(network, latch.Owner)));
         var next = network.Consume(retried.Activations, retried.Timers, [], new(6), [], []);
-        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(next.Activations, latch.Owner));
+        Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(next.Activations, SignalTestNodes.Only(network, latch.Owner)));
     }
 
     private static ActivationNodeDeclaration Source(ulong id, ulong trigger) =>
@@ -374,7 +374,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([latch, lamp], [new(latch.Id, lamp.Id, PortRole.ActivationIn)]));
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([source, latch], [new(source.Id, latch.Id, PortRole.SetIn), new(source.Id, latch.Id, PortRole.SetIn)]));
         var unrouted = new ActivationNetwork([source, latch], []);
-        Assert.Throws<ArgumentException>(() => unrouted.StateLatchPhase(unrouted.Clear(), new(1)));
+        Assert.Throws<ArgumentException>(() => unrouted.StateLatchPhase(unrouted.Clear(), SignalTestNodes.Only(unrouted, new(1))));
     }
 
     [Fact]
@@ -555,7 +555,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
             var checkpoint = network.Consume(activations, timers, [], new((ulong)tick), [], [], electrical, memory);
             activations = checkpoint.Activations; timers = checkpoint.Timers; memory = checkpoint.Memory;
             for (var i = 0; i < checkpoint.Transitions.Count; i++) transitions.Add(((ulong)tick, checkpoint.Transitions[i]));
-            phases[tick - 1] = network.StateLatchPhase(activations, latchOwner);
+            phases[tick - 1] = network.StateLatchPhase(activations, SignalTestNodes.Only(network, latchOwner));
         }
         return phases;
     }

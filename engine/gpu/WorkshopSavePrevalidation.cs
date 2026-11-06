@@ -155,6 +155,17 @@ internal static class WorkshopSavePrevalidation
             throw Refuse(WorkshopSaveRejection.UndefinedEnum, "The saved puzzle names an undefined puzzle, placement or goal.");
         if (!float.IsFinite(p.Precision) || !float.IsFinite(p.GoalDelay))
             throw Refuse(WorkshopSaveRejection.NonFinite, "The saved puzzle has a non-finite precision or goal delay.");
+        CheckAssistance(p);
+        var precision = p.Precision;
+        var minimumGoalSeconds = p.GoalDelay;
+        if (precision < 0f || precision > 1f || minimumGoalSeconds < 0f || minimumGoalSeconds > 120f)
+            throw Refuse(WorkshopSaveRejection.OutOfRange, "The saved puzzle precision or goal delay is outside its range.");
+        if (p.InventoryPart is { } inventory) Element(inventory, elements, "The saved puzzle's inventory");
+        CheckGoal(p);
+    }
+
+    private static void CheckAssistance(PuzzleRecord p)
+    {
         if (p.AssistanceLength != WorkshopAuthoringFlatBuffers.AssistanceKnotCount)
             throw Refuse(WorkshopSaveRejection.MissingField,
                 $"The saved puzzle holds {p.AssistanceLength} assistance knots; a puzzle holds exactly nine.");
@@ -176,20 +187,24 @@ internal static class WorkshopSavePrevalidation
             if (!new AssistanceProfile(knots[first], knots[first + 1], knots[first + 2]).HasAuthoredShape())
                 throw Refuse(WorkshopSaveRejection.OutOfRange,
                     "A saved assistance profile has a negative value or knots not at precisions 0, 0.45 and 1.");
-        var precision = p.Precision;
-        var minimumGoalSeconds = p.GoalDelay;
-        if (precision < 0f || precision > 1f || minimumGoalSeconds < 0f || minimumGoalSeconds > 120f)
-            throw Refuse(WorkshopSaveRejection.OutOfRange, "The saved puzzle precision or goal delay is outside its range.");
-        if (p.InventoryPart is { } inventory) Element(inventory, elements, "The saved puzzle's inventory");
+    }
+
+
+    private static void CheckGoal(PuzzleRecord p)
+    {
         // The named-goal rule (WorkshopGoal), over the fields the decoder maps into each goal kind.
+        var sourceNode = p.GoalSourceNode;
+        var targetNode = p.GoalTargetNode;
         var admitted = (WorkshopGoalKind)p.GoalKind switch
         {
-            WorkshopGoalKind.None => p.GoalBody == 0 && p.GoalTarget == 0 && minimumGoalSeconds == 0f,
-            WorkshopGoalKind.Captured => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && minimumGoalSeconds == 0f,
-            _ => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget,
+            WorkshopGoalKind.None => p.GoalBody == 0 && p.GoalTarget == 0 && p.GoalDelay == 0f && sourceNode is null && targetNode is null,
+            WorkshopGoalKind.Captured => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && p.GoalDelay == 0f && sourceNode is null && targetNode is null,
+            _ => p.GoalBody != 0 && p.GoalTarget != 0 && !string.IsNullOrWhiteSpace(sourceNode) && !string.IsNullOrWhiteSpace(targetNode) &&
+                (p.GoalBody != p.GoalTarget || sourceNode != targetNode),
         };
         // A Captured goal may name a part the bench no longer holds: a lesson saved after its receiver was deleted keeps its goal
         // (CAT-062b, MissingReceiver), so the goal's identities are not saved-part references.
         if (!admitted) throw Refuse(WorkshopSaveRejection.OutOfRange, "The saved puzzle goal is not a supported named goal.");
     }
+
 }

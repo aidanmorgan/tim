@@ -274,7 +274,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal(2, rows.Length);
         foreach (var (instance, minimum, row) in new[] { (plate, .5f, rows.Single(r => r.Frame == plate.Id)), (heavy, 2f, rows.Single(r => r.Frame == heavy.Id)) })
         {
-            Assert.Equal(new WorkshopInstances(battery, plate, gate, heavy).Identities[instance.Id].ContactLoad, row.Id);
+            Assert.Equal(new WorkshopInstances(battery, plate, gate, heavy).Identities[instance.Id].Signals[new("signal")].ContactLoad, row.Id);
             var face = scene.Colliders.ToArray().Single(c => c.Id == row.Region);
             Assert.Equal((instance.Id, .03f, new MetreVector(.9f, .05f, .9f)), (face.Body, face.Pose.Translation.Y, face.HalfExtents));
             Assert.Equal((-.9001f, .9001f, -.900001f, .900001f), (row.MinimumX, row.MaximumX, row.MinimumZ, row.MaximumZ));
@@ -703,14 +703,14 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         for (var i = 0; i < values.Count; i++) if (values[i].Owner == owner) return values[i].Phase == ActivationPhase.Latched;
         throw new InvalidOperationException($"No activation node for {owner.Value}.");
     }
-    private static ActivationMemory Hold(PhysicsMemoryRead memory, IWorkshopInstance plate)
+    private static ActivationMemory Hold(PhysicsMemoryRead memory, PhysicsActivationRead activations, IWorkshopInstance plate)
     {
-        for (var i = 0; i < memory.Count; i++) if (memory[i].Node == new ActivationNodeId(plate.Id.Value)) return memory[i];
+        for (var i = 0; i < memory.Count; i++) if (memory[i].Node == SignalTestNodes.Only(activations, plate.Id)) return memory[i];
         throw new InvalidOperationException($"Plate {plate.Id.Value} commits no release hold.");
     }
     /// <summary>A qualifying (Loaded) tick commits the level high with its release due exactly 12 ticks later.</summary>
     private static bool Qualifying(WorkshopRead read, IWorkshopInstance plate) =>
-        ContactClosed(read, plate) && Hold(read.Memory, plate).DueTick == read.Tick.Value + HoldTicks;
+        ContactClosed(read, plate) && Hold(read.Memory, read.Activations, plate).DueTick == read.Tick.Value + HoldTicks;
 
     [Fact]
     public void APlateActivationOutLightsOnlyASignalLamp()
@@ -727,7 +727,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             Assert.Equal(LevelRefusal, EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
                 () => new WorkshopConnections(Signal(plate.Id, target, input)).Validate(instances)).Message);
         // A lamp that follows the plate's level takes no other signal; a pulse source alone still drives a (sticky) lamp.
-        Assert.Equal("A lamp that follows a level output takes no other signal.", EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel,
+        Assert.Equal("A level input takes exactly one source.", EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel,
             () => new WorkshopConnections(Signal(plate.Id, lamp.Id), Signal(hit.Id, lamp.Id)).Validate(instances)).Message);
         new WorkshopConnections(Signal(hit.Id, lamp.Id)).Validate(instances);
     }
@@ -857,7 +857,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var networks = new[] { WorkshopActivationCompiler.Compile(construction), WorkshopActivationCompiler.Compile(construction) };
         var row = Assert.Single(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)).ContactLoadSensors.ToArray());
         var state = new ActivationCheckpoint(networks[0].Clear(), networks[0].ClearTimers(), networks[0].ClearMemory());
-        Assert.Equal(0ul, Hold(state.Memory, plate).DueTick);
+        Assert.Equal(0ul, Hold(state.Memory, state.Activations, plate).DueTick);
         var lit = new List<bool>();
         for (ulong tick = 1; tick <= 14; tick++)
         {
@@ -870,7 +870,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
                 contactLoads: [new(row.Id, row.Frame, row.Region, 1f, ContactLoadPhase.Loaded)]);
             state = candidate;
             lit.Add(Latched(state.Activations, lamp.Id));
-            Assert.Equal(lit[^1] ? 1ul + HoldTicks : 0ul, Hold(state.Memory, plate).DueTick);
+            Assert.Equal(lit[^1] ? 1ul + HoldTicks : 0ul, Hold(state.Memory, state.Activations, plate).DueTick);
         }
         Assert.Equal([.. Enumerable.Repeat(true, 12), false, false], lit);
     }

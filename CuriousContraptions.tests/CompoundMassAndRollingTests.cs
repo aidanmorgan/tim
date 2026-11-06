@@ -582,7 +582,7 @@ public sealed class CompoundCaptureOwnershipTests
         Assert.Equal(new GpuBodyId(1), read.Captures[0].Target);
         Assert.Equal(new GpuBodyId(2), read.Captures[1].Target);
         Assert.All(Enumerable.Range(0, read.Captures.Count), i => Assert.Equal(CaptureLatchPhase.Latched, read.Captures[i].Phase));
-        Assert.Equal(new[] { (5UL, 1UL), (6UL, 2UL) }, ring.Of(SimulationEventKind.Captured).Select(e => (e.Source, e.Other)).ToArray());
+        Assert.Equal(new[] { (5UL, 1UL), (6UL, 2UL) }, ring.Of(SimulationEventKind.Captured).Select(e => (e.Source.Value, e.Other)).ToArray());
         foreach (var (owner, target) in new[] { (5UL, 1UL), (6UL, 2UL) })
         {
             Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(new(WorkshopGoalKind.Captured, new(target), new(owner)),
@@ -669,7 +669,7 @@ public sealed class CompoundCaptureOwnershipTests
         await ring.Advance(240);
         var read = ring.Committed;
         var captured = Assert.Single(ring.Of(SimulationEventKind.Captured));
-        Assert.Equal(3UL, captured.Source);
+        Assert.Equal(3UL, captured.Source.Value);
         Assert.Equal(namedCaptures ? 1UL : 2UL, captured.Other);
         var expected = namedCaptures ? WorkshopGoalPhase.Solved : WorkshopGoalPhase.Waiting;
         Assert.Equal(expected, WorkshopGoalEvaluator.Evaluate(goal, read, read.Epoch, construction.Instances.Identities));
@@ -873,8 +873,8 @@ public sealed class CompoundPassageBoundaryTests
 public sealed class CurrentPuzzleShapeTests
 {
     [Theory]
-    [InlineData(11)]
     [InlineData(13)]
+    [InlineData(15)]
     public void AuthoredSaveRefusesUnknownPuzzleFieldsBeforeDomainDecoding(int extraField)
     {
         var builder = new FlatBufferBuilder(512);
@@ -883,7 +883,7 @@ public sealed class CurrentPuzzleShapeTests
         var assistance = builder.EndVector();
         builder.StartTable(extraField + 1);
         builder.AddOffset(0, id.Value, 0);
-        builder.AddOffset(9, assistance.Value, 0);
+        builder.AddOffset(11, assistance.Value, 0);
         builder.AddUlong(extraField, 123, 0);
         var puzzle = new Offset<Wire.PuzzleRecord>(builder.EndTable());
         Wire.ConstructionRecord.StartConstructionRecord(builder);

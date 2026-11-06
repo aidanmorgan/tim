@@ -126,7 +126,7 @@ internal static partial class BrowserWorkshopObservation
             using var row = Object();
             row.SetProperty("sequence", Exact(record.Sequence)); row.SetProperty("tick", Exact(record.Tick));
             row.SetProperty("kind", WorkshopObservationProjection.EnumValue(record.Kind)); row.SetProperty("domain", WorkshopObservationProjection.EnumValue(record.Domain));
-            row.SetProperty("source", Exact(record.Source)); row.SetProperty("other", Exact(record.Other));
+            row.SetProperty("source", Exact(record.Source.Value)); row.SetProperty("other", Exact(record.Other));
             row.SetProperty("ordinal", record.Ordinal); row.SetProperty("phase", record.Phase);
             row.SetProperty("magnitude", record.Magnitude); row.SetProperty("count", record.Count);
             row.SetProperty("level", record.Level); Push(records, row);

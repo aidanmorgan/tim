@@ -88,7 +88,7 @@ internal static class WorkshopObservationProjection
         value.SetProperty("inventoryPart", source.InventoryPart == default ? null : source.InventoryPart.Value); value.SetProperty("inventoryCount", source.InventoryCount);
         using var goal = T.Object(); goal.SetProperty("kind", EnumValue(source.Goal.Kind));
         goal.SetProperty("body", Exact(source.Goal.Body.Value)); goal.SetProperty("target", Exact(source.Goal.Target.Value));
-        goal.SetProperty("sourceNode", Exact(source.Goal.SourceNode.Value)); goal.SetProperty("targetNode", Exact(source.Goal.TargetNode.Value));
+        goal.SetProperty("sourceNode", source.Goal.SourceNode.Value ?? ""); goal.SetProperty("targetNode", source.Goal.TargetNode.Value ?? "");
         goal.SetProperty("minimumDuration", source.Goal.MinimumDuration.Value); value.SetProperty("goal", goal);
         using var primary = Assistance<T>(source.PrimaryAssistance); value.SetProperty("primary", primary);
         using var target = Assistance<T>(source.TargetAssistance); value.SetProperty("target", target);

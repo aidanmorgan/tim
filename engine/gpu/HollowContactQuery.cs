@@ -776,20 +776,7 @@ public static class HollowContactQuery
             for (var i = 0; i <= SurfacePartitions; i++)
                 for (var j = 0; j <= SurfacePartitions; j++)
                 {
-                    var value = grid[i * width + j];
-                    var minimum = true;
-                    var strict = false;
-                    for (var di = -1; di <= 1; di++)
-                        for (var dj = -1; dj <= 1; dj++)
-                        {
-                            var ni = i + di; var nj = j + dj;
-                            if (ni < 0 || ni > SurfacePartitions || nj < 0 || nj > SurfacePartitions) continue;
-                            var neighbour = grid[ni * width + nj];
-                            minimum &= value <= neighbour;
-                            strict |= value < neighbour;
-                        }
-                    // Flat/coincident regions retain deterministic quarter-turn witnesses.
-                    if (!minimum || (!strict && (i % 8 != 0 || j % 8 != 0))) continue;
+                    if (!IsSurfaceMinimum(grid, width, i, j)) continue;
                     var u = (float)i / SurfacePartitions; var v = (float)j / SurfacePartitions;
                     var loU = (float)Math.Max(0, i - 1) / SurfacePartitions;
                     var hiU = (float)Math.Min(SurfacePartitions, i + 1) / SurfacePartitions;
@@ -830,6 +817,24 @@ public static class HollowContactQuery
         }
     }
 
+
+    private static bool IsSurfaceMinimum(ReadOnlySpan<float> grid, int width, int i, int j)
+    {
+        var value = grid[i * width + j];
+        var minimum = true;
+        var strict = false;
+        for (var di = -1; di <= 1; di++)
+            for (var dj = -1; dj <= 1; dj++)
+            {
+                var ni = i + di; var nj = j + dj;
+                if (ni < 0 || ni > SurfacePartitions || nj < 0 || nj > SurfacePartitions) continue;
+                var neighbour = grid[ni * width + nj];
+                minimum &= value <= neighbour;
+                strict |= value < neighbour;
+            }
+        // Flat/coincident regions retain deterministic quarter-turn witnesses.
+        return minimum && (strict || (i % 8 == 0 && j % 8 == 0));
+    }
 
     private static void CollidePlaneHollow(HollowPartner plane, HollowSolid hollow, float margin, ref CandidateBuffer points)
     {

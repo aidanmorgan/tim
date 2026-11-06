@@ -21,7 +21,7 @@ internal sealed record AuthoredInventory(PartId Part, int Count, AssistanceProfi
         { Cell = instance.Cell, Local = instance.Local, Rotation = instance.Rotation, Locked = instance.Locked }).Create(instance.Id, precision) : instance;
 }
 internal readonly record struct AuthoredGoal(WorkshopGoalKind Kind, AuthoredSlot Source,
-    AuthoredSlot Target, float MinimumSeconds);
+    AuthoredSlot Target, float MinimumSeconds, SignalNodeId SourceNode, SignalNodeId TargetNode);
 internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
     ImmutableArray<AuthoredPlacement> Placements, ImmutableArray<AuthoredPlacement> Solution,
     ImmutableArray<AuthoredConnection> SolutionConnections, ImmutableArray<AuthoredInventory> Inventory,
@@ -41,13 +41,13 @@ internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
     internal WorkshopGoal CreateGoal(IReadOnlyDictionary<AuthoredSlot, GpuBodyId> identities)
     {
         if (!identities.TryGetValue(Goal.Source, out var source) ||
-            !identities.TryGetValue(Goal.Target, out var target) || source == target)
+            !identities.TryGetValue(Goal.Target, out var target))
             throw PuzzleContentReader.Invalid(Entry.Id.Value, "goal", "missing or overlapping owner identities");
         var goal = Goal.Kind switch
         {
             WorkshopGoalKind.Captured => new WorkshopGoal(Goal.Kind, source, target),
-            WorkshopGoalKind.ActivatedAfter => new WorkshopGoal(Goal.Kind, default, default,
-                new(source.Value), new(target.Value), new(Goal.MinimumSeconds)),
+            WorkshopGoalKind.ActivatedAfter => new WorkshopGoal(Goal.Kind, source, target,
+                Goal.SourceNode, Goal.TargetNode, new(Goal.MinimumSeconds)),
             _ => throw PuzzleContentReader.Invalid(Entry.Id.Value, "goal.kind", "unsupported authored goal")
         };
         goal.Validate();
@@ -77,6 +77,20 @@ internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
 
 internal static class PuzzleDefinitionReader
 {
+    private static void ValidateGoalSignals(AuthoredGoal goal, IReadOnlyList<AuthoredPlacement> placements,
+        IReadOnlyList<AuthoredInventory> inventory, string where)
+    {
+        if (goal.Kind != WorkshopGoalKind.ActivatedAfter) return;
+        bool Declares(AuthoredSlot slot, SignalNodeId node)
+        {
+            var fixedPart = placements.SingleOrDefault(row => row.Slot == slot);
+            var part = fixedPart is not null ? fixedPart.Instance.Part : inventory.Single(row => row.GoalTarget).Part;
+            return DeclaredPhysics.Of(part).Signal?.Nodes.Any(row => row.Id == node) == true;
+        }
+        if (!Declares(goal.Source, goal.SourceNode) || !Declares(goal.Target, goal.TargetNode))
+            throw PuzzleContentReader.Invalid(where, "goal", "missing local signal node");
+    }
+
     internal static PuzzleDefinition Parse(PuzzleContentEntry entry)
     {
         if (entry.Availability != PuzzleAvailability.Playable)
@@ -108,63 +122,9 @@ internal static class PuzzleDefinitionReader
         if (placements.Count == 0) throw PuzzleContentReader.Invalid(where, "placements", "empty fixed layout");
         if (interactionTarget is { } authoredTarget && !slots.Contains(authoredTarget))
             throw PuzzleContentReader.Invalid(where, "interaction_target", "unknown placement slot");
-        var inventory = ImmutableArray.CreateBuilder<AuthoredInventory>();
-        var parts = new HashSet<PartId>(16);
-        foreach (var row in AuthoredInstanceReader.Rows(fields["inventory"], where + ".inventory"))
-        {
-            var values = PuzzleContentReader.Fields(row, where);
-            AuthoredInstanceReader.Require(values, where, "part", "count", "assistance", "goal_target", "configuration");
-            var part = new PartId(PuzzleContentReader.Text(values, "part", where));
-            var count = AuthoredInstanceReader.Integer(values["count"], where + ".inventory.count");
-            if (!DeclaredPhysics.Contains(part) || !parts.Add(part) || count <= 0)
-                throw PuzzleContentReader.Invalid(where, "inventory", "unknown, duplicate or nonpositive allowance");
-            var configuration = values["configuration"].ValueKind == JsonValueKind.Null ? null :
-                AuthoredInstanceReader.Parse(values["configuration"], where + ".inventory.configuration");
-            if (configuration is not null && (configuration.Part != part || configuration.Locked))
-                throw PuzzleContentReader.Invalid(where, "inventory.configuration", "foreign or locked inventory template");
-            inventory.Add(new(part, count, AuthoredInstanceReader.Profile(values["assistance"], where),
-                AuthoredInstanceReader.Boolean(values["goal_target"], where + ".inventory.goal_target"), configuration));
-        }
-        if (inventory.Count == 0) throw PuzzleContentReader.Invalid(where, "inventory", "empty authored inventory");
-        var goalFields = PuzzleContentReader.Fields(fields["goal"], where);
-        AuthoredInstanceReader.Require(goalFields, where, "kind", "source", "target", "minimum_seconds");
-        var goal = new AuthoredGoal(
-            AuthoredInstanceReader.Closed<WorkshopGoalKind>(PuzzleContentReader.Text(goalFields, "kind", where), where),
-            new(PuzzleContentReader.Text(goalFields, "source", where)),
-            new(PuzzleContentReader.Text(goalFields, "target", where)),
-            AuthoredInstanceReader.Number(goalFields["minimum_seconds"], where));
-        if (!slots.Contains(goal.Source) || goal.Source == goal.Target ||
-            (!slots.Contains(goal.Target) && inventory.Count(row => row.GoalTarget) != 1) ||
-            goal.Kind is not (WorkshopGoalKind.Captured or WorkshopGoalKind.ActivatedAfter) ||
-            goal.MinimumSeconds < 0 || goal.MinimumSeconds > 120 ||
-            (goal.Kind == WorkshopGoalKind.Captured && goal.MinimumSeconds != 0))
-            throw PuzzleContentReader.Invalid(where, "goal", "invalid authored references or duration");
-        var solution = ImmutableArray.CreateBuilder<AuthoredPlacement>();
-        var uses = new Dictionary<PartId, int>();
-        foreach (var row in AuthoredInstanceReader.Rows(fields["solution"], where + ".solution"))
-        {
-            var values = PuzzleContentReader.Fields(row, where);
-            AuthoredInstanceReader.Require(values, where, "slot", "instance");
-            var slot = new AuthoredSlot(PuzzleContentReader.Text(values, "slot", where));
-            if (!slots.Add(slot)) throw PuzzleContentReader.Invalid(where, "slot", "duplicate solution or fixture slot");
-            var instance = AuthoredInstanceReader.Parse(values["instance"], where + "." + slot.Value);
-            var allowance = inventory.SingleOrDefault(item => item.Part == instance.Part);
-            uses.TryGetValue(instance.Part, out var used);
-            if (instance.Locked || allowance is null || used >= allowance.Count)
-                throw PuzzleContentReader.Invalid(where, "solution", "locked, unsupported or excess inventory");
-            uses[instance.Part] = used + 1;
-            if (allowance.GoalTarget != (slot == goal.Target && !placements.Any(item => item.Slot == goal.Target)))
-                throw PuzzleContentReader.Invalid(where, "solution", "incorrect goal target slot");
-            foreach (var precision in new[] { 0f, .45f, 1f })
-            {
-                var created = instance.Create(new(1), new(precision));
-                if (!created.Equals(allowance.Configure(created, new(precision))))
-                    throw PuzzleContentReader.Invalid(where, "solution", "inventory configuration differs");
-            }
-            solution.Add(new(slot, instance));
-        }
-        if (solution.Count == 0 || !slots.Contains(goal.Target))
-            throw PuzzleContentReader.Invalid(where, "solution", "empty solution or absent goal target");
+        var inventory = ParseInventory(fields["inventory"], where);
+        var goal = ParseGoal(fields["goal"], slots, placements, inventory, where);
+        var solution = ParseSolution(fields["solution"], slots, placements, inventory, goal, where);
         var connections = ImmutableArray.CreateBuilder<AuthoredConnection>();
         foreach (var row in AuthoredInstanceReader.Rows(fields["solution_connections"], where))
         {
@@ -209,10 +169,93 @@ internal static class PuzzleDefinitionReader
         {
             // Validate node ownership through the production compiler without consulting the catalogue being loaded.
             var nodes = WorkshopActivationCompiler.Compile(complete with { Puzzle = default }).Nodes.ToArray();
-            if (!nodes.Any(node => node.Id == complete.Puzzle.Goal.SourceNode) ||
-                !nodes.Any(node => node.Id == complete.Puzzle.Goal.TargetNode))
+            if (!nodes.Any(node => node.Id == complete.Instances.Identities[complete.Puzzle.Goal.Body].Signals[complete.Puzzle.Goal.SourceNode].Node) ||
+                !nodes.Any(node => node.Id == complete.Instances.Identities[complete.Puzzle.Goal.Target].Signals[complete.Puzzle.Goal.TargetNode].Node))
                 throw PuzzleContentReader.Invalid(where, "goal", "owners do not declare activation nodes");
         }
         return definition;
     }
+
+    private static ImmutableArray<AuthoredInventory>.Builder ParseInventory(JsonElement rows, string where)
+    {
+        var inventory = ImmutableArray.CreateBuilder<AuthoredInventory>();
+        var parts = new HashSet<PartId>(16);
+        foreach (var row in AuthoredInstanceReader.Rows(rows, where + ".inventory"))
+        {
+            var values = PuzzleContentReader.Fields(row, where);
+            AuthoredInstanceReader.Require(values, where, "part", "count", "assistance", "goal_target", "configuration");
+            var part = new PartId(PuzzleContentReader.Text(values, "part", where));
+            var count = AuthoredInstanceReader.Integer(values["count"], where + ".inventory.count");
+            if (!DeclaredPhysics.Contains(part) || !parts.Add(part) || count <= 0)
+                throw PuzzleContentReader.Invalid(where, "inventory", "unknown, duplicate or nonpositive allowance");
+            var configuration = values["configuration"].ValueKind == JsonValueKind.Null ? null :
+                AuthoredInstanceReader.Parse(values["configuration"], where + ".inventory.configuration");
+            if (configuration is not null && (configuration.Part != part || configuration.Locked))
+                throw PuzzleContentReader.Invalid(where, "inventory.configuration", "foreign or locked inventory template");
+            inventory.Add(new(part, count, AuthoredInstanceReader.Profile(values["assistance"], where),
+                AuthoredInstanceReader.Boolean(values["goal_target"], where + ".inventory.goal_target"), configuration));
+        }
+        if (inventory.Count == 0) throw PuzzleContentReader.Invalid(where, "inventory", "empty authored inventory");
+        return inventory;
+    }
+
+    private static AuthoredGoal ParseGoal(JsonElement declaration, HashSet<AuthoredSlot> slots,
+        IReadOnlyList<AuthoredPlacement> placements, IReadOnlyList<AuthoredInventory> inventory, string where)
+    {
+        var goalFields = PuzzleContentReader.Fields(declaration, where);
+        var kind = AuthoredInstanceReader.Closed<WorkshopGoalKind>(PuzzleContentReader.Text(goalFields, "kind", where), where);
+        if (kind == WorkshopGoalKind.ActivatedAfter)
+            AuthoredInstanceReader.Require(goalFields, where, "kind", "source", "target", "minimum_seconds", "source_node", "target_node");
+        else AuthoredInstanceReader.Require(goalFields, where, "kind", "source", "target", "minimum_seconds");
+        var goal = new AuthoredGoal(
+            AuthoredInstanceReader.Closed<WorkshopGoalKind>(PuzzleContentReader.Text(goalFields, "kind", where), where),
+            new(PuzzleContentReader.Text(goalFields, "source", where)),
+            new(PuzzleContentReader.Text(goalFields, "target", where)),
+            AuthoredInstanceReader.Number(goalFields["minimum_seconds"], where),
+            kind == WorkshopGoalKind.ActivatedAfter ? new(PuzzleContentReader.Text(goalFields, "source_node", where)) : default,
+            kind == WorkshopGoalKind.ActivatedAfter ? new(PuzzleContentReader.Text(goalFields, "target_node", where)) : default);
+        if (!slots.Contains(goal.Source) || (goal.Source == goal.Target &&
+                (goal.Kind != WorkshopGoalKind.ActivatedAfter || goal.SourceNode == goal.TargetNode)) ||
+            (!slots.Contains(goal.Target) && inventory.Count(row => row.GoalTarget) != 1) ||
+            goal.Kind is not (WorkshopGoalKind.Captured or WorkshopGoalKind.ActivatedAfter) ||
+            goal.MinimumSeconds < 0 || goal.MinimumSeconds > 120 ||
+            (goal.Kind == WorkshopGoalKind.Captured && goal.MinimumSeconds != 0))
+            throw PuzzleContentReader.Invalid(where, "goal", "invalid authored references or duration");
+        ValidateGoalSignals(goal, placements, inventory, where);
+        return goal;
+    }
+
+    private static ImmutableArray<AuthoredPlacement>.Builder ParseSolution(JsonElement rows, HashSet<AuthoredSlot> slots,
+        IReadOnlyList<AuthoredPlacement> placements, IReadOnlyList<AuthoredInventory> inventory, AuthoredGoal goal, string where)
+    {
+        var solution = ImmutableArray.CreateBuilder<AuthoredPlacement>();
+        var uses = new Dictionary<PartId, int>();
+        foreach (var row in AuthoredInstanceReader.Rows(rows, where + ".solution"))
+        {
+            var values = PuzzleContentReader.Fields(row, where);
+            AuthoredInstanceReader.Require(values, where, "slot", "instance");
+            var slot = new AuthoredSlot(PuzzleContentReader.Text(values, "slot", where));
+            if (!slots.Add(slot)) throw PuzzleContentReader.Invalid(where, "slot", "duplicate solution or fixture slot");
+            var instance = AuthoredInstanceReader.Parse(values["instance"], where + "." + slot.Value);
+            var allowance = inventory.SingleOrDefault(item => item.Part == instance.Part);
+            uses.TryGetValue(instance.Part, out var used);
+            if (instance.Locked || allowance is null || used >= allowance.Count)
+                throw PuzzleContentReader.Invalid(where, "solution", "locked, unsupported or excess inventory");
+            uses[instance.Part] = used + 1;
+            if (allowance.GoalTarget != (slot == goal.Target && !placements.Any(item => item.Slot == goal.Target)))
+                throw PuzzleContentReader.Invalid(where, "solution", "incorrect goal target slot");
+            foreach (var precision in new[] { 0f, .45f, 1f })
+            {
+                var created = instance.Create(new(1), new(precision));
+                if (!created.Equals(allowance.Configure(created, new(precision))))
+                    throw PuzzleContentReader.Invalid(where, "solution", "inventory configuration differs");
+            }
+            solution.Add(new(slot, instance));
+        }
+        if (solution.Count == 0 || !slots.Contains(goal.Target))
+            throw PuzzleContentReader.Invalid(where, "solution", "empty solution or absent goal target");
+        return solution;
+    }
+
+
 }

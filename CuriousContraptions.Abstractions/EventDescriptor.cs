@@ -29,11 +29,14 @@ public enum SimulationEventKind : uint
 }
 
 /// <summary>One kind of event ring record an element's compiled rows produce. The layout is the kind's engine-owned layout.</summary>
-public readonly record struct EventDescriptor(SimulationEventKind Kind);
+public readonly record struct EventDescriptor(SimulationEventKind Kind, SignalNodeId? SignalNode = null);
 
 /// <summary>The engine-owned facts of each event kind: one exhaustive table.</summary>
 public static class SimulationEvents
 {
+    public static bool SignalSource(SimulationEventKind kind) => kind is SimulationEventKind.Passage or SimulationEventKind.ThresholdReached or
+        SimulationEventKind.MemoryChanged or SimulationEventKind.ContactLoad or SimulationEventKind.TriggerActivated;
+
     /// <summary>The domain a kind's records carry, for consumer filtering. An undefined kind or None is refused.</summary>
     public static SimulationDomain Domain(SimulationEventKind kind) => kind switch
     {

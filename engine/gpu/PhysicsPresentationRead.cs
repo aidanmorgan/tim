@@ -166,9 +166,8 @@ public readonly struct PhysicsPresentationRead
 public static partial class PhysicsGpuAbi
 {
     /// <summary>Projection of validated output plus the very inputs supplied to this tick; no supply reconstruction.</summary>
-    public static PhysicsPresentationRead ReadPresentation(ReadOnlySpan<byte> bytes, PhysicsTickInputs inputs, bool admission)
+    private static ActuatorDriveRead[] ReadActuatorPresentation(ReadOnlySpan<byte> bytes, PhysicsTickInputs inputs, bool admission, PhysicsWorldLayout layout)
     {
-        var layout = Layout(bytes);
         // One row per drive slot: every prismatic slot, then every revolute slot. A slot's supply is the very input of this tick.
         var actuators = new ActuatorDriveRead[layout.Prismatics + layout.Revolutes];
         Span<PrismaticRow> rows = stackalloc PrismaticRow[PrismaticRows.Count];
@@ -203,6 +202,13 @@ public static partial class PhysicsGpuAbi
             actuators[slot] = new(SupplyConsumer.Revolute(joint.Id), joint.BodyA, !admission && inputs.SupplyClosed[slot], false,
                 ReadRevoluteState(bytes, i).Travel, spin, joint.Lower, joint.Upper);
         }
+        return actuators;
+    }
+
+    public static PhysicsPresentationRead ReadPresentation(ReadOnlySpan<byte> bytes, PhysicsTickInputs inputs, bool admission)
+    {
+        var layout = Layout(bytes);
+        var actuators = ReadActuatorPresentation(bytes, inputs, admission, layout);
         var loads = new ContactLoadSensorRead[ReadContactLoadCount(bytes)];
         for (var i = 0; i < loads.Length; i++) loads[i] = ReadContactLoadSensor(bytes, i);
         var ropes = new RopeSpanRead[layout.TensileSpans];

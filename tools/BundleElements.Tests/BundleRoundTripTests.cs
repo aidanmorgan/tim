@@ -61,7 +61,11 @@ public sealed class BundleRoundTripTests
             if (type.IsArray) pending.Push(type.GetElementType()!);
             foreach (var argument in type.IsGenericType ? type.GetGenericArguments() : []) pending.Push(argument);
             if (type.Namespace?.StartsWith("CuriousContraptions", StringComparison.Ordinal) == true)
-                foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) pending.Push(property.PropertyType);
+                {
+                    foreach (var derived in type.GetCustomAttributes<System.Text.Json.Serialization.JsonDerivedTypeAttribute>()) pending.Push(derived.DerivedType);
+                    foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                        if (property.GetCustomAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>() is null) pending.Push(property.PropertyType);
+                }
         }
         var enums = reached.Where(type => type.IsEnum).ToArray();
 
@@ -210,26 +214,9 @@ public sealed class BundleRoundTripTests
         Assert.Equal(declaration is ISignalElement, entry.Signal is not null);
         if (declaration is ISignalElement signal)
         {
-            AssertSame(signal.Triggers, entry.Signal!.Triggers, "Triggers");
-            // The pulse counter and the bistable memory (C-Memory).
-            Assert.Equal(signal is IPulseCountElement, entry.Signal.PulseCount is not null);
-            if (signal is IPulseCountElement count) AssertSame(count.PulseCount, entry.Signal.PulseCount!.Value, "PulseCount");
-            Assert.Equal(signal is IMemoryElement, entry.Signal.Memory is not null);
-            if (signal is IMemoryElement memory) Assert.Equal(memory.Memory, entry.Signal.Memory!.Value);
-            // The node-selecting indicator and passage capabilities (C-Lamp+Detector).
-            Assert.Equal(signal is IIndicatorElement, entry.Signal.Indicator is not null);
-            if (signal is IIndicatorElement indicator) Assert.Equal(indicator.Indicator, entry.Signal.Indicator!.Value);
-            Assert.Equal(signal is IPassageSensorElement, entry.Signal.Passage is not null);
-            if (signal is IPassageSensorElement passage) AssertSame(passage.Passage, entry.Signal.Passage!.Value, "Passage");
-            // The orientation threshold (9A.32).
-            Assert.Equal(signal is IOrientationSensorElement, entry.Signal.Orientation is not null);
-            if (signal is IOrientationSensorElement orientation) AssertSame(orientation.Orientation, entry.Signal.Orientation!.Value, "Orientation");
-            // The contact-load sensor (C-Plate).
-            Assert.Equal(signal is IContactLoadSensorElement, entry.Signal.ContactLoad is not null);
-            if (signal is IContactLoadSensorElement load) AssertSame(load.ContactLoad, entry.Signal.ContactLoad!.Value, "ContactLoad");
-            // The periodic pulse source (C-Clock).
-            Assert.Equal(signal is IOscillatorElement, entry.Signal.Oscillator is not null);
-            if (signal is IOscillatorElement oscillator) Assert.Equal(oscillator.Oscillator, entry.Signal.Oscillator!.Value);
+            AssertSame(signal.SignalNodes, entry.Signal!.Nodes, "Nodes");
+            AssertSame(signal.SignalEdges, entry.Signal.Edges, "Edges");
+            AssertSame(signal.SignalPorts, entry.Signal.Ports, "Ports");
         }
         Assert.Equal(declaration is IFluidElement, entry.Fluid is not null);
         if (declaration is IFluidElement fluid)

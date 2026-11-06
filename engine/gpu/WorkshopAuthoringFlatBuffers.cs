@@ -37,13 +37,13 @@ public static class WorkshopAuthoringFlatBuffers
             throw new WireFaultException(WireFaultReason.VerifierRejected, "Unsupported authored puzzle fields.");
         return result;
     }
-    /// <summary>Current authored puzzle tables have ten or eleven fields and require their assistance vector.
+    /// <summary>Current authored puzzle tables require their assistance vector and admit explicit local signal selectors.
     /// Reject unknown table fields before decoding; never reinterpret a superseded table layout.</summary>
     private static bool CurrentPuzzleTable(ByteBuffer buffer, string identifier)
     {
         const int savedConstructionField = 1, constructionPuzzleField = 2;
         const int minPuzzleVtableBytes = 4 + 2 * 10;
-        const int maxPuzzleVtableBytes = 4 + 2 * 11;
+        const int maxPuzzleVtableBytes = 4 + 2 * 13;
         var constructionField = identifier switch
         {
             WorkshopSaveCodec.Identifier => savedConstructionField,
@@ -57,7 +57,7 @@ public static class WorkshopAuthoringFlatBuffers
         if (puzzle == 0) return true;
         var vtable = checked(puzzle - buffer.GetInt(puzzle));
         var size = buffer.GetUshort(vtable);
-        return size is minPuzzleVtableBytes or maxPuzzleVtableBytes;
+        return size >= minPuzzleVtableBytes && size <= maxPuzzleVtableBytes && size % 2 == 0;
 
         int Reference(int table, int field)
         {
@@ -100,22 +100,20 @@ public static class WorkshopAuthoringFlatBuffers
     }
 
     /// <summary>Encode the current authored construction for main-owned persistence and authored-record fixtures.</summary>
-    public static Offset<ConstructionRecord> EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, bool validate = true)
+    private static Offset<PuzzleRecord>? EncodePuzzleRecord(FlatBufferBuilder builder, WorkshopPuzzle puzzle)
     {
-        ArgumentNullException.ThrowIfNull(builder);
-        if (validate) construction.Validate();
-
         Offset<PuzzleRecord>? puzzleOffset = null;
-        if (construction.Puzzle.Id.IsAuthored)
+        if (puzzle.Id.IsAuthored)
         {
-            var puzzle = construction.Puzzle;
             var puzzleIdOffset = builder.CreateString(puzzle.Id.Value);
             var invPartOffset = puzzle.InventoryPart != default ? builder.CreateString(puzzle.InventoryPart.Value) : default;
 
             var assistVec = EncodeAssistance(builder, puzzle);
 
-            var goalBody = puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.SourceNode.Value : puzzle.Goal.Body.Value;
-            var goalTarget = puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.TargetNode.Value : puzzle.Goal.Target.Value;
+            var goalBody = puzzle.Goal.Body.Value;
+            var sourceNode = puzzle.Goal.SourceNode != default ? builder.CreateString(puzzle.Goal.SourceNode.Value) : default;
+            var targetNode = puzzle.Goal.TargetNode != default ? builder.CreateString(puzzle.Goal.TargetNode.Value) : default;
+            var goalTarget = puzzle.Goal.Target.Value;
 
             PuzzleRecord.StartPuzzleRecord(builder);
             PuzzleRecord.AddId(builder, puzzleIdOffset);
@@ -125,12 +123,24 @@ public static class WorkshopAuthoringFlatBuffers
             PuzzleRecord.AddInventoryCount(builder, puzzle.InventoryCount);
             PuzzleRecord.AddGoalKind(builder, (uint)puzzle.Goal.Kind);
             PuzzleRecord.AddGoalBody(builder, goalBody);
+            PuzzleRecord.AddGoalSourceNode(builder, sourceNode);
+            PuzzleRecord.AddGoalTargetNode(builder, targetNode);
             PuzzleRecord.AddGoalTarget(builder, goalTarget);
             PuzzleRecord.AddGoalDelay(builder, puzzle.Goal.MinimumDuration.Value);
             PuzzleRecord.AddAssistance(builder, assistVec);
             PuzzleRecord.AddInteractionTarget(builder, puzzle.InteractionTarget.Value);
             puzzleOffset = PuzzleRecord.EndPuzzleRecord(builder);
         }
+
+        return puzzleOffset;
+    }
+
+    public static Offset<ConstructionRecord> EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, bool validate = true)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        if (validate) construction.Validate();
+
+        var puzzleOffset = EncodePuzzleRecord(builder, construction.Puzzle);
 
         var instanceOffsets = new Offset<InstanceRecord>[construction.Instances.Count];
         for (var i = 0; i < construction.Instances.Count; i++)
@@ -266,9 +276,9 @@ public static class WorkshopAuthoringFlatBuffers
         if (cr.Puzzle is { } p)
         {
             var kind = (WorkshopGoalKind)p.GoalKind;
-            var goal = kind == WorkshopGoalKind.ActivatedAfter
-                ? new WorkshopGoal(kind, default, default, new(p.GoalBody), new(p.GoalTarget), new(p.GoalDelay))
-                : new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget), MinimumDuration: new(p.GoalDelay));
+            var goal = new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget),
+                p.GoalSourceNode is { } sourceNode ? new(sourceNode) : default,
+                p.GoalTargetNode is { } targetNode ? new(targetNode) : default, new(p.GoalDelay));
             if (p.AssistanceLength != AssistanceKnotCount)
                 throw new WireFaultException(WireFaultReason.MissingField, "An authored puzzle requires its nine assistance knots.");
             AssistanceProfile[] profiles = [Profile(p, 0), Profile(p, KnotsPerProfile), Profile(p, 2 * KnotsPerProfile)];

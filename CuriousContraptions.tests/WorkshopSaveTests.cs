@@ -265,14 +265,14 @@ public sealed class WorkshopSaveTests
                 Assert.NotEqual(default, sourceId);
                 if (compiledGoal.Kind == WorkshopGoalKind.Captured)
                 {
-                    Assert.Equal((sourceId, default(ActivationNodeId), default(ActivationNodeId)), (compiledGoal.Body, compiledGoal.SourceNode, compiledGoal.TargetNode));
+                    Assert.Equal((sourceId, default(SignalNodeId), default(SignalNodeId)), (compiledGoal.Body, compiledGoal.SourceNode, compiledGoal.TargetNode));
                     if (targetId != default) Assert.Equal(targetId, compiledGoal.Target);
                     else Assert.DoesNotContain(compiledGoal.Target, instances.Select(instance => instance.Id));
                     Assert.NotEqual(default, compiledGoal.Target);
                 }
                 else
                 {
-                    Assert.Equal((default(GpuBodyId), default(GpuBodyId), new ActivationNodeId(sourceId.Value), new ActivationNodeId(targetId.Value)),
+                    Assert.Equal((sourceId, targetId, new SignalNodeId("signal"), new SignalNodeId("signal")),
                         (compiledGoal.Body, compiledGoal.Target, compiledGoal.SourceNode, compiledGoal.TargetNode));
                 }
                 var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);

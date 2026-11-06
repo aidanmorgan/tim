@@ -74,7 +74,7 @@ public sealed class MemoryGuardTests
         var count = 0u;
         foreach (var read in reads)
         {
-            var row = network.Memory(read.Memory, owner);
+            var row = network.Memory(read.Memory, SignalTestNodes.Only(network, owner));
             Assert.True(row.Count == count || row.Count == count + 1, $"one input at most per tick at {read.Tick.Value}");
             if (row.Count == count + 1) ticks.Add(read.Tick.Value);
             count = row.Count;
@@ -105,7 +105,7 @@ public sealed class MemoryGuardTests
             var read = reads.Single(r => r.Tick.Value == crossings[k]);
             Assert.Equal(k + 1, Balls.Count(ball => Height(read, ball) < Floor + Plane));
         }
-        Assert.Equal(3u, network.Memory(reads[^1].Memory, Counter).Count);
+        Assert.Equal(3u, network.Memory(reads[^1].Memory, SignalTestNodes.Only(network, Counter)).Count);
 
         var thresholds = ring.Of(SimulationEventKind.ThresholdReached).ToArray();
         if (emittingCrossing == 0)
@@ -118,7 +118,7 @@ public sealed class MemoryGuardTests
         var emitted = crossings[emittingCrossing - 1];
         var record = Assert.Single(thresholds);
         // The record names the counter and, as its cause, the ball whose crossing reached the target.
-        Assert.Equal((emitted, Counter.Value, (uint)target, Balls[emittingCrossing - 1].Value), (record.Tick, record.Source, record.Count, record.Other));
+        Assert.Equal((emitted, SignalTestNodes.Only(network, Counter).Value, (uint)target, Balls[emittingCrossing - 1].Value), (record.Tick, record.Source.Value, record.Count, record.Other));
         Assert.Equal(Node(reads.Single(r => r.Tick.Value == emitted), Counter).EventOrdinal, record.Ordinal);
         Assert.All(reads, read =>
         {
@@ -143,9 +143,9 @@ public sealed class MemoryGuardTests
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(1500);
         Assert.Equal(Enumerable.Range(1, 12).Select(pulse => 120UL * (ulong)pulse), Increments(network, ring.Reads, tally));
-        Assert.Equal(12u, network.Memory(ring.Reads[^1].Memory, tally).Count);
+        Assert.Equal(12u, network.Memory(ring.Reads[^1].Memory, SignalTestNodes.Only(network, tally)).Count);
         var record = Assert.Single(ring.Of(SimulationEventKind.ThresholdReached));
-        Assert.Equal((120UL * (ulong)target, tally.Value, (uint)target), (record.Tick, record.Source, record.Count));
+        Assert.Equal((120UL * (ulong)target, SignalTestNodes.Only(network, tally).Value, (uint)target), (record.Tick, record.Source.Value, record.Count));
         Assert.All(ring.Reads, read => Assert.Equal(read.Tick.Value >= 120UL * (ulong)target, Lit(read, tally)));
     }
 
@@ -155,17 +155,17 @@ public sealed class MemoryGuardTests
     {
         var bench = ThreeBalls(3);
         var network = WorkshopActivationCompiler.Compile(bench);
-        var sensor = bench.Instances.Identities[Detector].Passage;
+        var sensor = bench.Instances.Identities[Detector].Signals[new("signal")].Passage;
         PassageSensorRead Pass(uint ordinal) => new(sensor, Detector, Balls[0], new(11), PassageSensorPhase.Fired, ordinal, 0f, new(2f));
         var committed = network.Consume(network.Clear(), network.ClearTimers(), [], new(1), [], [Pass(4)], memory: network.ClearMemory());
         committed = network.Consume(committed.Activations, committed.Timers, [], new(2), [], [Pass(8)], memory: committed.Memory);
         var first = network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)], memory: committed.Memory);
         var second = network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)], memory: committed.Memory);
-        Assert.Equal(3u, network.Memory(first.Memory, Counter).Count);
-        Assert.Equal(network.Memory(first.Memory, Counter), network.Memory(second.Memory, Counter));
+        Assert.Equal(3u, network.Memory(first.Memory, SignalTestNodes.Only(network, Counter)).Count);
+        Assert.Equal(network.Memory(first.Memory, SignalTestNodes.Only(network, Counter)), network.Memory(second.Memory, SignalTestNodes.Only(network, Counter)));
         Assert.Equal(Enumerable.Range(0, first.Activations.Count).Select(i => first.Activations[i]),
             Enumerable.Range(0, second.Activations.Count).Select(i => second.Activations[i]));
-        Assert.Equal(2u, network.Memory(committed.Memory, Counter).Count);
+        Assert.Equal(2u, network.Memory(committed.Memory, SignalTestNodes.Only(network, Counter)).Count);
     }
 
     // Run/Reset and Save/Load: Reset restores the built state exactly (count 0, nothing latched, contact open) and restarts the ring
@@ -177,9 +177,9 @@ public sealed class MemoryGuardTests
         var bench = ThreeBalls(3);
         var network = WorkshopActivationCompiler.Compile(bench);
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 600);
-        Assert.Equal(3u, network.Memory(reads[^1].Memory, Counter).Count);
+        Assert.Equal(3u, network.Memory(reads[^1].Memory, SignalTestNodes.Only(network, Counter)).Count);
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
-        Assert.Equal(0u, network.Memory(reset.Memory, Counter).Count);
+        Assert.Equal(0u, network.Memory(reset.Memory, SignalTestNodes.Only(network, Counter)).Count);
         Assert.False(network.ContactClosed(reset.Activations, reset.Timers, Counter));
 
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
@@ -193,8 +193,8 @@ public sealed class MemoryGuardTests
         ring.Records.Clear();
         await ring.Run();
         await ring.Advance(600);
-        Assert.Equal(Counter.Value, Assert.Single(ring.Records, record => record.Kind == SimulationEventKind.ThresholdReached).Source);
-        Assert.Equal(3u, network.Memory(ring.Committed.Memory, Counter).Count);
+        Assert.Equal(SignalTestNodes.Only(network, Counter).Value, Assert.Single(ring.Records, record => record.Kind == SimulationEventKind.ThresholdReached).Source.Value);
+        Assert.Equal(3u, network.Memory(ring.Committed.Memory, SignalTestNodes.Only(network, Counter)).Count);
         Assert.Equal(1UL, ring.Records[0].Sequence);
 
         var saved = new WorkshopSavedConstruction(bench, new(9));
@@ -206,8 +206,8 @@ public sealed class MemoryGuardTests
         Assert.Equal(saved, loaded);
         await using var replay = await WorkshopIntegrationHarness.Running(loaded.Construction);
         await replay.Advance(600);
-        Assert.Equal(Counter.Value, Assert.Single(replay.Records, record => record.Kind == SimulationEventKind.ThresholdReached).Source);
-        Assert.Equal(3u, network.Memory(replay.Committed.Memory, Counter).Count);
+        Assert.Equal(SignalTestNodes.Only(network, Counter).Value, Assert.Single(replay.Records, record => record.Kind == SimulationEventKind.ThresholdReached).Source.Value);
+        Assert.Equal(3u, network.Memory(replay.Committed.Memory, SignalTestNodes.Only(network, Counter)).Count);
     }
 
     // ---------- Memory: Set/Reset, same-tick dominance, one source on both inputs, the level output ----------
@@ -235,14 +235,14 @@ public sealed class MemoryGuardTests
             var next = tick > 0 && tick % 180 == 0 ? false : tick > 0 && tick % 120 == 0 ? true : on;
             if (next != on) edges.Add((tick, next ? 1u : 0u));
             on = next;
-            Assert.Equal(on ? SimulationLatchPhase.On : SimulationLatchPhase.Off, network.StateLatchPhase(read.Activations, Latch));
+            Assert.Equal(on ? SimulationLatchPhase.On : SimulationLatchPhase.Off, network.StateLatchPhase(read.Activations, SignalTestNodes.Only(network, Latch)));
             Assert.Equal(on, Lit(read, LevelLamp));
             Assert.Equal(on, network.ContactClosed(read.Activations, read.Timers, Latch));
         }
         Assert.Contains((360UL, 0u), edges);
         var memory = ring.Of(SimulationEventKind.MemoryChanged).ToArray();
         Assert.Equal(edges, memory.Select(record => (record.Tick, record.Level)));
-        Assert.All(memory, record => Assert.Equal(Latch.Value, record.Source));
+        Assert.All(memory, record => Assert.Equal(SignalTestNodes.Only(network, Latch).Value, record.Source.Value));
     }
 
     // One clock wired to both SetIn and ResetIn: every pulse is a same-tick Set+Reset while Off, so memory never turns On, no
@@ -261,7 +261,7 @@ public sealed class MemoryGuardTests
         Assert.Empty(ring.Of(SimulationEventKind.MemoryChanged));
         Assert.All(ring.Reads, read =>
         {
-            Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(read.Activations, Latch));
+            Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(read.Activations, SignalTestNodes.Only(network, Latch)));
             Assert.False(Lit(read, LevelLamp));
             Assert.False(network.ContactClosed(read.Activations, read.Timers, Latch));
         });

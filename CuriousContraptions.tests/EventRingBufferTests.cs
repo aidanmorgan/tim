@@ -8,7 +8,7 @@ namespace CuriousContraptions.Tests;
 public sealed class EventRingBufferTests
 {
     private static SimulationEventRecord Record(ulong sequence, SimulationEventKind kind = SimulationEventKind.Impact, ulong source = 1) =>
-        new(sequence, 7, kind, source, 2, 28, .25f, 1.5f, 3, 0);
+        new(sequence, 7, kind, new(source), 2, 28, .25f, 1.5f, 3, 0);
 
     private static byte[] Publication(ulong epoch, uint capacity, params SimulationEventRecord[] records) =>
         EventRingBuffer.Batch(new(capacity, EventRingBuffer.SlotBytes, epoch, records.Length == 0 ? 0 : records[^1].Sequence), records);
@@ -16,7 +16,7 @@ public sealed class EventRingBufferTests
     [Fact]
     public void ARecordWritesEveryFieldAtItsOffsetAndReadsBackExactly()
     {
-        var record = new SimulationEventRecord(0x0102030405060708, 9, SimulationEventKind.ContactLoad, 11, 12, 13, -.5f, 2.25f, 14, 1);
+        var record = new SimulationEventRecord(0x0102030405060708, 9, SimulationEventKind.ContactLoad, new(11), 12, 13, -.5f, 2.25f, 14, 1);
         var slot = new byte[EventRingBuffer.SlotBytes];
         record.Write(slot);
         Assert.Equal((0x0102030405060708UL, 9UL, 5u, (uint)SimulationDomain.Mechanical, 11UL, 12UL, 13u, -.5f, 2.25f, 14u, 1u, 0u),

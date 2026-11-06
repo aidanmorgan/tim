@@ -34,12 +34,12 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     {
         _ = godot;
         var packages = Packages().ToDictionary(package => package.Declaration.Metadata.Id, package => package.Declaration, StringComparer.Ordinal);
-        var impact = (Abstractions.Signal.IContactTriggerElement)packages["switch"];
+        var impact = ((Abstractions.Signal.ISignalElement)packages["switch"]).SignalNodes.OfType<Abstractions.Signal.SignalContactDescriptor>().Single();
         // A contact trigger compiles for the balls that can strike it.
         var struck = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(Placed(new PartId("switch")), WorkshopInput.Generic(new PartId("ball"),new(2), 0, 6, 0, 0, 0, 0, 1))), new(1, 2));
         var trigger = Assert.Single(struck.Triggers.ToArray());
-        Assert.Equal(packages["switch"].Metadata.Parameters.Single(p => p.Key == impact.Contact.ThresholdParameter).Default, trigger.Threshold.Value);
+        Assert.Equal(packages["switch"].Metadata.Parameters.Single(p => p.Key == impact.ThresholdParameter.Value).Default, trigger.Threshold.Value);
         var domino = (Abstractions.Signal.ISignalElement)packages["domino"];
         // The compiler declares this threshold on a wired tile's orientation sensor.
         var wiredTile = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
@@ -47,25 +47,25 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             Connections: new(new WorkshopConnection(new(1), PortId.ActivationOut, new(2), PortId.ActivationIn,
                 WorkshopConnectionDomain.Activation))), new(1, 2));
         var compiledDegrees = 2 * Math.Acos((double)Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold.CosineHalfAngle) * 180 / Math.PI;
-        var declaredDegrees = Math.Acos(Assert.Single(domino.Triggers).Threshold) * 180 / Math.PI;
+        var declaredDegrees = domino.SignalNodes.OfType<Abstractions.Signal.SignalOrientationDescriptor>().Single().ThresholdDegrees;
         Assert.True(Math.Abs(compiledDegrees - declaredDegrees) < .1,
             $"domino: topple threshold {declaredDegrees}° declared, {compiledDegrees}° compiled.");
         // 9A.32: the declared f32 orientation threshold is the compiled sensor's: the f32 cosine of half the declared 45° (cos 22.5°,
         // rounded once), with no narrower lane.
-        var orientation = ((Abstractions.Signal.IOrientationSensorElement)packages["domino"]).Orientation;
+        var orientation = ((Abstractions.Signal.ISignalElement)packages["domino"]).SignalNodes.OfType<Abstractions.Signal.SignalOrientationDescriptor>().Single();
         Assert.Equal(45f, orientation.ThresholdDegrees);
         var compiledThreshold = Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold;
         Assert.Equal(OrientationThreshold.Degrees((float)(orientation.ThresholdDegrees)), compiledThreshold);
         Assert.Equal(((float)Math.Cos(Math.PI / 8)), (compiledThreshold.CosineHalfAngle));
         // C-Memory: the counter's target is its declared parameter, and the latch's memory reads the two inputs the shared law reads.
-        Assert.Equal("target_count", ((Abstractions.Signal.IPulseCountElement)packages["counter"]).PulseCount.TargetParameter);
-        Assert.Equal(new Abstractions.Signal.SignalMemoryDescriptor(Abstractions.PortId.SetIn, Abstractions.PortId.ResetIn),
-            ((Abstractions.Signal.IMemoryElement)packages["latch"]).Memory);
+        Assert.Equal("target_count", ((Abstractions.Signal.ISignalElement)packages["counter"]).SignalNodes.OfType<Abstractions.Signal.SignalPulseCountDescriptor>().Single().TargetParameter.Value);
+        Assert.Equal(new Abstractions.Signal.SignalMemoryDescriptor(new("signal")),
+            ((Abstractions.Signal.ISignalElement)packages["latch"]).SignalNodes.OfType<Abstractions.Signal.SignalMemoryDescriptor>().Single());
         // Story 9A.22: every package's declared event kinds equal its compiled rows' kinds (EventRingProducerTests).
         // C-Lamp+Detector: the lamp's declared indicator input selects its node, and the detector's declared f32 aperture is the
         // compiled passage sensor's radius and rearm clearance, as numeric f32 values.
-        Assert.Equal(Abstractions.PortId.ActivationIn, ((Abstractions.Signal.IIndicatorElement)packages["lamp"]).Indicator.Input);
-        var aperture = ((Abstractions.Signal.IPassageSensorElement)packages["ball_detector"]).Passage;
+        Assert.Equal(Abstractions.PortId.ActivationIn, Assert.Single(((Abstractions.Signal.ISignalElement)packages["lamp"]).SignalPorts).Port);
+        var aperture = ((Abstractions.Signal.ISignalElement)packages["ball_detector"]).SignalNodes.OfType<Abstractions.Signal.SignalPassageDescriptor>().Single();
         Assert.Equal((.65f, .02f), (aperture.ApertureRadius, aperture.RearmClearance));
         var sensor = Assert.Single(WorkshopActivationCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(), new WorkshopInstances(Placed(new PartId("ball_detector"))))).PassageSensors.ToArray());

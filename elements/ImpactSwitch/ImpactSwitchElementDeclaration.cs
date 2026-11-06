@@ -9,14 +9,14 @@ namespace CuriousContraptions.Elements.ImpactSwitch;
 
 /// <summary>The Impact Switch (CAT-063): a static base and button; a qualifying impact presses the button and sends one activation.
 /// Its latched contact passes independently supplied electrical power; activation never creates supply.</summary>
-public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContactTriggerElement, ISupplyElement, ISceneGeometryElement
+public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignalElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
         [
-            new("Visual/Button", PresentationProperty.LocalY, PresentationDriver.Event, .06f, -.02f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated),
-            new("Visual/Button", PresentationProperty.AlbedoRed, PresentationDriver.Event, .94f, 191f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated),
-            new("Visual/Button", PresentationProperty.AlbedoGreen, PresentationDriver.Event, .43f, 245f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated),
-            new("Visual/Button", PresentationProperty.AlbedoBlue, PresentationDriver.Event, .33f, 176f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated)
+            new("Visual/Button", PresentationProperty.LocalY, PresentationDriver.Event, PresentationValueMapping.Identity, .06f, -.02f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal")),
+            new("Visual/Button", PresentationProperty.AlbedoRed, PresentationDriver.Event, PresentationValueMapping.Identity, .94f, 191f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal")),
+            new("Visual/Button", PresentationProperty.AlbedoGreen, PresentationDriver.Event, PresentationValueMapping.Identity, .43f, 245f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal")),
+            new("Visual/Button", PresentationProperty.AlbedoBlue, PresentationDriver.Event, PresentationValueMapping.Identity, .33f, 176f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(
@@ -50,7 +50,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContac
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated)];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated, new("signal"))];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Signal | SimulationDomain.Electrical;
 
@@ -68,9 +68,14 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContac
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply);
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply,
+        Control: new(new("signal"), SignalContactState.Latched));
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes => [new("switched_contact", ElectricalRole.Switch, 12f, .05f, 0f, 100f)];
 
-    public SignalContactDescriptor Contact => new("trigger_threshold");
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
+    public IReadOnlyList<SignalNodeDescriptor> SignalNodes => [new SignalContactDescriptor(new("signal"), new(0), new("trigger_threshold"))];
+    public IReadOnlyList<SignalEdge> SignalEdges => [];
+    public IReadOnlyList<SignalPortBinding> SignalPorts =>
+    [
+        new(PortId.ActivationOut, new(new("signal"), SignalTerminal.Output))
+    ];
 }

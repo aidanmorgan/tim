@@ -6,14 +6,14 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.SystemClock;
 
-public sealed class SystemClockElementDeclaration : IOscillatorElement, IElectricalElement, ISceneGeometryElement
+public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.1f, PresentationAxes.None,
         [
-            new("Visual/PendulumPivot", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedOscillatorPhase, -.42f, .42f, PresentationCurve.ExponentialFollow, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 30f),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedOscillatorPulse, 85f / 255f, 247f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedOscillatorPulse, 101f / 255f, 203f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedOscillatorPulse, 115f / 255f, 82f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None)
+            new("Visual/PendulumPivot", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedOscillatorPhase, PresentationValueMapping.SineCyclesToUnit, -.42f, .42f, PresentationCurve.ExponentialFollow, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 30f, SignalNode: new("signal")),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedOscillatorPulse, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedOscillatorPulse, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedOscillatorPulse, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(
@@ -48,14 +48,18 @@ public sealed class SystemClockElementDeclaration : IOscillatorElement, IElectri
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated)];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated, new("signal"))];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 
     /// <summary>The pendulum pulses its ActivationOut once per declared interval while its PowerIn is supplied (CAT-017).</summary>
-    public SignalOscillatorDescriptor Oscillator => new("interval_seconds");
+    public IReadOnlyList<SignalNodeDescriptor> SignalNodes => [new SignalOscillatorDescriptor(new("signal"), new("interval_seconds"), PortId.PowerIn)];
+    public IReadOnlyList<SignalEdge> SignalEdges => [];
+    public IReadOnlyList<SignalPortBinding> SignalPorts =>
+    [
+        new(PortId.ActivationOut, new(new("signal"), SignalTerminal.Output))
+    ];
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

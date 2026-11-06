@@ -228,14 +228,7 @@ public static partial class PhysicsGpuAbi
         var bodyCount = R32(data, HeaderBodyCountOffset);
 
         var threshold = RF(record, TriggerThresholdOffset);
-        if (R64(record, RecordIdentityOffset) == 0 || owner >= bodyCount ||
-            R32(record, TriggerTargetKindOffset) is < (uint)BodyTargetKind.NamedBody or > (uint)BodyTargetKind.AllDynamic || !Enum.IsDefined(kind) ||
-            (kind == BodyTargetKind.NamedBody ? (named >= bodyCount || BodyMotion(data, named) != RigidMotionKind.Dynamic) || named == owner : named != NoBody) ||
-            BodyMotion(data, owner) != RigidMotionKind.Static ||
-            !float.IsFinite(threshold) || threshold < 0f || threshold > 64f ||
-            !AllZero(record[TriggerThresholdPaddingOffset..TriggerNamedTargetOffset]) || !AllZero(record[TriggerNamedPaddingOffset..TriggerCountOffset]) ||
-            !AllZero(record[TriggerPaddingOffset..]) || count > 1)
-            throw new ArgumentException("Invalid contact trigger declaration or padding.");
+        ValidateTriggerDeclaration(data, record, owner, kind, named, count, bodyCount, threshold);
         var collider = default(GpuColliderId); var targetId = default(GpuBodyId);
         if (count == 0)
         {
@@ -309,6 +302,30 @@ public static partial class PhysicsGpuAbi
             throw new ArgumentException("Candidate identity, scene counts or physical profile changed.");
         // Equal header populations: one layout addresses both worlds, and every table is exactly its population (Story 9R.5b).
         var layout = Layout(source);
+        ValidateBodyDeclarations(candidate, source, layout);
+        ValidateFixedRowPadding(candidate, layout);
+        var bodies = ReadDynamicBodies(candidate);
+        ValidateCaptureCandidate(candidate,source,candidateInteractions,sourceInteractions);
+        if (!candidate[layout.GuidesOffset..layout.TriggersOffset].SequenceEqual(source[layout.GuidesOffset..layout.TriggersOffset]))
+            throw new ArgumentException("Guide declaration changed.");
+        ValidateTriggerCandidate(candidate, source, expectedTick, layout);
+        ValidateContactWorkCandidate(candidate, source, expectedTick, candidateInteractions, sourceInteractions);
+        ValidateOrientationCandidate(candidate, source, expectedTick, layout);
+        if (expectedTick.Value != 0 && (R32(candidate, layout.MotionOffset + PhysicsMotionRead.SubstepsOffset) != profile.Substeps ||
+            R32(candidate, layout.MotionOffset + PhysicsMotionRead.LastOrdinalOffset) != R32(candidate, HeaderSourceOrdinalOffset)))
+            throw new ArgumentException("Motion profile differs from its committed world.");
+        ValidateElectricalCandidate(candidate, source, candidateInteractions);
+        ValidatePrismaticCandidate(candidate, source);
+        ValidateTensileCandidate(candidate, source);
+        ValidateRevoluteCandidate(candidate, source);
+        ValidateContactLoadCandidate(candidate, source);
+        ValidateCompliantSurfaceCandidate(candidate, source);
+        return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(layout.MotionOffset, layout.MotionBytes), bodies, expectedTick));
+    }
+
+
+    private static void ValidateBodyDeclarations(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, PhysicsWorldLayout layout)
+    {
         var bodyCount = layout.Bodies; var dynamicCount = 0;
         for (var i = 0; i < bodyCount; i++)
         {
@@ -331,9 +348,13 @@ public static partial class PhysicsGpuAbi
             !candidate[layout.MaterialsOffset..layout.SensorsOffset].SequenceEqual(source[layout.MaterialsOffset..layout.SensorsOffset]) ||
             !candidate[layout.CollidersOffset..].SequenceEqual(source[layout.CollidersOffset..]))
             throw new ArgumentException("Candidate changed body population, geometry or material.");
+    }
+
+    private static void ValidateFixedRowPadding(ReadOnlySpan<byte> candidate, PhysicsWorldLayout layout)
+    {
         // Every fixed row's zero padding is checked in the candidate itself (at admission, tick 0, too): an unchanged nonzero byte
         // passes the row comparisons above, so only these checks see it.
-        for (var i = 0; i < bodyCount; i++)
+        for (var i = 0; i < layout.Bodies; i++)
         {
             var body = candidate.Slice(layout.BodyOffset(i), BodyBytes);
             if (!Enum.IsDefined((PayloadPolicy)R32(body,BodyPayloadOffset)) ||
@@ -357,10 +378,10 @@ public static partial class PhysicsGpuAbi
         for (var i = 0; i < layout.Sensors; i++)
             if (!AllZero(candidate.Slice(layout.SensorOffset(i) + SensorParticipationPaddingOffset, SensorPoseOffset - SensorParticipationPaddingOffset)))
                 throw new ArgumentException("Nonzero sensor padding.");
-        var bodies = ReadDynamicBodies(candidate);
-        ValidateCaptureCandidate(candidate,source,candidateInteractions,sourceInteractions);
-        if (!candidate[layout.GuidesOffset..layout.TriggersOffset].SequenceEqual(source[layout.GuidesOffset..layout.TriggersOffset]))
-            throw new ArgumentException("Guide declaration changed.");
+    }
+
+    private static void ValidateTriggerCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, SimulationTick expectedTick, PhysicsWorldLayout layout)
+    {
         for (var i = 0; i < layout.Triggers; i++)
         {
             var offset = layout.TriggerOffset(i);
@@ -371,7 +392,10 @@ public static partial class PhysicsGpuAbi
                 Before(trigger.EventOrdinal, trigger.EventPhase, R32(source, HeaderSourceOrdinalOffset), 0f)))
                 throw new ArgumentException("Impact event does not belong to this candidate interval.");
         }
-        ValidateContactWorkCandidate(candidate, source, expectedTick, candidateInteractions, sourceInteractions);
+    }
+
+    private static void ValidateOrientationCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, SimulationTick expectedTick, PhysicsWorldLayout layout)
+    {
         for (var i = 0; i < layout.OrientationSensors; i++)
         {
             var offset = layout.OrientationSensorOffset(i);
@@ -391,18 +415,20 @@ public static partial class PhysicsGpuAbi
             else if (current.Phase == OrientationSensorPhase.Fired && (expectedTick.Value == 0 || current.EventOrdinal <= R32(source, HeaderSourceOrdinalOffset)))
                 throw new ArgumentException("Orientation event does not belong to this candidate interval.");
         }
-        if (expectedTick.Value != 0 && (R32(candidate, layout.MotionOffset + PhysicsMotionRead.SubstepsOffset) != profile.Substeps ||
-            R32(candidate, layout.MotionOffset + PhysicsMotionRead.LastOrdinalOffset) != R32(candidate, HeaderSourceOrdinalOffset)))
-            throw new ArgumentException("Motion profile differs from its committed world.");
-        ValidateElectricalCandidate(candidate, source, candidateInteractions);
-        ValidatePrismaticCandidate(candidate, source);
-        ValidateTensileCandidate(candidate, source);
-        ValidateRevoluteCandidate(candidate, source);
-        ValidateContactLoadCandidate(candidate, source);
-        ValidateCompliantSurfaceCandidate(candidate, source);
-        return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(layout.MotionOffset, layout.MotionBytes), bodies, expectedTick));
     }
 
+    private static void ValidateTriggerDeclaration(ReadOnlySpan<byte> data, ReadOnlySpan<byte> record,
+        uint owner, BodyTargetKind kind, uint named, uint count, uint bodyCount, float threshold)
+    {
+        if (R64(record, RecordIdentityOffset) == 0 || owner >= bodyCount ||
+            R32(record, TriggerTargetKindOffset) is < (uint)BodyTargetKind.NamedBody or > (uint)BodyTargetKind.AllDynamic || !Enum.IsDefined(kind) ||
+            (kind == BodyTargetKind.NamedBody ? (named >= bodyCount || BodyMotion(data, named) != RigidMotionKind.Dynamic) || named == owner : named != NoBody) ||
+            BodyMotion(data, owner) != RigidMotionKind.Static ||
+            !float.IsFinite(threshold) || threshold < 0f || threshold > 64f ||
+            !AllZero(record[TriggerThresholdPaddingOffset..TriggerNamedTargetOffset]) || !AllZero(record[TriggerNamedPaddingOffset..TriggerCountOffset]) ||
+            !AllZero(record[TriggerPaddingOffset..]) || count > 1)
+            throw new ArgumentException("Invalid contact trigger declaration or padding.");
+    }
 
     private static void Principal(Span<byte> bytes, int offset, PrincipalInertia value)
     {

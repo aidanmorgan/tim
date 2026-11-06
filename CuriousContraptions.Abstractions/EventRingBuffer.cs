@@ -9,7 +9,7 @@ namespace CuriousContraptions.Abstractions;
 /// Tick u64 at 8, Kind u32 at 16, Domain u32 at 20, Source u64 at 24 (the owner body), Other u64 at 32 (a body or 0), Ordinal u32
 /// at 40 and Phase f32 at 44 (the physical time within the run), Magnitude f32 at 48, Count u32 at 52, Level u32 at 56, and 4
 /// reserved zero bytes. Each field's meaning per kind is <see cref="SimulationEventKind"/>'s; there is no wall clock.</summary>
-public readonly record struct SimulationEventRecord(ulong Sequence, ulong Tick, SimulationEventKind Kind, ulong Source, ulong Other,
+public readonly record struct SimulationEventRecord(ulong Sequence, ulong Tick, SimulationEventKind Kind, GpuEventSourceId Source, ulong Other,
     uint Ordinal, float Phase, float Magnitude, uint Count, uint Level)
 {
     public const int SequenceOffset = 0, TickOffset = 8, KindOffset = 16, DomainOffset = 20, SourceOffset = 24, OtherOffset = 32,
@@ -21,7 +21,7 @@ public readonly record struct SimulationEventRecord(ulong Sequence, ulong Tick, 
     public void Validate()
     {
         _ = SimulationEvents.Domain(Kind);
-        if (Source == 0 || !float.IsFinite(Phase) || !float.IsFinite(Magnitude) || Level > 1)
+        if (Source.Value == 0 || !float.IsFinite(Phase) || !float.IsFinite(Magnitude) || Level > 1)
             throw new ArgumentException("Invalid event record.");
     }
 
@@ -34,7 +34,7 @@ public readonly record struct SimulationEventRecord(ulong Sequence, ulong Tick, 
         BinaryPrimitives.WriteUInt64LittleEndian(slot[TickOffset..], Tick);
         BinaryPrimitives.WriteUInt32LittleEndian(slot[KindOffset..], (uint)Kind);
         BinaryPrimitives.WriteUInt32LittleEndian(slot[DomainOffset..], (uint)Domain);
-        BinaryPrimitives.WriteUInt64LittleEndian(slot[SourceOffset..], Source);
+        BinaryPrimitives.WriteUInt64LittleEndian(slot[SourceOffset..], Source.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(slot[OtherOffset..], Other);
         BinaryPrimitives.WriteUInt32LittleEndian(slot[OrdinalOffset..], Ordinal);
         BinaryPrimitives.WriteSingleLittleEndian(slot[PhaseOffset..], Phase);
@@ -51,7 +51,7 @@ public readonly record struct SimulationEventRecord(ulong Sequence, ulong Tick, 
         if (slot.Length != EventRingBuffer.SlotBytes) throw new ArgumentException("An event record is exactly one slot.");
         var record = new SimulationEventRecord(BinaryPrimitives.ReadUInt64LittleEndian(slot[SequenceOffset..]),
             BinaryPrimitives.ReadUInt64LittleEndian(slot[TickOffset..]), (SimulationEventKind)BinaryPrimitives.ReadUInt32LittleEndian(slot[KindOffset..]),
-            BinaryPrimitives.ReadUInt64LittleEndian(slot[SourceOffset..]), BinaryPrimitives.ReadUInt64LittleEndian(slot[OtherOffset..]),
+            new(BinaryPrimitives.ReadUInt64LittleEndian(slot[SourceOffset..])), BinaryPrimitives.ReadUInt64LittleEndian(slot[OtherOffset..]),
             BinaryPrimitives.ReadUInt32LittleEndian(slot[OrdinalOffset..]), BinaryPrimitives.ReadSingleLittleEndian(slot[PhaseOffset..]),
             BinaryPrimitives.ReadSingleLittleEndian(slot[MagnitudeOffset..]), BinaryPrimitives.ReadUInt32LittleEndian(slot[CountOffset..]),
             BinaryPrimitives.ReadUInt32LittleEndian(slot[LevelOffset..]));

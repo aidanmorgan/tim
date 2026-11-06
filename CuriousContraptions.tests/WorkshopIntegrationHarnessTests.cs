@@ -216,7 +216,7 @@ public sealed class WorkshopIntegrationHarnessTests
         await using var harness = await WorkshopIntegrationHarness.Running(bench);
         for (var tick = 0; tick < 240 && harness.Records.Count == 0; tick++) await harness.Advance(1);
         var impact = Assert.Single(harness.Records, record => record.Kind == SimulationEventKind.Impact);
-        Assert.Equal(2UL, impact.Source);
+        Assert.Equal(2UL, impact.Source.Value);
         Assert.Equal(1UL, impact.Other);
         float HeadScale() => Assert.Single(harness.Presentation!.Advance(harness.Schedule,
             PhysicalTime.FromNanoseconds(harness.Time.Nanoseconds)), sample => sample.Owner == new GpuBodyId(2) && sample.Binding == 0).Value.Scale.Value;

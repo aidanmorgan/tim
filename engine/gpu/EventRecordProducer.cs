@@ -31,14 +31,17 @@ public sealed class EventRecordProducer
 
     private readonly Dictionary<ActivationNodeId, ActivationNodeDeclaration> _nodes = new(4);
     private readonly Dictionary<GpuSensorId, ResidenceSensorDeclaration> _captures = new(4);
-    private readonly Dictionary<GpuPassageSensorId, GpuBodyId> _apertures = new(4);
+    private readonly Dictionary<GpuPassageSensorId, GpuEventSourceId> _apertures = new(4);
     private readonly uint _substeps;
     private EventRecordProducer(PhysicsSceneDeclaration scene, ActivationNetwork network, PassageSensorTracker passages, WorkshopGpuProfile profile)
     {
         _substeps = profile.Substeps;
         foreach (var sensor in passages.Sensors)
         {
-            _apertures.Add(sensor.Id, sensor.Frame);
+            ActivationNodeId producer = default;
+            foreach (var node in network.Nodes) if (node.Passage == sensor.Id) producer = node.Id;
+            if (producer == default) throw new ArgumentException("Passage source is not bound.");
+            _apertures.Add(sensor.Id, new(producer.Value));
         }
         foreach (var sensor in scene.Sensors)
         {
@@ -84,8 +87,8 @@ public sealed class EventRecordProducer
     {
         var records = new List<SimulationEventRecord>(32);
         var boundary = ActivationTime.Boundary(tick, _substeps);
-        void Add(SimulationEventKind kind, GpuBodyId source, GpuBodyId other, ActivationTime time, float magnitude, uint count, uint level) =>
-            records.Add(new(0, tick.Value, kind, source.Value, other.Value, time.Ordinal, time.Phase, magnitude, count, level));
+        void Add(SimulationEventKind kind, GpuEventSourceId source, GpuBodyId other, ActivationTime time, float magnitude, uint count, uint level) =>
+            records.Add(new(0, tick.Value, kind, source, other.Value, time.Ordinal, time.Phase, magnitude, count, level));
 
         // Impact: each owner's new occurrence rows, exactly the sequences in (committed, candidate].
         for (var work = 0; work < candidate.ContactWorks.Count; work++)
@@ -95,7 +98,7 @@ public sealed class EventRecordProducer
             {
                 var hit = candidate.ContactWorks.Occurrence(i);
                 if (hit.Work.Value != work || hit.Sequence <= before) continue;
-                Add(SimulationEventKind.Impact, owner, hit.Target, new(hit.EventOrdinal, (float)hit.EventPhase), hit.Debit.Value, hit.Sequence, 0);
+                Add(SimulationEventKind.Impact, new(owner.Value), hit.Target, new(hit.EventOrdinal, (float)hit.EventPhase), hit.Debit.Value, hit.Sequence, 0);
             }
         }
         // Passage: every pass of the step, counted per aperture from the committed per-body pass counts, in time order.
@@ -116,14 +119,14 @@ public sealed class EventRecordProducer
             if (capture.Phase != CaptureLatchPhase.Latched ||
                 (committed.Captures.TryGet(new(capture.Sensor,capture.Target),out var prior) && prior.Phase==CaptureLatchPhase.Latched)) continue;
             var sensor = _captures[capture.Sensor];
-            Add(SimulationEventKind.Captured, sensor.Frame, capture.Target, new(capture.EventOrdinal, (float)capture.EventPhase), 0f, 0, 0);
+            Add(SimulationEventKind.Captured, new(sensor.Frame.Value), capture.Target, new(capture.EventOrdinal, (float)capture.EventPhase), 0f, 0, 0);
         }
         // ElectricalPowered: an availability edge at the boundary.
         for (var i = 0; i < candidate.Electrical.Count; i++)
         {
             var source = candidate.Electrical[i];
             if (source.Available == committed.Electrical[i].Available) continue;
-            Add(SimulationEventKind.ElectricalPowered, source.Owner, default, boundary, source.Remaining.Value, 0, source.Available ? 1u : 0u);
+            Add(SimulationEventKind.ElectricalPowered, new(source.Owner.Value), default, boundary, source.Remaining.Value, 0, source.Available ? 1u : 0u);
         }
         // The network's Physical-stage transitions, through the node table.
         for (var i = 0; i < transitions.Count; i++)
@@ -134,19 +137,21 @@ public sealed class EventRecordProducer
             if (kind == SimulationEventKind.None) continue;
             var level = transition.Level == ActivationPhase.Latched ? 1u : 0u;
             if (transition.Kind == ActivationTransitionKind.Emitted)
-                Add(kind, node.Owner, transition.Occurrence.Cause.Body, transition.Occurrence.Time,
+                Add(kind, new(node.Id.Value), transition.Occurrence.Cause.Body, transition.Occurrence.Time,
                     kind == SimulationEventKind.TriggerActivated ? (float)transition.Occurrence.Cause.ApproachSpeed.Value : 0f, transition.Count, 0);
             else if (kind == SimulationEventKind.ContactLoad)
-                Add(kind, node.Owner, default, boundary, Measured(loads, node.ContactLoad), 0, level);
-            else Add(kind, node.Owner, default, boundary, 0f, 0, level);
+                Add(kind, new(node.Id.Value), default, boundary, Measured(loads, node.ContactLoad), 0, level);
+            else Add(kind, new(node.Id.Value), default, boundary, 0f, 0, level);
         }
-        records.Sort(static (a, b) =>
-            a.Ordinal != b.Ordinal ? a.Ordinal.CompareTo(b.Ordinal) : a.Phase != b.Phase ? a.Phase.CompareTo(b.Phase) :
-            a.Kind != b.Kind ? a.Kind.CompareTo(b.Kind) : a.Source != b.Source ? a.Source.CompareTo(b.Source) : a.Other.CompareTo(b.Other));
+        records.Sort(CompareRecords);
         // Validated here, before the commit point: an invalid record discards the candidate, never faults a publication.
         foreach (var record in records) record.Validate();
         return records.ToArray();
     }
+
+    private static int CompareRecords(SimulationEventRecord a, SimulationEventRecord b) =>
+            a.Ordinal != b.Ordinal ? a.Ordinal.CompareTo(b.Ordinal) : a.Phase != b.Phase ? a.Phase.CompareTo(b.Phase) :
+            a.Kind != b.Kind ? a.Kind.CompareTo(b.Kind) : a.Source != b.Source ? a.Source.Value.CompareTo(b.Source.Value) : a.Other.CompareTo(b.Other);
 
     private static float Measured(ReadOnlySpan<ContactLoadSensorRead> loads, GpuContactLoadSensorId sensor)
     {

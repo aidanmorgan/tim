@@ -209,13 +209,13 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var pulseTicks = new List<ulong>();
         for (ulong tick = 1; tick <= 600; tick++)
         {
-            var priorPulseCount = network.Memory(activeMemory, clock.Id).Count;
+            var priorPulseCount = network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count;
             var checkpoint = network.Consume(activeActivations, activeTimers, [], new(tick), [], [], electrical, memory: activeMemory);
             activeActivations = checkpoint.Activations;
             activeTimers = checkpoint.Timers;
             activeMemory = checkpoint.Memory;
 
-            if (network.Memory(activeMemory, clock.Id).Count > priorPulseCount)
+            if (network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count > priorPulseCount)
             {
                 pulseTicks.Add(tick);
             }
@@ -226,11 +226,11 @@ public sealed class ClockTests(NativeSceneFixture godot)
         Assert.Equal([120UL, 240UL, 360UL, 480UL, 600UL], pulseTicks);
 
         // Oscillator state
-        Assert.Equal(OscillatorPhase.Running, network.Memory(activeMemory, clock.Id).Phase);
-        Assert.Equal(5U, network.Memory(activeMemory, clock.Id).Count);
+        Assert.Equal(OscillatorPhase.Running, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Phase);
+        Assert.Equal(5U, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count);
 
         // Downstream Counter reached 5
-        Assert.Equal(5U, network.Memory(activeMemory, counter.Id).Count);
+        Assert.Equal(5U, network.Memory(activeMemory, SignalTestNodes.Only(network, counter.Id)).Count);
         Assert.True(network.ContactClosed(activeActivations, network.ClearTimers(), counter.Id));
     }
 
@@ -262,9 +262,9 @@ public sealed class ClockTests(NativeSceneFixture godot)
             activeMemory = checkpoint.Memory;
         }
 
-        Assert.Equal(OscillatorPhase.Stopped, network.Memory(activeMemory, clock.Id).Phase);
-        Assert.Equal(0U, network.Memory(activeMemory, clock.Id).Count);
-        Assert.Equal(0U, network.Memory(activeMemory, counter.Id).Count);
+        Assert.Equal(OscillatorPhase.Stopped, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Phase);
+        Assert.Equal(0U, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count);
+        Assert.Equal(0U, network.Memory(activeMemory, SignalTestNodes.Only(network, counter.Id)).Count);
         Assert.False(network.ContactClosed(activeActivations, network.ClearTimers(), counter.Id));
     }
 
@@ -298,27 +298,27 @@ public sealed class ClockTests(NativeSceneFixture godot)
 
         // Run ticks 1 to 119 with power
         for (ulong tick = 1; tick < 120; tick++) Step(tick, powered);
-        Assert.Equal(0U, network.Memory(activeMemory, clock.Id).Count);
+        Assert.Equal(0U, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count);
 
         // At deadline tick 120, cut power! Pulse MUST be suppressed!
         Step(120, unpowered);
-        Assert.Equal(0U, network.Memory(activeMemory, clock.Id).Count);
-        Assert.Equal(OscillatorPhase.Stopped, network.Memory(activeMemory, clock.Id).Phase);
+        Assert.Equal(0U, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count);
+        Assert.Equal(OscillatorPhase.Stopped, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Phase);
 
         // Keep unpowered until tick 150
         for (ulong tick = 121; tick <= 150; tick++)
         {
             Step(tick, unpowered);
-            Assert.Equal(0U, network.Memory(activeMemory, clock.Id).Count);
+            Assert.Equal(0U, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count);
         }
 
         // Restore power at tick 151: fresh full interval of 120 ticks -> due tick = 151 + 120 = 271
         ulong restoredPulseTick = 0;
         for (ulong tick = 151; tick <= 300; tick++)
         {
-            var prior = network.Memory(activeMemory, clock.Id).Count;
+            var prior = network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count;
             Step(tick, powered);
-            if (network.Memory(activeMemory, clock.Id).Count > prior)
+            if (network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count > prior)
             {
                 restoredPulseTick = tick;
                 break;
@@ -326,7 +326,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         }
 
         Assert.Equal(271UL, restoredPulseTick);
-        Assert.Equal(1U, network.Memory(activeMemory, clock.Id).Count);
+        Assert.Equal(1U, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count);
     }
 
     // Story 9R.1 D3: the System Clock phase and due tick are committed discrete state, published in the checkpoint; a superseded
@@ -340,27 +340,27 @@ public sealed class ClockTests(NativeSceneFixture godot)
             Connections: new([new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)]));
         var network = WorkshopActivationCompiler.Compile(construction);
         var powered = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery.Id, new Joules(3600f), default, ElectricalEnable.Enabled)]);
-        var cleared = network.Memory(network.ClearMemory(), clock.Id);
+        var cleared = network.Memory(network.ClearMemory(), SignalTestNodes.Only(network, clock.Id));
         Assert.Equal((OscillatorPhase.Stopped, 0UL, 0U), (cleared.Phase, cleared.DueTick, cleared.Count));
 
         var committed = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
         for (ulong tick = 1; tick <= 60; tick++)
             committed = network.Consume(committed.Activations, committed.Timers, [], new(tick), [], [], powered, memory: committed.Memory);
-        var midInterval = network.Memory(committed.Memory, clock.Id);
+        var midInterval = network.Memory(committed.Memory, SignalTestNodes.Only(network, clock.Id));
         Assert.Equal((OscillatorPhase.Running, 120UL, 0U), (midInterval.Phase, midInterval.DueTick, midInterval.Count));
 
         // Candidates for ticks 61..120 are superseded: the committed row keeps its mid-interval phase and due tick.
         var candidate = committed;
         for (ulong tick = 61; tick <= 120; tick++)
             candidate = network.Consume(candidate.Activations, candidate.Timers, [], new(tick), [], [], powered, memory: candidate.Memory);
-        var pulsed = network.Memory(candidate.Memory, clock.Id);
+        var pulsed = network.Memory(candidate.Memory, SignalTestNodes.Only(network, clock.Id));
         Assert.Equal((OscillatorPhase.Running, 240UL, 1U), (pulsed.Phase, pulsed.DueTick, pulsed.Count));
-        Assert.Equal(midInterval, network.Memory(committed.Memory, clock.Id));
+        Assert.Equal(midInterval, network.Memory(committed.Memory, SignalTestNodes.Only(network, clock.Id)));
 
         // Admission (Reset) recompiles and clears: phase Stopped (0), no due tick, no pulses.
         var reset = WorkshopActivationCompiler.Compile(construction);
-        Assert.Equal(cleared, reset.Memory(reset.ClearMemory(), clock.Id));
-        Assert.Equal(0U, (uint)reset.Memory(reset.ClearMemory(), clock.Id).Phase);
+        Assert.Equal(cleared, reset.Memory(reset.ClearMemory(), SignalTestNodes.Only(reset, clock.Id)));
+        Assert.Equal(0U, (uint)reset.Memory(reset.ClearMemory(), SignalTestNodes.Only(reset, clock.Id)).Phase);
     }
 
     // Story 9R.1: the committed counter and clock rows round-trip through both response codecs (FlatBuffers and the B1 layout).

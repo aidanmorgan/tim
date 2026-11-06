@@ -129,7 +129,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(2, network.Nodes.Length);
         var detectorNode = Assert.Single(network.Nodes.ToArray(), n => n.Owner == detector.Id);
         Assert.Equal(ActivationNodeKind.PassageSource, detectorNode.Kind);
-        Assert.Equal(construction.Instances.Identities[detector.Id].Passage, detectorNode.Passage);
+        Assert.Equal(construction.Instances.Identities[detector.Id].Signals[new("signal")].Passage, detectorNode.Passage);
 
         var lampNode = Assert.Single(network.Nodes.ToArray(), n => n.Owner == lamp.Id);
         Assert.Equal(ActivationNodeKind.StickyFirstInput, lampNode.Kind);
@@ -196,6 +196,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
 
         var committedActivations = network.Clear();
         var committedTimers = network.ClearTimers();
+        var committedMemory = network.ClearMemory();
 
         var dt = 1.0f / 60f;
         var currentPos = startPos;
@@ -230,9 +231,10 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             {
                 eventCount += count;
                 firedSpeed = (float)passageOutputs[0].Speed.Value;
-                var checkpoint = network.Consume(committedActivations, committedTimers, default, new SimulationTick((ulong)step), default, passageOutputs[..count]);
+                var checkpoint = network.Consume(committedActivations, committedTimers, default, new SimulationTick((ulong)step), default, passageOutputs[..count], memory: committedMemory);
                 committedActivations = checkpoint.Activations;
                 committedTimers = checkpoint.Timers;
+                committedMemory = checkpoint.Memory;
             }
         }
 

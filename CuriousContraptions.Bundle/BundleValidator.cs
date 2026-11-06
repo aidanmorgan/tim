@@ -74,18 +74,7 @@ public static class BundleValidator
             foreach (var domain in entry.Domains)
                 if (domain == SimulationDomain.None || (domain & ~AllDomains) != 0 || !BitOperations.IsPow2((uint)domain))
                     Undefined("SupportedDomains");
-            var footprint = entry.Footprint;
-            if (footprint.Bodies < 0) OutOfRange("Footprint.Bodies");
-            if (footprint.MovingBodies < 0 || footprint.MovingBodies > footprint.Bodies) OutOfRange("Footprint.MovingBodies");
-            if (footprint.PrismaticConstraints < 0) OutOfRange("Footprint.PrismaticConstraints");
-            if (footprint.RevoluteConstraints < 0) OutOfRange("Footprint.RevoluteConstraints");
-            // Any entry with a body (a declared footprint body, or a mechanical payload) needs a collider, whatever its domains.
-            if ((footprint.Bodies > 0 || entry.Mechanical is not null) && entry.Colliders.Count == 0)
-                errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.Colliders: a body declares no collider"));
-            if (footprint.Bodies == 0 && (entry.Mechanical is not null || entry.Colliders.Count != 0 ||
-                entry.ColliderBindings.Count != 0 || entry.Presentation.Bodies.Count != 0 ||
-                footprint.MovingBodies != 0 || footprint.PrismaticConstraints != 0 || footprint.RevoluteConstraints != 0))
-                OutOfRange("Footprint.PhysicalOwnership");
+            CheckPhysicalOwnership(entry);
             var childBodies = (entry.Mechanical?.Sliders.Count ?? 0) + (entry.Mechanical?.Hinges.Count ?? 0);
             var portsSeen = new HashSet<PortId>(4);
             for (var i = 0; i < entry.Ports.Count; i++)
@@ -98,16 +87,79 @@ public static class BundleValidator
             Geometry(entry);
             errors.AddRange(DrivenSurfaceValidation.Validate(entry));
             Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Signal, entry.Events, childBodies);
-            // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
-            var kinds = new HashSet<SimulationEventKind>(4);
-            for (var i = 0; i < entry.Events.Count; i++)
-            {
-                if (entry.Events[i].Kind == SimulationEventKind.None) Undefined($"Events[{i}].Kind");
-                else Defined($"Events[{i}].Kind", entry.Events[i].Kind);
-                if (!kinds.Add(entry.Events[i].Kind)) OutOfRange($"Events[{i}].Kind");
-            }
+            CheckEvents(entry.Events);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports, entry.Electrical?.Supply);
             if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports, entry.Metadata.Parameters);
+            CheckRunControls(entry);
+            errors.AddRange(SignalBundleValidation.Validate(entry));
+            if (entry.Fluid is { } fluid) Fluid(fluid);
+        }
+
+        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
+            MechanicalPayload? mechanical, ElectricalPayload? electrical, SignalPayload? signal, IReadOnlyList<EventDescriptor> events, int childBodies)
+        {
+            PresentationSizing(value, parameters);
+            var writers = new HashSet<(string, PresentationProperty, PresentationTimerPhase)>(4);
+            foreach (var binding in value.Bindings)
+            {
+                PresentationBindingIdentity(binding, signal);
+                PresentationBindingValues(binding);
+                PresentationBindingSocket(binding, electrical, ports);
+                PresentationBindingCapabilities(binding, signal, mechanical);
+                PresentationBindingEvents(binding, events);
+                if (!writers.Add((binding.Node, binding.Property, binding.Phase)))
+                    errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.Presentation: duplicate property writer"));
+                if (binding.Phase != PresentationTimerPhase.None && binding.Driver != PresentationDriver.CommittedTimerPhase)
+                    OutOfRange("Presentation.Phase");
+            }
+            PresentationBodies(value, childBodies);
+            foreach (var span in value.Spans)
+            {
+                Text("Presentation.Span.MovingNode", span.MovingNode); Text("Presentation.Span.Node", span.SpanNode);
+                Finite("Presentation.Span.MovingAnchor", span.MovingAnchor); Finite("Presentation.Span.FixedAnchor", span.FixedAnchor);
+                if (!Finite("Presentation.Span.RestLength", span.RestLength) || span.RestLength <= 0)
+                    OutOfRange("Presentation.Span.RestLength");
+            }
+            foreach (var parameter in value.Parameters)
+            {
+                if (!parameters.Any(p => p.Key == parameter.Parameter)) OutOfRange("Presentation.Parameter.Key");
+                Text("Presentation.Parameter.Node", parameter.Node); Text("Presentation.Parameter", parameter.Parameter);
+                Defined("Presentation.Parameter.Property", parameter.Property);
+                Finite("Presentation.Parameter.Multiplier", parameter.Multiplier);
+                Finite("Presentation.Parameter.Offset", parameter.Offset);
+            }
+        }
+
+        private void CheckPhysicalOwnership(BundleEntry entry)
+        {
+            var footprint = entry.Footprint;
+            if (footprint.Bodies < 0) OutOfRange("Footprint.Bodies");
+            if (footprint.MovingBodies < 0 || footprint.MovingBodies > footprint.Bodies) OutOfRange("Footprint.MovingBodies");
+            if (footprint.PrismaticConstraints < 0) OutOfRange("Footprint.PrismaticConstraints");
+            if (footprint.RevoluteConstraints < 0) OutOfRange("Footprint.RevoluteConstraints");
+            // Any entry with a body (a declared footprint body, or a mechanical payload) needs a collider, whatever its domains.
+            if ((footprint.Bodies > 0 || entry.Mechanical is not null) && entry.Colliders.Count == 0)
+                errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.Colliders: a body declares no collider"));
+            if (footprint.Bodies == 0 && (entry.Mechanical is not null || entry.Colliders.Count != 0 ||
+                entry.ColliderBindings.Count != 0 || entry.Presentation.Bodies.Count != 0 ||
+                footprint.MovingBodies != 0 || footprint.PrismaticConstraints != 0 || footprint.RevoluteConstraints != 0))
+                OutOfRange("Footprint.PhysicalOwnership");
+        }
+
+        private void CheckEvents(IReadOnlyList<EventDescriptor> events)
+        {
+            // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
+            var kinds = new HashSet<(SimulationEventKind, SignalNodeId?)>(4);
+            for (var i = 0; i < events.Count; i++)
+            {
+                if (events[i].Kind == SimulationEventKind.None) Undefined($"Events[{i}].Kind");
+                else Defined($"Events[{i}].Kind", events[i].Kind);
+                if (!kinds.Add((events[i].Kind, events[i].SignalNode))) OutOfRange($"Events[{i}].Kind");
+            }
+        }
+
+        private void CheckRunControls(BundleEntry entry)
+        {
             // A run-time control is declared only on a parameter bound to exactly one run-controllable lane: the lane its compiled
             // run-control row drives. A drive-target control also requires exactly one driven hinge on its part, so the owner's drive
             // slot is unique.
@@ -119,12 +171,9 @@ public static class BundleValidator
                         entry.Mechanical?.Hinges.Count(hinge => hinge.Drive is not null) != 1))
                     OutOfRange($"Metadata.Parameters[{i}].RunEdit");
             }
-            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Colliders);
-            if (entry.Fluid is { } fluid) Fluid(fluid);
         }
 
-        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
-            MechanicalPayload? mechanical, ElectricalPayload? electrical, SignalPayload? signal, IReadOnlyList<EventDescriptor> events, int childBodies)
+        private void PresentationSizing(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters)
         {
             if (!Finite("Presentation.PickRadius", value.PickRadius) || value.PickRadius <= 0)
                 OutOfRange("Presentation.PickRadius");
@@ -147,15 +196,24 @@ public static class BundleValidator
                 }
                 if (axes != value.ResizeAxes) OutOfRange("Presentation.Sizing.Axes");
             }
-            var writers = new HashSet<(string, PresentationProperty, PresentationTimerPhase)>(4);
-            foreach (var binding in value.Bindings)
-            {
+        }
+
+        private void PresentationBindingIdentity(PresentationBinding binding, SignalPayload? signal)
+        {
                 Text("Presentation.Node", binding.Node);
                 Defined("Presentation.Property", binding.Property);
                 Defined("Presentation.Driver", binding.Driver);
+                if (!PresentationDriverRules.SupportsMapping(binding.Driver, binding.Mapping)) OutOfRange("Presentation.Mapping");
+                if (PresentationDriverRules.SignalSource(binding.Driver, binding.Event) != binding.SignalNode.HasValue ||
+                    binding.SignalNode is { } selected && signal?.Nodes?.Any(node => node?.Id == selected) != true)
+                    OutOfRange("Presentation.SignalNode");
                 Defined("Presentation.Curve", binding.Curve);
                 Defined("Presentation.Overlap", binding.Overlap);
                 Defined("Presentation.Phase", binding.Phase);
+        }
+
+        private void PresentationBindingValues(PresentationBinding binding)
+        {
                 Finite("Presentation.From", binding.From); Finite("Presentation.To", binding.To);
                 Finite("Presentation.Duration", binding.Duration); Finite("Presentation.Threshold", binding.Threshold);
                 Finite("Presentation.Response", binding.Response);
@@ -173,18 +231,25 @@ public static class BundleValidator
                 });
                 if (!AdmitsValue(binding.From) || !AdmitsValue(binding.To) || (binding.Intermediate is { } intermediate && !AdmitsValue(intermediate)))
                     OutOfRange("Presentation.Value");
-                var supported = PresentationDriverRules.Supports(binding.Driver, binding.Curve, binding.Duration, binding.Overlap);
+        }
+
+        private void PresentationBindingSocket(PresentationBinding binding, ElectricalPayload? electrical, IReadOnlyList<PortDescriptor> ports)
+        {
                 if ((binding.Driver == PresentationDriver.CommittedElectricalSocket) != binding.Socket.HasValue ||
                     (binding.Socket is { } socket &&
                         (electrical?.Supply?.Kind != SupplyCapabilityKind.LogicGate ||
                          !ports.Any(port => port.Id == socket && port.Domain == SimulationDomain.Electrical))))
                     OutOfRange("Presentation.Socket");
+        }
+
+        private void PresentationBindingCapabilities(PresentationBinding binding, SignalPayload? signal, MechanicalPayload? mechanical)
+        {
                 // A committed oscillator binding reads the row only a declared oscillator compiles.
                 if (binding.Driver is PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedOscillatorPulse &&
-                    signal?.Oscillator is null)
+                    signal?.Nodes?.Any(node => node is SignalOscillatorDescriptor && node.Id == binding.SignalNode) != true)
                     OutOfRange("Presentation.Oscillator");
                 // A committed count binding reads the memory row only a declared pulse count compiles.
-                if (binding.Driver == PresentationDriver.CommittedCount && signal?.PulseCount is null)
+                if (binding.Driver == PresentationDriver.CommittedCount && signal?.Nodes?.Any(node => node is SignalPulseCountDescriptor && node.Id == binding.SignalNode) != true)
                     OutOfRange("Presentation.PulseCount");
                 // A committed deflection binding reads the row only a declared compliant surface compiles.
                 if (binding.Driver == PresentationDriver.CommittedSurfaceDeflection && mechanical?.CompliantSurface is null)
@@ -196,7 +261,11 @@ public static class BundleValidator
                 if (binding.Driver == PresentationDriver.CommittedActuatorDrive && mechanical?.Sliders.Any(slider => slider.Drive is not null) != true &&
                     mechanical?.Hinges.Any(hinge => hinge.Drive is not null) != true)
                     OutOfRange("Presentation.ActuatorDrive");
-                if (!supported || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
+        }
+
+        private void PresentationBindingEvents(PresentationBinding binding, IReadOnlyList<EventDescriptor> events)
+        {
+                if (!PresentationDriverRules.Supports(binding.Driver, binding.Curve, binding.Duration, binding.Overlap) || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
                     (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
                     OutOfRange("Presentation.DriverCurve");
                 // Story 9A.25b: exactly an event-driven binding names a record kind, and only a kind its package declares it produces.
@@ -207,13 +276,12 @@ public static class BundleValidator
                 if (binding.Event != SimulationEventKind.None)
                 {
                     Defined("Presentation.Event", binding.Event);
-                    if (!events.Any(declared => declared.Kind == binding.Event)) OutOfRange("Presentation.Event");
+                    if (!events.Any(declared => declared.Kind == binding.Event && declared.SignalNode == binding.SignalNode)) OutOfRange("Presentation.Event");
                 }
-                if (!writers.Add((binding.Node, binding.Property, binding.Phase)))
-                    errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.Presentation: duplicate property writer"));
-                if (binding.Phase != PresentationTimerPhase.None && binding.Driver != PresentationDriver.CommittedTimerPhase)
-                    OutOfRange("Presentation.Phase");
-            }
+        }
+
+        private void PresentationBodies(ElementPresentation value, int childBodies)
+        {
             var bodies = new HashSet<PackageBodyIndex>(4);
             var bodyNodes = new HashSet<string>(4, StringComparer.Ordinal);
             foreach (var body in value.Bodies)
@@ -224,20 +292,40 @@ public static class BundleValidator
                 if (!bodies.Add(body.Body)) OutOfRange("Presentation.Body");
             }
             if (bodies.Count != childBodies) OutOfRange("Presentation.Body.Missing");
-            foreach (var span in value.Spans)
+        }
+
+        private void MechanicalPort(string path, PortDescriptor port, MechanicalPayload? mechanical)
+        {
+            if (port.Domain == SimulationDomain.Mechanical)
             {
-                Text("Presentation.Span.MovingNode", span.MovingNode); Text("Presentation.Span.Node", span.SpanNode);
-                Finite("Presentation.Span.MovingAnchor", span.MovingAnchor); Finite("Presentation.Span.FixedAnchor", span.FixedAnchor);
-                if (!Finite("Presentation.Span.RestLength", span.RestLength) || span.RestLength <= 0)
-                    OutOfRange("Presentation.Span.RestLength");
+                if (port.Role is not (PortRole.Drive or PortRole.DriveIn))
+                    OutOfRange(path + ".Role");
+                if (port.Role == PortRole.Drive && port.Direction != PortDirection.Output)
+                    OutOfRange(path + ".Direction");
+                if (port.Role == PortRole.DriveIn && port.Direction != PortDirection.Input)
+                    OutOfRange(path + ".Direction");
+                if (port.Coordinate is not { } coordinate)
+                {
+                    OutOfRange(path + ".Coordinate");
+                }
+                else
+                {
+                    if (coordinate.Kind != CoordinateKind.Revolute)
+                        OutOfRange(path + ".Coordinate.Kind");
+                    if (coordinate.Index < 0 || coordinate.Index >= (mechanical?.Hinges.Count ?? 0))
+                        OutOfRange(path + ".Coordinate.Index");
+                }
+                if (!float.IsFinite(port.CoordinatePerRadian) || port.CoordinatePerRadian == 0f)
+                    OutOfRange(path + ".CoordinatePerRadian");
             }
-            foreach (var parameter in value.Parameters)
+            else
             {
-                if (!parameters.Any(p => p.Key == parameter.Parameter)) OutOfRange("Presentation.Parameter.Key");
-                Text("Presentation.Parameter.Node", parameter.Node); Text("Presentation.Parameter", parameter.Parameter);
-                Defined("Presentation.Parameter.Property", parameter.Property);
-                Finite("Presentation.Parameter.Multiplier", parameter.Multiplier);
-                Finite("Presentation.Parameter.Offset", parameter.Offset);
+                if (port.Role is PortRole.Drive or PortRole.DriveIn)
+                    OutOfRange(path + ".Role");
+                if (port.Coordinate.HasValue)
+                    OutOfRange(path + ".Coordinate");
+                if (port.CoordinatePerRadian != 0f)
+                    OutOfRange(path + ".CoordinatePerRadian");
             }
         }
 
@@ -372,37 +460,7 @@ public static class BundleValidator
             }
             else if (port.AttachmentRole != RopeAttachmentRole.None || port.Role is PortRole.Tie or PortRole.TieA or PortRole.TieB)
                 OutOfRange(path + ".AttachmentRole");
-            if (port.Domain == SimulationDomain.Mechanical)
-            {
-                if (port.Role is not (PortRole.Drive or PortRole.DriveIn))
-                    OutOfRange(path + ".Role");
-                if (port.Role == PortRole.Drive && port.Direction != PortDirection.Output)
-                    OutOfRange(path + ".Direction");
-                if (port.Role == PortRole.DriveIn && port.Direction != PortDirection.Input)
-                    OutOfRange(path + ".Direction");
-                if (port.Coordinate is not { } coordinate)
-                {
-                    OutOfRange(path + ".Coordinate");
-                }
-                else
-                {
-                    if (coordinate.Kind != CoordinateKind.Revolute)
-                        OutOfRange(path + ".Coordinate.Kind");
-                    if (coordinate.Index < 0 || coordinate.Index >= (mechanical?.Hinges.Count ?? 0))
-                        OutOfRange(path + ".Coordinate.Index");
-                }
-                if (!float.IsFinite(port.CoordinatePerRadian) || port.CoordinatePerRadian == 0f)
-                    OutOfRange(path + ".CoordinatePerRadian");
-            }
-            else
-            {
-                if (port.Role is PortRole.Drive or PortRole.DriveIn)
-                    OutOfRange(path + ".Role");
-                if (port.Coordinate.HasValue)
-                    OutOfRange(path + ".Coordinate");
-                if (port.CoordinatePerRadian != 0f)
-                    OutOfRange(path + ".CoordinatePerRadian");
-            }
+            MechanicalPort(path, port, mechanical);
             if (port.AttachmentRole == RopeAttachmentRole.Guide)
             {
                 if (!float.IsFinite(port.GuideRadius) || port.GuideRadius <= 0f)
@@ -480,6 +538,13 @@ public static class BundleValidator
                     port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input)))
                 errors.Add(new(BundleErrorCode.UnresolvedReference,
                     $"{source}.{driven[0].Path}.Drive: a supplied drive requires an electrical PowerIn input on a consumer (no supply capability)"));
+            MechanicalCapture(mechanical, parameters);
+            MechanicalContactWork(mechanical, parameters);
+            MechanicalSurface(mechanical, parameters);
+        }
+
+        private void MechanicalCapture(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
+        {
             if (mechanical.Capture is { } capture)
             {
                 Volume("Capture",capture.Minimum,capture.Maximum);
@@ -499,6 +564,10 @@ public static class BundleValidator
                 CaptureValue("Capture.Guide.SupportMargin",guide.SupportMargin,parameters,ParameterUnit.Metre,0f,1f);
                 CaptureValue("Capture.Guide.MaximumAcceleration",guide.MaximumAcceleration,parameters,ParameterUnit.MetrePerSecondSquared,0f,12f);
             }
+        }
+
+        private void MechanicalContactWork(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
+        {
             if (mechanical.ContactWork is { } work)
             {
                 // The runtime store's domain (ContactWorkDeclaration): target speed 0–20 m/s, preload at most 200 J, threshold 0–64 m/s,
@@ -518,6 +587,10 @@ public static class BundleValidator
                     OutOfRange("ContactWork.Owner");
                 ValidateTargetSelector("ContactWork.Target", work.Target);
             }
+        }
+
+        private void MechanicalSurface(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
+        {
             if (mechanical.CompliantSurface is { } surface)
             {
                 // The runtime surface's domain (CompliantSurfaceDeclaration): half extents and stroke 1/1024–16 m, rest height within
@@ -539,6 +612,27 @@ public static class BundleValidator
                 CaptureValue("CompliantSurface.Tension", surface.Tension, parameters, ParameterUnit.NewtonPerMetre, 120f, 1200f);
                 CaptureValue("CompliantSurface.DampingRatio", surface.DampingRatio, parameters, ParameterUnit.None, 0.08f, 0.8f);
             }
+        }
+
+        private void SupplyPorts(ElectricalPayload electrical, SupplyCapabilityDescriptor supply, IReadOnlyList<PortDescriptor> ports)
+        {
+            var role = supply.Kind switch
+            {
+                SupplyCapabilityKind.Source => ElectricalRole.Source,
+                SupplyCapabilityKind.SwitchedContact => ElectricalRole.Switch,
+                SupplyCapabilityKind.LogicGate => ElectricalRole.LogicGate,
+                _ => (ElectricalRole)byte.MaxValue
+            };
+            if (supply.Operation is { } operation) Defined("Supply.Operation", operation);
+            if ((supply.Kind == SupplyCapabilityKind.LogicGate) != supply.Operation.HasValue ||
+                (supply.Kind == SupplyCapabilityKind.LogicGate &&
+                    (!ports.Any(port => port.Role == PortRole.FirstIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
+                     !ports.Any(port => port.Role == PortRole.SecondIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input))))
+                OutOfRange("Supply.Operation");
+            if (!electrical.Nodes.Any(node => node.Role == role) ||
+                !ports.Any(port => port.Id == supply.Output && port.Role == PortRole.Supply && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Output) ||
+                (supply.Kind == SupplyCapabilityKind.Source ? supply.Input is not null : (supply.Input is not { } inPort || !ports.Any(port => port.Id == inPort && port.Role == PortRole.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input))))
+                OutOfRange("Supply");
         }
 
         private static bool InSurfaceRange(float metres) => metres >= 1f / 1024f && metres <= 16f;
@@ -773,23 +867,7 @@ public static class BundleValidator
                 Defined("Supply.Kind", supply.Kind);
                 if (string.IsNullOrWhiteSpace(supply.Output.Value)) OutOfRange("Supply.Output");
                 if (supply.Input is { } input && string.IsNullOrWhiteSpace(input.Value)) OutOfRange("Supply.Input");
-                var role = supply.Kind switch
-                {
-                    SupplyCapabilityKind.Source => ElectricalRole.Source,
-                    SupplyCapabilityKind.SwitchedContact => ElectricalRole.Switch,
-                    SupplyCapabilityKind.LogicGate => ElectricalRole.LogicGate,
-                    _ => (ElectricalRole)byte.MaxValue
-                };
-                if (supply.Operation is { } operation) Defined("Supply.Operation", operation);
-                if ((supply.Kind == SupplyCapabilityKind.LogicGate) != supply.Operation.HasValue ||
-                    (supply.Kind == SupplyCapabilityKind.LogicGate &&
-                        (!ports.Any(port => port.Role == PortRole.FirstIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
-                         !ports.Any(port => port.Role == PortRole.SecondIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input))))
-                    OutOfRange("Supply.Operation");
-                if (!electrical.Nodes.Any(node => node.Role == role) ||
-                    !ports.Any(port => port.Id == supply.Output && port.Role == PortRole.Supply && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Output) ||
-                    (supply.Kind == SupplyCapabilityKind.Source ? supply.Input is not null : (supply.Input is not { } inPort || !ports.Any(port => port.Id == inPort && port.Role == PortRole.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input))))
-                    OutOfRange("Supply");
+                SupplyPorts(electrical, supply, ports);
             }
             for (var i = 0; i < electrical.Nodes.Count; i++)
             {
@@ -839,195 +917,6 @@ public static class BundleValidator
             }
             if (matches.Length > 1) { OutOfRange(path); return null; }
             return matches[0];
-        }
-
-        private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
-            MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
-        {
-            // One node per element: at most one capability selects it.
-            if ((signal.Contact is null ? 0 : 1) + (signal.Timer is null ? 0 : 1) + (signal.Indicator is null ? 0 : 1) + (signal.Passage is null ? 0 : 1) +
-                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) +
-                    (signal.PulseCount is null ? 0 : 1) + (signal.Memory is null ? 0 : 1) > 1)
-                OutOfRange("Capability");
-            ValidateSignalPulseCount(signal, parameters, ports);
-            ValidateSignalMemory(signal, ports);
-            ValidateSignalOscillator(signal, parameters, ports, electrical);
-            ValidateSignalContactLoad(signal, parameters, ports, mechanical, colliders);
-            ValidateSignalOrientation(signal, ports, mechanical);
-            ValidateSignalIndicator(signal, ports);
-            ValidateSignalPassage(signal, ports, mechanical);
-            for (var i = 0; i < signal.Triggers.Count; i++)
-            {
-                var trigger = signal.Triggers[i];
-                Defined($"Triggers[{i}].Mode", trigger.Mode);
-                Finite($"Triggers[{i}].Threshold", trigger.Threshold);
-                Finite($"Triggers[{i}].PulseDurationSeconds", trigger.PulseDurationSeconds);
-            }
-            ValidateSignalContact(signal, parameters, ports);
-            ValidateSignalTimer(signal, parameters, ports);
-        }
-
-        private void ValidateSignalPulseCount(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
-        {
-            if (signal.PulseCount is { } count)
-            {
-                // The target is a declared WholeNumber parameter without a unit whose admitted range lies inside the network's [1, 9].
-                if (!parameters.Any(parameter => parameter.Key == count.TargetParameter && parameter.Kind == ParameterKind.WholeNumber &&
-                        parameter.Unit == ParameterUnit.None && parameter.Minimum >= 1f && parameter.Maximum <= 9f))
-                    OutOfRange("PulseCount.TargetParameter");
-                // It counts Pulse inputs on its ActivationIn and emits a Pulse on its ActivationOut.
-                if (!ports.Any(port => port.Role == PortRole.ActivationIn && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse) ||
-                        !ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
-                    OutOfRange("PulseCount.Ports");
-            }
-        }
-
-        private void ValidateSignalMemory(SignalPayload signal, IReadOnlyList<PortDescriptor> ports)
-        {
-            if (signal.Memory is { } memory)
-            {
-                // Set and Reset are the two distinct Pulse inputs the shared memory law reads (SetIn turns it On, ResetIn Off).
-                bool PulseInput(PortId portId, PortRole expectedRole) =>
-                    ports.Any(port => port.Id == portId && port.Role == expectedRole && port.Domain == SimulationDomain.Signal &&
-                        port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse);
-                if (string.IsNullOrWhiteSpace(memory.Set.Value) || string.IsNullOrWhiteSpace(memory.Reset.Value) ||
-                    memory.Set == memory.Reset || !PulseInput(memory.Set, PortRole.SetIn) || !PulseInput(memory.Reset, PortRole.ResetIn))
-                    OutOfRange("Memory.Inputs");
-                // Memory drives a Level ActivationOut.
-                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
-                    OutOfRange("Memory.Ports");
-            }
-        }
-
-        private void ValidateSignalOscillator(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical)
-        {
-            if (signal.Oscillator is { } oscillator)
-            {
-                // The interval is a declared Real second parameter with a finite positive admitted minimum (never a zero-tick interval).
-                if (!parameters.Any(parameter => parameter.Key == oscillator.IntervalParameter && parameter.Kind == ParameterKind.Real &&
-                        parameter.Unit == ParameterUnit.Second && float.IsFinite(parameter.Minimum) && parameter.Minimum > 0f))
-                    OutOfRange("Oscillator.IntervalParameter");
-                // A source: a Pulse ActivationOut and no ActivationIn.
-                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse) ||
-                        ports.Any(port => port.Role == PortRole.ActivationIn))
-                    OutOfRange("Oscillator.Ports");
-                // Supplied through its PowerIn route into a Consumer node.
-                if (!ports.Any(port => port.Role == PortRole.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
-                        electrical?.Nodes.Any(node => node.Role == ElectricalRole.Consumer) != true)
-                    OutOfRange("Oscillator.Supply");
-            }
-        }
-
-        private void ValidateSignalContactLoad(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical, IReadOnlyList<ColliderDescriptor> colliders)
-        {
-            if (signal.ContactLoad is { } load)
-            {
-                // The minimum mass is a declared Real kilogram parameter with a positive admitted minimum.
-                if (!parameters.Any(parameter => parameter.Key == load.MinimumMassParameter && parameter.Kind == ParameterKind.Real &&
-                        parameter.Unit == ParameterUnit.Kilogram && parameter.Minimum > 0f))
-                    OutOfRange("ContactLoad.MinimumMassParameter");
-                // The face is one of the element's own baked Box colliders, unrotated in the frame.
-                if (load.RegionCollider < 0 || load.RegionCollider >= colliders.Count || colliders[load.RegionCollider].ShapeKind != ColliderShapeKind.Box ||
-                        colliders[load.RegionCollider].Rotation != Quaternion.Identity)
-                    OutOfRange("ContactLoad.RegionCollider");
-                if (load.SupportingColliders is null || load.SupportingColliders.Count == 0 ||
-                    load.SupportingColliders.Distinct().Count() != load.SupportingColliders.Count ||
-                    load.SupportingColliders.Any(index => index < 0 || index >= colliders.Count))
-                    OutOfRange("ContactLoad.SupportingColliders");
-                // The compiled row's own admission (ContactLoadSensorDeclaration): a unit normal, an alignment in (0, 1], a gap in
-                // [0, 0.01] m; the z margin shares the gap's range, and the hold is positive and at most 1 s.
-                var normal = load.LocalNormal;
-                if (Finite("ContactLoad.LocalNormal.x", normal.X) & Finite("ContactLoad.LocalNormal.y", normal.Y) & Finite("ContactLoad.LocalNormal.z", normal.Z) &&
-                        !(MathF.Abs(normal.LengthSquared() - 1f) <= 1e-6f))
-                    OutOfRange("ContactLoad.LocalNormal");
-                if (Finite("ContactLoad.MinimumAlignment", load.MinimumAlignment) && !(load.MinimumAlignment > 0f && load.MinimumAlignment <= 1f))
-                    OutOfRange("ContactLoad.MinimumAlignment");
-                if (Finite("ContactLoad.ContactDistance", load.ContactDistance) && !(load.ContactDistance >= 0f && load.ContactDistance <= .01f))
-                    OutOfRange("ContactLoad.ContactDistance");
-                if (Finite("ContactLoad.DepthMargin", load.DepthMargin) && !(load.DepthMargin >= 0f && load.DepthMargin <= .01f))
-                    OutOfRange("ContactLoad.DepthMargin");
-                if (Finite("ContactLoad.ReleaseHoldSeconds", load.ReleaseHoldSeconds) && !(load.ReleaseHoldSeconds > 0f && load.ReleaseHoldSeconds <= 1f))
-                    OutOfRange("ContactLoad.ReleaseHoldSeconds");
-                if (mechanical is not { KinematicMode: KinematicMode.Static, Sliders.Count: 0, Hinges.Count: 0 })
-                    OutOfRange("ContactLoad.Body");
-                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
-                    OutOfRange("ContactLoad.Ports");
-            }
-        }
-
-        private void ValidateSignalOrientation(SignalPayload signal, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical)
-        {
-            if (signal.Orientation is { } orientation)
-            {
-                // The compiled half-angle cosine admits 4° to 179° (OrientationThreshold.Degrees).
-                if (Finite("Orientation.ThresholdDegrees", orientation.ThresholdDegrees) &&
-                        !(orientation.ThresholdDegrees >= 4f && orientation.ThresholdDegrees <= 179f))
-                    OutOfRange("Orientation.ThresholdDegrees");
-                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
-                    OutOfRange("Orientation.Ports");
-                if (mechanical?.KinematicMode != KinematicMode.Dynamic)
-                    OutOfRange("Orientation.Body");
-            }
-        }
-
-        private void ValidateSignalIndicator(SignalPayload signal, IReadOnlyList<PortDescriptor> ports)
-        {
-            if (signal.Indicator is { } indicator)
-            {
-                if (string.IsNullOrWhiteSpace(indicator.Input.Value) ||
-                    !ports.Any(port => port.Id == indicator.Input && port.Role == PortRole.ActivationIn && port.Domain == SimulationDomain.Signal &&
-                        port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Level))
-                    OutOfRange("Indicator.Input");
-            }
-        }
-
-        private void ValidateSignalPassage(SignalPayload signal, IReadOnlyList<PortDescriptor> ports, MechanicalPayload? mechanical)
-        {
-            if (signal.Passage is { } passage)
-            {
-                if (Finite("Passage.ApertureRadius", passage.ApertureRadius) && !(passage.ApertureRadius >= .01f && passage.ApertureRadius <= 10f))
-                    OutOfRange("Passage.ApertureRadius");
-                if (Finite("Passage.RearmClearance", passage.RearmClearance) && !(passage.RearmClearance >= .001f && passage.RearmClearance <= 10f))
-                    OutOfRange("Passage.RearmClearance");
-                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
-                    OutOfRange("Passage.Ports");
-                if (mechanical?.KinematicMode != KinematicMode.Static)
-                    OutOfRange("Passage.Frame");
-            }
-        }
-
-        private void ValidateSignalContact(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
-        {
-            if (signal.Contact is { } contact)
-            {
-                Real("Contact.ThresholdParameter", contact.ThresholdParameter, parameters);
-                if (!parameters.Any(parameter => parameter.Key == contact.ThresholdParameter && parameter.Unit == ParameterUnit.MetrePerSecond && parameter.Minimum >= 0f && parameter.Maximum <= 64f))
-                    OutOfRange("Contact.ThresholdParameter");
-                if (!ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
-                    OutOfRange("Contact.Ports");
-                if (signal.Triggers.Count != 0 || signal.Timer is not null || signal.PulseCount is not null || signal.Memory is not null)
-                    OutOfRange("Contact.Ownership");
-                ValidateTargetSelector("Contact.Target", contact.Target);
-            }
-        }
-
-        private void ValidateSignalTimer(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
-        {
-            if (signal.Timer is { } timer)
-            {
-                Real("Timer.DurationParameter", timer.DurationParameter, parameters);
-                Defined("Timer.Completion", timer.Completion);
-                Defined("Timer.Boundary", timer.Boundary);
-                Defined("Timer.ElapsedSignal", timer.ElapsedSignal);
-                if ((timer.Completion == TimerCompletionPolicy.Rearm && (timer.ElapsedSignal != TimerElapsedSignal.None || timer.Boundary != TimerBoundary.BeforeNetworks)) ||
-                    (timer.Completion == TimerCompletionPolicy.Latch && (timer.ElapsedSignal != TimerElapsedSignal.Activation || timer.Boundary != TimerBoundary.BeforePhysics)))
-                    OutOfRange("Timer.Policy");
-                if (!ports.Any(port => port.Role == PortRole.ActivationIn && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse) ||
-                    (timer.ElapsedSignal == TimerElapsedSignal.Activation && !ports.Any(port => port.Role == PortRole.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse)))
-                    OutOfRange("Timer.Ports");
-                if (!parameters.Any(parameter => parameter.Key == timer.DurationParameter && parameter.Unit == ParameterUnit.Second && parameter.Minimum > 0f))
-                    OutOfRange("Timer.DurationParameter");
-            }
         }
 
         private void Fluid(FluidPayload fluid)

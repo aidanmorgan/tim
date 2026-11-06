@@ -1,117 +1,94 @@
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text.Json.Serialization;
 using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Abstractions.Signal;
 
-public enum SignalTriggerMode : byte
-{
-    Edge = 0,
-    Level = 1,
-    Pulse = 2
-}
-
-public readonly record struct SignalTriggerDescriptor(
-    string TriggerId,
-    SignalTriggerMode Mode,
-    float Threshold,
-    float PulseDurationSeconds);
-
 public interface ISignalElement : IPuzzleElementDeclaration
 {
-    IReadOnlyList<SignalTriggerDescriptor> Triggers { get; }
+    IReadOnlyList<SignalNodeDescriptor> SignalNodes { get; }
+    IReadOnlyList<SignalEdge> SignalEdges { get; }
+    IReadOnlyList<SignalPortBinding> SignalPorts { get; }
 }
 
 public enum TimerCompletionPolicy : byte { Latch, Rearm }
 public enum TimerBoundary : byte { BeforeNetworks, BeforePhysics }
 public enum TimerElapsedSignal : byte { None, Activation }
+public enum SignalTerminal : byte { Input, Set, Reset, Output }
+public enum SignalNodeKind : byte { Contact, Indicator, Timer, Orientation, Passage, ContactLoad, Oscillator, PulseCount, Memory }
 
-/// <summary>A timed window with declared duration, completion and delivery policies.</summary>
-public readonly record struct SignalTimerDescriptor(string DurationParameter, TimerCompletionPolicy Completion,
-    TimerBoundary Boundary, TimerElapsedSignal ElapsedSignal);
+public readonly record struct SignalEndpoint(SignalNodeId Node, SignalTerminal Terminal);
+public readonly record struct SignalEdge(SignalEndpoint Source, SignalEndpoint Target);
+public readonly record struct SignalPortBinding(PortId Port, SignalEndpoint Endpoint);
 
-public interface ITimerElement : ISignalElement
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "Operation")]
+[JsonDerivedType(typeof(SignalContactDescriptor), "Contact")]
+[JsonDerivedType(typeof(SignalIndicatorDescriptor), "Indicator")]
+[JsonDerivedType(typeof(SignalTimerDescriptor), "Timer")]
+[JsonDerivedType(typeof(SignalOrientationDescriptor), "Orientation")]
+[JsonDerivedType(typeof(SignalPassageDescriptor), "Passage")]
+[JsonDerivedType(typeof(SignalContactLoadDescriptor), "ContactLoad")]
+[JsonDerivedType(typeof(SignalOscillatorDescriptor), "Oscillator")]
+[JsonDerivedType(typeof(SignalPulseCountDescriptor), "PulseCount")]
+[JsonDerivedType(typeof(SignalMemoryDescriptor), "Memory")]
+public abstract record SignalNodeDescriptor(SignalNodeId Id)
 {
-    SignalTimerDescriptor Timer { get; }
+    [JsonIgnore]
+    public SignalNodeKind Kind => this switch
+    {
+        SignalContactDescriptor => SignalNodeKind.Contact,
+        SignalIndicatorDescriptor => SignalNodeKind.Indicator,
+        SignalTimerDescriptor => SignalNodeKind.Timer,
+        SignalOrientationDescriptor => SignalNodeKind.Orientation,
+        SignalPassageDescriptor => SignalNodeKind.Passage,
+        SignalContactLoadDescriptor => SignalNodeKind.ContactLoad,
+        SignalOscillatorDescriptor => SignalNodeKind.Oscillator,
+        SignalPulseCountDescriptor => SignalNodeKind.PulseCount,
+        SignalMemoryDescriptor => SignalNodeKind.Memory,
+        _ => throw new System.InvalidOperationException("Unsupported signal operation.")
+    };
 }
 
-/// <summary>A one-shot owner-body contact qualified by a declared f32 speed parameter.</summary>
-public readonly record struct SignalContactDescriptor(string ThresholdParameter, TargetSelector Target = default);
+public sealed record SignalTimerDescriptor(SignalNodeId Id, ParameterId DurationParameter,
+    TimerCompletionPolicy Completion, TimerBoundary Boundary, TimerElapsedSignal ElapsedSignal) : SignalNodeDescriptor(Id);
+public sealed record SignalContactDescriptor(SignalNodeId Id, PackageBodyIndex Body, ParameterId ThresholdParameter,
+    TargetSelector Target = default) : SignalNodeDescriptor(Id);
+public sealed record SignalIndicatorDescriptor(SignalNodeId Id) : SignalNodeDescriptor(Id);
+public sealed record SignalPassageDescriptor(SignalNodeId Id, PackageBodyIndex Frame, Vector3 LocalPosition,
+    Quaternion LocalRotation, float ApertureRadius, float RearmClearance) : SignalNodeDescriptor(Id);
+public sealed record SignalOrientationDescriptor(SignalNodeId Id, PackageBodyIndex Body,
+    float ThresholdDegrees) : SignalNodeDescriptor(Id);
+public sealed record SignalContactLoadDescriptor(SignalNodeId Id, PackageBodyIndex Frame, ParameterId MinimumMassParameter,
+    int RegionCollider, Vector3 LocalNormal, float MinimumAlignment, float ContactDistance, float DepthMargin,
+    float ReleaseHoldSeconds, IReadOnlyList<int> SupportingColliders) : SignalNodeDescriptor(Id);
+public sealed record SignalOscillatorDescriptor(SignalNodeId Id, ParameterId IntervalParameter,
+    PortId SupplyInput) : SignalNodeDescriptor(Id);
+public sealed record SignalPulseCountDescriptor(SignalNodeId Id, ParameterId TargetParameter) : SignalNodeDescriptor(Id);
+public sealed record SignalMemoryDescriptor(SignalNodeId Id) : SignalNodeDescriptor(Id);
 
-public interface IContactTriggerElement : ISignalElement
+/// <summary>The terminal contract of the existing signal operations, independent of public port roles.</summary>
+public static class SignalTerminals
 {
-    SignalContactDescriptor Contact { get; }
-}
+    public static PortSignalKind? Kind(SignalNodeDescriptor node, SignalTerminal terminal) => terminal switch
+    {
+        SignalTerminal.Set or SignalTerminal.Reset when node is SignalMemoryDescriptor => PortSignalKind.Pulse,
+        SignalTerminal.Input when node is SignalTimerDescriptor or SignalPulseCountDescriptor => PortSignalKind.Pulse,
+        SignalTerminal.Input when node is SignalIndicatorDescriptor => PortSignalKind.Level,
+        SignalTerminal.Output when node is SignalMemoryDescriptor or SignalContactLoadDescriptor => PortSignalKind.Level,
+        SignalTerminal.Output when node is SignalContactDescriptor or SignalOrientationDescriptor or
+            SignalPassageDescriptor or SignalOscillatorDescriptor or SignalPulseCountDescriptor => PortSignalKind.Pulse,
+        SignalTerminal.Output when node is SignalTimerDescriptor { ElapsedSignal: TimerElapsedSignal.Activation } => PortSignalKind.Pulse,
+        _ => null
+    };
 
-/// <summary>An indicator on one declared Signal input that admits a level. Wired from a level output it follows that level; any other
-/// wiring (or none) holds its first committed input until Reset.</summary>
-public readonly record struct SignalIndicatorDescriptor(PortId Input);
-
-public interface IIndicatorElement : ISignalElement
-{
-    SignalIndicatorDescriptor Indicator { get; }
-}
-
-/// <summary>A passage aperture on the owner's static frame, in f32 metres: a body centre crossing the local YZ plane along +X within
-/// <see cref="ApertureRadius"/> of the axis fires one pulse, and the body rearms only once it is <see cref="RearmClearance"/> beyond
-/// its own radius upstream.</summary>
-public readonly record struct SignalPassageDescriptor(float ApertureRadius, float RearmClearance);
-
-public interface IPassageSensorElement : ISignalElement
-{
-    SignalPassageDescriptor Passage { get; }
-}
-
-/// <summary>An orientation threshold on the owner's own dynamic body, in f32 degrees: while the owner's ActivationOut is wired, the body
-/// fires one pulse once it has turned <see cref="ThresholdDegrees"/> from its admitted pose, and only a fresh admission rearms it.</summary>
-public readonly record struct SignalOrientationDescriptor(float ThresholdDegrees);
-
-public interface IOrientationSensorElement : ISignalElement
-{
-    SignalOrientationDescriptor Orientation { get; }
-}
-
-/// <summary>A contact-load sensor on one face of the owner's static frame, all f32. A dynamic body's resting contact counts when it
-/// touches the baked Box collider <see cref="RegionCollider"/> (an index into the element's colliders), its normal toward the body aligns
-/// with <see cref="LocalNormal"/> by at least <see cref="MinimumAlignment"/>, its gap is at most <see cref="ContactDistance"/> m, and its
-/// point lies within the face's local x–z footprint widened by <see cref="ContactDistance"/> in x and <see cref="DepthMargin"/> in z.
-/// Each body counts its mass once and bodies sum; the level ActivationOut is high from the first tick the sum reaches the Real kg
-/// parameter <see cref="MinimumMassParameter"/> (inclusive) and is held <see cref="ReleaseHoldSeconds"/> after the last such tick.</summary>
-public readonly record struct SignalContactLoadDescriptor(string MinimumMassParameter, int RegionCollider, Vector3 LocalNormal,
-    float MinimumAlignment, float ContactDistance, float DepthMargin, float ReleaseHoldSeconds, IReadOnlyList<int> SupportingColliders);
-
-public interface IContactLoadSensorElement : ISignalElement
-{
-    SignalContactLoadDescriptor ContactLoad { get; }
-}
-
-/// <summary>A supplied periodic pulse source. While the owner's PowerIn route is supplied by exactly one source, its Pulse ActivationOut
-/// pulses once every <see cref="IntervalParameter"/> (a Real second parameter, compiled to whole ticks of the run's cadence rounded up),
-/// the first pulse one full interval after supply begins. Losing supply stops it with no pulse, and restored supply starts a fresh
-/// interval.</summary>
-public readonly record struct SignalOscillatorDescriptor(string IntervalParameter);
-
-public interface IOscillatorElement : ISignalElement
-{
-    SignalOscillatorDescriptor Oscillator { get; }
-}
-
-/// <summary>A pulse counter. Each distinct input occurrence on the owner's Pulse ActivationIn adds one to its committed count (the
-/// count keeps counting past the target); the input that brings the count to the WholeNumber parameter <see cref="TargetParameter"/>
-/// (1–9) emits once on its Pulse ActivationOut. If separately declared, its switched contact follows the reached state until Reset.</summary>
-public readonly record struct SignalPulseCountDescriptor(string TargetParameter);
-
-public interface IPulseCountElement : ISignalElement
-{
-    SignalPulseCountDescriptor PulseCount { get; }
-}
-
-/// <summary>A bistable memory. A pulse on the declared <see cref="Set"/> input turns it On and one on <see cref="Reset"/> turns it Off;
-/// requests of one tick resolve together at its boundary and Reset dominates. Memory is committed state (it needs no supply); its
-/// Level ActivationOut follows it, as does a separately declared switched contact.</summary>
-public readonly record struct SignalMemoryDescriptor(PortId Set, PortId Reset);
-
-public interface IMemoryElement : ISignalElement
-{
-    SignalMemoryDescriptor Memory { get; }
+    public static bool CanConnect(SignalNodeDescriptor source, SignalEndpoint output,
+        SignalNodeDescriptor target, SignalEndpoint input)
+    {
+        var sourceKind = Kind(source, output.Terminal);
+        var targetKind = Kind(target, input.Terminal);
+        return output.Terminal == SignalTerminal.Output && input.Terminal != SignalTerminal.Output &&
+            sourceKind is not null && targetKind is not null &&
+            (sourceKind == targetKind || sourceKind == PortSignalKind.Pulse && target is SignalIndicatorDescriptor);
+    }
 }

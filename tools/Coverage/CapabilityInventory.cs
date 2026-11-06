@@ -157,38 +157,7 @@ public static class CapabilityAudit
         {
             foreach(var capability in Required(inventory.Capabilities))
             {
-                NotNull(capability);
-                if(!Enum.IsDefined(capability.Capability)||!Enum.IsDefined(capability.Availability)||
-                    !capabilities.TryAdd(capability.Capability,capability))Fail("Invalid or duplicate capability.");
-                Text(capability.ModelBoundary);Text(capability.IndependentOracle);
-                var units=Required(capability.Units);Unique(units);
-                if(units.Length==0||units.Any(x=>!Enum.IsDefined(x)))Fail("Missing or invalid units.");
-                Owner(capability.DesignOwner);Owner(capability.ProofOwner);
-                var implementationOwners=Required(capability.ImplementationOwners);Unique(implementationOwners);
-                if(implementationOwners.Length==0)Fail("Capability has no implementation owner.");
-                foreach(var implementationOwner in implementationOwners)
-                {
-                    Owner(implementationOwner);
-                    if(!expected.ImplementationEligibleOwners.Contains(implementationOwner))
-                        Fail("Capability implementation owner is not an executable implementation work order.");
-                }
-                if(!expected.CapabilityOwners.TryGetValue(capability.Capability,out var owner)||
-                    owner.Design!=capability.DesignOwner||owner.Proof!=capability.ProofOwner||
-                    !implementationOwners.ToHashSet().SetEquals(owner.Implementation))
-                    Fail("Capability has wrong design, implementation or proof owner.");
-                Unique(Required(capability.BoundSources));Unique(Required(capability.Dependencies));
-                if(!expected.RequiredDependencies.TryGetValue(capability.Capability,out var requiredDependencies)||
-                    !capability.Dependencies.ToHashSet().SetEquals(requiredDependencies))
-                    Fail("Capability dependencies differ from required law contract.");
-                foreach(var child in capability.BoundSources)if(!known.ContainsKey(child))Fail("Unknown capability child.");
-                CheckSymbols(capability.CurrentSymbols);
-                var declarations=expected.ImplementationDeclarations.TryGetValue(capability.Capability,out var declared)?declared:[];
-                if(!capability.CurrentSymbols.Select(symbol=>new RequiredDeclaration(symbol.Path,symbol.Symbol)).ToHashSet().SetEquals(declarations))
-                    Fail("Capability declaration set differs from current implementation contract.");
-                if(capability.Availability==CapabilityAvailability.Partial&&capability.CurrentSymbols.Length==0)
-                    Fail("Partial capability requires its current implementation symbols.");
-                if(capability.Availability==CapabilityAvailability.Missing&&capability.CurrentSymbols.Length!=0)
-                    Fail("Missing capability cannot claim implementation symbols.");
+                ValidateCapability(capability);
             }
             if(!Enum.GetValues<EngineCapability>().ToHashSet().SetEquals(capabilities.Keys))
                 Fail("Missing required engine capability.");
@@ -198,6 +167,42 @@ public static class CapabilityAudit
                     if(dependency==capability.Capability||!capabilities.ContainsKey(dependency))Fail("Invalid capability dependency.");
                 _=Closure(capability.Capability,[]);
             }
+        }
+
+        private void ValidateCapability(CapabilityContract capability)
+        {
+            NotNull(capability);
+            if(!Enum.IsDefined(capability.Capability)||!Enum.IsDefined(capability.Availability)||
+                !capabilities.TryAdd(capability.Capability,capability))Fail("Invalid or duplicate capability.");
+            Text(capability.ModelBoundary);Text(capability.IndependentOracle);
+            var units=Required(capability.Units);Unique(units);
+            if(units.Length==0||units.Any(x=>!Enum.IsDefined(x)))Fail("Missing or invalid units.");
+            Owner(capability.DesignOwner);Owner(capability.ProofOwner);
+            var implementationOwners=Required(capability.ImplementationOwners);Unique(implementationOwners);
+            if(implementationOwners.Length==0)Fail("Capability has no implementation owner.");
+            foreach(var implementationOwner in implementationOwners)
+            {
+                Owner(implementationOwner);
+                if(!expected.ImplementationEligibleOwners.Contains(implementationOwner))
+                    Fail("Capability implementation owner is not an executable implementation work order.");
+            }
+            if(!expected.CapabilityOwners.TryGetValue(capability.Capability,out var owner)||
+                owner.Design!=capability.DesignOwner||owner.Proof!=capability.ProofOwner||
+                !implementationOwners.ToHashSet().SetEquals(owner.Implementation))
+                Fail("Capability has wrong design, implementation or proof owner.");
+            Unique(Required(capability.BoundSources));Unique(Required(capability.Dependencies));
+            if(!expected.RequiredDependencies.TryGetValue(capability.Capability,out var requiredDependencies)||
+                !capability.Dependencies.ToHashSet().SetEquals(requiredDependencies))
+                Fail("Capability dependencies differ from required law contract.");
+            foreach(var child in capability.BoundSources)if(!known.ContainsKey(child))Fail("Unknown capability child.");
+            CheckSymbols(capability.CurrentSymbols);
+            var declarations=expected.ImplementationDeclarations.TryGetValue(capability.Capability,out var declared)?declared:[];
+            if(!capability.CurrentSymbols.Select(symbol=>new RequiredDeclaration(symbol.Path,symbol.Symbol)).ToHashSet().SetEquals(declarations))
+                Fail("Capability declaration set differs from current implementation contract.");
+            if(capability.Availability==CapabilityAvailability.Partial&&capability.CurrentSymbols.Length==0)
+                Fail("Partial capability requires its current implementation symbols.");
+            if(capability.Availability==CapabilityAvailability.Missing&&capability.CurrentSymbols.Length!=0)
+                Fail("Missing capability cannot claim implementation symbols.");
         }
 
         private void ValidateConsumers()

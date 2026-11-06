@@ -88,21 +88,7 @@ public static partial class WorkshopWireFlatBuffers
                 offset = W.FaultObservation.CreateFaultObservation(b, (uint)d.Kind, (uint)d.Site, exception, detail).Value; break;
             case ClockRecalibrationDiagnostic d:
                 kind = W.ObservationPayload.Recalibration;
-                var peer = W.RecalibrationObservation.CreatePeerVector(b, WorkshopClockWire.EncodePeer(d.Peer));
-                var pending = d.Pending is { } p ? W.RecalibrationObservation.CreatePendingVector(b, WorkshopClockWire.EncodeProbe(p, d.Peer)) : default;
-                var reply = d.Reply is { } r ? W.ReplyObservation.CreateReplyObservation(b,
-                    W.ReplyObservation.CreateProbeVector(b, WorkshopClockWire.EncodeProbe(r.Probe, d.Peer)),
-                    r.MasterReceived.Value, r.MasterSent.Value, r.RequesterReceived.Value, r.Derivation.Value) : default;
-                W.RecalibrationObservation.StartSlotsVector(b, d.Slots.Length);
-                for (var i = d.Slots.Length - 1; i >= 0; i--)
-                {
-                    var slot = d.Slots[i]; W.ObservationSlot.CreateObservationSlot(b, slot.Receipt.Value, slot.Sequence.Value,
-                        Low(slot.Interval.Lower), High(slot.Interval.Lower), Low(slot.Interval.Upper), High(slot.Interval.Upper));
-                }
-                var slots = b.EndVector();
-                offset = W.RecalibrationObservation.CreateRecalibrationObservation(b, peer, (uint)d.Cause, d.Count,
-                    (uint)d.StateBefore, d.Derivation.HasValue, d.Derivation?.Value ?? 0, d.DisplayEpoch, d.At.Value,
-                    d.RecoveryStarted.Value, d.RecoverySends, pending, reply, slots).Value; break;
+                offset = EncodeRecalibrationDiagnostic(b, d); break;
             case ClockReplyRejectedDiagnostic d:
                 kind = W.ObservationPayload.RejectedClock;
                 offset = W.RejectedClockObservation.CreateRejectedClockObservation(b, (uint)d.Role, d.Count, d.Length,
@@ -122,20 +108,7 @@ public static partial class WorkshopWireFlatBuffers
                     d.DeclaredUncertainty, d.Count).Value; break;
             case ClockDerivationDiagnostic d:
                 kind = W.ObservationPayload.Derivation;
-                W.DerivationObservation.StartDerivationObservation(b);
-                W.DerivationObservation.AddReport(b, (uint)d.Report); W.DerivationObservation.AddOutcome(b, (uint)d.Outcome);
-                W.DerivationObservation.AddEpoch(b, d.Epoch.Value); W.DerivationObservation.AddCorrection(b, d.Correction);
-                W.DerivationObservation.AddHasPending(b, d.PendingCorrection.HasValue); W.DerivationObservation.AddPending(b, d.PendingCorrection ?? 0);
-                W.DerivationObservation.AddHasAdmitted(b, d.AdmittedLower.HasValue);
-                W.DerivationObservation.AddAdmittedLower(b, d.AdmittedLower ?? 0); W.DerivationObservation.AddAdmittedUpper(b, d.AdmittedUpper ?? 0);
-                if (d.Exchange is { } exchange) W.DerivationObservation.AddExchange(b,
-                    W.ObservationExchange.CreateObservationExchange(b, exchange.Before, exchange.Master, exchange.After, exchange.Epoch.Value));
-                W.DerivationObservation.AddQualified(b, d.Qualified); W.DerivationObservation.AddStartupAttempts(b, d.StartupAttempts);
-                W.DerivationObservation.AddStartupOutliers(b, d.StartupOutliers); W.DerivationObservation.AddStartupInconclusive(b, d.StartupInconclusive);
-                W.DerivationObservation.AddStartupUnanswered(b, d.StartupUnanswered); W.DerivationObservation.AddChecks(b, d.Checks);
-                W.DerivationObservation.AddSlews(b, d.Slews); W.DerivationObservation.AddRederivations(b, d.Rederivations);
-                W.DerivationObservation.AddInconclusive(b, d.Inconclusive); W.DerivationObservation.AddUnanswered(b, d.Unanswered);
-                W.DerivationObservation.AddCheckRetries(b, d.CheckRetries); offset = W.DerivationObservation.EndDerivationObservation(b).Value; break;
+                offset = EncodeDerivationDiagnostic(b, d); break;
             case AnimationDeferralDiagnostic d:
                 kind = W.ObservationPayload.Deferral; offset = W.DeferralObservation.CreateDeferralObservation(b, (uint)d.Cause, d.Count).Value; break;
             case WorkshopDebtDiagnostic d:
@@ -149,76 +122,22 @@ public static partial class WorkshopWireFlatBuffers
                     W.TransferObservation.CreateResponseVector(b, EncodeResponse(d.Response))).Value; break;
             case WorkshopCaptureDiagnostic d:
                 kind = W.ObservationPayload.Capture;
-                var samples = new Offset<W.TraceSampleObservation>[d.Samples.Length];
-                for (var i = 0; i < samples.Length; i++)
-                {
-                    var sample = d.Samples[i];
-                    var encoded = WorkshopTraceRecord.Encode(new(sample.Epoch, sample.Tick, sample.Bodies, Captures: sample.Captures), d.Profile);
-                    samples[i] = W.TraceSampleObservation.CreateTraceSampleObservation(b, W.TraceSampleObservation.CreateRecordVector(b, encoded));
-                }
-                var sampleVector = W.CaptureObservation.CreateSamplesVector(b, samples);
-                var times = EncodeDurations(b, d.Milliseconds);
-                offset = W.CaptureObservation.CreateCaptureObservation(b, (uint)d.Kind, (uint)d.Stage, d.Identity, d.Epoch.Value,
-                    (uint)d.Profile.Cadence, (uint)d.Profile.Physical, d.Profile.Revision.Value, (uint)d.End, (uint)d.Status,
-                    d.ExpectedCount, d.Count, d.Chunk, d.Chunks, d.First, d.Scene?.Value, W.CaptureObservation.CreateSessionVector(b, RuntimeSessionBytes(d.Session)), sampleVector, times).Value; break;
+                offset = EncodeCaptureDiagnostic(b, d); break;
             default: throw new ArgumentException("Unsupported diagnostic payload.");
         }
-        W.DiagnosticObservation.StartDiagnosticObservation(b);
-        W.DiagnosticObservation.AddKind(b, kind);
-        switch (kind)
-        {
-            case W.ObservationPayload.Fault: W.DiagnosticObservation.AddFault(b, new Offset<W.FaultObservation>(offset)); break;
-            case W.ObservationPayload.Recalibration: W.DiagnosticObservation.AddRecalibration(b, new Offset<W.RecalibrationObservation>(offset)); break;
-            case W.ObservationPayload.RejectedClock: W.DiagnosticObservation.AddRejectedClock(b, new Offset<W.RejectedClockObservation>(offset)); break;
-            case W.ObservationPayload.LateRenewal: W.DiagnosticObservation.AddLateRenewal(b, new Offset<W.LateRenewalObservation>(offset)); break;
-            case W.ObservationPayload.WideOffset: W.DiagnosticObservation.AddWideOffset(b, new Offset<W.WideOffsetObservation>(offset)); break;
-            case W.ObservationPayload.Derivation: W.DiagnosticObservation.AddDerivation(b, new Offset<W.DerivationObservation>(offset)); break;
-            case W.ObservationPayload.Deferral: W.DiagnosticObservation.AddDeferral(b, new Offset<W.DeferralObservation>(offset)); break;
-            case W.ObservationPayload.Debt: W.DiagnosticObservation.AddDebt(b, new Offset<W.DebtObservation>(offset)); break;
-            case W.ObservationPayload.TickFailure: W.DiagnosticObservation.AddTickFailure(b, new Offset<W.TickFailureObservation>(offset)); break;
-            case W.ObservationPayload.Transfer: W.DiagnosticObservation.AddTransfer(b, new Offset<W.TransferObservation>(offset)); break;
-            case W.ObservationPayload.Capture: W.DiagnosticObservation.AddCapture(b, new Offset<W.CaptureObservation>(offset)); break;
-            default: throw new ArgumentException("Unsupported diagnostic kind.");
-        }
-        return W.DiagnosticObservation.EndDiagnosticObservation(b);
+        return WrapDiagnostic(b, kind, offset);
     }
 
     private static WorkshopDiagnostic DecodeDiagnostic(W.DiagnosticObservation value)
     {
-        if (!Enum.IsDefined(value.Kind) || value.Kind == W.ObservationPayload.None ||
-            value.Fault.HasValue != (value.Kind == W.ObservationPayload.Fault) ||
-            value.Recalibration.HasValue != (value.Kind == W.ObservationPayload.Recalibration) ||
-            value.RejectedClock.HasValue != (value.Kind == W.ObservationPayload.RejectedClock) ||
-            value.LateRenewal.HasValue != (value.Kind == W.ObservationPayload.LateRenewal) ||
-            value.WideOffset.HasValue != (value.Kind == W.ObservationPayload.WideOffset) ||
-            value.Derivation.HasValue != (value.Kind == W.ObservationPayload.Derivation) ||
-            value.Deferral.HasValue != (value.Kind == W.ObservationPayload.Deferral) ||
-            value.Debt.HasValue != (value.Kind == W.ObservationPayload.Debt) ||
-            value.TickFailure.HasValue != (value.Kind == W.ObservationPayload.TickFailure) ||
-            value.Transfer.HasValue != (value.Kind == W.ObservationPayload.Transfer) ||
-            value.Capture.HasValue != (value.Kind == W.ObservationPayload.Capture))
-            throw new ArgumentException("Diagnostic kind requires exactly its matching concrete payload.");
+        ValidateDiagnosticPayload(value);
         switch (value.Kind)
         {
             case W.ObservationPayload.Fault:
                 var fault = value.Fault!.Value;
                 return new WorkshopFaultDiagnostic(ObservationEnum<WorkshopFaultKind>(fault.Kind), ObservationEnum<FaultSite>(fault.Site), fault.ExceptionType, fault.Detail);
             case W.ObservationPayload.Recalibration:
-                var recalibration = value.Recalibration!.Value;
-                var peer = WorkshopClockWire.DecodePeer(recalibration.GetPeerArray());
-                var slots = ImmutableArray.CreateBuilder<ClockSlotDiagnostic>(recalibration.SlotsLength);
-                for (var i = 0; i < recalibration.SlotsLength; i++)
-                {
-                    var slot = recalibration.Slots(i) ?? throw new ArgumentException("Missing clock slot.");
-                    slots.Add(new(new(slot.Receipt), new(slot.Sequence), Interval(slot.Interval)));
-                }
-                return new ClockRecalibrationDiagnostic(peer, ObservationEnum<ClockRecalibrationCause>(recalibration.Cause), recalibration.Count,
-                    ObservationEnum<ClockMappingState>(recalibration.StateBefore), Derivation(recalibration.HasDerivation, recalibration.Derivation),
-                    recalibration.DisplayEpoch, new(recalibration.At), new(recalibration.RecoveryStarted), recalibration.RecoverySends,
-                    recalibration.PendingLength == 0 ? null : WorkshopClockWire.DecodeProbe(recalibration.GetPendingArray(), peer),
-                    recalibration.Reply is { } reply ? new ClockReply(WorkshopClockWire.DecodeProbe(reply.GetProbeArray(), peer),
-                        new(reply.MasterReceived), new(reply.MasterSent), new(reply.Received), new(reply.Derivation)) : null,
-                    slots.MoveToImmutable());
+                return DecodeRecalibrationDiagnostic(value.Recalibration!.Value);
             case W.ObservationPayload.RejectedClock:
                 var rejected = value.RejectedClock!.Value;
                 return new ClockReplyRejectedDiagnostic(ObservationEnum<WorkshopRuntimeRole>(rejected.Role), rejected.Count, rejected.Length, new(rejected.Received), rejected.Detail);
@@ -230,16 +149,7 @@ public static partial class WorkshopWireFlatBuffers
                 var wide = value.WideOffset!.Value;
                 return new ClockWideOffsetDiagnostic(wide.Offset, wide.AdmittedLower, wide.AdmittedUpper, wide.DeclaredUncertainty, wide.Count);
             case W.ObservationPayload.Derivation:
-                var derivation = value.Derivation!.Value;
-                if ((!derivation.HasPending && derivation.Pending != 0) ||
-                    (!derivation.HasAdmitted && (derivation.AdmittedLower != 0 || derivation.AdmittedUpper != 0)))
-                    throw new ArgumentException("Absent clock fields carry values.");
-                return new ClockDerivationDiagnostic(ObservationEnum<ClockDerivationReport>(derivation.Report), ObservationEnum<ClockDerivationOutcome>(derivation.Outcome),
-                    new(derivation.Epoch), derivation.Correction, derivation.HasPending ? derivation.Pending : null,
-                    derivation.HasAdmitted ? derivation.AdmittedLower : null, derivation.HasAdmitted ? derivation.AdmittedUpper : null,
-                    derivation.Exchange is { } exchange ? new(exchange.Before, exchange.Master, exchange.After, new(exchange.Epoch)) : null,
-                    derivation.Qualified, derivation.StartupAttempts, derivation.StartupOutliers, derivation.StartupInconclusive, derivation.StartupUnanswered,
-                    derivation.Checks, derivation.Slews, derivation.Rederivations, derivation.Inconclusive, derivation.Unanswered, derivation.CheckRetries);
+                return DecodeDerivationDiagnostic(value.Derivation!.Value);
             case W.ObservationPayload.Deferral:
                 var deferred = value.Deferral!.Value; return new AnimationDeferralDiagnostic(ObservationEnum<AnimationDeferralCause>(deferred.Cause), deferred.Count);
             case W.ObservationPayload.Debt:
@@ -250,20 +160,7 @@ public static partial class WorkshopWireFlatBuffers
             case W.ObservationPayload.Transfer:
                 return new WorkshopTransferDiagnostic(DecodeResponse(value.Transfer!.Value.GetResponseArray()));
             case W.ObservationPayload.Capture:
-                var capture = value.Capture!.Value;
-                var profile = new WorkshopGpuProfile(ObservationEnum<SimulationCadence>(capture.Cadence), ObservationEnum<PhysicalStepProfile>(capture.Physical), new(capture.Revision));
-                var samples = ImmutableArray.CreateBuilder<WorkshopTraceSample>(capture.SamplesLength);
-                for (var i = 0; i < capture.SamplesLength; i++)
-                {
-                    var bytes = (capture.Samples(i) ?? throw new ArgumentException("Missing trace sample.")).GetRecordArray();
-                    if (WorkshopTraceRecord.ReadProfile(bytes) != profile) throw new ArgumentException("Trace profile mismatch.");
-                    samples.Add(WorkshopTraceRecord.Decode(bytes));
-                }
-                return new WorkshopCaptureDiagnostic(ObservationEnum<WorkshopCaptureKind>(capture.Kind), ObservationEnum<WorkshopCaptureStage>(capture.Stage), RequiredSession(capture.GetSessionArray()),
-                    capture.Identity, new(capture.Epoch), profile, ObservationEnum<TraceEnd>(capture.End), ObservationEnum<TraceTimingStatus>(capture.Status),
-                    capture.ExpectedCount, capture.Count, capture.Chunk, capture.Chunks, capture.First,
-                    capture.Scene is { } scene ? new CompiledSceneId(scene) : null,
-                    samples.MoveToImmutable(), DecodeDurations(capture));
+                return DecodeCaptureDiagnostic(value.Capture!.Value);
             default: throw new ArgumentException("Undefined diagnostic payload.");
         }
     }
@@ -284,50 +181,243 @@ public static partial class WorkshopWireFlatBuffers
     {
         switch (value)
         {
-            case WorkshopFaultDiagnostic d:
-                Defined(d.Kind); Defined(d.Site); ArgumentException.ThrowIfNullOrEmpty(d.ExceptionType); ArgumentNullException.ThrowIfNull(d.Detail); break;
-            case ClockRecalibrationDiagnostic d:
-                d.Peer.Validate(); Defined(d.Cause); Defined(d.StateBefore); d.At.Validate(); d.RecoveryStarted.Validate();
-                if (d.Reply is { } reply) { reply.MasterReceived.Validate(); reply.MasterSent.Validate(); reply.RequesterReceived.Validate(); }
-                // A reversed reply is diagnostic evidence of recovery, not an admitted clock mapping.
-                if (d.Count == 0 || d.RecoverySends < 0 || d.Slots.IsDefault) throw new ArgumentException("Invalid recalibration.");
-                foreach (var slot in d.Slots) { slot.Receipt.Validate(); if (slot.Sequence.Value == 0 || slot.Interval.Upper < slot.Interval.Lower) throw new ArgumentException("Invalid clock slot."); }
-                break;
-            case ClockReplyRejectedDiagnostic d:
-                Defined(d.Role); d.Received.Validate(); if (d.Count == 0 || d.Length < 0) throw new ArgumentException("Invalid rejected clock reply."); ArgumentException.ThrowIfNullOrEmpty(d.Detail); break;
-            case ClockLateRenewalDiagnostic d:
-                Defined(d.Role); d.RenewedAt.Validate();
-                if (d.Count == 0 || d.LapseAge < 0 || d.Exchanges < 0 || d.Retained.Upper < d.Retained.Lower || d.Fresh.Upper < d.Fresh.Lower) throw new ArgumentException("Invalid renewal."); break;
-            case ClockWideOffsetDiagnostic d:
-                if (d.Count == 0 || d.AdmittedLower > d.AdmittedUpper || d.DeclaredUncertainty < 0) throw new ArgumentException("Invalid wide offset."); break;
-            case ClockDerivationDiagnostic d:
-                Defined(d.Report); Defined(d.Outcome);
-                if (d.Qualified < 0 || d.StartupAttempts < 0 || d.StartupOutliers < 0 || d.StartupInconclusive < 0 || d.StartupUnanswered < 0 ||
-                    d.AdmittedLower.HasValue != d.AdmittedUpper.HasValue || d.AdmittedLower > d.AdmittedUpper) throw new ArgumentException("Invalid derivation.");
-                if (d.Exchange is { } exchange) _ = WorkshopClockDerivation.IsNarrow(exchange);
-                break;
-            case AnimationDeferralDiagnostic d: Defined(d.Cause); if (d.Count == 0) throw new ArgumentException("Invalid deferral count."); break;
-            case WorkshopDebtDiagnostic d: Defined(d.Reason); if (d.AgeMilliseconds < 0) throw new ArgumentException("Negative debt age."); break;
-            case WorkshopTickFailureDiagnostic d: Defined(d.Result.Outcome); Defined(d.Result.Reason); Defined(d.Fault); break;
-            case WorkshopTransferDiagnostic d: if (!d.Response.Read.CarriesBalanceTransfer()) throw new ArgumentException("Transfer diagnostic has no transfer."); break;
-            case WorkshopCaptureDiagnostic d:
-                Defined(d.Kind); Defined(d.Stage); Defined(d.End); Defined(d.Status); d.Profile.Validate(); d.Session.Validate();
-                if ((d.Stage == WorkshopCaptureStage.Begin) != d.Scene.HasValue || d.Scene is { Value: 0 } ||
-                    d.Identity == 0 || d.Epoch.Value == 0 || d.Count < 0 || d.ExpectedCount < 0 || d.Chunks < 0 || d.Chunk < 0 || d.First < 0 ||
-                    d.Samples.IsDefault || d.Milliseconds.IsDefault || (d.Kind == WorkshopCaptureKind.Pose && d.Milliseconds.Length != 0) ||
-                    (d.Kind == WorkshopCaptureKind.Timing && d.Samples.Length != 0) ||
-                    (d.Stage != WorkshopCaptureStage.Chunk && (d.Samples.Length != 0 || d.Milliseconds.Length != 0)) ||
-                    (d.Stage == WorkshopCaptureStage.Chunk && (d.Chunk >= d.Chunks || d.Count != d.Samples.Length + d.Milliseconds.Length)))
-                    throw new ArgumentException("Invalid capture fields.");
-                if (d.Status == TraceTimingStatus.Complete && (d.End != TraceEnd.Complete ||
-                    (d.Stage == WorkshopCaptureStage.End && d.Count != d.ExpectedCount)))
-                    throw new ArgumentException("Contradictory complete capture metadata.");
-                ValidateDurations(d.Milliseconds);
-                foreach (var sample in d.Samples) if (sample.Epoch != d.Epoch) throw new ArgumentException("Foreign trace epoch.");
-                break;
+            case WorkshopFaultDiagnostic d: ValidateDiagnostic(d); break;
+            case ClockRecalibrationDiagnostic d: ValidateDiagnostic(d); break;
+            case ClockReplyRejectedDiagnostic d: ValidateDiagnostic(d); break;
+            case ClockLateRenewalDiagnostic d: ValidateDiagnostic(d); break;
+            case ClockWideOffsetDiagnostic d: ValidateDiagnostic(d); break;
+            case ClockDerivationDiagnostic d: ValidateDiagnostic(d); break;
+            case AnimationDeferralDiagnostic d: ValidateDiagnostic(d); break;
+            case WorkshopDebtDiagnostic d: ValidateDiagnostic(d); break;
+            case WorkshopTickFailureDiagnostic d: ValidateDiagnostic(d); break;
+            case WorkshopTransferDiagnostic d: ValidateDiagnostic(d); break;
+            case WorkshopCaptureDiagnostic d: ValidateDiagnostic(d); break;
             default: throw new ArgumentException("Unknown diagnostic type.");
         }
-        static void Defined<T>(T item) where T : struct, Enum
-        { if (!Enum.IsDefined(item)) throw new ArgumentException("Undefined diagnostic enum."); }
     }
+
+    private static void Defined<T>(T item) where T : struct, Enum
+    { if (!Enum.IsDefined(item)) throw new ArgumentException("Undefined diagnostic enum."); }
+
+    private static Offset<W.DiagnosticObservation> WrapDiagnostic(FlatBufferBuilder b, W.ObservationPayload kind, int offset)
+    {
+        W.DiagnosticObservation.StartDiagnosticObservation(b);
+        W.DiagnosticObservation.AddKind(b, kind);
+        switch (kind)
+        {
+            case W.ObservationPayload.Fault: W.DiagnosticObservation.AddFault(b, new Offset<W.FaultObservation>(offset)); break;
+            case W.ObservationPayload.Recalibration: W.DiagnosticObservation.AddRecalibration(b, new Offset<W.RecalibrationObservation>(offset)); break;
+            case W.ObservationPayload.RejectedClock: W.DiagnosticObservation.AddRejectedClock(b, new Offset<W.RejectedClockObservation>(offset)); break;
+            case W.ObservationPayload.LateRenewal: W.DiagnosticObservation.AddLateRenewal(b, new Offset<W.LateRenewalObservation>(offset)); break;
+            case W.ObservationPayload.WideOffset: W.DiagnosticObservation.AddWideOffset(b, new Offset<W.WideOffsetObservation>(offset)); break;
+            case W.ObservationPayload.Derivation: W.DiagnosticObservation.AddDerivation(b, new Offset<W.DerivationObservation>(offset)); break;
+            case W.ObservationPayload.Deferral: W.DiagnosticObservation.AddDeferral(b, new Offset<W.DeferralObservation>(offset)); break;
+            case W.ObservationPayload.Debt: W.DiagnosticObservation.AddDebt(b, new Offset<W.DebtObservation>(offset)); break;
+            case W.ObservationPayload.TickFailure: W.DiagnosticObservation.AddTickFailure(b, new Offset<W.TickFailureObservation>(offset)); break;
+            case W.ObservationPayload.Transfer: W.DiagnosticObservation.AddTransfer(b, new Offset<W.TransferObservation>(offset)); break;
+            case W.ObservationPayload.Capture: W.DiagnosticObservation.AddCapture(b, new Offset<W.CaptureObservation>(offset)); break;
+            default: throw new ArgumentException("Unsupported diagnostic kind.");
+        }
+        return W.DiagnosticObservation.EndDiagnosticObservation(b);
+    }
+
+    private static int EncodeRecalibrationDiagnostic(FlatBufferBuilder b, ClockRecalibrationDiagnostic d)
+    {
+        var peer = W.RecalibrationObservation.CreatePeerVector(b, WorkshopClockWire.EncodePeer(d.Peer));
+        var pending = d.Pending is { } p ? W.RecalibrationObservation.CreatePendingVector(b, WorkshopClockWire.EncodeProbe(p, d.Peer)) : default;
+        var reply = d.Reply is { } r ? W.ReplyObservation.CreateReplyObservation(b,
+            W.ReplyObservation.CreateProbeVector(b, WorkshopClockWire.EncodeProbe(r.Probe, d.Peer)),
+            r.MasterReceived.Value, r.MasterSent.Value, r.RequesterReceived.Value, r.Derivation.Value) : default;
+        W.RecalibrationObservation.StartSlotsVector(b, d.Slots.Length);
+        for (var i = d.Slots.Length - 1; i >= 0; i--)
+        {
+            var slot = d.Slots[i]; W.ObservationSlot.CreateObservationSlot(b, slot.Receipt.Value, slot.Sequence.Value,
+                Low(slot.Interval.Lower), High(slot.Interval.Lower), Low(slot.Interval.Upper), High(slot.Interval.Upper));
+        }
+        var slots = b.EndVector();
+        return W.RecalibrationObservation.CreateRecalibrationObservation(b, peer, (uint)d.Cause, d.Count,
+            (uint)d.StateBefore, d.Derivation.HasValue, d.Derivation?.Value ?? 0, d.DisplayEpoch, d.At.Value,
+            d.RecoveryStarted.Value, d.RecoverySends, pending, reply, slots).Value;
+    }
+
+    private static int EncodeDerivationDiagnostic(FlatBufferBuilder b, ClockDerivationDiagnostic d)
+    {
+        W.DerivationObservation.StartDerivationObservation(b);
+        W.DerivationObservation.AddReport(b, (uint)d.Report); W.DerivationObservation.AddOutcome(b, (uint)d.Outcome);
+        W.DerivationObservation.AddEpoch(b, d.Epoch.Value); W.DerivationObservation.AddCorrection(b, d.Correction);
+        W.DerivationObservation.AddHasPending(b, d.PendingCorrection.HasValue); W.DerivationObservation.AddPending(b, d.PendingCorrection ?? 0);
+        W.DerivationObservation.AddHasAdmitted(b, d.AdmittedLower.HasValue);
+        W.DerivationObservation.AddAdmittedLower(b, d.AdmittedLower ?? 0); W.DerivationObservation.AddAdmittedUpper(b, d.AdmittedUpper ?? 0);
+        if (d.Exchange is { } exchange) W.DerivationObservation.AddExchange(b,
+            W.ObservationExchange.CreateObservationExchange(b, exchange.Before, exchange.Master, exchange.After, exchange.Epoch.Value));
+        W.DerivationObservation.AddQualified(b, d.Qualified); W.DerivationObservation.AddStartupAttempts(b, d.StartupAttempts);
+        W.DerivationObservation.AddStartupOutliers(b, d.StartupOutliers); W.DerivationObservation.AddStartupInconclusive(b, d.StartupInconclusive);
+        W.DerivationObservation.AddStartupUnanswered(b, d.StartupUnanswered); W.DerivationObservation.AddChecks(b, d.Checks);
+        W.DerivationObservation.AddSlews(b, d.Slews); W.DerivationObservation.AddRederivations(b, d.Rederivations);
+        W.DerivationObservation.AddInconclusive(b, d.Inconclusive); W.DerivationObservation.AddUnanswered(b, d.Unanswered);
+        W.DerivationObservation.AddCheckRetries(b, d.CheckRetries); return W.DerivationObservation.EndDerivationObservation(b).Value;
+    }
+
+    private static int EncodeCaptureDiagnostic(FlatBufferBuilder b, WorkshopCaptureDiagnostic d)
+    {
+        var samples = new Offset<W.TraceSampleObservation>[d.Samples.Length];
+        for (var i = 0; i < samples.Length; i++)
+        {
+            var sample = d.Samples[i];
+            var encoded = WorkshopTraceRecord.Encode(new(sample.Epoch, sample.Tick, sample.Bodies, Captures: sample.Captures), d.Profile);
+            samples[i] = W.TraceSampleObservation.CreateTraceSampleObservation(b, W.TraceSampleObservation.CreateRecordVector(b, encoded));
+        }
+        var sampleVector = W.CaptureObservation.CreateSamplesVector(b, samples);
+        var times = EncodeDurations(b, d.Milliseconds);
+        return W.CaptureObservation.CreateCaptureObservation(b, (uint)d.Kind, (uint)d.Stage, d.Identity, d.Epoch.Value,
+            (uint)d.Profile.Cadence, (uint)d.Profile.Physical, d.Profile.Revision.Value, (uint)d.End, (uint)d.Status,
+            d.ExpectedCount, d.Count, d.Chunk, d.Chunks, d.First, d.Scene?.Value, W.CaptureObservation.CreateSessionVector(b, RuntimeSessionBytes(d.Session)), sampleVector, times).Value;
+    }
+
+    private static void ValidateDiagnosticPayload(W.DiagnosticObservation value)
+    {
+        if (!Enum.IsDefined(value.Kind) || value.Kind == W.ObservationPayload.None ||
+            value.Fault.HasValue != (value.Kind == W.ObservationPayload.Fault) ||
+            value.Recalibration.HasValue != (value.Kind == W.ObservationPayload.Recalibration) ||
+            value.RejectedClock.HasValue != (value.Kind == W.ObservationPayload.RejectedClock) ||
+            value.LateRenewal.HasValue != (value.Kind == W.ObservationPayload.LateRenewal) ||
+            value.WideOffset.HasValue != (value.Kind == W.ObservationPayload.WideOffset) ||
+            value.Derivation.HasValue != (value.Kind == W.ObservationPayload.Derivation) ||
+            value.Deferral.HasValue != (value.Kind == W.ObservationPayload.Deferral) ||
+            value.Debt.HasValue != (value.Kind == W.ObservationPayload.Debt) ||
+            value.TickFailure.HasValue != (value.Kind == W.ObservationPayload.TickFailure) ||
+            value.Transfer.HasValue != (value.Kind == W.ObservationPayload.Transfer) ||
+            value.Capture.HasValue != (value.Kind == W.ObservationPayload.Capture))
+            throw new ArgumentException("Diagnostic kind requires exactly its matching concrete payload.");
+    }
+
+    private static ClockRecalibrationDiagnostic DecodeRecalibrationDiagnostic(W.RecalibrationObservation recalibration)
+    {
+        var peer = WorkshopClockWire.DecodePeer(recalibration.GetPeerArray());
+        var slots = ImmutableArray.CreateBuilder<ClockSlotDiagnostic>(recalibration.SlotsLength);
+        for (var i = 0; i < recalibration.SlotsLength; i++)
+        {
+            var slot = recalibration.Slots(i) ?? throw new ArgumentException("Missing clock slot.");
+            slots.Add(new(new(slot.Receipt), new(slot.Sequence), Interval(slot.Interval)));
+        }
+        return new ClockRecalibrationDiagnostic(peer, ObservationEnum<ClockRecalibrationCause>(recalibration.Cause), recalibration.Count,
+            ObservationEnum<ClockMappingState>(recalibration.StateBefore), Derivation(recalibration.HasDerivation, recalibration.Derivation),
+            recalibration.DisplayEpoch, new(recalibration.At), new(recalibration.RecoveryStarted), recalibration.RecoverySends,
+            recalibration.PendingLength == 0 ? null : WorkshopClockWire.DecodeProbe(recalibration.GetPendingArray(), peer),
+            recalibration.Reply is { } reply ? new ClockReply(WorkshopClockWire.DecodeProbe(reply.GetProbeArray(), peer),
+                new(reply.MasterReceived), new(reply.MasterSent), new(reply.Received), new(reply.Derivation)) : null,
+            slots.MoveToImmutable());
+    }
+
+    private static ClockDerivationDiagnostic DecodeDerivationDiagnostic(W.DerivationObservation derivation)
+    {
+        if ((!derivation.HasPending && derivation.Pending != 0) ||
+            (!derivation.HasAdmitted && (derivation.AdmittedLower != 0 || derivation.AdmittedUpper != 0)))
+            throw new ArgumentException("Absent clock fields carry values.");
+        return new ClockDerivationDiagnostic(ObservationEnum<ClockDerivationReport>(derivation.Report), ObservationEnum<ClockDerivationOutcome>(derivation.Outcome),
+            new(derivation.Epoch), derivation.Correction, derivation.HasPending ? derivation.Pending : null,
+            derivation.HasAdmitted ? derivation.AdmittedLower : null, derivation.HasAdmitted ? derivation.AdmittedUpper : null,
+            derivation.Exchange is { } exchange ? new(exchange.Before, exchange.Master, exchange.After, new(exchange.Epoch)) : null,
+            derivation.Qualified, derivation.StartupAttempts, derivation.StartupOutliers, derivation.StartupInconclusive, derivation.StartupUnanswered,
+            derivation.Checks, derivation.Slews, derivation.Rederivations, derivation.Inconclusive, derivation.Unanswered, derivation.CheckRetries);
+    }
+
+    private static WorkshopCaptureDiagnostic DecodeCaptureDiagnostic(W.CaptureObservation capture)
+    {
+        var profile = new WorkshopGpuProfile(ObservationEnum<SimulationCadence>(capture.Cadence), ObservationEnum<PhysicalStepProfile>(capture.Physical), new(capture.Revision));
+        var samples = ImmutableArray.CreateBuilder<WorkshopTraceSample>(capture.SamplesLength);
+        for (var i = 0; i < capture.SamplesLength; i++)
+        {
+            var bytes = (capture.Samples(i) ?? throw new ArgumentException("Missing trace sample.")).GetRecordArray();
+            if (WorkshopTraceRecord.ReadProfile(bytes) != profile) throw new ArgumentException("Trace profile mismatch.");
+            samples.Add(WorkshopTraceRecord.Decode(bytes));
+        }
+        return new WorkshopCaptureDiagnostic(ObservationEnum<WorkshopCaptureKind>(capture.Kind), ObservationEnum<WorkshopCaptureStage>(capture.Stage), RequiredSession(capture.GetSessionArray()),
+            capture.Identity, new(capture.Epoch), profile, ObservationEnum<TraceEnd>(capture.End), ObservationEnum<TraceTimingStatus>(capture.Status),
+            capture.ExpectedCount, capture.Count, capture.Chunk, capture.Chunks, capture.First,
+            capture.Scene is { } scene ? new CompiledSceneId(scene) : null,
+            samples.MoveToImmutable(), DecodeDurations(capture));
+    }
+
+    private static void ValidateDiagnostic(WorkshopCaptureDiagnostic d)
+    {
+        Defined(d.Kind); Defined(d.Stage); Defined(d.End); Defined(d.Status); d.Profile.Validate(); d.Session.Validate();
+        ValidateCaptureFields(d);
+        if (d.Status == TraceTimingStatus.Complete && (d.End != TraceEnd.Complete ||
+            (d.Stage == WorkshopCaptureStage.End && d.Count != d.ExpectedCount)))
+            throw new ArgumentException("Contradictory complete capture metadata.");
+        ValidateDurations(d.Milliseconds);
+        foreach (var sample in d.Samples) if (sample.Epoch != d.Epoch) throw new ArgumentException("Foreign trace epoch.");
+    }
+
+    private static void ValidateDiagnostic(WorkshopTransferDiagnostic d)
+    {
+        if (!d.Response.Read.CarriesBalanceTransfer()) throw new ArgumentException("Transfer diagnostic has no transfer.");
+    }
+
+    private static void ValidateDiagnostic(WorkshopTickFailureDiagnostic d)
+    {
+        Defined(d.Result.Outcome); Defined(d.Result.Reason); Defined(d.Fault);
+    }
+
+    private static void ValidateDiagnostic(WorkshopDebtDiagnostic d)
+    {
+        Defined(d.Reason); if (d.AgeMilliseconds < 0) throw new ArgumentException("Negative debt age.");
+    }
+
+    private static void ValidateDiagnostic(AnimationDeferralDiagnostic d)
+    {
+        Defined(d.Cause); if (d.Count == 0) throw new ArgumentException("Invalid deferral count.");
+    }
+
+    private static void ValidateDiagnostic(ClockDerivationDiagnostic d)
+    {
+        Defined(d.Report); Defined(d.Outcome);
+        if (d.Qualified < 0 || d.StartupAttempts < 0 || d.StartupOutliers < 0 || d.StartupInconclusive < 0 || d.StartupUnanswered < 0 ||
+            d.AdmittedLower.HasValue != d.AdmittedUpper.HasValue || d.AdmittedLower > d.AdmittedUpper) throw new ArgumentException("Invalid derivation.");
+        if (d.Exchange is { } exchange) _ = WorkshopClockDerivation.IsNarrow(exchange);
+    }
+
+    private static void ValidateDiagnostic(ClockWideOffsetDiagnostic d)
+    {
+        if (d.Count == 0 || d.AdmittedLower > d.AdmittedUpper || d.DeclaredUncertainty < 0) throw new ArgumentException("Invalid wide offset.");
+    }
+
+    private static void ValidateDiagnostic(ClockLateRenewalDiagnostic d)
+    {
+        Defined(d.Role); d.RenewedAt.Validate();
+        if (d.Count == 0 || d.LapseAge < 0 || d.Exchanges < 0 || d.Retained.Upper < d.Retained.Lower || d.Fresh.Upper < d.Fresh.Lower) throw new ArgumentException("Invalid renewal.");
+    }
+
+    private static void ValidateDiagnostic(ClockReplyRejectedDiagnostic d)
+    {
+        Defined(d.Role); d.Received.Validate(); if (d.Count == 0 || d.Length < 0) throw new ArgumentException("Invalid rejected clock reply."); ArgumentException.ThrowIfNullOrEmpty(d.Detail);
+    }
+
+    private static void ValidateDiagnostic(ClockRecalibrationDiagnostic d)
+    {
+        d.Peer.Validate(); Defined(d.Cause); Defined(d.StateBefore); d.At.Validate(); d.RecoveryStarted.Validate();
+        if (d.Reply is { } reply) { reply.MasterReceived.Validate(); reply.MasterSent.Validate(); reply.RequesterReceived.Validate(); }
+        // A reversed reply is diagnostic evidence of recovery, not an admitted clock mapping.
+        if (d.Count == 0 || d.RecoverySends < 0 || d.Slots.IsDefault) throw new ArgumentException("Invalid recalibration.");
+        foreach (var slot in d.Slots) { slot.Receipt.Validate(); if (slot.Sequence.Value == 0 || slot.Interval.Upper < slot.Interval.Lower) throw new ArgumentException("Invalid clock slot."); }
+    }
+
+    private static void ValidateDiagnostic(WorkshopFaultDiagnostic d)
+    {
+        Defined(d.Kind); Defined(d.Site); ArgumentException.ThrowIfNullOrEmpty(d.ExceptionType); ArgumentNullException.ThrowIfNull(d.Detail);
+    }
+
+
+    private static void ValidateCaptureFields(WorkshopCaptureDiagnostic d)
+    {
+        if ((d.Stage == WorkshopCaptureStage.Begin) != d.Scene.HasValue || d.Scene is { Value: 0 } ||
+            d.Identity == 0 || d.Epoch.Value == 0 || d.Count < 0 || d.ExpectedCount < 0 || d.Chunks < 0 || d.Chunk < 0 || d.First < 0 ||
+            d.Samples.IsDefault || d.Milliseconds.IsDefault || (d.Kind == WorkshopCaptureKind.Pose && d.Milliseconds.Length != 0) ||
+            (d.Kind == WorkshopCaptureKind.Timing && d.Samples.Length != 0) ||
+            (d.Stage != WorkshopCaptureStage.Chunk && (d.Samples.Length != 0 || d.Milliseconds.Length != 0)) ||
+            (d.Stage == WorkshopCaptureStage.Chunk && (d.Chunk >= d.Chunks || d.Count != d.Samples.Length + d.Milliseconds.Length)))
+            throw new ArgumentException("Invalid capture fields.");
+    }
+
 }

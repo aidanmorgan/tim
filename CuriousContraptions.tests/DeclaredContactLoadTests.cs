@@ -21,8 +21,8 @@ public sealed class DeclaredContactLoadTests
     [Fact]
     public void TheDeclaredSensorCompilesItsRegionAndMembersForEveryPlate()
     {
-        var declared = Assert.NotNull(DeclaredPhysics.Of(new PartId("pressure_plate")).Signal?.ContactLoad);
-        Assert.Equal(new SignalContactLoadDescriptor("minimum_mass", 1, System.Numerics.Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f, declared.SupportingColliders), declared);
+        var declared = DeclaredPhysics.Of(new PartId("pressure_plate")).Signal!.Nodes.OfType<SignalContactLoadDescriptor>().Single();
+        Assert.Equal(new SignalContactLoadDescriptor(new("signal"), new(0), new("minimum_mass"), 1, System.Numerics.Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f, declared.SupportingColliders), declared);
         Assert.Equal([1, 7], declared.SupportingColliders);
         var face = CuriousContraptions.Bundle.BundleGeometry.Colliders(DeclaredPhysics.Of(new PartId("pressure_plate")))[1];
         Assert.Equal((CuriousContraptions.Abstractions.ColliderShapeKind.Box, .9f, .05f, .9f), (face.ShapeKind, face.HalfExtents.X, face.HalfExtents.Y, face.HalfExtents.Z));
@@ -31,7 +31,7 @@ public sealed class DeclaredContactLoadTests
         var row = Assert.Single(WorkshopPhysicsCompiler.Compile(Bench([plate]), new(1, 2)).ContactLoadSensors.ToArray());
         var identities = Bench([plate]).Instances.Identities[plate.Id];
         Assert.Equal(new[] { identities.Colliders[1], identities.Colliders[7] }, row.SupportingColliders.ToArray());
-        Assert.Equal((Bench([plate]).Instances.Identities[plate.Id].ContactLoad, plate.Id, Bench([plate]).Instances.Identities[plate.Id].Colliders[1]),
+        Assert.Equal((Bench([plate]).Instances.Identities[plate.Id].Signals[new("signal")].ContactLoad, plate.Id, Bench([plate]).Instances.Identities[plate.Id].Colliders[1]),
             (row.Id, row.Frame, row.Region));
         Assert.Equal((-.9f - .0001f, .9f + .0001f, -.9f - .000001f, .9f + .000001f, 1f - .000001f, .0001f, 2f),
             (row.MinimumX, row.MaximumX, row.MinimumZ, row.MaximumZ, row.MinimumAlignment, row.MaximumGap, row.MinimumMass));
@@ -69,7 +69,7 @@ public sealed class DeclaredContactLoadTests
     {
         var wall = WorkshopInput.Generic(new PartId("wall"), new(1), 0, (float)(PlateY), 0, 0, 0, 0, 1,
             new([new(new("width"), 1.8f), new(new("height"), .4f), new(new("thickness"), 1.8f)]));
-        Assert.Null(DeclaredPhysics.Of(new PartId("wall")).Signal?.ContactLoad);
+        Assert.Null(DeclaredPhysics.Of(new PartId("wall")).Signal);
         Assert.Empty(WorkshopPhysicsCompiler.Compile(Bench([wall]), new(1, 2)).ContactLoadSensors.ToArray());
         Assert.Empty(WorkshopActivationCompiler.Compile(Bench([wall])).Nodes.ToArray());
     }

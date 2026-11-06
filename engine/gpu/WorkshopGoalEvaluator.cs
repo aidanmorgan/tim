@@ -41,8 +41,8 @@ public static class WorkshopGoalEvaluator
             {
                 var value = activations[i];
                 if (value.Phase != ActivationPhase.Latched) continue;
-                if (value.Node == goal.SourceNode && value.Owner.Value == goal.SourceNode.Value) source = value;
-                if (value.Node == goal.TargetNode && value.Owner.Value == goal.TargetNode.Value) target = value;
+                if (value.Owner == goal.Body && value.Node == identities[goal.Body].Signals[goal.SourceNode].Node) source = value;
+                if (value.Owner == goal.Target && value.Node == identities[goal.Target].Signals[goal.TargetNode].Node) target = value;
             }
             if (source is { } start && target is { } finish &&
                 ElapsedAtLeast(start.Occurrence.Time, finish.Occurrence.Time, goal.MinimumDuration))

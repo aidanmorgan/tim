@@ -40,13 +40,9 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDec
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
 
-/// <summary>The signal payload. At most one node-selecting capability (<see cref="Timer"/>, <see cref="Contact"/>,
-/// <see cref="Indicator"/>, <see cref="Passage"/>, <see cref="Orientation"/>, <see cref="ContactLoad"/>, <see cref="Oscillator"/>,
-/// <see cref="PulseCount"/> or <see cref="Memory"/>) is present, each exactly when the element declares that contract.</summary>
-public sealed record SignalPayload(IReadOnlyList<SignalTriggerDescriptor> Triggers,
-    SignalTimerDescriptor? Timer, SignalContactDescriptor? Contact = null, SignalIndicatorDescriptor? Indicator = null,
-    SignalPassageDescriptor? Passage = null, SignalOrientationDescriptor? Orientation = null, SignalContactLoadDescriptor? ContactLoad = null,
-    SignalOscillatorDescriptor? Oscillator = null, SignalPulseCountDescriptor? PulseCount = null, SignalMemoryDescriptor? Memory = null);
+/// <summary>Independent local signal nodes and their internal and public terminal bindings.</summary>
+public sealed record SignalPayload(IReadOnlyList<SignalNodeDescriptor> Nodes,
+    IReadOnlyList<SignalEdge> Edges, IReadOnlyList<SignalPortBinding> Ports);
 
 public sealed record FluidPayload(FluidProperties Properties, IReadOnlyList<FluidPortDescriptor> Ports);
 
@@ -70,15 +66,7 @@ public static class BundleSchema
                     mechanical is IResidenceCaptureElement capture ? capture.Capture : null,
                     mechanical is IContactWorkElement work ? work.ContactWork : null) : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.Supply : null) : null,
-            declaration is ISignalElement signal ? new SignalPayload(signal.Triggers,
-                signal is ITimerElement timer ? timer.Timer : null, signal is IContactTriggerElement contact ? contact.Contact : null,
-                signal is IIndicatorElement indicator ? indicator.Indicator : null,
-                signal is IPassageSensorElement passage ? passage.Passage : null,
-                signal is IOrientationSensorElement orientation ? orientation.Orientation : null,
-                signal is IContactLoadSensorElement load ? load.ContactLoad : null,
-                signal is IOscillatorElement oscillator ? oscillator.Oscillator : null,
-                signal is IPulseCountElement count ? count.PulseCount : null,
-                signal is IMemoryElement memory ? memory.Memory : null) : null,
+            declaration is ISignalElement signal ? new SignalPayload(signal.SignalNodes, signal.SignalEdges, signal.SignalPorts) : null,
             declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
             declaration is IParameterizedGeometryElement geometry ? geometry.ColliderBindings : [], [],
             declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : [], declaration.Presentation);
@@ -129,19 +117,19 @@ public static class BundleSchema
     Converters =
     [
         typeof(Vector2Converter), typeof(Vector3Converter), typeof(QuaternionConverter), typeof(ParameterIdConverter), typeof(PackageBodyIndexConverter),
-        typeof(PortIdConverter),
+        typeof(PortIdConverter), typeof(SignalNodeIdConverter),
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<CoordinateKind>),
         typeof(ExactEnumConverter<RopeAttachmentRole>),
         typeof(ExactEnumConverter<PortRole>), typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
         typeof(ExactEnumConverter<BoxFace>), typeof(ExactEnumConverter<RevoluteTravel>), typeof(ExactEnumConverter<TargetSelectorKind>),
-        typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>),typeof(ExactEnumConverter<TimerCompletionPolicy>),
+        typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTerminal>), typeof(ExactEnumConverter<SignalContactState>),typeof(ExactEnumConverter<TimerCompletionPolicy>),
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),
         typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>),
         typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>),
         typeof(ExactEnumConverter<PresentationAxes>), typeof(ExactEnumConverter<PresentationProperty>),
-        typeof(ExactEnumConverter<PresentationDriver>), typeof(ExactEnumConverter<PresentationCurve>),
+        typeof(ExactEnumConverter<PresentationDriver>), typeof(ExactEnumConverter<PresentationValueMapping>), typeof(ExactEnumConverter<PresentationCurve>),
         typeof(ExactEnumConverter<PresentationOverlap>),
         typeof(ExactEnumConverter<PresentationTimerPhase>), typeof(ExactEnumConverter<PresentationEventMagnitude>)
     ])]
@@ -190,6 +178,21 @@ internal sealed class ParameterIdConverter : JsonConverter<ParameterId>
     public override void Write(Utf8JsonWriter writer, ParameterId value, JsonSerializerOptions options)
     {
         if (value == default) throw new JsonException("A mass binding requires a parameter identity.");
+        writer.WriteStringValue(value.Value);
+    }
+}
+
+internal sealed class SignalNodeIdConverter : JsonConverter<SignalNodeId>
+{
+    public override SignalNodeId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType != JsonTokenType.String || string.IsNullOrWhiteSpace(reader.GetString()))
+            throw new JsonException("A signal node requires an identity.");
+        return new(reader.GetString()!);
+    }
+    public override void Write(Utf8JsonWriter writer, SignalNodeId value, JsonSerializerOptions options)
+    {
+        if (value == default) throw new JsonException("A signal node requires an identity.");
         writer.WriteStringValue(value.Value);
     }
 }

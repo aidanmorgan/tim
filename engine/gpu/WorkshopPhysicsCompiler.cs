@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions.Signal;
 using CuriousContraptions.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -223,10 +224,7 @@ public static class WorkshopPhysicsCompiler
                 var entry = DeclaredPhysics.Of(instance.PartId);
                 if (entry.Footprint.Bodies == 0)
                 {
-                    if (entry.Mechanical is not null || entry.Colliders.Count != 0 || entry.ColliderBindings.Count != 0 ||
-                        entry.Presentation.Bodies.Count != 0 || entry.Footprint.MovingBodies != 0 ||
-                        entry.Footprint.PrismaticConstraints != 0 || entry.Footprint.RevoluteConstraints != 0)
-                        throw new ArgumentException("Logical owner declares inconsistent physical geometry.");
+                    ValidateBodylessGeometry(entry);
                     continue;
                 }
                 var rows = identities[instance.Id];
@@ -283,12 +281,23 @@ public static class WorkshopPhysicsCompiler
             }
         }
 
+        private static void ValidateBodylessGeometry(BundleEntry entry)
+        {
+            if (entry.Mechanical is not null || entry.Colliders.Count != 0 || entry.ColliderBindings.Count != 0 ||
+                entry.Presentation.Bodies.Count != 0 || entry.Footprint.MovingBodies != 0 ||
+                entry.Footprint.PrismaticConstraints != 0 || entry.Footprint.RevoluteConstraints != 0)
+                throw new ArgumentException("Logical owner declares inconsistent physical geometry.");
+        }
+
         private HashSet<GpuBodyId> CompileSensors()
         {
-            // A declared orientation threshold compiles its sensor only while its owner is wired, in instance order.
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
-                if (DeclaredPhysics.Of(owner.PartId).Signal?.Orientation is { } orientation && construction.Connections.HasSource(owner.Id))
-                    orientationSensors.Add(OrientationSensorFor(owner, orientation, identities));
+                foreach (var orientation in DeclaredPhysics.Of(owner.PartId).Signal?.Nodes.OfType<SignalOrientationDescriptor>() ?? [])
+                {
+                    var body = bodies.Single(row => row.Id == identities.Body(owner.Id, orientation.Body));
+                    orientationSensors.Add(new(identities[owner.Id].Signals[orientation.Id].Orientation, body.Id,
+                        body.Rotation, OrientationThreshold.Degrees(orientation.ThresholdDegrees)));
+                }
             foreach (var frame in construction.Instances.OfType<WorkshopGenericInstance>())
             {
                 if (DeclaredPhysics.Of(frame.PartId).Mechanical?.Capture is not { } capture) continue;
@@ -319,10 +328,10 @@ public static class WorkshopPhysicsCompiler
                 if (DeclaredPhysics.SourceStore(owner.PartId) is { } store)
                     electricalSources.Add(ElectricalSourceFor(identities[owner.Id].Source, owner.Id, store, owner.Parameters));
             foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
-                if (DeclaredPhysics.Of(trigger.PartId).Signal?.Contact is { } contact)
-                    triggers.Add(new(identities[trigger.Id].Trigger, trigger.Id,
+                foreach (var contact in DeclaredPhysics.Of(trigger.PartId).Signal?.Nodes.OfType<SignalContactDescriptor>() ?? [])
+                    triggers.Add(new(identities[trigger.Id].Signals[contact.Id].Trigger, identities.Body(trigger.Id, contact.Body),
                         ResolveTarget(contact.Target, construction.Puzzle, construction.Instances),
-                        new(trigger.Parameters[new ParameterId(contact.ThresholdParameter)])));
+                        new(trigger.Parameters[contact.ThresholdParameter])));
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
                 if (DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWork is { } work)
                     contactWorks.Add(ContactWorkFor(identities[owner.Id].Work, owner.Id,
@@ -330,7 +339,7 @@ public static class WorkshopPhysicsCompiler
                         work, owner.Parameters));
             // A declared contact-load sensor compiles its row for every owner, wired or not, in instance order.
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
-                if (DeclaredPhysics.Of(owner.PartId).Signal?.ContactLoad is { } load)
+                foreach (var load in DeclaredPhysics.Of(owner.PartId).Signal?.Nodes.OfType<SignalContactLoadDescriptor>() ?? [])
                     contactLoads.Add(ContactLoadSensorFor(owner, load, identities));
             var contactWorkOwners = contactWorks.Select(cw => cw.Owner).ToHashSet();
             foreach(var link in construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target)))
@@ -471,15 +480,6 @@ public static class WorkshopPhysicsCompiler
             new(work.Threshold), work.CooldownPhysicalSteps);
     }
 
-    /// <summary>The orientation sensor a declared threshold compiles to on its owner's body, measured from the owner's admitted
-    /// rotation. The declared f32 degrees compile to the f32 cosine of half the angle.</summary>
-    public static OrientationSensorDeclaration OrientationSensorFor(IWorkshopInstance owner,
-        CuriousContraptions.Abstractions.Signal.SignalOrientationDescriptor orientation, CompiledIdentityMap identities)
-    {
-        ArgumentNullException.ThrowIfNull(owner);
-        return new(identities[owner.Id].Orientation, owner.Id, owner.Rotation, OrientationThreshold.Degrees(orientation.ThresholdDegrees));
-    }
-
     /// <summary>The contact-load row a declared sensor compiles to on its owner's frame: the face is the owner's baked collider
     /// <c>RegionCollider</c> (resolved through the owner's compiled collider identities); the x–z footprint is that box's
     /// f32 half-extents about its offset, widened by the contact distance in x and the depth margin in z; the minimum is the owner's
@@ -489,10 +489,10 @@ public static class WorkshopPhysicsCompiler
     {
         var face = BundleGeometry.Colliders(DeclaredPhysics.Of(owner.PartId), owner.Parameters.ToBundleValues())[load.RegionCollider];
         var (centre, half) = (face.Offset, face.HalfExtents);
-        return new(identities[owner.Id].ContactLoad, owner.Id, identities[owner.Id].Colliders[load.RegionCollider],
+        return new(identities[owner.Id].Signals[load.Id].ContactLoad, identities.Body(owner.Id, load.Frame), identities[owner.Id].Colliders[load.RegionCollider],
             centre.X - half.X - load.ContactDistance, centre.X + half.X + load.ContactDistance,
             centre.Z - half.Z - load.DepthMargin, centre.Z + half.Z + load.DepthMargin,
-            load.LocalNormal, load.MinimumAlignment, load.ContactDistance, owner.Parameters[new ParameterId(load.MinimumMassParameter)],
+            load.LocalNormal, load.MinimumAlignment, load.ContactDistance, owner.Parameters[load.MinimumMassParameter],
             [.. load.SupportingColliders.Select(index => identities[owner.Id].Colliders[index])]);
     }
 

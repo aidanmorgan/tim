@@ -34,7 +34,31 @@ public static partial class PhysicsGpuAbi
         var stores=new ContactWorkRead[count];
         var pairs=interactions.Works.OrderBy(pair=>pair.Value.Work.Value).ThenBy(pair=>pair.Key.Target.Value).ToArray();
         var events=new ContactWorkOccurrence[pairs.Length];
-        for (var i=0; i<count; i++)
+        ReadContactWorkStores(data, layout, stores);
+        for (var i=0; i<pairs.Length; i++)
+        {
+            var value=pairs[i].Value;
+            value.Validate();
+            if (value.Work.Value>=count || pairs[i].Key.Policy!=stores[(int)value.Work.Value].Id)
+                throw new ArgumentException("Occurrence has no owner.");
+            var declaration=data.Slice(layout.ContactWorkOffset((int)value.Work.Value),ContactWorkBytes);
+            var found=false;
+            for (var body=0u; body<(uint)layout.Bodies; body++)
+                if (R64(data,layout.BodyOffset((int)body))==value.Target.Value && BodyMotion(data,body)==RigidMotionKind.Dynamic &&
+                    MatchesTarget(data,(BodyTargetKind)R32(declaration,ContactWorkTargetKindOffset),R32(declaration,ContactWorkNamedTargetOffset),body))
+                    found=true;
+            if (!found || (value.Sequence!=0 && (value.Collider.Value>=R32(data,HeaderColliderCountOffset) ||
+                R32(data,layout.ColliderOffset((int)value.Collider.Value)+ColliderBodyOffset)!=R32(declaration,ContactWorkOwnerOffset) ||
+                !AdmittedTime(value.EventOrdinal,value.EventPhase,R32(data,HeaderSourceOrdinalOffset)) || value.ApproachSpeed.Value<RF(declaration,ContactWorkAdmissionSpeedOffset))))
+                throw new ArgumentException("Occurrence does not bind its dynamic target, collider or time.");
+            events[i]=value;
+        }
+        return ContactWorkLedger.Adopt(stores,events);
+    }
+
+    private static void ReadContactWorkStores(ReadOnlySpan<byte> data, PhysicsWorldLayout layout, ContactWorkRead[] stores)
+    {
+        for (var i=0; i<stores.Length; i++)
         {
             var record=data.Slice(layout.ContactWorkOffset(i),ContactWorkBytes);
             var owner=R32(record,ContactWorkOwnerOffset); var policy=(BodyTargetKind)R32(record,ContactWorkTargetKindOffset);
@@ -55,25 +79,6 @@ public static partial class PhysicsGpuAbi
             if (stores[i].OccurrenceCount==0 && R32(record,ContactWorkPreloadOffset)!=R32(record,ContactWorkAvailableOffset))
                 throw new ArgumentException("Unused work owner spent its reservoir.");
         }
-        for (var i=0; i<pairs.Length; i++)
-        {
-            var value=pairs[i].Value;
-            value.Validate();
-            if (value.Work.Value>=count || pairs[i].Key.Policy!=stores[(int)value.Work.Value].Id)
-                throw new ArgumentException("Occurrence has no owner.");
-            var declaration=data.Slice(layout.ContactWorkOffset((int)value.Work.Value),ContactWorkBytes);
-            var found=false;
-            for (var body=0u; body<(uint)layout.Bodies; body++)
-                if (R64(data,layout.BodyOffset((int)body))==value.Target.Value && BodyMotion(data,body)==RigidMotionKind.Dynamic &&
-                    MatchesTarget(data,(BodyTargetKind)R32(declaration,ContactWorkTargetKindOffset),R32(declaration,ContactWorkNamedTargetOffset),body))
-                    found=true;
-            if (!found || (value.Sequence!=0 && (value.Collider.Value>=R32(data,HeaderColliderCountOffset) ||
-                R32(data,layout.ColliderOffset((int)value.Collider.Value)+ColliderBodyOffset)!=R32(declaration,ContactWorkOwnerOffset) ||
-                !AdmittedTime(value.EventOrdinal,value.EventPhase,R32(data,HeaderSourceOrdinalOffset)) || value.ApproachSpeed.Value<RF(declaration,ContactWorkAdmissionSpeedOffset))))
-                throw new ArgumentException("Occurrence does not bind its dynamic target, collider or time.");
-            events[i]=value;
-        }
-        return ContactWorkLedger.Adopt(stores,events);
     }
 
     /// <summary>The body table is the first table after the header, so a body row needs no other population.</summary>

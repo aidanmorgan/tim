@@ -77,7 +77,8 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
             var world = new WorkshopWorldProjection(read.Epoch, new(1), read.Tick, new(start.Value), WorldPlayback.Running);
             var substeps = (uint)(WorkshopCadenceSettings.PhysicalFrequency * WorkshopCadenceSettings.Default().SimulationRate.Denominator /
                 WorkshopCadenceSettings.Default().SimulationRate.Numerator);
-            presentation.AcceptEvents(new(read.Epoch.Value, 0, [new(1, read.Tick.Value, kind, owner.Value, 9,
+            var source = SimulationEvents.SignalSource(kind) ? bench.Instances.Identities[owner].Signals[new("signal")].Node.Value : owner.Value;
+            presentation.AcceptEvents(new(read.Epoch.Value, 0, [new(1, read.Tick.Value, kind, new(source), 9,
                 checked((uint)(read.Tick.Value * substeps)), 0f, 1f, 1, 0)]), world);
             // Analytic quarter/half/end samples, independent of the evaluator implementation.
             float[] amounts = id == new PartId("bumper") ? [0, .5f, 1, .5f, 0] : [0, .103515625f, .5f, .896484375f, 1];

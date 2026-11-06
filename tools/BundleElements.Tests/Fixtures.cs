@@ -75,11 +75,13 @@ internal sealed class SignalFixture : ISignalElement
     public ElementMetadata Metadata => new("signal_fixture", ElementCategory.Goals, "Signal fixture", "A signal fixture.", new(.5f, .5f, .5f, 1f), 3, "res://elements/SignalFixture/icon.svg",
         "res://elements/SignalFixture/signal.tscn", []);
     public ElementFootprint Footprint { get; init; } = new(1, 0, 0, 0);
-    public IReadOnlyList<PortDescriptor> Ports => [];
+    public IReadOnlyList<PortDescriptor> Ports { get; init; } = [];
     public IReadOnlyList<ColliderDescriptor> Colliders { get; init; } = [Fixture.Box(new(.4f, .1f, .4f))];
     public IReadOnlyList<EventDescriptor> Events => [];
     public SimulationDomain SupportedDomains => SimulationDomain.Signal;
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
+    public IReadOnlyList<SignalNodeDescriptor> SignalNodes { get; init; } = [];
+    public IReadOnlyList<SignalEdge> SignalEdges => [];
+    public IReadOnlyList<SignalPortBinding> SignalPorts { get; init; } = [];
 }
 
 internal sealed class CompliantFixture : ICompliantSurfaceElement

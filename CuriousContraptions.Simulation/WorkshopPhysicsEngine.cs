@@ -775,26 +775,28 @@ internal sealed class WorkshopPhysicsEngine
         }
 
         _candidatePairs.Clear();
-        _bvh.QueryOverlaps((idxA, idxB) =>
-        {
-            if (idxA >= idxB) return;
-            var colA = _colliders[idxA];
-            var colB = _colliders[idxB];
-            if (colA.BodySlot == colB.BodySlot) return;
-            if (colA.Body.Motion == RigidMotionKind.Static && colB.Body.Motion == RigidMotionKind.Static) return;
-            foreach (var j in _joints)
-            {
-                if (j.Collision == 0 && ((j.A == colA.Body && j.B == colB.Body) || (j.B == colA.Body && j.A == colB.Body)))
-                    return;
-            }
-            foreach (var j in _revoluteJoints)
-            {
-                if (j.Collision == 0 && ((j.A == colA.Body && j.B == colB.Body) || (j.B == colA.Body && j.A == colB.Body)))
-                    return;
-            }
-            _candidatePairs.Add((colA, colB));
-        });
+        _bvh.QueryOverlaps(AddCandidatePair);
 
+    }
+
+    private void AddCandidatePair(int idxA, int idxB)
+    {
+        if (idxA >= idxB) return;
+        var colA = _colliders[idxA];
+        var colB = _colliders[idxB];
+        if (colA.BodySlot == colB.BodySlot) return;
+        if (colA.Body.Motion == RigidMotionKind.Static && colB.Body.Motion == RigidMotionKind.Static) return;
+        foreach (var j in _joints)
+        {
+            if (j.Collision == 0 && ((j.A == colA.Body && j.B == colB.Body) || (j.B == colA.Body && j.A == colB.Body)))
+                return;
+        }
+        foreach (var j in _revoluteJoints)
+        {
+            if (j.Collision == 0 && ((j.A == colA.Body && j.B == colB.Body) || (j.B == colA.Body && j.A == colB.Body)))
+                return;
+        }
+        _candidatePairs.Add((colA, colB));
     }
 
     private void CommitResidence(Span<byte> span, PhysicsWorldLayout layout, PhysicsInteractionSnapshot committedInteractions, ImmutableDictionary<CapturePairKey, CapturePairState>.Builder captureStates, uint sourceOrdinal, uint nextOrdinal, float dt)

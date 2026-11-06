@@ -109,25 +109,25 @@ public sealed class IndependentSignalCompositionTests
         await harness.Run(); await harness.Advance(60);
         Assert.Equal(supplied ? ActivationPhase.Latched : ActivationPhase.Clear, Latch(harness.Committed, 5).Phase);
         var network = scene.Activation;
-        Assert.Equal(supplied ? 5U : 0U, network.Memory(harness.Committed.Memory, new(3)).Count);
+        Assert.Equal(supplied ? 5U : 0U, network.Memory(harness.Committed.Memory, SignalTestNodes.Only(network, new(3))).Count);
         if (supplied)
         {
             foreach (var id in new ulong[] { 2, 3, 4, 5 })
             {
                 var row = Latch(harness.Committed, id);
                 Assert.Equal(ActivationCauseKind.Node, row.CauseKind);
-                Assert.Equal(new GpuEventSourceId(2), row.Source);
+                Assert.Equal(new GpuEventSourceId(harness.Construction.Instances.Identities[new(2)].Signals[new("signal")].Node.Value), row.Source);
                 Assert.Equal(new GpuBodyId(2), row.Body);
                 Assert.Equal(default, row.Collider);
                 Assert.Equal(0f, row.ApproachSpeed.Value);
             }
             Assert.True(Latch(harness.Committed, 4).Occurrence.Time > Latch(harness.Committed, 4).Occurrence.Cause.Time);
-            Assert.Contains(harness.Records, record => record.Kind == SimulationEventKind.MemoryChanged && record.Source == 5 && record.Level == 1);
-            Assert.Equal(5, harness.Records.Count(record => record.Kind == SimulationEventKind.TriggerActivated && record.Source == 2));
+            Assert.Contains(harness.Records, record => record.Kind == SimulationEventKind.MemoryChanged && record.Source.Value == harness.Construction.Instances.Identities[new(5)].Signals[new("signal")].Node.Value && record.Level == 1);
+            Assert.Equal(5, harness.Records.Count(record => record.Kind == SimulationEventKind.TriggerActivated && record.Source.Value == harness.Construction.Instances.Identities[new(2)].Signals[new("signal")].Node.Value));
             Assert.Contains(harness.Presentation!.Advance(new(240)), sample => sample.Owner == new GpuBodyId(2));
-            AssertProjectedProvenance(harness.Latest, ActivationCauseKind.Node, new(2), new(2), default);
+            AssertProjectedProvenance(harness.Latest, ActivationCauseKind.Node, new(harness.Construction.Instances.Identities[new(2)].Signals[new("signal")].Node.Value), new(2), default);
         }
-        else Assert.DoesNotContain(harness.Records, record => record.Kind == SimulationEventKind.TriggerActivated && record.Source == 2);
+        else Assert.DoesNotContain(harness.Records, record => record.Kind == SimulationEventKind.TriggerActivated && record.Source.Value == harness.Construction.Instances.Identities[new(2)].Signals[new("signal")].Node.Value);
         await harness.Require(WorkshopCommandKind.Pause);
         var paused = harness.Committed.Tick;
         await harness.Require(WorkshopCommandKind.Step);
@@ -157,16 +157,16 @@ public sealed class IndependentSignalCompositionTests
             runControl: WorkshopIntegrationHarness.RunControl(harness.Simulation.Scene, new(1), RunControlValue.Of(enabled)));
         await Enable(ElectricalEnable.Disabled); await harness.Advance(13);
         var network = harness.Simulation.Scene.Activation;
-        Assert.Equal(0U, network.Memory(harness.Committed.Memory, new(2)).Count);
-        Assert.Equal(OscillatorPhase.Stopped, network.Memory(harness.Committed.Memory, new(2)).Phase);
+        Assert.Equal(0U, network.Memory(harness.Committed.Memory, SignalTestNodes.Only(network, new(2))).Count);
+        Assert.Equal(OscillatorPhase.Stopped, network.Memory(harness.Committed.Memory, SignalTestNodes.Only(network, new(2))).Phase);
         await Enable(ElectricalEnable.Enabled); await harness.Advance(1);
         var restarted = harness.Committed.Tick.Value;
-        Assert.Equal(restarted + 12, network.Memory(harness.Committed.Memory, new(2)).DueTick);
+        Assert.Equal(restarted + 12, network.Memory(harness.Committed.Memory, SignalTestNodes.Only(network, new(2))).DueTick);
         await harness.Advance(11);
-        Assert.Equal(0U, network.Memory(harness.Committed.Memory, new(2)).Count);
+        Assert.Equal(0U, network.Memory(harness.Committed.Memory, SignalTestNodes.Only(network, new(2))).Count);
         await harness.Advance(1);
-        Assert.Equal(1U, network.Memory(harness.Committed.Memory, new(2)).Count);
-        Assert.Single(harness.Records, record => record.Source == 2 && record.Kind == SimulationEventKind.TriggerActivated);
+        Assert.Equal(1U, network.Memory(harness.Committed.Memory, SignalTestNodes.Only(network, new(2))).Count);
+        Assert.Single(harness.Records, record => record.Source.Value == harness.Construction.Instances.Identities[new(2)].Signals[new("signal")].Node.Value && record.Kind == SimulationEventKind.TriggerActivated);
     }
 
     public enum CauseDefect { AbsentKind, UnknownKind, Collider, Speed, UnknownNode, WrongNode, UnknownOwner, PhysicalWithoutCollider, AbsentTimerKind, ReadyTimerWithCause, FractionalNodeTime, NonboundaryNodeOrdinal }
@@ -233,7 +233,7 @@ public sealed class IndependentSignalCompositionTests
         Assert.Equal(before.Epoch, harness.Committed.Epoch);
         Assert.Equal(before.Tick, harness.Committed.Tick);
         await harness.Advance(12);
-        Assert.Equal(6U, harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, new(3)).Count);
+        Assert.Equal(6U, harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, SignalTestNodes.Only(harness.Simulation.Scene.Activation, new(3))).Count);
     }
 
     private static int Field(Google.FlatBuffers.ByteBuffer buffer, int table, int field)
@@ -347,7 +347,7 @@ public sealed class IndependentSignalCompositionTests
         Assert.Equal(completed.Occurrence, Latch(harness.Committed, 5).Occurrence);
         Assert.Equal(ActivationTimerPhase.Finished, harness.Committed.Timers[0].Phase);
         AssertProjectedProvenance(harness.Latest, ActivationCauseKind.Physical,
-            new(bench.Instances.Identities[new(1)].Passage.Value), new(3), bench.Instances.Identities[new(3)].Colliders[0]);
+            new(bench.Instances.Identities[new(1)].Signals[new("signal")].Passage.Value), new(3), bench.Instances.Identities[new(3)].Colliders[0]);
     }
 
 }

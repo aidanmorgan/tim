@@ -90,22 +90,7 @@ public static partial class WorkshopWireFlatBuffers
 
     public static byte[] EncodeCommand(WorkshopCommand command)
     {
-        command.Session.Validate();
-        var hasScene = command.Kind is WorkshopCommandKind.Initialize or WorkshopCommandKind.Construct or WorkshopCommandKind.ConfigureCadence;
-        command.Scene?.Validate();
-        if (!Enum.IsDefined(command.Kind) || !Enum.IsDefined(command.RevisionKind) ||
-            (command.RevisionKind == ExpectedRevisionKind.Any && command.Revision.Value != 0) ||
-            (command.Kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && command.RevisionKind != ExpectedRevisionKind.Exact) ||
-            command.Sequence.Value == 0 || hasScene != (command.Scene is not null) ||
-            (command.Kind == WorkshopCommandKind.ConfigureRunControl) != command.RunControl.HasValue ||
-            command.RunControl is { IsCanonical: false } ||
-            (command.Kind == WorkshopCommandKind.CutRope) != command.Cut.HasValue || command.Cut is { Value: 0 } ||
-            (command.Kind == WorkshopCommandKind.Initialize
-                ? command.Cadence.Value != 0 || command.Projection.Value != 0
-                : command.Cadence.Value == 0 || command.Projection.Value == 0) ||
-            (command.Kind == WorkshopCommandKind.Cancel) != command.Target.HasValue ||
-            (command.Target is { } target && (target.Sequence.Value == 0 || target.Epoch.Value == 0 || target.Cadence.Value == 0 || target.Projection.Value == 0)))
-            throw new ArgumentException("Unsupported Workshop command.");
+        ValidateCommandEncoding(command);
 
         var builder = new FlatBufferBuilder(512);
         var session = Session(builder, command.Session);
@@ -166,15 +151,7 @@ public static partial class WorkshopWireFlatBuffers
                 throw new ArgumentException("Cancel target must have a complete original identity.");
         }
 
-        WorkshopRunControl? runControl = null;
-        if (fb.RunControl is { } r)
-        {
-            if (r.Owner == 0 || r.Control == 0 ||
-                !RunControlValue.TryCreate((RunControlValueKind)r.Kind, (ElectricalEnable)(byte)r.Enable, r.Scalar, out var value))
-                throw new WireFaultException(WireFaultReason.OutOfRange,
-                    $"The run control names value kind {r.Kind}, enable state {(byte)r.Enable} or a non-finite or non-zero unused scalar, or no owner or row.");
-            runControl = new(new GpuBodyId(r.Owner), new RunControlId(r.Control), value);
-        }
+        var runControl = DecodeRunControl(fb);
 
         var scene = fb.Scene is { } record ? DecodeCompiledScene(record) : null;
         return new WorkshopCommand(sequence, kind, new(fb.Epoch), new(fb.Revision), scene,
@@ -200,7 +177,11 @@ public static partial class WorkshopWireFlatBuffers
             {
                 var m = read.Memory[i];
                 ActivationMemoryRecord.CreateActivationMemoryRecord(builder, m.Node.Value, (uint)m.Kind, m.Count,
-                    m.Last.Ordinal, (float)m.Last.Phase, (uint)m.Phase, m.DueTick);
+                    m.Last.Ordinal, m.Last.Phase, (uint)m.Phase, m.DueTick,
+                    (uint)m.Dispatched.Kind, m.Dispatched.Emitter.Value, m.Dispatched.Time.Ordinal, m.Dispatched.Time.Phase,
+                    m.Dispatched.Cause.Source.Value, m.Dispatched.Cause.Body.Value, m.Dispatched.Cause.Collider.Value,
+                    m.Dispatched.Cause.Time.Ordinal, m.Dispatched.Cause.Time.Phase, m.Dispatched.Cause.ApproachSpeed.Value,
+                    (uint)m.Dispatched.Cause.Kind);
             }
             memoryOffset = builder.EndVector();
         }
@@ -412,18 +393,7 @@ public static partial class WorkshopWireFlatBuffers
     public static byte[] EncodeResponse(WorkshopResponse response, FlatBufferBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        if (!Enum.IsDefined(response.Kind) || !Enum.IsDefined(response.Phase) ||
-            !Enum.IsDefined(response.Result.Outcome) || !Enum.IsDefined(response.Result.Reason) ||
-            (response.Kind == WorkshopResponseKind.Acknowledgement) != (response.Sequence.Value != 0))
-            throw new ArgumentException("Unsupported Workshop response.");
-        response.Session.Validate();
-        if ((response.Kind == WorkshopResponseKind.Read) != (response.Publication.Value != 0))
-            throw new ArgumentException("Invalid physical publication identity.");
-        ValidateMemory(response);
-        WorkshopMessages.ValidateCapture(response.Read);
-        WorkshopMessages.ValidateScheduleIdentity(response);
-        if (response.Scene is { } ownerConstruction) WorkshopMessages.ValidatePresentationOwners(response.Read, ownerConstruction);
-        WorkshopMessages.ValidatePhysicalRead(response.Read);
+        ValidateResponseEncoding(response);
 
         builder.Clear();
         var read = response.Read;
@@ -572,23 +542,7 @@ public static partial class WorkshopWireFlatBuffers
                 a.CauseOrdinal, a.CausePhase, (ActivationCauseKind)a.CauseKind);
         }
 
-        var timerValues = new ActivationTimerState[fb.TimersLength];
-        for (var i = 0; i < timerValues.Length; i++)
-        {
-            var t = fb.Timers(i)!.Value;
-            var timerPhase = (ActivationTimerPhase)t.Phase;
-            ActivationOccurrence input = default;
-            if (timerPhase == ActivationTimerPhase.Ready && (t.InputKind != 0 || t.InputOrdinal != 0 ||
-                t.InputPhase != 0f || t.InputApproachSpeed != 0f || t.InputEmitter != 0 || t.CauseSource != 0 ||
-                t.CauseBody != 0 || t.CauseCollider != 0 || t.CauseOrdinal != 0 || t.CausePhase != 0f || t.CauseKind != 0))
-                throw new WireFaultException(WireFaultReason.OutOfRange, "Ready timer retained provenance.");
-            if (timerPhase != ActivationTimerPhase.Ready)
-                input = new ActivationOccurrence((ActivationOccurrenceKind)t.InputKind, new ActivationNodeId(t.InputEmitter),
-                    new ActivationTime(t.InputOrdinal, t.InputPhase),
-                    new ActivationCause(new GpuEventSourceId(t.CauseSource), new GpuBodyId(t.CauseBody), new GpuColliderId(t.CauseCollider),
-                        new ActivationTime(t.CauseOrdinal, t.CausePhase), new ContactSpeed(t.InputApproachSpeed), (ActivationCauseKind)t.CauseKind));
-            timerValues[i] = new ActivationTimerState(new ActivationNodeId(t.Node), timerPhase, t.StartedTick, t.DueTick, input);
-        }
+        var timerValues = DecodeTimersRead(fb);
 
         // The record's own vector lengths (Story 9R.5b: never narrowed; a byte cast here truncated past 255 occurrences).
         var stores = new ContactWorkRead[fb.ContactWorksLength];
@@ -611,27 +565,12 @@ public static partial class WorkshopWireFlatBuffers
             driveTargets[i] = new RevoluteDriveTargetRead(new GpuBodyId(d.Owner), d.TargetSpeed);
         }
 
-        var ropeValues = new RopeSpanRead[fb.RopesLength];
-        for (var i = 0; i < ropeValues.Length; i++)
-        {
-            var row = Required(fb.Ropes(i), "rope observation");
-            var a = Required(row.AttachmentA, "rope attachment A"); var b = Required(row.AttachmentB, "rope attachment B");
-            ropeValues[i] = new(new(row.Id), new(row.Route), row.Order, new(row.BodyA), new(row.BodyB),
-                new(a.X, a.Y, a.Z), new(b.X, b.Y, b.Z), row.MaximumLength, row.CurrentLength,
-                (RopeIntegrity)row.Integrity, (RopeState)row.State, new(row.CutSpan));
-        }
-        var guideValues = new RopeGuideRead[fb.RopeGuidesLength];
-        for (var i = 0; i < guideValues.Length; i++)
-        {
-            var row = Required(fb.RopeGuides(i), "rope guide observation");
-            guideValues[i] = new(new(row.Guide), row.Travel, row.Angle);
-        }
-        var surfaceValues = new CompliantSurfaceRead[fb.CompliantSurfacesLength];
-        for (var i = 0; i < surfaceValues.Length; i++)
-        {
-            var row = Required(fb.CompliantSurfaces(i), "compliant surface observation");
-            surfaceValues[i] = new(new(row.Frame), row.Deflection);
-        }
+        var ropeValues = DecodeRopesRead(fb);
+
+        var guideValues = DecodeGuidesRead(fb);
+
+        var surfaceValues = DecodeSurfacesRead(fb);
+
         var logicValues=new ElectricalLogicRead[fb.ElectricalLogicLength];
         for(var i=0;i<logicValues.Length;i++)
         {
@@ -651,13 +590,7 @@ public static partial class WorkshopWireFlatBuffers
             var l = fb.ContactLoads(i)!.Value;
             loadValues[i] = new(new(l.Sensor), new(l.Frame), new(l.Region), l.MeasuredMass, (ContactLoadPhase)l.Phase);
         }
-        var memoryValues = new ActivationMemory[fb.ActivationMemoryLength];
-        for (var i = 0; i < memoryValues.Length; i++)
-        {
-            var m = fb.ActivationMemory(i)!.Value;
-            memoryValues[i] = new ActivationMemory(new ActivationNodeId(m.Node), (ActivationNodeKind)m.Kind, m.Count,
-                new ActivationTime(m.LastOrdinal, m.LastPhase), (OscillatorPhase)m.Phase, m.DueTick);
-        }
+        var memoryValues = DecodeMemoryRead(fb);
 
         // A committed read past admission carries its motion; admission's absent motion stays absent (nothing is fabricated).
         var motionBytes = fb.GetMotionArray();
@@ -695,4 +628,138 @@ public static partial class WorkshopWireFlatBuffers
 
     internal static T Required<T>(T? value, string field) where T : struct =>
         value ?? throw new WireFaultException(WireFaultReason.MissingField, $"Missing {field}.");
+
+    private static bool InvalidCancelIdentity(WorkshopCommandIdentity? identity) =>
+        identity is { } target && (target.Sequence.Value == 0 || target.Epoch.Value == 0 || target.Cadence.Value == 0 || target.Projection.Value == 0);
+
+    private static void ValidateCommandEncoding(WorkshopCommand command)
+    {
+        command.Session.Validate();
+        var hasScene = command.Kind is WorkshopCommandKind.Initialize or WorkshopCommandKind.Construct or WorkshopCommandKind.ConfigureCadence;
+        command.Scene?.Validate();
+        if (!Enum.IsDefined(command.Kind) || !Enum.IsDefined(command.RevisionKind) ||
+            (command.RevisionKind == ExpectedRevisionKind.Any && command.Revision.Value != 0) ||
+            (command.Kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && command.RevisionKind != ExpectedRevisionKind.Exact) ||
+            command.Sequence.Value == 0 || hasScene != (command.Scene is not null) ||
+            (command.Kind == WorkshopCommandKind.ConfigureRunControl) != command.RunControl.HasValue ||
+            command.RunControl is { IsCanonical: false } ||
+            (command.Kind == WorkshopCommandKind.CutRope) != command.Cut.HasValue || command.Cut is { Value: 0 } ||
+            (command.Kind == WorkshopCommandKind.Initialize
+                ? command.Cadence.Value != 0 || command.Projection.Value != 0
+                : command.Cadence.Value == 0 || command.Projection.Value == 0) ||
+            (command.Kind == WorkshopCommandKind.Cancel) != command.Target.HasValue ||
+            InvalidCancelIdentity(command.Target))
+            throw new ArgumentException("Unsupported Workshop command.");
+
+    }
+
+    private static WorkshopRunControl? DecodeRunControl(Wire.WorkshopCommand fb)
+    {
+        WorkshopRunControl? runControl = null;
+        if (fb.RunControl is { } r)
+        {
+            if (r.Owner == 0 || r.Control == 0 ||
+                !RunControlValue.TryCreate((RunControlValueKind)r.Kind, (ElectricalEnable)(byte)r.Enable, r.Scalar, out var value))
+                throw new WireFaultException(WireFaultReason.OutOfRange,
+                    $"The run control names value kind {r.Kind}, enable state {(byte)r.Enable} or a non-finite or non-zero unused scalar, or no owner or row.");
+            runControl = new(new GpuBodyId(r.Owner), new RunControlId(r.Control), value);
+        }
+
+        return runControl;
+    }
+
+    private static void ValidateResponseEncoding(WorkshopResponse response)
+    {
+        if (!Enum.IsDefined(response.Kind) || !Enum.IsDefined(response.Phase) ||
+            !Enum.IsDefined(response.Result.Outcome) || !Enum.IsDefined(response.Result.Reason) ||
+            (response.Kind == WorkshopResponseKind.Acknowledgement) != (response.Sequence.Value != 0))
+            throw new ArgumentException("Unsupported Workshop response.");
+        response.Session.Validate();
+        if ((response.Kind == WorkshopResponseKind.Read) != (response.Publication.Value != 0))
+            throw new ArgumentException("Invalid physical publication identity.");
+        ValidateMemory(response);
+        WorkshopMessages.ValidateCapture(response.Read);
+        WorkshopMessages.ValidateScheduleIdentity(response);
+        if (response.Scene is { } ownerConstruction) WorkshopMessages.ValidatePresentationOwners(response.Read, ownerConstruction);
+        WorkshopMessages.ValidatePhysicalRead(response.Read);
+
+    }
+
+    private static ActivationTimerState[] DecodeTimersRead(Wire.WorkshopResponse fb)
+    {
+        var timerValues = new ActivationTimerState[fb.TimersLength];
+        for (var i = 0; i < timerValues.Length; i++)
+        {
+            var t = fb.Timers(i)!.Value;
+            var timerPhase = (ActivationTimerPhase)t.Phase;
+            ActivationOccurrence input = default;
+            if (timerPhase == ActivationTimerPhase.Ready && (t.InputKind != 0 || t.InputOrdinal != 0 ||
+                t.InputPhase != 0f || t.InputApproachSpeed != 0f || t.InputEmitter != 0 || t.CauseSource != 0 ||
+                t.CauseBody != 0 || t.CauseCollider != 0 || t.CauseOrdinal != 0 || t.CausePhase != 0f || t.CauseKind != 0))
+                throw new WireFaultException(WireFaultReason.OutOfRange, "Ready timer retained provenance.");
+            if (timerPhase != ActivationTimerPhase.Ready)
+                input = new ActivationOccurrence((ActivationOccurrenceKind)t.InputKind, new ActivationNodeId(t.InputEmitter),
+                    new ActivationTime(t.InputOrdinal, t.InputPhase),
+                    new ActivationCause(new GpuEventSourceId(t.CauseSource), new GpuBodyId(t.CauseBody), new GpuColliderId(t.CauseCollider),
+                        new ActivationTime(t.CauseOrdinal, t.CausePhase), new ContactSpeed(t.InputApproachSpeed), (ActivationCauseKind)t.CauseKind));
+            timerValues[i] = new ActivationTimerState(new ActivationNodeId(t.Node), timerPhase, t.StartedTick, t.DueTick, input);
+        }
+
+        return timerValues;
+    }
+
+    private static RopeSpanRead[] DecodeRopesRead(Wire.WorkshopResponse fb)
+    {
+        var ropeValues = new RopeSpanRead[fb.RopesLength];
+        for (var i = 0; i < ropeValues.Length; i++)
+        {
+            var row = Required(fb.Ropes(i), "rope observation");
+            var a = Required(row.AttachmentA, "rope attachment A"); var b = Required(row.AttachmentB, "rope attachment B");
+            ropeValues[i] = new(new(row.Id), new(row.Route), row.Order, new(row.BodyA), new(row.BodyB),
+                new(a.X, a.Y, a.Z), new(b.X, b.Y, b.Z), row.MaximumLength, row.CurrentLength,
+                (RopeIntegrity)row.Integrity, (RopeState)row.State, new(row.CutSpan));
+        }
+        return ropeValues;
+    }
+
+    private static RopeGuideRead[] DecodeGuidesRead(Wire.WorkshopResponse fb)
+    {
+        var guideValues = new RopeGuideRead[fb.RopeGuidesLength];
+        for (var i = 0; i < guideValues.Length; i++)
+        {
+            var row = Required(fb.RopeGuides(i), "rope guide observation");
+            guideValues[i] = new(new(row.Guide), row.Travel, row.Angle);
+        }
+        return guideValues;
+    }
+
+    private static CompliantSurfaceRead[] DecodeSurfacesRead(Wire.WorkshopResponse fb)
+    {
+        var surfaceValues = new CompliantSurfaceRead[fb.CompliantSurfacesLength];
+        for (var i = 0; i < surfaceValues.Length; i++)
+        {
+            var row = Required(fb.CompliantSurfaces(i), "compliant surface observation");
+            surfaceValues[i] = new(new(row.Frame), row.Deflection);
+        }
+        return surfaceValues;
+    }
+
+    private static ActivationMemory[] DecodeMemoryRead(Wire.WorkshopResponse fb)
+    {
+        var memoryValues = new ActivationMemory[fb.ActivationMemoryLength];
+        for (var i = 0; i < memoryValues.Length; i++)
+        {
+            var m = fb.ActivationMemory(i)!.Value;
+            memoryValues[i] = new ActivationMemory(new ActivationNodeId(m.Node), (ActivationNodeKind)m.Kind, m.Count,
+                new ActivationTime(m.LastOrdinal, m.LastPhase), (OscillatorPhase)m.Phase, m.DueTick,
+                new((ActivationOccurrenceKind)m.DispatchedKind, new(m.DispatchedEmitter),
+                    new(m.DispatchedOrdinal, m.DispatchedPhase),
+                    new(new(m.CauseSource), new(m.CauseBody), new(m.CauseCollider),
+                        new(m.CauseOrdinal, m.CausePhase), new(m.CauseSpeed), (ActivationCauseKind)m.CauseKind)));
+        }
+
+        return memoryValues;
+    }
+
+
 }

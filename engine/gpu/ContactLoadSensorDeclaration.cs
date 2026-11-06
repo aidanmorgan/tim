@@ -37,17 +37,8 @@ public readonly record struct ContactLoadSensorDeclaration(
     {
         if (Id.Value == 0 || Frame.Value == 0 || Region.Value == 0)
             throw new ArgumentException("Contact-load sensor, frame and face identities are required.");
-        if (SupportingColliders.IsDefaultOrEmpty) throw new ArgumentException("A sensing region requires explicit supporting colliders.");
-        for (var i = 0; i < SupportingColliders.Length; i++)
-        {
-            if (SupportingColliders[i].Value == 0) throw new ArgumentException("A supporting collider identity is absent.");
-            for (var j = 0; j < i; j++)
-                if (SupportingColliders[i] == SupportingColliders[j]) throw new ArgumentException("Duplicate supporting collider.");
-        }
-        if (!float.IsFinite(MinimumX) || !float.IsFinite(MaximumX) || !float.IsFinite(MinimumZ) || !float.IsFinite(MaximumZ) ||
-            MinimumX >= MaximumX || MinimumZ >= MaximumZ || MathF.Abs(MinimumX) > 16 || MathF.Abs(MaximumX) > 16 ||
-            MathF.Abs(MinimumZ) > 16 || MathF.Abs(MaximumZ) > 16)
-            throw new ArgumentOutOfRangeException(nameof(MinimumX), "Contact-load footprint must be finite, ordered and within 16 m.");
+        ValidateSupportingColliders();
+        ValidateFootprint();
         if (!float.IsFinite(LocalNormal.X) || !float.IsFinite(LocalNormal.Y) || !float.IsFinite(LocalNormal.Z) ||
             MathF.Abs(LocalNormal.LengthSquared() - 1) > 1e-6f)
             throw new ArgumentOutOfRangeException(nameof(LocalNormal), "Contact-load normal must be a unit vector.");
@@ -57,6 +48,25 @@ public readonly record struct ContactLoadSensorDeclaration(
             throw new ArgumentOutOfRangeException(nameof(MaximumGap), "Maximum gap must be in [0, 0.01] m.");
         if (!float.IsFinite(MinimumMass) || MinimumMass <= 0)
             throw new ArgumentOutOfRangeException(nameof(MinimumMass), "Minimum mass must be finite and positive.");
+    }
+
+    private void ValidateSupportingColliders()
+    {
+        if (SupportingColliders.IsDefaultOrEmpty) throw new ArgumentException("A sensing region requires explicit supporting colliders.");
+        for (var i = 0; i < SupportingColliders.Length; i++)
+        {
+            if (SupportingColliders[i].Value == 0) throw new ArgumentException("A supporting collider identity is absent.");
+            for (var j = 0; j < i; j++)
+                if (SupportingColliders[i] == SupportingColliders[j]) throw new ArgumentException("Duplicate supporting collider.");
+        }
+    }
+
+    private void ValidateFootprint()
+    {
+        if (!float.IsFinite(MinimumX) || !float.IsFinite(MaximumX) || !float.IsFinite(MinimumZ) || !float.IsFinite(MaximumZ) ||
+            MinimumX >= MaximumX || MinimumZ >= MaximumZ || MathF.Abs(MinimumX) > 16 || MathF.Abs(MaximumX) > 16 ||
+            MathF.Abs(MinimumZ) > 16 || MathF.Abs(MaximumZ) > 16)
+            throw new ArgumentOutOfRangeException(nameof(MinimumX), "Contact-load footprint must be finite, ordered and within 16 m.");
     }
 
     /// <summary>The phase of a measured f32 mass, compared before any rounding: Empty (no qualifying mass), Underweight

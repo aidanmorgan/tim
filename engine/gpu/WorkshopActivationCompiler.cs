@@ -1,9 +1,9 @@
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Abstractions.Signal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using CuriousContraptions.Abstractions.Signal;
+using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
 
@@ -12,96 +12,88 @@ public static class WorkshopActivationCompiler
     public static ActivationNetwork Compile(WorkshopConstruction construction)
     {
         construction.Validate();
-        var nodes = new List<ActivationNodeDeclaration>(16);
-        var passageSensors = new List<PassageSensorDeclaration>(4);
-        foreach (var instance in construction.Instances)
-        {
-            if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Contact is not null)
-                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactSource, construction.Instances.Identities[instance.Id].Trigger));
-            else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Indicator is { } indicator)
-                nodes.Add(new(new(instance.Id.Value), instance.Id, IndicatorKind(instance.Id, indicator, construction), default));
-            else if (instance is WorkshopGenericInstance generic && DeclaredPhysics.Of(instance.PartId).Signal?.Timer is { } timer)
-                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.Timer, default,
-                    ActivationTimerDeclaration.Duration(generic.Parameters[new ParameterId(timer.DurationParameter)], construction.Settings.Simulation),
-                    Completion: timer.Completion, Boundary: timer.Boundary, ElapsedSignal: timer.ElapsedSignal));
-            // A declared orientation threshold owns a node only while wired: its sensor compiles under the same condition.
-            else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Orientation is not null &&
-                     construction.Connections.HasSource(instance.Id))
-                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.OrientationSource, default, 0, construction.Instances.Identities[instance.Id].Orientation));
-            else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Passage is { } aperture)
-            {
-                var sensor = PassageSensorFor(instance, aperture, construction.Instances.Identities);
-                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.PassageSource, default, 0, default, sensor.Id));
-                passageSensors.Add(sensor);
-            }
-            // A declared pulse count or memory holds committed discrete state in one node.
-            else if (instance is WorkshopGenericInstance held && DeclaredPhysics.Of(instance.PartId).Signal is { } declared &&
-                     MemoryNode(held, declared) is { } memory)
-                nodes.Add(memory);
-            // A declared contact-load sensor commits its own level, wired or not, so its row is one activation node; its declared
-            // release hold (Story 9R.5) is compiled to ticks of this construction's cadence.
-            else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.ContactLoad is { } load)
-                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactLoadSource, default,
-                    ContactLoad: construction.Instances.Identities[instance.Id].ContactLoad,
-                    ReleaseHoldTicks: ActivationTimerDeclaration.Duration(load.ReleaseHoldSeconds, construction.Settings.Simulation)));
-            // A declared oscillator pulses while its PowerIn route has one upstream source: its interval compiles to whole ticks of this
-            // construction's cadence. Each pulse retains its declared node as its origin.
-            else if (instance is WorkshopGenericInstance periodic && DeclaredPhysics.Of(instance.PartId).Signal?.Oscillator is { } oscillator)
-            {
-                var sources = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of).UpstreamSources(periodic.Id);
-                if (sources.Length > 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
-                    "This source-accounted input requires one upstream source.");
-                var powerSource = sources.Length == 1 ? sources[0] : default;
-                var intervalTicks = ActivationTimerDeclaration.Duration(periodic.Parameters[new ParameterId(oscillator.IntervalParameter)],
-                    construction.Settings.Simulation);
-                nodes.Add(new(new(periodic.Id.Value), periodic.Id, ActivationNodeKind.Oscillator, default, 0, default, default, 0, intervalTicks,
-                    powerSource));
-            }
-        }
-        var edges = Edges(construction);
-        return new(nodes.ToArray(), edges.ToArray(), new WorkshopGpuProfile(construction.Settings.Simulation,
-            construction.Settings.Physical, new(1)).Substeps, passageSensors.ToArray(),
+        var graph = new WorkshopSignalGraph(construction.Instances, construction.Connections);
+        var supply = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of);
+        var nodes = graph.Nodes.Select(node => CompileNode(construction, graph, supply, node)).ToArray();
+        var passages = new List<PassageSensorDeclaration>();
+        foreach (var resolved in graph.Nodes)
+            if (resolved.Declaration is SignalPassageDescriptor passage)
+                passages.Add(PassageSensorFor(construction.Instances.Single(owner => owner.Id == resolved.Owner),
+                    passage, construction.Instances.Identities));
+        return new(nodes, Edges(graph), new WorkshopGpuProfile(construction.Settings.Simulation,
+            construction.Settings.Physical, new(1)).Substeps, passages.ToArray(),
             construction.Instances.Where(instance => DeclaredPhysics.Of(instance.PartId).Electrical?.Supply?.Kind ==
-                CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact).Select(instance=>instance.Id).ToArray());
+                CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact).Select(instance =>
+                {
+                    var control = DeclaredPhysics.Of(instance.PartId).Electrical!.Supply!.Value.Control!.Value;
+                    return new CompiledSignalContact(instance.Id,
+                        construction.Instances.Identities[instance.Id].Signals[control.Node].Node, control.State);
+                }).ToArray());
     }
 
-    /// <summary>Compiles the authored activation links into typed activation edges.</summary>
-    public static IReadOnlyList<ActivationEdge> Edges(WorkshopConstruction construction)
+    public static ActivationEdge[] Edges(WorkshopSignalGraph graph) =>
+        graph.Edges.Select(edge => new ActivationEdge(edge.Source, edge.Target, edge.Input switch
+        {
+            SignalTerminal.Input => PortRole.ActivationIn,
+            SignalTerminal.Set => PortRole.SetIn,
+            SignalTerminal.Reset => PortRole.ResetIn,
+            _ => throw new ArgumentException("Unsupported input terminal.")
+        })).ToArray();
+
+    private static ActivationNodeDeclaration CompileNode(WorkshopConstruction construction, WorkshopSignalGraph graph,
+        SupplyTopology supply, ResolvedSignalNode node)
     {
-        var edges = new List<ActivationEdge>(16);
-        foreach (var link in construction.Connections)
-            if (link.Domain == WorkshopConnectionDomain.Activation)
-                edges.Add(new(new(link.Source.Value), new(link.Target.Value), DeclaredPorts.Current.Role(construction.Instances.Single(i => i.Id == link.Target).PartId, link.Input)));
-        return edges;
+        var owner = (WorkshopGenericInstance)construction.Instances.Single(instance => instance.Id == node.Owner);
+        var ids = construction.Instances.Identities[node.Owner].Signals[node.Declaration.Id];
+        var cadence = construction.Settings.Simulation;
+        uint Duration(ParameterId parameter) => ActivationTimerDeclaration.Duration(owner.Parameters[parameter], cadence);
+        return node.Declaration switch
+        {
+            SignalContactDescriptor => new(node.Id, node.Owner, ActivationNodeKind.ContactSource, ids.Trigger),
+            SignalOrientationDescriptor => new(node.Id, node.Owner, ActivationNodeKind.OrientationSource, default, Sensor: ids.Orientation),
+            SignalPassageDescriptor => new(node.Id, node.Owner, ActivationNodeKind.PassageSource, default, Passage: ids.Passage),
+            SignalContactLoadDescriptor load => new(node.Id, node.Owner, ActivationNodeKind.ContactLoadSource, default,
+                ContactLoad: ids.ContactLoad, ReleaseHoldTicks: ActivationTimerDeclaration.Duration(load.ReleaseHoldSeconds, cadence)),
+            SignalTimerDescriptor timer => new(node.Id, node.Owner, ActivationNodeKind.Timer, default, Duration(timer.DurationParameter),
+                Completion: timer.Completion, Boundary: timer.Boundary, ElapsedSignal: timer.ElapsedSignal),
+            SignalPulseCountDescriptor count => new(node.Id, node.Owner, ActivationNodeKind.Counter, default,
+                TargetCount: CounterTarget(owner.Parameters[count.TargetParameter])),
+            SignalMemoryDescriptor => new(node.Id, node.Owner, ActivationNodeKind.StateLatch, default),
+            SignalIndicatorDescriptor => new(node.Id, node.Owner, IndicatorKind(node.Id, graph), default),
+            SignalOscillatorDescriptor oscillator => new(node.Id, node.Owner, ActivationNodeKind.Oscillator, default,
+                IntervalTicks: Duration(oscillator.IntervalParameter), PowerSource: Source(supply, node.Owner)),
+            _ => throw new ArgumentException("Unsupported signal operation.")
+        };
     }
 
-    /// <summary>The node a declared pulse count or memory compiles to (null for any other declaration): a pulse count counts toward
-    /// its WholeNumber target parameter (the network admits 1–9), and a memory is one bistable Set/Reset node.</summary>
-    public static ActivationNodeDeclaration? MemoryNode(WorkshopGenericInstance owner, CuriousContraptions.Bundle.SignalPayload signal)
+    private static GpuBodyId Source(SupplyTopology supply, GpuBodyId owner)
     {
-        ArgumentNullException.ThrowIfNull(signal);
-        if (signal.PulseCount is { } count)
-            return new(new(owner.Id.Value), owner.Id, ActivationNodeKind.Counter, default, 0, default, default,
-                (uint)owner.Parameters[new ParameterId(count.TargetParameter)]);
-        return signal.Memory is null ? null : new(new(owner.Id.Value), owner.Id, ActivationNodeKind.StateLatch, default);
+        var sources = supply.UpstreamSources(owner);
+        if (sources.Length > 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
+            "This source-accounted input requires one upstream source.");
+        return sources.Length == 1 ? sources[0] : default;
     }
 
-    /// <summary>The node a declared indicator compiles to: an Activation link into its declared input from a level output makes it
-    /// follow that level (LevelIndicator); any other wiring, or none, holds its first input (StickyFirstInput).</summary>
-    public static ActivationNodeKind IndicatorKind(GpuBodyId owner, SignalIndicatorDescriptor indicator, WorkshopConstruction construction)
+    public static uint CounterTarget(float value)
     {
-        return construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&
-            link.Target == owner && link.Input == indicator.Input && construction.Instances.Any(source => source.Id == link.Source &&
-                DeclaredPorts.Current.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
+        if (!float.IsFinite(value) || value < 1 || value >= 4294967296f || value != MathF.Truncate(value))
+            throw new ArgumentOutOfRangeException(nameof(value));
+        return checked((uint)value);
+    }
+
+    public static ActivationNodeKind IndicatorKind(ActivationNodeId id, WorkshopSignalGraph graph) =>
+        graph.Edges.Any(edge => edge.Target == id && graph.Nodes.Any(node => node.Id == edge.Source &&
+            SignalTerminals.Kind(node.Declaration, SignalTerminal.Output) == PortSignalKind.Level))
             ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput;
-    }
 
-    /// <summary>The passage sensor a declared aperture compiles to on its owner's frame, at the owner's placed pose, with the
-    /// declared f32 radius and rearm clearance exactly.</summary>
-    public static PassageSensorDeclaration PassageSensorFor(IWorkshopInstance owner, SignalPassageDescriptor aperture, CompiledIdentityMap identities)
+    public static PassageSensorDeclaration PassageSensorFor(IWorkshopInstance owner, SignalPassageDescriptor passage,
+        CompiledIdentityMap identities)
     {
-        ArgumentNullException.ThrowIfNull(owner);
-        return new(identities[owner.Id].Passage, owner.Id, owner.Cell, owner.Local, owner.Rotation,
-            new(aperture.ApertureRadius), new(aperture.RearmClearance));
+        var rotation = new Quaternion(owner.Rotation.X, owner.Rotation.Y, owner.Rotation.Z, owner.Rotation.W);
+        var offset = Vector3.Transform(passage.LocalPosition, rotation) * 16f;
+        var turn = Quaternion.Normalize(rotation * passage.LocalRotation);
+        return new(identities[owner.Id].Signals[passage.Id].Passage, identities.Body(owner.Id, passage.Frame), owner.Cell,
+            new(owner.Local.X + offset.X, owner.Local.Y + offset.Y, owner.Local.Z + offset.Z),
+            new(turn.X, turn.Y, turn.Z, turn.W), new(passage.ApertureRadius), new(passage.RearmClearance));
     }
 }

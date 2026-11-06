@@ -13,59 +13,53 @@ public sealed class DeclaredMemoryTests
     // ---------- the declared capabilities select the nodes ----------
 
     [Fact]
-    public void TheCounterAndTheLatchDeclareTheirCapabilitiesAndNothingElseDoes()
+    public void TheCounterAndTheLatchDeclareIndependentMemoryOperations()
     {
         var counter = DeclaredPhysics.Of(new PartId("counter")).Signal!;
-        Assert.Equal(new CuriousContraptions.Abstractions.Signal.SignalPulseCountDescriptor("target_count"), counter.PulseCount);
-        Assert.Null(counter.Memory);
+        Assert.Equal(new CuriousContraptions.Abstractions.Signal.SignalPulseCountDescriptor(new("signal"), new("target_count")), Assert.Single(counter.Nodes));
         var latch = DeclaredPhysics.Of(new PartId("latch")).Signal!;
-        Assert.Equal(new CuriousContraptions.Abstractions.Signal.SignalMemoryDescriptor(CuriousContraptions.Abstractions.PortId.SetIn,
-            CuriousContraptions.Abstractions.PortId.ResetIn), latch.Memory);
-        Assert.Null(latch.PulseCount);
-        // Exactly these two packages declare either capability.
-        Assert.Equal([new PartId("counter"), new PartId("latch")], SaveFixture.Elements.Where(part => DeclaredPhysics.Of(part).Signal is { } signal &&
-            (signal.PulseCount is not null || signal.Memory is not null)).OrderBy(part => part.Value, StringComparer.Ordinal));
+        Assert.Equal(new CuriousContraptions.Abstractions.Signal.SignalMemoryDescriptor(new("signal")), Assert.Single(latch.Nodes));
     }
 
-    // The node a declared capability compiles to, field for field: the counter's target is its parameter (1 and 9, the bounds), the
-    // latch is one bistable node, and a declaration with neither (the lamp, the plate) compiles no memory node here.
     [Theory]
     [InlineData(1)]
     [InlineData(9)]
     public void ADeclaredPulseCountCompilesItsCounterNodeAtItsTarget(int target)
     {
-        var counter = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Counter(new(7), 0, 1, 0, 0, 0, 0, 1, target));
-        var node = WorkshopActivationCompiler.MemoryNode(counter, DeclaredPhysics.Of(new PartId("counter")).Signal!);
-        Assert.Equal(new ActivationNodeDeclaration(new(7), new(7), ActivationNodeKind.Counter, default, 0, default, default, (uint)target), node);
-        var compiled = Assert.Single(WorkshopActivationCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), new(counter))).Nodes.ToArray());
-        Assert.Equal(node, compiled);
+        var counter = PlacedParts.Counter(new(7), 0, 1, 0, 0, 0, 0, 1, target);
+        var bench = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(counter));
+        var node = Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray());
+        Assert.Equal(ActivationNodeKind.Counter, node.Kind);
+        Assert.Equal((uint)target, node.TargetCount);
+        Assert.Equal(counter.Id, node.Owner);
+        Assert.Equal(bench.Instances.Identities[counter.Id].Signals[new("signal")].Node, node.Id);
+        Assert.NotEqual(node.Owner.Value, node.Id.Value);
     }
 
     [Fact]
-    public void ADeclaredMemoryCompilesOneStateLatchNodeAndOtherDeclarationsNone()
+    public void ADeclaredMemoryCompilesOneStateLatchNode()
     {
-        var latch = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Latch(new(4), 0, 1, 0, 0, 0, 0, 1));
-        Assert.Equal(new ActivationNodeDeclaration(new(4), new(4), ActivationNodeKind.StateLatch, default),
-            WorkshopActivationCompiler.MemoryNode(latch, DeclaredPhysics.Of(new PartId("latch")).Signal!));
-        var lamp = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Lamp(new(5), 0, 1, 0, 0, 0, 0, 1));
-        Assert.Null(WorkshopActivationCompiler.MemoryNode(lamp, DeclaredPhysics.Of(new PartId("lamp")).Signal!));
-        var plate = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Plate(new(6), 0, 1, 0, .5f));
-        Assert.Null(WorkshopActivationCompiler.MemoryNode(plate, DeclaredPhysics.Of(new PartId("pressure_plate")).Signal!));
+        var latch = PlacedParts.Latch(new(4), 0, 1, 0, 0, 0, 0, 1);
+        var node = Assert.Single(WorkshopActivationCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), new(latch))).Nodes.ToArray());
+        Assert.Equal(ActivationNodeKind.StateLatch, node.Kind);
+        Assert.Equal(latch.Id, node.Owner);
     }
 
     // ---------- 9A.43: no type whitelist is left ----------
 
-    /// <summary>An instance type the engine has never seen: it validates itself (counted) and declares the latch's colliders.</summary>
-    private sealed record UnlistedInstance(GpuBodyId Id) : IWorkshopInstance
+    /// <summary>An instance type the engine has never seen: it validates its authored configuration and declares the latch's colliders.</summary>
+    private sealed record UnlistedInstance(GpuBodyId Id, bool Refuse = false) : IWorkshopInstance
     {
-        public int Validations { get; private set; }
         public PartId PartId => new PartId("latch");
         public CellOrigin Cell => new(0, 16, 0);
         public LocalPosition Local => default;
         public CanonicalRotation Rotation => CanonicalRotation.Identity;
         public bool Locked => false;
         public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId);
-        public void Validate() => Validations++;
+        public void Validate()
+        {
+            if (Refuse) throw new ArgumentException("Invalid unfamiliar instance configuration.");
+        }
     }
 
     // With the last record converted the instance collection admits an instance by its own validation (and identity uniqueness), not
@@ -76,7 +70,8 @@ public sealed class DeclaredMemoryTests
     {
         var unlisted = new UnlistedInstance(new(3));
         new WorkshopInstances(PlacedParts.Latch(new(1), 0, 1, 0, 0, 0, 0, 1), unlisted).Validate();
-        Assert.Equal(1, unlisted.Validations);
+        Assert.Equal("Invalid unfamiliar instance configuration.", Assert.Throws<ArgumentException>(() =>
+            new WorkshopInstances(new UnlistedInstance(new(4), Refuse: true)).Validate()).Message);
         Assert.Equal("Authored body identities must be unique.", Assert.Throws<ArgumentException>(() =>
             new WorkshopInstances(unlisted, new UnlistedInstance(new(3))).Validate()).Message);
     }

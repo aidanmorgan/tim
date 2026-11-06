@@ -108,56 +108,68 @@ public static partial class Program
         switch (header.Kind)
         {
             case ScheduleControlKind.Prepare:
-                if (_prepared is not null) throw new InvalidOperationException("Animation installation already prepared.");
-                var settings = WorkshopCadenceWire.Read(data[..32]);
-                var expectedRevision = new CadenceRevision(BinaryPrimitives.ReadUInt64LittleEndian(data[32..]));
-                var expectedProjection = new ProjectionEpoch(BinaryPrimitives.ReadUInt64LittleEndian(data[40..]));
-                var transition = (ScheduleTransition)BinaryPrimitives.ReadUInt32LittleEndian(data[48..]);
-                if (!Enum.IsDefined(transition) || BinaryPrimitives.ReadUInt32LittleEndian(data[52..]) != 0 ||
-                    expectedRevision != (_schedule?.Revision ?? default) || expectedProjection != (_schedule?.World.Epoch ?? default) ||
-                    header.Revision.Value < expectedRevision.Value || header.Projection.Value <= expectedProjection.Value)
-                    throw new ArgumentException("Stale Animation installation.");
-                var endpoint = WorkshopWireFlatBuffers.DecodeResponse(data[WorkshopScheduleWire.PrepareFieldBytes..]);
-                if (endpoint.Session != Peer.Session || endpoint.MasterGeneration != Peer.Generation ||
-                    endpoint.Cadence != header.Revision || endpoint.Projection != header.Projection ||
-                    endpoint.Read.Epoch.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[56..]) ||
-                    endpoint.Read.Tick.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[64..]) ||
-                    endpoint.Publication.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[72..]))
-                    throw new ArgumentException("Prepared Animation endpoint differs from its envelope.");
-                if (endpoint.Scene is not { } construction) throw new ArgumentException("Animation installation lacks its compiled scene.");
-                var retained = transition != ScheduleTransition.Reset && _declared is not null && _declared.CanRetain(construction, endpoint);
-                if (retained) _declared!.ValidateRebind(construction, endpoint);
-                _prepared = new(header, settings, endpoint.Read.Epoch, endpoint.Read.Tick, endpoint.Phase,
-                    retained ? _declared! : new WorkshopDeclaredPresentation(construction, endpoint), endpoint, retained);
-                Respond(header, ScheduleControlKind.Prepared);
-                return;
+                PrepareSchedule(data, header); return;
             case ScheduleControlKind.Commit:
-                var schedule = WorkshopScheduleWire.ReadCommit(bytes, out _);
-                if (_prepared is not { } candidate || !Matches(candidate.Header, header) ||
-                    candidate.Settings != schedule.Settings || candidate.World != schedule.World.WorldGeneration ||
-                    candidate.Tick != schedule.World.AnchorTick || !MatchesPlayback(candidate.Phase, schedule.World.Playback) ||
-                    schedule.MasterNativeOrigin != Peer.MasterOrigin)
-                    throw new ArgumentException("Animation Commit lacks its matching prepared endpoint.");
-                Controls.RetireWorld(schedule.World.WorldGeneration);
-                if (candidate.Retained) candidate.Presentation.Rebind(candidate.Endpoint.Scene!, candidate.Endpoint);
-                _declared = candidate.Presentation;
-                _schedule = schedule; _prepared = null; _lastOrdinal = schedule.FirstAnimation.Value - 1;
-                Respond(header, ScheduleControlKind.Applied);
-                DrainControl();
-                return;
+                CommitSchedule(bytes, header); return;
             case ScheduleControlKind.Abort:
-                if (_prepared is not { } aborting || !Matches(aborting.Header, header) ||
-                    !Enum.IsDefined((WorkshopRejection)BinaryPrimitives.ReadUInt32LittleEndian(data)) ||
-                    BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != 0)
-                    throw new ArgumentException("Animation Abort does not own preparation.");
-                _prepared = null;
-                if (_schedule is { } old && Clock.TryMasterNow(WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()), out var current))
-                    _lastOrdinal = Math.Max(_lastOrdinal, WorkshopPulse.Due(old.Settings.AnimationRate,
-                        new(checked((long)current.Lower))).Value);
-                DrainControl();
-                return;
+                AbortSchedule(data, header); return;
             default: throw new ArgumentException("Unsupported Animation schedule control.");
         }
+    }
+
+    private static void PrepareSchedule(ReadOnlySpan<byte> data, ScheduleControlHeader header)
+    {
+        if (_prepared is not null) throw new InvalidOperationException("Animation installation already prepared.");
+        var settings = WorkshopCadenceWire.Read(data[..32]);
+        var expectedRevision = new CadenceRevision(BinaryPrimitives.ReadUInt64LittleEndian(data[32..]));
+        var expectedProjection = new ProjectionEpoch(BinaryPrimitives.ReadUInt64LittleEndian(data[40..]));
+        var transition = (ScheduleTransition)BinaryPrimitives.ReadUInt32LittleEndian(data[48..]);
+        if (!Enum.IsDefined(transition) || BinaryPrimitives.ReadUInt32LittleEndian(data[52..]) != 0 ||
+            expectedRevision != (_schedule?.Revision ?? default) || expectedProjection != (_schedule?.World.Epoch ?? default) ||
+            header.Revision.Value < expectedRevision.Value || header.Projection.Value <= expectedProjection.Value)
+            throw new ArgumentException("Stale Animation installation.");
+        var endpoint = WorkshopWireFlatBuffers.DecodeResponse(data[WorkshopScheduleWire.PrepareFieldBytes..]);
+        if (endpoint.Session != Peer.Session || endpoint.MasterGeneration != Peer.Generation ||
+            endpoint.Cadence != header.Revision || endpoint.Projection != header.Projection ||
+            endpoint.Read.Epoch.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[56..]) ||
+            endpoint.Read.Tick.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[64..]) ||
+            endpoint.Publication.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[72..]))
+            throw new ArgumentException("Prepared Animation endpoint differs from its envelope.");
+        if (endpoint.Scene is not { } construction) throw new ArgumentException("Animation installation lacks its compiled scene.");
+        var retained = transition != ScheduleTransition.Reset && _declared is not null && _declared.CanRetain(construction, endpoint);
+        if (retained) _declared!.ValidateRebind(construction, endpoint);
+        _prepared = new(header, settings, endpoint.Read.Epoch, endpoint.Read.Tick, endpoint.Phase,
+            retained ? _declared! : new WorkshopDeclaredPresentation(construction, endpoint), endpoint, retained);
+        Respond(header, ScheduleControlKind.Prepared);
+    }
+
+    private static void CommitSchedule(byte[] bytes, ScheduleControlHeader header)
+    {
+        var schedule = WorkshopScheduleWire.ReadCommit(bytes, out _);
+        if (_prepared is not { } candidate || !Matches(candidate.Header, header) ||
+            candidate.Settings != schedule.Settings || candidate.World != schedule.World.WorldGeneration ||
+            candidate.Tick != schedule.World.AnchorTick || !MatchesPlayback(candidate.Phase, schedule.World.Playback) ||
+            schedule.MasterNativeOrigin != Peer.MasterOrigin)
+            throw new ArgumentException("Animation Commit lacks its matching prepared endpoint.");
+        Controls.RetireWorld(schedule.World.WorldGeneration);
+        if (candidate.Retained) candidate.Presentation.Rebind(candidate.Endpoint.Scene!, candidate.Endpoint);
+        _declared = candidate.Presentation;
+        _schedule = schedule; _prepared = null; _lastOrdinal = schedule.FirstAnimation.Value - 1;
+        Respond(header, ScheduleControlKind.Applied);
+        DrainControl();
+    }
+
+    private static void AbortSchedule(ReadOnlySpan<byte> data, ScheduleControlHeader header)
+    {
+        if (_prepared is not { } aborting || !Matches(aborting.Header, header) ||
+            !Enum.IsDefined((WorkshopRejection)BinaryPrimitives.ReadUInt32LittleEndian(data)) ||
+            BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != 0)
+            throw new ArgumentException("Animation Abort does not own preparation.");
+        _prepared = null;
+        if (_schedule is { } old && Clock.TryMasterNow(WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()), out var current))
+            _lastOrdinal = Math.Max(_lastOrdinal, WorkshopPulse.Due(old.Settings.AnimationRate,
+                new(checked((long)current.Lower))).Value);
+        DrainControl();
     }
 
     /// <summary>Story 9A.23 D5: the epoch whose event ring this worker reads, the installed world's (0 while none is installed or an

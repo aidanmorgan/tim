@@ -637,7 +637,7 @@ public sealed class WorkshopObservationTests
                 var delivered = port.ReadEvents(cursor).Value!;
                 Assert.Equal(committed.Epoch.Value, delivered.Epoch);
                 Assert.Contains(delivered.Records, record => record.Kind == CuriousContraptions.Abstractions.SimulationEventKind.Impact &&
-                    record.Source == 6 && record.Other == 5 && record.Tick > 0 && record.Tick <= committed.Tick.Value);
+                    record.Source.Value == 6 && record.Other == 5 && record.Tick > 0 && record.Tick <= committed.Tick.Value);
                 Assert.Empty(port.ReadEvents(cursor).Value!.Records);
             }
             previous = committed.Epoch;

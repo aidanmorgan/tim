@@ -429,32 +429,7 @@ internal static partial class WorkshopCollisionKernels
 
         if (p3 == null) { points.Clear(); points.Add(p1); points.Add(p2); return; }
 
-        ContactPoint? p4 = null;
-        best = -1f;
-        foreach (var p in points)
-        {
-            if (ReferenceEquals(p, p1) || ReferenceEquals(p, p2) || ReferenceEquals(p, p3)) continue;
-            var pPos = new Vector3(p.Px, p.Py, p.Pz);
-            var c = Vector3.Cross(pPos - p1Pos, e);
-            var signed = Vector3.Dot(c, n);
-            if (MathF.Sign(signed) == sign3 && sign3 != 0f) continue;
-            if (MathF.Abs(signed) > best)
-            {
-                best = MathF.Abs(signed);
-                p4 = p;
-            }
-        }
-
-        if (p4 == null)
-        {
-            var p3Pos = new Vector3(p3.Px, p3.Py, p3.Pz);
-            foreach (var p in points)
-            {
-                if (ReferenceEquals(p, p1) || ReferenceEquals(p, p2) || ReferenceEquals(p, p3)) continue;
-                var d = (new Vector3(p.Px, p.Py, p.Pz) - p3Pos).LengthSquared();
-                if (d > best) { best = d; p4 = p; }
-            }
-        }
+        var p4 = FourthManifoldPoint(points, p1, p2, p3, p1Pos, e, n, sign3);
 
         points.Clear();
         points.Add(p1);
@@ -606,6 +581,58 @@ internal static partial class WorkshopCollisionKernels
         }
 
         if (bestType == -1 || bestSeparation > margin) return;
+        EmitBoxFaceContacts(boxA, boxB, margin, outList, bestAxis, bestSeparation, bestType, bestIndex);
+    }
+
+    private static ContactPoint? FourthManifoldPoint(List<ContactPoint> points, ContactPoint p1, ContactPoint p2, ContactPoint p3,
+        Vector3 p1Pos, Vector3 e, Vector3 n, float sign3)
+    {
+        ContactPoint? p4 = null;
+        var best = -1f;
+        foreach (var p in points)
+        {
+            if (ReferenceEquals(p, p1) || ReferenceEquals(p, p2) || ReferenceEquals(p, p3)) continue;
+            var pPos = new Vector3(p.Px, p.Py, p.Pz);
+            var c = Vector3.Cross(pPos - p1Pos, e);
+            var signed = Vector3.Dot(c, n);
+            if (MathF.Sign(signed) == sign3 && sign3 != 0f) continue;
+            if (MathF.Abs(signed) > best)
+            {
+                best = MathF.Abs(signed);
+                p4 = p;
+            }
+        }
+
+        if (p4 == null)
+        {
+            var p3Pos = new Vector3(p3.Px, p3.Py, p3.Pz);
+            foreach (var p in points)
+            {
+                if (ReferenceEquals(p, p1) || ReferenceEquals(p, p2) || ReferenceEquals(p, p3)) continue;
+                var d = (new Vector3(p.Px, p.Py, p.Pz) - p3Pos).LengthSquared();
+                if (d > best) { best = d; p4 = p; }
+            }
+        }
+
+        return p4;
+    }
+
+    private static bool SelectSpeculativeSphere(SimCollider colA, SimCollider colB, out bool sphereIsA)
+    {
+        static bool Moving(SimCollider c) => c.Shape == ShapeKind.Sphere && c.Body.Motion == RigidMotionKind.Dynamic;
+        // Two moving spheres: no single contact point keeps both lever arms on the normal, so the pair keeps its contact.
+        if (Moving(colA) && Moving(colB)) { sphereIsA = false; return false; }
+        // Advance the moving sphere when there is one: the contact point is placed on its centre line, so its arm stays normal.
+        sphereIsA = Moving(colA) || (colA.Shape == ShapeKind.Sphere && !Moving(colB));
+        if (!sphereIsA && colB.Shape != ShapeKind.Sphere) return false;
+        return true;
+    }
+
+    private static void EmitBoxFaceContacts(SimCollider boxA, SimCollider boxB, float margin, List<ContactPoint> outList,
+        Vector3 bestAxis, float bestSeparation, int bestType, int bestIndex)
+    {
+        ReadOnlySpan<Vector3> uAxes = [boxA.U0, boxA.U1, boxA.U2];
+        ReadOnlySpan<Vector3> vAxes = [boxB.U0, boxB.U1, boxB.U2];
         var n = bestAxis;
         var axisFeature = (bestType << 4) | bestIndex;
 
@@ -647,13 +674,7 @@ internal static partial class WorkshopCollisionKernels
         var refN = refSign * refAxes[refAxis];
         var refCentre = new Vector3(rBox.Px, rBox.Py, rBox.Pz) + refExt[refAxis] * refN;
 
-        var incAxis = 0;
-        var incDot = -1f;
-        for (var i = 0; i < 3; i++)
-        {
-            var d = MathF.Abs(Vector3.Dot(incAxes[i], refN));
-            if (d > incDot) { incDot = d; incAxis = i; }
-        }
+        var incAxis = IncidentFaceAxis(incAxes, refN);
         var incAlign = Vector3.Dot(incAxes[incAxis], refN);
         var incSign = incAlign <= 0f ? 1f : -1f;
         var incCentre = new Vector3(incBox.Px, incBox.Py, incBox.Pz) + incSign * incExt[incAxis] * incAxes[incAxis];
@@ -677,6 +698,47 @@ internal static partial class WorkshopCollisionKernels
 
         var featureBase = (axisFeature << 8) | ((referenceIsA ? 0 : 1) << 7) | (refAxis << 5) | ((refSign > 0f ? 0 : 1) << 4) | (incAxis << 2) | ((incSign > 0f ? 0 : 1) << 1);
 
+        if (!ClipBoxFace(refAxis, refAxes, refExt, refCentre, polyIn, polyOut, ref inCount))
+        {
+            SupportContact(boxA, boxB, n, bestSeparation, featureBase * 256 + 255, outList);
+            return;
+        }
+
+        var candidates = new List<ContactPoint>(inCount);
+        for (var i = 0; i < inCount; i++)
+        {
+            var vert = polyIn[i];
+            var gap = Vector3.Dot(vert.P - refCentre, refN);
+            if (gap > margin) continue;
+            var mid = vert.P - gap * 0.5f * refN;
+            candidates.Add(MakeContact(boxA.Body, boxB.Body, boxA, boxB, n, mid, gap, featureBase * 256 + vert.Id));
+        }
+
+        if (candidates.Count == 0)
+        {
+            SupportContact(boxA, boxB, n, bestSeparation, featureBase * 256 + 255, outList);
+            return;
+        }
+
+        ReduceManifold(candidates, n);
+        outList.AddRange(candidates);
+    }
+
+    private static int IncidentFaceAxis(ReadOnlySpan<Vector3> incAxes, Vector3 refN)
+    {
+        var incAxis = 0;
+        var incDot = -1f;
+        for (var i = 0; i < 3; i++)
+        {
+            var d = MathF.Abs(Vector3.Dot(incAxes[i], refN));
+            if (d > incDot) { incDot = d; incAxis = i; }
+        }
+        return incAxis;
+    }
+
+    private static bool ClipBoxFace(int refAxis, ReadOnlySpan<Vector3> refAxes, ReadOnlySpan<float> refExt,
+        Vector3 refCentre, Span<PolyVertex> polyIn, Span<PolyVertex> polyOut, ref int inCount)
+    {
         var plane = 0;
         Span<int> sides = [(refAxis + 1) % 3, (refAxis + 2) % 3];
         for (var sIdx = 0; sIdx < 2; sIdx++)
@@ -710,8 +772,7 @@ internal static partial class WorkshopCollisionKernels
 
                 if (outCount == 0)
                 {
-                    SupportContact(boxA, boxB, n, bestSeparation, featureBase * 256 + 255, outList);
-                    return;
+                    return false;
                 }
 
                 for (var i = 0; i < outCount; i++) polyIn[i] = polyOut[i];
@@ -720,24 +781,7 @@ internal static partial class WorkshopCollisionKernels
             }
         }
 
-        var candidates = new List<ContactPoint>(inCount);
-        for (var i = 0; i < inCount; i++)
-        {
-            var vert = polyIn[i];
-            var gap = Vector3.Dot(vert.P - refCentre, refN);
-            if (gap > margin) continue;
-            var mid = vert.P - gap * 0.5f * refN;
-            candidates.Add(MakeContact(boxA.Body, boxB.Body, boxA, boxB, n, mid, gap, featureBase * 256 + vert.Id));
-        }
-
-        if (candidates.Count == 0)
-        {
-            SupportContact(boxA, boxB, n, bestSeparation, featureBase * 256 + 255, outList);
-            return;
-        }
-
-        ReduceManifold(candidates, n);
-        outList.AddRange(candidates);
+        return true;
     }
 
     // ---- Story 10.1: the solid cylinder (axis U1, radius Radius, half-width Hy), closed-form against every admitted shape ----
@@ -1012,26 +1056,8 @@ internal static partial class WorkshopCollisionKernels
         var ca = cyl.Position;
         var dp = ca - box.Position;
         var a = cyl.U1;
-        var best = float.NegativeInfinity;
-        var bestAxis = Vector3.Zero;
-        bool Axis(Vector3 l, bool face) =>
-            SatAxis(l, CylinderProjection(cyl, l), box.Hx * MathF.Abs(Vector3.Dot(box.U0, l)) + box.Hy * MathF.Abs(Vector3.Dot(box.U1, l)) +
-                box.Hz * MathF.Abs(Vector3.Dot(box.U2, l)), dp, margin, face, ref best, ref bestAxis);
-        bool Direction(Vector3 d)
-        {
-            var length = d.Length();
-            return !(length > 1e-6f) || Axis(d / length, false);
-        }
-
-        if (!Axis(box.U0, true) || !Axis(box.U1, true) || !Axis(box.U2, true) || !Axis(a, true)) return;
-        if (!Direction(Vector3.Cross(a, box.U0)) || !Direction(Vector3.Cross(a, box.U1)) || !Direction(Vector3.Cross(a, box.U2))) return;
-
-        Span<Vector3> vertices = stackalloc Vector3[8];
-        for (var v = 0; v < 8; v++)
-            vertices[v] = BoxVertex(box, (v & 1) != 0 ? 1f : -1f, (v & 2) != 0 ? 1f : -1f, (v & 4) != 0 ? 1f : -1f);
-        foreach (var vertex in vertices)
-            if (!Direction(Radial(vertex - ca, a))) return;
-
+        var (intersects, best, bestAxis) = CylinderBoxAxes(cyl, box, margin, ca, dp, a);
+        if (!intersects) return;
         if (float.IsNegativeInfinity(best)) return;
         // The SAT axes above only prove separation; the gap and normal come from the exact closest features.
         var closest = CylinderBoxClosest(Solid.Of(cyl), box);
@@ -1641,29 +1667,8 @@ internal static partial class WorkshopCollisionKernels
         var dp = pa - pb;
         var aa = colA.U1;
         var ab = colB.U1;
-        var best = float.NegativeInfinity;
-        var bestAxis = Vector3.Zero;
-        bool Axis(Vector3 l, bool face) =>
-            SatAxis(l, CylinderProjection(colA, l), CylinderProjection(colB, l), dp, margin, face, ref best, ref bestAxis);
-        bool Direction(Vector3 d)
-        {
-            var length = d.Length();
-            return !(length > 1e-6f) || Axis(d / length, false);
-        }
-
-        if (!Axis(aa, true) || !Axis(ab, true)) return;
-        if (!Direction(Vector3.Cross(aa, ab))) return;
-        var axisA = (Start: pa - colA.Hy * aa, Length: 2f * colA.Hy * aa);
-        var axisB = (Start: pb - colB.Hy * ab, Length: 2f * colB.Hy * ab);
-        var (xa, xb) = ClosestPoints(axisA.Start, axisA.Length, axisB.Start, axisB.Length);
-        if (!Direction(xa - xb)) return;
-        for (var capIndex = 0; capIndex < 2; capIndex++)
-        {
-            var ccA = pa + (capIndex == 0 ? colA.Hy : -colA.Hy) * aa;
-            var ccB = pb + (capIndex == 0 ? colB.Hy : -colB.Hy) * ab;
-            if (!Direction(Radial(ccB - pa, aa)) || !Direction(Radial(ccA - pb, ab))) return;
-        }
-
+        var (intersects, best, bestAxis) = CylinderPairAxes(colA, colB, margin, pa, pb, dp, aa, ab);
+        if (!intersects) return;
         if (float.IsNegativeInfinity(best)) return;
         // The SAT axes above only prove separation; the gap and normal come from the exact closest features.
         var closest = CylinderCylinderClosest(Solid.Of(colA), Solid.Of(colB));
@@ -1683,16 +1688,11 @@ internal static partial class WorkshopCollisionKernels
 
         if (rimRegimeA || rimRegimeB)
         {
-            var ra = CylinderSupport(colA, -n);
-            var rb = CylinderSupport(colB, n);
-            var p = exact ? (closest.OnA + closest.OnB) * 0.5f
-                : rimRegimeA && rimRegimeB ? (ra + rb) * 0.5f : rimRegimeA ? ra - separation * 0.5f * n : rb + separation * 0.5f * n;
-            var detail = (Vector3.Dot(ra - pa, aa) >= 0f ? 0 : 1) | (Vector3.Dot(rb - pb, ab) >= 0f ? 0 : 2);
-            AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, p, separation, Feature(CylinderFeature.Rim, detail));
+            EmitCylinderRim(colA, colB, n, margin, supportA, supportB, outList, closest, exact, separation, rimRegimeA, rimRegimeB);
         }
         else if (tA >= EdgeFaceAlignment && tB >= EdgeFaceAlignment) DiscOnDisc(colA, colB, n, margin, supportA, supportB, outList);
-        else if (tA >= EdgeFaceAlignment) Chord(colA, colB, n, 0);
-        else if (tB >= EdgeFaceAlignment) Chord(colB, colA, -n, 4);
+        else if (tA >= EdgeFaceAlignment) EmitCylinderChord(colA, colB, n, margin, supportA, supportB, outList, colA, colB, n, 0);
+        else if (tB >= EdgeFaceAlignment) EmitCylinderChord(colA, colB, n, margin, supportA, supportB, outList, colB, colA, -n, 4);
         else if (MathF.Abs(Vector3.Dot(aa, ab)) >= LineAlignment)
         {
             // Parallel sides: the two generators' common stretch along A's axis.
@@ -1726,10 +1726,10 @@ internal static partial class WorkshopCollisionKernels
             AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, exact ? (closest.OnA + closest.OnB) * 0.5f : (sa + sb) * 0.5f, separation, Feature(CylinderFeature.Side, 2));
             // Side emission rule (review F4): each facing-generator end within the margin joins as its own row, measured by its radial
             // signed gap to the other side with its own radial normal, so a skewed side's far end is a speculative row before it lands.
-            SideEnd(ga, colB, true, 16);
-            SideEnd(ga + gaLength, colB, true, 17);
-            SideEnd(gb, colA, false, 18);
-            SideEnd(gb + gbLength, colA, false, 19);
+            EmitCylinderSideEnd(colA, colB, n, margin, supportA, supportB, outList, separation, ga, colB, true, 16);
+            EmitCylinderSideEnd(colA, colB, n, margin, supportA, supportB, outList, separation, ga + gaLength, colB, true, 17);
+            EmitCylinderSideEnd(colA, colB, n, margin, supportA, supportB, outList, separation, gb, colA, false, 18);
+            EmitCylinderSideEnd(colA, colB, n, margin, supportA, supportB, outList, separation, gb + gbLength, colA, false, 19);
             ReduceSideManifold(outList, first);
         }
 
@@ -1742,37 +1742,110 @@ internal static partial class WorkshopCollisionKernels
 
         // A generator end x of one cylinder against the other's curved side (within its half-width and the margin, and not the closest
         // point again): its radial signed gap, with the radial normal turned to point from B toward A.
-        void SideEnd(Vector3 x, SimCollider other, bool onA, int detail)
+
+    }
+
+    private static void EmitCylinderRim(SimCollider colA, SimCollider colB, Vector3 n, float margin,
+        ContactSupport supportA, ContactSupport supportB, List<ContactPoint> outList, Closest closest,
+        bool exact, float separation, bool rimRegimeA, bool rimRegimeB)
+    {
+        var ra = CylinderSupport(colA, -n);
+        var rb = CylinderSupport(colB, n);
+        var p = exact ? (closest.OnA + closest.OnB) * 0.5f
+            : rimRegimeA && rimRegimeB ? (ra + rb) * 0.5f : rimRegimeA ? ra - separation * 0.5f * n : rb + separation * 0.5f * n;
+        var detail = (Vector3.Dot(ra - colA.Position, colA.U1) >= 0f ? 0 : 1) | (Vector3.Dot(rb - colB.Position, colB.U1) >= 0f ? 0 : 2);
+        AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, p, separation, Feature(CylinderFeature.Rim, detail));
+    }
+
+    private static void EmitCylinderSideEnd(SimCollider colA, SimCollider colB, Vector3 n, float margin,
+        ContactSupport supportA, ContactSupport supportB, List<ContactPoint> outList, float separation,
+        Vector3 x, SimCollider other, bool onA, int detail)
+    {
+        if (MathF.Abs(Vector3.Dot(x - other.Position, other.U1)) > other.Hy) return;
+        var gap = SideDistance(Solid.Of(other), x, out var onSide);
+        if (gap > margin || gap <= separation + 1e-4f) return;
+        var radial = RadialUnit(x - other.Position, other.U1, onA ? n : -n);
+        outList.Add(CylinderContact(colA, colB, onA ? radial : -radial, (x + onSide) * 0.5f, gap, Feature(CylinderFeature.Side, detail),
+            supportA, supportB));
+    }
+
+    private static (bool Intersects, float Separation, Vector3 Axis) CylinderBoxAxes(SimCollider cyl, SimCollider box,
+        float margin, Vector3 ca, Vector3 dp, Vector3 a)
+    {
+        var best = float.NegativeInfinity;
+        var bestAxis = Vector3.Zero;
+        bool Axis(Vector3 l, bool face) =>
+            SatAxis(l, CylinderProjection(cyl, l), box.Hx * MathF.Abs(Vector3.Dot(box.U0, l)) + box.Hy * MathF.Abs(Vector3.Dot(box.U1, l)) +
+                box.Hz * MathF.Abs(Vector3.Dot(box.U2, l)), dp, margin, face, ref best, ref bestAxis);
+        bool Direction(Vector3 d)
         {
-            if (MathF.Abs(Vector3.Dot(x - other.Position, other.U1)) > other.Hy) return;
-            var gap = SideDistance(Solid.Of(other), x, out var onSide);
-            if (gap > margin || gap <= separation + 1e-4f) return;
-            var radial = RadialUnit(x - other.Position, other.U1, onA ? n : -n);
-            outList.Add(CylinderContact(colA, colB, onA ? radial : -radial, (x + onSide) * 0.5f, gap, Feature(CylinderFeature.Side, detail),
-                supportA, supportB));
+            var length = d.Length();
+            return !(length > 1e-6f) || Axis(d / length, false);
         }
 
-        // The generator of the side cylinder facing the cap, clipped to the cap disc: at most two points.
-        void Chord(SimCollider capCyl, SimCollider sideCyl, Vector3 towardCap, int detail)
+        if (!Axis(box.U0, true) || !Axis(box.U1, true) || !Axis(box.U2, true) || !Axis(a, true)) return (false, best, bestAxis);
+        if (!Direction(Vector3.Cross(a, box.U0)) || !Direction(Vector3.Cross(a, box.U1)) || !Direction(Vector3.Cross(a, box.U2))) return (false, best, bestAxis);
+
+        Span<Vector3> vertices = stackalloc Vector3[8];
+        for (var v = 0; v < 8; v++)
+            vertices[v] = BoxVertex(box, (v & 1) != 0 ? 1f : -1f, (v & 2) != 0 ? 1f : -1f, (v & 4) != 0 ? 1f : -1f);
+        foreach (var vertex in vertices)
+            if (!Direction(Radial(vertex - ca, a))) return (false, best, bestAxis);
+
+        return (true, best, bestAxis);
+    }
+
+    private static (bool Intersects, float Separation, Vector3 Axis) CylinderPairAxes(SimCollider colA, SimCollider colB,
+        float margin, Vector3 pa, Vector3 pb, Vector3 dp, Vector3 aa, Vector3 ab)
+    {
+        var best = float.NegativeInfinity;
+        var bestAxis = Vector3.Zero;
+        bool Axis(Vector3 l, bool face) =>
+            SatAxis(l, CylinderProjection(colA, l), CylinderProjection(colB, l), dp, margin, face, ref best, ref bestAxis);
+        bool Direction(Vector3 d)
         {
-            var axis = capCyl.U1;
-            var s = Vector3.Dot(towardCap, axis) > 0f ? -1f : 1f;
-            var capN = s * axis;
-            var cc = capCyl.Position + s * capCyl.Hy * axis;
-            var (start, length) = Generator(sideCyl, towardCap);
-            var rel = start - cc;
-            var (t0, t1) = ClipCircle(Vector3.Dot(rel, capCyl.U0), Vector3.Dot(rel, capCyl.U2), Vector3.Dot(length, capCyl.U0),
-                Vector3.Dot(length, capCyl.U2), capCyl.Radius * (1f + InsideTolerance));
-            if (t0 > t1) return;
-            var p0 = start + t0 * length;
-            var g0 = Vector3.Dot(p0 - cc, capN);
-            AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, p0 - g0 * 0.5f * capN, g0, Feature(CylinderFeature.Side, detail | (s > 0f ? 0 : 2)));
-            if (t1 - t0 > 1e-6f)
-            {
-                var p1 = start + t1 * length;
-                var g1 = Vector3.Dot(p1 - cc, capN);
-                AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, p1 - g1 * 0.5f * capN, g1, Feature(CylinderFeature.Side, detail | 1 | (s > 0f ? 0 : 2)));
-            }
+            var length = d.Length();
+            return !(length > 1e-6f) || Axis(d / length, false);
+        }
+
+        if (!Axis(aa, true) || !Axis(ab, true)) return (false, best, bestAxis);
+        if (!Direction(Vector3.Cross(aa, ab))) return (false, best, bestAxis);
+        var axisA = (Start: pa - colA.Hy * aa, Length: 2f * colA.Hy * aa);
+        var axisB = (Start: pb - colB.Hy * ab, Length: 2f * colB.Hy * ab);
+        var (xa, xb) = ClosestPoints(axisA.Start, axisA.Length, axisB.Start, axisB.Length);
+        if (!Direction(xa - xb)) return (false, best, bestAxis);
+        for (var capIndex = 0; capIndex < 2; capIndex++)
+        {
+            var ccA = pa + (capIndex == 0 ? colA.Hy : -colA.Hy) * aa;
+            var ccB = pb + (capIndex == 0 ? colB.Hy : -colB.Hy) * ab;
+            if (!Direction(Radial(ccB - pa, aa)) || !Direction(Radial(ccA - pb, ab))) return (false, best, bestAxis);
+        }
+
+        return (true, best, bestAxis);
+    }
+
+    // The facing side generator clipped to the cap disc, emitting at most two contacts.
+    private static void EmitCylinderChord(SimCollider colA, SimCollider colB, Vector3 n, float margin,
+        ContactSupport supportA, ContactSupport supportB, List<ContactPoint> outList,
+        SimCollider capCyl, SimCollider sideCyl, Vector3 towardCap, int detail)
+    {
+        var axis = capCyl.U1;
+        var s = Vector3.Dot(towardCap, axis) > 0f ? -1f : 1f;
+        var capN = s * axis;
+        var cc = capCyl.Position + s * capCyl.Hy * axis;
+        var (start, length) = Generator(sideCyl, towardCap);
+        var rel = start - cc;
+        var (t0, t1) = ClipCircle(Vector3.Dot(rel, capCyl.U0), Vector3.Dot(rel, capCyl.U2), Vector3.Dot(length, capCyl.U0),
+            Vector3.Dot(length, capCyl.U2), capCyl.Radius * (1f + InsideTolerance));
+        if (t0 > t1) return;
+        var p0 = start + t0 * length;
+        var g0 = Vector3.Dot(p0 - cc, capN);
+        AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, p0 - g0 * 0.5f * capN, g0, Feature(CylinderFeature.Side, detail | (s > 0f ? 0 : 2)));
+        if (t1 - t0 > 1e-6f)
+        {
+            var p1 = start + t1 * length;
+            var g1 = Vector3.Dot(p1 - cc, capN);
+            AddCylinderContact(colA, colB, n, margin, supportA, supportB, outList, p1 - g1 * 0.5f * capN, g1, Feature(CylinderFeature.Side, detail | 1 | (s > 0f ? 0 : 2)));
         }
     }
 
@@ -1849,12 +1922,7 @@ internal static partial class WorkshopCollisionKernels
         int first, SimCollider probe, List<ContactPoint> probeContacts)
     {
         if (contacts.Count - first != 1) return;
-        static bool Moving(SimCollider c) => c.Shape == ShapeKind.Sphere && c.Body.Motion == RigidMotionKind.Dynamic;
-        // Two moving spheres: no single contact point keeps both lever arms on the normal, so the pair keeps its contact.
-        if (Moving(colA) && Moving(colB)) return;
-        // Advance the moving sphere when there is one: the contact point is placed on its centre line, so its arm stays normal.
-        var sphereIsA = Moving(colA) || (colA.Shape == ShapeKind.Sphere && !Moving(colB));
-        if (!sphereIsA && colB.Shape != ShapeKind.Sphere) return;
+        if (!SelectSpeculativeSphere(colA, colB, out var sphereIsA)) return;
         var sphere = sphereIsA ? colA : colB;
         var other = sphereIsA ? colB : colA;
         if (other.Shape == ShapeKind.Plane) return;

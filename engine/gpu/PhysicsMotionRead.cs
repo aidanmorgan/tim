@@ -111,38 +111,49 @@ public sealed class PhysicsMotionRead
             var owner = bodies[checked((int)(i / steps))].Body;
             if (i % steps == 0) previous = new(first);
             var piece = bytes.Slice(HeaderBytes + checked((int)i) * PieceBytes, PieceBytes);
-            var kind = (PhysicsMotionKind)U32(piece, KindOffset);
-            var start = Time(U32(piece, StartOrdinalOffset), F(piece, StartPhaseOffset));
-            var end = Time(U32(piece, EndOrdinalOffset), F(piece, EndPhaseOffset));
-            var anchor = Time(U32(piece, AnchorOrdinalOffset), F(piece, AnchorPhaseOffset));
-            var flag = U32(piece, VectorFlagOffset);
-            if (!Enum.IsDefined(kind) || U64(piece, OwnerOffset) != owner.Id.Value || start != previous ||
-                end.Ordinal != start.Ordinal + 1 || end.Phase != start.Phase || end > new PhysicalTime(last) || anchor > start ||
-                end > new PhysicalTime(anchor.Ordinal + (kind != PhysicsMotionKind.FreePolynomial ? 1u : PhysicsGpuAbi.PrimarySegmentSteps), anchor.Phase) ||
-                U32(piece, FrequencyOffset) != WorkshopCadenceSettings.PhysicalFrequency ||
-                flag > 1 || (flag == 0 && !Zero(piece.Slice(FlaggedVectorOffset, PhysicsGpuAbi.VectorBytes))))
-                throw new ArgumentException("Invalid motion piece identity, interval or padding.");
-            // COM is an internal point: body origin remains within64m, while a rotated
-            // declared16m-per-axis offset fits an additional32m per coordinate.
-            var centre=Cell(piece);
-            if (Math.Abs((long)centre.X)>1536 || Math.Abs((long)centre.Y)>1536 || Math.Abs((long)centre.Z)>1536)
-                throw new ArgumentException("Motion COM exceeds its declared origin-plus-offset bound.");
-            for (var axis=0; axis<3; axis++)
-                if (!float.IsFinite(F(piece,CentreRemainderOffset+axis*4)) || F(piece,CentreRemainderOffset+axis*4)<-.5f || F(piece,CentreRemainderOffset+axis*4)>=.5f)
-                    throw new ArgumentException("Motion COM remainder is not canonical.");
-            Norm(piece,VelocityOffset,LinearVelocity.MaximumSpeed); Norm(piece,AngularVelocityOffset,AngularVelocity.MaximumSpeed);
-            Norm(piece,GravityOffset,16); Norm(piece,SupportedAccelerationOffset,64); Norm(piece,AngularAccelerationOffset,1024);
-            Rotation(piece).ValidateCommitted();
-            PhysicsDeclarationBounds.Range(F(piece,DragRateOffset),0f,.125f);
-            if (kind == PhysicsMotionKind.FreePolynomial &&
-                (!Zero(piece.Slice(SupportedAccelerationOffset,PhysicsGpuAbi.VectorBytes)) ||
-                 !Zero(piece.Slice(AngularAccelerationOffset,PhysicsGpuAbi.VectorBytes))))
-                throw new ArgumentException("Free motion carries constrained acceleration.");
-            Norm(piece,FlaggedVectorOffset,64);
+            var end = ValidatePiece(piece, owner.Id, previous, last);
             previous = end;
             if (i % steps == steps - 1 && previous != new PhysicalTime(last))
                 throw new ArgumentException("Motion contains a missing body tail.");
         }
+    }
+
+    private static PhysicalTime ValidatePiece(ReadOnlySpan<byte> piece, GpuBodyId owner, PhysicalTime previous, uint last)
+    {
+        var kind = (PhysicsMotionKind)U32(piece, KindOffset);
+        var start = Time(U32(piece, StartOrdinalOffset), F(piece, StartPhaseOffset));
+        var end = Time(U32(piece, EndOrdinalOffset), F(piece, EndPhaseOffset));
+        var anchor = Time(U32(piece, AnchorOrdinalOffset), F(piece, AnchorPhaseOffset));
+        var flag = U32(piece, VectorFlagOffset);
+        if (!Enum.IsDefined(kind) || U64(piece, OwnerOffset) != owner.Value || start != previous ||
+            end.Ordinal != start.Ordinal + 1 || end.Phase != start.Phase || end > new PhysicalTime(last) || anchor > start ||
+            end > new PhysicalTime(anchor.Ordinal + (kind != PhysicsMotionKind.FreePolynomial ? 1u : PhysicsGpuAbi.PrimarySegmentSteps), anchor.Phase) ||
+            U32(piece, FrequencyOffset) != WorkshopCadenceSettings.PhysicalFrequency ||
+            flag > 1 || (flag == 0 && !Zero(piece.Slice(FlaggedVectorOffset, PhysicsGpuAbi.VectorBytes))))
+            throw new ArgumentException("Invalid motion piece identity, interval or padding.");
+        ValidateCentreOfMass(piece);
+        Norm(piece,VelocityOffset,LinearVelocity.MaximumSpeed); Norm(piece,AngularVelocityOffset,AngularVelocity.MaximumSpeed);
+        Norm(piece,GravityOffset,16); Norm(piece,SupportedAccelerationOffset,64); Norm(piece,AngularAccelerationOffset,1024);
+        Rotation(piece).ValidateCommitted();
+        PhysicsDeclarationBounds.Range(F(piece,DragRateOffset),0f,.125f);
+        if (kind == PhysicsMotionKind.FreePolynomial &&
+            (!Zero(piece.Slice(SupportedAccelerationOffset,PhysicsGpuAbi.VectorBytes)) ||
+             !Zero(piece.Slice(AngularAccelerationOffset,PhysicsGpuAbi.VectorBytes))))
+            throw new ArgumentException("Free motion carries constrained acceleration.");
+        Norm(piece,FlaggedVectorOffset,64);
+        return end;
+    }
+
+    private static void ValidateCentreOfMass(ReadOnlySpan<byte> piece)
+    {
+        // COM is an internal point: body origin remains within64m, while a rotated
+        // declared16m-per-axis offset fits an additional32m per coordinate.
+        var centre=Cell(piece);
+        if (Math.Abs((long)centre.X)>1536 || Math.Abs((long)centre.Y)>1536 || Math.Abs((long)centre.Z)>1536)
+            throw new ArgumentException("Motion COM exceeds its declared origin-plus-offset bound.");
+        for (var axis=0; axis<3; axis++)
+            if (!float.IsFinite(F(piece,CentreRemainderOffset+axis*4)) || F(piece,CentreRemainderOffset+axis*4)<-.5f || F(piece,CentreRemainderOffset+axis*4)>=.5f)
+                throw new ArgumentException("Motion COM remainder is not canonical.");
     }
 
     /// <summary>Render-only sampling of the committed coefficient record; never a physical state update.</summary>

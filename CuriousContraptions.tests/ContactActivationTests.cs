@@ -137,7 +137,7 @@ public sealed class ContactActivationTests
     {
         var (network, impact) = Activation(); var clear = network.Clear();
         Assert.Throws<ArgumentException>(() => Consume(network, clear, new[] { impact, impact }));
-        Assert.Throws<ArgumentException>(() => Consume(network, clear, new[] { impact with { Owner = new(99) } }));
+        // Physical owner redundancy is admitted by PhysicsGpuAbi before the network consumes reads.
         Assert.Throws<ArgumentException>(() => Consume(network, clear, new[] { impact with { Id = new(99) } }));
         Assert.Equal(ActivationPhase.Clear, clear[0].Phase); Assert.Equal(ActivationPhase.Clear, clear[1].Phase);
         var committed = Consume(network, clear, new[] { impact });
@@ -263,5 +263,20 @@ public sealed class ContactActivationTests
             Assert.Equal(speed, active[1].ApproachSpeed.Value);
             ValidateRead(network, active, new(1), 4, scene);
         }
+    }
+
+    [Fact]
+    public void PhysicalAdmissionRejectsForgedTriggerOwnerWithoutChangingCommittedState()
+    {
+        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var committed = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        var before = PhysicsGpuAbi.ReadTrigger(committed, 0);
+        var candidate = (byte[])committed.Clone();
+        // TriggerOwner is a physical body slot. Forge a different, existing body.
+        BinaryPrimitives.WriteUInt32LittleEndian(candidate.AsSpan(scene.World.TriggerOffset(0) + PhysicsGpuAbi.TriggerOwnerOffset), 0);
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, committed, new(0),
+            PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
+        Assert.Equal(before, PhysicsGpuAbi.ReadTrigger(committed, 0));
+        PhysicsGpuAbi.ValidateCandidate(committed, committed, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
     }
 }

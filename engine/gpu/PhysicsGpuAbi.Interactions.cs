@@ -76,6 +76,17 @@ public static partial class PhysicsGpuAbi
             if(!AllZero(candidate.Slice(offset+GuidePaddingOffset,GuideBytes-GuidePaddingOffset)))
                 throw new ArgumentException("Nonzero guide padding.");
         }
+        var captured = ValidateResidenceAdvance(source, layout, after, before);
+        foreach(var pair in before.Captures)
+            if(pair.Value.Latch.Phase==CaptureLatchPhase.Latched &&
+                (!after.Captures.TryGetValue(pair.Key,out var retained) || retained.Latch!=pair.Value.Latch))
+                throw new ArgumentException("Earned capture state was lost.");
+        if(R32(candidate,HeaderCapturedCountOffset)!=captured) throw new ArgumentException("Capture count differs from actual occurrences.");
+    }
+
+    private static uint ValidateResidenceAdvance(ReadOnlySpan<byte> source, PhysicsWorldLayout layout,
+        PhysicsInteractionSnapshot after, PhysicsInteractionSnapshot before)
+    {
         uint captured=0;
         foreach(var pair in after.Captures)
         {
@@ -100,10 +111,7 @@ public static partial class PhysicsGpuAbi
                 throw new ArgumentException("Residence episode or qualification changed illegally.");
             captured=checked(captured+current.OccurrenceCount);
         }
-        foreach(var pair in before.Captures)
-            if(pair.Value.Latch.Phase==CaptureLatchPhase.Latched &&
-                (!after.Captures.TryGetValue(pair.Key,out var retained) || retained.Latch!=pair.Value.Latch))
-                throw new ArgumentException("Earned capture state was lost.");
-        if(R32(candidate,HeaderCapturedCountOffset)!=captured) throw new ArgumentException("Capture count differs from actual occurrences.");
+        return captured;
     }
+
 }

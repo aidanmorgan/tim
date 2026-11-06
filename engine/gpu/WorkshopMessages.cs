@@ -56,6 +56,22 @@ public static class WorkshopMessages
     internal static void ValidatePresentationOwners(WorkshopRead read, WorkshopCompiledScene construction)
     {
         construction.Activation.ValidateOrigins(read.Activations, read.Timers, read.Tick, construction.Physics);
+        construction.Activation.ValidateCommittedMemory(read.Memory, read.Tick, construction.Physics);
+        ValidateRopeOwners(read, construction);
+        for(var i=0;i<read.Captures.Count;i++)
+            if(!construction.OwnsCapture(new(read.Captures[i].Sensor,read.Captures[i].Target)))
+                throw new ArgumentException("Capture observation names a foreign policy or target.");
+        // Render body reads omit static bodies; ownership belongs to the authored construction.
+        foreach (var actuator in read.Presentation.Actuators)
+            if (!HasOwner(actuator.Owner)) throw new ArgumentException("Actuator observation names a foreign owner.");
+        ValidateLoadOwners(read, construction);
+        ValidateLogicOwners(read, construction);
+        bool HasOwner(GpuBodyId owner) => construction.Owners.Contains(owner);
+
+    }
+
+    private static void ValidateRopeOwners(WorkshopRead read, WorkshopCompiledScene construction)
+    {
         var expectedRopes = read.Epoch.Value == 0 ? 0 : construction.Physics.TensileSpans.Length;
         if (read.Presentation.Ropes.Length != expectedRopes) throw new ArgumentException("Rope observation population differs from its installation.");
         var cutOwners = new System.Collections.Generic.Dictionary<RopeSpanId, RopeRouteId>();
@@ -78,14 +94,23 @@ public static class WorkshopMessages
                 Vector3.Distance(rope.AttachmentB, Attachment(declared.BodyB, declared.LocalB)) > attachmentAllowance)
                 throw new ArgumentException("Rope attachment differs from its committed body socket.");
         }
-        for(var i=0;i<read.Captures.Count;i++)
-            if(!construction.OwnsCapture(new(read.Captures[i].Sensor,read.Captures[i].Target)))
-                throw new ArgumentException("Capture observation names a foreign policy or target.");
-        // Render body reads omit static bodies; ownership belongs to the authored construction.
-        foreach (var actuator in read.Presentation.Actuators)
-            if (!HasOwner(actuator.Owner)) throw new ArgumentException("Actuator observation names a foreign owner.");
-        foreach (var load in read.Presentation.Loads)
-            if (!HasOwner(load.Frame)) throw new ArgumentException("Contact-load observation names a foreign owner.");
+        Vector3 Attachment(GpuBodyId owner, Vector3 local)
+        {
+            var body = bodies[owner];
+            var cell = body.Cell; var position = body.Local; var rotation = body.Rotation;
+            if (body.Motion == RigidMotionKind.Dynamic)
+            {
+                if (!read.Bodies.TryGet(owner, out var committed))
+                    throw new ArgumentException("Rope attachment has no committed dynamic owner.");
+                cell = committed.Body.Cell; position = committed.Body.Local; rotation = committed.Rotation;
+            }
+            return new Vector3((cell.X + position.X) / 16f, (cell.Y + position.Y) / 16f, (cell.Z + position.Z) / 16f) +
+                Vector3.Transform(local, new Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W));
+        }
+    }
+
+    private static void ValidateLogicOwners(WorkshopRead read, WorkshopCompiledScene construction)
+    {
         var expectedLogic=0;
         foreach(var node in construction.Physics.SupplyGraph.Nodes)
         {
@@ -107,20 +132,17 @@ public static class WorkshopMessages
         }
         if(read.Presentation.Logic.Length!=(read.Epoch.Value==0 ? 0 : expectedLogic))
             throw new ArgumentException("Electrical logic observation population differs from its installed owners.");
-        bool HasOwner(GpuBodyId owner) => construction.Owners.Contains(owner);
-        Vector3 Attachment(GpuBodyId owner, Vector3 local)
-        {
-            var body = bodies[owner];
-            var cell = body.Cell; var position = body.Local; var rotation = body.Rotation;
-            if (body.Motion == RigidMotionKind.Dynamic)
-            {
-                if (!read.Bodies.TryGet(owner, out var committed))
-                    throw new ArgumentException("Rope attachment has no committed dynamic owner.");
-                cell = committed.Body.Cell; position = committed.Body.Local; rotation = committed.Rotation;
-            }
-            return new Vector3((cell.X + position.X) / 16f, (cell.Y + position.Y) / 16f, (cell.Z + position.Z) / 16f) +
-                Vector3.Transform(local, new Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W));
-        }
+    }
+
+    private static void ValidateLoadOwners(WorkshopRead read, WorkshopCompiledScene construction)
+    {
+        var sensors = construction.Physics.ContactLoadSensors;
+        var loads = read.Presentation.Loads;
+        if (loads.Length != (read.Epoch.Value == 0 ? 0 : sensors.Length))
+            throw new ArgumentException("Contact-load observation population differs from its installation.");
+        for (var i = 0; i < loads.Length; i++)
+            if (loads[i].Sensor != sensors[i].Id || loads[i].Frame != sensors[i].Frame || loads[i].Region != sensors[i].Region)
+                throw new ArgumentException("Contact-load observation names a foreign sensor, frame or region.");
     }
 
     internal static void ValidateScheduleIdentity(WorkshopResponse response)

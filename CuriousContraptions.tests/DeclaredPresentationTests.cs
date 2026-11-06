@@ -153,7 +153,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
                 maximumSwing = MathF.Max(maximumSwing, MathF.Abs(pivot.Rotation.Z));
                 pulseSeen |= Material(clockPart, "Visual/Visual_Indicator").AlbedoColor.R > .9f;
             }
-            Assert.Equal(powered ? 1u : 0u, network.Memory(reads[^1].Memory, counter.Id).Count);
+            Assert.Equal(powered ? 1u : 0u, network.Memory(reads[^1].Memory, SignalTestNodes.Only(network, counter.Id)).Count);
             Assert.Equal(powered, pulseSeen);
             if (powered) Assert.InRange(maximumSwing, .35f, .42f);
             else Assert.Equal(0f, maximumSwing);
@@ -493,7 +493,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         const long origin = 10_123_456_789; // Neither zero nor an animation/physical pulse boundary.
         var schedule = Schedule(1, 3, origin, WorldPlayback.Running);
         evaluator.AcceptEvents(new(reads[3].Epoch.Value, 0,
-            [new(1, reads[3].Tick.Value, SimulationEventKind.TriggerActivated, owner.Value, 9,
+            [new(1, reads[3].Tick.Value, SimulationEventKind.TriggerActivated, new(construction.Instances.Identities[owner].Signals[new("signal")].Node.Value), 9,
                 checked((uint)(reads[3].Tick.Value * settings.PhysicalStepsPerCommit)), 512, 1, 1, 0)]), schedule.World);
         float Sample(long master) => Scalar(evaluator.Advance(schedule, PhysicalTime.FromNanoseconds(master)), owner, 0);
         Assert.Equal(.06f, Sample(origin));

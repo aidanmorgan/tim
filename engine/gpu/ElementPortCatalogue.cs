@@ -130,6 +130,41 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             PortDirection.Bidirectional => WorkshopPortDirection.Bidirectional,
             _ => throw Refused(ElementPortRejection.UnsupportedDirection, element, index, $"declares the direction {port.Direction}, which the engine does not connect")
         };
+        ValidateRole(element, index, port, domain, direction);
+        WorkshopSignalKind? signal = (domain, port.Signal) switch
+        {
+            (WorkshopConnectionDomain.Activation, PortSignalKind.Pulse) => WorkshopSignalKind.Pulse,
+            (WorkshopConnectionDomain.Activation, PortSignalKind.Level) => WorkshopSignalKind.Level,
+            (WorkshopConnectionDomain.Electrical, null) => null,
+            (WorkshopConnectionDomain.Rope, null) => null,
+            (WorkshopConnectionDomain.Mechanical, null) => null,
+            _ => throw Refused(ElementPortRejection.SignalKindDisagrees, element, index,
+                $"declares the signal kind '{port.Signal}' on a {port.Domain} port")
+        };
+        if (!float.IsFinite(port.LocalPosition.X) || !float.IsFinite(port.LocalPosition.Y) || !float.IsFinite(port.LocalPosition.Z))
+            throw Refused(ElementPortRejection.NonFinitePosition, element, index, "declares a non-finite anchor");
+        ValidateAttachment(element, index, port, domain);
+        if (domain == WorkshopConnectionDomain.Mechanical)
+        {
+            if (port.Coordinate is not { Kind: CoordinateKind.Revolute, Index: >= 0 })
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares no coordinate reference or an unsupported coordinate kind");
+            if (!float.IsFinite(port.CoordinatePerRadian) || port.CoordinatePerRadian == 0f)
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a non-finite or zero coordinate-per-radian ratio");
+        }
+        else
+        {
+            if (port.Coordinate is not null)
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a coordinate reference on a non-mechanical port");
+            if (port.CoordinatePerRadian != 0f)
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares coordinate-per-radian on a non-mechanical port");
+        }
+        return new(port.Id, port.Role, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body,
+            port.GuideRadius, port.GuideOffset, port.Coordinate, port.CoordinatePerRadian);
+    }
+
+    private static void ValidateRole(PartId element, int index, PortDescriptor port,
+        WorkshopConnectionDomain domain, WorkshopPortDirection direction)
+    {
         var roleAgrees = port.Role switch
         {
             PortRole.ActivationOut => domain == WorkshopConnectionDomain.Activation && direction == WorkshopPortDirection.Output,
@@ -143,18 +178,10 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         };
         if (!roleAgrees)
             throw Refused(ElementPortRejection.SocketDisagrees, element, index, $"declares {port.Role} as {port.Domain} {port.Direction}");
-        WorkshopSignalKind? signal = (domain, port.Signal) switch
-        {
-            (WorkshopConnectionDomain.Activation, PortSignalKind.Pulse) => WorkshopSignalKind.Pulse,
-            (WorkshopConnectionDomain.Activation, PortSignalKind.Level) => WorkshopSignalKind.Level,
-            (WorkshopConnectionDomain.Electrical, null) => null,
-            (WorkshopConnectionDomain.Rope, null) => null,
-            (WorkshopConnectionDomain.Mechanical, null) => null,
-            _ => throw Refused(ElementPortRejection.SignalKindDisagrees, element, index,
-                $"declares the signal kind '{port.Signal}' on a {port.Domain} port")
-        };
-        if (!float.IsFinite(port.LocalPosition.X) || !float.IsFinite(port.LocalPosition.Y) || !float.IsFinite(port.LocalPosition.Z))
-            throw Refused(ElementPortRejection.NonFinitePosition, element, index, "declares a non-finite anchor");
+    }
+
+    private static void ValidateAttachment(PartId element, int index, PortDescriptor port, WorkshopConnectionDomain domain)
+    {
         if (!Enum.IsDefined(port.AttachmentRole) ||
             (domain == WorkshopConnectionDomain.Rope) != (port.AttachmentRole != RopeAttachmentRole.None))
             throw Refused(ElementPortRejection.SocketDisagrees, element, index, "declares an invalid attachment role");
@@ -172,22 +199,6 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             if (port.GuideOffset != Vector3.Zero)
                 throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a guide offset on a non-guide port");
         }
-        if (domain == WorkshopConnectionDomain.Mechanical)
-        {
-            if (port.Coordinate is not { Kind: CoordinateKind.Revolute, Index: >= 0 })
-                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares no coordinate reference or an unsupported coordinate kind");
-            if (!float.IsFinite(port.CoordinatePerRadian) || port.CoordinatePerRadian == 0f)
-                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a non-finite or zero coordinate-per-radian ratio");
-        }
-        else
-        {
-            if (port.Coordinate is not null)
-                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares a coordinate reference on a non-mechanical port");
-            if (port.CoordinatePerRadian != 0f)
-                throw Refused(ElementPortRejection.OutOfRange, element, index, "declares coordinate-per-radian on a non-mechanical port");
-        }
-        return new(port.Id, port.Role, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body,
-            port.GuideRadius, port.GuideOffset, port.Coordinate, port.CoordinatePerRadian);
     }
 
     private static ElementPortRejectedException Refused(ElementPortRejection reason, PartId element, int index, string detail) =>

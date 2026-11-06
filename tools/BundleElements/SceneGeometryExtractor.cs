@@ -16,15 +16,7 @@ public static partial class SceneGeometryExtractor
     {
         var sections = Parse(text);
         var resources = sections.Where(s => s.Kind == "sub_resource").ToDictionary(s => s.Attributes["id"]);
-        var nodes = sections.Where(s => s.Kind == "node").Select(s =>
-        {
-            var parent = s.Attributes.GetValueOrDefault("parent");
-            var name = s.Attributes["name"];
-            return new Node(name, s.Attributes.GetValueOrDefault("type") ?? "",
-                parent is null ? "." : parent == "." ? name : parent + "/" + name, parent, s.Values);
-        }).ToArray();
-        if (nodes.Length == 0 || nodes[0].Parent is not null || nodes[0].Type != "Node3D")
-            throw new ArgumentException("Scene root must be Node3D.");
+        var nodes = ReadSceneNodes(sections);
         var byPath = nodes.ToDictionary(n => n.Path, StringComparer.Ordinal);
         foreach (var node in nodes.Skip(1))
             if (node.Parent is null || !byPath.ContainsKey(node.Parent)) throw new ArgumentException("Scene has an unresolved parent.");
@@ -39,64 +31,14 @@ public static partial class SceneGeometryExtractor
         if (ownership is null)
         {
             if (entry.Footprint.Bodies > 0 && entry.Colliders.Count == 0) throw new ArgumentException("Body has no collider.");
-            return entry with { TubeMouths = Mouths() };
+            return entry with { TubeMouths = Mouths(nodes, byPath) };
         }
         if (hasData) throw new ArgumentException("A scene-owned package also declares data colliders.");
         if (ownership.Count != 1 + sliders.Count + hinges.Count || ownership[0].Root != ".")
             throw new ArgumentException("Scene ownership must name the base, every slider and every hinge body.");
-        for (var i = 0; i < ownership.Count; i++)
-        {
-            if (!byPath.ContainsKey(ownership[i].Root)) throw new ArgumentException("Body root does not exist: " + ownership[i].Root);
-            for (var j = 0; j < i; j++)
-                if (ownership[i].Root == ownership[j].Root ||
-                    (j != 0 && (Below(ownership[i].Root, ownership[j].Root) || Below(ownership[j].Root, ownership[i].Root))))
-                    throw new ArgumentException("Scene body roots overlap.");
-        }
+        ValidateBodyRoots(ownership, byPath);
         var bodies = Enumerable.Range(0, ownership.Count).Select(_ => new List<ColliderDescriptor>()).ToArray();
-        foreach (var node in proxies)
-        {
-            var owner = 0;
-            for (var i = 1; i < ownership.Count; i++)
-                if (Below(node.Path, ownership[i].Root) || node.Path == ownership[i].Root) owner = i;
-            if (node.Type == "Node3D" && proxies.Any(child => Below(child.Path, node.Path))) continue;
-            if (node.Type is not ("CollisionShape3D" or "MeshInstance3D") ||
-                node.Name.StartsWith("col_capsule", StringComparison.OrdinalIgnoreCase) ||
-                node.Name.StartsWith("col_hull", StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("Unsupported collider proxy: " + node.Path);
-            if (!node.Values.TryGetValue(node.Type == "CollisionShape3D" ? "shape" : "mesh", out var reference)) throw new ArgumentException("Collider has no shape: " + node.Path);
-            var resourceId = Reference(reference);
-            if (!resources.TryGetValue(resourceId, out var shape)) throw new ArgumentException("Collider shape is missing: " + node.Path);
-            var (position, rotation, scale) = Pose(node, ownership[owner].Root);
-            if (scale.X <= 0 || scale.Y <= 0 || scale.Z <= 0) throw new ArgumentException("Collider scale must be positive.");
-            // engine-hollow-shapes: an open cylinder mesh (both caps off) is a tube or frustum wall, a torus mesh a torus segment.
-            if (Hollow(shape, node, scale) is { } hollow)
-            {
-                bodies[owner].Add(hollow with { Offset = position, Rotation = rotation, Material = ownership[owner].Material });
-                continue;
-            }
-            var kind = shape.Attributes["type"] switch
-            {
-                "BoxShape3D" or "BoxMesh" => ColliderShapeKind.Box,
-                "SphereShape3D" or "SphereMesh" => ColliderShapeKind.Sphere,
-                "CylinderShape3D" or "CylinderMesh" => ColliderShapeKind.Cylinder,
-                _ => throw new ArgumentException("Unsupported collider shape: " + shape.Attributes["type"])
-            };
-            var half = kind switch
-            {
-                ColliderShapeKind.Box => Vector(Required(shape, "size", node)) * .5f,
-                ColliderShapeKind.Sphere => new Vector3(Number(Required(shape, "radius", node))),
-                ColliderShapeKind.Cylinder => CylinderHalfExtents(shape, node),
-                _ => throw new ArgumentException("Unsupported collider shape: " + node.Path)
-            };
-            half *= scale;
-            if (half.X <= 0 || half.Y <= 0 || half.Z <= 0) throw new ArgumentException("Collider has nonpositive extent.");
-            if (kind == ColliderShapeKind.Sphere && (half.X != half.Y || half.X != half.Z))
-                throw new ArgumentException("A sphere cannot have nonuniform scale.");
-            // A cylinder's axis is its local +Y: its height scales by scale.Y and its radius needs equal radial scale (X = Z).
-            if (kind == ColliderShapeKind.Cylinder && half.X != half.Z)
-                throw new ArgumentException("A cylinder cannot have nonuniform radial scale: " + node.Path);
-            bodies[owner].Add(new(kind, half, position, rotation, ownership[owner].Material, 0f));
-        }
+        BakeBodies(proxies, resources, byPath, ownership, bodies);
         if (bodies.Any(body => body.Count == 0)) throw new ArgumentException("A scene body has no collider.");
         var bakedSliders = sliders.Select((slider, index) => slider with
         { MovingBody = slider.MovingBody with { Colliders = bodies[index + 1] } }).ToArray();
@@ -106,42 +48,125 @@ public static partial class SceneGeometryExtractor
         {
             Colliders = bodies[0],
             Mechanical = entry.Mechanical is { } mechanical ? mechanical with { Sliders = bakedSliders, Hinges = bakedHinges } : null,
-            TubeMouths = Mouths()
+            TubeMouths = Mouths(nodes, byPath)
         };
 
-        IReadOnlyList<TubeMouthDescriptor> Mouths()
-        {
-            var mouths = new List<TubeMouthDescriptor>();
-            foreach (var node in nodes.Where(n => n.Name.StartsWith("Loc_Port_mouth_", StringComparison.Ordinal)))
-            {
-                var end = node.Name switch
-                {
-                    "Loc_Port_mouth_start" => TubeEnd.Start,
-                    "Loc_Port_mouth_end" => TubeEnd.End,
-                    _ => throw new ArgumentException("Unknown tube mouth.")
-                };
-                if (mouths.Any(m => m.End == end)) throw new ArgumentException("Duplicate tube mouth.");
-                var (position, rotation, _) = Pose(node, ".");
-                var bore = Number(node.Values["metadata/bore_radius"]);
-                if (bore <= 0) throw new ArgumentException("Invalid tube bore.");
-                mouths.Add(new(end, position, rotation, bore));
-            }
-            return mouths;
-        }
 
-        (Vector3 Position, Quaternion Rotation, Vector3 Scale) Pose(Node node, string root)
+    }
+
+    private static void BakeBodies(Node[] proxies, Dictionary<string, Section> resources, Dictionary<string, Node> byPath,
+        IReadOnlyList<SceneBodyGeometry> ownership, List<ColliderDescriptor>[] bodies)
+    {
+        foreach (var node in proxies)
         {
-            if (node.Path == root) { _ = Local(node.Values); return (Vector3.Zero, Quaternion.Identity, Vector3.One); }
-            var local = Local(node.Values);
-            if (node.Parent == root) return local;
-            var parent = Pose(byPath[node.Parent!], root);
-            var matrix = Matrix4x4.CreateScale(local.Scale) * Matrix4x4.CreateFromQuaternion(local.Rotation) *
-                Matrix4x4.CreateTranslation(local.Position) * Matrix4x4.CreateScale(parent.Scale) *
-                Matrix4x4.CreateFromQuaternion(parent.Rotation) * Matrix4x4.CreateTranslation(parent.Position);
-            if (!Matrix4x4.Decompose(matrix, out var scale, out var rotation, out var position))
-                throw new ArgumentException("Cannot decompose scene transform.");
-            return (position, rotation, scale);
+            var owner = 0;
+            for (var i = 1; i < ownership.Count; i++)
+                if (Below(node.Path, ownership[i].Root) || node.Path == ownership[i].Root) owner = i;
+            if (BakeProxy(node, proxies, resources, byPath, ownership[owner].Root, ownership[owner].Material) is { } collider)
+                bodies[owner].Add(collider);
         }
+    }
+
+    private static List<TubeMouthDescriptor> Mouths(Node[] nodes, Dictionary<string, Node> byPath)
+    {
+        var mouths = new List<TubeMouthDescriptor>();
+        foreach (var node in nodes.Where(n => n.Name.StartsWith("Loc_Port_mouth_", StringComparison.Ordinal)))
+        {
+            var end = node.Name switch
+            {
+                "Loc_Port_mouth_start" => TubeEnd.Start,
+                "Loc_Port_mouth_end" => TubeEnd.End,
+                _ => throw new ArgumentException("Unknown tube mouth.")
+            };
+            if (mouths.Any(m => m.End == end)) throw new ArgumentException("Duplicate tube mouth.");
+            var (position, rotation, _) = Pose(node, ".", byPath);
+            var bore = Number(node.Values["metadata/bore_radius"]);
+            if (bore <= 0) throw new ArgumentException("Invalid tube bore.");
+            mouths.Add(new(end, position, rotation, bore));
+        }
+        return mouths;
+    }
+
+    private static (Vector3 Position, Quaternion Rotation, Vector3 Scale) Pose(Node node, string root, Dictionary<string, Node> byPath)
+    {
+        if (node.Path == root) { _ = Local(node.Values); return (Vector3.Zero, Quaternion.Identity, Vector3.One); }
+        var local = Local(node.Values);
+        if (node.Parent == root) return local;
+        var parent = Pose(byPath[node.Parent!], root, byPath);
+        var matrix = Matrix4x4.CreateScale(local.Scale) * Matrix4x4.CreateFromQuaternion(local.Rotation) *
+            Matrix4x4.CreateTranslation(local.Position) * Matrix4x4.CreateScale(parent.Scale) *
+            Matrix4x4.CreateFromQuaternion(parent.Rotation) * Matrix4x4.CreateTranslation(parent.Position);
+        if (!Matrix4x4.Decompose(matrix, out var scale, out var rotation, out var position))
+            throw new ArgumentException("Cannot decompose scene transform.");
+        return (position, rotation, scale);
+    }
+
+    private static ColliderDescriptor? BakeProxy(Node node, Node[] proxies, Dictionary<string, Section> resources,
+        Dictionary<string, Node> byPath, string root, MaterialProperties material)
+    {
+        if (node.Type == "Node3D" && proxies.Any(child => Below(child.Path, node.Path))) return null;
+        if (node.Type is not ("CollisionShape3D" or "MeshInstance3D") ||
+            node.Name.StartsWith("col_capsule", StringComparison.OrdinalIgnoreCase) ||
+            node.Name.StartsWith("col_hull", StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Unsupported collider proxy: " + node.Path);
+        if (!node.Values.TryGetValue(node.Type == "CollisionShape3D" ? "shape" : "mesh", out var reference)) throw new ArgumentException("Collider has no shape: " + node.Path);
+        var resourceId = Reference(reference);
+        if (!resources.TryGetValue(resourceId, out var shape)) throw new ArgumentException("Collider shape is missing: " + node.Path);
+        var (position, rotation, scale) = Pose(node, root, byPath);
+        if (scale.X <= 0 || scale.Y <= 0 || scale.Z <= 0) throw new ArgumentException("Collider scale must be positive.");
+        // engine-hollow-shapes: an open cylinder mesh (both caps off) is a tube or frustum wall, a torus mesh a torus segment.
+        if (Hollow(shape, node, scale) is { } hollow)
+        {
+            return hollow with { Offset = position, Rotation = rotation, Material = material };
+        }
+        var kind = shape.Attributes["type"] switch
+        {
+            "BoxShape3D" or "BoxMesh" => ColliderShapeKind.Box,
+            "SphereShape3D" or "SphereMesh" => ColliderShapeKind.Sphere,
+            "CylinderShape3D" or "CylinderMesh" => ColliderShapeKind.Cylinder,
+            _ => throw new ArgumentException("Unsupported collider shape: " + shape.Attributes["type"])
+        };
+        var half = kind switch
+        {
+            ColliderShapeKind.Box => Vector(Required(shape, "size", node)) * .5f,
+            ColliderShapeKind.Sphere => new Vector3(Number(Required(shape, "radius", node))),
+            ColliderShapeKind.Cylinder => CylinderHalfExtents(shape, node),
+            _ => throw new ArgumentException("Unsupported collider shape: " + node.Path)
+        };
+        half *= scale;
+        if (half.X <= 0 || half.Y <= 0 || half.Z <= 0) throw new ArgumentException("Collider has nonpositive extent.");
+        if (kind == ColliderShapeKind.Sphere && (half.X != half.Y || half.X != half.Z))
+            throw new ArgumentException("A sphere cannot have nonuniform scale.");
+        // A cylinder's axis is its local +Y: its height scales by scale.Y and its radius needs equal radial scale (X = Z).
+        if (kind == ColliderShapeKind.Cylinder && half.X != half.Z)
+            throw new ArgumentException("A cylinder cannot have nonuniform radial scale: " + node.Path);
+        return new(kind, half, position, rotation, material, 0f);
+    }
+
+    private static void ValidateBodyRoots(IReadOnlyList<SceneBodyGeometry> ownership, Dictionary<string, Node> byPath)
+    {
+        for (var i = 0; i < ownership.Count; i++)
+        {
+            if (!byPath.ContainsKey(ownership[i].Root)) throw new ArgumentException("Body root does not exist: " + ownership[i].Root);
+            for (var j = 0; j < i; j++)
+                if (ownership[i].Root == ownership[j].Root ||
+                    (j != 0 && (Below(ownership[i].Root, ownership[j].Root) || Below(ownership[j].Root, ownership[i].Root))))
+                    throw new ArgumentException("Scene body roots overlap.");
+        }
+    }
+
+    private static Node[] ReadSceneNodes(IReadOnlyList<Section> sections)
+    {
+        var nodes = sections.Where(s => s.Kind == "node").Select(s =>
+        {
+            var parent = s.Attributes.GetValueOrDefault("parent");
+            var name = s.Attributes["name"];
+            return new Node(name, s.Attributes.GetValueOrDefault("type") ?? "",
+                parent is null ? "." : parent == "." ? name : parent + "/" + name, parent, s.Values);
+        }).ToArray();
+        if (nodes.Length == 0 || nodes[0].Parent is not null || nodes[0].Type != "Node3D")
+            throw new ArgumentException("Scene root must be Node3D.");
+        return nodes;
     }
 
     private static bool Below(string path, string parent) => path.StartsWith(parent + "/", StringComparison.Ordinal);

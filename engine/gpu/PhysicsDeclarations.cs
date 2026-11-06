@@ -503,15 +503,13 @@ public sealed class PhysicsSceneDeclaration
 
     private static void ValidateContactPolicies(ReadOnlySpan<ContactTriggerDeclaration> triggers, ReadOnlySpan<ContactWorkDeclaration> contactWorks, ReadOnlySpan<ColliderDeclaration> colliders, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap, ulong nextIdentity, HashSet<ulong> ids)
     {
-        var owners = new HashSet<GpuBodyId>(4);
         foreach (var trigger in triggers)
         {
             trigger.Validate(); Identity(trigger.Id.Value, nextIdentity, ids);
             if (!bodyMap.TryGetValue(trigger.Owner, out var owner) || owner.Motion != RigidMotionKind.Static ||
                 (trigger.Targets.Kind == BodyTargetKind.NamedBody &&
-                    (!bodyMap.TryGetValue(trigger.Targets.Body, out var target) || target.Motion != RigidMotionKind.Dynamic)) ||
-                !owners.Add(trigger.Owner))
-                throw new ArgumentException("Contact trigger requires a unique static owner and dynamic target.");
+                    (!bodyMap.TryGetValue(trigger.Targets.Body, out var target) || target.Motion != RigidMotionKind.Dynamic)))
+                throw new ArgumentException("Contact trigger requires a static owner and dynamic target.");
             var colliderFound = false;
             foreach (var collider in colliders) if (collider.Body == trigger.Owner) colliderFound = true;
             if (!colliderFound) throw new ArgumentException("Contact trigger owner has no physical collider.");
@@ -533,17 +531,15 @@ public sealed class PhysicsSceneDeclaration
 
     private static void ValidateObservations(ReadOnlySpan<OrientationSensorDeclaration> orientationSensors, ReadOnlySpan<ContactLoadSensorDeclaration> contactLoadSensors, ReadOnlySpan<ColliderDeclaration> colliders, HashSet<GpuBodyId> dynamicColliders, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap, ulong nextIdentity, HashSet<ulong> ids)
     {
-        var sensed = new HashSet<GpuBodyId>(4);
         foreach (var sensor in orientationSensors)
         {
             sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
             if (!bodyMap.TryGetValue(sensor.Body, out var body) || body.Motion != RigidMotionKind.Dynamic ||
-                !dynamicColliders.Contains(sensor.Body) || !sensed.Add(sensor.Body))
-                throw new ArgumentException("Orientation sensor requires one uniquely sensed dynamic body with its collider.");
+                !dynamicColliders.Contains(sensor.Body))
+                throw new ArgumentException("Orientation sensor requires a dynamic body with its collider.");
             // "Angle from the admitted pose" is a document invariant, not a compiler courtesy.
             if (body.Rotation != sensor.Initial) throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
         }
-        var loadFrames = new HashSet<GpuBodyId>(4);
         foreach (var sensor in contactLoadSensors)
         {
             sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
@@ -555,9 +551,8 @@ public sealed class PhysicsSceneDeclaration
             }
             var faceOwned = false;
             foreach (var collider in colliders) if (collider.Id == sensor.Region && collider.Body == sensor.Frame) faceOwned = true;
-            if (!bodyMap.TryGetValue(sensor.Frame, out var frame) || frame.Motion != RigidMotionKind.Static || !faceOwned ||
-                !loadFrames.Add(sensor.Frame))
-                throw new ArgumentException("A contact-load row requires one row per static frame and a sensing face that frame owns.");
+            if (!bodyMap.TryGetValue(sensor.Frame, out var frame) || frame.Motion != RigidMotionKind.Static || !faceOwned)
+                throw new ArgumentException("A contact-load row requires a static frame and a sensing face that frame owns.");
         }
     }
 

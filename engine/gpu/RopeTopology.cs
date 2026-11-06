@@ -42,13 +42,7 @@ public static class RopeTopology
                 Refuse("Invalid or duplicate rope span.");
             Add(a, edge); Add(b, edge);
         }
-        foreach (var (endpoint, links) in adjacent)
-        {
-            var declared = role(endpoint);
-            if (!Enum.IsDefined(declared) || declared == RopeAttachmentRole.None ||
-                links.Count > (declared == RopeAttachmentRole.Guide ? 2 : 1))
-                Refuse("Ropes cannot branch or attach to an undeclared endpoint.");
-        }
+        ValidateAttachmentDegrees(adjacent, role);
         var visited = new HashSet<WorkshopConnection>();
         var routes = new List<Route>();
         foreach (var (endpoint, links) in adjacent)
@@ -78,6 +72,18 @@ public static class RopeTopology
             links.Add(edge);
         }
     }
+    private static void ValidateAttachmentDegrees(SortedDictionary<Endpoint, List<WorkshopConnection>> adjacent,
+        Func<Endpoint, RopeAttachmentRole> role)
+    {
+        foreach (var (endpoint, links) in adjacent)
+        {
+            var declared = role(endpoint);
+            if (!Enum.IsDefined(declared) || declared == RopeAttachmentRole.None ||
+                links.Count > (declared == RopeAttachmentRole.Guide ? 2 : 1))
+                Refuse("Ropes cannot branch or attach to an undeclared endpoint.");
+        }
+    }
+
     private static void Refuse(string reason) =>
         throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, reason);
 }

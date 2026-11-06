@@ -270,40 +270,7 @@ public static class SourceInventory
         foreach (var (tree, contextCompilation, contextKind) in allTrees)
         {
             var model = contextCompilation.GetSemanticModel(tree);
-            foreach (var node in tree.GetRoot().DescendantNodes())
-            {
-                if (node is BaseMethodDeclarationSyntax or AccessorDeclarationSyntax or LocalFunctionStatementSyntax)
-                {
-                    if (model.GetDeclaredSymbol(node) is { } declaredMethod) contextCallers.Add(new(Identity(declaredMethod)));
-                }
-                // Include method groups as conservative edges: callbacks can execute after registration.
-                if (node is not (InvocationExpressionSyntax or ObjectCreationExpressionSyntax
-                    or ImplicitObjectCreationExpressionSyntax or SimpleNameSyntax)) continue;
-                var bound = model.GetSymbolInfo(node).Symbol;
-                if (bound is IPropertySymbol property)
-                {
-                    foreach (var accessor in new[] { property.GetMethod, property.SetMethod }.OfType<IMethodSymbol>())
-                    {
-                        var propertyCaller = Site(node, model, StateAccess.Call).Caller;
-                        contextCallers.Add(propertyCaller);
-                        contextCallers.Add(new(Identity(accessor)));
-                        calls.Add(new(contextKind, new(tree.FilePath), node.GetLocation().GetLineSpan().StartLinePosition.Line + 1,
-                            propertyCaller, new(Identity(accessor)), accessor.IsVirtual || accessor.IsOverride
-                                ? DispatchScope.VirtualFamily : DispatchScope.NamedTarget));
-                    }
-                }
-                var called = bound as IMethodSymbol;
-                if (called is null) continue;
-                var caller = Site(node, model, StateAccess.Call).Caller;
-                contextCallers.Add(caller);
-                var scope = called.MethodKind == MethodKind.DelegateInvoke ? DispatchScope.ContextDelegates
-                    : called.ContainingType.TypeKind == TypeKind.Interface ? DispatchScope.InterfaceFamily
-                    : called.IsVirtual || called.IsOverride || called.IsAbstract ? DispatchScope.VirtualFamily
-                    : called.Locations.Any(location => location.IsInSource) ? DispatchScope.NamedTarget
-                    : DispatchScope.External;
-                calls.Add(new(contextKind, new(tree.FilePath), node.GetLocation().GetLineSpan().StartLinePosition.Line + 1,
-                    caller, new(Identity(called.OriginalDefinition)), scope));
-            }
+            CollectCalls(tree, model, contextKind, contextCallers, calls);
 
             foreach (var name in tree.GetRoot().DescendantNodes().OfType<SimpleNameSyntax>())
             {
@@ -324,30 +291,8 @@ public static class SourceInventory
                     sites.Add(Site(element, model, Classify(element, model)));
             }
         }
-        var members = declared.Select(pair =>
-        {
-            var symbol = pair.Key;
-            var (node, form) = pair.Value;
-            var type = symbol switch { IFieldSymbol field => field.Type, IPropertySymbol property => property.Type,
-                IEventSymbol signal => signal.Type, IParameterSymbol captured => captured.Type,
-                _ => throw new InvalidDataException("Unsupported declaration.") };
-            var mutable = symbol switch
-            {
-                IFieldSymbol field => !field.IsReadOnly,
-                IPropertySymbol property => property.SetMethod is { IsInitOnly: false },
-                IEventSymbol => true,
-                IParameterSymbol => true,
-                _ => false
-            };
-            var storage = HasReferences(type, new(SymbolEqualityComparer.Default));
-            var identity = symbol is IParameterSymbol parameter
-                ? DocumentationCommentId.CreateDeclarationId(parameter.ContainingType) + "::" + parameter.Name
-                : DocumentationCommentId.CreateDeclarationId(symbol) ?? throw new InvalidDataException("State member needs a stable declaration identity.");
-            return new StateMember(new(identity), new(node.SyntaxTree.FilePath),
-                node.GetLocation().GetLineSpan().StartLinePosition.Line + 1, new(type.ToDisplayString()),
-                form, storage ? StorageMutability.ReferencedStorage : mutable ? StorageMutability.MutableValue : StorageMutability.ConstructionValue,
-                symbol.IsStatic, uses[symbol].Distinct().OrderBy(site => site.Path.Value, StringComparer.Ordinal).ThenBy(site => site.Line).ToArray());
-        }).OrderBy(member => member.Id.Value, StringComparer.Ordinal).ToArray();
+        var members = declared.Select(pair => DescribeMember(pair.Key, pair.Value.Node, pair.Value.Form, uses[pair.Key]))
+            .OrderBy(member => member.Id.Value, StringComparer.Ordinal).ToArray();
         return new(paths.Concat(supplementalInputs.Select(path => path.Value))
             .Distinct().Order(StringComparer.Ordinal).Select(path => new SourceInput(new(path),
             Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(root, path)))))).ToArray(), members)
@@ -360,6 +305,69 @@ public static class SourceInventory
             ConservativeContextCallers = contextCallers.Concat(members.SelectMany(member => member.Uses).Select(site => site.Caller))
                 .Distinct().OrderBy(caller => caller.Value, StringComparer.Ordinal).ToArray()
         };
+    }
+
+    private static StateMember DescribeMember(ISymbol symbol, SyntaxNode node, StorageForm form, List<UseSite> uses)
+    {
+        var type = symbol switch { IFieldSymbol field => field.Type, IPropertySymbol property => property.Type,
+            IEventSymbol signal => signal.Type, IParameterSymbol captured => captured.Type,
+            _ => throw new InvalidDataException("Unsupported declaration.") };
+        var mutable = symbol switch
+        {
+            IFieldSymbol field => !field.IsReadOnly,
+            IPropertySymbol property => property.SetMethod is { IsInitOnly: false },
+            IEventSymbol => true,
+            IParameterSymbol => true,
+            _ => false
+        };
+        var storage = HasReferences(type, new(SymbolEqualityComparer.Default));
+        var identity = symbol is IParameterSymbol parameter
+            ? DocumentationCommentId.CreateDeclarationId(parameter.ContainingType) + "::" + parameter.Name
+            : DocumentationCommentId.CreateDeclarationId(symbol) ?? throw new InvalidDataException("State member needs a stable declaration identity.");
+        return new StateMember(new(identity), new(node.SyntaxTree.FilePath),
+            node.GetLocation().GetLineSpan().StartLinePosition.Line + 1, new(type.ToDisplayString()),
+            form, storage ? StorageMutability.ReferencedStorage : mutable ? StorageMutability.MutableValue : StorageMutability.ConstructionValue,
+            symbol.IsStatic, uses.Distinct().OrderBy(site => site.Path.Value, StringComparer.Ordinal).ThenBy(site => site.Line).ToArray());
+    }
+
+    private static void CollectCalls(SyntaxTree tree, SemanticModel model, InspectionContext contextKind,
+        HashSet<CallerId> contextCallers, List<CallerEdge> calls)
+    {
+        foreach (var node in tree.GetRoot().DescendantNodes())
+        {
+            if (node is BaseMethodDeclarationSyntax or AccessorDeclarationSyntax or LocalFunctionStatementSyntax)
+            {
+                if (model.GetDeclaredSymbol(node) is { } declaredMethod) contextCallers.Add(new(Identity(declaredMethod)));
+            }
+            // Include method groups as conservative edges: callbacks can execute after registration.
+            if (node is not (InvocationExpressionSyntax or ObjectCreationExpressionSyntax
+                or ImplicitObjectCreationExpressionSyntax or SimpleNameSyntax)) continue;
+            var bound = model.GetSymbolInfo(node).Symbol;
+            if (bound is IPropertySymbol property)
+            {
+                foreach (var accessor in new[] { property.GetMethod, property.SetMethod }.OfType<IMethodSymbol>())
+                {
+                    var propertyCaller = Site(node, model, StateAccess.Call).Caller;
+                    contextCallers.Add(propertyCaller);
+                    contextCallers.Add(new(Identity(accessor)));
+                    calls.Add(new(contextKind, new(tree.FilePath), node.GetLocation().GetLineSpan().StartLinePosition.Line + 1,
+                        propertyCaller, new(Identity(accessor)), accessor.IsVirtual || accessor.IsOverride
+                            ? DispatchScope.VirtualFamily : DispatchScope.NamedTarget));
+                }
+            }
+            var called = bound as IMethodSymbol;
+            if (called is null) continue;
+            var caller = Site(node, model, StateAccess.Call).Caller;
+            contextCallers.Add(caller);
+            var scope = called.MethodKind == MethodKind.DelegateInvoke ? DispatchScope.ContextDelegates
+                : called.ContainingType.TypeKind == TypeKind.Interface ? DispatchScope.InterfaceFamily
+                : called.IsVirtual || called.IsOverride || called.IsAbstract ? DispatchScope.VirtualFamily
+                : called.Locations.Any(location => location.IsInSource) ? DispatchScope.NamedTarget
+                : DispatchScope.External;
+            calls.Add(new(contextKind, new(tree.FilePath), node.GetLocation().GetLineSpan().StartLinePosition.Line + 1,
+                caller, new(Identity(called.OriginalDefinition)), scope));
+        }
+
     }
 
     private static string Identity(ISymbol symbol) => symbol is IParameterSymbol parameter

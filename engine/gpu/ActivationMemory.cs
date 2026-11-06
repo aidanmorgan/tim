@@ -13,18 +13,41 @@ public enum OscillatorPhase : uint { Stopped = 0, Running = 1 }
 /// (its emission is its Latched activation); an oscillator keeps its pulse count, its phase and its next due tick; a contact-load level
 /// (Pressure Plate) keeps the due tick of its release hold (Story 9R.5).</summary>
 public readonly record struct ActivationMemory(ActivationNodeId Node, ActivationNodeKind Kind, uint Count, ActivationTime Last,
-    OscillatorPhase Phase, ulong DueTick)
+    OscillatorPhase Phase, ulong DueTick, ActivationOccurrence Dispatched = default)
 {
+    /// <summary>One canonical delivery counts even when another emitter has the same time; uint state saturates.</summary>
+    public (ActivationMemory Memory, bool Crossed) CountInput(uint target, ActivationTime time)
+    {
+        Validate();
+        time.Validate();
+        if (Kind != ActivationNodeKind.Counter || target == 0 || time < Last)
+            throw new ArgumentException("Invalid counter transition.");
+        var count = Count == uint.MaxValue ? Count : Count + 1;
+        return (this with { Count = count, Last = time }, Count < target && count >= target);
+    }
+
     public static ActivationMemory Clear(ActivationNodeDeclaration node) =>
         new(node.Id, node.Kind, 0, default, OscillatorPhase.Stopped, 0);
 
     public static bool Holds(ActivationNodeKind kind) =>
-        kind is ActivationNodeKind.Counter or ActivationNodeKind.Oscillator or ActivationNodeKind.ContactLoadSource;
+        kind is ActivationNodeKind.Counter or ActivationNodeKind.Oscillator or ActivationNodeKind.ContactLoadSource or ActivationNodeKind.PassageSource;
 
     public void Validate()
     {
         if (Node.Value == 0 || !Holds(Kind) || !Enum.IsDefined(Phase)) throw new ArgumentException("Invalid activation memory.");
         Last.Validate();
+        if (Kind == ActivationNodeKind.PassageSource)
+        {
+            if (Count != 0 || Last != default || Phase != OscillatorPhase.Stopped || DueTick != 0)
+                throw new ArgumentException("Passage memory holds only its latest dispatched occurrence.");
+            if (Dispatched != default)
+            {
+                Dispatched.Validate();
+                if (Dispatched.Kind != ActivationOccurrenceKind.Passage || Dispatched.Emitter != Node)
+                    throw new ArgumentException("Foreign passage cursor.");
+            }
+        }
+        else if (Dispatched != default) throw new ArgumentException("Unexpected passage cursor.");
         if (Kind == ActivationNodeKind.Counter && (Phase != OscillatorPhase.Stopped || DueTick != 0))
             throw new ArgumentException("A counter's memory has no oscillator phase.");
         // Story 9R.5: a contact-load level's memory is only its release hold, the boundary its held level is due to clear (0: released).

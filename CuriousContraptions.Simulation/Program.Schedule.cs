@@ -172,11 +172,24 @@ public static partial class Program
         if (applied.Value > MasterNow().Value) throw new ArgumentException("Future applied timestamp.");
         if (header.Kind == ScheduleControlKind.Presented && _awaiting == ScheduleControlKind.Applied)
         {
-            if (source != WorkshopRuntimeRole.Browser || _earlyPresented || !_browserReceived ||
-                _preparedTransition is not (ScheduleTransition.Step or ScheduleTransition.Completed or ScheduleTransition.Reset) ||
-                applied.Value < _browserApplied.Value) throw new ArgumentException("Unowned early presentation receipt.");
-            _earlyPresented = true; _browserApplied = applied; return;
+            AcceptEarlyPresentation(source, applied);
+            return;
         }
+        AcceptScheduleReceipt(source, applied);
+        if (_browserReceived && (_animationReceived || _awaiting == ScheduleControlKind.Presented))
+            _receipts.TrySetResult();
+    }
+
+    private static void AcceptEarlyPresentation(WorkshopRuntimeRole source, MasterTimeNanoseconds applied)
+    {
+        if (source != WorkshopRuntimeRole.Browser || _earlyPresented || !_browserReceived ||
+            _preparedTransition is not (ScheduleTransition.Step or ScheduleTransition.Completed or ScheduleTransition.Reset) ||
+            applied.Value < _browserApplied.Value) throw new ArgumentException("Unowned early presentation receipt.");
+        _earlyPresented = true; _browserApplied = applied;
+    }
+
+    private static void AcceptScheduleReceipt(WorkshopRuntimeRole source, MasterTimeNanoseconds applied)
+    {
         switch (source)
         {
             case WorkshopRuntimeRole.Browser:
@@ -188,8 +201,6 @@ public static partial class Program
                 _animationApplied = applied; _animationReceived = true; break;
             default: throw new ArgumentException("Wrong schedule recipient.");
         }
-        if (_browserReceived && (_animationReceived || _awaiting == ScheduleControlKind.Presented))
-            _receipts.TrySetResult();
     }
 
     private static async Task CommitInstallation()

@@ -23,8 +23,9 @@ public sealed class DeclaredOscillatorTests
     [InlineData(false)]
     public void TheDeclaredOscillatorCompilesItsExactNode(bool supplied)
     {
-        var node = Assert.Single(WorkshopActivationCompiler.Compile(Bench(2.5f, supplied)).Nodes.ToArray());
-        Assert.Equal(new ActivationNodeDeclaration(new(2), Owner, ActivationNodeKind.Oscillator, default, 0, default, default, 0, 300,
+        var bench = Bench(2.5f, supplied);
+        var node = Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray());
+        Assert.Equal(new ActivationNodeDeclaration(bench.Instances.Identities[Owner].Signals[new("signal")].Node, Owner, ActivationNodeKind.Oscillator, default, 0, default, default, 0, 300,
             supplied ? Source : default), node);
     }
 

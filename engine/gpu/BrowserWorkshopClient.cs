@@ -208,23 +208,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                 _observation.Receipt(command, response, prepared.Applicable);
                 if (prepared.Applicable)
                 {
-                    var boundary = response.Result.Outcome == WorkshopCommandOutcome.Applied ? kind switch
-                    {
-                        WorkshopCommandKind.Initialize or WorkshopCommandKind.Construct or WorkshopCommandKind.Reset => PresentationBoundary.Seed,
-                        WorkshopCommandKind.Run => PresentationBoundary.Run,
-                        _ => PresentationBoundary.Continuous
-                    } : PresentationBoundary.Continuous;
-                    WorkshopPoseHistory.Prepared? history = response.Read.Capture is null || _history.Latest is { } installed &&
-                        installed.Read.HasSameContent(response.Read) ? null :
-                        PrepareHistory(response, boundary, _transport.NativeNow());
-                    _cursor.Commit(prepared);
-                    _observation.Commit(response);
-                    if (history is { } ready) _history.Commit(ready);
-                    if (response.Result.Outcome == WorkshopCommandOutcome.Applied && authored is { } admitted)
-                    {
-                        _construction = admitted;
-                        EnsureInstalledScene(_construction, scene!);
-                    }
+                    CommitCommandReceipt(kind, response, prepared, authored, scene);
                 }
                 return new(response, prepared.Applicable);
             }
@@ -235,6 +219,28 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             }
         }
         finally { _observation.CompleteCandidate(command); _pending--; if (_constructionOwner == identity) { _proposedConstruction = null; _proposedScene = null; _constructionOwner = null; } if (Pending == identity) Pending = null; }
+    }
+
+    private void CommitCommandReceipt(WorkshopCommandKind kind, WorkshopResponse response, WorkshopClientCursor.Prepared prepared,
+        WorkshopConstruction? authored, WorkshopCompiledScene? scene)
+    {
+        var boundary = response.Result.Outcome == WorkshopCommandOutcome.Applied ? kind switch
+        {
+            WorkshopCommandKind.Initialize or WorkshopCommandKind.Construct or WorkshopCommandKind.Reset => PresentationBoundary.Seed,
+            WorkshopCommandKind.Run => PresentationBoundary.Run,
+            _ => PresentationBoundary.Continuous
+        } : PresentationBoundary.Continuous;
+        WorkshopPoseHistory.Prepared? history = response.Read.Capture is null || _history.Latest is { } installed &&
+            installed.Read.HasSameContent(response.Read) ? null :
+            PrepareHistory(response, boundary, _transport.NativeNow());
+        _cursor.Commit(prepared);
+        _observation.Commit(response);
+        if (history is { } ready) _history.Commit(ready);
+        if (response.Result.Outcome == WorkshopCommandOutcome.Applied && authored is { } admitted)
+        {
+            _construction = admitted;
+            EnsureInstalledScene(_construction, scene!);
+        }
     }
 
     /// <summary>The stopped memory observation query (Story 9A.3): one typed command whose acknowledgement carries the Simulation

@@ -7,7 +7,7 @@ using CuriousContraptions.Abstractions.Electrical;
 namespace CuriousContraptions.Elements.HoldTimer;
 
 /// <summary>CAT-033: a rearming timed, independently supplied contact.</summary>
-public sealed class HoldTimerElementDeclaration : ITimerElement, ISupplyElement, ISceneGeometryElement
+public sealed class HoldTimerElementDeclaration : ISignalElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementMetadata Metadata => new(
         Id: "hold_timer",
@@ -30,16 +30,21 @@ public sealed class HoldTimerElementDeclaration : ITimerElement, ISupplyElement,
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(1f,.3f,0f,.1f))];
     public IReadOnlyList<EventDescriptor> Events => [];
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [new("activation", SignalTriggerMode.Pulse,1f,.1f)];
-    public SignalTimerDescriptor Timer => new("hold_seconds", TimerCompletionPolicy.Rearm, TimerBoundary.BeforeNetworks, TimerElapsedSignal.None);
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply);
+    public IReadOnlyList<SignalNodeDescriptor> SignalNodes => [new SignalTimerDescriptor(new("signal"), new("hold_seconds"), TimerCompletionPolicy.Rearm, TimerBoundary.BeforeNetworks, TimerElapsedSignal.None)];
+    public IReadOnlyList<SignalEdge> SignalEdges => [];
+    public IReadOnlyList<SignalPortBinding> SignalPorts =>
+    [
+        new(PortId.ActivationIn, new(new("signal"), SignalTerminal.Input))
+    ];
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply,
+        Control: new(new("signal"), SignalContactState.TimerCounting));
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes => [new("switched_contact", ElectricalRole.Switch,12f,.05f,0f,100f)];
     public ElementPresentation Presentation => new(.95f, PresentationAxes.None,
     [
-        new("Visual/Remaining", PresentationProperty.ScaleX, PresentationDriver.CommittedTimerRemaining, .001f,1f,PresentationCurve.Linear,0f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None),
-        new("Visual/Remaining", PresentationProperty.Visible, PresentationDriver.CommittedTimerActive,0f,1f,PresentationCurve.Linear,0f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None),
-        new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerActive,85f/255f,247f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None),
-        new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerActive,101f/255f,203f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None),
-        new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerActive,115f/255f,82f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None)
+        new("Visual/Remaining", PresentationProperty.ScaleX, PresentationDriver.CommittedTimerRemaining, PresentationValueMapping.Identity, .001f,1f,PresentationCurve.Linear,0f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None, SignalNode: new("signal")),
+        new("Visual/Remaining", PresentationProperty.Visible, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,0f,1f,PresentationCurve.Linear,0f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None, SignalNode: new("signal")),
+        new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,85f/255f,247f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None, SignalNode: new("signal")),
+        new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,101f/255f,203f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None, SignalNode: new("signal")),
+        new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,115f/255f,82f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None, SignalNode: new("signal"))
     ],[],[],[]);
 }

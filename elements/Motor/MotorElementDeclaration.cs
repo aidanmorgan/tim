@@ -22,9 +22,9 @@ public sealed class MotorElementDeclaration : IHingeElement, IElectricalElement,
     /// <summary>The supply lamp blends slate #556573 to gold #f7cb52 over 0.1 s while the drive is supplied (CAT-042 §2).</summary>
     public ElementPresentation Presentation => new(.9f, PresentationAxes.None,
         [
-            new("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorDrive, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Lamp", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActuatorDrive, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Lamp", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActuatorDrive, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
+            new("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorDrive, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Lamp", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActuatorDrive, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Lamp", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActuatorDrive, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
         ], [new("Visual/Rotor", new PackageBodyIndex(1), Vector3.Zero)], [], []);
 
     public ElementMetadata Metadata => new(

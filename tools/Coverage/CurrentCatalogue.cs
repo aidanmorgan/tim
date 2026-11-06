@@ -96,11 +96,16 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
         }
         if (required.Count == 0 || required.Distinct().Count() != required.Count || !seenIds.SetEquals(required))
             throw new InvalidDataException("Catalogue membership differs from current requirements.");
+        return new(elements.ToArray(), ParseFixtures(text[fixtureStart..], elements));
+    }
+
+    private static PlannedFixture[] ParseFixtures(string text, IReadOnlyList<PlannedCatalogue> elements)
+    {
         var byKey = elements.ToDictionary(element => element.Source.Key.Id);
         var fixtures = new List<PlannedFixture>();
         var fixtureIds = new HashSet<WorkOrderId>();
         var instances = new HashSet<RequirementId>();
-        foreach (var line in text[fixtureStart..].Split('\n').Where(line => line.StartsWith("| <a", StringComparison.Ordinal)))
+        foreach (var line in text.Split('\n').Where(line => line.StartsWith("| <a", StringComparison.Ordinal)))
         {
             var row = Regex.Match(line.TrimEnd('\r'), "^\\| <a id=\"(fix-[0-9]{3}-[0-9]{3})\"></a>(FIX-[0-9]{3}-[0-9]{3}) \\| ([a-z0-9_]+/[a-z0-9_]+) \\| ([a-z0-9_]+) / (True|False) \\| (CAT-[0-9]{3}-V) \\| (FIX-[0-9]{3}-[0-9]{3}) \\|$");
             // The pattern fixes group 1 lower-case and group 2 upper-case, so a case-insensitive match is exact.
@@ -117,7 +122,7 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
             fixtures.Add(new(id, instance, element.Source.Key, row.Groups[5].Value == "True", criterion));
         }
         if (fixtures.Count == 0) throw new InvalidDataException("Fixture identity table is empty.");
-        return new(elements.ToArray(), fixtures.ToArray());
+        return fixtures.ToArray();
     }
 
     public CurrentCatalogue BindAcceptance(string requirements)

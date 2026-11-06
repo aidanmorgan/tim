@@ -53,7 +53,7 @@ public sealed class WorkshopGoalWake
         foreach (var record in delivery.Records)
         {
             newest = Math.Max(newest ?? 0, record.Tick);
-            if (_anyRecord || _owners.Contains(new(record.Source))) Wake(record.Tick);
+            if (_anyRecord || (!SimulationEvents.SignalSource(record.Kind) && _owners.Contains(new(record.Source.Value)))) Wake(record.Tick);
         }
         if (delivery.Skipped == 0 || (!_anyRecord && _owners.Count == 0)) return;
         Lapped = checked(Lapped + delivery.Skipped);

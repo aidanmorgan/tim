@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Presentation;
 
@@ -29,7 +30,8 @@ public sealed class ClockGuardTests
 
     private static ActivationMemory Row(WorkshopRead read, GpuBodyId owner)
     {
-        for (var i = 0; i < read.Memory.Count; i++) if (read.Memory[i].Node == new ActivationNodeId(owner.Value)) return read.Memory[i];
+        var node = Assert.Single(Enumerable.Range(0, read.Activations.Count).Select(i => read.Activations[i]), row => row.Owner == owner).Node;
+        for (var i = 0; i < read.Memory.Count; i++) if (read.Memory[i].Node == node) return read.Memory[i];
         throw new InvalidOperationException($"No committed memory row for {owner.Value}.");
     }
 
@@ -65,11 +67,11 @@ public sealed class ClockGuardTests
             candidate => candidate.Owner == Owner);
         Assert.Equal(ActivationPhase.Clear, Latch(reads[119]).Phase);
         var first = Latch(reads[120]);
-        Assert.Equal((ActivationPhase.Latched, ActivationOccurrenceKind.OscillatorTick, new ActivationNodeId(Owner.Value), Owner,
+        Assert.Equal((ActivationPhase.Latched, ActivationOccurrenceKind.OscillatorTick, Bench(1f).Instances.Identities[Owner].Signals[new("signal")].Node, Owner,
                 default(GpuColliderId), 480U),
             (first.Phase, first.Kind, first.Emitter, first.Body, first.Collider, first.EventOrdinal));
         Assert.Equal(ActivationCauseKind.Node, first.CauseKind);
-        Assert.Equal(new GpuEventSourceId(Owner.Value), first.Source);
+        Assert.Equal(new GpuEventSourceId(Bench(1f).Instances.Identities[Owner].Signals[new("signal")].Node.Value), first.Source);
         Assert.All(reads.Skip(120), read => Assert.Equal(first, Latch(read)));
         foreach (var tick in new[] { 120, 240, 360, 480, 600 })
         {
@@ -102,12 +104,12 @@ public sealed class ClockGuardTests
             if (tick == interval)
             {
                 var again = network.Consume(committed.Activations, committed.Timers, [], new(tick), [], [], powered, memory: committed.Memory);
-                Assert.Equal(network.Memory(next.Memory, Owner), network.Memory(again.Memory, Owner));
+                Assert.Equal(network.Memory(next.Memory, SignalTestNodes.Only(network, Owner)), network.Memory(again.Memory, SignalTestNodes.Only(network, Owner)));
                 Assert.Equal(Enumerable.Range(0, next.Activations.Count).Select(i => next.Activations[i]),
                     Enumerable.Range(0, again.Activations.Count).Select(i => again.Activations[i]));
             }
             committed = next;
-            var row = network.Memory(committed.Memory, Owner);
+            var row = network.Memory(committed.Memory, SignalTestNodes.Only(network, Owner));
             if (row.Count != (uint)(tick / interval)) Assert.Fail($"tick {tick}: count {row.Count}, expected {tick / interval}");
         }
     }

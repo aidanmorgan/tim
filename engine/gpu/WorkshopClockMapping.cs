@@ -208,13 +208,7 @@ public sealed class WorkshopClockMapping
         var outcome = Classify(reply);
         // A reply stamped under a newer master derivation cannot be mapped together with intervals from the old one;
         // with no retained slot there is nothing to discard and no recalibration to report (edge-case E3).
-        if (outcome == ClockProbeOutcome.Accepted && _derivation is { } installed && reply.Derivation != installed)
-        {
-            if (reply.Derivation.Value < installed.Value)
-                throw new ArgumentException($"Clock reply derivation epoch reversed from {installed.Value} to {reply.Derivation.Value}.");
-            if (_count != 0) Recalibrate(ClockRecalibrationCause.MasterRederived, reply.RequesterReceived, reply, ClockMappingState.Expired);
-        }
-        if (outcome == ClockProbeOutcome.Accepted) _derivation = reply.Derivation;
+        AcceptDerivation(reply, outcome);
         var interval = outcome == ClockProbeOutcome.Accepted ? Offset(reply, EndpointUncertainty) : default;
         // Renewing (R2-F1, R3-F1): an exchange concludes the renewal only when it alone qualifies the mapping through the
         // refresh horizon, the width bound that ends ordinary recovery. A wider one cannot see a clock move smaller than
@@ -234,15 +228,47 @@ public sealed class WorkshopClockMapping
         var exhausted = outcome == ClockProbeOutcome.Inconclusive && _recoverySends == RecoveryProbeLimit;
         var expired = !renewed && outcome != ClockProbeOutcome.Inconclusive && _count != 0 &&
             (Int128)reply.RequesterReceived.Value - NewestReceipt() > MappingLifetime;
-        if (!expired && outcome == ClockProbeOutcome.Accepted && _count != 0 &&
-            TryBest(reply.RequesterReceived, null, out var old, out _) && !interval.Overlaps(old))
-            outcome = ClockProbeOutcome.Disjoint;
+        outcome = ClassifyRetainedOverlap(reply, interval, outcome, expired);
 
         Span<ClockSlot> candidate = stackalloc ClockSlot[ProbeCapacity];
         candidate.Clear();
         var candidateCount = expired ? 0 : _count;
         var candidateNext = expired ? 0 : _next;
         var candidateAnchor = _anchor;
+        PrepareClockSlots(reply, interval, candidate, ref outcome, ref candidateAnchor, ref candidateCount, ref candidateNext);
+        var suspect = outcome is ClockProbeOutcome.Disjoint or ClockProbeOutcome.ProfileRange;
+        if ((expired || suspect || exhausted) && DisplayEpoch == ulong.MaxValue)
+            throw new InvalidOperationException("Display epoch exhausted.");
+
+        CommitClockSlots(reply, outcome, interval, candidate, candidateAnchor, candidateCount, candidateNext,
+            expired, suspect, exhausted, stalledPastWidth, renewed, retained);
+        UpdateAvailability(reply.RequesterReceived, outcome == ClockProbeOutcome.Accepted ? interval : null, reply);
+        return new(reply, outcome, interval);
+    }
+
+    private ClockProbeOutcome ClassifyRetainedOverlap(ClockReply reply, ClockInterval interval, ClockProbeOutcome outcome, bool expired)
+    {
+        if (!expired && outcome == ClockProbeOutcome.Accepted && _count != 0 &&
+            TryBest(reply.RequesterReceived, null, out var old, out _) && !interval.Overlaps(old))
+            outcome = ClockProbeOutcome.Disjoint;
+
+        return outcome;
+    }
+
+    private void AcceptDerivation(ClockReply reply, ClockProbeOutcome outcome)
+    {
+        if (outcome == ClockProbeOutcome.Accepted && _derivation is { } installed && reply.Derivation != installed)
+        {
+            if (reply.Derivation.Value < installed.Value)
+                throw new ArgumentException($"Clock reply derivation epoch reversed from {installed.Value} to {reply.Derivation.Value}.");
+            if (_count != 0) Recalibrate(ClockRecalibrationCause.MasterRederived, reply.RequesterReceived, reply, ClockMappingState.Expired);
+        }
+        if (outcome == ClockProbeOutcome.Accepted) _derivation = reply.Derivation;
+    }
+
+    private void PrepareClockSlots(ClockReply reply, ClockInterval interval, Span<ClockSlot> candidate,
+        ref ClockProbeOutcome outcome, ref long candidateAnchor, ref int candidateCount, ref int candidateNext)
+    {
         if (outcome == ClockProbeOutcome.Accepted)
         {
             // The interval midpoint lies within I64 for validated nonnegative I64 endpoints.
@@ -270,10 +296,12 @@ public sealed class WorkshopClockMapping
                 candidateCount = Math.Min(candidateCount + 1, ProbeCapacity);
             }
         }
-        var suspect = outcome is ClockProbeOutcome.Disjoint or ClockProbeOutcome.ProfileRange;
-        if ((expired || suspect || exhausted) && DisplayEpoch == ulong.MaxValue)
-            throw new InvalidOperationException("Display epoch exhausted.");
+    }
 
+    private void CommitClockSlots(ClockReply reply, ClockProbeOutcome outcome, ClockInterval interval,
+        ReadOnlySpan<ClockSlot> candidate, long candidateAnchor, int candidateCount, int candidateNext,
+        bool expired, bool suspect, bool exhausted, bool stalledPastWidth, bool renewed, ClockInterval retained)
+    {
         // All checked arithmetic and the entire replacement layout have passed before mutation.
         _lastRequester = reply.RequesterReceived.Value;
         if (Pending == reply.Probe) _flags &= ~ClockBookkeepingFlags.Pending;
@@ -293,8 +321,6 @@ public sealed class WorkshopClockMapping
             else if (_count == ProbeCapacity && !IsQualified && HasOffsetBudget(reply.RequesterReceived, 0))
                 State = ClockMappingState.Ready;
         }
-        UpdateAvailability(reply.RequesterReceived, outcome == ClockProbeOutcome.Accepted ? interval : null, reply);
-        return new(reply, outcome, interval);
     }
 
     private ClockProbeOutcome Classify(ClockReply reply)

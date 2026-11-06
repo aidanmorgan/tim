@@ -459,64 +459,73 @@ public partial class Workshop : Node3D
         }
         if (_rotationGizmo != null && _rotationGizmo.Dragging) return;
         if (@event is InputEventMouseButton mouse)
-        {
-            if (mouse.ButtonIndex == MouseButton.Right) { _orbiting = mouse.Pressed; if (_orbiting) { _buildView = false; RefreshLayerAppearance(); } }
-            if (mouse.Pressed && mouse.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
-            {
-                if (mouse.Position.X < 260 || mouse.Position.X > 1000) return;
-                _zoom = Mathf.Clamp(_zoom + (mouse.ButtonIndex == MouseButton.WheelUp ? -.6f : .6f), 8, 22);
-                UpdateCamera();
-            }
-            if (mouse.ButtonIndex == MouseButton.Left)
-            {
-                if (!mouse.Pressed) _dragging = _lifting = false;
-                else if (CanEdit) Click(mouse.Position);
-                else if (_inRun && !_gpuPending) Select(Pick(mouse.Position));
-            }
-        }
+            HandleMouseButton(mouse);
         else if (@event is InputEventMouseMotion motion)
-        {
-            if (_lifting) return; // Lift motion is handled globally, including over UI.
-            if (_orbiting)
-            {
-                _azimuth -= motion.Relative.X * .006f;
-                _elevation = Mathf.Clamp(_elevation + motion.Relative.Y * .004f, .2f, 1.2f);
-                UpdateCamera();
-            }
-            else if (_dragging && _selected is { Locked: false } && CanEdit)
-            {
-                if (!_dragMoved)
-                {
-                    if (motion.Position.DistanceTo(_dragPressScreen) < PartDragThresholdPixels) return;
-                    PushUndo();
-                    _dragMoved = true;
-                }
-                var point = WorkPoint(motion.Position, _buildView ? _selected.Position.Z : _selected.Position.Y);
-                if (point is { } at)
-                {
-                    _selected.Position = ClampPlacement(at + _grabOffset, _buildView ? _selected.Position.Z : _selected.Position.Y);
-                    RefreshLayerAppearance();
-
-                }
-            }
-        }
+            HandleMouseMotion(motion);
         else if (@event is InputEventKey { Pressed: true, Echo: false } key)
+            HandleShortcut(key);
+    }
+    private void HandleMouseButton(InputEventMouseButton mouse)
+    {
+        if (mouse.ButtonIndex == MouseButton.Right) { _orbiting = mouse.Pressed; if (_orbiting) { _buildView = false; RefreshLayerAppearance(); } }
+        if (mouse.Pressed && mouse.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
         {
-            if (key.Keycode == Key.Space) ToggleRun();
-            else if (key.Keycode == Key.Escape) { _optionsPanel.Visible = false; CancelTool(); }
-            else if (CanEdit)
-            {
-                if (key.Keycode == Key.Z && (key.CtrlPressed || key.MetaPressed)) Undo();
-                switch (key.Keycode)
-                {
+            if (mouse.Position.X < 260 || mouse.Position.X > 1000) return;
+            _zoom = Mathf.Clamp(_zoom + (mouse.ButtonIndex == MouseButton.WheelUp ? -.6f : .6f), 8, 22);
+            UpdateCamera();
+        }
+        if (mouse.ButtonIndex == MouseButton.Left)
+        {
+            if (!mouse.Pressed) _dragging = _lifting = false;
+            else if (CanEdit) Click(mouse.Position);
+            else if (_inRun && !_gpuPending) Select(Pick(mouse.Position));
+        }
+    }
 
-                    case Key.Delete: case Key.Backspace: DeleteSelected(); break;
-                    case Key.Pageup: ChangeDepth(.5f); break;
-                    case Key.Pagedown: ChangeDepth(-.5f); break;
-                }
+    private void HandleMouseMotion(InputEventMouseMotion motion)
+    {
+        if (_lifting) return; // Lift motion is handled globally, including over UI.
+        if (_orbiting)
+        {
+            _azimuth -= motion.Relative.X * .006f;
+            _elevation = Mathf.Clamp(_elevation + motion.Relative.Y * .004f, .2f, 1.2f);
+            UpdateCamera();
+        }
+        else if (_dragging && _selected is { Locked: false } && CanEdit)
+        {
+            if (!_dragMoved)
+            {
+                if (motion.Position.DistanceTo(_dragPressScreen) < PartDragThresholdPixels) return;
+                PushUndo();
+                _dragMoved = true;
+            }
+            var point = WorkPoint(motion.Position, _buildView ? _selected.Position.Z : _selected.Position.Y);
+            if (point is { } at)
+            {
+                _selected.Position = ClampPlacement(at + _grabOffset, _buildView ? _selected.Position.Z : _selected.Position.Y);
+                RefreshLayerAppearance();
+
             }
         }
     }
+
+    private void HandleShortcut(InputEventKey key)
+    {
+        if (key.Keycode == Key.Space) ToggleRun();
+        else if (key.Keycode == Key.Escape) { _optionsPanel.Visible = false; CancelTool(); }
+        else if (CanEdit)
+        {
+            if (key.Keycode == Key.Z && (key.CtrlPressed || key.MetaPressed)) Undo();
+            switch (key.Keycode)
+            {
+
+                case Key.Delete: case Key.Backspace: DeleteSelected(); break;
+                case Key.Pageup: ChangeDepth(.5f); break;
+                case Key.Pagedown: ChangeDepth(-.5f); break;
+            }
+        }
+    }
+
     private Vector3? WorkPoint(Vector2 screen, float z) =>
         new Plane(_buildView ? Vector3.Back : Vector3.Up, z).IntersectsRay(_camera.ProjectRayOrigin(screen), _camera.ProjectRayNormal(screen));
     private MachinePart? Pick(Vector2 screen)

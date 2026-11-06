@@ -17,14 +17,14 @@ public sealed class ActivationTimerTests
         if (bypass) links = links.With(Link(5,3));
         var construction = new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),instances,Connections:links);
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
-        ContactTriggerRead Event(ulong owner,uint ordinal) => new(instances.Identities[new(owner)].Trigger,
+        ContactTriggerRead Event(ulong owner,uint ordinal) => new(instances.Identities[new(owner)].Signals[new("signal")].Trigger,
             new(owner),new(1),1,scene.Colliders.ToArray().First(c=>c.Body.Value==owner).Id,ordinal,0f,new(1f));
         return (WorkshopActivationCompiler.Compile(construction),scene,Event(2,10),Event(5,20));
     }
     private static WorkshopConnection Link(ulong a,ulong b) => new(new(a),PortId.ActivationOut,new(b),PortId.ActivationIn,WorkshopConnectionDomain.Activation);
     private static ActivationLatch Node(PhysicsActivationRead read,ulong id)
     {
-        for(var i=0;i<read.Count;i++) if(read[i].Node.Value==id)return read[i];
+        for(var i=0;i<read.Count;i++) if(read[i].Owner.Value==id)return read[i];
         throw new InvalidOperationException();
     }
     // Story 9A.22: a due timer completes in the scheduled stage, whose checkpoint carries no transitions; the Physical stage replays the
@@ -35,7 +35,7 @@ public sealed class ActivationTimerTests
         var (network,_,first,_) = Fixture();
         var counting = network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
         var started = Assert.Single(Enumerable.Range(0,counting.Transitions.Count).Select(i=>counting.Transitions[i]));
-        Assert.Equal((ActivationTransitionKind.Emitted,new ActivationNodeId(2),ActivationOccurrenceKind.Contact),(started.Kind,started.Node,started.Occurrence.Kind));
+        Assert.Equal((ActivationTransitionKind.Emitted,SignalTestNodes.Only(network, new(2)),ActivationOccurrenceKind.Contact),(started.Kind,started.Node,started.Occurrence.Kind));
         var before = network.Consume(counting.Activations,counting.Timers,[],new(122),[]);
         Assert.Equal(0,before.Transitions.Count);
         var scheduled = network.AdvanceScheduled(before,new(123));
@@ -43,7 +43,7 @@ public sealed class ActivationTimerTests
         Assert.Equal(0,scheduled.State.Transitions.Count);
         var due = network.ConsumeScheduled(scheduled,[],new(123),[],[],default,[]);
         var emitted = Assert.Single(Enumerable.Range(0,due.Transitions.Count).Select(i=>due.Transitions[i]));
-        Assert.Equal((ActivationTransitionKind.Emitted,new ActivationNodeId(4),ActivationOccurrenceKind.TimerElapsed,0u),
+        Assert.Equal((ActivationTransitionKind.Emitted,SignalTestNodes.Only(network, new(4)),ActivationOccurrenceKind.TimerElapsed,0u),
             (emitted.Kind,emitted.Node,emitted.Occurrence.Kind,emitted.Count));
     }
 
@@ -62,7 +62,7 @@ public sealed class ActivationTimerTests
         var lamp = Node(due.Activations,3);
         Assert.Equal(ActivationTimerPhase.Finished,due.Timers[0].Phase);
         Assert.Equal(ActivationOccurrenceKind.TimerElapsed,lamp.Kind);
-        Assert.Equal(new ActivationNodeId(4),lamp.Emitter);
+        Assert.Equal(SignalTestNodes.Only(network, new(4)),lamp.Emitter);
         Assert.Equal(492u,lamp.EventOrdinal); Assert.Equal(0f,lamp.EventPhase);
         Assert.Equal(first.EventOrdinal,lamp.CauseOrdinal); Assert.Equal(first.Id.Value,lamp.Source.Value);
         network.ValidateRead(due.Activations,due.Timers,new(123),4,scene);
@@ -96,7 +96,7 @@ public sealed class ActivationTimerTests
         var due = network.Consume(counting.Activations,counting.Timers,
             new[]{second with {EventOrdinal=491}},new(123),[]);
         Assert.Equal(ActivationOccurrenceKind.Contact,Node(due.Activations,3).Kind);
-        Assert.Equal(new ActivationNodeId(5),Node(due.Activations,3).Emitter);
+        Assert.Equal(SignalTestNodes.Only(network, new(5)),Node(due.Activations,3).Emitter);
         Assert.Equal(ActivationTimerPhase.Finished,due.Timers[0].Phase);
         network.ValidateRead(due.Activations,due.Timers,new(123),4,scene);
     }

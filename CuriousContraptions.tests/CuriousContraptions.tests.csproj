@@ -65,7 +65,11 @@
 
     <!-- Explicit current test and native-boundary inputs; obsolete uncompiled tests were removed by Story 7.3. -->
     <ItemGroup>
-        <Compile Include="ElementIsolationTests.cs" />
+        <Compile Include="SignalTestNodes.cs" />
+        <Compile Include="ComposableSignalNodesTests.cs" />
+        <Compile Include="GoalSignalSelectorTests.cs" />
+    <Compile Include="ComposedPhysicalSignalTests.cs" />
+    <Compile Include="ElementIsolationTests.cs" />
         <Compile Include="PoseRingEncapsulationTests.cs" />
         <Compile Include="WorkshopIntegrationHarness.cs" />
         <Compile Include="CompiledSceneFixture.cs" />

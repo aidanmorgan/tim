@@ -32,6 +32,13 @@ public static class CurrentOwnerMembership
             if (count == 0) throw new InvalidDataException("Current authority document has no declared owner headings.");
         }
 
+        ReadP0Disposition(engine, owners);
+        ReadFixtureOwners(consumers, owners);
+        return owners;
+    }
+
+    private static void ReadP0Disposition(string engine, HashSet<WorkId> owners)
+    {
         const string tableHeading = "## Disposition of every P0 ID";
         var start = engine.IndexOf(tableHeading, StringComparison.Ordinal);
         if (start < 0 || engine.IndexOf(tableHeading, start + tableHeading.Length, StringComparison.Ordinal) >= 0)
@@ -63,6 +70,10 @@ public static class CurrentOwnerMembership
             throw new InvalidDataException("P0 owner heading is absent from its authoritative disposition table.");
         owners.UnionWith(p0Ids);
 
+    }
+
+    private static void ReadFixtureOwners(string consumers, HashSet<WorkId> owners)
+    {
         const string fixtureHeading = "## Exact fixture proof children";
         var fixtureStart = consumers.IndexOf(fixtureHeading, StringComparison.Ordinal);
         if (fixtureStart < 0 || consumers.IndexOf(fixtureHeading, fixtureStart + fixtureHeading.Length, StringComparison.Ordinal) >= 0)
@@ -89,7 +100,6 @@ public static class CurrentOwnerMembership
             fixtureCount++;
         }
         if (fixtureCount == 0) throw new InvalidDataException("Current fixture owner table is empty.");
-        return owners;
     }
 
     private static WorkId Identity(string value)

@@ -49,33 +49,39 @@ public sealed class WorkshopCommandExecutor(IWorkshopGpuDevice device, IWorkshop
         try
         {
             await host.Before(command.Kind, _simulation);
-            WorkshopCommandResult result;
-            switch (command.Kind)
-            {
-                case WorkshopCommandKind.Initialize:
-                    if (_simulation is not null) throw new InvalidOperationException("Already initialized.");
-                    _simulation = new(device, host.Clock, command.Scene!, new(1), host.Installation, GpuDeviceOwnership.Owned, diagnostics);
-                    result = await Simulation.Initialize(); break;
-                case WorkshopCommandKind.ConfigureCadence:
-                    result = await Simulation.Configure(command.Scene!, new(checked(++_nextCadence))); break;
-                case WorkshopCommandKind.Pause: result = await Simulation.Pause(); break;
-                case WorkshopCommandKind.Resume: result = await Simulation.Resume(); break;
-                case WorkshopCommandKind.Step: result = await Simulation.Step(); break;
-                case WorkshopCommandKind.ConfigureRunControl: result = Simulation.ConfigureRunControl(command.RunControl!.Value); break;
-                case WorkshopCommandKind.CutRope: result = Simulation.CutRope(command.Cut!.Value); break;
-                case WorkshopCommandKind.Save: result = Simulation.Save(); break;
-                case WorkshopCommandKind.Construct: result = await Simulation.Construct(command.Scene!); break;
-                case WorkshopCommandKind.Run: result = await Simulation.Run(); break;
-                case WorkshopCommandKind.Reset: result = await Simulation.Reset(); break;
-                case WorkshopCommandKind.Dispose:
-                    await Simulation.DisposeAsync();
-                    result = new(WorkshopCommandOutcome.Applied, WorkshopRejection.None); break;
-                default: throw new WireFaultException(WireFaultReason.UnknownCommand, $"Command kind {(uint)command.Kind} has no executor.");
-            }
+            var result = await ApplyCommand(command);
             await host.After(command.Kind, result, Simulation);
             return Reply(command, result);
         }
         finally { if (Pending == identity) Pending = null; }
+    }
+
+    private async Task<WorkshopCommandResult> ApplyCommand(WorkshopCommand command)
+    {
+        WorkshopCommandResult result;
+        switch (command.Kind)
+        {
+            case WorkshopCommandKind.Initialize:
+                if (_simulation is not null) throw new InvalidOperationException("Already initialized.");
+                _simulation = new(device, host.Clock, command.Scene!, new(1), host.Installation, GpuDeviceOwnership.Owned, diagnostics);
+                result = await Simulation.Initialize(); break;
+            case WorkshopCommandKind.ConfigureCadence:
+                result = await Simulation.Configure(command.Scene!, new(checked(++_nextCadence))); break;
+            case WorkshopCommandKind.Pause: result = await Simulation.Pause(); break;
+            case WorkshopCommandKind.Resume: result = await Simulation.Resume(); break;
+            case WorkshopCommandKind.Step: result = await Simulation.Step(); break;
+            case WorkshopCommandKind.ConfigureRunControl: result = Simulation.ConfigureRunControl(command.RunControl!.Value); break;
+            case WorkshopCommandKind.CutRope: result = Simulation.CutRope(command.Cut!.Value); break;
+            case WorkshopCommandKind.Save: result = Simulation.Save(); break;
+            case WorkshopCommandKind.Construct: result = await Simulation.Construct(command.Scene!); break;
+            case WorkshopCommandKind.Run: result = await Simulation.Run(); break;
+            case WorkshopCommandKind.Reset: result = await Simulation.Reset(); break;
+            case WorkshopCommandKind.Dispose:
+                await Simulation.DisposeAsync();
+                result = new(WorkshopCommandOutcome.Applied, WorkshopRejection.None); break;
+            default: throw new WireFaultException(WireFaultReason.UnknownCommand, $"Command kind {(uint)command.Kind} has no executor.");
+        }
+        return result;
     }
 
     private byte[] Reply(WorkshopCommand command, WorkshopCommandResult result) =>

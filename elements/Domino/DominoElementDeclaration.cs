@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.Domino;
 
-public sealed class DominoElementDeclaration : IMechanicalElement, IOrientationSensorElement, ISceneGeometryElement
+public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.6f, PresentationAxes.None,
         [], [], [], []);
@@ -36,7 +36,7 @@ public sealed class DominoElementDeclaration : IMechanicalElement, IOrientationS
         new(".", new(0.05f, 0.6f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated)];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated, new("signal"))];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Signal;
 
@@ -54,11 +54,12 @@ public sealed class DominoElementDeclaration : IMechanicalElement, IOrientationS
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
-    [
-        new("toppled", SignalTriggerMode.Edge, Threshold: 0.707f, PulseDurationSeconds: 0.1f)
-    ];
 
     /// <summary>The tile's ActivationOut fires once it has turned 45° from its placed pose (CAT-023).</summary>
-    public SignalOrientationDescriptor Orientation => new(45f);
+    public IReadOnlyList<SignalNodeDescriptor> SignalNodes => [new SignalOrientationDescriptor(new("signal"), new(0), 45f)];
+    public IReadOnlyList<SignalEdge> SignalEdges => [];
+    public IReadOnlyList<SignalPortBinding> SignalPorts =>
+    [
+        new(PortId.ActivationOut, new(new("signal"), SignalTerminal.Output))
+    ];
 }

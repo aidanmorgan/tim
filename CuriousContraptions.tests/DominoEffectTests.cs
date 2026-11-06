@@ -25,7 +25,7 @@ public sealed class DominoEffectTests
         Assert.Equal(new PuzzleId("domino_effect"), lesson.Puzzle.Id);
         Assert.Equal(new PartId("domino"), lesson.Puzzle.InventoryPart);
         Assert.Equal(4u, lesson.Puzzle.InventoryCount);
-        Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, new(2), new(3), new(0f)), lesson.Puzzle.Goal);
+        Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, new(2), new(3), new("signal"), new("signal"), new(0f)), lesson.Puzzle.Goal);
         Assert.All(lesson.Instances, instance => Assert.True(instance.Locked));
         var ball = Payloads.First(lesson); var end = lesson.Instances.Single(instance => instance.PartId == new PartId("domino")); var lamp = lesson.Instances.Single(instance => instance.PartId == new PartId("lamp"));
         At(-4.4, ball.Cell.X, ball.Local.X); At(3, ball.Cell.Y, ball.Local.Y);
@@ -36,15 +36,15 @@ public sealed class DominoEffectTests
         static void At(double metres, int cell, float local) =>
             Assert.InRange((cell + (double)local) / 16, metres - .0001, metres + .0001);
         Assert.Equal(PartAllowance.Counted(4), Assert.Single(WorkshopInventoryPolicy.Authored(lesson.Puzzle)).Value);
-        // The end Domino is only a signal source once wired; the fixtures alone compile no sensor and one lamp node.
+        // Declared sensors compile independently of external wiring.
         var scene = WorkshopPhysicsCompiler.Compile(lesson, new(1, 2));
-        Assert.Empty(scene.OrientationSensors.ToArray()); Assert.Empty(scene.Triggers.ToArray());
+        Assert.Single(scene.OrientationSensors.ToArray()); Assert.Empty(scene.Triggers.ToArray());
         Assert.Equal(2, scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic));
-        Assert.Equal(1, (int)WorkshopActivationCompiler.Compile(lesson).Clear().Count);
+        Assert.Equal(2, (int)WorkshopActivationCompiler.Compile(lesson).Clear().Count);
     }
 
     [Fact]
-    public void FourPlacedDominoesAndTheEndToLampWireRoundTripThroughSaveAndCompileOneSensor()
+    public void FourPlacedDominoesAndTheEndToLampWireRoundTripThroughSaveAndCompileEveryDeclaredSensor()
     {
         var solved = Solved(Lesson());
         solved.Validate();
@@ -53,10 +53,11 @@ public sealed class DominoEffectTests
         Assert.Equal(save, decoded);
         Assert.Equal(solved.Puzzle, decoded.Construction.Puzzle);
         var scene = WorkshopPhysicsCompiler.Compile(decoded.Construction, new(1, 2));
-        var sensor = Assert.Single(scene.OrientationSensors.ToArray());
+        Assert.Equal(5, scene.OrientationSensors.Length);
+        var sensor = Assert.Single(scene.OrientationSensors.ToArray(), row => row.Body == new GpuBodyId(2));
         Assert.Equal(new GpuBodyId(2), sensor.Body);
         Assert.Equal(6, scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic));
-        Assert.Equal(2, (int)WorkshopActivationCompiler.Compile(decoded.Construction).Clear().Count);
+        Assert.Equal(6, (int)WorkshopActivationCompiler.Compile(decoded.Construction).Clear().Count);
     }
 
     [Fact]
@@ -85,9 +86,9 @@ public sealed class DominoEffectTests
         var goal = Lesson().Puzzle.Goal;
         var time = new ActivationTime(300,0f);
         var cause = new ActivationCause(new(7), new(2), new(9), time, new(0f), ActivationCauseKind.Physical);
-        var end = new ActivationNodeDeclaration(new(2), new(2), ActivationNodeKind.OrientationSource, default, 0, new(7));
-        var lamp = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.StickyFirstInput, default);
-        var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, new(2), time, cause);
+        var end = new ActivationNodeDeclaration(Lesson().Instances.Identities[new(2)].Signals[new("signal")].Node, new(2), ActivationNodeKind.OrientationSource, default, 0, new(7));
+        var lamp = new ActivationNodeDeclaration(Lesson().Instances.Identities[new(3)].Signals[new("signal")].Node, new(3), ActivationNodeKind.StickyFirstInput, default);
+        var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, end.Id, time, cause);
         var read = new WorkshopRead(new(2), new(75), default, Activations: new([ActivationLatch.From(end, occurrence), ActivationLatch.From(lamp, occurrence)]));
         Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2), Lesson().Instances.Identities));
         Assert.Equal(time, WorkshopGoalEvaluator.Occurrence(goal, read, new(2), Lesson().Instances.Identities));

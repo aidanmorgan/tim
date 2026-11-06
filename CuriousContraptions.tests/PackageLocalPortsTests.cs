@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Text.Json;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Bundle;
+using CuriousContraptions.Abstractions.Signal;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
@@ -105,7 +106,7 @@ public sealed class PackageLocalPortsTests
     }
 
     [Fact]
-    public void DuplicateFeedsFromSameSourceToSameInput_RefusesAtomically()
+    public void SignalAliasesDeduplicateAndDuplicateElectricalFeedsRefuse()
     {
         var customPart = new PartId("dual_source");
         var outA = new PortId("out_alpha");
@@ -115,8 +116,8 @@ public sealed class PackageLocalPortsTests
 
         var customPorts = new PortDescriptor[]
         {
-            Port(outA, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Level),
-            Port(outB, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Level),
+            Port(outA, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse),
+            Port(outB, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse),
             Port(supA, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null),
             Port(supB, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null),
         };
@@ -125,7 +126,10 @@ public sealed class PackageLocalPortsTests
         var customEntry = baseEntry with
         {
             Metadata = baseEntry.Metadata with { Id = customPart.Value },
-            Ports = customPorts
+            Ports = customPorts,
+            Signal = baseEntry.Signal! with { Ports =
+                [new(outA, new(new("signal"), SignalTerminal.Output)),
+                 new(outB, new(new("signal"), SignalTerminal.Output))] }
         };
 
         using var physicsScope = DeclaredPhysics.Scoped([customEntry]);
@@ -142,9 +146,13 @@ public sealed class PackageLocalPortsTests
             new(source, lamp),
             Connections: new(dupActivation1, dupActivation2));
 
-        var actRefusal = Assert.Throws<WorkshopEditRejectedException>(() => dupActivationConstruction.Validate());
-        Assert.Equal(WorkshopEditRejection.InvalidConnection, actRefusal.Reason);
-        Assert.Contains("Duplicate activation connection", actRefusal.Message, StringComparison.Ordinal);
+        dupActivationConstruction.Validate();
+        var edge = Assert.Single(WorkshopActivationCompiler.Edges(
+            new WorkshopSignalGraph(dupActivationConstruction.Instances, dupActivationConstruction.Connections)));
+        Assert.Equal(dupActivationConstruction.Instances.Identities[source.Id].Signals[new("signal")].Node, edge.Source);
+        Assert.Equal(dupActivationConstruction.Instances.Identities[lamp.Id].Signals[new("signal")].Node, edge.Target);
+        var duplicate = dupActivationConstruction with { Connections = new(dupActivation1, dupActivation1) };
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => duplicate.Validate());
 
         // Multiple electrical feeds from same source to same input
         var gate = WorkshopInput.Generic(new PartId("both_gate"), new(4), 6, 1, 0, 0, 0, 0, 1);
@@ -197,8 +205,8 @@ public sealed class PackageLocalPortsTests
 
         var customPorts = new PortDescriptor[]
         {
-            Port(portA, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Level, new Vector3(-0.5f, 0f, 0f)),
-            Port(portB, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Level, new Vector3(0.5f, 0f, 0f)),
+            Port(portA, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, new Vector3(-0.5f, 0f, 0f)),
+            Port(portB, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, new Vector3(0.5f, 0f, 0f)),
         };
 
         var extendedCatalogue = TestBundle.Ports.Extend([(customPart, customPorts)]);
@@ -214,7 +222,10 @@ public sealed class PackageLocalPortsTests
         var customEntry = baseEntry with
         {
             Metadata = baseEntry.Metadata with { Id = customPart.Value },
-            Ports = customPorts
+            Ports = customPorts,
+            Signal = baseEntry.Signal! with { Ports =
+                [new(portA, new(new("signal"), SignalTerminal.Output)),
+                 new(portB, new(new("signal"), SignalTerminal.Output))] }
         };
         using var physicsScope = DeclaredPhysics.Scoped([customEntry]);
         using var scope = DeclaredPorts.Scoped(extendedCatalogue);
@@ -246,10 +257,10 @@ public sealed class PackageLocalPortsTests
         Assert.Equal(portB, decoded.Construction.Connections[1].Output);
         Assert.Equal(PortId.ActivationIn, decoded.Construction.Connections[1].Input);
 
-        var edges = WorkshopActivationCompiler.Edges(construction);
-        Assert.Equal(2, edges.Count);
-        Assert.Equal(new ActivationNodeId(lamp1.Id.Value), edges[0].Target);
-        Assert.Equal(new ActivationNodeId(lamp2.Id.Value), edges[1].Target);
+        var edges = WorkshopActivationCompiler.Edges(new WorkshopSignalGraph(construction.Instances, construction.Connections));
+        Assert.Equal(2, edges.Length);
+        Assert.Equal(construction.Instances.Identities[lamp1.Id].Signals[new("signal")].Node, edges[0].Target);
+        Assert.Equal(construction.Instances.Identities[lamp2.Id].Signals[new("signal")].Node, edges[1].Target);
     }
 
     [Fact]

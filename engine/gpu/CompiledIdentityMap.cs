@@ -1,3 +1,5 @@
+using CuriousContraptions.Abstractions;
+using CuriousContraptions.Abstractions.Signal;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -10,9 +12,11 @@ public sealed record CompiledSliderIdentities(GpuBodyId Body, GpuMaterialId Mate
 public sealed record CompiledHingeIdentities(GpuBodyId Body, GpuMaterialId Material,
     ImmutableArray<GpuColliderId> Colliders, RevoluteConstraintId Joint);
 public readonly record struct CompiledCaptureIdentities(GpuSensorId Sensor, GpuForceId Guide);
+public readonly record struct CompiledSignalIdentities(ActivationNodeId Node, GpuContactTriggerId Trigger,
+    GpuOrientationSensorId Orientation, GpuContactLoadSensorId ContactLoad, GpuPassageSensorId Passage);
 public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArray<GpuColliderId> Colliders,
-    ImmutableArray<CompiledSliderIdentities> Sliders, GpuContactTriggerId Trigger, GpuOrientationSensorId Orientation,
-    GpuContactLoadSensorId ContactLoad, ElectricalSourceId Source, GpuContactWorkId Work, GpuPassageSensorId Passage,
+    ImmutableArray<CompiledSliderIdentities> Sliders, ImmutableDictionary<SignalNodeId, CompiledSignalIdentities> Signals,
+    ElectricalSourceId Source, GpuContactWorkId Work,
     CompiledCaptureIdentities Capture, ImmutableArray<CompiledHingeIdentities> Hinges,
     CompliantSurfaceId CompliantSurface, ImmutableArray<DrivenSurfaceId> DrivenSurfaces);
 
@@ -28,6 +32,16 @@ public sealed class CompiledIdentityMap
     public ulong NextIdentity { get; }
     public CompiledPartIdentities this[GpuBodyId owner] => _parts.TryGetValue(owner, out var rows) ? rows :
         throw new ArgumentException("Compiled identity owner is absent.");
+    public GpuBodyId Body(GpuBodyId owner, PackageBodyIndex body)
+    {
+        var rows = this[owner];
+        if (body.Value == 0) return owner;
+        var index = body.Value - 1;
+        if (index >= 0 && index < rows.Sliders.Length) return rows.Sliders[index].Body;
+        index -= rows.Sliders.Length;
+        if (index >= 0 && index < rows.Hinges.Length) return rows.Hinges[index].Body;
+        throw new ArgumentException("Absent package body.");
+    }
     public bool IsChild(GpuBodyId owner, GpuBodyId child) => _owners.TryGetValue(child, out var actual) && actual == owner;
     public bool TryCapture(GpuBodyId owner, GpuBodyId target, out CompiledCaptureIdentities capture)
     {
@@ -68,34 +82,54 @@ public sealed class CompiledIdentityMap
             var entry = entries[instance.PartId];
             var material = new GpuMaterialId(Allocate());
             var colliders = Colliders(entry.Colliders.Count);
-            var sliders = ImmutableArray.CreateBuilder<CompiledSliderIdentities>(4);
-            foreach (var slider in entry.Mechanical?.Sliders ?? [])
-            {
-                var body = new GpuBodyId(Allocate());
-                owners.Add(body, instance.Id);
-                sliders.Add(new(body, new(Allocate()), Colliders(slider.MovingBody.Colliders.Count), new(Allocate())));
-            }
-            var hinges = ImmutableArray.CreateBuilder<CompiledHingeIdentities>(4);
-            foreach (var hinge in entry.Mechanical?.Hinges ?? [])
-            {
-                var body = new GpuBodyId(Allocate());
-                owners.Add(body, instance.Id);
-                hinges.Add(new(body, new(Allocate()), Colliders(hinge.MovingBody.Colliders.Count), new(Allocate())));
-            }
-            var trigger = entry.Signal?.Contact is not null ? new GpuContactTriggerId(Allocate()) : default;
-            var orientation = entry.Signal?.Orientation is not null ? new GpuOrientationSensorId(Allocate()) : default;
-            var load = entry.Signal?.ContactLoad is not null ? new GpuContactLoadSensorId(Allocate()) : default;
+            var (sliders, hinges) = AllocateChildren(instance.Id, entry, owners, Allocate, Colliders);
+            var signals = AllocateSignals(entry, Allocate);
             var source = entry.Electrical?.Supply?.Store is not null ? new ElectricalSourceId(Allocate()) : default;
             var work = entry.Mechanical?.ContactWork is not null ? new GpuContactWorkId(Allocate()) : default;
-            var passage = entry.Signal?.Passage is not null ? new GpuPassageSensorId(Allocate()) : default;
             var capture = entry.Mechanical?.Capture is not null
                 ? new CompiledCaptureIdentities(new(Allocate()),new(Allocate())) : default;
             var compliant = entry.Mechanical?.CompliantSurface is not null ? new CompliantSurfaceId(Allocate()) : default;
             var surfaces = ImmutableArray.CreateBuilder<DrivenSurfaceId>();
             foreach (var surface in entry.Mechanical?.DrivenSurfaces ?? []) surfaces.Add(new(Allocate()));
-            parts.Add(instance.Id, new(material, colliders, sliders.ToImmutable(), trigger, orientation, load, source, work,
-                passage, capture, hinges.ToImmutable(), compliant, surfaces.ToImmutable()));
+            parts.Add(instance.Id, new(material, colliders, sliders, signals, source, work,
+                capture, hinges, compliant, surfaces.ToImmutable()));
         }
         _parts = parts.ToImmutable(); _owners = owners.ToImmutable(); NextIdentity = next;
     }
+
+    private static (ImmutableArray<CompiledSliderIdentities>, ImmutableArray<CompiledHingeIdentities>) AllocateChildren(
+        GpuBodyId owner, CuriousContraptions.Bundle.BundleEntry entry,
+        ImmutableDictionary<GpuBodyId, GpuBodyId>.Builder owners, Func<ulong> Allocate,
+        Func<int, ImmutableArray<GpuColliderId>> Colliders)
+    {
+        var sliders = ImmutableArray.CreateBuilder<CompiledSliderIdentities>(4);
+        foreach (var slider in entry.Mechanical?.Sliders ?? [])
+        {
+            var body = new GpuBodyId(Allocate());
+            owners.Add(body, owner);
+            sliders.Add(new(body, new(Allocate()), Colliders(slider.MovingBody.Colliders.Count), new(Allocate())));
+        }
+        var hinges = ImmutableArray.CreateBuilder<CompiledHingeIdentities>(4);
+        foreach (var hinge in entry.Mechanical?.Hinges ?? [])
+        {
+            var body = new GpuBodyId(Allocate());
+            owners.Add(body, owner);
+            hinges.Add(new(body, new(Allocate()), Colliders(hinge.MovingBody.Colliders.Count), new(Allocate())));
+        }
+        return (sliders.ToImmutable(), hinges.ToImmutable());
+    }
+
+    private static ImmutableDictionary<SignalNodeId, CompiledSignalIdentities> AllocateSignals(
+        CuriousContraptions.Bundle.BundleEntry entry, Func<ulong> Allocate)
+    {
+        var signals = ImmutableDictionary.CreateBuilder<SignalNodeId, CompiledSignalIdentities>();
+        foreach (var signal in (entry.Signal?.Nodes ?? []).OrderBy(node => node.Id))
+            signals.Add(signal.Id, new(new(Allocate()),
+                signal is SignalContactDescriptor ? new(Allocate()) : default,
+                signal is SignalOrientationDescriptor ? new(Allocate()) : default,
+                signal is SignalContactLoadDescriptor ? new(Allocate()) : default,
+                signal is SignalPassageDescriptor ? new(Allocate()) : default));
+        return signals.ToImmutable();
+    }
+
 }

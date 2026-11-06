@@ -11,13 +11,13 @@ namespace CuriousContraptions.Elements.BallDetector;
 /// 0.65 m bore to the drawn 0.82 m collar, its tangential width 2 · 0.82 · tan(π/16) so the outer faces meet and the end faces are
 /// closed; the sensor housing above it; and the ActivationOut socket and indicator spheres. A true ring kind replaces the boxes in
 /// engine-hollow-shapes.</summary>
-public sealed class BallDetectorElementDeclaration : IMechanicalElement, IPassageSensorElement, ISceneGeometryElement
+public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.15f, PresentationAxes.None,
         [
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.Event, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.Event, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.Event, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage)
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.Event, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage, SignalNode: new("signal")),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.Event, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage, SignalNode: new("signal")),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.Event, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(
@@ -46,7 +46,7 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, IPassag
         new(".", new(0.15f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.Passage)];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.Passage, new("signal"))];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Signal;
 
@@ -64,12 +64,13 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, IPassag
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
-    [
-        new("passage", SignalTriggerMode.Pulse, Threshold: 1f, PulseDurationSeconds: 0.1f)
-    ];
 
     /// <summary>The aperture is the collar's 0.65 m bore; a ball rearms once it clears the upstream side by 0.02 m beyond its own
     /// radius.</summary>
-    public SignalPassageDescriptor Passage => new(ApertureRadius: .65f, RearmClearance: .02f);
+    public IReadOnlyList<SignalNodeDescriptor> SignalNodes => [new SignalPassageDescriptor(new("signal"), new(0), Vector3.Zero, Quaternion.Identity, .65f, .02f)];
+    public IReadOnlyList<SignalEdge> SignalEdges => [];
+    public IReadOnlyList<SignalPortBinding> SignalPorts =>
+    [
+        new(PortId.ActivationOut, new(new("signal"), SignalTerminal.Output))
+    ];
 }

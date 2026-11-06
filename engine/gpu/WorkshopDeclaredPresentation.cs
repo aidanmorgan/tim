@@ -152,7 +152,7 @@ public sealed class WorkshopDeclaredPresentation
         var last = _lastSequence;
         var counts = delivery.Records.Length == 0 ? Array.Empty<int>() : new int[_tracks.Length];
         bool Matches(Track track, SimulationEventRecord record) => track.Declaration.Driver == PresentationDriver.Event &&
-            track.Declaration.Event == record.Kind && track.Owner.Value == record.Source &&
+            track.Declaration.Event == record.Kind && record.Source.Value == (SimulationEvents.SignalSource(record.Kind) ? track.Node.Id.Value : track.Owner.Value) &&
             (track.Declaration.EventMagnitude != PresentationEventMagnitude.Positive || record.Magnitude > 0f);
         foreach (var record in delivery.Records)
         {
@@ -248,7 +248,7 @@ public sealed class WorkshopDeclaredPresentation
             staged[i] = _tracks[i].Copy();
             // A one-shot cue has no committed query: only its ring records drive it.
             if (staged[i].Declaration.Driver == PresentationDriver.Event) continue;
-            staged[i].Input = Query(staged[i], read);
+            staged[i].Input = PresentationDriverRules.Map(Query(staged[i], read), staged[i].Declaration.Mapping);
             if (!float.IsFinite(staged[i].Input)) throw new ArgumentException("Nonfinite presentation query.");
             if (staged[i].Declaration.Curve == PresentationCurve.LinearDecay)
             {
@@ -297,99 +297,148 @@ public sealed class WorkshopDeclaredPresentation
 
     private static float Query(Track track, WorkshopRead read)
     {
-        var d = track.Declaration;
-        switch (d.Driver)
+        switch (track.Declaration.Driver)
         {
             case PresentationDriver.CommittedActivation:
-                for (var i = 0; i < read.Activations.Count; i++)
-                    if (read.Activations[i].Owner == track.Owner)
-                        return read.Activations[i].Phase == ActivationPhase.Latched ? 1 : 0;
-                break;
+                return QueryActivation(track, read);
             case PresentationDriver.CommittedCount:
             case PresentationDriver.CommittedOscillatorPhase:
             case PresentationDriver.CommittedOscillatorPulse:
-                for (var i = 0; i < read.Memory.Count; i++)
-                {
-                    var memory = read.Memory[i];
-                    if (memory.Node != track.Node.Id) continue;
-                    if (d.Driver == PresentationDriver.CommittedCount) return memory.Count >= d.Threshold ? 1 : 0;
-                    if (d.Driver == PresentationDriver.CommittedOscillatorPulse)
-                    {
-                        track.Count = memory.Count;
-                        return memory.Count > 0 ? 1 : 0;
-                    }
-                    if (memory.Phase == OscillatorPhase.Stopped) return .5f;
-                    if (track.Node.IntervalTicks == 0) throw new ArgumentException("Oscillator binding lacks its interval.");
-                    var remaining = memory.DueTick > read.Tick.Value ? memory.DueTick - read.Tick.Value : 0;
-                    var phase = 1f - (float)remaining / track.Node.IntervalTicks;
-                    return .5f + .5f * MathF.Sin(MathF.Tau * phase);
-                }
-                break;
+                return QueryMemory(track, read);
             case PresentationDriver.CommittedTimerProgress:
             case PresentationDriver.CommittedTimerRemaining:
             case PresentationDriver.CommittedTimerActive:
             case PresentationDriver.CommittedTimerPhase:
-                for (var i = 0; i < read.Timers.Count; i++)
-                {
-                    var timer = read.Timers[i];
-                    if (timer.Node != track.Node.Id) continue;
-                    if (d.Driver == PresentationDriver.CommittedTimerPhase)
-                        return TimerPhase(timer.Phase) == d.Phase ? 1 : 0;
-                    if (d.Driver == PresentationDriver.CommittedTimerActive)
-                        return timer.Phase == ActivationTimerPhase.Counting ? 1 : 0;
-                    if (d.Driver == PresentationDriver.CommittedTimerRemaining)
-                        return timer.Phase == ActivationTimerPhase.Counting
-                            ? Math.Clamp((float)(timer.DueTick - read.Tick.Value) / (timer.DueTick - timer.StartedTick), 0, 1) : 0;
-                    return timer.Phase switch
-                    {
-                        ActivationTimerPhase.Ready => 0,
-                        ActivationTimerPhase.Finished => 1,
-                        ActivationTimerPhase.Counting => Math.Clamp((float)(read.Tick.Value - timer.StartedTick) / (timer.DueTick - timer.StartedTick), 0, 1),
-                        _ => throw new ArgumentException("Unknown timer phase.")
-                    };
-                }
-                break;
+                return QueryTimer(track, read);
             case PresentationDriver.CommittedElectricalSocket:
-                foreach (var logic in read.Presentation.Logic)
-                    if (logic.Owner == track.Owner) return logic.At(d.Socket!.Value) ? 1 : 0;
-                break;
+                return QueryElectricalSocket(track, read);
             case PresentationDriver.CommittedSupply:
             case PresentationDriver.CommittedCharge:
-                for (var i = 0; i < read.Electrical.Count; i++)
-                {
-                    var source = read.Electrical[i];
-                    if (source.Owner != track.Owner) continue;
-                    if (d.Driver == PresentationDriver.CommittedSupply) return source.Available ? 1 : 0;
-                    if (track.Capacity <= 0) throw new ArgumentException("Charge binding lacks its declared capacity.");
-                    return source.Remaining.Value >= track.Capacity * d.Threshold ? 1 : 0;
-                }
-                break;
+                return QuerySource(track, read);
             case PresentationDriver.CommittedActuatorDrive:
             case PresentationDriver.CommittedActuatorState:
-                foreach (var actuator in read.Presentation.Actuators)
-                    if (actuator.Owner == track.Owner && track.Drives.Contains(actuator.Drive))
-                        return d.Driver == PresentationDriver.CommittedActuatorState && actuator.Blocked ? .5f : actuator.SupplyClosed ? 1 : 0;
-                break;
+                return QueryActuator(track, read);
             case PresentationDriver.CommittedContactLoadPhase:
-                foreach (var load in read.Presentation.Loads)
-                    if (load.Frame == track.Owner)
-                    {
-                        track.Rest = load.Phase == ContactLoadPhase.Underweight ? d.Intermediate ?? d.From : d.From;
-                        return load.Phase == ContactLoadPhase.Loaded ? 1 : 0;
-                    }
-                break;
+                return QueryContactLoad(track, read);
             case PresentationDriver.CommittedWheelAngle:
-                foreach (var guide in read.Presentation.Guides)
-                    if (guide.Guide == track.Guide)
-                        return guide.Angle;
-                break;
+                return QueryWheelAngle(track, read);
             case PresentationDriver.CommittedSurfaceDeflection:
-                foreach (var surface in read.Presentation.Surfaces)
-                    if (surface.Frame == track.Owner)
-                        return surface.Deflection;
-                break;
+                return QuerySurfaceDeflection(track, read);
             default: throw new ArgumentException("Unsupported committed presentation driver.");
         }
+    }
+
+    private static float QueryActivation(Track track, WorkshopRead read)
+    {
+        for (var i = 0; i < read.Activations.Count; i++)
+            if (read.Activations[i].Node == track.Node.Id)
+                return read.Activations[i].Phase == ActivationPhase.Latched ? 1 : 0;
+        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static float QueryMemory(Track track, WorkshopRead read)
+    {
+        var d = track.Declaration;
+        for (var i = 0; i < read.Memory.Count; i++)
+        {
+            var memory = read.Memory[i];
+            if (memory.Node != track.Node.Id) continue;
+            if (d.Driver == PresentationDriver.CommittedCount) return memory.Count >= d.Threshold ? 1 : 0;
+            if (d.Driver == PresentationDriver.CommittedOscillatorPulse)
+            {
+                track.Count = memory.Count;
+                return memory.Count > 0 ? 1 : 0;
+            }
+            if (memory.Phase == OscillatorPhase.Stopped) return 0f;
+            if (track.Node.IntervalTicks == 0) throw new ArgumentException("Oscillator binding lacks its interval.");
+            var remaining = memory.DueTick > read.Tick.Value ? memory.DueTick - read.Tick.Value : 0;
+            var phase = 1f - (float)remaining / track.Node.IntervalTicks;
+            return phase;
+        }
+        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static float QueryTimer(Track track, WorkshopRead read)
+    {
+        var d = track.Declaration;
+        for (var i = 0; i < read.Timers.Count; i++)
+        {
+            var timer = read.Timers[i];
+            if (timer.Node != track.Node.Id) continue;
+            if (d.Driver == PresentationDriver.CommittedTimerPhase)
+                return TimerPhase(timer.Phase) == d.Phase ? 1 : 0;
+            if (d.Driver == PresentationDriver.CommittedTimerActive)
+                return timer.Phase == ActivationTimerPhase.Counting ? 1 : 0;
+            if (d.Driver == PresentationDriver.CommittedTimerRemaining)
+                return timer.Phase == ActivationTimerPhase.Counting
+                    ? Math.Clamp((float)(timer.DueTick - read.Tick.Value) / (timer.DueTick - timer.StartedTick), 0, 1) : 0;
+            return timer.Phase switch
+            {
+                ActivationTimerPhase.Ready => 0,
+                ActivationTimerPhase.Finished => 1,
+                ActivationTimerPhase.Counting => Math.Clamp((float)(read.Tick.Value - timer.StartedTick) / (timer.DueTick - timer.StartedTick), 0, 1),
+                _ => throw new ArgumentException("Unknown timer phase.")
+            };
+        }
+        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static float QueryElectricalSocket(Track track, WorkshopRead read)
+    {
+        var d = track.Declaration;
+        foreach (var logic in read.Presentation.Logic)
+            if (logic.Owner == track.Owner) return logic.At(d.Socket!.Value) ? 1 : 0;
+        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static float QuerySource(Track track, WorkshopRead read)
+    {
+        var d = track.Declaration;
+        for (var i = 0; i < read.Electrical.Count; i++)
+        {
+            var source = read.Electrical[i];
+            if (source.Owner != track.Owner) continue;
+            if (d.Driver == PresentationDriver.CommittedSupply) return source.Available ? 1 : 0;
+            if (track.Capacity <= 0) throw new ArgumentException("Charge binding lacks its declared capacity.");
+            return source.Remaining.Value >= track.Capacity * d.Threshold ? 1 : 0;
+        }
+        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static float QueryActuator(Track track, WorkshopRead read)
+    {
+        var d = track.Declaration;
+        foreach (var actuator in read.Presentation.Actuators)
+            if (actuator.Owner == track.Owner && track.Drives.Contains(actuator.Drive))
+                return d.Driver == PresentationDriver.CommittedActuatorState && actuator.Blocked ? .5f : actuator.SupplyClosed ? 1 : 0;
+        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static float QueryContactLoad(Track track, WorkshopRead read)
+    {
+        var d = track.Declaration;
+        foreach (var load in read.Presentation.Loads)
+            if (load.Sensor == track.Node.ContactLoad)
+            {
+                track.Rest = load.Phase == ContactLoadPhase.Underweight ? d.Intermediate ?? d.From : d.From;
+                return load.Phase == ContactLoadPhase.Loaded ? 1 : 0;
+            }
+        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static float QueryWheelAngle(Track track, WorkshopRead read)
+    {
+        foreach (var guide in read.Presentation.Guides)
+            if (guide.Guide == track.Guide)
+                return guide.Angle;
+        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static float QuerySurfaceDeflection(Track track, WorkshopRead read)
+    {
+        foreach (var surface in read.Presentation.Surfaces)
+            if (surface.Frame == track.Owner)
+                return surface.Deflection;
         throw new ArgumentException("Declared presentation query is absent from the committed read.");
     }
 

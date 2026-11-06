@@ -182,14 +182,7 @@ public partial class Workshop
 
     internal void RefreshConnectionArtwork(ReadOnlySpan<RopeSpanRead> ropes)
     {
-        if (_queuedCuts.Count != 0)
-        {
-            var committed = World.WorkshopRead;
-            var cutSpans = committed.Presentation.Ropes.ToArray().Where(row => row.Integrity == RopeIntegrity.Cut)
-                .Select(row => row.Id).ToHashSet();
-            if (_queuedCuts.RemoveWhere(pending => pending.Epoch != committed.Epoch || cutSpans.Contains(pending.Span)) != 0)
-                RefreshConnectionChoices();
-        }
+        ReconcileQueuedCuts();
         if (_connectionArtwork is null)
         {
             _connectionArtwork = new Node3D { Name = "WorkshopConnections" };
@@ -204,7 +197,7 @@ public partial class Workshop
             {
                 var source = World.Parts.Single(part => part.AuthoredId == link.Source);
                 var target = World.Parts.Single(part => part.AuthoredId == link.Target);
-                Segment(SocketWorld(source, link.Output), SocketWorld(target, link.Input), link.Domain == WorkshopConnectionDomain.Electrical ? new("#293954") : new("#ffd899"),
+                DrawConnectionSegment(_connectionArtwork, ref segmentCount, SocketWorld(source, link.Output), SocketWorld(target, link.Input), link.Domain == WorkshopConnectionDomain.Electrical ? new("#293954") : new("#ffd899"),
                     link.Domain == WorkshopConnectionDomain.Electrical ? .035f : .025f, true);
                 continue;
             }
@@ -228,41 +221,56 @@ public partial class Workshop
             var state = committed.State;
             var points = RopeGeometry.Evaluate(committed.AttachmentA, committed.AttachmentB, committed.MaximumLength, state);
             for (var i = 1; i < points.Length; i++)
-                Segment(new(points[i - 1].X, points[i - 1].Y, points[i - 1].Z),
+                DrawConnectionSegment(_connectionArtwork, ref segmentCount, new(points[i - 1].X, points[i - 1].Y, points[i - 1].Z),
                     new(points[i].X, points[i].Y, points[i].Z), new("#d69c47"), .025f, state != RopeState.Open || i % 2 == 1);
             var startIsGuide = committed.BodyA == link.Source ? isSourceGuide : isTargetGuide;
             var endIsGuide = committed.BodyB == link.Target ? isTargetGuide : isSourceGuide;
-            if (!startIsGuide) Knot(start);
-            if (!endIsGuide) Knot(end);
+            if (!startIsGuide) DrawConnectionKnot(_connectionArtwork, ref knotCount, start);
+            if (!endIsGuide) DrawConnectionKnot(_connectionArtwork, ref knotCount, end);
         }
         for (var i = segmentCount; i < _connectionSegments.Count; i++) _connectionSegments[i].Visible = false;
         for (var i = knotCount; i < _connectionKnots.Count; i++) _connectionKnots[i].Visible = false;
 
-        bool IsGuide(PartId partId, PortId socket)
+    }
+    private void ReconcileQueuedCuts()
+    {
+        if (_queuedCuts.Count != 0)
         {
-            foreach (var p in DeclaredPorts.Current.Of(partId))
-                if (p.Id == socket && p.AttachmentRole == RopeAttachmentRole.Guide) return true;
-            return false;
-        }
-
-        void Segment(Vector3 start, Vector3 end, Color colour, float width, bool visible)
-        {
-            while (_connectionSegments.Count <= segmentCount)
-                _connectionSegments.Add(WorkshopArtwork.Cylinder(_connectionArtwork, width, 1f, colour));
-            var node = _connectionSegments[segmentCount++];
-            var offset = end - start; var length = offset.Length();
-            node.Visible = visible && length > 0f;
-            node.Position = (start + end) * .5f;
-            node.Quaternion = length > 0f ? new Quaternion(Vector3.Up, offset / length) : Quaternion.Identity;
-            var mesh = (CylinderMesh)node.Mesh;
-            mesh.TopRadius = width; mesh.BottomRadius = width; mesh.Height = Mathf.Max(length, .001f);
-            ((StandardMaterial3D)node.MaterialOverride).AlbedoColor = colour;
-        }
-        void Knot(Vector3 position)
-        {
-            while (_connectionKnots.Count <= knotCount)
-                _connectionKnots.Add(WorkshopArtwork.Sphere(_connectionArtwork, .055f, new("#f7cb52")));
-            var node = _connectionKnots[knotCount++]; node.Position = position; node.Visible = true;
+            var committed = World.WorkshopRead;
+            var cutSpans = committed.Presentation.Ropes.ToArray().Where(row => row.Integrity == RopeIntegrity.Cut)
+                .Select(row => row.Id).ToHashSet();
+            if (_queuedCuts.RemoveWhere(pending => pending.Epoch != committed.Epoch || cutSpans.Contains(pending.Span)) != 0)
+                RefreshConnectionChoices();
         }
     }
+
+    private static bool IsGuide(PartId partId, PortId socket)
+    {
+        foreach (var p in DeclaredPorts.Current.Of(partId))
+            if (p.Id == socket && p.AttachmentRole == RopeAttachmentRole.Guide) return true;
+        return false;
+    }
+
+    private void DrawConnectionSegment(Node3D parent, ref int segmentCount, Vector3 start, Vector3 end, Color colour, float width, bool visible)
+    {
+        while (_connectionSegments.Count <= segmentCount)
+            _connectionSegments.Add(WorkshopArtwork.Cylinder(parent, width, 1f, colour));
+        var node = _connectionSegments[segmentCount++];
+        var offset = end - start; var length = offset.Length();
+        node.Visible = visible && length > 0f;
+        node.Position = (start + end) * .5f;
+        node.Quaternion = length > 0f ? new Quaternion(Vector3.Up, offset / length) : Quaternion.Identity;
+        var mesh = (CylinderMesh)node.Mesh;
+        mesh.TopRadius = width; mesh.BottomRadius = width; mesh.Height = Mathf.Max(length, .001f);
+        ((StandardMaterial3D)node.MaterialOverride).AlbedoColor = colour;
+    }
+
+    private void DrawConnectionKnot(Node3D parent, ref int knotCount, Vector3 position)
+    {
+        while (_connectionKnots.Count <= knotCount)
+            _connectionKnots.Add(WorkshopArtwork.Sphere(parent, .055f, new("#f7cb52")));
+        var node = _connectionKnots[knotCount++]; node.Position = position; node.Visible = true;
+    }
+
+
 }

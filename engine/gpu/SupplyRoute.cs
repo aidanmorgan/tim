@@ -98,35 +98,7 @@ public sealed class CompiledSupplyGraph
             }
             else
             {
-                if (node.Source != default) throw new ArgumentException("Electrical consumer cannot declare a source.");
-                var admitted = new System.Collections.Generic.List<int>(4);
-                if (!node.Consumers.IsDefaultOrEmpty) foreach (var consumer in node.Consumers)
-                {
-                    // A consumer names one owned joint that declares a drive of its kind; its slot is the joint's drive slot.
-                    var slot = -1;
-                    var supplied = false;
-                    switch (consumer.Kind)
-                    {
-                        case SupplyConsumerKind.PrismaticDrive:
-                            for (var c=0;c<prismatics.Length;c++)
-                                if (prismatics[c].Id==consumer.PrismaticJoint && prismatics[c].BodyA==node.Owner) slot=c;
-                            foreach(var drive in prismaticDrives) if(drive.Joint==consumer.PrismaticJoint) supplied=true;
-                            break;
-                        case SupplyConsumerKind.RevoluteDrive:
-                            for (var r=0;r<revolutes.Length;r++)
-                                if (revolutes[r].Id==consumer.RevoluteJoint && revolutes[r].BodyA==node.Owner) slot=prismatics.Length+r;
-                            foreach(var drive in revoluteDrives) if(drive.Joint==consumer.RevoluteJoint) supplied=true;
-                            break;
-                        default:
-                            throw new ArgumentException("Electrical consumer names an undefined drive kind.");
-                    }
-                    if (slot<0 || !supplied)
-                        throw new ArgumentException("Electrical consumer names no driven joint its node owns.");
-                    if (!seenConsumers.Add(consumer))
-                        throw new ArgumentException("Electrical consumer names a driven joint more than once.");
-                    admitted.Add(slot);
-                }
-                _consumers[i]=admitted.ToArray();
+                _consumers[i] = AdmitConsumers(node, seenConsumers, prismatics, prismaticDrives, revolutes, revoluteDrives);
             }
         }
         // Every declared drive of either kind is consumed by exactly one consumer node (uniqueness is checked above): a drive no route
@@ -137,16 +109,7 @@ public sealed class CompiledSupplyGraph
         foreach (var drive in revoluteDrives)
             if (!seenConsumers.Contains(SupplyConsumer.Revolute(drive.Joint)))
                 throw new ArgumentException("A declared revolute drive has no consumer node.");
-        var seenEdges=new System.Collections.Generic.HashSet<SupplyEdge>(16);
-        foreach(var edge in edges)
-        {
-            if(!slots.TryGetValue(edge.Source,out var from) || !slots.TryGetValue(edge.Target,out var to) || from==to ||
-                !seenEdges.Add(edge) || nodes[from].Kind==SupplyNodeKind.Consumer || nodes[to].Kind==SupplyNodeKind.Source ||
-                (edge.Input != PortRole.PowerIn &&
-                    (nodes[to].Kind != SupplyNodeKind.LogicGate || edge.Input is not (PortRole.FirstIn or PortRole.SecondIn))))
-                throw new ArgumentException("Electrical graph edge is unsupported or duplicated.");
-            inputs[to].Add((from,edge.Input));
-        }
+        AdmitEdges(nodes, edges, slots, inputs);
         _inputs=inputs.Select(list=>list.ToArray()).ToArray();
         var predecessors=_inputs.Select(list=>list.Select(edge=>edge.Source).ToArray()).ToArray();
         _components=SupplyCycles.Components(predecessors);
@@ -159,6 +122,65 @@ public sealed class CompiledSupplyGraph
                 throw new ArgumentException("A nonmonotone electrical gate lies on a directed cycle.");
         }
     }
+    private static int ResolveConsumerSlot(GpuBodyId owner, SupplyConsumer consumer,
+        ReadOnlySpan<PrismaticConstraintDeclaration> prismatics, ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives,
+        ReadOnlySpan<RevoluteConstraintDeclaration> revolutes, ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives)
+    {
+        // A consumer names one owned joint that declares a drive of its kind; its slot is the joint's drive slot.
+        var slot = -1;
+        var supplied = false;
+        switch (consumer.Kind)
+        {
+            case SupplyConsumerKind.PrismaticDrive:
+                for (var c=0;c<prismatics.Length;c++)
+                    if (prismatics[c].Id==consumer.PrismaticJoint && prismatics[c].BodyA==owner) slot=c;
+                foreach(var drive in prismaticDrives) if(drive.Joint==consumer.PrismaticJoint) supplied=true;
+                break;
+            case SupplyConsumerKind.RevoluteDrive:
+                for (var r=0;r<revolutes.Length;r++)
+                    if (revolutes[r].Id==consumer.RevoluteJoint && revolutes[r].BodyA==owner) slot=prismatics.Length+r;
+                foreach(var drive in revoluteDrives) if(drive.Joint==consumer.RevoluteJoint) supplied=true;
+                break;
+            default:
+                throw new ArgumentException("Electrical consumer names an undefined drive kind.");
+        }
+        if (slot<0 || !supplied)
+            throw new ArgumentException("Electrical consumer names no driven joint its node owns.");
+        return slot;
+    }
+
+    private static void AdmitEdges(ReadOnlySpan<SupplyNodeDeclaration> nodes, ReadOnlySpan<SupplyEdge> edges,
+        System.Collections.Generic.Dictionary<GpuBodyId, int> slots,
+        System.Collections.Generic.List<(int Source, PortRole Input)>[] inputs)
+    {
+        var seenEdges=new System.Collections.Generic.HashSet<SupplyEdge>(16);
+        foreach(var edge in edges)
+        {
+            if(!slots.TryGetValue(edge.Source,out var from) || !slots.TryGetValue(edge.Target,out var to) || from==to ||
+                !seenEdges.Add(edge) || nodes[from].Kind==SupplyNodeKind.Consumer || nodes[to].Kind==SupplyNodeKind.Source ||
+                (edge.Input != PortRole.PowerIn &&
+                    (nodes[to].Kind != SupplyNodeKind.LogicGate || edge.Input is not (PortRole.FirstIn or PortRole.SecondIn))))
+                throw new ArgumentException("Electrical graph edge is unsupported or duplicated.");
+            inputs[to].Add((from,edge.Input));
+        }
+    }
+
+    private static int[] AdmitConsumers(SupplyNodeDeclaration node, System.Collections.Generic.HashSet<SupplyConsumer> seenConsumers,
+        ReadOnlySpan<PrismaticConstraintDeclaration> prismatics, ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives,
+        ReadOnlySpan<RevoluteConstraintDeclaration> revolutes, ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives)
+    {
+        if (node.Source != default) throw new ArgumentException("Electrical consumer cannot declare a source.");
+        var admitted = new System.Collections.Generic.List<int>(4);
+        if (!node.Consumers.IsDefaultOrEmpty) foreach (var consumer in node.Consumers)
+        {
+            var slot = ResolveConsumerSlot(node.Owner, consumer, prismatics, prismaticDrives, revolutes, revoluteDrives);
+            if (!seenConsumers.Add(consumer))
+                throw new ArgumentException("Electrical consumer names a driven joint more than once.");
+            admitted.Add(slot);
+        }
+        return admitted.ToArray();
+    }
+
     public ElectricalLogicRead[] NeutralReads() => _nodes.Where(node=>node.Kind==SupplyNodeKind.LogicGate)
         .OrderBy(node=>node.Owner.Value).Select(node=>new ElectricalLogicRead(node.Owner,ElectricalInputState.Neither,false,false)).ToArray();
     public SupplyResolution Resolve(WorkshopTickControls controls, Func<GpuBodyId,bool> contactClosed)

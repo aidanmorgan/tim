@@ -39,8 +39,8 @@ public sealed class WorkshopUiFailureTests
     [Fact]
     public void AConnectionRuleRefusalIsATypedRejection()
     {
-        // Story 9R.5b: there is no connection limit, so the rule exercised is the self-connection refusal.
-        var link = new WorkshopConnection(new(1), PortId.ActivationOut, new(1), PortId.ActivationIn,
+        // A missing source identity is invalid before port lookup; same-owner signal links are supported.
+        var link = new WorkshopConnection(default, PortId.ActivationOut, new(1), PortId.ActivationIn,
             WorkshopConnectionDomain.Activation);
         var error = Record.Exception(() => new WorkshopConnections(link).Validate(WorkshopInstances.Empty));
         var rejection = Assert.IsType<WorkshopEditRejectedException>(error);

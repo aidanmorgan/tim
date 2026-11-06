@@ -36,68 +36,86 @@ public sealed partial class BrowserWorkshopClient
         switch (header.Kind)
         {
             case ScheduleControlKind.Prepare:
-                if (_preparation is not null) throw new InvalidOperationException("Browser schedule already prepared.");
-                var settings = WorkshopCadenceWire.Read(data[..32]);
-                if (settings.Presentation == PresentationCadence.AdmittedDisplay && settings.PresentationRate != _admittedDisplay)
-                    throw new ArgumentException("Unadmitted display rate.");
-                if (BinaryPrimitives.ReadUInt64LittleEndian(data[32..]) != (_schedule?.Revision.Value ?? 0) ||
-                    BinaryPrimitives.ReadUInt64LittleEndian(data[40..]) != (_schedule?.World.Epoch.Value ?? 0) ||
-                    header.Revision.Value < (_schedule?.Revision.Value ?? 0) ||
-                    header.Projection.Value <= (_schedule?.World.Epoch.Value ?? 0) ||
-                    BinaryPrimitives.ReadUInt32LittleEndian(data[52..]) != 0)
-                    throw new ArgumentException("Stale browser schedule Prepare.");
-                var transition = (ScheduleTransition)BinaryPrimitives.ReadUInt32LittleEndian(data[48..]);
-                if (!Enum.IsDefined(transition)) throw new ArgumentException("Unknown projection transition.");
-                var endpoint = WorkshopWireFlatBuffers.DecodeResponse(data[WorkshopScheduleWire.PrepareFieldBytes..]);
-                if (endpoint.Session != Peer.Session || endpoint.Cadence != header.Revision ||
-                    endpoint.Projection != header.Projection || endpoint.MasterGeneration != Peer.Generation ||
-                    endpoint.Read.Epoch.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[56..]) ||
-                    endpoint.Read.Tick.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[64..]) ||
-                    endpoint.Publication.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[72..]))
-                    throw new ArgumentException("Prepared endpoint identity mismatch.");
-                if (endpoint.Scene is not { } scene || scene.Identity != (_proposedScene ?? _compiledScene)?.Identity || scene.Settings != settings)
-                    throw new ArgumentException("Prepared endpoint compiled scene mismatch.");
-                _preparation = new(header, settings, endpoint, transition);
-                SendScheduleResult(header, ScheduleControlKind.Prepared);
-                break;
+                PrepareSchedule(data, header); break;
             case ScheduleControlKind.Commit:
-                var schedule = WorkshopScheduleWire.ReadCommit(bytes, out _);
-                if (schedule.Settings.Presentation == PresentationCadence.AdmittedDisplay)
-                    schedule.ValidateDisplay(_admittedDisplay);
-                if (_preparation is not { } prepared || !SameInstallation(prepared.Header, header) ||
-                    prepared.Settings != schedule.Settings || schedule.MasterNativeOrigin != Peer.MasterOrigin)
-                    throw new ArgumentException("Browser Commit lacks its matching preparation.");
-                var stamp = prepared.Endpoint.Read.Capture!.Value;
-                var now = _transport.EventTime(_id.Value);
-                MappedCapture? mapped = Clock.TryMap(stamp, now, out var value) ? value : null;
-                var boundary = schedule.World.Playback == WorldPlayback.Running ? PresentationBoundary.Run :
-                    schedule.World.Playback == WorldPlayback.Completed ? PresentationBoundary.Completed : PresentationBoundary.Seed;
-                var history = _history.PrepareInstall(schedule, prepared.Endpoint, mapped, boundary, Clock.DisplayEpoch);
-                var cursor = _cursor.PrepareInstallation(prepared.Endpoint);
-                _history.Commit(history); _cursor.Commit(cursor);
-                _observation.Commit(prepared.Endpoint);
-                ReconcileAnimationSchedule(schedule);
-                EnsureInstalledScene(_proposedConstruction ?? _construction, prepared.Endpoint.Scene!);
-                _schedule = schedule; _preparation = null;
-                _construction = (_proposedConstruction ?? _construction) with { Settings = schedule.Settings };
-                _lastPresentation = new(schedule.FirstPresentation.Value - 1);
-                _frameAdmitted = false;
-                if (prepared.Transition is ScheduleTransition.Step or ScheduleTransition.Completed or ScheduleTransition.Reset)
-                    _awaitingPresented = header;
-                SendScheduleResult(header, ScheduleControlKind.Applied);
-                break;
+                CommitSchedule(bytes, header); break;
             case ScheduleControlKind.Abort:
-                if (_preparation is not { } pending || !SameInstallation(pending.Header, header) ||
-                    !Enum.IsDefined((WorkshopRejection)BinaryPrimitives.ReadUInt32LittleEndian(data)) ||
-                    BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != 0)
-                    throw new ArgumentException("Foreign browser Abort.");
-                _preparation = null;
-                if (_schedule is { } old && Clock.TryMasterNow(_transport.EventTime(_id.Value), out var current))
-                    _lastPresentation = new(Math.Max(_lastPresentation.Value, WorkshopPulse.Due(old.Settings.PresentationRate, new(checked((long)current.Lower))).Value));
-                break;
+                AbortSchedule(data, header); break;
             default: throw new ArgumentException("Unsupported browser schedule control.");
         }
     }
+    private void PrepareSchedule(ReadOnlySpan<byte> data, ScheduleControlHeader header)
+    {
+        if (_preparation is not null) throw new InvalidOperationException("Browser schedule already prepared.");
+        var settings = WorkshopCadenceWire.Read(data[..32]);
+        if (settings.Presentation == PresentationCadence.AdmittedDisplay && settings.PresentationRate != _admittedDisplay)
+            throw new ArgumentException("Unadmitted display rate.");
+        if (BinaryPrimitives.ReadUInt64LittleEndian(data[32..]) != (_schedule?.Revision.Value ?? 0) ||
+            BinaryPrimitives.ReadUInt64LittleEndian(data[40..]) != (_schedule?.World.Epoch.Value ?? 0) ||
+            header.Revision.Value < (_schedule?.Revision.Value ?? 0) ||
+            header.Projection.Value <= (_schedule?.World.Epoch.Value ?? 0) ||
+            BinaryPrimitives.ReadUInt32LittleEndian(data[52..]) != 0)
+            throw new ArgumentException("Stale browser schedule Prepare.");
+        var transition = (ScheduleTransition)BinaryPrimitives.ReadUInt32LittleEndian(data[48..]);
+        if (!Enum.IsDefined(transition)) throw new ArgumentException("Unknown projection transition.");
+        var endpoint = WorkshopWireFlatBuffers.DecodeResponse(data[WorkshopScheduleWire.PrepareFieldBytes..]);
+        ValidatePreparedEndpoint(data, header, settings, endpoint);
+        _preparation = new(header, settings, endpoint, transition);
+        SendScheduleResult(header, ScheduleControlKind.Prepared);
+    }
+
+    private void ValidatePreparedEndpoint(ReadOnlySpan<byte> data, ScheduleControlHeader header,
+        WorkshopCadenceSettings settings, WorkshopResponse endpoint)
+    {
+        if (endpoint.Session != Peer.Session || endpoint.Cadence != header.Revision ||
+            endpoint.Projection != header.Projection || endpoint.MasterGeneration != Peer.Generation ||
+            endpoint.Read.Epoch.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[56..]) ||
+            endpoint.Read.Tick.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[64..]) ||
+            endpoint.Publication.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[72..]))
+            throw new ArgumentException("Prepared endpoint identity mismatch.");
+        if (endpoint.Scene is not { } scene || scene.Identity != (_proposedScene ?? _compiledScene)?.Identity || scene.Settings != settings)
+            throw new ArgumentException("Prepared endpoint compiled scene mismatch.");
+    }
+
+    private void CommitSchedule(byte[] bytes, ScheduleControlHeader header)
+    {
+        var schedule = WorkshopScheduleWire.ReadCommit(bytes, out _);
+        if (schedule.Settings.Presentation == PresentationCadence.AdmittedDisplay)
+            schedule.ValidateDisplay(_admittedDisplay);
+        if (_preparation is not { } prepared || !SameInstallation(prepared.Header, header) ||
+            prepared.Settings != schedule.Settings || schedule.MasterNativeOrigin != Peer.MasterOrigin)
+            throw new ArgumentException("Browser Commit lacks its matching preparation.");
+        var stamp = prepared.Endpoint.Read.Capture!.Value;
+        var now = _transport.EventTime(_id.Value);
+        MappedCapture? mapped = Clock.TryMap(stamp, now, out var value) ? value : null;
+        var boundary = schedule.World.Playback == WorldPlayback.Running ? PresentationBoundary.Run :
+            schedule.World.Playback == WorldPlayback.Completed ? PresentationBoundary.Completed : PresentationBoundary.Seed;
+        var history = _history.PrepareInstall(schedule, prepared.Endpoint, mapped, boundary, Clock.DisplayEpoch);
+        var cursor = _cursor.PrepareInstallation(prepared.Endpoint);
+        _history.Commit(history); _cursor.Commit(cursor);
+        _observation.Commit(prepared.Endpoint);
+        ReconcileAnimationSchedule(schedule);
+        EnsureInstalledScene(_proposedConstruction ?? _construction, prepared.Endpoint.Scene!);
+        _schedule = schedule; _preparation = null;
+        _construction = (_proposedConstruction ?? _construction) with { Settings = schedule.Settings };
+        _lastPresentation = new(schedule.FirstPresentation.Value - 1);
+        _frameAdmitted = false;
+        if (prepared.Transition is ScheduleTransition.Step or ScheduleTransition.Completed or ScheduleTransition.Reset)
+            _awaitingPresented = header;
+        SendScheduleResult(header, ScheduleControlKind.Applied);
+    }
+
+    private void AbortSchedule(ReadOnlySpan<byte> data, ScheduleControlHeader header)
+    {
+        if (_preparation is not { } pending || !SameInstallation(pending.Header, header) ||
+            !Enum.IsDefined((WorkshopRejection)BinaryPrimitives.ReadUInt32LittleEndian(data)) ||
+            BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != 0)
+            throw new ArgumentException("Foreign browser Abort.");
+        _preparation = null;
+        if (_schedule is { } old && Clock.TryMasterNow(_transport.EventTime(_id.Value), out var current))
+            _lastPresentation = new(Math.Max(_lastPresentation.Value, WorkshopPulse.Due(old.Settings.PresentationRate, new(checked((long)current.Lower))).Value));
+    }
+
     private static bool SameInstallation(ScheduleControlHeader a, ScheduleControlHeader b) =>
         a.Session == b.Session && a.MasterGeneration == b.MasterGeneration && a.Revision == b.Revision && a.Projection == b.Projection;
     private void SendScheduleResult(ScheduleControlHeader request, ScheduleControlKind kind)

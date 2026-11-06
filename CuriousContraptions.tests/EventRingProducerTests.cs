@@ -12,6 +12,7 @@ namespace CuriousContraptions.Tests;
 /// same run's committed reads (latches, ledgers, rows, levels), never from the records themselves.</summary>
 public sealed class EventRingProducerTests
 {
+    private static ulong SignalSource(WorkshopConstruction bench, GpuBodyId owner) => bench.Instances.Identities[owner].Signals[new("signal")].Node.Value;
     private static readonly double Floor = (double)WorkshopConstruction.WorkbenchSurface.Value;
     private static readonly double Half45 = Math.Sqrt(.5);
 
@@ -39,7 +40,7 @@ public sealed class EventRingProducerTests
             Assert.True(a.Tick < b.Tick || (a.Tick == b.Tick && Key(a).CompareTo(Key(b)) <= 0), $"records {i - 1} and {i} are out of order");
         }
         static (uint, float, uint, ulong, ulong) Key(SimulationEventRecord record) =>
-            (record.Ordinal, record.Phase, (uint)record.Kind, record.Source, record.Other);
+            (record.Ordinal, record.Phase, (uint)record.Kind, record.Source.Value, record.Other);
     }
 
     private static ActivationLatch Node(WorkshopRead read, GpuBodyId owner)
@@ -84,7 +85,7 @@ public sealed class EventRingProducerTests
             Assert.Equal(expected.Length, published.Length);
             foreach (var (hit, record) in expected.OrderBy(hit => hit.Sequence).Zip(published.OrderBy(record => record.Count)))
                 Assert.Equal((bumper.Value, hit.Target.Value, hit.EventOrdinal, (float)hit.EventPhase, hit.Debit.Value, hit.Sequence, 0u),
-                    (record.Source, record.Other, record.Ordinal, record.Phase, record.Magnitude, record.Count, record.Level));
+                    (record.Source.Value, record.Other, record.Ordinal, record.Phase, record.Magnitude, record.Count, record.Level));
         }
         // The first hit is exactly one Impact on its tick, Count 1, struck body the ball.
         var first = impacts[0];
@@ -125,7 +126,7 @@ public sealed class EventRingProducerTests
         var passages = ring.Of(SimulationEventKind.Passage).ToArray();
         Assert.Equal(2, passages.Length);
         Assert.Equal([1u, 2u], passages.Select(record => record.Count));
-        Assert.All(passages, record => Assert.Equal((detector.Value, ball.Value, 0u), (record.Source, record.Other, record.Level)));
+        Assert.All(passages, record => Assert.Equal((SignalSource(bench, detector), ball.Value, 0u), (record.Source.Value, record.Other, record.Level)));
         Assert.All(passages, record => Assert.True(record.Magnitude > 0, "a pass carries its crossing speed"));
         Assert.Equal(passages.Length, ring.Records.Count); // the network's Passage and the lamp publish nothing
         // The first-input lamp lit at the first pass and keeps that one occurrence.
@@ -163,7 +164,7 @@ public sealed class EventRingProducerTests
         var latch = latched.Captures[0];
         var record = Assert.Single(ring.Records);
         Assert.Equal((SimulationEventKind.Captured, latched.Tick.Value, receiver.Value, ball.Value, latch.EventOrdinal, (float)latch.EventPhase),
-            (record.Kind, record.Tick, record.Source, record.Other, record.Ordinal, record.Phase));
+            (record.Kind, record.Tick, record.Source.Value, record.Other, record.Ordinal, record.Phase));
     }
 
     // ---------- ContactLoad: the plate's debounced level, 1 then 0; jitter in the raw row publishes nothing ----------
@@ -213,9 +214,9 @@ public sealed class EventRingProducerTests
         var latched = ring.Reads.First(read => Node(read, hit.Id).Phase == ActivationPhase.Latched);
         var occurrence = Node(latched, hit.Id);
         var record = Assert.Single(ring.Records);
-        Assert.Equal((SimulationEventKind.TriggerActivated, latched.Tick.Value, hit.Id.Value, ball.Id.Value, occurrence.EventOrdinal,
+        Assert.Equal((SimulationEventKind.TriggerActivated, latched.Tick.Value, SignalSource(ring.Construction, hit.Id), ball.Id.Value, occurrence.EventOrdinal,
                 occurrence.EventPhase, occurrence.ApproachSpeed.Value, 0u),
-            (record.Kind, record.Tick, record.Source, record.Other, record.Ordinal, record.Phase, record.Magnitude, record.Count));
+            (record.Kind, record.Tick, record.Source.Value, record.Other, record.Ordinal, record.Phase, record.Magnitude, record.Count));
     }
 
     [Theory]
@@ -231,8 +232,8 @@ public sealed class EventRingProducerTests
         if (!topples) { Assert.Empty(ring.Records); return; }
         var latched = ring.Reads.First(read => Node(read, tile.Id).Phase == ActivationPhase.Latched);
         var record = Assert.Single(ring.Records);
-        Assert.Equal((SimulationEventKind.TriggerActivated, latched.Tick.Value, 1UL, 1UL, Node(latched, tile.Id).EventOrdinal),
-            (record.Kind, record.Tick, record.Source, record.Other, record.Ordinal));
+        Assert.Equal((SimulationEventKind.TriggerActivated, latched.Tick.Value, SignalSource(ring.Construction, tile.Id), 1UL, Node(latched, tile.Id).EventOrdinal),
+            (record.Kind, record.Tick, record.Source.Value, record.Other, record.Ordinal));
     }
 
     // Switch → Delay (0.1 s, a latching timer completing after physics) → hold timer (rearming, before networks) → gate: the switch and
@@ -250,7 +251,7 @@ public sealed class EventRingProducerTests
         Assert.Equal(2, ring.Records.Count);
         Assert.All(ring.Records, record => Assert.Equal(SimulationEventKind.TriggerActivated, record.Kind));
         var (trigger, delayed) = (ring.Records[0], ring.Records[1]);
-        Assert.Equal((2UL, 6UL), (trigger.Source, delayed.Source));
+        Assert.Equal((SignalSource(construction, new(2)), SignalSource(construction, new(6))), (trigger.Source.Value, delayed.Source.Value));
         var delayLatched = ring.Reads.First(read => Node(read, new(6)).Phase == ActivationPhase.Latched);
         Assert.Equal(delayLatched.Tick.Value, delayed.Tick);
         Assert.Equal(delayed.Tick * 4, delayed.Ordinal);
@@ -280,8 +281,8 @@ public sealed class EventRingProducerTests
         var pulses = ring.Of(SimulationEventKind.TriggerActivated).ToArray();
         Assert.Equal([(ulong)rate, 2UL * rate], pulses.Select(record => record.Tick));
         Assert.Equal([1u, 2u], pulses.Select(record => record.Count));
-        Assert.All(pulses, record => Assert.Equal((2UL, 2UL, record.Tick * substeps, 0f, 0f, 0u),
-            (record.Source, record.Other, record.Ordinal, record.Phase, record.Magnitude, record.Level)));
+        Assert.All(pulses, record => Assert.Equal((SignalSource(ring.Construction, new(2)), 2UL, record.Tick * substeps, 0f, 0f, 0u),
+            (record.Source.Value, record.Other, record.Ordinal, record.Phase, record.Magnitude, record.Level)));
         Assert.Equal(pulses.Length, ring.Records.Count);
     }
 
@@ -305,7 +306,7 @@ public sealed class EventRingProducerTests
         var thresholds = ring.Of(SimulationEventKind.ThresholdReached).ToArray();
         if (!reached) { Assert.Empty(thresholds); Assert.Equal(2, ring.Records.Count); return; }
         var record = Assert.Single(thresholds);
-        Assert.Equal((360UL, 3UL, 3u, 2UL, 1440u), (record.Tick, record.Source, record.Count, record.Other, record.Ordinal));
+        Assert.Equal((360UL, SignalSource(ring.Construction, new(3)), 3u, 2UL, 1440u), (record.Tick, record.Source.Value, record.Count, record.Other, record.Ordinal));
         // The same physical time as the third pulse: the D4 kind order puts ThresholdReached (3) before TriggerActivated (8).
         var tick360 = ring.Records.Where(r => r.Tick == 360).ToArray();
         Assert.Equal([SimulationEventKind.ThresholdReached, SimulationEventKind.TriggerActivated], tick360.Select(r => r.Kind));
@@ -334,7 +335,7 @@ public sealed class EventRingProducerTests
         Assert.Equal([(120UL, 1u), (180UL, 0u), (240UL, 1u), (360UL, 0u), (480UL, 1u), (540UL, 0u), (600UL, 1u)],
             memory.Select(record => (record.Tick, record.Level)));
         Assert.Equal(Edges(ring.Reads, read => Node(read, new(3)).Phase == ActivationPhase.Latched), memory.Select(record => (record.Tick, record.Level)));
-        Assert.All(memory, record => Assert.Equal((3UL, 0UL, record.Tick * 4, 0f), (record.Source, record.Other, record.Ordinal, record.Phase)));
+        Assert.All(memory, record => Assert.Equal((SignalSource(ring.Construction, new(3)), 0UL, record.Tick * 4, 0f), (record.Source.Value, record.Other, record.Ordinal, record.Phase)));
         AssertOrderedRun(ring.Records);
     }
 
@@ -349,7 +350,7 @@ public sealed class EventRingProducerTests
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([set, latch, battery], [Supply(battery.Id, set.Id), Signal(set.Id, latch.Id, PortId.SetIn)]));
         await ring.Advance(600);
         var memory = Assert.Single(ring.Of(SimulationEventKind.MemoryChanged));
-        Assert.Equal((120UL, 1u, 3UL), (memory.Tick, memory.Level, memory.Source));
+        Assert.Equal((120UL, 1u, SignalSource(ring.Construction, new(3))), (memory.Tick, memory.Level, memory.Source.Value));
         Assert.Equal([120UL, 240UL, 360UL, 480UL, 600UL], ring.Of(SimulationEventKind.TriggerActivated).Select(record => record.Tick));
         Assert.All(ring.Reads.Where(read => read.Tick.Value >= 120), read => Assert.Equal(ActivationPhase.Latched, Node(read, latch.Id).Phase));
     }
@@ -370,7 +371,7 @@ public sealed class EventRingProducerTests
         Assert.Equal([0u, 1u], powered.Select(record => record.Level));
         Assert.All(powered, record => Assert.Equal(
             (1UL, 0UL, ring.Reads.Single(read => read.Tick.Value == record.Tick).Electrical[0].Remaining.Value),
-            (record.Source, record.Other, record.Magnitude)));
+            (record.Source.Value, record.Other, record.Magnitude)));
         Assert.Equal(powered.Length, ring.Records.Count);
     }
 
@@ -477,9 +478,9 @@ public sealed class EventRingProducerTests
         Assert.Equal(new uint[] { 1, 0, 1, 0, 1, 0, 1 },
             records.Where(record => record.Kind == SimulationEventKind.MemoryChanged).Select(record => record.Level));
         Assert.All(records.Where(record => record.Kind == SimulationEventKind.MemoryChanged),
-            record => Assert.Equal((3UL, 0UL), (record.Source, record.Other)));
-        Assert.Equal(5, records.Count(record => record.Kind == SimulationEventKind.TriggerActivated && record.Source == 1));
-        Assert.Equal(3, records.Count(record => record.Kind == SimulationEventKind.TriggerActivated && record.Source == 2));
+            record => Assert.Equal((SignalSource(Memory(), new(3)), 0UL), (record.Source.Value, record.Other)));
+        Assert.Equal(5, records.Count(record => record.Kind == SimulationEventKind.TriggerActivated && record.Source.Value == SignalSource(Memory(), new(1))));
+        Assert.Equal(3, records.Count(record => record.Kind == SimulationEventKind.TriggerActivated && record.Source.Value == SignalSource(Memory(), new(2))));
         AssertOrderedRun(records);
     }
 
@@ -552,7 +553,7 @@ public sealed class EventRingProducerTests
         var ring = new EventRingMemory(3, 1);
         for (ulong sequence = 1; sequence <= 5; sequence++)
         {
-            var record = new SimulationEventRecord(sequence, sequence, SimulationEventKind.Impact, 1, 2, (uint)sequence, 0, 0, 0, 0);
+            var record = new SimulationEventRecord(sequence, sequence, SimulationEventKind.Impact, new(1), 2, (uint)sequence, 0, 0, 0, 0);
             ring = EventRingBuffer.Append(ring, EventRingBuffer.Batch(new(3, 64, 1, sequence), [record]));
         }
         var consumer = new EventRingConsumer();
@@ -611,7 +612,7 @@ public sealed class EventRingProducerTests
         outbox.PrepareAdmission(new(5)); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
         outbox.Commit(); host.Commit(); host.Publish(); outbox.Drain();
         var original = host.Memory!;
-        var first = Enumerable.Range(1, 25).Select(i => new SimulationEventRecord(0, 2, SimulationEventKind.Impact, 1, 2, (uint)i, 0, 1, (uint)i, 0)).ToArray();
+        var first = Enumerable.Range(1, 25).Select(i => new SimulationEventRecord(0, 2, SimulationEventKind.Impact, new(1), 2, (uint)i, 0, 1, (uint)i, 0)).ToArray();
         outbox.PrepareAdvance(32, first); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
         Assert.Same(original, host.Memory);
         Assert.Equal(0UL, original.LoadWriteSequence());
@@ -627,7 +628,7 @@ public sealed class EventRingProducerTests
         while (fast.TryRead(host.Memory, SimulationDomain.None, out var record)) firstSeen.Add(record.Sequence);
         Assert.Equal(Enumerable.Range(1, 25).Select(i => (ulong)i), firstSeen);
         var previous = host.Memory;
-        var second = Enumerable.Range(33, 24).Select(i => new SimulationEventRecord(0, 3, SimulationEventKind.Impact, 1, 2, (uint)i, 0, 1, (uint)i, 0)).ToArray();
+        var second = Enumerable.Range(33, 24).Select(i => new SimulationEventRecord(0, 3, SimulationEventKind.Impact, new(1), 2, (uint)i, 0, 1, (uint)i, 0)).ToArray();
         outbox.PrepareAdvance(56, second); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
         Assert.Equal(25UL, previous.LoadWriteSequence());
         outbox.Commit(); host.Commit(); host.Publish(); outbox.Drain();
@@ -661,7 +662,7 @@ public sealed class EventRingProducerTests
     {
         var outbox = new EventRingOutbox();
         outbox.PrepareAdmission(new(1)); outbox.Commit(); outbox.Drain();
-        var atWatermark = Enumerable.Range(1, 24).Select(i => new SimulationEventRecord(0, 1, SimulationEventKind.Impact, 1, (ulong)i, 8, 0, 1, (uint)i, 0)).ToArray();
+        var atWatermark = Enumerable.Range(1, 24).Select(i => new SimulationEventRecord(0, 1, SimulationEventKind.Impact, new(1), (ulong)i, 8, 0, 1, (uint)i, 0)).ToArray();
         outbox.PrepareAdvance(8, atWatermark); outbox.Commit(); outbox.Drain();
         Assert.Equal(32u, outbox.Capacity);
         for (uint ordinal = 8 + substeps; ordinal <= 248; ordinal += substeps)
@@ -675,7 +676,7 @@ public sealed class EventRingProducerTests
         outbox.PrepareAdvance(1002, afterIdle); outbox.Commit();
         Assert.Equal(32u, outbox.Capacity); Assert.Equal(24, outbox.RetainedCount);
         Assert.Equal(Enumerable.Range(25, 24).Select(i => (ulong)i), Decode(outbox.Drain()).Select(record => record.Sequence));
-        outbox.PrepareAdvance(1004, [new(0, 2, SimulationEventKind.Impact, 1, 25, 1003, 0, 1, 25, 0)]);
+        outbox.PrepareAdvance(1004, [new(0, 2, SimulationEventKind.Impact, new(1), 25, 1003, 0, 1, 25, 0)]);
         outbox.Commit();
         Assert.Equal(64u, outbox.Capacity); Assert.Equal(25, outbox.RetainedCount);
         Assert.Equal(49UL, Assert.Single(Decode(outbox.Drain())).Sequence);
@@ -713,8 +714,7 @@ public sealed class EventRingProducerTests
         await ring.Advance(250);
         var outbox = new EventRingOutbox();
         outbox.PrepareAdmission(new(99)); outbox.Commit(); outbox.Drain();
-        var selected = Enumerable.Range(1, 25).Select(i => new SimulationEventRecord(0, 8, SimulationEventKind.Impact,
-            1, (ulong)i + 1, (uint)i, 0, 1, (uint)i, 0)).ToArray();
+        var selected = Enumerable.Range(1, 25).Select(i => new SimulationEventRecord(0, 8, SimulationEventKind.Impact, new(1), (ulong)i + 1, (uint)i, 0, 1, (uint)i, 0)).ToArray();
         outbox.PrepareAdvance(selected.Max(record => record.Ordinal) + 1, selected); outbox.Commit();
         var batches = ring.Publications.Append(outbox.Drain()).ToList();
         EventRingMemory? reference = null;

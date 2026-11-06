@@ -161,30 +161,7 @@ internal static class RevoluteConstraintSolver
         {
             if (count == 1)
             {
-                var joint = joints[0];
-                if (rowIndex == (int)RevoluteRowKind.Axial && joint.Stiffness == 0f && joint.Damping == 0f)
-                {
-                    joint.Impulses[rowIndex] = 0f;
-                    continue;
-                }
-                ref readonly var row = ref joint.Rows[rowIndex];
-                var invMass = ConstraintMass(joint.A, row.La, row.Aa) + ConstraintMass(joint.B, row.Lb, row.Ab);
-                var vel = ConstraintVelocity(joint.A, row.La, row.Aa) + ConstraintVelocity(joint.B, row.Lb, row.Ab);
-                var bias = useBias || (rowIndex == (int)RevoluteRowKind.Axial && (joint.Stiffness > 0f || joint.Damping > 0f)) || (IsStop(rowIndex) && row.Error > 0f) ? row.Bias : 0f;
-
-                var vInvMass = Vector128.Create(invMass, 0f, 0f, 0f);
-                var vVel = Vector128.Create(vel, 0f, 0f, 0f);
-                var vTarget = Vector128.Create(row.VelocityTarget, 0f, 0f, 0f);
-                var vError = Vector128.Create(row.Error, 0f, 0f, 0f);
-                var vGamma = Vector128.Create(row.Gamma, 0f, 0f, 0f);
-                var vBias = Vector128.Create(bias, 0f, 0f, 0f);
-                var vAccum = Vector128.Create(joint.Impulses[rowIndex], 0f, 0f, 0f);
-                var vMin = Vector128.Create(row.Minimum, 0f, 0f, 0f);
-                var vMax = Vector128.Create(row.Maximum, 0f, 0f, 0f);
-
-                var result = SoftConstraint.Solve4(vInvMass, vVel, vTarget, vError, vGamma, vBias, vAccum, vMin, vMax);
-                joint.Impulses[rowIndex] = result.Accumulated.GetElement(0);
-                ApplyConstraintImpulse(joint, joint.Rows[rowIndex], result.Delta.GetElement(0));
+                SolveSingleConstraint(joints[0], rowIndex, useBias);
                 continue;
             }
 
@@ -193,42 +170,14 @@ internal static class RevoluteConstraintSolver
 
             while (remainingCount > 0)
             {
-                var groupCount = 0;
-
-                for (var i = 0; i < remainingCount && groupCount < 4;)
-                {
-                    var jointIdx = remaining[i];
-                    var joint = joints[jointIdx];
-
-                    var conflict = false;
-                    for (var g = 0; g < groupCount; g++)
-                    {
-                        var gj = joints[groupIndices[g]];
-                        if (gj.A.BodySlot == joint.A.BodySlot || gj.A.BodySlot == joint.B.BodySlot ||
-                            gj.B.BodySlot == joint.A.BodySlot || gj.B.BodySlot == joint.B.BodySlot)
-                        {
-                            conflict = true;
-                            break;
-                        }
-                    }
-
-                    if (conflict)
-                    {
-                        i++;
-                        continue;
-                    }
-
-                    groupIndices[groupCount++] = jointIdx;
-                    remaining[i] = remaining[remainingCount - 1];
-                    remainingCount--;
-                }
+                var groupCount = SelectIndependentJoints(joints, remaining, ref remainingCount, groupIndices);
 
                 for (var lane = 0; lane < 4; lane++)
                 {
                     if (lane < groupCount)
                     {
                         var joint = joints[groupIndices[lane]];
-                        if (rowIndex == (int)RevoluteRowKind.Axial && joint.Stiffness == 0f && joint.Damping == 0f)
+        if (rowIndex == (int)RevoluteRowKind.Axial && joint.Stiffness == 0f && joint.Damping == 0f)
                         {
                             invMasses[lane] = 0f;
                             vels[lane] = 0f;
@@ -294,4 +243,69 @@ internal static class RevoluteConstraintSolver
             }
         }
     }
+
+    private static void SolveSingleConstraint(SimRevoluteJoint joint, int rowIndex, bool useBias)
+    {
+                        if (rowIndex == (int)RevoluteRowKind.Axial && joint.Stiffness == 0f && joint.Damping == 0f)
+        {
+            joint.Impulses[rowIndex] = 0f;
+            return;
+        }
+        ref readonly var row = ref joint.Rows[rowIndex];
+        var invMass = ConstraintMass(joint.A, row.La, row.Aa) + ConstraintMass(joint.B, row.Lb, row.Ab);
+        var vel = ConstraintVelocity(joint.A, row.La, row.Aa) + ConstraintVelocity(joint.B, row.Lb, row.Ab);
+        var bias = useBias || (rowIndex == (int)RevoluteRowKind.Axial && (joint.Stiffness > 0f || joint.Damping > 0f)) || (IsStop(rowIndex) && row.Error > 0f) ? row.Bias : 0f;
+
+        var vInvMass = Vector128.Create(invMass, 0f, 0f, 0f);
+        var vVel = Vector128.Create(vel, 0f, 0f, 0f);
+        var vTarget = Vector128.Create(row.VelocityTarget, 0f, 0f, 0f);
+        var vError = Vector128.Create(row.Error, 0f, 0f, 0f);
+        var vGamma = Vector128.Create(row.Gamma, 0f, 0f, 0f);
+        var vBias = Vector128.Create(bias, 0f, 0f, 0f);
+        var vAccum = Vector128.Create(joint.Impulses[rowIndex], 0f, 0f, 0f);
+        var vMin = Vector128.Create(row.Minimum, 0f, 0f, 0f);
+        var vMax = Vector128.Create(row.Maximum, 0f, 0f, 0f);
+
+        var result = SoftConstraint.Solve4(vInvMass, vVel, vTarget, vError, vGamma, vBias, vAccum, vMin, vMax);
+        joint.Impulses[rowIndex] = result.Accumulated.GetElement(0);
+        ApplyConstraintImpulse(joint, joint.Rows[rowIndex], result.Delta.GetElement(0));
+    }
+
+    private static int SelectIndependentJoints(List<SimRevoluteJoint> joints, Span<int> remaining,
+        ref int remainingCount, Span<int> groupIndices)
+    {
+        var groupCount = 0;
+
+        for (var i = 0; i < remainingCount && groupCount < 4;)
+        {
+            var jointIdx = remaining[i];
+            var joint = joints[jointIdx];
+
+            var conflict = false;
+            for (var g = 0; g < groupCount; g++)
+            {
+                var gj = joints[groupIndices[g]];
+                if (gj.A.BodySlot == joint.A.BodySlot || gj.A.BodySlot == joint.B.BodySlot ||
+                    gj.B.BodySlot == joint.A.BodySlot || gj.B.BodySlot == joint.B.BodySlot)
+                {
+                    conflict = true;
+                    break;
+                }
+            }
+
+            if (conflict)
+            {
+                i++;
+                continue;
+            }
+
+            groupIndices[groupCount++] = jointIdx;
+            remaining[i] = remaining[remainingCount - 1];
+            remainingCount--;
+        }
+
+        return groupCount;
+    }
+
+
 }

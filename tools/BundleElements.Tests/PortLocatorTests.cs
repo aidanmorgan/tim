@@ -1,5 +1,6 @@
 using System.Numerics;
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.BundleElements.Tests;
 
@@ -122,8 +123,14 @@ public sealed class PortLocatorTests
     {
         PortDescriptor Port(SimulationDomain domain, PortSignalKind? signal) =>
             new(PortId.ActivationOut, domain, PortDirection.Output, PortRole.ActivationOut, signal, Vector3.Zero, Vector3.UnitY);
-        Assert.Empty(PackageValidator.Validate([new("Fixture", new Fixture { Ports = [Port(SimulationDomain.Signal, PortSignalKind.Pulse)] })]));
-        Assert.Equal(["BUNDLE015 FixtureSignal.Ports[0].Signal: a Signal port declares its signal kind and no other port does"],
+        Assert.Empty(PackageValidator.Validate([new("Fixture", new SignalFixture
+        {
+            Ports = [Port(SimulationDomain.Signal, PortSignalKind.Level)],
+            SignalNodes = [new SignalMemoryDescriptor(new("memory"))],
+            SignalPorts = [new(PortId.ActivationOut, new(new("memory"), SignalTerminal.Output))]
+        })]));
+        Assert.Equal(["BUNDLE015 FixtureSignal.Ports[0].Signal: a Signal port declares its signal kind and no other port does",
+            "BUNDLE006 fixture.Signal.Missing"],
             PackageValidator.Validate([new("FixtureSignal", new Fixture { Ports = [Port(SimulationDomain.Signal, null)] })]).Select(error => error.ToString()));
         Assert.Equal(["BUNDLE015 FixtureSignal.Ports[0].Signal: a Signal port declares its signal kind and no other port does"],
             PackageValidator.Validate([new("FixtureSignal", new Fixture { Ports = [Port(SimulationDomain.Electrical, PortSignalKind.Level)] })])

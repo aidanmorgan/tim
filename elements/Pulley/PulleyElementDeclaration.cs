@@ -12,7 +12,7 @@ public sealed class PulleyElementDeclaration : IMechanicalElement, ISceneGeometr
         ScenePath: "res://elements/Pulley/pulley.tscn", Parameters: []);
     public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
         [
-            new("Visual/Wheel", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedWheelAngle,
+            new("Visual/Wheel", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedWheelAngle, PresentationValueMapping.Identity,
                 0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
         ], [], [], []);
     public ElementFootprint Footprint => new(1, 0, 0, 0);

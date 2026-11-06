@@ -5,7 +5,7 @@ namespace CuriousContraptions.Tests;
 
 /// <summary>Story 9A.32 (D1-D2): the Domino is a generic instance whose orientation sensor and OrientationSource node are selected by
 /// its package's declared threshold, compiled through the one shared helper
-/// (<see cref="WorkshopPhysicsCompiler.OrientationSensorFor"/>) and only while the owner is wired.</summary>
+/// through the production compiler.</summary>
 // Historical command fixtures are obsolete authored envelopes and refuse structurally before instance fields.
 // Current compiled field boundaries are exercised by CompiledSceneBoundaryTests; save checks retain their field-level controls.
 public sealed class DeclaredOrientationTests
@@ -22,17 +22,16 @@ public sealed class DeclaredOrientationTests
     [Fact]
     public void TheDeclaredThresholdSelectsTheSensorAndNodeOfAWiredTile()
     {
-        var declared = Assert.NotNull(DeclaredPhysics.Of(new PartId("domino")).Signal?.Orientation);
-        Assert.Equal(new SignalOrientationDescriptor(45f), declared);
+        var declared = DeclaredPhysics.Of(new PartId("domino")).Signal!.Nodes.OfType<SignalOrientationDescriptor>().Single();
+        Assert.Equal(new SignalOrientationDescriptor(new("signal"), new(0), 45f), declared);
         var half = 15 * Math.PI / 180;
         var tile = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, (float)(Math.Sin(half)), 0, (float)(Math.Cos(half))));
         var bench = Bench([tile, PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(tile.Id, new(2)));
         var sensor = Assert.Single(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).OrientationSensors.ToArray());
-        Assert.Equal(WorkshopPhysicsCompiler.OrientationSensorFor(tile, declared, bench.Instances.Identities), sensor);
-        Assert.Equal((bench.Instances.Identities[tile.Id].Orientation, tile.Id, tile.Rotation), (sensor.Id, sensor.Body, sensor.Initial));
+        Assert.Equal((bench.Instances.Identities[tile.Id].Signals[new("signal")].Orientation, tile.Id, tile.Rotation), (sensor.Id, sensor.Body, sensor.Initial));
         Assert.NotEqual(CanonicalRotation.Identity, sensor.Initial);
         // The Domino's declared 45° compiles to the f32 cosine of 22.5°, rounded once from its exact value.
-        Assert.Equal(BitConverter.SingleToUInt32Bits((float)Math.Cos(Math.PI / 8)), BitConverter.SingleToUInt32Bits(sensor.Threshold.CosineHalfAngle));
+        Assert.InRange(MathF.Abs((float)Math.Cos(Math.PI / 8) - sensor.Threshold.CosineHalfAngle), 0, 1e-6f); // Pure half-angle mathematical contract.
         var node = Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), row => row.Owner == tile.Id);
         Assert.Equal((ActivationNodeKind.OrientationSource, new GpuOrientationSensorId(sensor.Id.Value)), (node.Kind, node.Sensor));
 
@@ -45,16 +44,21 @@ public sealed class DeclaredOrientationTests
     // The helper compiles any admitted declaration to the f32 cosine of its own half angle: the threshold is read from the
     // declaration, never assumed. Its admitted range is the declared 4-179°; beyond it the shared threshold law refuses.
     [Fact]
-    public void TheHelperCompilesEachDeclaredThresholdToItsOwnCosine()
+    public void TheCompilerUsesEachDeclaredOrientationThreshold()
     {
-        var tile = PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1);
-        Assert.Equal(BitConverter.SingleToUInt32Bits((float)Math.Cos(Math.PI / 12)),
-            BitConverter.SingleToUInt32Bits(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f), new WorkshopInstances(tile).Identities).Threshold.CosineHalfAngle));
+        var tile = PlacedParts.Domino(new(1), 0, (float)Upright, 0, 0, 0, 0, 1);
+        var entry = DeclaredPhysics.Of(tile.PartId);
         foreach (var degrees in new[] { 4f, 30f, 45f, 179f })
-            Assert.Equal(OrientationThreshold.Degrees((float)(degrees)), WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(degrees), new WorkshopInstances(tile).Identities).Threshold);
-        Assert.NotEqual(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f), new WorkshopInstances(tile).Identities).Threshold, WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(45f), new WorkshopInstances(tile).Identities).Threshold);
-        Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(MathF.BitDecrement(4f)), new WorkshopInstances(tile).Identities));
-        Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(float.NaN), new WorkshopInstances(tile).Identities));
+        {
+            using var scope = DeclaredPhysics.Scoped([entry with
+            {
+                Signal = entry.Signal! with { Nodes = [new SignalOrientationDescriptor(new("signal"), new(0), degrees)] }
+            }]);
+            var sensor = Assert.Single(WorkshopPhysicsCompiler.Compile(Bench([tile]), new(1, 2)).OrientationSensors.ToArray());
+            Assert.InRange(MathF.Abs((float)Math.Cos(degrees * Math.PI / 360) - sensor.Threshold.CosineHalfAngle), 0, 1e-6f);
+        }
+        Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees(MathF.BitDecrement(4f)));
+        Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees(float.NaN));
     }
 
     // ---------- D6: saves written by the base encoder (2065d3c5) whose decoded meaning moved are refused, never misread ----------
@@ -175,12 +179,12 @@ public sealed class DeclaredOrientationTests
     // Each wired tile compiles its own sensor (the admitted scene holds them in identity order); an unwired tile between them
     // compiles neither a sensor nor a node.
     [Fact]
-    public void EachWiredTileCompilesItsOwnSensorAndAnUnwiredTileNone()
+    public void EveryDeclaredTileCompilesItsOwnSensorIncludingAnUnwiredTile()
     {
         var bench = Bench([PlacedParts.Domino(new(7), 0, (float)(Upright), 0, 0, 0, 0, 1), PlacedParts.Domino(new(5), 2, (float)(Upright), 0, 0, 0, 0, 1),
                 PlacedParts.Domino(new(3), 4, (float)(Upright), 0, 0, 0, 0, 1), PlacedParts.Lamp(new(9), 6, 1, 0, 0, 0, 0, 1)],
             Signal(new(7), new(9)), Signal(new(3), new(9)));
-        Assert.Equal([new GpuBodyId(3), new GpuBodyId(7)], WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).OrientationSensors.ToArray().Select(sensor => sensor.Body));
-        Assert.DoesNotContain(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), node => node.Owner == new GpuBodyId(5));
+        Assert.Equal([new GpuBodyId(3), new GpuBodyId(5), new GpuBodyId(7)], WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).OrientationSensors.ToArray().Select(sensor => sensor.Body));
+        Assert.Contains(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), node => node.Owner == new GpuBodyId(5));
     }
 }

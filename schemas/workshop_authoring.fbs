@@ -64,6 +64,8 @@ table PuzzleRecord {
     goal_body: uint64;
     goal_target: uint64;
     goal_delay: float;
+    goal_source_node: string;
+    goal_target_node: string;
     assistance: [AssistanceKnotRecord] (required);
     interaction_target: uint64;
 }

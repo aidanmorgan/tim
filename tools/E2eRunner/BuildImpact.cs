@@ -43,40 +43,46 @@ internal static class BuildImpact
                 }
             }
 
-            // Include both reference directions at the edit, then transitive consumers; cycles terminate in the set.
-            var changed = true;
-            while (changed)
-            {
-                changed = false;
-                foreach (var (directory, part) in ImpactRules.ElementPackages)
-                {
-                    var project = $"elements/{directory}/{directory}.csproj";
-                    foreach (var text in new[] { context.ReadBase(project), context.ReadHead(project) })
-                    {
-                        if (text is null) continue;
-                        var document = Parse(text);
-                        if (document is null) return null;
-                        foreach (var reference in document.Descendants("ProjectReference"))
-                        {
-                            var include = (string?)reference.Attribute("Include");
-                            if (include is null || include.Contains('$', StringComparison.Ordinal) || include.Contains('*', StringComparison.Ordinal))
-                                return null;
-                            var resolved = Path.GetRelativePath(Path.GetFullPath("."), Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project)!, include))).Replace('\\', '/');
-                            if (PackageProject(resolved) is not { } referenced)
-                            {
-                                if (!KnownSharedReference(resolved)) return null;
-                                continue;
-                            }
-                            if (parts.Contains(referenced) && parts.Add(part)) changed = true;
-                            if (project == path && parts.Add(referenced)) changed = true;
-                        }
-                    }
-                }
-            }
+            if (!IncludeConsumers(path, context, parts)) return null;
             return parts;
         }
         catch (XmlException) { return null; }
         catch (ArgumentException) { return null; }
+    }
+
+    private static bool IncludeConsumers(string path, ImpactContext context, HashSet<PartId> parts)
+    {
+        // Include both reference directions at the edit, then transitive consumers; cycles terminate in the set.
+        var changed = true;
+        while (changed)
+        {
+            changed = false;
+            foreach (var (directory, part) in ImpactRules.ElementPackages)
+            {
+                var project = $"elements/{directory}/{directory}.csproj";
+                foreach (var text in new[] { context.ReadBase(project), context.ReadHead(project) })
+                {
+                    if (text is null) continue;
+                    var document = Parse(text);
+                    if (document is null) return false;
+                    foreach (var reference in document.Descendants("ProjectReference"))
+                    {
+                        var include = (string?)reference.Attribute("Include");
+                        if (include is null || include.Contains('$', StringComparison.Ordinal) || include.Contains('*', StringComparison.Ordinal))
+                            return false;
+                        var resolved = Path.GetRelativePath(Path.GetFullPath("."), Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project)!, include))).Replace('\\', '/');
+                        if (PackageProject(resolved) is not { } referenced)
+                        {
+                            if (!KnownSharedReference(resolved)) return false;
+                            continue;
+                        }
+                        if (parts.Contains(referenced) && parts.Add(part)) changed = true;
+                        if (project == path && parts.Add(referenced)) changed = true;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     internal static PartId? PackageProject(string path)

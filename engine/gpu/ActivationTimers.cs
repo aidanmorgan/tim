@@ -40,9 +40,6 @@ public readonly record struct ActivationTime(uint Ordinal, float Phase) : ICompa
     }
 }
 
-/// <summary>Identity of a declared event source (a physical sensor or an originating activation node) in the document identity space.</summary>
-public readonly record struct GpuEventSourceId(ulong Value);
-
 /// <summary>Typed provenance survives routing and delay without impersonating the delayed occurrence.</summary>
 public readonly record struct ActivationCause(GpuEventSourceId Source, GpuBodyId Body,
     GpuColliderId Collider, ActivationTime Time, ContactSpeed ApproachSpeed, ActivationCauseKind Kind)
@@ -64,7 +61,7 @@ public readonly record struct ActivationOccurrence(ActivationOccurrenceKind Kind
     {
         Time.Validate(); Cause.Validate();
         if (!Enum.IsDefined(Kind) || Emitter.Value == 0 || Time.CompareTo(Cause.Time) < 0 ||
-            (Kind is ActivationOccurrenceKind.Contact or ActivationOccurrenceKind.Orientation or ActivationOccurrenceKind.Passage or ActivationOccurrenceKind.ThresholdReached or ActivationOccurrenceKind.OscillatorTick or ActivationOccurrenceKind.ContactLoad && Time != Cause.Time) ||
+            (Kind is ActivationOccurrenceKind.Contact or ActivationOccurrenceKind.Orientation or ActivationOccurrenceKind.Passage or ActivationOccurrenceKind.OscillatorTick or ActivationOccurrenceKind.ContactLoad && Time != Cause.Time) ||
             (Kind == ActivationOccurrenceKind.TimerElapsed && Time.Phase != 0f))
             throw new ArgumentException("Invalid activation occurrence.");
     }

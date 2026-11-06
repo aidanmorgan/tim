@@ -69,8 +69,7 @@ public static class PuzzleCatalogue
     {
         var definition = Definition(construction.Puzzle.Id);
         var sourceIndex = Array.FindIndex(definition.Placements.ToArray(), row => row.Slot == definition.Goal.Source);
-        var source = construction.Puzzle.Goal.Kind == WorkshopGoalKind.Captured ?
-            construction.Puzzle.Goal.Body.Value : construction.Puzzle.Goal.SourceNode.Value;
+        var source = construction.Puzzle.Goal.Body.Value;
         var fixtures = definition.CreateInstances(new(checked(source - (ulong)sourceIndex)), precision);
         var result = construction with { Puzzle = construction.Puzzle with { Precision = precision } };
         foreach (var fixture in fixtures) result = result with { Instances = result.Instances.With(fixture) };
@@ -93,16 +92,14 @@ public static class PuzzleCatalogue
             (!definition.ConnectionsAllowed && construction.Connections.Count != 0))
             Reject(WorkshopEditRejection.PuzzleSettings, "Authored puzzle settings changed.");
         var sourceIndex = Array.FindIndex(definition.Placements.ToArray(), row => row.Slot == definition.Goal.Source);
-        var source = puzzle.Goal.Kind == WorkshopGoalKind.Captured
-            ? puzzle.Goal.Body : new GpuBodyId(puzzle.Goal.SourceNode.Value);
+        var source = puzzle.Goal.Body;
         if (source.Value <= (ulong)sourceIndex) Reject(WorkshopEditRejection.FixedPart, "Invalid authored owner range.");
         var first = new GpuBodyId(source.Value - (ulong)sourceIndex);
         var expected = definition.CreateInstances(first, puzzle.Precision);
         var ids = definition.Placements.Select((row, index) =>
             KeyValuePair.Create(row.Slot, expected[index].Id)).ToDictionary();
         if (!ids.ContainsKey(definition.Goal.Target))
-            ids.Add(definition.Goal.Target, puzzle.Goal.Kind == WorkshopGoalKind.Captured ?
-                puzzle.Goal.Target : new(puzzle.Goal.TargetNode.Value));
+            ids.Add(definition.Goal.Target, puzzle.Goal.Target);
         if (definition.CreateGoal(ids) != puzzle.Goal)
             Reject(WorkshopEditRejection.PuzzleSettings, "Authored goal changed.");
         var expectedInteraction = definition.InteractionTarget is { } targetSlot && ids.TryGetValue(targetSlot, out var targetBody)
@@ -116,18 +113,7 @@ public static class PuzzleCatalogue
                 Reject(WorkshopEditRejection.FixedPart, "Fixed authored declaration changed.");
         }
         var placed = construction.Instances.Where(instance => expected.All(fixture => fixture.Id != instance.Id)).ToArray();
-        foreach (var instance in placed)
-            if (instance.Locked || !definition.Inventory.Any(row => row.Part == instance.PartId))
-                Reject(WorkshopEditRejection.InventoryUnsupported, "Unsupported authored inventory.");
-        foreach (var instance in placed)
-        {
-            var row = definition.Inventory.Single(row => row.Part == instance.PartId);
-            if (!instance.Equals(row.Configure(instance, puzzle.Precision)))
-                Reject(WorkshopEditRejection.PuzzleSettings, "Authored inventory assistance changed.");
-        }
-        foreach (var row in definition.Inventory)
-            if (placed.Count(instance => instance.PartId == row.Part) > row.Count)
-                Reject(WorkshopEditRejection.InventoryExceeded, "Authored inventory exhausted.");
+        ValidateInventory(definition, puzzle.Precision, placed);
         var targetInventory = definition.Inventory.Where(row => row.GoalTarget).ToArray();
         if (targetInventory.Length != 0)
         {
@@ -135,6 +121,22 @@ public static class PuzzleCatalogue
             if (targets.Length != 0 && (targets.Length != 1 || targets[0].Id != ids[definition.Goal.Target]))
                 Reject(WorkshopEditRejection.PuzzleSettings, "Placed goal owner changed.");
         }
+    }
+
+    private static void ValidateInventory(PuzzleDefinition definition, PuzzlePrecision precision, IWorkshopInstance[] placed)
+    {
+        foreach (var instance in placed)
+            if (instance.Locked || !definition.Inventory.Any(row => row.Part == instance.PartId))
+                Reject(WorkshopEditRejection.InventoryUnsupported, "Unsupported authored inventory.");
+        foreach (var instance in placed)
+        {
+            var row = definition.Inventory.Single(row => row.Part == instance.PartId);
+            if (!instance.Equals(row.Configure(instance, precision)))
+                Reject(WorkshopEditRejection.PuzzleSettings, "Authored inventory assistance changed.");
+        }
+        foreach (var row in definition.Inventory)
+            if (placed.Count(instance => instance.PartId == row.Part) > row.Count)
+                Reject(WorkshopEditRejection.InventoryExceeded, "Authored inventory exhausted.");
     }
 
     private static void Reject(WorkshopEditRejection reason, string message) =>

@@ -122,13 +122,13 @@ public sealed class LaunchLessonSolveTests
             AssertGoalCue(harness, lit: solves);
             if (solves && bench.Puzzle.Goal.Kind == WorkshopGoalKind.Captured)
                 Assert.Contains(harness.Records, row => row.Kind == SimulationEventKind.Captured &&
-                    row.Source == bench.Puzzle.Goal.Target.Value && row.Other == bench.Puzzle.Goal.Body.Value);
+                    row.Source.Value == bench.Puzzle.Goal.Target.Value && row.Other == bench.Puzzle.Goal.Body.Value);
             if (solves && bench.Puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter)
             {
                 var goal = bench.Puzzle.Goal;
                 var activations = Enumerable.Range(0, harness.Committed.Activations.Count).Select(i => harness.Committed.Activations[i]).ToArray();
-                var source = Assert.Single(activations, row => row.Node == goal.SourceNode);
-                var target = Assert.Single(activations, row => row.Node == goal.TargetNode);
+                var source = Assert.Single(activations, row => row.Node == bench.Instances.Identities[goal.Body].Signals[goal.SourceNode].Node);
+                var target = Assert.Single(activations, row => row.Node == bench.Instances.Identities[goal.Target].Signals[goal.TargetNode].Node);
                 var delayed = new PuzzleId(lesson) == new PuzzleId("delayed_signal");
                 Assert.Equal(delayed ? ActivationOccurrenceKind.Contact : ActivationOccurrenceKind.Orientation, source.Kind);
                 Assert.Equal(delayed ? ActivationOccurrenceKind.TimerElapsed : ActivationOccurrenceKind.Orientation, target.Kind);
@@ -160,7 +160,7 @@ public sealed class LaunchLessonSolveTests
     {
         var goal = harness.Construction.Puzzle.Goal;
         var capture = goal.Kind == WorkshopGoalKind.Captured;
-        var owner = capture ? goal.Target : new GpuBodyId(goal.TargetNode.Value);
+        var owner = goal.Target;
         var samples = harness.Presentation!.Advance(harness.Schedule, PhysicalTime.FromNanoseconds(harness.Time.Nanoseconds));
         if (!harness.Construction.Instances.Any(part => part.Id == owner))
         {

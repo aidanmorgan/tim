@@ -102,9 +102,9 @@ public sealed class DelayedSignalTests
         var goal = Lesson(1f).Puzzle.Goal;
         var source = new ActivationTime(100,12f);
         var cause = new ActivationCause(new(7),new(1),new(9),source,new(2f), ActivationCauseKind.Physical);
-        var sourceNode = new ActivationNodeDeclaration(new(2),new(2),ActivationNodeKind.ContactSource,new(7));
-        var targetNode = new ActivationNodeDeclaration(new(3),new(3),ActivationNodeKind.StickyFirstInput,default);
-        var trigger = ActivationLatch.From(sourceNode,new(ActivationOccurrenceKind.Contact,new(2),source,cause));
+        var sourceNode = new ActivationNodeDeclaration(Lesson(1f).Instances.Identities[new(2)].Signals[new("signal")].Node,new(2),ActivationNodeKind.ContactSource,new(7));
+        var targetNode = new ActivationNodeDeclaration(Lesson(1f).Instances.Identities[new(3)].Signals[new("signal")].Node,new(3),ActivationNodeKind.StickyFirstInput,default);
+        var trigger = ActivationLatch.From(sourceNode,new(ActivationOccurrenceKind.Contact,sourceNode.Id,source,cause));
         var delayed = ActivationLatch.From(targetNode,new(ActivationOccurrenceKind.TimerElapsed,new(4),new(584,0f),cause));
         var read = new WorkshopRead(new(2),new(146),default,Activations:new([trigger,delayed]));
         Assert.Equal(WorkshopGoalPhase.Solved,WorkshopGoalEvaluator.Evaluate(goal,read,new(2), Lesson(1f).Instances.Identities));
@@ -145,8 +145,8 @@ public sealed class DelayedSignalTests
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4),5);
         SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
         var goal=Lesson(1f).Puzzle.Goal;
-        Assert.Throws<ArgumentException>(() => (goal with { Body=new(1) }).Validate());
-        Assert.Throws<ArgumentException>(() => (goal with { SourceNode=goal.TargetNode }).Validate());
+        Assert.Throws<ArgumentException>(() => (goal with { Body=default }).Validate());
+        Assert.Throws<ArgumentException>(() => (goal with { Body=goal.Target, SourceNode=goal.TargetNode }).Validate());
         var command=WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),CompiledSceneFixture.Compile(Lesson(1f)),Session:new(1,2),Cadence:new(1),Projection:new(1)));
         Assert.Equal(WireFaultReason.TrailingBytes, Assert.Throws<WireFaultException>(()=>WorkshopWireFlatBuffers.DecodeCommand([.. command, 12])).Reason);
     }

@@ -70,95 +70,123 @@ internal sealed class ScannedSource
 
     private enum LexState { Code, LineComment, BlockComment, SingleQuoted, DoubleQuoted, Template, Regex }
 
-    private static void Lex(string source, StringBuilder output, bool[] isCode)
+    private static void Lex(string source, StringBuilder output, bool[] isCode) => new Lexer(source, output, isCode).Run();
+
+    private sealed class Lexer(string source, StringBuilder output, bool[] isCode)
     {
-        var state = LexState.Code;
-        var templates = new Stack<int>();
-        var braceDepth = 0;
-        var inClass = false;
-        var lastSignificant = '\0';
-        var lastWord = "";
-        for (var index = 0; index < source.Length; index++)
+        private LexState _state = LexState.Code;
+        private readonly Stack<int> _templates = new();
+        private int _braceDepth;
+        private bool _inClass;
+        private char _lastSignificant;
+        private string _lastWord = "";
+        private int _index;
+
+        public void Run()
         {
-            var character = source[index];
-            var next = index + 1 < source.Length ? source[index + 1] : '\0';
-            switch (state)
+            for (_index = 0; _index < source.Length; _index++)
             {
-                case LexState.Code:
-                    if (character == '/' && next == '/') { state = LexState.LineComment; Blank(output, character); break; }
-                    if (character == '/' && next == '*') { state = LexState.BlockComment; Blank(output, character); break; }
-                    Keep(output, isCode, index, character);
-                    if (character == '\'') state = LexState.SingleQuoted;
-                    else if (character == '"') state = LexState.DoubleQuoted;
-                    else if (character == '`') state = LexState.Template;
-                    else if (character == '/' && StartsRegex(lastSignificant, lastWord)) { state = LexState.Regex; inClass = false; }
-                    else if (character == '{') braceDepth++;
-                    else if (character == '}')
-                    {
-                        if (templates.Count > 0 && templates.Peek() == braceDepth) { templates.Pop(); state = LexState.Template; }
-                        braceDepth--;
-                    }
-                    if (char.IsWhiteSpace(character)) break;
-                    if (IsWordCharacter(character)) lastWord = IsWordCharacter(lastSignificant) ? lastWord + character : character.ToString();
-                    else lastWord = "";
-                    lastSignificant = character;
-                    break;
-                case LexState.LineComment:
-                    if (character == '\n') { state = LexState.Code; output.Append('\n'); }
-                    else Blank(output, character);
-                    break;
-                case LexState.BlockComment:
-                    Blank(output, character);
-                    if (character == '*' && next == '/') { Blank(output, next); index++; state = LexState.Code; }
-                    break;
-                case LexState.SingleQuoted:
-                case LexState.DoubleQuoted:
-                    if (character == '\\') { Blank(output, character); if (next != '\0') { Blank(output, next); index++; } break; }
-                    if (character == (state == LexState.SingleQuoted ? '\'' : '"') || character == '\n')
-                    {
-                        Keep(output, isCode, index, character);
-                        state = LexState.Code;
-                        lastSignificant = '"';
-                        lastWord = "";
+                var character = source[_index];
+                var next = _index + 1 < source.Length ? source[_index + 1] : '\0';
+                switch (_state)
+                {
+                    case LexState.Code:
+                        CodeCharacter(character, next); break;
+                    case LexState.LineComment:
+                        if (character == '\n') { _state = LexState.Code; output.Append('\n'); }
+                        else Blank(output, character);
                         break;
-                    }
-                    Blank(output, character);
-                    break;
-                case LexState.Template:
-                    if (character == '\\') { Blank(output, character); if (next != '\0') { Blank(output, next); index++; } break; }
-                    if (character == '`') { Keep(output, isCode, index, character); state = LexState.Code; lastSignificant = '`'; lastWord = ""; break; }
-                    if (character == '$' && next == '{')
-                    {
-                        Keep(output, isCode, index, character);
-                        Keep(output, isCode, index + 1, next);
-                        index++;
-                        braceDepth++;
-                        templates.Push(braceDepth);
-                        state = LexState.Code;
-                        lastSignificant = '{';
-                        lastWord = "";
+                    case LexState.BlockComment:
+                        Blank(output, character);
+                        if (character == '*' && next == '/') { Blank(output, next); _index++; _state = LexState.Code; }
                         break;
-                    }
-                    Blank(output, character);
-                    break;
-                case LexState.Regex:
-                    if (character == '\\') { Blank(output, character); if (next != '\0') { Blank(output, next); index++; } break; }
-                    if (character == '[') inClass = true;
-                    else if (character == ']') inClass = false;
-                    else if ((character == '/' && !inClass) || character == '\n')
-                    {
-                        Keep(output, isCode, index, character);
-                        state = LexState.Code;
-                        lastSignificant = ')';
-                        lastWord = "";
-                        break;
-                    }
-                    Blank(output, character);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined lexer state {state}.");
+                    case LexState.SingleQuoted:
+                    case LexState.DoubleQuoted:
+                        QuotedCharacter(character, next); break;
+                    case LexState.Template:
+                        TemplateCharacter(character, next); break;
+                    case LexState.Regex:
+                        RegexCharacter(character, next); break;
+                    default:
+                        throw new InvalidOperationException($"Undefined lexer state {_state}.");
+                }
             }
         }
+
+        private void CodeCharacter(char character, char next)
+        {
+            if (character == '/' && next == '/') { _state = LexState.LineComment; Blank(output, character); return; }
+            if (character == '/' && next == '*') { _state = LexState.BlockComment; Blank(output, character); return; }
+            Keep(output, isCode, _index, character);
+            if (character == '\'') _state = LexState.SingleQuoted;
+            else if (character == '"') _state = LexState.DoubleQuoted;
+            else if (character == '`') _state = LexState.Template;
+            else if (character == '/' && StartsRegex(_lastSignificant, _lastWord)) { _state = LexState.Regex; _inClass = false; }
+            else if (character == '{') _braceDepth++;
+            else if (character == '}')
+            {
+                if (_templates.Count > 0 && _templates.Peek() == _braceDepth) { _templates.Pop(); _state = LexState.Template; }
+                _braceDepth--;
+            }
+            if (char.IsWhiteSpace(character)) return;
+            if (IsWordCharacter(character)) _lastWord = IsWordCharacter(_lastSignificant) ? _lastWord + character : character.ToString();
+            else _lastWord = "";
+            _lastSignificant = character;
+            return;
+        }
+
+        private void QuotedCharacter(char character, char next)
+        {
+            if (character == '\\') { Blank(output, character); if (next != '\0') { Blank(output, next); _index++; } return; }
+            if (character == (_state == LexState.SingleQuoted ? '\'' : '"') || character == '\n')
+            {
+                Keep(output, isCode, _index, character);
+                _state = LexState.Code;
+                _lastSignificant = '"';
+                _lastWord = "";
+                return;
+            }
+            Blank(output, character);
+            return;
+        }
+
+        private void TemplateCharacter(char character, char next)
+        {
+            if (character == '\\') { Blank(output, character); if (next != '\0') { Blank(output, next); _index++; } return; }
+            if (character == '`') { Keep(output, isCode, _index, character); _state = LexState.Code; _lastSignificant = '`'; _lastWord = ""; return; }
+            if (character == '$' && next == '{')
+            {
+                Keep(output, isCode, _index, character);
+                Keep(output, isCode, _index + 1, next);
+                _index++;
+                _braceDepth++;
+                _templates.Push(_braceDepth);
+                _state = LexState.Code;
+                _lastSignificant = '{';
+                _lastWord = "";
+                return;
+            }
+            Blank(output, character);
+            return;
+        }
+
+        private void RegexCharacter(char character, char next)
+        {
+            if (character == '\\') { Blank(output, character); if (next != '\0') { Blank(output, next); _index++; } return; }
+            if (character == '[') _inClass = true;
+            else if (character == ']') _inClass = false;
+            else if ((character == '/' && !_inClass) || character == '\n')
+            {
+                Keep(output, isCode, _index, character);
+                _state = LexState.Code;
+                _lastSignificant = ')';
+                _lastWord = "";
+                return;
+            }
+            Blank(output, character);
+            return;
+        }
+
     }
 
     private static bool IsWordCharacter(char character) => char.IsAsciiLetterOrDigit(character) || character is '_' or '$';

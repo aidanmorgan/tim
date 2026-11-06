@@ -17,7 +17,7 @@ public sealed class HoldTimerTests
     private static WorkshopConnection Power(ulong from, ulong to) =>
         new(new(from), PortId.Supply, new(to), PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     internal static ActivationTimerState State(WorkshopRead read) =>
-        Enumerable.Range(0, read.Timers.Count).Select(i => read.Timers[i]).Single(row => row.Node.Value == 3);
+        Enumerable.Range(0, read.Timers.Count).Select(i => read.Timers[i]).Single(row => row.Node == SignalTestNodes.Only(read.Activations, new(3)));
     private static ActuatorDriveRead Blade(WorkshopRead read) =>
         read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == 5);
     private static float Travel(WorkshopRead read) => Blade(read).Coordinate;
@@ -118,7 +118,7 @@ public sealed class HoldTimerTests
         Assert.True(F32Bits.Equal(seconds,part.Parameters[new("hold_seconds")]));
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,180);
         var first=reads.First(read=>State(read).Phase==ActivationTimerPhase.Counting);
-        var delay=Enumerable.Range(0,first.Timers.Count).Select(i=>first.Timers[i]).Single(row=>row.Node.Value==6);
+        var delay=Enumerable.Range(0,first.Timers.Count).Select(i=>first.Timers[i]).Single(row=>row.Node == SignalTestNodes.Only(first.Activations, new(6)));
         Assert.Equal(delay.DueTick,first.Tick.Value);
         Assert.True(Powered(first));
         var before=reads.Single(read=>read.Tick.Value+1==first.Tick.Value);
@@ -181,7 +181,7 @@ public sealed class HoldTimerTests
             new(new(2),new(3),PortRole.ActivationIn),new(new(2),new(4),PortRole.ActivationIn),
             new(new(2),new(6),PortRole.ResetIn),new(new(5),new(4),PortRole.ActivationIn),
             new(new(5),new(6),PortRole.SetIn)
-        ], contacts: [new(3)]);
+        ], contacts: [new(new(3), new(3), SignalContactState.TimerCounting)]);
         var first = new ContactTriggerRead(new(9),new(1),new(99),1,new(100),0,0f,new(1f));
         var initial = network.Consume(network.Clear(),network.ClearTimers(),[first],new(0),[],memory:network.ClearMemory());
         var scheduled = network.AdvanceScheduled(initial,new(12));
@@ -273,11 +273,11 @@ public sealed class HoldTimerTests
         var backInput=State(first).Input with {Time=backTime,Cause=State(first).Input.Cause with {Time=backTime}};
         await Refused(beforeStart,Replace(first,State(first) with {StartedTick=State(first).StartedTick-1,DueTick=State(first).DueTick-1,Input=backInput}));
         await Refused(beforeStart,Replace(first,State(first) with {Input=backInput}));
-        await Refused(first,Replace(next,ActivationTimerState.Ready(new(3))));
+        await Refused(first,Replace(next,ActivationTimerState.Ready(State(next).Node)));
         await Refused(first,Replace(next,State(next) with {DueTick=State(next).DueTick+1}));
         await Refused(first,Replace(next,State(next) with {StartedTick=State(next).StartedTick+1,DueTick=State(next).DueTick+1}));
-        var foreign=Enumerable.Range(0,next.Timers.Count).Select(i=>next.Timers[i].Node.Value==3?next.Timers[i] with {Node=new(4)}:next.Timers[i]).ToArray();
-        await Refused(first,next with {Timers=new(foreign)});
+        var foreign=Enumerable.Range(0,next.Timers.Count).Select(i=>next.Timers[i].Node == SignalTestNodes.Only(next.Activations, new(3))?next.Timers[i] with {Node=new(ulong.MaxValue)}:next.Timers[i]).ToArray();
+        await Refused(first,next with {Timers=new(foreign.OrderBy(row => row.Node.Value).ToArray())});
         var beforeExpiry=reads.Single(read=>read.Tick.Value+1==State(first).DueTick);
         var expiry=reads.Single(read=>read.Tick.Value==State(first).DueTick);
         await Check(beforeExpiry, expiry, false);
@@ -313,9 +313,9 @@ public sealed class HoldTimerTests
                 new([new(new ParameterId("delay_seconds"),seconds)])) : part).ToArray();
         var (_,reads,_)=await WorkshopIntegrationHarness.ObserveReset(baseline with {Instances=new(parts)},180);
         var due=reads.Single(read=>read.Tick.Value==second.Tick.Value);
-        Assert.Equal(due.Tick.Value,Enumerable.Range(0,due.Timers.Count).Select(i=>due.Timers[i]).Single(row=>row.Node.Value==6).DueTick);
+        Assert.Equal(due.Tick.Value,Enumerable.Range(0,due.Timers.Count).Select(i=>due.Timers[i]).Single(row=>row.Node == SignalTestNodes.Only(due.Activations, new(6))).DueTick);
         Assert.Equal(ActivationPhase.Clear,Node(reads.Single(read=>read.Tick.Value+1==due.Tick.Value),9).Phase);
-        Assert.True(Node(due,9).Emitter == new ActivationNodeId(8), $"Lamp={Node(due,9)}; physical={Node(due,8)}; boundary={due.Tick.Value}; first={first.Tick.Value}");
+        Assert.True(Node(due,9).Emitter == Node(due,8).Node, $"Lamp={Node(due,9)}; physical={Node(due,8)}; boundary={due.Tick.Value}; first={first.Tick.Value}");
         Assert.Equal(ActivationOccurrenceKind.Contact,Node(due,9).Kind);
         Assert.True(Node(due,9).EventOrdinal<due.Tick.Value*4);
     }
@@ -427,7 +427,7 @@ public sealed class HoldTimerTests
         {
             candidate=await device.Advance(committed,new(sequence++),controls);
             committed=candidate.Read; device.Commit(candidate.Sequence); device.Discard(candidate.Sequence);
-            var delay=Enumerable.Range(0,committed.Timers.Count).Select(i=>committed.Timers[i]).Single(row=>row.Node.Value==6);
+            var delay=Enumerable.Range(0,committed.Timers.Count).Select(i=>committed.Timers[i]).Single(row=>row.Node == SignalTestNodes.Only(committed.Activations, new(6)));
             if(delay.Phase==ActivationTimerPhase.Counting) due=delay.DueTick;
             if(due!=0&&committed.Tick.Value+1==due) break;
         }

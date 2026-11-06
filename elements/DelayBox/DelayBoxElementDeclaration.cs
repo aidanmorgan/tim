@@ -7,20 +7,20 @@ namespace CuriousContraptions.Elements.DelayBox;
 
 /// <summary>The Delay Box (CAT-022): a static housing that waits its authored duration after an activation, then activates its
 /// output once. The duration is a typed parameter with the runtime's default and admitted range.</summary>
-public sealed class DelayBoxElementDeclaration : ITimerElement, ISceneGeometryElement
+public sealed class DelayBoxElementDeclaration : ISignalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.9f, PresentationAxes.None,
         [
-            new("Visual/CountdownHand", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedTimerProgress, 0f, -6.2831855f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerPhase, 85f / 255f, 85f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Ready),
-            new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerPhase, 101f / 255f, 101f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Ready),
-            new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerPhase, 115f / 255f, 115f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Ready),
-            new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerPhase, 85f / 255f, 232f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Counting),
-            new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerPhase, 101f / 255f, 183f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Counting),
-            new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerPhase, 115f / 255f, 100f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Counting),
-            new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerPhase, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Finished),
-            new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerPhase, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Finished),
-            new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerPhase, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Finished)
+            new("Visual/CountdownHand", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedTimerProgress, PresentationValueMapping.Identity, 0f, -6.2831855f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
+            new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerPhase, PresentationValueMapping.Identity, 85f / 255f, 85f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Ready, SignalNode: new("signal")),
+            new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerPhase, PresentationValueMapping.Identity, 101f / 255f, 101f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Ready, SignalNode: new("signal")),
+            new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerPhase, PresentationValueMapping.Identity, 115f / 255f, 115f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Ready, SignalNode: new("signal")),
+            new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerPhase, PresentationValueMapping.Identity, 85f / 255f, 232f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Counting, SignalNode: new("signal")),
+            new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerPhase, PresentationValueMapping.Identity, 101f / 255f, 183f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Counting, SignalNode: new("signal")),
+            new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerPhase, PresentationValueMapping.Identity, 115f / 255f, 100f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Counting, SignalNode: new("signal")),
+            new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerPhase, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Finished, SignalNode: new("signal")),
+            new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerPhase, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Finished, SignalNode: new("signal")),
+            new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerPhase, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Finished, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(
@@ -53,14 +53,16 @@ public sealed class DelayBoxElementDeclaration : ITimerElement, ISceneGeometryEl
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated)];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated, new("signal"))];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Signal;
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
-    [
-        new("activation", SignalTriggerMode.Pulse, Threshold: 1f, PulseDurationSeconds: 0.1f)
-    ];
 
-    public SignalTimerDescriptor Timer => new("delay_seconds", TimerCompletionPolicy.Latch, TimerBoundary.BeforePhysics, TimerElapsedSignal.Activation);
+    public IReadOnlyList<SignalNodeDescriptor> SignalNodes => [new SignalTimerDescriptor(new("signal"), new("delay_seconds"), TimerCompletionPolicy.Latch, TimerBoundary.BeforePhysics, TimerElapsedSignal.Activation)];
+    public IReadOnlyList<SignalEdge> SignalEdges => [];
+    public IReadOnlyList<SignalPortBinding> SignalPorts =>
+    [
+        new(PortId.ActivationIn, new(new("signal"), SignalTerminal.Input)),
+        new(PortId.ActivationOut, new(new("signal"), SignalTerminal.Output))
+    ];
 }

@@ -110,7 +110,7 @@ public sealed class HollowElementTests
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await ring.Execute(WorkshopCommandKind.Resume)).Result).Outcome);
         await ring.Advance(159);
         var firstPassage = Assert.Single(ring.Of(SimulationEventKind.Passage));
-        Assert.Equal((Second.Value, Ball.Value), (firstPassage.Source, firstPassage.Other));
+        Assert.Equal((construction.Instances.Identities[Second].Signals[new("signal")].Node.Value, Ball.Value), (firstPassage.Source.Value, firstPassage.Other));
         var finish = Read(ring.Committed).Position;
         Assert.True(finish.Y < 4, "the ball did not pass through both hollow packages");
         await ring.Reset();
@@ -121,12 +121,12 @@ public sealed class HollowElementTests
         await ring.Run();
         await ring.Advance(180);
         var repeated = Assert.Single(ring.Of(SimulationEventKind.Passage));
-        Assert.Equal((Second.Value, Ball.Value), (repeated.Source, repeated.Other));
+        Assert.Equal((construction.Instances.Identities[Second].Signals[new("signal")].Node.Value, Ball.Value), (repeated.Source.Value, repeated.Other));
         Assert.True(Read(ring.Committed).Position.Y < 4, "Reset replay passes through both hollow packages.");
         await using var loaded = await WorkshopIntegrationHarness.Running(decoded.Construction);
         await loaded.Advance(180);
         var restored = Assert.Single(loaded.Of(SimulationEventKind.Passage));
-        Assert.Equal((Second.Value, Ball.Value), (restored.Source, restored.Other));
+        Assert.Equal((construction.Instances.Identities[Second].Signals[new("signal")].Node.Value, Ball.Value), (restored.Source.Value, restored.Other));
         Assert.True(Read(loaded.Committed).Position.Y < 4, "Loaded replay passes through both hollow packages.");
     }
 

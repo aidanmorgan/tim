@@ -10,7 +10,7 @@ namespace CuriousContraptions.Gpu;
 public static class WorkshopSceneCompiler
 {
     private static CompiledPresentationBinding CompileBinding(PresentationBinding binding, PartId partId) =>
-        new(binding.Property, binding.Driver, binding.From, binding.To, binding.Curve, binding.Duration,
+        new(binding.Property, binding.Driver, binding.Mapping, binding.From, binding.To, binding.Curve, binding.Duration,
             binding.Overlap, binding.Threshold, binding.Phase, binding.Response, binding.Intermediate,
             binding.Socket.HasValue ? DeclaredPorts.Current.Role(partId, binding.Socket.Value) : null, binding.Event, binding.EventMagnitude);
 
@@ -29,7 +29,6 @@ public static class WorkshopSceneCompiler
         foreach (var instance in construction.Instances)
         {
             var bindings = DeclaredPhysics.Of(instance.PartId).Presentation.Bindings;
-            var node = nodes.SingleOrDefault(candidate => candidate.Owner == instance.Id);
             var owner = (WorkshopGenericInstance)instance;
             var capacity = DeclaredPhysics.SourceStore(owner.PartId) is { } store
                 ? owner.Parameters[new ParameterId(store.Capacity)] : 0;
@@ -45,7 +44,8 @@ public static class WorkshopSceneCompiler
                 }
             for (var i = 0; i < bindings.Count; i++)
                 tracks.Add(new(new AnimationTargetId(WorkshopDeclaredPresentation.TargetBase + (ulong)tracks.Count),
-                    owner.Id, i, CompileBinding(bindings[i], owner.PartId), node, capacity));
+                    owner.Id, i, CompileBinding(bindings[i], owner.PartId),
+                    bindings[i].SignalNode is { } selected ? nodes.Single(node => node.Id == construction.Instances.Identities[owner.Id].Signals[selected].Node) : default, capacity));
         }
         return new(identity, construction.Revision, construction.Settings, physics, activation, tracks,
             construction.Instances.Select(instance => instance.Id), runControls);

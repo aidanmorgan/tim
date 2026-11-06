@@ -562,7 +562,7 @@ public sealed class VisibleSolidColliderTests
         Assert.True(beforeRise.Min(read => Position(read).Y) >= Y + surface - .005,
             "the ball must rebound at the exposed cap, not sink through to the head");
         Assert.Contains(ring.Records, record => record.Kind == SimulationEventKind.Impact &&
-            record.Source == Element.Value && record.Magnitude > 0);
+            record.Source.Value == Element.Value && record.Magnitude > 0);
     }
 
     [Fact]
@@ -575,7 +575,7 @@ public sealed class VisibleSolidColliderTests
         await ring.Advance(60);
         Assert.True(Position(ring.Reads[^1]).Y < Y, "the ball passes the bumper");
         Assert.All(ring.Reads, read => Assert.Equal(32f, read.ContactWorks[0].RemainingEnergy.Value));
-        Assert.DoesNotContain(ring.Records, record => record.Kind == SimulationEventKind.Impact && record.Source == Element.Value);
+        Assert.DoesNotContain(ring.Records, record => record.Kind == SimulationEventKind.Impact && record.Source.Value == Element.Value);
     }
 
     /// <summary>The Bumper's upper ring (engine-hollow-shapes): the drawn TorusMesh (inner 0.472, outer 0.508) at y 0.43 is a solid
@@ -695,7 +695,7 @@ public sealed class VisibleSolidColliderTests
         var past = Y - (.55 + .5) / Math.Sqrt(2) - BallRadius;
         var near = ring.Reads.Where(read => Position(read).Y > past).ToArray();
         var struck = near.Any(read => Velocity(read).X != 0f || Velocity(read).Z != 0f);
-        var fired = ring.Records.Any(record => record.Kind == SimulationEventKind.TriggerActivated && record.Source == Element.Value);
+        var fired = ring.Records.Any(record => record.Kind == SimulationEventKind.TriggerActivated && record.Source == new GpuEventSourceId(ring.Construction.Instances.Identities[Element].Signals[new("signal")].Node.Value));
         Assert.Equal((fires, fires), (struck, fired));
         if (!fires) Assert.True(Position(ring.Reads[^1]).Y < past, "the ball fell past the switch within the run");
     }
@@ -725,7 +725,7 @@ public sealed class VisibleSolidColliderTests
         // Sampled at the 120 Hz commit, the lowest committed centre lies within one tick's travel (fastest · T) above the contact.
         Assert.True(lowest >= rest - Penetration && lowest <= rest + fastest * T,
             $"the ball first stopped at {lowest:F4} m, not on the terminal at {rest:F4} m");
-        Assert.Contains(ring.Records, record => record.Kind == SimulationEventKind.TriggerActivated && record.Source == Element.Value);
+        Assert.Contains(ring.Records, record => record.Kind == SimulationEventKind.TriggerActivated && record.Source == new GpuEventSourceId(ring.Construction.Instances.Identities[Element].Signals[new("signal")].Node.Value));
     }
 
     /// <summary>The Delay lying on its side on a Ramp tilted 5° (downhill +X along the ramp), its housing's top face turned uphill:
