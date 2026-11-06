@@ -6,7 +6,7 @@ namespace CuriousContraptions.Tests;
 /// Composed fixtures must select their explicit package-local identities instead.</summary>
 internal static class SignalTestNodes
 {
-    public static ActivationNodeId Only(ActivationNetwork network, GpuBodyId owner) =>
+    public static ActivationNodeId Only(IActivationProgram network, GpuBodyId owner) =>
         Assert.Single(network.Nodes.ToArray(), node => node.Owner == owner).Id;
     public static ActivationNodeId Only(PhysicsActivationRead read, GpuBodyId owner) =>
         Assert.Single(Enumerable.Range(0, read.Count).Select(i => read[i]), node => node.Owner == owner).Node;

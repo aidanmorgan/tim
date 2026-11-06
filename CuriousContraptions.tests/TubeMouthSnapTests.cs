@@ -20,7 +20,7 @@ public sealed class TubeMouthSnapTests
 
     private static IReadOnlyDictionary<PartId, PartDefinition> Definitions()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
         return registry.Definitions;
     }
@@ -52,7 +52,7 @@ public sealed class TubeMouthSnapTests
         var q = rotation.Normalized();
         if (part == new PartId("pipe"))
         {
-            IWorkshopInstance pipe = WorkshopInput.Generic(new PartId("pipe"),new(id), (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)) with { Locked = locked };
+            IWorkshopInstance pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(id), (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)) with { Locked = locked };
             return pipe;
         }
         var x = WorkshopInput.Position((float)(position.X)); var y = WorkshopInput.Position((float)(position.Y)); var z = WorkshopInput.Position((float)(position.Z));
@@ -258,7 +258,7 @@ public sealed class TubeMouthSnapTests
                     new(endTurn.X, endTurn.Y, endTurn.Z, endTurn.W), bore)
             ]
         };
-        var definition = new PartDefinition(new PartId(id), id, id, CuriousContraptions.Abstractions.ElementCategory.Motion, Colors.White,
+        var definition = new PartDefinition(RuntimeTestServices.Bundle, new PartId(id), id, id, CuriousContraptions.Abstractions.ElementCategory.Motion, Colors.White,
             "res://elements/Pipe/icon.svg", null, physics);
         return definition;
     }
@@ -379,7 +379,7 @@ public sealed class TubeMouthSnapTests
         var (entry, _) = World(definitions, upstream, TubeMouthEnd.Start);
         var (exit, exitOutward) = World(definitions, downstream, TubeMouthEnd.End);
         var drop = entry + new Vector3(joint == Joint.FunnelOutletToPipe ? .3f : 0, .6f, 0);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new(1), (float)(drop.X), (float)(drop.Y), (float)(drop.Z), 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), (float)(drop.X), (float)(drop.Y), (float)(drop.Z), 0, 0, 0, 1);
         return (new(new(2), WorkshopCadenceSettings.Default(), new(ball, upstream, downstream)), entry, exit, exitOutward);
     }
 
@@ -405,7 +405,7 @@ public sealed class TubeMouthSnapTests
     public async Task ABallCrossesASnappedJointWithoutSnagging(Joint joint)
     {
         var (bench, entry, exit, exitOutward) = Route(joint);
-        bench.Validate();
+        bench.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 3 * 120);
         NoFixedCapacityTests.AssertSameState(built, reset, $"{joint} Reset");
 

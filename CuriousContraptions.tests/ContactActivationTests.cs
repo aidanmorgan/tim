@@ -7,23 +7,23 @@ namespace CuriousContraptions.Tests;
 public sealed class ContactActivationTests
 {
     private static WorkshopConstruction Construction() => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1),
             PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)));
 
-    private static PhysicsActivationRead Consume(ActivationNetwork network, PhysicsActivationRead prior, ContactTriggerRead[] events)
+    private static PhysicsActivationRead Consume(IActivationProgram network, PhysicsActivationRead prior, ContactTriggerRead[] events)
     {
         var tick = events.Length == 0 ? 1UL : events.Max(e => new ActivationTime(e.EventOrdinal,(float)e.EventPhase).CeilingTick(4));
         return network.Consume(prior, network.ClearTimers(), events, new(tick), []).Activations;
     }
-    private static void ValidateRead(ActivationNetwork network, PhysicsActivationRead read, SimulationTick tick,
-        uint substeps, PhysicsSceneDeclaration scene) => network.ValidateRead(read, network.ClearTimers(), tick, substeps, scene);
+    private static void ValidateRead(IActivationProgram network, PhysicsActivationRead read, SimulationTick tick,
+        uint substeps, IPhysicsSceneDeclaration scene) => network.ValidateRead(read, network.ClearTimers(), tick, substeps, scene);
 
     [Fact]
     public void CompilerKeepsEverySwitchColliderAsDrawnWithTheInheritedStaticMaterial()
     {
         var construction = Construction();
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(2)).ToArray();
         // The base and the button, then (elements-visible-solid) the two terminal spheres and the activation socket sphere.
         Assert.Equal(5, colliders.Length);
@@ -57,7 +57,7 @@ public sealed class ContactActivationTests
     [Fact]
     public void TriggerHeaderDeclarationsPaddingAndReservedFieldsReject()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         Assert.Equal(0u, PhysicsGpuAbi.ReadTrigger(bytes, 0).OccurrenceCount);
@@ -76,7 +76,7 @@ public sealed class ContactActivationTests
     [Fact]
     public void TriggerRequiresActualStaticOwnerDynamicTargetAndUniqueOwnership()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(), new(1, 2));
         var trigger = scene.Triggers[0];
         foreach (var invalid in new[]
         {
@@ -90,14 +90,14 @@ public sealed class ContactActivationTests
             scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, scene.Guides, new[] { trigger, trigger }));
     }
 
-    private static (ActivationNetwork Network, ContactTriggerRead Event) Activation(bool connected = true)
+    private static (IActivationProgram Network, ContactTriggerRead Event) Activation(bool connected = true)
     {
         var construction = Construction();
         if (connected) construction = construction with { Connections = new(new WorkshopConnection(new(2),
             PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)) };
-        var source = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var source = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var collider = source.Colliders.ToArray().First(c => c.Body == new GpuBodyId(2));
-        return (WorkshopActivationCompiler.Compile(construction), new(source.Triggers[0].Id, new(2), new(1),
+        return (WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction), new(source.Triggers[0].Id, new(2), new(1),
             1, collider.Id, 10, 0f, new(.8f)));
     }
 
@@ -151,7 +151,7 @@ public sealed class ContactActivationTests
     {
         var construction = Construction() with { Connections = new(new WorkshopConnection(new(2), PortId.ActivationOut,
             new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)) };
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var (network, impact) = Activation();
         var active = Consume(network, network.Clear(), new[] { impact });
         ValidateRead(network, active, new(3), 4, scene);
@@ -177,17 +177,17 @@ public sealed class ContactActivationTests
     public async Task RealImpactAndMissDisconnectedControlsRestoreExactly(bool connected, bool miss, bool lampOn)
     {
         var construction = Construction() with { Revision = new(2), Instances = new(
-            WorkshopInput.Generic(new PartId("ball"),new(1), miss ? 2 : 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1,
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), miss ? 2 : 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1,
                 new([new(new ParameterId("trigger_threshold"), 1.234567f)])),
             PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
         if (connected) construction = construction with { Connections = new(new WorkshopConnection(new(2),
             PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)) };
         var saved = new WorkshopSavedConstruction(construction, new(4));
-        var bytes = WorkshopSaveCodec.Encode(saved);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
-        Assert.Equal(loaded, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(loaded)));
+        Assert.Equal(loaded, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, loaded)));
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 120);
         Assert.Equal(lampOn, reads.Any(read => read.Activations[1].Phase == ActivationPhase.Latched));
         Assert.Equal(!miss, reads.Any(read => read.Activations[0].Phase == ActivationPhase.Latched));
@@ -200,7 +200,7 @@ public sealed class ContactActivationTests
     [Fact]
     public void NonzeroReservedHeaderRejectsUnsupportedStatesBeforeWorkerMutation()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         foreach (var tag in new[] { 1u, uint.MaxValue })
         {
@@ -238,13 +238,13 @@ public sealed class ContactActivationTests
         Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(threshold));
         foreach (var speed in new[] { MathF.BitDecrement(threshold), threshold, MathF.BitIncrement(threshold) })
         {
-            var trigger = WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1,
+            var trigger = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1,
                 new([new(new ParameterId("trigger_threshold"), threshold)]));
             var construction = Construction() with { Instances = new(
-                WorkshopInput.Generic(new PartId("ball"),new(1), -.88f, .85f, 0, 0, 0, 0, 1), trigger,
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), -.88f, .85f, 0, 0, 0, 0, 1), trigger,
                 PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
                 Connections = new(new WorkshopConnection(new(2), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)) };
-            var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
             Assert.Equal(threshold, Assert.Single(scene.Triggers.ToArray()).Threshold.Value);
             var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
             var body = scene.World.BodyOffset(scene.Layout.GetBodySlot(new(1)));
@@ -257,7 +257,7 @@ public sealed class ContactActivationTests
             if (observed.OccurrenceCount == 0) continue;
             Assert.Equal(speed, observed.ApproachSpeed.Value);
             Assert.Equal(scene.Colliders.ToArray().First(row => row.Body == new GpuBodyId(2)).Id, observed.Collider);
-            var network = WorkshopActivationCompiler.Compile(construction);
+            var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
             var active = Consume(network, network.Clear(), [observed]);
             Assert.Equal(ActivationPhase.Latched, active[1].Phase);
             Assert.Equal(speed, active[1].ApproachSpeed.Value);
@@ -268,7 +268,7 @@ public sealed class ContactActivationTests
     [Fact]
     public void PhysicalAdmissionRejectsForgedTriggerOwnerWithoutChangingCommittedState()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(), new(1, 2));
         var committed = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var before = PhysicsGpuAbi.ReadTrigger(committed, 0);
         var candidate = (byte[])committed.Clone();

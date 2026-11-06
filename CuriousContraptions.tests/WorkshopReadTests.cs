@@ -90,6 +90,29 @@ public sealed class WorkshopReadTests
     }
 
     [Fact]
+    public void AbsentMotionIsNotAWildcardForCommittedReadEquality()
+    {
+        var body = new CanonicalBody(new(1), 2, 1, default, default, default);
+        var bodies = Bodies(body);
+        var bytes = MotionBytes(body);
+        var first = new WorkshopRead(new(2), new(1), bodies,
+            Motion: PhysicsMotionRead.Decode(bytes, bodies, new(1)));
+        var same = first with { Motion = PhysicsMotionRead.Decode(bytes, bodies, new(1)) };
+        var absent = first with { Motion = null };
+        F(bytes, PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.DragRateOffset, .125f);
+        var different = first with { Motion = PhysicsMotionRead.Decode(bytes, bodies, new(1)) };
+        Assert.True(first.Equals(first));
+        Assert.Equal(first, same);
+        Assert.Equal(absent, same with { Motion = null });
+        Assert.False(first.HasSameContent(absent));
+        Assert.False(absent.HasSameContent(first));
+        Assert.NotEqual(first, absent);
+        Assert.NotEqual(absent, different);
+        Assert.NotEqual(first, different);
+        Assert.False(WorkshopRead.SamePhysicalContent(first, absent));
+    }
+
+    [Fact]
     public void MotionUsesExactProfileRateAndRejectsRetiredTiming()
     {
         var body = new CanonicalBody(new(1), 2, 15, default, default, default);
@@ -248,9 +271,9 @@ public sealed class WorkshopReadTests
     {
         // Story 9A.23 D9: the occurrence rows are the device's ledger, never on the read or the wire; the scene binds them there.
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(new PartId("ball"),new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("bumper"),new(2),0,4,0,0,0,0,1)));
-        var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,23));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"),new(2),0,4,0,0,0,0,1)));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction,new(11,23));
         var declaration = scene.ContactWorks[0];
         var colliders = scene.Colliders.ToArray();
         var owned = new ColliderSlot(checked((ushort)Array.FindIndex(colliders, c => c.Body == declaration.Owner)));

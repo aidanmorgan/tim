@@ -12,12 +12,13 @@ namespace CuriousContraptions;
 /// bundle entry. The scene supplies artwork; baked bundle geometry and tube mouths supply physics and snapping.</summary>
 public sealed class PartDefinition
 {
-    public PartDefinition(PartId partId, string title, string description, ElementCategory category, Color color, string iconPath,
+    public PartDefinition(IBundleServices bundle, PartId partId, string title, string description, ElementCategory category, Color color, string iconPath,
         PackedScene? scene, BundleEntry physics)
     {
         if (physics.Metadata.Id != partId.Value) throw new ArgumentException("Part and baked geometry identities disagree.");
-        var errors = BundleValidator.Validate([new NamedEntry(partId.Value, physics)]);
+        var errors = bundle.Validate([new NamedEntry(partId.Value, physics)]);
         if (errors.Count != 0) throw new ArgumentException(string.Join("; ", errors));
+        _bundle = bundle;
         _physics = physics;
         PartId = partId;
         Title = title;
@@ -29,6 +30,7 @@ public sealed class PartDefinition
     }
 
     private readonly BundleEntry _physics;
+    private readonly IBundleServices _bundle;
 
     public PartId PartId { get; }
     /// <summary>The element id at the Godot node-name and metadata boundary.</summary>
@@ -45,14 +47,14 @@ public sealed class PartDefinition
     public ElementPresentation Presentation => _physics.Presentation;
     public IReadOnlyList<ParameterDescriptor> Parameters => _physics.Metadata.Parameters;
 
-    public IReadOnlyList<ExtractedCollider> Colliders => BundleGeometry.Colliders(_physics).Select(DeclaredPhysics.Admit).ToArray();
+    public IReadOnlyList<ExtractedCollider> Colliders => _bundle.Colliders(_physics).Select(DeclaredPhysics.Admit).ToArray();
 
     public IReadOnlyDictionary<string, ExtractedPortLocator> PortLocators => Mouths(null);
 
     public IReadOnlyDictionary<string, ExtractedPortLocator> Mouths(InstanceParameterCollection? parameters)
     {
         parameters?.Validate(Parameters);
-        return BundleGeometry.Mouths(_physics, parameters?.ToBundleValues()).ToDictionary(mouth => mouth.End switch
+        return _bundle.Mouths(_physics, parameters?.ToBundleValues()).ToDictionary(mouth => mouth.End switch
         {
             TubeEnd.Start => "mouth_start",
             TubeEnd.End => "mouth_end",

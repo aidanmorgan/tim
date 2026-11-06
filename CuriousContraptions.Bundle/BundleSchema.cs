@@ -9,43 +9,6 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Bundle;
 
-/// <summary>The element bundle: one schema, every package's declaration, ordered by element id. It carries no timestamp, so the same
-/// packages always produce the same bytes.</summary>
-public sealed record BundleDocument(IReadOnlyList<BundleEntry> Elements);
-
-/// <summary>One element's complete declaration. A domain payload is present exactly when the element declares that domain's
-/// contract.</summary>
-public sealed record BundleEntry(
-    ElementMetadata Metadata,
-    IReadOnlyList<SimulationDomain> Domains,
-    ElementFootprint Footprint,
-    IReadOnlyList<PortDescriptor> Ports,
-    IReadOnlyList<ColliderDescriptor> Colliders,
-    IReadOnlyList<EventDescriptor> Events,
-    MechanicalPayload? Mechanical,
-    ElectricalPayload? Electrical,
-    SignalPayload? Signal,
-    FluidPayload? Fluid,
-    IReadOnlyList<ColliderParameterBinding> ColliderBindings,
-    IReadOnlyList<TubeMouthDescriptor> TubeMouths,
-    IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings,
-    ElementPresentation Presentation);
-
-/// <summary>Package-owned physical state and explicit payload participation.</summary>
-public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDeclaration MassFrame, PayloadPolicy Payload,
-    IReadOnlyList<AnchorPointDescriptor> AnchorPoints, IReadOnlyList<PrismaticSliderDescriptor> Sliders,
-    IReadOnlyList<RevoluteHingeDescriptor> Hinges, CompliantSurfaceDescriptor? CompliantSurface,
-    IReadOnlyList<DrivenSurfaceDescriptor> DrivenSurfaces,
-    ResidenceCaptureDescriptor? Capture = null, ContactWorkDescriptor? ContactWork = null);
-
-public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
-
-/// <summary>Independent local signal nodes and their internal and public terminal bindings.</summary>
-public sealed record SignalPayload(IReadOnlyList<SignalNodeDescriptor> Nodes,
-    IReadOnlyList<SignalEdge> Edges, IReadOnlyList<SignalPortBinding> Ports);
-
-public sealed record FluidPayload(FluidProperties Properties, IReadOnlyList<FluidPortDescriptor> Ports);
-
 /// <summary>Writes and reads the bundle. f32 values are written in shortest round-trip form, vectors as [x, y, z] and quaternions as
 /// [x, y, z, w]; enums are written by name, and reading rejects an unknown name, a number in place of a name, an unknown field, a
 /// missing field and a null where a value is required. Serialisation is source generated, so the trimmed game reads the same schema

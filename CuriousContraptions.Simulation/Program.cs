@@ -10,32 +10,51 @@ namespace CuriousContraptions.Simulation;
 
 public static partial class Program
 {
-    private static readonly WorkshopDiagnostics Diagnostics = new(PublishDiagnostic);
-    private static WorkshopGpuDevice? _device;
-    private static WorkshopGpuDevice Device => _device ?? throw new InvalidOperationException("Worker document has not bootstrapped.");
+    private static ICoreServices? _core;
+    private static ICoreServices Core => _core ?? throw new InvalidOperationException("Core provider is not installed.");
+    private static IWorkshopDiagnostics? _diagnostics;
+    private static IWorkshopDiagnostics Diagnostics => _diagnostics ?? throw new InvalidOperationException("Worker diagnostics are not installed.");
+    private static IWorkshopWorkerDevice? _device;
+    private static IWorkshopWorkerDevice Device => _device ?? throw new InvalidOperationException("Worker document has not bootstrapped.");
     private static WorkshopClockPeer? _peer;
-    private static WorkshopSimulation Simulation => Executor.Simulation;
+    private static IWorkshopSimulation Simulation => Executor.Simulation;
     private static WorkshopClockPeer Peer => _peer ?? throw new InvalidOperationException("Worker clock has not bootstrapped.");
     private static ulong _publication;
     // The worker's own reliable-read accounting (Story 9A.3): every publication, and every browser receipt matched against it.
-    private static WorkshopReliableReadLedger? _reads;
-    private static WorkshopReliableReadLedger Reads => _reads ?? throw new InvalidOperationException("Worker session has not bootstrapped.");
-    private static WorkshopCommandExecutor? _executor;
-    private static WorkshopCommandExecutor Executor => _executor ?? throw new InvalidOperationException("Worker has not bootstrapped.");
-    private static readonly WorkshopCommandRouter Commands = new(command => Executor.Execute(command));
+    private static IReliableReadLedger? _reads;
+    private static IReliableReadLedger Reads => _reads ?? throw new InvalidOperationException("Worker session has not bootstrapped.");
+    private static IWorkshopCommandExecutor? _executor;
+    private static IWorkshopCommandExecutor Executor => _executor ?? throw new InvalidOperationException("Worker has not bootstrapped.");
+    private static IWorkshopCommandRouter? _commands;
+    private static IWorkshopCommandRouter Commands => _commands ?? throw new InvalidOperationException("Worker commands are not installed.");
     // One builder for every physical read this worker publishes: the per-tick encode reuses its storage.
-    private static readonly Google.FlatBuffers.FlatBufferBuilder ReadBuilder = new(4096);
+    private static IWorkshopResponseEncoder? _readEncoder;
+    private static IWorkshopResponseEncoder ReadEncoder => _readEncoder ?? throw new InvalidOperationException("Worker encoder is not installed.");
     private static ulong _loopOwner;
-    private static readonly CuriousContraptions.Simulation.WorkshopTrace Trace = new(Diagnostics);
+    private static IWorkshopTrace? _trace;
+    private static IWorkshopTrace Trace => _trace ?? throw new InvalidOperationException("Worker trace is not installed.");
     [JSImport("observation", "workshopGpu")]
     private static partial void PublishObservation(byte[] bytes);
-    private static void PublishDiagnostic(WorkshopDiagnostic record) =>
-        Diagnostics.Publish(record, Peer.Session, WorkshopRuntimeRole.Simulation, PublishObservation);
+    private static void PublishDiagnostic(WorkshopDiagnostic record)
+    {
+        // Pre-session faults stay in the host journal; they never become a future session's events.
+        if (_peer is { } peer)
+            Diagnostics.Publish(record, peer.Session, WorkshopRuntimeRole.Simulation, PublishObservation);
+    }
     [JSExport]
     public static void ReportObservationFailure(string detail) =>
         Diagnostics.Fault(FaultSite.TraceFlush, new InvalidOperationException(detail));
 
     public static void Main() { }
+
+    [JSExport]
+    public static void InitializeHost()
+    {
+        if (_core is not null) throw new InvalidOperationException("Worker host is already initialized.");
+        var core = RuntimeProviders.Core();
+        var diagnostics = core.CreateDiagnostics(PublishDiagnostic);
+        _core = core; _diagnostics = diagnostics;
+    }
 
     [JSImport("now", "workshopGpu")]
     internal static partial double NativeMilliseconds();
@@ -44,7 +63,7 @@ public static partial class Program
     {
         public ClockGeneration Generation => Peer.Generation;
         public WorkshopClockStamp Capture() => new(WorkshopClockDomain.SimulationMonotonic, Generation,
-            WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()), Peer.Uncertainty);
+            Core.Clocks.FromMilliseconds(NativeMilliseconds()), Peer.Uncertainty);
     }
 
     [JSExport]
@@ -52,14 +71,24 @@ public static partial class Program
     {
         if (_peer is not null) throw new InvalidOperationException("Worker session is already installed.");
         if (bytes.Length != 16) throw new ArgumentException("Unsupported session bootstrap.");
-        var session = RuntimeSessionId.Read(bytes);
-        var origin = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
+        var core = Core;
+        var session = core.Codecs.Sessions.Read(bytes);
+        var origin = core.Clocks.FromMilliseconds(NativeMilliseconds());
         var peer = new WorkshopClockPeer(session, new(1), origin, new(1), new(100_000), WorkshopRuntimeRole.Browser);
-        _device = new(new BrowserGpuTransport(new WorkerEventPublication()), new(session.Low, session.High));
-        _reads = new(session);
-        _peer = peer;
-        _executor = new(Device, new CommandHost(), Diagnostics);
-        return WorkshopClockWire.EncodePeer(peer);
+        var encoded = core.Codecs.Clocks.EncodePeer(peer);
+        var diagnostics = Diagnostics;
+        var reads = core.CreateReadLedger(session);
+        var trace = core.CreateTrace(diagnostics);
+        var turns = core.CreateTurnRegistry();
+        var derivation = core.Clocks.CreateDerivation(diagnostics);
+        var encoder = core.Codecs.Commands.CreateResponseEncoder();
+        var device = core.CreateWorkerDevice(new WorkerEventPublication(), new(session.Low, session.High));
+        var executor = core.CreateCommandExecutor(device, new CommandHost(), diagnostics);
+        var commands = core.CreateCommandRouter(executor.Execute);
+        _reads = reads; _trace = trace; _turns = turns;
+        _clockDerivation = derivation; _readEncoder = encoder; _device = device; _executor = executor;
+        _commands = commands; _peer = peer;
+        return encoded;
     }
 
     [JSExport]
@@ -155,9 +184,9 @@ public static partial class Program
         public bool ReadsIdle => Reads.Idle;
         public IWorkshopCaptureClock Clock { get; } = new CaptureClock();
         public IWorkshopInstallation Installation { get; } = new Installation();
-        public WorkshopMemoryMeasurement CaptureMemory() => WorkshopMemoryMeasurement.Capture();
+        public WorkshopMemoryMeasurement CaptureMemory() => Core.Memory.Capture();
 
-        public async ValueTask Before(WorkshopCommandKind kind, WorkshopSimulation? simulation)
+        public async ValueTask Before(WorkshopCommandKind kind, IWorkshopSimulation? simulation)
         {
             _transition = kind switch
             {
@@ -168,17 +197,17 @@ public static partial class Program
             if (kind == WorkshopCommandKind.Pause) _loopOwner++;
             if (kind is WorkshopCommandKind.Pause or WorkshopCommandKind.ConfigureRunControl or WorkshopCommandKind.CutRope)
                 while (Simulation.HasPendingGpuOperation) await Task.Delay(1);
-            if (kind == WorkshopCommandKind.Reset) Trace.End(TraceEnd.Reset);
+            if (kind == WorkshopCommandKind.Reset) Trace.FinishCapture(TraceEnd.Reset);
             if (kind == WorkshopCommandKind.Dispose)
             {
-                Trace.End(TraceEnd.Disposed);
+                Trace.FinishCapture(TraceEnd.Disposed);
                 _loopOwner++;
             }
             if (kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Run or WorkshopCommandKind.Reset)
                 GC.Collect(2, GCCollectionMode.Aggressive, true, true);
         }
 
-        public async ValueTask After(WorkshopCommandKind kind, WorkshopCommandResult result, WorkshopSimulation simulation)
+        public async ValueTask After(WorkshopCommandKind kind, WorkshopCommandResult result, IWorkshopSimulation simulation)
         {
             if (kind == WorkshopCommandKind.Pause && result.Outcome != WorkshopCommandOutcome.Applied &&
                 simulation.Phase == WorkshopSimulationPhase.Running) _ = RunLoop(++_loopOwner);
@@ -207,20 +236,21 @@ public static partial class Program
             // A superseded loop no longer owns the simulation, so it records its failure and changes nothing.
             if (owner != _loopOwner) { Diagnostics.Fault(FaultSite.StaleRunLoop, error); return; }
             _loopOwner++;
-            Simulation.Stop(WorkshopRejection.Transport);
+            Simulation.StopSimulation(WorkshopRejection.Transport);
             Diagnostics.Fault(FaultSite.RunLoop, error);
-            Trace.End(TraceEnd.Fault);
+            Trace.FinishCapture(TraceEnd.Fault);
             Retire("Physical publication failed after commit: " + error.Message);
         }
     }
 
-    private static Task RunTicks(ulong owner) => WorkshopTickLoop.Run(new RunLoopHost(owner));
+    private static Task RunTicks(ulong owner) => Core.RunTicks(new RunLoopHost(owner));
 
     // One-hop scheduler turns (Story 9.4b). A Task completed from a JS promise resumes its .NET continuation through a
     // second runtime macrotask (the background-job timer), so every yield cost two turns of any competing work (measured
     // under the 20 ms injection: evidence-9-4b/tick-loop). The worker instead calls ResumeTurn from the MessageChannel or
     // timer task itself, and the awaiting loop continues inline in that same task.
-    private static readonly WorkshopTurnRegistry Turns = new();
+    private static IWorkshopTurnRegistry? _turns;
+    private static IWorkshopTurnRegistry Turns => _turns ?? throw new InvalidOperationException("Worker turns are not installed.");
 
     [JSImport("scheduleTurn", "workshopGpu")] private static partial void ScheduleTurn(int turn, int delayMilliseconds);
 
@@ -234,7 +264,7 @@ public static partial class Program
     }
 
     [JSExport]
-    public static void ResumeTurn(int turn) => Turns.Resume(turn);
+    public static void ResumeTurn(int turn) => Turns.ResumeTurn(turn);
 
     /// <summary>The worker's side of the run loop (WorkshopTickLoop owns the scheduling and its per-turn bound).</summary>
     private sealed class RunLoopHost(ulong owner) : ITickLoopHost
@@ -247,11 +277,11 @@ public static partial class Program
             get
             {
                 var now = MasterNow();
-                return Reads.Stalled(now) || Schedule.ExceedsPhysicalDebt(Simulation.Committed.Tick, now);
+                return Reads.Stalled(now) || Core.Scheduling.ExceedsPhysicalDebt(Schedule, Simulation.Committed.Tick, now);
             }
         }
         public bool AtRunLimit => Simulation.Committed.Tick.Value == Simulation.Profile.RunTickLimit;
-        public bool CaughtUp => Simulation.Committed.Tick.Value >= Schedule.World.DueTick(Schedule.Settings, MasterNow()).Value;
+        public bool CaughtUp => Simulation.Committed.Tick.Value >= Core.Scheduling.DueTick(Schedule.World, Schedule.Settings, MasterNow()).Value;
 
         public ValueTask StopForDebt()
         {
@@ -261,8 +291,8 @@ public static partial class Program
             var age = oldest is { } read ? (now.Value - read.Published.Value) / 1_000_000 : 0;
             Diagnostics.Capture(() => new WorkshopDebtDiagnostic(Simulation.Committed.Tick, reason,
                 oldest?.Publication ?? default, age));
-            Simulation.Stop(reason);
-            Trace.End(TraceEnd.Fault);
+            Simulation.StopSimulation(reason);
+            Trace.FinishCapture(TraceEnd.Fault);
             EmitRead(new(WorkshopCommandOutcome.Faulted, Simulation.Fault));
             return ValueTask.CompletedTask;
         }
@@ -272,7 +302,7 @@ public static partial class Program
             _transition = ScheduleTransition.Completed;
             await Simulation.CompleteRun();
             await CommitInstallation();
-            Trace.End(TraceEnd.Complete);
+            Trace.FinishCapture(TraceEnd.Complete);
             EmitRead(new(WorkshopCommandOutcome.Applied, WorkshopRejection.None));
         }
 
@@ -288,7 +318,7 @@ public static partial class Program
             if (result.Outcome != WorkshopCommandOutcome.Applied)
             {
                 Diagnostics.Capture(() => new WorkshopTickFailureDiagnostic(result, Simulation.Fault));
-                Trace.End(TraceEnd.Fault);
+                Trace.FinishCapture(TraceEnd.Fault);
             }
             EmitRead(result);
             if (result.Outcome != WorkshopCommandOutcome.Applied) return TickAttempt.Stopped;
@@ -308,13 +338,13 @@ public static partial class Program
         var sequence = new PublicationSequence(_publication + 1);
         var readResponse = Executor.Populate(new WorkshopResponse(default, WorkshopResponseKind.Read, result,
             Simulation.Phase, Simulation.Committed, Publication: sequence));
-        var encoded = WorkshopWireFlatBuffers.EncodeResponse(readResponse, ReadBuilder);
+        var encoded = ReadEncoder.EncodeResponse(readResponse);
         Reads.Publish(sequence, MasterNow());
         _publication++;
         // Preserve transfers before the browser coalesces ordinary reads.
         Diagnostics.RetainTransfer(readResponse);
         _ = Device.DrainEvents();
-        Publish(encoded, WorkshopWireFlatBuffers.ReadIdentity(readResponse), WorkshopPoseRing.ComposeSlot(readResponse.Read.Capture?.Time.Value ?? 0, readResponse.Read.Bodies),
+        Publish(encoded, Core.Codecs.Commands.ReadIdentity(readResponse), Core.Codecs.Poses.ComposeSlot(readResponse.Read.Capture?.Time.Value ?? 0, readResponse.Read.Bodies),
             Trace.CanFlush(Simulation.Phase));
     }
 }

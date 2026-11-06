@@ -26,7 +26,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
 
     /// <summary>The compiled moving body of the board's one slider.</summary>
     private static GpuBodyId MovingBody(WorkshopConstruction construction) =>
-        Assert.Single(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)).Prismatics.ToArray()).BodyB;
+        Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2)).Prismatics.ToArray()).BodyB;
 
     // A ball resting on a board charged 0.2 m is launched well clear; the matched uncharged board (ball resting on its higher plate)
     // gives no launch.
@@ -37,7 +37,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     {
         var start = 1 + .14 - compression + .075 + .34 + .005;
         var reads = await WorkshopIntegrationHarness.Observe(Free(
-            WorkshopInput.Generic(new PartId("ball"), Ball, 0, (float)(start), 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), Ball, 0, (float)(start), 0, 0, 0, 0, 1),
             PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, compression)), 2 * TicksPerSecond);
         var rise = reads.Max(read => Y(Body(read, Ball))) - (float)start;
         if (launches) Assert.True(rise > .2f, $"charged rise {rise} m");
@@ -48,7 +48,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     [Fact]
     public async Task AMissedBallGetsNothingFromAChargedBoard()
     {
-        var ball = WorkshopInput.Generic(new PartId("ball"), Ball, 2, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), Ball, 2, 3, 0, 0, 0, 0, 1);
         var beside = await WorkshopIntegrationHarness.Observe(Free(ball, PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, .2f)), 2 * TicksPerSecond);
         var alone = await WorkshopIntegrationHarness.Observe(Free(ball), 2 * TicksPerSecond);
         for (var i = 0; i < alone.Count; i++)
@@ -60,7 +60,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     [Fact]
     public async Task ThePlateHoldsItsLowerAndUpperStops()
     {
-        var heavy = Free(WorkshopInput.Generic(new PartId("bowling"), Ball, 0, 4, 0, 0, 0, 0, 1),
+        var heavy = Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), Ball, 0, 4, 0, 0, 0, 0, 1),
             PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, 0f, stiffness: 120f, damping: 0f));
         var moving = MovingBody(heavy);
         var low = (await WorkshopIntegrationHarness.Observe(heavy, 2 * TicksPerSecond)).Min(read => Y(Body(read, moving)) - 1.14f);
@@ -75,7 +75,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     [Fact]
     public async Task ThePlateVisualRestsAtTheDeclaredCompressionAndEqualsItsCompiledBody()
     {
-        var world = new MachineWorld();
+        var world = RuntimeTestServices.CreateWorld();
         try
         {
             godot.Tree.Root.AddChild(world);
@@ -93,7 +93,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
                 Assert.Equal(BitConverter.SingleToUInt32Bits(.14f - q), BitConverter.SingleToUInt32Bits(plate.Transform.Origin.Y));
                 Assert.Equal((0f, 0f), (plate.Transform.Origin.X, plate.Transform.Origin.Z));
                 Assert.Equal(Basis.Identity, plate.Transform.Basis);
-                var body = WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Bodies.ToArray().Single(value => value.Id == moving);
+                var body = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)).Bodies.ToArray().Single(value => value.Id == moving);
                 Assert.InRange(MathF.Abs((body.Cell.Y + body.Local.Y) / 16f - (1f + plate.Transform.Origin.Y)), 0f, 1e-6f);
             }
             Assert.Empty(godot.Errors.Drain());
@@ -106,7 +106,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     [Fact]
     public async Task ThePoweredGateBladeRestsAtItsScenePoseUnderItsSliderIdentity()
     {
-        var world = new MachineWorld();
+        var world = RuntimeTestServices.CreateWorld();
         try
         {
             godot.Tree.Root.AddChild(world);
@@ -116,7 +116,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
             var scenePose = reference.GetNode<Node3D>("Visual/Blade").Transform;
             reference.Free();
             var gate = new GpuBodyId(2);
-            var bench = Free(WorkshopInput.Generic(new PartId("powered_gate"), gate, 0, 0, 0, 0, 0, 0, 1));
+            var bench = Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), gate, 0, 0, 0, 0, 0, 0, 1));
             await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness)));
             Assert.Equal(WorkshopCommandOutcome.Applied, (await world.ReplaceConstruction(bench)).Result.Outcome);
@@ -134,14 +134,14 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     [Fact]
     public async Task RunResetAndSaveLoadAreExact()
     {
-        var bench = Free(WorkshopInput.Generic(new PartId("ball"), Ball, 0, (float)(1 + .14 - .2 + .075 + .34 + .005), 0, 0, 0, 0, 1),
+        var bench = Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), Ball, 0, (float)(1 + .14 - .2 + .075 + .34 + .005), 0, 0, 0, 0, 1),
             PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, .2f));
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 2 * TicksPerSecond);
         Assert.True(run.Max(read => Y(Body(read, Ball))) > Y(Body(built, Ball)) + .2f, "the charged board launches the ball");
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
         var saved = new WorkshopSavedConstruction(bench, new(3));
-        var bytes = WorkshopSaveCodec.Encode(saved);
-        var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+        var reloaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, 2 * TicksPerSecond);
         Assert.True(replay.Max(read => Y(Body(read, Ball))) > Y(Body(built, Ball)) + .2f, "the loaded charged board launches the ball");

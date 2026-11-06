@@ -94,7 +94,7 @@ public sealed class ClockGuardTests
     public void TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence(float seconds, SimulationCadence cadence, uint interval)
     {
         var bench = Bench(seconds, cadence: cadence);
-        var network = WorkshopActivationCompiler.Compile(bench);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench);
         Assert.Equal(interval, Assert.Single(network.Nodes.ToArray(), node => node.Owner == Owner).IntervalTicks);
         var powered = new SupplyOutputRead([new(Source, true)]);
         var committed = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
@@ -135,7 +135,7 @@ public sealed class ClockGuardTests
     [MemberData(nameof(Boundaries))]
     public void TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(float seconds, int ulps, SimulationCadence cadence, uint interval)
     {
-        var network = WorkshopActivationCompiler.Compile(Bench(Ulps(seconds, ulps), cadence: cadence));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(Ulps(seconds, ulps), cadence: cadence));
         Assert.Equal(interval, Assert.Single(network.Nodes.ToArray(), node => node.Owner == Owner).IntervalTicks);
     }
 
@@ -242,7 +242,7 @@ public sealed class ClockGuardTests
         var second = PlacedParts.Battery(new(4), -6, 3, 0);
         bench = bench with { Instances = bench.Instances.With(second), Connections = bench.Connections.With(Supply(second.Id, Owner)) };
         Assert.Equal(WorkshopEditRejection.PowerInputSupplied,
-            Assert.Throws<WorkshopEditRejectedException>(() => WorkshopActivationCompiler.Compile(bench)).Reason);
+            Assert.Throws<WorkshopEditRejectedException>(() => WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench)).Reason);
     }
 
     // ---------- lifecycle: save and load (9A.42 AC3; CAT-017 C22) ----------
@@ -256,7 +256,7 @@ public sealed class ClockGuardTests
     public async Task SaveAndLoadPreserveThePulseSchedule(float seconds)
     {
         var bench = Bench(seconds);
-        var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(4)))).Construction;
+        var restored = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(bench, new(4)))).Construction;
         Assert.Equal(bench, restored);
         var command = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),
             WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(bench), Session: new(1, 2), Cadence: new(1), Projection: new(1))));
@@ -297,13 +297,13 @@ public sealed class ClockGuardTests
         var row = Row(reads[tick], Owner);
         var phase = 1f - (float)(row.DueTick - (ulong)tick) / 120;
         var input = .5f + .5f * MathF.Sin(MathF.Tau * phase);
-        var presentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(bench), Response(reads[tick], 1));
+        var presentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(bench), Response(reads[tick], 1));
         Assert.Equal(-.42f + .84f * input, Sample(presentation.Advance(AnimationTestTime.Seconds(Time(reads[tick]) + 10)), 0), 1e-5f);
         // Paused (no further committed read): the follow target is unchanged and the sample stays converged on it.
         Assert.Equal(-.42f + .84f * input, Sample(presentation.Advance(AnimationTestTime.Seconds(Time(reads[tick]) + 12)), 0), 1e-5f);
 
         var stopped = await WorkshopIntegrationHarness.Observe(Bench(1f, wired: false), 1);
-        var rest = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(Bench(1f, wired: false)), Response(stopped[1], 1));
+        var rest = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(Bench(1f, wired: false)), Response(stopped[1], 1));
         Assert.Equal(0f, Sample(rest.Advance(AnimationTestTime.Seconds(Time(stopped[1]) + 10)), 0), 1e-6f);
     }
 
@@ -315,7 +315,7 @@ public sealed class ClockGuardTests
     {
         var bench = Bench(1f);
         var reads = await WorkshopIntegrationHarness.Observe(bench, 600);
-        var presentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(bench), Response(reads[1], 1));
+        var presentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(bench), Response(reads[1], 1));
         presentation.Advance(AnimationTestTime.Seconds(Time(reads[1])));
         var lit = new List<ulong>();
         for (var i = 2; i < reads.Count; i++)
@@ -333,7 +333,7 @@ public sealed class ClockGuardTests
     {
         var bench = Bench(1f);
         var (_, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 300);
-        var presentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(bench), Response(reset, 1) with { Projection = new(2) });
+        var presentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(bench), Response(reset, 1) with { Projection = new(2) });
         var settled = presentation.Advance(AnimationTestTime.Seconds(Time(run[^1]) + 10));
         Assert.Equal(0f, Sample(settled, 0), 1e-6f);
         Assert.Equal(85f / 255f, Sample(settled, 1));

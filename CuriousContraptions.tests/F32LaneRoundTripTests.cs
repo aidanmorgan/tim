@@ -25,9 +25,9 @@ public sealed class F32LaneRoundTripTests
         capture[new("capture_margin")] = Margin; capture[new("capture_speed_limit")] = Speed; capture[new("capture_dwell")] = Dwell;
         capture[new("force_support_margin")] = SupportMargin; capture[new("force_maximum_acceleration")] = Acceleration;
         return new(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(new PartId("ball"), Ball, 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("basket"), Receiver, 3, 1, 0, 0, 0, 0, 1, new(capture)),
-            WorkshopInput.Generic(new PartId("switch"), Switch, -3, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), Threshold)])),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), Ball, 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), Receiver, 3, 1, 0, 0, 0, 0, 1, new(capture)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), Switch, -3, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), Threshold)])),
             PlacedParts.Domino(Tile, -6, (float)(-.46 + .55), 0, 0, 0, 0, 1),
             PlacedParts.Lamp(Lamp, -6, 1, 2, 0, 0, 0, 1),
             PlacedParts.Bumper(Bumper, 6, 1, 0, strength: Strength)),
@@ -42,7 +42,7 @@ public sealed class F32LaneRoundTripTests
     {
         foreach (var value in new[] { .34f, .1f, 9.81f, .45f, .04f, .035f, Margin, Speed, Dwell, SupportMargin, Acceleration, Threshold, Strength })
             Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(value), $"{value} needs a full f32 significand");
-        var scene = WorkshopPhysicsCompiler.Compile(Bench(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(), new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
         var layout = scene.Layout;
 
@@ -120,7 +120,7 @@ public sealed class F32LaneRoundTripTests
         BodyLocal, BodyRotation, MotionStartPhase, MotionEndPhase, MotionAnchorPhase, MotionCentreRemainder, MotionDragRate, MotionRotation,
         MotionGravity, MotionSupportedAcceleration, MotionAngularAcceleration, MotionFlaggedVector }
 
-    private static int LaneOffset(PhysicsSceneDeclaration scene, CandidateLane lane)
+    private static int LaneOffset(IPhysicsSceneDeclaration scene, CandidateLane lane)
     {
         var firstPiece = scene.World.MotionOffset + PhysicsMotionRead.HeaderBytes;
         var body = scene.Layout.GetBodyOffset(Ball);
@@ -169,7 +169,7 @@ public sealed class F32LaneRoundTripTests
     [InlineData(CandidateLane.MotionFlaggedVector, float.NaN, false)]
     public void ANonFiniteValueInAWorkerWrittenLaneIsRefusedAFiniteChangeCommitsAndTheTickContinues(CandidateLane lane, float value, bool valueLane)
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Bench(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(), new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
         (byte[] World, PhysicsInteractionSnapshot Interactions) Stepped()
         {
@@ -215,7 +215,7 @@ public sealed class F32LaneRoundTripTests
     [InlineData(DeclaredLane.TriggerThreshold, float.NaN)]
     public void ANonFiniteValueInAnAdmittedDeclarationLaneIsRefusedAtAdmission(DeclaredLane lane, float value)
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Bench(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(), new(1, 2));
         var (bodies, colliders, materials) = (scene.Bodies.ToArray(), scene.Colliders.ToArray(), scene.Materials.ToArray());
         var (sensors, guides, triggers, orientations) = (scene.Sensors.ToArray(), scene.Guides.ToArray(), scene.Triggers.ToArray(),
             scene.OrientationSensors.ToArray());
@@ -248,7 +248,7 @@ public sealed class F32LaneRoundTripTests
     [Fact]
     public void ASensorParticipationGapMustBeZeroAtAdmission()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Bench(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(), new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
         PhysicsGpuAbi.ValidateCandidate(admitted, admitted, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         var gap = scene.Layout.GetSensorOffset(scene.Sensors[0].Id) + PhysicsGpuAbi.SensorParticipationPaddingOffset;

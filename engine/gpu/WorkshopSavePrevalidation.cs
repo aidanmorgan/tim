@@ -15,7 +15,7 @@ internal static class WorkshopSavePrevalidation
 {
     /// <summary>Checks <paramref name="saved"/> against the loaded bundle's <paramref name="elements"/>: every saved element id must be
     /// one of them (Story 9A.15).</summary>
-    public static void Check(SavedConstruction saved, IReadOnlySet<PartId> elements)
+    public static void Check(ISupplyQueries supply, SavedConstruction saved, IReadOnlySet<PartId> elements)
     {
         ArgumentNullException.ThrowIfNull(elements);
         var record = saved.Construction ?? throw Refuse(WorkshopSaveRejection.MissingField, "The save holds no construction.");
@@ -29,7 +29,7 @@ internal static class WorkshopSavePrevalidation
             if (!parts.TryAdd(new(instance.Id), part))
                 throw Refuse(WorkshopSaveRejection.DuplicateInstance, $"Two saved parts share identity {instance.Id}.");
         }
-        CheckConnections(record, parts);
+        CheckConnections(supply, record, parts);
         CheckPuzzle(record, elements);
         foreach (var id in parts.Keys)
             if (saved.NextBodyId <= id.Value)
@@ -110,7 +110,7 @@ internal static class WorkshopSavePrevalidation
 
     // ---------- connections and the puzzle ----------
 
-    private static void CheckConnections(ConstructionRecord record, Dictionary<GpuBodyId, PartId> parts)
+    private static void CheckConnections(ISupplyQueries supply, ConstructionRecord record, Dictionary<GpuBodyId, PartId> parts)
     {
         var links = new WorkshopConnection[record.ConnectionsLength];
         for (var i = 0; i < links.Length; i++)
@@ -140,7 +140,7 @@ internal static class WorkshopSavePrevalidation
         try
         {
             var connections = new WorkshopConnections(links);
-            connections.Validate(id => parts.TryGetValue(id, out var part) ? part : null);
+            connections.Validate(supply, id => parts.TryGetValue(id, out var part) ? part : null);
             WorkshopSignalGraph.Validate(parts, connections);
         }
         catch (WorkshopEditRejectedException refusal)

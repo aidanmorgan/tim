@@ -5,73 +5,7 @@ using System.Threading.Tasks;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopSimulationPhase { Uninitialized, Initializing, Building, Admitting, Starting, Running, Paused, Completed, Resetting, Faulted, Disposed }
-public enum WorkshopCommandOutcome { Applied, Rejected, Superseded, Faulted, Cancelled }
-// Wire values are explicit. 6 was DeviceLost: the worker owns no device since the pure C# engine (Story 9.2b) and
-// Story 9.4b deleted that path; 6 is undefined on the wire and rejects.
-public enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, WrongRevision = 3, WrongPhase = 4,
-    GpuAdmission = 5, InvalidRead = 7, IdentityExhausted = 8, StaleGeneration = 9, Cancelled = 10, AlreadyCommitted = 11,
-    Capacity = 12, ReliableStalled = 13, Transport = 14, UnknownRopeSpan = 15, RopeAlreadyCut = 16,
-    UnknownRunControl = 17, ForeignRunControl = 18, RunControlKindMismatch = 19, RunControlOutOfRange = 20 }
-public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
-public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, PhysicsBodyReadSet Bodies, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
-    PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default,
-    PhysicsMemoryRead Memory = default, PhysicsPresentationRead Presentation = default, PhysicsDriveTargetRead DriveTargets = default);
-public readonly record struct WorkshopGpuCandidate(CommandSequence Sequence, WorkshopRead Read);
-
-/// <summary>Implemented only by the simulation worker's WebGPU adapter. No numerical host alternative.</summary>
-public interface IWorkshopGpuDevice : IAsyncDisposable
-{
-    ValueTask<WorkshopGpuCandidate> Admit(WorkshopCompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence);
-    /// <summary>One physics step from the committed world. The controls carry every player input the step reads (per-source enables
-    /// and per-drive target speeds); the device adds committed switch state for its compiled switched supplies. Physics never reads
-    /// authoring state.</summary>
-    ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls);
-    // Swap candidate buffers only after host validation. Discard is idempotent, nonthrowing, and
-    // sequence-specific; a superseded request cannot free a newer candidate or committed buffers.
-    void Commit(CommandSequence sequence);
-    void Discard(CommandSequence sequence);
-}
-/// <summary>Current scene demand cannot be represented by the available storage type.</summary>
-public sealed class WorkshopStorageException(string message) : Exception(message);
-
-public sealed class GpuAdmissionException : Exception
-{
-    public GpuAdmissionException(string message) : base(message) { }
-}
-
-/// <summary>
-/// Exclusive discrete owner in the simulation worker. An awaited GPU candidate cannot mutate a
-/// newer operation. At most one active GPU request plus one superseding Reset can be retained.
-/// Callers publish the value-only Committed read after an Applied result; no observer callback is
-/// part of the authority transaction.
-/// </summary>
-/// <summary>The presentation installation did not complete: superseded (no cause) or failed (the cause is inner).</summary>
-public sealed class WorkshopInstallationException : Exception
-{
-    public WorkshopRejection Reason { get; } = WorkshopRejection.Transport;
-    public WorkshopInstallationException() { }
-    public WorkshopInstallationException(Exception cause) : base(null, cause) { }
-    public WorkshopInstallationException(WorkshopRejection reason)
-    {
-        if (reason is not (WorkshopRejection.Transport or WorkshopRejection.Capacity))
-            throw new ArgumentOutOfRangeException(nameof(reason));
-        Reason = reason;
-    }
-}
-
-public interface IWorkshopInstallation
-{
-    void Abort(CommandSequence owner);
-    void Retire();
-    ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopCompiledScene construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase);
-}
-
-/// <summary>Whether disposing a simulation also disposes its GPU device. The worker's simulation owns the device;
-/// a borrowed simulation must leave the shared device to that owner.</summary>
-public enum GpuDeviceOwnership { Owned = 1, Borrowed = 2 }
-
-public sealed class WorkshopSimulation : IAsyncDisposable
+public sealed class WorkshopSimulation : IWorkshopSimulation
 {
     private readonly Dictionary<RopeRouteId, RopeSpanId> _pendingCuts = new();
     public WorkshopCommandResult CutRope(RopeSpanId span)
@@ -138,16 +72,16 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     }
     private bool _disposed;
     public SimulationEpoch Epoch => new(_epoch);
-    public WorkshopCompiledScene Scene { get; private set; }
+    public ICompiledScene Scene { get; private set; }
     public WorkshopRead Committed { get; private set; }
     public WorkshopSimulationPhase Phase { get; private set; } = WorkshopSimulationPhase.Uninitialized;
     public WorkshopRejection Fault { get; private set; }
-    public WorkshopDiagnostics Diagnostics { get; }
-    public WorkshopSimulation(IWorkshopGpuDevice device, IWorkshopCaptureClock clock, WorkshopCompiledScene scene, CadenceRevision revision,
-        IWorkshopInstallation installation, GpuDeviceOwnership deviceOwnership, WorkshopDiagnostics? diagnostics = null)
+    public IWorkshopDiagnostics Diagnostics { get; }
+    public WorkshopSimulation(IWorkshopGpuDevice device, IWorkshopCaptureClock clock, ICompiledScene scene, CadenceRevision revision,
+        IWorkshopInstallation installation, GpuDeviceOwnership deviceOwnership, IWorkshopDiagnostics? diagnostics = null)
     {
         if (!Enum.IsDefined(deviceOwnership)) throw new ArgumentException("Undefined GPU device ownership.", nameof(deviceOwnership));
-        Diagnostics = diagnostics ?? new();
+        Diagnostics = diagnostics ?? new WorkshopDiagnostics();
         _deviceOwnership = deviceOwnership;
         scene.Validate();
         var settings = scene.Settings;
@@ -202,7 +136,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         finally { _device.Discard(new(owner)); _pending--; }
     }
 
-    public async ValueTask<WorkshopCommandResult> Construct(WorkshopCompiledScene candidate)
+    public async ValueTask<WorkshopCommandResult> Construct(ICompiledScene candidate)
     {
         if (!CanAdvanceRevision(out var nextRevision)) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
         if (Phase != WorkshopSimulationPhase.Building) return Reject(WorkshopRejection.WrongPhase);
@@ -262,7 +196,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
 
     public ValueTask<WorkshopCommandResult> Run() => ChangePlayback(WorkshopSimulationPhase.Building, WorkshopSimulationPhase.Running);
     public ValueTask<WorkshopCommandResult> Pause() => ChangePlayback(WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused);
-    public ValueTask<WorkshopCommandResult> Resume() => ChangePlayback(WorkshopSimulationPhase.Paused, WorkshopSimulationPhase.Running);
+    public ValueTask<WorkshopCommandResult> ResumeRun() => ChangePlayback(WorkshopSimulationPhase.Paused, WorkshopSimulationPhase.Running);
     private async ValueTask<WorkshopCommandResult> ChangePlayback(WorkshopSimulationPhase expected, WorkshopSimulationPhase target)
     {
         if (Phase != expected) return Reject(WorkshopRejection.WrongPhase);
@@ -283,7 +217,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         finally { _pending--; }
     }
 
-    public async ValueTask<WorkshopCommandResult> Configure(WorkshopCompiledScene construction, CadenceRevision revision)
+    public async ValueTask<WorkshopCommandResult> Configure(ICompiledScene construction, CadenceRevision revision)
     {
         if (Phase != WorkshopSimulationPhase.Building) return Reject(WorkshopRejection.WrongPhase);
         if (_pending != 0) return Reject(WorkshopRejection.Busy);
@@ -318,7 +252,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     }
 
     public ValueTask<WorkshopCommandResult> Advance() => AdvanceCore(false);
-    public ValueTask<WorkshopCommandResult> Step() => AdvanceCore(true);
+    public ValueTask<WorkshopCommandResult> StepOnce() => AdvanceCore(true);
     private async ValueTask<WorkshopCommandResult> AdvanceCore(bool step)
     {
         if (!CanAdvanceRevision(out var nextRevision)) return new(WorkshopCommandOutcome.Faulted, WorkshopRejection.IdentityExhausted);
@@ -331,7 +265,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         try
         {
             var cuts = _pendingCuts.Values.ToArray();
-            var candidate = await _device.Advance(source, new(owner), WorkshopTickControls.For(source, _runControls.Values) with { Cuts = cuts, Guides = Scene.Physics.RopeGuides.ToArray() });
+            var candidate = await _device.Advance(source, new(owner), TickControlComposition.For(source, _runControls.Values) with { Cuts = cuts, Guides = Scene.Physics.RopeGuides.ToArray() });
             var read = CandidateRead(candidate, owner);
             if (!Owns(owner)) return Superseded(owner);
             ValidateAdvancedRead(source, read);
@@ -410,7 +344,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         return Applied();
     }
 
-    public void Stop(WorkshopRejection reason)
+    public void StopSimulation(WorkshopRejection reason)
     {
         if (_disposed) return;
         if (reason is not (WorkshopRejection.Capacity or WorkshopRejection.ReliableStalled or WorkshopRejection.Transport))
@@ -516,7 +450,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         return candidate.Read;
     }
 
-    private static void ValidateInitialRead(WorkshopRead read, WorkshopCompiledScene construction, SimulationEpoch epoch)
+    private static void ValidateInitialRead(WorkshopRead read, ICompiledScene construction, SimulationEpoch epoch)
     {
         WorkshopMessages.ValidatePresentationOwners(read,construction);
         var physics = construction.Physics;
@@ -568,7 +502,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         }
     }
 
-    private static void ValidateInitialPhysicalStores(WorkshopRead read, PhysicsSceneDeclaration physics)
+    private static void ValidateInitialPhysicalStores(WorkshopRead read, IPhysicsSceneDeclaration physics)
     {
         if (read.ContactWorks.Count != physics.ContactWorks.Length) throw new ArgumentException("Admission work population changed.");
         for (var i = 0; i < read.ContactWorks.Count; i++)
@@ -615,13 +549,13 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         {
             var hasPhase = (motion.LastOrdinal + 3) / 4 > (motion.FirstOrdinal + 3) / 4;
             // Every source keeps its committed enable unless a held control drives it; an electrical phase applies the held value.
-            var expected = WorkshopTickControls.For(source, hasPhase ? _runControls.Values : []).SourceEnable;
+            var expected = TickControlComposition.For(source, hasPhase ? _runControls.Values : []).SourceEnable;
             for (var i = 0; i < read.Electrical.Count; i++)
                 if (read.Electrical[i].Enabled != expected[i]) throw new ArgumentException("Electrical phase did not apply the authorised enable state.");
         }
         // Every driven revolute keeps its owner and commits the held target when a control drives it, its previous target otherwise.
         // No electrical phase gates a drive target: it applies on every committed step.
-        var targets = WorkshopTickControls.For(source, _runControls.Values).DriveTarget;
+        var targets = TickControlComposition.For(source, _runControls.Values).DriveTarget;
         if (read.DriveTargets.Count != targets.Length) throw new ArgumentException("Committed drive population changed.");
         for (var i = 0; i < targets.Length; i++)
             if (read.DriveTargets[i].Owner != source.DriveTargets[i].Owner || !F32Bits.Equal(read.DriveTargets[i].TargetSpeed, targets[i]))

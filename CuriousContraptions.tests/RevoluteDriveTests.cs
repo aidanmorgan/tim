@@ -67,7 +67,7 @@ public sealed class RevoluteDriveTests
         private WorkshopRead _read;
         private ulong _sequence;
 
-        private Rig(PhysicsSceneDeclaration physics)
+        private Rig(IPhysicsSceneDeclaration physics)
         {
             _device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), physics.Document);
             var empty = CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty));
@@ -77,10 +77,10 @@ public sealed class RevoluteDriveTests
             _scene = new WorkshopCompiledScene(empty.Identity, empty.Revision, empty.Settings, physics, empty.Activation, [], owners, []);
         }
 
-        public PhysicsSceneDeclaration Physics => _scene.Physics;
+        public IPhysicsSceneDeclaration Physics => _scene.Physics;
         public byte[] World => _device.CommittedWorld.ToArray();
 
-        public static async Task<Rig> Admit(PhysicsSceneDeclaration physics)
+        public static async Task<Rig> Admit(IPhysicsSceneDeclaration physics)
         {
             var rig = new Rig(physics);
             await rig.Reset();
@@ -99,7 +99,7 @@ public sealed class RevoluteDriveTests
         public async Task Advance(ElectricalEnable[] enables)
         {
             var candidate = await _device.Advance(_read, new(++_sequence),
-                new WorkshopTickControls(enables) { DriveTarget = WorkshopTickControls.For(_read, []).DriveTarget });
+                new WorkshopTickControls(enables) { DriveTarget = TickControlComposition.For(_read, []).DriveTarget });
             _device.Commit(candidate.Sequence); _device.Discard(candidate.Sequence);
             _read = candidate.Read;
         }
@@ -133,7 +133,7 @@ public sealed class RevoluteDriveTests
 
     /// <summary>A sphere rotor hinged at its centre to a static anchor, its drive (ω_t, τ_d) wired from one source on a separate static
     /// battery body. Connected collision is disabled, so the rotor's only interaction is the joint.</summary>
-    private static (PhysicsSceneDeclaration Scene, GpuBodyId Rotor) Rotor(float targetSpeed = TargetSpeed, float maxTorque = MaxTorque,
+    private static (IPhysicsSceneDeclaration Scene, GpuBodyId Rotor) Rotor(float targetSpeed = TargetSpeed, float maxTorque = MaxTorque,
         float frictionTorque = 0f, RevoluteTravel travel = RevoluteTravel.Continuous, float lower = -MathF.PI, float upper = MathF.PI)
     {
         var scene = new LawScene(bench: false);
@@ -149,7 +149,7 @@ public sealed class RevoluteDriveTests
 
     /// <summary>Runs <paramref name="ticks"/> ticks of a one-source scene, enabled while <paramref name="supplied"/> holds for the tick
     /// (1-based), and returns every committed sample of hinge 0.</summary>
-    private static async Task<List<Sample>> Run(PhysicsSceneDeclaration scene, GpuBodyId rotor, int ticks, Func<int, bool> supplied)
+    private static async Task<List<Sample>> Run(IPhysicsSceneDeclaration scene, GpuBodyId rotor, int ticks, Func<int, bool> supplied)
     {
         await using var rig = await Rig.Admit(scene);
         var samples = new List<Sample>(ticks);
@@ -332,7 +332,7 @@ public sealed class RevoluteDriveTests
         .5f * BarMass * body.Velocity.LengthSquared() + .5f * Vector3.Dot(BarMoments, body.Angular * body.Angular) +
         BarMass * -LawScene.Gravity * (body.Position.Y - Hinge.Y);
 
-    private static (PhysicsSceneDeclaration Scene, GpuBodyId Bar) Bar(float targetSpeed, float maxTorque)
+    private static (IPhysicsSceneDeclaration Scene, GpuBodyId Bar) Bar(float targetSpeed, float maxTorque)
     {
         var scene = new LawScene(bench: false);
         var anchor = scene.StaticSphere(Hinge, .05f, Quaternion.Identity, LawMaterial.Bench);
@@ -596,7 +596,7 @@ public sealed class RevoluteDriveTests
             TravelDefect.UndefinedTravel => valid with { Travel = (RevoluteTravel)2 },
             _ => throw new ArgumentOutOfRangeException(nameof(defect))
         };
-        Assert.Throws<ArgumentException>(invalid.Validate);
+        Assert.Throws<ArgumentException>(() => invalid.Validate());
         if (defect != TravelDefect.UndefinedTravel) (invalid with { Travel = RevoluteTravel.Limited }).Validate();
     }
 

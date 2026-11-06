@@ -6,42 +6,6 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Bundle;
 
-/// <summary>Why an entry cannot enter, or be loaded from, the bundle. The number is the error's BUNDLE code.</summary>
-public enum BundleErrorCode
-{
-    DuplicateId = 1,
-    NonFinite = 2,
-    UndefinedEnum = 3,
-    BodyWithoutCollider = 4,
-    DeclarationCount = 5,
-    OutOfRange = 6,
-    UnresolvedReference = 7,
-    DuplicatePaletteOrder = 8,
-    MissingAsset = 9,
-    EmptyText = 10,
-    /// <summary>A scene's <c>Loc_Port_</c> locator names neither a declared socket nor a tube mouth (Story 9A.17).</summary>
-    UndeclaredPortLocator = 11,
-    /// <summary>A declared port has no <c>Loc_Port_&lt;socket&gt;</c> locator in its element's scene.</summary>
-    MissingPortLocator = 12,
-    /// <summary>A port's locator is not at the declared anchor, is not a direct child of its owning body's scene root, or has no
-    /// readable transform.</summary>
-    PortLocatorDisagrees = 13,
-    /// <summary>One element declares the same socket twice.</summary>
-    DuplicatePort = 14,
-    /// <summary>A Signal port without a signal kind, or a non-Signal port with one.</summary>
-    PortSignalKind = 15
-}
-
-/// <summary>One validation failure, naming the entry's source (its package, or its element id in a loaded bundle) and the field.</summary>
-public sealed record BundleError(BundleErrorCode Code, string Detail)
-{
-    public string Text => $"BUNDLE{(int)Code:000}";
-    public override string ToString() => $"{Text} {Detail}";
-}
-
-/// <summary>One bundle entry and the name its errors report.</summary>
-public sealed record NamedEntry(string Source, BundleEntry Entry);
-
 /// <summary>Admits bundle entries, at generation and again at load: unique ids and palette orders, non-empty text, res:// asset paths,
 /// finite f32 values, defined enum values, a collider for every body and every value inside its declared range; a slider's parameter
 /// keys must name declared Real parameters.</summary>

@@ -48,7 +48,7 @@ public sealed class EventRingConsumerTests
         {
             var read = Harness.Committed;
             _publication = 1;
-            Presentation = new(CompiledSceneFixture.Compile(Construction), Response(read, _publication));
+            Presentation = new(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(Construction), Response(read, _publication));
             World = new(read.Epoch, new(1), read.Tick, new(read.Capture!.Value.Time.Value), WorldPlayback.Running);
             Delivered.Clear();
         }
@@ -110,7 +110,7 @@ public sealed class EventRingConsumerTests
     /// committed tick's ledger holds its stores' latest rows; a sequence-0 row is the admission's empty slot), once each by sequence.</summary>
     private static async Task<(List<SimulationEventRecord> Records, ContactWorkOccurrence[] Hits)> BumperRun()
     {
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([WorkshopInput.Generic(new PartId("ball"), new(1), 0, 4.5f, 0, 0, 0, 0, 1),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 3, 0)], []));
         await ring.Advance(360);
         return (ring.Records, ring.Ledgers.SelectMany(ledger => Enumerable.Range(0, ledger.OccurrenceCount).Select(ledger.Occurrence))
@@ -217,7 +217,7 @@ public sealed class EventRingConsumerTests
     public async Task EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(string payload, double height, float strength, int ticks)
     {
         GpuBodyId ball = new(1), bumper = new(2);
-        var bench = Bench([WorkshopInput.Generic(new PartId(payload), ball, 0, (float)(height), 0, 0, 0, 0, 1),
+        var bench = Bench([WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId(payload), ball, 0, (float)(height), 0, 0, 0, 0, 1),
             PlacedParts.Bumper(bumper, 0, 3, 0, (float)(strength))], []);
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
@@ -256,13 +256,13 @@ public sealed class EventRingConsumerTests
     private static (WorkshopConstruction Bench, GpuBodyId Owner, PartId Part, SimulationEventKind Kind, int Ticks) Scenario(string name, bool fires = true) => name switch
     {
         "capture" => (Bench([PayloadInstanceTests.Place(new PartId("ball"), 1, fires ? 0 : 2, 1.1, 0),
-            WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1)], []), new(2), new PartId("basket"), SimulationEventKind.Captured, 240),
-        "switch" => (Bench([WorkshopInput.Generic(new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1,
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1)], []), new(2), new PartId("basket"), SimulationEventKind.Captured, 240),
+        "switch" => (Bench([WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1,
                 new([new(new ParameterId("trigger_threshold"), fires ? .8f : 64f)])),
-            PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("ball"), new(4), 0, 3, 0, 0, 0, 0, 1)],
+            PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(4), 0, 3, 0, 0, 0, 0, 1)],
             [Signal(new(1), new(2))]), new(1), new PartId("switch"), SimulationEventKind.TriggerActivated, 480),
         "detector" => (Bench([PlacedParts.Detector(new(1), 0, (float)(Floor + .62), 0, 0, 0, (fires ? -1 : 1) * (float)Half45, (float)(Half45)),
-            PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("ball"), new(3), 0, (float)(Floor + .34 + 3), 0, 0, 0, 0, 1)],
+            PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(3), 0, (float)(Floor + .34 + 3), 0, 0, 0, 0, 1)],
             [Signal(new(1), new(2))]), new(1), new PartId("ball_detector"), SimulationEventKind.Passage, 480),
         _ => throw new ArgumentOutOfRangeException(nameof(name))
     };
@@ -463,7 +463,7 @@ public sealed class EventRingConsumerTests
         Assert.NotEqual(epoch, run.World.WorldGeneration);
         Assert.Equal(Cue(part, 0), run.Sample(run.Origin, owner)); // at rest after Reset
         await Replay(run);
-        var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(9)))).Construction;
+        var restored = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(bench, new(9)))).Construction;
         await using var loadedRing = await WorkshopIntegrationHarness.Running(restored);
         var loaded = new Animation(loadedRing, restored);
         await Replay(loaded);
@@ -532,7 +532,7 @@ public sealed class EventRingConsumerTests
         GpuBodyId ball = new(1);
         var goal = CaptureGoal(ball, receiver);
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
-        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
+        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
         var cursor = new EventRingConsumer();
         var installed = ring.Committed;
         var evaluations = new List<(ulong Tick, ActivationTime? Occurrence)>();
@@ -566,7 +566,7 @@ public sealed class EventRingConsumerTests
     {
         var bench = Scenario("capture").Bench;
         var goal = CaptureGoal(new(1), new(2));
-        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
+        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
         SimulationEventRecord Record(ulong sequence, ulong tick, ulong source) =>
             new(sequence, tick, SimulationEventKind.Impact, new(source), 1, checked((uint)(tick * Substeps)), 0f, 0f, 1, 0);
         wake.Observe(new(1, 0, [Record(1, 10, 9)]), new(9));
@@ -581,7 +581,7 @@ public sealed class EventRingConsumerTests
         wake.Observe(new(1, 1, []), new(20));
         Assert.Equal(21UL, wake.WakeTick); // nothing delivered: the next read
         // A goal whose sensor is not in the installed scene has nothing to wake it, and never faults the pump.
-        var orphan = new WorkshopGoalWake(goal with { Target = new(999_999) }, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
+        var orphan = new WorkshopGoalWake(goal with { Target = new(999_999) }, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
         orphan.Observe(new(1, 4, [Record(1, 10, 2)]), new(9));
         Assert.False(orphan.Due(new(50)));
     }
@@ -593,7 +593,7 @@ public sealed class EventRingConsumerTests
     public void TheGoalWakeFindsItsOwnersThroughTheCompiledScene()
     {
         var bench = Scenario("capture").Bench;
-        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2));
         var goal = CaptureGoal(new(1), new(2));
         Assert.True(bench.Instances.Identities.TryCapture(goal.Target, goal.Body, out var capture));
         Assert.Contains(scene.Sensors.ToArray(), sensor => sensor.Id == capture.Sensor && sensor.Frame == goal.Target && sensor.Targets.Contains(goal.Body, scene.Bodies.ToArray().Single(body => body.Id == goal.Body).Payload));
@@ -625,11 +625,11 @@ public sealed class EventRingConsumerTests
     {
         foreach (var solved in new[] { true, false })
         {
-            var bench = solved ? PuzzleCatalogue.CreateSolution(new(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(.45f))
-                : PuzzleCatalogue.Create(new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(.45f));
+            var bench = solved ? PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(.45f))
+                : PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(.45f));
             var goal = bench.Puzzle.Goal;
             await using var ring = await WorkshopIntegrationHarness.Running(bench);
-            var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
+            var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
             var cursor = new EventRingConsumer();
             var installed = ring.Committed;
             var polled = new List<(ulong Tick, ActivationTime Occurrence)>();

@@ -326,13 +326,13 @@ internal readonly record struct LawBody(Vector3 Position, Quaternion Rotation, V
         Velocity.X + Velocity.Y + Velocity.Z + Angular.X + Angular.Y + Angular.Z);
 }
 
-internal sealed class LawState(PhysicsSceneDeclaration scene, byte[] world, PhysicsInteractionSnapshot interactions)
+internal sealed class LawState(IPhysicsSceneDeclaration scene, byte[] world, PhysicsInteractionSnapshot interactions)
 {
     public byte[] World => world;
     public PhysicsInteractionSnapshot Interactions => interactions;
     public LawBody this[GpuBodyId id] => Read(scene, world, id);
 
-    public static LawBody Read(PhysicsSceneDeclaration scene, byte[] world, GpuBodyId id)
+    public static LawBody Read(IPhysicsSceneDeclaration scene, byte[] world, GpuBodyId id)
     {
         var o = scene.Layout.GetBodyOffset(id);
         int I(int at) => BinaryPrimitives.ReadInt32LittleEndian(world.AsSpan(o + at));
@@ -349,9 +349,9 @@ internal sealed class LawState(PhysicsSceneDeclaration scene, byte[] world, Phys
     }
 }
 
-internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, SimulationCadence cadence)
+internal sealed class LawWorld(IPhysicsSceneDeclaration scene, byte[] admitted, SimulationCadence cadence)
 {
-    public PhysicsSceneDeclaration Scene => scene;
+    public IPhysicsSceneDeclaration Scene => scene;
     public byte[] Admitted => admitted;
     public PhysicsInteractionSnapshot InitialInteractions { get; set; } = PhysicsInteractionSnapshot.Empty;
     public int TicksPerSecond => cadence switch
@@ -766,7 +766,7 @@ public sealed class WorkshopPhysicsLawTests
     private static string[] CatalogueElementWords()
     {
         var root = twodog.Engine.ResolveProjectDir();
-        var packages = PartRegistry.Read(File.ReadAllText(Path.Combine(root, "elements", "elements.bundle.json")))
+        var packages = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(root, "elements", "elements.bundle.json")))
             .Select(entry => entry.Metadata.Id);
         return packages
             .SelectMany(name => Regex.Matches(name, "[A-Za-z]{3,}").Select(word => word.Value.ToLowerInvariant()))
@@ -895,7 +895,7 @@ public sealed class WorkshopPhysicsLawTests
 
     [Fact]
     public void TheScannedElementNamesAreDerivedFromTheCatalogue() =>
-        Assert.All(PartRegistry.Read(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "elements", "elements.bundle.json"))), entry =>
+        Assert.All(PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "elements", "elements.bundle.json"))), entry =>
             Assert.Contains(Regex.Match(entry.Metadata.Id, "^[a-z]+").Value, ElementNames));
 
     [Fact]

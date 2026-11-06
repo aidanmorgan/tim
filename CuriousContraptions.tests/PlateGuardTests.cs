@@ -31,11 +31,11 @@ public sealed class PlateGuardTests
         _ => throw new ArgumentOutOfRangeException(nameof(load))
     };
     private static WorkshopGenericInstance Ball(ulong id, double x, double z) =>
-        WorkshopInput.Generic(new PartId("ball"), new(id), (float)(x), (float)(Face + .345), (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(id), (float)(x), (float)(Face + .345), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Bowling(ulong id, double x, double z) =>
-        WorkshopInput.Generic(new PartId("bowling"), new(id), (float)(x), (float)(Face + .285), (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), new(id), (float)(x), (float)(Face + .285), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
-        WorkshopInput.Generic(new PartId("powered_gate"), new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Battery(ulong id, double z) => PlacedParts.Battery(new(id), 3, (float)(GateHeight), (float)(z));
     private static IWorkshopInstance Lamp(ulong id, double z) => PlacedParts.Lamp(new(id), 6, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
@@ -88,7 +88,7 @@ public sealed class PlateGuardTests
     public async Task TheMinimumMassDecidesTheLevelTheLampAndTheGate(float minimumMass, Load load, bool loaded)
     {
         var (bench, plate, gate, lamp) = Circuit(minimumMass, Bodies(load, -4, 0, 5));
-        Assert.Equal(minimumMass, Assert.Single(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).ContactLoadSensors.ToArray()).MinimumMass);
+        Assert.Equal(minimumMass, Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)).ContactLoadSensors.ToArray()).MinimumMass);
         var reads = await Run(bench, 3 * 120);
         Assert.Equal(ContactLoadPhase.Empty, LoadOf(reads[0], plate.Id).Phase);
         Assert.Contains(reads, read => LoadOf(read, plate.Id).Phase != ContactLoadPhase.Empty); // control: the load rests on the face
@@ -116,7 +116,7 @@ public sealed class PlateGuardTests
     [InlineData(8.0, true)]
     public async Task ABouncingLoadIsHeldElevenTicksAndReleasedOnTheTwelfth(double drop, bool released)
     {
-        var ball = WorkshopInput.Generic(new PartId("ball"), new(5), -4, (float)(Face + .345 + drop), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(5), -4, (float)(Face + .345 + drop), 0, 0, 0, 0, 1);
         var (bench, plate, _, lamp) = Circuit(.5f, [ball]);
         var reads = await Run(bench, 6 * 120);
         ulong? last = null;
@@ -170,12 +170,12 @@ public sealed class PlateGuardTests
     public async Task AStaticBoxWithThePlateFaceButNoSensorNeverActivates()
     {
         const float height = .4f;
-        var wall = WorkshopInput.Generic(new PartId("wall"), new(9), -4, (float)(Face - height / 2), 4, 0, 0, 0, 1,
+        var wall = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(9), -4, (float)(Face - height / 2), 4, 0, 0, 0, 1,
             new([new(new("width"), 1.8f), new(new("height"), height), new(new("thickness"), 1.8f)]));
         var (bench, plate, gate, lamp) = Circuit(.5f, [wall, Ball(10, -4, 4)]);
-        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2));
         Assert.DoesNotContain(scene.ContactLoadSensors.ToArray(), row => row.Frame == wall.Id);
-        Assert.DoesNotContain(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), node => node.Owner == wall.Id);
+        Assert.DoesNotContain(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray(), node => node.Owner == wall.Id);
         var reads = await Run(bench, 2 * 120);
         Assert.True(reads[^1].Bodies.TryGet(new(10), out var ball) && Math.Abs((ball.Body.Cell.Y + ball.Body.Local.Y) / 16.0 - (Face + .34)) < .01,
             "control: the ball rests on the wall's top");
@@ -214,10 +214,10 @@ public sealed class PlateGuardTests
         Assert.Equal(reads.Select(Row), replay.Select(Row));
 
         var saved = new WorkshopSavedConstruction(bench, new(9));
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.Equal(saved, loaded);
         Assert.Equal(BitConverter.SingleToUInt32Bits(2f), BitConverter.SingleToUInt32Bits(
-            Assert.Single(WorkshopPhysicsCompiler.Compile(loaded.Construction, new(1, 2)).ContactLoadSensors.ToArray()).MinimumMass));
+            Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, loaded.Construction, new(1, 2)).ContactLoadSensors.ToArray()).MinimumMass));
         var (_, reloaded, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 2 * 120);
         Assert.Equal(reads.Select(Row), reloaded.Select(Row));
     }

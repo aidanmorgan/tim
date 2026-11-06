@@ -18,7 +18,7 @@ public sealed class CanonicalBodyTests
     {
         var bytes = Body.Encode();
         Assert.Equal(80, bytes.Length);
-        Assert.Equal(Body, CanonicalBody.Decode(bytes));
+        Assert.Equal(Body, CanonicalBodyCodec.Decode(bytes));
         Assert.Equal(0xfedcba9876543210UL, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(24)));
     }
 
@@ -59,8 +59,8 @@ public sealed class CanonicalBodyTests
             case InvalidField.OutwardPosition: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(64), .25f); break;
             default: throw new ArgumentOutOfRangeException(nameof(field));
         }
-        Assert.ThrowsAny<ArgumentException>(() => CanonicalBody.Decode(bytes));
-        Assert.Equal(Body, CanonicalBody.Decode(Body.Encode()));
+        Assert.ThrowsAny<ArgumentException>(() => CanonicalBodyCodec.Decode(bytes));
+        Assert.Equal(Body, CanonicalBodyCodec.Decode(Body.Encode()));
     }
 
     [Theory]
@@ -70,9 +70,9 @@ public sealed class CanonicalBodyTests
     {
         var bytes = Body.Encode();
         Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
-        Assert.Equal(Body, CanonicalBody.Decode(bytes)); // control
+        Assert.Equal(Body, CanonicalBodyCodec.Decode(bytes)); // control
         BinaryPrimitives.WriteUInt32LittleEndian(bytes, leading);
-        Assert.Throws<ArgumentException>(() => CanonicalBody.Decode(bytes));
+        Assert.Throws<ArgumentException>(() => CanonicalBodyCodec.Decode(bytes));
     }
 
     [Theory]
@@ -81,7 +81,7 @@ public sealed class CanonicalBodyTests
     [InlineData(79)]
     [InlineData(81)]
     public void WrongLengthRejects(int length) =>
-        Assert.Throws<ArgumentException>(() => CanonicalBody.Decode(new byte[length]));
+        Assert.Throws<ArgumentException>(() => CanonicalBodyCodec.Decode(new byte[length]));
 
     [Fact]
     public void VelocityIsF32MetresPerSecondAndTheEnvelopeEdgeIsAdmitted()
@@ -89,7 +89,7 @@ public sealed class CanonicalBodyTests
         var bytes = (Body with { Velocity = new(64f, 0f, 0f) }).Encode();
         Assert.Equal(64f, BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(68)));
         Assert.Equal(1e-7f, BinaryPrimitives.ReadSingleLittleEndian(Body.Encode().AsSpan(72)));
-        Assert.Equal(64f, CanonicalBody.Decode(bytes).Velocity.X);
+        Assert.Equal(64f, CanonicalBodyCodec.Decode(bytes).Velocity.X);
         Assert.ThrowsAny<ArgumentException>(() => (Body with { Velocity = new(64.0001f, 0f, 0f) }).Encode());
     }
 
@@ -99,7 +99,7 @@ public sealed class CanonicalBodyTests
         // Only the current record is written; signed zero remains an exact state distinction.
         var bytes = (Body with { Velocity = default }).Encode();
         Assert.True(bytes.AsSpan(68, 12).IndexOfAnyExcept((byte)0) < 0);
-        Assert.True(CanonicalBody.Decode(bytes).Velocity.IsPositiveZero);
+        Assert.True(CanonicalBodyCodec.Decode(bytes).Velocity.IsPositiveZero);
         Assert.False((Body with { Velocity = new(-0f, 0f, 0f) }).Velocity.IsPositiveZero);
     }
 
@@ -107,7 +107,7 @@ public sealed class CanonicalBodyTests
     public void DecodedStateDoesNotAliasTransportStorage()
     {
         var bytes = Body.Encode();
-        var decoded = CanonicalBody.Decode(bytes);
+        var decoded = CanonicalBodyCodec.Decode(bytes);
         Array.Clear(bytes);
         Assert.Equal(Body, decoded);
     }

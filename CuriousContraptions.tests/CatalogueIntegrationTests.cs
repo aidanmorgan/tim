@@ -36,7 +36,7 @@ public sealed class CatalogueIntegrationTests
             var consumer = kind == GateKind.Both ? 5UL : 9UL;
             var rate = (int)bench.Settings.SimulationRate.Numerator;
             var saved = new WorkshopSavedConstruction(bench, new(10));
-            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+            var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
             Assert.Equal(saved, loaded);
             foreach (var construction in new[] { bench, loaded.Construction })
             {
@@ -74,12 +74,12 @@ public sealed class CatalogueIntegrationTests
                 new(PlacedParts.Battery(new(1), -6, 3, 0),
                     PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, .5f),
                     PlacedParts.Counter(new(3), 0, 3, 0, 0, 0, 0, 1, 2),
-                    WorkshopInput.Generic(new PartId("powered_gate"), new(4), 5, 3, 0, 0, 0, 0, 1)),
+                    WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(4), 5, 3, 0, 0, 0, 0, 1)),
                 Connections: new(Power(1, 2), Power(1, 3), Signal(2, 3), Power(3, 4)));
             if (!clockPowered) bench = bench with { Connections = bench.Connections.Without(Power(1, 2)) };
             var rate = (int)bench.Settings.SimulationRate.Numerator;
             var saved = new WorkshopSavedConstruction(bench, new(5));
-            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+            var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
             Assert.Equal(saved, loaded);
             foreach (var construction in new[] { bench, loaded.Construction })
             {
@@ -114,7 +114,7 @@ public sealed class CatalogueIntegrationTests
             bench = bench with { Settings = bench.Settings with { Simulation = cadence } };
             var rate = (int)bench.Settings.SimulationRate.Numerator;
             var saved = new WorkshopSavedConstruction(bench, new(7));
-            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+            var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
             Assert.Equal(saved, loaded);
             foreach (var construction in new[] { bench, loaded.Construction })
             {
@@ -141,13 +141,13 @@ public sealed class CatalogueIntegrationTests
         foreach (var onPlate in new[] { true, false })
         {
             var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default() with { Simulation = cadence },
-                new(WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1),
+                new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1),
                     PlacedParts.Battery(new(2), 3, 3, 0), PlacedParts.Plate(new(3), -4, -.24f, 0, .5f),
                     WeightTests.Placed(4, onPlate ? -4 : -7, .2, 0, 4)),
                 Connections: new(Power(2, 3), Power(3, 1)));
             var rate = (int)bench.Settings.SimulationRate.Numerator;
             var saved = new WorkshopSavedConstruction(bench, new(5));
-            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+            var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
             Assert.Equal(saved, loaded);
             foreach (var construction in new[] { bench, loaded.Construction })
             {
@@ -174,7 +174,7 @@ public sealed class CatalogueIntegrationTests
                 new WorkshopConnection(new(4), PortId.ActivationOut, new(2), PortId.SetIn, WorkshopConnectionDomain.Activation)) };
             var rate = (int)bench.Settings.SimulationRate.Numerator;
             var saved = new WorkshopSavedConstruction(bench, new(10));
-            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+            var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
             Assert.Equal(saved, loaded);
             foreach (var construction in new[] { bench, loaded.Construction })
             {
@@ -205,14 +205,14 @@ public sealed class CatalogueIntegrationTests
         {
             IWorkshopInstance[] parts =
             [
-                WorkshopInput.Generic(payload, new(1), aligned ? 0 : 2, 2, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1)
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, payload, new(1), aligned ? 0 : 2, 2, 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1)
             ];
             if (reverse) Array.Reverse(parts);
             var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default() with { Simulation = cadence }, new(parts));
             var rate = (int)bench.Settings.SimulationRate.Numerator;
             var saved = new WorkshopSavedConstruction(bench, new(3));
-            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+            var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
             Assert.Equal(saved, loaded);
             foreach (var construction in new[] { bench, loaded.Construction })
             {
@@ -244,15 +244,15 @@ public sealed class CatalogueIntegrationTests
         {
             const float turn = -.70710677f, w = .70710677f;
             var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default() with { Simulation = cadence },
-                new(WorkshopInput.Generic(new PartId("funnel"), new(1), 0, 5, 0, 0, 0, turn, w),
-                    WorkshopInput.Generic(new PartId("ball_detector"), new(2), 0, 3.5f, 0, 0, 0, turn, w),
-                    WorkshopInput.Generic(new PartId("lamp"), new(3), 4, 3, 0, 0, 0, 0, 1),
-                    WorkshopInput.Generic(new PartId("ball"), new(4), .8f, 6.5f, 0, 0, 0, 0, 1)),
+                new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), new(1), 0, 5, 0, 0, 0, turn, w),
+                    WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball_detector"), new(2), 0, 3.5f, 0, 0, 0, turn, w),
+                    WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("lamp"), new(3), 4, 3, 0, 0, 0, 0, 1),
+                    WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(4), .8f, 6.5f, 0, 0, 0, 0, 1)),
                 Connections: new(Signal(2, 3)));
             if (!guided) bench = bench.WithoutInstance(new(1));
             var rate = (int)bench.Settings.SimulationRate.Numerator;
             var saved = new WorkshopSavedConstruction(bench, new(5));
-            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+            var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
             Assert.Equal(saved, loaded);
             foreach (var construction in new[] { bench, loaded.Construction })
             {
@@ -290,7 +290,7 @@ public sealed class CatalogueIntegrationTests
         PartId[] driveInteractions = [new("motor")];
         var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions)
             .Order().ToArray();
-        var actual = PartRegistry.Read(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),
+        var actual = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),
             "elements/elements.bundle.json"))).Select(row => new PartId(row.Metadata.Id)).Order().ToArray();
         Assert.Equal(actual, expected);
     }

@@ -1,3 +1,4 @@
+using CuriousContraptions.Bundle;
 using CuriousContraptions.Abstractions;
 using System;
 using System.Buffers.Binary;
@@ -30,9 +31,10 @@ public static class WorkshopAuthoringFlatBuffers
         builder.Finish(InstanceRecord.EndInstanceRecord(builder).Value);
         return MapInstance(InstanceRecord.GetRootAsInstanceRecord(new ByteBuffer(builder.SizedByteArray())));
     }
-    internal static ByteBuffer OpenFrame(ReadOnlySpan<byte> bytes, string identifier, VerifyTableAction verify)
+    internal static ByteBuffer OpenFrame(ICommandCodec codec, ReadOnlySpan<byte> bytes, string identifier)
     {
-        var result = WorkshopWireFlatBuffers.OpenFrame(bytes, identifier, verify);
+        codec.ValidateSaveFrame(bytes);
+        var result = ByteBufferUtil.RemoveSizePrefix(new ByteBuffer(bytes.ToArray()));
         if (!CurrentPuzzleTable(new ByteBuffer(bytes.ToArray()), identifier))
             throw new WireFaultException(WireFaultReason.VerifierRejected, "Unsupported authored puzzle fields.");
         return result;
@@ -135,10 +137,10 @@ public static class WorkshopAuthoringFlatBuffers
         return puzzleOffset;
     }
 
-    public static Offset<ConstructionRecord> EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, bool validate = true)
+    public static Offset<ConstructionRecord> EncodeConstructionRecord(ISupplyQueries supply, IBundleServices bundle, FlatBufferBuilder builder, WorkshopConstruction construction)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        if (validate) construction.Validate();
+        construction.Validate(supply, bundle);
 
         var puzzleOffset = EncodePuzzleRecord(builder, construction.Puzzle);
 
@@ -179,12 +181,7 @@ public static class WorkshopAuthoringFlatBuffers
                 var sourceInstance = construction.Instances.FirstOrDefault(inst => inst.Id == link.Source);
                 var targetInstance = construction.Instances.FirstOrDefault(inst => inst.Id == link.Target);
                 if (sourceInstance is null || targetInstance is null)
-                {
-                    if (validate)
-                        throw new WireFaultException(WireFaultReason.OutOfRange, "Connection endpoint names an unowned instance.");
-                    ConnectionRecord.CreateConnectionRecord(builder, link.Source.Value, link.Target.Value, (uint)link.Domain, 0u, 0u, link.RopeLength.HasValue, link.RopeLength.GetValueOrDefault());
-                    continue;
-                }
+                    throw new WireFaultException(WireFaultReason.OutOfRange, "Connection endpoint names an unowned instance.");
                 var sourcePorts = DeclaredPorts.Current.Of(sourceInstance.PartId);
                 var targetPorts = DeclaredPorts.Current.Of(targetInstance.PartId);
                 var fromIndex = -1;
@@ -198,12 +195,9 @@ public static class WorkshopAuthoringFlatBuffers
                     if (targetPorts[p].Id == link.Input) { toIndex = p; break; }
                 }
                 if (fromIndex < 0 || toIndex < 0)
-                {
-                    if (validate)
-                        throw new WireFaultException(WireFaultReason.OutOfRange, "Connection endpoint names an undeclared port index.");
-                }
-                var fromSocket = fromIndex >= 0 ? (uint)fromIndex : 0u;
-                var toSocket = toIndex >= 0 ? (uint)toIndex : 0u;
+                    throw new WireFaultException(WireFaultReason.OutOfRange, "Connection endpoint names an undeclared port index.");
+                var fromSocket = (uint)fromIndex;
+                var toSocket = (uint)toIndex;
                 ConnectionRecord.CreateConnectionRecord(builder, link.Source.Value, link.Target.Value, (uint)link.Domain, fromSocket, toSocket, link.RopeLength.HasValue, link.RopeLength.GetValueOrDefault());
             }
             connectionsVector = builder.EndVector();
@@ -221,10 +215,10 @@ public static class WorkshopAuthoringFlatBuffers
     }
 
     /// <summary>Decodes and validates a construction record (the Construct command's): the domain rules reject an inadmissible one.</summary>
-    public static WorkshopConstruction DecodeConstructionRecord(ConstructionRecord cr)
+    public static WorkshopConstruction DecodeConstructionRecord(ISupplyQueries supply, IBundleServices bundle, ConstructionRecord cr)
     {
         var construction = MapConstructionRecord(cr);
-        construction.Validate();
+        construction.Validate(supply, bundle);
         return construction;
     }
 

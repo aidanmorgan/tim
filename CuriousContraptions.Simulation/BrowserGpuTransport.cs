@@ -48,7 +48,7 @@ internal sealed class BrowserGpuTransport(IEventRingPublication events) : IWorks
             var joints = new HashSet<RevoluteConstraintId>();
             for (var i = 0; i < layout.Revolutes; i++)
                 joints.Add(new(BinaryPrimitives.ReadUInt64LittleEndian(input.Span.Slice(layout.RevoluteOffset(i) + PhysicsGpuAbi.RecordIdentityOffset, 8))));
-            MechanicalTransmissionDeclaration.ValidateAll(inputs.AdmissionTransmissions, joints);
+            PhysicsDeclarationValidation.ValidateAll(inputs.AdmissionTransmissions, joints);
             DrivenSurfaceAdmission.Validate(input.Span, inputs.AdmissionDrivenSurfaces);
             _admissionEngine = new(inputs.AdmissionTransmissions, inputs.AdmissionDrivenSurfaces);
             var candidate = Candidate(input.Length, true);

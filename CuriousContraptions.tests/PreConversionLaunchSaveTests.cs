@@ -61,7 +61,7 @@ public sealed class PreConversionLaunchSaveTests
         WireFaultReason command)
     {
         var bytes = Fixture(FixtureFamily.PreLaunch, name, FixtureBoundary.Save);
-        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
         Assert.Equal(command, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(Fixture(FixtureFamily.PreLaunch, name, FixtureBoundary.Command))).Reason);
     }
 
@@ -95,7 +95,7 @@ public sealed class PreConversionLaunchSaveTests
         WorkshopSaveRejection save, WireFaultReason command)
     {
         var bytes = Fixture(FixtureFamily.PreSourceStore, name, FixtureBoundary.Save);
-        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
         Assert.Equal(command, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(Fixture(FixtureFamily.PreSourceStore, name, FixtureBoundary.Command))).Reason);
     }
 
@@ -108,9 +108,9 @@ public sealed class PreConversionLaunchSaveTests
         (string Key, float Value)[] valid = [("capacity", 120f), ("enabled", 0f), ("initial_charge", .5f), ("power_limit", 30f)];
         void Refused(byte[] bytes, string what, WorkshopSaveRejection reason = WorkshopSaveRejection.OutOfRange)
         {
-            var save = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+            var save = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
             Assert.True(save.Reason == reason, $"battery {what}: {save.Reason}");
-            var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+            var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value;
             Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
         }
         Refused(PayloadInstanceTests.GenericSave("battery", [.. valid, ("maximum_power", 30f)]), "undeclared parameter");
@@ -124,9 +124,9 @@ public sealed class PreConversionLaunchSaveTests
         Refused(PayloadInstanceTests.GenericSave("battery", valid.Select(pair => pair.Key == "capacity" ? (pair.Key, float.NaN) : pair).ToArray()),
             "capacity = NaN", WorkshopSaveRejection.NonFinite);
         var bytes = PayloadInstanceTests.GenericSave("battery", valid);
-        var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances));
+        var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes).Construction.Instances));
         Assert.Equal(PlacedParts.Battery(new(1), 0, 2, 0, 120f, 30f, .5f, ElectricalEnable.Disabled), loaded);
-        Assert.Equal(loaded, WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value));
+        Assert.Equal(loaded, WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value));
     }
 
     // A current-layout Bumper or Springboard record is its declared parameters only: any typed record field (all 11, each with valid
@@ -141,18 +141,18 @@ public sealed class PreConversionLaunchSaveTests
             : [("stiffness", 400f), ("damping", .2f), ("initial_compression", .2f)];
         void Refused(byte[] bytes, string what)
         {
-            var save = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+            var save = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
             Assert.True(save.Reason == WorkshopSaveRejection.OutOfRange, $"{part} {what}: {save.Reason}");
-            var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+            var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value;
             Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
         }
         Refused(PayloadInstanceTests.GenericSave(part, [.. valid, ("preload", 1f)]), "undeclared parameter");
         Refused(PayloadInstanceTests.GenericSave(part, valid[..^1]), "missing parameter");
         Refused(PayloadInstanceTests.GenericSave(part, [.. valid, valid[0]]), "duplicate parameter");
         var bytes = PayloadInstanceTests.GenericSave(part, valid);
-        var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances));
+        var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes).Construction.Instances));
         Assert.Equal(new InstanceParameterCollection(valid.Select(pair => KeyValuePair.Create(new ParameterId(pair.Key), pair.Value))), loaded.Parameters);
-        Assert.Equal(loaded, WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value));
+        Assert.Equal(loaded, WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value));
     }
 
     // Control: a current-layout generic Bumper and Springboard record of the same values loads at both boundaries.
@@ -162,7 +162,7 @@ public sealed class PreConversionLaunchSaveTests
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             PlacedParts.Bumper(new(1), 0, 2, 0), PlacedParts.Springboard(new(2), 3, 2, 0, 0, 0, 0, 1, .2f)));
         var saved = new WorkshopSavedConstruction(construction, new(3));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(construction),
             Session: new(1, 2), Cadence: new(1), Projection: new(1));
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command));

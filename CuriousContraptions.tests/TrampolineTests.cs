@@ -79,15 +79,15 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         Vector3? at = null)
     {
         var q = rotation ?? Quaternion.Identity; var p = at ?? Frame;
-        return WorkshopInput.Generic(Trampoline, new(id), p.X, p.Y, p.Z, q.X, q.Y, q.Z, q.W,
+        return WorkshopInput.Generic(RuntimeTestServices.Bundle, Trampoline, new(id), p.X, p.Y, p.Z, q.X, q.Y, q.Z, q.W,
             new([new(TensionKey, tension), new(DampingKey, damping)]));
     }
 
     private static WorkshopGenericInstance Basketball(ulong id, float x, float y, float z) =>
-        WorkshopInput.Generic(Ball, new(id), x, y, z, 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, Ball, new(id), x, y, z, 0, 0, 0, 1);
 
     private static WorkshopGenericInstance Posed(string part, ulong id, Vector3 p, Quaternion q) =>
-        WorkshopInput.Generic(new PartId(part), new(id), p.X, p.Y, p.Z, q.X, q.Y, q.Z, q.W);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId(part), new(id), p.X, p.Y, p.Z, q.X, q.Y, q.Z, q.W);
 
     /// <summary>A default Ramp tilted <paramref name="degrees"/> about Z (falling towards +X) whose lower top edge is at
     /// <paramref name="edge"/>, with its slope rotation and centre.</summary>
@@ -154,7 +154,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
 
     private static DeclaredBody Declared(WorkshopConstruction construction, GpuBodyId id)
     {
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == id);
         var m = body.MassProperties;
         return new(body.Mass.Value, new(m.LocalCentreOfMass.X, m.LocalCentreOfMass.Y, m.LocalCentreOfMass.Z),
@@ -236,7 +236,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         Assert.Empty(entry.Events);
         Assert.False(DeclaredPhysics.IsPayload(Trampoline));
         Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[Trampoline]);
-        var defaults = WorkshopInput.Generic(Trampoline, new(1), 0, 3, 0, 0, 0, 0, 1);
+        var defaults = WorkshopInput.Generic(RuntimeTestServices.Bundle, Trampoline, new(1), 0, 3, 0, 0, 0, 0, 1);
         Assert.Equal((300f, .12f), (defaults.Parameters[TensionKey], defaults.Parameters[DampingKey]));
         // The bed visual is the one presentation binding: its local Y follows the committed deflection, 0.19 at rest, lowered by
         // (0.65 − 0.001)/0.65 m per metre, so at full stroke the 0.02 m slab's top face stays 1 mm above the back plate's top face (the
@@ -260,7 +260,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
     public void TheFrameIsBuiltAsDesignedWithOpenSidesAndIsInelastic()
     {
         var bed = Bed(tension: 450f, damping: .3f);
-        var scene = WorkshopPhysicsCompiler.Compile(Bench(bed), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(bed), new(1, 2));
         var compiled = Assert.Single(scene.CompliantSurfaces.ToArray());
         Assert.Equal(new CompliantSurfaceDeclaration(Bench(bed).Instances.Identities[bed.Id].CompliantSurface, bed.Id,
             HalfX, HalfZ, Rest, Stroke, ArrivalDepth, 450f, .3f), compiled);
@@ -320,7 +320,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
     public void TheFramesSideOpeningIsAtLeastTwiceItsDeclaredArrivalDepth()
     {
         var bed = Bed();
-        var scene = WorkshopPhysicsCompiler.Compile(Bench(bed), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(bed), new(1, 2));
         var surface = Assert.Single(scene.CompliantSurfaces.ToArray());
         var rails = scene.Colliders.ToArray().Where(c => c.Body == bed.Id && c.Shape == Gpu.ColliderShapeKind.Box &&
             MathF.Abs(c.Pose.Translation.Y + c.HalfExtents.Y - surface.RestHeight) <= 1e-5f).ToArray();
@@ -336,7 +336,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
     public void TheBoundaryParametersCompileAndRoundTripTheWorldRecordExactly(float tension, float damping)
     {
         var bed = Bed(tension: tension, damping: damping);
-        var scene = WorkshopPhysicsCompiler.Compile(Bench(bed), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(bed), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         Assert.Equal(scene.CompliantSurfaces[0], PhysicsGpuAbi.ReadCompliantSurface(bytes, 0));
         Assert.Equal((tension, damping), (scene.CompliantSurfaces[0].Tension, scene.CompliantSurfaces[0].DampingRatio));
@@ -349,7 +349,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
     public void TheCompiledSceneWireCarriesTheCompliantSurface()
     {
         var construction = Bench(Bed(tension: 640f, damping: .55f, rotation: Quaternion.CreateFromAxisAngle(Vector3.UnitZ, .3f)),
-            WorkshopInput.Generic(new PartId("impact_lever"), new(2), 6, 3, 0, 0, 0, 0, 1));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("impact_lever"), new(2), 6, 3, 0, 0, 0, 0, 1));
         var scene = CompiledSceneFixture.Compile(construction);
         Assert.Single(scene.Physics.Revolutes.ToArray());
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), scene,
@@ -382,10 +382,10 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         Assert.Throws<ArgumentException>(() => Bed(tension: tension, damping: damping));
         var admitted = Bench(Bed());
         var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(admitted.Instances));
-        Assert.ThrowsAny<ArgumentException>(() => admitted.WithInstance(current with { Parameters = refused }).Validate());
+        Assert.ThrowsAny<ArgumentException>(() => admitted.WithInstance(RuntimeTestServices.Bundle, current with { Parameters = refused }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.Equal(300f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(admitted.Instances)).Parameters[TensionKey]);
         var bytes = PayloadInstanceTests.GenericSave("trampoline", [("tension", tension), ("damping_ratio", damping)]);
-        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
     }
 
     // The compiled declaration refuses what the authoring seams never produce: out-of-range or non-finite lanes, a dynamic or absent
@@ -394,7 +394,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
     public void TheCompiledDeclarationRefusesInvalidSurfaces()
     {
         var ball = Basketball(2, 3, 2, 0);
-        var valid = WorkshopPhysicsCompiler.Compile(Bench(Bed(), ball), new(1, 2));
+        var valid = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(Bed(), ball), new(1, 2));
         var surface = valid.CompliantSurfaces[0];
         foreach (var invalid in new[]
         {
@@ -422,7 +422,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
 
     private static byte[] AdmittedBedAndBall()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Bench(Bed(), Basketball(2, 0, 6, 0)), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(Bed(), Basketball(2, 0, 6, 0)), new(1, 2));
         return PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
     }
 
@@ -775,7 +775,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
     private static async Task<(bool Captured, float Deepest)> GentleRebound(Quaternion rotation, Vector3 at)
     {
         var bed = Bed(rotation: rotation, at: at); var ball = Basketball(2, 0, 7, 0);
-        var receiver = WorkshopInput.Generic(new PartId("basket"), new(3), 5.4f, 1.2f, 0, 0, 0, 0, 1);
+        var receiver = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(3), 5.4f, 1.2f, 0, 0, 0, 0, 1);
         await using var harness = await WorkshopIntegrationHarness.Running(Bench(bed, ball, receiver));
         bool Captured() => harness.Records.Any(record => record.Kind == SimulationEventKind.Captured && record.Other == ball.Id.Value);
         var deepest = 0f;
@@ -1057,7 +1057,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
     {
         var flat = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2);
         // A Wall laid flat: its 0.25 m thickness is vertical, so its top face is at 1.125.
-        var slab = WorkshopInput.Generic(new PartId("wall"), new(3), 0, 1, 0, flat.X, flat.Y, flat.Z, flat.W);
+        var slab = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(3), 0, 1, 0, flat.X, flat.Y, flat.Z, flat.W);
         var bed = Bed(); var ball = Basketball(2, .2f, 1.125f + BallRadius + .002f, -.1f);
         var (_, reads, _) = await WorkshopIntegrationHarness.ObserveReset(Bench(bed, slab, ball), 2 * Rate);
         var settled = Origin(Find(reads[Rate / 2], ball.Id));
@@ -1549,7 +1549,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
 
     private static async Task<SampledRun> RunWithSamples(WorkshopConstruction construction, int ticks, ulong payload = 2)
     {
-        var dynamic = WorkshopPhysicsCompiler.Compile(construction, new(1, 2)).Bodies.ToArray()
+        var dynamic = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2)).Bodies.ToArray()
             .Where(b => b.Motion == RigidMotionKind.Dynamic).Select(b => b.Id).ToList();
         var ordinal = dynamic.IndexOf(new GpuBodyId(payload));
         Assert.True(ordinal >= 0, $"body {payload} is dynamic");
@@ -1601,7 +1601,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         WorkshopGenericInstance bed, Quaternion frame, float tension, int bearing)
     {
         var body = Declared(construction, new(2));
-        Assert.Single(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)).Bodies.ToArray(), b => b.Motion == RigidMotionKind.Dynamic);
+        Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2)).Bodies.ToArray(), b => b.Motion == RigidMotionKind.Dynamic);
         var run = await RunWithSamples(construction, 4 * Rate);
         var n = Vector3.Transform(Vector3.UnitY, frame); var right = Vector3.Transform(Vector3.UnitX, frame);
         var forward = Vector3.Transform(Vector3.UnitZ, frame);
@@ -2096,7 +2096,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
     /// <paramref name="ropeLength"/>, over the default bed (body 3).</summary>
     private static WorkshopConstruction Tethered(float baseY, float ropeLength)
     {
-        var anchorPart = WorkshopInput.Generic(new("rope_anchor"), new(1), TetherAnchor.X, TetherAnchor.Y, TetherAnchor.Z - .18f, 0, 0, 0, 1);
+        var anchorPart = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), new(1), TetherAnchor.X, TetherAnchor.Y, TetherAnchor.Z - .18f, 0, 0, 0, 1);
         var weight = WeightTests.Placed(2, TetherAnchor.X, baseY, TetherAnchor.Z, TetherMass);
         return new(new(2), WorkshopCadenceSettings.Default(), new(anchorPart, weight, Bed(3)),
             Connections: new(new WorkshopConnection(new(1), PortId.Tie, new(2), PortId.Tie, WorkshopConnectionDomain.Rope, ropeLength)));
@@ -2227,8 +2227,8 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         var tilt = Quaternion.Normalize(new Quaternion(.05f, .1f, -.2f, .97f));
         var construction = Bench(Bed(tension: 500f, damping: .4f, rotation: tilt, at: new(.7f, 2.9f, -.3f)), Basketball(2, .7f, 6, -.3f));
         var save = new WorkshopSavedConstruction(construction, new(4));
-        var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(save, decoded);
         var (expected, actual) = (Assert.IsType<WorkshopGenericInstance>(construction.Instances[0]),
             Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[0]));
@@ -2236,7 +2236,7 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         Assert.True(F32Bits.Equal(expected.Local, actual.Local));
         foreach (var key in new[] { TensionKey, DampingKey })
             Assert.Equal(BitConverter.SingleToUInt32Bits(expected.Parameters[key]), BitConverter.SingleToUInt32Bits(actual.Parameters[key]));
-        var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+        var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value;
         Assert.Equal(("trampoline", 2), (record.PartId, record.ParametersLength));
         var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(construction, 2 * Rate, includeBuilt: true);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(decoded.Construction, 2 * Rate, includeBuilt: true);

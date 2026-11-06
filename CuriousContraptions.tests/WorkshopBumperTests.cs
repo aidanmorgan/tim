@@ -17,7 +17,7 @@ public sealed class WorkshopBumperTests
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
             twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == sourceId);
-        var construction = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
+        var construction = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         Assert.Equal(new GpuBodyId(1), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(2), construction.Puzzle.Goal.Target);
@@ -32,9 +32,9 @@ public sealed class WorkshopBumperTests
             construction.Puzzle.PlacementAssistance);
         var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
         Assert.Equal(PartAllowance.Counted(1), inventory[new PartId("bumper")]);
-        var bumper = WorkshopInput.Generic(new PartId("bumper"), new(3), 0, 1.5f, 0, 0, 0, 0, 1);
-        var placed = construction.WithInstance(bumper);
-        var wall = WorkshopInput.Generic(new PartId("wall"), new(4), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f));
+        var bumper = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(3), 0, 1.5f, 0, 0, 0, 0, 1);
+        var placed = construction.WithInstance(RuntimeTestServices.Bundle, bumper);
+        var wall = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(4), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f));
         if (lesson == new PuzzleId("wall_and_bumper"))
         {
             Assert.Equal(2, inventory.Count);
@@ -42,34 +42,34 @@ public sealed class WorkshopBumperTests
             Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "wall").GetProperty("count").GetInt32());
             AuthoredContentAssertions.Profile(solution.Single(value => value.GetProperty("part").GetString() == "wall").GetProperty("assistance"),
                 construction.Puzzle.SecondaryAssistance);
-            placed = placed.WithInstance(wall);
-            EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(wall with { Id = new(5) }).Validate());
+            placed = placed.WithInstance(RuntimeTestServices.Bundle, wall);
+            EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(RuntimeTestServices.Bundle, wall with { Id = new(5) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         }
         else
         {
             Assert.Single(inventory);
             Assert.Equal(default, construction.Puzzle.SecondaryAssistance);
-            EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(wall).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(RuntimeTestServices.Bundle, wall).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         }
-        placed.Validate();
-        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bumper with { Id = new(5) }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(bumper with { Locked = true }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => placed.WithInstance(Payloads.First(construction) with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
+        placed.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(RuntimeTestServices.Bundle, bumper with { Id = new(5) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(RuntimeTestServices.Bundle, bumper with { Locked = true }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => placed.WithInstance(RuntimeTestServices.Bundle, Payloads.First(construction) with { Locked = false }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         foreach (var precision in new float[] { 0f, .45f, 1f })
         {
-            var next = PuzzleCatalogue.WithPrecision(placed, new(precision));
+            var next = PuzzleCatalogue.WithPrecision(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, placed, new(precision));
             var expected = precision == 0f ? (.3,3,.15,12) : precision == 1f ? (.02,1.5,.35,0) : (.174,2.325,.24,6.6);
             Assert.Equal((float)expected.Item1,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == new PartId("basket"))).Parameters[new("capture_margin")]);
             Assert.Equal((float)expected.Item2,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == new PartId("basket"))).Parameters[new("capture_speed_limit")]);
             Assert.Equal((float)expected.Item3,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == new PartId("basket"))).Parameters[new("capture_dwell")]);
             Assert.Equal((float)expected.Item4,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == new PartId("basket"))).Parameters[new("force_maximum_acceleration")]);
             var save = new WorkshopSavedConstruction(next, new(6));
-            var bytes = WorkshopSaveCodec.Encode(save);
-            Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
+            var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+            Assert.Equal(save, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes));
             Assert.Equal(bumper, next.Instances.Single(value => value.Id == bumper.Id));
-            Assert.Single(WorkshopPhysicsCompiler.Compile(next, new(1, 2)).ContactWorks.ToArray());
+            Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, next, new(1, 2)).ContactWorks.ToArray());
         }
     }
 
@@ -80,9 +80,9 @@ public sealed class WorkshopBumperTests
     public void AdvancedLessonSaveAndCommandRejectMalformedIdentityProfileAndInventory(string lessonId)
     {
         var lesson = new PuzzleId(lessonId);
-        var construction = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
+        var construction = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
         var saved = new WorkshopSavedConstruction(construction,new(3));
-        var original = WorkshopSaveCodec.Encode(saved);
+        var original = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
         var command = new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),CompiledSceneFixture.Compile(construction),
             Session:new(1,2),Cadence:new(1),Projection:new(1));
         var wire = WorkshopWireFlatBuffers.EncodeCommand(command);
@@ -98,11 +98,11 @@ public sealed class WorkshopBumperTests
         {
             var badConstruction = construction with { Puzzle = badPuzzle };
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-            var crOffset = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
+            var crOffset = SaveFixture.Record(builder, badConstruction);
             var badSave = SaveFixture.Finish(builder, crOffset, 3);
             // Extensible unknown identities use the authored puzzle refusal; nonfinite precision is a structural refusal.
-            if (float.IsNaN(badPuzzle.Precision.Value)) SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
-            else EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
+            if (float.IsNaN(badPuzzle.Precision.Value)) SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,badSave));
+            else EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,badSave));
 
 
             // The wire encoder validates the construction it carries: a puzzle rule's typed refusal, or for a
@@ -110,7 +110,7 @@ public sealed class WorkshopBumperTests
             var refused = Assert.ThrowsAny<ArgumentException>(() => CompiledSceneFixture.Compile(badConstruction));
             Assert.Equal(float.IsNaN(badPuzzle.Precision.Value) ? typeof(ArgumentException) : typeof(WorkshopEditRejectedException), refused.GetType());
         }
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,original));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,original));
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(wire);
         Assert.Equal(command with { Scene = null }, decoded with { Scene = null });
         Assert.Equal(command.Scene!.Identity, decoded.Scene!.Identity);
@@ -128,25 +128,25 @@ public sealed class WorkshopBumperTests
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == "bumper_sidekick");
         Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "bumper").GetProperty("count").GetInt32());
-        var construction = PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
+        var construction = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[0].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[1].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.TargetAssistance);
         AuthoredContentAssertions.Profile(level.GetProperty("solution")[0].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.PlacementAssistance);
-        Assert.Equal(WorkshopInput.Generic(new PartId("ball"),new(1), -3, 5, 0, 0, 0, 0, 1) with { Locked = true }, Payloads.Find(construction));
+        Assert.Equal(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), -3, 5, 0, 0, 0, 0, 1) with { Locked = true }, Payloads.Find(construction));
         AuthoredContentAssertions.Placement(level.GetProperty("placements")[1].GetProperty("instance"), ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))));
         var bumper = new WorkshopGenericInstance(new PartId("bumper"), new(3), new(-51, 24, 0), default, CanonicalRotation.Identity)
             { Parameters = InstanceParameterCollection.Defaults(new PartId("bumper")) };
-        var placed = construction.WithInstance(bumper); placed.Validate();
-        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bumper with { Id = new(4) }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
-        var unpaid = placed.WithInstance(bumper with { Parameters = new([new(new("strength"), 0f)]) }); unpaid.Validate();
-        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(unpaid, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+        var placed = construction.WithInstance(RuntimeTestServices.Bundle, bumper); placed.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(RuntimeTestServices.Bundle, bumper with { Id = new(4) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        var unpaid = placed.WithInstance(RuntimeTestServices.Bundle, bumper with { Parameters = new([new(new("strength"), 0f)]) }); unpaid.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, unpaid, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
         foreach (var precision in new float[] { 0f, .45f, 1f })
         {
-            var next = PuzzleCatalogue.WithPrecision(placed, new(precision)); next.Validate();
+            var next = PuzzleCatalogue.WithPrecision(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, placed, new(precision)); next.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
             var saved = new WorkshopSavedConstruction(next, new(4));
-            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
         }
 
     }
@@ -331,7 +331,7 @@ public sealed class WorkshopBumperTests
     [Fact]
     public void PaidGpuRecordReadsF32WorkAndRejectsPadding()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(8f), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(8f), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var before = PhysicsGpuAbi.ReadContactWorks(bytes, PhysicsInteractionSnapshot.Empty);
@@ -418,13 +418,13 @@ public sealed class WorkshopBumperTests
         Assert.Equal(default, ContactWorkImpulse.FromAuthorizedWork(4f, 1f, 24f, (ContactWorkLimit)7));
 
     private static WorkshopConstruction Construction(float strength) => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 4, 0, strength: (float)strength)));
 
     [Fact]
     public void SourceSphereAndExplicitPreloadCompileAsGenericDeclarations()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(8f), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(8f), new(1, 2));
         // The head sphere and (engine-hollow-shapes) the upper ring: the drawn TorusMesh (inner 0.472, outer 0.508) at y 0.43, a
         // solid tube of radius 0.018 about a 0.49 m centreline.
         var bumper = scene.Colliders.ToArray().Where(x => x.Body == new GpuBodyId(2)).ToArray();
@@ -460,29 +460,29 @@ public sealed class WorkshopBumperTests
         foreach (var strength in new float[] { 0f, 8f, 20f })
         {
             var save = new WorkshopSavedConstruction(Construction(strength), new(3));
-            var bytes = WorkshopSaveCodec.Encode(save);
-            Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
+            var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+            Assert.Equal(save, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes));
             var bumper = Assert.IsType<WorkshopGenericInstance>(save.Construction.Instances[1]);
             Assert.Equal((float)strength, Assert.Single(bumper.Parameters).Value);
             Assert.Equal(.5f * (float)strength * (float)strength,
-                Assert.Single(WorkshopPhysicsCompiler.Compile(save.Construction, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+                Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, save.Construction, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
         }
         foreach (var parameters in new (string, float)[][]
         {
             [("strength", 8f), ("preload", 17f)], [("strength", 20.5f)], [("strength", -.01f)], [], [("strength", 8f), ("strength", 8f)]
         })
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
                 PayloadInstanceTests.GenericSave("bumper", parameters)));
-        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
+        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
             PayloadInstanceTests.GenericSave("bumper", [("strength", float.NaN)])));
-        Assert.Equal(8f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,
+        Assert.Equal(8f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
             PayloadInstanceTests.GenericSave("bumper", [("strength", 8f)])).Construction.Instances)).Parameters[new("strength")]);
     }
 
     [Fact]
     public void WorkRequiresUniquePhysicalStaticOwnerAndDynamicTarget()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(8f), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(8f), new(1, 2));
         var work = scene.ContactWorks[0];
         foreach (var invalid in new[] {
             work with { Owner = new(1) }, work with { Targets = new(BodyTargetKind.NamedBody, work.Owner) },
@@ -504,7 +504,7 @@ public sealed class WorkshopBumperTests
             Assert.Equal(valid, ((WorkshopGenericInstance)PlacedParts.Bumper(new(2), 0, 4, 0, strength: valid)).Parameters[new("strength")]);
         var construction = Construction(8f);
         var bumper = Assert.IsType<WorkshopGenericInstance>(construction.Instances[1]);
-        construction.WithInstance(bumper with { Id = new(3) }).Validate(); // No per-kind bumper count in free play.
+        construction.WithInstance(RuntimeTestServices.Bundle, bumper with { Id = new(3) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle); // No per-kind bumper count in free play.
         Assert.False(DeclaredPorts.Current.Has(new PartId("bumper"), PortId.ActivationOut,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
     }

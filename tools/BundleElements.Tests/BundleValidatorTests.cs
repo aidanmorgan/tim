@@ -416,7 +416,7 @@ public sealed class BundleValidatorTests
         Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with { Nodes = [] } }));
     }
     private static string[] Errors(params (string Package, IPuzzleElementDeclaration Declaration)[] packages) =>
-        PackageValidator.Validate(packages.Select(package => new BundlePackage(package.Package, package.Declaration)).ToArray())
+        PackageValidator.Validate(new CuriousContraptions.Bundle.BundleServices(), packages.Select(package => new BundlePackage(package.Package, package.Declaration)).ToArray())
             .Select(error => error.ToString()).ToArray();
 
     // Story 9A.39: a Source declares its finite store by four of its own parameters, inside the electrical source envelope.
@@ -508,7 +508,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void ADriveTargetRunControlBindsOneLaneOnAPartWithExactlyOneDrivenHinge()
     {
-        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var generated = BundleGenerator.Generate(new CuriousContraptions.Bundle.BundleServices(), TestRepository.Root);
         var motor = Bundle.BundleSchema.Read(generated.Json!).Elements.Single(entry => entry.Metadata.Id == "motor");
         static bool RunEditRefused(Bundle.BundleEntry candidate, int parameter) => Bundle.BundleValidator.Validate([new("Motor", candidate)])
             .Any(error => error.Code == Bundle.BundleErrorCode.OutOfRange &&
@@ -793,7 +793,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void HingeCapabilityValidatesLimitsFramesMovingBodyCollidersInitialAngleAndFrictionTorque()
     {
-        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var generated = BundleGenerator.Generate(new CuriousContraptions.Bundle.BundleServices(), TestRepository.Root);
         var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
         var lever = bundle.Single(entry => entry.Metadata.Id == "impact_lever");
 
@@ -871,7 +871,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void HingeCapabilityValidatesTravelAndTheSuppliedDrive()
     {
-        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var generated = BundleGenerator.Generate(new CuriousContraptions.Bundle.BundleServices(), TestRepository.Root);
         var lever = Bundle.BundleSchema.Read(generated.Json!).Elements.Single(entry => entry.Metadata.Id == "impact_lever");
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) =>
             Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
@@ -927,7 +927,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void ADriveOnAPartWithItsOwnSupplyCapabilityIsRefusedForEitherJointKind()
     {
-        var bundle = Bundle.BundleSchema.Read(BundleGenerator.Generate(TestRepository.Root).Json!).Elements;
+        var bundle = Bundle.BundleSchema.Read(BundleGenerator.Generate(new CuriousContraptions.Bundle.BundleServices(), TestRepository.Root).Json!).Elements;
         var contact = bundle.Single(entry => entry.Metadata.Id == "pressure_plate").Electrical;
         Assert.Equal(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, contact!.Supply!.Value.Kind);
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);

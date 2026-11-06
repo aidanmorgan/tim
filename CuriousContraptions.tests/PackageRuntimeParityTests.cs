@@ -36,13 +36,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         var packages = Packages().ToDictionary(package => package.Declaration.Metadata.Id, package => package.Declaration, StringComparer.Ordinal);
         var impact = ((Abstractions.Signal.ISignalElement)packages["switch"]).SignalNodes.OfType<Abstractions.Signal.SignalContactDescriptor>().Single();
         // A contact trigger compiles for the balls that can strike it.
-        var struck = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(Placed(new PartId("switch")), WorkshopInput.Generic(new PartId("ball"),new(2), 0, 6, 0, 0, 0, 0, 1))), new(1, 2));
+        var struck = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(Placed(new PartId("switch")), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(2), 0, 6, 0, 0, 0, 0, 1))), new(1, 2));
         var trigger = Assert.Single(struck.Triggers.ToArray());
         Assert.Equal(packages["switch"].Metadata.Parameters.Single(p => p.Key == impact.ThresholdParameter.Value).Default, trigger.Threshold.Value);
         var domino = (Abstractions.Signal.ISignalElement)packages["domino"];
         // The compiler declares this threshold on a wired tile's orientation sensor.
-        var wiredTile = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+        var wiredTile = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(PlacedParts.Domino(new(1), 0, 3, 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)),
             Connections: new(new WorkshopConnection(new(1), PortId.ActivationOut, new(2), PortId.ActivationIn,
                 WorkshopConnectionDomain.Activation))), new(1, 2));
@@ -67,7 +67,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         Assert.Equal(Abstractions.PortId.ActivationIn, Assert.Single(((Abstractions.Signal.ISignalElement)packages["lamp"]).SignalPorts).Port);
         var aperture = ((Abstractions.Signal.ISignalElement)packages["ball_detector"]).SignalNodes.OfType<Abstractions.Signal.SignalPassageDescriptor>().Single();
         Assert.Equal((.65f, .02f), (aperture.ApertureRadius, aperture.RearmClearance));
-        var sensor = Assert.Single(WorkshopActivationCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1),
+        var sensor = Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(), new WorkshopInstances(Placed(new PartId("ball_detector"))))).PassageSensors.ToArray());
         Assert.Equal(((.65f), (.02f)),
             ((sensor.Radius.Value), (sensor.RearmClearance.Value)));
@@ -297,8 +297,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             {
                 var margin = capture.UpperMargin.Evaluate(DeclaredPhysics.Parameters(instance));
                 // A capture volume compiles per payload: place one ball beside the part.
-                var withBall = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-                    new WorkshopInstances(instance, WorkshopInput.Generic(new PartId("ball"), new(2), 3, 3, 0, 0, 0, 0, 1))), new(1, 2));
+                var withBall = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+                    new WorkshopInstances(instance, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(2), 3, 3, 0, 0, 0, 0, 1))), new(1, 2));
                 foreach (var sensor in withBall.Sensors.ToArray())
                 {
                     Assert.Equal(((float)((double)capture.Maximum.Y + margin)), (sensor.Maximum.Y));
@@ -317,7 +317,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         Assert.Equal(3, baked.Count);
         foreach (var length in new[] { 1f, 3.6f, 8f })
         {
-            var compiled = Compile(WorkshopInput.Generic(new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), length)]))).Colliders.ToArray()
+            var compiled = Compile(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), length)]))).Colliders.ToArray()
                 .Where(row => row.Body == Owner).ToArray();
             Assert.Equal(3, compiled.Length);
             Assert.Equal(RuntimeShape.Tube, compiled[0].Shape);
@@ -348,8 +348,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         Assert.Equal(authored.Count, Packages().Count(package => package.Declaration is ISliderElement));
     }
 
-    private static PhysicsSceneDeclaration Compile(IWorkshopInstance instance) =>
-        WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+    private static IPhysicsSceneDeclaration Compile(IWorkshopInstance instance) =>
+        WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(instance)), new(1, 2));
 
     private static void AssertBody(string where, KinematicMode mode, float mass, float drag, System.Numerics.Vector3 gravity, RigidBodyDeclaration body)
@@ -419,13 +419,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         {
             var values = InstanceParameterCollection.Defaults(part).ToDictionary();
             values[new(key)] = value;
-            WorkshopInput.Generic(part, Owner, 0, 3, 0, 0, 0, 0, 1, new(values)).Validate();
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, part, Owner, 0, 3, 0, 0, 0, 0, 1, new(values)).Validate(RuntimeTestServices.Bundle);
         });
         Func<float, bool> Wall(string key) => Admits(value =>
         {
             var values = WallFixture.Default.ToDictionary(pair => pair.Key, pair => pair.Value);
             values[new(key)] = value;
-            WorkshopInput.Generic(new PartId("wall"), Owner, 0, 3, 0, 0, 0, 0, 1, new(values));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), Owner, 0, 3, 0, 0, 0, 0, 1, new(values));
         });
         var enables = Enum.GetValues<ElectricalEnable>();
         return id switch
@@ -498,22 +498,22 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             "delay" =>
             [
                 ("delay_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, 1f,
-                    Admits(value => WorkshopInput.Generic(new PartId("delay"), Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float)value)]))), [])
+                    Admits(value => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float)value)]))), [])
             ],
             "hold_timer" =>
             [
                 ("hold_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, 2f,
-                    Admits(value => WorkshopInput.Generic(new("hold_timer"), Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("hold_seconds"), (float)value)]))), [])
+                    Admits(value => WorkshopInput.Generic(RuntimeTestServices.Bundle, new("hold_timer"), Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("hold_seconds"), (float)value)]))), [])
             ],
             "weight" =>
             [
                 ("mass", ParameterUnit.Kilogram, ParameterKind.Real, Lane.Single, 4f,
-                    Admits(value => WorkshopInput.Generic(new("weight"), Owner, 0, 3, 0, 0, 0, 0, 1, new([new(new ParameterId("mass"), (float)value)]))), [])
+                    Admits(value => WorkshopInput.Generic(RuntimeTestServices.Bundle, new("weight"), Owner, 0, 3, 0, 0, 0, 0, 1, new([new(new ParameterId("mass"), (float)value)]))), [])
             ],
             "switch" =>
             [
                 ("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, .8f,
-                    Admits(value => WorkshopInput.Generic(new PartId("switch"), Owner, 0, 3, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), (float)value)]))), [])
+                    Admits(value => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), Owner, 0, 3, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), (float)value)]))), [])
             ],
             "motor" =>
             [
@@ -532,24 +532,24 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     /// <summary>One newly placed instance of the part, as MachineWorld.CaptureInstance builds it.</summary>
     internal static IWorkshopInstance Placed(PartId id) => id.Value switch
     {
-        "ball" => WorkshopInput.Generic(new PartId("ball"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "bowling" => WorkshopInput.Generic(new PartId("bowling"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "basket" => WorkshopInput.Generic(new PartId("basket"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "spring" => WorkshopInput.Generic(new PartId("spring"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "ramp" => WorkshopInput.Generic(new PartId("ramp"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "wall" => WorkshopInput.Generic(new PartId("wall"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "ball" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),Owner, 0, 3, 0, 0, 0, 0, 1),
+        "bowling" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "basket" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "spring" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "ramp" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "wall" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "battery" => PlacedParts.Battery(Owner, 0, 3, 0),
-        "bumper" => WorkshopInput.Generic(new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "pipe" => WorkshopInput.Generic(new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
+        "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
         "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" =>
-            WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),
         "clock" => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, 1f),
         "latch" => PlacedParts.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "switch" => WorkshopInput.Generic(new PartId("switch"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "delay" => WorkshopInput.Generic(new PartId("delay"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "switch" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), Owner, 0, 3, 0, 0, 0, 0, 1),
+        "delay" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), Owner, 0, 3, 0, 0, 0, 0, 1),
         _ => throw new ArgumentException($"No placement for packaged part '{id}'.")
     };
 
@@ -634,11 +634,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     public async System.Threading.Tasks.Task SceneSizedAllocationKeepsHundredsOfRowsAndMoreThanSixteenMovingBodiesDistinct()
     {
         _ = godot;
-        var parts = Enumerable.Range(1, 40).Select(index => (IWorkshopInstance)WorkshopInput.Generic(
+        var parts = Enumerable.Range(1, 40).Select(index => (IWorkshopInstance)WorkshopInput.Generic(RuntimeTestServices.Bundle,
             new PartId("powered_gate"), new((ulong)index), (float)((index - 1) % 8 * 3 - 12), 3, (float)((index - 1) / 8 * 3 - 6), 0, 0, 0, 1)).ToArray();
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(parts));
         var identities = construction.Instances.Identities;
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         Assert.Equal(40, scene.Prismatics.Length);
         Assert.True(scene.Colliders.Length > 256);
         var allocated = new List<ulong> { identities.Plane.Value, identities.PlaneMaterial.Value, identities.PlaneCollider.Value };

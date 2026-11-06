@@ -10,7 +10,7 @@ public sealed class RopeTests
 {
     private static WorkshopConstruction Hanging(bool connected = true, float length = 3f)
     {
-        var anchor = WorkshopInput.Generic(new("rope_anchor"), new(1), 0f, 6f, -.18f, 0f, 0f, 0f, 1f);
+        var anchor = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), new(1), 0f, 6f, -.18f, 0f, 0f, 0f, 1f);
         var weight = WeightTests.Placed(2, 0, 3 - .57710344f, 0, 4f);
         return new(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight), Connections: connected
             ? new(new WorkshopConnection(new(1), PortId.Tie, new(2), PortId.Tie, WorkshopConnectionDomain.Rope, length))
@@ -69,7 +69,7 @@ public sealed class RopeTests
     [InlineData(1f, Support.Bench)]
     public async Task ALoadAtRestOnATautRopeCommitsNoVelocityLikeOneRestingOnTheBench(float mass, Support support)
     {
-        var anchor = WorkshopInput.Generic(new("rope_anchor"), new(1), 0f, 6f, -.18f, 0f, 0f, 0f, 1f);
+        var anchor = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), new(1), 0f, 6f, -.18f, 0f, 0f, 0f, 1f);
         var tie = DeclaredPorts.Current.LocalPosition(WeightTests.Placed(2, 0, 0, 0, mass), PortId.Tie).Y;
         var hang = 3f - tie;
         var bench = (float)WorkshopConstruction.WorkbenchSurface.Value;
@@ -131,9 +131,9 @@ public sealed class RopeTests
     public void AuthoredLengthBoundariesRoundTrip(float length)
     {
         var construction = Hanging(length: length);
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         var saved = new WorkshopSavedConstruction(construction, new(3));
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.Equal(length, Assert.Single(loaded.Construction.Connections).RopeLength);
     }
 
@@ -144,7 +144,7 @@ public sealed class RopeTests
     [InlineData(float.NaN)]
     public void InvalidLengthsRefuseBeforeInstallation(float length) =>
         Assert.Equal(WorkshopEditRejection.InvalidConnection,
-            Assert.Throws<WorkshopEditRejectedException>(() => Hanging(length: length).Validate()).Reason);
+            Assert.Throws<WorkshopEditRejectedException>(() => Hanging(length: length).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle)).Reason);
 
 
     [Fact]
@@ -266,7 +266,7 @@ public sealed class RopeTests
         {
             var x = (i % 6 - 3) * 3f; var z = (i / 6 - 2) * 3f;
             var a = new GpuBodyId((ulong)i * 2 + 1); var b = new GpuBodyId(a.Value + 1);
-            parts.Add(WorkshopInput.Generic(new("rope_anchor"), a, x, 6f, z - .18f, 0, 0, 0, 1));
+            parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), a, x, 6f, z - .18f, 0, 0, 0, 1));
             parts.Add(WeightTests.Placed(b.Value, x, 3f - .57710344f, z, 4));
             links.Add(new(a, PortId.Tie, b, PortId.Tie, WorkshopConnectionDomain.Rope, 3f));
         }
@@ -284,8 +284,8 @@ public sealed class RopeTests
             else Assert.True(rope.AttachmentB.Y < 1.5f);
         }
         await world.Reset();
-        var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            WorkshopSaveCodec.Encode(new(construction, new(49))));
+        var saved = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(49))));
         Assert.Equal(construction.Connections, saved.Construction.Connections);
         await using var loaded = await WorkshopIntegrationHarness.Running(saved.Construction);
         await loaded.Advance(60);
@@ -295,22 +295,66 @@ public sealed class RopeTests
         });
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void MeasurementUsesBothNamedSocketsRegardlessOfDeclarationOrder(bool reverse)
+    {
+        var anchor = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), new(1), 0, 6, 0, 0, 0, 0, 1);
+        var load = WeightTests.Placed(2, 0, 2, 0, 4);
+        var instances = new WorkshopInstances(anchor, load);
+        var first = new PortId("first");
+        var second = new PortId("second");
+        var nonRope = TestBundle.Entry(new("clock")).Ports.First(port => port.Domain == SimulationDomain.Signal);
+        var entries = TestBundle.Entries.Select(entry =>
+        {
+            if (entry.Metadata.Id is not ("rope_anchor" or "weight")) return entry;
+            var socket = entry.Ports.Single(port => port.Domain == SimulationDomain.Rope);
+            PortDescriptor[] sockets =
+            [
+                socket with { Id = first, LocalPosition = Vector3.Zero, PositionBinding = null },
+                socket with { Id = second, LocalPosition = Vector3.UnitY, PositionBinding = null },
+                nonRope
+            ];
+            return entry with { Ports = reverse ? sockets.Reverse().ToArray() : sockets };
+        }).ToArray();
+        using var declared = DeclaredPorts.Scoped(ElementPortCatalogue.FromBundle(entries));
+        WorkshopConnection Measure(PortId output, PortId input) =>
+            WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, instances, anchor.Id, load.Id, output, input);
+        var longer = Measure(second, first);
+        var shorter = Measure(first, second);
+        Assert.Equal((second, first), (longer.Output, longer.Input));
+        Assert.Equal((first, second), (shorter.Output, shorter.Input));
+        // Exact one-dimensional integer-metre geometry: changing either selected socket changes the measured length.
+        Assert.Equal(5f, longer.RopeLength);
+        Assert.Equal(3f, shorter.RopeLength);
+        foreach (var invalid in new[] { default(PortId), new PortId("absent"), nonRope.Id })
+        {
+            EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => Measure(invalid, first));
+            EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => Measure(first, invalid));
+        }
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () =>
+            WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, instances, new(99), load.Id, first, second));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () =>
+            WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, instances, anchor.Id, new(99), first, second));
+    }
+
     [Fact]
     public void MeasurementPersistsAcrossMovesAndMassEditsButReconnectMeasuresAgain()
     {
         var original = Hanging(false);
-        var measured = WorkshopConnections.MeasureRope(original.Instances, new(1), new(2));
+        var measured = WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, original.Instances, new(1), new(2), PortId.Tie, PortId.Tie);
         Assert.InRange(measured.RopeLength!.Value, 2.99999f, 3.00001f);
         var withRope = original with { Connections = new(measured) };
         var moved = WeightTests.Placed(2, 0, 4, 0, 8);
         var changed = withRope with { Instances = withRope.Instances.With(moved) };
-        changed.Validate();
+        changed.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         Assert.Equal(measured.RopeLength, changed.Connections[0].RopeLength);
-        var reconnected = WorkshopConnections.MeasureRope(changed.Instances, new(1), new(2));
+        var reconnected = WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, changed.Instances, new(1), new(2), PortId.Tie, PortId.Tie);
         Assert.True(reconnected.RopeLength < measured.RopeLength - 1f);
-        var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new(changed, new(3))));
+        var saved = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(changed, new(3))));
         Assert.Equal(changed, saved.Construction);
-        var reversed = WorkshopConnections.MeasureRope(original.Instances, new(2), new(1));
+        var reversed = WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, original.Instances, new(2), new(1), PortId.Tie, PortId.Tie);
         Assert.Equal(measured.RopeLength, reversed.RopeLength);
     }
 
@@ -319,10 +363,10 @@ public sealed class RopeTests
     {
         var a = WeightTests.Placed(1, -1, 2.5f, 0, .25f);
         var b = WeightTests.Placed(2, 1, 2.5f, 0, 8f);
-        var shelf = WorkshopInput.Generic(new("wall"), new(3), -1f, 2f, 0f, 0, 0, 0, 1,
+        var shelf = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("wall"), new(3), -1f, 2f, 0f, 0, 0, 0, 1,
             new([new(new("width"), 1f), new(new("height"), 1f), new(new("thickness"), 2f)]));
         var instances = new WorkshopInstances(a, b, shelf);
-        var rope = WorkshopConnections.MeasureRope(instances, a.Id, b.Id);
+        var rope = WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, instances, a.Id, b.Id, PortId.Tie, PortId.Tie);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), instances, Connections: new(rope));
         await using var forward = await WorkshopIntegrationHarness.Running(construction);
         await using var reverse = await WorkshopIntegrationHarness.Running(construction with
@@ -445,15 +489,15 @@ public sealed class RopeTests
     [Fact]
     public async Task StaticFeasibleRoutesDisplayAndImmovableOverlengthRoutesRefuseAtomically()
     {
-        var a = WorkshopInput.Generic(new("rope_anchor"), new(1), 0, 6, 0, 0, 0, 0, 1);
-        var b = WorkshopInput.Generic(new("rope_anchor"), new(2), 0, 3, 0, 0, 0, 0, 1);
+        var a = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), new(1), 0, 6, 0, 0, 0, 0, 1);
+        var b = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), new(2), 0, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(a, b),
-            Connections: new(WorkshopConnections.MeasureRope(new(a, b), a.Id, b.Id)));
+            Connections: new(WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, new(a, b), a.Id, b.Id, PortId.Tie, PortId.Tie)));
         await using var world = await WorkshopIntegrationHarness.Running(construction);
         await world.Advance(2);
         Assert.Equal(3f, Assert.Single(world.Committed.Presentation.Ropes.ToArray()).CurrentLength);
         var impossible = construction with { Connections = new(construction.Connections[0] with { RopeLength = 2f }) };
-        Assert.Throws<ArgumentException>(() => WorkshopSceneCompiler.Compile(impossible, new(1, 2), new(1)));
+        Assert.Throws<ArgumentException>(() => WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, impossible, new(1, 2), new(1)));
         Assert.Equal(RopeIntegrity.Intact, Assert.Single(world.Committed.Presentation.Ropes.ToArray()).Integrity);
     }
 
@@ -500,7 +544,7 @@ public sealed class RopeTests
     [Fact]
     public void TensileAdmissionRejectsMissingParticipantsAndUnsupportedMotion()
     {
-        var compiled = WorkshopPhysicsCompiler.Compile(Hanging(), new(1, 2));
+        var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Hanging(), new(1, 2));
         var bodies = compiled.Bodies.ToArray();
         var span = Assert.Single(compiled.TensileSpans.ToArray());
         PhysicsSceneDeclaration Declare(RigidBodyDeclaration[] participants, TensileSpanDeclaration row) =>
@@ -608,7 +652,7 @@ public sealed class RopeTests
                 ? CanonicalRotation.Normalize(0, .70710677f, 0, .70710677f)
                 : CanonicalRotation.Normalize(0, 0, .70710677f, .70710677f) }).ToArray();
         var construction = original with { Instances = new(instances.Cast<IWorkshopInstance>().ToArray()),
-            Connections = new(WorkshopConnections.MeasureRope(new(instances.Cast<IWorkshopInstance>().ToArray()), new(1), new(2))) };
+            Connections = new(WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, new(instances.Cast<IWorkshopInstance>().ToArray()), new(1), new(2), PortId.Tie, PortId.Tie)) };
         await using var world = await WorkshopIntegrationHarness.Running(construction);
         var initial = Assert.Single(world.Committed.Presentation.Ropes.ToArray());
         for (var i = 0; i < 2; i++)
@@ -625,8 +669,8 @@ public sealed class RopeTests
         TwoPulleyAtwood(float massA = 4f, float massB = 4f, float heightA = 3f, float heightB = 3f, float? totalLength = null)
     {
         var a = WeightTests.Placed(1, -2.4f, heightA, 0f, massA);
-        var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
-        var p2 = WorkshopInput.Generic(new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
+        var p1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
+        var p2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
         var b = WeightTests.Placed(4, 2.4f, heightB, 0f, massB);
         var tieA = DeclaredPorts.Current.LocalPosition(a, PortId.Tie);
         var tieB = DeclaredPorts.Current.LocalPosition(b, PortId.Tie);
@@ -759,8 +803,8 @@ public sealed class RopeTests
     [Fact]
     public async Task SinglePulleyRedirectionSupportsSuspendedWeight()
     {
-        var anchor = WorkshopInput.Generic(new("rope_anchor"), new(1), -2f, 6f, -.18f, 0, 0, 0, 1);
-        var pulley = WorkshopInput.Generic(new("pulley"), new(2), 0f, 6f, -.12f, 0, 0, 0, 1);
+        var anchor = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), new(1), -2f, 6f, -.18f, 0, 0, 0, 1);
+        var pulley = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(2), 0f, 6f, -.12f, 0, 0, 0, 1);
         var weight = WeightTests.Placed(3, 0.4f, 3f, 0f, 4f);
         var tieWeight = DeclaredPorts.Current.LocalPosition(weight, PortId.Tie);
         var posAnchor = new Vector3(-2f, 6f, 0f);
@@ -797,7 +841,7 @@ public sealed class RopeTests
     [Fact]
     public async Task AtwoodSlackTransitionOnFloorContactReleasesTension()
     {
-        var shelf = WorkshopInput.Generic(new("wall"), new(5), 2.4f, 2.0f, 0f, 0, 0, 0, 1,
+        var shelf = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("wall"), new(5), 2.4f, 2.0f, 0f, 0, 0, 0, 1,
             new([new(new("width"), 1.5f), new(new("height"), .5f), new(new("thickness"), 1.5f)]));
         var (construction, idA, _, _, idB, _) = TwoPulleyAtwood(massA: 2f, massB: 6f, heightA: 2f, heightB: 2.8f);
         construction = construction with { Instances = construction.Instances.With(shelf) };
@@ -875,8 +919,8 @@ public sealed class RopeTests
         Assert.InRange(resetB, 3.495f, 3.505f);
 
         var saved = new WorkshopSavedConstruction(world.Construction, new(10));
-        var bytes = WorkshopSaveCodec.Encode(saved);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
 
         Assert.Equal(construction.Connections, loaded.Construction.Connections);
         Assert.Equal(4, loaded.Construction.Instances.Count);
@@ -922,7 +966,7 @@ public sealed class RopeTests
     [Fact]
     public async Task WorkshopDeclaredPresentationAdvancesPulleyWheelRotationAngle()
     {
-        var pulley = WorkshopInput.Generic(new("pulley"), new(1), 0f, 0f, 0f, 0, 0, 0, 1);
+        var pulley = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(1), 0f, 0f, 0f, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(pulley));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 1);
         var read = reads[0];
@@ -931,7 +975,7 @@ public sealed class RopeTests
         var response = new WorkshopResponse(default, WorkshopResponseKind.Read, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
             WorkshopSimulationPhase.Running, read with { Presentation = pres }, new(101, 206), new(1), new(1), new(1), new(1), new(read.Tick.Value));
         var compiled = CompiledSceneFixture.Compile(construction);
-        var evaluator = new WorkshopDeclaredPresentation(compiled, response);
+        var evaluator = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), compiled, response);
         var samples = evaluator.Advance(AnimationTestTime.Seconds(read.Tick.Value / 120.0));
         var wheelSample = Assert.Single(samples, s => s.Owner == new GpuBodyId(1) && s.Binding == 0);
         var angle = BitConverter.UInt32BitsToSingle(wheelSample.Value.CanonicalBits);

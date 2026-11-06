@@ -34,6 +34,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
     }
     private MeshInstance3D? _highlight;
     private bool _built;
+    private IPresentationServices _presentation = null!;
     public Vector3 Dimensions { get; private set; } = Vector3.One;
     public ResizeAxes ResizableAxes => Definition is null ? ResizeAxes.None :
         (Definition.Presentation.ResizeAxes.HasFlag(PresentationAxes.X) ? ResizeAxes.X : ResizeAxes.None) |
@@ -83,7 +84,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         {
             var target = GetNodeOrNull<Node3D>(parameter.Node) ?? throw new ArgumentException("Parameter target is absent.");
             var value = float.FusedMultiplyAdd(parameter.Multiplier, values[parameter.Parameter], parameter.Offset);
-            staged.Add((new(target, VisualProperty(parameter.Property), value, value), WorkshopDeclaredPresentation.Value(parameter.Property, value)));
+            staged.Add((new(target, VisualProperty(parameter.Property), value, value), _presentation.ValueFor(parameter.Property, value)));
         }
         var nextRadius = PickRadius;
         if (presentation.Sizing is { } radius)
@@ -98,9 +99,10 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         if (presentation.Sizing is not null) PickRadius = nextRadius;
     }
 
-    public void Configure(PartDefinition definition)
+    public void Configure(IPresentationServices presentation, PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
+        _presentation = presentation;
         Definition = definition;
         Name = definition.Id; // Godot resource/node-name boundary only.
     }
@@ -191,7 +193,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         foreach (var pair in _declaredBindings)
         {
             var declaration = Definition.Presentation.Bindings[pair.Key];
-            pair.Value.ApplyValue(WorkshopDeclaredPresentation.Value(declaration.Property,
+            pair.Value.ApplyValue(_presentation.ValueFor(declaration.Property,
                 PresentationDriverRules.InitialValue(declaration)));
         }
     }
@@ -239,7 +241,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
             // Every binding, one-shot cues included (Story 9A.25b), is applied from the Animation worker's declared samples.
             var binding = new WorkshopVisualBinding(target, property, declaration.From, declaration.To);
             _declaredBindings.Add(i, binding);
-            binding.ApplyValue(WorkshopDeclaredPresentation.Value(declaration.Property,
+            binding.ApplyValue(_presentation.ValueFor(declaration.Property,
                 PresentationDriverRules.InitialValue(declaration)));
         }
         foreach (var binding in presentation.Bodies)

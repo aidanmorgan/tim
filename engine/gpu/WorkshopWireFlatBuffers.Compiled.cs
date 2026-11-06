@@ -845,7 +845,7 @@ public static partial class WorkshopWireFlatBuffers
         row.Numerator,
         row.Denominator);
 
-    internal static Offset<W.CompiledSceneRecord> EncodeCompiledScene(FlatBufferBuilder b, WorkshopCompiledScene scene)
+    internal static Offset<W.CompiledSceneRecord> EncodeCompiledScene(FlatBufferBuilder b, ICompiledScene scene)
     {
         scene.Validate();
         var settings = EncodeCapabilityWorkshopCadenceSettingsRecord(b, scene.Settings);

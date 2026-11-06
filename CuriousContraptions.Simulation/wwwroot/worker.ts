@@ -300,90 +300,97 @@ runtime.setModuleImports('workshopGpu', {
 
 const exports = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
 host = exports.CuriousContraptions.Simulation.Program;
-roles = Array.from(host.ScheduleRoles());
+try {
+    host.InitializeHost();
+    roles = Array.from(host.ScheduleRoles());
 
-self.onmessage = async event => {
-    try { clockNow(); } catch { return; } // a failed native clock has already retired this session and reported it
-    const data: Record<string, unknown> = event.data !== null && typeof event.data === 'object' ? event.data as Record<string, unknown> : {};
-    const keys = data !== null && typeof data === 'object' ? Object.keys(data) : [];
-    const allowed = data?.bootstrap instanceof Uint8Array ? ['bootstrap', 'captureMode', 'clockRing', 'poseRing']
-        : data?.animationPort instanceof MessagePort ? ['animationPort']
-        : data?.scheduleControl instanceof Uint8Array ? ['scheduleControl']
-        : data?.readAcknowledged instanceof Uint8Array ? ['readAcknowledged']
-        : data?.bytes instanceof Uint8Array ? ['bytes'] : [];
-    const unsupported = keys.filter(key => !allowed.includes(key));
-    if (unsupported.length) {
-        self.postMessage({ rejected: true, detail: host.RejectUnknownEnvelope(unsupported) });
-        return;
-    }
-    const bootstrap = data.bootstrap;
-    if (bootstrap instanceof Uint8Array) {
-        try {
-            const captureMode = data.captureMode;
-            if (!(data.poseRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session pose ring.');
-            poses.attach(data.poseRing);
-            if ((captureMode !== 1 && captureMode !== 2) || captureMode !== host.CaptureMode())
-                throw new Error('Browser and simulation capture modes differ.');
-            if (!(data.clockRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session clock ring.');
-            const masterPeer = new Uint8Array(host.Bootstrap(bootstrap));
-            await startClockMaster(data.clockRing, masterPeer.slice(), new Uint8Array(host.AnimationPeer()));
-            const nativeClock = new Float64Array(nativeClockEvidence());
-            self.postMessage({ ready: true, nativeClock, captureMode, masterPeer }, [nativeClock.buffer, masterPeer.buffer]);
-            await host.PrepareGpu();
-        } catch (error) {
-            if (disposed) return;
-            disposeOwned();
-            self.postMessage({ failure: true, detail: String(error) });
+    self.onmessage = async event => {
+        try { clockNow(); } catch { return; } // a failed native clock has already retired this session and reported it
+        const data: Record<string, unknown> = event.data !== null && typeof event.data === 'object' ? event.data as Record<string, unknown> : {};
+        const keys = data !== null && typeof data === 'object' ? Object.keys(data) : [];
+        const allowed = data?.bootstrap instanceof Uint8Array ? ['bootstrap', 'captureMode', 'clockRing', 'poseRing']
+            : data?.animationPort instanceof MessagePort ? ['animationPort']
+            : data?.scheduleControl instanceof Uint8Array ? ['scheduleControl']
+            : data?.readAcknowledged instanceof Uint8Array ? ['readAcknowledged']
+            : data?.bytes instanceof Uint8Array ? ['bytes'] : [];
+        const unsupported = keys.filter(key => !allowed.includes(key));
+        if (unsupported.length) {
+            self.postMessage({ rejected: true, detail: host.RejectUnknownEnvelope(unsupported) });
+            return;
         }
-        return;
-    }
-    const transferredPort = data.animationPort;
-    if (transferredPort instanceof MessagePort) {
-        if (animationPort || disposed) { transferredPort.close(); self.postMessage({ failure: true, detail: 'Duplicate or retired Animation port.' }); return; }
-        animationPort = transferredPort;
+        const bootstrap = data.bootstrap;
+        if (bootstrap instanceof Uint8Array) {
+            try {
+                const captureMode = data.captureMode;
+                if (!(data.poseRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session pose ring.');
+                poses.attach(data.poseRing);
+                if ((captureMode !== 1 && captureMode !== 2) || captureMode !== host.CaptureMode())
+                    throw new Error('Browser and simulation capture modes differ.');
+                if (!(data.clockRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session clock ring.');
+                const masterPeer = new Uint8Array(host.Bootstrap(bootstrap));
+                await startClockMaster(data.clockRing, masterPeer.slice(), new Uint8Array(host.AnimationPeer()));
+                const nativeClock = new Float64Array(nativeClockEvidence());
+                self.postMessage({ ready: true, nativeClock, captureMode, masterPeer }, [nativeClock.buffer, masterPeer.buffer]);
+                await host.PrepareGpu();
+            } catch (error) {
+                if (disposed) return;
+                disposeOwned();
+                self.postMessage({ failure: true, detail: String(error) });
+            }
+            return;
+        }
+        const transferredPort = data.animationPort;
+        if (transferredPort instanceof MessagePort) {
+            if (animationPort || disposed) { transferredPort.close(); self.postMessage({ failure: true, detail: 'Duplicate or retired Animation port.' }); return; }
+            animationPort = transferredPort;
+            try {
+                const animationPeer = new Uint8Array(host.AnimationPeer());
+                animationPort.onmessage = (incoming: MessageEvent<Record<string, unknown>>) => {
+                    try {
+                        if (incoming.data?.scheduleControl instanceof Uint8Array) {
+                            host.ScheduleResult(incoming.data.scheduleControl, roles[1]);
+                        } else throw new Error('Unsupported Animation master-port message.');
+                    } catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
+                };
+                animationPort.start();
+                // A ring allocated before the port arrived reaches the Animation worker's reader too.
+                if (eventRing) eventRing.postTo(animationPort);
+                self.postMessage({ animationPeer }, [animationPeer.buffer]);
+            } catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
+            return;
+        }
+        if (data.scheduleControl instanceof Uint8Array) {
+            try { host.ScheduleResult(data.scheduleControl, roles[0]); }
+            catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
+            return;
+        }
+        const receipt = data.readAcknowledged;
+        if (receipt instanceof Uint8Array) {
+            acknowledgeRead(receipt);
+            return;
+        }
+        // Every command and query (memory observation among them) is one typed buffer for the managed decoder. Any other envelope,
+        // a retired channel name included, is refused by name with its typed reason and recorded in this worker's fault log.
+        const bytes = data.bytes;
+        if (!(bytes instanceof Uint8Array)) {
+            const keys = event.data !== null && typeof event.data === 'object' ? Object.keys(event.data) : [];
+            self.postMessage({ rejected: true, detail: host.RejectUnknownEnvelope(keys) });
+            return;
+        }
+        if (activeRequests >= 2) {
+            self.postMessage({ rejected: true, detail: host.RejectSaturatedCommand() });
+            return;
+        }
+        activeRequests++;
         try {
-            const animationPeer = new Uint8Array(host.AnimationPeer());
-            animationPort.onmessage = (incoming: MessageEvent<Record<string, unknown>>) => {
-                try {
-                    if (incoming.data?.scheduleControl instanceof Uint8Array) {
-                        host.ScheduleResult(incoming.data.scheduleControl, roles[1]);
-                    } else throw new Error('Unsupported Animation master-port message.');
-                } catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
-            };
-            animationPort.start();
-            // A ring allocated before the port arrived reaches the Animation worker's reader too.
-            if (eventRing) eventRing.postTo(animationPort);
-            self.postMessage({ animationPeer }, [animationPeer.buffer]);
-        } catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
-        return;
-    }
-    if (data.scheduleControl instanceof Uint8Array) {
-        try { host.ScheduleResult(data.scheduleControl, roles[0]); }
-        catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
-        return;
-    }
-    const receipt = data.readAcknowledged;
-    if (receipt instanceof Uint8Array) {
-        acknowledgeRead(receipt);
-        return;
-    }
-    // Every command and query (memory observation among them) is one typed buffer for the managed decoder. Any other envelope,
-    // a retired channel name included, is refused by name with its typed reason and recorded in this worker's fault log.
-    const bytes = data.bytes;
-    if (!(bytes instanceof Uint8Array)) {
-        const keys = event.data !== null && typeof event.data === 'object' ? Object.keys(event.data) : [];
-        self.postMessage({ rejected: true, detail: host.RejectUnknownEnvelope(keys) });
-        return;
-    }
-    if (activeRequests >= 2) {
-        self.postMessage({ rejected: true, detail: host.RejectSaturatedCommand() });
-        return;
-    }
-    activeRequests++;
-    try {
-        await host.Dispatch(bytes);
-    } catch (error) {
-        self.postMessage({ failure: true, detail: String(error) });
-    } finally { activeRequests--; flushObservation(); }
-};
-self.postMessage({ awaitingBootstrap: true });
+            await host.Dispatch(bytes);
+        } catch (error) {
+            self.postMessage({ failure: true, detail: String(error) });
+        } finally { activeRequests--; flushObservation(); }
+    };
+    self.postMessage({ awaitingBootstrap: true });
+} catch (error) {
+    disposeOwned();
+    self.postMessage({ failure: true, detail: String(error) });
+    self.close();
+}

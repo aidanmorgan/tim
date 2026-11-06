@@ -1,0 +1,11 @@
+<linker>
+  <assembly fullname="CuriousContraptions.Core">
+    <type fullname="CuriousContraptions.Runtime.CoreServices" preserve="all" />
+  </assembly>
+  <assembly fullname="CuriousContraptions.Bundle">
+    <type fullname="CuriousContraptions.Bundle.BundleServices" preserve="all" />
+  </assembly>
+  <assembly fullname="CuriousContraptions">
+    <type fullname="CuriousContraptions.GameBootstrap" preserve="all" />
+  </assembly>
+</linker>

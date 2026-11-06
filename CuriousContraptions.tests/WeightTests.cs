@@ -28,7 +28,7 @@ public sealed class WeightTests(ITestOutputHelper output)
 
     internal static WorkshopGenericInstance Placed(ulong id, double x, double y, double z, float mass,
         double qx = 0, double qy = 0, double qz = 0, double qw = 1) =>
-        WorkshopInput.Generic(Weight, new(id), (float)(x), (float)(y), (float)(z), (float)(qx), (float)(qy), (float)(qz), (float)(qw), new([new(MassKey, mass)]));
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, Weight, new(id), (float)(x), (float)(y), (float)(z), (float)(qx), (float)(qy), (float)(qz), (float)(qw), new([new(MassKey, mass)]));
 
     private static WorkshopConstruction Bench(params IWorkshopInstance[] parts) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(parts));
@@ -59,7 +59,7 @@ public sealed class WeightTests(ITestOutputHelper output)
         Assert.True(MathF.Sqrt(Radius(8) * Radius(8) + HalfHeight(8) * HalfHeight(8)) < entry.Presentation.PickRadius);
         Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[Weight]);
         // The defaults placement is the declared 4 kg.
-        Assert.Equal(4f, WorkshopInput.Generic(Weight, new(1), 0, 1, 0, 0, 0, 0, 1).Parameters[MassKey]);
+        Assert.Equal(4f, WorkshopInput.Generic(RuntimeTestServices.Bundle, Weight, new(1), 0, 1, 0, 0, 0, 0, 1).Parameters[MassKey]);
     }
 
     // ---------------- boundaries ----------------
@@ -71,13 +71,13 @@ public sealed class WeightTests(ITestOutputHelper output)
     {
         var weight = Placed(1, 0, 1, 0, mass);
         new InstanceParameterCollection([new(MassKey, mass)]).Validate(Weight);
-        Bench(weight).Validate();
-        Assert.Equal(new Kilograms(mass), Assert.Single(WorkshopPhysicsCompiler.Compile(Bench(weight), new(1, 2)).Bodies.ToArray(),
+        Bench(weight).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        Assert.Equal(new Kilograms(mass), Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(weight), new(1, 2)).Bodies.ToArray(),
             body => body.Id == weight.Id).Mass);
         var bytes = PayloadInstanceTests.GenericSave("weight", [("mass", mass)]);
-        var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances));
+        var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes).Construction.Instances));
         Assert.Equal(BitConverter.SingleToUInt32Bits(mass), BitConverter.SingleToUInt32Bits(loaded.Parameters[MassKey]));
-        var command = Assert.IsType<WorkshopGenericInstance>(WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value));
+        var command = Assert.IsType<WorkshopGenericInstance>(WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value));
         Assert.Equal(BitConverter.SingleToUInt32Bits(mass), BitConverter.SingleToUInt32Bits(command.Parameters[MassKey]));
     }
 
@@ -100,15 +100,15 @@ public sealed class WeightTests(ITestOutputHelper output)
         Assert.Throws<ArgumentException>(() => refused.Validate(Weight));
         Assert.Throws<ArgumentException>(() => Placed(1, 0, 1, 0, mass));
         var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(admitted.Instances));
-        Assert.ThrowsAny<ArgumentException>(() => admitted.WithInstance(current with { Parameters = refused }).Validate());
+        Assert.ThrowsAny<ArgumentException>(() => admitted.WithInstance(RuntimeTestServices.Bundle, current with { Parameters = refused }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         // The admitted construction, and the save written from it, still hold the one 4 kg Weight.
         Assert.Equal(4f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(admitted.Instances)).Parameters[MassKey]);
-        Assert.Equal(4f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(admitted, new(2)))).Construction.Instances)).Parameters[MassKey]);
+        Assert.Equal(4f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(admitted, new(2)))).Construction.Instances)).Parameters[MassKey]);
 
         var bytes = PayloadInstanceTests.GenericSave("weight", [("mass", mass)]);
-        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
-        var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
+        var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value;
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
     }
 
@@ -123,8 +123,8 @@ public sealed class WeightTests(ITestOutputHelper output)
         foreach (var parameters in new (string, float)[]?[] { null, [], [("radius", 4f)], [("mass", 4f), ("radius", .3f)] })
         {
             var bytes = PayloadInstanceTests.GenericSave("weight", parameters);
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
-            var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
+            var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value;
             Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
         }
         // A typed record field is no Weight field either.
@@ -139,7 +139,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     public void TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(float mass)
     {
         var weight = Placed(1, 0, 1, 0, mass);
-        var scene = WorkshopPhysicsCompiler.Compile(Bench(weight), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(weight), new(1, 2));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == weight.Id);
         Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
         Assert.Equal(new Kilograms(mass), body.Mass);
@@ -206,7 +206,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     {
         var masses = new[] { .25f, 1f, 4f, 8f };
         float[] Compiled(Func<ColliderDeclaration, float> lane) => masses.Select(mass =>
-            lane(Assert.Single(WorkshopPhysicsCompiler.Compile(Bench(Placed(1, 0, 1, 0, mass)), new(1, 2)).Colliders.ToArray(),
+            lane(Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(Placed(1, 0, 1, 0, mass)), new(1, 2)).Colliders.ToArray(),
                 c => c.Id == Bench(Placed(1, 0, 1, 0, mass)).Instances.Identities[new(1)].Colliders[0]))).ToArray();
         foreach (var lanes in new[] { Compiled(c => c.Radius.Value), Compiled(c => c.HalfExtents.Y), Compiled(c => c.Pose.Translation.Y) })
             for (var i = 1; i < lanes.Length; i++) Assert.True(lanes[i] > lanes[i - 1], $"{lanes[i]} after {lanes[i - 1]}");
@@ -287,10 +287,10 @@ public sealed class WeightTests(ITestOutputHelper output)
     {
         var light = Placed(1, 0, BenchY, 0, .25f);
         var bench = Bench(light);
-        bench.Validate();
-        var edited = bench.WithInstance(light with { Parameters = new([new(MassKey, 8f)]) });
-        edited.Validate();
-        var cylinder = Assert.Single(WorkshopPhysicsCompiler.Compile(edited, new(1, 2)).Colliders.ToArray(), c => c.Id == edited.Instances.Identities[light.Id].Colliders[0]);
+        bench.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var edited = bench.WithInstance(RuntimeTestServices.Bundle, light with { Parameters = new([new(MassKey, 8f)]) });
+        edited.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var cylinder = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, edited, new(1, 2)).Colliders.ToArray(), c => c.Id == edited.Instances.Identities[light.Id].Colliders[0]);
         // Its lowest point is the base, at the origin: the centre is exactly the half-height above it.
         Assert.Equal(cylinder.HalfExtents.Y, cylinder.Pose.Translation.Y);
         var (_, reads, _) = await WorkshopIntegrationHarness.ObserveReset(edited, 3 * Rate, includeBuilt: true);
@@ -309,7 +309,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     private static WorkshopGenericInstance Ramp(ulong id, float lift = 0f)
     {
         var half = -RampDegrees * Math.PI / 360;
-        return WorkshopInput.Generic(new PartId("ramp"), new(id), (float)(RampCentre.X), (float)(RampCentre.Y + lift), (float)(RampCentre.Z), 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
+        return WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(id), (float)(RampCentre.X), (float)(RampCentre.Y + lift), (float)(RampCentre.Z), 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
     }
 
     /// <summary>A Weight lying on its side (axis along world Z, centred at z = 0) on the Ramp's top face, `along` metres from its
@@ -450,7 +450,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     {
         var lift = .18f * MathF.Cos((float)(RampDegrees * Math.PI / 180));
         var weight = OnItsSideOnTheRamp(1, 4f, .5f, lift);
-        var compiled = WorkshopPhysicsCompiler.Compile(Bench(Ramp(2, lift), weight), new(1, 2));
+        var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(Ramp(2, lift), weight), new(1, 2));
         var children = compiled.Colliders.ToArray().Where(c => c.Body == weight.Id).ToArray();
         var colliders = compiled.Colliders.ToArray().Where(c => c.Body != weight.Id).ToList();
         var selected = geometry switch
@@ -517,8 +517,8 @@ public sealed class WeightTests(ITestOutputHelper output)
         var lift = .18f * MathF.Cos((float)(RampDegrees * Math.PI / 180));
         var weight = OnItsSideOnTheRamp(1, 4f, .5f, lift, CylinderAxisDirection.Positive);
         var construction = Bench(Ramp(2, lift), weight);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(4)))).Construction;
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(construction, new(4)))).Construction;
         Assert.Equal(construction, decoded);
         var (_, first, _) = await WorkshopIntegrationHarness.ObserveReset(construction, 14 * Rate, includeBuilt: true);
         var (_, saved, _) = await WorkshopIntegrationHarness.ObserveReset(decoded, 14 * Rate, includeBuilt: true);
@@ -625,7 +625,7 @@ public sealed class WeightTests(ITestOutputHelper output)
         NoFixedCapacityTests.AssertSameState(built, reset, "rolling Weight Reset");
         // Change only the Weight's pose: the same ramp and tile remain, but no rolling impact reaches the tile.
         var beside = Placed(1, 3.2 - .125 - .1 - Radius(4), BenchY, 0, 4f);
-        var control = positive.WithInstance(beside);
+        var control = positive.WithInstance(RuntimeTestServices.Bundle, beside);
         var (_, quiet, _) = await WorkshopIntegrationHarness.ObserveReset(control, 6 * rate, includeBuilt: true);
         // A tile remains recognisably upright; sub-degree resting variations are not toppling.
         Assert.All(quiet, read => Assert.True(Tilt(Find(read, domino.Id)) < 15));
@@ -641,7 +641,7 @@ public sealed class WeightTests(ITestOutputHelper output)
         var origin = -axis * HalfHeight(4);
         origin.Y = BenchY - (float)LowestArtOffset(rotation, 4);
         var authored = Bench(Placed(1, origin.X, origin.Y, origin.Z, 4, rotation.X, rotation.Y, rotation.Z, rotation.W));
-        var compiled = WorkshopPhysicsCompiler.Compile(authored, new(1, 2));
+        var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, authored, new(1, 2));
         var materials = compiled.Materials.ToArray().Select(material => resistance ? material : material with { RollingResistance = new(0f) }).ToArray();
         var scene = new PhysicsSceneDeclaration(new(1, 2), compiled.NextIdentity, compiled.Bodies.ToArray(), compiled.Colliders.ToArray(), materials, [], []);
         var world = new LawWorld(scene, PhysicsGpuAbi.Admission(scene, new(1),
@@ -735,8 +735,8 @@ public sealed class WeightTests(ITestOutputHelper output)
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
         SameState(built, simulation.Committed);
         Assert.Equal(WorkshopCommandOutcome.Applied, simulation.Save().Outcome);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(2))));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(construction, new(2))));
         var replay = await Run();
         var (_, fresh, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 1200, includeBuilt: true);
         for (var tick = 0; tick < first.Count; tick++)
@@ -753,7 +753,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     {
         var light = Placed(1, 0, BenchY, 0, .25f);
         var tipped = Placed(2, 1.2, BenchY + 1.3, .1, 4f, 0, 0, Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18));
-        return Bench(light, tipped).WithInstance(light with { Parameters = new([new(MassKey, 8f)]) });
+        return Bench(light, tipped).WithInstance(RuntimeTestServices.Bundle, light with { Parameters = new([new(MassKey, 8f)]) });
     }
 
     /// <summary>The same bodies at the same tick, each within <paramref name="metres"/> of its pose, <paramref name="radians"/> of its
@@ -782,7 +782,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     public async Task ResetRestoresTheBuiltPosesAndAReplayRepeatsTheRunIncludingAfterAMassEdit(SimulationCadence cadence)
     {
         var construction = EditedPair();
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 600, cadence, includeBuilt: true);
         // Reset restores every authored pose at rest: within a micrometre and a microradian, with no motion.
         AssertSamePoses(built, reset, 1e-6f, 1e-6f, 1e-6f, "Reset");
@@ -804,10 +804,10 @@ public sealed class WeightTests(ITestOutputHelper output)
     [Fact]
     public async Task SaveRoundTripsPoseRotationAndMassExactlyWithNoWireChange()
     {
-        var construction = EditedPair().WithInstance(Placed(3, -1.7, BenchY + .4, .9, 7.3f, .2, .3, .1, .927));
+        var construction = EditedPair().WithInstance(RuntimeTestServices.Bundle, Placed(3, -1.7, BenchY + .4, .9, 7.3f, .2, .3, .1, .927));
         var save = new WorkshopSavedConstruction(construction, new(4));
-        var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(save, decoded);
         for (var i = 0; i < construction.Instances.Count; i++)
         {
@@ -817,7 +817,7 @@ public sealed class WeightTests(ITestOutputHelper output)
             Assert.True(F32Bits.Equal(expected.Local, actual.Local));
             Assert.Equal(BitConverter.SingleToUInt32Bits(expected.Parameters[MassKey]), BitConverter.SingleToUInt32Bits(actual.Parameters[MassKey]));
             // The stored record is the generic one: its part id and one declared parameter, no typed field.
-            var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(i)!.Value;
+            var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(i)!.Value;
             Assert.Equal(("weight", 1), (record.PartId, record.ParametersLength));
         }
         // The reloaded construction runs as the saved one: the same bodies, poses and motion within the 0.05 mm late-motion bound.
@@ -833,7 +833,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     private static WorkshopConstruction SuspendedPendulum(float mass, float ropeLength, float angleRad,
         Vector3 anchorPos, float angleZRad, float initialRadialDistance)
     {
-        var anchorInstance = WorkshopInput.Generic(new("rope_anchor"), new(1),
+        var anchorInstance = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), new(1),
             anchorPos.X, anchorPos.Y, anchorPos.Z - 0.18f, 0f, 0f, 0f, 1f);
 
         var tieOffset = TieOffsetY(mass);
@@ -893,8 +893,8 @@ public sealed class WeightTests(ITestOutputHelper output)
         TwoPulleyCounterweight(float massA, float massB, float heightA, float heightB, bool reverseWiring = false)
     {
         var a = Placed(1, -2.4f, heightA, 0f, massA);
-        var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
-        var p2 = WorkshopInput.Generic(new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
+        var p1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
+        var p2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
         var b = Placed(4, 2.4f, heightB, 0f, massB);
         var tieA = DeclaredPorts.Current.LocalPosition(a, PortId.Tie);
         var tieB = DeclaredPorts.Current.LocalPosition(b, PortId.Tie);
@@ -1204,7 +1204,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     public async Task Counterweight_FloorContactRelaxesTensionAndRestsOnBench()
     {
         // Solid shelf placed under the descending 4 kg counterweight at height 2.0m (top surface at y = 2.25m).
-        var shelf = WorkshopInput.Generic(new("wall"), new(5), -2.4f, 2.0f, 0f, 0, 0, 0, 1,
+        var shelf = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("wall"), new(5), -2.4f, 2.0f, 0f, 0, 0, 0, 1,
             new([new(new("width"), 1.5f), new(new("height"), .5f), new(new("thickness"), 1.5f)]));
         var (construction, idA, _, _, _) = TwoPulleyCounterweight(massA: 4.0f, massB: 1.0f, heightA: 2.8f, heightB: 2.0f);
         construction = construction with { Instances = construction.Instances.With(shelf) };
@@ -1232,10 +1232,10 @@ public sealed class WeightTests(ITestOutputHelper output)
     public async Task Counterweight_OpenRouteFallsFreelyToBench()
     {
         // Solid shelf placed under the falling load at height 1.0m (top surface at y = 1.25m).
-        var shelf = WorkshopInput.Generic(new("wall"), new(3), -2.0f, 1.0f, 0f, 0, 0, 0, 1,
+        var shelf = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("wall"), new(3), -2.0f, 1.0f, 0f, 0, 0, 0, 1,
             new([new(new("width"), 1.5f), new(new("height"), .5f), new(new("thickness"), 1.5f)]));
         var a = Placed(1, -2.0f, 3.0f, 0f, 4.0f);
-        var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
+        var p1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
         var tieA = DeclaredPorts.Current.LocalPosition(a, PortId.Tie);
         var span = Vector3.Distance(new Vector3(-2f, 3f, 0f) + tieA, new Vector3(-2f, 6f, -.12f));
         var openConnection = new WorkshopConnection(a.Id, PortId.Tie, p1.Id, PortId.Tie, WorkshopConnectionDomain.Rope, span);
@@ -1315,8 +1315,8 @@ public sealed class WeightTests(ITestOutputHelper output)
 
         // Save roundtrip of construction
         var save = new WorkshopSavedConstruction(construction, new(4));
-        var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(save, decoded);
 
         // Both original and decoded constructions run identically

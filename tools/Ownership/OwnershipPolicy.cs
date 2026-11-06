@@ -20,8 +20,8 @@ public static class OwnershipPolicy
     private static readonly FrozenSet<CallerId> AnimationFreeCallers = new HashSet<CallerId>
     {
         new("M:CuriousContraptions.Presentation.AnimationBatch.#ctor(System.Int32)"),
-        new("M:CuriousContraptions.Presentation.AnimationBatch.RegisterSlot(CuriousContraptions.Presentation.AnimationBinding,CuriousContraptions.Presentation.AnimationBatch.Slot,CuriousContraptions.Presentation.AnimationValue,CuriousContraptions.Presentation.AnimationValue)~CuriousContraptions.Presentation.AnimationHandle"),
-        new("M:CuriousContraptions.Presentation.AnimationBatch.Remove(CuriousContraptions.Presentation.AnimationHandle)"),
+        new("M:CuriousContraptions.Presentation.AnimationBatch.RegisterSlot(CuriousContraptions.Presentation.AnimationBinding,CuriousContraptions.Presentation.AnimationBatch.Slot,CuriousContraptions.Presentation.AnimationValue,CuriousContraptions.Presentation.AnimationValue)~CuriousContraptions.Presentation.AnimationBatch.Handle"),
+        new("M:CuriousContraptions.Presentation.AnimationBatch.Remove(CuriousContraptions.Presentation.IAnimationHandle)"),
         new("M:CuriousContraptions.Presentation.AnimationBatch.FillFree"),
         // Story 9R.5b (reviewed): the registry's own growth resizes the free stack and pushes the new slots; the Animation kernel
         // still owns the storage and no reference leaves AnimationBatch.

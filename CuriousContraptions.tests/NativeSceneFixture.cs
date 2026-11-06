@@ -1,3 +1,6 @@
+using Godot;
+using Environment = System.Environment;
+using CuriousContraptions.Gpu;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using twodog.Testing;
@@ -139,13 +142,68 @@ internal sealed class NativeTestEnvironment
     }
 }
 
-public sealed class NativeSceneFixture : FixtureBase
+public sealed class NativeSceneFixture : FixtureBase, IAsyncLifetime
 {
     internal NativeTestEnvironment Environment { get; }
+    private WorkshopIntegrationHarness? _startupHarness;
     public NativeSceneFixture() : this(NativeTestEnvironment.Prepare()) { }
     private NativeSceneFixture(NativeTestEnvironment environment) : base(environment.Arguments)
         => Environment = environment;
+
+    public async ValueTask InitializeAsync()
+    {
+        // This assembly's single fixture must establish cold startup before any test accesses the catalogue.
+        Assert.Throws<InvalidOperationException>(() => PuzzleCatalogue.Playable);
+        var scene = GD.Load<PackedScene>(NativeTestBoundary.WorkshopResource).Instantiate<Workshop>();
+        scene.StartObservation = _ => Task.CompletedTask; // External browser registration is explicitly supplied by this native host.
+        scene.ClientFactory = async () =>
+        {
+            _startupHarness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+            return new WorkshopIntegrationClient(_startupHarness);
+        };
+        Tree.Root.AddChild(scene);
+        try
+        {
+            await scene.Startup;
+            Assert.NotEmpty(PuzzleCatalogue.Playable);
+            var first = PuzzleCatalogue.Playable[0];
+            var picker = Assert.IsType<OptionButton>(scene.FindChild(WorkshopUiControlBoundary.NodeName(WorkshopUiControl.LevelPicker), true, false));
+            Assert.Equal(PuzzleCatalogue.Playable.Count + 1, picker.ItemCount);
+            Assert.Equal(PuzzleCatalogue.Presentation(first).Title, picker.GetItemText(0));
+            picker.EmitSignal(OptionButton.SignalName.ItemSelected, 0L);
+            for (var turn = 0; turn < 120 && scene.World.Construction.Puzzle.Id != first; turn++)
+            {
+                Engine.Iteration();
+                await Task.Yield();
+            }
+            Assert.Equal(first, scene.World.Construction.Puzzle.Id);
+        }
+        finally
+        {
+            scene.Free();
+            Engine.Iteration();
+            if (_startupHarness is { } harness) await harness.DisposeAsync();
+        }
+        Assert.Empty(Errors.Drain());
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return ValueTask.CompletedTask;
+    }
 }
 
 [CollectionDefinition(DisableParallelization = true)]
 public sealed class NativeSceneCollectionDefinition : ICollectionFixture<NativeSceneFixture>;
+
+/// <summary>One existing 2dog-owned collection initializes the cold Workshop before every game test.</summary>
+public sealed class NativeSceneCollectionFactory(Xunit.v3.IXunitTestAssembly assembly) : Xunit.v3.IXunitTestCollectionFactory
+{
+    private readonly Xunit.v3.IXunitTestCollection _collection = new Xunit.v3.XunitTestCollection(assembly,
+        typeof(NativeSceneCollectionDefinition), disableParallelization: true, displayName: "Native game tests");
+
+    public string DisplayName => "Single native engine collection";
+
+    public Xunit.v3.IXunitTestCollection Get(Type testClass) => _collection;
+}

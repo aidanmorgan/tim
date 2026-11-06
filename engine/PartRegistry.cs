@@ -18,7 +18,7 @@ namespace CuriousContraptions;
 /// an entry whose scene or icon does not load, refuses the whole load with a message naming the problem; nothing is loaded from
 /// anywhere else and nothing is kept from a refused load. The bundle is the sole membership authority.
 /// </summary>
-public sealed class PartRegistry
+public sealed class PartRegistry(IPresentationServices presentation, IBundleServices bundle)
 {
     /// <summary>The generated bundle (tools/BundleElements writes it on every build and before every export).</summary>
     public const string BundlePath = "res://elements/elements.bundle.json";
@@ -57,7 +57,7 @@ public sealed class PartRegistry
     public void Load(string json)
     {
         var definitions = new List<PartDefinition>(32);
-        var entries = Read(json);
+        var entries = Read(bundle, json);
         foreach (var entry in entries)
         {
             var id = new PartId(entry.Metadata.Id);
@@ -78,24 +78,24 @@ public sealed class PartRegistry
     }
 
     /// <summary>The bundle's entries in ascending palette order, after the same structural validation the generator runs.</summary>
-    public static IReadOnlyList<BundleEntry> Read(string json)
+    public static IReadOnlyList<BundleEntry> Read(IBundleServices bundle, string json)
     {
         ArgumentNullException.ThrowIfNull(json);
         BundleDocument document;
         try
         {
-            document = BundleSchema.Read(json);
+            document = bundle.Read(json);
         }
         catch (JsonException error)
         {
             throw new InvalidDataException($"The element bundle '{BundlePath}' is malformed: {error.Message}", error);
         }
-        var errors = BundleValidator.Validate(document.Elements.Select(entry => new NamedEntry(entry.Metadata.Id, entry)).ToArray());
+        var errors = bundle.Validate(document.Elements.Select(entry => new NamedEntry(entry.Metadata.Id, entry)).ToArray());
         if (errors.Count > 0) throw Invalid(string.Join("; ", errors));
         return document.Elements.OrderBy(entry => entry.Metadata.PaletteOrder).ToArray();
     }
 
-    private static PartDefinition Definition(PartId id, BundleEntry entry)
+    private PartDefinition Definition(PartId id, BundleEntry entry)
     {
         var metadata = entry.Metadata;
         if (!ResourceLoader.Exists(metadata.ScenePath)) throw Invalid($"{id}.Metadata.ScenePath: '{metadata.ScenePath}' does not exist");
@@ -103,7 +103,7 @@ public sealed class PartRegistry
         var scene = ResourceLoader.Load<PackedScene>(metadata.ScenePath)
             ?? throw Invalid($"{id}.Metadata.ScenePath: '{metadata.ScenePath}' is not a scene");
         var color = metadata.Color;
-        return new PartDefinition(id, metadata.DisplayName, metadata.Description, metadata.Category, new(color.R, color.G, color.B, color.A),
+        return new PartDefinition(bundle, id, metadata.DisplayName, metadata.Description, metadata.Category, new(color.R, color.G, color.B, color.A),
             metadata.IconPath, scene, entry);
     }
 
@@ -118,7 +118,7 @@ public sealed class PartRegistry
         var part = definition.Scene.Instantiate<MachinePart>();
         try
         {
-            part.Configure(definition);
+            part.Configure(presentation, definition);
             return part;
         }
         catch

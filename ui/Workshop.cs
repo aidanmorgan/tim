@@ -1,4 +1,6 @@
 using Godot;
+using CuriousContraptions.Abstractions;
+using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 using System.Threading.Tasks;
 using System;
@@ -12,7 +14,9 @@ namespace CuriousContraptions;
 public partial class Workshop : Node3D
 {
     private static readonly Color Navy = new("#293954"), Muted = new("#48556a"), Cream = new("#25344b"), Mint = new("#326537");
-    public WorkshopDiagnostics Diagnostics { get; } = new();
+    private ICoreServices _core = null!;
+    private IBundleServices _bundle = null!;
+    public IWorkshopDiagnostics Diagnostics { get; private set; } = null!;
     public MachineWorld World { get; private set; } = null!;
     private Camera3D _camera = null!;
     private CanvasLayer _canvas = null!;
@@ -52,11 +56,21 @@ public partial class Workshop : Node3D
     private Func<Task<IWorkshopClient>>? _clientFactory;
     internal Func<Task<IWorkshopClient>> ClientFactory
     {
-        get => _clientFactory ?? (async () => await BrowserWorkshopClient.Create(_observation ?? throw new InvalidOperationException("Observation session has not started."), Diagnostics));
+        get => _clientFactory ?? (async () => await BrowserWorkshopClient.Create(_core, _bundle, _observation ?? throw new InvalidOperationException("Observation session has not started."), Diagnostics));
         set => _clientFactory = value;
     }
-    internal Func<IWorkshopObservation, Task> StartObservation { get; set; } = port =>
-        OperatingSystem.IsBrowser() ? BrowserWorkshopObservation.Start(port) : Task.CompletedTask;
+    private Func<IWorkshopObservation, Task>? _startObservation;
+    internal Func<IWorkshopObservation, Task> StartObservation
+    {
+        get => _startObservation ?? StartBrowserObservation;
+        set => _startObservation = value;
+    }
+    private Task StartBrowserObservation(IWorkshopObservation port)
+    {
+        if (!OperatingSystem.IsBrowser())
+            throw new PlatformNotSupportedException("Workshop observation requires a browser document.");
+        return BrowserWorkshopObservation.Start(_core.Presentation, port);
+    }
     internal Task Startup { get; private set; } = Task.CompletedTask;
     internal IWorkshopSaveStore SaveStore { get; set; } = new BrowserWorkshopSaveStore();
 
@@ -65,21 +79,32 @@ public partial class Workshop : Node3D
         try { Startup = ReadyAsync(); await Startup; }
         catch (Exception error) { HandlerFailed(nameof(_Ready), error); }
     }
+    protected void RefuseStartup(EngineProviderException error)
+    {
+        ProcessMode = ProcessModeEnum.Disabled;
+        GD.PushError(error.ToString());
+        AddChild(new Label { Text = error.Message });
+    }
+
     private async Task ReadyAsync()
     {
-        _observation = WorkshopObservation.Begin(Diagnostics);
-        World = new MachineWorld { Name = "Machine", Diagnostics = Diagnostics };
+        ICoreServices core;
+        IBundleServices bundle;
+        try { core = RuntimeProviders.Core(); bundle = RuntimeProviders.Bundle(); }
+        catch (EngineProviderException error)
+        {
+            RefuseStartup(error);
+            return;
+        }
+        var diagnostics = core.CreateDiagnostics();
+        _core = core; _bundle = bundle; Diagnostics = diagnostics;
+        _observation = WorkshopObservation.Begin(core, diagnostics);
+        World = new MachineWorld { Core = core, Bundle = bundle, Registry = new(core.Presentation, bundle), Placement = new(core.Geometry, bundle), Name = "Machine", Diagnostics = diagnostics };
         AddChild(World);
         MakeStage();
         MakeInterface();
         InitializeUiAnimations();
         MakeGuidance();
-        var authoredChoices = PuzzleCatalogue.Playable;
-        var choices = new List<PuzzleId>(authoredChoices);
-        choices.Insert(Math.Min(1, choices.Count), default);
-        _puzzleChoices = choices.ToArray();
-        foreach (var choice in _puzzleChoices)
-            _picker.AddItem(choice.IsAuthored ? PuzzleCatalogue.Presentation(choice).Title : "Free workshop");
         try { await StartObservation(_observation); }
         catch (Exception error)
         {
@@ -92,7 +117,7 @@ public partial class Workshop : Node3D
         if (_workshopUiRemoved) return;
         // Story 9A.14: the catalogue is the generated element bundle alone; a missing or invalid bundle stops start-up here.
         // Story 9A.17: its declared ports are the only port source; construction validation reads them once installed.
-        try { World.Registry.LoadFile(BundleResourcePath); DeclaredPorts.Install(World.Registry.Ports); DeclaredPhysics.Install(World.Registry.Physics); }
+        try { World.Registry.LoadFile(BundleResourcePath); DeclaredPorts.Install(World.Registry.Ports); DeclaredPhysics.Install(_bundle, World.Registry.Physics); }
         catch (System.IO.InvalidDataException error)
         {
             Diagnostics.Fault(FaultSite.Startup, error);
@@ -100,6 +125,13 @@ public partial class Workshop : Node3D
             if (_workshopUiRemoved) return; _status.Text = error.Message; _state.Text = "PARTS UNAVAILABLE";
             return;
         }
+        PuzzleCatalogue.Install(core, bundle);
+        var authoredChoices = PuzzleCatalogue.Playable;
+        var choices = new List<PuzzleId>(authoredChoices);
+        choices.Insert(Math.Min(1, choices.Count), default);
+        _puzzleChoices = choices.ToArray();
+        foreach (var choice in _puzzleChoices)
+            _picker.AddItem(choice.IsAuthored ? PuzzleCatalogue.Presentation(choice).Title : "Free workshop");
         PresentMode();
         _picker.Select(Array.IndexOf(_puzzleChoices, default(PuzzleId)));
         try { await World.InitializeWorkshop(ClientFactory); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
@@ -866,7 +898,7 @@ public partial class Workshop : Node3D
         _gpuPending = true; RefreshPalette();
         try
         {
-            var bytes = WorkshopSaveCodec.Encode(new(World.Construction, _nextId));
+            var bytes = WorkshopSaveCodec.Encode(_core.Supply, _bundle, new(World.Construction, _nextId));
             await SaveStore.Save(bytes);
             stored = true;
             if (_workshopUiRemoved) return;
@@ -904,7 +936,7 @@ public partial class Workshop : Node3D
             if (encoded.Length == 0) { _status.Text = "No construction has been saved in this browser."; return; }
             // Browser storage is untrusted input: anything but an admissible save of the loaded bundle's elements is the save
             // codec's typed refusal.
-            var saved = WorkshopSaveCodec.DecodeStored(World.Registry.Elements, encoded);
+            var saved = WorkshopSaveCodec.DecodeStored(_core.Codecs.Commands, _core.Supply, _bundle, World.Registry.Elements, encoded);
             if (saved.Construction.Settings != World.Construction.Settings)
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.SaveSettingsMismatch, "This save uses different simulation settings.");
             // SubmitConstruction owns the existing GPU admission and installation barrier.

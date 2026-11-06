@@ -34,30 +34,22 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
     private readonly WorkshopConnection[] _items;
     public static WorkshopConnections Empty { get; } = new();
     public WorkshopConnections(params WorkshopConnection[] items) => _items = (WorkshopConnection[])items.Clone();
-    public static WorkshopConnection MeasureRope(WorkshopInstances instances, GpuBodyId source, GpuBodyId target, PortId output = default, PortId input = default)
+    public static WorkshopConnection MeasureRope(ISupplyQueries supply, WorkshopInstances instances, GpuBodyId source, GpuBodyId target, PortId output, PortId input)
     {
-        output = output == default ? DefaultRopePort(source) : output;
-        input = input == default ? DefaultRopePort(target) : input;
         Vector3 Attachment(GpuBodyId owner, PortId portId)
         {
             if (instances.SingleOrDefault(p => p.Id == owner) is not WorkshopGenericInstance instance)
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Absent rope endpoint.");
+            if (!DeclaredPorts.Current.Has(instance.PartId, portId, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional))
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Absent or incompatible rope socket.");
             var local = DeclaredPorts.Current.LocalPosition(instance, portId);
             return new Vector3((instance.Cell.X + instance.Local.X) / 16f, (instance.Cell.Y + instance.Local.Y) / 16f,
                 (instance.Cell.Z + instance.Local.Z) / 16f) + Vector3.Transform(local,
                 new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W));
         }
-        PortId DefaultRopePort(GpuBodyId owner)
-        {
-            if (instances.SingleOrDefault(p => p.Id == owner) is not WorkshopGenericInstance instance)
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Absent rope endpoint.");
-            foreach (var p in DeclaredPorts.Current.Of(instance.PartId))
-                if (p.Domain == WorkshopConnectionDomain.Rope) return p.Id;
-            return PortId.Tie;
-        }
         var link = new WorkshopConnection(source, output, target, input, WorkshopConnectionDomain.Rope,
             Vector3.Distance(Attachment(source, output), Attachment(target, input)));
-        new WorkshopConnections(link).Validate(instances);
+        new WorkshopConnections(link).Validate(supply, instances);
         return link;
     }
     public int Count => _items.Length;
@@ -72,17 +64,17 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
         foreach (var link in _items) if (link.Source == id) return true;
         return false;
     }
-    public void Validate(WorkshopInstances instances)
+    public void Validate(ISupplyQueries supply, WorkshopInstances instances)
     {
         ArgumentNullException.ThrowIfNull(instances);
-        Validate(id => instances.FirstOrDefault(part => part.Id == id)?.PartId);
+        Validate(supply, id => instances.FirstOrDefault(part => part.Id == id)?.PartId);
         _ = new WorkshopSignalGraph(instances, this);
     }
 
     /// <summary>The connection rules over the parts the construction names: a typed refusal for every inadmissible connection.
     /// The ports are the loaded bundle's declared ports (Story 9A.17). A stored save's pre-validation applies them to its saved
     /// part identities before any instance is constructed.</summary>
-    internal void Validate(Func<GpuBodyId, PartId?> partOf)
+    internal void Validate(ISupplyQueries supply, Func<GpuBodyId, PartId?> partOf)
     {
         ArgumentNullException.ThrowIfNull(partOf);
         if (_items.Length == 0) return;
@@ -118,7 +110,7 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
             ports.Of(partOf(endpoint.Body)!.Value).ToArray().Single(port => port.Id == endpoint.Socket).AttachmentRole);
         // Every electrical wire is a potential path, open contacts included: a loop through a nonmonotone gate is refused here, in
         // build mode, before any construction or solve sees it. The rule reads each part's declared gate law, never its identity.
-        var loop = SupplyCycles.NonmonotoneCycle(
+        var loop = supply.NonmonotoneCycle(
             _items.Where(link => link.Domain == WorkshopConnectionDomain.Electrical).Select(link => (link.Source, link.Target)),
             owner => DeclaredPhysics.Of(partOf(owner)!.Value).Electrical?.Supply?.Operation);
         if (loop.Length != 0)

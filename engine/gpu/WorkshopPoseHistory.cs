@@ -3,21 +3,11 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PresentationBoundary { Continuous, Seed, Run, Completed }
-public enum PresentationQuality { AwaitingHistory, Interpolated, ClockInvalid, Stale, Terminal, Faulted, Retired }
-public readonly record struct PresentationSimulationTime(PhysicalTime Time);
-public readonly record struct PresentedBody(GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation);
-public readonly record struct WorkshopPresentationSample(PresentedBodySet Bodies, MonotonicNanoseconds? DisplayWall,
-    PresentationSimulationTime SimulationTime, PresentationQuality Quality, WorkshopPresentationEvidence Evidence = default, PhysicsCaptureRead Captures = default, WorkshopClockStamp? FeedbackCapture = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default);
-public readonly record struct PresentationEndpoint(SimulationTick Tick, WorkshopClockStamp Capture, MappedCapture? Mapped);
-public readonly record struct WorkshopPresentationEvidence(MonotonicNanoseconds SelectedAt, ulong ClockEpoch, ulong DisplayEpoch,
-    SimulationEpoch WorldEpoch, PresentationEndpoint? Latest, PresentationEndpoint? Before, PresentationEndpoint? After);
-
 /// <summary>
 /// Sole browser physical history: seven complete canonical records. Rendered poses have no
 /// authoritative tick or velocity; interpolation cannot become a simulation input.
 /// </summary>
-public sealed class WorkshopPoseHistory
+public sealed class WorkshopPoseHistory : IWorkshopPoseHistory
 {
     public const int Capacity = 7;
     public const long DelayNanoseconds = 16_666_667;
@@ -37,7 +27,7 @@ public sealed class WorkshopPoseHistory
 
     private readonly record struct Entry(WorkshopResponse Response, MappedCapture? Mapped);
 
-    public Prepared PrepareInstall(WorkshopSchedule schedule, WorkshopResponse seed,
+    public IPoseHistoryPreparation PrepareInstall(WorkshopSchedule schedule, WorkshopResponse seed,
         MappedCapture? mapped, PresentationBoundary boundary, ulong clockEpoch)
     {
         schedule.Validate();
@@ -64,7 +54,7 @@ public sealed class WorkshopPoseHistory
     private uint Substeps => Schedule.Settings.PhysicalStepsPerCommit;
     private PhysicalTime TickTime(SimulationTick tick) => new(checked(tick.Value * Substeps));
 
-    public readonly struct Prepared
+    private sealed class Prepared : IPoseHistoryPreparation
     {
         internal readonly WorkshopPoseHistory Owner;
         internal readonly ulong Version, ClockEpoch;
@@ -80,7 +70,7 @@ public sealed class WorkshopPoseHistory
         }
     }
 
-    public Prepared Prepare(WorkshopResponse response, MappedCapture? mapped, PresentationBoundary boundary, ulong clockEpoch) =>
+    public IPoseHistoryPreparation Prepare(WorkshopResponse response, MappedCapture? mapped, PresentationBoundary boundary, ulong clockEpoch) =>
         PrepareCore(response, mapped, boundary, clockEpoch, null);
 
     private Prepared PrepareCore(WorkshopResponse response, MappedCapture? mapped, PresentationBoundary boundary,
@@ -107,7 +97,7 @@ public sealed class WorkshopPoseHistory
             _clockEpoch != clockEpoch || startsRun;
         var replace = false;
         ValidateHistoryContinuity(response, boundary, clockEpoch, ref mapped, ref reseed, ref replace);
-        return new(this, _version, clockEpoch, response, mapped, reseed, replace,
+        return new Prepared(this, _version, clockEpoch, response, mapped, reseed, replace,
             boundary is PresentationBoundary.Seed or PresentationBoundary.Run or PresentationBoundary.Completed, installing);
     }
 
@@ -150,9 +140,9 @@ public sealed class WorkshopPoseHistory
         }
     }
 
-    public void Commit(Prepared prepared)
+    public void Commit(IPoseHistoryPreparation candidate)
     {
-        if (!ReferenceEquals(prepared.Owner, this) || prepared.Version != _version || _retired)
+        if (candidate is not Prepared prepared || !ReferenceEquals(prepared.Owner, this) || prepared.Version != _version || _retired)
             throw new InvalidOperationException("Prepared history no longer owns this recipient.");
         // Schedule and its matching seed cross one stamped, synchronous commit boundary.
         if (prepared.Installing is { } installed) _schedule = installed;
@@ -181,7 +171,7 @@ public sealed class WorkshopPoseHistory
         response = _entries[_latest].Response; _dirty = false; return true;
     }
 
-    public bool TryPresent(MonotonicNanoseconds now, MasterTimeNanoseconds selectedMaster, WorkshopClockMapping clock, out WorkshopPresentationSample sample)
+    public bool TryPresent(MonotonicNanoseconds now, MasterTimeNanoseconds selectedMaster, IClockMapping clock, out WorkshopPresentationSample sample)
     {
         var selected = TrySelect(now, selectedMaster, clock, out sample, out var before, out var after);
         var latest = _latest < 0 ? (Entry?)null : _entries[_latest];
@@ -198,7 +188,7 @@ public sealed class WorkshopPoseHistory
     private static PresentationEndpoint? Endpoint(Entry? entry) => entry is { } value &&
         value.Response.Read.Capture is { } capture ? new(value.Response.Read.Tick, capture, value.Mapped) : null;
 
-    private bool TrySelect(MonotonicNanoseconds now, MasterTimeNanoseconds selectedMaster, WorkshopClockMapping clock,
+    private bool TrySelect(MonotonicNanoseconds now, MasterTimeNanoseconds selectedMaster, IClockMapping clock,
         out WorkshopPresentationSample sample, out Entry? selectedBefore, out Entry? selectedAfter)
     {
         sample = default; selectedBefore = selectedAfter = null;

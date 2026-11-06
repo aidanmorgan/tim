@@ -1,4 +1,4 @@
-using CuriousContraptions;
+using CuriousContraptions.Web;
 using Godot;
 using Engine = twodog.Engine;
 
@@ -15,7 +15,7 @@ internal static class Program
         // The Godot project's assembly owns the source-generated plugins
         // initializer; register it before Start() (there is no
         // GodotPlugins.dll on web).
-        Engine.RegisterWebPluginsInitializer(TwoDogWebBoot.PluginsInitializer());
+        Engine.RegisterWebPluginsInitializer(RuntimeProviders.GameBootstrap().PluginsInitializer());
 
         // args come from the page's GODOT_CONFIG.args plus the
         // '--main-pack godot.pck' the engine loader prepends.

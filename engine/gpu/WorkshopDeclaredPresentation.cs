@@ -5,12 +5,11 @@ using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions.Gpu;
 
-public readonly record struct DeclaredPresentationSample(
-    AnimationTargetId Target, GpuBodyId Owner, int Binding, AnimationValue Value);
+
 
 /// <summary>Animation-owned evaluation of every declared binding: committed-state queries from each committed read, and one-shot
 /// cues from the event ring (Story 9A.23/9A.25b). Main-thread code only applies the resulting property samples.</summary>
-public sealed class WorkshopDeclaredPresentation
+public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
 {
     public const ulong TargetBase = 5UL << 32;
     private sealed class Track
@@ -24,7 +23,7 @@ public sealed class WorkshopDeclaredPresentation
         public ActivationNodeDeclaration Node;
         public SupplyConsumer? Actuator;
         public float Capacity;
-        public AnimationHandle? Handle;
+        public IAnimationHandle? Handle;
         public float Input;
         public AnimationValue FollowTarget;
         public uint Count;
@@ -39,15 +38,15 @@ public sealed class WorkshopDeclaredPresentation
     /// cue is lost and never replayed; committed levels self-correct from the next read.</summary>
     public ulong Lapped { get; private set; }
     private readonly Track[] _tracks;
-    private readonly AnimationBatch _batch;
+    private readonly IAnimationBatch _batch;
     private WorkshopResponse _latest;
     private readonly List<DeclaredPresentationSample> _samples = new(16);
     private ulong _frame;
     private PhysicalTime _time;
     private readonly uint _substeps;
-    private readonly WorkshopCompiledScene _construction;
+    private readonly ICompiledScene _construction;
 
-    public WorkshopDeclaredPresentation(WorkshopCompiledScene construction, WorkshopResponse endpoint)
+    public WorkshopDeclaredPresentation(IAnimationServices animation, ICompiledScene construction, WorkshopResponse endpoint)
     {
         if (endpoint.Read.Epoch.Value == 0) throw new ArgumentException("Presentation needs an installed world.");
         _construction = construction;
@@ -64,7 +63,7 @@ public sealed class WorkshopDeclaredPresentation
                 Capacity = binding.SourceCapacity, Actuator = binding.Actuator, Guide = binding.Guide });
         }
         _tracks = tracks.ToArray();
-        _batch = new();
+        _batch = animation.CreateBatch();
         _batch.EnsureCapacity(_tracks.Length);
         foreach (var track in _tracks)
         {
@@ -112,7 +111,7 @@ public sealed class WorkshopDeclaredPresentation
         ApplyRead(endpoint.Read);
     }
 
-    public static IReadOnlyList<(AnimationTargetId Target, GpuBodyId Owner, int Binding)> Targets(WorkshopCompiledScene construction)
+    public static IReadOnlyList<(AnimationTargetId Target, GpuBodyId Owner, int Binding)> Targets(ICompiledScene construction)
     {
         var result = new List<(AnimationTargetId, GpuBodyId, int)>(16);
         foreach (var binding in construction.Presentation)
@@ -149,7 +148,7 @@ public sealed class WorkshopDeclaredPresentation
                 if (!Matches(track, record)) continue;
                 counts[i] = checked(counts[i] + 1);
                 if (track.Declaration.Curve == PresentationCurve.SineSquaredPulse)
-                    _batch.ValidateImpulseAdmission(track.Handle!.Value, new(record.Sequence), new(1));
+                    _batch.ValidateImpulseAdmission(track.Handle!, new(record.Sequence), new(1));
             }
         }
         // Prepare only the actual matching occurrences. No cue, sequence or level changes before all reservations succeed.
@@ -158,7 +157,7 @@ public sealed class WorkshopDeclaredPresentation
             if (counts[i] == 0) continue;
             var track = _tracks[i];
             if (track.Declaration.Curve == PresentationCurve.SineSquaredPulse)
-                _batch.ReserveImpulses(track.Handle!.Value, counts[i]);
+                _batch.ReserveImpulses(track.Handle!, counts[i]);
             else
             {
                 var required = (long)track.Cues.Count + counts[i];
@@ -178,7 +177,7 @@ public sealed class WorkshopDeclaredPresentation
             {
                 if (!Matches(track, record)) continue;
                 if (track.Declaration.Curve == PresentationCurve.SineSquaredPulse)
-                    _batch.EnqueueImpulse(track.Handle!.Value, new(record.Sequence), new(1), at);
+                    _batch.EnqueueImpulse(track.Handle!, new(record.Sequence), new(1), at);
                 else track.Cues.Add(at);
             }
         }
@@ -198,11 +197,11 @@ public sealed class WorkshopDeclaredPresentation
         _latest = response;
     }
 
-    public bool CanRetain(WorkshopCompiledScene construction, WorkshopResponse endpoint) =>
+    public bool CanRetain(ICompiledScene construction, WorkshopResponse endpoint) =>
         endpoint.Read.Epoch == _latest.Read.Epoch &&
         construction.Identity == _construction.Identity;
 
-    public void ValidateRebind(WorkshopCompiledScene construction, WorkshopResponse endpoint)
+    public void ValidateRebind(ICompiledScene construction, WorkshopResponse endpoint)
     {
         if (!CanRetain(construction, endpoint) || endpoint.Session != _latest.Session ||
             endpoint.MasterGeneration != _latest.MasterGeneration || endpoint.Projection.Value <= _latest.Projection.Value ||
@@ -213,7 +212,7 @@ public sealed class WorkshopDeclaredPresentation
         _ = StageRead(endpoint.Read);
     }
 
-    public void Rebind(WorkshopCompiledScene construction, WorkshopResponse endpoint)
+    public void Rebind(ICompiledScene construction, WorkshopResponse endpoint)
     {
         // Prepare only validates; a matching worker Commit is the sole caller that changes active state.
         ValidateRebind(construction, endpoint);
@@ -244,15 +243,15 @@ public sealed class WorkshopDeclaredPresentation
                 if (count > Array.MaxLength) throw new AnimationStorageException();
                 if (count > 0)
                 {
-                    _batch.ValidateImpulseAdmission(previous.Handle!.Value, new(staged[i].Count), new(1));
-                    _batch.ReserveImpulses(previous.Handle.Value, (int)count);
+                    _batch.ValidateImpulseAdmission(previous.Handle!, new(staged[i].Count), new(1));
+                    _batch.ReserveImpulses(previous.Handle!, (int)count);
                 }
             }
             if (staged[i].Declaration.Curve == PresentationCurve.ExponentialFollow)
             {
                 var d = staged[i].Declaration;
                 staged[i].FollowTarget = Value(d.Property, float.Lerp(d.From, d.To, staged[i].Input));
-                _batch.ValidateFollowValue(staged[i].Handle!.Value, staged[i].FollowTarget, _time);
+                _batch.ValidateFollowValue(staged[i].Handle!, staged[i].FollowTarget, _time);
             }
         }
         return staged;
@@ -267,12 +266,12 @@ public sealed class WorkshopDeclaredPresentation
             var input = next.Input;
             if (d.Curve == PresentationCurve.ExponentialFollow)
             {
-                _batch.FollowValue(track.Handle!.Value, next.FollowTarget, _time);
+                _batch.FollowValue(track.Handle!, next.FollowTarget, _time);
             }
             else if (d.Curve == PresentationCurve.LinearDecay)
             {
                 for (ulong occurrence = (ulong)track.Count + 1; occurrence <= next.Count; occurrence++)
-                    _batch.EnqueueImpulse(track.Handle!.Value, new(occurrence), new(1),
+                    _batch.EnqueueImpulse(track.Handle!, new(occurrence), new(1),
                         new PhysicalTime(checked(read.Tick.Value * _substeps)));
             }
             else if (track.Handle is { } handle && input != track.Input)
@@ -394,7 +393,7 @@ public sealed class WorkshopDeclaredPresentation
     {
         foreach (var actuator in read.Presentation.Actuators)
             if (actuator.Owner == track.Owner && actuator.Drive == track.Actuator)
-                return actuator.Blocked ? ActuatorObservationState.Blocked :
+                return actuator.IsBlocked() ? ActuatorObservationState.Blocked :
                     actuator.SupplyClosed ? ActuatorObservationState.Powered : ActuatorObservationState.Unpowered;
         throw new ArgumentException("Declared actuator state is absent from the committed read.");
     }
@@ -437,7 +436,7 @@ public sealed class WorkshopDeclaredPresentation
 
     /// <summary>Worker schedule evaluation cannot outrun its admitted committed read. A stopped projection holds its anchor;
     /// running interpolation is bounded by that same committed world, so Pause/Step/Completed never rewind retained channels.</summary>
-    internal IReadOnlyList<DeclaredPresentationSample> Advance(WorkshopSchedule schedule, PhysicalTime master)
+    public IReadOnlyList<DeclaredPresentationSample> Advance(WorkshopSchedule schedule, PhysicalTime master)
     {
         if (schedule.World.WorldGeneration != _latest.Read.Epoch || schedule.World.Epoch != _latest.Projection ||
             schedule.Settings != _construction.Settings)
@@ -463,7 +462,7 @@ public sealed class WorkshopDeclaredPresentation
             var reached = -1;
             while (reached + 1 < track.Cues.Count && track.Cues[reached + 1] <= _time) reached++;
             if (reached < 0) continue;
-            _batch.StartAtOccurrence(track.Handle!.Value, track.Cues[reached]);
+            _batch.StartAtOccurrence(track.Handle!, track.Cues[reached]);
             track.Cues.RemoveRange(0, reached + 1);
         }
         _batch.Advance(++_frame, default, _time);
@@ -493,13 +492,13 @@ public sealed class WorkshopDeclaredPresentation
         return _samples;
     }
 
-    public void SetVisible(AnimationTargetId target, AnimationProperty property, bool visible)
+    public void SetVisible(AnimationTargetId target, AnimationProperty channel, bool visible)
     {
         foreach (var track in _tracks)
             if (track.Target == target)
             {
-                if (Property(track.Declaration.Property) != property)
-                    throw new ArgumentException("Visibility property does not match its declared target.");
+                if (Property(track.Declaration.Property) != channel)
+                    throw new ArgumentException("Visibility channel does not match its declared target.");
                 foreach (var owned in _tracks)
                     if (owned.Owner == track.Owner)
                     {

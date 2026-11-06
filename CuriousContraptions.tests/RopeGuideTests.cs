@@ -202,7 +202,7 @@ public sealed class RopeGuideTests
         Assert.InRange(MathF.Abs(evaluated.TotalLength - Vector3.Distance(posA, posB)), 0f, 1e-5f);
 
         // In simulation, 1 direct span produces empty Guides read
-        var anchor = WorkshopInput.Generic(new("rope_anchor"), new(1), 0f, 6f, -.18f, 0f, 0f, 0f, 1f);
+        var anchor = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), new(1), 0f, 6f, -.18f, 0f, 0f, 0f, 1f);
         var weight = WeightTests.Placed(2, 0f, 3f, 0f, 4f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight),
             Connections: new(new WorkshopConnection(new(1), PortId.Tie, new(2), PortId.Tie, WorkshopConnectionDomain.Rope, 3f)));
@@ -307,8 +307,8 @@ public sealed class RopeGuideTests
     {
         // 2-pulley Atwood setup
         var a = WeightTests.Placed(1, -2.4f, 2.5f, 0f, 2f);
-        var p1 = WorkshopInput.Generic(new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
-        var p2 = WorkshopInput.Generic(new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
+        var p1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(2), -2f, 6f, -.12f, 0, 0, 0, 1);
+        var p2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(3), 2f, 6f, -.12f, 0, 0, 0, 1);
         var b = WeightTests.Placed(4, 2.4f, 3.5f, 0f, 6f);
         var tieA = DeclaredPorts.Current.LocalPosition(a, PortId.Tie);
         var tieB = DeclaredPorts.Current.LocalPosition(b, PortId.Tie);

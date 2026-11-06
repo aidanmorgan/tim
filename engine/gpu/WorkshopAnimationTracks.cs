@@ -4,15 +4,16 @@ using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions.Gpu;
 
-public readonly record struct AnimationControlApplication(float Value, bool Started);
+
 
 /// <summary>Session-owned control tracks. Physical-world retirement preserves autonomous UI tracks;
 /// declared per-world presentation has its own independent owner.</summary>
-public sealed class WorkshopAnimationTracks
+public sealed class WorkshopAnimationTracks : IWorkshopAnimationTracks
 {
-    private readonly AnimationBatch Tracks = new();
+    private readonly IAnimationBatch Tracks;
+    public WorkshopAnimationTracks(IAnimationServices animation) => Tracks = animation.CreateBatch();
     private Track[] Instances = new Track[16];
-    private struct Track { public AnimationHandle? Handle; public WorkshopAnimationControl Control; }
+    private struct Track { public IAnimationHandle? Handle; public WorkshopAnimationControl Control; }
     public int Capacity => Instances.Length;
 
     public void Validate(WorkshopAnimationControl control)
@@ -79,10 +80,10 @@ public sealed class WorkshopAnimationTracks
         }
         else
         {
-            Tracks.SetVisible(previous.Handle!.Value, control.Visible);
+            Tracks.SetVisible(previous.Handle!, control.Visible);
             Instances[slot].Control = control;
         }
-        return new(BitConverter.UInt32BitsToSingle(Tracks.Read(Instances[slot].Handle!.Value).Value.CanonicalBits), started);
+        return new(BitConverter.UInt32BitsToSingle(Tracks.Read(Instances[slot].Handle!).Value.CanonicalBits), started);
     }
 
     public void Advance(ulong sequence, PhysicalTime presentationTime) => Tracks.Advance(sequence, presentationTime, default);

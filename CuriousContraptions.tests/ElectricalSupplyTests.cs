@@ -14,30 +14,31 @@ public sealed class ElectricalSupplyTests
     public void F32AuthoringWiringAndSaveRoundTripWithAtomicAmbiguousSourceRejection(ElectricalEnable enabled)
     {
         var battery = PlacedParts.Battery(new(1), 0, 0, 0, 3600.0002f, 120.00001f, .1234567f, enabled);
-        var bumper = WorkshopInput.Generic(new PartId("bumper"), new(2), 3, 4, 0, 0, 0, 0, 1);
+        var bumper = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(2), 3, 4, 0, 0, 0, 0, 1);
         var link = new WorkshopConnection(battery.Id, PortId.Supply, bumper.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(battery, bumper), Connections: new(link));
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         var saved = new WorkshopSavedConstruction(construction, new(3));
-        var original = WorkshopSaveCodec.Encode(saved);
+        var original = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
         // An enable index that names no declared option, or a fraction of one, is refused (built through the schema, not a byte
         // offset): the declared Choice admits exactly 0 (Disabled) and 1 (Enabled).
         foreach (var undefined in new[] { 2f, .5f, -1f })
         {
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var values = battery.Parameters.ToDictionary(); values[new("enabled")] = undefined;
-            var record = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, construction with
-                { Instances = new(battery with { Parameters = new(values) }, bumper) }, validate: false);
+            var record = SaveFixture.Record(builder, construction with
+                { Instances = new(battery with { Parameters = new(values) }, bumper) });
             var savedBytes = SaveFixture.Finish(builder, record, 3);
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, savedBytes));
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, savedBytes));
         }
-        var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements,original);
+        var restored = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,original);
         Assert.Equal(battery, Assert.IsType<WorkshopGenericInstance>(restored.Construction.Instances[0]));
-        Assert.Equal(original, WorkshopSaveCodec.Encode(restored));
-        var scene = WorkshopPhysicsCompiler.Compile(restored.Construction, new(1, 2));
+        Assert.Equal(saved, restored);
+        Assert.Equal(new GpuBodyId(3), restored.NextBodyId);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, restored.Construction, new(1, 2));
         Assert.Single(scene.Electrical.Bindings.ToArray());
-        Assert.Equal(0, WorkshopActivationCompiler.Compile(restored.Construction).Clear().Count);
+        Assert.Equal(0, WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, restored.Construction).Clear().Count);
         // The compiled store is the declared parameters' f32 values, bit for bit; the initial energy is capacity × charge in f32.
         Assert.Equal(BitConverter.SingleToInt32Bits(3600.0002f), BitConverter.SingleToInt32Bits(scene.Electrical.Sources[0].Capacity.Value));
         Assert.Equal(BitConverter.SingleToInt32Bits(120.00001f), BitConverter.SingleToInt32Bits(scene.Electrical.Sources[0].MaximumPower.Value));
@@ -45,11 +46,16 @@ public sealed class ElectricalSupplyTests
         Assert.Equal(BitConverter.SingleToInt32Bits(3600.0002f * .1234567f), BitConverter.SingleToInt32Bits(scene.Electrical.Sources[0].InitialEnergy.Value));
         Assert.Equal(enabled, scene.Electrical.Sources[0].Enabled);
         var second = battery with { Id = new(3) };
-        var ambiguous = construction.WithInstance(second) with { Connections = new(link, link with { Source = second.Id }) };
-        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => ambiguous.Validate());
-        Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
+        var ambiguous = construction.WithInstance(RuntimeTestServices.Bundle, second) with { Connections = new(link, link with { Source = second.Id }) };
+        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => ambiguous.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         var wrongDomain = construction with { Connections = new(link with { Domain = WorkshopConnectionDomain.Activation }) };
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => wrongDomain.Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => wrongDomain.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        var afterRefusals = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply,
+            RuntimeTestServices.Bundle, SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
+        Assert.Equal(saved, afterRefusals); // Independently authored content survives both rejected edits.
+        Assert.Equal(restored, afterRefusals);
+        Assert.Equal(new GpuBodyId(3), afterRefusals.NextBodyId);
     }
 
     [Theory]
@@ -62,7 +68,7 @@ public sealed class ElectricalSupplyTests
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(PlacedParts.Battery(new(1), 0, 0, 0)));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var initial = PhysicsGpuAbi.ReadElectrical(bytes);

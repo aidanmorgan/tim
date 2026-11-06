@@ -10,7 +10,7 @@ namespace CuriousContraptions.Tests;
 public sealed class ClearPipeLevelTests
 {
     private static WorkshopConstruction Lesson(float precision) =>
-        PuzzleCatalogue.Create(new("clear_pipe"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
+        PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("clear_pipe"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
 
     [Fact]
     public void AuthoredSettingsAndFixturesMatchPuzzlesJson()
@@ -45,30 +45,30 @@ public sealed class ClearPipeLevelTests
     public void ValidateEnforcesFixturesAndInventory()
     {
         var construction = Lesson(0f);
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),new(3), 0, 3, 0, 0.7071068f, 0, 0, 0.7071068f);
-        var placed = construction.WithInstance(pipe);
-        placed.Validate();
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(3), 0, 3, 0, 0.7071068f, 0, 0, 0.7071068f);
+        var placed = construction.WithInstance(RuntimeTestServices.Bundle, pipe);
+        placed.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
         // Second pipe exceeds inventory limit
-        var pipe2 = WorkshopInput.Generic(new PartId("pipe"),new(4), 1, 3, 0, 0, 0, 0, 1);
-        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(pipe2).Validate());
+        var pipe2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(4), 1, 3, 0, 0, 0, 0, 1);
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(RuntimeTestServices.Bundle, pipe2).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
 
         // Locked player pipe is rejected
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => construction.WithInstance(pipe with { Locked = true }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => construction.WithInstance(RuntimeTestServices.Bundle, pipe with { Locked = true }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
 
         // Unlocking fixed ball or receiver is rejected
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(Payloads.First(construction) with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))) with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(RuntimeTestServices.Bundle, Payloads.First(construction) with { Locked = false }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(RuntimeTestServices.Bundle, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))) with { Locked = false }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
 
         // Unauthorized parts are rejected
-        var ramp = WorkshopInput.Generic(new PartId("ramp"), new(5), 0, 1, 0, 0, 0, 0, 1);
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(ramp).Validate());
+        var ramp = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(5), 0, 1, 0, 0, 0, 0, 1);
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(RuntimeTestServices.Bundle, ramp).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
 
         // Tampering with assistance profiles is rejected
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
 
     [Theory]
@@ -85,16 +85,16 @@ public sealed class ClearPipeLevelTests
         Assert.Equal((float)dwell, receiver.Parameters[new("capture_dwell")]);
         Assert.Equal((float)accel, receiver.Parameters[new("force_maximum_acceleration")]);
 
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),new(3), 0, 3, 0, 0, 0, 0, 1);
-        var placed = construction.WithInstance(pipe);
-        placed.Validate();
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(3), 0, 3, 0, 0, 0, 0, 1);
+        var placed = construction.WithInstance(RuntimeTestServices.Bundle, pipe);
+        placed.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
         var save = new WorkshopSavedConstruction(placed, new(10));
-        var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
 
-        var updated = PuzzleCatalogue.WithPrecision(placed, new(0.45f));
+        var updated = PuzzleCatalogue.WithPrecision(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, placed, new(0.45f));
         Assert.Equal(0.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == new PartId("basket"))).Parameters[new("capture_margin")]);
     }
 
@@ -102,10 +102,10 @@ public sealed class ClearPipeLevelTests
     public void CompilerEmitsCompoundCollidersAndSensors()
     {
         var construction = Lesson(0.45f);
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),new(3), 0, 3, 0, 0.7071068f, 0, 0, 0.7071068f);
-        var placed = construction.WithInstance(pipe);
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(3), 0, 3, 0, 0.7071068f, 0, 0, 0.7071068f);
+        var placed = construction.WithInstance(RuntimeTestServices.Bundle, pipe);
 
-        var scene = WorkshopPhysicsCompiler.Compile(placed, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, placed, new(1, 2));
 
         // Plane (1) + Ball (1) + Receiver (1) + Pipe (1) = 4 bodies
         Assert.Equal(4, scene.Bodies.Length);

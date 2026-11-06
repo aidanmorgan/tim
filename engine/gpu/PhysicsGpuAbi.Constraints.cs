@@ -102,7 +102,7 @@ public static partial class PhysicsGpuAbi
     public const int CompliantSampleStateOffset = 0;
     public const int CompliantSampleOffsetOffset = 16;
 
-    private static void WritePrismaticAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
+    private static void WritePrismaticAdmission(Span<byte> data, IPhysicsSceneDeclaration scene)
     {
         for (var i = 0; i < scene.Prismatics.Length; i++)
         {
@@ -205,7 +205,7 @@ public static partial class PhysicsGpuAbi
         }
     }
 
-    private static void WriteRevoluteAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
+    private static void WriteRevoluteAdmission(Span<byte> data, IPhysicsSceneDeclaration scene)
     {
         for (var i = 0; i < scene.Revolutes.Length; i++)
         {
@@ -336,7 +336,7 @@ public static partial class PhysicsGpuAbi
         }
     }
 
-    private static void WriteCompliantSurfaceAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
+    private static void WriteCompliantSurfaceAdmission(Span<byte> data, IPhysicsSceneDeclaration scene)
     {
         for (var i = 0; i < scene.CompliantSurfaces.Length; i++)
         {

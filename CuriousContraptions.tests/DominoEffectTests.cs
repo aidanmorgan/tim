@@ -9,12 +9,12 @@ public sealed class DominoEffectTests
 {
     private const double Upright = -0.46 + .55;
     private static WorkshopConstruction Lesson(float precision = default) =>
-        PuzzleCatalogue.Create(new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
+        PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
     private static readonly WorkshopConnection EndToLamp = new(new(2), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Solved(WorkshopConstruction lesson)
     {
         var result = lesson;
-        for (var i = 0; i < 4; i++) result = result.WithInstance(PlacedParts.Domino(new((ulong)(4 + i)), (float)(-4 + i), (float)(Upright + .01), 0, 0, 0, 0, 1));
+        for (var i = 0; i < 4; i++) result = result.WithInstance(RuntimeTestServices.Bundle, PlacedParts.Domino(new((ulong)(4 + i)), (float)(-4 + i), (float)(Upright + .01), 0, 0, 0, 0, 1));
         return result with { Connections = new(EndToLamp) };
     }
 
@@ -37,47 +37,47 @@ public sealed class DominoEffectTests
             Assert.InRange((cell + (double)local) / 16, metres - .0001, metres + .0001);
         Assert.Equal(PartAllowance.Counted(4), Assert.Single(WorkshopInventoryPolicy.Authored(lesson.Puzzle)).Value);
         // Declared sensors compile independently of external wiring.
-        var scene = WorkshopPhysicsCompiler.Compile(lesson, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, lesson, new(1, 2));
         Assert.Single(scene.OrientationSensors.ToArray()); Assert.Empty(scene.Triggers.ToArray());
         Assert.Equal(2, scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic));
-        Assert.Equal(2, (int)WorkshopActivationCompiler.Compile(lesson).Clear().Count);
+        Assert.Equal(2, (int)WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, lesson).Clear().Count);
     }
 
     [Fact]
     public void FourPlacedDominoesAndTheEndToLampWireRoundTripThroughSaveAndCompileEveryDeclaredSensor()
     {
         var solved = Solved(Lesson());
-        solved.Validate();
+        solved.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         var save = new WorkshopSavedConstruction(solved, new(8));
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(save));
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save));
         Assert.Equal(save, decoded);
         Assert.Equal(solved.Puzzle, decoded.Construction.Puzzle);
-        var scene = WorkshopPhysicsCompiler.Compile(decoded.Construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, decoded.Construction, new(1, 2));
         Assert.Equal(5, scene.OrientationSensors.Length);
         var sensor = Assert.Single(scene.OrientationSensors.ToArray(), row => row.Body == new GpuBodyId(2));
         Assert.Equal(new GpuBodyId(2), sensor.Body);
         Assert.Equal(6, scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic));
-        Assert.Equal(6, (int)WorkshopActivationCompiler.Compile(decoded.Construction).Clear().Count);
+        Assert.Equal(6, (int)WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, decoded.Construction).Clear().Count);
     }
 
     [Fact]
     public void ForeignInventoryExhaustedTilesChangedFixturesAndWiringIntoADominoReject()
     {
         var lesson = Lesson(); var solved = Solved(lesson);
-        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => solved.WithInstance(PlacedParts.Domino(new(9), 1, (float)(Upright), 0, 0, 0, 0, 1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(new PartId("basket"), new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(new PartId("switch"), new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(PlacedParts.Lamp(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(Payloads.First(lesson) with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(PlacedParts.Domino(new(2), .5f, .09f, 0, 0, 0, 0, 1, locked: true)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithoutInstance(new(2)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 3 } }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDuration = new(.5f) } } }).Validate());
-        Assert.Equal(new PuzzleId("delayed_signal"), PuzzleCatalogue.WithPrecision(PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f)), new(.5f)).Puzzle.Id);
-        Assert.Equal(.5f, PuzzleCatalogue.WithPrecision(lesson, new(.5f)).Puzzle.Precision.Value);
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => solved.WithInstance(RuntimeTestServices.Bundle, PlacedParts.Domino(new(9), 1, (float)(Upright), 0, 0, 0, 0, 1)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(9), 0, 1, 0, 0, 0, 0, 1)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(9), 0, 1, 0, 0, 0, 0, 1)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(RuntimeTestServices.Bundle, PlacedParts.Lamp(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(RuntimeTestServices.Bundle, Payloads.First(lesson) with { Locked = false }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(RuntimeTestServices.Bundle, PlacedParts.Domino(new(2), .5f, .09f, 0, 0, 0, 0, 1, locked: true)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithoutInstance(new(2)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 3 } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDuration = new(.5f) } } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        Assert.Equal(new PuzzleId("delayed_signal"), PuzzleCatalogue.WithPrecision(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f)), new(.5f)).Puzzle.Id);
+        Assert.Equal(.5f, PuzzleCatalogue.WithPrecision(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, lesson, new(.5f)).Puzzle.Precision.Value);
         // A Domino offers no activation input: wiring into one is rejected before any admission.
         var intoDomino = new WorkshopConnection(new(3), PortId.ActivationOut, new(2), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (lesson with { Connections = new(intoDomino) }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (lesson with { Connections = new(intoDomino) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
 
     [Fact]

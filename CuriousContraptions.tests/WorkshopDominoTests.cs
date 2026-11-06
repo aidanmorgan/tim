@@ -8,13 +8,13 @@ public sealed class WorkshopDominoTests
 {
     private const double Upright = -0.46 + .55;
     private static WorkshopConstruction Construction() => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(new PartId("ball"),new(1), .4f, 3, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), .4f, 3, 0, 0, 0, 0, 1),
             PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1)));
 
     [Fact]
     public void DominoCompilesAsOneDynamicBoxWithDeclaredMassMaterialAndGravity()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(), new(1, 2));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(2));
         Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
         Assert.Equal(new Kilograms(.4f), body.Mass);
@@ -38,7 +38,7 @@ public sealed class WorkshopDominoTests
     [Fact]
     public void CompiledInertiaIsTheHomogeneousBoxTensorAboutTheBoxCentre()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(), new(1, 2));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(2));
         var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id && c.Shape == ColliderShapeKind.Box);
         var properties = body.MassProperties;
@@ -67,24 +67,24 @@ public sealed class WorkshopDominoTests
     public void SaveRoundTripsTheGenericDominoAndRefusesAnyTypedFieldOrParameter()
     {
         var save = new WorkshopSavedConstruction(Construction(), new(3));
-        var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
         var domino = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
         Assert.Equal(new PartId("domino"), domino.PartId);
         Assert.Empty(domino.Parameters);
         Assert.DoesNotContain(DeclaredPhysics.Of(new PartId("domino")).Presentation.Bindings,
             binding => binding.Driver == CuriousContraptions.Abstractions.PresentationDriver.Event);
-        var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(1)!.Value;
+        var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(1)!.Value;
         Assert.Equal(0, record.ParametersLength);
         foreach (var forged in new[] { PayloadInstanceTests.GenericSave("domino", [("mass", .5f)]) })
         {
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, forged));
-            var forgedRecord = WorkshopSaveCodec.Open(forged).Construction!.Value.Instances(0)!.Value;
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, forged));
+            var forgedRecord = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, forged).Construction!.Value.Instances(0)!.Value;
             Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(forgedRecord)).Reason);
         }
         // Control: the bare current-layout record loads as the same generic tile.
-        Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,
+        Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
             PayloadInstanceTests.GenericSave("domino")).Construction.Instances));
     }
 
@@ -92,10 +92,10 @@ public sealed class WorkshopDominoTests
     public void TheDominoHasNoAuthorableParameterAndDeclaresActivationOutOnly()
     {
         var domino = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1));
-        domino.Validate();
+        domino.Validate(RuntimeTestServices.Bundle);
         Assert.Empty(DeclaredPhysics.Of(new PartId("domino")).Metadata.Parameters);
         foreach (var forged in new[] { "mass", "bounce", "friction", "half_extents", "threshold_degrees" })
-            Assert.Throws<ArgumentException>(() => (domino with { Parameters = new([new(new(forged), 1f)]) }).Validate());
+            Assert.Throws<ArgumentException>(() => (domino with { Parameters = new([new(new(forged), 1f)]) }).Validate(RuntimeTestServices.Bundle));
         Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(2), 0, 65, 0, 0, 0, 0, 1));
         Assert.Throws<ArgumentException>(() => PlacedParts.Domino(new(2), 0, 0, 0, 0, 0, 0, 0));
         Assert.Equal([new WorkshopPort(PortId.ActivationOut, PortRole.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Pulse,
@@ -104,7 +104,7 @@ public sealed class WorkshopDominoTests
         Assert.False(DeclaredPorts.Current.Has(new PartId("domino"), PortId.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("domino"), PortId.ActivationOut));
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
-        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+        var world = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 1, 3 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
         Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[new PartId("domino")]);
@@ -116,12 +116,12 @@ public sealed class WorkshopDominoTests
         var items = new List<IWorkshopInstance>();
         for (var i = 0; i < 16; i++) items.Add(PlacedParts.Domino(new((ulong)(i + 1)), (float)(-6 + i * .8), (float)(Upright), 0, 0, 0, 0, 1));
         var sixteen = new WorkshopInstances([.. items]);
-        sixteen.Validate();
+        sixteen.Validate(RuntimeTestServices.Bundle);
         // Story 9R.5b: the retired 16-row moving-body table no longer refuses the seventeenth moving body.
-        items.Add(WorkshopInput.Generic(new PartId("ball"),new(17), 7, 3, 0, 0, 0, 0, 1));
+        items.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(17), 7, 3, 0, 0, 0, 0, 1));
         var seventeen = new WorkshopInstances([.. items]);
-        seventeen.Validate();
-        var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), seventeen), new(1, 2));
+        seventeen.Validate(RuntimeTestServices.Bundle);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), seventeen), new(1, 2));
         Assert.Equal(17, scene.World.Dynamic);
     }
 }

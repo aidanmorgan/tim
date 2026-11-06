@@ -14,13 +14,13 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     [InlineData(-.5)]
     public void ForgivingSpringForwardReceiverBoundaryUsesCompiledSourceScene(double offset)
     {
-        var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
-        var construction = lesson.WithInstance(WorkshopInput.Generic(new PartId("spring"), new(3), -3, .8f, 0,
+        var lesson = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
+        var construction = lesson.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), new(3), -3, .8f, 0,
             0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18))));
-        var original = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var original = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var bodies = original.Bodies.ToArray();
         var receiverIndex = Array.FindIndex(bodies, b => b.Id == ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket"))).Id);
-        var shifted = WorkshopInput.Generic(new PartId("basket"), new(2), (float)(-.7 + offset), .55f, 0, 0, 0, 0, 1);
+        var shifted = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), (float)(-.7 + offset), .55f, 0, 0, 0, 0, 1);
         bodies[receiverIndex] = bodies[receiverIndex] with { Cell = shifted.Cell, Local = shifted.Local };
         var scene = new PhysicsSceneDeclaration(original.Document, original.NextIdentity, bodies,
             original.Colliders, original.Materials, original.Sensors, original.Guides,
@@ -45,7 +45,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
             twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(x => x.GetProperty("id").GetString() == sourceId);
-        var initial = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new(1f));
+        var initial = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new(1f));
         foreach (var (fixture, actual) in level.GetProperty("placements").EnumerateArray()
             .Select(row => row.GetProperty("instance")).Zip(initial.Instances))
         {
@@ -65,29 +65,29 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var inventory = WorkshopInventoryPolicy.Authored(initial.Puzzle);
         Assert.Single(inventory);
         Assert.Equal(PartAllowance.Counted(1), inventory[ready ? new PartId("basket") : new PartId("spring")]);
-        IWorkshopInstance placed = ready ? WorkshopInput.Generic(new PartId("basket"), new(3), 1.8f, 1.3f, 0, 0, 0, 0, 1)
-            : WorkshopInput.Generic(new PartId("spring"), new(3), -3, .8f, 0, 0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18)));
-        var construction = initial.WithInstance(placed); construction.Validate();
+        IWorkshopInstance placed = ready ? WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(3), 1.8f, 1.3f, 0, 0, 0, 0, 1)
+            : WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), new(3), -3, .8f, 0, 0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18)));
+        var construction = initial.WithInstance(RuntimeTestServices.Bundle, placed); construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         Assert.Equal(construction.Instances.Single(instance => instance.PartId == new PartId("basket")).Id, construction.Puzzle.Goal.Target);
         foreach (var precision in new float[] { 0f, .45f, 1f })
         {
-            var next = PuzzleCatalogue.WithPrecision(construction, new(precision));
+            var next = PuzzleCatalogue.WithPrecision(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, construction, new(precision));
             var receiver = ((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == new PartId("basket")));
             Assert.Equal((float)(precision == 0f ? .3 : precision == 1f ? .02 : .174), receiver.Parameters[new("capture_margin")]);
             Assert.Equal((float)(ready ? 0 : precision == 0f ? 12 : precision == 1f ? 0 : 6.6), receiver.Parameters[new("force_maximum_acceleration")]);
             var saved = new WorkshopSavedConstruction(next, new(4));
-            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
-            Assert.Single(WorkshopPhysicsCompiler.Compile(next, new(1,2)).Prismatics.ToArray());
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
+            Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, next, new(1,2)).Prismatics.ToArray());
         }
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle = construction.Puzzle with { InventoryCount = 2 } }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle = construction.Puzzle with { PlacementAssistance = default } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle = construction.Puzzle with { InventoryCount = 2 } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle = construction.Puzzle with { PlacementAssistance = default } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         if (ready)
         {
-            var removed = construction.WithoutInstance(new(3)); removed.Validate();
-            var replaced = removed.WithInstance(WorkshopInput.Generic(new PartId("basket"), new(4), 1.8f, 1.3f, 0, 0, 0, 0, 1)); replaced.Validate();
+            var removed = construction.WithoutInstance(new(3)); removed.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+            var replaced = removed.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(4), 1.8f, 1.3f, 0, 0, 0, 0, 1)); replaced.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
             Assert.Equal(new GpuBodyId(4), replaced.Puzzle.Goal.Target);
-            EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => replaced.WithInstance(WorkshopInput.Generic(new PartId("basket"), new(5), 2, 1, 0, 0, 0, 0, 1)).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => replaced.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(5), 2, 1, 0, 0, 0, 0, 1)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         }
 
     }
@@ -97,15 +97,15 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     [Fact]
     public void UnsupportedWireTailRejectsBeforeMutation()
     {
-        var definition = new PartDefinition(new PartId("spring"), "Springboard", "A springboard.", CuriousContraptions.Abstractions.ElementCategory.Motion,
+        var definition = new PartDefinition(RuntimeTestServices.Bundle, new PartId("spring"), "Springboard", "A springboard.", CuriousContraptions.Abstractions.ElementCategory.Motion,
             Colors.White, "res://elements/Springboard/icon.svg", null, TestBundle.Entry(new PartId("spring")));
         var part = new MachinePart();
         try
         {
-            part.Configure(definition);
+            part.Configure(RuntimeTestServices.Core.Presentation, definition);
             Assert.Same(definition, part.Definition);
             var saved = new WorkshopSavedConstruction(Construction(), new(3));
-            var accepted = WorkshopSaveCodec.Encode(saved);
+            var accepted = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
             foreach (var invalidSettings in new[] {
                 Spring(50f, .2f, 0f),
                 Spring(1500f, .2f, 0f),
@@ -116,12 +116,12 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
                 Spring(float.NaN, .2f, 0f) })
             {
                 var malformedConstruction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-                    new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1), Board(invalidSettings)));
+                    new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1), Board(invalidSettings)));
                 var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-                var crOffset = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
+                var crOffset = SaveFixture.Record(builder, malformedConstruction);
                 var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
-                SaveFixture.Refused(invalidSettings.Values.All(float.IsFinite) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
-                Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,accepted));
+                SaveFixture.Refused(invalidSettings.Values.All(float.IsFinite) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,savedBytes));
+                Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,accepted));
             }
         }
         finally { part.Free(); }
@@ -137,8 +137,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             { Parameters = settings };
     }
     private static WorkshopConstruction Construction(InstanceParameterCollection? settings = null) => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("spring"), new(2), 0, 1, 0, 0, 0, 0, 1, settings)));
+        new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), new(2), 0, 1, 0, 0, 0, 0, 1, settings)));
 
     [Theory]
     [InlineData(0f, 0f)]
@@ -148,7 +148,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var q = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, angle * MathF.PI / 180);
         var board = PlacedParts.Springboard(new(2), 0, (float)(height), 0, (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), .2f);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(board));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1,2));
         var joint = Assert.Single(scene.Prismatics.ToArray());
         var a = scene.Bodies.ToArray().Single(value => value.Id == joint.BodyA);
         var b = scene.Bodies.ToArray().Single(value => value.Id == joint.BodyB);
@@ -166,13 +166,13 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var actual = bodies[0];
         Assert.Equal(b.Local, actual.Body.Local); Assert.Equal(b.Rotation, actual.Rotation);
         var saved = new WorkshopSavedConstruction(construction, new(3));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
     }
 
     [Fact]
     public void CompilesDistinctPlateIdentityAndFullDynamicPopulation()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(), new(1, 2));
         var joint = Assert.Single(scene.Prismatics.ToArray());
         Assert.Equal(new GpuBodyId(2), joint.BodyA);
         Assert.Equal(Construction().Instances.Identities[new(2)].Sliders[0].Body, joint.BodyB);
@@ -200,15 +200,15 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     {
         var construction = Construction(Spring(stiffness, damping));
         var save = new WorkshopSavedConstruction(construction, new(3));
-        var encoded = WorkshopSaveCodec.Encode(save);
-        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,encoded));
+        var encoded = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        Assert.Equal(save, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,encoded));
         var badConstruction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1), Board(Spring(float.NaN, damping))));
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1), Board(Spring(float.NaN, damping))));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var crOffset = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
+        var crOffset = SaveFixture.Record(builder, badConstruction);
         var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
-        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
-        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,encoded));
+        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,savedBytes));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,encoded));
     }
 
     [Theory]
@@ -221,8 +221,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         settings.Validate(new PartId("spring"));
         Assert.Equal(compression, settings[new("initial_compression")]);
         var saved = new WorkshopSavedConstruction(Construction(settings), new(3));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
-        var scene = WorkshopPhysicsCompiler.Compile(saved.Construction, new(1, 2));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, saved.Construction, new(1, 2));
         var plate = scene.Bodies.ToArray().Single(body => body.Id == saved.Construction.Instances.Identities[new(2)].Sliders[0].Body);
         Assert.InRange(MathF.Abs((plate.Cell.Y + plate.Local.Y) / 16f - (1.14f - compression)), 0, 1e-7f);
     }
@@ -238,35 +238,35 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         Assert.ThrowsAny<ArgumentException>(() => Spring(400, .2f, compression).Validate(new PartId("spring")));
         Assert.ThrowsAny<ArgumentException>(() => PlacedParts.Springboard(new(2), 0, 1, 0, 0, 0, 0, 1, compression));
         var saved = new WorkshopSavedConstruction(Construction(Spring(400, .2f, .2f)), new(3));
-        var accepted = WorkshopSaveCodec.Encode(saved);
+        var accepted = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
         var badConstruction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1), Board(Spring(400, .2f, compression))));
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1), Board(Spring(400, .2f, compression))));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var crOffset = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
+        var crOffset = SaveFixture.Record(builder, badConstruction);
         var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
-        SaveFixture.Refused(float.IsFinite(compression) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,accepted));
+        SaveFixture.Refused(float.IsFinite(compression) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,savedBytes));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,accepted));
     }
 
     [Fact]
     public void CompiledPopulationsCountBaseAndPlateAndAdmitTheNextPart()
     {
-        var parts = Enumerable.Range(1, 16).Select(i => (IWorkshopInstance)WorkshopInput.Generic(new PartId("spring"), new((ulong)i),
+        var parts = Enumerable.Range(1, 16).Select(i => (IWorkshopInstance)WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), new((ulong)i),
             (float)(i), 1, 0, 0, 0, 0, 1)).ToArray();
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(parts));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         Assert.Equal(33, scene.Bodies.Length); Assert.Equal(16, scene.Prismatics.Length);
         // Story 9R.5b: the retired 16-row prismatic and 33-row body tables no longer refuse the seventeenth Springboard.
-        var seventeen = construction.WithInstance(WorkshopInput.Generic(new PartId("spring"), new(17), 0, 1, 1, 0, 0, 0, 1));
-        seventeen.Validate();
-        var grown = WorkshopPhysicsCompiler.Compile(seventeen, new(1, 2));
+        var seventeen = construction.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), new(17), 0, 1, 1, 0, 0, 0, 1));
+        seventeen.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var grown = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, seventeen, new(1, 2));
         Assert.Equal(35, grown.Bodies.Length); Assert.Equal(17, grown.Prismatics.Length);
     }
 
     [Fact]
     public void PalettePreviewHasArtWithoutInventedIdentityAndOwnedPlateResets()
     {
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var part = Assert.IsType<MachinePart>(registry.Create(new PartId("spring")));
         try
         {

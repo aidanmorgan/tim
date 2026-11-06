@@ -9,7 +9,7 @@
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <IsTrimmable>true</IsTrimmable>
         <VerifyReferenceTrimCompatibility>true</VerifyReferenceTrimCompatibility>
-        <!-- TwoDogWebBoot.cs (web hosts) takes a function pointer to the source-generated plugins initializer;
+        <!-- GameBootstrap.cs (web hosts) takes a function pointer to the source-generated plugins initializer;
              harmless on desktop -->
         <DefineConstants>$(DefineConstants);TWODOG_WEB_BOOT</DefineConstants>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -32,6 +32,7 @@
     <!-- Explicit current admitted game sources; diagnostic host additions are selected by their host project. -->
     <ItemGroup>
         <Compile Include="engine/gpu/*.cs" />
+        <Compile Include="engine/RuntimeProviders.cs" />
         <Compile Include="engine/MachineWorld.cs" />
         <Compile Include="engine/MachineWorld.Gpu.cs" />
         <Compile Include="engine/MachinePart.cs" />
@@ -39,7 +40,6 @@
         <Compile Include="engine/WorkshopUiBinding.cs" />
         <Compile Include="engine/PartDefinition.cs" />
         <Compile Include="engine/PartRegistry.cs" />
-        <Compile Include="engine/PartId.cs" />
         <Compile Include="engine/TubeMouthSnap.cs" />
         <Compile Include="engine/PlacementPose.cs" />
         <Compile Include="engine/Workbench.cs" />
@@ -57,11 +57,13 @@
         <Compile Include="ui/PlacementShadows.cs" />
         <Compile Include="ui/WorkshopArtwork.cs" />
         <Compile Include="ui/WorkshopBenchPlacement.cs" />
-        <Compile Include="CuriousContraptions.web/TwoDogWebBoot.cs" />
+        <Compile Include="CuriousContraptions.web/GameBootstrap.cs" />
     </ItemGroup>
     <Import Project="CuriousContraptions.Core/RuntimeSources.props" />
     <ItemGroup>
         <Compile Remove="@(CoreRuntimeSource)" />
+        <Compile Remove="engine/gpu/WorkshopWireGenerated.cs" />
+        <Compile Remove="engine/gpu/WorkshopAuthoringGenerated.cs" />
         <ProjectReference Include="CuriousContraptions.Core/CuriousContraptions.Core.csproj" />
     </ItemGroup>
 </Project>

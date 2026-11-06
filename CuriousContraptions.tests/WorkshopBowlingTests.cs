@@ -10,10 +10,10 @@ public sealed class WorkshopBowlingTests
 {
     private const double Upright = -0.46 + .55;
     private static WorkshopGenericInstance Bowling(ulong id, double x, double y = 3, double z = 0) =>
-        WorkshopInput.Generic(new PartId("bowling"), new(id), (float)(x), (float)(y), (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), new(id), (float)(x), (float)(y), (float)(z), 0, 0, 0, 1);
     private static WorkshopConstruction TwoLanes() => new(new(1), WorkshopCadenceSettings.Default(),
         new(PlacedParts.Domino(new(1), 0, (float)(Upright), -1.5f, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 1.5f, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("ball"),new(3), .3f, 1.05f, -1.5f, 0, 0, 0, 1), Bowling(4, .3, 1.05, 1.5)));
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(3), .3f, 1.05f, -1.5f, 0, 0, 0, 1), Bowling(4, .3, 1.05, 1.5)));
 
     // C-Balls: each kind is a zero-parameter generic instance of its own package; its material is the package's and no authored value
     // can change it. The owner-decided literals are pinned in PayloadInstanceTests.BothKindsCompileTheOwnerDeclaredMaterialsOnOneBench.
@@ -29,17 +29,17 @@ public sealed class WorkshopBowlingTests
         Assert.Empty(DeclaredPhysics.Of(new PartId("ball")).Metadata.Parameters);
         Assert.True(DeclaredPhysics.IsPayload(new PartId("bowling")) && DeclaredPhysics.IsPayload(new PartId("ball")));
         // A declared collider is the package's own: the Bowling ball is the 0.28 m sphere whatever its pose.
-        Assert.Equal(new Metres(.28f), new Metres(Assert.Single(ball.DeclaredColliders).Radius));
+        Assert.Equal(new Metres(.28f), new Metres(Assert.Single(ball.DeclaredColliders(RuntimeTestServices.Bundle)).Radius));
         // No authored parameter exists to carry another material.
         foreach (var forged in new[] { "mass", "radius", "bounce", "drag" })
-            Assert.Throws<ArgumentException>(() => (ball with { Parameters = new([new(new(forged), 1f)]) }).Validate());
+            Assert.Throws<ArgumentException>(() => (ball with { Parameters = new([new(new(forged), 1f)]) }).Validate(RuntimeTestServices.Bundle));
         Assert.Throws<ArgumentOutOfRangeException>(() => Bowling(4, 65));
     }
 
     [Fact]
     public void BothBallsCompileAsDynamicSpheresWithTheirDeclaredMaterialsAndSolidInertia()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(TwoLanes(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, TwoLanes(), new(1, 2));
         Assert.Equal(4, scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(4));
         Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
@@ -78,13 +78,13 @@ public sealed class WorkshopBowlingTests
     public void SaveRoundTripsBothKindsAsMaterialFreeRecordsAndRefusesAForgedMaterialOrParameter()
     {
         var save = new WorkshopSavedConstruction(TwoLanes(), new(5));
-        var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
         Assert.Equal(new PartId("ball"), Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[2]).PartId);
         Assert.Equal(new PartId("bowling"), Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[3]).PartId);
         // The stored record names the kind and nothing else: the material is the package's, never the save's.
-        var fbSave = WorkshopSaveCodec.Open(bytes);
+        var fbSave = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes);
         foreach (var (index, part) in new[] { (2, "ball"), (3, "bowling") })
         {
             var record = fbSave.Construction!.Value.Instances(index)!.Value;
@@ -92,14 +92,14 @@ public sealed class WorkshopBowlingTests
             Assert.Equal(0, record.ParametersLength);
         }
         // A Basketball record carrying a typed record field, or a declared-parameter material, never loads.
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
             PayloadInstanceTests.GenericSave("ball", [("mass", 4f)])));
     }
 
     [Fact]
     public void DeclaredDragAndRollingResistanceCompileIntoTheBodyAndMaterialRecordsAndOnlyBallsCarryACoefficient()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(TwoLanes(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, TwoLanes(), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var bodies = scene.Bodies.ToArray(); var colliders = scene.Colliders.ToArray(); var materials = scene.Materials.ToArray();
         // The body record's drag lane carries the declared f32 linear drag; the material record's rolling lane the declared f32
@@ -131,20 +131,20 @@ public sealed class WorkshopBowlingTests
     public void CapacityCountsEveryBallKindAndTheReceiverGuidesBothBalls()
     {
         var items = new List<IWorkshopInstance>();
-        for (var i = 0; i < 8; i++) items.Add(WorkshopInput.Generic(new PartId("ball"),new((ulong)(i + 1)), (float)(-6 + i * .8), 3, -2, 0, 0, 0, 1));
+        for (var i = 0; i < 8; i++) items.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new((ulong)(i + 1)), (float)(-6 + i * .8), 3, -2, 0, 0, 0, 1));
         for (var i = 0; i < 8; i++) items.Add(Bowling((ulong)(i + 9), -6 + i * .8, 3, 2));
-        new WorkshopInstances([.. items]).Validate();
+        new WorkshopInstances([.. items]).Validate(RuntimeTestServices.Bundle);
         // Story 9R.5b: the retired 16-row moving-body table no longer refuses; a seventeenth ball of either kind builds and
         // compiles as one more moving body.
-        foreach (var seventeenth in new IWorkshopInstance[] { Bowling(17, 7), WorkshopInput.Generic(new PartId("ball"),new(17), 7, 3, 0, 0, 0, 0, 1) })
+        foreach (var seventeenth in new IWorkshopInstance[] { Bowling(17, 7), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(17), 7, 3, 0, 0, 0, 0, 1) })
         {
             var seventeen = new WorkshopInstances([.. items, seventeenth]);
-            seventeen.Validate();
-            var bench = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), seventeen), new(1, 2)).World;
+            seventeen.Validate(RuntimeTestServices.Bundle);
+            var bench = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), seventeen), new(1, 2)).World;
             Assert.Equal(17, bench.Dynamic);
         }
         // The compiled scene is the footprint authority; the workbench plane adds one static body and collider.
-        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(Bowling(1, 0))), new(1, 2)).World;
+        var world = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(Bowling(1, 0))), new(1, 2)).World;
         Assert.Equal((1 + 1, 1, 1 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
         Assert.Empty(DeclaredPorts.Current.Of(new PartId("bowling")).ToArray());
         Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[new PartId("bowling")]);
@@ -153,13 +153,13 @@ public sealed class WorkshopBowlingTests
         Assert.Contains(new PartId("spring"), WorkbenchCapacityTests.FreePalette.Keys);
 
         // One Receiver declares policies selecting both payload kinds, with the shared capture settings.
-        var receiver = WorkshopInput.Generic(new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
-        var scene = WorkshopPhysicsCompiler.Compile(TwoLanes().WithInstance(receiver), new(1, 2));
+        var receiver = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, TwoLanes().WithInstance(RuntimeTestServices.Bundle, receiver), new(1, 2));
         Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(scene.Sensors.ToArray()).Targets.Kind);
         Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(scene.Guides.ToArray()).Targets.Kind);
         Assert.All(scene.Sensors.ToArray(), s => Assert.Equal(new LinearSpeed(1.5f), s.SpeedLimit));
-        var second = WorkshopInput.Generic(new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1);
-        var multiple = WorkshopPhysicsCompiler.Compile(TwoLanes().WithInstance(receiver).WithInstance(second), new(1, 2));
+        var second = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1);
+        var multiple = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, TwoLanes().WithInstance(RuntimeTestServices.Bundle, receiver).WithInstance(RuntimeTestServices.Bundle, second), new(1, 2));
         Assert.Equal(2, multiple.Sensors.Length);
         Assert.Equal(2, multiple.Guides.Length);
     }
@@ -167,22 +167,22 @@ public sealed class WorkshopBowlingTests
     [Fact]
     public void AuthoredPuzzlesRequireTheBasketballKindAndNeverOfferTheBowlingBall()
     {
-        var first = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(100001), new(.5f));
-        var delayed = PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(100001), new(.5f));
-        var dominoes = PuzzleCatalogue.Create(new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(100001), new(.5f));
+        var first = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(100001), new(.5f));
+        var delayed = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(100001), new(.5f));
+        var dominoes = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(100001), new(.5f));
         foreach (var level in new[] { first, delayed, dominoes })
         {
             var ball = Payloads.First(level);
             Assert.Equal(new PartId("ball"), ball.PartId);
             // The same identity and pose as a Bowling ball is not the authored fixture.
-            var replaced = level.WithInstance(ball with { PartId = new PartId("bowling") });
-            var error = EditRefusal.Is(WorkshopEditRejection.FixedPart, () => replaced.Validate());
+            var replaced = level.WithInstance(RuntimeTestServices.Bundle, ball with { PartId = new PartId("bowling") });
+            var error = EditRefusal.Is(WorkshopEditRejection.FixedPart, () => replaced.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
             Assert.Equal("Fixed authored declaration changed.", error.Message);
             // A second ball of the heavier kind is not an inventory item either.
-            EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => level.WithInstance(Bowling(100009, 2, 5)).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => level.WithInstance(RuntimeTestServices.Bundle, Bowling(100009, 2, 5)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
             Assert.False(WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(new PartId("bowling")));
         }
         // Free play admits both kinds together.
-        TwoLanes().Validate();
+        TwoLanes().Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
     }
 }

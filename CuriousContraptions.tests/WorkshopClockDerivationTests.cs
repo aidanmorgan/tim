@@ -17,7 +17,7 @@ public sealed class WorkshopClockDerivationTests
     private const long Step = WorkshopClockDerivation.SlewStepNanoseconds;
     private static readonly ClockDerivationEpoch Initial = new(0);
 
-    private static (WorkshopDiagnostic[] Output, T Result) Capture<T>(WorkshopDiagnostics journal, Func<T> action)
+    private static (WorkshopDiagnostic[] Output, T Result) Capture<T>(IWorkshopDiagnostics journal, Func<T> action)
     {
         var before = journal.Snapshot().Length;
         var result = action();

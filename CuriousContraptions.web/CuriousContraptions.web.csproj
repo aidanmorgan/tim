@@ -20,9 +20,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- TwoDogWebBoot.cs is compiled by the GAME project (see the root
+        <!-- GameBootstrap.cs is compiled by the GAME project (see the root
              csproj's Compile Include), not by this host. -->
-        <Compile Remove="TwoDogWebBoot.cs"/>
+        <Compile Remove="GameBootstrap.cs"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -39,6 +39,7 @@
         <TrimmerRootAssembly Include="CuriousContraptions"/>
         <TrimmerRootAssembly Include="$(TargetName)"/>
         <TrimmerRootAssembly Include="CuriousContraptions.FlatBuffers"/>
+        <TrimmerRootDescriptor Include="RuntimeProviders.xml"/>
     </ItemGroup>
 
     <!-- Godot's editor serializes exported C# properties using the native Debug metadata.

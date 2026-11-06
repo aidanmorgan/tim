@@ -26,7 +26,7 @@ public static partial class PhysicsGpuAbi
     public const int ContactLoadPhaseOffset = 56;
     public const int ContactLoadMassOffset = 60;
 
-    private static void WriteContactLoadAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
+    private static void WriteContactLoadAdmission(Span<byte> data, IPhysicsSceneDeclaration scene)
     {
         for (var i = 0; i < scene.ContactLoadSensors.Length; i++)
         {

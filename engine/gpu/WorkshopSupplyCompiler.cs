@@ -6,7 +6,7 @@ namespace CuriousContraptions.Gpu;
 
 public static class WorkshopSupplyCompiler
 {
-    public static SupplyTopology Compile(WorkshopConstruction construction,
+    public static ISupplyTopology Compile(ISupplyQueries supply, WorkshopConstruction construction,
         Func<PartId, CuriousContraptions.Bundle.BundleEntry> declaration)
     {
         var nodes=new System.Collections.Generic.List<SupplyNodeDeclaration>(16);
@@ -28,6 +28,6 @@ public static class WorkshopSupplyCompiler
             byOwner.TryGetValue(link.Source,out var from) && from.Kind!=SupplyNodeKind.Consumer &&
             byOwner.TryGetValue(link.Target,out var to) && to.Kind!=SupplyNodeKind.Source)
             .Select(link=>new SupplyEdge(link.Source,link.Target,DeclaredPorts.Current.Role(construction.Instances.Single(i=>i.Id==link.Target).PartId,link.Input))).Distinct().ToArray();
-        return new(nodes.ToArray(),edges);
+        return supply.CreateTopology(nodes.ToArray(),edges);
     }
 }

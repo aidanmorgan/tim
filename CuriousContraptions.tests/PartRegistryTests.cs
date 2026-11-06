@@ -27,7 +27,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
 
     private static PartRegistry Loaded()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
         return registry;
     }
@@ -40,7 +40,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         Assert.Equal(PaletteRows.Length, registry.Definitions.Count);
         Assert.Equal(PaletteRows, registry.Free.Keys);
         Assert.All(registry.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
-        var entries = PartRegistry.Read(Bundle()).ToDictionary(entry => new PartId(entry.Metadata.Id));
+        var entries = PartRegistry.Read(RuntimeTestServices.Bundle, Bundle()).ToDictionary(entry => new PartId(entry.Metadata.Id));
         foreach (var (id, definition) in registry.Definitions)
         {
             var metadata = entries[id].Metadata;
@@ -90,7 +90,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     {
         var bundle = Bundle();
         Assert.Contains("\"Id\": \"bowling\"", bundle, StringComparison.Ordinal);
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load(bundle.Replace("\"Id\": \"bowling\"", "\"Id\": \"tennis\"", StringComparison.Ordinal));
         var tennis = new PartId("tennis");
         Assert.True(registry.Definitions.ContainsKey(tennis));
@@ -134,11 +134,11 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     [Fact]
     public void AMissingOrEmptyBundleRefusesTheLoad()
     {
-        var missing = Assert.Throws<InvalidDataException>(() => new PartRegistry().LoadFile("res://elements/absent.bundle.json"));
+        var missing = Assert.Throws<InvalidDataException>(() => new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle).LoadFile("res://elements/absent.bundle.json"));
         Assert.Contains("'res://elements/absent.bundle.json' is missing", missing.Message, StringComparison.Ordinal);
-        var empty = Assert.Throws<InvalidDataException>(() => new PartRegistry().Load("{\"Elements\": []}"));
+        var empty = Assert.Throws<InvalidDataException>(() => new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle).Load("{\"Elements\": []}"));
         Assert.Contains("declares no deliverable element", empty.Message, StringComparison.Ordinal);
-        Assert.Throws<InvalidOperationException>(() => new PartRegistry().Free);
+        Assert.Throws<InvalidOperationException>(() => new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle).Free);
     }
 
     [Fact]
@@ -176,7 +176,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     [Fact]
     public void TheRegistryElementsAreTheLoadedBundlesDeliverableElements()
     {
-        Assert.Throws<InvalidOperationException>(() => new PartRegistry().Elements);
+        Assert.Throws<InvalidOperationException>(() => new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle).Elements);
         var registry = Loaded();
         Assert.Equal(PaletteRows.ToHashSet(), registry.Elements.ToHashSet());
         Assert.Equal(registry.Definitions.Keys.ToHashSet(), registry.Elements.ToHashSet());
@@ -231,10 +231,10 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
             var save = SaveFixture.Forged(new Gpu.WorkshopConstruction(new(1), Gpu.WorkshopCadenceSettings.Default(),
                 new([new Gpu.WorkshopGenericInstance(id, new(1), default, default, Gpu.CanonicalRotation.Identity)])), 2);
             var refusal = SaveFixture.Refused(Gpu.WorkshopSaveRejection.UnknownElement,
-                () => Gpu.WorkshopSaveCodec.Decode(Loaded().Elements, save));
+                () => Gpu.WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, Loaded().Elements, save));
             Assert.Contains($"'{id}'", refusal.Message, StringComparison.Ordinal);
         }
-        var source = File.ReadAllText(Path.Combine(Root, "engine", "PartId.cs"));
+        var source = File.ReadAllText(Path.Combine(Root, "CuriousContraptions.Abstractions", "PartId.cs"));
         Assert.DoesNotMatch(@"\b(Tennis|Balloon)\b|""tennis""|""balloon""", source);
     }
 
@@ -256,7 +256,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     {
         _ = godot;
         var source = File.ReadAllText(Path.Combine(Root, "ui", "WorkshopIcons.cs"));
-        var ids = PartRegistry.Read(Bundle()).Select(entry => entry.Metadata.Id)
+        var ids = PartRegistry.Read(RuntimeTestServices.Bundle, Bundle()).Select(entry => entry.Metadata.Id)
             .Concat(new PartId[] { new("tennis"), new("balloon") }.Select(part => part.Value)).ToArray();
         Assert.Equal(PaletteRows.Length + 2, ids.Length);
         foreach (var id in ids)

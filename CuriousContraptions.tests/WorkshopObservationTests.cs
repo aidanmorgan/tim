@@ -16,7 +16,7 @@ public sealed class WorkshopObservationTests
     {
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         var client = transport.Client; var port = client.Observation;
-        var original = PuzzleCatalogue.CreateSolution(new("first_principles"), new(2),
+        var original = PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(2),
             WorkshopCadenceSettings.Default(), new(1), new(.45f));
         await transport.Construct(original);
         var first = port.Query(port.Session, WorkshopObservationQuery.Committed).Value;
@@ -32,13 +32,13 @@ public sealed class WorkshopObservationTests
         var cadenceSource = port.Authored(port.Session, transport.InstalledScene.Identity);
         Assert.Equal(original with { Settings = changedSettings }, cadenceSource.Value.Construction);
         await transport.Construct(new(new(3), changedSettings, new(
-            WorkshopInput.Generic(new PartId("ball"), new(9), 3, 7, 0, 0, 0, 0, 1))));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(9), 3, 7, 0, 0, 0, 0, 1))));
         if (delayRunAcknowledgement) transport.ReleaseAcknowledgement();
         Assert.Equal(WorkshopCommandOutcome.Applied, (await run).Response.Result.Outcome);
         var profile = new WorkshopGpuProfile(original.Settings.Simulation, original.Settings.Physical, first.Cadence);
         var trace = new WorkshopTrace();
         trace.Begin(port.Session, CompiledSceneFixture.Compile(original, scene), first.Read.Epoch, first.Projection, profile);
-        trace.Append(WorkshopTraceRecord.Encode(first.Read, profile)); trace.End(TraceEnd.Reset);
+        trace.Append(WorkshopTraceRecord.Encode(first.Read, profile)); trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         transport.DeliverObservation(WorkshopWireFlatBuffers.EncodeObservations(new(port.Session,
             WorkshopRuntimeRole.Simulation, trace.Diagnostics.Snapshot().ToImmutableArray())));
@@ -48,7 +48,7 @@ public sealed class WorkshopObservationTests
         var source = port.Authored(capture.Session, capture.Scene!.Value);
         Assert.Equal(WorkshopObservationRefusal.None, source.Refusal);
         Assert.Equal(original, source.Value.Construction);
-        using var projected = WorkshopObservationProjection.Diagnostic<ExternalObject>(capture, source.Value);
+        using var projected = WorkshopObservationProjection.Diagnostic<ExternalObject>(RuntimeTestServices.Core.Presentation, capture, source.Value);
         var authored = Assert.IsType<ExternalObject>(projected.Fields["construction"]);
         Assert.Equal("first_principles", Assert.IsType<ExternalObject>(authored.Fields["puzzle"]).Fields["id"]);
         Assert.Equal((int)original.Settings.Simulation, authored.Fields["simulation"]);
@@ -64,14 +64,14 @@ public sealed class WorkshopObservationTests
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         var client = transport.Client; var port = client.Observation;
         var original = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1)));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1)));
         await transport.Construct(original);
         var before = port.Query(port.Session, WorkshopObservationQuery.Committed).Value;
         var trace = new WorkshopTrace();
         var profile = new WorkshopGpuProfile(original.Settings.Simulation, original.Settings.Physical, before.Cadence);
         trace.Begin(foreignSession ? new(777, 888) : port.Session,
             CompiledSceneFixture.Compile(original, new(999)), before.Read.Epoch, before.Projection, profile);
-        trace.Append(WorkshopTraceRecord.Encode(before.Read, profile)); trace.End(TraceEnd.Reset);
+        trace.Append(WorkshopTraceRecord.Encode(before.Read, profile)); trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         transport.DeliverObservation(WorkshopWireFlatBuffers.EncodeObservations(new(port.Session,
             WorkshopRuntimeRole.Simulation, trace.Diagnostics.Snapshot().ToImmutableArray())));
@@ -88,9 +88,9 @@ public sealed class WorkshopObservationTests
     public async Task ObservationOwnerReleasesTerminalUnusedCandidates(WorkshopCommandOutcome outcome)
     {
         await using var world = await WorkshopIntegrationHarness.Building(new(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1))));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1))));
         var session = world.Latest.Session;
-        var observation = new WorkshopObservation(session, new WorkshopDiagnostics());
+        var observation = new WorkshopObservation(RuntimeTestServices.Core, session, new WorkshopDiagnostics());
         var active = new WorkshopCommand(new(90), WorkshopCommandKind.Construct, new(1), new(1),
             CompiledSceneFixture.Compile(world.Construction, new(90)), Session: session);
         observation.Associate(active, world.Construction);
@@ -117,9 +117,9 @@ public sealed class WorkshopObservationTests
     public async Task UnsuccessfulRunReleasesOnlyItsPendingSceneOwnership(WorkshopCommandOutcome outcome)
     {
         await using var world = await WorkshopIntegrationHarness.Building(new(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1))));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1))));
         var session = world.Latest.Session;
-        var observation = new WorkshopObservation(session, new WorkshopDiagnostics());
+        var observation = new WorkshopObservation(RuntimeTestServices.Core, session, new WorkshopDiagnostics());
         var first = new WorkshopCommand(new(90), WorkshopCommandKind.Construct, new(1), new(1),
             CompiledSceneFixture.Compile(world.Construction, new(90)), Session: session);
         observation.Associate(first, world.Construction);
@@ -145,7 +145,7 @@ public sealed class WorkshopObservationTests
         var client = transport.Client;
         var port = client.Observation;
         var source = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1)));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1)));
         await transport.Construct(source);
         var obsolete = transport.InstalledScene.Identity;
         for (ulong revision = 3; revision < 13; revision++)
@@ -163,7 +163,7 @@ public sealed class WorkshopObservationTests
     {
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         var client = transport.Client; var port = client.Observation;
-        var construction = PuzzleCatalogue.CreateSolution(new("first_principles"), new(2),
+        var construction = PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(2),
             WorkshopCadenceSettings.Default(), new(1), new(1f));
         await transport.Construct(construction);
         var built = port.Query(port.Session, WorkshopObservationQuery.Committed);
@@ -196,8 +196,8 @@ public sealed class WorkshopObservationTests
         Assert.Equal(port.Session, receipts[^1].Session);
         var saved = await client.Execute(WorkshopCommandKind.Save);
         Assert.Equal(WorkshopCommandOutcome.Applied, saved.Response.Result.Outcome);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            WorkshopSaveCodec.Encode(new(construction, new(1000))));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(1000))));
         await transport.Construct(loaded.Construction);
         var restored = port.Query(port.Session, WorkshopObservationQuery.Committed).Value.Read;
         Assert.Equal(reset.Read.Bodies.Count, restored.Bodies.Count);
@@ -313,7 +313,7 @@ public sealed class WorkshopObservationTests
     public async Task RealTraceCaptureCrossesTheTypedTransportAsDecodedBodiesAndTerminalStatus()
     {
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
-        var construction = PuzzleCatalogue.CreateSolution(new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(1f));
+        var construction = PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(1f));
         await transport.Construct(construction);
         var port = transport.Client.Observation;
         var before = port.Query(port.Session, WorkshopObservationQuery.Committed).Value;
@@ -321,7 +321,7 @@ public sealed class WorkshopObservationTests
         var profile = new WorkshopGpuProfile(construction.Settings.Simulation, construction.Settings.Physical, before.Cadence);
         trace.Begin(port.Session, CompiledSceneFixture.Compile(construction), before.Read.Epoch, before.Projection, profile);
         trace.Append(WorkshopTraceRecord.Encode(before.Read, profile));
-        trace.End(TraceEnd.Reset); trace.Flush(WorkshopSimulationPhase.Building);
+        trace.FinishCapture(TraceEnd.Reset); trace.Flush(WorkshopSimulationPhase.Building);
         var bytes = WorkshopWireFlatBuffers.EncodeObservations(new(port.Session, WorkshopRuntimeRole.Simulation, trace.Diagnostics.Snapshot().ToImmutableArray()));
         transport.DeliverObservation(bytes);
         var records = port.Diagnostics(port.Session, default).Value!.Select(receipt => receipt.Record).OfType<WorkshopCaptureDiagnostic>().ToArray();
@@ -406,7 +406,7 @@ public sealed class WorkshopObservationTests
     {
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
                 PlacedParts.Bumper(new(6), 0, 3, 0, 8f), PlacedParts.Battery(new(3), 3, 1, 0)),
             Connections: new(new WorkshopConnection(new(3), PortId.Supply, new(6), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         await transport.Construct(construction);
@@ -439,7 +439,7 @@ public sealed class WorkshopObservationTests
     public void EarlyDiscoveryHasNoTransportCursorUntilClientCreationCompletes()
     {
         var journal = new WorkshopDiagnostics();
-        var port = new WorkshopObservation(new(101, 206), journal);
+        var port = new WorkshopObservation(RuntimeTestServices.Core, new(101, 206), journal);
         using var transport = new WorkshopActivationAnimationTests.NativeClient(port, journal, beforeReady: () =>
             Assert.Equal(WorkshopObservationRefusal.NotCommitted, port.OpenEvents(port.Session).Refusal));
         Assert.Same(port, transport.Client.Observation);
@@ -455,7 +455,7 @@ public sealed class WorkshopObservationTests
     public void StartupFailureRetiresTheOriginalSessionWithReadableDetail(StartupFailure failure)
     {
         var diagnostics = new WorkshopDiagnostics();
-        var port = new WorkshopObservation(new(101, 206), diagnostics);
+        var port = new WorkshopObservation(RuntimeTestServices.Core, new(101, 206), diagnostics);
         Assert.Equal(WorkshopObservationRefusal.NotCommitted, port.Query(port.Session, WorkshopObservationQuery.Committed).Refusal);
         var error = Record.Exception(() => new WorkshopActivationAnimationTests.NativeClient(port, diagnostics, failure));
         Assert.NotNull(error);
@@ -469,7 +469,7 @@ public sealed class WorkshopObservationTests
     {
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
                 PlacedParts.Bumper(new(6), 0, 3, 0, 8f), PlacedParts.Battery(new(3), 3, 1, 0)),
             Connections: new(new WorkshopConnection(new(3), PortId.Supply, new(6), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         await transport.Construct(construction);
@@ -498,7 +498,7 @@ public sealed class WorkshopObservationTests
     {
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         var port = transport.Client.Observation;
-        var construction = PuzzleCatalogue.CreateSolution(new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(1f));
+        var construction = PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(1f));
         await transport.Construct(construction);
         var before = port.Query(port.Session, WorkshopObservationQuery.Committed).Value;
         var fail = true;
@@ -511,7 +511,7 @@ public sealed class WorkshopObservationTests
         var trace = new WorkshopTrace(producer);
         var profile = new WorkshopGpuProfile(construction.Settings.Simulation, construction.Settings.Physical, before.Cadence);
         trace.Begin(port.Session, CompiledSceneFixture.Compile(construction), before.Read.Epoch, before.Projection, profile);
-        trace.Append(WorkshopTraceRecord.Encode(before.Read, profile)); trace.End(TraceEnd.Reset);
+        trace.Append(WorkshopTraceRecord.Encode(before.Read, profile)); trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Contains("Capture", port.Terminal!.Value.Detail, StringComparison.Ordinal);
         Assert.Contains("System.IO.IOException: capture destination interrupted", port.Terminal.Value.Detail, StringComparison.Ordinal);
@@ -571,7 +571,7 @@ public sealed class WorkshopObservationTests
     [Fact]
     public void ProductionConstructionProjectionIncludesPuzzleConfigurationAndConnectionDomains()
     {
-        var construction = PuzzleCatalogue.CreateSolution(new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(0.45f));
+        var construction = PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(0.45f));
         var command = new WorkshopCommand(new(7), WorkshopCommandKind.Construct, new(2), new(3), CompiledSceneFixture.Compile(construction), Session: new(101, 206));
         using var dto = WorkshopObservationProjection.Construction<ExternalObject>(new(command.Scene!.Identity, command with { Scene = null }, construction));
         Assert.Equal("7", dto.Fields["sequence"]); Assert.Equal((int)WorkshopCommandKind.Construct, dto.Fields["kind"]);
@@ -621,7 +621,7 @@ public sealed class WorkshopObservationTests
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
         var client = transport.Client; var port = client.Observation;
         await transport.Construct(new(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), new(5), 0, 6, 0, 0, 0, 0, 1),
                 PlacedParts.Bumper(new(6), 0, 3, 0, 8f), PlacedParts.Battery(new(3), 3, 1, 0)),
             Connections: new(new WorkshopConnection(new(3), PortId.Supply, new(6), PortId.PowerIn, WorkshopConnectionDomain.Electrical))));
         var first = port.OpenEvents(port.Session).Value; var second = port.OpenEvents(port.Session).Value;
@@ -655,7 +655,7 @@ public sealed class WorkshopObservationTests
     public async Task ProductionResponseAndDiagnosticProjectionPreserveObservedStateAndExactIdentities()
     {
         using var transport = new WorkshopActivationAnimationTests.NativeClient();
-        await transport.Construct(PuzzleCatalogue.CreateSolution(new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(1f)));
+        await transport.Construct(PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(2), WorkshopCadenceSettings.Default(), new(1), new(1f)));
         var response = transport.Client.Observation.Query(transport.Client.Observation.Session, WorkshopObservationQuery.Committed).Value;
         // Story 11.1a: one prismatic and one revolute drive slot, the revolute with the lower identity (slots order by kind first).
         ActuatorDriveRead[] drives =
@@ -669,7 +669,7 @@ public sealed class WorkshopObservationTests
         var read = response.Read with { Epoch = new(9007199254740993), Tick = new(9007199254740995),
             Captures = new([new(new(9007199254740997), new(9007199254740999), CaptureLatchPhase.Latched, 23, .5f)]),
             Presentation = pres };
-        using var projected = WorkshopObservationProjection.Response<ExternalObject>(response with { Read = read, Sequence = new(ulong.MaxValue) });
+        using var projected = WorkshopObservationProjection.Response<ExternalObject>(RuntimeTestServices.Core.Presentation, response with { Read = read, Sequence = new(ulong.MaxValue) });
         Assert.Equal("18446744073709551615", projected.Fields["sequence"]);
         Assert.Equal("9007199254740993", projected.Fields["epoch"]);
         Assert.Equal((int)WorkshopSimulationPhase.Building, projected.Fields["phase"]);
@@ -695,14 +695,14 @@ public sealed class WorkshopObservationTests
         var record = new WorkshopCaptureDiagnostic(WorkshopCaptureKind.Pose, WorkshopCaptureStage.Chunk, new(101, 206), ulong.MaxValue, read.Epoch,
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)), TraceEnd.Reset, TraceTimingStatus.Incomplete,
             1, 1, 0, 1, 0, null, [sample], []);
-        using var diagnostic = WorkshopObservationProjection.Diagnostic<ExternalObject>(record);
+        using var diagnostic = WorkshopObservationProjection.Diagnostic<ExternalObject>(RuntimeTestServices.Core.Presentation, record);
         Assert.Equal("18446744073709551615", diagnostic.Fields["identity"]);
         var projectedSample = Assert.Single(Assert.IsType<ExternalObject>(diagnostic.Fields["samples"]).Items);
         Assert.Equal(["bodies", "captures", "epoch", "tick"], projectedSample.Fields.Keys.Order().ToArray());
         Assert.Equal("9007199254740995", projectedSample.Fields["tick"]);
         var clock = new ClockLateRenewalDiagnostic(WorkshopRuntimeRole.Simulation, ulong.MaxValue, 7, 2, new(12),
             new(-9007199254740999, -9007199254740993), new(9007199254740993, 9007199254740999), null, ulong.MaxValue);
-        using var clockDto = WorkshopObservationProjection.Diagnostic<ExternalObject>(clock);
+        using var clockDto = WorkshopObservationProjection.Diagnostic<ExternalObject>(RuntimeTestServices.Core.Presentation, clock);
         Assert.Equal("-9007199254740999", Assert.IsType<ExternalObject>(clockDto.Fields["retained"]).Fields["lower"]);
         Assert.Equal("9007199254740999", Assert.IsType<ExternalObject>(clockDto.Fields["fresh"]).Fields["upper"]);
         Assert.Equal("18446744073709551615", clockDto.Fields["count"]);

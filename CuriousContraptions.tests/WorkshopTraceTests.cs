@@ -10,12 +10,12 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     private static readonly RuntimeSessionId Session = new(0x20000000000001, ulong.MaxValue);
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
-    private static readonly WorkshopConstruction Construction = new(new(7), Settings, new(WorkshopInput.Generic(new PartId("ball"),new(3), 0, 8.875f, 0, 0, 0, 0, 1)));
+    private static readonly WorkshopConstruction Construction = new(new(7), Settings, new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(3), 0, 8.875f, 0, 0, 0, 0, 1)));
 
     [Fact]
     public void RoundedCommittedRotationPreservesDeclaredNumericValues()
     {
-        var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction, new(101, 207)), new(9), Profile);
+        var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction, new(101, 207)), new(9), Profile);
         var physical = PhysicsGpuAbi.ReadDynamicBodies(state)[0];
         var rotation = CanonicalRotation.Normalize(0, 0, -.30151367f, MathF.Sqrt(1 - .30151367f * .30151367f));
         var record = WorkshopTraceRecord.Encode(new(new(9), new(0), new([physical with { Rotation = rotation }])), Profile);
@@ -33,8 +33,8 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     {
         Assert.False(Enum.IsDefined((TraceEnd)reason));
         var trace = new WorkshopTrace();
-        Assert.Throws<ArgumentOutOfRangeException>(() => trace.End((TraceEnd)reason));
-        trace.End(TraceEnd.Complete); // control: a defined reason is accepted
+        Assert.Throws<ArgumentOutOfRangeException>(() => trace.FinishCapture((TraceEnd)reason));
+        trace.FinishCapture(TraceEnd.Complete); // control: a defined reason is accepted
     }
 
     [Theory]
@@ -84,7 +84,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
 
     private static byte[] Record(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile)
     {
-        var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(101,207)), epoch, profile);
+        var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(101,207)), epoch, profile);
         var physical = PhysicsGpuAbi.ReadDynamicBodies(state);
         return WorkshopTraceRecord.Encode(new(epoch, new(0), physical), profile);
     }
@@ -122,7 +122,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             Append(trace, record);
         }
         var finalRecord = (byte[])record.Clone();
-        trace.End(TraceEnd.Complete);
+        trace.FinishCapture(TraceEnd.Complete);
         Assert.Empty(Pose(trace));
         trace.Flush(WorkshopSimulationPhase.Completed);
         trace.Flush(WorkshopSimulationPhase.Completed);
@@ -156,7 +156,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(WorkshopCaptureStage.End, lines[^1].Stage);
         Assert.Equal(TraceEnd.Complete, lines[^1].End);
         Append(trace, record);
-        trace.End(TraceEnd.Reset);
+        trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Equal(chunks + 2, Pose(trace).Length);
     }
@@ -169,7 +169,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     {
         var trace = new WorkshopTrace();
         var balls = Enumerable.Range(0, 20)
-            .Select(i => (IWorkshopInstance)WorkshopInput.Generic(new PartId("ball"),new((ulong)i + 3), (float)(-6 + i * .6), 8.875f, 0, 0, 0, 0, 1)).ToArray();
+            .Select(i => (IWorkshopInstance)WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new((ulong)i + 3), (float)(-6 + i * .6), 8.875f, 0, 0, 0, 0, 1)).ToArray();
         var profile = Profile with { Cadence = SimulationCadence.Hz240 };
         var configured = new WorkshopConstruction(new(7), Settings with { Simulation = SimulationCadence.Hz240 }, new(balls));
         var record = Record(configured, new(9), profile);
@@ -181,7 +181,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
             Append(trace, record);
         }
-        trace.End(TraceEnd.Complete);
+        trace.FinishCapture(TraceEnd.Complete);
         trace.Flush(WorkshopSimulationPhase.Completed);
         var header = Pose(trace)[0];
         Assert.Equal(WorkshopTraceRecord.HeaderBytes + 20 * PhysicsBodyWire.ByteLength, record.Length);
@@ -198,11 +198,11 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var record = Record(Construction, new(9), Profile);
         Begin(trace, default, Construction, new(9), new(3), record);
         Append(trace, record);
-        trace.End(TraceEnd.Complete);
+        trace.FinishCapture(TraceEnd.Complete);
         trace.Flush(WorkshopSimulationPhase.Completed);
         Assert.Empty(Pose(trace));
         Begin(trace, Session, Construction, new(9), new(3), record);
-        trace.End(TraceEnd.Reset);
+        trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Equal(3, Pose(trace).Length);
         var header = Pose(trace)[0];
@@ -219,7 +219,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var nextRecord = Record(Construction, new(10), Profile);
         var nextSession = new RuntimeSessionId(23, 41);
         Begin(trace, nextSession, Construction, new(10), new(3), Record(Construction, new(10), Profile));
-        trace.End(TraceEnd.Reset);
+        trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         var lines = Pose(trace);
         Assert.Equal(6, lines.Length);
@@ -244,7 +244,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Begin(trace, Session, Construction, new(9), new(3), record);
         BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), 2);
         Append(trace, record);
-        trace.End(TraceEnd.Complete);
+        trace.FinishCapture(TraceEnd.Complete);
         trace.Flush(WorkshopSimulationPhase.Completed);
         Assert.Equal(3, Pose(trace).Length);
         var header = Pose(trace)[0];
@@ -252,7 +252,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(TraceEnd.InvalidRecord, header.End);
         var before = Pose(trace).Length;
         Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
-        trace.End(TraceEnd.Complete);
+        trace.FinishCapture(TraceEnd.Complete);
         trace.Flush(WorkshopSimulationPhase.Completed);
         Assert.Equal(before + 3, Pose(trace).Length);
         Assert.Equal(TraceEnd.InvalidRecord, Pose(trace)[before].End);
@@ -279,7 +279,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             Append(trace, record);
             trace.Flush(phase);
             Assert.Empty(Pose(trace));
-            trace.End(TraceEnd.Fault);
+            trace.FinishCapture(TraceEnd.Fault);
             trace.Flush(WorkshopSimulationPhase.Faulted);
             Assert.Equal(reason == TraceEnd.Overflow ? 31 : 3, Pose(trace).Length);
             Assert.Equal(reason, Pose(trace)[0].End);
@@ -303,7 +303,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var record = Record(Construction, new(9), Profile);
         var expected = (byte[])record.Clone();
         Begin(trace, Session, Construction, new(9), new(3), record);
-        trace.End(reason);
+        trace.FinishCapture(reason);
         record.AsSpan().Clear();
         Append(trace, record);
         Assert.Empty(Pose(trace));
@@ -321,7 +321,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var diagnostics = new WorkshopDiagnostics(_ => { if (failed) throw new IOException("Deliberate diagnostic output failure."); });
         var trace = new WorkshopTrace(diagnostics);
         Begin(trace, Session, Construction, new(9), new(3), Record(Construction, new(9), Profile));
-        trace.End(TraceEnd.Reset);
+        trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Contains("Deliberate diagnostic output failure.", diagnostics.Incomplete);
         var priorCount = Pose(trace).Length;
@@ -329,7 +329,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(priorCount, Pose(trace).Length);
         failed = false;
         Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
-        trace.End(TraceEnd.Reset);
+        trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Equal(priorCount + 3, Pose(trace).Length);
         Assert.Equal(10UL, Pose(trace)[priorCount].Epoch.Value);
@@ -351,7 +351,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             Append(trace, record);
             trace.RecordTickDuration(new(tick), .75);
         }
-        trace.End(TraceEnd.Complete);
+        trace.FinishCapture(TraceEnd.Complete);
         trace.Flush(WorkshopSimulationPhase.Completed);
 
         Assert.Equal(TraceEnd.Complete, Pose(trace)[0].End);
@@ -389,7 +389,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             expected[index] = .5 + index / 1024d;
             trace.RecordTickDuration(new(tick), expected[index]);
         }
-        trace.End(TraceEnd.Complete);
+        trace.FinishCapture(TraceEnd.Complete);
         trace.Flush(WorkshopSimulationPhase.Running);
         Assert.Empty(trace.Diagnostics.Snapshot());
         trace.Flush(WorkshopSimulationPhase.Completed);
@@ -454,7 +454,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             }
             if (epoch == 9 && defect == TimingDefect.Overflow)
                 trace.RecordTickDuration(new(Profile.RunTickLimit + 1), .75);
-            trace.End(TraceEnd.Complete);
+            trace.FinishCapture(TraceEnd.Complete);
             trace.Flush(WorkshopSimulationPhase.Completed);
             var header = Timing(trace).Last(record => record.Stage == WorkshopCaptureStage.Begin);
             Assert.Equal(epoch, header.Epoch.Value);
@@ -479,7 +479,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         };
         var trace = new WorkshopTrace();
         Begin(trace, Session, Construction, new(9), new(3), Record(Construction, new(9), Profile));
-        trace.End(reason);
+        trace.FinishCapture(reason);
         trace.Flush(WorkshopSimulationPhase.Running);
         Assert.Empty(trace.Diagnostics.Snapshot());
         trace.Flush(WorkshopSimulationPhase.Building);
@@ -504,14 +504,14 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         });
         var trace = new WorkshopTrace(diagnostics);
         Begin(trace, Session, Construction, new(9), new(3), Record(Construction, new(9), Profile));
-        trace.End(TraceEnd.Reset);
+        trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Contains("Deliberate timing delivery failure.", diagnostics.Incomplete);
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Empty(delivered);
         failed = false;
         Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
-        trace.End(TraceEnd.Reset);
+        trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.All(delivered, record => Assert.Equal(10UL, record.Epoch.Value));
         Assert.Equal(WorkshopCaptureStage.Begin, delivered[0].Stage);
@@ -536,11 +536,11 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         trace.Begin(defect == BeginDefect.Session ? default : Session, CompiledSceneFixture.Compile(Construction), new(9),
             defect == BeginDefect.Projection ? default : new(3), profile);
         trace.RecordTickDuration(new(1), .25);
-        trace.End(TraceEnd.Complete);
+        trace.FinishCapture(TraceEnd.Complete);
         trace.Flush(WorkshopSimulationPhase.Completed);
         Assert.Empty(trace.Diagnostics.Snapshot());
         Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
-        trace.End(TraceEnd.Reset);
+        trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         var header = Timing(trace)[0];
         Assert.Equal(10UL, header.Epoch.Value);
@@ -590,7 +590,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
                 if (afterBytes != beforeBytes && allocatingCalls.Count < 4)
                     allocatingCalls.Add($"tick {tick}: {afterBytes - beforeBytes} B, gen0 collections {GC.CollectionCount(0) - beforeCollections}, methods jitted on this thread {afterJit - beforeJit}");
             }
-            trace.End(TraceEnd.Complete);
+            trace.FinishCapture(TraceEnd.Complete);
             trace.Flush(WorkshopSimulationPhase.Completed);
         }
         Assert.True(growths > 0, "the full duration history crosses actual storage watermarks");
@@ -608,7 +608,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(32, trace.DurationCapacity);
         trace.RecordTickDuration(new(25), 6.25);
         Assert.Equal(64, trace.DurationCapacity);
-        trace.End(TraceEnd.Reset);
+        trace.FinishCapture(TraceEnd.Reset);
         Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
         Assert.Equal(32, trace.DurationCapacity);
         var chunk = Timing(trace)[1].Milliseconds;
@@ -621,7 +621,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var trace = new WorkshopTrace();
         Assert.Equal(16384, trace.RecordCapacityBytes);
         Assert.Equal(32, trace.RecordOffsetCapacity);
-        var physical = PhysicsGpuAbi.ReadDynamicBodies(PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction, new(101, 207)), new(9), Profile))[0];
+        var physical = PhysicsGpuAbi.ReadDynamicBodies(PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction, new(101, 207)), new(9), Profile))[0];
         var expected = new List<byte>();
         trace.Begin(Session, CompiledSceneFixture.Compile(Construction), new(9), new(3), Profile);
         for (ulong tick = 0; tick < 100; tick++)
@@ -635,7 +635,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             if (tick == 24) Assert.Equal(64, trace.RecordOffsetCapacity);
         }
         Assert.True(trace.RecordCapacityBytes > 16384);
-        trace.End(TraceEnd.Reset); trace.Flush(WorkshopSimulationPhase.Building);
+        trace.FinishCapture(TraceEnd.Reset); trace.Flush(WorkshopSimulationPhase.Building);
         var observed = Pose(trace).Where(record => record.Stage == WorkshopCaptureStage.Chunk).SelectMany(record => record.Samples).ToArray();
         AssertRecordValues(expected.ToArray(), observed);
         trace.Begin(Session, CompiledSceneFixture.Compile(Construction), new(10), new(3), Profile);

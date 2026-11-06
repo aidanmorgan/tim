@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.LifecycleDesign;
 
 enum Oracle
@@ -38,6 +39,10 @@ static class Program
     }
     static int Main()
     {
+        CuriousContraptions.Gpu.ICoreServices core;
+        try { core = RuntimeProviders.Core(); }
+        catch (EngineProviderException exception)
+        { Console.Error.WriteLine($"{exception.Provider}: {exception.Reason}"); return 1; }
         // Independently enumerated accepted sets; all other pairs are InvalidMode.
         Dictionary<HostMode,CommandKind[]> applicable=new()
         {
@@ -177,7 +182,7 @@ static class Program
         Check(Oracle.PausedClock,()=>Require(21m/120==.175m));
         Check(Oracle.Interpolation,()=>Require((1m/120+2m/120)/2==.0125m));
         Check(Oracle.AggregateBudget,()=>Require(6*512*1024+3*1024*1024+1024*1024+768*1024+256*1024==8*1024*1024));
-        var runtimeClockResults = RuntimeClockControls.Run();
+        var runtimeClockResults = new RuntimeClockControls(core.Clocks).Run();
         var failures=Results.Count(result=>!result.Passed) + runtimeClockResults.Count(result => !result.Passed);
         Console.WriteLine(JsonSerializer.Serialize(new{DesignOnly=false,RuntimeQualified=false,
             Count=Results.Count + runtimeClockResults.Count,Failures=failures,Results,RuntimeClockResults=runtimeClockResults}));

@@ -8,7 +8,7 @@ namespace CuriousContraptions.Gpu;
 /// (Story 9.4b, Murdoch-2 R2-F4); <c>WorkshopAbiLiteralScanTests</c> fails on a literal offset in this file.</summary>
 public static partial class PhysicsGpuAbi
 {
-    private static void AdmitContactWorks(Span<byte> data, PhysicsSceneDeclaration scene)
+    private static void AdmitContactWorks(Span<byte> data, IPhysicsSceneDeclaration scene)
     {
         for (var i = 0; i < scene.ContactWorks.Length; i++)
         {

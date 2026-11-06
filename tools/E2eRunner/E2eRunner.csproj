@@ -10,7 +10,6 @@
     <Reference Include="Microsoft.CodeAnalysis"><HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.dll</HintPath></Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp"><HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll</HintPath></Reference>
     <InternalsVisibleTo Include="E2eRunner.Tests" />
-    <Compile Include="../../engine/PartId.cs" Link="PartId.cs" />
     <ProjectReference Include="../../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
   </ItemGroup>
 </Project>

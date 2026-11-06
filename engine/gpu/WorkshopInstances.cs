@@ -1,3 +1,4 @@
+using CuriousContraptions.Bundle;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,8 +16,8 @@ public interface IWorkshopInstance
     CanonicalRotation Rotation { get; }
     bool Locked { get; }
     /// <summary>The colliders the element's declaration gives this instance's parameters.</summary>
-    IReadOnlyList<ExtractedCollider> DeclaredColliders { get; }
-    void Validate();
+    IReadOnlyList<ExtractedCollider> DeclaredColliders(IBundleServices bundle);
+    void Validate(IBundleServices bundle);
 }
 
 public readonly record struct WorkshopGenericInstance(
@@ -25,14 +26,14 @@ public readonly record struct WorkshopGenericInstance(
     CanonicalRotation Rotation, bool Locked = false) : IWorkshopInstance
 {
     public InstanceParameterCollection Parameters { get; init; } = InstanceParameterCollection.Empty;
-    public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId, Parameters.ToBundleValues());
-    public void Validate()
+    public IReadOnlyList<ExtractedCollider> DeclaredColliders(IBundleServices bundle) => DeclaredPhysics.Colliders(bundle, PartId, Parameters.ToBundleValues());
+    public void Validate(IBundleServices bundle)
     {
         if (PartId == default) throw new ArgumentException("Generic instance requires a valid PartId.");
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
         Rotation.Validate();
         Parameters.Validate(PartId);
-        _ = DeclaredColliders;
+        _ = DeclaredColliders(bundle);
     }
 }
 
@@ -67,12 +68,12 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
         return new(copy);
     }
     public WorkshopInstances Without(GpuBodyId id) => new(_items.Where(item => item.Id != id).ToArray());
-    public void Validate()
+    public void Validate(IBundleServices bundle)
     {
         var ids = new HashSet<GpuBodyId>(16);
         foreach (var item in _items)
         {
-            item.Validate();
+            item.Validate(bundle);
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");
         }
         // Allocate the one immutable map before a candidate can replace a world.

@@ -146,7 +146,7 @@ public sealed class MechanicalCoordinateBindingsTests
             Ports = authoredDriver.Ports.Select(port => port.Domain == SimulationDomain.Mechanical
                 ? port with { CoordinatePerRadian = -2f } : port).ToImmutableArray()
         };
-        var decoded = PartRegistry.Read(BundleSchema.WriteEntries([authoredDriver, authoredDriven]));
+        var decoded = PartRegistry.Read(RuntimeTestServices.Bundle, BundleSchema.WriteEntries([authoredDriver, authoredDriven]));
         var mixedDriver = Assert.Single(decoded, entry => entry.Metadata.Id == MixedDriverPart.Value);
         var driven = Assert.Single(decoded, entry => entry.Metadata.Id == DrivenPart.Value);
         var endpoint = Assert.Single(mixedDriver.Ports, port => port.Domain == SimulationDomain.Mechanical);
@@ -158,14 +158,14 @@ public sealed class MechanicalCoordinateBindingsTests
         using var physicsScope = DeclaredPhysics.Scoped(decoded);
         using var portScope = DeclaredPorts.Scoped(TestBundle.Ports.Extend([
             (MixedDriverPart, mixedDriver.Ports), (DrivenPart, driven.Ports)]));
-        var driverInstance = WorkshopInput.Generic(MixedDriverPart, new(10), 0, 4, 0, 0, 0, 0, 1);
-        var drivenInstance = WorkshopInput.Generic(DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
+        var driverInstance = WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(10), 0, 4, 0, 0, 0, 0, 1);
+        var drivenInstance = WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new([driverInstance, drivenInstance]), Connections: new([new WorkshopConnection(
                 driverInstance.Id, new PortId("mech_drive"), drivenInstance.Id, new PortId("mech_in"),
                 WorkshopConnectionDomain.Mechanical)]));
-        construction.Validate();
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var transmission = Assert.Single(scene.Transmissions.ToArray());
         Assert.Equal(construction.Instances.Identities[driverInstance.Id].Hinges[1].Joint, transmission.DrivingJoint);
         Assert.Equal(construction.Instances.Identities[drivenInstance.Id].Hinges[0].Joint, transmission.DrivenJoint);
@@ -185,8 +185,8 @@ public sealed class MechanicalCoordinateBindingsTests
         using var physicsScope = DeclaredPhysics.Scoped([mixedDriver, driven]);
         using var portScope = DeclaredPorts.Scoped(ports);
 
-        var driverInstance = WorkshopInput.Generic(MixedDriverPart, new(10), 0, 4, 0, 0, 0, 0, 1);
-        var drivenInstance = WorkshopInput.Generic(DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
+        var driverInstance = WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(10), 0, 4, 0, 0, 0, 0, 1);
+        var drivenInstance = WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
 
         var connection = new WorkshopConnection(
             driverInstance.Id,
@@ -201,9 +201,9 @@ public sealed class MechanicalCoordinateBindingsTests
             new([driverInstance, drivenInstance]),
             Connections: new([connection]));
 
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
 
         var transmission = Assert.Single(scene.Transmissions.ToArray());
         Assert.Equal(new MechanicalTransmissionId(1), transmission.Id);
@@ -259,8 +259,8 @@ public sealed class MechanicalCoordinateBindingsTests
         using var physicsScope = DeclaredPhysics.Scoped([reorderedDriver, driven]);
         using var portScope = DeclaredPorts.Scoped(ports);
 
-        var driverInstance = WorkshopInput.Generic(reorderedPart, new(10), 0, 4, 0, 0, 0, 0, 1);
-        var drivenInstance = WorkshopInput.Generic(DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
+        var driverInstance = WorkshopInput.Generic(RuntimeTestServices.Bundle, reorderedPart, new(10), 0, 4, 0, 0, 0, 0, 1);
+        var drivenInstance = WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
 
         var connection = new WorkshopConnection(
             driverInstance.Id,
@@ -275,9 +275,9 @@ public sealed class MechanicalCoordinateBindingsTests
             new([driverInstance, drivenInstance]),
             Connections: new([connection]));
 
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
 
         var transmission = Assert.Single(scene.Transmissions.ToArray());
         var identities = construction.Instances.Identities;
@@ -456,33 +456,33 @@ public sealed class MechanicalCoordinateBindingsTests
         using var physicsScope = DeclaredPhysics.Scoped([mixedDriver, driven]);
         using var portScope = DeclaredPorts.Scoped(ports);
 
-        var driver1 = WorkshopInput.Generic(MixedDriverPart, new(10), 0, 4, 0, 0, 0, 0, 1);
-        var driver2 = WorkshopInput.Generic(MixedDriverPart, new(11), 0, 8, 0, 0, 0, 0, 1);
-        var driven1 = WorkshopInput.Generic(DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
+        var driver1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(10), 0, 4, 0, 0, 0, 0, 1);
+        var driver2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(11), 0, 8, 0, 0, 0, 0, 1);
+        var driven1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
 
         // 1. Direction / role mismatch: Output to Output (Drive to Drive)
         var outToOut = new WorkshopConnection(driver1.Id, new PortId("mech_drive"), driver2.Id, new PortId("mech_drive"), WorkshopConnectionDomain.Mechanical);
         var ex1 = Assert.Throws<WorkshopEditRejectedException>(() =>
-            new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([driver1, driver2]), Connections: new([outToOut])).Validate());
+            new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([driver1, driver2]), Connections: new([outToOut])).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.Equal(WorkshopEditRejection.InvalidConnection, ex1.Reason);
 
         // 2. Cross-domain: Drive to Electrical PowerIn
         var crossDomain = new WorkshopConnection(driver1.Id, new PortId("mech_drive"), driver2.Id, PortId.PowerIn, WorkshopConnectionDomain.Mechanical);
         var ex2 = Assert.Throws<WorkshopEditRejectedException>(() =>
-            new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([driver1, driver2]), Connections: new([crossDomain])).Validate());
+            new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([driver1, driver2]), Connections: new([crossDomain])).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.Equal(WorkshopEditRejection.InvalidConnection, ex2.Reason);
 
         // 3. Self-connection: driver1 connecting to driver1
         var selfConn = new WorkshopConnection(driver1.Id, new PortId("mech_drive"), driver1.Id, PortId.PowerIn, WorkshopConnectionDomain.Mechanical);
         var ex3 = Assert.Throws<WorkshopEditRejectedException>(() =>
-            new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([driver1]), Connections: new([selfConn])).Validate());
+            new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([driver1]), Connections: new([selfConn])).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.Equal(WorkshopEditRejection.InvalidConnection, ex3.Reason);
 
         // 4. Duplicate drive feeds targeting the same driven input
         var feed1 = new WorkshopConnection(driver1.Id, new PortId("mech_drive"), driven1.Id, new PortId("mech_in"), WorkshopConnectionDomain.Mechanical);
         var feed2 = new WorkshopConnection(driver2.Id, new PortId("mech_drive"), driven1.Id, new PortId("mech_in"), WorkshopConnectionDomain.Mechanical);
         var ex4 = Assert.Throws<WorkshopEditRejectedException>(() =>
-            new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([driver1, driver2, driven1]), Connections: new([feed1, feed2])).Validate());
+            new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([driver1, driver2, driven1]), Connections: new([feed1, feed2])).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.Equal(WorkshopEditRejection.InvalidConnection, ex4.Reason);
         Assert.Contains("Duplicate mechanical drive connection", ex4.Message, StringComparison.Ordinal);
     }
@@ -546,8 +546,8 @@ public sealed class MechanicalCoordinateBindingsTests
         using var portScope = DeclaredPorts.Scoped(ports);
 
         var battery = PlacedParts.Battery(new(1), 0, 4, 0, enabled: ElectricalEnable.Enabled);
-        var driver = WorkshopInput.Generic(driverPart, new(2), 3, 4, 0, 0, 0, 0, 1);
-        var driven = WorkshopInput.Generic(drivenPart, new(3), 6, 4, 0, 0, 0, 0, 1);
+        var driver = WorkshopInput.Generic(RuntimeTestServices.Bundle, driverPart, new(2), 3, 4, 0, 0, 0, 0, 1);
+        var driven = WorkshopInput.Generic(RuntimeTestServices.Bundle, drivenPart, new(3), 6, 4, 0, 0, 0, 0, 1);
 
         var powerWire = new WorkshopConnection(battery.Id, PortId.Supply, driver.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var mechWire = new WorkshopConnection(driver.Id, new PortId("mech_drive"), driven.Id, new PortId("mech_in"), WorkshopConnectionDomain.Mechanical);
@@ -558,7 +558,7 @@ public sealed class MechanicalCoordinateBindingsTests
             new([battery, driver, driven]),
             Connections: new([powerWire, mechWire]));
 
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
         var driverRotor = construction.Instances.Identities[driver.Id].Hinges[0].Body;
         var drivenRotor = construction.Instances.Identities[driven.Id].Hinges[0].Body;
@@ -636,8 +636,8 @@ public sealed class MechanicalCoordinateBindingsTests
         using var portScope = DeclaredPorts.Scoped(ports);
 
         var battery = PlacedParts.Battery(new(1), 0, 4, 0, enabled: ElectricalEnable.Enabled);
-        var driver = WorkshopInput.Generic(driverPart, new(2), 3, 4, 0, 0, 0, 0, 1);
-        var driven = WorkshopInput.Generic(drivenPart, new(3), 6, 4, 0, 0, 0, 0, 1);
+        var driver = WorkshopInput.Generic(RuntimeTestServices.Bundle, driverPart, new(2), 3, 4, 0, 0, 0, 0, 1);
+        var driven = WorkshopInput.Generic(RuntimeTestServices.Bundle, drivenPart, new(3), 6, 4, 0, 0, 0, 0, 1);
 
         var powerWire = new WorkshopConnection(battery.Id, PortId.Supply, driver.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var mechWire = new WorkshopConnection(driver.Id, new PortId("mech_drive"), driven.Id, new PortId("mech_in"), WorkshopConnectionDomain.Mechanical);
@@ -648,7 +648,7 @@ public sealed class MechanicalCoordinateBindingsTests
             new([battery, driver, driven]),
             Connections: new([powerWire, mechWire]));
 
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
         var driverRotor = construction.Instances.Identities[driver.Id].Hinges[0].Body;
         var drivenRotor = construction.Instances.Identities[driven.Id].Hinges[0].Body;
@@ -679,8 +679,8 @@ public sealed class MechanicalCoordinateBindingsTests
         using var physicsScope = DeclaredPhysics.Scoped([mixedDriver, driven]);
         using var portScope = DeclaredPorts.Scoped(ports);
 
-        var driverInstance = WorkshopInput.Generic(MixedDriverPart, new(10), 0, 4, 0, 0, 0, 0, 1);
-        var drivenInstance = WorkshopInput.Generic(DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
+        var driverInstance = WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(10), 0, 4, 0, 0, 0, 0, 1);
+        var drivenInstance = WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(20), 4, 4, 0, 0, 0, 0, 1);
 
         var connection = new WorkshopConnection(
             driverInstance.Id,
@@ -695,13 +695,13 @@ public sealed class MechanicalCoordinateBindingsTests
             new([driverInstance, drivenInstance]),
             Connections: new([connection]));
 
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
         // 1. Test WorkshopSaveCodec roundtrip
         var save = new WorkshopSavedConstruction(construction, new(42));
-        var bytes = WorkshopSaveCodec.Encode(save);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
         var admittedElements = SaveFixture.Elements.Concat([MixedDriverPart, DrivenPart]).ToHashSet();
-        var decoded = WorkshopSaveCodec.Decode(admittedElements, bytes);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, admittedElements, bytes);
 
         var decodedConn = Assert.Single(decoded.Construction.Connections);
         Assert.Equal(WorkshopConnectionDomain.Mechanical, decodedConn.Domain);
@@ -760,10 +760,10 @@ public sealed class MechanicalCoordinateBindingsTests
         var placed = new List<IWorkshopInstance> { battery };
         WorkshopGenericInstance Place(PartId part, GpuBodyId id, Godot.Vector3 point)
         {
-            var pose = PlacementPose.Compose(new Dictionary<PartId, PartDefinition>(), placed,
+            var pose = RuntimeTestServices.Placement.Compose(new Dictionary<PartId, PartDefinition>(), placed,
                 new(part, id, false), point, Godot.Quaternion.Identity);
             Assert.Equal(PlacementRefusal.None, pose.Refusal);
-            var instance = WorkshopInput.Generic(part, id, pose.Position.X, pose.Position.Y, pose.Position.Z,
+            var instance = WorkshopInput.Generic(RuntimeTestServices.Bundle, part, id, pose.Position.X, pose.Position.Y, pose.Position.Z,
                 pose.Rotation.X, pose.Rotation.Y, pose.Rotation.Z, pose.Rotation.W);
             placed.Add(instance);
             return instance;
@@ -817,8 +817,8 @@ public sealed class MechanicalCoordinateBindingsTests
         Motion(harness.Committed);
         await harness.Reset();
         await harness.Require(WorkshopCommandKind.Save);
-        var saved = WorkshopSaveCodec.Encode(new(construction, new(42)));
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements.Concat([MixedDriverPart, DrivenPart]).ToHashSet(), saved);
+        var saved = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(42)));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements.Concat([MixedDriverPart, DrivenPart]).ToHashSet(), saved);
         Assert.Equal(construction.Connections, loaded.Construction.Connections);
         await replay.Require(WorkshopCommandKind.Construct, loaded.Construction);
         await replay.Run();
@@ -851,11 +851,11 @@ public sealed class MechanicalCoordinateBindingsTests
         driven = driven with { Ports = [driven.Ports[0] with { CoordinatePerRadian = targetScale }] };
         using var physics = DeclaredPhysics.Scoped([driver, driven]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(MixedDriverPart, driver.Ports), (DrivenPart, driven.Ports)]));
-        var source = WorkshopInput.Generic(MixedDriverPart, new(1), 0, 4, 0, 0, 0, 0, 1);
-        var target = WorkshopInput.Generic(DrivenPart, new(2), 4, 4, 0, 0, 0, 0, 1);
+        var source = WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(1), 0, 4, 0, 0, 0, 0, 1);
+        var target = WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(2), 4, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(source, target));
         var candidate = construction with { Connections = new(new WorkshopConnection(source.Id, MechanicalOutput, target.Id, MechanicalInput, WorkshopConnectionDomain.Mechanical)) };
-        Assert.Equal(WorkshopEditRejection.InvalidConnection, Assert.Throws<WorkshopEditRejectedException>(() => candidate.Validate()).Reason);
+        Assert.Equal(WorkshopEditRejection.InvalidConnection, Assert.Throws<WorkshopEditRejectedException>(() => candidate.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle)).Reason);
         Assert.Empty(construction.Connections);
         Assert.Equal(new ConstructionRevision(2), construction.Revision);
     }
@@ -870,18 +870,18 @@ public sealed class MechanicalCoordinateBindingsTests
         driven = driven with { Ports = [driven.Ports[0], driven.Ports[0] with { Id = inputAlias }] };
         using var physics = DeclaredPhysics.Scoped([driver, driven]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(MixedDriverPart, driver.Ports), (DrivenPart, driven.Ports)]));
-        var source = WorkshopInput.Generic(MixedDriverPart, new(1), 0, 4, 0, 0, 0, 0, 1);
-        var source2 = WorkshopInput.Generic(MixedDriverPart, new(2), 0, 8, 0, 0, 0, 0, 1);
-        var target = WorkshopInput.Generic(DrivenPart, new(3), 4, 4, 0, 0, 0, 0, 1);
-        var target2 = WorkshopInput.Generic(DrivenPart, new(4), 4, 8, 0, 0, 0, 0, 1);
+        var source = WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(1), 0, 4, 0, 0, 0, 0, 1);
+        var source2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(2), 0, 8, 0, 0, 0, 0, 1);
+        var target = WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(3), 4, 4, 0, 0, 0, 0, 1);
+        var target2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(4), 4, 8, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(source, source2, target, target2);
         var first = new WorkshopConnection(source.Id, MechanicalOutput, target.Id, MechanicalInput, WorkshopConnectionDomain.Mechanical);
-        new WorkshopConnections(first).Validate(instances);
+        new WorkshopConnections(first).Validate(RuntimeTestServices.Core.Supply, instances);
         foreach (var second in new[] {
             new WorkshopConnection(source.Id, outputAlias, target2.Id, MechanicalInput, WorkshopConnectionDomain.Mechanical),
             new WorkshopConnection(source2.Id, MechanicalOutput, target.Id, inputAlias, WorkshopConnectionDomain.Mechanical) })
             Assert.Equal(WorkshopEditRejection.InvalidConnection, Assert.Throws<WorkshopEditRejectedException>(() =>
-                new WorkshopConnections(first, second).Validate(instances)).Reason);
+                new WorkshopConnections(first, second).Validate(RuntimeTestServices.Core.Supply, instances)).Reason);
     }
 
     [Theory]
@@ -984,10 +984,10 @@ public sealed class MechanicalCoordinateBindingsTests
         var (driver, driven) = CreateUnfamiliarPackages();
         using var physics = DeclaredPhysics.Scoped([driver, driven]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(MixedDriverPart, driver.Ports), (DrivenPart, driven.Ports)]));
-        var sources = new[] { WorkshopInput.Generic(MixedDriverPart, new(1), -3, 4, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(MixedDriverPart, new(2), -3, 7, 0, 0, 0, 0, 1) };
-        var targets = new[] { WorkshopInput.Generic(DrivenPart, new(3), 3, 4, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(DrivenPart, new(4), 3, 7, 0, 0, 0, 0, 1) };
+        var sources = new[] { WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(1), -3, 4, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(2), -3, 7, 0, 0, 0, 0, 1) };
+        var targets = new[] { WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(3), 3, 4, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(4), 3, 7, 0, 0, 0, 0, 1) };
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([.. sources, .. targets]),
             Connections: new(sources.Select((source, i) => new WorkshopConnection(source.Id, MechanicalOutput, targets[i].Id,
                 MechanicalInput, WorkshopConnectionDomain.Mechanical)).ToArray()));
@@ -1060,11 +1060,11 @@ public sealed class MechanicalCoordinateBindingsTests
         using var physics = DeclaredPhysics.Scoped([driver, driven]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(MixedDriverPart, driver.Ports), (DrivenPart, driven.Ports)]));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(MixedDriverPart, new(1), 0, 4, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(DrivenPart, new(2), 4, 4, 0, 0, 0, 0, 1)),
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, MixedDriverPart, new(1), 0, 4, 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, DrivenPart, new(2), 4, 4, 0, 0, 0, 0, 1)),
             Connections: new(new WorkshopConnection(new(1), MechanicalOutput, new(2), MechanicalInput, WorkshopConnectionDomain.Mechanical)));
-        if (valid) construction.Validate();
+        if (valid) construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         else Assert.Equal(WorkshopEditRejection.InvalidConnection, Assert.Throws<WorkshopEditRejectedException>(() =>
-            WorkshopSceneCompiler.Compile(construction, new(1, 2), new(1))).Reason);
+            WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2), new(1))).Reason);
     }
 }

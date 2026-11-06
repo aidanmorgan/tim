@@ -18,10 +18,10 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         var battery = PlacedParts.Battery(new(1), -4, 0, 0);
         var latch = PlacedParts.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(3), 4, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(3), 4, 0, 0, 0, 0, 0, 1);
         var routed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, latch, gate),
             Connections: new(Power(battery.Id, latch.Id), Power(latch.Id, gate.Id)));
-        Assert.Equal(new[]{battery.Id}, WorkshopSupplyCompiler.Compile(routed,DeclaredPhysics.Of).UpstreamSources(gate.Id));
+        Assert.Equal(new[]{battery.Id}, WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, routed,DeclaredPhysics.Of).UpstreamSources(gate.Id));
         foreach (var removed in new[] { battery.PartId, latch.PartId })
         {
             CuriousContraptions.Bundle.BundleEntry Without(PartId part)
@@ -29,12 +29,12 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
                 var entry = DeclaredPhysics.Of(part);
                 return part == removed ? entry with { Electrical = entry.Electrical! with { Supply = null } } : entry;
             }
-            Assert.Empty(WorkshopSupplyCompiler.Compile(routed,Without).UpstreamSources(gate.Id));
+            Assert.Empty(WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, routed,Without).UpstreamSources(gate.Id));
             Assert.Equal(DeclaredPhysics.Of(removed).Ports, Without(removed).Ports);
         }
         var direct = routed with { Connections = new(Power(battery.Id, gate.Id)) };
-        Assert.Equal(new[]{battery.Id},WorkshopSupplyCompiler.Compile(direct,DeclaredPhysics.Of).UpstreamSources(gate.Id));
-        Assert.Empty(WorkshopSupplyCompiler.Compile(direct, part =>
+        Assert.Equal(new[]{battery.Id},WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, direct,DeclaredPhysics.Of).UpstreamSources(gate.Id));
+        Assert.Empty(WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, direct, part =>
         {
             var entry = DeclaredPhysics.Of(part);
             return entry.Electrical is { } electrical ? entry with { Electrical = electrical with { Supply = null } } : entry;
@@ -46,7 +46,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void PartRegistry_DiscoversLatchAndPresentationRestoresRestOnReset()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
         var def = registry.Definitions[new PartId("latch")];
         Assert.Equal("latch", def.Id);
@@ -150,24 +150,24 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var latch = PlacedParts.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 3, 0, 0, 0, 0, 0, 1);
         var counter = PlacedParts.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
-        var hit = WorkshopInput.Generic(new PartId("switch"), new(4), 0, 3, 0, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(4), 0, 3, 0, 0, 0, 0, 1);
         var other = PlacedParts.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(latch, lamp, counter, hit, other);
         var output = Signal(latch.Id, lamp.Id, PortId.ActivationIn);
-        new WorkshopConnections(output).Validate(instances);
+        new WorkshopConnections(output).Validate(RuntimeTestServices.Core.Supply, instances);
         // Story 9R.5: the latch shares the plate's level-output rule and its exact message.
         foreach (var (target, input) in new[] { (counter.Id, PortId.ActivationIn), (other.Id, PortId.SetIn), (other.Id, PortId.ResetIn) })
             Assert.Equal("A level output can only light a Signal lamp.", EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
-                () => new WorkshopConnections(Signal(latch.Id, target, input)).Validate(instances)).Message);
-        EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel, () => new WorkshopConnections(output, Signal(hit.Id, lamp.Id, PortId.ActivationIn)).Validate(instances));
-        EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel, () => new WorkshopConnections(output, Signal(other.Id, lamp.Id, PortId.ActivationIn)).Validate(instances));
+                () => new WorkshopConnections(Signal(latch.Id, target, input)).Validate(RuntimeTestServices.Core.Supply, instances)).Message);
+        EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel, () => new WorkshopConnections(output, Signal(hit.Id, lamp.Id, PortId.ActivationIn)).Validate(RuntimeTestServices.Core.Supply, instances));
+        EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel, () => new WorkshopConnections(output, Signal(other.Id, lamp.Id, PortId.ActivationIn)).Validate(RuntimeTestServices.Core.Supply, instances));
 
         // The save codec rejects an invalid stored shape atomically: a latch output aimed at a Counter.
         var valid = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instances, Connections: new(output));
-        var bytes = WorkshopSaveCodec.Encode(new(valid, new(6)));
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(valid, new(6)));
         var invalid = valid with { Connections = new(Signal(latch.Id, counter.Id, PortId.ActivationIn)) };
-        EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly, () => WorkshopSaveCodec.Encode(new(invalid, new(6))));
-        Assert.Equal(output, Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes).Construction.Connections.ToArray()));
+        EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly, () => WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(invalid, new(6))));
+        Assert.Equal(output, Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes).Construction.Connections.ToArray()));
     }
 
     [Fact]
@@ -184,8 +184,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
             Connections: new(Power(battery.Id, setClock.Id), Power(battery.Id, resetClock.Id),
                 Signal(setClock.Id, latch.Id, PortId.SetIn), Signal(resetClock.Id, latch.Id, PortId.ResetIn),
                 Signal(latch.Id, lamp.Id, PortId.ActivationIn), Signal(setClock.Id, sticky.Id, PortId.ActivationIn)));
-        construction.Validate();
-        var network = WorkshopActivationCompiler.Compile(construction);
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var nodes = network.Nodes.ToArray();
         Assert.Equal(ActivationNodeKind.LevelIndicator, nodes.Single(node => node.Owner == lamp.Id).Kind);
         Assert.Equal(ActivationNodeKind.StickyFirstInput, nodes.Single(node => node.Owner == sticky.Id).Kind);
@@ -219,14 +219,14 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var set = Signal(source.Id, latch.Id, PortId.SetIn);
         var reset = Signal(source.Id, latch.Id, PortId.ResetIn);
         var power = Power(battery.Id, latch.Id);
-        new WorkshopConnections(set, reset, power).Validate(instances);
+        new WorkshopConnections(set, reset, power).Validate(RuntimeTestServices.Core.Supply, instances);
 
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(Signal(source.Id, latch.Id, PortId.ActivationIn)).Validate(instances));
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(Signal(source.Id, lamp.Id, PortId.SetIn)).Validate(instances));
-        new WorkshopConnections(power, Power(second.Id, latch.Id)).Validate(instances); // declared contacts admit source-seeded cycles/fan-in
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(power, power).Validate(instances));
-        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => new WorkshopConnections(Power(battery.Id, source.Id), Power(second.Id, source.Id)).Validate(instances));
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(set with { Domain = WorkshopConnectionDomain.Electrical }).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(Signal(source.Id, latch.Id, PortId.ActivationIn)).Validate(RuntimeTestServices.Core.Supply, instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(Signal(source.Id, lamp.Id, PortId.SetIn)).Validate(RuntimeTestServices.Core.Supply, instances));
+        new WorkshopConnections(power, Power(second.Id, latch.Id)).Validate(RuntimeTestServices.Core.Supply, instances); // declared contacts admit source-seeded cycles/fan-in
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(power, power).Validate(RuntimeTestServices.Core.Supply, instances));
+        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => new WorkshopConnections(Power(battery.Id, source.Id), Power(second.Id, source.Id)).Validate(RuntimeTestServices.Core.Supply, instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(set with { Domain = WorkshopConnectionDomain.Electrical }).Validate(RuntimeTestServices.Core.Supply, instances));
     }
 
     [Fact]
@@ -241,8 +241,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
             new(setClock, resetClock, latch, battery),
             Connections: new(Power(battery.Id, setClock.Id), Power(battery.Id, resetClock.Id),
                 Signal(setClock.Id, latch.Id, PortId.SetIn), Signal(resetClock.Id, latch.Id, PortId.ResetIn)));
-        construction.Validate();
-        var network = WorkshopActivationCompiler.Compile(construction);
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         Assert.Contains(network.Nodes.ToArray(), node => node.Owner == latch.Id && node.Kind == ActivationNodeKind.StateLatch);
         Assert.Equal(2, network.Edges.ToArray().Count(edge => edge.Target == construction.Instances.Identities[latch.Id].Signals[new("signal")].Node));
 
@@ -277,14 +277,14 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var battery = PlacedParts.Battery(new(3), -6, 0, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(clock, latch, battery),
             Connections: new(Power(battery.Id, clock.Id), Signal(clock.Id, latch.Id, PortId.SetIn), Signal(clock.Id, latch.Id, PortId.ResetIn)));
-        construction.Validate();
-        var phases = Run(WorkshopActivationCompiler.Compile(construction), battery.Id, 480, []);
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var phases = Run(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction), battery.Id, 480, []);
         Assert.All(phases, phase => Assert.Equal(SimulationLatchPhase.Off, phase));
 
         // Control: the same source on SetIn alone turns the latch On at its first pulse.
         var control = construction with { Connections = new(Power(battery.Id, clock.Id), Signal(clock.Id, latch.Id, PortId.SetIn)) };
         var transitions = new List<(ulong Tick, ActivationTransition Transition)>();
-        var controlPhases = Run(WorkshopActivationCompiler.Compile(control), battery.Id, 480, transitions);
+        var controlPhases = Run(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, control), battery.Id, 480, transitions);
         Assert.Equal(SimulationLatchPhase.Off, controlPhases[118]);
         Assert.Equal(SimulationLatchPhase.On, controlPhases[119]);
         Assert.Equal(SimulationLatchPhase.On, controlPhases[479]);
@@ -382,20 +382,20 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         var battery = PlacedParts.Battery(new(1), -4, 0, 0);
         var latch = PlacedParts.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(3), 4, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(3), 4, 0, 0, 0, 0, 0, 1);
         var routed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, latch, gate),
             Connections: new(Power(battery.Id, latch.Id), new(latch.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
-        routed.Validate();
-        var scene = WorkshopPhysicsCompiler.Compile(routed, new(1, 2));
+        routed.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, routed, new(1, 2));
         Assert.Equal(latch.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Contact).Owner);
         Assert.Equal(gate.Id,scene.Prismatics[0].BodyA);
         Assert.Equal(battery.Id,scene.Electrical.Sources[0].Owner);
         var on = new WorkshopTickControls([ElectricalEnable.Enabled]);
         var off = new WorkshopTickControls([ElectricalEnable.Disabled]);
         Assert.Equal(1, scene.SupplyGraph.DriveSlots); // the gate's driven slider
-        Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph, on, _ => true, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
-        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph, on, _ => false, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
-        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph, off, _ => true, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
+        Assert.True(TickControlComposition.Compose(scene.SupplyGraph, on, _ => true, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
+        Assert.False(TickControlComposition.Compose(scene.SupplyGraph, on, _ => false, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
+        Assert.False(TickControlComposition.Compose(scene.SupplyGraph, off, _ => true, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
         Assert.Throws<ArgumentException>(() => new PhysicsTickInputs([ElectricalEnable.Enabled], []).Validate(1, [true], 0));
         // A closed slot is admitted only where a drive is declared.
         new PhysicsTickInputs([ElectricalEnable.Enabled], [true]).Validate(1, [true], 0);
@@ -406,18 +406,18 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
 
         // Memory without a supply compiles no route; a battery wired straight to the gate compiles one Direct route (Story 9R.3).
         var unsupplied = routed with { Connections = new(new WorkshopConnection(latch.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) };
-        var unsuppliedScene=WorkshopPhysicsCompiler.Compile(unsupplied,new(1,2));
-        Assert.False(PhysicsTickInputs.Compose(unsuppliedScene.SupplyGraph,on,_=>true, PlacedParts.InitialElectrical(unsuppliedScene)).SupplyClosed[0]);
+        var unsuppliedScene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, unsupplied,new(1,2));
+        Assert.False(TickControlComposition.Compose(unsuppliedScene.SupplyGraph,on,_=>true, PlacedParts.InitialElectrical(unsuppliedScene)).SupplyClosed[0]);
         var direct=routed with {Connections=new(Power(battery.Id,gate.Id))};
-        var directScene=WorkshopPhysicsCompiler.Compile(direct,new(1,2));
-        Assert.True(PhysicsTickInputs.Compose(directScene.SupplyGraph,on,_=>false, PlacedParts.InitialElectrical(directScene)).SupplyClosed[0]);
+        var directScene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, direct,new(1,2));
+        Assert.True(TickControlComposition.Compose(directScene.SupplyGraph,on,_=>false, PlacedParts.InitialElectrical(directScene)).SupplyClosed[0]);
 
         // A Counter's supply contact compiles the same route kind: closed only while its committed value is reached.
         var counter = PlacedParts.Counter(new(4), 0, 3, 0, 0, 0, 0, 1, 3);
         var counted = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, counter, gate),
             Connections: new(Power(battery.Id, counter.Id), new(counter.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
-        counted.Validate();
-        var countedScene=WorkshopPhysicsCompiler.Compile(counted,new(1,2));
+        counted.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var countedScene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, counted,new(1,2));
         Assert.Equal(counter.Id,Assert.Single(countedScene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Contact).Owner);
     }
 
@@ -425,20 +425,20 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     public void Compiler_TwoSwitchedGatesEachFollowOnlyTheirOwnRoute()
     {
         // An unswitched gate compiles first, so neither switched route sits at prismatic index 0.
-        var plain = WorkshopInput.Generic(new PartId("powered_gate"), new(1), -8, 0, 0, 0, 0, 0, 1);
+        var plain = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), -8, 0, 0, 0, 0, 0, 1);
         var batteryA = PlacedParts.Battery(new(2), -6, 3, 0);
         var batteryB = PlacedParts.Battery(new(3), -6, -3, 0, enabled: ElectricalEnable.Disabled);
         var latchA = PlacedParts.Latch(new(4), 0, 3, 0, 0, 0, 0, 1);
         var latchB = PlacedParts.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
-        var gateA = WorkshopInput.Generic(new PartId("powered_gate"), new(6), 6, 3, 0, 0, 0, 0, 1);
-        var gateB = WorkshopInput.Generic(new PartId("powered_gate"), new(7), 6, -3, 0, 0, 0, 0, 1);
+        var gateA = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(6), 6, 3, 0, 0, 0, 0, 1);
+        var gateB = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(7), 6, -3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(plain, batteryA, batteryB, latchA, latchB, gateA, gateB),
             Connections: new(Power(batteryA.Id, latchA.Id), Power(batteryB.Id, latchB.Id),
                 new(latchA.Id, PortId.Supply, gateA.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
                 new(latchB.Id, PortId.Supply, gateB.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
-        construction.Validate();
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         Assert.Equal(2,scene.SupplyGraph.Nodes.ToArray().Count(node=>node.Kind==SupplyNodeKind.Contact));
         int PrismaticOf(GpuBodyId gate)=>Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate);
         int SourceOf(GpuBodyId battery)=>Array.FindIndex(scene.Electrical.Sources.ToArray(),source=>source.Owner==battery);
@@ -447,7 +447,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         {
             var enables = new ElectricalEnable[scene.Electrical.Sources.Length];
             enables[SourceOf(batteryA.Id)] = a; enables[SourceOf(batteryB.Id)] = b;
-            return PhysicsTickInputs.Compose(scene.SupplyGraph, new(enables), contact, PlacedParts.InitialElectrical(scene)).SupplyClosed;
+            return TickControlComposition.Compose(scene.SupplyGraph, new(enables), contact, PlacedParts.InitialElectrical(scene)).SupplyClosed;
         }
         // Both latches On, battery A enabled and battery B disabled (its authored state): only gate A is supplied; the plain gate never is.
         var both = Closed(ElectricalEnable.Enabled, ElectricalEnable.Disabled, _ => true);
@@ -470,7 +470,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(clock, latch, counter, battery),
             Connections: new(Power(battery.Id, clock.Id), Signal(clock.Id, latch.Id, PortId.SetIn),
                 Signal(clock.Id, counter.Id, PortId.ActivationIn)));
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var activations = network.Clear(); var timers = network.ClearTimers(); var memory = network.ClearMemory();
         var electrical = new SupplyOutputRead([new(battery.Id, true)]);
         var latchClosedAt = 0; var counterClosedAt = 0;
@@ -491,11 +491,11 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         var latch = PlacedParts.Latch(new(7), 1, 0, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(latch));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == latch.Id);
         Assert.Equal(RigidMotionKind.Static, body.Motion);
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == latch.Id).ToArray();
-        Assert.Equal(DeclaredPhysics.Colliders(new PartId("latch")).Select(c => (c.ShapeKind, c.Radius, c.HalfExtents, c.LocalPose.Translation)),
+        Assert.Equal(DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, new PartId("latch")).Select(c => (c.ShapeKind, c.Radius, c.HalfExtents, c.LocalPose.Translation)),
             colliders.Select(c => (c.Shape, c.Radius.Value, c.HalfExtents, c.Pose.Translation)));
         Assert.Equal(9, colliders.Length);
     }
@@ -503,15 +503,15 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void Persistence_BinaryFlatBuffersAndSaveCodecPreserveDistinctSockets()
     {
-        var setSwitch = WorkshopInput.Generic(new PartId("switch"), new(1), -3, 0, 0, 0, 0, 0, 1);
-        var resetSwitch = WorkshopInput.Generic(new PartId("switch"), new(2), -3, 2, 0, 0, 0, 0, 1);
+        var setSwitch = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(1), -3, 0, 0, 0, 0, 0, 1);
+        var resetSwitch = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2), -3, 2, 0, 0, 0, 0, 1);
         var latch = PlacedParts.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -5, 0, 0);
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(5), 4, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(5), 4, 0, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(9), WorkshopCadenceSettings.Default(), new(setSwitch, resetSwitch, latch, battery, gate),
             Connections: new(Signal(setSwitch.Id, latch.Id, PortId.SetIn), Signal(resetSwitch.Id, latch.Id, PortId.ResetIn),
                 Power(battery.Id, latch.Id), new(latch.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), default, CompiledSceneFixture.Compile(construction),
             Session: new RuntimeSessionId(1, 2), Cadence: new(1), Projection: new(1));
@@ -521,9 +521,10 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Equal(2, decoded.Physics.SupplyGraph.Edges.Length);
 
         var saved = new WorkshopSavedConstruction(construction, new(6));
-        var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
+        var restored = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         AssertSame(construction, restored.Construction);
-        Assert.Equal(WorkshopSaveCodec.Encode(saved), WorkshopSaveCodec.Encode(restored));
+        Assert.Equal(saved, restored);
+        Assert.Equal(new GpuBodyId(6), restored.NextBodyId);
     }
 
     // Cosmetic channels travel as f32 animation values, so colours preserve the authored palette.
@@ -541,7 +542,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Equal(expected.Instances.Single(instance => instance.PartId == new PartId("latch")), latch);
     }
 
-    private static SimulationLatchPhase[] Run(ActivationNetwork network, GpuBodyId battery, int ticks,
+    private static SimulationLatchPhase[] Run(IActivationProgram network, GpuBodyId battery, int ticks,
         List<(ulong Tick, ActivationTransition Transition)> transitions)
     {
         var latchOwner = network.Nodes.ToArray().Single(node => node.Kind == ActivationNodeKind.StateLatch).Owner;

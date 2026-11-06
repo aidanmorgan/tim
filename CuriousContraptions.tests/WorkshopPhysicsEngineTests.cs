@@ -17,8 +17,8 @@ public sealed class WorkshopPhysicsEngineTests
     public async Task DeclaredRampLengthChangesRealDownhillRunoutWhileSideAndDepthMissesDoNotDeflect()
     {
         async Task<List<WorkshopRead>> Roll(float length, double x, double z) => await WorkshopIntegrationHarness.Observe(Free(
-            WorkshopInput.Generic(new PartId("ball"),new(1), (float)(x), 4, (float)(z), 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("ramp"), new(2), 0, 2.5f, 0, 0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), (float)(x), 4, (float)(z), 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(2), 0, 2.5f, 0, 0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18)),
                 new([new(new("length"), length), new(new("width"), 1.3f)]))), 3 * TicksPerSecond);
         var longRun = await Roll(4f, -.3, 0);
         var shortRun = await Roll(1f, -.3, 0);
@@ -54,10 +54,10 @@ public sealed class WorkshopPhysicsEngineTests
         var parameters = InstanceParameterCollection.Defaults(new PartId("basket")).ToDictionary();
         parameters[new("force_maximum_acceleration")] = 12f;
         var construction = Free(
-            WorkshopInput.Generic(new PartId("ball"),new(1), (float)(x), (float)(height), (float)(z), 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, (float)(Math.Sin(radians / 2)), 0, (float)(Math.Cos(radians / 2)), new(parameters)));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), (float)(x), (float)(height), (float)(z), 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 0, 1, 0, 0, (float)(Math.Sin(radians / 2)), 0, (float)(Math.Cos(radians / 2)), new(parameters)));
         var world = AdmitMoving(construction, 1, 0f, verticalSpeed);
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var frameBefore = LawState.Read(scene, world, new(2));
         StepWorld(world, 4, (_, state, interactions) =>
         {
@@ -82,8 +82,8 @@ public sealed class WorkshopPhysicsEngineTests
         parameters[new("capture_participation")] = participation;
         parameters[new("capture_dwell")] = dwell;
         var construction = Free(
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 1.1f, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1, new(parameters)));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 1.1f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1, new(parameters)));
         var world = AdmitMoving(construction, 1, 0f);
         var first = 0;
         StepWorld(world, 240, (tick, state, interactions) =>
@@ -104,8 +104,8 @@ public sealed class WorkshopPhysicsEngineTests
         var values = InstanceParameterCollection.Defaults(new PartId("basket")).ToDictionary();
         values[new("capture_speed_limit")] = limit;
         var world = AdmitMoving(Free(
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 1.1f, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1, new(values))), 1, speed);
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 1.1f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1, new(values))), 1, speed);
         StepWorld(world, 1, (_, state, interactions) =>
         {
             var read = interactions.Residence(new(new(BinaryPrimitives.ReadUInt64LittleEndian(state.AsSpan(PhysicsGpuAbi.Layout(state).SensorsOffset))), new(1)));
@@ -120,8 +120,8 @@ public sealed class WorkshopPhysicsEngineTests
         var values = InstanceParameterCollection.Defaults(new PartId("basket")).ToDictionary();
         values[new("capture_dwell")] = .1f;
         var world = AdmitMoving(Free(
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 1.1f, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1, new(values))), 1, 0f);
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 1.1f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1, new(values))), 1, 0f);
         var body = BodyRecord(world, 1);
         var initial = world.AsSpan(body, PhysicsGpuAbi.BodyBytes).ToArray();
         var firstCapture = 0;
@@ -159,10 +159,10 @@ public sealed class WorkshopPhysicsEngineTests
         var values = InstanceParameterCollection.Defaults(new PartId("basket")).ToDictionary();
         values[new("capture_margin")] = margin;
         var construction = Free(
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 1.5f, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1, new(values)),
-            WorkshopInput.Generic(new PartId("ball"),new(3), 3, 1.5f, 0, 0, 0, 0, 1));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 1.5f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1, new(values)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(3), 3, 1.5f, 0, 0, 0, 0, 1));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var world = AdmitMoving(construction, 1, 0f);
         foreach (var id in new ulong[] { 1, 3 })
         {
@@ -196,14 +196,14 @@ public sealed class WorkshopPhysicsEngineTests
         capture[new("capture_speed_limit")] = speed;
         capture[new("capture_dwell")] = dwell;
         var construction = Free(
-            WorkshopInput.Generic(new PartId("ball"),new(1), -.3f, 4, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("ramp"), new(2), 0, 2.5f, 0, 0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), -.3f, 4, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(2), 0, 2.5f, 0, 0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18)),
                 new([new(new("length"), length), new(new("width"), width)])),
-            WorkshopInput.Generic(new PartId("ball"),new(3), 0, 1.1f, -6, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("basket"), new(4), 0, 1, -6, 0, 0, 0, 1, new(capture)));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(3), 0, 1.1f, -6, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(4), 0, 1, -6, 0, 0, 0, 1, new(capture)));
         var saved = new WorkshopSavedConstruction(construction, new(5));
-        var bytes = WorkshopSaveCodec.Encode(saved);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
         Assert.Equal(length, ((WorkshopGenericInstance)loaded.Construction.Instances[1]).Parameters[new("length")]);
         Assert.Equal(dwell, ((WorkshopGenericInstance)loaded.Construction.Instances[3]).Parameters[new("capture_dwell")]);
@@ -247,8 +247,8 @@ public sealed class WorkshopPhysicsEngineTests
     public async Task HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(double dropHeight)
     {
         var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Free(
-            WorkshopInput.Generic(new PartId("bowling"), new(1), 0, (float)(dropHeight), 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("bumper"), new(2), 0, 3, 0, 0, 0, 0, 1)), 4 * TicksPerSecond);
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), new(1), 0, (float)(dropHeight), 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(2), 0, 3, 0, 0, 0, 0, 1)), 4 * TicksPerSecond);
         var seen = new HashSet<uint>();
         var paid = new List<float>();
         var exhausted = false;
@@ -277,8 +277,8 @@ public sealed class WorkshopPhysicsEngineTests
     public async Task TargetLimitedPayoutLeavesTheExactRemainder()
     {
         var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Free(
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4.5f, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("bumper"), new(2), 0, 3, 0, 0, 0, 0, 1)), 2 * TicksPerSecond);
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4.5f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(2), 0, 3, 0, 0, 0, 0, 1)), 2 * TicksPerSecond);
         var first = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
         var debit = ledgers[first].Occurrence(0).Debit.Value;
         Assert.InRange(debit, 1f, 31f);
@@ -288,8 +288,8 @@ public sealed class WorkshopPhysicsEngineTests
     private static byte[] BasketballOverBumperWithStore(float available)
     {
         var admitted = AdmitMoving(Free(
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4.5f, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("bumper"), new(2), 0, 3, 0, 0, 0, 0, 1)), 1, 0f);
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4.5f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(2), 0, 3, 0, 0, 0, 0, 1)), 1, 0f);
         var store = PhysicsGpuAbi.Layout(admitted).ContactWorkOffset(0);
         Assert.Equal(32f, BinaryPrimitives.ReadSingleLittleEndian(admitted.AsSpan(store + PhysicsGpuAbi.ContactWorkPreloadOffset)));
         BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(store + PhysicsGpuAbi.ContactWorkAvailableOffset), available);
@@ -352,7 +352,7 @@ public sealed class WorkshopPhysicsEngineTests
     public async Task AStrengthZeroBumpersEmptyStoreIsPassiveAndNeverFaults()
     {
         var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Free(
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4.5f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 3, 0, strength: 0f)), 2 * TicksPerSecond);
         var occurrences = ledgers.SelectMany(ledger => Enumerable.Range(0, ledger.OccurrenceCount).Select(ledger.Occurrence))
             .Where(occurrence => occurrence.Sequence != 0).ToArray();
@@ -366,7 +366,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench()
     {
-        var reads = await WorkshopIntegrationHarness.Observe(Free(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1)), 6 * TicksPerSecond);
+        var reads = await WorkshopIntegrationHarness.Observe(Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1)), 6 * TicksPerSecond);
         var heights = reads.Select(read => Height(read.Bodies[0])).ToArray();
         var peaks = new List<float>();
         for (var i = 1; i + 1 < heights.Length; i++)
@@ -388,7 +388,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task DroppedBowlingBallBarelyReboundsAndRestsAtItsOwnRadius()
     {
-        var reads = await WorkshopIntegrationHarness.Observe(Free(WorkshopInput.Generic(LawBalls.Part(LawBall.Bowling), new(1), 0, 3, 0, 0, 0, 0, 1)), 4 * TicksPerSecond);
+        var reads = await WorkshopIntegrationHarness.Observe(Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, LawBalls.Part(LawBall.Bowling), new(1), 0, 3, 0, 0, 0, 0, 1)), 4 * TicksPerSecond);
         var maximumRise = reads.Max(read => read.Bodies[0].Body.Velocity.Y);
         Assert.InRange(maximumRise, 0f, 1.5f);
         var radius = LawBalls.Radius(LawBall.Bowling);
@@ -404,7 +404,7 @@ public sealed class WorkshopPhysicsEngineTests
     public async Task DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(LawBall kind)
     {
         var radius = LawBalls.Radius(kind); var restitution = LawBalls.Restitution(kind); var rest = BenchY + radius;
-        var reads = await WorkshopIntegrationHarness.Observe(Free(WorkshopInput.Generic(LawBalls.Part(kind), new(1), 0, 3, 0, 0, 0, 0, 1)), 6 * TicksPerSecond);
+        var reads = await WorkshopIntegrationHarness.Observe(Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, LawBalls.Part(kind), new(1), 0, 3, 0, 0, 0, 0, 1)), 6 * TicksPerSecond);
         var landed = false; var rising = false; var peak = float.MinValue; float? apex = null;
         foreach (var read in reads.Skip(1)) // the initial read is the admitted pose, not a rebound
         {
@@ -437,8 +437,8 @@ public sealed class WorkshopPhysicsEngineTests
         var tileY = BenchY + LawTile.HalfExtents.Y + .01f;
         var reads = await WorkshopIntegrationHarness.Observe(Free(
             PlacedParts.Domino(tileA, 0, (float)(tileY), -1.5f, 0, 0, 0, 1), PlacedParts.Domino(tileB, 0, (float)(tileY), 1.5f, 0, 0, 0, 1),
-            WorkshopInput.Generic(LawBalls.Part(LawBall.Basketball), ballA, .3f, 1.05f, -1.5f, 0, 0, 0, 1),
-            WorkshopInput.Generic(LawBalls.Part(LawBall.Bowling), ballB, .3f, 1.05f, 1.5f, 0, 0, 0, 1)), 7 * TicksPerSecond);
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, LawBalls.Part(LawBall.Basketball), ballA, .3f, 1.05f, -1.5f, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, LawBalls.Part(LawBall.Bowling), ballB, .3f, 1.05f, 1.5f, 0, 0, 0, 1)), 7 * TicksPerSecond);
         var peakA = reads.Max(read => Tilt(Find(read.Bodies, tileA)));
         var peakB = reads.Max(read => Tilt(Find(read.Bodies, tileB)));
         Assert.True(peakA < 20, $"Basketball lane tilt {peakA} deg stays below 20");
@@ -465,7 +465,7 @@ public sealed class WorkshopPhysicsEngineTests
     private static byte[] AdmitMoving(WorkshopConstruction construction, ulong id, float vx, float vy = 0f,
         SimulationCadence cadence = SimulationCadence.Hz120)
     {
-        var bytes = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)), new(1),
+        var bytes = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2)), new(1),
             new(cadence, PhysicalStepProfile.Canonical480Hz, new(1)));
         var body = BodyRecord(bytes, id);
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(body + PhysicsGpuAbi.BodyVelocityOffset), vx);
@@ -489,7 +489,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public void BodyRecordFindsOnlyAnAdmittedIdentity()
     {
-        var bytes = AdmitMoving(Free(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 30, 0, 0, 0, 0, 1)), 1, 0f);
+        var bytes = AdmitMoving(Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 30, 0, 0, 0, 0, 1)), 1, 0f);
         var count = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderBodyCountOffset));
         var found = BodyRecord(bytes, 1);
         Assert.Equal(1ul, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(found)));
@@ -542,14 +542,14 @@ public sealed class WorkshopPhysicsEngineTests
     [InlineData(3.5, false)] // control: a Receiver far beyond the launch arc never captures
     public void ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(double offset, bool captures)
     {
-        var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), Settings, new(1), new(0f));
-        var construction = lesson.WithInstance(WorkshopInput.Generic(new PartId("spring"), new(3), -3, .8f, 0,
+        var lesson = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId("spring_forward"), new(1), Settings, new(1), new(0f));
+        var construction = lesson.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), new(3), -3, .8f, 0,
             0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18))));
         var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == new PartId("basket")));
-        var position = WorkshopInput.Generic(new PartId("basket"), receiver.Id, (float)(-.7 + offset), .55f, 0, 0, 0, 0, 1);
-        var original = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var position = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), receiver.Id, (float)(-.7 + offset), .55f, 0, 0, 0, 0, 1);
+        var original = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var freePlay = construction with { Puzzle = default };
-        var unshifted = WorkshopPhysicsCompiler.Compile(freePlay, new(1, 2));
+        var unshifted = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, freePlay, new(1, 2));
         Assert.Equal(original.Bodies.ToArray(), unshifted.Bodies.ToArray());
         Assert.Equal(original.Colliders.ToArray(), unshifted.Colliders.ToArray());
         Assert.Equal(original.Materials.ToArray(), unshifted.Materials.ToArray());
@@ -564,8 +564,8 @@ public sealed class WorkshopPhysicsEngineTests
         Assert.Equal(original.Electrical.Sources.ToArray(), unshifted.Electrical.Sources.ToArray());
         Assert.Equal(original.Electrical.Bindings.ToArray(), unshifted.Electrical.Bindings.ToArray());
         Assert.Equal(original.SupplyGraph.Nodes.ToArray(), unshifted.SupplyGraph.Nodes.ToArray());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => WorkshopPhysicsCompiler.Compile(construction.WithInstance(receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2)));
-        var scene = WorkshopPhysicsCompiler.Compile(freePlay.WithInstance(receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction.WithInstance(RuntimeTestServices.Bundle, receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2)));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, freePlay.WithInstance(RuntimeTestServices.Bundle, receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2));
         var moved = scene.Bodies.ToArray().Single(b => b.Id == receiver.Id);
         Assert.Equal((position.Cell, position.Local), (moved.Cell, moved.Local));
         Assert.True(scene.Sensors.Length > 0 && scene.Sensors.Length == original.Sensors.Length, "the Receiver's residence sensor compiles");
@@ -592,7 +592,7 @@ public sealed class WorkshopPhysicsEngineTests
     public void FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(SimulationCadence cadence)
     {
         var rate = Rate(cadence);
-        var admitted = AdmitMoving(Free(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 30, 0, 0, 0, 0, 1)), 1, 2f, cadence: cadence);
+        var admitted = AdmitMoving(Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 30, 0, 0, 0, 0, 1)), 1, 2f, cadence: cadence);
         BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(BodyRecord(admitted, 1) + PhysicsGpuAbi.BodyAngularVelocityOffset + 4), 5f);
         var drag = LawBalls.Drag(LawBall.Basketball);
         var previous = 2f;
@@ -619,7 +619,7 @@ public sealed class WorkshopPhysicsEngineTests
         var kind = LawBalls.Part(ball);
         var radius = LawBalls.Radius(ball);
         var rate = Rate(cadence);
-        var admitted = AdmitMoving(Free(WorkshopInput.Generic(kind, new(1), 0, (float)(-.46 + radius), 0, 0, 0, 0, 1)), 1, 1f, cadence: cadence);
+        var admitted = AdmitMoving(Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, new(1), 0, (float)(-.46 + radius), 0, 0, 0, 0, 1)), 1, 1f, cadence: cadence);
         var body = BodyRecord(admitted, 1);
         BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(body + PhysicsGpuAbi.BodyAngularVelocityOffset + 8), -1f / radius);
         PhysicsBodyRead last = default;
@@ -645,10 +645,10 @@ public sealed class WorkshopPhysicsEngineTests
     public void BatterySupplyRunsOneHundredTwentyPhasesPerSecondAtEveryCadence(SimulationCadence cadence)
     {
         var battery = PlacedParts.Battery(new(1), 2, 1, 0, powerLimit: 10f);
-        var bumper = WorkshopInput.Generic(new PartId("bumper"), new(2), 0, 1, 0, 0, 0, 0, 1);
+        var bumper = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(2), 0, 1, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), Settings, new(battery, bumper), Connections: new(
             new WorkshopConnection(battery.Id, PortId.Supply, bumper.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
-        var admitted = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)), new(1),
+        var admitted = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2)), new(1),
             new(cadence, PhysicalStepProfile.Canonical480Hz, new(1)));
         BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(PhysicsGpuAbi.Layout(admitted).ContactWorkOffset(0) + PhysicsGpuAbi.ContactWorkAvailableOffset), 0f);
         var rate = Rate(cadence);
@@ -670,7 +670,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public void SpeedBeyondTheEnvelopeClampsAndTheTickContinues()
     {
-        var admitted = AdmitMoving(Free(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 30, 0, 0, 0, 0, 1)), 1, 100f, 40f);
+        var admitted = AdmitMoving(Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 30, 0, 0, 0, 0, 1)), 1, 100f, 40f);
         var ticks = 0;
         Step(admitted, 12, (tick, bodies) =>
         {
@@ -708,7 +708,7 @@ public sealed class WorkshopPhysicsEngineTests
         var declaredMass = LawBalls.Mass(ballKind);
         var construction = Free(
             PlacedParts.Domino(new(1), 0, .09f, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(kind, new(2), (float)(-(.125 + radius + .05)), (float)(-.46 + radius), 0, 0, 0, 0, 1));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, new(2), (float)(-(.125 + radius + .05)), (float)(-.46 + radius), 0, 0, 0, 0, 1));
         var bytes = AdmitMoving(construction, 2, .7f);
         var ball = BodyRecord(bytes, 2);
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(ball + PhysicsGpuAbi.BodyMassOffset), (float)mass);
@@ -734,7 +734,7 @@ public sealed class WorkshopPhysicsEngineTests
     // the production WorkshopSimulation; the only player input is the typed in-run ConfigureRunControl command between Advances.
     private const float GateHeight = 3f;
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
-        WorkshopInput.Generic(new PartId("powered_gate"), new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Battery(ulong id, double z, ElectricalEnable enabled) =>
         PlacedParts.Battery(new(id), 3, (float)(GateHeight), (float)(z), enabled: enabled);
     private static WorkshopConnection Wire(GpuBodyId battery, GpuBodyId gate) =>
@@ -801,6 +801,6 @@ public sealed class WorkshopPhysicsEngineTests
     {
         public void Abort(CommandSequence owner) { }
         public void Retire() { }
-        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopCompiledScene construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase) => ValueTask.CompletedTask;
+        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, ICompiledScene construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase) => ValueTask.CompletedTask;
     }
 }

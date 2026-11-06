@@ -32,8 +32,8 @@ public partial class Workshop
     private void InitializeUiAnimations()
     {
         _uiBindings.Clear();
-        _uiBindings.Add(new(WorkshopUiTarget.Hint, _hint));
-        _uiBindings.Add(new(WorkshopUiTarget.Goal, _success));
+        _uiBindings.Add(new(_core.UiCurves, WorkshopUiTarget.Hint, _hint));
+        _uiBindings.Add(new(_core.UiCurves, WorkshopUiTarget.Goal, _success));
         foreach (var binding in _uiBindings) binding.ApplyNeutral();
     }
     private WorkshopUiBinding? UiBinding(WorkshopUiTarget target)
@@ -83,5 +83,9 @@ public partial class Workshop
             binding.Apply(opacity);
         }
     }
-    private void RemoveUiAnimations() => ResetUiAnimations();
+    private void RemoveUiAnimations()
+    {
+        // A provider refusal owns no UI bindings and has no World or hint to retire.
+        if (_uiBindings.Count != 0) ResetUiAnimations();
+    }
 }

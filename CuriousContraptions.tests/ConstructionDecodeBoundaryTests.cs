@@ -94,14 +94,14 @@ public sealed class ConstructionDecodeBoundaryTests
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         builder.Finish(BuildRecord(builder, part, length, parameter).Value);
-        return WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(
+        return WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(
             new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray())));
     }
 
     private static WorkshopConstruction DecodeSave(PartId part, float? length, (string, float)? parameter = null)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
-        return WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Finish(builder, BuildRecord(builder, part, length, parameter), 2)).Construction;
+        return WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,SaveFixture.Finish(builder, BuildRecord(builder, part, length, parameter), 2)).Construction;
     }
 
     // C-Plate and C-Clock: each setting is its generic instance's declared parameter (absent when the value is).
@@ -201,13 +201,13 @@ public sealed class ConstructionDecodeBoundaryTests
                 new WorkshopInstances(PlacedParts.Plate(new(1), 0, 1, 0, .5f),
                     PlacedParts.Clock(new(2), 1, 1, 0, 0, 0, 0, 1, intervalSeconds: 2f))),
             new(3));
-        var save = WorkshopSaveCodec.Encode(saved);
-        Assert.Equal(2, WorkshopSaveCodec.Decode(SaveFixture.Elements,save).Construction.Instances.Count);
+        var save = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+        Assert.Equal(2, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,save).Construction.Instances.Count);
         for (var n = 0; n < save.Length; n++)
         {
             var length = n;
             Assert.Equal(WorkshopSaveRejection.Truncated,
-                Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,save.AsSpan(0, length))).Reason);
+                Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,save.AsSpan(0, length))).Reason);
         }
     }
 
@@ -252,7 +252,7 @@ public sealed class ConstructionDecodeBoundaryTests
 
         var byteBuffer = new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray());
         var cr = CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(byteBuffer);
-        var fault = Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(cr));
+        var fault = Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, cr));
         Assert.Equal(WireFaultReason.OutOfRange, fault.Reason);
     }
 }

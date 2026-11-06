@@ -647,7 +647,7 @@ public sealed class WorkshopPhysicsLawHollowTests
         var origin = new Vector3(0, 8, 0);
         Vector3 World(Vector3 local) => origin + Vector3.Transform(local, turn);
         var scene = new LawScene();
-        foreach (var shape in DeclaredPhysics.Colliders(part))
+        foreach (var shape in DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, part))
         {
             var p = shape.LocalPose.Translation;
             var q = shape.LocalPose.Rotation;
@@ -713,7 +713,7 @@ public sealed class WorkshopPhysicsLawHollowTests
         };
         var origin = new Vector3(0, 5, 0);
         var scene = new LawScene();
-        foreach (var shape in DeclaredPhysics.Colliders(part))
+        foreach (var shape in DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, part))
         {
             var p = shape.LocalPose.Translation;
             var q = shape.LocalPose.Rotation;

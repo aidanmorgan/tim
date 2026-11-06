@@ -33,7 +33,7 @@ public sealed class EventRecordProducer
     private readonly Dictionary<GpuSensorId, ResidenceSensorDeclaration> _captures = new(4);
     private readonly Dictionary<GpuPassageSensorId, GpuEventSourceId> _apertures = new(4);
     private readonly uint _substeps;
-    private EventRecordProducer(PhysicsSceneDeclaration scene, ActivationNetwork network, PassageSensorTracker passages, WorkshopGpuProfile profile)
+    private EventRecordProducer(IPhysicsSceneDeclaration scene, IActivationProgram network, PassageSensorTracker passages, WorkshopGpuProfile profile)
     {
         _substeps = profile.Substeps;
         foreach (var sensor in passages.Sensors)
@@ -53,7 +53,7 @@ public sealed class EventRecordProducer
         }
     }
 
-    public static EventRecordProducer Compile(PhysicsSceneDeclaration scene, ActivationNetwork network, PassageSensorTracker passages,
+    public static EventRecordProducer Compile(IPhysicsSceneDeclaration scene, IActivationProgram network, PassageSensorTracker passages,
         WorkshopGpuProfile profile)
     {
         ArgumentNullException.ThrowIfNull(scene); ArgumentNullException.ThrowIfNull(network); ArgumentNullException.ThrowIfNull(passages);

@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 
 namespace CuriousContraptions.Gpu;
 
-public readonly record struct CapturePairKey(GpuSensorId Policy, GpuBodyId Target);
 public readonly record struct WorkPairKey(GpuContactWorkId Policy, GpuBodyId Target);
 public readonly record struct CapturePairState(ResidenceRead Residence, CaptureLatch Latch);
 

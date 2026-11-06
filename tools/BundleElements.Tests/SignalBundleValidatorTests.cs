@@ -8,7 +8,7 @@ namespace CuriousContraptions.BundleElements.Tests;
 /// <summary>Admission of local signal operations, physical references and explicit public terminals.</summary>
 public sealed class SignalBundleValidatorTests
 {
-    private static BundleEntry Entry(string id) => BundleSchema.Read(BundleGenerator.Generate(TestRepository.Root).Json!).Elements.Single(entry => entry.Metadata.Id == id);
+    private static BundleEntry Entry(string id) => BundleSchema.Read(BundleGenerator.Generate(new CuriousContraptions.Bundle.BundleServices(), TestRepository.Root).Json!).Elements.Single(entry => entry.Metadata.Id == id);
     private static IReadOnlyList<BundleError> Check(BundleEntry entry) => BundleValidator.Validate([new("Candidate", entry)]);
     private static void Refused(BundleEntry entry) => Assert.NotEmpty(Check(entry));
     private static T Node<T>(BundleEntry entry) where T : SignalNodeDescriptor => Assert.IsType<T>(Assert.Single(entry.Signal!.Nodes));

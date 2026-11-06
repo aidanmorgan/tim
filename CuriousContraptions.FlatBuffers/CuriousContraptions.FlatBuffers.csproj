@@ -13,4 +13,8 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../engine/gpu/WorkshopWireGenerated.cs" Link="WorkshopWireGenerated.cs" />
+    <Compile Include="../engine/gpu/WorkshopAuthoringGenerated.cs" Link="WorkshopAuthoringGenerated.cs" />
+  </ItemGroup>
 </Project>

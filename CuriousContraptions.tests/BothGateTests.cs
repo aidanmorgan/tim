@@ -18,7 +18,7 @@ public sealed class BothGateTests
     [InlineData("electrical_xor")]
     public void EverySuppliedGateDeclaresItsBodyFootAndProudPartsInOrder(string gate)
     {
-        var colliders = DeclaredPhysics.Colliders(new PartId(gate));
+        var colliders = DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, new PartId(gate));
         Assert.Equal(10, colliders.Count);
         TestBundle.AssertCollider(colliders[0], ColliderShapeKind.Box, 0f, new(.85f, .65f, .325f), new(0f, 0f, 0f));
         TestBundle.AssertCollider(colliders[1], ColliderShapeKind.Box, 0f, new(.925f, .08f, .425f), new(0f, -.75f, 0f));
@@ -40,8 +40,8 @@ public sealed class BothGateTests
             Battery(1,-8,(inputs & ElectricalInputState.FirstOnly)!=0),
             Battery(2,-5,(inputs & ElectricalInputState.SecondOnly)!=0),
             Battery(3,-2,supply),
-            WorkshopInput.Generic(Kind,new(4),3,3,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("powered_gate"),new(5),9,3,0,0,0,0,1)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Kind,new(4),3,3,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"),new(5),9,3,0,0,0,0,1)),
             Connections:new(Link(1,4,PortId.FirstIn),Link(2,4,PortId.SecondIn),Link(3,4),Link(4,5)));
     private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), (float)(x), 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     internal static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=4)=>read.Presentation.Logic.ToArray().Single(row=>row.Owner.Value==owner);
@@ -62,7 +62,7 @@ public sealed class BothGateTests
     {
         var construction=Machine(inputs,supply);var expected=inputs==ElectricalInputState.Both && supply;
         var saved=new WorkshopSavedConstruction(construction,new(6));
-        var bytes=WorkshopSaveCodec.Encode(saved);var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
+        var bytes=WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);var loaded=WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
         Assert.Equal(saved,loaded);
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,120);
         Assert.Equal(new(new(4),ElectricalInputState.Neither,false,false),Logic(built));
@@ -96,7 +96,7 @@ public sealed class BothGateTests
     public async Task ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(bool cycle,bool reverse)
     {
         var construction=Machine();
-        var parts=construction.Instances.Concat(new IWorkshopInstance[]{WorkshopInput.Generic(Kind,new(6),6,3,-3,0,0,0,1)}).ToArray();
+        var parts=construction.Instances.Concat(new IWorkshopInstance[]{WorkshopInput.Generic(RuntimeTestServices.Bundle, Kind,new(6),6,3,-3,0,0,0,1)}).ToArray();
         var links=construction.Connections.Where(link=>link.Target.Value!=5).ToList();
         links.AddRange([Link(4,6,PortId.FirstIn),Link(4,6,PortId.SecondIn),Link(3,6),Link(6,5)]);
         if(cycle) links.AddRange([Link(6,4,PortId.FirstIn),Link(6,4,PortId.SecondIn),Link(6,4)]);
@@ -130,8 +130,8 @@ public sealed class BothGateTests
     {
         var construction=HoldTimerTests.Construction(.5f);
         var parts=construction.Instances.Concat(new IWorkshopInstance[]{
-            WorkshopInput.Generic(Kind,new(7),-6,3,-3,0,0,0,1),
-            WorkshopInput.Generic(Kind,new(8),-9,3,-3,0,0,0,1)}).ToArray();
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Kind,new(7),-6,3,-3,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Kind,new(8),-9,3,-3,0,0,0,1)}).ToArray();
         var links=construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Activation).ToList();
         links.AddRange([Link(4,3),Link(4,7,PortId.FirstIn),Link(4,7,PortId.SecondIn),
             Link(3,7),Link(7,8,PortId.FirstIn),Link(7,8,PortId.SecondIn),Link(3,8),
@@ -188,14 +188,14 @@ public sealed class BothGateTests
         var construction=Machine();
         var clock=PlacedParts.Clock(new(7),12,3,0,0,0,0,1,1f);
         construction=construction with {Instances=new(construction.Instances.Append(clock).ToArray()),Connections=construction.Connections.With(Link(4,7))};
-        var topology=WorkshopSupplyCompiler.Compile(construction,DeclaredPhysics.Of);
+        var topology=WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, construction,DeclaredPhysics.Of);
         Assert.Equal(new[]{new GpuBodyId(3)},topology.UpstreamSources(clock.Id));
-        Assert.Equal(new GpuBodyId(4),WorkshopActivationCompiler.Compile(construction).Nodes.ToArray().Single(row=>row.Owner==clock.Id).PowerProvider);
+        Assert.Equal(new GpuBodyId(4),WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction).Nodes.ToArray().Single(row=>row.Owner==clock.Id).PowerProvider);
         var conditionOnly=construction with {Connections=construction.Connections.Without(Link(3,4))};
-        Assert.Empty(WorkshopSupplyCompiler.Compile(conditionOnly,DeclaredPhysics.Of).UpstreamSources(clock.Id));
+        Assert.Empty(WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, conditionOnly,DeclaredPhysics.Of).UpstreamSources(clock.Id));
         Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)255,true,true));
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,PortId.FirstIn))}).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,new PortId("invalid")))}).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,PortId.FirstIn))}).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,new PortId("invalid")))}).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.DoesNotContain(DeclaredPorts.Current.Of(Kind).ToArray(),port=>port.Domain==WorkshopConnectionDomain.Activation);
     }
     [Fact]
@@ -257,8 +257,8 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],2),
             ([new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],2),([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled))],2));
         var first=phases[0][^1];var noSupply=phases[1][^1];var secondOnly=phases[2][^1];
-        var evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),Response(first,1));
-        var registry=new PartRegistry();registry.Load();
+        var evaluator=new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction),Response(first,1));
+        var registry=new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);registry.Load();
         var part=registry.Create(BothGateTests.Kind);var control=registry.Create(BothGateTests.Kind);
         try
         {
@@ -289,9 +289,9 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
                 Publication=default,Projection=new(2),Phase=WorkshopSimulationPhase.Paused};
             evaluator.ValidateRebind(CompiledSceneFixture.Compile(construction),paused);evaluator.Rebind(CompiledSceneFixture.Compile(construction),paused);Apply(time+.6);
             Assert.Equal(new Color("#556573"),Colour(part,"FirstLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"SecondLamp"));
-            var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(construction,new(6))));
+            var loaded=WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction,new(6))));
             var (built,_,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,2);
-            evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(loaded.Construction),Response(reset,1));Apply(time+1);
+            evaluator=new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(loaded.Construction),Response(reset,1));Apply(time+1);
             Assert.Equal(ElectricalInputState.Neither,BothGateTests.Logic(built).Inputs);
             foreach(var node in new[]{"FirstLamp","SecondLamp","OutputLamp"}) Assert.Equal(new Color("#556573"),Colour(part,node));
         }

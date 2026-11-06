@@ -1,3 +1,4 @@
+using CuriousContraptions.Bundle;
 using CuriousContraptions.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -48,12 +49,12 @@ internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, Lo
         }
     }
 
-    internal IWorkshopInstance Create(GpuBodyId id, PuzzlePrecision precision)
+    internal IWorkshopInstance Create(IBundleServices bundle, GpuBodyId id, PuzzlePrecision precision)
     {
         var current = At(precision);
         current.Validate();
         var instance = WorkshopAuthoringFlatBuffers.MapAuthoredInstance(current, id);
-        instance.Validate();
+        instance.Validate(bundle);
         return instance;
     }
 
@@ -75,7 +76,7 @@ internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, Lo
 
 internal static class AuthoredInstanceReader
 {
-    internal static AuthoredInstanceTemplate Parse(JsonElement json, string where)
+    internal static AuthoredInstanceTemplate Parse(IBundleServices bundle, JsonElement json, string where)
     {
         var fields = PuzzleContentReader.Fields(json, where);
         Require(fields, where, "part", "cell", "local", "rotation", "locked",
@@ -105,8 +106,8 @@ internal static class AuthoredInstanceReader
         try
         {
             result.Validate();
-            WorkshopAuthoringFlatBuffers.MapAuthoredInstance(result, new(1)).Validate();
-            foreach (var precision in new[] { 0f, .45f, 1f }) result.Create(new(1), new(precision));
+            WorkshopAuthoringFlatBuffers.MapAuthoredInstance(result, new(1)).Validate(bundle);
+            foreach (var precision in new[] { 0f, .45f, 1f }) result.Create(bundle, new(1), new(precision));
         }
         catch (ArgumentException error) { throw PuzzleContentReader.Invalid(where, "instance", error.Message); }
         return result;

@@ -85,7 +85,7 @@ public sealed class WorkshopIntegrationHarnessTests
     private static WorkshopConstruction Bench(SimulationCadence cadence, bool wired = true)
     {
         var settings = WorkshopCadenceSettings.Default() with { Simulation = cadence };
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         return new(new(2), settings, new(gate, battery), Connections: wired
             ? new(new WorkshopConnection(battery.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) : new());
@@ -121,8 +121,8 @@ public sealed class WorkshopIntegrationHarnessTests
         Assert.Equal(WorkshopRejection.WrongPhase, (await harness.Execute(WorkshopCommandKind.Save)).Result.Reason);
         await harness.Reset();
         await harness.Require(WorkshopCommandKind.Save);
-        var saved = WorkshopSaveCodec.Encode(new(harness.Construction, new(3)));
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, saved).Construction;
+        var saved = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(harness.Construction, new(3)));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saved).Construction;
         Assert.Equal(construction.Instances, harness.Construction.Instances);
         Assert.Equal(construction.Connections, harness.Construction.Connections);
         Assert.Equal(0UL, harness.Committed.Tick.Value);
@@ -211,7 +211,7 @@ public sealed class WorkshopIntegrationHarnessTests
     public async Task RealImpactDeliverySurvivesPauseAndResetRetiresItsWorld()
     {
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 4.5f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 3, 0)));
         await using var harness = await WorkshopIntegrationHarness.Running(bench);
         for (var tick = 0; tick < 240 && harness.Records.Count == 0; tick++) await harness.Advance(1);
@@ -253,7 +253,12 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
         foreach (var child in node.GetChildren()) { yield return child; foreach (var descendant in Descendants(child)) yield return descendant; }
     }
     private static bool HasLabel(Workshop scene, string text) => Descendants(scene).OfType<Label>().Any(label => label.Text == text);
-    private static Workshop Scene() => GD.Load<PackedScene>(NativeTestBoundary.WorkshopResource).Instantiate<Workshop>();
+    private static Workshop Scene()
+    {
+        var scene = GD.Load<PackedScene>(NativeTestBoundary.WorkshopResource).Instantiate<Workshop>();
+        scene.StartObservation = _ => Task.CompletedTask; // Explicit native stand-in for browser registration.
+        return scene;
+    }
 
     [Fact]
     public async Task DeclaredIncompleteRopeReadsProduceDashedArtworkAndCompleteReadsRemainSolid()
@@ -265,12 +270,12 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
         try
         {
             await scene.Startup;
-            var a = WorkshopInput.Generic(new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
-            var b = WorkshopInput.Generic(new PartId("rope_anchor"), new(2), 0, 3, -.18f, 0, 0, 0, 1);
+            var a = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
+            var b = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("rope_anchor"), new(2), 0, 3, -.18f, 0, 0, 0, 1);
             var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(a, b),
-                Connections: new(WorkshopConnections.MeasureRope(new(a, b), a.Id, b.Id)));
+                Connections: new(WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, new(a, b), a.Id, b.Id, PortId.Tie, PortId.Tie)));
             await scene.World.ReplaceConstruction(construction);
-            var compiled = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
             var span = Assert.Single(compiled.TensileSpans.ToArray());
             foreach (var complete in new[] { true, false, true })
             {
@@ -322,20 +327,20 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
         try
         {
             await scene.Startup;
-            var a = WorkshopInput.Generic(new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
-            var pulley = WorkshopInput.Generic(new PartId("pulley"), new(2), 2, 6, 0f, 0, 0, 0, 1);
-            var b = WorkshopInput.Generic(new PartId("rope_anchor"), new(3), 4, 6, -.18f, 0, 0, 0, 1);
+            var a = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
+            var pulley = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pulley"), new(2), 2, 6, 0f, 0, 0, 0, 1);
+            var b = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("rope_anchor"), new(3), 4, 6, -.18f, 0, 0, 0, 1);
             var instances = new WorkshopInstances(a, pulley, b);
             var conn1 = reversed
-                ? WorkshopConnections.MeasureRope(instances, pulley.Id, a.Id)
-                : WorkshopConnections.MeasureRope(instances, a.Id, pulley.Id);
+                ? WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, instances, pulley.Id, a.Id, PortId.Tie, PortId.Tie)
+                : WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, instances, a.Id, pulley.Id, PortId.Tie, PortId.Tie);
             var conn2 = reversed
-                ? WorkshopConnections.MeasureRope(instances, b.Id, pulley.Id)
-                : WorkshopConnections.MeasureRope(instances, pulley.Id, b.Id);
+                ? WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, instances, b.Id, pulley.Id, PortId.Tie, PortId.Tie)
+                : WorkshopConnections.MeasureRope(RuntimeTestServices.Core.Supply, instances, pulley.Id, b.Id, PortId.Tie, PortId.Tie);
             var construction = new WorkshopConstruction(new(3), WorkshopCadenceSettings.Default(), instances,
                 Connections: new([conn1, conn2]));
             await scene.World.ReplaceConstruction(construction);
-            var compiled = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
             var source = PhysicsGpuAbi.Admission(compiled, new(1),
                 new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
             var candidate = new byte[source.Length];
@@ -368,7 +373,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
         try
         {
             await scene.Startup;
-            var anchor = WorkshopInput.Generic(new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
+            var anchor = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
             var weight = WeightTests.Placed(2, 1, 2, 0, 4);
             await scene.World.ReplaceConstruction(new(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight)));
             await scene.ChangeConnectionAsync(new(anchor.Id, PortId.Tie, weight.Id, PortId.Tie, WorkshopConnectionDomain.Rope), true);
@@ -452,7 +457,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
         try
         {
             await scene.Startup;
-            var anchor = WorkshopInput.Generic(new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
+            var anchor = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("rope_anchor"), new(1), 0, 6, -.18f, 0, 0, 0, 1);
             var weight = WeightTests.Placed(2, 0, 2, 0, 4);
             await scene.World.ReplaceConstruction(new(new(2), WorkshopCadenceSettings.Default(), new(anchor, weight)));
             var request = new WorkshopConnection(anchor.Id, PortId.Tie, weight.Id, PortId.Tie, WorkshopConnectionDomain.Rope);
@@ -473,8 +478,8 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             await scene.ChangeConnectionAsync(request, true);
             var reconnected = Assert.Single(scene.World.Construction.Connections);
             Assert.True(reconnected.RopeLength < connected.RopeLength - .3f);
-            var saved = WorkshopSaveCodec.Encode(new(scene.World.Construction, new(3)));
-            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, saved);
+            var saved = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(scene.World.Construction, new(3)));
+            var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saved);
             Assert.Equal(reconnected, Assert.Single(loaded.Construction.Connections));
             Assert.Equal(WorkshopCommandOutcome.Applied, (await scene.World.RunWorkshop()).Result.Outcome);
             await harness.Advance(120);
@@ -600,7 +605,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             Assert.NotEmpty(scene.World.Registry.Definitions);
             async Task Place(PartId part, Vector3 at)
             {
-                var composed = PlacementPose.Compose(scene.World.Registry.Definitions, scene.World.Construction.Instances,
+                var composed = RuntimeTestServices.Placement.Compose(scene.World.Registry.Definitions, scene.World.Construction.Instances,
                     new(part, default, false), at, Quaternion.Identity);
                 await scene.PlaceAsync(part, composed);
             }

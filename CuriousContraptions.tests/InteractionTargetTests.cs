@@ -19,14 +19,14 @@ public sealed class InteractionTargetTests
     private static WorkshopConstruction Free(params IWorkshopInstance[] instances) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances));
 
-    private static byte[] AdmitScene(PhysicsSceneDeclaration scene) =>
+    private static byte[] AdmitScene(IPhysicsSceneDeclaration scene) =>
         PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
 
     [Fact]
     public void MultipleEligibleBodies_PreservesExplicitTargetAcrossInstanceOrders_Workshop()
     {
-        var ballA = WorkshopInput.Generic(new PartId("ball"), new GpuBodyId(10), -2, 4, 0, 0, 0, 0, 1);
-        var ballB = WorkshopInput.Generic(new PartId("ball"), new GpuBodyId(20), 2, 4, 0, 0, 0, 0, 1);
+        var ballA = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new GpuBodyId(10), -2, 4, 0, 0, 0, 0, 1);
+        var ballB = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new GpuBodyId(20), 2, 4, 0, 0, 0, 0, 1);
         var selector = TargetSelector.Named("20");
 
         var order1 = new WorkshopInstances(ballA, ballB);
@@ -45,12 +45,12 @@ public sealed class InteractionTargetTests
     [InlineData("delayed_signal")]
     public void MultipleEligibleBodies_PreservesExplicitTargetAcrossInstanceOrders_AuthoredPuzzle(string lessonId)
     {
-        var level = PuzzleCatalogue.Create(new(lessonId), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
+        var level = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(lessonId), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
         var targetBody = level.Puzzle.InteractionTarget;
         Assert.NotEqual(default, targetBody);
 
-        var ballA = WorkshopInput.Generic(new PartId("ball"), new GpuBodyId(100), -2, 4, 0, 0, 0, 0, 1);
-        var ballB = WorkshopInput.Generic(new PartId("ball"), new GpuBodyId(200), 2, 4, 0, 0, 0, 0, 1);
+        var ballA = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new GpuBodyId(100), -2, 4, 0, 0, 0, 0, 1);
+        var ballB = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new GpuBodyId(200), 2, 4, 0, 0, 0, 0, 1);
 
         var order1 = new WorkshopInstances(level.Instances.Concat([ballA, ballB]).ToArray());
         var order2 = new WorkshopInstances(level.Instances.Concat([ballB, ballA]).ToArray());
@@ -81,7 +81,7 @@ public sealed class InteractionTargetTests
     [Fact]
     public void AllPayloads_CompilesUniformlyToAllPayloads()
     {
-        var ballA = WorkshopInput.Generic(new PartId("ball"), new GpuBodyId(10), -2, 4, 0, 0, 0, 0, 1);
+        var ballA = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new GpuBodyId(10), -2, 4, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(ballA);
         var puzzle = new WorkshopPuzzle(new("test"), WorkshopPlacementMode.Manual, new(1f), default, 0, default, default, default, default, InteractionTarget: new GpuBodyId(10));
 
@@ -94,10 +94,10 @@ public sealed class InteractionTargetTests
     [Fact]
     public void ModifiedInteractionTarget_FailsPuzzleValidation()
     {
-        var level = PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
+        var level = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
         var tampered = level with { Puzzle = level.Puzzle with { InteractionTarget = new GpuBodyId(99999) } };
 
-        var ex = Assert.Throws<WorkshopEditRejectedException>(() => tampered.Validate());
+        var ex = Assert.Throws<WorkshopEditRejectedException>(() => tampered.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.Equal(WorkshopEditRejection.PuzzleSettings, ex.Reason);
         Assert.Contains("Authored interaction target changed", ex.Message);
     }
@@ -105,14 +105,14 @@ public sealed class InteractionTargetTests
     [Fact]
     public void SaveLoadRoundtrip_PreservesInteractionTargetBitExact()
     {
-        var level = PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
+        var level = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
         Assert.NotEqual(default, level.Puzzle.InteractionTarget);
 
         var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
-        builder.Finish(WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, level).Value);
+        builder.Finish(WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, builder, level).Value);
         var bytes = builder.SizedByteArray();
 
-        var decoded = WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(
+        var decoded = WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle,
             CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(new Google.FlatBuffers.ByteBuffer(bytes)));
 
         Assert.Equal(level.Puzzle.InteractionTarget, decoded.Puzzle.InteractionTarget);
@@ -122,19 +122,19 @@ public sealed class InteractionTargetTests
     public void NoPayloadMechanism_CompilesRowsInWorkshopAndAuthoredPuzzle()
     {
         var bumper = PlacedParts.Bumper(new(1), 0, 1, 0, 8f);
-        var switchPart = WorkshopInput.Generic(new PartId("switch"), new(2), 2, 1, 0, 0, 0, 0, 1);
-        var wall = WorkshopInput.Generic(new PartId("wall"), new(3), -2, 1, 0, 0, 0, 0, 1, WallFixture.Default);
+        var switchPart = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2), 2, 1, 0, 0, 0, 0, 1);
+        var wall = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(3), -2, 1, 0, 0, 0, 0, 1, WallFixture.Default);
 
         var workshopConstruction = Free(bumper, switchPart, wall);
         Assert.Null(Payloads.Find(workshopConstruction));
-        var workshopScene = WorkshopPhysicsCompiler.Compile(workshopConstruction, new(1, 2));
+        var workshopScene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, workshopConstruction, new(1, 2));
 
         Assert.True(workshopScene.ContactWorks.Length > 0);
         Assert.True(workshopScene.Triggers.Length > 0);
         Assert.Equal(BodyTargetKind.AllDynamic, workshopScene.ContactWorks[0].Targets.Kind);
         Assert.Equal(BodyTargetKind.AllDynamic, workshopScene.Triggers[0].Targets.Kind);
 
-        var dominoLevel = PuzzleCatalogue.Create(new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
+        var dominoLevel = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
         var instancesWithoutPayload = new WorkshopInstances(bumper, switchPart, wall);
         Assert.Null(Payloads.Find(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instancesWithoutPayload)));
 
@@ -148,11 +148,11 @@ public sealed class InteractionTargetTests
     [Fact]
     public void NonselectedBodyControl_OnlyTargetBodyTriggersWork()
     {
-        var ball1 = WorkshopInput.Generic(new PartId("ball"), new(1), 0, 4.5f, 0, 0, 0, 0, 1);
-        var ball2 = WorkshopInput.Generic(new PartId("ball"), new(2), 10, 10, 0, 0, 0, 0, 1);
+        var ball1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 4.5f, 0, 0, 0, 0, 1);
+        var ball2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(2), 10, 10, 0, 0, 0, 0, 1);
         var bumper = PlacedParts.Bumper(new(3), 0, 3, 0, 8f);
         var construction = Free(ball1, ball2, bumper);
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
 
         var workOffset = scene.Layout.GetContactWorkOffset(scene.ContactWorks[0].Id);
 
@@ -192,11 +192,11 @@ public sealed class InteractionTargetTests
     [Fact]
     public void NonselectedBodyControl_OnlyTargetBodyActivatesSwitch()
     {
-        var ball1 = WorkshopInput.Generic(new PartId("ball"), new(1), 0, 3f, 0, 0, 0, 0, 1);
-        var ball2 = WorkshopInput.Generic(new PartId("ball"), new(2), 10, 10, 0, 0, 0, 0, 1);
-        var switchPart = WorkshopInput.Generic(new PartId("switch"), new(3), 0, 1, 0, 0, 0, 0, 1);
+        var ball1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 3f, 0, 0, 0, 0, 1);
+        var ball2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(2), 10, 10, 0, 0, 0, 0, 1);
+        var switchPart = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(3), 0, 1, 0, 0, 0, 0, 1);
         var construction = Free(ball1, ball2, switchPart);
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
 
         var triggerOffset = scene.Layout.GetTriggerOffset(scene.Triggers[0].Id);
 
@@ -233,11 +233,11 @@ public sealed class InteractionTargetTests
     public async Task ZeroMatches_DynamicTargetWithZeroDynamicBodiesCompilesAndRuns()
     {
         var bumper = PlacedParts.Bumper(new(1), 0, 3, 0, 8f);
-        var switchPart = WorkshopInput.Generic(new PartId("switch"), new(2), 2, 1, 0, 0, 0, 0, 1);
-        var wall = WorkshopInput.Generic(new PartId("wall"), new(3), 0, 1, 0, 0, 0, 0, 1, WallFixture.Default);
+        var switchPart = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2), 2, 1, 0, 0, 0, 0, 1);
+        var wall = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(3), 0, 1, 0, 0, 0, 0, 1, WallFixture.Default);
 
         var construction = Free(bumper, switchPart, wall);
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
 
         Assert.Single(scene.ContactWorks.ToArray());
         Assert.Single(scene.Triggers.ToArray());
@@ -257,7 +257,7 @@ public sealed class InteractionTargetTests
     [Fact]
     public void UnknownNamedTarget_Refusals()
     {
-        var ball = WorkshopInput.Generic(new PartId("ball"), new(1), 0, 2, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 2, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(ball);
 
         Assert.Throws<ArgumentException>(() => TargetSelector.Named(""));
@@ -267,7 +267,7 @@ public sealed class InteractionTargetTests
             WorkshopPhysicsCompiler.ResolveNamedTarget("99999", default, instances));
         Assert.Equal(WorkshopEditRejection.PuzzleSettings, exWorkshop.Reason);
 
-        var level = PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
+        var level = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
         var exAuthored = Assert.Throws<WorkshopEditRejectedException>(() =>
             WorkshopPhysicsCompiler.ResolveNamedTarget("nonexistent_slot", level.Puzzle, level.Instances));
         Assert.Equal(WorkshopEditRejection.PuzzleSettings, exAuthored.Reason);

@@ -3,13 +3,6 @@ using System.Collections.Generic;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>One derivation exchange of the master context with the Simulation, taken under one derivation epoch.</summary>
-public readonly record struct ClockDerivationExchange(long Before, long Master, long After, ClockDerivationEpoch Epoch);
-/// <summary>What one exchange proved. Only a bracket at most <see cref="WorkshopClockDerivation.MaximumBracketNanoseconds"/>
-/// wide is evidence; a wider one, or none at all, proves nothing either way.</summary>
-public enum ClockDerivationOutcome : byte { Consistent, Slewed, Rederived, Inconclusive, Unanswered }
-public enum ClockDerivationReport : byte { Check, Startup, Summary }
-
 /// <summary>
 /// The Simulation's continuous check of the clock master context (Story 9.4b, P10). The master stamps every reply in the
 /// Simulation's native domain derived from the shared isolated time origin plus a correction this check maintains.
@@ -33,10 +26,10 @@ public enum ClockDerivationReport : byte { Check, Startup, Summary }
 /// (counted telemetry). Unanswered and inconclusive checks are counted and never stop anything.</item>
 /// </list>
 /// </summary>
-public sealed class WorkshopClockDerivation
+public sealed class WorkshopClockDerivation : IClockDerivation
 {
-    public WorkshopDiagnostics Diagnostics { get; }
-    public WorkshopClockDerivation(WorkshopDiagnostics? diagnostics = null) => Diagnostics = diagnostics ?? new();
+    public IWorkshopDiagnostics Diagnostics { get; }
+    public WorkshopClockDerivation(IWorkshopDiagnostics? diagnostics = null) => Diagnostics = diagnostics ?? new WorkshopDiagnostics();
     /// <summary>The share of the declared 100 us timestamp uncertainty that the native clock's 84.1255 us conservative
     /// error leaves, rounded down.</summary>
     public const long BoundNanoseconds = 15_800;

@@ -25,38 +25,39 @@ public static partial class Program
 
     [JSExport] public static int[] ScheduleRoles() => [(int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Animation];
 
-    private static MasterTimeNanoseconds MasterNow() => WorkshopPulse.FromNative(
-        WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()), Peer.MasterOrigin);
+    private static MasterTimeNanoseconds MasterNow() => Core.Scheduling.FromNative(
+        Core.Clocks.FromMilliseconds(NativeMilliseconds()), Peer.MasterOrigin);
 
     [JSExport]
-    public static byte[] AnimationPeer() => WorkshopClockWire.EncodePeer(Peer with { RequesterRole = WorkshopRuntimeRole.Animation });
+    public static byte[] AnimationPeer() => Core.Codecs.Clocks.EncodePeer(Peer with { RequesterRole = WorkshopRuntimeRole.Animation });
 
     // The Simulation's continuous check of the clock master context's derived domain (worker.js startClockMaster).
-    private static readonly WorkshopClockDerivation ClockDerivation = new(Diagnostics);
+    private static IClockDerivation? _clockDerivation;
+    private static IClockDerivation ClockDerivation => _clockDerivation ?? throw new InvalidOperationException("Clock derivation is not installed.");
 
     [JSExport]
     public static int[] ClockDerivationProfile() =>
-        [WorkshopClockDerivation.ExchangeTimeoutMilliseconds, WorkshopClockDerivation.CheckIntervalMilliseconds,
-            WorkshopClockDerivation.CheckExchangeLimit];
+        [Core.Clocks.ExchangeTimeoutMilliseconds, Core.Clocks.CheckIntervalMilliseconds,
+            Core.Clocks.CheckExchangeLimit];
 
     [JSExport] public static bool ClockDerivationQualified() => ClockDerivation.IsQualified;
 
     [JSExport]
     public static void QualifyClockDerivation(byte[] exchange) =>
-        ClockDerivation.Qualify(ClockDerivationWire.DecodeExchange(exchange));
+        ClockDerivation.Qualify(Core.Codecs.Clocks.DecodeExchange(exchange));
 
     [JSExport] public static void ClockDerivationQualificationMissed() => ClockDerivation.QualificationMissed();
     /// <summary>The derived startup correction the ring installs under the initial epoch before the session is admitted.</summary>
-    [JSExport] public static byte[] ClockDerivationStartupCorrection() => ClockDerivationWire.EncodeCorrection(ClockDerivation.StartupCorrection, ClockDerivationOutcome.Consistent);
+    [JSExport] public static byte[] ClockDerivationStartupCorrection() => Core.Codecs.Clocks.EncodeCorrection(ClockDerivation.StartupCorrection, ClockDerivationOutcome.Consistent);
 
     /// <summary>An integral correction envelope, or no installation when the current mapping stands.</summary>
     [JSExport]
     public static byte[] CheckClockDerivation(byte[] exchange)
     {
-        var outcome = ClockDerivation.Check(ClockDerivationWire.DecodeExchange(exchange), out var correction);
+        var outcome = ClockDerivation.Check(Core.Codecs.Clocks.DecodeExchange(exchange), out var correction);
         return outcome switch
         {
-            ClockDerivationOutcome.Rederived or ClockDerivationOutcome.Slewed => ClockDerivationWire.EncodeCorrection(correction, outcome),
+            ClockDerivationOutcome.Rederived or ClockDerivationOutcome.Slewed => Core.Codecs.Clocks.EncodeCorrection(correction, outcome),
             ClockDerivationOutcome.Consistent or ClockDerivationOutcome.Inconclusive => [],
             _ => throw new InvalidOperationException("Unexpected clock derivation check outcome."),
         };
@@ -67,7 +68,7 @@ public static partial class Program
     /// <summary>Whether a running check's exchange is narrow enough to be evidence; a wide one is retried within the check.</summary>
     [JSExport]
     public static bool ClockDerivationExchangeNarrow(byte[] exchange) =>
-        WorkshopClockDerivation.IsNarrow(ClockDerivationWire.DecodeExchange(exchange));
+        Core.Clocks.IsNarrow(Core.Codecs.Clocks.DecodeExchange(exchange));
     [JSExport] public static void ClockDerivationRetried() => ClockDerivation.Retried();
 
     private static ClockDerivationEpoch DerivationEpoch(int epoch) => epoch >= 0 ? new((uint)epoch)
@@ -77,7 +78,7 @@ public static partial class Program
     {
         public void Abort(CommandSequence owner) { if (owner == _installationOwner) AbortInstallation(); }
         public void Retire() => AbortInstallation();
-        public async ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopCompiledScene construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase)
+        public async ValueTask Prepare(CommandSequence owner, WorkshopRead read, ICompiledScene construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase)
         {
             if (owner.Value == 0 || _preparedEndpoint is not null || _receipts is not null) throw new InvalidOperationException("A schedule candidate is already owned.");
             var projection = new ProjectionEpoch(checked(++_nextProjection));
@@ -85,7 +86,7 @@ public static partial class Program
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), phase, read, Peer.Session, default,
                 profile.Revision, Peer.Generation, projection, new(read.Tick.Value), Scene: construction);
             // Validate the complete endpoint before retaining a candidate or touching either recipient.
-            var encoded = WorkshopWireFlatBuffers.EncodeResponse(endpoint);
+            var encoded = Core.Codecs.Commands.EncodeResponse(endpoint);
             _installationOwner = owner; _preparedEndpoint = endpoint; _preparedSettings = construction.Settings; _preparedTransition = _transition;
             _preparedPoseIdentity = new byte[16];
             BinaryPrimitives.WriteUInt64LittleEndian(_preparedPoseIdentity, owner.Value);
@@ -93,7 +94,7 @@ public static partial class Program
             BeginReceipts(ScheduleControlKind.Prepared);
             try
             {
-                var pose = (PosePublicationPreparation)PreparePose(_preparedPoseIdentity, read.Bodies.Count, WorkshopPoseRing.Capacity(read.Bodies.Count));
+                var pose = (PosePublicationPreparation)PreparePose(_preparedPoseIdentity, read.Bodies.Count, Core.Codecs.Poses.Capacity(read.Bodies.Count));
                 if (!Enum.IsDefined(pose)) throw new ArgumentException("Undefined pose preparation result.");
                 if (pose == PosePublicationPreparation.StorageUnavailable)
                     throw new WorkshopInstallationException(WorkshopRejection.Capacity);
@@ -125,11 +126,11 @@ public static partial class Program
     private static void SendPrepare(WorkshopRuntimeRole recipient, byte[] endpoint)
     {
         // One control per Prepare (per installation, not per tick), exactly as wide as its endpoint read (Story 9R.5b).
-        var payload = WorkshopScheduleWire.PrepareBytes(endpoint.Length);
-        var control = new byte[WorkshopScheduleWire.HeaderBytes + payload];
-        WorkshopScheduleWire.WriteHeader(Header(ScheduleControlKind.Prepare, recipient), control.AsSpan(0, WorkshopScheduleWire.HeaderBytes), payload);
-        var data = control.AsSpan(WorkshopScheduleWire.HeaderBytes);
-        WorkshopCadenceWire.Write(_preparedSettings, data[..32]);
+        var payload = Core.Codecs.Schedules.PrepareBytes(endpoint.Length);
+        var control = new byte[Core.Codecs.Schedules.HeaderBytes + payload];
+        Core.Codecs.Schedules.WriteHeader(Header(ScheduleControlKind.Prepare, recipient), control.AsSpan(0, Core.Codecs.Schedules.HeaderBytes), payload);
+        var data = control.AsSpan(Core.Codecs.Schedules.HeaderBytes);
+        Core.Codecs.Schedules.WriteCadence(_preparedSettings, data[..32]);
         BinaryPrimitives.WriteUInt64LittleEndian(data[32..], _schedule?.Revision.Value ?? 0);
         BinaryPrimitives.WriteUInt64LittleEndian(data[40..], _schedule?.World.Epoch.Value ?? 0);
         BinaryPrimitives.WriteUInt32LittleEndian(data[48..], (uint)_preparedTransition);
@@ -137,7 +138,7 @@ public static partial class Program
         BinaryPrimitives.WriteUInt64LittleEndian(data[56..], read.Read.Epoch.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[64..], read.Read.Tick.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[72..], read.Publication.Value);
-        endpoint.CopyTo(data[WorkshopScheduleWire.PrepareFieldBytes..]);
+        endpoint.CopyTo(data[Core.Codecs.Schedules.PrepareFieldBytes..]);
         SendScheduleControl(control, (int)recipient);
     }
 
@@ -159,7 +160,7 @@ public static partial class Program
     public static void ScheduleResult(byte[] bytes, int sourceRole)
     {
         var source = (WorkshopRuntimeRole)sourceRole;
-        var header = WorkshopScheduleWire.ReadHeader(bytes);
+        var header = Core.Codecs.Schedules.ReadHeader(bytes);
         if (_preparedEndpoint is not { } endpoint || _receipts is null || !Enum.IsDefined(source) ||
             header.Sender != source || header.Recipient != WorkshopRuntimeRole.Simulation ||
             (header.Kind != _awaiting && !(header.Kind == ScheduleControlKind.Presented && _awaiting == ScheduleControlKind.Applied)) || header.Session != Peer.Session || header.MasterGeneration != Peer.Generation ||
@@ -216,15 +217,15 @@ public static partial class Program
             WorkshopSimulationPhase.Completed => WorldPlayback.Completed,
             _ => throw new ArgumentException("Unsupported installed phase.")
         };
-        var schedule = WorkshopSchedule.Create(_preparedSettings, endpoint.Cadence, Peer.Generation, Peer.MasterOrigin,
+        var schedule = Core.Scheduling.Create(_preparedSettings, endpoint.Cadence, Peer.Generation, Peer.MasterOrigin,
             installed, _animationApplied, _browserApplied,
             new(endpoint.Read.Epoch, endpoint.Projection, endpoint.Read.Tick, installed, playback));
         _schedule = schedule; // Physical commit already happened; any following failure retires the session.
         BeginReceipts(ScheduleControlKind.Applied);
         foreach (var recipient in new[] { WorkshopRuntimeRole.Browser, WorkshopRuntimeRole.Animation })
         {
-            var bytes = new byte[WorkshopScheduleWire.HeaderBytes + WorkshopScheduleWire.ScheduleBytes];
-            WorkshopScheduleWire.WriteCommit(Header(ScheduleControlKind.Commit, recipient), schedule, bytes);
+            var bytes = new byte[Core.Codecs.Schedules.HeaderBytes + Core.Codecs.Schedules.ScheduleBytes];
+            Core.Codecs.Schedules.WriteCommit(Header(ScheduleControlKind.Commit, recipient), schedule, bytes);
             SendScheduleControl(bytes, (int)recipient);
         }
         await RequireReceipts();
@@ -242,8 +243,8 @@ public static partial class Program
         DiscardPose(_preparedPoseIdentity);
         foreach (var recipient in new[] { WorkshopRuntimeRole.Browser, WorkshopRuntimeRole.Animation })
         {
-            var bytes = new byte[WorkshopScheduleWire.HeaderBytes + WorkshopScheduleWire.AbortBytes];
-            WorkshopScheduleWire.WriteHeader(Header(ScheduleControlKind.Abort, recipient), bytes.AsSpan(0, 64));
+            var bytes = new byte[Core.Codecs.Schedules.HeaderBytes + Core.Codecs.Schedules.AbortBytes];
+            Core.Codecs.Schedules.WriteHeader(Header(ScheduleControlKind.Abort, recipient), bytes.AsSpan(0, 64));
             BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(64), (uint)WorkshopRejection.Transport);
             SendScheduleControl(bytes, (int)recipient);
         }

@@ -1,3 +1,4 @@
+using CuriousContraptions.Bundle;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Signal;
 using System;
@@ -9,18 +10,18 @@ namespace CuriousContraptions.Gpu;
 
 public static class WorkshopActivationCompiler
 {
-    public static ActivationNetwork Compile(WorkshopConstruction construction)
+    public static IActivationProgram Compile(ICoreServices core, IBundleServices bundle, WorkshopConstruction construction)
     {
-        construction.Validate();
+        construction.Validate(core.Supply, bundle);
         var graph = new WorkshopSignalGraph(construction.Instances, construction.Connections);
-        var supply = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of);
-        var nodes = graph.Nodes.Select(node => CompileNode(construction, graph, supply, node)).ToArray();
+        var supply = WorkshopSupplyCompiler.Compile(core.Supply, construction, DeclaredPhysics.Of);
+        var nodes = graph.Nodes.Select(node => CompileNode(core, construction, graph, supply, node)).ToArray();
         var passages = new List<PassageSensorDeclaration>();
         foreach (var resolved in graph.Nodes)
             if (resolved.Declaration is SignalPassageDescriptor passage)
                 passages.Add(PassageSensorFor(construction.Instances.Single(owner => owner.Id == resolved.Owner),
                     passage, construction.Instances.Identities));
-        return new(nodes, Edges(graph), new WorkshopGpuProfile(construction.Settings.Simulation,
+        return core.CreateActivation(nodes, Edges(graph), new WorkshopGpuProfile(construction.Settings.Simulation,
             construction.Settings.Physical, new(1)).Substeps, passages.ToArray(),
             construction.Instances.Where(instance => DeclaredPhysics.Of(instance.PartId).Electrical?.Supply?.Kind ==
                 CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact).Select(instance =>
@@ -40,20 +41,20 @@ public static class WorkshopActivationCompiler
             _ => throw new ArgumentException("Unsupported input terminal.")
         })).ToArray();
 
-    private static ActivationNodeDeclaration CompileNode(WorkshopConstruction construction, WorkshopSignalGraph graph,
-        SupplyTopology supply, ResolvedSignalNode node)
+    private static ActivationNodeDeclaration CompileNode(ICoreServices core, WorkshopConstruction construction, WorkshopSignalGraph graph,
+        ISupplyTopology supply, ResolvedSignalNode node)
     {
         var owner = (WorkshopGenericInstance)construction.Instances.Single(instance => instance.Id == node.Owner);
         var ids = construction.Instances.Identities[node.Owner].Signals[node.Declaration.Id];
         var cadence = construction.Settings.Simulation;
-        uint Duration(ParameterId parameter) => ActivationTimerDeclaration.Duration(owner.Parameters[parameter], cadence);
+        uint Duration(ParameterId parameter) => core.TimerDuration(owner.Parameters[parameter], cadence);
         return node.Declaration switch
         {
             SignalContactDescriptor => new(node.Id, node.Owner, ActivationNodeKind.ContactSource, ids.Trigger),
             SignalOrientationDescriptor => new(node.Id, node.Owner, ActivationNodeKind.OrientationSource, default, Sensor: ids.Orientation),
             SignalPassageDescriptor => new(node.Id, node.Owner, ActivationNodeKind.PassageSource, default, Passage: ids.Passage),
             SignalContactLoadDescriptor load => new(node.Id, node.Owner, ActivationNodeKind.ContactLoadSource, default,
-                ContactLoad: ids.ContactLoad, ReleaseHoldTicks: ActivationTimerDeclaration.Duration(load.ReleaseHoldSeconds, cadence)),
+                ContactLoad: ids.ContactLoad, ReleaseHoldTicks: core.TimerDuration(load.ReleaseHoldSeconds, cadence)),
             SignalTimerDescriptor timer => new(node.Id, node.Owner, ActivationNodeKind.Timer, default, Duration(timer.DurationParameter),
                 Completion: timer.Completion, Boundary: timer.Boundary, ElapsedSignal: timer.ElapsedSignal),
             SignalPulseCountDescriptor count => new(node.Id, node.Owner, ActivationNodeKind.Counter, default,
@@ -66,7 +67,7 @@ public static class WorkshopActivationCompiler
         };
     }
 
-    private static GpuBodyId Provider(WorkshopConstruction construction, SupplyTopology supply, GpuBodyId owner, PortId input)
+    private static GpuBodyId Provider(WorkshopConstruction construction, ISupplyTopology supply, GpuBodyId owner, PortId input)
     {
         var wires = construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical &&
             link.Target == owner && link.Input == input).ToArray();

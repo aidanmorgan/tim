@@ -17,7 +17,7 @@ internal interface IWorkshopGpuTransport
     void Dispose();
 }
 
-internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, PhysicsDocumentId document) : IWorkshopGpuDevice
+internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, PhysicsDocumentId document) : IWorkshopWorkerDevice
 {
     private readonly SemaphoreSlim _gate = new(1, 1);
     private CommandSequence _active;
@@ -51,9 +51,9 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private PhysicsActivationRead _committedActivations, _candidateActivations;
     private PhysicsTimerRead _committedTimers, _candidateTimers;
     private PhysicsMemoryRead _committedMemory, _candidateMemory;
-    private ActivationNetwork? _committedNetwork, _candidateNetwork;
+    private IActivationProgram? _committedNetwork, _candidateNetwork;
     // Supply routes compiled once at Admit: routes as indices into the admitted drive-slot and source tables.
-    private sealed record CompiledSupply(CompiledSupplyGraph Graph, int Sources, int Drives);
+    private sealed record CompiledSupply(ICompiledSupplyGraph Graph, int Sources, int Drives);
     private CompiledSupply? _committedSupply, _candidateSupply;
     private PassageSensorTracker _committedPassageTracker = PassageSensorTracker.Empty;
     private PassageSensorTracker _candidatePassageTracker = PassageSensorTracker.Empty;
@@ -71,14 +71,14 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     /// surface's committed per-sample contact states, Story 10.5).</summary>
     internal ReadOnlyMemory<byte> CommittedWorld => _committedWorld;
     /// <summary>The publication of every committed record not yet published (the worker copies it into the event ring).</summary>
-    internal byte[] DrainEvents()
+    public byte[] DrainEvents()
     {
         transport.PublishEvents();
         return _outbox.Drain();
     }
 #if PLAYTEST
     private byte[] _diagnosticCandidate = [];
-    internal byte[] DiagnosticCommitted { get; private set; } = [];
+    public byte[] DiagnosticCommitted { get; private set; } = [];
 #endif
 
     // Resource preparation owns the same gate as candidates, but never stages a world.
@@ -106,7 +106,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         _initialized = true;
     }
 
-    public ValueTask<WorkshopGpuCandidate> Admit(WorkshopCompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence)
+    public ValueTask<WorkshopGpuCandidate> Admit(ICompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence)
     {
         if (construction.Settings.Simulation != profile.Cadence || construction.Settings.Physical != profile.Physical)
             throw new ArgumentException("Construction and physical profile differ.");
@@ -133,8 +133,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             network, supply, PhysicsTickInputs.Admission, controls: controls);
     }
 
-    private async ValueTask<WorkshopGpuCandidate> Stage(ReadOnlyMemory<byte> input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network,
-        CompiledSupply supply, PhysicsTickInputs inputs, PhysicsSceneDeclaration? scene = null, WorkshopTickControls? controls = null)
+    private async ValueTask<WorkshopGpuCandidate> Stage(ReadOnlyMemory<byte> input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, IActivationProgram network,
+        CompiledSupply supply, PhysicsTickInputs inputs, IPhysicsSceneDeclaration? scene = null, WorkshopTickControls? controls = null)
     {
         profile.Validate();
         await _gate.WaitAsync();
@@ -143,13 +143,13 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             ObjectDisposedException.ThrowIf(_disposed, this);
             if (_active.Value != 0 || sequence.Value == 0) throw new InvalidOperationException("Invalid GPU candidate ownership.");
             _active = sequence;
-            ActivationSchedule? scheduled = null;
+            IActivationSchedule? scheduled = null;
             if (operation == WorkshopGpuOperation.Advance)
             {
                 if (controls is null) throw new ArgumentException("Advance requires tick controls.");
                 scheduled = network.AdvanceScheduled(new(_committedActivations, _committedTimers, _committedMemory), expectedTick);
                 var checkpoint = scheduled.State;
-                inputs = PhysicsTickInputs.Compose(supply.Graph, controls,
+                inputs = TickControlComposition.Compose(supply.Graph, controls,
                     owner => network.ContactClosed(checkpoint.Activations, checkpoint.Timers, owner),
                     PhysicsGpuAbi.ReadElectrical(_committedWorld.Span));
             }
@@ -259,7 +259,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         }
     }
     private static SupplyOutputRead ResolveEffectiveSupply(WorkshopGpuOperation operation, CompiledSupply supply,
-        WorkshopTickControls? controls, ActivationSchedule? scheduled, ActivationNetwork network, PhysicsElectricalRead electrical)
+        WorkshopTickControls? controls, IActivationSchedule? scheduled, IActivationProgram network, PhysicsElectricalRead electrical)
     {
         if (operation == WorkshopGpuOperation.Admit) return default;
         if (controls is null) throw new InvalidOperationException("Tick controls missing.");

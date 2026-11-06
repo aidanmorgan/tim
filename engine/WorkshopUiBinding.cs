@@ -11,9 +11,9 @@ public sealed class WorkshopUiBinding
     private readonly CanvasItem _target;
     private readonly UiCurveDeclaration _declaration;
     public WorkshopUiTarget Target => _declaration.Target;
-    public WorkshopUiBinding(WorkshopUiTarget target, CanvasItem item)
+    public WorkshopUiBinding(IWorkshopUiCurves curves, WorkshopUiTarget target, CanvasItem item)
     {
-        _declaration = UiCurveDeclaration.For(target); _declaration.Validate();
+        _declaration = curves.CurveFor(target); _declaration.Validate();
         _target = item ?? throw new ArgumentNullException(nameof(item));
     }
     public void Apply(AnimationOpacity opacity)

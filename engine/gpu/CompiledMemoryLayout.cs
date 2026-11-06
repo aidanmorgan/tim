@@ -9,7 +9,7 @@ namespace CuriousContraptions.Gpu;
 /// Eliminates runtime linear searches (BodySlot, MaterialSlot) and dynamic manual byte math in favour
 /// of instant O(1) address resolution.
 /// </summary>
-public sealed class CompiledMemoryLayout
+public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
 {
     private readonly Dictionary<GpuBodyId, int> _bodySlots = new(16);
     private readonly Dictionary<GpuBodyId, int> _bodyOffsets = new(16);

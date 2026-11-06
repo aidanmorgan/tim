@@ -14,7 +14,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [InlineData(false)]
     public async Task GateCueUsesActualCommittedDriveAndAppliesNativeMaterial(bool connected)
     {
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
         {
@@ -35,8 +35,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         Assert.Equal(construction.Instances.Select(instance => instance.Id), roundTrip.Scene!.Owners);
         var foreign = read with { Presentation = new([drive with { Owner = new(999) }], []) };
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeResponse(Response(foreign, 2) with { Scene = CompiledSceneFixture.Compile(construction) }));
-        var evaluator = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), endpoint);
-        var registry = new PartRegistry(); registry.Load();
+        var evaluator = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), endpoint);
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var part = registry.Create(new PartId("powered_gate"));
         var controlPart = registry.Create(new PartId("powered_gate"));
         try
@@ -56,7 +56,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             Assert.Equal(new Color("#556573"), controlMaterial.AlbedoColor);
             Assert.Equal(authoredColour, authoredMaterial.AlbedoColor);
             Assert.Equal(authoredMaterial.EmissionEnabled, material.EmissionEnabled);
-            Assert.Equal(new Color(drive.Blocked ? "#e8b764" : connected ? "#f7cb52" : "#556573"), material.AlbedoColor);
+            Assert.Equal(new Color(drive.IsBlocked() ? "#e8b764" : connected ? "#f7cb52" : "#556573"), material.AlbedoColor);
             part.ResetPhysicalVisuals();
             Assert.Equal(new Color("#556573"), Assert.IsType<StandardMaterial3D>(indicator.MaterialOverride).AlbedoColor);
             Assert.Equal(new Color("#556573"), controlMaterial.AlbedoColor);
@@ -85,8 +85,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         {
             var endpoint = Response(read, 1);
             var decoded = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(endpoint with { Scene = CompiledSceneFixture.Compile(construction) }));
-            var evaluator = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), decoded with { Scene = null });
-            var registry = new PartRegistry(); registry.Load();
+            var evaluator = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), decoded with { Scene = null });
+            var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
             var part = registry.Create(new PartId("powered_gate"));
             try
             {
@@ -98,9 +98,9 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             finally { part.Free(); }
         }
         var held = reads[^1].Presentation.Actuators.ToArray().Single(row => row.Owner == gate);
-        Assert.True(held.Blocked && held.MovingContact && !held.SupplyClosed, $"guard: the ball holds the unpowered blade at rest, {held}");
+        Assert.True(held.IsBlocked() && held.MovingContact && !held.SupplyClosed, $"guard: the ball holds the unpowered blade at rest, {held}");
         Assert.Equal(new Color("#e8b764"), Cue(reads[^1]));
-        Assert.False(reads[0].Presentation.Actuators.ToArray().Single(row => row.Owner == gate).Blocked);
+        Assert.False(reads[0].Presentation.Actuators.ToArray().Single(row => row.Owner == gate).IsBlocked());
         Assert.Equal(new Color("#556573"), Cue(reads[0]));
     }
 
@@ -139,9 +139,9 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
                 new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
                 new WorkshopConnection(clock.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 150);
-        var evaluator = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reads[1], 1));
-        var network = WorkshopActivationCompiler.Compile(construction);
-        var registry = new PartRegistry(); registry.Load();
+        var evaluator = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reads[1], 1));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var clockPart = registry.Create(new PartId("clock")); var counterPart = registry.Create(new PartId("counter"));
         try
         {
@@ -184,13 +184,13 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     {
         var y = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
         var plate = PlacedParts.Plate(new(1), 0, (float)(y), 0, (float)(minimum));
-        var ball = WorkshopInput.Generic(new PartId("ball"),new(2), 0, (float)(y + .08 + .35), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(2), 0, (float)(y + .08 + .35), 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             occupied ? new(plate, ball) : new(plate));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 120);
         Assert.Equal(expected, Assert.Single(reads[^1].Presentation.Loads.ToArray()).Phase);
-        var evaluator = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reads[1], 1));
-        var registry = new PartRegistry(); registry.Load();
+        var evaluator = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reads[1], 1));
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var part = registry.Create(new PartId("pressure_plate"));
         try
         {
@@ -225,11 +225,11 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             Connections: new(new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
                 new WorkshopConnection(clock.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 120);
-        var follow = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reads[30], 1));
+        var follow = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reads[30], 1));
         var start = Time(reads[30]);
         Assert.Equal(0f, Scalar(follow.Advance(AnimationTestTime.Seconds(start)), clock.Id, 0));
         Assert.Equal((float)(.42f * (1 - Math.Exp(-1))), Scalar(follow.Advance(AnimationTestTime.Seconds(start + 1d / 30)), clock.Id, 0));
-        var pulse = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reads[120], 1));
+        var pulse = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reads[120], 1));
         start = Time(reads[120]);
         Assert.Equal(247f / 255f, Scalar(pulse.Advance(AnimationTestTime.Seconds(start)), clock.Id, 1));
         var atQuarterCounter = pulse.Advance(AnimationTestTime.Seconds(start + (double).1f / 4));
@@ -241,9 +241,9 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         Assert.Equal(85f / 255f, Scalar(pulse.Advance(AnimationTestTime.Seconds(start + .25)), clock.Id, 1));
 
         var saved = new WorkshopSavedConstruction(construction, new(4));
-        var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+        var restored = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         var replay = await WorkshopIntegrationHarness.Observe(restored.Construction, 120);
-        var replayPresentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(restored.Construction), Response(replay[120], 1));
+        var replayPresentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(restored.Construction), Response(replay[120], 1));
         Assert.Equal(247f / 255f, Scalar(replayPresentation.Advance(AnimationTestTime.Seconds(Time(replay[120]) + .1)), counter.Id, 0));
     }
 
@@ -252,11 +252,11 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     {
         var y = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
         var plate = PlacedParts.Plate(new(1), 0, (float)(y), 0, .5f);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new(2), 0, (float)(y + .43), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(2), 0, (float)(y + .43), 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(plate, ball));
         var (_, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 120);
         var loaded = reads.Last(read => read.Presentation.Loads[0].Phase == ContactLoadPhase.Loaded);
-        var presentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(loaded, 1));
+        var presentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(loaded, 1));
         var start = Time(loaded);
         Assert.Equal(85f / 255f, Scalar(presentation.Advance(AnimationTestTime.Seconds(start)), plate.Id, 0));
         Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .15625f),
@@ -264,7 +264,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .5f),
             Scalar(presentation.Advance(AnimationTestTime.Seconds(start + .0625)), plate.Id, 0));
         Assert.Equal(247f / 255f, Scalar(presentation.Advance(AnimationTestTime.Seconds(start + .125)), plate.Id, 0));
-        var resetPresentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reset, 2) with { Projection = new(2) });
+        var resetPresentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reset, 2) with { Projection = new(2) });
         Assert.Equal(85f / 255f, Scalar(resetPresentation.Advance(AnimationTestTime.Seconds(Time(reset))), plate.Id, 0));
         Assert.Throws<ArgumentException>(() => resetPresentation.Accept(Response(loaded, 3) with { Projection = new(2) }));
         Assert.Equal(85f / 255f, Scalar(resetPresentation.Advance(AnimationTestTime.Seconds(Time(reset) + 1)), plate.Id, 0));
@@ -283,10 +283,10 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var reads = await WorkshopIntegrationHarness.Observe(construction, 30);
         var pulseRead = reads[15];
         var start = Time(pulseRead);
-        var skipped = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(pulseRead, 1));
+        var skipped = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(pulseRead, 1));
         Assert.Equal(247f / 255f, Scalar(skipped.Advance(AnimationTestTime.Seconds(start + 1)), clock.Id, 1));
         Assert.Equal(85f / 255f, Scalar(skipped.Advance(AnimationTestTime.Seconds(start + 1.01)), clock.Id, 1));
-        var hidden = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reads[1], 1));
+        var hidden = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reads[1], 1));
         var target = WorkshopDeclaredPresentation.Targets(CompiledSceneFixture.Compile(construction)).Single(t => t.Owner == clock.Id && t.Binding == 1).Target;
         hidden.SetVisible(target, AnimationProperty.ColourRed, false);
         hidden.Accept(Response(pulseRead, 2));
@@ -295,14 +295,14 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         Assert.Equal(247f / 255f, Scalar(hidden.Advance(AnimationTestTime.Seconds(start + 1.01)), clock.Id, 1));
         Assert.Equal(85f / 255f, Scalar(hidden.Advance(AnimationTestTime.Seconds(start + 1.02)), clock.Id, 1));
 
-        var overlap = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(pulseRead, 1));
+        var overlap = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(pulseRead, 1));
         overlap.Advance(AnimationTestTime.Seconds(start));
         overlap.Accept(Response(reads[30], 2));
         Assert.Equal(247f / 255f, Scalar(overlap.Advance(AnimationTestTime.Seconds(Time(reads[30]))), clock.Id, 1));
         Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .5f),
             Scalar(overlap.Advance(AnimationTestTime.Seconds(Time(reads[30]) + .125)), clock.Id, 1));
 
-        var reset = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reads[0], 1) with { Projection = new(2) });
+        var reset = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reads[0], 1) with { Projection = new(2) });
         Assert.Equal(85f / 255f, Scalar(reset.Advance(AnimationTestTime.Seconds(start + 2)), clock.Id, 1));
         Assert.Throws<ArgumentException>(() => reset.Accept(Response(pulseRead, 2)));
         Assert.Throws<ArgumentException>(() => hidden.SetVisible(target, AnimationProperty.ColourBlue, false));
@@ -316,7 +316,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var latch = PlacedParts.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
-        var delay = WorkshopInput.Generic(new PartId("delay"), new(6), 3, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), .5f)]));
+        var delay = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(6), 3, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), .5f)]));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(setClock, resetClock, latch, battery, lamp, delay),
             Connections: new(
@@ -327,14 +327,14 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
                 new(latch.Id, PortId.ActivationOut, lamp.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation),
                 new(setClock.Id, PortId.ActivationOut, delay.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 180);
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var latchPart = registry.Create(new PartId("latch"));
         var lampPart = registry.Create(new PartId("lamp"));
         var delayPart = registry.Create(new PartId("delay"));
         try
         {
             godot.Tree.Root.AddChild(latchPart); godot.Tree.Root.AddChild(lampPart); godot.Tree.Root.AddChild(delayPart);
-            var evaluator = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reads[120], 1));
+            var evaluator = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reads[120], 1));
             var origin = Time(reads[120]);
             var quarter = evaluator.Advance(AnimationTestTime.Seconds(origin + .125 / 4));
             Assert.Equal(-.1982421875f, Scalar(quarter, latch.Id, 0));
@@ -354,7 +354,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             Assert.Equal(Colors.Black, Material(lampPart, "Visual/Bulb").Emission);
             foreach (var (tick, expected, progress) in new[] { (0, "#556573", 0f), (150, "#e8b764", .5f), (180, "#f7cb52", 1f) })
             {
-                var at = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reads[tick], 1));
+                var at = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reads[tick], 1));
                 var samples = at.Advance(AnimationTestTime.Seconds(Time(reads[tick])));
                 Assert.Equal(-MathF.Tau * progress, Scalar(samples, delay.Id, 0));
                 Apply(samples);
@@ -391,7 +391,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery));
         var phases = await WorkshopIntegrationHarness.ObservePhases(construction, ([], 1),
             ([new(battery.Id, RunControlValue.Of(ElectricalEnable.Disabled))], 1));
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var part = registry.Create(new PartId("battery"));
         try
         {
@@ -399,7 +399,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             for (var phase = 0; phase < phases.Count; phase++)
             {
                 var read = phases[phase][0];
-                var presentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(read, 1));
+                var presentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(read, 1));
                 foreach (var sample in presentation.Advance(AnimationTestTime.Seconds(Time(read))))
                     part.ApplyDeclaredProperty(sample.Binding, sample.Value);
                 Assert.Equal(new Color(available && phase == 0 ? "#f7cb52" : "#556573"), Material(part, "Visual/Terminal").AlbedoColor);
@@ -422,7 +422,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var reads = await WorkshopIntegrationHarness.Observe(construction, 15);
         var endpoint = Response(reads[15], 1) with { Scene = CompiledSceneFixture.Compile(construction) };
         var start = Time(reads[15]);
-        var consumed = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), endpoint);
+        var consumed = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), endpoint);
         consumed.Advance(AnimationTestTime.Seconds(start)); consumed.Advance(AnimationTestTime.Seconds(start + .3));
         var rebound = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(endpoint with
         {
@@ -437,7 +437,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         consumed.Rebind(CompiledSceneFixture.Compile(construction), rebound with { Projection = new(3) });
         Assert.Equal(85f / 255f, Scalar(consumed.Advance(AnimationTestTime.Seconds(start + .6)), clock.Id, 1));
 
-        var hidden = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), endpoint);
+        var hidden = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), endpoint);
         var target = WorkshopDeclaredPresentation.Targets(CompiledSceneFixture.Compile(construction)).Single(t => t.Owner == clock.Id && t.Binding == 1).Target;
         hidden.SetVisible(target, AnimationProperty.ColourRed, false);
         hidden.ValidateRebind(CompiledSceneFixture.Compile(construction), rebound);
@@ -446,7 +446,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         hidden.SetVisible(target, AnimationProperty.ColourRed, true);
         Assert.Equal(247f / 255f, Scalar(hidden.Advance(AnimationTestTime.Seconds(start + 1.01)), clock.Id, 1));
 
-        var progressing = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), endpoint);
+        var progressing = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), endpoint);
         progressing.Advance(AnimationTestTime.Seconds(start));
         progressing.Advance(AnimationTestTime.Seconds(start + .0625));
         progressing.Rebind(CompiledSceneFixture.Compile(construction), rebound);
@@ -478,7 +478,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var settings = WorkshopCadenceSettings.Default() with { Simulation = simulationCadence, Animation = animationCadence };
         var owner = new GpuBodyId(1);
         var construction = new WorkshopConstruction(new(2), settings,
-            new(WorkshopInput.Generic(new PartId("switch"), owner, 0, 3, 0, 0, 0, 0, 1)));
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), owner, 0, 3, 0, 0, 0, 0, 1)));
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(),
             CompiledSceneFixture.Compile(new(new(1), settings, WorkshopInstances.Empty)), new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
@@ -492,8 +492,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             reads.Add(simulation.Committed);
         }
         var endpoint = Response(reads[3], 1);
-        var evaluator = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), endpoint);
-        var control = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), endpoint);
+        var evaluator = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), endpoint);
+        var control = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), endpoint);
         const long origin = 10_123_456_789; // Neither zero nor an animation/physical pulse boundary.
         var schedule = Schedule(1, 3, origin, WorldPlayback.Running);
         evaluator.AcceptEvents(new(reads[3].Epoch.Value, 0,
@@ -517,7 +517,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         Rebind(2, 5, origin + 2_000_000_000, WorldPlayback.Paused, WorkshopSimulationPhase.Paused);
         Assert.Equal(moving, Sample(origin + 3_000_000_000));
         // The worker's autonomous UI registry still advances on master time while the declared world is frozen.
-        var ui = new WorkshopAnimationTracks();
+        var ui = new WorkshopAnimationTracks(new CuriousContraptions.Presentation.AnimationServices());
         ui.Apply(new(new(1), new(0), 1, 1, AnimationControlKind.Reveal, true, 0, 1, 1, AnimationCurve.Linear),
             PhysicalTime.FromNanoseconds(origin + 2_000_000_000));
         ui.Advance(1, PhysicalTime.FromNanoseconds(origin + 2_500_000_000));
@@ -539,7 +539,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         Assert.Equal(resumed, Sample(origin + 8_000_000_000));
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
         var reset = simulation.Committed;
-        evaluator = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction), Response(reset, 1) with { Projection = new(6) });
+        evaluator = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reset, 1) with { Projection = new(6) });
         schedule = Schedule(6, 0, origin + 8_000_000_000, WorldPlayback.Building) with
             { World = new(reset.Epoch, new(6), reset.Tick, new(origin + 8_000_000_000), WorldPlayback.Building) };
         Assert.Equal(.06f, Sample(origin + 9_000_000_000));

@@ -26,7 +26,7 @@ public sealed class JointFrameTests
         // 1. Springboard regression: identity frames with 0.15m compression
         var springId = new GpuBodyId(1);
         var springBench = Free(PlacedParts.Springboard(springId, 0, 1, 0, 0, 0, 0, 1, compression: 0.15f));
-        var springScene = WorkshopPhysicsCompiler.Compile(springBench, new(1, 2));
+        var springScene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, springBench, new(1, 2));
         var springJoint = Assert.Single(springScene.Prismatics.ToArray());
         var springMoving = springScene.Bodies.ToArray().Single(b => b.Id == springJoint.BodyB);
 
@@ -39,8 +39,8 @@ public sealed class JointFrameTests
 
         // 2. Motor regression: identity frames with initial angle 0
         var motorId = new GpuBodyId(2);
-        var motorBench = Free(WorkshopInput.Generic(new PartId("motor"), motorId, 0, 1, 0, 0, 0, 0, 1));
-        var motorScene = WorkshopPhysicsCompiler.Compile(motorBench, new(1, 2));
+        var motorBench = Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("motor"), motorId, 0, 1, 0, 0, 0, 0, 1));
+        var motorScene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, motorBench, new(1, 2));
         var motorJoint = Assert.Single(motorScene.Revolutes.ToArray());
         var motorMoving = motorScene.Bodies.ToArray().Single(b => b.Id == motorJoint.BodyB);
 
@@ -172,7 +172,7 @@ public sealed class JointFrameTests
         // 1. Slider (springboard) with compound rotated owner
         var construction = Free(PlacedParts.Springboard(
             springId, 2f, 3f, 4f, ownerRot.X, ownerRot.Y, ownerRot.Z, ownerRot.W, compression: compression));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var joint = Assert.Single(scene.Prismatics.ToArray());
         var moving = scene.Bodies.ToArray().Single(b => b.Id == joint.BodyB);
 
@@ -196,11 +196,11 @@ public sealed class JointFrameTests
         // 2. Hinge (motor) with compound rotated owner
         var motorId = new GpuBodyId(2);
         var motorPos = new Vector3(1f, 5f, 2f);
-        var motorConstruction = Free(WorkshopInput.Generic(
+        var motorConstruction = Free(WorkshopInput.Generic(RuntimeTestServices.Bundle,
             new PartId("motor"), motorId,
             motorPos.X, motorPos.Y, motorPos.Z,
             ownerRot.X, ownerRot.Y, ownerRot.Z, ownerRot.W));
-        var motorScene = WorkshopPhysicsCompiler.Compile(motorConstruction, new(1, 2));
+        var motorScene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, motorConstruction, new(1, 2));
         var motorJoint = Assert.Single(motorScene.Revolutes.ToArray());
         var motorMoving = motorScene.Bodies.ToArray().Single(b => b.Id == motorJoint.BodyB);
 

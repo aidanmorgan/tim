@@ -311,7 +311,7 @@ public sealed class CompoundPlateMembershipTests
     public void LoadMembershipRejectsMissingDuplicateAndForeignColliders()
     {
         var plate = PlacedParts.Plate(new(1), 0, 0, 0, .75f);
-        var compiled = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new([plate])), new(1, 2));
+        var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(2), WorkshopCadenceSettings.Default(), new([plate])), new(1, 2));
         var row = compiled.ContactLoadSensors[0];
         var foreign = compiled.Colliders.ToArray().Single(c => c.Shape == ColliderShapeKind.Plane).Id;
         var invalid = new[]
@@ -341,7 +341,7 @@ public sealed class CompoundPlateMembershipTests
     {
         var plate = PlacedParts.Plate(new(1), 0, 0, 0, .75f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([plate]));
-        var compiled = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var fixtures = new LawScene(false);
         GpuBodyId Ball(Vector3 position, float mass, Vector3 velocity) => fixtures.Sphere(position,
             .05f, mass, new(0, .1f, 0, 0), velocity, default, 0, 0);
@@ -424,8 +424,8 @@ public sealed class AssignedCompoundFeatureTests
         };
         LawBody Observe(float gap)
         {
-            var instance = WorkshopInput.Generic(part, new(1), 0, 3, 0, 0, 0, 0, 1);
-            var compiled = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new([instance])), new(1, 2));
+            var instance = WorkshopInput.Generic(RuntimeTestServices.Bundle, part, new(1), 0, 3, 0, 0, 0, 0, 1);
+            var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(2), WorkshopCadenceSettings.Default(), new([instance])), new(1, 2));
             var fixtures = new LawScene(false);
             var probe = fixtures.Sphere(new Vector3(0, 3, 0) + surface + (.03125f + gap) * normal,
                 .03125f, .01f, new(0, .1f, 0, 0), -.1f * normal, default, 0, 0);
@@ -458,8 +458,8 @@ public sealed class CompoundCaptureOwnershipTests
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             PayloadInstanceTests.Place(new PartId("ball"), 1, 0, 1.1, 0),
-            WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1)));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1)));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var transport = new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication());
@@ -535,7 +535,7 @@ public sealed class CompoundCaptureOwnershipTests
             var centre = Vector3.Transform(new Vector3(x, 1, 0), rotation);
             var parameters = InstanceParameterCollection.Defaults(new PartId("basket")).ToDictionary();
             parameters[new("force_maximum_acceleration")] = 12f;
-            return WorkshopInput.Generic(new PartId("basket"), new(id), (float)(centre.X), (float)(centre.Y), (float)(centre.Z),
+            return WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(id), (float)(centre.X), (float)(centre.Y), (float)(centre.Z),
                 (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W),
                 new(parameters));
         }
@@ -545,7 +545,7 @@ public sealed class CompoundCaptureOwnershipTests
         LawBody Step(params IWorkshopInstance[] owners)
         {
             var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([ball, ..owners]));
-            var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
             var world = new LawWorld(scene, PhysicsGpuAbi.Admission(scene, new(1),
                 new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1))), SimulationCadence.Hz120);
             return world.Step(1)[ball.Id];
@@ -569,8 +569,8 @@ public sealed class CompoundCaptureOwnershipTests
             PayloadInstanceTests.Place(new PartId("ball"), 1, -4, 1.1, 0),
             PayloadInstanceTests.Place(new PartId("bowling"), 2, 4, 1.1, 0),
             PayloadInstanceTests.Place(new PartId("ball"), 3, 10, 5, 0),
-            WorkshopInput.Generic(new PartId("basket"), new(5), -4, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1)];
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(5), -4, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1)];
         if (reverse) Array.Reverse(parts);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts));
         await using var ring = await WorkshopIntegrationHarness.Running(construction);
@@ -592,7 +592,7 @@ public sealed class CompoundCaptureOwnershipTests
         }
         await ring.Reset();
         Assert.Equal(0, ring.Committed.Captures.Count);
-        var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(7))));
+        var saved = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(construction, new(7))));
         var replay = await WorkshopIntegrationHarness.Observe(saved.Construction, 120);
         Assert.Equal(2, replay[^1].Captures.Count);
         Assert.Equal(new[] { new GpuBodyId(1), new GpuBodyId(2) },
@@ -613,7 +613,7 @@ public sealed class CompoundCaptureOwnershipTests
         IWorkshopInstance[] parts = [
             PayloadInstanceTests.Place(new PartId("bowling"), 1, -.3, 1.1, 0),
             PayloadInstanceTests.Place(new PartId("bowling"), 2, .3, 1.1, 0),
-            WorkshopInput.Generic(new PartId("basket"), new(3), 0, 1, 0, 0, 0, 0, 1)];
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(3), 0, 1, 0, 0, 0, 0, 1)];
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts));
         await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(120);
@@ -662,8 +662,8 @@ public sealed class CompoundCaptureOwnershipTests
         var withoutReceiver = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts.ToArray()));
         var absentRead = (await WorkshopIntegrationHarness.Observe(withoutReceiver, 1))[^1];
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, absentRead, absentRead.Epoch, withoutReceiver.Instances.Identities));
-        var absentWake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(withoutReceiver, new(1, 2)));
-        var construction = withoutReceiver.WithInstance(WorkshopInput.Generic(new PartId("basket"), new(3), 0, 1, 0, 0, 0, 0, 1));
+        var absentWake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, withoutReceiver, new(1, 2)));
+        var construction = withoutReceiver.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(3), 0, 1, 0, 0, 0, 0, 1));
         await using var ring = await WorkshopIntegrationHarness.Running(construction);
         var initial = ring.Committed;
         await ring.Advance(240);
@@ -675,7 +675,7 @@ public sealed class CompoundCaptureOwnershipTests
         Assert.Equal(expected, WorkshopGoalEvaluator.Evaluate(goal, read, read.Epoch, construction.Instances.Identities));
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read,
             new(read.Epoch.Value + 1), construction.Instances.Identities));
-        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(construction, new(1, 2)));
+        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2)));
         var delivery = new EventRingDelivery(read.Epoch.Value, 0, [captured]);
         wake.Observe(delivery, read.Tick);
         Assert.True(wake.Due(read.Tick)); // owner-level notification; precise truth remains above
@@ -693,8 +693,8 @@ public sealed class CompoundCaptureOwnershipTests
             Assert.Equal(before.Body.Local, after.Body.Local);
             Assert.Equal(before.Rotation, after.Rotation);
         }
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(132)))).Construction;
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(construction, new(132)))).Construction;
         var replay = await WorkshopIntegrationHarness.Observe(loaded, 240);
         Assert.Equal(expected, WorkshopGoalEvaluator.Evaluate(goal, replay[^1], replay[^1].Epoch, loaded.Instances.Identities));
         Assert.Equal(WorkshopGoalEvaluator.Occurrence(goal, read, read.Epoch, construction.Instances.Identities),
@@ -800,8 +800,8 @@ public sealed class CompoundPassageBoundaryTests
         var detector=PlacedParts.Detector(new(10),0,3,0,(float)(q.X),(float)(q.Y),(float)(q.Z),(float)(q.W));
         var ball=PayloadInstanceTests.Place(new PartId("ball"),2,-1,3,2);
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new([detector,ball]));
-        var scene=WorkshopPhysicsCompiler.Compile(construction,new(1,2));
-        var sensors=WorkshopActivationCompiler.Compile(construction).PassageSensors.ToArray();
+        var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction,new(1,2));
+        var sensors=WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction).PassageSensors.ToArray();
         PhysicsBodyReadSet At(float x,float z)
         {
             var world=new Vector3(0,3,0)+Vector3.Transform(new Vector3(x,0,z),q);
@@ -838,8 +838,8 @@ public sealed class CompoundPassageBoundaryTests
         var detector = PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1);
         var ball = PayloadInstanceTests.Place(new PartId("ball"), 2, -1, 3, 0);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([detector, ball]));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-        var sensors = WorkshopActivationCompiler.Compile(construction).PassageSensors.ToArray();
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
+        var sensors = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction).PassageSensors.ToArray();
         PhysicsBodyReadSet At(float x)
         {
             var position = WorkshopInput.Position((float)(x));
@@ -897,7 +897,7 @@ public sealed class CurrentPuzzleShapeTests
         // The vendored verifier deliberately permits unknown fields. The current
         // game schema must refuse them before interpreting any shifted scalar.
         Assert.True(new Verifier(new ByteBuffer(bytes)).VerifyBuffer(WorkshopSaveCodec.Identifier, true, Wire.SavedConstructionVerify.Verify));
-        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
     }
 }
 
@@ -912,8 +912,8 @@ public sealed class CompoundIdentityRefusalTests
     [InlineData(InvalidEdit.ForeignConnection)]
     public async Task InvalidSceneSizedReferencesRefuseAtomicallyAndThePriorWorldStillRuns(InvalidEdit edit)
     {
-        var first = WorkshopInput.Generic(new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
-        var second = WorkshopInput.Generic(new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1);
+        var first = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
+        var second = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1);
         var tile = PlacedParts.Domino(new(2), -3, 3, 0, 0, 0, 0, 1);
         var valid = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(first, second, tile));
         await using var device = new WorkshopGpuDevice(
@@ -935,10 +935,10 @@ public sealed class CompoundIdentityRefusalTests
         if (edit == InvalidEdit.ExhaustedIdentity)
         {
             Assert.Equal(WorkshopEditRejection.IdentityExhausted,
-                Assert.Throws<WorkshopEditRejectedException>(() => invalid.Validate()).Reason);
-            var edited = valid.WithInstance(((WorkshopGenericInstance)tile) with { Id = new(ulong.MaxValue) });
+                Assert.Throws<WorkshopEditRejectedException>(() => invalid.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle)).Reason);
+            var edited = valid.WithInstance(RuntimeTestServices.Bundle, ((WorkshopGenericInstance)tile) with { Id = new(ulong.MaxValue) });
             Assert.Equal(WorkshopEditRejection.IdentityExhausted,
-                Assert.Throws<WorkshopEditRejectedException>(() => edited.Validate()).Reason);
+                Assert.Throws<WorkshopEditRejectedException>(() => edited.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle)).Reason);
             Assert.Equal(3, valid.Instances.Count);
             Assert.Equal(new ConstructionRevision(2), valid.Revision);
         }
@@ -957,8 +957,8 @@ public sealed class CompoundIdentityRefusalTests
         Assert.Equal(built.Body.Cell, reset.Body.Cell);
         Assert.Equal(built.Body.Local, reset.Body.Local);
         Assert.Equal(built.Rotation, reset.Rotation);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(valid, new(10))));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(valid, new(10))));
         Assert.Equal(valid, loaded.Construction);
         var replay = (await WorkshopIntegrationHarness.Observe(loaded.Construction, 12))[^1];
         Assert.True(replay.Bodies.TryGet(tile.Id, out var repeated));
@@ -975,11 +975,11 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
     [Fact]
     public async Task CommittedVisualTargetsReuseCommonStorageAndGrowAtTheWatermark()
     {
-        var instances = Enumerable.Range(0, 25).Select(index => WorkshopInput.Generic(new PartId("ball"),
+        var instances = Enumerable.Range(0, 25).Select(index => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),
             new GpuBodyId((ulong)index + 1), (float)(index % 5 - 2), 3, (float)(index / 5 - 2), 0, 0, 0, 1)).ToArray();
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(instances.Cast<IWorkshopInstance>().ToArray()));
         var read = (await WorkshopIntegrationHarness.Observe(construction, 1))[^1];
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var root = new Godot.Node3D();
         var parts = instances.Select(instance =>
         {
@@ -1080,7 +1080,7 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
         var physics = new LawWorld(scene, PhysicsGpuAbi.Admission(scene,new(1),new(SimulationCadence.Hz120,PhysicalStepProfile.Canonical480Hz,new(1))),SimulationCadence.Hz120);
         var root = new Godot.Node3D();
         var part = new MachinePart { AuthoredId = owner.Id, Position = new(0,3,0) };
-        part.Configure(new(partId,"Native", "Native fixture",entry.Metadata.Category,new Godot.Color(.5f,.5f,.5f),entry.Metadata.IconPath,null,entry));
+        part.Configure(RuntimeTestServices.Core.Presentation, new(RuntimeTestServices.Bundle, partId,"Native", "Native fixture",entry.Metadata.Category,new Godot.Color(.5f,.5f,.5f),entry.Metadata.IconPath,null,entry));
         var visual = new Godot.Node3D { Name = "Visual" }; part.AddChild(visual);
         var first = new Godot.Node3D { Name = "First", Position = new(-2,0,0) };
         var second = new Godot.Node3D { Name = "Second", Position = new(2,0,0) };

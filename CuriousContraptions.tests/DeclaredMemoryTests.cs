@@ -28,7 +28,7 @@ public sealed class DeclaredMemoryTests
     {
         var counter = PlacedParts.Counter(new(7), 0, 1, 0, 0, 0, 0, 1, target);
         var bench = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(counter));
-        var node = Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray());
+        var node = Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray());
         Assert.Equal(ActivationNodeKind.Counter, node.Kind);
         Assert.Equal((uint)target, node.TargetCount);
         Assert.Equal(counter.Id, node.Owner);
@@ -40,7 +40,7 @@ public sealed class DeclaredMemoryTests
     public void ADeclaredMemoryCompilesOneStateLatchNode()
     {
         var latch = PlacedParts.Latch(new(4), 0, 1, 0, 0, 0, 0, 1);
-        var node = Assert.Single(WorkshopActivationCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), new(latch))).Nodes.ToArray());
+        var node = Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(1), WorkshopCadenceSettings.Default(), new(latch))).Nodes.ToArray());
         Assert.Equal(ActivationNodeKind.StateLatch, node.Kind);
         Assert.Equal(latch.Id, node.Owner);
     }
@@ -55,8 +55,8 @@ public sealed class DeclaredMemoryTests
         public LocalPosition Local => default;
         public CanonicalRotation Rotation => CanonicalRotation.Identity;
         public bool Locked => false;
-        public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId);
-        public void Validate()
+        public IReadOnlyList<ExtractedCollider> DeclaredColliders(CuriousContraptions.Bundle.IBundleServices bundle) => DeclaredPhysics.Colliders(bundle, PartId);
+        public void Validate(CuriousContraptions.Bundle.IBundleServices bundle)
         {
             if (Refuse) throw new ArgumentException("Invalid unfamiliar instance configuration.");
         }
@@ -69,11 +69,11 @@ public sealed class DeclaredMemoryTests
     public void TheInstanceCollectionHasNoTypeWhitelist()
     {
         var unlisted = new UnlistedInstance(new(3));
-        new WorkshopInstances(PlacedParts.Latch(new(1), 0, 1, 0, 0, 0, 0, 1), unlisted).Validate();
+        new WorkshopInstances(PlacedParts.Latch(new(1), 0, 1, 0, 0, 0, 0, 1), unlisted).Validate(RuntimeTestServices.Bundle);
         Assert.Equal("Invalid unfamiliar instance configuration.", Assert.Throws<ArgumentException>(() =>
-            new WorkshopInstances(new UnlistedInstance(new(4), Refuse: true)).Validate()).Message);
+            new WorkshopInstances(new UnlistedInstance(new(4), Refuse: true)).Validate(RuntimeTestServices.Bundle)).Message);
         Assert.Equal("Authored body identities must be unique.", Assert.Throws<ArgumentException>(() =>
-            new WorkshopInstances(unlisted, new UnlistedInstance(new(3))).Validate()).Message);
+            new WorkshopInstances(unlisted, new UnlistedInstance(new(3))).Validate(RuntimeTestServices.Bundle)).Message);
     }
 
     // ---------- saves written by the record path (base fc7f7cac) ----------
@@ -138,7 +138,7 @@ public sealed class DeclaredMemoryTests
     {
         var (save, command) = Bytes(name);
         var rejected = SaveFixture.Refused(WorkshopSaveRejection.OutOfRange,
-            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, save));
+            () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save));
         Assert.False(string.IsNullOrWhiteSpace(rejected.Message));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
         Assert.Equal(WireFaultReason.VerifierRejected, fault.Reason);
@@ -150,7 +150,7 @@ public sealed class DeclaredMemoryTests
     public void ARecordPathParameterlessGenericSaveIsRefusedForItsFieldBeyondTheTable()
     {
         var (save, command) = Bytes("generic_lamp");
-        Assert.Equal(BeyondSave, SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, save)).Message);
+        Assert.Equal(BeyondSave, SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
         Assert.Equal(WireFaultReason.VerifierRejected, fault.Reason);
         Assert.False(string.IsNullOrWhiteSpace(fault.Message));
@@ -167,7 +167,7 @@ public sealed class DeclaredMemoryTests
         var expected = lockedRotated
             ? PlacedParts.Latch(new(1), 2.5f, 3, -1.25f, 0, (float)(Math.Sqrt(.5)), 0, (float)(Math.Sqrt(.5)), locked: true)
             : PlacedParts.Latch(new(1), 0, 3, 0, 0, 0, 0, 1);
-        Assert.Equal(expected, Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, save).Construction.Instances));
+        Assert.Equal(expected, Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save).Construction.Instances));
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
     }
 
@@ -185,10 +185,10 @@ public sealed class DeclaredMemoryTests
     public void AnAuthoredInstanceWithTheDeletedTargetCountKeyIsRefused()
     {
         var refusal = Assert.Throws<InvalidDataException>(() =>
-            AuthoredInstanceReader.Parse(JsonDocument.Parse(CounterContent(withStaleKey: true)).RootElement, "fixture"));
+            AuthoredInstanceReader.Parse(RuntimeTestServices.Bundle, JsonDocument.Parse(CounterContent(withStaleKey: true)).RootElement, "fixture"));
         Assert.Contains("missing or unknown field", refusal.Message, StringComparison.Ordinal);
-        var template = AuthoredInstanceReader.Parse(JsonDocument.Parse(CounterContent(withStaleKey: false)).RootElement, "fixture");
-        var counter = Assert.IsType<WorkshopGenericInstance>(template.Create(new(1), new(1f)));
+        var template = AuthoredInstanceReader.Parse(RuntimeTestServices.Bundle, JsonDocument.Parse(CounterContent(withStaleKey: false)).RootElement, "fixture");
+        var counter = Assert.IsType<WorkshopGenericInstance>(template.Create(RuntimeTestServices.Bundle, new(1), new(1f)));
         Assert.Equal((new PartId("counter"), 3f), (counter.PartId, counter.Parameters[new ParameterId("target_count")]));
     }
 }

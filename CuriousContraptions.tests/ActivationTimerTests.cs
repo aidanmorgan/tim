@@ -5,21 +5,21 @@ namespace CuriousContraptions.Tests;
 
 public sealed class ActivationTimerTests
 {
-    private static (ActivationNetwork Network, PhysicsSceneDeclaration Scene, ContactTriggerRead First, ContactTriggerRead Second) Fixture(bool bypass = false)
+    private static (IActivationProgram Network, IPhysicsSceneDeclaration Scene, ContactTriggerRead First, ContactTriggerRead Second) Fixture(bool bypass = false)
     {
         var instances = new WorkshopInstances(
-            WorkshopInput.Generic(new PartId("ball"),new(1),0,4,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("switch"), new(2),0,2,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1),0,4,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2),0,2,0,0,0,0,1),
             PlacedParts.Lamp(new(3),3,1,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("delay"), new(4), 2, 2, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("switch"), new(5),0,1,0,0,0,0,1));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(4), 2, 2, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(5),0,1,0,0,0,0,1));
         var links = new WorkshopConnections(Link(2,4),Link(5,4),Link(4,3));
         if (bypass) links = links.With(Link(5,3));
         var construction = new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),instances,Connections:links);
-        var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction,new(1,2));
         ContactTriggerRead Event(ulong owner,uint ordinal) => new(instances.Identities[new(owner)].Signals[new("signal")].Trigger,
             new(owner),new(1),1,scene.Colliders.ToArray().First(c=>c.Body.Value==owner).Id,ordinal,0f,new(1f));
-        return (WorkshopActivationCompiler.Compile(construction),scene,Event(2,10),Event(5,20));
+        return (WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction),scene,Event(2,10),Event(5,20));
     }
     private static WorkshopConnection Link(ulong a,ulong b) => new(new(a),PortId.ActivationOut,new(b),PortId.ActivationIn,WorkshopConnectionDomain.Activation);
     private static ActivationLatch Node(PhysicsActivationRead read,ulong id)

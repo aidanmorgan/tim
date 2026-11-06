@@ -1,3 +1,4 @@
+using CuriousContraptions.Bundle;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -9,22 +10,23 @@ namespace CuriousContraptions.Gpu;
 /// <summary>The current authored catalogue. Planned content is indexed but never constructed.</summary>
 public static class PuzzleCatalogue
 {
-    private static readonly Lazy<IReadOnlyDictionary<PuzzleId, PuzzleDefinition>> Definitions = new(Load);
-    public static IReadOnlyList<PuzzleId> Playable => Definitions.Value.Values.OrderBy(value => value.Presentation.Order).Select(value => value.Entry.Id).ToArray();
+    private static IReadOnlyDictionary<PuzzleId, PuzzleDefinition>? _definitions;
+    private static IReadOnlyDictionary<PuzzleId, PuzzleDefinition> Definitions => _definitions ?? throw new InvalidOperationException("Puzzle catalogue is not installed.");
+    public static IReadOnlyList<PuzzleId> Playable => Definitions.Values.OrderBy(value => value.Presentation.Order).Select(value => value.Entry.Id).ToArray();
 
-    public static bool Contains(PuzzleId id) => Definitions.Value.ContainsKey(id);
+    public static bool Contains(PuzzleId id) => Definitions.ContainsKey(id);
 
     internal static PuzzleDefinition Definition(PuzzleId id) =>
-        Definitions.Value.TryGetValue(id, out var definition) ? definition :
+        Definitions.TryGetValue(id, out var definition) ? definition :
             throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Unknown or unavailable puzzle.");
 
     public static PuzzlePresentation Presentation(PuzzleId id) => Definition(id).Presentation;
 
-    public static WorkshopConstruction Create(PuzzleId id, ConstructionRevision revision,
+    public static WorkshopConstruction Create(ISupplyQueries supply, IBundleServices bundle, PuzzleId id, ConstructionRevision revision,
         WorkshopCadenceSettings settings, GpuBodyId first, PuzzlePrecision precision)
     {
         var definition = Definition(id);
-        var instances = definition.CreateInstances(first, precision);
+        var instances = definition.CreateInstances(bundle, first, precision);
         var identities = definition.Placements.Select((row, index) =>
             KeyValuePair.Create(row.Slot, instances[index].Id)).ToDictionary();
         if (!identities.ContainsKey(definition.Goal.Target))
@@ -37,27 +39,27 @@ public static class PuzzleCatalogue
             definition.Primary, definition.Target, definition.Placement,
             InteractionTarget: interactionBody);
         var construction = new WorkshopConstruction(revision, settings, new(instances.ToArray()), puzzle);
-        construction.Validate();
+        construction.Validate(supply, bundle);
         return construction;
     }
 
     /// <summary>The canonical authored solution, using the same instance and connection admission as playable construction.</summary>
-    public static WorkshopConstruction CreateSolution(PuzzleId id, ConstructionRevision revision,
+    public static WorkshopConstruction CreateSolution(ISupplyQueries supply, IBundleServices bundle, PuzzleId id, ConstructionRevision revision,
         WorkshopCadenceSettings settings, GpuBodyId first, PuzzlePrecision precision)
     {
-        var construction = Definition(id).CreateSolution(revision, settings, first, precision);
-        construction.Validate();
+        var construction = Definition(id).CreateSolution(bundle, revision, settings, first, precision);
+        construction.Validate(supply, bundle);
         return construction;
     }
 
-    public static WorkshopConstruction WithInstance(WorkshopConstruction construction, IWorkshopInstance instance)
+    public static WorkshopConstruction WithInstance(IBundleServices bundle, WorkshopConstruction construction, IWorkshopInstance instance)
     {
         if (!construction.Puzzle.Id.IsAuthored)
             return construction with { Instances = construction.Instances.With(instance) };
         var definition = Definition(construction.Puzzle.Id);
         var row = definition.Inventory.SingleOrDefault(row => row.Part == instance.PartId);
         if (row is null) return construction with { Instances = construction.Instances.With(instance) };
-        instance = row.Configure(instance, construction.Puzzle.Precision);
+        instance = row.Configure(bundle, instance, construction.Puzzle.Precision);
         var result = construction with { Instances = construction.Instances.With(instance) };
         if (row.GoalTarget)
             result = result with { Puzzle = result.Puzzle with { Goal = result.Puzzle.Goal with
@@ -65,21 +67,21 @@ public static class PuzzleCatalogue
         return result;
     }
 
-    public static WorkshopConstruction WithPrecision(WorkshopConstruction construction, PuzzlePrecision precision)
+    public static WorkshopConstruction WithPrecision(ISupplyQueries supply, IBundleServices bundle, WorkshopConstruction construction, PuzzlePrecision precision)
     {
         var definition = Definition(construction.Puzzle.Id);
         var sourceIndex = Array.FindIndex(definition.Placements.ToArray(), row => row.Slot == definition.Goal.Source);
         var source = construction.Puzzle.Goal.Body.Value;
-        var fixtures = definition.CreateInstances(new(checked(source - (ulong)sourceIndex)), precision);
+        var fixtures = definition.CreateInstances(bundle, new(checked(source - (ulong)sourceIndex)), precision);
         var result = construction with { Puzzle = construction.Puzzle with { Precision = precision } };
         foreach (var fixture in fixtures) result = result with { Instances = result.Instances.With(fixture) };
         foreach (var instance in result.Instances.ToArray())
-            if (fixtures.All(fixture => fixture.Id != instance.Id)) result = WithInstance(result, instance);
-        result.Validate();
+            if (fixtures.All(fixture => fixture.Id != instance.Id)) result = WithInstance(bundle, result, instance);
+        result.Validate(supply, bundle);
         return result;
     }
 
-    internal static void Validate(WorkshopPuzzle puzzle, WorkshopConstruction construction)
+    internal static void Validate(IBundleServices bundle, WorkshopPuzzle puzzle, WorkshopConstruction construction)
     {
         var definition = Definition(puzzle.Id);
         PhysicsDeclarationBounds.Range(puzzle.Precision.Value, 0f, 1f);
@@ -95,7 +97,7 @@ public static class PuzzleCatalogue
         var source = puzzle.Goal.Body;
         if (source.Value <= (ulong)sourceIndex) Reject(WorkshopEditRejection.FixedPart, "Invalid authored owner range.");
         var first = new GpuBodyId(source.Value - (ulong)sourceIndex);
-        var expected = definition.CreateInstances(first, puzzle.Precision);
+        var expected = definition.CreateInstances(bundle, first, puzzle.Precision);
         var ids = definition.Placements.Select((row, index) =>
             KeyValuePair.Create(row.Slot, expected[index].Id)).ToDictionary();
         if (!ids.ContainsKey(definition.Goal.Target))
@@ -113,7 +115,7 @@ public static class PuzzleCatalogue
                 Reject(WorkshopEditRejection.FixedPart, "Fixed authored declaration changed.");
         }
         var placed = construction.Instances.Where(instance => expected.All(fixture => fixture.Id != instance.Id)).ToArray();
-        ValidateInventory(definition, puzzle.Precision, placed);
+        ValidateInventory(bundle, definition, puzzle.Precision, placed);
         var targetInventory = definition.Inventory.Where(row => row.GoalTarget).ToArray();
         if (targetInventory.Length != 0)
         {
@@ -123,7 +125,7 @@ public static class PuzzleCatalogue
         }
     }
 
-    private static void ValidateInventory(PuzzleDefinition definition, PuzzlePrecision precision, IWorkshopInstance[] placed)
+    private static void ValidateInventory(IBundleServices bundle, PuzzleDefinition definition, PuzzlePrecision precision, IWorkshopInstance[] placed)
     {
         foreach (var instance in placed)
             if (instance.Locked || !definition.Inventory.Any(row => row.Part == instance.PartId))
@@ -131,7 +133,7 @@ public static class PuzzleCatalogue
         foreach (var instance in placed)
         {
             var row = definition.Inventory.Single(row => row.Part == instance.PartId);
-            if (!instance.Equals(row.Configure(instance, precision)))
+            if (!instance.Equals(row.Configure(bundle, instance, precision)))
                 Reject(WorkshopEditRejection.PuzzleSettings, "Authored inventory assistance changed.");
         }
         foreach (var row in definition.Inventory)
@@ -142,21 +144,21 @@ public static class PuzzleCatalogue
     private static void Reject(WorkshopEditRejection reason, string message) =>
         throw new WorkshopEditRejectedException(reason, message);
 
-    private static Dictionary<PuzzleId, PuzzleDefinition> Load()
+    public static void Install(ICoreServices core, IBundleServices bundle)
     {
         using var stream = typeof(PuzzleCatalogue).Assembly.GetManifestResourceStream("CuriousContraptions.Puzzles.json")
             ?? throw new InvalidDataException("Missing authored puzzle resource.");
         using var reader = new StreamReader(stream);
-        return ReadDefinitions(reader.ReadToEnd());
+        _definitions = ReadDefinitions(core, bundle, reader.ReadToEnd()).ToImmutableDictionary();
     }
 
-    internal static Dictionary<PuzzleId, PuzzleDefinition> ReadDefinitions(string json)
+    internal static Dictionary<PuzzleId, PuzzleDefinition> ReadDefinitions(ICoreServices core, IBundleServices bundle, string json)
     {
         var entries = PuzzleContentReader.ReadIndex(json);
         var definitions = new Dictionary<PuzzleId, PuzzleDefinition>(16);
         foreach (var entry in entries.Where(entry => entry.Availability == PuzzleAvailability.Playable))
         {
-            try { definitions.Add(entry.Id, PuzzleDefinitionReader.Parse(entry)); }
+            try { definitions.Add(entry.Id, PuzzleDefinitionReader.Parse(core, bundle, entry)); }
             catch (Exception error) when (error is ArgumentException or InvalidOperationException or KeyNotFoundException or FormatException or OverflowException or WireFaultException)
             {
                 throw PuzzleContentReader.Invalid(entry.Id.Value, "declaration", error.Message);

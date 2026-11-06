@@ -27,18 +27,18 @@ public sealed class DeclaredOrientationTests
         var half = 15 * Math.PI / 180;
         var tile = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, (float)(Math.Sin(half)), 0, (float)(Math.Cos(half))));
         var bench = Bench([tile, PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(tile.Id, new(2)));
-        var sensor = Assert.Single(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).OrientationSensors.ToArray());
+        var sensor = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)).OrientationSensors.ToArray());
         Assert.Equal((bench.Instances.Identities[tile.Id].Signals[new("signal")].Orientation, tile.Id, tile.Rotation), (sensor.Id, sensor.Body, sensor.Initial));
         Assert.NotEqual(CanonicalRotation.Identity, sensor.Initial);
         // The Domino's declared 45° compiles to the f32 cosine of 22.5°, rounded once from its exact value.
         Assert.InRange(MathF.Abs((float)Math.Cos(Math.PI / 8) - sensor.Threshold.CosineHalfAngle), 0, 1e-6f); // Pure half-angle mathematical contract.
-        var node = Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), row => row.Owner == tile.Id);
+        var node = Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray(), row => row.Owner == tile.Id);
         Assert.Equal((ActivationNodeKind.OrientationSource, new GpuOrientationSensorId(sensor.Id.Value)), (node.Kind, node.Sensor));
 
-        var hit = WorkshopInput.Generic(new PartId("switch"), new(3), -3, 1, 0, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(3), -3, 1, 0, 0, 0, 0, 1);
         var control = Bench([hit, PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(hit.Id, new(2)));
-        Assert.Empty(WorkshopPhysicsCompiler.Compile(control, new(1, 2)).OrientationSensors.ToArray());
-        Assert.Equal(ActivationNodeKind.ContactSource, Assert.Single(WorkshopActivationCompiler.Compile(control).Nodes.ToArray(), row => row.Owner == hit.Id).Kind);
+        Assert.Empty(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, control, new(1, 2)).OrientationSensors.ToArray());
+        Assert.Equal(ActivationNodeKind.ContactSource, Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, control).Nodes.ToArray(), row => row.Owner == hit.Id).Kind);
     }
 
     // The helper compiles any admitted declaration to the f32 cosine of its own half angle: the threshold is read from the
@@ -54,7 +54,7 @@ public sealed class DeclaredOrientationTests
             {
                 Signal = entry.Signal! with { Nodes = [new SignalOrientationDescriptor(new("signal"), new(0), degrees)] }
             }]);
-            var sensor = Assert.Single(WorkshopPhysicsCompiler.Compile(Bench([tile]), new(1, 2)).OrientationSensors.ToArray());
+            var sensor = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench([tile]), new(1, 2)).OrientationSensors.ToArray());
             Assert.InRange(MathF.Abs((float)Math.Cos(degrees * Math.PI / 360) - sensor.Threshold.CosineHalfAngle), 0, 1e-6f);
         }
         Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees(MathF.BitDecrement(4f)));
@@ -96,7 +96,7 @@ public sealed class DeclaredOrientationTests
             "clock" => (Convert.FromBase64String(ClockSave), Convert.FromBase64String(ClockCommand)),
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
-        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
+        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes));
         Assert.Equal(command, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes)).Reason);
     }
 
@@ -107,7 +107,7 @@ public sealed class DeclaredOrientationTests
         var commandBytes = Convert.FromBase64String(PipeCommand);
         // Historical scalar length is not a current declared parameter; the authored command envelope is also unsupported.
         Assert.Equal("This save cannot be loaded: Invalid declared parameters.",
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes)).Message);
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.Equal(WireFaultReason.VerifierRejected, fault.Reason);
     }
@@ -124,7 +124,7 @@ public sealed class DeclaredOrientationTests
     public void ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(string name)
     {
         var record = OldLayoutSaves.PreDominoRecords().Single(value => value.Name == name);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, record.Save()));
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, record.Save()));
         Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(record.Command())).Reason);
     }
 
@@ -137,10 +137,10 @@ public sealed class DeclaredOrientationTests
         // slot 8 is the first undefined slot (stated here, not read from the rule's own constant).
         var layout = new OldLayoutSaves.Layout(9, 7, 16, 2);
         OldLayoutSaves.Slot[] extra = [new(8, 1f)];
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", extra)));
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", extra)));
         Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() =>
             WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "domino", extra))).Reason);
-        Assert.Equal(new PartId("domino"), Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", [])).Construction.Instances).PartId);
+        Assert.Equal(new PartId("domino"), Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", [])).Construction.Instances).PartId);
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "domino", [])));
     }
 
@@ -151,14 +151,14 @@ public sealed class DeclaredOrientationTests
     public void CurrentRecordsHoldNothingBeyondTheTableAndTheWalkReachesTheGeneratedInstances()
     {
         var bench = Bench([PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("ramp"), new(3), -3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("pipe"),new(4), 6, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(3), -3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(4), 6, 1, 0, 0, 0, 0, 1),
             PlacedParts.Counter(new(5), -6, 1, 0, 0, 0, 0, 1, 3)]);
-        var save = WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(9)));
+        var save = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(bench, new(9)));
         var command = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(bench),
             Session: new(1, 2), Cadence: new(1), Projection: new(1)));
-        Assert.Equal(bench, WorkshopSaveCodec.Decode(SaveFixture.Elements, save).Construction);
+        Assert.Equal(bench, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save).Construction);
         Assert.Equal(bench.Instances.Select(instance => instance.Id), WorkshopWireFlatBuffers.DecodeCommand(command).Scene!.Owners);
-        var saved = WorkshopSaveCodec.Open(save);
+        var saved = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, save);
         Assert.False(WorkshopAuthoringFlatBuffers.HoldsFieldBeyondTheInstanceTable(saved.ByteBuffer, WorkshopAuthoringFlatBuffers.SavedConstructionSlot));
         var bb = saved.ByteBuffer;
         var root = new Google.FlatBuffers.Table(bb.GetInt(bb.Position) + bb.Position, bb);
@@ -184,7 +184,7 @@ public sealed class DeclaredOrientationTests
         var bench = Bench([PlacedParts.Domino(new(7), 0, (float)(Upright), 0, 0, 0, 0, 1), PlacedParts.Domino(new(5), 2, (float)(Upright), 0, 0, 0, 0, 1),
                 PlacedParts.Domino(new(3), 4, (float)(Upright), 0, 0, 0, 0, 1), PlacedParts.Lamp(new(9), 6, 1, 0, 0, 0, 0, 1)],
             Signal(new(7), new(9)), Signal(new(3), new(9)));
-        Assert.Equal([new GpuBodyId(3), new GpuBodyId(5), new GpuBodyId(7)], WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).OrientationSensors.ToArray().Select(sensor => sensor.Body));
-        Assert.Contains(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), node => node.Owner == new GpuBodyId(5));
+        Assert.Equal([new GpuBodyId(3), new GpuBodyId(5), new GpuBodyId(7)], WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)).OrientationSensors.ToArray().Select(sensor => sensor.Body));
+        Assert.Contains(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray(), node => node.Owner == new GpuBodyId(5));
     }
 }

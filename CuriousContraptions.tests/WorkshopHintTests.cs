@@ -32,6 +32,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
     private Workshop Scene()
     {
         var scene = GD.Load<PackedScene>("res://scenes/workshop.tscn").Instantiate<Workshop>();
+        scene.StartObservation = _ => Task.CompletedTask; // Explicit native stand-in for browser registration.
         _client = new HintReadClient();
         scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(_client);
         godot.Tree.Root.AddChild(scene);
@@ -216,20 +217,20 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         var label = new Label { Modulate = new Color(.2f, .4f, .6f, .9f) };
         try
         {
-            Assert.Throws<ArgumentException>(() => new WorkshopUiBinding(WorkshopUiTarget.None, label));
-            var goal = new WorkshopUiBinding(WorkshopUiTarget.Goal, label);
+            Assert.Throws<ArgumentException>(() => new WorkshopUiBinding(RuntimeTestServices.Core.UiCurves, WorkshopUiTarget.None, label));
+            var goal = new WorkshopUiBinding(RuntimeTestServices.Core.UiCurves, WorkshopUiTarget.Goal, label);
             Assert.Equal(WorkshopUiTarget.Goal, goal.Target);
             goal.ApplyNeutral();
             Assert.Equal(new Color(.2f, .4f, .6f, 0), label.Modulate);
             goal.Apply(new((float).5));
             Assert.Equal(new Color(.2f, .4f, .6f, .5f), label.Modulate);
-            new WorkshopUiBinding(WorkshopUiTarget.Hint, label).ApplyNeutral();
+            new WorkshopUiBinding(RuntimeTestServices.Core.UiCurves, WorkshopUiTarget.Hint, label).ApplyNeutral();
             Assert.Equal(new Color(.2f, .4f, .6f, 1), label.Modulate);
-            Assert.Equal(new AnimationTargetId(1), UiCurves.Hint.AnimationTarget);
-            Assert.Equal(new AnimationTargetId(ulong.MaxValue), UiCurves.Goal.AnimationTarget);
-            Assert.Throws<ArgumentException>(() => (UiCurves.Hint with { Duration = (float)0 }).Validate());
-            Assert.Throws<ArgumentException>(() => (UiCurves.Goal with { Neutral = (float)1.5 }).Validate());
-            Assert.Throws<ArgumentException>(() => (UiCurves.Goal with { Target = WorkshopUiTarget.None }).Validate());
+            Assert.Equal(new AnimationTargetId(1), RuntimeTestServices.Core.UiCurves.Hint.AnimationTarget);
+            Assert.Equal(new AnimationTargetId(ulong.MaxValue), RuntimeTestServices.Core.UiCurves.Goal.AnimationTarget);
+            Assert.Throws<ArgumentException>(() => (RuntimeTestServices.Core.UiCurves.Hint with { Duration = (float)0 }).Validate());
+            Assert.Throws<ArgumentException>(() => (RuntimeTestServices.Core.UiCurves.Goal with { Neutral = (float)1.5 }).Validate());
+            Assert.Throws<ArgumentException>(() => (RuntimeTestServices.Core.UiCurves.Goal with { Target = WorkshopUiTarget.None }).Validate());
         }
         finally { label.Free(); }
     }

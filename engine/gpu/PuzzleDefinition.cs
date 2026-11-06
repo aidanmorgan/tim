@@ -1,3 +1,4 @@
+using CuriousContraptions.Bundle;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -16,9 +17,9 @@ internal readonly record struct AuthoredConnection(AuthoredSlot Source, PortId O
 internal sealed record AuthoredInventory(PartId Part, int Count, AssistanceProfile Assistance,
     bool GoalTarget, AuthoredInstanceTemplate? Configuration)
 {
-    internal IWorkshopInstance Configure(IWorkshopInstance instance, PuzzlePrecision precision) =>
+    internal IWorkshopInstance Configure(IBundleServices bundle, IWorkshopInstance instance, PuzzlePrecision precision) =>
         Configuration is { } template ? (template with
-        { Cell = instance.Cell, Local = instance.Local, Rotation = instance.Rotation, Locked = instance.Locked }).Create(instance.Id, precision) : instance;
+        { Cell = instance.Cell, Local = instance.Local, Rotation = instance.Rotation, Locked = instance.Locked }).Create(bundle, instance.Id, precision) : instance;
 }
 internal readonly record struct AuthoredGoal(WorkshopGoalKind Kind, AuthoredSlot Source,
     AuthoredSlot Target, float MinimumSeconds, SignalNodeId SourceNode, SignalNodeId TargetNode);
@@ -29,12 +30,12 @@ internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
     AssistanceProfile Target, AssistanceProfile Placement, AssistanceProfile Secondary,
     AuthoredSlot? InteractionTarget = null)
 {
-    internal ImmutableArray<IWorkshopInstance> CreateInstances(GpuBodyId first, PuzzlePrecision precision)
+    internal ImmutableArray<IWorkshopInstance> CreateInstances(IBundleServices bundle, GpuBodyId first, PuzzlePrecision precision)
     {
         if (first.Value == 0) throw new ArgumentException("An authored identity range must start above zero.");
         var result = ImmutableArray.CreateBuilder<IWorkshopInstance>(Placements.Length);
         for (var i = 0; i < Placements.Length; i++)
-            result.Add(Placements[i].Instance.Create(new(checked(first.Value + (uint)i)), precision));
+            result.Add(Placements[i].Instance.Create(bundle, new(checked(first.Value + (uint)i)), precision));
         return result.ToImmutable();
     }
 
@@ -54,11 +55,11 @@ internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
         return goal;
     }
 
-    internal WorkshopConstruction CreateSolution(ConstructionRevision revision, WorkshopCadenceSettings settings,
+    internal WorkshopConstruction CreateSolution(IBundleServices bundle, ConstructionRevision revision, WorkshopCadenceSettings settings,
         GpuBodyId first, PuzzlePrecision precision)
     {
         var rows = Placements.Concat(Solution).ToArray();
-        var instances = rows.Select((row, index) => row.Instance.Create(new(checked(first.Value + (ulong)index)), precision)).ToArray();
+        var instances = rows.Select((row, index) => row.Instance.Create(bundle, new(checked(first.Value + (ulong)index)), precision)).ToArray();
         var ids = rows.Select((row, index) => KeyValuePair.Create(row.Slot, instances[index].Id)).ToDictionary();
         var inventory = Inventory[0];
         var interactionBody = InteractionTarget is { } targetSlot && ids.TryGetValue(targetSlot, out var targetBody)
@@ -91,7 +92,7 @@ internal static class PuzzleDefinitionReader
             throw PuzzleContentReader.Invalid(where, "goal", "missing local signal node");
     }
 
-    internal static PuzzleDefinition Parse(PuzzleContentEntry entry)
+    internal static PuzzleDefinition Parse(ICoreServices core, IBundleServices bundle, PuzzleContentEntry entry)
     {
         if (entry.Availability != PuzzleAvailability.Playable)
             throw PuzzleContentReader.Invalid(entry.Id.Value, "availability", "puzzle is not playable");
@@ -117,14 +118,14 @@ internal static class PuzzleDefinitionReader
             AuthoredInstanceReader.Require(values, where, "slot", "instance");
             var slot = new AuthoredSlot(PuzzleContentReader.Text(values, "slot", where));
             if (!slots.Add(slot)) throw PuzzleContentReader.Invalid(where, "slot", "duplicate placement slot");
-            placements.Add(new(slot, AuthoredInstanceReader.Parse(values["instance"], where + "." + slot.Value)));
+            placements.Add(new(slot, AuthoredInstanceReader.Parse(bundle, values["instance"], where + "." + slot.Value)));
         }
         if (placements.Count == 0) throw PuzzleContentReader.Invalid(where, "placements", "empty fixed layout");
         if (interactionTarget is { } authoredTarget && !slots.Contains(authoredTarget))
             throw PuzzleContentReader.Invalid(where, "interaction_target", "unknown placement slot");
-        var inventory = ParseInventory(fields["inventory"], where);
+        var inventory = ParseInventory(bundle, fields["inventory"], where);
         var goal = ParseGoal(fields["goal"], slots, placements, inventory, where);
-        var solution = ParseSolution(fields["solution"], slots, placements, inventory, goal, where);
+        var solution = ParseSolution(bundle, fields["solution"], slots, placements, inventory, goal, where);
         var connections = ImmutableArray.CreateBuilder<AuthoredConnection>();
         foreach (var row in AuthoredInstanceReader.Rows(fields["solution_connections"], where))
         {
@@ -157,9 +158,9 @@ internal static class PuzzleDefinitionReader
             AuthoredInstanceReader.Profile(profiles["placement"], where),
             AuthoredInstanceReader.Profile(profiles["secondary"], where),
             interactionTarget);
-        var complete = definition.CreateSolution(new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
-        complete.Instances.Validate();
-        complete.Connections.Validate(complete.Instances);
+        var complete = definition.CreateSolution(bundle, new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
+        complete.Instances.Validate(bundle);
+        complete.Connections.Validate(core.Supply, complete.Instances);
         if (goal.Kind == WorkshopGoalKind.Captured)
         {
             if (!complete.Instances.Identities.TryCapture(complete.Puzzle.Goal.Target, complete.Puzzle.Goal.Body, out _))
@@ -168,7 +169,7 @@ internal static class PuzzleDefinitionReader
         else
         {
             // Validate node ownership through the production compiler without consulting the catalogue being loaded.
-            var nodes = WorkshopActivationCompiler.Compile(complete with { Puzzle = default }).Nodes.ToArray();
+            var nodes = WorkshopActivationCompiler.Compile(core, bundle, complete with { Puzzle = default }).Nodes.ToArray();
             if (!nodes.Any(node => node.Id == complete.Instances.Identities[complete.Puzzle.Goal.Body].Signals[complete.Puzzle.Goal.SourceNode].Node) ||
                 !nodes.Any(node => node.Id == complete.Instances.Identities[complete.Puzzle.Goal.Target].Signals[complete.Puzzle.Goal.TargetNode].Node))
                 throw PuzzleContentReader.Invalid(where, "goal", "owners do not declare activation nodes");
@@ -176,7 +177,7 @@ internal static class PuzzleDefinitionReader
         return definition;
     }
 
-    private static ImmutableArray<AuthoredInventory>.Builder ParseInventory(JsonElement rows, string where)
+    private static ImmutableArray<AuthoredInventory>.Builder ParseInventory(IBundleServices bundle, JsonElement rows, string where)
     {
         var inventory = ImmutableArray.CreateBuilder<AuthoredInventory>();
         var parts = new HashSet<PartId>(16);
@@ -189,7 +190,7 @@ internal static class PuzzleDefinitionReader
             if (!DeclaredPhysics.Contains(part) || !parts.Add(part) || count <= 0)
                 throw PuzzleContentReader.Invalid(where, "inventory", "unknown, duplicate or nonpositive allowance");
             var configuration = values["configuration"].ValueKind == JsonValueKind.Null ? null :
-                AuthoredInstanceReader.Parse(values["configuration"], where + ".inventory.configuration");
+                AuthoredInstanceReader.Parse(bundle, values["configuration"], where + ".inventory.configuration");
             if (configuration is not null && (configuration.Part != part || configuration.Locked))
                 throw PuzzleContentReader.Invalid(where, "inventory.configuration", "foreign or locked inventory template");
             inventory.Add(new(part, count, AuthoredInstanceReader.Profile(values["assistance"], where),
@@ -225,7 +226,7 @@ internal static class PuzzleDefinitionReader
         return goal;
     }
 
-    private static ImmutableArray<AuthoredPlacement>.Builder ParseSolution(JsonElement rows, HashSet<AuthoredSlot> slots,
+    private static ImmutableArray<AuthoredPlacement>.Builder ParseSolution(IBundleServices bundle, JsonElement rows, HashSet<AuthoredSlot> slots,
         IReadOnlyList<AuthoredPlacement> placements, IReadOnlyList<AuthoredInventory> inventory, AuthoredGoal goal, string where)
     {
         var solution = ImmutableArray.CreateBuilder<AuthoredPlacement>();
@@ -236,7 +237,7 @@ internal static class PuzzleDefinitionReader
             AuthoredInstanceReader.Require(values, where, "slot", "instance");
             var slot = new AuthoredSlot(PuzzleContentReader.Text(values, "slot", where));
             if (!slots.Add(slot)) throw PuzzleContentReader.Invalid(where, "slot", "duplicate solution or fixture slot");
-            var instance = AuthoredInstanceReader.Parse(values["instance"], where + "." + slot.Value);
+            var instance = AuthoredInstanceReader.Parse(bundle, values["instance"], where + "." + slot.Value);
             var allowance = inventory.SingleOrDefault(item => item.Part == instance.Part);
             uses.TryGetValue(instance.Part, out var used);
             if (instance.Locked || allowance is null || used >= allowance.Count)
@@ -246,8 +247,8 @@ internal static class PuzzleDefinitionReader
                 throw PuzzleContentReader.Invalid(where, "solution", "incorrect goal target slot");
             foreach (var precision in new[] { 0f, .45f, 1f })
             {
-                var created = instance.Create(new(1), new(precision));
-                if (!created.Equals(allowance.Configure(created, new(precision))))
+                var created = instance.Create(bundle, new(1), new(precision));
+                if (!created.Equals(allowance.Configure(bundle, created, new(precision))))
                     throw PuzzleContentReader.Invalid(where, "solution", "inventory configuration differs");
             }
             solution.Add(new(slot, instance));

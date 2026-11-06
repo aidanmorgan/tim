@@ -30,7 +30,8 @@ public interface IWorkshopObservation
 /// <summary>Owned by the managed client; publication happens only after its normal admission succeeds.</summary>
 internal sealed class WorkshopObservation : IWorkshopObservation
 {
-    private readonly WorkshopDiagnostics _diagnostics;
+    private readonly IWorkshopDiagnostics _diagnostics;
+    private readonly ICoreServices _core;
     private readonly List<WorkshopCommandReceipt> _receipts = new(32);
     private readonly HashSet<CommandSequence> _received = new(32);
     private readonly Dictionary<ulong, int> _events = new(4);
@@ -49,18 +50,18 @@ internal sealed class WorkshopObservation : IWorkshopObservation
     private WorkshopObservationTerminal? _terminal;
     public WorkshopObservationTerminal? Terminal => _terminal;
 
-    public WorkshopObservation(RuntimeSessionId session, WorkshopDiagnostics diagnostics)
+    public WorkshopObservation(ICoreServices core, RuntimeSessionId session, IWorkshopDiagnostics diagnostics)
     {
-        session.Validate(); Session = session; _diagnostics = diagnostics;
+        session.Validate(); _core = core; Session = session; _diagnostics = diagnostics;
         diagnostics.BecameIncomplete += Retire;
         if (diagnostics.Incomplete is { } detail) Retire(detail);
     }
 
-    internal static WorkshopObservation Begin(WorkshopDiagnostics diagnostics)
+    internal static WorkshopObservation Begin(ICoreServices core, IWorkshopDiagnostics diagnostics)
     {
         Span<byte> bytes = stackalloc byte[16];
         System.Security.Cryptography.RandomNumberGenerator.Fill(bytes);
-        return new(RuntimeSessionId.Read(bytes), diagnostics);
+        return new(core, core.Codecs.Sessions.Read(bytes), diagnostics);
     }
 
     internal void BindEvents(Func<int> open, Func<int, SimulationEpoch, byte[]> read, Action<int> close)
@@ -176,7 +177,7 @@ internal sealed class WorkshopObservation : IWorkshopObservation
         if (refusal != WorkshopObservationRefusal.None) return new(refusal, default);
         if (!Enum.IsDefined(query)) return new(WorkshopObservationRefusal.UnknownQuery, default);
         return _committed is null ? new(WorkshopObservationRefusal.NotCommitted, default)
-            : new(WorkshopObservationRefusal.None, WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(_committed.Value)));
+            : new(WorkshopObservationRefusal.None, _core.Codecs.Commands.DecodeResponse(_core.Codecs.Commands.EncodeResponse(_committed.Value)));
     }
 
     public WorkshopObservationResult<WorkshopCommandReceipt[]> Receipts(RuntimeSessionId session, WorkshopObservationOrdinal after)

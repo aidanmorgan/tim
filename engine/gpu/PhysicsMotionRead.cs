@@ -8,7 +8,7 @@ public enum PhysicsMotionKind : uint { FreePolynomial = 1, SupportedQuadratic = 
 
 /// <summary>Immutable GPU-authored render trajectory for exactly one complete physical commit. Every lane is a named offset and every
 /// game value an IEEE-754 f32 (Story 9A.44); the physical frequency is a U32.</summary>
-public sealed class PhysicsMotionRead
+public sealed class PhysicsMotionRead : IPhysicsMotionRead
 {
     /// <summary>One piece per substep: room for the largest admitted substep count per tick (structural, not a population).</summary>
     public const int PiecesPerBody = 8;

@@ -20,7 +20,7 @@ public sealed class PlacementPoseTests
         // The quarter bend's lowest geometry is its end stub at -1.787056,
         // not a reflected copy of the arc above its revolution origin. At y=1.4
         // its bottom is -0.387056, inside the -0.46 bench by less than one grid step.
-        var pose = PlacementPose.Compose(Definitions(), [], new(new PartId("pipe_bend_90"), new(1), false),
+        var pose = RuntimeTestServices.Placement.Compose(Definitions(), [], new(new PartId("pipe_bend_90"), new(1), false),
             new Vector3(0, y, 0), Quaternion.Identity);
         Assert.Null(pose.Snap);
         Assert.Equal(outside ? PlacementRefusal.OutsideBench : PlacementRefusal.None, pose.Refusal);
@@ -36,8 +36,8 @@ public sealed class PlacementPoseTests
         var end = TubeMouthSnap.LocalMouth(definitions[new PartId("pipe")], TubeMouthEnd.End, InstanceParameterCollection.Defaults(new("pipe")));
         var target = new Vector3(0, y, 0);
         var pipeAt = target + start - end;
-        IWorkshopInstance[] placed = [WorkshopInput.Generic(new PartId("pipe"),new(1), (float)(pipeAt.X), (float)(pipeAt.Y), (float)(pipeAt.Z), 0, 0, 0, 1)];
-        var pose = PlacementPose.Compose(definitions, placed, new(new PartId("pipe_bend_90"), new(2), false), target, Quaternion.Identity);
+        IWorkshopInstance[] placed = [WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(1), (float)(pipeAt.X), (float)(pipeAt.Y), (float)(pipeAt.Z), 0, 0, 0, 1)];
+        var pose = RuntimeTestServices.Placement.Compose(definitions, placed, new(new PartId("pipe_bend_90"), new(2), false), target, Quaternion.Identity);
         Assert.NotNull(pose.Snap);
         Assert.InRange((pose.Position - target).Length(), 0, 1e-5f);
         Assert.Equal(outside ? PlacementRefusal.SnapOutsideBench : PlacementRefusal.None, pose.Refusal);
@@ -71,10 +71,10 @@ public sealed class PlacementPoseTests
         };
         var turn = payload == HollowPayload.Cylinder ? new Quaternion(Vector3.Back, -MathF.PI / 2) : Quaternion.Identity;
         if (tilted) turn = new Quaternion(Vector3.Forward, MathF.PI / 4) * turn;
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),new(1), 0, 3, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(1), 0, 3, 0, 0, 0, 0, 1);
         IWorkshopInstance[] placed = [pipe];
         var at = new Vector3(0, 3 + offset, 0);
-        var pose = PlacementPose.Compose(definitions, placed, new(part, new(2), false), at, turn);
+        var pose = RuntimeTestServices.Placement.Compose(definitions, placed, new(part, new(2), false), at, turn);
         Assert.Equal(overlaps ? PlacementRefusal.IntoPart : PlacementRefusal.None, pose.Refusal);
         Assert.Equal(at.Snapped(Vector3.One * .1f), pose.Position);
         Assert.Single(placed); // a rejected preview never changes the authored list
@@ -104,7 +104,7 @@ public sealed class PlacementPoseTests
 
     private static IReadOnlyDictionary<PartId, PartDefinition> Definitions()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
         return registry.Definitions;
     }
@@ -120,7 +120,7 @@ public sealed class PlacementPoseTests
     private static (Vector3 Position, Quaternion Rotation) Composed(IReadOnlyDictionary<PartId, PartDefinition> definitions,
         IReadOnlyList<IWorkshopInstance> placed, TubeMouthMover mover, Vector3 at, Quaternion rotation)
     {
-        var composed = PlacementPose.Compose(definitions, placed, mover, at, rotation);
+        var composed = RuntimeTestServices.Placement.Compose(definitions, placed, mover, at, rotation);
         Assert.Equal(PlacementRefusal.None, composed.Refusal);
         return (composed.Position, composed.Rotation);
     }
@@ -128,7 +128,7 @@ public sealed class PlacementPoseTests
     private static WorkshopGenericInstance At(PartId part, ulong id, Vector3 position, Quaternion rotation, InstanceParameterCollection? parameters = null)
     {
         var q = rotation.Normalized();
-        return WorkshopInput.Generic(part, new(id), (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), parameters);
+        return WorkshopInput.Generic(RuntimeTestServices.Bundle, part, new(id), (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), parameters);
     }
 
     // A Domino dropped into the plate (its centre at the plate origin height, straddling the face) rests with its foot on the face:
@@ -185,7 +185,7 @@ public sealed class PlacementPoseTests
     public async Task DominoesPlacedOnAPlateFromThePaletteOpenTheGateOnlyWhenTheySum(int dominoes, bool opens)
     {
         var definitions = Definitions();
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var plate = PlacedParts.Plate(new(3), -4, (float)(PlateY), 0, .5f);
         var placed = new List<IWorkshopInstance> { gate, battery, plate };
@@ -252,7 +252,7 @@ public sealed class PlacementPoseTests
             ("ball in a bend tilted -135°", [At(new PartId("pipe_bend_90"), 1, new(0, 3, 0), new Quaternion(Vector3.Back, Mathf.DegToRad(-135)))],
                 new(new PartId("ball"), new(2), false), new(0, 3, 0), Quaternion.Identity),
         };
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),new(1), 0, 1, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(1), 0, 1, 0, 0, 0, 0, 1);
         var mouth = TubeMouthSnap.LocalMouth(definitions[new PartId("pipe")], TubeMouthEnd.End, InstanceParameterCollection.Defaults(new("pipe")));
         var pipeMover = new TubeMouthMover(new PartId("pipe"), new(2), false, InstanceParameterCollection.Defaults(new("pipe")));
         var pipeAt = new Vector3(0, 1, 0) + mouth + new Vector3(1.9f, .05f, 0);
@@ -275,7 +275,7 @@ public sealed class PlacementPoseTests
         foreach (var (height, refusal) in new[] { (8.9f, PlacementRefusal.RestOutsideBench), (7.5f, PlacementRefusal.None) })
         {
             IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, (float)(height), 0, .5f)];
-            var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, height, 0), Quaternion.Identity);
+            var composed = RuntimeTestServices.Placement.Compose(definitions, placed, new(part, new(2), false), new(0, height, 0), Quaternion.Identity);
             Assert.Equal(refusal, composed.Refusal);
             Assert.True(MathF.Abs(composed.Position.Y - (height + (part == new PartId("domino") ? .084f + .018f : .08f) + halfHeight)) < 1e-4f, $"{part} at {height}: {composed.Position.Y}");
         }
@@ -297,7 +297,7 @@ public sealed class PlacementPoseTests
             foreach (var (part, origin, top) in new[] { (WeightTests.Weight, plate + .084f + .018f, plate + .084f + .018f + 2 * h), (new PartId("ball"), face + .34f, face + .68f),
                          (new PartId("domino"), plate + .084f + .018f + .55f, plate + .084f + .018f + 1.1f) })
             {
-                var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, plate, 0), Quaternion.Identity);
+                var composed = RuntimeTestServices.Placement.Compose(definitions, placed, new(part, new(2), false), new(0, plate, 0), Quaternion.Identity);
                 Assert.True(refusal == composed.Refusal, $"{part} on the plate at {plate} m (top {top} m): {composed.Refusal}");
                 Assert.True(MathF.Abs(composed.Position.Y - origin) < 1e-4f, $"{part} on the plate at {plate} m: origin {composed.Position.Y}");
             }
@@ -320,10 +320,10 @@ public sealed class PlacementPoseTests
         foreach (var (distance, refusal) in new[] { (.9, PlacementRefusal.IntoPart), (1.05, PlacementRefusal.None) })
         {
             IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, .5f),
-                WorkshopInput.Generic(new PartId("bumper"), new(3), (float)(distance), (float)(face + h), 0, 0, 0, 0, 1)];
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(3), (float)(distance), (float)(face + h), 0, 0, 0, 0, 1)];
             foreach (var part in new[] { WeightTests.Weight, new PartId("ball") })
             {
-                var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
+                var composed = RuntimeTestServices.Placement.Compose(definitions, placed, new(part, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
                 Assert.True(refusal == composed.Refusal, $"{part} with the Bumper {distance} m away: {composed.Refusal}");
             }
         }
@@ -342,10 +342,10 @@ public sealed class PlacementPoseTests
         var face = PlateY + .08f;
         foreach (var (rise, refusal) in new[] { (0f, PlacementRefusal.None), (.45f, PlacementRefusal.IntoPart) })
         {
-            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, .5f), WorkshopInput.Generic(new PartId("pipe"),new(3), 0, (float)(face + .34f + rise), 0, 0, 0, 0, 1)];
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, .5f), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(3), 0, (float)(face + .34f + rise), 0, 0, 0, 0, 1)];
             foreach (var part in new[] { new PartId("ball"), WeightTests.Weight })
             {
-                var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
+                var composed = RuntimeTestServices.Placement.Compose(definitions, placed, new(part, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
                 Assert.True(refusal == composed.Refusal, $"{part} with the pipe's axis {rise} m above the ball's rest: {composed.Refusal}");
             }
         }
@@ -372,7 +372,7 @@ public sealed class PlacementPoseTests
             Assert.True(PlacementPose.Inside(at), $"{at} is inside the point volume");
             foreach (var (part, refusal) in new[] { (WeightTests.Weight, weight), (new PartId("ball"), ball), (new PartId("domino"), box) })
             {
-                var composed = PlacementPose.Compose(definitions, [], new(part, new(2), false), at, Quaternion.Identity);
+                var composed = RuntimeTestServices.Placement.Compose(definitions, [], new(part, new(2), false), at, Quaternion.Identity);
                 Assert.True(refusal == composed.Refusal, $"{part} at {at}: {composed.Refusal}");
                 Assert.Equal(at.Snapped(Vector3.One * .1f), composed.Position);
             }
@@ -402,7 +402,7 @@ public sealed class PlacementPoseTests
             (new PartId("pressure_plate"), new Vector3(0, 2, -2.8f), Quaternion.Identity, PlacementRefusal.None)
         })
         {
-            var composed = PlacementPose.Compose(definitions, [], new(part, new(2), false), at, rotation);
+            var composed = RuntimeTestServices.Placement.Compose(definitions, [], new(part, new(2), false), at, rotation);
             Assert.True(refusal == composed.Refusal, $"the {part} at {at}: {composed.Refusal}");
         }
     }
@@ -420,10 +420,10 @@ public sealed class PlacementPoseTests
         var mover = new TubeMouthMover(new PartId("pipe"), new(2), false, InstanceParameterCollection.Defaults(new("pipe")));
         foreach (var (x, refusal) in new[] { (3f, PlacementRefusal.SnapOutsideBench), (-3f, PlacementRefusal.None) })
         {
-            IWorkshopInstance[] placed = [WorkshopInput.Generic(new PartId("pipe"),new(1), (float)(x), 1, 0, 0, 0, 0, 1)];
+            IWorkshopInstance[] placed = [WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(1), (float)(x), 1, 0, 0, 0, 0, 1)];
             var at = new Vector3(x, 1, 0) + mouth + new Vector3(1.9f, .05f, 0);
             Assert.True(PlacementPose.Inside(at), $"the drop point {at} is inside the point volume");
-            var composed = PlacementPose.Compose(definitions, placed, mover, at, Quaternion.Identity);
+            var composed = RuntimeTestServices.Placement.Compose(definitions, placed, mover, at, Quaternion.Identity);
             Assert.NotNull(composed.Snap);
             var joined = composed.Snap.Value;
             Assert.Equal((joined.Position, joined.Rotation), (composed.Position, composed.Rotation));
@@ -437,7 +437,7 @@ public sealed class PlacementPoseTests
     [Fact]
     public void EachPlacementRefusalHasItsOwnStatusText()
     {
-        var world = new MachineWorld();
+        var world = RuntimeTestServices.CreateWorld();
         try
         {
             var before = world.Construction;
@@ -467,10 +467,10 @@ public sealed class PlacementPoseTests
         var mover = new TubeMouthMover(new PartId("ball"), new(2), false);
         // The .7m initial centre overlaps only the plate base. Its owner's upper face is resolved,
         // raising the sphere to1.08+.34; the wall begins at1.6 and blocks that final pose.
-        var refused = PlacementPose.Compose(definitions, [plate, overhead], mover, new(0, .7f, 0), Quaternion.Identity);
+        var refused = RuntimeTestServices.Placement.Compose(definitions, [plate, overhead], mover, new(0, .7f, 0), Quaternion.Identity);
         Assert.Equal(PlacementRefusal.IntoPart, refused.Refusal);
         Assert.True(MathF.Abs(refused.Position.Y - (1.08f + .34f)) < 1e-4f);
-        var admitted = PlacementPose.Compose(definitions, [plate], mover, new(0, .7f, 0), Quaternion.Identity);
+        var admitted = RuntimeTestServices.Placement.Compose(definitions, [plate], mover, new(0, .7f, 0), Quaternion.Identity);
         Assert.Equal(PlacementRefusal.None, admitted.Refusal);
         Assert.True(MathF.Abs(admitted.Position.Y - (1.08f + .34f)) < 1e-4f);
     }
@@ -485,7 +485,7 @@ public sealed class PlacementPoseTests
         var plate = At(new PartId("pressure_plate"), 1, new(2, 1, -1), q);
         var distant = At(new PartId("wall"), 3, new(-4, 5, 0), Quaternion.Identity, WallFixture.Values(1, 2, 1));
         IWorkshopInstance[] placed = reverse ? [distant, plate] : [plate, distant];
-        var result = PlacementPose.Compose(Definitions(), placed, new(new PartId("domino"), new(2), false), new(2, 1, -1), q);
+        var result = RuntimeTestServices.Placement.Compose(Definitions(), placed, new(new PartId("domino"), new(2), false), new(2, 1, -1), q);
         Assert.Equal(PlacementRefusal.None, result.Refusal);
         Assert.Equal((2f, -1f), (result.Position.X, result.Position.Z));
         Assert.InRange(MathF.Abs(result.Position.Y - (1f + .084f + .018f + .55f)), 0, 1e-5f);
@@ -548,10 +548,10 @@ public sealed class PlacementPoseTests
         var definitions = Definitions();
         IWorkshopInstance[] placed = [At(new PartId("switch"), 1, new(0, 1, 0), Quaternion.Identity)];
         var mover = new TubeMouthMover(new PartId("ball"), new(2), false);
-        var inside = PlacementPose.Compose(definitions, placed, mover, new(.3f, 1.1f, .2f), Quaternion.Identity);
+        var inside = RuntimeTestServices.Placement.Compose(definitions, placed, mover, new(.3f, 1.1f, .2f), Quaternion.Identity);
         Assert.Equal(PlacementRefusal.None, inside.Refusal);
         Assert.True(MathF.Abs(inside.Position.Y - (1f + .15f + .34f)) < 1e-5f, $"inside the disc it rests at {inside.Position.Y}");
-        var corner = PlacementPose.Compose(definitions, placed, mover, new(.3f, 1.1f, .3f), Quaternion.Identity);
+        var corner = RuntimeTestServices.Placement.Compose(definitions, placed, mover, new(.3f, 1.1f, .3f), Quaternion.Identity);
         var radialGap = MathF.Sqrt(.3f * .3f + .3f * .3f) - .38f;
         var cornerHeight = 1f + .15f + MathF.Sqrt(.34f * .34f - radialGap * radialGap);
         Assert.True(MathF.Abs(corner.Position.Y - cornerHeight) < 1e-5f, $"outside the disc it rests at {corner.Position.Y}");
@@ -591,7 +591,7 @@ public sealed class PlacementPoseTests
         var edge = fraction * r;
         IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, .5f),
             At(new PartId("wall"), 3, new(edge + .2f, face + h, edge + .06f), Quaternion.Identity, WallFixture.Values(.4f, .4f, .12f))];
-        var composed = PlacementPose.Compose(definitions, placed, new(WeightTests.Weight, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
+        var composed = RuntimeTestServices.Placement.Compose(definitions, placed, new(WeightTests.Weight, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
         Assert.True(MathF.Abs(composed.Position.Y - RingTop) < 1e-5f, $"the Weight rests at {composed.Position.Y}, not on the face {face}");
         Assert.Equal(refusal, composed.Refusal);
     }

@@ -11,7 +11,7 @@ const clockRing = await import(pathToFileURL('CuriousContraptions.web/wwwroot/cl
 import { EventRingMemory } from '../../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
 
 interface Posted {
-    ready?: boolean; read?: Uint8Array; readIdentity?: Uint8Array; acknowledgement?: Uint8Array; sequence?: Uint8Array;
+    awaitingBootstrap?: boolean; ready?: boolean; read?: Uint8Array; readIdentity?: Uint8Array; acknowledgement?: Uint8Array; sequence?: Uint8Array;
     failure?: boolean; rejected?: boolean; detail?: string; clockReply?: Uint8Array; scheduleControl?: Uint8Array;
 }
 
@@ -101,6 +101,7 @@ async function loadWorker(host: Partial<ManagedHost>, additionalGlobals: Record<
     let imports: ManagedImports | undefined;
     const master = clockMaster();
     const messages: Posted[] = [];
+    let closed = 0;
     let signalReady!: () => void;
     const ready = new Promise<void>(resolve => { signalReady = resolve; });
     const intervals = new Map<number, () => void>(); let nextInterval = 0;
@@ -112,7 +113,7 @@ async function loadWorker(host: Partial<ManagedHost>, additionalGlobals: Record<
     const self: { onmessage: (event: { data: unknown }) => Promise<void>; postMessage(message: Posted, transfer?: Transferable[]): void; close(): void } = {
         onmessage: async () => { throw new Error('Worker has not installed its message handler.'); },
         postMessage: (message, transfer = []) => { messages.push(structuredClone(message, { transfer })); if (message.ready) signalReady(); },
-        close: () => {}
+        close: () => { closed++; }
     };
     const context = vm.createContext({ self, Uint8Array, Float64Array, ArrayBuffer, DataView,
         MessagePort, MessageChannel: HarnessMessageChannel, console, setTimeout, clearTimeout, Promise, Error, URL, SharedArrayBuffer, Atomics: master.atomics, performance,
@@ -140,7 +141,7 @@ async function loadWorker(host: Partial<ManagedHost>, additionalGlobals: Record<
         throw Error('Unexpected worker import');
     });
     await module.evaluate();
-    return { self, messages, master, ready, tick: () => { for (const callback of intervals.values()) callback(); }, get imports() { assert.ok(imports); return imports; } };
+    return { self, messages, master, ready, get closed() { return closed; }, tick: () => { for (const callback of intervals.values()) callback(); }, get imports() { assert.ok(imports); return imports; } };
 }
 
 // Story 9A.3: the worker refuses every envelope no handler owns through the managed typed rejection, which names its keys
@@ -157,14 +158,17 @@ const receiptIdentity = (bytes: Uint8Array) => {
 for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation, receipts, queued terminal, output failure, retired envelopes and disposal`,
     async () => {
     let flushes = 0, preparations = 0, throwOutput = false;
+    let initialized = false, bootstrapped = false;
     let release!: () => void, releasePreparation!: () => void;
     const receipts: ReturnType<typeof receiptIdentity>[] = [], rejectedEnvelopes: (string[] | string)[] = [], logged: string[] = [];
     const derivation = derivationHost();
     const host = {
         ...derivation,
         ...envelopeRejections(rejectedEnvelopes),
-        ScheduleRoles: () => [1, 2],
-        CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
+        InitializeHost: () => { assert.equal(initialized, false); initialized = true; },
+        ScheduleRoles: () => { assert.equal(initialized, true); return [1, 2]; },
+        CaptureMode: () => { assert.equal(initialized, true); assert.equal(bootstrapped, false); return captureMode; },
+        Bootstrap: () => { assert.equal(initialized, true); bootstrapped = true; return new Uint8Array(16); },
         AnimationPeer: () => new Uint8Array(64),
         PrepareGpu: () => { preparations++; return new Promise<void>(resolve => { releasePreparation = resolve; }); },
         Dispatch: async () => { await new Promise<void>(resolve => { release = resolve; }); },
@@ -309,12 +313,49 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
         'retiredEnvelopesRejected', 'dispose'] }));
 });
 
+test('host provider refusal closes owned startup channels without registering handlers or readiness', async () => {
+    let initialized = 0, scheduled = 0, bootstrapped = 0;
+    const turns = manualTurns();
+    const host = {
+        InitializeHost: () => { initialized++; throw new Error('Core: ProviderUnavailable'); },
+        ScheduleRoles: () => { scheduled++; return [1, 2]; },
+        Bootstrap: () => { bootstrapped++; return new Uint8Array(16); }
+    };
+    const boundary = await loadWorker(host, turns.globals);
+    assert.equal(initialized, 1);
+    assert.equal(scheduled, 0);
+    assert.equal(bootstrapped, 0);
+    assert.equal(boundary.closed, 1);
+    assert.deepEqual(turns.closed.sort(), ['port1', 'port2']);
+    assert.equal(boundary.messages.filter(message => message.awaitingBootstrap || message.ready).length, 0);
+    assert.equal(boundary.messages.filter(message => message.failure).length, 1);
+    assert.match(boundary.messages.find(message => message.failure)!.detail!, /Core: ProviderUnavailable/);
+    await assert.rejects(boundary.self.onmessage({ data: {} }), /Worker has not installed its message handler/);
+});
+
+test('capture metadata mismatch refuses before session bootstrap', async () => {
+    let initialized = 0, captures = 0, bootstrapped = 0;
+    const host = {
+        InitializeHost: () => { initialized++; },
+        ScheduleRoles: () => [1, 2],
+        CaptureMode: () => { assert.equal(initialized, 1); captures++; return 1; },
+        Bootstrap: () => { bootstrapped++; return new Uint8Array(16); }
+    };
+    const boundary = await loadWorker(host);
+    await boundary.self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode: 2,
+        clockRing: clockRing.createClockRing(), poseRing: new SharedArrayBuffer(3 * (16 + 16 * 64)) } });
+    assert.equal(captures, 1);
+    assert.equal(bootstrapped, 0);
+    assert.equal(boundary.messages.filter(message => message.ready).length, 0);
+    assert.match(boundary.messages.find(message => message.failure)!.detail!, /capture modes differ/);
+});
+
 // A slow clock master: a running check it does not answer within the shared budget is counted as missed, never a failure. The
 // session keeps beating and checking, and once the master serves the stale request, the next check consumes that late answer
 // unread and completes on its own exchange.
 test('a slow clock master costs counted missed checks, never a failure, and the session continues', async () => {
     const derivation = derivationHost();
-    const host = { ...derivation, ScheduleRoles: () => [1, 2], CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
+    const host = { ...derivation, InitializeHost: () => {}, ScheduleRoles: () => [1, 2], CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
         AnimationPeer: () => new Uint8Array(64), PrepareGpu: () => new Promise<void>(() => {}) };
     const boundary = await loadWorker(host);
     const { self, messages, master } = boundary;
@@ -343,7 +384,7 @@ test('a slow clock master costs counted missed checks, never a failure, and the 
 test('a receipt the managed ledger refuses is a failure and retires the session', async () => {
     const forwarded: ReturnType<typeof receiptIdentity>[] = [];
     const host = {
-        ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
+        InitializeHost: () => {}, ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
         AcknowledgeRead: (receipt: Uint8Array) => {
             forwarded.push(receiptIdentity(receipt));
             if (forwarded.length === 2) throw new Error('ReadReceiptRejectedException: Publication 1 is receipted, but publication 1 is already retired.');
@@ -370,7 +411,7 @@ test('a receipt the managed ledger refuses is a failure and retires the session'
 test('the memory query travels the command transport and a third outstanding command is refused', async () => {
     const dispatched: { length: number; first: number }[] = [], rejected: (string[] | string)[] = [], releases: (() => void)[] = [];
     const host = {
-        ScheduleRoles: () => [1, 2], ...envelopeRejections(rejected),
+        InitializeHost: () => {}, ScheduleRoles: () => [1, 2], ...envelopeRejections(rejected),
         Dispatch: async (bytes: Uint8Array) => { dispatched.push({ length: bytes.length, first: bytes[0] }); await new Promise<void>(resolve => { releases.push(resolve); }); }
     };
     const { self, messages, imports } = await loadWorker(host);
@@ -396,7 +437,7 @@ for (const control of [StartupControl.Reject, StartupControl.DisposeThenReject])
     let rejectPreparation!: (error: Error) => void;
     const host = {
         ...derivationHost(),
-        ScheduleRoles: () => [1, 2],
+        InitializeHost: () => {}, ScheduleRoles: () => [1, 2],
         CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
         AnimationPeer: () => new Uint8Array(64),
         PrepareGpu: () => new Promise<void>((_, reject) => { rejectPreparation = reject; })
@@ -419,7 +460,7 @@ for (const control of [StartupControl.Reject, StartupControl.DisposeThenReject])
 // refuses its exact framed shape; only a non-buffer envelope is the transport's own rejection.
 test('every byte buffer reaches the one managed decoder', async () => {
     let dispatched = 0;
-    const host = { ScheduleRoles: () => [1, 2], ...envelopeRejections([]), Dispatch: async () => { dispatched++; } };
+    const host = { InitializeHost: () => {}, ScheduleRoles: () => [1, 2], ...envelopeRejections([]), Dispatch: async () => { dispatched++; } };
     const { self, messages } = await loadWorker(host);
     for (const width of [0, 7, 72, 70000]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
     assert.equal(dispatched, 4);
@@ -481,7 +522,7 @@ function manualTurns() {
 test('a scheduler turn that cannot resume is a failure envelope', async () => {
     const resumed: number[] = [];
     const host = {
-        ScheduleRoles: () => [1, 2],
+        InitializeHost: () => {}, ScheduleRoles: () => [1, 2],
         ResumeTurn: (turn: number) => { resumed.push(turn); if (turn === 7) throw new Error('Scheduler turn 7 was never requested.'); }
     };
     const turns = manualTurns();
@@ -496,7 +537,7 @@ test('a scheduler turn that cannot resume is a failure envelope', async () => {
 });
 test('disposal cancels the timed and the queued scheduler turn', async () => {
     const resumed: number[] = [];
-    const host = { ScheduleRoles: () => [1, 2], ResumeTurn: (turn: number) => resumed.push(turn) };
+    const host = { InitializeHost: () => {}, ScheduleRoles: () => [1, 2], ResumeTurn: (turn: number) => resumed.push(turn) };
     // Manual timers and turn channel: disposal must cancel the timed turn and close the channel, not merely rely on the
     // disposed guard (reviewer mutation: delete the cleanup and only the guard remains).
     const turns = manualTurns();
@@ -519,7 +560,7 @@ test('disposal cancels the timed and the queued scheduler turn', async () => {
 test('a mixed envelope is rejected atomically', async () => {
     let dispatches = 0, receipts = 0, schedules = 0;
     const host = {
-        ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
+        InitializeHost: () => {}, ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
         Dispatch: async () => { dispatches++; },
         AcknowledgeRead: () => { receipts++; },
         ScheduleResult: () => { schedules++; }

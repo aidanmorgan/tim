@@ -24,7 +24,7 @@ public sealed class DeclaredOscillatorTests
     public void TheDeclaredOscillatorCompilesItsExactNode(bool supplied)
     {
         var bench = Bench(2.5f, supplied);
-        var node = Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray());
+        var node = Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray());
         Assert.Equal(new ActivationNodeDeclaration(bench.Instances.Identities[Owner].Signals[new("signal")].Node, Owner, ActivationNodeKind.Oscillator, default, 0, default, default, 0, 300,
             supplied ? Source : default), node);
     }
@@ -42,8 +42,8 @@ public sealed class DeclaredOscillatorTests
             new(PlacedParts.Battery(first, -6, 3, 0), PlacedParts.Battery(second, -6, 6, 0), PlacedParts.Latch(latch, -3, 3, 0, 0, 0, 0, 1),
                 PlacedParts.Clock(clock, 0, 3, 0, 0, 0, 0, 1, 1f)),
             Connections: twoBatteries ? new(Wire(first, latch), Wire(second, latch), Wire(latch, clock)) : new(Wire(first, latch), Wire(latch, clock)));
-        bench.Validate();
-        Assert.Equal(latch, Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), node => node.Owner == clock).PowerProvider);
+        bench.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        Assert.Equal(latch, Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray(), node => node.Owner == clock).PowerProvider);
     }
 
     private static byte[] Save(IReadOnlyList<(string Key, float Value)> parameters) => PayloadInstanceTests.GenericSave("clock", parameters);
@@ -65,12 +65,12 @@ public sealed class DeclaredOscillatorTests
         Assert.True(seconds is not (.1f or 12f));
         var bytes = Save([("interval_seconds", seconds)]);
         SaveFixture.Refused(float.IsFinite(seconds) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite,
-            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
-        var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+            () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
+        var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value;
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
         foreach (var admitted in new[] { .1f, 12f })
         {
-            var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
                 Save([("interval_seconds", admitted)])).Construction.Instances));
             Assert.Equal(BitConverter.SingleToUInt32Bits(admitted), BitConverter.SingleToUInt32Bits(loaded.Parameters[new("interval_seconds")]));
         }
@@ -91,8 +91,8 @@ public sealed class DeclaredOscillatorTests
             _ => throw new ArgumentOutOfRangeException(nameof(shape))
         };
         var bytes = Save(parameters);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
-        var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
+        var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value;
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
     }
 
@@ -148,7 +148,7 @@ public sealed class DeclaredOscillatorTests
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
-        Assert.False(string.IsNullOrWhiteSpace(SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes)).Message));
+        Assert.False(string.IsNullOrWhiteSpace(SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.Equal(WireFaultReason.VerifierRejected, fault.Reason);
         Assert.False(string.IsNullOrWhiteSpace(fault.Message));
@@ -171,7 +171,7 @@ public sealed class DeclaredOscillatorTests
     {
         var layout = new OldLayoutSaves.Layout(10, 9, 48, 11);
         OldLayoutSaves.Slot[] slots = [new(8, Unsigned: target)];
-        Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, OldLayoutSaves.Save(layout, "counter", slots)));
+        Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, OldLayoutSaves.Save(layout, "counter", slots)));
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "counter", slots)));
     }
 }

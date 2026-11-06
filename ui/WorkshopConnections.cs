@@ -160,10 +160,10 @@ public partial class Workshop
         {
             if (add && link.Domain == WorkshopConnectionDomain.Rope)
             {
-                link = CuriousContraptions.Gpu.WorkshopConnections.MeasureRope(World.Construction.Instances, link.Source, link.Target);
+                link = CuriousContraptions.Gpu.WorkshopConnections.MeasureRope(_core.Supply, World.Construction.Instances, link.Source, link.Target, link.Output, link.Input);
             }
             var next = World.Construction with { Connections = add ? World.Construction.Connections.With(link) : World.Construction.Connections.Without(link) };
-            next.Validate(); PushUndo();
+            next.Validate(_core.Supply, _bundle); PushUndo();
             if (!await SubmitConstruction(next)) { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
             if (_workshopUiRemoved) return;
             _linkSource = null; RefreshConnectionChoices(); RefreshConnectionArtwork(World.WorkshopRead.Presentation.Ropes);
@@ -219,7 +219,7 @@ public partial class Workshop
             var start = new Vector3(committed.AttachmentA.X, committed.AttachmentA.Y, committed.AttachmentA.Z);
             var end = new Vector3(committed.AttachmentB.X, committed.AttachmentB.Y, committed.AttachmentB.Z);
             var state = committed.State;
-            var points = RopeGeometry.Evaluate(committed.AttachmentA, committed.AttachmentB, committed.MaximumLength, state);
+            var points = _core.Geometry.EvaluateRope(committed.AttachmentA, committed.AttachmentB, committed.MaximumLength, state);
             for (var i = 1; i < points.Length; i++)
                 DrawConnectionSegment(_connectionArtwork, ref segmentCount, new(points[i - 1].X, points[i - 1].Y, points[i - 1].Z),
                     new(points[i].X, points[i].Y, points[i].Z), new("#d69c47"), .025f, state != RopeState.Open || i % 2 == 1);

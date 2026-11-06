@@ -115,7 +115,7 @@ public sealed class PortLocatorTests
     [Fact]
     public void ADuplicatePortIdIsRefused() =>
         Assert.Equal(["BUNDLE014 FixturePorts.Ports[1].Id: PowerIn is declared more than once"],
-            PackageValidator.Validate([new("FixturePorts", new Fixture { Ports = [PowerIn(Vector3.Zero), PowerIn(Vector3.UnitX)] })])
+            PackageValidator.Validate(new CuriousContraptions.Bundle.BundleServices(), [new("FixturePorts", new Fixture { Ports = [PowerIn(Vector3.Zero), PowerIn(Vector3.UnitX)] })])
                 .Select(error => error.ToString()));
 
     [Fact]
@@ -123,7 +123,7 @@ public sealed class PortLocatorTests
     {
         PortDescriptor Port(SimulationDomain domain, PortSignalKind? signal) =>
             new(PortId.ActivationOut, domain, PortDirection.Output, PortRole.ActivationOut, signal, Vector3.Zero, Vector3.UnitY);
-        Assert.Empty(PackageValidator.Validate([new("Fixture", new SignalFixture
+        Assert.Empty(PackageValidator.Validate(new CuriousContraptions.Bundle.BundleServices(), [new("Fixture", new SignalFixture
         {
             Ports = [Port(SimulationDomain.Signal, PortSignalKind.Level)],
             SignalNodes = [new SignalMemoryDescriptor(new("memory"))],
@@ -131,15 +131,15 @@ public sealed class PortLocatorTests
         })]));
         Assert.Equal(["BUNDLE015 FixtureSignal.Ports[0].Signal: a Signal port declares its signal kind and no other port does",
             "BUNDLE006 fixture.Signal.Missing"],
-            PackageValidator.Validate([new("FixtureSignal", new Fixture { Ports = [Port(SimulationDomain.Signal, null)] })]).Select(error => error.ToString()));
+            PackageValidator.Validate(new CuriousContraptions.Bundle.BundleServices(), [new("FixtureSignal", new Fixture { Ports = [Port(SimulationDomain.Signal, null)] })]).Select(error => error.ToString()));
         Assert.Equal(["BUNDLE015 FixtureSignal.Ports[0].Signal: a Signal port declares its signal kind and no other port does"],
-            PackageValidator.Validate([new("FixtureSignal", new Fixture { Ports = [Port(SimulationDomain.Electrical, PortSignalKind.Level)] })])
+            PackageValidator.Validate(new CuriousContraptions.Bundle.BundleServices(), [new("FixtureSignal", new Fixture { Ports = [Port(SimulationDomain.Electrical, PortSignalKind.Level)] })])
                 .Select(error => error.ToString()));
     }
 
     [Fact]
     public void AnUndefinedRoleIsRefused() =>
         Assert.Equal(["BUNDLE003 FixtureSocket.Ports[0].Role: undefined enum value"],
-            PackageValidator.Validate([new("FixtureSocket", new Fixture { Ports = [PowerIn(Vector3.Zero) with { Role = (PortRole)99 }] })])
+            PackageValidator.Validate(new CuriousContraptions.Bundle.BundleServices(), [new("FixtureSocket", new Fixture { Ports = [PowerIn(Vector3.Zero) with { Role = (PortRole)99 }] })])
                 .Select(error => error.ToString()));
 }

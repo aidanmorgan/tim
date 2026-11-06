@@ -57,7 +57,7 @@ public sealed class WorkshopGpuDeviceTests
     {
         public void Abort(CommandSequence owner) { }
         public void Retire() { }
-        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopCompiledScene construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase) => ValueTask.CompletedTask;
+        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, ICompiledScene construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase) => ValueTask.CompletedTask;
     }
     private static readonly PhysicsDocumentId Document = new(101, 206);
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
@@ -246,10 +246,10 @@ public sealed class WorkshopGpuDeviceTests
         var transport = new InvalidReadTransport();
         await using var device = new WorkshopGpuDevice(transport, Document);
         var construction = new WorkshopConstruction(new(1), Settings, new(
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1),
             PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("delay"), new(4), -3, 1, 0, 0, 0, 0, 1)), Connections: new(new WorkshopConnection(
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(4), -3, 1, 0, 0, 0, 0, 1)), Connections: new(new WorkshopConnection(
                 new(2), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var first = await device.Admit(CompiledSceneFixture.Compile(construction), new(1), Profile, new(1));
         device.Commit(first.Sequence); device.Discard(first.Sequence);
@@ -306,14 +306,14 @@ public sealed class WorkshopGpuDeviceTests
         var construction = new WorkshopConstruction(new(1), Settings, new(battery, clock, counter), Connections: new(
             new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
             new WorkshopConnection(clock.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var admitted = await device.Admit(CompiledSceneFixture.Compile(construction), new(1), Profile, new(1));
         Assert.Equal(network.ClearMemory().Count, admitted.Read.Memory.Count);
         Assert.Equal(OscillatorPhase.Stopped, network.Memory(admitted.Read.Memory, SignalTestNodes.Only(network, clock.Id)).Phase);
         Assert.Equal(0U, network.Memory(admitted.Read.Memory, SignalTestNodes.Only(network, counter.Id)).Count);
         device.Commit(admitted.Sequence); device.Discard(admitted.Sequence);
 
-        var controls = WorkshopTickControls.For(admitted.Read, []);
+        var controls = TickControlComposition.For(admitted.Read, []);
         var committedWorld = (byte[])transport.Record.Clone();
         var superseded = await device.Advance(admitted.Read, new(2), controls);
         Assert.Equal(OscillatorPhase.Running, network.Memory(superseded.Read.Memory, SignalTestNodes.Only(network, clock.Id)).Phase);
@@ -340,7 +340,7 @@ public sealed class WorkshopGpuDeviceTests
         await using (var borrower = new WorkshopSimulation(device, new ResetClock(), CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), new ResetInstallation(), GpuDeviceOwnership.Borrowed))
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Initialize()).Outcome);
-            var construction = new WorkshopConstruction(new(2), Settings, new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1)));
+            var construction = new WorkshopConstruction(new(2), Settings, new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1)));
             Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Construct(CompiledSceneFixture.Compile(construction))).Outcome);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Run()).Outcome);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Reset()).Outcome);

@@ -17,7 +17,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void PartRegistry_DiscoversPressurePlateDefinitionAndConfiguresInstance()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(new PartId("pressure_plate")));
@@ -120,19 +120,19 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var plate = PlacedParts.Plate(new(1), 0, 0, 0, .5f);
         var battery = PlacedParts.Battery(new(2), 2, 0, 0);
-        var switchPart = WorkshopInput.Generic(new PartId("switch"), new(3), -2, 0, 0, 0, 0, 0, 1);
+        var switchPart = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(3), -2, 0, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(plate, battery, switchPart);
 
         // Valid electrical connection from battery Supply to plate PowerIn
         var validConn = new WorkshopConnection(battery.Id, PortId.Supply, plate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var validConnections = new WorkshopConnections(validConn);
-        validConnections.Validate(instances);
+        validConnections.Validate(RuntimeTestServices.Core.Supply, instances);
 
         // Invalid: Activation connection to plate PowerIn must be rejected
         var invalidConn = new WorkshopConnection(switchPart.Id, PortId.ActivationOut, plate.Id, PortId.PowerIn, WorkshopConnectionDomain.Activation);
         var invalidConnections = new WorkshopConnections(invalidConn);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => invalidConnections.Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => invalidConnections.Validate(RuntimeTestServices.Core.Supply, instances));
     }
 
     // Decision (h): the declared minimum_mass admits [0.1, 16] kg inclusively; the next f32 beyond either end, a non-finite or a
@@ -264,9 +264,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
         var plate = PlacedParts.Plate(new(2), 0, 0, 0, .5f);
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(3), 2, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(3), 2, 0, 0, 0, 0, 0, 1);
         var heavy = PlacedParts.Plate(new(4), 0, 0, 4, 2f);
-        var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new([battery, plate, gate, heavy]), Connections: new([Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)])), new(1, 1));
 
         Assert.Equal(10, scene.Colliders.ToArray().Count(c => c.Body == plate.Id));
@@ -292,7 +292,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public void PhysicsAbi_AdmitsEachRowAsF32WithAnEmptyCommittedState()
     {
         var plate = PlacedParts.Plate(new(2), 0, 0, 0, .3f);
-        var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([plate])), new(1, 1));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([plate])), new(1, 1));
         var world = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         Assert.Equal(1, PhysicsGpuAbi.ReadContactLoadCount(world));
         var declaration = PhysicsGpuAbi.ReadContactLoadDeclaration(world, 0);
@@ -326,7 +326,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var sensor = Assert.Single(decoded.Physics.ContactLoadSensors.ToArray());
         Assert.Equal(plate.Id, sensor.Frame);
         Assert.Equal(minimumMass, sensor.MinimumMass);
-        var authored = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(11))));
+        var authored = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(construction, new(11))));
         Assert.Equal(plate, Assert.Single(authored.Construction.Instances));
     }
 
@@ -335,10 +335,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var plate = PlacedParts.Plate(new(1), 0, 0, 0, .5f);
         IWorkshopInstance[] instances = [plate];
-        new WorkshopInstances([.. instances]).Validate();
+        new WorkshopInstances([.. instances]).Validate(RuntimeTestServices.Bundle);
 
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
-        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+        var world = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(plate)), new(1, 2)).World;
         Assert.Equal(1 + 1, world.Bodies);
         Assert.Equal(0, world.Dynamic);
@@ -362,12 +362,12 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     private static readonly double Face = PlateY + .08;
 
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
-        WorkshopInput.Generic(new PartId("powered_gate"), new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Battery(ulong id, double z) =>
         PlacedParts.Battery(new(id), 3, (float)(GateHeight), (float)(z), enabled: ElectricalEnable.Enabled);
     private static IWorkshopInstance Plate(ulong id, double x, double z, float minimum) =>
         PlacedParts.Plate(new(id), (float)(x), (float)(PlateY), (float)(z), (float)(minimum));
-    private static WorkshopGenericInstance BallOn(ulong id, double x, double z) => WorkshopInput.Generic(new PartId("ball"),new(id), (float)(x), (float)(Face + .35), (float)(z), 0, 0, 0, 1);
+    private static WorkshopGenericInstance BallOn(ulong id, double x, double z) => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(id), (float)(x), (float)(Face + .35), (float)(z), 0, 0, 0, 1);
     private static IWorkshopInstance StandingOn(ulong id, double x, double z) => PlacedParts.Domino(new(id), (float)(x), (float)(Face + .574), (float)(z), 0, 0, 0, 1);
     /// <summary>A Domino lying on its broad face (1.1 m along x, 0.65 m along z, 0.25 m tall) with its underside at <paramref name="under"/>.</summary>
     private static IWorkshopInstance FlatOn(ulong id, double x, double under, double z) =>
@@ -413,8 +413,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         {
             // AC7 (Murdoch-10 B1): the non-default 2.0 kg is saved and loaded through the real save codec, reloads bit for bit,
             // and the reloaded construction is what runs.
-            var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(7)))).Construction;
-            var reloadedRow = Assert.Single(WorkshopPhysicsCompiler.Compile(reloaded, new(1, 2)).ContactLoadSensors.ToArray());
+            var reloaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(bench, new(7)))).Construction;
+            var reloadedRow = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, reloaded, new(1, 2)).ContactLoadSensors.ToArray());
             Assert.Equal((plate.Id, BitConverter.SingleToUInt32Bits(2f)), (reloadedRow.Frame, BitConverter.SingleToUInt32Bits(reloadedRow.MinimumMass)));
             bench = reloaded;
         }
@@ -431,7 +431,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, .5f);
         var bench = Bench([gate, battery, plate, BallOn(4, -4, 0)], Circuit(battery, plate, gate));
-        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2));
         var face = scene.Colliders.ToArray().Single(collider => collider.Id == Assert.Single(scene.ContactLoadSensors.ToArray()).Region);
         Assert.Equal((Gpu.ColliderShapeKind.Box, new MetreVector(0f, .03f, 0f), new MetreVector(.9f, .05f, .9f)),
             (face.Shape, face.Pose.Translation, face.HalfExtents));
@@ -507,7 +507,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         // that old ball pose. A declared solid panel retains the intended static
         // support control, with the same 1.8 m footprint and top height as the face.
         const float height = .4f;
-        var impostor = WorkshopInput.Generic(new PartId("wall"), new(4), -4, (float)(Face - height / 2), 3, 0, 0, 0, 1,
+        var impostor = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(4), -4, (float)(Face - height / 2), 3, 0, 0, 0, 1,
             new([new(new("width"), 1.8f), new(new("height"), height), new(new("thickness"), 1.8f)]));
         var reads = await RunBench(Bench([gate, battery, plate, impostor, BallOn(5, -4, 3)], Circuit(battery, plate, gate)));
         Assert.True(reads[^1].Bodies.TryGet(new(5), out var ball));
@@ -530,7 +530,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         // tube .018 and ball union reach .35 give the conservative contact
         // height .084+sqrt((.35+.018)^2-.1^2)=.4382 m; .448 m clears it.
         var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .368f, 0), rotation);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new(4), (float)(-4 + drop.X), (float)(plateHeight + drop.Y), (float)(drop.Z), 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(4), (float)(-4 + drop.X), (float)(plateHeight + drop.Y), (float)(drop.Z), 0, 0, 0, 1);
         var lamp = LampAt(5);
         var reads = await RunBench(Bench([gate, battery, plate, ball, lamp], [.. Circuit(battery, plate, gate), Signal(plate.Id, lamp.Id)]), 4 * 120);
         int resting = 0, off = 0, held = 0, released = 0; ulong? lastQualifying = null;
@@ -577,15 +577,15 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, .5f);
         var construction = Bench([gate, battery, plate], Circuit(battery, plate, gate));
-        var network = WorkshopActivationCompiler.Compile(construction);
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         Assert.Equal(ActivationNodeKind.ContactLoadSource, Assert.Single(network.Nodes.ToArray(), node => node.Owner == plate.Id).Kind);
         var row = Assert.Single(scene.ContactLoadSensors.ToArray());
         var prismatic=Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate.Id);
         var state = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
         ActivationCheckpoint Step(ulong tick, ContactLoadPhase phase, float mass) => network.Consume(state.Activations, state.Timers, [],
             new(tick), [], memory: state.Memory, contactLoads: [new(row.Id, row.Frame, row.Region, mass, phase)]);
-        bool Next(ActivationCheckpoint committed) => PhysicsTickInputs.Compose(scene.SupplyGraph,
+        bool Next(ActivationCheckpoint committed) => TickControlComposition.Compose(scene.SupplyGraph,
             new([ElectricalEnable.Enabled]), owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner), PlacedParts.InitialElectrical(scene)).SupplyClosed[prismatic];
         ActivationLatch Level(ActivationCheckpoint committed)
         {
@@ -633,7 +633,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Latch(new(++id), (float)(-16 + 3 * i), 3, 12, 0, 0, 0, 1));
         var last = instances[12];
         var gate = Gate(++id, -6); var battery = Battery(++id, -6);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new(++id), (float)((last.Cell.X + (double)last.Local.X) / 16), (float)(Face + .35),
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(++id), (float)((last.Cell.X + (double)last.Local.X) / 16), (float)(Face + .35),
             (float)((last.Cell.Z + (double)last.Local.Z) / 16), 0, 0, 0, 1);
         instances.AddRange([gate, battery, ball]);
         return Bench([.. instances], Circuit(battery, last, gate));
@@ -645,11 +645,11 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public async Task ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit()
     {
         var bench = ActivationBench();
-        bench.Validate();
-        var nodes = WorkshopActivationCompiler.Compile(bench).Nodes.ToArray();
+        bench.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        var nodes = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray();
         Assert.Equal(28, nodes.Length);
         Assert.Equal(13, nodes.Count(node => node.Kind == ActivationNodeKind.ContactLoadSource));
-        Assert.Equal(13, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).ContactLoadSensors.Length);
+        Assert.Equal(13, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)).ContactLoadSensors.Length);
         var plates = bench.Instances.Where(instance => instance.PartId == new PartId("pressure_plate")).ToArray();
         var gate = bench.Instances.OfType<WorkshopGenericInstance>().Single(instance => instance.PartId == new PartId("powered_gate"));
 
@@ -665,7 +665,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
         // Save/Load through the real codec: the reloaded bench is identical and replays the same committed run.
         var saved = new WorkshopSavedConstruction(bench, new((ulong)bench.Instances.Count + 1));
-        var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
+        var reloaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, Ticks);
         AssertGateOpened(replay, plates[^1], gate, "the loaded 13th plate under its own load");
@@ -717,19 +717,19 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var plate = Plate(1, -4, 0, .5f); var lamp = LampAt(2);
         var counter = PlacedParts.Counter(new(3), 0, (float)(GateHeight), -3, 0, 0, 0, 1, 3);
-        var delay = WorkshopInput.Generic(new PartId("delay"), new(4), 0, (float)(GateHeight), 3, 0, 0, 0, 1);
+        var delay = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(4), 0, (float)(GateHeight), 3, 0, 0, 0, 1);
         var latch = PlacedParts.Latch(new(5), 3, (float)(GateHeight), -3, 0, 0, 0, 1);
-        var hit = WorkshopInput.Generic(new PartId("switch"), new(6), 3, (float)(GateHeight), 3, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(6), 3, (float)(GateHeight), 3, 0, 0, 0, 1);
         var instances = new WorkshopInstances(plate, lamp, counter, delay, latch, hit);
-        new WorkshopConnections(Signal(plate.Id, lamp.Id)).Validate(instances);
+        new WorkshopConnections(Signal(plate.Id, lamp.Id)).Validate(RuntimeTestServices.Core.Supply, instances);
         foreach (var (target, input) in new[] { (counter.Id, PortId.ActivationIn), (delay.Id, PortId.ActivationIn),
                      (latch.Id, PortId.SetIn), (latch.Id, PortId.ResetIn) })
             Assert.Equal(LevelRefusal, EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
-                () => new WorkshopConnections(Signal(plate.Id, target, input)).Validate(instances)).Message);
+                () => new WorkshopConnections(Signal(plate.Id, target, input)).Validate(RuntimeTestServices.Core.Supply, instances)).Message);
         // A lamp that follows the plate's level takes no other signal; a pulse source alone still drives a (sticky) lamp.
         Assert.Equal("A level input takes exactly one source.", EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel,
-            () => new WorkshopConnections(Signal(plate.Id, lamp.Id), Signal(hit.Id, lamp.Id)).Validate(instances)).Message);
-        new WorkshopConnections(Signal(hit.Id, lamp.Id)).Validate(instances);
+            () => new WorkshopConnections(Signal(plate.Id, lamp.Id), Signal(hit.Id, lamp.Id)).Validate(RuntimeTestServices.Core.Supply, instances)).Message);
+        new WorkshopConnections(Signal(hit.Id, lamp.Id)).Validate(RuntimeTestServices.Core.Supply, instances);
     }
 
     // Every activation port declares its signal kind (an output what it emits, an input what it admits); no electrical port has one.
@@ -754,8 +754,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public void ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold()
     {
         var plate = Plate(1, -4, 0, .5f); var lamp = LampAt(2); var sticky = LampAt(3, 3);
-        var hit = WorkshopInput.Generic(new PartId("switch"), new(4), 3, (float)(GateHeight), 3, 0, 0, 0, 1);
-        var nodes = WorkshopActivationCompiler.Compile(Bench([plate, lamp, sticky, hit], Signal(plate.Id, lamp.Id), Signal(hit.Id, sticky.Id)))
+        var hit = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(4), 3, (float)(GateHeight), 3, 0, 0, 0, 1);
+        var nodes = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench([plate, lamp, sticky, hit], Signal(plate.Id, lamp.Id), Signal(hit.Id, sticky.Id)))
             .Nodes.ToArray();
         Assert.Equal(ActivationNodeKind.LevelIndicator, nodes.Single(node => node.Owner == lamp.Id).Kind);
         Assert.Equal(ActivationNodeKind.StickyFirstInput, nodes.Single(node => node.Owner == sticky.Id).Kind);
@@ -763,7 +763,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal((ActivationNodeKind.ContactLoadSource, 12u), (source.Kind, source.ReleaseHoldTicks));
         Assert.All(nodes.Where(node => node.Owner != plate.Id), node => Assert.Equal(0u, node.ReleaseHoldTicks));
         // The compiled hold is 0.1 s at each admitted cadence: 6, 12 and 24 ticks.
-        uint HoldAt(SimulationCadence cadence) => Assert.Single(WorkshopActivationCompiler.Compile(Bench([plate]) with
+        uint HoldAt(SimulationCadence cadence) => Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench([plate]) with
             { Settings = WorkshopCadenceSettings.Default() with { Simulation = cadence } }).Nodes.ToArray()).ReleaseHoldTicks;
         Assert.Equal((6u, 12u, 24u), (HoldAt(SimulationCadence.Hz60), HoldAt(SimulationCadence.Hz120), HoldAt(SimulationCadence.Hz240)));
     }
@@ -790,8 +790,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, .5f); var lamp = LampAt(4);
         var construction = Bench([gate, battery, plate, lamp], [.. Circuit(battery, plate, gate), Signal(plate.Id, lamp.Id)]);
-        var network = WorkshopActivationCompiler.Compile(construction);
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var row = Assert.Single(scene.ContactLoadSensors.ToArray());
         var prismatic=Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate.Id);
         var state = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
@@ -801,7 +801,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             state = network.Consume(state.Activations, state.Timers, [], new((ulong)i + 1), [], memory: state.Memory,
                 contactLoads: [new(row.Id, row.Frame, row.Region, loaded[i] ? 1f : 0f, loaded[i] ? ContactLoadPhase.Loaded : ContactLoadPhase.Empty)]);
             var committed = state;
-            var next = PhysicsTickInputs.Compose(scene.SupplyGraph, new([ElectricalEnable.Enabled]),
+            var next = TickControlComposition.Compose(scene.SupplyGraph, new([ElectricalEnable.Enabled]),
                 owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner), PlacedParts.InitialElectrical(scene)).SupplyClosed[prismatic];
             trace.Add((network.ContactClosed(state.Activations, network.ClearTimers(), plate.Id), Latched(state.Activations, lamp.Id), next));
         }
@@ -854,8 +854,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var plate = Plate(3, -4, 0, .5f); var lamp = LampAt(4);
         var construction = Bench([plate, lamp], Signal(plate.Id, lamp.Id));
-        var networks = new[] { WorkshopActivationCompiler.Compile(construction), WorkshopActivationCompiler.Compile(construction) };
-        var row = Assert.Single(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)).ContactLoadSensors.ToArray());
+        var networks = new[] { WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction), WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction) };
+        var row = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2)).ContactLoadSensors.ToArray());
         var state = new ActivationCheckpoint(networks[0].Clear(), networks[0].ClearTimers(), networks[0].ClearMemory());
         Assert.Equal(0ul, Hold(state.Memory, state.Activations, plate).DueTick);
         var lit = new List<bool>();
@@ -895,7 +895,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public async Task ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit()
     {
         var plate = Plate(3, -4, 0, .5f); var lamp = LampAt(5);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new(4), -4, (float)(Face + .34 + 2), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(4), -4, (float)(Face + .34 + 2), 0, 0, 0, 0, 1);
         var reads = await RunBench(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), 240);
         var first = reads.FindIndex(read => Qualifying(read, plate));
         Assert.True(first > 0, "the ball lands on the plate");

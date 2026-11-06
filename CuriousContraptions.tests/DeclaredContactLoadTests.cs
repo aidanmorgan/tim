@@ -28,7 +28,7 @@ public sealed class DeclaredContactLoadTests
         Assert.Equal((CuriousContraptions.Abstractions.ColliderShapeKind.Box, .9f, .05f, .9f), (face.ShapeKind, face.HalfExtents.X, face.HalfExtents.Y, face.HalfExtents.Z));
 
         var plate = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Plate(new(3), -4, (float)(PlateY), 0, 2f));
-        var row = Assert.Single(WorkshopPhysicsCompiler.Compile(Bench([plate]), new(1, 2)).ContactLoadSensors.ToArray());
+        var row = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench([plate]), new(1, 2)).ContactLoadSensors.ToArray());
         var identities = Bench([plate]).Instances.Identities[plate.Id];
         Assert.Equal(new[] { identities.Colliders[1], identities.Colliders[7] }, row.SupportingColliders.ToArray());
         Assert.Equal((Bench([plate]).Instances.Identities[plate.Id].Signals[new("signal")].ContactLoad, plate.Id, Bench([plate]).Instances.Identities[plate.Id].Colliders[1]),
@@ -36,7 +36,7 @@ public sealed class DeclaredContactLoadTests
         Assert.Equal((-.9f - .0001f, .9f + .0001f, -.9f - .000001f, .9f + .000001f, 1f - .000001f, .0001f, 2f),
             (row.MinimumX, row.MaximumX, row.MinimumZ, row.MaximumZ, row.MinimumAlignment, row.MaximumGap, row.MinimumMass));
         Assert.Equal(System.Numerics.Vector3.UnitY, row.LocalNormal);
-        var node = Assert.Single(WorkshopActivationCompiler.Compile(Bench([plate])).Nodes.ToArray());
+        var node = Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench([plate])).Nodes.ToArray());
         Assert.Equal((ActivationNodeKind.ContactLoadSource, row.Id, 12u), (node.Kind, node.ContactLoad, node.ReleaseHoldTicks));
     }
 
@@ -46,32 +46,32 @@ public sealed class DeclaredContactLoadTests
     public void EachPlateCompilesItsOwnMinimumMassInInstanceOrder()
     {
         var plates = Masses.Select((mass, i) => PlacedParts.Plate(new((ulong)i + 1), (float)(3 * i), (float)(PlateY), 0, (float)(mass))).ToArray();
-        var rows = WorkshopPhysicsCompiler.Compile(Bench(plates), new(1, 2)).ContactLoadSensors.ToArray();
+        var rows = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(plates), new(1, 2)).ContactLoadSensors.ToArray();
         Assert.Equal(plates.Select(plate => plate.Id), rows.Select(row => row.Frame));
         Assert.Equal(Masses, rows.Select(row => row.MinimumMass));
     }
 
-    // D1: the hold is ActivationTimerDeclaration.Duration(0.1 s, cadence): 6, 12 and 24 ticks at 60, 120 and 240 Hz.
+    // D1: the hold is ActivationTimerTransitions.Duration(0.1 s, cadence): 6, 12 and 24 ticks at 60, 120 and 240 Hz.
     [Theory]
     [InlineData(SimulationCadence.Hz60, 6u)]
     [InlineData(SimulationCadence.Hz120, 12u)]
     [InlineData(SimulationCadence.Hz240, 24u)]
     public void TheHoldIsATenthOfASecondAtEachCadence(SimulationCadence cadence, uint ticks)
     {
-        Assert.Equal(ticks, ActivationTimerDeclaration.Duration(.1f, cadence));
+        Assert.Equal(ticks, ActivationTimerTransitions.Duration(.1f, cadence));
         var bench = Bench([PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, .5f)]) with { Settings = WorkshopCadenceSettings.Default() with { Simulation = cadence } };
-        Assert.Equal(ticks, Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray()).ReleaseHoldTicks);
+        Assert.Equal(ticks, Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray()).ReleaseHoldTicks);
     }
 
     // Negative control (static box, no capability): a Wall sized to the face's footprint compiles no row and no node.
     [Fact]
     public void AStaticBoxWithoutTheDeclarationCompilesNoRowAndNoNode()
     {
-        var wall = WorkshopInput.Generic(new PartId("wall"), new(1), 0, (float)(PlateY), 0, 0, 0, 0, 1,
+        var wall = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(1), 0, (float)(PlateY), 0, 0, 0, 0, 1,
             new([new(new("width"), 1.8f), new(new("height"), .4f), new(new("thickness"), 1.8f)]));
         Assert.Null(DeclaredPhysics.Of(new PartId("wall")).Signal);
-        Assert.Empty(WorkshopPhysicsCompiler.Compile(Bench([wall]), new(1, 2)).ContactLoadSensors.ToArray());
-        Assert.Empty(WorkshopActivationCompiler.Compile(Bench([wall])).Nodes.ToArray());
+        Assert.Empty(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench([wall]), new(1, 2)).ContactLoadSensors.ToArray());
+        Assert.Empty(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench([wall])).Nodes.ToArray());
     }
 
     // ---------- D5: saves ----------
@@ -85,7 +85,7 @@ public sealed class DeclaredContactLoadTests
     public void AdmittedMinimumMassesRoundTripAtBothBoundaries(float minimumMass)
     {
         var bench = Bench([PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, (float)(minimumMass))]);
-        var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(2)))).Construction;
+        var saved = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(bench, new(2)))).Construction;
         var command = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),
             WorkshopCommandKind.Construct, new(1), new(1), CompiledSceneFixture.Compile(bench), Session: new(1, 2), Cadence: new(1), Projection: new(1)))).Scene!;
         Assert.Equal(minimumMass, Assert.Single(command.Physics.ContactLoadSensors.ToArray()).MinimumMass);
@@ -106,13 +106,13 @@ public sealed class DeclaredContactLoadTests
     public void AMissingOrOutOfRangeMinimumMassIsRefusedAtBothBoundaries(float? minimumMass, WorkshopSaveRejection save)
     {
         var bytes = PayloadInstanceTests.GenericSave("pressure_plate", minimumMass is { } mass ? [("minimum_mass", mass)] : []);
-        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
-        var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
+        var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(0)!.Value;
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(record)).Reason);
         // Control: the identical record at 0.5 kg loads at both boundaries.
         var control = PayloadInstanceTests.GenericSave("pressure_plate", [("minimum_mass", .5f)]);
-        Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, control).Construction.Instances));
-        Assert.IsType<WorkshopGenericInstance>(WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(control).Construction!.Value.Instances(0)!.Value));
+        Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, control).Construction.Instances));
+        Assert.IsType<WorkshopGenericInstance>(WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, control).Construction!.Value.Instances(0)!.Value));
     }
 
     // Saves written by the record path's production encoders at 61ded7ad (evidence-c-plate/baseline/old-saves, sha256 in
@@ -149,7 +149,7 @@ public sealed class DeclaredContactLoadTests
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
-        var refusal = SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.False(string.IsNullOrWhiteSpace(refusal.Message));
         Assert.Equal(WireFaultReason.VerifierRejected, fault.Reason);

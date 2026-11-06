@@ -21,19 +21,19 @@ internal static partial class BrowserWorkshopObservation
     [JSImport("observationArray", "workshopObservation")] private static partial JSObject Array();
     [JSImport("observationPush", "workshopObservation")] private static partial void Push(JSObject array, JSObject value);
 
-    internal static async System.Threading.Tasks.Task Start(IWorkshopObservation port)
+    internal static async System.Threading.Tasks.Task Start(IPresentationServices presentation, IWorkshopObservation port)
     {
         using var document = JSHost.GlobalThis.GetPropertyAsJSObject("document")
             ?? throw new InvalidOperationException("A browser document is required.");
         var baseUri = document.GetPropertyAsString("baseURI")
             ?? throw new InvalidOperationException("The document resource origin is unavailable.");
         await JSHost.ImportAsync("workshopObservation", new Uri(new Uri(baseUri), "workshop-observation.js").AbsoluteUri);
-        Install(port);
+        Install(presentation, port);
     }
 
-    internal static void Install(IWorkshopObservation port) => Register(
+    internal static void Install(IPresentationServices presentation, IWorkshopObservation port) => Register(
         Exact(port.Session.Low) + ":" + Exact(port.Session.High),
-        kind => Query(port, kind), after => Receipts(port, after), after => Diagnostics(port, after),
+        kind => Query(presentation, port, kind), after => Receipts(port, after), after => Diagnostics(presentation, port, after),
         () => { var result = port.OpenEvents(port.Session); var dto = Result(result.Refusal);
             if (result.Refusal == WorkshopObservationRefusal.None) dto.SetProperty("value", Exact(result.Value.Value));
             return dto; },
@@ -46,17 +46,17 @@ internal static partial class BrowserWorkshopObservation
     private static JSObject Result(WorkshopObservationRefusal refusal)
     { var value = Object(); value.SetProperty("refusal", WorkshopObservationProjection.EnumValue(refusal)); return value; }
 
-    private static JSObject Query(IWorkshopObservation port, int kind)
+    private static JSObject Query(IPresentationServices presentation, IWorkshopObservation port, int kind)
     {
         var result = port.Query(port.Session, (WorkshopObservationQuery)kind);
         var dto = Result(result.Refusal);
         if (result.Refusal != WorkshopObservationRefusal.None) return dto;
-        using var value = WorkshopObservationProjection.Response<BrowserObject>(result.Value).Value;
+        using var value = WorkshopObservationProjection.Response<BrowserObject>(presentation, result.Value).Value;
         dto.SetProperty("value", value);
         return dto;
     }
 
-    private static JSObject Diagnostics(IWorkshopObservation port, string after)
+    private static JSObject Diagnostics(IPresentationServices presentation, IWorkshopObservation port, string after)
     {
         if (!ulong.TryParse(after, NumberStyles.None, CultureInfo.InvariantCulture, out var ordinal))
             return Result(WorkshopObservationRefusal.InvalidCursor);
@@ -72,7 +72,7 @@ internal static partial class BrowserWorkshopObservation
                 if (association.Refusal != WorkshopObservationRefusal.None) return Result(association.Refusal);
                 authored = association.Value;
             }
-            using var row = Object(); using var record = WorkshopObservationProjection.Diagnostic<BrowserObject>(receipt.Record, authored).Value;
+            using var row = Object(); using var record = WorkshopObservationProjection.Diagnostic<BrowserObject>(presentation, receipt.Record, authored).Value;
             row.SetProperty("ordinal", Exact(receipt.Ordinal.Value)); row.SetProperty("record", record); Push(values, row);
         }
         dto.SetProperty("value", values); return dto;

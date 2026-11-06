@@ -5,21 +5,6 @@ using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>Every Workshop command and query (closed set). <see cref="WorkshopCommandKind.ObserveMemory"/> is the stopped memory
-/// observation query (Story 9A.3), answered by its acknowledgement's <see cref="WorkshopResponse.Memory"/>. Wire values are explicit:
-/// 11 named the deleted electrical control and is undefined.</summary>
-public enum WorkshopCommandKind : uint { Initialize = 0, Construct = 1, Run = 2, Reset = 3, Dispose = 4, Cancel = 5, ConfigureCadence = 6,
-    Pause = 7, Resume = 8, Step = 9, Save = 10, ObserveMemory = 12, CutRope = 13, ConfigureRunControl = 14 }
-public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
-public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopCompiledScene? Scene, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
-    CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopRunControl? RunControl = null, RopeSpanId? Cut = null);
-public readonly record struct WorkshopCommandIdentity(CommandSequence Sequence, SimulationEpoch Epoch, AuthorityRevision Revision, CadenceRevision Cadence, ProjectionEpoch Projection);
-public readonly record struct WorkshopResponse(CommandSequence Sequence, WorkshopResponseKind Kind,
-    WorkshopCommandResult Result, WorkshopSimulationPhase Phase, WorkshopRead Read, RuntimeSessionId Session = default, PublicationSequence Publication = default,
-    CadenceRevision Cadence = default, ClockGeneration MasterGeneration = default,
-    ProjectionEpoch Projection = default, PulseOrdinal SourcePulse = default, WorkshopMemoryMeasurement? Memory = null, WorkshopCompiledScene? Scene = null);
-
 /// <summary>The domain rules of Workshop commands and responses that every encoder and decoder of the one codec
 /// (<see cref="WorkshopWireFlatBuffers"/>) applies.</summary>
 public static class WorkshopMessages
@@ -53,7 +38,7 @@ public static class WorkshopMessages
         }
     }
 
-    internal static void ValidatePresentationOwners(WorkshopRead read, WorkshopCompiledScene construction)
+    internal static void ValidatePresentationOwners(WorkshopRead read, ICompiledScene construction)
     {
         construction.Activation.ValidateOrigins(read.Activations, read.Timers, read.Tick, construction.Physics);
         construction.Activation.ValidateCommittedMemory(read.Memory, read.Tick, construction.Physics);
@@ -70,7 +55,7 @@ public static class WorkshopMessages
 
     }
 
-    private static void ValidateRopeOwners(WorkshopRead read, WorkshopCompiledScene construction)
+    private static void ValidateRopeOwners(WorkshopRead read, ICompiledScene construction)
     {
         var expectedRopes = read.Epoch.Value == 0 ? 0 : construction.Physics.TensileSpans.Length;
         if (read.Presentation.Ropes.Length != expectedRopes) throw new ArgumentException("Rope observation population differs from its installation.");
@@ -109,7 +94,7 @@ public static class WorkshopMessages
         }
     }
 
-    private static void ValidateLogicOwners(WorkshopRead read, WorkshopCompiledScene construction)
+    private static void ValidateLogicOwners(WorkshopRead read, ICompiledScene construction)
     {
         var expectedLogic=0;
         foreach(var node in construction.Physics.SupplyGraph.Nodes)
@@ -134,7 +119,7 @@ public static class WorkshopMessages
             throw new ArgumentException("Electrical logic observation population differs from its installed owners.");
     }
 
-    private static void ValidateLoadOwners(WorkshopRead read, WorkshopCompiledScene construction)
+    private static void ValidateLoadOwners(WorkshopRead read, ICompiledScene construction)
     {
         var sensors = construction.Physics.ContactLoadSensors;
         var loads = read.Presentation.Loads;

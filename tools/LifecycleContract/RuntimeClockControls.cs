@@ -15,13 +15,13 @@ internal enum RuntimeClockCase
 internal sealed record RuntimeClockResult(RuntimeClockCase Case, bool Passed, string Detail);
 
 /// <summary>Controls against the production assembly. These do not qualify a real browser clock or renderer.</summary>
-internal static class RuntimeClockControls
+internal sealed class RuntimeClockControls(IClockServices clocks)
 {
     private static readonly WorkshopClockPeer Peer = new(new(11, 23), new(7), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);
     // The installed master derivation epoch; these controls never re-derive the master.
     private static readonly ClockDerivationEpoch Derived = new(0);
 
-    public static IReadOnlyList<RuntimeClockResult> Run()
+    public IReadOnlyList<RuntimeClockResult> Run()
     {
         List<RuntimeClockResult> results = [];
         void Check(RuntimeClockCase id, Action action)
@@ -53,7 +53,7 @@ internal static class RuntimeClockControls
         return results;
     }
 
-    private static WorkshopClockMapping Recovering()
+    private IClockMapping Recovering()
     {
         var map = Ready();
         Accept(map, 320_000_000, roundtrip: 1_295_000);
@@ -67,14 +67,14 @@ internal static class RuntimeClockControls
         throw new InvalidOperationException("Bounded recovery failed to fault.");
     }
 
-    private static WorkshopClockMapping Ready()
+    private IClockMapping Ready()
     {
-        var map = new WorkshopClockMapping(Peer);
+        var map = clocks.CreateMapping(Peer);
         for (var i = 0; i < 8; i++) Accept(map, i * 10_000_000);
         return map;
     }
 
-    private static void Accept(WorkshopClockMapping map, long sent, long offset = 50_000_000, long roundtrip = 0)
+    private static void Accept(IClockMapping map, long sent, long offset = 50_000_000, long roundtrip = 0)
     {
         var probe = map.BeginProbe(new(sent)) ?? throw new InvalidOperationException("Probe unexpectedly suppressed.");
         Require(map.Receive(new(probe, new(sent + offset), new(sent + offset), new(sent + roundtrip), Derived)).Outcome == ClockProbeOutcome.Accepted);
@@ -86,15 +86,15 @@ internal static class RuntimeClockControls
         try { action(); } catch (ArgumentException) { return; }
         throw new InvalidOperationException("Invalid native-clock input accepted.");
     }
-    private static void HorizonOverflow()
+    private void HorizonOverflow()
     {
-        var map = new WorkshopClockMapping(Peer);
+        var map = clocks.CreateMapping(Peer);
         for (var i = 0; i < 8; i++) Accept(map, long.MaxValue - 100_000_000 + i * 10_000_000, 0);
         map.Observe(new(long.MaxValue));
         Require(map.State == ClockMappingState.Ready);
     }
 
-    private static void RecoveryDisjointRequalification()
+    private void RecoveryDisjointRequalification()
     {
         var map = Recovering(); var epoch = map.DisplayEpoch;
         var probe = map.BeginProbe(new(330_000_000))!.Value;
@@ -108,7 +108,7 @@ internal static class RuntimeClockControls
         Require(map.State == ClockMappingState.Ready);
     }
 
-    private static void RecoveryDeadline()
+    private void RecoveryDeadline()
     {
         const long deadline = 571_295_000;
         var exact = Recovering();
@@ -121,7 +121,7 @@ internal static class RuntimeClockControls
         Require(late.State == ClockMappingState.Expired && late.Recalibrations == 1);
     }
 
-    private static void RecoveryEighthReplySuccess()
+    private void RecoveryEighthReplySuccess()
     {
         var map = Recovering();
         for (var i = 0; i < 7; i++) Accept(map, 330_000_000 + i * 10_000_000, roundtrip: 1_295_000);
@@ -131,7 +131,7 @@ internal static class RuntimeClockControls
         Require(map.BeginProbe(new(650_000_000)) is not null);
     }
 
-    private static void RecoveryEighthReplyRecalibration()
+    private void RecoveryEighthReplyRecalibration()
     {
         var map = Recovering();
         for (var i = 0; i < 7; i++) Accept(map, 330_000_000 + i * 10_000_000, roundtrip: 1_295_000);
@@ -150,7 +150,7 @@ internal static class RuntimeClockControls
         Require(map.State == ClockMappingState.Retired);
     }
 
-    private static void RecoveryRejectsUnrelatedCaptureTriggers()
+    private void RecoveryRejectsUnrelatedCaptureTriggers()
     {
         var map = Ready();
         var capture = new WorkshopClockStamp(WorkshopClockDomain.SimulationMonotonic, Peer.Generation,
@@ -161,25 +161,25 @@ internal static class RuntimeClockControls
         Require(map.State == ClockMappingState.Ready && map.Pending is null);
     }
 
-    private static void MaximumSampleReservation()
+    private void MaximumSampleReservation()
     {
-        var map = new WorkshopClockMapping(Peer with { Uncertainty = new(0) });
+        var map = clocks.CreateMapping(Peer with { Uncertainty = new(0) });
         for (var i = 0; i < 8; i++) Accept(map, i * 10_000_000, roundtrip: 1_550_000);
         Require(map.State == ClockMappingState.Ready);
         map.Observe(new(71_550_001));
         Require(map.State == ClockMappingState.Recovering);
     }
 
-    private static void HorizonBoundary()
+    private void HorizonBoundary()
     {
-        var map = new WorkshopClockMapping(Peer);
+        var map = clocks.CreateMapping(Peer);
         for (var i = 0; i < 8; i++) Accept(map, i * 10_000_000, roundtrip: 1_150_000);
         Require(map.State == ClockMappingState.Ready);
         map.Observe(new(71_150_001));
         Require(map.State == ClockMappingState.Recovering && map.ValidProbeCount == 8);
     }
 
-    private static void RecoveryKeepsCurrentMappings()
+    private void RecoveryKeepsCurrentMappings()
     {
         var map = Recovering();
         var epoch = map.DisplayEpoch;
@@ -195,26 +195,26 @@ internal static class RuntimeClockControls
         Require(map.BeginProbe(new(580_000_000)) is not null);
     }
 
-    private static void ReplacementRebase()
+    private void ReplacementRebase()
     {
         var map = Ready();
         for (var i = 0; i < 40; i++) Accept(map, 320_000_000L + i * 250_000_000L, 50_000_000L + i * 100_000L);
         Require(map.State == ClockMappingState.Ready && map.ValidProbeCount == 8);
     }
 
-    private static void HalfwidthBoundary()
+    private void HalfwidthBoundary()
     {
-        var map = new WorkshopClockMapping(Peer);
+        var map = clocks.CreateMapping(Peer);
         for (var i = 0; i < 8; i++) Accept(map, i * 10_000_000, 50_000_000, 1_400_000);
         var capture = new WorkshopClockStamp(WorkshopClockDomain.SimulationMonotonic, Peer.Generation,
             new(130_000_000), new(100_000));
         Require(!map.TryMap(capture, new(80_000_000), out _));
         // Exact accepted boundary is tested independently by interval arithmetic: 1.4ms RTT + 4q + 2qs = 2ms.
         var reply = new ClockReply(new(Peer.Session, Peer.Generation, Peer.RequesterGeneration, Peer.RequesterRole, new(1), new(0)), new(50_000_000), new(50_000_000), new(1_400_000), Derived);
-        Require(WorkshopClockMapping.Offset(reply, Peer.Uncertainty).Width + 2 * Peer.Uncertainty.Value == WorkshopClockMapping.MaximumMappedWidth);
+        Require(clocks.Offset(reply, Peer.Uncertainty).Width + 2 * Peer.Uncertainty.Value == clocks.MaximumMappedWidth);
     }
 
-    private static void CausalCapture()
+    private void CausalCapture()
     {
         var map = Ready();
         var old = new WorkshopClockStamp(WorkshopClockDomain.SimulationMonotonic, Peer.Generation, new(40_000_000), new(100_000));
@@ -227,7 +227,7 @@ internal static class RuntimeClockControls
         Require(retained == mapped);
     }
 
-    private static void DisjointRequiresFreshEight()
+    private void DisjointRequiresFreshEight()
     {
         var map = Ready();
         var probe = map.BeginProbe(new(320_000_000))!.Value;
@@ -238,7 +238,7 @@ internal static class RuntimeClockControls
         Require(map.State == ClockMappingState.Ready);
     }
 
-    private static void ExpiryAndFreshStartup()
+    private void ExpiryAndFreshStartup()
     {
         var map = Ready();
         var epoch = map.DisplayEpoch;
@@ -254,28 +254,28 @@ internal static class RuntimeClockControls
         Require(map.State == ClockMappingState.Ready);
     }
 
-    private static void DriftRounding()
+    private void DriftRounding()
     {
         long[] ages = [0, 1, 1999, 2000, 2001];
         long[] expected = [0, 1, 1, 1, 2];
         for (var i = 0; i < ages.Length; i++)
-            Require(WorkshopClockMapping.Expand(new(0, 0), ages[i]) == new CuriousContraptions.Gpu.ClockInterval(-expected[i], expected[i]));
-        Reject(() => WorkshopClockMapping.Expand(new(0, 0), -1));
+            Require(clocks.Expand(new(0, 0), ages[i]) == new CuriousContraptions.Gpu.ClockInterval(-expected[i], expected[i]));
+        Reject(() => clocks.Expand(new(0, 0), -1));
     }
 
-    private static void ExactNormativeInterval()
+    private void ExactNormativeInterval()
     {
         var reply = new ClockReply(new(Peer.Session, Peer.Generation, Peer.RequesterGeneration, Peer.RequesterRole, new(1), new(100_000_000)),
             new(150_200_000), new(150_300_000), new(100_700_000), Derived);
-        var interval = WorkshopClockMapping.Offset(reply, new(10_000));
+        var interval = clocks.Offset(reply, new(10_000));
         Require(interval == new CuriousContraptions.Gpu.ClockInterval(49_580_000, 50_220_000));
-        Require(WorkshopClockMapping.Expand(interval, 250_000_000) ==
+        Require(clocks.Expand(interval, 250_000_000) ==
             new CuriousContraptions.Gpu.ClockInterval(49_455_000, 50_345_000));
     }
 
-    private static void StartupAndIdentity()
+    private void StartupAndIdentity()
     {
-        var map = new WorkshopClockMapping(Peer);
+        var map = clocks.CreateMapping(Peer);
         var probe = map.BeginProbe(new(0))!.Value;
         Require(map.BeginProbe(new(1)) is null);
         var reply = new ClockReply(probe, new(50_000_000), new(50_000_000), new(1), Derived);
@@ -290,20 +290,20 @@ internal static class RuntimeClockControls
         Require(map.State == ClockMappingState.Ready && map.ValidProbeCount == 8);
     }
 
-    private static void CapacityReservation()
+    private void CapacityReservation()
     {
-        RequireEqual(WorkshopClockMapping.BookkeepingBytes, 280);
-        var map = new WorkshopClockMapping(Peer);
-        for (var i = 0; i < WorkshopClockMapping.ProbeCapacity - 1; i++)
+        RequireEqual(clocks.BookkeepingBytes, 280);
+        var map = clocks.CreateMapping(Peer);
+        for (var i = 0; i < clocks.ProbeCapacity - 1; i++)
         {
-            Accept(map, i * WorkshopClockMapping.StartupSpacing);
+            Accept(map, i * clocks.StartupSpacing);
             Require(!map.IsQualified && map.ValidProbeCount == i + 1);
         }
-        Accept(map, (WorkshopClockMapping.ProbeCapacity - 1) * WorkshopClockMapping.StartupSpacing);
-        Require(map.IsQualified && map.ValidProbeCount == WorkshopClockMapping.ProbeCapacity);
+        Accept(map, (clocks.ProbeCapacity - 1) * clocks.StartupSpacing);
+        Require(map.IsQualified && map.ValidProbeCount == clocks.ProbeCapacity);
         // Refresh replaces an old sample without growing the public reservation.
         Accept(map, 320_000_000);
-        Require(map.ValidProbeCount == WorkshopClockMapping.ProbeCapacity && map.IsQualified);
+        Require(map.ValidProbeCount == clocks.ProbeCapacity && map.IsQualified);
         var pending = map.BeginProbe(new(570_000_000))!.Value;
         Require(map.BeginProbe(new(570_000_001)) is null && map.Pending == pending);
         var reply = new ClockReply(pending with { Sequence = new(pending.Sequence.Value + 1) },
@@ -312,20 +312,20 @@ internal static class RuntimeClockControls
 
     }
 
-    private static void NativeRangeRejection()
+    private void NativeRangeRejection()
     {
-        Reject(() => WorkshopNativeClock.FromMilliseconds(9_223_372_036_854.777));
-        Reject(() => WorkshopNativeClock.FromMilliseconds(double.NaN));
-        Reject(() => WorkshopNativeClock.FromMilliseconds(double.PositiveInfinity));
-        Reject(() => WorkshopNativeClock.FromMilliseconds(-1));
+        Reject(() => clocks.FromMilliseconds(9_223_372_036_854.777));
+        Reject(() => clocks.FromMilliseconds(double.NaN));
+        Reject(() => clocks.FromMilliseconds(double.PositiveInfinity));
+        Reject(() => clocks.FromMilliseconds(-1));
     }
 
-    private static void ExactNativeConversion()
+    private void ExactNativeConversion()
     {
-        Require(WorkshopNativeClock.FromMilliseconds(9_223_372_036_854.775).Value == 9_223_372_036_854_775_391);
-        Require(WorkshopNativeClock.FromMilliseconds(double.Epsilon).Value == 0);
-        Require(WorkshopNativeClock.FromMilliseconds(0.001953125).Value == 1953);
-        Require(WorkshopNativeClock.FromMilliseconds(0.00390625).Value == 3906);
+        Require(clocks.FromMilliseconds(9_223_372_036_854.775).Value == 9_223_372_036_854_775_391);
+        Require(clocks.FromMilliseconds(double.Epsilon).Value == 0);
+        Require(clocks.FromMilliseconds(0.001953125).Value == 1953);
+        Require(clocks.FromMilliseconds(0.00390625).Value == 3906);
     }
 
     private static void RequireEqual<T>(T actual, T expected) where T : IEquatable<T> => Require(actual.Equals(expected));

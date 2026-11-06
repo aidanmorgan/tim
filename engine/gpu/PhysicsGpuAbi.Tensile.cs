@@ -22,7 +22,7 @@ public static partial class PhysicsGpuAbi
     public const int TensileGuideRadiusOffset = 80;
     public const int TensileGuideOffsetOffset = 84;
 
-    private static void WriteTensileAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
+    private static void WriteTensileAdmission(Span<byte> data, IPhysicsSceneDeclaration scene)
     {
         for (var i = 0; i < scene.TensileSpans.Length; i++)
         {

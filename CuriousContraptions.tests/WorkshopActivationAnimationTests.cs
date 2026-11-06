@@ -117,8 +117,8 @@ public sealed class WorkshopActivationAnimationTests
     [Fact]
     public async Task EveryOneShotBindingIsADeclaredTargetOfItsOwner()
     {
-        var bumper = WorkshopInput.Generic(new PartId("bumper"), new(1), 0, 1, 0, 0, 0, 0, 1);
-        var receiver = WorkshopInput.Generic(new PartId("basket"), new(2), 3, 1, 0, 0, 0, 0, 1);
+        var bumper = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(1), 0, 1, 0, 0, 0, 0, 1);
+        var receiver = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 3, 1, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(bumper, receiver));
         var targets = WorkshopDeclaredPresentation.Targets(CompiledSceneFixture.Compile(construction));
         Assert.Equal(DeclaredPhysics.Of(new PartId("bumper")).Presentation.Bindings.Count + DeclaredPhysics.Of(new PartId("basket")).Presentation.Bindings.Count,
@@ -178,7 +178,7 @@ public sealed class WorkshopActivationAnimationTests
         }
         session.Output(goal, AnimationOutputKind.Acknowledgement);
         session.Frame();
-        Assert.Equal(UiCurves.Hint.AnimationTarget, session.Controls[1].Target);
+        Assert.Equal(RuntimeTestServices.Core.UiCurves.Hint.AnimationTarget, session.Controls[1].Target);
     }
 
 
@@ -186,7 +186,7 @@ public sealed class WorkshopActivationAnimationTests
     public async Task DeclaredPropertyRejectsForeignChannelAndResetCannotReviveOldWorld()
     {
         using var session = new NativeClient();
-        var timer = WorkshopInput.Generic(new PartId("delay"), new(1), 0, 1, 0, 0, 0, 0, 1);
+        var timer = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(1), 0, 1, 0, 0, 0, 0, 1);
         await session.Construct(new(new(1), WorkshopCadenceSettings.Default(), new(timer)));
         var control = session.Declared(timer.Id, 0);
         var oldCadence = session.Schedule.Revision;
@@ -237,7 +237,7 @@ public sealed class WorkshopActivationAnimationTests
         Assert.False(session.Client.TryUiFrame(session.FrameNumber, default, WorkshopUiTarget.Goal, out _));
         var fresh = await session.Solve(construct: false);
         Assert.NotEqual(goal.World, fresh.World);
-        Assert.Equal(UiCurves.Goal.AnimationTarget, fresh.Target);
+        Assert.Equal(RuntimeTestServices.Core.UiCurves.Goal.AnimationTarget, fresh.Target);
         session.Output(fresh, AnimationOutputKind.Acknowledgement);
     }
 
@@ -330,7 +330,7 @@ public sealed class WorkshopActivationAnimationTests
         session.Output(first, AnimationOutputKind.Acknowledgement);
         session.Frame();
         Assert.Equal(2, session.Controls.Count);
-        var hint = UiCurves.Hint;
+        var hint = RuntimeTestServices.Core.UiCurves.Hint;
         var next = session.Controls[1];
         Assert.Equal(hint.AnimationTarget, next.Target);
         Assert.Equal(AnimationControlKind.Reveal, next.Kind);
@@ -388,7 +388,7 @@ public sealed class WorkshopActivationAnimationTests
         private double _milliseconds;
         private readonly WorkshopClockPeer _peer = new(Session, new(1), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);
         public BrowserWorkshopClient Client { get; }
-        public WorkshopCompiledScene InstalledScene => _world.Simulation.Scene;
+        public ICompiledScene InstalledScene => _world.Simulation.Scene;
         public WorkshopRead Committed => _world.Committed;
         public WorkshopSchedule Schedule => _installed!.Value;
         public List<ChannelControl> Controls { get; } = [];
@@ -403,7 +403,7 @@ public sealed class WorkshopActivationAnimationTests
         public async Task<ChannelControl> Solve(bool construct = true)
         {
             if (construct)
-                await Construct(PuzzleCatalogue.CreateSolution(new("first_principles"), new(2),
+                await Construct(PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(2),
                     WorkshopCadenceSettings.Default(), new(1), new(1f)));
             Assert.Equal(WorkshopCommandOutcome.Applied, (await Client.Execute(WorkshopCommandKind.Run)).Response.Result.Outcome);
             var before = Controls.Count;
@@ -414,7 +414,7 @@ public sealed class WorkshopActivationAnimationTests
             }
             Assert.Equal(before + 1, Controls.Count);
             var goal = Controls[^1];
-            Assert.Equal(UiCurves.Goal.AnimationTarget, goal.Target);
+            Assert.Equal(RuntimeTestServices.Core.UiCurves.Goal.AnimationTarget, goal.Target);
             return goal;
         }
         private readonly WorkshopDiagnostics _workerDiagnostics;
@@ -425,7 +425,7 @@ public sealed class WorkshopActivationAnimationTests
         {
             _startupFailure = failure; _beforeReady = beforeReady;
             var journal = diagnostics ?? new WorkshopDiagnostics();
-            Client = BrowserWorkshopClient.Create(observation ?? new WorkshopObservation(Session, journal), this, journal).GetAwaiter().GetResult();
+            Client = BrowserWorkshopClient.Create(RuntimeTestServices.Core, RuntimeTestServices.Bundle, observation ?? new WorkshopObservation(RuntimeTestServices.Core, Session, journal), this, journal).GetAwaiter().GetResult();
             DiagnosticDelivery = DeliverObservation;
             _workerDiagnostics = new(record => PublishWorkerDiagnostic(record));
         }

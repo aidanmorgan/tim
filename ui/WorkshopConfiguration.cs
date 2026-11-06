@@ -20,7 +20,7 @@ public partial class Workshop
         if (part.Definition.Parameters.Count == 0) return;
         // While the machine runs, a part offers only what its package declares run-editable.
         if (World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused &&
-            DeclaredPhysics.RunControls(instance.PartId) is { Count: > 0 } runControls)
+            DeclaredPhysics.RunControls(_bundle, instance.PartId) is { Count: > 0 } runControls)
         { AddRunControls(part, instance, runControls); return; }
         var configure = SignalButton("Configure", () =>
         {
@@ -88,8 +88,8 @@ public partial class Workshop
     private RunControlValue RunControlIntent(GpuBodyId owner, RunControlLane lane)
     {
         var read = World.WorkshopRead;
-        var committed = read.RunControl(owner, lane);
-        if (RunControlLanes.Find(World.RunControls, owner, lane) is { } row && _runControlQueued.TryGetValue(row.Id, out var pending))
+        var committed = _core.RunControls.Read(read, owner, lane);
+        if (_core.RunControls.Find(World.RunControls, owner, lane) is { } row && _runControlQueued.TryGetValue(row.Id, out var pending))
         {
             if (pending.Epoch != read.Epoch.Value ||
                 (read.Tick.Value > pending.Tick && committed == pending.Value))
@@ -104,13 +104,13 @@ public partial class Workshop
     private string RunControlText(GpuBodyId owner, RunControlLane lane, ParameterDescriptor parameter)
     {
         var intent = RunControlIntent(owner, lane);
-        var queued = RunControlLanes.Find(World.RunControls, owner, lane) is { } row && _runControlQueued.ContainsKey(row.Id);
+        var queued = _core.RunControls.Find(World.RunControls, owner, lane) is { } row && _runControlQueued.ContainsKey(row.Id);
         var units = ParameterUnits(parameter.Unit);
         return intent.Kind switch
         {
             RunControlValueKind.Enable => intent.Enable == ElectricalEnable.Enabled ? "Disable supply" : "Enable supply",
             RunControlValueKind.Scalar => parameter.Key + ": " +
-                World.WorkshopRead.RunControl(owner, lane).Scalar.ToString("R", CultureInfo.InvariantCulture) + (units.Length == 0 ? "" : " " + units),
+                _core.RunControls.Read(World.WorkshopRead, owner, lane).Scalar.ToString("R", CultureInfo.InvariantCulture) + (units.Length == 0 ? "" : " " + units),
             _ => throw new System.Diagnostics.UnreachableException("A committed run-control value has an undefined kind.")
         } + (queued ? " (queued)" : "");
     }
@@ -134,9 +134,9 @@ public partial class Workshop
         {
             var lane = declared.Lane;
             var parameter = part.Definition.Parameters.Single(descriptor => descriptor.Key == declared.Parameter.Value);
-            var row = RunControlLanes.Find(World.RunControls, owner, lane);
+            var row = _core.RunControls.Find(World.RunControls, owner, lane);
             var disabled = row is null || _gpuPending || _runControlSending;
-            switch (RunControlLanes.ValueKind(lane))
+            switch (_core.RunControls.ValueKind(lane))
             {
                 case RunControlValueKind.Enable:
                 {
@@ -183,7 +183,7 @@ public partial class Workshop
         if (!float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) || !float.IsFinite(value))
         { _status.Text = "Enter valid parameter values."; return; }
         value = EditorValue(parameter, value);
-        if (!RunControlLanes.WithinBounds(row, RunControlValue.Of(value)))
+        if (!_core.RunControls.WithinBounds(row, RunControlValue.Of(value)))
         {
             var units = ParameterUnits(parameter.Unit);
             var refusal = new WorkshopEditRejectedException(WorkshopEditRejection.OutOfRange, parameter.Key + " must be between " +
@@ -293,8 +293,8 @@ public partial class Workshop
                 return;
             }
             if (current.Parameters.Equals(parameters)) { RefreshConnectionChoices(); return; }
-            var proposed = World.Construction.WithInstance(current with { Parameters = parameters });
-            proposed.Validate();
+            var proposed = World.Construction.WithInstance(_bundle, current with { Parameters = parameters });
+            proposed.Validate(_core.Supply, _bundle);
             PushUndo();
             if (!await SubmitConstruction(proposed)) { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
             if (!_workshopUiRemoved) { _status.Text = "Parameters updated."; RefreshConnectionChoices(); }

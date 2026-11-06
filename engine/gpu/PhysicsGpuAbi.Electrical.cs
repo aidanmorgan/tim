@@ -28,7 +28,7 @@ public static partial class PhysicsGpuAbi
     private static void WriteEnergy(Span<byte> bytes, int offset, float value) =>
         BinaryPrimitives.WriteSingleLittleEndian(bytes[offset..], value);
 
-    private static void WriteElectricalAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
+    private static void WriteElectricalAdmission(Span<byte> data, IPhysicsSceneDeclaration scene)
     {
         for (var i = 0; i < scene.Electrical.Sources.Length; i++)
         {
@@ -88,7 +88,7 @@ public static partial class PhysicsGpuAbi
                 throw new ArgumentException("Invalid or ambiguous electrical storage route.");
             seen[(int)storage] = true;
         }
-        return PhysicsElectricalRead.Adopt(values);
+        return PhysicsElectricalRead.FromImmutable(System.Runtime.InteropServices.ImmutableCollectionsMarshal.AsImmutableArray(values));
     }
 
     private static void ValidateElectricalCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> previous, PhysicsInteractionSnapshot interactions)
@@ -107,17 +107,17 @@ public static partial class PhysicsGpuAbi
             if (!candidate.Slice(offset, ElectricalSourceDeclarationBytes).SequenceEqual(previous.Slice(offset, ElectricalSourceDeclarationBytes)))
                 throw new ArgumentException("Electrical source declaration changed.");
             var limit = RF(candidate, offset + ElectricalSourceMaximumPowerOffset) * ElectricalSupply.PhaseSeconds * phaseCount;
-            if (after[i].Debit.Value > limit + PhysicsElectricalRead.Residual(limit))
+            if (after[i].Debit.Value > limit + PhysicsReadValidation.Residual(limit))
                 throw new ArgumentException("Electrical source exceeded its phase power allowance.");
-            float credit = 0, tolerance = PhysicsElectricalRead.Residual(before[i].Remaining.Value);
+            float credit = 0, tolerance = PhysicsReadValidation.Residual(before[i].Remaining.Value);
             for (var route = 0; route < layout.ElectricalBindings; route++)
             {
                 var binding = layout.ElectricalBindingOffset(route);
                 if (R32(candidate, binding + ElectricalBindingSourceOffset) != i) continue;
                 var slot = (int)R32(candidate, binding + ElectricalBindingStorageOffset);
                 supplied[slot] = true; credit += works[slot].SuppliedEnergy.Value;
-                tolerance += PhysicsElectricalRead.Residual(credit);
-                tolerance += PhysicsElectricalRead.Residual(works[slot].RemainingEnergy.Value);
+                tolerance += PhysicsReadValidation.Residual(credit);
+                tolerance += PhysicsReadValidation.Residual(works[slot].RemainingEnergy.Value);
             }
             if ((after[i].Debit.Value == 0 && credit != 0) || MathF.Abs(after[i].Debit.Value - credit) > tolerance)
                 throw new ArgumentException("Electrical debit does not fund its connected storage credits.");

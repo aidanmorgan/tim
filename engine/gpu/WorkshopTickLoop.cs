@@ -3,30 +3,6 @@ using System.Threading.Tasks;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>What one attempt to advance the committed world produced.</summary>
-public enum TickAttempt { Committed, Superseded, Stopped }
-
-/// <summary>The Simulation worker's side effects the run loop schedules; the worker supplies them, tests fake them.</summary>
-public interface ITickLoopHost
-{
-    /// <summary>This loop still owns a Running world.</summary>
-    bool Owns { get; }
-    /// <summary>A command, GPU operation or installation owns the world; ticks wait for it.</summary>
-    bool Blocked { get; }
-    /// <summary>Simulation debt beyond the 100 ms bound (or an unresolved reliable stall): the explicit stopped fault.</summary>
-    bool DebtExceeded { get; }
-    bool AtRunLimit { get; }
-    /// <summary>The committed tick has reached the tick the master clock says is due.</summary>
-    bool CaughtUp { get; }
-    ValueTask<TickAttempt> Advance();
-    ValueTask StopForDebt();
-    ValueTask CompleteRun();
-    /// <summary>Ends this scheduler turn so controls and queued messages run, then resumes without a timer clamp.</summary>
-    ValueTask YieldTurn();
-    /// <summary>Waits for work (a due tick or a released block) on the ordinary wake-up timer.</summary>
-    ValueTask AwaitWork();
-}
-
 /// <summary>
 /// The Simulation run loop (engine-contracts §Clocks, histories and performance): it executes at most
 /// <see cref="TicksPerTurn"/> whole ticks per scheduler turn and then yields for controls. Since Story 9.4b the

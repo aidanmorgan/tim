@@ -52,7 +52,7 @@ public sealed class ComposableSignalNodesTests
             PresentationOverlap.Replace, 0, PresentationTimerPhase.None, SignalNode: new(node));
     private static WorkshopConstruction Bench(bool supplied = true) => new(new(2), WorkshopCadenceSettings.Default(),
         new(PlacedParts.Battery(new(1), -4, 4, 0, enabled: supplied ? ElectricalEnable.Enabled : ElectricalEnable.Disabled),
-            WorkshopInput.Generic(Part, new(2), 0, 4, 0, 0, 0, 0, 1)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Part, new(2), 0, 4, 0, 0, 0, 0, 1)),
         Connections: new(new WorkshopConnection(new(1), PortId.Supply, new(2), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
     private static ActivationNodeId Node(WorkshopConstruction bench, string local) => bench.Instances.Identities[new(2)].Signals[new(local)].Node;
     private static ActivationLatch Latch(WorkshopRead read, ActivationNodeId node) =>
@@ -66,7 +66,7 @@ public sealed class ComposableSignalNodesTests
     public async Task IndependentNodesRouteCountAndResetThroughProduction(bool reverse, bool connected, bool cosmetics)
     {
         await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
-        var entries = PartRegistry.Read(BundleSchema.WriteEntries([Entry(reverse, connected, cosmetics)]));
+        var entries = PartRegistry.Read(RuntimeTestServices.Bundle, BundleSchema.WriteEntries([Entry(reverse, connected, cosmetics)]));
         using var physics = DeclaredPhysics.Scoped(entries);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend(entries.Select(entry => (new PartId(entry.Metadata.Id), entry.Ports))));
         var bench = Bench();
@@ -100,7 +100,7 @@ public sealed class ComposableSignalNodesTests
         var bench = Bench(false);
         await harness.Require(WorkshopCommandKind.Construct, bench);
         await harness.Run(); await harness.Advance(12);
-        var presentation = new WorkshopDeclaredPresentation(harness.Simulation.Scene, harness.Latest);
+        var presentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), harness.Simulation.Scene, harness.Latest);
         var samples = presentation.Advance(new(harness.Committed.Tick.Value * 4));
         float Value(int binding) => BitConverter.UInt32BitsToSingle(Assert.Single(samples, sample => sample.Owner == new GpuBodyId(2) && sample.Binding == binding).Value.CanonicalBits);
         Assert.Equal(0f, Value(0));
@@ -169,7 +169,7 @@ public sealed class ComposableSignalNodesTests
         await harness.Advance(3);
         float[] Values()
         {
-            var presentation = new WorkshopDeclaredPresentation(harness.Simulation.Scene, harness.Latest);
+            var presentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), harness.Simulation.Scene, harness.Latest);
             return presentation.Advance(new(harness.Committed.Tick.Value * 4)).Where(sample => sample.Owner == new GpuBodyId(2))
                 .OrderBy(sample => sample.Binding).Select(sample => BitConverter.UInt32BitsToSingle(sample.Value.CanonicalBits)).ToArray();
         }
@@ -240,7 +240,7 @@ public sealed class ComposableSignalNodesTests
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal with { SourceNode = new("quiet") },
             harness.Committed, harness.Committed.Epoch, bench.Instances.Identities));
         var saved = new WorkshopSavedConstruction(bench, new(3));
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements.Append(Part).ToHashSet(), WorkshopSaveCodec.Encode(saved));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements.Append(Part).ToHashSet(), WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.Equal(saved, loaded);
         await harness.Reset();
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, harness.Committed, harness.Committed.Epoch, bench.Instances.Identities));
@@ -297,7 +297,7 @@ public sealed class ComposableSignalNodesTests
         using var physics = DeclaredPhysics.Scoped([entry]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Part, entry.Ports)]));
         var bench = Bench(seeded);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements.Append(Part).ToHashSet(), WorkshopSaveCodec.Encode(new(bench, new(3))));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements.Append(Part).ToHashSet(), WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(bench, new(3))));
         Assert.Equal(bench, loaded.Construction); // Positive-duration feedback remains valid through the same save graph admission.
         await harness.Require(WorkshopCommandKind.Construct, bench);
         await harness.Run(); await harness.Advance(60);
@@ -335,7 +335,7 @@ public sealed class ComposableSignalNodesTests
         Assert.Equal((ulong)durationTicks, timer.DueTick - timer.StartedTick);
         Assert.Equal(ActivationTimerState.Ready(Node(bench, inactive)),
             Assert.Single(Enumerable.Range(0, harness.Committed.Timers.Count).Select(i => harness.Committed.Timers[i]).ToArray(), row => row.Node == Node(bench, inactive)));
-        var presentation = new WorkshopDeclaredPresentation(harness.Simulation.Scene, harness.Latest);
+        var presentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), harness.Simulation.Scene, harness.Latest);
         var samples = presentation.Advance(new(harness.Committed.Tick.Value * 4));
         float Value(int index) => BitConverter.UInt32BitsToSingle(Assert.Single(samples,
             sample => sample.Owner == new GpuBodyId(2) && sample.Binding == index).Value.CanonicalBits);
@@ -415,18 +415,23 @@ public sealed class ComposableSignalNodesTests
     }
 
     [Theory]
-    [InlineData(2UL, "memory_a", "a_set", "a_reset", true)]
-    [InlineData(2UL, "memory_b", "b_set", "b_reset", true)]
-    [InlineData(4UL, "memory_a", "a_set", "a_reset", true)]
-    [InlineData(4UL, "memory_b", "b_set", "b_reset", true)]
-    [InlineData(2UL, "memory_a", "a_set", "a_reset", false)]
-    [InlineData(2UL, "memory_b", "b_set", "b_reset", false)]
-    [InlineData(4UL, "memory_a", "a_set", "a_reset", false)]
-    [InlineData(4UL, "memory_b", "b_set", "b_reset", false)]
-    public async Task PublicSetResetSelectsOneMemoryAndOneOwner(ulong ownerValue, string memory, string setPort, string resetPort, bool resetConnected)
+    [InlineData(IndependentSignalCompositionTests.Composition.Bodyless, 2UL, "memory_a", "a_set", "a_reset", true)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Bodyless, 2UL, "memory_b", "b_set", "b_reset", true)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Bodyless, 4UL, "memory_a", "a_set", "a_reset", true)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Bodyless, 4UL, "memory_b", "b_set", "b_reset", true)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Bodyless, 2UL, "memory_a", "a_set", "a_reset", false)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Bodyless, 2UL, "memory_b", "b_set", "b_reset", false)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Bodyless, 4UL, "memory_a", "a_set", "a_reset", false)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Bodyless, 4UL, "memory_b", "b_set", "b_reset", false)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Dynamic, 2UL, "memory_a", "a_set", "a_reset", true)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Dynamic, 2UL, "memory_a", "a_set", "a_reset", false)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Jointed, 4UL, "memory_b", "b_set", "b_reset", true)]
+    [InlineData(IndependentSignalCompositionTests.Composition.Jointed, 4UL, "memory_b", "b_set", "b_reset", false)]
+    public async Task PublicSetResetSelectsOneMemoryAndOneOwner(IndependentSignalCompositionTests.Composition composition,
+        ulong ownerValue, string memory, string setPort, string resetPort, bool resetConnected)
     {
         await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
-        var entry = PublicMemoryEntry();
+        var entry = IndependentSignalCompositionTests.Compose(PublicMemoryEntry(), composition);
         Assert.Empty(BundleValidator.Validate([new("public_memories", entry)]));
         using var physics = DeclaredPhysics.Scoped([entry]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Part, entry.Ports)]));
@@ -439,12 +444,16 @@ public sealed class ComposableSignalNodesTests
         if (resetConnected) links.Add(new(owner, new("slow_out"), owner, new(resetPort), WorkshopConnectionDomain.Activation));
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
             PlacedParts.Battery(new(1), -4, 4, 0),
-            WorkshopInput.Generic(Part, new(2), 0, 4, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(Part, new(4), 4, 4, 0, 0, 0, 0, 1)), Connections: new(links.ToArray()));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Part, new(2), 0, 4, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Part, new(4), 4, 4, 0, 0, 0, 0, 1)), Connections: new(links.ToArray()));
         ActivationNodeId Id(GpuBodyId selectedOwner, string local) => bench.Instances.Identities[selectedOwner].Signals[new(local)].Node;
         var selected = Id(owner, memory);
         Assert.NotEqual(selected, Id(other, memory));
         await harness.Require(WorkshopCommandKind.Construct, bench);
+        var movingBody = composition == IndependentSignalCompositionTests.Composition.Jointed
+            ? bench.Instances.Identities[owner].Hinges[0].Body : owner;
+        var hasInitialBody = harness.Committed.Bodies.TryGet(movingBody, out var initialBody);
+        if (composition != IndependentSignalCompositionTests.Composition.Bodyless) Assert.True(hasInitialBody);
         await harness.Run(); await harness.Advance(12);
         Assert.Equal(ActivationPhase.Latched, Latch(harness.Committed, selected).Phase);
         await harness.Advance(12); // Fast Set and slow Reset coincide; Reset must dominate only at its exact bound memory.
@@ -458,6 +467,21 @@ public sealed class ComposableSignalNodesTests
         var events = harness.Of(SimulationEventKind.MemoryChanged).ToArray();
         Assert.All(events, row => Assert.Equal(new GpuEventSourceId(selected.Value), row.Source));
         Assert.Equal(resetConnected ? new uint[] { 1, 0, 1 } : [1u], events.Select(row => row.Level));
+        if (composition != IndependentSignalCompositionTests.Composition.Bodyless)
+        {
+            await harness.Advance(24); // Keep the established half-second motion observation, after the signal assertions.
+            Assert.True(harness.Committed.Bodies.TryGet(movingBody, out var moved));
+            // Reuse the half-second 5 cm / 0.03 rad meaningful-motion criteria: they exclude a frozen owner
+            // without constraining its incidental trajectory or arrival time.
+            if (composition == IndependentSignalCompositionTests.Composition.Dynamic)
+                Assert.True((initialBody.Body.Cell.Y + initialBody.Body.Local.Y - moved.Body.Cell.Y - moved.Body.Local.Y) / 16f > .05f);
+            else
+            {
+                var before = new Quaternion(initialBody.Rotation.X, initialBody.Rotation.Y, initialBody.Rotation.Z, initialBody.Rotation.W);
+                var after = new Quaternion(moved.Rotation.X, moved.Rotation.Y, moved.Rotation.Z, moved.Rotation.W);
+                Assert.True(2 * MathF.Acos(Math.Clamp(MathF.Abs(Quaternion.Dot(before, after)), 0, 1)) > .03f);
+            }
+        }
         await harness.Reset();
         Assert.Equal(bench.Instances, harness.Construction.Instances);
         foreach (var quietOwner in new[] { owner, other })
@@ -485,13 +509,13 @@ public sealed class ComposableSignalNodesTests
         var bench = Bench();
         await harness.Require(WorkshopCommandKind.Construct, bench);
         var before = harness.Committed;
-        Assert.Equal(bench, WorkshopSaveCodec.Decode(SaveFixture.Elements.Append(Part).ToHashSet(), SaveFixture.Forged(bench, 5)).Construction);
+        Assert.Equal(bench, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements.Append(Part).ToHashSet(), SaveFixture.Forged(bench, 5)).Construction);
         var closing = new WorkshopConnection(new(2), new("b_out"), new(2), new("a_in"), WorkshopConnectionDomain.Activation);
         var invalid = bench with { Revision = new(3), Connections = bench.Connections.With(closing) };
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, invalid.Validate);
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => invalid.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => harness.Command(WorkshopCommandKind.Construct, invalid));
         SaveFixture.Refused(WorkshopSaveRejection.InvalidConnection,
-            () => WorkshopSaveCodec.Decode(SaveFixture.Elements.Append(Part).ToHashSet(), SaveFixture.Forged(invalid, 5)));
+            () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements.Append(Part).ToHashSet(), SaveFixture.Forged(invalid, 5)));
         var network = harness.Simulation.Scene.Activation;
         var refusal = Assert.Throws<SignalTopologyException>(() => new ActivationNetwork(network.Nodes,
             [.. network.Edges, new(Node(bench, "b"), Node(bench, "a"), PortRole.ActivationIn)]));
@@ -507,10 +531,13 @@ public sealed class ComposableSignalNodesTests
 
 
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
-    public async Task EachOscillatorUsesItsExactInputInsteadOfItsOwnersOtherSupply(bool secondConnected, bool reverse)
+    [InlineData(false, false, IndependentSignalCompositionTests.Composition.Dynamic)]
+    [InlineData(false, true, IndependentSignalCompositionTests.Composition.Jointed)]
+    [InlineData(true, false, IndependentSignalCompositionTests.Composition.Dynamic)]
+    [InlineData(true, false, IndependentSignalCompositionTests.Composition.Jointed)]
+    [InlineData(true, true, IndependentSignalCompositionTests.Composition.Dynamic)]
+    [InlineData(true, true, IndependentSignalCompositionTests.Composition.Jointed)]
+    public async Task EachOscillatorUsesItsExactInputInsteadOfItsOwnersOtherSupply(bool secondConnected, bool reverse, IndependentSignalCompositionTests.Composition composition)
     {
         await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
         PortId secondInput = new("other_power");
@@ -523,6 +550,11 @@ public sealed class ComposableSignalNodesTests
                 node is SignalOscillatorDescriptor oscillator && node.Id == new SignalNodeId("slow")
                     ? oscillator with { SupplyInput = secondInput } : node).ToArray() }
         };
+        entry = IndependentSignalCompositionTests.Compose(entry, composition);
+        var collider = Assert.Single(entry.Colliders);
+        entry = entry with { Colliders = reverse
+            ? [collider with { Offset = new(.5f, 0, 0) }, collider]
+            : [collider, collider with { Offset = new(.5f, 0, 0) }] };
         Assert.Empty(BundleValidator.Validate([new("separate_inputs", entry)]));
         using var physics = DeclaredPhysics.Scoped([entry]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Part, entry.Ports)]));
@@ -530,10 +562,13 @@ public sealed class ComposableSignalNodesTests
             PlacedParts.Battery(new(3), 4, 4, 0, enabled: ElectricalEnable.Disabled)).ToArray()) };
         var secondWire = new WorkshopConnection(new(3), PortId.Supply, new(2), secondInput, WorkshopConnectionDomain.Electrical);
         if (secondConnected) bench = bench with { Connections = bench.Connections.With(secondWire) };
-        var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements.Append(Part).ToHashSet(),
-            WorkshopSaveCodec.Encode(new(bench, new(4))));
+        var saved = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements.Append(Part).ToHashSet(),
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(bench, new(4))));
         Assert.Equal(bench, saved.Construction);
         await harness.Require(WorkshopCommandKind.Construct, saved.Construction);
+        var body = composition == IndependentSignalCompositionTests.Composition.Jointed
+            ? bench.Instances.Identities[new(2)].Hinges[0].Body : new GpuBodyId(2);
+        Assert.True(harness.Committed.Bodies.TryGet(body, out var initial));
         await harness.Run(); await harness.Advance(24);
         ActivationMemory Memory(string local) => harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, Node(bench, local));
         Assert.Equal(2u, Memory("fast").Count);
@@ -544,9 +579,45 @@ public sealed class ComposableSignalNodesTests
         Assert.Equal(4u, Memory("fast").Count);
         Assert.Equal(secondConnected ? 1u : 0u, Memory("slow").Count);
         Assert.Equal(secondConnected ? OscillatorPhase.Running : OscillatorPhase.Stopped, Memory("slow").Phase);
+        Assert.True(harness.Committed.Bodies.TryGet(body, out var moved));
+        // The controller must advance on a genuinely moving owner: 5 cm translation or 0.03 rad
+        // rotation over this 49-tick window excludes a frozen physical owner without a trajectory golden.
+        if (composition == IndependentSignalCompositionTests.Composition.Dynamic)
+            Assert.True((initial.Body.Cell.Y + initial.Body.Local.Y - moved.Body.Cell.Y - moved.Body.Local.Y) / 16f > .05f);
+        else
+        {
+            var before = new Quaternion(initial.Rotation.X, initial.Rotation.Y, initial.Rotation.Z, initial.Rotation.W);
+            var after = new Quaternion(moved.Rotation.X, moved.Rotation.Y, moved.Rotation.Z, moved.Rotation.W);
+            Assert.True(2 * MathF.Acos(Math.Clamp(MathF.Abs(Quaternion.Dot(before, after)), 0, 1)) > .03f);
+        }
+        var slowEvents = harness.Of(SimulationEventKind.TriggerActivated)
+            .Where(record => record.Source == new GpuEventSourceId(Node(bench, "slow").Value)).ToArray();
+        if (secondConnected)
+        {
+            Assert.Single(slowEvents);
+            var selected = Latch(harness.Committed, Node(bench, "slow"));
+            Assert.Equal(ActivationCauseKind.Node, selected.CauseKind);
+            Assert.Equal(new GpuEventSourceId(Node(bench, "slow").Value), selected.Source);
+            Assert.Equal(new GpuBodyId(2), selected.Body);
+            Assert.Equal(default, selected.Collider);
+            Assert.Equal(0f, selected.ApproachSpeed.Value);
+            await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+                runControl: WorkshopIntegrationHarness.RunControl(harness.Simulation.Scene, new(3), RunControlValue.Of(ElectricalEnable.Disabled)));
+            await harness.Advance(1);
+            Assert.Equal(OscillatorPhase.Stopped, Memory("slow").Phase);
+            await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+                runControl: WorkshopIntegrationHarness.RunControl(harness.Simulation.Scene, new(3), RunControlValue.Of(ElectricalEnable.Enabled)));
+            await harness.Advance(1);
+            Assert.Equal(harness.Committed.Tick.Value + 24, Memory("slow").DueTick);
+            await harness.Advance(23);
+            Assert.Equal(1u, Memory("slow").Count);
+            await harness.Advance(1);
+            Assert.Equal(2u, Memory("slow").Count);
+        }
+        else Assert.Empty(slowEvents);
         var duplicate = bench with { Connections = bench.Connections.With(
             new WorkshopConnection(new(1), PortId.Supply, new(2), secondInput, WorkshopConnectionDomain.Electrical)) };
-        if (secondConnected) Assert.Throws<WorkshopEditRejectedException>(() => duplicate.Validate());
+        if (secondConnected) Assert.Throws<WorkshopEditRejectedException>(() => duplicate.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         await harness.Reset();
         Assert.Equal(0u, Memory("fast").Count); Assert.Equal(0u, Memory("slow").Count);
         Assert.Equal(OscillatorPhase.Stopped, Memory("slow").Phase);
@@ -576,7 +647,7 @@ public sealed class ComposableSignalNodesTests
         var wires = new List<WorkshopConnection> { Power(1, 3), Power(5, 4), Power(7, 6), Pulse(4, PortId.SetIn), Pulse(6, PortId.ResetIn) };
         if (throughGate)
         {
-            instances.Add(WorkshopInput.Generic(new("both_gate"), new(8), 16, 4, 0, 0, 0, 0, 1));
+            instances.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new("both_gate"), new(8), 16, 4, 0, 0, 0, 0, 1));
             instances.Add(PlacedParts.Battery(new(9), 19, 4, 0));
             wires.AddRange([Power(1, 8), Power(3, 8, PortId.FirstIn), Power(9, 8, PortId.SecondIn), Power(8, 2)]);
         }
@@ -695,9 +766,9 @@ public sealed class ComposableSignalNodesTests
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Part, entry.Ports)]));
         var bench = Bench() with { Instances = new(
             PlacedParts.Battery(new(1), -4, 4, 0, capacity: enoughEnergy ? 3600 : 60, initialCharge: enoughEnergy ? 1 : .001f),
-            WorkshopInput.Generic(Part, new(2), 0, 4, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Part, new(2), 0, 4, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(3), 4, 3, 0, 20),
-            WorkshopInput.Generic(new("bowling"), new(4), 4, 6, 0, 0, 0, 0, 1)) };
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new("bowling"), new(4), 4, 6, 0, 0, 0, 0, 1)) };
         bench = bench with { Connections = bench.Connections.With(
             new WorkshopConnection(new(1), PortId.Supply, new(3), PortId.PowerIn, WorkshopConnectionDomain.Electrical)) };
         await harness.Require(WorkshopCommandKind.Construct, bench);

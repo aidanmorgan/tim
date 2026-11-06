@@ -8,23 +8,6 @@ namespace CuriousContraptions.Gpu;
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
-public enum ResidencePhase : uint { Outside, Dwelling, Qualified }
-public readonly record struct ResidenceRead(GpuSensorId Id, GpuBodyId Target, ResidencePhase Phase, uint OccurrenceCount,
-    uint StartOrdinal, float StartPhase, uint EventOrdinal, float EventPhase)
-{
-    public void Validate(uint ordinal)
-    {
-        if(Id.Value==0 || Target.Value==0 || !Enum.IsDefined(Phase) || OccurrenceCount>1 ||
-            !PhysicalPhase.IsAdmitted(StartOrdinal,StartPhase) || !PhysicalPhase.IsAdmitted(EventOrdinal,EventPhase) ||
-            StartOrdinal>ordinal || EventOrdinal>ordinal ||
-            (Phase==ResidencePhase.Outside && (StartOrdinal!=0 || StartPhase!=0)) ||
-            (OccurrenceCount==0 && (EventOrdinal!=0 || EventPhase!=0)) ||
-            (OccurrenceCount!=0 && Phase==ResidencePhase.Qualified &&
-                (EventOrdinal<StartOrdinal || (EventOrdinal==StartOrdinal && EventPhase<StartPhase))))
-            throw new ArgumentException("Invalid committed residence state.");
-    }
-}
-
 public readonly record struct PhysicsCandidateRead(PhysicsBodyReadSet Bodies, PhysicsMotionRead Motion);
 
 /// <summary>One bounded generic scene/state ABI. Every record field is a named offset (PhysicsGpuAbi.Header.cs and below), and
@@ -77,7 +60,7 @@ public static partial class PhysicsGpuAbi
     // A binary eighth-second primary segment bounds elapsed-value quantization.
     public const uint PrimarySegmentSteps = WorkshopCadenceSettings.PhysicalFrequency / 8;
 
-    public static byte[] Admission(PhysicsSceneDeclaration scene, SimulationEpoch epoch, WorkshopGpuProfile profile)
+    public static byte[] Admission(IPhysicsSceneDeclaration scene, SimulationEpoch epoch, WorkshopGpuProfile profile)
     {
         ArgumentNullException.ThrowIfNull(scene); profile.Validate();
         if (epoch.Value == 0) throw new ArgumentException("A world epoch is required.");
@@ -212,7 +195,7 @@ public static partial class PhysicsGpuAbi
                 ReadCentreOfMass(record));
         }
         if (count != values.Length) throw new ArgumentException("Fewer dynamic bodies than the world header declares.");
-        var result = PhysicsBodyReadSet.Adopt(values);
+        var result = PhysicsBodyReadSet.FromImmutable(System.Runtime.InteropServices.ImmutableCollectionsMarshal.AsImmutableArray(values));
         result.ValidateTime(new(epoch), new(tick)); return result;
     }
 
@@ -462,8 +445,8 @@ public static partial class PhysicsGpuAbi
             throw new ArgumentException("Unsupported generic physics record.");
     }
     private static bool AllZero(ReadOnlySpan<byte> bytes) => bytes.IndexOfAnyExcept((byte)0) < 0;
-    private static uint BodySlot(PhysicsSceneDeclaration scene, GpuBodyId id) => (uint)scene.Layout.GetBodySlot(id);
-    private static uint MaterialSlot(PhysicsSceneDeclaration scene, GpuMaterialId id) => (uint)scene.Layout.GetMaterialSlot(id);
+    private static uint BodySlot(IPhysicsSceneDeclaration scene, GpuBodyId id) => (uint)scene.Layout.GetBodySlot(id);
+    private static uint MaterialSlot(IPhysicsSceneDeclaration scene, GpuMaterialId id) => (uint)scene.Layout.GetMaterialSlot(id);
     private static void Pose(Span<byte> bytes, int offset, RigidLocalPose pose)
     {
         F32Vector(bytes, offset, pose.Translation.X, pose.Translation.Y, pose.Translation.Z);

@@ -3,27 +3,6 @@ using System;
 
 namespace CuriousContraptions.Presentation;
 
-/// <summary>Analytic cosmetic underdamped motion, with canonical float anchors and no physical feedback.</summary>
-public sealed record AnimationOscillationDefinition
-{
-    public AnimationDecayPerSecond Decay { get; }
-    public AnimationFrequencyRadiansPerSecond Frequency { get; }
-    public AnimationVelocity VelocityPerStrength { get; }
-    public AnimationClock Clock { get; }
-    public AnimationOscillationDefinition(AnimationDecayPerSecond decay,
-        AnimationFrequencyRadiansPerSecond frequency,AnimationVelocity velocityPerStrength,AnimationClock clock)
-    {
-        AnimationNumbers.OscillationCoefficient(decay.Value);
-        AnimationNumbers.OscillationCoefficient(frequency.Value);
-        velocityPerStrength.Validate();
-        if(velocityPerStrength.Number<=0)throw new ArgumentOutOfRangeException(nameof(velocityPerStrength));
-        if(!Enum.IsDefined(clock))throw new ArgumentOutOfRangeException(nameof(clock));
-        Decay=decay;Frequency=frequency;VelocityPerStrength=velocityPerStrength;Clock=clock;
-    }
-}
-public readonly record struct AnimationOscillationRead(AnimationValue Position, AnimationVelocity Velocity,
-    ulong Accepted, AnimationOccurrenceId LastOccurrence);
-
 internal sealed class AnimationOscillationState
 {
     private readonly AnimationOscillationDefinition _definition;

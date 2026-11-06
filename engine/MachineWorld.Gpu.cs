@@ -11,7 +11,7 @@ namespace CuriousContraptions;
 /// <summary>Current admitted game path. Scene nodes are render/input adapters; the worker owns physics.</summary>
 public partial class MachineWorld
 {
-    public WorkshopDiagnostics Diagnostics { get; init; } = new();
+    public IWorkshopDiagnostics Diagnostics { get; init; } = null!;
     private readonly WorkshopPhysicalPresentation _physicalPresentation = new();
     private IWorkshopClient? _workshopClient;
     private bool _workshopPending;
@@ -57,7 +57,7 @@ public partial class MachineWorld
         return _workshopClient is not null && !TransportRetired &&
             _workshopClient.TryUiFrame(Engine.GetProcessFrames(), _workshopPresentation, target, out opacity);
     }
-    public Task InitializeWorkshop() => InitializeWorkshop(async () => await BrowserWorkshopClient.Create());
+    public Task InitializeWorkshop() => InitializeWorkshop(async () => await BrowserWorkshopClient.Create(Core, Bundle));
 
     internal async Task InitializeWorkshop(Func<Task<IWorkshopClient>> createClient)
     {
@@ -104,7 +104,7 @@ public partial class MachineWorld
     public IWorkshopInstance CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Vector3? dimensions = null)
     {
         var q = rotation.Normalized();
-        return WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+        return WorkshopInput.Generic(Bundle, id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
             CaptureParameters(id, bodyId, dimensions));
     }
 
@@ -115,7 +115,7 @@ public partial class MachineWorld
         if (Construction.Revision.Value == ulong.MaxValue)
             return new(new(WorkshopCommandOutcome.Rejected, WorkshopRejection.IdentityExhausted), false);
         var next = proposed with { Revision = new(Construction.Revision.Value + 1), Settings = Construction.Settings };
-        next.Validate();
+        next.Validate(Core.Supply, Bundle);
         var delivery = await ExecuteWorkshop(WorkshopCommandKind.Construct, next);
         var response = delivery.Response;
         return new(response.Result, delivery.Applicable);
@@ -276,8 +276,8 @@ public partial class MachineWorld
         if (read.Epoch != _workshopClient!.Epoch || read.Revision != _workshopClient.Revision ||
             read.Tick.Value > construction.Settings.RunTickLimit)
             throw new ArgumentException("Read does not own the admitted construction.");
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 1));
-        read.Bodies.ValidateScene(scene, read.Epoch, read.Tick);
+        var scene = WorkshopPhysicsCompiler.Compile(Core, Bundle, construction, new(1, 1));
+        Core.Presentation.ValidateBodies(read.Bodies, scene, read.Epoch, read.Tick);
     }
 
     public void RestoreConstructionPresentation()

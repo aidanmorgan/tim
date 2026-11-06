@@ -9,7 +9,7 @@ namespace CuriousContraptions.Gpu;
 /// only has to be unique among the outstanding turns, so it wraps from <see cref="int.MaxValue"/> back to 1 instead of
 /// overflowing after 2^31 turns (edge-case E2), skipping any identity still outstanding.
 /// </summary>
-public sealed class WorkshopTurnRegistry
+public sealed class WorkshopTurnRegistry : IWorkshopTurnRegistry
 {
     private readonly Dictionary<int, TaskCompletionSource> _turns = new(16);
     private int _last;
@@ -35,7 +35,7 @@ public sealed class WorkshopTurnRegistry
         return (_last, completion.Task);
     }
 
-    public void Resume(int turn)
+    public void ResumeTurn(int turn)
     {
         if (!_turns.Remove(turn, out var completion))
             throw new InvalidOperationException($"Scheduler turn {turn} was never requested or already resumed.");

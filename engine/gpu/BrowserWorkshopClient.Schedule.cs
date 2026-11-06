@@ -28,7 +28,7 @@ public sealed partial class BrowserWorkshopClient
     private void ReceiveSchedule()
     {
         var bytes = _transport.EventBytes(_id.Value);
-        var header = WorkshopScheduleWire.ReadHeader(bytes);
+        var header = _core.Codecs.Schedules.ReadHeader(bytes);
         if (header.Session != Peer.Session || header.MasterGeneration != Peer.Generation ||
             header.Sender != WorkshopRuntimeRole.Simulation || header.Recipient != WorkshopRuntimeRole.Browser)
             throw new ArgumentException("Foreign browser schedule control.");
@@ -47,7 +47,7 @@ public sealed partial class BrowserWorkshopClient
     private void PrepareSchedule(ReadOnlySpan<byte> data, ScheduleControlHeader header)
     {
         if (_preparation is not null) throw new InvalidOperationException("Browser schedule already prepared.");
-        var settings = WorkshopCadenceWire.Read(data[..32]);
+        var settings = _core.Codecs.Schedules.ReadCadence(data[..32]);
         if (settings.Presentation == PresentationCadence.AdmittedDisplay && settings.PresentationRate != _admittedDisplay)
             throw new ArgumentException("Unadmitted display rate.");
         if (BinaryPrimitives.ReadUInt64LittleEndian(data[32..]) != (_schedule?.Revision.Value ?? 0) ||
@@ -58,7 +58,7 @@ public sealed partial class BrowserWorkshopClient
             throw new ArgumentException("Stale browser schedule Prepare.");
         var transition = (ScheduleTransition)BinaryPrimitives.ReadUInt32LittleEndian(data[48..]);
         if (!Enum.IsDefined(transition)) throw new ArgumentException("Unknown projection transition.");
-        var endpoint = WorkshopWireFlatBuffers.DecodeResponse(data[WorkshopScheduleWire.PrepareFieldBytes..]);
+        var endpoint = _core.Codecs.Commands.DecodeResponse(data[_core.Codecs.Schedules.PrepareFieldBytes..]);
         ValidatePreparedEndpoint(data, header, settings, endpoint);
         _preparation = new(header, settings, endpoint, transition);
         SendScheduleResult(header, ScheduleControlKind.Prepared);
@@ -79,9 +79,9 @@ public sealed partial class BrowserWorkshopClient
 
     private void CommitSchedule(byte[] bytes, ScheduleControlHeader header)
     {
-        var schedule = WorkshopScheduleWire.ReadCommit(bytes, out _);
+        var schedule = _core.Codecs.Schedules.ReadCommit(bytes, out _);
         if (schedule.Settings.Presentation == PresentationCadence.AdmittedDisplay)
-            schedule.ValidateDisplay(_admittedDisplay);
+            _core.Scheduling.ValidateDisplay(schedule, _admittedDisplay);
         if (_preparation is not { } prepared || !SameInstallation(prepared.Header, header) ||
             prepared.Settings != schedule.Settings || schedule.MasterNativeOrigin != Peer.MasterOrigin)
             throw new ArgumentException("Browser Commit lacks its matching preparation.");
@@ -113,7 +113,7 @@ public sealed partial class BrowserWorkshopClient
             throw new ArgumentException("Foreign browser Abort.");
         _preparation = null;
         if (_schedule is { } old && Clock.TryMasterNow(_transport.EventTime(_id.Value), out var current))
-            _lastPresentation = new(Math.Max(_lastPresentation.Value, WorkshopPulse.Due(old.Settings.PresentationRate, new(checked((long)current.Lower))).Value));
+            _lastPresentation = new(Math.Max(_lastPresentation.Value, _core.Scheduling.Due(old.Settings.PresentationRate, new(checked((long)current.Lower))).Value));
     }
 
     private static bool SameInstallation(ScheduleControlHeader a, ScheduleControlHeader b) =>
@@ -121,7 +121,7 @@ public sealed partial class BrowserWorkshopClient
     private void SendScheduleResult(ScheduleControlHeader request, ScheduleControlKind kind)
     {
         var result = new byte[80];
-        WorkshopScheduleWire.WriteHeader(request with { Kind = kind, Sender = WorkshopRuntimeRole.Browser,
+        _core.Codecs.Schedules.WriteHeader(request with { Kind = kind, Sender = WorkshopRuntimeRole.Browser,
             Recipient = WorkshopRuntimeRole.Simulation }, result.AsSpan(0,64));
         BinaryPrimitives.WriteInt64LittleEndian(result.AsSpan(64), _lastPresentationApplied.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(result.AsSpan(72), (uint)WorkshopCommandOutcome.Applied);
@@ -133,7 +133,7 @@ public sealed partial class BrowserWorkshopClient
     private void SendAnimation(WorkshopAnimationControl control, WorkshopSchedule schedule)
     {
         if (_animationPending is not null) throw new InvalidOperationException("An animation control is pending.");
-        var bytes = WorkshopAnimationWire.Control(Peer.Session, Peer.Generation, schedule.Revision, control);
+        var bytes = _core.Codecs.Animation.Control(Peer.Session, Peer.Generation, schedule.Revision, control);
         // The lease is owned once the validated control exists; a failed send faults the transport, never a second lease.
         _animationSequence = control.Sequence; _animationPending = control; _animationPendingCadence = schedule.Revision;
         _transport.SendAnimationControl(_id.Value, bytes);
@@ -147,10 +147,10 @@ public sealed partial class BrowserWorkshopClient
     private void ReceiveAnimation() => ReceiveAnimation(_transport.EventBytes(_id.Value));
     internal void ReceiveAnimation(byte[] bytes)
     {
-        if (bytes.Length != WorkshopAnimationWire.OutputBytes) throw new ArgumentException("Invalid Animation frame.");
+        if (bytes.Length != _core.Codecs.Animation.OutputBytes) throw new ArgumentException("Invalid Animation frame.");
         var cadence = new CadenceRevision(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(24)));
         cadence.Validate();
-        var sample = WorkshopAnimationWire.Read(bytes, Peer.Session, Peer.Generation, cadence, out var kind);
+        var sample = _core.Codecs.Animation.Read(bytes, Peer.Session, Peer.Generation, cadence, out var kind);
         var active = _schedule ?? throw new InvalidOperationException("Animation output before schedule.");
         if (cadence.Value > active.Revision.Value) throw new ArgumentException("Future Animation cadence.");
         // Reliable ACK belongs to its exact sent command even if a world transition has since retired its target.
@@ -166,9 +166,9 @@ public sealed partial class BrowserWorkshopClient
         if (cadence.Value < active.Revision.Value) return;
         // Target ranges are declared identities: the fixed UI targets, then the declared (package binding) range. Every one-shot cue is
         // a declared binding the Animation worker drives from the event ring (Story 9A.25b); the main thread relays none.
-        if (sample.Target == UiCurves.Hint.AnimationTarget) ReceiveHintSample(sample, kind);
-        else if (sample.Target == UiCurves.Goal.AnimationTarget) ReceiveGoalSample(sample, kind, active);
-        else if (sample.Target.Value >= WorkshopDeclaredPresentation.TargetBase) ReceiveDeclaredSample(sample, kind, active);
+        if (sample.Target == _core.UiCurves.Hint.AnimationTarget) ReceiveHintSample(sample, kind);
+        else if (sample.Target == _core.UiCurves.Goal.AnimationTarget) ReceiveGoalSample(sample, kind, active);
+        else if (sample.Target.Value >= _core.Presentation.TargetBase) ReceiveDeclaredSample(sample, kind, active);
         else throw new ArgumentException("Unowned animation output target.");
         Diagnostics.Capture(() => new WorkshopAnimationDiagnostic(cadence, kind, sample));
         // The JS ACK lease releases after this callback returns; next presentation pumps the next owner.
@@ -182,10 +182,10 @@ public sealed partial class BrowserWorkshopClient
         _frameObservedAt = _transport.NativeNow();
         if (_preparation is not null || _schedule is not { } schedule ||
             !Clock.TryMasterNow(_frameObservedAt, out var master)) return false;
-        var due = WorkshopPulse.Due(schedule.Settings.PresentationRate, new(checked((long)master.Lower)));
+        var due = _core.Scheduling.Due(schedule.Settings.PresentationRate, new(checked((long)master.Lower)));
         if (due.Value < schedule.FirstPresentation.Value || due.Value <= _lastPresentation.Value) return false;
         _lastPresentation = due;
-        _frameMaster = WorkshopPulse.Deadline(schedule.Settings.PresentationRate, due);
+        _frameMaster = _core.Scheduling.Deadline(schedule.Settings.PresentationRate, due);
         _frameAdmitted = true;
         return true;
     }

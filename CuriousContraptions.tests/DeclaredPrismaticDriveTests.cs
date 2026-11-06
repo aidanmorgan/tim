@@ -67,9 +67,9 @@ public sealed class DeclaredPrismaticDriveTests
     [Fact]
     public void TheGatePackageDeclaresItsDriveAndItsPowerInRouteBindsThatSlider()
     {
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
-        var scene = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
             { Connections = new(Power(battery.Id, gate.Id)) }, new(1, 2));
         var declared = TestBundle.Entry(new PartId("powered_gate")).Mechanical!.Sliders.Single().Drive!.Value;
         Assert.Equal(new PrismaticDriveDescriptor(MechanicalValue.Fixed(1.55f), MechanicalValue.Fixed(2.8f), MechanicalValue.Fixed(14f),
@@ -80,8 +80,8 @@ public sealed class DeclaredPrismaticDriveTests
         // The admitted world carries the same drive; a slider without one (the springboard) carries none.
         var world = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         Assert.Equal(scene.PrismaticDrives[0], PhysicsGpuAbi.ReadPrismaticDrive(world, 0));
-        var spring = WorkshopInput.Generic(new PartId("spring"), new(1), 0, 3, 0, 0, 0, 0, 1);
-        var passive = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new(spring)), new(1, 2));
+        var spring = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), new(1), 0, 3, 0, 0, 0, 0, 1);
+        var passive = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(2), WorkshopCadenceSettings.Default(), new(spring)), new(1, 2));
         Assert.Single(passive.Prismatics.ToArray());
         Assert.Empty(passive.PrismaticDrives.ToArray());
         Assert.Null(PhysicsGpuAbi.ReadPrismaticDrive(PhysicsGpuAbi.Admission(passive, new(1),
@@ -91,7 +91,7 @@ public sealed class DeclaredPrismaticDriveTests
     [Fact]
     public async Task ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep()
     {
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var reads = await WorkshopIntegrationHarness.Observe(new(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
             { Connections = new(Power(battery.Id, gate.Id)) }, 240);
@@ -194,7 +194,7 @@ public sealed class DeclaredPrismaticDriveTests
         var paths = new[] { new List<Substep>(),new List<Substep>() };
         for (var tick=0;tick<480;tick++)
         {
-            var input = PhysicsTickInputs.Compose(graph,new([source.Enabled]),_=>false, PhysicsGpuAbi.ReadElectrical(current));
+            var input = TickControlComposition.Compose(graph,new([source.Enabled]),_=>false, PhysicsGpuAbi.ReadElectrical(current));
             interactions = engine.Advance(current,candidate,input,interactions);
             (current,candidate)=(candidate,current);
             for(var i=0;i<2;i++) paths[i].AddRange(Pieces(Motion(current),moving[i].Value));
@@ -265,7 +265,7 @@ public sealed class DeclaredPrismaticDriveTests
     [Fact]
     public void AdmissionRefusesAnInvalidDriveAndARouteToAnUndrivenSlider()
     {
-        PhysicsSceneDeclaration Admit(Func<PrismaticDriveDeclaration, PrismaticDriveDeclaration> change, bool dynamicMoving = true)
+        IPhysicsSceneDeclaration Admit(Func<PrismaticDriveDeclaration, PrismaticDriveDeclaration> change, bool dynamicMoving = true)
         {
             var scene = new LawScene(bench: false);
             var frame = scene.StaticBox(new(0, 5, 0), new(.2f, .2f, .2f));
@@ -279,7 +279,7 @@ public sealed class DeclaredPrismaticDriveTests
             var drive = new PrismaticDriveDeclaration(joint, 1.2f, 1.6f, 8f, 16f, 12f);
             // The hand-built scene keeps the admitted scene's supply graph (its consumer names this joint), so only the drive differs.
             return scene.Admit().Scene is var admitted && change(drive) == drive ? admitted
-                : new(new(1, 2), admitted.NextIdentity, admitted.Bodies, admitted.Colliders, admitted.Materials, [], [],
+                : new PhysicsSceneDeclaration(new(1, 2), admitted.NextIdentity, admitted.Bodies, admitted.Colliders, admitted.Materials, [], [],
                     electricalSources: admitted.Electrical.Sources, prismatics: admitted.Prismatics,
                     supplyNodes: admitted.SupplyGraph.Nodes, supplyEdges: admitted.SupplyGraph.Edges, prismaticDrives: [change(drive)]);
         }
@@ -298,8 +298,8 @@ public sealed class DeclaredPrismaticDriveTests
             Assert.Throws<ArgumentException>(() => Admit(drive => drive with { Joint = new(999) })).Message);
         Assert.Throws<ArgumentException>(() => Admit(drive => drive, dynamicMoving: false)); // the drive moves a static body
         // A route may drive only a slider that declares a drive: the springboard's passive slider is never a consumer.
-        var spring = WorkshopInput.Generic(new PartId("spring"), new(1), 0, 3, 0, 0, 0, 0, 1);
-        var passive = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new(spring)), new(1, 2));
+        var spring = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), new(1), 0, 3, 0, 0, 0, 0, 1);
+        var passive = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(2), WorkshopCadenceSettings.Default(), new(spring)), new(1, 2));
         Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph([new(spring.Id, SupplyNodeKind.Consumer, Consumers: [SupplyConsumer.Prismatic(passive.Prismatics[0].Id)])],
             [], [], passive.Prismatics, passive.PrismaticDrives, [], []));
     }
@@ -339,20 +339,20 @@ public sealed class DeclaredPrismaticDriveTests
     public async Task AnUnpoweredInvertedOrTiltedMountRestingInItsInteriorWithNothingInTheWayIsNotBlocked(double degrees, float equilibrium)
     {
         var half = degrees * Math.PI / 360;
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 8, 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 8, 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
         var reads = await WorkshopIntegrationHarness.Observe(new(new(2), WorkshopCadenceSettings.Default(), new(gate)), 720);
         var drives = reads.Select(read => read.Presentation.Actuators[0]).ToArray();
         var rest = drives[^1];
         // Recorded for CAT-051 Q1 (fail-closed spring): such a mount rests open, short of both stops, and nothing touches it.
         Assert.Equal(equilibrium, rest.Coordinate, 2e-3f);
-        Assert.True(MathF.Abs(rest.Speed) < ActuatorDriveRead.RestSpeed, $"at rest, {rest.Speed}");
+        Assert.True(MathF.Abs(rest.Speed) < ActuatorObservations.RestSpeed, $"at rest, {rest.Speed}");
         Assert.All(drives, drive =>
         {
             Assert.False(drive.MovingContact, "nothing touches the blade");
-            Assert.False(drive.Blocked, $"not blocked: {drive}");
+            Assert.False(drive.IsBlocked(), $"not blocked: {drive}");
         });
         // The kinematic part of the predicate alone would read Blocked here; only the contact term tells them apart.
-        Assert.True(rest.Coordinate > rest.Lower + ActuatorDriveRead.StopSlop && rest.Coordinate < rest.Upper - ActuatorDriveRead.StopSlop);
+        Assert.True(rest.Coordinate > rest.Lower + ActuatorObservations.StopSlop && rest.Coordinate < rest.Upper - ActuatorObservations.StopSlop);
     }
 
     /// <summary>Review F4: the moving-contact lane covers every substep of the tick, not only the last. A ball bounces off a sprung
@@ -383,12 +383,12 @@ public sealed class DeclaredPrismaticDriveTests
     public void BlockedNeedsContactInteriorAndRestTogether()
     {
         var rest = new ActuatorDriveRead(SupplyConsumer.Prismatic(new(1)), new(2), false, true, .75f, -1.1e-5f, 0f, 1.55f);
-        Assert.True(rest.Blocked);
-        Assert.False((rest with { MovingContact = false }).Blocked);
-        Assert.False((rest with { Speed = ActuatorDriveRead.RestSpeed }).Blocked);
-        Assert.False((rest with { Coordinate = ActuatorDriveRead.StopSlop }).Blocked);
-        Assert.False((rest with { Coordinate = 1.55f - ActuatorDriveRead.StopSlop }).Blocked);
-        Assert.True((rest with { Coordinate = 2f * ActuatorDriveRead.StopSlop, SupplyClosed = true }).Blocked); // one state, either direction
+        Assert.True(rest.IsBlocked());
+        Assert.False((rest with { MovingContact = false }).IsBlocked());
+        Assert.False((rest with { Speed = ActuatorObservations.RestSpeed }).IsBlocked());
+        Assert.False((rest with { Coordinate = ActuatorObservations.StopSlop }).IsBlocked());
+        Assert.False((rest with { Coordinate = 1.55f - ActuatorObservations.StopSlop }).IsBlocked());
+        Assert.True((rest with { Coordinate = 2f * ActuatorObservations.StopSlop, SupplyClosed = true }).IsBlocked()); // one state, either direction
     }
 
     // ---- D6: a ball resting against the closed, tilted blade passes through when the gate is enabled during Run ----
@@ -400,14 +400,14 @@ public sealed class DeclaredPrismaticDriveTests
     {
         const double tilt = -15;
         var half = tilt * Math.PI / 360;
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 3, 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
         // Declared geometry: ball radius .34, blade thickness .12, sleeve bore .70-.05=.65 m
         // (the collar bore is .78-.13=.65 too). D6 requires a resting ball, so place its center
         // tangent to both the upstream blade and lower bore, not inside the closed blade.
         const float radius = .34f, bladeHalfThickness = .06f, boreRadius = .65f;
         const float initialAlong = -(bladeHalfThickness + radius), initialUp = -(boreRadius - radius);
         var (sin, cos) = MathF.SinCos((float)(tilt * Math.PI / 180));
-        var ball = WorkshopInput.Generic(new PartId("ball"), new(2),
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(2),
             (float)(cos * initialAlong - sin * initialUp), (float)(3f + sin * initialAlong + cos * initialUp), 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(3), 3, 3, 0, enabled: authoredEnabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(gate, ball, battery))
@@ -452,8 +452,8 @@ public sealed class DeclaredPrismaticDriveTests
         }
         Assert.True(along.Min() >= held - .02f, $"never thrown back toward the entry mouth (min {along.Min()}, held {held})");
         Assert.True(along[^1] > .49f, $"the ball ends downstream of the exit mouth, {along[^1]}");
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            WorkshopSaveCodec.Encode(new(construction, new(10))));
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(10))));
         Assert.Equal(construction.Instances, decoded.Construction.Instances);
         Assert.Equal(construction.Connections, decoded.Construction.Connections);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Require(WorkshopCommandKind.Reset)).Outcome);
@@ -618,7 +618,7 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.Equal(0, simulation.Committed.Bodies.Count);
         NoSyntheticActivity(simulation.Committed);
         var construction = new WorkshopConstruction(new(2), settings,
-            new(WorkshopInput.Generic(new PartId("ball"), new(1), 0, 4, 0, 0, 0, 0, 1)));
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 4, 0, 0, 0, 0, 1)));
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(CompiledSceneFixture.Compile(construction))).Outcome);
         NoEmittedEvents(device);
         var authored = Ball(simulation.Committed);
@@ -752,13 +752,13 @@ public static class NativeTwoDriveScenario
         var native = CuriousContraptions.Bundle.BundleSchema.Read(CuriousContraptions.Bundle.BundleSchema.WriteEntries(
             [entry, entries.Single(e => e.Metadata.Id == "battery")])).Elements;
         Assert.Empty(CuriousContraptions.Bundle.BundleValidator.Validate(native.Select(e => new CuriousContraptions.Bundle.NamedEntry(e.Metadata.Id, e)).ToArray()));
-        DeclaredPhysics.Install(native);
+        DeclaredPhysics.Install(RuntimeTestServices.Bundle, native);
         DeclaredPorts.Install(ElementPortCatalogue.FromBundle(native));
-        var owner = WorkshopInput.Generic(new(entry.Metadata.Id), new(1), 0, 5, 0, 0, 0, 0, 1);
+        var owner = WorkshopInput.Generic(RuntimeTestServices.Bundle, new(entry.Metadata.Id), new(1), 0, 5, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 4, 5, 0, enabled: enabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(owner, battery))
             { Connections = new(new WorkshopConnection(battery.Id, PortId.Supply, owner.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) };
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var owned = scene.Prismatics.ToArray().Where(joint => joint.BodyA == owner.Id).ToArray();
         Assert.Equal(2, owned.Length);
         Assert.Equal(2, owned.Select(joint => joint.BodyB).Distinct().Count());
@@ -772,7 +772,7 @@ public static class NativeTwoDriveScenario
         for (var tick = 0; tick < 480; tick++)
         {
             var sources = PhysicsGpuAbi.ReadElectrical(current);
-            var input = PhysicsTickInputs.Compose(scene.SupplyGraph,
+            var input = TickControlComposition.Compose(scene.SupplyGraph,
                 new WorkshopTickControls(Enumerable.Range(0, sources.Count).Select(i => sources[i].Enabled).ToArray()), _ => false, PhysicsGpuAbi.ReadElectrical(current));
             interactions = engine.Advance(current, candidate, input, interactions);
             (current, candidate) = (candidate, current);

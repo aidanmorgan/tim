@@ -4,13 +4,9 @@ using System.Threading.Tasks;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>A dispatched command's sequence (its acknowledgement's key, handed to the browser with the response so no script
-/// parses a buffer) and its encoded response.</summary>
-public readonly record struct WorkshopRoutedCommand(CommandSequence Sequence, Task<byte[]> Response);
-
 /// <summary>Two bounded reliable original requests/results, including one cancellation control. Each command is decoded once by
 /// the one codec; a refused buffer is its <see cref="WireFaultException"/> and never reaches the executor.</summary>
-public sealed class WorkshopCommandRouter(Func<WorkshopCommand, Task<byte[]>> execute)
+public sealed class WorkshopCommandRouter(Func<WorkshopCommand, Task<byte[]>> execute) : IWorkshopCommandRouter
 {
     private ulong _lastSequence;
     private readonly Dictionary<ulong, (byte[] Request, Task<byte[]> Result)> _retained = new(2);

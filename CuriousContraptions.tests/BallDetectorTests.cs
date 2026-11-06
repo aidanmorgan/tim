@@ -14,7 +14,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     [Fact]
     public void PartRegistry_DiscoversBallDetectorDefinitionAndConfiguresInstance()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(new PartId("ball_detector")));
@@ -102,7 +102,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 10, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new GpuBodyId(2), 0, 10, 0, 0, 0, 0, 1);
         var connection = new WorkshopConnection(
             new GpuBodyId(10), PortId.ActivationOut,
             new GpuBodyId(20), PortId.ActivationIn,
@@ -114,8 +114,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             new WorkshopInstances(ball, detector, lamp),
             Connections: new WorkshopConnections(connection));
 
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
 
         Assert.Equal(4, scene.Bodies.Length);
         var detectorBody = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(10));
@@ -170,7 +170,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         var startLocalX = -1.0f;
         var startPos = detectorPos + forward * startLocalX;
 
-        var ballInitial = WorkshopInput.Generic(new PartId("ball"),
+        var ballInitial = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),
             ballId,
             (float)(startPos.X), (float)(startPos.Y), (float)(startPos.Z),
             0, 0, 0, 1);
@@ -181,8 +181,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             new WorkshopInstances(ballInitial, detector, lamp),
             Connections: new WorkshopConnections(connection));
 
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
 
         var initialBodies = new PhysicsBodyReadSet([
             new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, ballInitial.Cell, ballInitial.Local, default), CanonicalRotation.Identity, default, default),
@@ -258,14 +258,14 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ballId = new GpuBodyId(2);
-        var ball = WorkshopInput.Generic(new PartId("ball"),ballId, 2, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),ballId, 2, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(),
             new WorkshopInstances(ball, detector));
 
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
 
         // Control 1: Reverse motion from X = 2.0 to X = -2.0 at 4 m/s
         var initialBodies = new PhysicsBodyReadSet([
@@ -340,14 +340,14 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ballId = new GpuBodyId(2);
-        var ball = WorkshopInput.Generic(new PartId("ball"),ballId, -1, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),ballId, -1, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(),
             new WorkshopInstances(ball, detector));
 
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
 
         var initialBodies = new PhysicsBodyReadSet([
             new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, ball.Cell, ball.Local, default), CanonicalRotation.Identity, default, default),
@@ -423,16 +423,16 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     public void PassageSensorTracker_MultipleBodies_TwoSeparatedBalls()
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ballA = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), -1, 3, 0, 0, 0, 0, 1);
-        var ballB = WorkshopInput.Generic(new PartId("bowling"), new GpuBodyId(3), -1, 3, 0, 0, 0, 0, 1);
+        var ballA = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new GpuBodyId(2), -1, 3, 0, 0, 0, 0, 1);
+        var ballB = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), new GpuBodyId(3), -1, 3, 0, 0, 0, 0, 1);
 
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(),
             new WorkshopInstances(ballA, ballB, detector));
 
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
 
         var pAInit = WorkshopInput.Position(-1.0f);
         var pBInit = WorkshopInput.Position(-1.0f);
@@ -480,7 +480,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     public void WorkbenchCapacity_AdmitsBallDetectorsWithoutColliderLimit()
     {
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
-        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+        var world = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(PlacedParts.Detector(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 0, 4 + 1, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks));
 
@@ -489,7 +489,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             PlacedParts.Detector(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
             PlacedParts.Detector(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
             PlacedParts.Detector(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1));
-        new WorkshopInstances([.. threeDetectors]).Validate();
+        new WorkshopInstances([.. threeDetectors]).Validate(RuntimeTestServices.Bundle);
 
         // 4 detectors = 76 colliders: validates cleanly with unbounded colliders
         var fourDetectors = new WorkshopInstances(
@@ -497,14 +497,14 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             PlacedParts.Detector(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
             PlacedParts.Detector(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1),
             PlacedParts.Detector(new GpuBodyId(4), 15, 3, 0, 0, 0, 0, 1));
-        new WorkshopInstances([.. fourDetectors]).Validate();
+        new WorkshopInstances([.. fourDetectors]).Validate(RuntimeTestServices.Bundle);
     }
 
     [Fact]
     public void SaveCodec_RoundTripsBallDetectorAndPreservesDeclaredColliders()
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
         var connection = new WorkshopConnection(
             new GpuBodyId(10), PortId.ActivationOut,
@@ -518,19 +518,19 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             Connections: new WorkshopConnections(connection));
         var save = new WorkshopSavedConstruction(construction, new(100));
 
-        var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
 
         Assert.Equal(save, decoded);
-        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(decoded)));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, decoded)));
 
         var decodedDetector = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
         Assert.Equal(new PartId("ball_detector"), decodedDetector.PartId);
-        Assert.Equal(ColliderShapeKind.Tube, decodedDetector.DeclaredColliders[0].ShapeKind);
-        Assert.Equal(4, decodedDetector.DeclaredColliders.Count);
+        Assert.Equal(ColliderShapeKind.Tube, decodedDetector.DeclaredColliders(RuntimeTestServices.Bundle)[0].ShapeKind);
+        Assert.Equal(4, decodedDetector.DeclaredColliders(RuntimeTestServices.Bundle).Count);
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
-        var fbSave = WorkshopSaveCodec.Open(bytes);
+        var fbSave = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes);
         Assert.True(fbSave.Construction.HasValue);
         var fbDetector = fbSave.Construction.Value.Instances(1);
         Assert.True(fbDetector.HasValue);

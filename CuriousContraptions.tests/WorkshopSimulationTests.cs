@@ -23,7 +23,7 @@ public sealed class WorkshopSimulationTests
         public ValueTask DisposeAsync() => Simulation.DisposeAsync();
     }
     private static WorkshopConstruction BallConstruction(ulong revision = 2) =>
-        new(new(revision), Settings, new(WorkshopInput.Generic(new PartId("ball"),new(0xfffffffe), 0, 4, 0, 0, 0, 0, 1)));
+        new(new(revision), Settings, new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(0xfffffffe), 0, 4, 0, 0, 0, 0, 1)));
 
     [Fact]
     public async Task RoundedGpuRotationCommitsThroughTheSimulationReadBoundary()
@@ -105,7 +105,7 @@ public sealed class WorkshopSimulationTests
 
     private static WorkshopConstruction PopulationConstruction(int count) =>
         new(new(2), Settings, new(Enumerable.Range(0, count).Select(i =>
-            (IWorkshopInstance)WorkshopInput.Generic(new PartId("ball"),new((ulong)i + 1),
+            (IWorkshopInstance)WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new((ulong)i + 1),
                 (float)((i % 4) * 2), 4, (float)((i / 4) * 2), 0, 0, 0, 1)).ToArray()));
 
     [Fact]
@@ -237,7 +237,7 @@ public sealed class WorkshopSimulationTests
         await run;
         var committed = simulation.Committed;
         var advance = simulation.Advance().AsTask();
-        simulation.Stop(reason);
+        simulation.StopSimulation(reason);
         device.CompleteAdvance(0);
         Assert.Equal(WorkshopCommandOutcome.Superseded, (await advance).Outcome);
         Assert.Equal(WorkshopSimulationPhase.Faulted, simulation.Phase);
@@ -527,7 +527,7 @@ public sealed class WorkshopSimulationTests
 
     // engine-revolute-drive-target: a lone Motor (unsupplied) compiles one RevoluteDriveTarget row; its authored speed is 6 rad/s.
     private static readonly GpuBodyId DrivenOwner = new(7);
-    private static WorkshopConstruction DriveConstruction() => new(new(2), Settings, new(WorkshopInput.Generic(new PartId("motor"), DrivenOwner,
+    private static WorkshopConstruction DriveConstruction() => new(new(2), Settings, new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("motor"), DrivenOwner,
         0, 4, 0, 0, 0, 0, 1, new([new(new("speed"), 6f), new(new("torque"), 20f)]))));
     private static float Target(WorkshopRead read) => read.RunControl(DrivenOwner, RunControlLane.RevoluteDriveTarget).Scalar;
 
@@ -686,7 +686,7 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(RunControlValue.Of(14f), simulation.HeldRunControl(row.Id));
         Assert.Equal(6f, Target(simulation.Committed));
 
-        var step = simulation.Step().AsTask();
+        var step = simulation.StepOnce().AsTask();
         device.CompleteAdvance(0);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await step).Outcome);
         Assert.Equal([14f], device.Controls[0].DriveTarget);
@@ -757,13 +757,13 @@ public sealed class WorkshopSimulationTests
         device.CompleteAdvance(0); await advance;
         Assert.NotEqual(initial, simulation.Committed.Capture);
         var committed = simulation.Committed.Capture;
-        await simulation.Pause(); await simulation.Resume();
+        await simulation.Pause(); await simulation.ResumeRun();
         Assert.Equal(committed, simulation.Committed.Capture);
         var reset = simulation.Reset().AsTask();
         simulation.CancelPending();
         Assert.Equal(committed, simulation.Committed.Capture);
         device.CompleteAdmission(0); await reset;
-        simulation.Stop(WorkshopRejection.Capacity);
+        simulation.StopSimulation(WorkshopRejection.Capacity);
         Assert.Equal(committed, simulation.Committed.Capture);
     }
     [Fact]
@@ -829,13 +829,13 @@ public sealed class WorkshopSimulationTests
         await simulation.Pause();
         var capture = simulation.Committed.Capture;
         Assert.Equal(WorkshopRejection.WrongPhase, (await simulation.Advance()).Reason);
-        var step = simulation.Step().AsTask();
+        var step = simulation.StepOnce().AsTask();
         device.CompleteAdvance(0);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await step).Outcome);
         Assert.Equal(new SimulationTick(1), simulation.Committed.Tick);
         Assert.Equal(WorkshopSimulationPhase.Paused, simulation.Phase);
         Assert.NotEqual(capture, simulation.Committed.Capture);
-        await simulation.Resume();
+        await simulation.ResumeRun();
         for (var tick = 1UL; tick < limit; tick++)
         {
             var advance = simulation.Advance().AsTask();
@@ -855,15 +855,15 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
-            WorkshopInput.Generic(new PartId("ball"),new(1),0,3,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("switch"), new(2),0,1,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("delay"), new(3), -3, 1, 0, 0, 0, 0, 1)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1),0,3,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2),0,1,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(3), -3, 1, 0, 0, 0, 0, 1)),
             Connections:new(new WorkshopConnection(new(2),PortId.ActivationOut,new(3),PortId.ActivationIn,WorkshopConnectionDomain.Activation)));
         var admission = simulation.Construct(CompiledSceneFixture.Compile(construction)).AsTask(); device.CompleteAdmission(0); await admission;
         await simulation.Run(); await simulation.Pause();
         var before = simulation.Committed; var commits = device.Commits;
-        var network = WorkshopActivationCompiler.Compile(construction);
-        var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction,new(1,2));
         var trigger = scene.Triggers[0];
         var collider = scene.Colliders.ToArray().First(value=>value.Body==trigger.Owner).Id;
         var occurrence = new ContactTriggerRead(trigger.Id,trigger.Owner,new GpuBodyId(1),1,collider,1,0f,new(1f));
@@ -874,15 +874,15 @@ public sealed class WorkshopSimulationTests
             return read with { Activations=checkpoint.Activations,Timers=checkpoint.Timers };
         }
         installation.HoldNext = true;
-        var rejected = simulation.Step().AsTask(); device.CompleteAdvance(0,Counting);
+        var rejected = simulation.StepOnce().AsTask(); device.CompleteAdvance(0,Counting);
         Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
         installation.Pending[0].Completion.SetException(new WorkshopInstallationException());
         Assert.Equal(WorkshopRejection.Transport,(await rejected).Reason);
         Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
-        var accepted = simulation.Step().AsTask(); device.CompleteAdvance(1,Counting); await accepted;
+        var accepted = simulation.StepOnce().AsTask(); device.CompleteAdvance(1,Counting); await accepted;
         Assert.Equal(ActivationTimerPhase.Counting,simulation.Committed.Timers[0].Phase);
         var counting = simulation.Committed;
-        var pending = simulation.Step().AsTask();
+        var pending = simulation.StepOnce().AsTask();
         var reset = simulation.Reset().AsTask(); device.CompleteAdmission(1); await reset;
         var restored = simulation.Committed;
         Assert.Equal(ActivationTimerPhase.Ready,restored.Timers[0].Phase);
@@ -930,8 +930,8 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
-            WorkshopInput.Generic(new PartId("ball"),new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("bumper"),new(2),0,4,0,0,0,0,1)));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"),new(2),0,4,0,0,0,0,1)));
         var admission = simulation.Construct(CompiledSceneFixture.Compile(construction)).AsTask(); device.CompleteAdmission(0); await admission;
         await simulation.Run(); await simulation.Pause();
         var before = simulation.Committed; var commits = device.Commits;
@@ -939,16 +939,16 @@ public sealed class WorkshopSimulationTests
         WorkshopRead Paid(WorkshopRead read) => read with {
             ContactWorks = new(new[] { read.ContactWorks[0] with { OccurrenceCount=1, RemainingEnergy=new(16) } }) };
         installation.HoldNext = true;
-        var rejected = simulation.Step().AsTask(); device.CompleteAdvance(0,Paid);
+        var rejected = simulation.StepOnce().AsTask(); device.CompleteAdvance(0,Paid);
         Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
         installation.Pending[0].Completion.SetException(new WorkshopInstallationException());
         Assert.Equal(WorkshopRejection.Transport,(await rejected).Reason);
         Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
-        var accepted = simulation.Step().AsTask(); device.CompleteAdvance(1,Paid); await accepted;
+        var accepted = simulation.StepOnce().AsTask(); device.CompleteAdvance(1,Paid); await accepted;
         Assert.Equal(1u,simulation.Committed.ContactWorks[0].OccurrenceCount);
         Assert.Equal(16,simulation.Committed.ContactWorks[0].RemainingEnergy.Value);
         var spent = simulation.Committed;
-        var pending = simulation.Step().AsTask();
+        var pending = simulation.StepOnce().AsTask();
         var reset = simulation.Reset().AsTask(); device.CompleteAdmission(1); await reset;
         var restored = simulation.Committed;
         Assert.Equal(0u,restored.ContactWorks[0].OccurrenceCount);
@@ -967,7 +967,7 @@ public sealed class WorkshopSimulationTests
         public CommandSequence? Active { get; private set; }
         public List<(CommandSequence Owner, TaskCompletionSource Completion)> Pending { get; } = [];
         public List<CommandSequence> Aborted { get; } = [];
-        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopCompiledScene construction,
+        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, ICompiledScene construction,
             WorkshopGpuProfile profile, WorkshopSimulationPhase phase)
         {
             Calls++;
@@ -997,7 +997,7 @@ public sealed class WorkshopSimulationTests
         public int Commits { get; private set; }
         private bool _initializing = true;
         public bool HoldStartup { get; init; }
-        public ValueTask<WorkshopGpuCandidate> Admit(WorkshopCompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence)
+        public ValueTask<WorkshopGpuCandidate> Admit(ICompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence)
         {
             profile.Validate();
             Assert.Equal(construction.Settings.Simulation, profile.Cadence);
@@ -1022,7 +1022,7 @@ public sealed class WorkshopSimulationTests
             var read = Initial(request.Construction, request.Epoch);
             request.Completion.SetResult(new(request.Sequence, transform is null ? read : transform(read)));
         }
-        public static WorkshopRead Initial(WorkshopCompiledScene construction, SimulationEpoch epoch)
+        public static WorkshopRead Initial(ICompiledScene construction, SimulationEpoch epoch)
         {
             var scene = construction.Physics;
             var bytes = PhysicsGpuAbi.Admission(scene, epoch,
@@ -1055,7 +1055,7 @@ public sealed class WorkshopSimulationTests
         public void Commit(CommandSequence sequence) { Commits++; }
         public void Discard(CommandSequence sequence) { }
         public ValueTask DisposeAsync() { Disposals++; return ValueTask.CompletedTask; }
-        public sealed record Admission(WorkshopCompiledScene Construction, SimulationEpoch Epoch, CommandSequence Sequence,
+        public sealed record Admission(ICompiledScene Construction, SimulationEpoch Epoch, CommandSequence Sequence,
             TaskCompletionSource<WorkshopGpuCandidate> Completion);
     }
 }

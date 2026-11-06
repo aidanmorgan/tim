@@ -42,7 +42,7 @@ export async function eventWorker() {
     const runtime = {
         setModuleImports(_name: string, value: ManagedImports) { imports = value; },
         getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: {
-            ScheduleRoles: () => [1, 2], AnimationPeer: () => new Uint8Array(0)
+            InitializeHost: () => {}, ScheduleRoles: () => [1, 2], AnimationPeer: () => new Uint8Array(0)
         } } } }),
         getConfig: () => ({ mainAssemblyName: 'EventRingControl' })
     };

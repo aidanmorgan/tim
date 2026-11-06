@@ -73,7 +73,7 @@ public static partial class WorkshopWireFlatBuffers
     }
 
     private static RuntimeSessionId RequiredSession(byte[]? bytes) => bytes is { Length: RuntimeSessionId.ByteLength }
-        ? RuntimeSessionId.Read(bytes)
+        ? RuntimeSessionCodec.Read(bytes)
         : throw new WireFaultException(WireFaultReason.MissingField, "A Workshop message requires its 16-byte runtime session.");
 
     private static byte[] RuntimeSessionBytes(RuntimeSessionId session)

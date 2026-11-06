@@ -366,7 +366,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             var plate = PlacedParts.Plate(new(1), 0, height, 0, .5f);
-            store.Bytes = WorkshopSaveCodec.Encode(new(new(new(2), WorkshopCadenceSettings.Default(), new(plate)), new(2)));
+            store.Bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(new(new(2), WorkshopCadenceSettings.Default(), new(plate)), new(2)));
             Action(scene, "Load");
             Choose(scene, new PartId("ball"));
             var before = scene.World.Construction;
@@ -427,8 +427,8 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(
-                WorkshopInput.Generic(new PartId("switch"),new(1),0,1,0,0,0,0,1),
-                WorkshopInput.Generic(new PartId("powered_gate"),new(2),5,3,0,0,0,0,1),
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"),new(1),0,1,0,0,0,0,1),
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"),new(2),5,3,0,0,0,0,1),
                 PlacedParts.Lamp(new(3),-3,2,0,0,0,0,1)));
             await scene.World.ReplaceConstruction(construction);
             var source=scene.World.Parts.Single(part=>part.AuthoredId.Value==1);
@@ -494,7 +494,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 Assert.Equal(WorkshopConnectionDomain.Electrical,link.Domain);
 
                 var saved=new WorkshopSavedConstruction(scene.World.Construction,new(6));
-                Assert.Equal(saved,WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
+                Assert.Equal(saved,WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
                 Assert.Empty(Undo(scene));
                 Assert.Empty(scene.World.Construction.Connections);
             }
@@ -691,7 +691,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
 
     private static MachineWorld DiscoveredWorld()
     {
-        var world = new MachineWorld();
+        var world = RuntimeTestServices.CreateWorld();
         world.Registry.Load();
         return world;
     }
@@ -713,11 +713,11 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 Assert.Equal(id, instance.PartId);
                 // A payload is placed as a zero-parameter generic instance; its material is its package's alone.
                 if (DeclaredPhysics.IsPayload(id)) Assert.Empty(Assert.IsType<WorkshopGenericInstance>(instance).Parameters);
-                new WorkshopInstances(instance).Validate();
+                new WorkshopInstances(instance).Validate(RuntimeTestServices.Bundle);
                 var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(instance));
                 var saved = new WorkshopSavedConstruction(construction, new(body));
-                var bytes = WorkshopSaveCodec.Encode(saved);
-                var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
+                var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+                var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
                 Assert.Equal(id, Assert.Single(decoded.Construction.Instances).PartId);
                 Assert.Equal(saved, decoded);
                 // The bench placement reaches the Simulation worker as a Construct command on the binary wire.
@@ -742,7 +742,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             {
                 var id = part;
                 // No declaration is shipped for this identity; unknown input is refused before placement.
-                Assert.DoesNotContain(PartRegistry.Read(Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath)),
+                Assert.DoesNotContain(PartRegistry.Read(RuntimeTestServices.Bundle, Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath)),
                     entry => entry.Metadata.Id == id.Value);
                 EditRefusal.Is(WorkshopEditRejection.UnsupportedPart, () => world.CaptureInstance(id, new(1), BenchPoint, Quaternion.Identity));
                 Assert.False(world.Registry.Definitions.ContainsKey(id), $"{id} must not be registered.");
@@ -791,7 +791,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Equal(0, undo);
         }
         finally { discovered.Free(); }
-        var world = new MachineWorld();
+        var world = RuntimeTestServices.CreateWorld();
         try
         {
             var undo = 0;
@@ -829,7 +829,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         var world = DiscoveredWorld();
         try
         {
-            var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.5f));
+            var lesson = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.5f));
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(new PlacementClient(PlacementAnswer.Applied)));
             await world.ReplaceConstruction(lesson);
             lesson = world.Construction;
@@ -858,6 +858,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     {
         var client = new PlacementClient(answer);
         var scene = GD.Load<PackedScene>("res://scenes/workshop.tscn").Instantiate<Workshop>();
+        scene.StartObservation = _ => Task.CompletedTask; // Explicit native stand-in for browser registration.
         scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(client);
         if (store is not null) scene.SaveStore = store;
         if (viewport is null) godot.Tree.Root.AddChild(scene);
@@ -1129,7 +1130,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         var (scene, client) = BenchScene(new PartId("ramp"), PlacementAnswer.Applied, store);
         try
         {
-            store.Bytes = WorkshopSaveCodec.Encode(new(scene.World.Construction, exhausted));
+            store.Bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(scene.World.Construction, exhausted));
             Action(scene, "Load");
             var before = scene.World.Construction;
             var commands = client.EditCount;
@@ -1143,7 +1144,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Empty(Undo(scene));
             Assert.Equal(commands, client.EditCount);
             Action(scene, "Save");
-            Assert.Equal(exhausted, WorkshopSaveCodec.Decode(SaveFixture.Elements, store.Bytes).NextBodyId);
+            Assert.Equal(exhausted, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, store.Bytes).NextBodyId);
             Assert.Empty(godot.Errors.Drain());
         }
         finally { Release(scene); }
@@ -1456,8 +1457,8 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             const float height = 3f;
-            var pipe = WorkshopInput.Generic(new PartId("pipe"),new(1), -2.22f, height, 0, 0, 0, 0, 1);
-            store.Bytes = WorkshopSaveCodec.Encode(new(new(new(2), WorkshopCadenceSettings.Default(), new(pipe)), new(2)));
+            var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(1), -2.22f, height, 0, 0, 0, 0, 1);
+            store.Bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(new(new(2), WorkshopCadenceSettings.Default(), new(pipe)), new(2)));
             Action(scene, "Load");
             Choose(scene, new PartId("ball_detector"));
             Assert.Empty(ClickBench(scene));
@@ -1508,7 +1509,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 AssertParameterUndo(scene, ref undo);
                 // The store the shared compiler builds is the edited strength's (½·1 kg)·s·s.
                 Assert.Equal(.5f * expected * expected,
-                    Assert.Single(WorkshopPhysicsCompiler.Compile(scene.World.Construction, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+                    Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, scene.World.Construction, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
             }
             var accepted = scene.World.Construction;
             var commands = client.EditCount;
@@ -1570,7 +1571,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 Press("Apply parameters");
                 Assert.Equal(BitConverter.SingleToUInt32Bits(expected), BitConverter.SingleToUInt32Bits(Current().Parameters[key]));
                 AssertParameterUndo(scene, ref undo);
-                Assert.Equal(new Kilograms(expected),Assert.Single(WorkshopPhysicsCompiler.Compile(scene.World.Construction, new(1, 2))
+                Assert.Equal(new Kilograms(expected),Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, scene.World.Construction, new(1, 2))
                     .Bodies.ToArray(), body => body.Id == Current().Id).Mass);
             }
             foreach (var (value, expected) in new[] { (.249f, .25f), (8.01f, 8f), (0f, .25f), (-1f, .25f) })
@@ -1650,7 +1651,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 Press("Apply parameters");
                 Assert.Equal(expected, (Value("capacity"), Value("power_limit"), Value("initial_charge"), Value("enabled")));
                 AssertParameterUndo(scene, ref undo);
-                var source = Assert.Single(WorkshopPhysicsCompiler.Compile(scene.World.Construction, new(1, 2)).Electrical.Sources.ToArray());
+                var source = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, scene.World.Construction, new(1, 2)).Electrical.Sources.ToArray());
                 Assert.Equal((expected.Item1, expected.Item2, expected.Item3, expected.Item4 == 1f ? ElectricalEnable.Enabled : ElectricalEnable.Disabled),
                     (source.Capacity.Value, source.MaximumPower.Value, source.InitialFraction, source.Enabled));
             }
@@ -2138,7 +2139,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             if (construction is { } candidate && Answer != PlacementAnswer.Rejected) _construction = candidate;
             // The answer carries the construction's admission state: its dynamic bodies and, as every installed read does, each
             // compiled source's committed enable.
-            var admission=_construction is { } authored ? PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(authored,new(1,1)),Epoch,
+            var admission=_construction is { } authored ? PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, authored,new(1,1)),Epoch,
                 new(authored.Settings.Simulation,authored.Settings.Physical,new(1))) : null;
             var bodies=admission is null ? default : PhysicsGpuAbi.ReadDynamicBodies(admission);
             var response = new WorkshopResponse(new((ulong)Commands.Count), WorkshopResponseKind.Acknowledgement, result,

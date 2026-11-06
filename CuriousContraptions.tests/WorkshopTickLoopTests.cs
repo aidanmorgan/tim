@@ -23,7 +23,7 @@ public sealed class WorkshopTickLoopTests
     private sealed class VirtualWorker(Func<ulong, long> tickCost, long competingWorkPerTurn = 0, long timerWake = 4 * Millisecond)
         : ITickLoopHost
     {
-        private readonly WorkshopSchedule _schedule = WorkshopSchedule.Create(Settings, new(1), new(1), new(0), new(0),
+        private readonly WorkshopSchedule _schedule = WorkshopScheduleRules.Create(Settings, new(1), new(1), new(0), new(0),
             new(0), new(0), new(new(1), new(1), new(0), new(0), WorldPlayback.Running));
         private int _turnTicks;
         public long Now { get; set; }
@@ -198,14 +198,14 @@ public sealed class WorkshopTickLoopTests
         var (last, lastResumed) = turns.Begin();
         var (wrapped, wrappedResumed) = turns.Begin();
         Assert.Equal((int.MaxValue, 1), (last, wrapped));
-        turns.Resume(last);
+        turns.ResumeTurn(last);
         Assert.True(lastResumed.IsCompletedSuccessfully);
         Assert.False(wrappedResumed.IsCompleted);
         var skipping = new WorkshopTurnRegistry(int.MaxValue);
         Assert.Equal(1, skipping.Begin().Turn);
         for (var i = 2; i < 5; i++) Assert.Equal(i, skipping.Begin().Turn);
-        Assert.Throws<InvalidOperationException>(() => turns.Resume(last)); // already resumed
-        Assert.Throws<InvalidOperationException>(() => turns.Resume(42)); // never requested
+        Assert.Throws<InvalidOperationException>(() => turns.ResumeTurn(last)); // already resumed
+        Assert.Throws<InvalidOperationException>(() => turns.ResumeTurn(42)); // never requested
         Assert.Equal(1, turns.Outstanding);
     }
 

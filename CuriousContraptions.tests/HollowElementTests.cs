@@ -23,7 +23,7 @@ public sealed class HollowElementTests
     [InlineData(true)]
     public async Task ABallCrossesASnappedStraightOrFunnelToBendJointWithoutAStep(bool funnel)
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
         // The funnel wall rises atan(0.65 / 1.8) = 19.9 degrees toward its throat.
         // A 30-degree tilt makes that floor descend; a straight bore needs only 10.
@@ -32,15 +32,15 @@ public sealed class HollowElementTests
         var axis = NumVector3.Transform(NumVector3.UnitX, turn);
         var down = NumVector3.Transform(-NumVector3.UnitY, turn);
         IWorkshopInstance first = funnel
-            ? WorkshopInput.Generic(new PartId("funnel"), First, (float)(origin.X), (float)(origin.Y), (float)(origin.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W))
-            : WorkshopInput.Generic(new PartId("pipe"),First, (float)(origin.X), (float)(origin.Y), (float)(origin.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W));
+            ? WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), First, (float)(origin.X), (float)(origin.Y), (float)(origin.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W))
+            : WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),First, (float)(origin.X), (float)(origin.Y), (float)(origin.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W));
         var joint = origin + (funnel ? .99f : 1.89f) * axis;
         var near = joint - NumVector3.Transform(new NumVector3(-1.00844f, .182689f, 0), turn);
         var snap = TubeMouthSnap.Find(registry.Definitions, [first], new(new PartId("pipe_bend_45"), Second, false),
             new(near.X, near.Y, near.Z), new(turn.X, turn.Y, turn.Z, turn.W));
         Assert.NotNull(snap);
         var pose = snap.Value;
-        var bend = WorkshopInput.Generic(new PartId("pipe_bend_45"), Second, (float)(pose.Position.X), (float)(pose.Position.Y), (float)(pose.Position.Z),
+        var bend = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_45"), Second, (float)(pose.Position.X), (float)(pose.Position.Y), (float)(pose.Position.Z),
             (float)(pose.Rotation.X), (float)(pose.Rotation.Y), (float)(pose.Rotation.Z), (float)(pose.Rotation.W));
         var start = funnel ? origin + .4f * axis + .35f * down : joint - 1.5f * axis + .31f * down;
         var construction = Bench(first, bend, BallAt(start));
@@ -86,9 +86,9 @@ public sealed class HollowElementTests
     public async Task AConnectedHollowPassageRestoresConstructionAndRepeatsAfterResetAndSaveLoad()
     {
         var turn = AboutZ(-90);
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),First, 0, 6, 0, (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W), new InstanceParameterCollection([new(new("length"), 1f)]));
-        var detector = WorkshopInput.Generic(new PartId("ball_detector"), Second, 0, 5.13f, 0, (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W));
-        var lamp = WorkshopInput.Generic(new PartId("lamp"), new(3), 3, 2, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),First, 0, 6, 0, (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W), new InstanceParameterCollection([new(new("length"), 1f)]));
+        var detector = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball_detector"), Second, 0, 5.13f, 0, (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W));
+        var lamp = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("lamp"), new(3), 3, 2, 0, 0, 0, 0, 1);
         var construction = Bench(pipe, detector, lamp, BallAt(new(0, 7.2f, 0))) with
         {
             Connections = new([new(Second, PortId.ActivationOut, lamp.Id, PortId.ActivationIn,
@@ -96,8 +96,8 @@ public sealed class HollowElementTests
         };
         await using var ring = await WorkshopIntegrationHarness.Building(construction);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Execute(WorkshopCommandKind.Save)).Result.Outcome);
-        var encoded = WorkshopSaveCodec.Encode(new(construction, new(10)));
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, encoded);
+        var encoded = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(10)));
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, encoded);
         Assert.Equal(construction.Instances, decoded.Construction.Instances);
         Assert.Equal(construction.Connections, decoded.Construction.Connections);
         await ring.Run();
@@ -138,7 +138,7 @@ public sealed class HollowElementTests
     [InlineData(float.PositiveInfinity)]
     public async Task AnInvalidHollowLengthIsRefusedWithoutChangingThePriorConstruction(float length)
     {
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),First, 0, 3, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),First, 0, 3, 0, 0, 0, 0, 1);
         var construction = Bench(pipe, BallAt(new(0, 4.5f, 0)));
         await using var ring = await WorkshopIntegrationHarness.Building(construction);
         var before = ring.Committed;
@@ -163,7 +163,7 @@ public sealed class HollowElementTests
     [InlineData(.3102f, false)]
     public async Task AHollowWallOverlapIsRefusedAtomicallyWhileBoreAndOutsideRemainClear(float offset, bool admitted)
     {
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),First, 0, 3, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),First, 0, 3, 0, 0, 0, 0, 1);
         var prior = Bench(pipe);
         await using var ring = await WorkshopIntegrationHarness.Building(prior);
         var before = ring.Committed;
@@ -194,7 +194,7 @@ public sealed class HollowElementTests
         new(new(2), WorkshopCadenceSettings.Default(), new(instances));
 
     private static WorkshopGenericInstance BallAt(NumVector3 at) =>
-        WorkshopInput.Generic(new PartId("ball"), Ball, (float)(at.X), (float)(at.Y), (float)(at.Z), 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), Ball, (float)(at.X), (float)(at.Y), (float)(at.Z), 0, 0, 0, 1);
 
     private static NumQuaternion AboutZ(double degrees) => NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, (float)(degrees * Math.PI / 180));
 
@@ -217,7 +217,7 @@ public sealed class HollowElementTests
     {
         // Explicit primitive control: preserve the independently declared sphere mass frame/material,
         // with only its sphere collider. Static package unions remain unchanged.
-        var compiled = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var colliders = compiled.Colliders.ToArray().Where(c => c.Body != Ball || c.Shape == ColliderShapeKind.Sphere).ToArray();
         Assert.Single(colliders, c => c.Body == Ball);
         var scene = new PhysicsSceneDeclaration(compiled.Document, compiled.NextIdentity, compiled.Bodies, colliders, compiled.Materials, [], []);
@@ -304,7 +304,7 @@ public sealed class HollowElementTests
         var down = NumVector3.Transform(-NumVector3.UnitY, tilt);
         var reach = length / 2 + .09f;
         var start = centre + (.4f - reach) * axis + (float)OnWall * down;
-        var construction = Bench(WorkshopInput.Generic(new PartId("pipe"),First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(tilt.X), (float)(tilt.Y), (float)(tilt.Z), (float)(tilt.W), new InstanceParameterCollection([new(new("length"), length)])), BallAt(start));
+        var construction = Bench(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(tilt.X), (float)(tilt.Y), (float)(tilt.Z), (float)(tilt.W), new InstanceParameterCollection([new(new("length"), length)])), BallAt(start));
         await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(600);
         AssertStraightTraversal(ring.Reads.Select(Body), centre, axis, reach, reach, true);
@@ -318,11 +318,11 @@ public sealed class HollowElementTests
     [Fact]
     public async Task ABallRollingThroughTwoSnappedPipesKeepsItsHeightAcrossTheJoint()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
         var tilt = AboutZ(-10);
         var centre = new NumVector3(-2f, Y + .5f, 0);
-        var first = WorkshopInput.Generic(new PartId("pipe"),First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(tilt.X), (float)(tilt.Y), (float)(tilt.Z), (float)(tilt.W));
+        var first = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(tilt.X), (float)(tilt.Y), (float)(tilt.Z), (float)(tilt.W));
         var axis = NumVector3.Transform(NumVector3.UnitX, tilt);
         var godotTilt = new Godot.Quaternion(tilt.X, tilt.Y, tilt.Z, tilt.W);
         var near = centre + 3.9f * axis;
@@ -330,7 +330,7 @@ public sealed class HollowElementTests
             new Godot.Vector3(near.X, near.Y, near.Z), godotTilt);
         Assert.NotNull(snap);
         var pose = snap.Value;
-        var second = WorkshopInput.Generic(new PartId("pipe"),Second, (float)(pose.Position.X), (float)(pose.Position.Y), (float)(pose.Position.Z), (float)(pose.Rotation.X), (float)(pose.Rotation.Y),
+        var second = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Second, (float)(pose.Position.X), (float)(pose.Position.Y), (float)(pose.Position.Z), (float)(pose.Rotation.X), (float)(pose.Rotation.Y),
             (float)(pose.Rotation.Z), (float)(pose.Rotation.W));
         var joint = new NumVector3(pose.Joint.X, pose.Joint.Y, pose.Joint.Z);
         var down = NumVector3.Transform(-NumVector3.UnitY, tilt);
@@ -367,7 +367,7 @@ public sealed class HollowElementTests
         var endMouth = endCollar + .09f * endTangent;
         var startMouth = World(startCollar.X - .09f, startCollar.Y);
         var release = startMouth + new NumVector3(0, .5f, 0);
-        var construction = Bench(WorkshopInput.Generic(part, First, (float)(origin.X), (float)(origin.Y), (float)(origin.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W)), BallAt(release));
+        var construction = Bench(WorkshopInput.Generic(RuntimeTestServices.Bundle, part, First, (float)(origin.X), (float)(origin.Y), (float)(origin.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W)), BallAt(release));
         await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(240);
 
@@ -438,7 +438,7 @@ public sealed class HollowElementTests
     {
         var turn = AboutZ(-90);
         var centre = new NumVector3(0, Y + 1, 0);
-        var construction = Bench(WorkshopInput.Generic(new PartId("funnel"), First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W)),
+        var construction = Bench(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W)),
             BallAt(centre + new NumVector3(.6f, 1.2f, 0)));
         await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(360);
@@ -468,7 +468,7 @@ public sealed class HollowElementTests
         Action<WorkshopIntegrationHarness> verify)
     {
         var save = new WorkshopSavedConstruction(construction, new(10));
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(save));
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save));
         Assert.Equal(save, decoded);
         await ring.Reset();
         Assert.Equal(construction.Instances, ring.Construction.Instances);
@@ -492,7 +492,7 @@ public sealed class HollowElementTests
         var scene = new LawScene();
         var centre = new NumVector3(0, 4, 0);
         var turn = AboutZ(-90);
-        foreach (var collider in DeclaredPhysics.Colliders(new PartId("funnel")))
+        foreach (var collider in DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, new PartId("funnel")))
         {
             var p = collider.LocalPose.Translation;
             var q = collider.LocalPose.Rotation;

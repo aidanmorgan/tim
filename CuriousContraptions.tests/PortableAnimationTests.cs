@@ -74,10 +74,10 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         var once=batch.Register(Binding(),Clip());batch.Start(once);
         batch.DriveTo(once,AnimationEndpoint.From,AnimationTestTime.Seconds(.75));
         batch.Advance(1,AnimationTestTime.Seconds(1),AnimationTestTime.Seconds(0));Equal(.5,batch.Read(once).Value);
-        batch.Stop(once,AnimationStop.Hold,AnimationTestTime.Seconds(1.25));Equal(.375,batch.Read(once).Value);
+        batch.StopPlayback(once,AnimationStop.Hold,AnimationTestTime.Seconds(1.25));Equal(.375,batch.Read(once).Value);
         batch.DriveTo(once,AnimationEndpoint.To,AnimationTestTime.Seconds(1.25));
         batch.Advance(2,AnimationTestTime.Seconds(1.5),AnimationTestTime.Seconds(0));Equal(.5,batch.Read(once).Value);
-        batch.Stop(once,AnimationStop.RestoreInitial,AnimationTestTime.Seconds(1.5));Equal(.25,batch.Read(once).Value);
+        batch.StopPlayback(once,AnimationStop.RestoreInitial,AnimationTestTime.Seconds(1.5));Equal(.25,batch.Read(once).Value);
         var loop=batch.Register(Binding(2),Clip(repeat:AnimationRepeat.Loop));batch.Start(loop);
         batch.SetLoopRate(loop,new(-1f),AnimationTestTime.Seconds(1.75));
         batch.Advance(3,AnimationTestTime.Seconds(2),AnimationTestTime.Seconds(0));Equal(.25,batch.Read(loop).Value);
@@ -87,7 +87,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         batch.Advance(5,AnimationTestTime.Seconds(3.25),AnimationTestTime.Seconds(0));Equal(.25,batch.Read(loop).Value);
         batch.Remove(loop);
         var ping=batch.Register(Binding(2),Clip(repeat:AnimationRepeat.PingPong));batch.Start(ping);
-        batch.Stop(ping,AnimationStop.Hold,AnimationTestTime.Seconds(4.75));Equal(.5,batch.Read(ping).Value);
+        batch.StopPlayback(ping,AnimationStop.Hold,AnimationTestTime.Seconds(4.75));Equal(.5,batch.Read(ping).Value);
         batch.Advance(6,AnimationTestTime.Seconds(5),AnimationTestTime.Seconds(0));Equal(.5,batch.Read(ping).Value);
         batch.Start(ping);batch.Advance(7,AnimationTestTime.Seconds(5.25),AnimationTestTime.Seconds(0));Equal(.375,batch.Read(ping).Value);
     }
@@ -105,7 +105,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
             // The largest clock is still shorter than float.MaxValue seconds; the minimum duration has
             // ended for Once and is an exact divisor of every representable local f32 sample for repetitions.
             Equal(repeat == AnimationRepeat.Once && duration == float.Epsilon ? .75 : .25, batch.Read(handle).Value);
-            batch.Stop(handle,AnimationStop.Hold,new PhysicalTime(ulong.MaxValue));
+            batch.StopPlayback(handle,AnimationStop.Hold,new PhysicalTime(ulong.MaxValue));
             Assert.True(float.IsFinite(BitConverter.UInt32BitsToSingle(batch.Read(handle).Value.CanonicalBits)));
         }
     }
@@ -149,7 +149,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         batch.Advance(1,AnimationTestTime.Seconds(.5),AnimationTestTime.Seconds(999));Equal(first,batch.Read(handle).Value);
         batch.FollowValue(handle,Value(AnimationProperty.Opacity,.25),AnimationTestTime.Seconds(.5));
         batch.Advance(2,AnimationTestTime.Seconds(1),AnimationTestTime.Seconds(999));Equal(.25 + (first - .25) * Math.Exp(-1),batch.Read(handle).Value);
-        batch.Stop(handle,AnimationStop.RestoreInitial,AnimationTestTime.Seconds(1));Equal(.125,batch.Read(handle).Value);
+        batch.StopPlayback(handle,AnimationStop.RestoreInitial,AnimationTestTime.Seconds(1));Equal(.125,batch.Read(handle).Value);
     }
 
     public static IEnumerable<object[]> ImpulseCases()
@@ -242,8 +242,30 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         Assert.Equal(before,batch.ReadOscillation(handle));
         batch.KickOscillation(handle,new(1),new(.25f),AnimationTestTime.Seconds(0));
         Assert.Equal(1UL,batch.ReadOscillation(handle).Accepted);
-        batch.Stop(handle,AnimationStop.RestoreInitial,AnimationTestTime.Seconds(0));Equal(0,batch.Read(handle).Value);
+        batch.StopPlayback(handle,AnimationStop.RestoreInitial,AnimationTestTime.Seconds(0));Equal(0,batch.Read(handle).Value);
     }
+
+    [Fact]
+    public void UnissuedAndNullHandlesCannotMutateARegisteredAnimation()
+    {
+        var batch = RuntimeTestServices.Animation.CreateBatch();
+        var handle = batch.Register(Binding(), Clip());
+        var before = batch.Read(handle);
+        var forged = new ForeignAnimationHandle(handle.Generation, handle.Slot, handle.Version);
+        Assert.Throws<ArgumentException>(() => batch.StartAt(forged, default));
+        Assert.Throws<ArgumentException>(() => batch.StartAt(null!, default));
+        Assert.Equal(before, batch.Read(handle));
+        Assert.Equal(1, batch.RegisteredCount);
+        var foreign = RuntimeTestServices.Animation.CreateBatch();
+        Assert.Throws<ArgumentException>(() => foreign.StartAt(handle, default));
+        Assert.Equal(before, batch.Read(handle));
+        batch.StartAt(handle, default);
+        Assert.Equal(AnimationPlayback.Playing, batch.Read(handle).Playback);
+        batch.Advance(1, AnimationTestTime.Seconds(.5), AnimationTestTime.Seconds(.5));
+        Assert.True(batch.Read(handle).Value.Opacity.Value > before.Value.Opacity.Value);
+    }
+
+    private sealed record ForeignAnimationHandle(AnimationGeneration Generation, int Slot, ulong Version) : IAnimationHandle;
 
     [Fact]
     public void WriterOwnershipUnitsStaleHandlesAndGenerationRemainExact()
@@ -299,7 +321,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         var before=GC.GetAllocatedBytesForCurrentThread();
         for(ulong i=1001;i<=3000;i++)batch.Advance(i,AnimationTestTime.Seconds(i/60.0),AnimationTestTime.Seconds(0));
         Assert.Equal(0,GC.GetAllocatedBytesForCurrentThread()-before);
-        batch.Stop(handle,AnimationStop.Hold,AnimationTestTime.Seconds(50));
+        batch.StopPlayback(handle,AnimationStop.Hold,AnimationTestTime.Seconds(50));
         batch.Advance(3001,AnimationTestTime.Seconds(50),AnimationTestTime.Seconds(0));
         var inactive=batch.Advance(3002,AnimationTestTime.Seconds(51),AnimationTestTime.Seconds(0));
         Assert.Equal(0,inactive.Evaluated);Assert.Equal(0,inactive.DirtyWrites);Assert.Equal(0,inactive.Scheduled);
@@ -371,8 +393,8 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         var batch=new AnimationBatch();var handle=batch.Register(Binding(),Clip());batch.Start(handle);
         var before=batch.Read(handle);
         Assert.Throws<ArgumentOutOfRangeException>(()=>batch.DriveTo(handle,(AnimationEndpoint)255,AnimationTestTime.Seconds(0)));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>batch.Stop(handle,(AnimationStop)255,AnimationTestTime.Seconds(0)));
-        Assert.Throws<ArgumentException>(()=>batch.Read(default));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>batch.StopPlayback(handle,(AnimationStop)255,AnimationTestTime.Seconds(0)));
+        Assert.Throws<ArgumentException>(()=>batch.Read(null!));
         foreach(var time in new[]{-1.0,double.NaN,double.PositiveInfinity})
             Assert.Throws<ArgumentOutOfRangeException>(()=>batch.Advance(1,AnimationTestTime.Seconds(time),AnimationTestTime.Seconds(0)));
         Assert.Equal(before,batch.Read(handle));
@@ -402,7 +424,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         foreach(var phase in new[]{0.0,belowOne,1,aboveOne,belowTwo,2.0})
         {
             var batch=new AnimationBatch();var handle=batch.Register(Binding(),Clip(repeat:AnimationRepeat.PingPong));
-            batch.Start(handle);batch.Stop(handle,AnimationStop.Hold,AnimationTestTime.Seconds(phase));
+            batch.Start(handle);batch.StopPlayback(handle,AnimationStop.Hold,AnimationTestTime.Seconds(phase));
             var expected=(float)(.25+.5*(phase<=1?phase:2-phase));
             Assert.InRange(batch.Read(handle).Value.Opacity.Value,expected-2e-7f,expected+2e-7f);
         }
@@ -596,7 +618,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
             var handle=batch.Register(Binding(),Clip(curve:AnimationCurve.SinePulse,repeat:AnimationRepeat.Loop));
             batch.Start(handle);
             if(mode==NativeWorkMode.Hidden)batch.SetVisible(handle,false);
-            if(mode==NativeWorkMode.Inactive)batch.Stop(handle,AnimationStop.Hold,AnimationTestTime.Seconds(0));
+            if(mode==NativeWorkMode.Inactive)batch.StopPlayback(handle,AnimationStop.Hold,AnimationTestTime.Seconds(0));
             for(ulong frame=1;frame<=warmup;frame++)batch.Advance(frame,AnimationTestTime.Seconds(frame/60.0),AnimationTestTime.Seconds(0));
             _=System.Diagnostics.Stopwatch.GetTimestamp();
             var allocated=GC.GetAllocatedBytesForCurrentThread();

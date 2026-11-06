@@ -7,10 +7,10 @@ namespace CuriousContraptions.Simulation;
 // Observational only. All methods contain diagnostic failure; none can reject or change a commit.
 // 3 was DeviceLost: the worker owns no device since the pure C# engine (Story 9.2b) and Story 9.4b deleted that path.
 // Recorded trace values keep their numbers; 3 is undefined and rejects.
-internal sealed class WorkshopTrace
+internal sealed class WorkshopTrace : IWorkshopTrace
 {
-    public WorkshopDiagnostics Diagnostics { get; }
-    public WorkshopTrace(WorkshopDiagnostics? diagnostics = null) => Diagnostics = diagnostics ?? new();
+    public IWorkshopDiagnostics Diagnostics { get; }
+    public WorkshopTrace(IWorkshopDiagnostics? diagnostics = null) => Diagnostics = diagnostics ?? new WorkshopDiagnostics();
     private const int Capacity = 7201;
     private const int ChunkRecords = 128;
     #if PLAYTEST
@@ -33,7 +33,7 @@ internal sealed class WorkshopTrace
     private TraceEnd _sealedReason;
     private CompiledSceneId _scene;
     private RuntimeSessionId _session;
-    internal void Begin(RuntimeSessionId session, WorkshopCompiledScene construction, SimulationEpoch epoch, ProjectionEpoch projection, WorkshopGpuProfile profile)
+    public void Begin(RuntimeSessionId session, ICompiledScene construction, SimulationEpoch epoch, ProjectionEpoch projection, WorkshopGpuProfile profile)
     {
         try
         {
@@ -49,7 +49,7 @@ internal sealed class WorkshopTrace
             var recordEnds = new int[32];
             #endif
             var durations = new double[32];
-            if (_active) End(TraceEnd.Reset);
+            if (_active) FinishCapture(TraceEnd.Reset);
             // Preserve the preceding capture before this one buffer is reused. No new RunLoop exists yet.
             FlushSealed();
             if (_identity == ulong.MaxValue) return;
@@ -69,12 +69,12 @@ internal sealed class WorkshopTrace
             _expectedCount = expectedCount;
             _active = true;
         }
-        catch (OutOfMemoryException) { End(TraceEnd.Overflow); }
+        catch (OutOfMemoryException) { FinishCapture(TraceEnd.Overflow); }
         catch (Exception error) when (error is ArgumentException or InvalidOperationException or OverflowException)
-        { End(TraceEnd.InvalidRecord); }
+        { FinishCapture(TraceEnd.InvalidRecord); }
     }
     #if PLAYTEST
-    internal void Append(byte[] record)
+    public void Append(byte[] record)
     {
         if (!_active || _poseEnd.HasValue) return;
         try
@@ -105,7 +105,7 @@ internal sealed class WorkshopTrace
     // chasing a rare allocation in WorkshopTraceTests.DurationRetentionHasNoRoutineAllocationInNativeExecution; tiering
     // was never confirmed as the cause, which is open (P0-034 / Story 16.1), so this is not a proven mitigation.
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-    internal void RecordTickDuration(SimulationTick tick, double milliseconds)
+    public void RecordTickDuration(SimulationTick tick, double milliseconds)
     {
         if (!_active) return;
         // The guard bounds the index, so the store cannot throw.
@@ -134,7 +134,7 @@ internal sealed class WorkshopTrace
         return next;
     }
 
-    internal void End(TraceEnd reason)
+    public void FinishCapture(TraceEnd reason)
     {
         // TraceEnd 3 (the retired DeviceLost) and every other undefined value never reach a record header.
         if (!Enum.IsDefined(reason)) throw new ArgumentOutOfRangeException(nameof(reason), reason, "Undefined trace end reason.");
@@ -147,11 +147,11 @@ internal sealed class WorkshopTrace
         _sealed = true;
     }
 
-    internal bool CanFlush(WorkshopSimulationPhase phase) =>
+    public bool CanFlush(WorkshopSimulationPhase phase) =>
         _sealed && phase is WorkshopSimulationPhase.Building or WorkshopSimulationPhase.Completed or
             WorkshopSimulationPhase.Faulted or WorkshopSimulationPhase.Disposed;
 
-    internal void Flush(WorkshopSimulationPhase phase)
+    public void Flush(WorkshopSimulationPhase phase)
     {
         // Invalid/overflow captures sealed during Run must not stall an ordinary publication.
         if (CanFlush(phase)) FlushSealed();

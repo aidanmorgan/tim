@@ -10,7 +10,7 @@ public sealed class HoldTimerTests
 {
     internal static readonly PartId Kind = new("hold_timer");
     internal static WorkshopGenericInstance Part(float seconds = 2f) =>
-        WorkshopInput.Generic(Kind, new(3), 3, 2, 0, 0, 0, 0, 1,
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, Kind, new(3), 3, 2, 0, 0, 0, 0, 1,
             new([new(new ParameterId("hold_seconds"), seconds)]));
     private static WorkshopConnection Signal(ulong from, ulong to) =>
         new(new(from), PortId.ActivationOut, new(to), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
@@ -27,12 +27,12 @@ public sealed class HoldTimerTests
     {
         IWorkshopInstance[] parts =
         [
-            WorkshopInput.Generic(new PartId("ball"),new(1),0,3,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("switch"), new(2),0,1,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1),0,3,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2),0,1,0,0,0,0,1),
             Part(seconds),
             PlacedParts.Battery(new(4), 6, 3, 0),
-            WorkshopInput.Generic(new PartId("powered_gate"),new(5),9,3,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("delay"),new(6),-3,2,0,0,0,0,1,
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"),new(5),9,3,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"),new(6),-3,2,0,0,0,0,1,
                 new([new(new ParameterId("delay_seconds"),.1f)]))
         ];
         var links = delayed ? new WorkshopConnections(Signal(2,6),Signal(6,3),Power(3,5))
@@ -112,7 +112,7 @@ public sealed class HoldTimerTests
         const float seconds=.1234567f;
         var construction=Construction(seconds,delayed:true);
         var saved=new WorkshopSavedConstruction(construction,new(7));
-        var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
+        var loaded=WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.Equal(saved,loaded);
         var part=Assert.IsType<WorkshopGenericInstance>(loaded.Construction.Instances.Single(row=>row.Id.Value==3));
         Assert.True(F32Bits.Equal(seconds,part.Parameters[new("hold_seconds")]));
@@ -221,7 +221,7 @@ public sealed class HoldTimerTests
     {
         var construction=Construction(.1f);
         var parts=construction.Instances.Select(instance=>instance.Id.Value==6
-            ? (IWorkshopInstance)WorkshopInput.Generic(new PartId("delay"),new(6),-3,2,0,0,0,0,1,new([new(new ParameterId("delay_seconds"),.2f)]))
+            ? (IWorkshopInstance)WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"),new(6),-3,2,0,0,0,0,1,new([new(new ParameterId("delay_seconds"),.2f)]))
             : instance).ToArray();
         construction=construction with {Instances=new(parts),Connections=construction.Connections.With(Signal(2,6)).With(Signal(6,3))};
         var (_,reads,_)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
@@ -292,8 +292,8 @@ public sealed class HoldTimerTests
         var original=Construction(.2f,delayed:true);
         var parts=original.Instances.ToArray().Concat(new IWorkshopInstance[]
         {
-            WorkshopInput.Generic(new PartId("ball"),new(7),12,5.96f,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("switch"), new(8),12,1,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(7),12,5.96f,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(8),12,1,0,0,0,0,1),
             PlacedParts.Lamp(new(9),15,2,0,0,0,0,1)
         }).ToArray();
         var baseline=original with {Instances=new(parts),Connections=original.Connections.With(Signal(6,9)).With(Signal(8,9))};
@@ -309,7 +309,7 @@ public sealed class HoldTimerTests
         var seconds=(float)ticks/120f;
         Assert.Equal((float)ticks,MathF.Ceiling(seconds*120f));
         parts=parts.Select(part=>part.Id.Value==6
-            ? WorkshopInput.Generic(new PartId("delay"),new(6),-3,2,0,0,0,0,1,
+            ? WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"),new(6),-3,2,0,0,0,0,1,
                 new([new(new ParameterId("delay_seconds"),seconds)])) : part).ToArray();
         var (_,reads,_)=await WorkshopIntegrationHarness.ObserveReset(baseline with {Instances=new(parts)},180);
         var due=reads.Single(read=>read.Tick.Value==second.Tick.Value);
@@ -334,7 +334,7 @@ public sealed class HoldTimerTests
     [Fact]
     public void TheHoldTimerDeclaresItsBodyFootAndProudPartsInOrder()
     {
-        var colliders = DeclaredPhysics.Colliders(new PartId("hold_timer"));
+        var colliders = DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, new PartId("hold_timer"));
         Assert.Equal(7, colliders.Count);
         TestBundle.AssertCollider(colliders[0], CuriousContraptions.Gpu.ColliderShapeKind.Box, 0f, new(.7f, .55f, .325f), new(0f, 0f, 0f));
         TestBundle.AssertCollider(colliders[1], CuriousContraptions.Gpu.ColliderShapeKind.Box, 0f, new(.8f, .07f, .425f), new(0f, -.62f, 0f));
@@ -348,7 +348,7 @@ public sealed class HoldTimerTests
     [Fact]
     public void CompiledHoldGeometryMatchesItsDeclaredHousingFootAndProudParts()
     {
-        var scene=WorkshopPhysicsCompiler.Compile(new(new(2),WorkshopCadenceSettings.Default(),new(Part())),new(101,206));
+        var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(2),WorkshopCadenceSettings.Default(),new(Part())),new(101,206));
         // The housing and foot boxes, then the parts that stand proud of the housing (visible = solid): the face panel, the
         // indicator and the three ports.
         var shapes=scene.Colliders.ToArray().Where(row=>row.Body.Value==3).ToArray();
@@ -374,7 +374,7 @@ public sealed class HoldTimerTests
         private readonly WorkshopGpuDevice _device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(
             new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         public Func<WorkshopRead, WorkshopRead>? Transform { get; set; }
-        public ValueTask<WorkshopGpuCandidate> Admit(WorkshopCompiledScene construction, SimulationEpoch epoch,
+        public ValueTask<WorkshopGpuCandidate> Admit(ICompiledScene construction, SimulationEpoch epoch,
             WorkshopGpuProfile profile, CommandSequence sequence) => _device.Admit(construction, epoch, profile, sequence);
         public async ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead source, CommandSequence sequence, WorkshopTickControls controls)
         {
@@ -471,8 +471,8 @@ public sealed class HoldTimerPresentationTests(NativeSceneFixture godot)
         var first=reads.First(read=>HoldTimerTests.State(read).Phase==ActivationTimerPhase.Counting);
         var due=HoldTimerTests.State(first).DueTick;
         var expired=reads.Single(read=>read.Tick.Value==due);
-        var evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),Response(first,1));
-        var registry=new PartRegistry(); registry.Load();
+        var evaluator=new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction),Response(first,1));
+        var registry=new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var part=registry.Create(HoldTimerTests.Kind); var untouched=registry.Create(HoldTimerTests.Kind);
         try
         {

@@ -3,31 +3,8 @@ using System.Diagnostics;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopCaptureMode : uint { Production = 1, Diagnostic = 2 }
-public static class WorkshopBuild
+public static class WorkshopMemorySampler
 {
-#if PLAYTEST
-    public const WorkshopCaptureMode CaptureMode = WorkshopCaptureMode.Diagnostic;
-#else
-    public const WorkshopCaptureMode CaptureMode = WorkshopCaptureMode.Production;
-#endif
-}
-
-/// <summary>One stopped collector measurement of one runtime context: managed usage before and after a full blocking collection,
-/// the collection's duration in <see cref="Stopwatch"/> ticks, and the allocation and collection counters around it. Usage is not
-/// exact live or resident memory.</summary>
-public readonly record struct WorkshopMemoryMeasurement(long UsedBefore, long UsedAfter, long DurationTicks, long Frequency,
-    long AllocatedBefore, long AllocatedAfter, int CollectionsBefore, int CollectionsAfter)
-{
-    public void Validate()
-    {
-        if (UsedBefore < 0 || UsedAfter < 0 || DurationTicks < 0 || Frequency <= 0 ||
-            AllocatedBefore < 0 || AllocatedAfter < AllocatedBefore ||
-            CollectionsBefore < 0 || CollectionsAfter < CollectionsBefore)
-            throw new ArgumentException("Invalid memory observation measurements.");
-    }
-
-    /// <summary>Measures this runtime context now (it runs one full blocking collection).</summary>
     public static WorkshopMemoryMeasurement Capture()
     {
         var used = GC.GetTotalMemory(false);
@@ -42,12 +19,6 @@ public readonly record struct WorkshopMemoryMeasurement(long UsedBefore, long Us
         return measurement;
     }
 }
-
-/// <summary>One stopped memory observation: the browser's measurement and the Simulation worker's, taken for one query.</summary>
-public readonly record struct WorkshopMemoryObservation(WorkshopMemoryMeasurement Browser, WorkshopMemoryMeasurement Simulation);
-
-/// <summary>The answer to one memory query: its command result, and the observation when the query was applied.</summary>
-public readonly record struct WorkshopMemoryReply(WorkshopCommandResult Result, WorkshopMemoryObservation? Observation);
 
 /// <summary>
 /// The stopped memory observation query (Story 9A.3): a typed command, <see cref="WorkshopCommandKind.ObserveMemory"/>, routed with
@@ -90,7 +61,7 @@ public static class WorkshopMemoryQuery
 }
 
 /// <summary>Owns the browser's stopped interval through the query acknowledgement and synchronous collector capture.</summary>
-public sealed class WorkshopMemoryQueryOwner
+public sealed class WorkshopMemoryQueryOwner : IMemoryQueryOwner
 {
     public bool Active { get; private set; }
 

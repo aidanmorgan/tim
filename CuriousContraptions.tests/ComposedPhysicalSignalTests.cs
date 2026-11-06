@@ -36,8 +36,8 @@ public sealed class ComposedPhysicalSignalTests
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(part, entry.Ports)]));
         var quarter = MathF.Sqrt(.5f);
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(part, new(2), 0, .16f, 0, 0, 0, -quarter, quarter),
-            WorkshopInput.Generic(new("ball"), new(3), 0, 2.88f, 0, 0, 0, 0, 1)));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, part, new(2), 0, .16f, 0, 0, 0, -quarter, quarter),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new("ball"), new(3), 0, 2.88f, 0, 0, 0, 0, 1)));
         await harness.Require(WorkshopCommandKind.Construct, bench);
         await harness.Run();
         await harness.Advance(480); // Generous four-second guard for two bouncing forward passes.
@@ -89,7 +89,7 @@ public sealed class ComposedPhysicalSignalTests
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(part, entry.Ports)]));
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
             PlacedParts.Battery(new(1), -4, 3, 0, enabled: supplied ? ElectricalEnable.Enabled : ElectricalEnable.Disabled),
-            WorkshopInput.Generic(part, new(2), 0, 3, 0, 0, 0, 0, 1)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, part, new(2), 0, 3, 0, 0, 0, 0, 1)),
             Connections: new(new WorkshopConnection(new(1), PortId.Supply, new(2), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         await harness.Require(WorkshopCommandKind.Construct, bench);
         await harness.Run();
@@ -148,9 +148,9 @@ public sealed class ComposedPhysicalSignalTests
         using var physics = DeclaredPhysics.Scoped([entry]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(part, entry.Ports)]));
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(part, new(2), 0, WorkshopConstruction.WorkbenchSurface.Value + .22f, 0, 0, 0, 0, 1,
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, part, new(2), 0, WorkshopConstruction.WorkbenchSurface.Value + .22f, 0, 0, 0, 0, 1,
                 new([new(new("minimum_mass"), .1f)])),
-            WorkshopInput.Generic(new("ball"), new(3), ballX, 2, 0, 0, 0, 0, 1)));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new("ball"), new(3), ballX, 2, 0, 0, 0, 0, 1)));
         await harness.Require(WorkshopCommandKind.Construct, bench);
         await harness.Run();
         await harness.Advance(240); // Two seconds permits the falling ball to settle on its selected face.
@@ -246,14 +246,14 @@ public sealed class ComposedPhysicalSignalTests
         PartId part = new("delayed_passage_memory");
         var entry = DelayedPassageEntry(part, reverse);
         Assert.Empty(BundleValidator.Validate([new("delayed_passage", entry)]));
-        var entries = PartRegistry.Read(BundleSchema.WriteEntries([entry]));
+        var entries = PartRegistry.Read(RuntimeTestServices.Bundle, BundleSchema.WriteEntries([entry]));
         using var physics = DeclaredPhysics.Scoped(entries);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(part, entry.Ports)]));
         var half = MathF.Sqrt(.5f);
         var floor = WorkshopConstruction.WorkbenchSurface.Value;
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(part, new(2), 0, floor + .62f, 0, 0, 0, -half, half),
-            WorkshopInput.Generic(new("ball"), new(3), 0, floor + 3.34f, 0, 0, 0, 0, 1)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, part, new(2), 0, floor + .62f, 0, 0, 0, -half, half),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new("ball"), new(3), 0, floor + 3.34f, 0, 0, 0, 0, 1)),
             Connections: connected ? new(new WorkshopConnection(new(2), PortId.ActivationOut, new(2), new("delay_in"),
                 WorkshopConnectionDomain.Activation)) : WorkshopConnections.Empty);
         await harness.Require(WorkshopCommandKind.Construct, bench);
@@ -360,9 +360,9 @@ public sealed class ComposedPhysicalSignalTests
         var q = MathF.Sqrt(.5f);
         IWorkshopInstance[] instances =
         [
-            WorkshopInput.Generic(part, new(2), 0, 2, 0, 0, 0, -q, q),
-            WorkshopInput.Generic(new("ball"), new(3), -.5f, 4, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new("ball"), new(4), .5f, 4, 0, 0, 0, 0, 1)
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, part, new(2), 0, 2, 0, 0, 0, -q, q),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new("ball"), new(3), -.5f, 4, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new("ball"), new(4), .5f, 4, 0, 0, 0, 0, 1)
         ];
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(reverse ? instances.Reverse().ToArray() : instances));
         await harness.Require(WorkshopCommandKind.Construct, bench);
@@ -374,12 +374,12 @@ public sealed class ComposedPhysicalSignalTests
             before = harness.Committed;
             var node = Node(bench, "count");
             var networkAtTick = harness.Simulation.Scene.Activation;
-            var staged = await harness.Device.Advance(before, new(900001), WorkshopTickControls.For(before, []));
+            var staged = await harness.Device.Advance(before, new(900001), TickControlComposition.For(before, []));
             var stagedCount = networkAtTick.Memory(staged.Read.Memory, node).Count;
             harness.Device.Discard(staged.Sequence);
             if (stagedCount == 2)
             {
-                var retry = await harness.Device.Advance(before, new(900002), WorkshopTickControls.For(before, []));
+                var retry = await harness.Device.Advance(before, new(900002), TickControlComposition.For(before, []));
                 Assert.Equal(2u, networkAtTick.Memory(retry.Read.Memory, node).Count);
                 Assert.Equal(networkAtTick.Memory(staged.Read.Memory, Node(bench, "signal")),
                     networkAtTick.Memory(retry.Read.Memory, Node(bench, "signal")));

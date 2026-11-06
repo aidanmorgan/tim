@@ -107,7 +107,7 @@ public sealed class WorkshopSaveRejectionTests
     /// <summary>The fields a production save writes for one valid instance of each kind, read back from its own record.</summary>
     internal static Instance FromProduction(IWorkshopInstance instance)
     {
-        var bytes = WorkshopSaveCodec.Encode(new(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(instance)), new(instance.Id.Value + 1)));
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(instance)), new(instance.Id.Value + 1)));
         var bb = new ByteBuffer(bytes); bb.Position = 4;
         var record = SavedConstruction.GetRootAsSavedConstruction(bb).Construction!.Value.Instances(0)!.Value;
         var result = new Instance(record.PartId, record.Id);
@@ -123,16 +123,16 @@ public sealed class WorkshopSaveRejectionTests
     /// <summary>One valid instance of every decodable kind, at distinct identities.</summary>
     internal static IWorkshopInstance[] EveryKind() =>
     [
-        WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("bowling"), new(2), 1, 3, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("basket"), new(3), 4, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("ramp"), new(4), -2, 1, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("wall"), new(5), -4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
-        WorkshopInput.Generic(new PartId("switch"), new(6), 2, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("delay"), new(7), 3, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("spring"), new(8), 5, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), new(2), 1, 3, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(3), 4, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(4), -2, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(5), -4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(6), 2, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(7), 3, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), new(8), 5, 0, 0, 0, 0, 0, 1),
         PlacedParts.Battery(new(9), 6, 0, 0),
-        WorkshopInput.Generic(new PartId("bumper"), new(10), 7, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(10), 7, 0, 0, 0, 0, 0, 1),
         PlacedParts.Domino(new(11), 8, 0, 0, 0, 0, 0, 1),
         PlacedParts.Lamp(new(12), 9, 0, 0, 0, 0, 0, 1),
         PlacedParts.Detector(new(13), 10, 0, 0, 0, 0, 0, 1),
@@ -140,18 +140,18 @@ public sealed class WorkshopSaveRejectionTests
         PlacedParts.Counter(new(15), 12, 0, 0, 0, 0, 0, 1, 3),
         PlacedParts.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
         PlacedParts.Latch(new(17), 14, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("pipe"),new(18), 15, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("pipe_bend_45"), new(19), 16, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("pipe_bend_90"), new(20), 17, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("funnel"), new(21), 18, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("powered_gate"), new(22), 19, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(18), 15, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_45"), new(19), 16, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_90"), new(20), 17, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), new(21), 18, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(22), 19, 0, 0, 0, 0, 0, 1),
     ];
 
 
     [Fact]
     public void GenericVectorsRejectMissingDuplicateUnknownAndMixedRecordPayloads()
     {
-        var wall = FromProduction(WorkshopInput.Generic(new PartId("wall"), new(1), 0, 2, 0, 0, 0, 0, 1));
+        var wall = FromProduction(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(1), 0, 2, 0, 0, 0, 0, 1));
         KeyValuePair<string, float>[] valid = [new("width", 3f), new("height", 2f), new("thickness", .25f)];
         foreach (var malformed in new KeyValuePair<string, float>[][]
         {
@@ -162,8 +162,8 @@ public sealed class WorkshopSaveRejectionTests
         {
             var bytes = Bytes(One(wall.With(Field.Parameters, malformed)));
             Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
-            var construction = WorkshopSaveCodec.Open(bytes).Construction!.Value;
-            Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(construction));
+            var construction = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value;
+            Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, construction));
         }
         foreach (var instance in EveryKind().Where(instance => instance is not WorkshopGenericInstance))
         {
@@ -171,18 +171,18 @@ public sealed class WorkshopSaveRejectionTests
             var bytes = Bytes(One(forged));
             Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
             Assert.Throws<WireFaultException>(() =>
-                WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
+                WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value));
         }
     }
 
     [Fact]
     public void GenericImpactParametersRejectExternalInvalidVectors()
     {
-        var part = WorkshopInput.Generic(new PartId("switch"), new(1), 0, 2, 0, 0, 0, 0, 1,
+        var part = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(1), 0, 2, 0, 0, 0, 0, 1,
             new([new(new ParameterId("trigger_threshold"), 1.234567f)]));
         var record = FromProduction(part);
         var validBytes = Bytes(One(record));
-        var restored = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, validBytes).Construction.Instances));
+        var restored = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, validBytes).Construction.Instances));
         Assert.Equal(part.Parameters, restored.Parameters);
         foreach (var invalid in new KeyValuePair<string, float>[][]
         {
@@ -193,7 +193,7 @@ public sealed class WorkshopSaveRejectionTests
         {
             var bytes = Bytes(One(record.With(Field.Parameters, invalid)));
             Assert.Contains(Rejection(bytes), new[] { WorkshopSaveRejection.OutOfRange, WorkshopSaveRejection.NonFinite });
-            Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
+            Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value));
         }
         Assert.Equal(1.234567f, part.Parameters[new ParameterId("trigger_threshold")]);
     }
@@ -201,21 +201,21 @@ public sealed class WorkshopSaveRejectionTests
     private static Save One(Instance instance) => new([instance], []);
 
     private static WorkshopSaveRejection Rejection(byte[] bytes) =>
-        Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)).Reason;
+        Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes)).Reason;
 
-    private static Instance Ramp() => FromProduction(WorkshopInput.Generic(new PartId("ramp"), new(1), 0, 1, 0, 0, 0, 0, 1));
+    private static Instance Ramp() => FromProduction(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(1), 0, 1, 0, 0, 0, 0, 1));
     private static Instance Counter() => FromProduction(PlacedParts.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, 3));
 
     // ---------- every rejection reason ----------
 
     [Fact]
-    public void ValidHandBuiltSaveLoads() => Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,Bytes(One(Ramp()))).Construction.Instances);
+    public void ValidHandBuiltSaveLoads() => Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,Bytes(One(Ramp()))).Construction.Instances);
 
     [Fact]
     public void EveryKindRoundTripsThroughTheHandBuiltRecord()
     {
         var instances = EveryKind();
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,Bytes(new(instances.Select(FromProduction).ToArray(), [])));
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,Bytes(new(instances.Select(FromProduction).ToArray(), [])));
         Assert.Equal(new WorkshopInstances(instances), decoded.Construction.Instances);
     }
 
@@ -228,38 +228,38 @@ public sealed class WorkshopSaveRejectionTests
         var precision = new PuzzlePrecision(1f);
         var lessons = new[]
         {
-            PuzzleCatalogue.Create(new("first_principles"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new PuzzleId("bumper_depth"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new PuzzleId("wall_and_bumper"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new("domino_effect"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new("delayed_signal"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new("clear_pipe"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new("gentle_bend"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new("quarter_bend"), new(1), settings, new(1), precision),
-            PuzzleCatalogue.Create(new("joined_pipe"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId("spring_forward"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId("ready_to_rebound"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("bumper_sidekick"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId("bumper_depth"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId("wall_and_bumper"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("domino_effect"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("delayed_signal"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("clear_pipe"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("gentle_bend"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("quarter_bend"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("joined_pipe"), new(1), settings, new(1), precision),
         };
         foreach (var lesson in lessons)
         {
             var saved = new WorkshopSavedConstruction(lesson, new(100));
-            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
         }
-        var ready = PuzzleCatalogue.WithInstance(lessons[2], WorkshopInput.Generic(new PartId("basket"), new(4), 2, .55f, 0, 0, 0, 0, 1));
+        var ready = PuzzleCatalogue.WithInstance(RuntimeTestServices.Bundle, lessons[2], WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(4), 2, .55f, 0, 0, 0, 0, 1));
         var missing = ready.WithoutInstance(new(4));
-        missing.Validate(); // control: the domain admits the lesson without its receiver
+        missing.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle); // control: the domain admits the lesson without its receiver
         var withoutReceiver = new WorkshopSavedConstruction(missing, new(100));
-        Assert.Equal(withoutReceiver, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(withoutReceiver)));
+        Assert.Equal(withoutReceiver, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, withoutReceiver)));
     }
 
     [Fact]
     public void StoredTextThatIsNotBase64IsRejected() =>
-        Assert.Equal(WorkshopSaveRejection.NotBase64, Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.DecodeStored(SaveFixture.Elements,"not base64!")).Reason);
+        Assert.Equal(WorkshopSaveRejection.NotBase64, Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.DecodeStored(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,"not base64!")).Reason);
 
     [Fact]
     public void StoredBase64DecodesTheSave() =>
-        Assert.Single(WorkshopSaveCodec.DecodeStored(SaveFixture.Elements,Convert.ToBase64String(Bytes(One(Ramp())))).Construction.Instances);
+        Assert.Single(WorkshopSaveCodec.DecodeStored(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,Convert.ToBase64String(Bytes(One(Ramp())))).Construction.Instances);
 
     public static TheoryData<string, WorkshopSaveRejection> Violations()
     {
@@ -308,7 +308,7 @@ public sealed class WorkshopSaveRejectionTests
     private static Save Violation(string name)
     {
         var ramp = Ramp();
-        var receiver = FromProduction(WorkshopInput.Generic(new PartId("basket"), new(1), 0, 1, 0, 0, 0, 0, 1));
+        var receiver = FromProduction(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(1), 0, 1, 0, 0, 0, 0, 1));
         var battery = FromProduction(PlacedParts.Battery(new(2), 0, 1, 0));
         var lamp = FromProduction(PlacedParts.Lamp(new(3), 2, 1, 0, 0, 0, 0, 1));
         var electrical = (uint)WorkshopConnectionDomain.Electrical;
@@ -369,7 +369,7 @@ public sealed class WorkshopSaveRejectionTests
     [Fact]
     public void TheRefusalIsAPlayerRejectionNotAFault()
     {
-        var error = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,Bytes(Violation("long ramp"))));
+        var error = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,Bytes(Violation("long ramp"))));
         Assert.True(WorkshopUiFailure.IsRejection(error));
         Assert.False(string.IsNullOrWhiteSpace(error.Message));
     }
@@ -385,8 +385,8 @@ public sealed class WorkshopSaveRejectionTests
     [Fact]
     public void DuplicateKeyDefectAfterPreValidationIsAFault()
     {
-        var saved = WorkshopSaveCodec.Open(Bytes(Violation("duplicate instance")));
-        var error = Record.Exception(() => WorkshopSaveCodec.Construct(saved));
+        var saved = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, Bytes(Violation("duplicate instance")));
+        var error = Record.Exception(() => WorkshopSaveCodec.Construct(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.IsType<ArgumentException>(error);
         Assert.False(WorkshopUiFailure.IsRejection(error));
     }
@@ -396,7 +396,7 @@ public sealed class WorkshopSaveRejectionTests
     private static bool PreValidationRejects(byte[] bytes)
     {
         // Anything other than the typed refusal escaping here fails the test: pre-validation is complete.
-        try { WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes); return false; }
+        try { WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes); return false; }
         catch (WorkshopSaveRejectedException) { return true; }
     }
 
@@ -404,9 +404,9 @@ public sealed class WorkshopSaveRejectionTests
     private static bool DomainRejects(byte[] bytes)
     {
         SavedConstruction saved;
-        try { saved = WorkshopSaveCodec.Open(bytes); }
+        try { saved = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes); }
         catch (WorkshopSaveRejectedException) { return true; }
-        return Record.Exception(() => WorkshopSaveCodec.Construct(saved)) is not null;
+        return Record.Exception(() => WorkshopSaveCodec.Construct(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)) is not null;
     }
 
     private static readonly float[] Specials =
@@ -557,7 +557,7 @@ public sealed class WorkshopSaveRejectionTests
         var instances = EveryKind().Select(FromProduction).ToArray();
         var save = new Save(instances, [new(9, 22, (uint)WorkshopConnectionDomain.Electrical, 0, 0)]);
         var valid = Bytes(save);
-        Assert.Equal(instances.Length, WorkshopSaveCodec.Decode(SaveFixture.Elements,valid).Construction.Instances.Count);
+        Assert.Equal(instances.Length, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,valid).Construction.Instances.Count);
         var random = new Random(9_2);
         var corpus = new List<byte[]>();
         for (var length = 0; length < valid.Length; length++) corpus.Add(valid[..length]);
@@ -571,7 +571,7 @@ public sealed class WorkshopSaveRejectionTests
         var escaped = new List<string>();
         foreach (var bytes in corpus)
         {
-            var error = Record.Exception(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
+            var error = Record.Exception(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes));
             if (error is not (null or WorkshopSaveRejectedException)) escaped.Add($"{error.GetType().Name}: {error.Message} at {error.StackTrace?.Split('\n')[0].Trim()}");
         }
         Assert.True(escaped.Count == 0, string.Join(Environment.NewLine, escaped.Distinct()));

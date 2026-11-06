@@ -31,6 +31,7 @@ internal static class ImpactRules
     /// its source. A test checks the table against `git ls-files engine ui scenes`; a missing file is Unknown, so Full.</summary>
     public static readonly IReadOnlyDictionary<string, WorkshopArea> AreaFiles = new Dictionary<string, WorkshopArea>(StringComparer.Ordinal)
     {
+        ["engine/RuntimeProviders.cs"] = WorkshopArea.AllInteraction,
         ["engine/MachineWorld.cs"] = WorkshopArea.AllInteraction,
         ["engine/MachineWorld.Gpu.cs"] = WorkshopArea.AllInteraction,
         ["engine/WorkshopUiBinding.cs"] = WorkshopArea.AllInteraction,
@@ -41,7 +42,6 @@ internal static class ImpactRules
         ["scenes/workshop.tscn"] = WorkshopArea.AllInteraction,
         ["engine/PartDefinition.cs"] = WorkshopArea.Palette,
         ["engine/PartRegistry.cs"] = WorkshopArea.Palette,
-        ["engine/PartId.cs"] = WorkshopArea.Palette,
         ["ui/WorkshopIcons.cs"] = WorkshopArea.Palette,
         ["engine/Workbench.cs"] = WorkshopArea.BenchPlacement,
         ["ui/WorkshopBenchPlacement.cs"] = WorkshopArea.BenchPlacement,
@@ -58,7 +58,7 @@ internal static class ImpactRules
         ["ui/WorkshopAnimation.cs"] = WorkshopArea.Presentation,
         ["ui/WorkshopArtwork.cs"] = WorkshopArea.Presentation,
         ["engine/presentation/AnimationBatch.cs"] = WorkshopArea.Presentation,
-        ["engine/presentation/AnimationFollowDefinition.cs"] = WorkshopArea.Presentation,
+        ["engine/presentation/AnimationEvaluation.cs"] = WorkshopArea.Presentation,
         ["engine/presentation/AnimationImpulseDefinition.cs"] = WorkshopArea.Presentation,
         ["engine/presentation/AnimationOscillationDefinition.cs"] = WorkshopArea.Presentation,
         ["engine/presentation/AnimationValues.cs"] = WorkshopArea.Presentation,

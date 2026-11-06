@@ -14,7 +14,7 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void PartRegistry_DiscoversFunnelDefinitionAndConfiguresInstance()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(new PartId("funnel")));
@@ -97,15 +97,15 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void WorkshopCanonicalColliders_MatchesFunnelColliders()
     {
-        AssertFunnelColliders(DeclaredPhysics.Colliders(new PartId("funnel")));
+        AssertFunnelColliders(DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, new PartId("funnel")));
     }
 
     [Fact]
     public void WorkshopPhysicsCompiler_CompilesFunnelIntoStaticBodyWithItsHollowColliders()
     {
-        var funnel = WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var funnel = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(funnel));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
 
         Assert.Equal(2, scene.Bodies.Length); // plane + funnel
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(10));
@@ -129,23 +129,23 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void SaveCodec_RoundTripsFunnelAndPreservesDeclaredColliders()
     {
-        var funnel = WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var funnel = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, funnel));
         var save = new WorkshopSavedConstruction(construction, new(12));
 
-        var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
 
         Assert.Equal(save, decoded);
-        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(decoded)));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, decoded)));
 
         var decodedFunnel = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
         Assert.Equal(new PartId("funnel"), decodedFunnel.PartId);
-        AssertFunnelColliders(decodedFunnel.DeclaredColliders);
+        AssertFunnelColliders(decodedFunnel.DeclaredColliders(RuntimeTestServices.Bundle));
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
-        var fbSave = WorkshopSaveCodec.Open(bytes);
+        var fbSave = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes);
         Assert.True(fbSave.Construction.HasValue);
         var fbFunnel = fbSave.Construction.Value.Instances(1);
         Assert.True(fbFunnel.HasValue);
@@ -156,18 +156,18 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     public void WorkbenchCapacity_AdmitsFunnelsWithoutColliderLimit()
     {
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
-        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
+        var world = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 0, 5 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
 
         var twoFunnels = new WorkshopInstances(
-            WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1));
-        new WorkshopInstances([.. twoFunnels]).Validate();
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1));
+        new WorkshopInstances([.. twoFunnels]).Validate(RuntimeTestServices.Bundle);
 
         var twentyFunnels = new WorkshopInstances(
-            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
-        new WorkshopInstances([.. twentyFunnels]).Validate();
+            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
+        new WorkshopInstances([.. twentyFunnels]).Validate(RuntimeTestServices.Bundle);
     }
 
     [Fact]
@@ -175,7 +175,7 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     {
         // The inlet stub's bore and the frustum's wide end are the inlet mouth's 1.3 m; its narrow end and the outlet stub's bore are the
         // outlet mouth's 0.65 m.
-        var colliders = DeclaredPhysics.Colliders(new PartId("funnel"));
+        var colliders = DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, new PartId("funnel"));
         var mouths = TestBundle.Entry(new PartId("funnel")).TubeMouths;
         var (inlet, outlet) = (mouths.Single(m => m.End == CuriousContraptions.Abstractions.TubeEnd.Start).BoreRadius,
             mouths.Single(m => m.End == CuriousContraptions.Abstractions.TubeEnd.End).BoreRadius);
@@ -191,10 +191,10 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void PhysicsGpuAbi_AdmissionAcceptsFunnelSceneDeclaration()
     {
-        var funnel = WorkshopInput.Generic(new PartId("funnel"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
+        var funnel = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, funnel));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
 
         var profile = new WorkshopGpuProfile(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), profile);

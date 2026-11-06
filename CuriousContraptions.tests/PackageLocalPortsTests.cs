@@ -61,20 +61,20 @@ public sealed class PackageLocalPortsTests
     public void MissingPortEndpointInConnection_RefusesAtomically()
     {
         var battery = PlacedParts.Battery(new(2), 0, 1, 0);
-        var gate = WorkshopInput.Generic(new PartId("both_gate"), new(3), 3, 1, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("both_gate"), new(3), 3, 1, 0, 0, 0, 0, 1);
         var missingPort = new PortId("nonexistent_socket");
 
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(battery, gate),
             Connections: new(new WorkshopConnection(battery.Id, missingPort, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
 
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => construction.Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
 
         var missingTargetPort = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(battery, gate),
             Connections: new(new WorkshopConnection(battery.Id, PortId.Supply, gate.Id, missingPort, WorkshopConnectionDomain.Electrical)));
 
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => missingTargetPort.Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => missingTargetPort.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
 
     [Fact]
@@ -82,27 +82,27 @@ public sealed class PackageLocalPortsTests
     {
         var battery1 = PlacedParts.Battery(new(2), 0, 1, 0);
         var battery2 = PlacedParts.Battery(new(3), 3, 1, 0);
-        var gate1 = WorkshopInput.Generic(new PartId("both_gate"), new(4), 6, 1, 0, 0, 0, 0, 1);
-        var gate2 = WorkshopInput.Generic(new PartId("both_gate"), new(5), 9, 1, 0, 0, 0, 0, 1);
+        var gate1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("both_gate"), new(4), 6, 1, 0, 0, 0, 0, 1);
+        var gate2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("both_gate"), new(5), 9, 1, 0, 0, 0, 0, 1);
 
         // Output to Output
         var outputToOutput = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(battery1, battery2),
             Connections: new(new WorkshopConnection(battery1.Id, PortId.Supply, battery2.Id, PortId.Supply, WorkshopConnectionDomain.Electrical)));
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => outputToOutput.Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => outputToOutput.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
 
         // Input to Input
         var inputToInput = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(gate1, gate2),
             Connections: new(new WorkshopConnection(gate1.Id, PortId.PowerIn, gate2.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => inputToInput.Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => inputToInput.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
 
         // Wrong Domain (Signal port connected via Electrical domain)
         var lamp = PlacedParts.Lamp(new(6), 12, 1, 0, 0, 0, 0, 1);
         var wrongDomain = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(battery1, lamp),
             Connections: new(new WorkshopConnection(battery1.Id, PortId.Supply, lamp.Id, PortId.ActivationIn, WorkshopConnectionDomain.Electrical)));
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => wrongDomain.Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => wrongDomain.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public sealed class PackageLocalPortsTests
         using var physicsScope = DeclaredPhysics.Scoped([customEntry]);
         using var portScope = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(customPart, customPorts)]));
 
-        var source = WorkshopInput.Generic(customPart, new(2), 0, 1, 0, 0, 0, 0, 1);
+        var source = WorkshopInput.Generic(RuntimeTestServices.Bundle, customPart, new(2), 0, 1, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1);
 
         // Multiple activation feeds from same source to same input
@@ -146,16 +146,16 @@ public sealed class PackageLocalPortsTests
             new(source, lamp),
             Connections: new(dupActivation1, dupActivation2));
 
-        dupActivationConstruction.Validate();
+        dupActivationConstruction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         var edge = Assert.Single(WorkshopActivationCompiler.Edges(
             new WorkshopSignalGraph(dupActivationConstruction.Instances, dupActivationConstruction.Connections)));
         Assert.Equal(dupActivationConstruction.Instances.Identities[source.Id].Signals[new("signal")].Node, edge.Source);
         Assert.Equal(dupActivationConstruction.Instances.Identities[lamp.Id].Signals[new("signal")].Node, edge.Target);
         var duplicate = dupActivationConstruction with { Connections = new(dupActivation1, dupActivation1) };
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => duplicate.Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => duplicate.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
 
         // Multiple electrical feeds from same source to same input
-        var gate = WorkshopInput.Generic(new PartId("both_gate"), new(4), 6, 1, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("both_gate"), new(4), 6, 1, 0, 0, 0, 0, 1);
         var dupElec1 = new WorkshopConnection(source.Id, supA, gate.Id, PortId.FirstIn, WorkshopConnectionDomain.Electrical);
         var dupElec2 = new WorkshopConnection(source.Id, supB, gate.Id, PortId.FirstIn, WorkshopConnectionDomain.Electrical);
 
@@ -163,7 +163,7 @@ public sealed class PackageLocalPortsTests
             new(source, gate),
             Connections: new(dupElec1, dupElec2));
 
-        var elecRefusal = Assert.Throws<WorkshopEditRejectedException>(() => dupElecConstruction.Validate());
+        var elecRefusal = Assert.Throws<WorkshopEditRejectedException>(() => dupElecConstruction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.Equal(WorkshopEditRejection.InvalidConnection, elecRefusal.Reason);
         Assert.Contains("Duplicate electrical connection", elecRefusal.Message, StringComparison.Ordinal);
     }
@@ -231,7 +231,7 @@ public sealed class PackageLocalPortsTests
         using var scope = DeclaredPorts.Scoped(extendedCatalogue);
 
         // Connect both outputs to separate lamps and verify roundtrip through save/load
-        var trigger = WorkshopInput.Generic(customPart, new(2), 0, 1, 0, 0, 0, 0, 1);
+        var trigger = WorkshopInput.Generic(RuntimeTestServices.Bundle, customPart, new(2), 0, 1, 0, 0, 0, 0, 1);
         var lamp1 = PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1);
         var lamp2 = PlacedParts.Lamp(new(4), 6, 1, 0, 0, 0, 0, 1);
 
@@ -242,11 +242,11 @@ public sealed class PackageLocalPortsTests
             new(trigger, lamp1, lamp2),
             Connections: new(conn1, conn2));
 
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
         var save = new WorkshopSavedConstruction(construction, new(10));
-        var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements.Append(customPart).ToHashSet(), bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements.Append(customPart).ToHashSet(), bytes);
 
         Assert.Equal(construction.Revision, decoded.Construction.Revision);
         Assert.Equal(2, decoded.Construction.Connections.Count);
@@ -288,8 +288,8 @@ public sealed class PackageLocalPortsTests
 
         // Placed parts connect and validate cleanly
         var b = PlacedParts.Battery(new(2), 0, 1, 0);
-        var g = WorkshopInput.Generic(gate, new(3), 3, 1, 0, 0, 0, 0, 1);
-        var m = WorkshopInput.Generic(motor, new(4), 6, 1, 0, 0, 0, 0, 1);
+        var g = WorkshopInput.Generic(RuntimeTestServices.Bundle, gate, new(3), 3, 1, 0, 0, 0, 0, 1);
+        var m = WorkshopInput.Generic(RuntimeTestServices.Bundle, motor, new(4), 6, 1, 0, 0, 0, 0, 1);
         var wire1 = new WorkshopConnection(b.Id, PortId.Supply, g.Id, PortId.FirstIn, WorkshopConnectionDomain.Electrical);
         var wire2 = new WorkshopConnection(b.Id, PortId.Supply, g.Id, PortId.SecondIn, WorkshopConnectionDomain.Electrical);
         var wire3 = new WorkshopConnection(g.Id, PortId.Supply, m.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
@@ -298,7 +298,7 @@ public sealed class PackageLocalPortsTests
             new(b, g, m),
             Connections: new(wire1, wire2, wire3));
 
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         Assert.Equal(3, construction.Connections.Count);
     }
 }

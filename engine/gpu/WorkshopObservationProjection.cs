@@ -115,7 +115,7 @@ internal static class WorkshopObservationProjection
         value.SetProperty("guideAcceleration", source.GuideAcceleration.Value); value.SetProperty("triggerThreshold", source.TriggerThreshold);
         return value;
     }
-    internal static T Response<T>(WorkshopResponse response) where T : IWorkshopObservationObject<T>
+    internal static T Response<T>(IPresentationServices presentation, WorkshopResponse response) where T : IWorkshopObservationObject<T>
     {
         var read = response.Read;
         var value = T.Object();
@@ -208,7 +208,7 @@ internal static class WorkshopObservationProjection
             row.SetProperty("speed", source.Speed);
             row.SetProperty("lower", source.Lower);
             row.SetProperty("upper", source.Upper);
-            row.SetProperty("blocked", source.Blocked);
+            row.SetProperty("blocked", presentation.IsBlocked(source));
             actuators.Push(row);
         }
         value.SetProperty("actuators", actuators);
@@ -418,9 +418,9 @@ internal static class WorkshopObservationProjection
         }
     }
 
-    private static void ProjectDiagnostic<T>(ref T value, WorkshopTransferDiagnostic record) where T : IWorkshopObservationObject<T>
+    private static void ProjectDiagnostic<T>(IPresentationServices presentation, ref T value, WorkshopTransferDiagnostic record) where T : IWorkshopObservationObject<T>
     {
-        using var response = Response<T>(record.Response); value.SetProperty("response", response);
+        using var response = Response<T>(presentation, record.Response); value.SetProperty("response", response);
     }
 
     private static void ProjectDiagnostic<T>(ref T value, WorkshopTickFailureDiagnostic record) where T : IWorkshopObservationObject<T>
@@ -529,7 +529,7 @@ internal static class WorkshopObservationProjection
         value.SetProperty("detail", record.Detail);
     }
 
-    internal static T Diagnostic<T>(WorkshopDiagnostic source, WorkshopAuthoredScene? authored = null) where T : IWorkshopObservationObject<T>
+    internal static T Diagnostic<T>(IPresentationServices presentation, WorkshopDiagnostic source, WorkshopAuthoredScene? authored = null) where T : IWorkshopObservationObject<T>
     {
         var value = T.Object(); value.SetProperty("category", WorkshopObservationProjection.EnumValue(source.Category));
         switch (source)
@@ -562,7 +562,7 @@ internal static class WorkshopObservationProjection
                 ProjectDiagnostic(ref value, record);
                 break;
             case WorkshopTransferDiagnostic record:
-                ProjectDiagnostic(ref value, record);
+                ProjectDiagnostic(presentation, ref value, record);
                 break;
             case WorkshopCaptureDiagnostic record:
                 ProjectDiagnostic(ref value, record, authored);

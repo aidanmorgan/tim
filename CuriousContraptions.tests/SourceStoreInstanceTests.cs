@@ -17,12 +17,12 @@ public sealed class SourceStoreInstanceTests
 
     /// <summary>A Powered Gate at the origin and a source beside it, wired Supply → PowerIn unless <paramref name="wired"/> is false.</summary>
     private static WorkshopConstruction GateBench(WorkshopGenericInstance source, bool wired = true) =>
-        new(new(2), Settings, new(WorkshopInput.Generic(new PartId("powered_gate"), Gate, 0, 3, 0, 0, 0, 0, 1), source),
+        new(new(2), Settings, new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), Gate, 0, 3, 0, 0, 0, 0, 1), source),
             Connections: wired ? new(Power(source.Id, Gate)) : WorkshopConnections.Empty);
 
     /// <summary>A heavy ball that empties a Bumper's contact-work store, the store recharged by the source wired to its PowerIn.</summary>
     private static WorkshopConstruction RechargeBench(WorkshopGenericInstance source, float strength = 8f) =>
-        new(new(2), Settings, new(WorkshopInput.Generic(new PartId("bowling"), Ball, 0, 6, 0, 0, 0, 0, 1), PlacedParts.Bumper(Bumper, 0, 3, 0, (float)(strength)), source),
+        new(new(2), Settings, new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), Ball, 0, 6, 0, 0, 0, 0, 1), PlacedParts.Bumper(Bumper, 0, 3, 0, (float)(strength)), source),
             Connections: new(Power(source.Id, Bumper)));
 
 
@@ -71,57 +71,58 @@ public sealed class SourceStoreInstanceTests
             Assert.All(reads, read => Assert.InRange(Blade(read).Coordinate, -1e-3f, 1e-3f));
         }
         var unwired = GateBench(PlacedParts.Battery(Source, 3, 3, 0), wired: false);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (unwired with { Connections = new(Power(Gate, Source)) }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (unwired with { Connections = new(Power(Gate, Source)) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (unwired with { Connections = new(
-            new WorkshopConnection(Source, PortId.Supply, Gate, PortId.PowerIn, WorkshopConnectionDomain.Activation)) }).Validate());
-        var withSwitch = unwired with { Instances = unwired.Instances.With(WorkshopInput.Generic(new PartId("switch"), new(7), -3, 1, 0, 0, 0, 0, 1)) };
+            new WorkshopConnection(Source, PortId.Supply, Gate, PortId.PowerIn, WorkshopConnectionDomain.Activation)) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        var withSwitch = unwired with { Instances = unwired.Instances.With(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(7), -3, 1, 0, 0, 0, 0, 1)) };
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (withSwitch with { Connections = new(
-            new WorkshopConnection(new(7), PortId.ActivationOut, Source, PortId.ActivationIn, WorkshopConnectionDomain.Activation)) }).Validate());
+            new WorkshopConnection(new(7), PortId.ActivationOut, Source, PortId.ActivationIn, WorkshopConnectionDomain.Activation)) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
 
     // ---------- the finite store ----------
 
-    // EL-196: each committed tick the store pays at most its power limit for one 1/120 s phase, never more than it holds; the energy it
-    // delivers never exceeds its initial charge (capacity × initial charge); a store that starts empty delivers nothing. The heavy
-    // ball empties the Bumper's store so the source has demand to meet.
+    // EL-196: each committed tick pays at most the declared power over its 1/120 s phase and never overdraws the previous balance.
+    // Debit is the canonical f32 before-minus-after accounting field, not mechanical energy inferred from a trajectory. Check each
+    // committed transition directly rather than assuming rounded f32 differences telescope exactly in a wider sum. An empty store
+    // delivers nothing; the heavy ball empties the Bumper's store so the source has demand to meet.
     [Theory]
     [InlineData(3600f, 10f, 1f, 8f)]
     [InlineData(60f, 480f, 1f, 20f)]
     [InlineData(120f, 30f, .5f, 8f)]
     [InlineData(14400f, 480f, 1f, 20f)]
     [InlineData(600f, 10f, 0f, 8f)]
-    public async Task TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(float capacity, float power, float charge, float strength)
+    public async Task TheStorePaysWithinItsPowerLimitAndNeverOverdrawsItsCommittedBalance(float capacity, float power, float charge, float strength)
     {
         await using var harness = await WorkshopIntegrationHarness.Building(RechargeBench(PlacedParts.Battery(Source, 3, 1, 0, capacity, power, charge), strength));
-        var scene = WorkshopPhysicsCompiler.Compile(harness.Construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, harness.Construction, new(1, 2));
         var declared = Assert.Single(scene.Electrical.Sources.ToArray());
         Assert.Equal((capacity, power, charge, ElectricalEnable.Enabled), (declared.Capacity.Value, declared.MaximumPower.Value, declared.InitialFraction, declared.Enabled));
         var initial = capacity * charge;
         Assert.Equal(initial, SourceRead(harness.Committed).Remaining.Value);
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var reads = await harness.Advance(960);
-        var limit = power * ElectricalSupply.PhaseSeconds;
-        double delivered = 0;
+        // Independently stated 120 Hz accounting contract; no production residual or incidental motion tolerance.
+        var limit = power * (1f / 120f);
+        var previousBalance = initial;
         foreach (var read in reads)
         {
             var source = SourceRead(read);
-            Assert.True(source.Debit.Value <= limit + PhysicsElectricalRead.Residual(limit), $"debit {source.Debit.Value} J above {limit} J");
-            Assert.True(source.Debit.Value <= source.Remaining.Value + source.Debit.Value);
-            delivered += source.Debit.Value;
-            Assert.True(delivered <= initial + 1e-3, $"delivered {delivered} J of {initial} J");
-            Assert.InRange(source.Remaining.Value, 0f, initial);
+            Assert.InRange(source.Debit.Value, 0f, limit);
+            Assert.True(source.Debit.Value <= previousBalance);
+            Assert.InRange(source.Remaining.Value, 0f, previousBalance);
+            Assert.Equal(previousBalance - source.Remaining.Value, source.Debit.Value);
+            previousBalance = source.Remaining.Value;
         }
         if (charge == 0f) Assert.All(reads, read => Assert.Equal((0f, 0f), (SourceRead(read).Debit.Value, read.ContactWorks[0].SuppliedEnergy.Value)));
         else Assert.Contains(reads, read => SourceRead(read).Debit.Value > 0f);
         // The 60 J store at 480 W runs dry while the Bumper still wants work (its last positive balance is paid on the tick it empties),
-        // and from then on pays nothing; in all it delivered exactly its 60 J.
+        // and from then on pays nothing; each preceding debit is accounted for by its committed balance transition.
         if (capacity == 60f)
         {
             var empty = reads.FindIndex(read => SourceRead(read).Remaining.Value == 0f);
             Assert.True(empty > 0, "the small store depletes");
             Assert.True(SourceRead(reads[empty]).Debit.Value > 0f);
             Assert.All(reads.Skip(empty + 1), read => Assert.Equal((0f, 0f), (SourceRead(read).Remaining.Value, SourceRead(read).Debit.Value)));
-            Assert.InRange(delivered, 60 - 1e-3, 60 + 1e-3);
         }
     }
 
@@ -141,7 +142,7 @@ public sealed class SourceStoreInstanceTests
             Assert.Throws<ArgumentException>(() => WorkshopPhysicsCompiler.ElectricalSourceFor(new(10), new(9), store, Values(undefined)));
         // The Battery's compiled store is exactly its package's store over its own parameters.
         var battery = PlacedParts.Battery(Source, 3, 1, 0, 1234.5f, 77.25f, .625f, ElectricalEnable.Disabled);
-        var compiled = Assert.Single(WorkshopPhysicsCompiler.Compile(GateBench(battery), new(1, 2)).Electrical.Sources.ToArray());
+        var compiled = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, GateBench(battery), new(1, 2)).Electrical.Sources.ToArray());
         Assert.Equal(WorkshopPhysicsCompiler.ElectricalSourceFor(GateBench(battery).Instances.Identities[Source].Source, Source, DeclaredPhysics.SourceStore(new PartId("battery"))!.Value, battery.Parameters), compiled);
         // Only a declared Source compiles a store: no other part does.
         Assert.All(TestBundle.Entries.Where(entry => entry.Metadata.Id != "battery"), entry => Assert.Null(entry.Electrical?.Supply?.Store));
@@ -153,16 +154,16 @@ public sealed class SourceStoreInstanceTests
     [Fact]
     public void ARunTimeControlExistsOnlyWhereThePackageDeclaresABoundParameterRunEditable()
     {
-        Assert.Equal(new[] { new DeclaredRunControl(new("speed"), RunControlLane.RevoluteDriveTarget) }, DeclaredPhysics.RunControls(new PartId("motor")));
+        Assert.Equal(new[] { new DeclaredRunControl(new("speed"), RunControlLane.RevoluteDriveTarget) }, DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, new PartId("motor")));
         var entry = DeclaredPhysics.Of(new PartId("battery"));
-        Assert.Equal(new[] { new DeclaredRunControl(new("enabled"), RunControlLane.SourceEnable) }, DeclaredPhysics.RunControls(entry));
-        Assert.Equal(DeclaredPhysics.RunControls(entry), DeclaredPhysics.RunControls(new PartId("battery")));
+        Assert.Equal(new[] { new DeclaredRunControl(new("enabled"), RunControlLane.SourceEnable) }, DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, entry));
+        Assert.Equal(DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, entry), DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, new PartId("battery")));
         var buildOnly = entry with { Metadata = entry.Metadata with { Parameters = entry.Metadata.Parameters
             .Select(parameter => parameter with { RunEdit = ParameterRunEdit.BuildOnly }).ToArray() } };
-        Assert.Empty(DeclaredPhysics.RunControls(buildOnly));
-        Assert.Empty(DeclaredPhysics.RunControls(new PartId("powered_gate")));
-        Assert.Empty(DeclaredPhysics.RunControls(new PartId("switch")));
-        Assert.Empty(DeclaredPhysics.RunControls(new PartId("ball")));
+        Assert.Empty(DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, buildOnly));
+        Assert.Empty(DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, new PartId("powered_gate")));
+        Assert.Empty(DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, new PartId("switch")));
+        Assert.Empty(DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, new PartId("ball")));
     }
 
     // ---------- the run-time control (ConfigureRunControl) ----------
@@ -253,7 +254,7 @@ public sealed class SourceStoreInstanceTests
     public async Task TheControlIsRefusedOutsideARunAndForAnyOwnerWithoutARunControlledStore()
     {
         var bench = GateBench(PlacedParts.Battery(Source, 3, 3, 0));
-        bench = bench with { Instances = bench.Instances.With(WorkshopInput.Generic(new PartId("ball"), Ball, -3, 3, 0, 0, 0, 0, 1))
+        bench = bench with { Instances = bench.Instances.With(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), Ball, -3, 3, 0, 0, 0, 0, 1))
             .With(PlacedParts.Battery(new(8), 6, 3, 0) with { Locked = true }) };
         await using var harness = await WorkshopIntegrationHarness.Building(bench);
         var build = (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Result;
@@ -290,8 +291,8 @@ public sealed class SourceStoreInstanceTests
         Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureRunControl, runControl: harness.RunControl(Source, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Disabled)))).Result.Outcome);
         var disabled = await harness.Advance(60);
         Assert.All(disabled, read => Assert.Equal(ElectricalEnable.Disabled, SourceRead(read).Enabled));
-        var saved = WorkshopSaveCodec.Encode(new(harness.Construction, new(9)));
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, saved).Construction;
+        var saved = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(harness.Construction, new(9)));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saved).Construction;
         Assert.Equal(bench, loaded);
         Assert.Equal(1f, Assert.IsType<WorkshopGenericInstance>(loaded.Instances[1]).Parameters[new("enabled")]);
         Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Reset)).Result).Outcome);

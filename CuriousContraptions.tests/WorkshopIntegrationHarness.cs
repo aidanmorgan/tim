@@ -36,7 +36,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         public TaskCompletionSource? Hold { get; set; }
         public bool FailNextStep { get; set; }
 
-        public async ValueTask Prepare(CommandSequence command, WorkshopRead read, WorkshopCompiledScene construction,
+        public async ValueTask Prepare(CommandSequence command, WorkshopRead read, ICompiledScene construction,
             WorkshopGpuProfile profile, WorkshopSimulationPhase phase)
         {
             _owner = command;
@@ -49,7 +49,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
                 _ => throw new ArgumentException("Unsupported installation phase.")
             };
             var now = new MasterTimeNanoseconds(owner.Time.Nanoseconds);
-            _candidate = WorkshopSchedule.Create(construction.Settings, profile.Revision, Generation, new(0), now, now, now,
+            _candidate = WorkshopScheduleRules.Create(construction.Settings, profile.Revision, Generation, new(0), now, now, now,
                 new(read.Epoch, new(++_projection), read.Tick, now, playback));
             if (FailNextStep && phase == WorkshopSimulationPhase.Paused)
                 throw new WorkshopInstallationException(new InvalidOperationException("Native installation refused."));
@@ -62,17 +62,17 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
             _candidate = null; _owner = default;
             Hold?.TrySetException(new WorkshopInstallationException()); Hold = null;
         }
-        public ValueTask Before(WorkshopCommandKind kind, WorkshopSimulation? simulation)
+        public ValueTask Before(WorkshopCommandKind kind, IWorkshopSimulation? simulation)
         {
             return ValueTask.CompletedTask;
         }
-        public ValueTask After(WorkshopCommandKind kind, WorkshopCommandResult result, WorkshopSimulation simulation)
+        public ValueTask After(WorkshopCommandKind kind, WorkshopCommandResult result, IWorkshopSimulation simulation)
         {
             if (result.Outcome == WorkshopCommandOutcome.Applied && _candidate is { } installed)
             { Schedule = installed; _candidate = null; _owner = default; }
             return ValueTask.CompletedTask;
         }
-        public WorkshopMemoryMeasurement CaptureMemory() => WorkshopMemoryMeasurement.Capture();
+        public WorkshopMemoryMeasurement CaptureMemory() => WorkshopMemorySampler.Capture();
     }
 
     public Clock Time { get; } = new();
@@ -80,7 +80,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
     public WorkshopGpuDevice Device { get; }
     public WorkshopCommandExecutor Executor { get; }
     public WorkshopCommandRouter Router { get; }
-    public WorkshopSimulation Simulation => Executor.Simulation;
+    public IWorkshopSimulation Simulation => Executor.Simulation;
     public WorkshopResponse Latest { get; private set; }
     public WorkshopRead Committed => Latest.Read;
     public WorkshopConstruction Construction => _authored[Simulation.Scene.Identity];
@@ -102,8 +102,8 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
 
     private WorkshopIntegrationHarness()
     {
-        var entries = PartRegistry.Read(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "elements", "elements.bundle.json")));
-        DeclaredPhysics.Install(entries);
+        var entries = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "elements", "elements.bundle.json")));
+        DeclaredPhysics.Install(RuntimeTestServices.Bundle, entries);
         DeclaredPorts.Install(ElementPortCatalogue.FromBundle(entries));
         Device = new(new BrowserGpuTransport(Publication), new(101, 206));
         _host = new(this);
@@ -134,7 +134,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
     {
         var sequence = new CommandSequence(checked(_sequence + 1));
-        WorkshopCompiledScene? scene = null;
+        ICompiledScene? scene = null;
         WorkshopConstruction? source = kind switch
         {
             WorkshopCommandKind.Initialize => new WorkshopConstruction(new(1), settings!.Value, WorkshopInstances.Empty),
@@ -144,7 +144,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         };
         if (source is { } authored)
         {
-            scene = WorkshopSceneCompiler.Compile(authored, new(101, 206), new(sequence.Value));
+            scene = WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, authored, new(101, 206), new(sequence.Value));
             _authored.Add(scene.Identity, authored);
         }
         return new(sequence, kind, Latest.Read.Epoch.Value == 0 ? new(1) : Latest.Read.Epoch,
@@ -180,13 +180,13 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
 
     /// <summary>The typed control that sets <paramref name="owner"/>'s <paramref name="lane"/> in <paramref name="scene"/>'s run-control
     /// table, found through <see cref="RunControlLanes.Find"/>. The owner must have a row on that lane.</summary>
-    public static WorkshopRunControl RunControl(WorkshopCompiledScene scene, GpuBodyId owner, CuriousContraptions.Abstractions.RunControlLane lane,
+    public static WorkshopRunControl RunControl(ICompiledScene scene, GpuBodyId owner, CuriousContraptions.Abstractions.RunControlLane lane,
         RunControlValue value) =>
         new(owner, (RunControlLanes.Find(scene.RunControls, owner, lane) ??
             throw new InvalidOperationException($"Owner {owner.Value} has no {lane} run control.")).Id, value);
 
     /// <summary>The typed control that sets the one lane of <paramref name="owner"/>'s rows that takes <paramref name="value"/>'s kind.</summary>
-    public static WorkshopRunControl RunControl(WorkshopCompiledScene scene, GpuBodyId owner, RunControlValue value) =>
+    public static WorkshopRunControl RunControl(ICompiledScene scene, GpuBodyId owner, RunControlValue value) =>
         RunControl(scene, owner, scene.RunControls.Where(row => row.Owner == owner).Select(row => row.Lane)
             .Single(lane => RunControlLanes.ValueKind(lane) == value.Kind), value);
     public async Task<WorkshopCommandResult> Require(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
@@ -205,7 +205,7 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
             {
                 if (Presentation is not null && Presentation.CanRetain(Simulation.Scene, response))
                     Presentation.Rebind(Simulation.Scene, response);
-                else Presentation = new(Simulation.Scene, response);
+                else Presentation = new(new CuriousContraptions.Presentation.AnimationServices(), Simulation.Scene, response);
                 _presentationProjection = response.Projection;
             }
         }

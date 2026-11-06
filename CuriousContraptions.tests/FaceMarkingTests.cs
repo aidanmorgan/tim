@@ -32,7 +32,7 @@ public sealed class FaceMarkingTests(NativeSceneFixture godot)
     [MemberData(nameof(Parts))]
     public void EveryPrintedSurfaceIsPresentFrontFacingAndAttachedToTheRotatingFace(PartId id, int count)
     {
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var part = registry.Create(id);
         try
         {
@@ -107,7 +107,7 @@ public sealed class FaceMarkingTests(NativeSceneFixture godot)
     public void PrintedSymbolsRetainTheirFilledAndEmptyRegions(PartId id, int count)
     {
         Assert.True(count > 0);
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var part = registry.Create(id);
         try
         {

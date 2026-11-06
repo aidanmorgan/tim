@@ -3,29 +3,6 @@ using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
 
-public enum RopeWinding { Clockwise = -1, CounterClockwise = 1 }
-
-public readonly record struct RouteGuideFrame(
-    Vector3 Position,
-    Quaternion Rotation,
-    float Radius,
-    Vector3 Offset = default);
-
-public readonly record struct RouteGuideArc(
-    Vector3 Entry,
-    Vector3 Exit,
-    float StartAngle,
-    float Sweep,
-    float Length);
-
-public readonly record struct EvaluatedRopeRoute(
-    Vector3 TangentA,
-    Vector3 TangentB,
-    Vector3 UnitA,
-    Vector3 UnitB,
-    RouteGuideArc[] Arcs,
-    float TotalLength);
-
 /// <summary>Pure cosmetic and kinematic polyline evaluation.</summary>
 public static class RopeGeometry
 {

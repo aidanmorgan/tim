@@ -1,0 +1,5 @@
+<linker>
+  <assembly fullname="CuriousContraptions.Core">
+    <type fullname="CuriousContraptions.Runtime.CoreServices" preserve="all" />
+  </assembly>
+</linker>

@@ -18,50 +18,50 @@ public sealed class NoFixedCapacityTests
         new(a, PortId.ActivationOut, b, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConnection Supply(GpuBodyId a, GpuBodyId b) =>
         new(a, PortId.Supply, b, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
-    private static int Dynamic(PhysicsSceneDeclaration scene) => scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic);
+    private static int Dynamic(IPhysicsSceneDeclaration scene) => scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic);
 
     /// <summary>One row of parts along x, 1.6 m apart, so no moving part starts inside a neighbour.</summary>
     private static double X(int i) => -25.6 + i * 1.6;
 
     /// <summary>A population one past each retired ceiling (base c5336092 values in the names).</summary>
-    private static (WorkshopConstruction Bench, Action<PhysicsSceneDeclaration> Check) Population(PopulationKind table)
+    private static (WorkshopConstruction Bench, Action<IPhysicsSceneDeclaration> Check) Population(PopulationKind table)
     {
         ulong id = 0;
         GpuBodyId Next() => new(++id);
         var parts = new List<IWorkshopInstance>();
         var links = new List<WorkshopConnection>();
-        void Balls(int count, double z) { for (var i = 0; i < count; i++) parts.Add(WorkshopInput.Generic(new PartId("ball"),Next(), (float)(X(i)), 4, (float)(z), 0, 0, 0, 1)); }
+        void Balls(int count, double z) { for (var i = 0; i < count; i++) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),Next(), (float)(X(i)), 4, (float)(z), 0, 0, 0, 1)); }
         switch (table)
         {
             case PopulationKind.Instances:
-                for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Generic(new PartId("wall"), Next(), (float)(X(i)), 2, 4, 0, 0, 0, 1, WallFixture.Default));
-                parts.Add(WorkshopInput.Generic(new PartId("ball"), Next(), 0, 4, 0, 0, 0, 0, 1));
+                for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), Next(), (float)(X(i)), 2, 4, 0, 0, 0, 1, WallFixture.Default));
+                parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), Next(), 0, 4, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(35, scene.Bodies.Length));
             case PopulationKind.Bodies:
                 // Seventeen Powered Gates: 35 bodies from 17 parts, below the retired part table.
                 for (var i = 0; i < 17; i++)
-                    parts.Add(WorkshopInput.Generic(new PartId("powered_gate"), Next(), (float)(X(i)), 0, 0, 0, 0, 0, 1));
+                    parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), Next(), (float)(X(i)), 0, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(35, scene.Bodies.Length));
             case PopulationKind.DynamicBodies:
                 Balls(17, 0);
                 return (Bench(parts), scene => Assert.Equal(17, Dynamic(scene)));
             case PopulationKind.CapturePolicies:
                 Balls(17, 0);
-                for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(new PartId("basket"), Next(), (float)(X(i)), 1, 4, 0, 0, 0, 1));
+                for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), Next(), (float)(X(i)), 1, 4, 0, 0, 0, 1));
                 return (Bench(parts), scene => { Assert.Equal(17, scene.Sensors.Length); Assert.Equal(17, scene.Guides.Length); });
             case PopulationKind.Triggers:
-                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(new PartId("switch"), Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1));
+                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(9, scene.Triggers.Length));
             case PopulationKind.ContactWork:
                 // Nine owner policies and seventeen potential payloads; no Cartesian occurrence reservation.
-                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(new PartId("bumper"), Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1));
+                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1));
                 Balls(17, 0);
                 return (Bench(parts), scene => Assert.Equal(9, scene.ContactWorks.Length));
             case PopulationKind.Electrical:
                 AddElectricalPopulation(Next, parts, links);
                 return (Bench(parts, [.. links]), scene => { Assert.Equal(9, scene.Electrical.Sources.Length); Assert.Equal(9, scene.SupplyGraph.Nodes.ToArray().Count(node=>node.Kind==SupplyNodeKind.Consumer && !node.Consumers.IsDefaultOrEmpty)); });
             case PopulationKind.Prismatics:
-                for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(new PartId("spring"), Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1));
+                for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(17, scene.Prismatics.Length));
             case PopulationKind.Orientations:
                 AddOrientationPopulation(Next, parts, links);
@@ -72,11 +72,11 @@ public sealed class NoFixedCapacityTests
                 return (Bench(parts), scene => Assert.Equal(33, scene.ContactLoadSensors.Length));
             case PopulationKind.ActivationTimers:
                 for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1, 1f));
-                return (Bench(parts), _ => Assert.Equal(33, WorkshopActivationCompiler.Compile(Bench(parts)).Nodes.Length));
+                return (Bench(parts), _ => Assert.Equal(33, WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(parts)).Nodes.Length));
             case PopulationKind.Connections:
                 for (var i = 0; i < 9; i++)
                 {
-                    var hit = WorkshopInput.Generic(new PartId("switch"), Next(), (float)(X(2 * i)), 1, 0, 0, 0, 0, 1);
+                    var hit = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), Next(), (float)(X(2 * i)), 1, 0, 0, 0, 0, 1);
                     var lamp = PlacedParts.Lamp(Next(), (float)(X(2 * i) + 1.6), 1, 0, 0, 0, 0, 1);
                     parts.AddRange([hit, lamp]); links.Add(Signal(hit.Id, lamp.Id));
                 }
@@ -90,7 +90,7 @@ public sealed class NoFixedCapacityTests
         // Nine Batteries, each wired to its own Powered Gate: nine sources, nine routes and nine connections.
         for (var i = 0; i < 9; i++)
         {
-            var gate = WorkshopInput.Generic(new PartId("powered_gate"), next(), (float)(X(2 * i)), 0, 0, 0, 0, 0, 1);
+            var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), next(), (float)(X(2 * i)), 0, 0, 0, 0, 0, 1);
             var battery = PlacedParts.Battery(next(), (float)(X(2 * i) + 1.6), 0, 0, enabled: ElectricalEnable.Enabled);
             parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
         }
@@ -115,8 +115,8 @@ public sealed class NoFixedCapacityTests
     public async Task OnePastEachRetiredCeilingCompilesStepsAndCrossesResponseCodec(PopulationKind table)
     {
         var (bench, check) = Population(table);
-        bench.Validate();
-        check(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
+        bench.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        check(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, SteppedTicks);
         if (table == PopulationKind.Instances)
         {
@@ -154,11 +154,11 @@ public sealed class NoFixedCapacityTests
     /// <summary>Forty switches in an eight-by-five grid, a lamp wired to the last one, and a ball dropped on <paramref name="struck"/>.</summary>
     private static (WorkshopConstruction Bench, IWorkshopInstance Lamp, WorkshopGenericInstance[] Switches) SwitchBench(int struck)
     {
-        var switches = Enumerable.Range(0, Switches).Select(i => WorkshopInput.Generic(new PartId("switch"), new((ulong)i + 1), (float)(-6 + i % 8 * 1.6), (float)(SwitchY),
+        var switches = Enumerable.Range(0, Switches).Select(i => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new((ulong)i + 1), (float)(-6 + i % 8 * 1.6), (float)(SwitchY),
             (float)(-5 + i / 8 * 2.5), 0, 0, 0, 1)).ToArray();
         var lamp = PlacedParts.Lamp(new(Switches + 1), 8, (float)(SwitchY), 0, 0, 0, 0, 1);
         var target = switches[struck];
-        var ball = WorkshopInput.Generic(new PartId("ball"),new(Switches + 2), (float)((target.Cell.X + (double)target.Local.X) / 16), (float)(DropY),
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(Switches + 2), (float)((target.Cell.X + (double)target.Local.X) / 16), (float)(DropY),
             (float)((target.Cell.Z + (double)target.Local.Z) / 16), 0, 0, 0, 1);
         return (Bench([.. switches, lamp, ball], Signal(switches[^1].Id, lamp.Id)), lamp, switches);
     }
@@ -174,9 +174,9 @@ public sealed class NoFixedCapacityTests
     public void FortyImpactSwitchesBuildAndCompileFortyTriggers()
     {
         var (bench, _, _) = SwitchBench(Switches - 1);
-        bench.Validate();
+        bench.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         Assert.Equal(Switches + 2, bench.Instances.Count);
-        Assert.Equal(Switches, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Triggers.Length);
+        Assert.Equal(Switches, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)).Triggers.Length);
     }
 
     [Theory]
@@ -200,7 +200,7 @@ public sealed class NoFixedCapacityTests
         AssertCrossesResponseCodec(run[^1]);
 
         var saved = new WorkshopSavedConstruction(bench, new(Switches + 3));
-        var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
+        var reloaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, LampTicks);
         Assert.False(Latched(replay[0], lamp.Id));
@@ -217,22 +217,22 @@ public sealed class NoFixedCapacityTests
         GpuBodyId Next() => new(++id);
         var parts = new List<IWorkshopInstance>();
         var links = new List<WorkshopConnection>();
-        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(new PartId("ball"),Next(), (float)(X(i)), 4, -20, 0, 0, 0, 1));
-        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(new PartId("basket"), Next(), (float)(X(i)), 1, -24, 0, 0, 0, 1));
+        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),Next(), (float)(X(i)), 4, -20, 0, 0, 0, 1));
+        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), Next(), (float)(X(i)), 1, -24, 0, 0, 0, 1));
         for (var i = 0; i < 9; i++)
         {
-            var hit = WorkshopInput.Generic(new PartId("switch"), Next(), (float)(X(2 * i)), 1, -16, 0, 0, 0, 1);
+            var hit = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), Next(), (float)(X(2 * i)), 1, -16, 0, 0, 0, 1);
             var lamp = PlacedParts.Lamp(Next(), (float)(X(2 * i) + 1.6), 1, -16, 0, 0, 0, 1);
             parts.AddRange([hit, lamp]); links.Add(Signal(hit.Id, lamp.Id));
         }
-        for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(new PartId("bumper"), Next(), (float)(X(i)), 1, -12, 0, 0, 0, 1));
+        for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Next(), (float)(X(i)), 1, -12, 0, 0, 0, 1));
         for (var i = 0; i < 9; i++)
         {
-            var gate = WorkshopInput.Generic(new PartId("powered_gate"), Next(), (float)(X(2 * i)), 0, -8, 0, 0, 0, 1);
+            var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), Next(), (float)(X(2 * i)), 0, -8, 0, 0, 0, 1);
             var battery = PlacedParts.Battery(Next(), (float)(X(2 * i) + 1.6), 0, -8, enabled: ElectricalEnable.Enabled);
             parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
         }
-        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(new PartId("spring"), Next(), (float)(X(i)), 1, -4, 0, 0, 0, 1));
+        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), Next(), (float)(X(i)), 1, -4, 0, 0, 0, 1));
         for (var i = 0; i < 17; i++)
         {
             var tile = PlacedParts.Domino(Next(), (float)(X(i)), (float)(-0.46 + .56), 0, 0, 0, 0, 1);
@@ -249,9 +249,9 @@ public sealed class NoFixedCapacityTests
     public async Task AMachinePastEveryRetiredCeilingRunsResetsExactlyAndSurvivesSaveAndLoad()
     {
         var bench = Everything();
-        bench.Validate();
+        bench.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         Assert.Equal(17 + 17 + 18 + 9 + 18 + 17 + 34 + 33 + 33, bench.Instances.Count);
-        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2));
         Assert.True(Dynamic(scene) > 16 && scene.Bodies.Length > 33 && scene.Triggers.Length > 8 && scene.ContactWorks.Length > 8 &&
             scene.Prismatics.Length > 16 && scene.Sensors.Length > 16 && scene.Guides.Length > 16 &&
             scene.OrientationSensors.Length > 16 && scene.ContactLoadSensors.Length > 32 && scene.Electrical.Sources.Length > 8,
@@ -261,7 +261,7 @@ public sealed class NoFixedCapacityTests
         AssertSameState(built, reset, "Reset");
         AssertCrossesResponseCodec(run[^1]);
         var saved = new WorkshopSavedConstruction(bench, new((ulong)bench.Instances.Count + 1));
-        var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
+        var reloaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, SteppedTicks);
         Assert.Equal(built.Bodies.Count, replay[^1].Bodies.Count);

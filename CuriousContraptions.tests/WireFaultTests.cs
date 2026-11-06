@@ -57,14 +57,14 @@ public sealed class WireFaultTests
     }
 
     internal static WorkshopSavedConstruction Saved() => new(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-        new([WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1)])), new(2));
+        new([WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1)])), new(2));
 
     private static byte[] Valid(Message message) => message switch
     {
         Message.Command => WorkshopWireFlatBuffers.EncodeCommand(RunCommand()),
         Message.Acknowledgement => WorkshopWireFlatBuffers.EncodeResponse(Acknowledgement()),
         Message.PhysicalRead => WorkshopWireFlatBuffers.EncodeResponse(PhysicalRead()),
-        Message.Save => WorkshopSaveCodec.Encode(Saved()),
+        Message.Save => WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, Saved()),
         _ => throw new ArgumentOutOfRangeException(nameof(message)),
     };
 
@@ -105,7 +105,7 @@ public sealed class WireFaultTests
         {
             case Message.Command: WorkshopWireFlatBuffers.DecodeCommand(bytes); break;
             case Message.Acknowledgement or Message.PhysicalRead: WorkshopWireFlatBuffers.DecodeResponse(bytes); break;
-            case Message.Save: WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes); break;
+            case Message.Save: WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes); break;
             default: throw new ArgumentOutOfRangeException(nameof(message));
         }
     }
@@ -222,7 +222,7 @@ public sealed class WireFaultTests
         var response = PhysicalRead();
         var identity = WorkshopWireFlatBuffers.ReadIdentity(response);
         Assert.Equal(24, identity.Length);
-        Assert.Equal(Session, RuntimeSessionId.Read(identity.AsSpan(0, 16)));
+        Assert.Equal(Session, RuntimeSessionCodec.Read(identity.AsSpan(0, 16)));
         Assert.Equal(response.Publication.Value, BinaryPrimitives.ReadUInt64LittleEndian(identity.AsSpan(16)));
     }
 
@@ -259,7 +259,7 @@ public sealed class WireFaultTests
         var formerResponse = new byte[144];
         Session.WriteTo(formerResponse.AsSpan(40, 16));
         Assert.IsType<WireFaultException>(Record.Exception(() => WorkshopWireFlatBuffers.DecodeResponse(formerResponse)));
-        Assert.IsType<WorkshopSaveRejectedException>(Record.Exception(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,formerResponse)));
+        Assert.IsType<WorkshopSaveRejectedException>(Record.Exception(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,formerResponse)));
     }
 
     [Fact]

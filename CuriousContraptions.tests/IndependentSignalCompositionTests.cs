@@ -26,17 +26,17 @@ public sealed class IndependentSignalCompositionTests
         };
     }
 
-    private static BundleEntry Compose(BundleEntry entry, Composition composition)
+    internal static BundleEntry Compose(BundleEntry entry, Composition composition)
     {
         if (composition == Composition.Bodyless) return entry;
         var mechanical = TestBundle.Entry(new(composition == Composition.Dynamic ? "weight" : "motor")).Mechanical!;
         mechanical = mechanical with
         {
             MassFrame = composition == Composition.Jointed ? mechanical.MassFrame :
-                MassFrameDeclaration.Constant(1f, Vector3.Zero, new(.1f), Quaternion.Identity, 0f, Vector3.Zero),
+                MassFrameDeclaration.Constant(1f, Vector3.Zero, new(.1f), Quaternion.Identity, 0f, new(0, -1, 0)),
             Hinges = mechanical.Hinges.Select(hinge => hinge with { Drive = null,
                 MovingBody = hinge.MovingBody with { MassFrame =
-                    MassFrameDeclaration.Constant(1f, Vector3.Zero, new(.1f), Quaternion.Identity, 0f, Vector3.Zero) } }).ToArray()
+                    MassFrameDeclaration.Constant(1f, new(.1f, 0, 0), new(.1f), Quaternion.Identity, 0f, new(0, -1, 0)) } }).ToArray()
         };
         return entry with
         {
@@ -58,7 +58,7 @@ public sealed class IndependentSignalCompositionTests
     ];
 
     private static WorkshopGenericInstance Instance(PartId part, ulong id, float x, string? parameter = null, float value = 0f) =>
-        WorkshopInput.Generic(part, new(id), x, 4f, 0f, 0f, 0f, 0f, 1f,
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, part, new(id), x, 4f, 0f, 0f, 0f, 0f, 1f,
             parameter is null ? null : new InstanceParameterCollection([new(new(parameter), value)]));
 
     private static WorkshopConstruction Bench(bool supplied) => new(new(2), WorkshopCadenceSettings.Default(),
@@ -79,11 +79,13 @@ public sealed class IndependentSignalCompositionTests
     [InlineData(Composition.Dynamic, true)]
     [InlineData(Composition.Jointed, true)]
     [InlineData(Composition.Bodyless, false)]
+    [InlineData(Composition.Dynamic, false)]
+    [InlineData(Composition.Jointed, false)]
     public async Task IndependentLogicCompilesRunsAndRetainsNodeProvenanceAcrossTheCascade(Composition composition, bool supplied)
     {
         await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
         await using var replay = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
-        var entries = PartRegistry.Read(BundleSchema.WriteEntries(Entries(composition)));
+        var entries = PartRegistry.Read(RuntimeTestServices.Bundle, BundleSchema.WriteEntries(Entries(composition)));
         using var physics = DeclaredPhysics.Scoped(entries);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend(entries.Select(entry => (new PartId(entry.Metadata.Id), entry.Ports))));
         var authored = Bench(supplied);
@@ -106,7 +108,25 @@ public sealed class IndependentSignalCompositionTests
             var local = Assert.IsType<WorkshopObservationTests.ExternalObject>(clock.Fields["local"]);
             Assert.Equal(authored.Instances.Single(instance => instance.Id == new GpuBodyId(2)).Local.X, local.Fields["x"]);
         }
+        var movingBody = composition == Composition.Jointed
+            ? authored.Instances.Identities[new(5)].Hinges[0].Body : new GpuBodyId(5);
+        var initialFound = harness.Committed.Bodies.TryGet(movingBody, out var initialBody);
+        if (composition != Composition.Bodyless) Assert.True(initialFound);
         await harness.Run(); await harness.Advance(60);
+        if (composition != Composition.Bodyless)
+        {
+            Assert.True(harness.Committed.Bodies.TryGet(movingBody, out var moved));
+            // Over half a second, a 5 cm fall or 0.03 rad hinge turn demonstrates actual motion,
+            // excluding admitted-but-frozen logic owners without pinning the solver trajectory.
+            if (composition == Composition.Dynamic)
+                Assert.True((initialBody.Body.Cell.Y + initialBody.Body.Local.Y - moved.Body.Cell.Y - moved.Body.Local.Y) / 16f > .05f);
+            else
+            {
+                var before = new Quaternion(initialBody.Rotation.X, initialBody.Rotation.Y, initialBody.Rotation.Z, initialBody.Rotation.W);
+                var after = new Quaternion(moved.Rotation.X, moved.Rotation.Y, moved.Rotation.Z, moved.Rotation.W);
+                Assert.True(2 * MathF.Acos(Math.Clamp(MathF.Abs(Quaternion.Dot(before, after)), 0, 1)) > .03f);
+            }
+        }
         Assert.Equal(supplied ? ActivationPhase.Latched : ActivationPhase.Clear, Latch(harness.Committed, 5).Phase);
         var network = scene.Activation;
         Assert.Equal(supplied ? 5U : 0U, network.Memory(harness.Committed.Memory, SignalTestNodes.Only(network, new(3))).Count);
@@ -136,12 +156,63 @@ public sealed class IndependentSignalCompositionTests
         await harness.Reset();
         Assert.Equal(ActivationPhase.Clear, Latch(harness.Committed, 5).Phase);
         Assert.Equal(authored.Instances, harness.Construction.Instances);
-        var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements.Concat(entries.Select(entry => new PartId(entry.Metadata.Id))).ToHashSet(),
-            WorkshopSaveCodec.Encode(new(authored, new(42))));
+        var saved = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements.Concat(entries.Select(entry => new PartId(entry.Metadata.Id))).ToHashSet(),
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(authored, new(42))));
         Assert.Equal(authored.Instances, saved.Construction.Instances);
         await replay.Require(WorkshopCommandKind.Construct, saved.Construction);
         await replay.Run(); await replay.Advance(60);
         Assert.Equal(supplied ? ActivationPhase.Latched : ActivationPhase.Clear, Latch(replay.Committed, 5).Phase);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ElectricalFreeCountAcceptsTwelveAndCrossesOnceFromExternalPulses(bool connected)
+    {
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        var entries = Entries(Composition.Bodyless);
+        entries[1] = entries[1] with { Metadata = entries[1].Metadata with
+        {
+            Parameters = entries[1].Metadata.Parameters.Select(parameter => parameter.Key == "target_count"
+                ? parameter with { Maximum = 12, Default = 12 } : parameter).ToArray()
+        } };
+        Assert.Null(entries[1].Electrical);
+        Assert.DoesNotContain(entries[1].Ports, port => port.Domain == SimulationDomain.Electrical);
+        using var physics = DeclaredPhysics.Scoped(entries);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend(entries.Select(entry => (new PartId(entry.Metadata.Id), entry.Ports))));
+        var bench = Bench(true);
+        bench = bench with
+        {
+            Instances = new(bench.Instances.Select(instance => instance.Id == new GpuBodyId(3)
+                ? Instance(Counter, 3, 0, "target_count", 12) : instance).ToArray()),
+            Connections = new(bench.Connections.Where(link => connected || link.Target != new GpuBodyId(3)).ToArray())
+        };
+        await harness.Require(WorkshopCommandKind.Construct, bench);
+        await harness.Run();
+        var node = bench.Instances.Identities[new(3)].Signals[new("signal")].Node;
+        uint Count() => harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, node).Count;
+        Assert.Equal(0u, Count());
+        await harness.Advance(132); // Eleven deliberate 0.1-second input periods.
+        Assert.Equal(connected ? 11u : 0u, Count());
+        Assert.Empty(harness.Of(SimulationEventKind.ThresholdReached));
+        await harness.Advance(12);
+        Assert.Equal(connected ? 12u : 0u, Count());
+        if (connected)
+        {
+            var crossed = Assert.Single(harness.Of(SimulationEventKind.ThresholdReached));
+            Assert.Equal(new GpuEventSourceId(node.Value), crossed.Source);
+            Assert.Equal(12u, crossed.Count);
+            var cause = Latch(harness.Committed, 3);
+            Assert.Equal(ActivationCauseKind.Node, cause.CauseKind);
+            Assert.Equal(new GpuBodyId(2), cause.Body);
+            Assert.Equal(default, cause.Collider);
+        }
+        await harness.Advance(24);
+        Assert.Equal(connected ? 14u : 0u, Count());
+        Assert.Equal(connected ? 1 : 0, harness.Of(SimulationEventKind.ThresholdReached).Count());
+        await harness.Reset();
+        Assert.Equal(0u, Count());
+        Assert.Equal(bench.Instances, harness.Construction.Instances);
     }
 
     [Fact]
@@ -272,7 +343,7 @@ public sealed class IndependentSignalCompositionTests
         links.Add(new(new(5), PortId.Supply, new(6), PortId.PowerIn, WorkshopConnectionDomain.Electrical));
         bench = bench with
         {
-            Instances = new([.. bench.Instances, WorkshopInput.Generic(new("motor"), new(6), 9, 4, 0, 0, 0, 0, 1)]),
+            Instances = new([.. bench.Instances, WorkshopInput.Generic(RuntimeTestServices.Bundle, new("motor"), new(6), 9, 4, 0, 0, 0, 0, 1)]),
             Connections = new(links.ToArray())
         };
         await harness.Require(WorkshopCommandKind.Construct, bench);
@@ -287,7 +358,7 @@ public sealed class IndependentSignalCompositionTests
     private static void AssertProjectedProvenance(WorkshopResponse response, ActivationCauseKind kind,
         GpuEventSourceId source, GpuBodyId body, GpuColliderId collider)
     {
-        using var projected = WorkshopObservationProjection.Response<WorkshopObservationTests.ExternalObject>(response);
+        using var projected = WorkshopObservationProjection.Response<WorkshopObservationTests.ExternalObject>(RuntimeTestServices.Core.Presentation, response);
         void Check(WorkshopObservationTests.ExternalObject row, ActivationCause cause)
         {
             Assert.Equal((int)kind, row.Fields["causeKind"]);
@@ -318,7 +389,7 @@ public sealed class IndependentSignalCompositionTests
         var floor = WorkshopConstruction.WorkbenchSurface.Value;
         var half = MathF.Sqrt(.5f);
         var detector = PlacedParts.Detector(new(1), 0, floor + .62f, 0, 0, 0, -half, half);
-        var ball = WorkshopInput.Generic(new("ball"), new(3), 0, floor + 3.34f, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("ball"), new(3), 0, floor + 3.34f, 0, 0, 0, 0, 1);
         var delay = Instance(new("delay"), 4, 4, "delay_seconds", .1f);
         var lamp = PlacedParts.Lamp(new(5), 7, 4, 0, 0, 0, 0, 1);
         var links = new List<WorkshopConnection>

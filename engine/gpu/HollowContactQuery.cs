@@ -3,12 +3,6 @@ using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>A posed finite or plane partner for the shared hollow contact query.</summary>
-public readonly record struct HollowPartner(ColliderShapeKind Shape, Vector3 Position, Vector3 U0, Vector3 U1, Vector3 U2,
-    float Radius, float Hx, float Hy, float Hz);
-public enum HollowContactSupport : byte { Material, Axis, DistanceOnly }
-public readonly record struct HollowContact(Vector3 Normal, Vector3 Point, float Gap, int Feature, HollowContactSupport Support);
-
 /// <summary>Scene-independent f32 hollow feature measurements. Simulation, placement
 /// and admission all consume these same distances and normals.</summary>
 public static class HollowContactQuery

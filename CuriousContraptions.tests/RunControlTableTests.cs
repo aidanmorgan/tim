@@ -15,18 +15,18 @@ public sealed class RunControlTableTests
 
     /// <summary>A Powered Gate supplied by an unlocked Battery, a ball and a locked Battery: two declared stores, one run control.</summary>
     private static WorkshopConstruction Bench(ElectricalEnable enabled = ElectricalEnable.Enabled) => new(new(2), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(new PartId("powered_gate"), Gate, 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), Gate, 0, 3, 0, 0, 0, 0, 1),
             PlacedParts.Battery(Source, 3, 3, 0, enabled: enabled),
-            WorkshopInput.Generic(new PartId("ball"), Ball, -3, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), Ball, -3, 3, 0, 0, 0, 0, 1),
             PlacedParts.Battery(LockedSource, 6, 3, 0) with { Locked = true }),
         Connections: new(new WorkshopConnection(Source, PortId.Supply, Gate, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
 
-    private static WorkshopCompiledScene Compiled() => WorkshopSceneCompiler.Compile(Bench(), new(101, 206), new(7));
+    private static ICompiledScene Compiled() => WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(), new(101, 206), new(7));
 
     private static ElectricalEnable Enable(WorkshopRead read, GpuBodyId owner) =>
         Enumerable.Range(0, read.Electrical.Count).Select(i => read.Electrical[i]).Single(row => row.Owner == owner).Enabled;
 
-    private static WorkshopCommand Construct(WorkshopCompiledScene scene) =>
+    private static WorkshopCommand Construct(ICompiledScene scene) =>
         new(new(1), WorkshopCommandKind.Construct, new(1), new(1), scene, Session: Session, Cadence: new(1), Projection: new(1));
 
     // Run compiles exactly the declared run controls of unlocked parts: the Battery's enable is its store's SourceEnable lane, at the
@@ -185,7 +185,7 @@ public sealed class RunControlTableTests
     private static readonly GpuBodyId LockedMotor = new(11), Supply = new(12), Motor = new(13);
 
     private static WorkshopGenericInstance MotorAt(GpuBodyId id, float x, float speed) =>
-        WorkshopInput.Generic(new PartId("motor"), id, x, 4, 0, 0, 0, 0, 1, new([new(new("speed"), speed), new(new("torque"), 20f)]));
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("motor"), id, x, 4, 0, 0, 0, 0, 1, new([new(new("speed"), speed), new(new("torque"), 20f)]));
 
     /// <summary>A locked Motor at speed 4, a Battery and an unlocked Motor at speed 6 that the Battery supplies. The locked Motor is placed
     /// first, so its hinge is the lower identity and the unlocked Motor's drive is not the first of the drive table.</summary>
@@ -195,10 +195,10 @@ public sealed class RunControlTableTests
             MotorAt(Motor, 0, 6f)),
         Connections: new(new WorkshopConnection(Supply, PortId.Supply, Motor, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
 
-    private static WorkshopCompiledScene DriveScene() => WorkshopSceneCompiler.Compile(DriveBench(), new(101, 206), new(7));
+    private static ICompiledScene DriveScene() => WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, DriveBench(), new(101, 206), new(7));
 
     /// <summary>The position in the compiled drive table of the drive on the hinge <paramref name="owner"/> carries.</summary>
-    private static int DriveIndex(PhysicsSceneDeclaration physics, GpuBodyId owner)
+    private static int DriveIndex(IPhysicsSceneDeclaration physics, GpuBodyId owner)
     {
         var revolutes = physics.Revolutes.ToArray();
         return Array.FindIndex(physics.RevoluteDrives.ToArray(), drive => revolutes.Single(joint => joint.Id == drive.Joint).BodyA == owner);
@@ -360,7 +360,7 @@ public sealed class RunControlTableTests
     {
         GpuBodyId lever = new(21), first = new(22), source = new(23), second = new(24);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
-                WorkshopInput.Generic(new PartId("impact_lever"), lever, -8, 4, 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("impact_lever"), lever, -8, 4, 0, 0, 0, 0, 1),
                 MotorAt(first, 0, 6f), PlacedParts.Battery(source, 3, 4, 0), MotorAt(second, 8, 6f)),
             Connections: new(new WorkshopConnection(source, PortId.Supply, first, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         await using var harness = await WorkshopIntegrationHarness.Running(construction);

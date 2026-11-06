@@ -10,11 +10,11 @@ public sealed class OrientationSensorTests
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
     private static readonly WorkshopConnection Wire = new(new(2), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Construction(bool wired = true) => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1),
             PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1),
             PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
         Connections: wired ? new(Wire) : WorkshopConnections.Empty);
-    private static GpuColliderId ColliderOf(WorkshopConstruction construction, PhysicsSceneDeclaration scene, GpuBodyId body)
+    private static GpuColliderId ColliderOf(WorkshopConstruction construction, IPhysicsSceneDeclaration scene, GpuBodyId body)
     {
         var declared = construction.Instances.Identities[body].Colliders;
         var owned = scene.Colliders.ToArray().Where(c => c.Body == body).ToArray();
@@ -76,10 +76,10 @@ public sealed class OrientationSensorTests
     [Fact]
     public void SensorAndSourceNodeCompileForEveryDeclaredDomino()
     {
-        var unwired = WorkshopPhysicsCompiler.Compile(Construction(false), new(1, 2));
+        var unwired = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(false), new(1, 2));
         Assert.Single(unwired.OrientationSensors.ToArray());
-        Assert.Equal(2, (int)WorkshopActivationCompiler.Compile(Construction(false)).Clear().Count);
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        Assert.Equal(2, (int)WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(false)).Clear().Count);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(), new(1, 2));
         var sensor = Assert.Single(scene.OrientationSensors.ToArray());
         Assert.Equal(Construction().Instances.Identities[new(2)].Signals[new("signal")].Orientation, sensor.Id);
         Assert.Equal(new GpuBodyId(2), sensor.Body);
@@ -87,7 +87,7 @@ public sealed class OrientationSensorTests
         Assert.Equal(OrientationThreshold.Degrees(45), sensor.Threshold);
         Assert.Equal((float)Math.Cos(Math.PI / 8), sensor.Threshold.CosineHalfAngle);
         Assert.Empty(scene.Triggers.ToArray());
-        var clear = WorkshopActivationCompiler.Compile(Construction()).Clear();
+        var clear = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction()).Clear();
         Assert.Equal(2, (int)clear.Count);
         Assert.Equal(new GpuBodyId(2), clear[0].Owner); Assert.Equal(ActivationPhase.Clear, clear[0].Phase);
         Assert.Equal(new GpuBodyId(3), clear[1].Owner);
@@ -107,7 +107,7 @@ public sealed class OrientationSensorTests
         Assert.Throws<ArgumentException>(() => new OrientationThreshold(0f).Validate());
         Assert.Throws<ArgumentException>(() => new OrientationThreshold(float.NaN).Validate());
         OrientationThreshold.Degrees(45).Validate();
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(), new(1, 2));
         var sensor = scene.OrientationSensors[0];
         PhysicsSceneDeclaration Replace(params OrientationSensorDeclaration[] values) => new(scene.Document, scene.NextIdentity,
             scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, scene.Guides, scene.Triggers, scene.ContactWorks, values);
@@ -137,7 +137,7 @@ public sealed class OrientationSensorTests
     [Fact]
     public void AdmissionWritesTheSensorAndCandidateValidationEnforcesStickyOnce()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction(), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), Profile);
         Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderOrientationSensorCountOffset)));
         // Story 9R.5b: the sensor table is exactly its population, directly before the motion payload.
@@ -203,8 +203,8 @@ public sealed class OrientationSensorTests
     public void NetworkLatchesTheDominoThenTheLampOnceAndRejectsRegressionOrForeignReads()
     {
         var construction = Construction();
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var sensor = scene.OrientationSensors[0];
         var collider = ColliderOf(construction, scene, new(2));
         var fired = new OrientationSensorRead(sensor.Id, new(2), collider, OrientationSensorPhase.Fired, 3, 0f);
@@ -247,8 +247,8 @@ public sealed class OrientationSensorTests
     public void ARotatedDominoCompilesItsAdmittedRotationAsTheSensorInitialPose()
     {
         var turned = PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, (float)(Math.Sqrt(.5)), 0, (float)(Math.Sqrt(.5)));
-        var construction = Construction() with { Instances = new(WorkshopInput.Generic(new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1), turned, PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var construction = Construction() with { Instances = new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1), turned, PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var sensor = Assert.Single(scene.OrientationSensors.ToArray());
         Assert.Equal(turned.Rotation, sensor.Initial);
         Assert.NotEqual(CanonicalRotation.Identity, sensor.Initial);
@@ -262,12 +262,12 @@ public sealed class OrientationSensorTests
     public void OrientationCauseCarriesThroughADelayToTheLamp()
     {
         var delayed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1),
-                PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("delay"), new(4), 0, 1, 0, 0, 0, 0, 1)),
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), -.4f, 3, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1),
+                PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(4), 0, 1, 0, 0, 0, 0, 1)),
             Connections: new(new WorkshopConnection(new(2), PortId.ActivationOut, new(4), PortId.ActivationIn, WorkshopConnectionDomain.Activation),
                 new WorkshopConnection(new(4), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
-        var scene = WorkshopPhysicsCompiler.Compile(delayed, new(1, 2));
-        var network = WorkshopActivationCompiler.Compile(delayed);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, delayed, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, delayed);
         var sensor = scene.OrientationSensors[0];
         var fired = new OrientationSensorRead(sensor.Id, new(2), ColliderOf(delayed, scene, new(2)), OrientationSensorPhase.Fired, 11, 0f);
         var counting = network.Consume(network.Clear(), network.ClearTimers(), [], new(3), [fired]);
@@ -290,21 +290,21 @@ public sealed class OrientationSensorTests
     public void WiringIntoADominoRejectsAndAnyNumberOfWiredSourcesCompiles()
     {
         var intoDomino = new WorkshopConnection(new(3), PortId.ActivationOut, new(2), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (Construction(false) with { Connections = new(intoDomino) }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (Construction(false) with { Connections = new(intoDomino) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         var items = new List<IWorkshopInstance>();
         for (var i = 1; i <= 8; i++) items.Add(PlacedParts.Domino(new((ulong)i), (float)(-6 + i), (float)(Upright), 0, 0, 0, 0, 1));
         items.Add(PlacedParts.Lamp(new(9), 4, 1, 0, 0, 0, 0, 1));
         var instances = new WorkshopInstances([.. items]);
-        instances.Validate();
+        instances.Validate(RuntimeTestServices.Bundle);
         WorkshopConnection Link(int source) => new(new((ulong)source), PortId.ActivationOut, new(9), PortId.ActivationIn, WorkshopConnectionDomain.Activation);
         var seven = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instances, Connections: new([.. Enumerable.Range(1, 7).Select(Link)]));
-        seven.Validate();
-        Assert.Equal(9, (int)WorkshopActivationCompiler.Compile(seven).Clear().Count);
-        Assert.Equal(8, WorkshopPhysicsCompiler.Compile(seven, new(1, 2)).OrientationSensors.Length);
+        seven.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        Assert.Equal(9, (int)WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, seven).Clear().Count);
+        Assert.Equal(8, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, seven, new(1, 2)).OrientationSensors.Length);
         // Owner decision, 20 Oct 2026: no activation-slot limit. The ninth node (the eighth wired Domino) compiles.
         var eight = seven with { Connections = seven.Connections.With(Link(8)) };
-        eight.Validate();
-        Assert.Equal(9, (int)WorkshopActivationCompiler.Compile(eight).Clear().Count);
-        Assert.Equal(8, WorkshopPhysicsCompiler.Compile(eight, new(1, 2)).OrientationSensors.Length);
+        eight.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+        Assert.Equal(9, (int)WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, eight).Clear().Count);
+        Assert.Equal(8, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, eight, new(1, 2)).OrientationSensors.Length);
     }
 }

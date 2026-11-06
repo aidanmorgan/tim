@@ -38,7 +38,7 @@ public sealed partial class BrowserWorkshopClient
                         schedule.World.Epoch.Value, AnimationControlKind.Visibility, visible,
                         CuriousContraptions.Abstractions.PresentationDriverRules.InitialValue(declaration),
                         CuriousContraptions.Abstractions.PresentationDriverRules.InitialValue(declaration), 1, AnimationCurve.Linear,
-                        Property: WorkshopDeclaredPresentation.Property(declaration.Property)), schedule);
+                        Property: _core.Presentation.PropertyFor(declaration.Property)), schedule);
                     foreach (var owned in _declaredTargets)
                         if (owned.Value.Owner == target.Value.Owner) _declaredVisibilitySent[owned.Key] = visible;
                     return;
@@ -48,16 +48,16 @@ public sealed partial class BrowserWorkshopClient
 
     private void RetryDeclaredVisibility(WorkshopAnimationControl command)
     {
-        if (command.Target.Value >= WorkshopDeclaredPresentation.TargetBase)
+        if (command.Target.Value >= _core.Presentation.TargetBase)
             if (_declaredTargets.TryGetValue(command.Target, out var target))
                 foreach (var owned in _declaredTargets)
                     if (owned.Value.Owner == target.Owner) _declaredVisibilitySent.Remove(owned.Key);
     }
 
-    private void InstallDeclaredTargets(WorkshopCompiledScene construction)
+    private void InstallDeclaredTargets(ICompiledScene construction)
     {
         _declaredTargets.Clear(); _declaredSamples.Clear(); _declaredVisibility.Clear(); _declaredVisibilitySent.Clear();
-        foreach (var target in WorkshopDeclaredPresentation.Targets(construction))
+        foreach (var target in _core.Presentation.Targets(construction))
             _declaredTargets.Add(target.Target, (target.Owner, target.Binding));
     }
 
@@ -73,7 +73,7 @@ public sealed partial class BrowserWorkshopClient
             if (instance.Id == binding.Owner)
             {
                 var declaration = DeclaredPhysics.Of(instance.PartId).Presentation.Bindings[binding.Binding];
-                if (sample.Property != WorkshopDeclaredPresentation.Property(declaration.Property))
+                if (sample.Property != _core.Presentation.PropertyFor(declaration.Property))
                     throw new ArgumentException("Declared presentation property changed.");
                 found = true; break;
             }
@@ -98,7 +98,7 @@ public sealed partial class BrowserWorkshopClient
             if (binding.Owner != owner || sample.World != active.World.WorldGeneration ||
                 sample.Generation != active.World.Epoch.Value || sample.AppliedAt.Value > _frameMaster.Value ||
                 (_declaredVisibility.TryGetValue(owner, out var visible) && !visible)) continue;
-            _declaredFrame.Add(new(item.Key, owner, binding.Binding, WorkshopAnimationWire.Value(sample.Property, sample.Value)));
+            _declaredFrame.Add(new(item.Key, owner, binding.Binding, _core.Codecs.Animation.Value(sample.Property, sample.Value)));
         }
         return _declaredFrame.Count > 0;
     }

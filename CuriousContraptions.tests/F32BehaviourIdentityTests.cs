@@ -43,7 +43,7 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
     [MemberData(nameof(Lessons))]
     public async Task ALessonPreservesGoalsAndCausalEventOrderAndReplaysAfterSaveLoad(string lesson, float precision)
     {
-        var bench = PuzzleCatalogue.CreateSolution(new(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
+        var bench = PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, LessonTicks);
         var (goalTick, events) = Outcome(run, bench);
         output.WriteLine($"{lesson}/{precision}: goal={goalTick is not null}, tick={goalTick}");
@@ -53,7 +53,7 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
 
         var saved = new WorkshopSavedConstruction(bench, new(bench.Instances.Max(instance => instance.Id.Value) + 1));
-        var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+        var reloaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.Equal(saved, reloaded);
         var (replayBuilt, replay, replayReset) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, LessonTicks);
         var (replayGoal, replayEvents) = Outcome(replay, reloaded.Construction);
@@ -110,7 +110,7 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
         Assert.Equal(start.State.CauseOwner, finish.State.CauseOwner);
     }
 
-    private static GpuBodyId CauseOwner(ActivationLatch row, PhysicsSceneDeclaration scene) => row.Kind switch
+    private static GpuBodyId CauseOwner(ActivationLatch row, IPhysicsSceneDeclaration scene) => row.Kind switch
     {
         ActivationOccurrenceKind.Contact or ActivationOccurrenceKind.TimerElapsed =>
             Assert.Single(scene.Triggers.ToArray(), sensor => sensor.Id.Value == row.Source.Value).Owner,
@@ -128,7 +128,7 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
         int? goalTick = null;
         var events = new List<ObservedEvent>();
         var previous = new Dictionary<(EventCategory, GpuBodyId, ActivationNodeId, GpuBodyId), ObservedEvent>();
-        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2));
         var identities = bench.Instances.Identities;
         var declaredNodes = bench.Instances.SelectMany(instance =>
             (DeclaredPhysics.Of(instance.PartId).Signal?.Nodes ?? []).Select(node =>

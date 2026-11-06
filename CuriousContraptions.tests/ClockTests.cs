@@ -13,7 +13,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void PartRegistry_DiscoversClockDefinitionAndConfiguresInstance()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(new PartId("clock")));
@@ -147,14 +147,14 @@ public sealed class ClockTests(NativeSceneFixture godot)
     public void TheDeclaredIntervalIsValidatedAndCompiledToTicks()
     {
         // Admitted range [0.1, 12.0] s, as the generic instance's declared parameter (C-Clock).
-        foreach (var seconds in new[] { .1f, 1f, 12f }) PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, seconds).Validate();
+        foreach (var seconds in new[] { .1f, 1f, 12f }) PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, seconds).Validate(RuntimeTestServices.Bundle);
         foreach (var seconds in new[] { .05f, 12.1f, float.NaN, float.PositiveInfinity })
             Assert.Throws<ArgumentException>(() => PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, seconds));
         // A generic instance without its declared interval is refused, never defaulted (Story 9.4b D4).
-        Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(new PartId("clock"), new(1), 0, 0, 0, 0, 0, 0, 1, new([])));
+        Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("clock"), new(1), 0, 0, 0, 0, 0, 0, 1, new([])));
 
         // The compiled interval: ceil(seconds × rate) whole ticks of the construction's cadence.
-        uint Ticks(float seconds, SimulationCadence cadence) => WorkshopActivationCompiler.Compile(new WorkshopConstruction(new(1),
+        uint Ticks(float seconds, SimulationCadence cadence) => WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new(1),
             WorkshopCadenceSettings.Default() with { Simulation = cadence }, new([PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, seconds)])))
             .Nodes.ToArray().Single().IntervalTicks;
         Assert.Equal(60u, Ticks(1f, SimulationCadence.Hz60));
@@ -176,11 +176,11 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var conn2 = new WorkshopConnection(clock.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn, WorkshopConnectionDomain.Activation);
 
         var connections = new WorkshopConnections(conn1, conn2);
-        connections.Validate(instances);
+        connections.Validate(RuntimeTestServices.Core.Supply, instances);
 
         // Invalid: Activation on electrical socket
         var invalidConn = new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.ActivationOut, WorkshopConnectionDomain.Electrical);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(invalidConn).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(invalidConn).Validate(RuntimeTestServices.Core.Supply, instances));
     }
 
     [Fact]
@@ -199,7 +199,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
             new([battery, clock, counter]),
             Connections: new([conn1, conn2]));
 
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var activeActivations = network.Clear();
         var activeTimers = network.ClearTimers();
         var activeMemory = network.ClearMemory();
@@ -248,7 +248,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
             new([clock, counter]),
             Connections: new([conn]));
 
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var activeActivations = network.Clear();
         var activeTimers = network.ClearTimers();
         var activeMemory = network.ClearMemory();
@@ -282,7 +282,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
             new([battery, clock]),
             Connections: new([conn]));
 
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var activeActivations = network.Clear();
         var activeTimers = network.ClearTimers();
         var activeMemory = network.ClearMemory();
@@ -338,7 +338,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([battery, clock]),
             Connections: new([new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)]));
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var powered = new SupplyOutputRead([new(battery.Id, true)]);
         var cleared = network.Memory(network.ClearMemory(), SignalTestNodes.Only(network, clock.Id));
         Assert.Equal((OscillatorPhase.Stopped, 0UL, 0U), (cleared.Phase, cleared.DueTick, cleared.Count));
@@ -358,7 +358,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         Assert.Equal(midInterval, network.Memory(committed.Memory, SignalTestNodes.Only(network, clock.Id)));
 
         // Admission (Reset) recompiles and clears: phase Stopped (0), no due tick, no pulses.
-        var reset = WorkshopActivationCompiler.Compile(construction);
+        var reset = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         Assert.Equal(cleared, reset.Memory(reset.ClearMemory(), SignalTestNodes.Only(reset, clock.Id)));
         Assert.Equal(0U, (uint)reset.Memory(reset.ClearMemory(), SignalTestNodes.Only(reset, clock.Id)).Phase);
     }

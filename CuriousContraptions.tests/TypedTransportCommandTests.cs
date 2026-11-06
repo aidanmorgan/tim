@@ -394,7 +394,7 @@ public sealed class TypedTransportCommandTests
 
     /// <summary>The typed command and query definitions: the closed command kind's declaration in the C# enum, the schema and the
     /// generated schema code. Everywhere else the query is named only through its enum (<c>CommandKind.ObserveMemory</c>).</summary>
-    private static readonly string[] TypedDefinitions = ["engine/gpu/WorkshopMessages.cs", "schemas/workshop_wire.fbs", "engine/gpu/WorkshopWireGenerated.cs",
+    private static readonly string[] TypedDefinitions = ["CuriousContraptions.Abstractions/WorkshopMessageValues.cs", "schemas/workshop_wire.fbs", "engine/gpu/WorkshopWireGenerated.cs",
         "CuriousContraptions.web/wwwroot/workshop-observation.ts"];
 
     private static bool IsBuildOutput(string path) => path.Split(Path.DirectorySeparatorChar)

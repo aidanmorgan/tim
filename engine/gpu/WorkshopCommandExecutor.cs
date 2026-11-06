@@ -3,27 +3,12 @@ using System.Threading.Tasks;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>Environment ownership around the single command implementation. Hosts never apply commands.</summary>
-public interface IWorkshopCommandHost
-{
-    RuntimeSessionId Session { get; }
-    WorkshopSchedule? Schedule { get; }
-    ClockGeneration Generation { get; }
-    bool InstallationPending { get; }
-    bool ReadsIdle { get; }
-    IWorkshopCaptureClock Clock { get; }
-    IWorkshopInstallation Installation { get; }
-    ValueTask Before(WorkshopCommandKind kind, WorkshopSimulation? simulation);
-    ValueTask After(WorkshopCommandKind kind, WorkshopCommandResult result, WorkshopSimulation simulation);
-    WorkshopMemoryMeasurement CaptureMemory();
-}
-
 /// <summary>Shared worker/native command admission, execution and acknowledgement ownership.</summary>
-public sealed class WorkshopCommandExecutor(IWorkshopGpuDevice device, IWorkshopCommandHost host, WorkshopDiagnostics? diagnostics = null) : IAsyncDisposable
+public sealed class WorkshopCommandExecutor(IWorkshopGpuDevice device, IWorkshopCommandHost host, IWorkshopDiagnostics? diagnostics = null) : IWorkshopCommandExecutor
 {
     private WorkshopSimulation? _simulation;
     private ulong _nextCadence = 1;
-    public WorkshopSimulation Simulation => _simulation ?? throw new InvalidOperationException("Workshop has not initialized.");
+    public IWorkshopSimulation Simulation => _simulation ?? throw new InvalidOperationException("Workshop has not initialized.");
     public WorkshopCommandIdentity? Pending { get; private set; }
     public ValueTask DisposeAsync() => _simulation?.DisposeAsync() ?? ValueTask.CompletedTask;
 
@@ -68,8 +53,8 @@ public sealed class WorkshopCommandExecutor(IWorkshopGpuDevice device, IWorkshop
             case WorkshopCommandKind.ConfigureCadence:
                 result = await Simulation.Configure(command.Scene!, new(checked(++_nextCadence))); break;
             case WorkshopCommandKind.Pause: result = await Simulation.Pause(); break;
-            case WorkshopCommandKind.Resume: result = await Simulation.Resume(); break;
-            case WorkshopCommandKind.Step: result = await Simulation.Step(); break;
+            case WorkshopCommandKind.Resume: result = await Simulation.ResumeRun(); break;
+            case WorkshopCommandKind.Step: result = await Simulation.StepOnce(); break;
             case WorkshopCommandKind.ConfigureRunControl: result = Simulation.ConfigureRunControl(command.RunControl!.Value); break;
             case WorkshopCommandKind.CutRope: result = Simulation.CutRope(command.Cut!.Value); break;
             case WorkshopCommandKind.Save: result = Simulation.Save(); break;

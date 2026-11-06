@@ -14,7 +14,7 @@ public sealed class ContactWorkInstanceTests
         new(new(2), WorkshopCadenceSettings.Default(), new(instances));
 
     private static WorkshopConstruction Drop(PartId payload, double height, float strength, double z = 0) => Free(
-        WorkshopInput.Generic(payload, Ball, 0, (float)(height), (float)(z), 0, 0, 0, 1), PlacedParts.Bumper(Owner, 0, 3, 0, (float)(strength)));
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, payload, Ball, 0, (float)(height), (float)(z), 0, 0, 0, 1), PlacedParts.Bumper(Owner, 0, 3, 0, (float)(strength)));
 
     /// <summary>Each new occurrence row of the device-private ledgers (Story 9A.23 D9), once.</summary>
     private static IEnumerable<ContactWorkOccurrence> Occurrences(IEnumerable<ContactWorkLedger> ledgers)
@@ -48,7 +48,7 @@ public sealed class ContactWorkInstanceTests
     [InlineData(3.3333333f)]
     public void TheCompiledStoreHoldsTheDeclaredPreload(float strength)
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Drop(new PartId("ball"), 4.5, strength), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Drop(new PartId("ball"), 4.5, strength), new(1, 2));
         var work = Assert.Single(scene.ContactWorks.ToArray());
         var half = .5f * 1f;
         Assert.Equal(half * strength * strength, work.InitialEnergy.Value);
@@ -76,10 +76,10 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public void OnlyTheDeclaringPartCompilesAStore()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Free(WorkshopInput.Generic(new PartId("ball"), Ball, 0, 4.5f, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("wall"), new(3), 4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
-            WorkshopInput.Generic(new PartId("basket"), new(4), -4, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("switch"), new(5), 8, 1, 0, 0, 0, 0, 1),
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), Ball, 0, 4.5f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(3), 4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(4), -4, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(5), 8, 1, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(Owner, 0, 3, 0)), new(1, 2));
         Assert.Equal(Owner, Assert.Single(scene.ContactWorks.ToArray()).Owner);
     }
@@ -96,8 +96,8 @@ public sealed class ContactWorkInstanceTests
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
         Assert.Equal(built.ContactWorks[0], reset.ContactWorks[0]);
         var saved = new WorkshopSavedConstruction(bench, new(3));
-        var bytes = WorkshopSaveCodec.Encode(saved);
-        var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+        var reloaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, 2 * TicksPerSecond);
         Assert.Contains(replay, read => read.ContactWorks[0].Owner == Owner && read.ContactWorks[0].OccurrenceCount > 0 &&
@@ -107,8 +107,8 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public void StrengthEndpointsHoldAnEmptyAndATwoHundredJouleStore()
     {
-        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(Drop(new PartId("ball"), 4.5, 0f), new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
-        Assert.Equal(200f, Assert.Single(WorkshopPhysicsCompiler.Compile(Drop(new PartId("ball"), 4.5, 20f), new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Drop(new PartId("ball"), 4.5, 0f), new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+        Assert.Equal(200f, Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Drop(new PartId("ball"), 4.5, 20f), new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
     }
 
     // ---------- real simulation ----------
@@ -177,7 +177,7 @@ public sealed class ContactWorkInstanceTests
         // The face at x=.2 is exposed above the sphere. Starting .2 m above the cap
         // gives a slow incoming bounce: a 4 kg payload needs more than 32 J to reach 8 m/s.
         var radius = heavy ? .28 : .34;
-        var bench = Free(WorkshopInput.Generic(payload, Ball, .2f, (float)(3 + .65 + radius + .2), 0, 0, 0, 0, 1),
+        var bench = Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, payload, Ball, .2f, (float)(3 + .65 + radius + .2), 0, 0, 0, 0, 1),
             PlacedParts.Bumper(Owner, 0, 3, 0, (float)(strength)));
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(480);
@@ -221,7 +221,7 @@ public sealed class ContactWorkInstanceTests
         bench = bench with { Instances = bench.Instances.With(battery) };
         if (wired) bench = bench with { Connections = new(new WorkshopConnection(Source, PortId.Supply, Owner, PortId.PowerIn,
             WorkshopConnectionDomain.Electrical)) };
-        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2));
         Assert.Equal(wired ? 1 : 0, scene.Electrical.Bindings.Length);
         var reads = await WorkshopIntegrationHarness.Observe(bench, 4 * TicksPerSecond);
         var emptied = reads.FindIndex(read => read.ContactWorks[0].RemainingEnergy.Value == 0f);
@@ -236,11 +236,11 @@ public sealed class ContactWorkInstanceTests
     public void SwitchedStoreRoutingIsRefused()
     {
         var battery = PlacedParts.Battery(Source, 3, 1, 0);
-        var toggle = WorkshopInput.Generic(new PartId("switch"), new(4), 5, 1, 0, 0, 0, 0, 1);
+        var toggle = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(4), 5, 1, 0, 0, 0, 0, 1);
         var bench = Free(PlacedParts.Bumper(Owner, 0, 3, 0), battery, toggle) with { Connections = new(
             new WorkshopConnection(Source, PortId.Supply, toggle.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
             new WorkshopConnection(toggle.Id, PortId.Supply, Owner, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) };
-        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
+        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
     }
 
     [Fact]
@@ -250,7 +250,7 @@ public sealed class ContactWorkInstanceTests
         var angle = degrees * MathF.PI / 180;
         var rotation = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, angle);
         WorkshopConstruction Bench(double x) => Free(
-            WorkshopInput.Generic(new PartId("bowling"), Ball, (float)(x), 5.5f, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), Ball, (float)(x), 5.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(Owner, 0, 3, 0, (float)(strength), qz: rotation.Z, qw: rotation.W),
             PlacedParts.Battery(Source, 3, 1, 0)) with
         {
@@ -258,7 +258,7 @@ public sealed class ContactWorkInstanceTests
                 PortId.PowerIn, WorkshopConnectionDomain.Electrical))
         };
         var bench = Bench(.1);
-        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2));
         ColliderShapeKind Shape(ContactWorkOccurrence hit) => scene.Colliders[(int)hit.Collider.Value].Shape;
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(120); // one second suffices for a drop and adjacent-child contact

@@ -23,13 +23,20 @@ if (root is null || outputs.Count == 0)
     return 2;
 }
 
-var generated = BundleGenerator.Generate(root);
+CuriousContraptions.Bundle.IBundleServices services;
+try { services = RuntimeProviders.Bundle(); }
+catch (CuriousContraptions.Abstractions.EngineProviderException error)
+{
+    Console.Error.WriteLine($"BundleElements : error BUNDLE000 : {error.Message}");
+    return 1;
+}
+var generated = BundleGenerator.Generate(services, root);
 if (generated.Errors.Count > 0)
 {
     foreach (var error in generated.Errors) Console.Error.WriteLine($"BundleElements : error {error.Text} : {error.Detail}");
     return 1;
 }
-var isolation = new ElementIsolation(root, CuriousContraptions.Bundle.BundleSchema.Read(generated.Json!).Elements);
+var isolation = new ElementIsolation(root, services.Read(generated.Json!).Elements);
 var violations = isolation.ScanTree();
 if (violations.Count != 0)
 {

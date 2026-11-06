@@ -128,8 +128,8 @@ public sealed class BundleRoundTripTests
     [Fact]
     public void GenerationIsDeterministicAndCarriesNoTimestamp()
     {
-        var first = BundleGenerator.Generate(TestRepository.Root);
-        var second = BundleGenerator.Generate(TestRepository.Root);
+        var first = BundleGenerator.Generate(new CuriousContraptions.Bundle.BundleServices(), TestRepository.Root);
+        var second = BundleGenerator.Generate(new CuriousContraptions.Bundle.BundleServices(), TestRepository.Root);
         Assert.Empty(first.Errors);
         Assert.Equal(PackageDiscovery.PackageNames(TestRepository.Root).Count, first.Count);
         Assert.Equal(first.Json, second.Json);

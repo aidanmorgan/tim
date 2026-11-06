@@ -402,7 +402,7 @@ public sealed class VisibleSolidColliderTests
 
     private static WorkshopGenericInstance Place(PartId part, GpuBodyId id, NumVector3 at, NumQuaternion rotation,
         InstanceParameterCollection? parameters = null) =>
-        WorkshopInput.Generic(part, id, (float)(at.X), (float)(at.Y), (float)(at.Z), (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W), parameters);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, part, id, (float)(at.X), (float)(at.Y), (float)(at.Z), (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W), parameters);
     private static WorkshopGenericInstance BallAt(NumVector3 at) => Place(new PartId("ball"), Ball, at, NumQuaternion.Identity);
 
     private static NumVector3 Position(WorkshopRead read)
@@ -531,7 +531,7 @@ public sealed class VisibleSolidColliderTests
     {
         var (part, rotation, top, x, z, staticRestitution) = Drop(feature);
         IWorkshopInstance element = part == new PartId("pipe")
-            ? WorkshopInput.Generic(new PartId("pipe"),Element, 0, (float)(Y), 0, (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W))
+            ? WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Element, 0, (float)(Y), 0, (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W))
             : Place(part, Element, new(0, (float)Y, 0), rotation);
         // A torus's top is a point apex, like a sphere's: no stable rest.
         await AssertDropOnto(element, x, z, top, staticRestitution, feature.ToString(),
@@ -613,7 +613,7 @@ public sealed class VisibleSolidColliderTests
     /// <summary>Whether the drop lands on a sphere collider's apex: some declared sphere, posed with the element at the origin, has its
     /// top at the drop point (x, top, z).</summary>
     private static bool OnSphereApex(PartId part, NumQuaternion rotation, float x, float z, double top) =>
-        DeclaredPhysics.Colliders(part).Any(collider => collider.ShapeKind == Gpu.ColliderShapeKind.Sphere &&
+        DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, part).Any(collider => collider.ShapeKind == Gpu.ColliderShapeKind.Sphere &&
             (NumVector3.Transform(new(collider.LocalPose.Translation.X, collider.LocalPose.Translation.Y, collider.LocalPose.Translation.Z),
                 rotation) + new NumVector3(0, collider.Radius, 0) - new NumVector3(x, (float)top, z)).Length() < 1e-4f);
 
@@ -621,7 +621,7 @@ public sealed class VisibleSolidColliderTests
     /// restitution 1) returns the Basketball at its own 0.55 under the product law, by the same drop and bounds.</summary>
     [Fact]
     public async Task ABallDroppedOntoAStaticWallReboundsAtItsOwnRestitution() =>
-        await AssertDropOnto(WorkshopInput.Generic(new PartId("wall"), Element, 0, (float)(Y), 0, 0, 0, 0, 1, WallFixture.Default), 0, 0,
+        await AssertDropOnto(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), Element, 0, (float)(Y), 0, 0, 0, 0, 1, WallFixture.Default), 0, 0,
             WallFixture.Default[new("height")] * .5, 1, "Wall", apex: false, fall: .5);
 
     private static async Task AssertDropOnto(IWorkshopInstance element, float x, float z, double top, double staticRestitution, string feature,

@@ -4,68 +4,6 @@ using System.Numerics;
 
 namespace CuriousContraptions.Abstractions.Mechanical;
 
-public enum KinematicMode : byte
-{
-    Static = 0,
-    Dynamic = 1,
-    Kinematic = 2
-}
-
-public readonly record struct RigidBodyMassProperties(
-    float Mass,
-    Vector3 CentreOfMass,
-    Vector3 PrincipalMoments,
-    Quaternion PrincipalFrame,
-    float LinearDrag,
-    Vector3 Gravity)
-{
-
-    public void Validate(KinematicMode mode)
-    {
-        if (!Enum.IsDefined(mode) || mode == KinematicMode.Kinematic)
-            throw new ArgumentException("Unsupported mass-frame motion.");
-        ValidateFrame();
-        if (mode == KinematicMode.Static)
-        {
-            if (Mass != 0f || CentreOfMass != Vector3.Zero || PrincipalMoments != Vector3.Zero ||
-                PrincipalFrame != Quaternion.Identity || Gravity != Vector3.Zero || LinearDrag != 0f)
-                throw new ArgumentException("Static mass frames must be canonical zero.");
-            return;
-        }
-        ValidateDynamicProperties();
-    }
-
-    private void ValidateFrame()
-    {
-        if (!Finite(CentreOfMass) || !Finite(PrincipalMoments) || !Finite(Gravity) ||
-            !float.IsFinite(Mass) || !float.IsFinite(LinearDrag) ||
-            !float.IsFinite(PrincipalFrame.X) || !float.IsFinite(PrincipalFrame.Y) ||
-            !float.IsFinite(PrincipalFrame.Z) || !float.IsFinite(PrincipalFrame.W) ||
-            MathF.Abs(PrincipalFrame.LengthSquared() - 1f) > 1e-4f ||
-            Vector3.Abs(CentreOfMass).X > 16f || Vector3.Abs(CentreOfMass).Y > 16f || Vector3.Abs(CentreOfMass).Z > 16f)
-            throw new ArgumentException("Invalid mass frame.");
-    }
-
-    private void ValidateDynamicProperties()
-    {
-        if (Mass < 1f / 1024f || Mass > 1024f || LinearDrag < 0f || LinearDrag > .125f || Gravity.LengthSquared() > 256f)
-            throw new ArgumentException("Mass or forces outside the physical domain.");
-        var p = PrincipalMoments;
-        const float minimum = 1f / 4294967296f;
-        if (p.X < minimum || p.Y < minimum || p.Z < minimum || p.X >= 524288f || p.Y >= 524288f || p.Z >= 524288f ||
-            p.X > p.Y + p.Z || p.Y > p.X + p.Z || p.Z > p.X + p.Y)
-            throw new ArgumentException("Principal moments must describe a physical mass distribution.");
-    }
-
-    private static bool Finite(Vector3 value) => float.IsFinite(value.X) && float.IsFinite(value.Y) && float.IsFinite(value.Z);
-}
-
-public readonly record struct AnchorPointDescriptor(
-    string Name,
-    Vector3 LocalPosition,
-    Quaternion LocalRotation,
-    Vector3 Axis);
-
 public interface IMechanicalElement : IPuzzleElementDeclaration
 {
     KinematicMode KinematicMode { get; }
@@ -74,175 +12,30 @@ public interface IMechanicalElement : IPuzzleElementDeclaration
     IReadOnlyList<AnchorPointDescriptor> AnchorPoints { get; }
 }
 
-/// <summary>A joint frame in one body's local space. Local Y is the slide axis.</summary>
-public readonly record struct SliderFrame(
-    Vector3 Position,
-    Quaternion Rotation);
-
-/// <summary>The moving body a slider carries, in its own local frame: its mass, gravity, linear drag and colliders.</summary>
-public readonly record struct SliderBodyDescriptor(
-    MassFrameDeclaration MassFrame,
-    IReadOnlyList<ColliderDescriptor> Colliders);
-
-/// <summary>A bounded drive on one slider, enabled while the element's PowerIn supply route is closed. It moves the slider toward
-/// <see cref="Target"/> (m, within the slider's limits) at the stopping-profile speed sign(d)·min(<see cref="MaxSpeed"/>,
-/// √(2·<see cref="StoppingAcceleration"/>·|d|), |d|/h) for a substep h, changing speed by at most <see cref="StoppingAcceleration"/> (m/s²), holding
-/// against the slider's own spring and the moving body's gravity, with its force bounded by <see cref="MaxEffort"/> (N) and its
-/// power by <see cref="MaxPower"/> (W).</summary>
-public readonly record struct PrismaticDriveDescriptor(
-    MechanicalValue Target,
-    MechanicalValue MaxSpeed,
-    MechanicalValue StoppingAcceleration,
-    MechanicalValue MaxEffort,
-    MechanicalValue MaxPower);
-
-/// <summary>One prismatic slider joining the element's base body to a moving body. At rest the two frames coincide; the moving body
-/// may travel from <see cref="LowerLimit"/> to <see cref="UpperLimit"/> along the base frame's local Y. The axial spring's stiffness
-/// and damping, and the starting compression (how far below rest the moving body starts), are the element parameters these keys
-/// name. <see cref="Drive"/> is the slider's supplied drive, or null for a passive slider.</summary>
-public readonly record struct PrismaticSliderDescriptor(
-    SliderFrame BaseFrame,
-    SliderFrame MovingFrame,
-    float LowerLimit,
-    float UpperLimit,
-    MechanicalValue Stiffness,
-    MechanicalValue Damping,
-    MechanicalValue Compression,
-    bool BodiesCollide,
-    SliderBodyDescriptor MovingBody,
-    PrismaticDriveDescriptor? Drive);
-
-/// <summary>A mechanical element whose base body carries moving bodies on prismatic sliders.</summary>
 public interface ISliderElement : IMechanicalElement
 {
     IReadOnlyList<PrismaticSliderDescriptor> Sliders { get; }
 }
 
-/// <summary>A hinge joint frame in one body's local space. Local Z is the hinge rotation axis.</summary>
-public readonly record struct HingeFrame(
-    Vector3 Position,
-    Quaternion Rotation);
-
-/// <summary>The moving body a hinge carries, in its own local frame: its mass, gravity, linear drag and colliders.</summary>
-public readonly record struct HingeBodyDescriptor(
-    MassFrameDeclaration MassFrame,
-    IReadOnlyList<ColliderDescriptor> Colliders);
-
-/// <summary>How far a revolute hinge may turn. <see cref="Limited"/> stops it at its declared limits; <see cref="Continuous"/> lets it
-/// turn without end, its stop rows inert through bounds set to zero (its limits are then exactly [−π, π] and it has no axial spring).</summary>
-public enum RevoluteTravel : uint
-{
-    Limited = 0,
-    Continuous = 1
-}
-
-/// <summary>A supplied velocity drive on one revolute hinge, enabled while the element's PowerIn supply route is closed. It drives the
-/// moving body's spin about the hinge axis, relative to the base, toward <see cref="TargetSpeed"/> (rad/s, signed, within the angular
-/// speed envelope) with a torque of at most <see cref="MaxTorque"/> (N·m, positive). Unsupplied, it applies no torque.</summary>
-public readonly record struct RevoluteDriveDescriptor(
-    MechanicalValue TargetSpeed,
-    MechanicalValue MaxTorque);
-
-/// <summary>One revolute hinge joining the element's base body to a moving body. At rest the two frames coincide; the moving body
-/// may rotate from <see cref="LowerLimit"/> to <see cref="UpperLimit"/> (radians) around the base frame's local Z, or without end when
-/// its <see cref="Travel"/> is <see cref="RevoluteTravel.Continuous"/>. The axial spring's stiffness
-/// and damping, and the starting angle, are the element parameters these keys name. <see cref="FrictionTorque"/> is the hinge's
-/// Coulomb friction torque (N·m, finite and at least 0): the pivot holds while the net torque about its axis is below it and turns,
-/// resisted by it, once the net torque is above. <see cref="Drive"/> is the hinge's supplied velocity drive, or null for a passive
-/// hinge.</summary>
-public readonly record struct RevoluteHingeDescriptor(
-    HingeFrame BaseFrame,
-    HingeFrame MovingFrame,
-    float LowerLimit,
-    float UpperLimit,
-    RevoluteTravel Travel,
-    MechanicalValue Stiffness,
-    MechanicalValue Damping,
-    MechanicalValue FrictionTorque,
-    MechanicalValue InitialAngle,
-    bool BodiesCollide,
-    HingeBodyDescriptor MovingBody,
-    RevoluteDriveDescriptor? Drive);
-
-/// <summary>A mechanical element whose base body carries moving bodies on revolute hinges.</summary>
 public interface IHingeElement : IMechanicalElement
 {
     IReadOnlyList<RevoluteHingeDescriptor> Hinges { get; }
 }
-
-/// <summary>A mechanical value is either fixed authoring data or a declared real parameter.</summary>
-public enum MechanicalValueSource : byte { Constant, Parameter }
-
-public readonly record struct MechanicalValue(MechanicalValueSource Source, float Constant, string? Parameter)
-{
-    public static MechanicalValue Fixed(float value) => new(MechanicalValueSource.Constant, value, null);
-    public static MechanicalValue FromParameter(string key) => new(MechanicalValueSource.Parameter, 0f, key);
-
-    public float Evaluate(IReadOnlyDictionary<string, float> parameters) => Source switch
-    {
-        MechanicalValueSource.Constant when Parameter is null && float.IsFinite(Constant) => Constant,
-        MechanicalValueSource.Parameter when Constant == 0f && Parameter is { } key &&
-            parameters.TryGetValue(key, out var value) && float.IsFinite(value) => value,
-        _ => throw new ArgumentException("Invalid or unresolved mechanical value.")
-    };
-}
-
-/// <summary>Package-owned residence volume. UpperMargin extends its local Y maximum; remaining values bind declared parameters.</summary>
-public readonly record struct ResidenceCaptureDescriptor(
-    Vector3 Minimum, Vector3 Maximum, MechanicalValue UpperMargin,
-    MechanicalValue SpeedLimit, MechanicalValue Dwell, string ParticipationParameter,
-    PlanarGuideDescriptor Guide);
-
-/// <summary>A bounded lateral guide in the same owner frame as its residence volume.</summary>
-public readonly record struct PlanarGuideDescriptor(
-    Vector3 Minimum, Vector3 Maximum, float SupportHeight,
-    MechanicalValue SupportMargin, MechanicalValue MaximumAcceleration);
 
 public interface IResidenceCaptureElement : IMechanicalElement
 {
     ResidenceCaptureDescriptor Capture { get; }
 }
 
-/// <summary>A finite contact-work store on the element's static body. Its target speed is the named Real m/s parameter; its preload is
-/// the kinetic energy (½·ReferenceMass)·s·s of the reference mass at that speed, so the parameter range bounds the store. A contact
-/// approaching faster than <see cref="Threshold"/> qualifies once per target every <see cref="CooldownPhysicalSteps"/> physical
-/// steps.</summary>
-public readonly record struct ContactWorkDescriptor(
-    string StrengthParameter, float ReferenceMass, float Threshold, uint CooldownPhysicalSteps,
-    TargetSelector Target = default);
-
 public interface IContactWorkElement : IMechanicalElement
 {
     ContactWorkDescriptor ContactWork { get; }
 }
 
-/// <summary>A rectangular compliant membrane on the element's static frame body. <see cref="HalfExtents"/> (m) are the footprint's half
-/// extents in the frame's local plane: X along the frame's right (X) axis, the second component along its forward (Z) axis; the rest
-/// plane's normal is the frame's Y axis. <see cref="ArrivalDepth"/> (m) is the deepest a
-/// support sample may cross into the footprint below the rest plane and still bear the bed (deeper it is never pushed until it rises
-/// to the plane); it is finite, positive and under half the stroke, and a package sizes it from its own frame (its side opening must be
-/// at least twice it).</summary>
-public readonly record struct CompliantSurfaceDescriptor(
-    Vector2 HalfExtents,
-    float RestHeight,
-    float MaxStroke,
-    float ArrivalDepth,
-    MechanicalValue Tension,
-    MechanicalValue DampingRatio);
-
 public interface ICompliantSurfaceElement : IMechanicalElement
 {
     CompliantSurfaceDescriptor CompliantSurface { get; }
 }
-
-public readonly record struct LocalDrivenSurfaceId(uint Value);
-public readonly record struct BodyColliderIndex(int Value);
-public enum BoxFace : byte { PositiveX, NegativeX, PositiveY, NegativeY, PositiveZ, NegativeZ }
-
-/// <summary>Uniform tangential travel on one explicit box face, coupled to an explicit revolute coordinate.</summary>
-public readonly record struct DrivenSurfaceDescriptor(
-    LocalDrivenSurfaceId Id, PackageBodyIndex Carrier, BodyColliderIndex Collider,
-    BoxFace Face, CoordinateReference Source, Vector3 LocalDirection, MechanicalValue TravelPerRadian);
 
 public interface IDrivenSurfaceElement : IMechanicalElement
 {

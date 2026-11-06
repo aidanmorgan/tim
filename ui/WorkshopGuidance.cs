@@ -265,7 +265,7 @@ public partial class Workshop
         var rotation = PreviewRotation();
         var parameters = World.CaptureParameters(part, _nextId, _preview?.Dimensions);
         return CanEdit
-            ? global::CuriousContraptions.PlacementPose.Compose(World.Registry.Definitions, World.Construction.Instances,
+            ? World.Placement.Compose(World.Registry.Definitions, World.Construction.Instances,
                 new(part, _nextId, false, parameters), at, rotation)
             : new(at.Snapped(Vector3.One * global::CuriousContraptions.PlacementPose.Grid), rotation, null, PlacementRefusal.None);
     }
@@ -342,7 +342,7 @@ public partial class Workshop
         var target = _preview ?? _selected;
         _cancelButton.Visible = !_inRun && (_tool is not null || _linkSource is not null);
         _connectionChoices.Visible = (CanEdit && (_selected is not null || _linkSource is not null)) ||
-            (_selected?.Definition?.PartId is { } selectedPart && (DeclaredPhysics.RunControls(selectedPart).Count != 0 ||
+            (_selected?.Definition?.PartId is { } selectedPart && (DeclaredPhysics.RunControls(_bundle, selectedPart).Count != 0 ||
                 World.Registry.Ports.Has(selectedPart, PortRole.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional)) &&
                 World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused);
         _removeButton.Visible = _preview == null && _selected is { Locked: false };

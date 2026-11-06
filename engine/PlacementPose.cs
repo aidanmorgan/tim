@@ -27,14 +27,14 @@ public readonly record struct ComposedPlacement(Vector3 Position, Quaternion Rot
 /// world-space extent lies in the bench volume (x ∈ [−7, 7], y from the bench surface to 9, z ∈ [−4, 4] m; coordinator decisions on
 /// 10.2a F3, 24 Oct 2026: the body, not its origin, on every placement path); otherwise it is refused. Geometry is the declared f32
 /// colliders of the bundle (no part identity); it creates no command.</summary>
-public static class PlacementPose
+public sealed class PlacementPose(ICoreGeometry geometry, IBundleServices bundle)
 {
     /// <summary>The placement grid (m).</summary>
     public const float Grid = .1f;
     /// <summary>A box's top is horizontal when one of its axes is vertical to within this cosine.</summary>
     public const float VerticalAxis = 1f - 1e-6f;
     /// <summary>A lifted part touching the top it rests on is not inside it: only a deeper overlap refuses the pose (m).</summary>
-    public const float ContactSlop = HollowContactQuery.PlacementSlop;
+    public float ContactSlop => geometry.PlacementSlop;
 
     /// <summary>The volume a placement point must lie in: x ∈ [−7, 7], y ∈ [0, 9], z ∈ [−4, 4] m.</summary>
     public static bool Inside(Vector3 point) =>
@@ -43,7 +43,7 @@ public static class PlacementPose
 
     /// <summary>Whether every posed collider's world-space extent lies in the bench volume: x ∈ [−7, 7] and z ∈ [−4, 4] m, and from the
     /// bench surface (less the contact slop a resting body may touch it by) up to 9 m.</summary>
-    private static bool Within(Posed[] shapes)
+    private bool Within(Posed[] shapes)
     {
         var bench = WorkshopConstruction.WorkbenchSurface.Value - ContactSlop;
         foreach (var shape in shapes)
@@ -62,14 +62,14 @@ public static class PlacementPose
     private enum Shape : byte { Sphere, Box, Cylinder, Hollow }
     /// <summary>One posed collider. A cylinder's axis is its local Y; its half-extents are (r, h, r). A hollow collider (Tube, Torus,
     /// Frustum) carries its posed solid, the narrowphase's own signed distance field.</summary>
-    private readonly record struct Posed(Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 HalfExtent, float Radius,
-        HollowSolid Solid = default)
+    private readonly record struct Posed(ICoreGeometry Geometry, Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 HalfExtent, float Radius,
+        HollowSolidDeclaration Solid = default)
     {
         public Vector3 Axis(int i) => i switch { 0 => X, 1 => Y, _ => Z };
         public float HalfAlong(int i) => i switch { 0 => HalfExtent.X, 1 => HalfExtent.Y, _ => HalfExtent.Z };
         /// <summary>The shape's world vertical half-extent: its centre to its top.</summary>
         public float Height => SupportDistance(Vector3.Up);
-        public float Reach => Kind == Shape.Hollow ? Solid.Reach : Kind == Shape.Sphere ? Radius : HalfExtent.Length();
+        public float Reach => Kind == Shape.Hollow ? Geometry.HollowReach(Solid) : Kind == Shape.Sphere ? Radius : HalfExtent.Length();
         public Posed Lift(float distance)
         {
             var centre = Centre + Vector3.Up * distance;
@@ -89,12 +89,12 @@ public static class PlacementPose
             Shape.Sphere => Radius,
             Shape.Box => MathF.Abs(X.Dot(direction)) * HalfExtent.X + MathF.Abs(Y.Dot(direction)) * HalfExtent.Y + MathF.Abs(Z.Dot(direction)) * HalfExtent.Z,
             Shape.Cylinder => MathF.Abs(Y.Dot(direction)) * HalfExtent.Y + HalfExtent.X * MathF.Sqrt(MathF.Max(0f, 1f - Y.Dot(direction) * Y.Dot(direction))),
-            Shape.Hollow => System.Numerics.Vector3.Dot(Solid.SupportNear(Numeric(direction), Solid.Position) - Solid.Position, Numeric(direction)),
+            Shape.Hollow => System.Numerics.Vector3.Dot(Geometry.HollowSupportNear(Solid, Numeric(direction), Solid.Position) - Solid.Position, Numeric(direction)),
             _ => throw new InvalidOperationException($"Undefined placement shape {Kind}.")
         };
     }
 
-    public static ComposedPlacement Compose(IReadOnlyDictionary<PartId, PartDefinition> definitions,
+    public ComposedPlacement Compose(IReadOnlyDictionary<PartId, PartDefinition> definitions,
         IReadOnlyList<IWorkshopInstance> placed, TubeMouthMover candidate, Vector3 at, Quaternion rotation)
     {
         ArgumentNullException.ThrowIfNull(placed);
@@ -110,19 +110,19 @@ public static class PlacementPose
     /// parameters, posed at the final pose, must lie in the bench volume (<see cref="Within"/>), or the pose is refused with the path's
     /// <paramref name="outside"/> reason. An undeclared part, or one that declares no collider, has no geometry to bound; capturing an
     /// undeclared part is the placement's own typed refusal.</summary>
-    private static PlacementRefusal Bounded(PartId part, Vector3 position, Quaternion rotation, PlacementRefusal outside) =>
+    private PlacementRefusal Bounded(PartId part, Vector3 position, Quaternion rotation, PlacementRefusal outside) =>
         !DeclaredPhysics.Contains(part) || DeclaredPhysics.Of(part).Colliders.Count == 0 ||
-        Within(Pose(BundleGeometry.Colliders(DeclaredPhysics.Of(part)), position, rotation))
+        Within(Pose(bundle.Colliders(DeclaredPhysics.Of(part)), position, rotation))
             ? PlacementRefusal.None : outside;
 
-    private static (Vector3 Position, PlacementRefusal Refusal) Rest(IReadOnlyList<IWorkshopInstance> placed, TubeMouthMover candidate,
+    private (Vector3 Position, PlacementRefusal Refusal) Rest(IReadOnlyList<IWorkshopInstance> placed, TubeMouthMover candidate,
         Vector3 at, Quaternion rotation)
     {
         // An undeclared part has no geometry to rest; capturing it is the placement's own typed refusal.
         if (!DeclaredPhysics.Contains(candidate.Part)) return (at, PlacementRefusal.None);
         var entry = DeclaredPhysics.Of(candidate.Part);
         if (entry.Mechanical?.KinematicMode != KinematicMode.Dynamic) return (at, PlacementRefusal.None);
-        var shapes = Pose(BundleGeometry.Colliders(entry), at, rotation);
+        var shapes = Pose(bundle.Colliders(entry), at, rotation);
         float bottom = float.PositiveInfinity, top = float.NegativeInfinity;
         foreach (var shape in shapes)
         {
@@ -156,14 +156,14 @@ public static class PlacementPose
                 foreach (var shape in shapes)
                     lift = RestAbove(shape, item.Shape, lift, intervals);
         var lifted = at with { Y = at.Y + lift };
-        var raised = Pose(BundleGeometry.Colliders(entry), lifted, rotation);
+        var raised = Pose(bundle.Colliders(entry), lifted, rotation);
         if (!Within(raised)) return (lifted, PlacementRefusal.RestOutsideBench);
         foreach (var other in statics)
             if (Array.Exists(raised, shape => Overlaps(shape, other.Shape, ContactSlop))) return (lifted, PlacementRefusal.IntoPart);
         return (lifted, PlacementRefusal.None);
     }
 
-    private static List<(GpuBodyId Owner, Posed Shape)> StaticRestGeometry(IReadOnlyList<IWorkshopInstance> placed, GpuBodyId candidate)
+    private List<(GpuBodyId Owner, Posed Shape)> StaticRestGeometry(IReadOnlyList<IWorkshopInstance> placed, GpuBodyId candidate)
     {
         var statics = new List<(GpuBodyId Owner, Posed Shape)>(32);
         foreach (var instance in placed)
@@ -172,13 +172,13 @@ public static class PlacementPose
             var other = DeclaredPhysics.Of(instance.PartId);
             if ((other.Mechanical?.KinematicMode ?? KinematicMode.Static) != KinematicMode.Static) continue;
             var (position, turn) = TubeMouthSnap.Pose(instance);
-            foreach (var shape in Pose(BundleGeometry.Colliders(other, DeclaredPhysics.Parameters(instance)), position, turn))
+            foreach (var shape in Pose(bundle.Colliders(other, DeclaredPhysics.Parameters(instance)), position, turn))
                 statics.Add((instance.Id, shape));
         }
         return statics;
     }
 
-    private static Posed[] Pose(IReadOnlyList<ColliderDescriptor> colliders, Vector3 position, Quaternion turn)
+    private Posed[] Pose(IReadOnlyList<ColliderDescriptor> colliders, Vector3 position, Quaternion turn)
     {
         var result = new Posed[colliders.Count];
         for (var i = 0; i < colliders.Count; i++)
@@ -195,8 +195,8 @@ public static class PlacementPose
             var local = (turn * new Quaternion(c.Rotation.X, c.Rotation.Y, c.Rotation.Z, c.Rotation.W)).Normalized();
             var centre = position + turn * new Vector3(c.Offset.X, c.Offset.Y, c.Offset.Z);
             var (x, y, z) = (local * Vector3.Right, local * Vector3.Up, local * Vector3.Back);
-            result[i] = new(kind, centre, x, y, z, new(c.HalfExtents.X, c.HalfExtents.Y, c.HalfExtents.Z), kind == Shape.Sphere ? c.HalfExtents.X : 0f,
-                kind == Shape.Hollow ? new HollowSolid(DeclaredPhysics.Admit(c).ShapeKind, Numeric(centre), Numeric(x), Numeric(y), Numeric(z),
+            result[i] = new(geometry, kind, centre, x, y, z, new(c.HalfExtents.X, c.HalfExtents.Y, c.HalfExtents.Z), kind == Shape.Sphere ? c.HalfExtents.X : 0f,
+                kind == Shape.Hollow ? new HollowSolidDeclaration(DeclaredPhysics.Admit(c).ShapeKind, Numeric(centre), Numeric(x), Numeric(y), Numeric(z),
                     c.Radius, c.HalfExtents.X, c.HalfExtents.Y, c.HalfExtents.Z) : default);
         }
         return result;
@@ -248,7 +248,7 @@ public static class PlacementPose
     /// projection: both frames' axes and their cross products and, when a cylinder takes part, the direction between the two
     /// shapes' closest points, so a part diagonally beside a cylinder (inside its bounding square, outside its round side) is not
     /// overlapping.</summary>
-    private static bool Overlaps(Posed shape, Posed box, float slop)
+    private bool Overlaps(Posed shape, Posed box, float slop)
     {
         if (box.Kind == Shape.Hollow) return OverlapsHollow(shape, box.Solid, slop);
         if (shape.Kind == Shape.Hollow) return OverlapsHollow(box, shape.Solid, slop);
@@ -307,14 +307,14 @@ public static class PlacementPose
     private static Vector3 ToGodot(System.Numerics.Vector3 v) => new(v.X, v.Y, v.Z);
 
     /// <summary>Uses the production hollow contact measurements for placement admission.</summary>
-    private static bool OverlapsHollow(Posed shape, HollowSolid hollow, float slop)
+    private bool OverlapsHollow(Posed shape, HollowSolidDeclaration hollow, float slop)
     {
-        return HollowContactQuery.Overlaps(shape.Partner, hollow, slop);
+        return geometry.HollowOverlaps(shape.Partner, hollow, slop);
     }
 
     /// <summary>Highest occupied vertical interval for one pair, without assuming a hollow union is monotone.
     /// Analytic enclosing-volume rejection only; sampled contact minima are never clearance bounds.</summary>
-    private static float RestAbove(Posed moving, Posed support, float minimum, Stack<(float Low, float High)> intervals)
+    private float RestAbove(Posed moving, Posed support, float minimum, Stack<(float Low, float High)> intervals)
     {
         var low = MathF.Max(minimum, support.Centre.Y - support.SupportDistance(Vector3.Down) - moving.Centre.Y - moving.Height);
         var high = support.Centre.Y + support.Height - moving.Centre.Y + moving.SupportDistance(Vector3.Down);
@@ -351,7 +351,7 @@ public static class PlacementPose
         return minimum;
     }
 
-    private static bool ClearInterval(Posed moving, Posed support, float halfTranslation)
+    private bool ClearInterval(Posed moving, Posed support, float halfTranslation)
     {
         for (var index = 0; index < 3; index++)
         {
@@ -361,9 +361,9 @@ public static class PlacementPose
             if (delta > support.SupportDistance(axis) + moving.SupportDistance(-axis) + travel + ContactSlop ||
                 -delta > moving.SupportDistance(axis) + support.SupportDistance(-axis) + travel + ContactSlop) return true;
         }
-        var distance = HollowContactQuery.SurfaceDistance(support.Partner, Numeric(moving.Centre), out _, out _);
+        var distance = geometry.SurfaceDistance(support.Partner, Numeric(moving.Centre), out _, out _);
         if (distance > moving.Reach + halfTranslation + ContactSlop) return true;
-        distance = HollowContactQuery.SurfaceDistance(moving.Partner, Numeric(support.Centre), out _, out _);
+        distance = geometry.SurfaceDistance(moving.Partner, Numeric(support.Centre), out _, out _);
         return distance > support.Reach + halfTranslation + ContactSlop;
     }
 

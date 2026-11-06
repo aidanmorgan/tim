@@ -46,15 +46,17 @@ public static class WorkshopPhysicsCompiler
         return (pB, rB);
     }
 
-    public static PhysicsSceneDeclaration Compile(WorkshopConstruction construction, PhysicsDocumentId document) =>
-        new Compilation(construction, document).Build();
+    public static IPhysicsSceneDeclaration Compile(ICoreServices core, IBundleServices bundle, WorkshopConstruction construction, PhysicsDocumentId document) =>
+        new Compilation(core, bundle, construction, document).Build();
 
     private sealed class Compilation
     {
         private readonly WorkshopConstruction construction;
         private readonly PhysicsDocumentId document;
         private readonly CompiledIdentityMap identities;
-        private readonly SupplyTopology topology;
+        private readonly ISupplyTopology topology;
+        private readonly ICoreServices core;
+        private readonly IBundleServices bundle;
         private readonly SupplyNodeDeclaration[] supplyNodes;
         private readonly List<RigidBodyDeclaration> bodies = new(16);
         private readonly List<ColliderDeclaration> colliders = new(32);
@@ -73,17 +75,18 @@ public static class WorkshopPhysicsCompiler
         private readonly List<OrientationSensorDeclaration> orientationSensors = new(4);
         private readonly List<ContactLoadSensorDeclaration> contactLoads = new(4);
 
-        public Compilation(WorkshopConstruction construction, PhysicsDocumentId document)
+        public Compilation(ICoreServices core, IBundleServices bundle, WorkshopConstruction construction, PhysicsDocumentId document)
         {
-            construction.Validate();
+            construction.Validate(core.Supply, bundle);
+            this.core = core; this.bundle = bundle;
             this.construction = construction;
             this.document = document;
             identities = construction.Instances.Identities;
-            topology = WorkshopSupplyCompiler.Compile(construction, DeclaredPhysics.Of);
+            topology = WorkshopSupplyCompiler.Compile(core.Supply, construction, DeclaredPhysics.Of);
             supplyNodes = topology.Nodes.ToArray();
         }
 
-        public PhysicsSceneDeclaration Build()
+        public IPhysicsSceneDeclaration Build()
         {
             var plane = identities.Plane;
             var planeMaterial = identities.PlaneMaterial;
@@ -98,10 +101,10 @@ public static class WorkshopPhysicsCompiler
             var contactWorkOwners = CompileSensors();
             ValidateHollowPlacement();
             var (tensile, ropeGuides, transmissions) = CompileConnections();
-            return new(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
+            return core.CreatePhysicsScene(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
                 construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                     .Select(link => new ElectricalStorageBinding(identities[link.Source].Source, identities[link.Target].Work)).ToArray(), prismatics.ToArray(),
-                supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray(),
+                supplyNodes, topology.Edges.ToArray(), contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray(),
                 compliantSurfaces.ToArray(), revoluteDrives.ToArray(),
                 ropeGuides: ropeGuides.ToArray(),
                 transmissions: transmissions.ToArray(), drivenSurfaces: drivenSurfaces.ToArray());
@@ -229,7 +232,7 @@ public static class WorkshopPhysicsCompiler
                 }
                 var rows = identities[instance.Id];
                 var parameters = DeclaredPhysics.Parameters(instance);
-                var shapes = BundleGeometry.Colliders(entry, parameters);
+                var shapes = bundle.Colliders(entry, parameters);
                 var mechanical = entry.Mechanical;
                 var values = parameters.ToDictionary(pair => new ParameterId(pair.Key), pair => pair.Value);
                 var mass = mechanical is { } declared ? declared.MassFrame.Evaluate(values) : default;
@@ -340,7 +343,7 @@ public static class WorkshopPhysicsCompiler
             // A declared contact-load sensor compiles its row for every owner, wired or not, in instance order.
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
                 foreach (var load in DeclaredPhysics.Of(owner.PartId).Signal?.Nodes.OfType<SignalContactLoadDescriptor>() ?? [])
-                    contactLoads.Add(ContactLoadSensorFor(owner, load, identities));
+                    contactLoads.Add(ContactLoadSensorFor(bundle, owner, load, identities));
             var contactWorkOwners = contactWorks.Select(cw => cw.Owner).ToHashSet();
             foreach(var link in construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target)))
             {
@@ -358,7 +361,7 @@ public static class WorkshopPhysicsCompiler
             // Only independently authored dynamic partners are checked. A constrained
             // child belongs to its parent's mechanism and retains its declared joint.
             var bodyById = bodies.ToDictionary(body => body.Id);
-            var hollowColliders = colliders.Where(c => HollowSolid.IsHollow(c.Shape)).ToArray();
+            var hollowColliders = colliders.Where(c => core.Geometry.IsHollow(c.Shape)).ToArray();
             foreach (var partner in colliders.Where(c => bodyById[c.Body].Motion == RigidMotionKind.Dynamic))
             {
                 var (partnerCentre, partnerTurn) = WorldPose(partner);
@@ -370,11 +373,11 @@ public static class WorkshopPhysicsCompiler
                 {
                     if (hollowCollider.Body == partner.Body || identities.IsChild(hollowCollider.Body, partner.Body)) continue;
                     var (centre, rotation) = WorldPose(hollowCollider);
-                    var solid = new HollowSolid(hollowCollider.Shape, centre,
+                    var solid = new HollowSolidDeclaration(hollowCollider.Shape, centre,
                         Vector3.Transform(Vector3.UnitX, rotation), Vector3.Transform(Vector3.UnitY, rotation),
                         Vector3.Transform(Vector3.UnitZ, rotation), hollowCollider.Radius.Value,
                         hollowCollider.HalfExtents.X, hollowCollider.HalfExtents.Y, hollowCollider.HalfExtents.Z);
-                    if (HollowContactQuery.Overlaps(convex, solid, HollowContactQuery.PlacementSlop))
+                    if (core.Geometry.HollowOverlaps(convex, solid, core.Geometry.PlacementSlop))
                         throw new WorkshopEditRejectedException(WorkshopEditRejection.InitialOverlap, "A dynamic payload initially overlaps a hollow wall.");
                 }
             }
@@ -484,10 +487,10 @@ public static class WorkshopPhysicsCompiler
     /// <c>RegionCollider</c> (resolved through the owner's compiled collider identities); the x–z footprint is that box's
     /// f32 half-extents about its offset, widened by the contact distance in x and the depth margin in z; the minimum is the owner's
     /// declared parameter.</summary>
-    public static ContactLoadSensorDeclaration ContactLoadSensorFor(WorkshopGenericInstance owner,
+    public static ContactLoadSensorDeclaration ContactLoadSensorFor(IBundleServices bundle, WorkshopGenericInstance owner,
         CuriousContraptions.Abstractions.Signal.SignalContactLoadDescriptor load, CompiledIdentityMap identities)
     {
-        var face = BundleGeometry.Colliders(DeclaredPhysics.Of(owner.PartId), owner.Parameters.ToBundleValues())[load.RegionCollider];
+        var face = bundle.Colliders(DeclaredPhysics.Of(owner.PartId), owner.Parameters.ToBundleValues())[load.RegionCollider];
         var (centre, half) = (face.Offset, face.HalfExtents);
         return new(identities[owner.Id].Signals[load.Id].ContactLoad, identities.Body(owner.Id, load.Frame), identities[owner.Id].Colliders[load.RegionCollider],
             centre.X - half.X - load.ContactDistance, centre.X + half.X + load.ContactDistance,

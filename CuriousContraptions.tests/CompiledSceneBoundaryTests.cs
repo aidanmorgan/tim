@@ -9,8 +9,8 @@ public sealed class CompiledSceneBoundaryTests
     public enum Defect { UnknownMotion, NarrowedMotion, NonfiniteMass, ForeignColliderBody, ForeignTrigger, WrongSubsteps }
 
     private static WorkshopConstruction Construction => new(new(2), WorkshopCadenceSettings.Default(), new(
-        WorkshopInput.Generic(new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1)));
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1)));
 
 
 
@@ -48,7 +48,7 @@ public sealed class CompiledSceneBoundaryTests
     [InlineData(65536)]
     public void CompiledFramesPreserveRequiredTablesBeyondSignedShortPositions(int padding)
     {
-        var scene = WorkshopSceneCompiler.Compile(Construction, new(101, 206), new(7));
+        var scene = WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction, new(101, 206), new(7));
         var builder = new FlatBufferBuilder(1024);
         var installation = WorkshopWireFlatBuffers.EncodeCompiledScene(builder, scene);
         // Valid unreachable data places the referenced installation on either side of the old signed-short boundary.
@@ -120,15 +120,15 @@ public sealed class CompiledSceneBoundaryTests
     {
         using var host = new WorkshopActivationAnimationTests.NativeClient();
         var settings = WorkshopCadenceSettings.Default();
-        var pipe = WorkshopInput.Generic(new PartId("pipe"), new(2), 0, 3, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"), new(2), 0, 3, 0, 0, 0, 0, 1);
         var valid = new WorkshopConstruction(new(2), settings, new(
-            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1), pipe));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 6, 0, 0, 0, 0, 1), pipe));
         await host.Construct(valid);
         var port = host.Client.Observation;
         var before = port.Query(port.Session, WorkshopObservationQuery.Committed).Value;
         var receipts = port.Receipts(port.Session, default).Value!.Length;
         var invalid = new WorkshopConstruction(new(3), settings, new(
-            WorkshopInput.Generic(new PartId("ball"), new(1), 0, 3.65f, 0, 0, 0, 0, 1), pipe));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 3.65f, 0, 0, 0, 0, 1), pipe));
         var refusal = await Assert.ThrowsAsync<WorkshopEditRejectedException>(() =>
             host.Client.Execute(WorkshopCommandKind.Construct, invalid));
         Assert.Equal(WorkshopEditRejection.InitialOverlap, refusal.Reason);
@@ -156,8 +156,8 @@ public sealed class CompiledSceneBoundaryTests
     {
         var construction = Construction with { Instances = new(
             Construction.Instances[0], Construction.Instances[1],
-            WorkshopInput.Generic(new PartId("counter"), new(3), 4, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("both_gate"), new(4), -4, 3, 0, 0, 0, 0, 1)) };
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("counter"), new(3), 4, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("both_gate"), new(4), -4, 3, 0, 0, 0, 0, 1)) };
         await using var world = await WorkshopIntegrationHarness.Building(construction);
         var before = world.Committed;
         var original = world.Simulation.Scene;
@@ -230,9 +230,9 @@ public sealed class CompiledSceneBoundaryTests
     }
 
     private static WorkshopConstruction LeverConstruction => new(new(2), WorkshopCadenceSettings.Default(), new(
-        WorkshopInput.Generic(new PartId("impact_lever"), new(1), 0, 3, 0, 0, 0, 0, 1)));
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("impact_lever"), new(1), 0, 3, 0, 0, 0, 0, 1)));
 
-    private static WorkshopCommand Construct(WorkshopCompiledScene scene) =>
+    private static WorkshopCommand Construct(ICompiledScene scene) =>
         new(new(1), WorkshopCommandKind.Construct, new(1), default, scene, Session: new(101, 206), Cadence: new(1), Projection: new(1));
 
     // Story 10.3a: a compiled revolute crosses the command wire with every field. The lever's own row leaves stiffness, damping and
@@ -242,7 +242,7 @@ public sealed class CompiledSceneBoundaryTests
     [Fact]
     public void EveryRevoluteFieldCrossesTheCommandWire()
     {
-        var compiled = WorkshopSceneCompiler.Compile(LeverConstruction, new(101, 206), new(7));
+        var compiled = WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, LeverConstruction, new(101, 206), new(7));
         var physics = compiled.Physics;
         var varied = Assert.Single(physics.Revolutes.ToArray()) with
         {
@@ -272,7 +272,7 @@ public sealed class CompiledSceneBoundaryTests
     [Fact]
     public void TheCompiledLeverHingeRoundTripsUnchanged()
     {
-        var compiled = WorkshopSceneCompiler.Compile(LeverConstruction, new(101, 206), new(7));
+        var compiled = WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, LeverConstruction, new(101, 206), new(7));
 
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(Construct(compiled))).Scene!;
 
@@ -284,7 +284,7 @@ public sealed class CompiledSceneBoundaryTests
     [Fact]
     public void AConstructionWithoutAHingeCrossesTheWireWithNoRevolutesAndItsOtherTablesIntact()
     {
-        var compiled = WorkshopSceneCompiler.Compile(Construction, new(101, 206), new(7));
+        var compiled = WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction, new(101, 206), new(7));
 
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(Construct(compiled))).Scene!;
 
@@ -357,7 +357,7 @@ public sealed class CompiledSceneBoundaryTests
     /// Motor's compiled drive is covered by MotorTests).</summary>
     private static WorkshopCompiledScene DrivenLeverScene()
     {
-        var compiled = WorkshopSceneCompiler.Compile(LeverConstruction, new(101, 206), new(7));
+        var compiled = WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, LeverConstruction, new(101, 206), new(7));
         var physics = compiled.Physics;
         var hinge = Assert.Single(physics.Revolutes.ToArray()) with
         {
@@ -395,7 +395,7 @@ public sealed class CompiledSceneBoundaryTests
 
     /// <summary>A Construct command carrying <paramref name="scene"/>, encoded with every scalar written even at its default, so a zero
     /// field (such as the continuous hinge's stiffness) has a slot to poison.</summary>
-    private static byte[] CommandWithEveryField(WorkshopCompiledScene scene)
+    private static byte[] CommandWithEveryField(ICompiledScene scene)
     {
         var builder = new FlatBufferBuilder(1024) { ForceDefaults = true };
         var installation = WorkshopWireFlatBuffers.EncodeCompiledScene(builder, scene);
@@ -464,7 +464,7 @@ public sealed class CompiledSceneBoundaryTests
     }
 
     private static WorkshopConstruction TrampolineConstruction => new(new(2), WorkshopCadenceSettings.Default(), new(
-        WorkshopInput.Generic(new PartId("trampoline"), new(1), 0, 3, 0, 0, 0, 0, 1)));
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("trampoline"), new(1), 0, 3, 0, 0, 0, 0, 1)));
 
     public enum CompliantSurfaceDefect { CollapsedFootprint, UnadmittedBody, ZeroArrivalDepth }
 

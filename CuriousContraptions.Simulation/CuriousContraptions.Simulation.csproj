@@ -37,6 +37,7 @@
     <WasmExtraFilesToDeploy Include="wwwroot/**" />
     <!-- worker.js reaches every [JSExport] entry point by name, so the trimmer keeps the whole worker assembly. -->
     <TrimmerRootAssembly Include="$(AssemblyName)" />
+    <TrimmerRootDescriptor Include="RuntimeProviders.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />

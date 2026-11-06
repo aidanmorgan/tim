@@ -10,10 +10,10 @@ public sealed class SwitchElectricalTests
     private static WorkshopConstruction Machine(float x=0f,float threshold=.8f)
     {
         return new(new(2),WorkshopCadenceSettings.Default(),new(
-            WorkshopInput.Generic(new PartId("ball"),new(1),(float)(x),3,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("switch"),new(2),0,1,0,0,0,0,1,new([new(new ParameterId("trigger_threshold"),threshold)])),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1),(float)(x),3,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"),new(2),0,1,0,0,0,0,1,new([new(new ParameterId("trigger_threshold"),threshold)])),
             PlacedParts.Battery(new(3), -4, 3, 0),
-            WorkshopInput.Generic(new PartId("powered_gate"),new(4),9,3,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"),new(4),9,3,0,0,0,0,1),
             PlacedParts.Lamp(new(5),4,2,0,0,0,0,1)),
             Connections:new(Power(3,2),Power(2,4),Signal(2,5)));
     }
@@ -27,7 +27,7 @@ public sealed class SwitchElectricalTests
     public async Task PhysicalImpactDrivesBothDomainsAndExactSaveReset()
     {
         var construction=Machine();var saved=new WorkshopSavedConstruction(construction,new(6));
-        var bytes=WorkshopSaveCodec.Encode(saved);var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
+        var bytes=WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);var loaded=WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
         Assert.Equal(saved,loaded);
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,180);
         var hit=reads.First(read=>Activation(read,2).Phase==ActivationPhase.Latched);
@@ -89,8 +89,8 @@ public sealed class SwitchElectricalTests
     {
         var construction=Machine();
         var parts=construction.Instances.Concat(new IWorkshopInstance[]{
-            WorkshopInput.Generic(new PartId("switch"),new(6),-8,1,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("ball"),new(7),-8,3,0,0,0,0,1)}).ToArray();
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"),new(6),-8,1,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(7),-8,3,0,0,0,0,1)}).ToArray();
         var links=new List<WorkshopConnection>{Power(2,6),Power(6,4),Signal(2,5)};
         if(!noSource) links.Add(Power(3,2));
         if(cycle) links.Add(Power(6,2));
@@ -116,8 +116,8 @@ public sealed class SwitchElectricalTests
     {
         var construction=Machine();
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{
-            WorkshopInput.Generic(new PartId("switch"),new(6),-8,1,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("ball"),new(7),-8,3,0,0,0,0,1)}).ToArray()),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"),new(6),-8,1,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(7),-8,3,0,0,0,0,1)}).ToArray()),
             Connections=new(Power(3,2),Power(2,6),Power(6,2),Power(6,4),Signal(2,5))};
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],100),([new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],30),
             ([new(new(3),RunControlValue.Of(ElectricalEnable.Enabled))],30));
@@ -133,25 +133,25 @@ public sealed class SwitchElectricalTests
     public void CyclicClockSelectsItsProviderWhileFiniteStorageRetainsDirectSourceAccounting()
     {
         var construction=Machine();
-        var second=WorkshopInput.Generic(new PartId("switch"),new(6),-8,1,0,0,0,0,1);
+        var second=WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"),new(6),-8,1,0,0,0,0,1);
         var clock=PlacedParts.Clock(new(7),6,1,0,0,0,0,1,1f);
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{second,clock}).ToArray()),
             Connections=new(Power(2,6),Power(6,2),Power(6,7))};
-        var network=WorkshopActivationCompiler.Compile(construction);
+        var network=WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         Assert.Equal(new GpuBodyId(6),network.Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerProvider);
         var sourced=construction with {Connections=construction.Connections.With(Power(3,2))};
-        Assert.Equal(new GpuBodyId(6),WorkshopActivationCompiler.Compile(sourced).Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerProvider);
+        Assert.Equal(new GpuBodyId(6),WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, sourced).Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerProvider);
         var battery=PlacedParts.Battery(new(8), -6, 4, 0);
         var ambiguous=sourced with {Instances=new(sourced.Instances.Concat(new IWorkshopInstance[]{battery}).ToArray()),Connections=sourced.Connections.With(Power(8,6))};
-        Assert.Equal(new GpuBodyId(6), WorkshopActivationCompiler.Compile(ambiguous).Nodes.ToArray().Single(node => node.Owner == clock.Id).PowerProvider);
-        var bumper=WorkshopInput.Generic(new PartId("bumper"),new(9),12,1,0,0,0,0,1);
+        Assert.Equal(new GpuBodyId(6), WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, ambiguous).Nodes.ToArray().Single(node => node.Owner == clock.Id).PowerProvider);
+        var bumper=WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"),new(9),12,1,0,0,0,0,1);
         var storage=ambiguous with {Instances=new(ambiguous.Instances.Concat(new IWorkshopInstance[]{bumper}).ToArray()),Connections=ambiguous.Connections.With(Power(6,9))};
         // Physical compile is isolated from activation compilation; it must reject the storage binding itself.
         storage=storage with {Instances=new(storage.Instances.Where(instance=>instance.Id!=clock.Id).ToArray()),Connections=storage.Connections.Without(clock.Id)};
-        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied,()=>WorkshopPhysicsCompiler.Compile(storage,new(1,2)));
+        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied,()=>WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, storage,new(1,2)));
         var direct=storage with {Connections=new(Power(3,9))};
-        Assert.Single(WorkshopPhysicsCompiler.Compile(direct,new(1,2)).Electrical.Bindings.ToArray());
+        Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, direct,new(1,2)).Electrical.Bindings.ToArray());
         var indirect=storage with {Connections=new(Power(3,2),Power(2,9))};
-        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied,()=>WorkshopPhysicsCompiler.Compile(indirect,new(1,2)));
+        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied,()=>WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, indirect,new(1,2)));
     }
 }

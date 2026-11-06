@@ -36,17 +36,17 @@ public sealed class LatchSupplyFixtureTests
         {
             PlacedParts.Battery(new(Battery), -8, 3, 4, enabled: battery),
             PlacedParts.Latch(new(Latch), -4, 3, 4, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("powered_gate"), new(Gate), (float)(GateX), (float)(GateY), 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half))),
-            WorkshopInput.Generic(new PartId("switch"), new(SwitchA), 0, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("ball"), new(BallA), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("switch"), new(SwitchB), 0, 1, -6, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(Gate), (float)(GateX), (float)(GateY), 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half))),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(SwitchA), 0, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(BallA), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(SwitchB), 0, 1, -6, 0, 0, 0, 1),
             PlacedParts.Lamp(new(Lamp), -4, 6, 4, 0, 0, 0, 1),
         };
-        if (ballBHeight is { } height) parts.Add(WorkshopInput.Generic(new PartId("ball"), new(BallB), 0, (float)(height), -6, 0, 0, 0, 1));
+        if (ballBHeight is { } height) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(BallB), 0, (float)(height), -6, 0, 0, 0, 1));
         if (payload)
         {
             const double lx = -.45, ly = -.27;
-            parts.Add(WorkshopInput.Generic(new PartId("ball"), new(Payload),
+            parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(Payload),
                 (float)(GateX + Tilt.Cos * lx - Tilt.Sin * ly), (float)(GateY + Tilt.Sin * lx + Tilt.Cos * ly), 0, 0, 0, 0, 1));
         }
         return new(new(2), WorkshopCadenceSettings.Default(), new(parts.ToArray()), Connections: new(FiveConnections));
@@ -130,7 +130,7 @@ public sealed class LatchSupplyFixtureTests
     /// <summary>CAT-051 Q3 (C-Gate): with nothing in the blade's way it never reads Blocked: not at the closed or open stop, not in
     /// powered travel, not in the spring return, and not at a mid-stroke apex where its speed passes through zero.</summary>
     private static void AssertNeverBlocked(List<WorkshopRead> reads) =>
-        Assert.All(reads, read => Assert.False(Drive(read).Blocked, $"nothing obstructs the blade, tick {read.Tick.Value}: {Drive(read)}"));
+        Assert.All(reads, read => Assert.False(Drive(read).IsBlocked(), $"nothing obstructs the blade, tick {read.Tick.Value}: {Drive(read)}"));
 
     private static int ClosedBy(List<WorkshopRead> reads, int from)
     {
@@ -308,13 +308,13 @@ public sealed class LatchSupplyFixtureTests
         // Fact 14 "State Blocked" (C-Gate, CAT-051 Q3): from the first tick at the envelope's rest speed the blade reads Blocked on
         // every tick, although a constant ~1.1e-5 m/s commit-point residual remains (game-grade rest: the pose holds; no rest
         // threshold zeroes velocity). The ball is the contact that holds it.
-        var resting = reads.FindIndex(landed, read => MathF.Abs(Drive(read).Speed) < ActuatorDriveRead.RestSpeed);
+        var resting = reads.FindIndex(landed, read => MathF.Abs(Drive(read).Speed) < ActuatorObservations.RestSpeed);
         Assert.True(resting >= landed, "the blade comes to rest on the ball");
-        Assert.All(reads.Take(resting), read => Assert.False(Drive(read).Blocked, $"not blocked before rest, tick {read.Tick.Value}"));
+        Assert.All(reads.Take(resting), read => Assert.False(Drive(read).IsBlocked(), $"not blocked before rest, tick {read.Tick.Value}"));
         Assert.All(reads.Skip(resting), read =>
         {
             Assert.True(Drive(read).MovingContact, $"the ball touches the resting blade, tick {read.Tick.Value}");
-            Assert.True(Drive(read).Blocked, $"fact 14: Blocked on every tick after rest, tick {read.Tick.Value}: {Drive(read)}");
+            Assert.True(Drive(read).IsBlocked(), $"fact 14: Blocked on every tick after rest, tick {read.Tick.Value}: {Drive(read)}");
         });
         Assert.True(MathF.Abs(final.Coordinate - Drive(reads[^61]).Coordinate) <= 1e-5f, "the blade holds its opening");
         Assert.True(BladePenetration(rest, final.Coordinate) <= 5e-4f, $"resting blade penetration {BladePenetration(rest, final.Coordinate)}");
@@ -347,7 +347,7 @@ public sealed class LatchSupplyFixtureTests
     {
         var construction = Machine(9, payload: true);
         var saved = new WorkshopSavedConstruction(construction, new(Payload + 1));
-        var bytes = WorkshopSaveCodec.Encode(saved); var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved); var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
         Assert.Equal(FiveConnections, loaded.Construction.Connections.ToArray());
         var original = await Run(construction, 300); var replay = await Run(loaded.Construction, 300);

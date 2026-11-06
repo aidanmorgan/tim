@@ -11,7 +11,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void PartRegistry_DiscoversPoweredGateDefinitionAndConfiguresInstance()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(new PartId("powered_gate")));
@@ -108,9 +108,9 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void CanonicalColliders_MatchSceneExtractedColliders()
     {
-        var canonical = DeclaredPhysics.Colliders(new PartId("powered_gate"));
+        var canonical = DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, new PartId("powered_gate"));
         Assert.Equal(8, canonical.Count);
-        Assert.Equal(canonical, DeclaredPhysics.Colliders(new PartId("powered_gate")));
+        Assert.Equal(canonical, DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, new PartId("powered_gate")));
     }
 
     [Fact]
@@ -130,35 +130,35 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void Connections_AcceptsElectricalAndRejectsActivation()
     {
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 2, 0, 0);
-        var switchPart = WorkshopInput.Generic(new PartId("switch"), new(3), -2, 0, 0, 0, 0, 0, 1);
+        var switchPart = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(3), -2, 0, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(gate, battery, switchPart);
 
         // Valid electrical connection from battery Supply to gate PowerIn
         var validConn = new WorkshopConnection(battery.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
         var validConnections = new WorkshopConnections(validConn);
-        validConnections.Validate(instances);
+        validConnections.Validate(RuntimeTestServices.Core.Supply, instances);
 
         // Invalid: Activation connection to gate PowerIn must be rejected
         var invalidConn = new WorkshopConnection(switchPart.Id, PortId.ActivationOut, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Activation);
         var invalidConnections = new WorkshopConnections(invalidConn);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => invalidConnections.Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => invalidConnections.Validate(RuntimeTestServices.Core.Supply, instances));
     }
 
     [Fact]
     public void PhysicsCompiler_CompilesGateWithDynamicBladeAndPrismaticJoint()
     {
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 0, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new(2), 0, 3, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 0, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(2), 0, 3, 0, 0, 0, 0, 1);
 
         var construction = new WorkshopConstruction(
             new(1),
             WorkshopCadenceSettings.Default(),
             new([gate, ball]));
 
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 1));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 1));
 
         // Bodies: plane + ball + gate frame + gate blade = 4 bodies
         Assert.Equal(4, scene.Bodies.Length);
@@ -197,7 +197,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
         new(source, PortId.Supply, target, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopGenericInstance Gate(ulong id, double z = 0) =>
-        WorkshopInput.Generic(new PartId("powered_gate"), new(id), 0, 0, (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(id), 0, 0, (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Battery(ulong id, ElectricalEnable enabled, double z = 0) =>
         PlacedParts.Battery(new(id), 2, 0, (float)(z), enabled: enabled);
 
@@ -209,14 +209,14 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     public void DeclaredDirectGraphFollowsOnlyItsSource(ElectricalEnable authored)
     {
         var gate=Gate(1); var battery=Battery(2,authored);
-        var scene=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(gate,battery),
+        var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(1),WorkshopCadenceSettings.Default(),new(gate,battery),
             Connections:new(Supply(battery.Id,gate.Id))),new(1,1));
         Assert.Equal(2,scene.SupplyGraph.Nodes.Length);
         Assert.Equal(battery.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Source).Owner);
         Assert.Equal(gate.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Consumer).Owner);
         bool NoContact(GpuBodyId owner)=>throw new InvalidOperationException("Direct supply consulted a contact.");
-        Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph,new([ElectricalEnable.Enabled]),NoContact, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
-        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph,new([ElectricalEnable.Disabled]),NoContact, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
+        Assert.True(TickControlComposition.Compose(scene.SupplyGraph,new([ElectricalEnable.Enabled]),NoContact, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
+        Assert.False(TickControlComposition.Compose(scene.SupplyGraph,new([ElectricalEnable.Disabled]),NoContact, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
         Assert.Empty(scene.Electrical.Bindings.ToArray());
         Assert.Equal(0f,scene.Bodies.ToArray().Single(body=>body.Id==scene.Prismatics.ToArray().Single(joint => joint.BodyA == gate.Id).BodyB).LinearDrag.Value);
     }
@@ -226,10 +226,10 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     {
         var gate1=Gate(1,-3);var gate2=Gate(2,3);
         var battery1=Battery(3,ElectricalEnable.Enabled,-3);var battery2=Battery(4,ElectricalEnable.Enabled,3);
-        var scene=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(gate1,gate2,battery1,battery2),
+        var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(1),WorkshopCadenceSettings.Default(),new(gate1,gate2,battery1,battery2),
             Connections:new(Supply(battery1.Id,gate1.Id),Supply(battery2.Id,gate2.Id))),new(1,1));
         var enables=scene.Electrical.Sources.ToArray().Select(source=>source.Owner==battery1.Id?ElectricalEnable.Disabled:ElectricalEnable.Enabled).ToArray();
-        var closed=PhysicsTickInputs.Compose(scene.SupplyGraph,new(enables),_=>true, PlacedParts.InitialElectrical(scene)).SupplyClosed;
+        var closed=TickControlComposition.Compose(scene.SupplyGraph,new(enables),_=>true, PlacedParts.InitialElectrical(scene)).SupplyClosed;
         Assert.False(closed[Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate1.Id)]);
         Assert.True(closed[Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate2.Id)]);
     }
@@ -243,15 +243,15 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var plate=PlacedParts.Plate(new(3),-2,0,0,.5f);
         var construction=new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),new(gate,battery,plate),
             Connections:new(Supply(battery.Id,plate.Id),Supply(plate.Id,gate.Id)));
-        var scene=WorkshopPhysicsCompiler.Compile(construction,new(1,1));
+        var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction,new(1,1));
         Assert.Equal(plate.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Contact).Owner);
-        bool Closed(ElectricalEnable enable,bool contact)=>PhysicsTickInputs.Compose(scene.SupplyGraph,
+        bool Closed(ElectricalEnable enable,bool contact)=>TickControlComposition.Compose(scene.SupplyGraph,
             new([enable]),owner=>owner==plate.Id?contact:throw new InvalidOperationException(), PlacedParts.InitialElectrical(scene)).SupplyClosed[0];
         Assert.True(Closed(ElectricalEnable.Enabled,true));Assert.False(Closed(ElectricalEnable.Enabled,false));Assert.False(Closed(ElectricalEnable.Disabled,true));
-        var unsupplied=WorkshopPhysicsCompiler.Compile(construction with {Connections=new(Supply(plate.Id,gate.Id))},new(1,1));
-        Assert.False(PhysicsTickInputs.Compose(unsupplied.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true, PlacedParts.InitialElectrical(unsupplied)).SupplyClosed[0]);
-        var ungated=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(battery,plate),Connections:new(Supply(battery.Id,plate.Id))),new(1,1));
-        Assert.Empty(PhysicsTickInputs.Compose(ungated.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true, PlacedParts.InitialElectrical(ungated)).SupplyClosed);
+        var unsupplied=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction with {Connections=new(Supply(plate.Id,gate.Id))},new(1,1));
+        Assert.False(TickControlComposition.Compose(unsupplied.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true, PlacedParts.InitialElectrical(unsupplied)).SupplyClosed[0]);
+        var ungated=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(1),WorkshopCadenceSettings.Default(),new(battery,plate),Connections:new(Supply(battery.Id,plate.Id))),new(1,1));
+        Assert.Empty(TickControlComposition.Compose(ungated.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true, PlacedParts.InitialElectrical(ungated)).SupplyClosed);
         Assert.Equal(plate.Id,Assert.Single(ungated.ContactLoadSensors.ToArray()).Frame);
     }
 
@@ -259,7 +259,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     public void SceneAdmissionRejectsMalformedGraphNodesAndEdges()
     {
         var gate=Gate(1);var battery=Battery(2,ElectricalEnable.Enabled);
-        var scene=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(gate,battery)),new(1,1));
+        var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(1),WorkshopCadenceSettings.Default(),new(gate,battery)),new(1,1));
         CompiledSupplyGraph Admit(SupplyNodeDeclaration[] nodes,params SupplyEdge[] edges)=>new(nodes,edges,
             scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives);
         var source=new SupplyNodeDeclaration(battery.Id,SupplyNodeKind.Source,scene.Electrical.Sources[0].Id);
@@ -281,12 +281,12 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void WorkbenchCapacity_ValidatesPoweredGateFootprint()
     {
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(1), 0, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(1), 0, 0, 0, 0, 0, 0, 1);
         IWorkshopInstance[] instances = [gate];
-        new WorkshopInstances([.. instances]).Validate();
+        new WorkshopInstances([.. instances]).Validate(RuntimeTestServices.Bundle);
 
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
-        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+        var world = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(gate)), new(1, 2)).World;
         Assert.Equal(2 + 1, world.Bodies);
         Assert.Equal(1, world.Dynamic);

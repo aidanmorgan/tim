@@ -38,7 +38,7 @@ public static class WorkshopClockWire
             (NativeClockProfile)BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != NativeClockProfile.IsolatedWitnessedPerformanceNow ||
             (WorkshopRuntimeRole)BinaryPrimitives.ReadUInt32LittleEndian(data[60..]) != WorkshopRuntimeRole.Simulation)
             throw new ArgumentException("Unsupported clock bootstrap.");
-        var peer = new WorkshopClockPeer(RuntimeSessionId.Read(data[8..24]),
+        var peer = new WorkshopClockPeer(RuntimeSessionCodec.Read(data[8..24]),
             new(BinaryPrimitives.ReadUInt64LittleEndian(data[24..])),
             new(BinaryPrimitives.ReadInt64LittleEndian(data[32..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(data[40..])),
@@ -105,7 +105,7 @@ public static class WorkshopClockWire
     /// The requesters' one reply path (Browser and Animation): decodes the encoded reply against the mapping's own peer
     /// and receives it. A reply this decoder rejects returns null after exactly one counted, typed rejection.
     /// </summary>
-    public static ClockObservation? ReceiveEncoded(this WorkshopClockMapping mapping, ReadOnlySpan<byte> bytes, MonotonicNanoseconds received)
+    public static ClockObservation? ReceiveEncoded(this IClockMapping mapping, ReadOnlySpan<byte> bytes, MonotonicNanoseconds received)
     {
         ArgumentNullException.ThrowIfNull(mapping);
         ClockReply reply;

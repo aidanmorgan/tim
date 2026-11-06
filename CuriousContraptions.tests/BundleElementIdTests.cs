@@ -21,7 +21,7 @@ public sealed class BundleElementIdTests
         new(new(1), WorkshopCadenceSettings.Default(), new(instances));
 
     private static WorkshopSavedConstruction RampSave() =>
-        new(Construction(WorkshopInput.Generic(new PartId("ramp"), new(1), 0, 1, 0, 0, 0, 0, 1)), new(2));
+        new(Construction(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(1), 0, 1, 0, 0, 0, 0, 1)), new(2));
 
     /// <summary>A construction naming <paramref name="element"/>, encoded without domain validation (a tampered save or message).</summary>
     private static WorkshopConstruction Naming(string element) =>
@@ -32,7 +32,7 @@ public sealed class BundleElementIdTests
 
     private static string[] SavedElementIds(byte[] save)
     {
-        var construction = WorkshopSaveCodec.Open(save).Construction!.Value;
+        var construction = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, save).Construction!.Value;
         return Enumerable.Range(0, construction.InstancesLength).Select(i => construction.Instances(i)!.Value.PartId).ToArray();
     }
 
@@ -48,17 +48,17 @@ public sealed class BundleElementIdTests
     [Fact]
     public void ASaveCarriesEachInstancesBundleElementIdString()
     {
-        var save = new WorkshopSavedConstruction(Construction(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("ramp"), new(2), 0, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("funnel"), new(3), 3, 1, 0, 0, 0, 0, 1)), new(4));
-        var bytes = WorkshopSaveCodec.Encode(save);
+        var save = new WorkshopSavedConstruction(Construction(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(2), 0, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), new(3), 3, 1, 0, 0, 0, 0, 1)), new(4));
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
         Assert.Equal(["ball", "ramp", "funnel"], SavedElementIds(bytes));
-        Assert.Equal(save.Construction.Instances, WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances);
+        Assert.Equal(save.Construction.Instances, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes).Construction.Instances);
     }
 
     [Fact]
     public void AWorkerMessageCarriesCompiledOwnersAndBodies()
     {
-        var construction = Construction(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("pipe_bend_90"), new(2), 3, 1, 0, 0, 0, 0, 1));
+        var construction = Construction(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_90"), new(2), 3, 1, 0, 0, 0, 0, 1));
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(Construct(construction));
         var record = CommandRoot(bytes).Scene!.Value;
         Assert.Equal(2, record.OwnersLength);
@@ -75,11 +75,11 @@ public sealed class BundleElementIdTests
     [Fact]
     public void ASaveIsValidatedAgainstTheLoadedBundle()
     {
-        var bytes = WorkshopSaveCodec.Encode(RampSave());
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, RampSave());
         var withoutRamp = SaveFixture.Elements.Where(id => id != new PartId("ramp")).ToHashSet();
-        var refusal = SaveFixture.Refused(WorkshopSaveRejection.UnknownElement, () => WorkshopSaveCodec.Decode(withoutRamp, bytes));
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.UnknownElement, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, withoutRamp, bytes));
         Assert.Contains("'ramp'", refusal.Message, StringComparison.Ordinal);
-        Assert.Equal(RampSave().Construction.Instances, WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances);
+        Assert.Equal(RampSave().Construction.Instances, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes).Construction.Instances);
     }
 
     /// <summary>The loaded set is exactly the bundle's deliverable elements: every one of them is a known element at the worker's
@@ -115,7 +115,7 @@ public sealed class BundleElementIdTests
     public void ASaveNamingAnUnknownElementIsRefusedNamingIt(string element)
     {
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.UnknownElement,
-            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Forged(Naming(element), 2)));
+            () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, SaveFixture.Forged(Naming(element), 2)));
         Assert.Contains($"'{element}'", refusal.Message, StringComparison.Ordinal);
         Assert.StartsWith("This save cannot be loaded: ", refusal.Message, StringComparison.Ordinal);
     }
@@ -124,7 +124,7 @@ public sealed class BundleElementIdTests
     public void AStoredSaveNamingAnUnknownElementIsRefusedNamingIt()
     {
         var stored = Convert.ToBase64String(SaveFixture.Forged(Naming("kite"), 2));
-        var refusal = SaveFixture.Refused(WorkshopSaveRejection.UnknownElement, () => WorkshopSaveCodec.DecodeStored(SaveFixture.Elements, stored));
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.UnknownElement, () => WorkshopSaveCodec.DecodeStored(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, stored));
         Assert.Contains("'kite'", refusal.Message, StringComparison.Ordinal);
     }
 
@@ -134,7 +134,7 @@ public sealed class BundleElementIdTests
     public void MainCompilationRefusesAnUnknownElementNamingIt(string element)
     {
         var fault = Assert.Throws<WorkshopEditRejectedException>(() =>
-            WorkshopSceneCompiler.Compile(Naming(element), new(1, 2), new(1)));
+            WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Naming(element), new(1, 2), new(1)));
         Assert.Equal(WorkshopEditRejection.UnsupportedPart, fault.Reason);
         Assert.Contains($"'{element}'", fault.Message, StringComparison.Ordinal);
     }

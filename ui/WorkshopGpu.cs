@@ -97,7 +97,7 @@ public partial class Workshop
         try
         {
             if (_selected.Locked) throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed puzzle instances cannot be edited.");
-            var proposed = World.Construction.WithInstance(World.CaptureInstance(_selected.PartId,
+            var proposed = World.Construction.WithInstance(_bundle, World.CaptureInstance(_selected.PartId,
                 _selected.AuthoredId, _selected.Position, _selected.Quaternion,
                 _selected.Dimensions));
             // Live pointer motion is an input preview, never retained canonical construction.

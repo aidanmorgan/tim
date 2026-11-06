@@ -23,7 +23,7 @@ public sealed class WorkshopGoalWake
     private ulong? _wakeTick;
     private bool _now;
 
-    public WorkshopGoalWake(WorkshopGoal goal, PhysicsSceneDeclaration scene)
+    public WorkshopGoalWake(WorkshopGoal goal, IPhysicsSceneDeclaration scene)
     {
         ArgumentNullException.ThrowIfNull(scene);
         goal.Validate();

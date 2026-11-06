@@ -24,28 +24,28 @@ public sealed class LaunchLessonSolveTests
         // cat-062b: Precise; passive board −20° about Z; charged/zero/away board under the ball, −12.82° about Z, away turned
         // world-Y 180°.
         const double Qz = -.11166252195835114, Qw = .9937461614608765;
-        WorkshopConstruction Lesson(string id, double precision) => PuzzleCatalogue.Create(new PuzzleId(id), new(2),
+        WorkshopConstruction Lesson(string id, double precision) => PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId(id), new(2),
             WorkshopCadenceSettings.Default(), new(1), new((float)precision));
         return route switch
         {
-            Route.SpringPassive => Lesson("spring_forward", 1).WithInstance(PlacedParts.Springboard(Player, -3, .8f, 0,
+            Route.SpringPassive => Lesson("spring_forward", 1).WithInstance(RuntimeTestServices.Bundle, PlacedParts.Springboard(Player, -3, .8f, 0,
                 0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18)))),
-            Route.SpringCharged => Lesson("spring_forward", 1).WithInstance(PlacedParts.Springboard(Player,
+            Route.SpringCharged => Lesson("spring_forward", 1).WithInstance(RuntimeTestServices.Bundle, PlacedParts.Springboard(Player,
                 -3.315333366394043f, 3.1000001430511475f, 0, 0, 0, (float)(Qz), (float)(Qw), compression: .2f)),
-            Route.SpringZero => Lesson("spring_forward", 1).WithInstance(PlacedParts.Springboard(Player,
+            Route.SpringZero => Lesson("spring_forward", 1).WithInstance(RuntimeTestServices.Bundle, PlacedParts.Springboard(Player,
                 -3.315333366394043f, 3.1000001430511475f, 0, 0, 0, (float)(Qz), (float)(Qw), compression: 0f)),
-            Route.SpringAway => Lesson("spring_forward", 1).WithInstance(PlacedParts.Springboard(Player,
+            Route.SpringAway => Lesson("spring_forward", 1).WithInstance(RuntimeTestServices.Bundle, PlacedParts.Springboard(Player,
                 -3.315333366394043f, 3.1000001430511475f, 0, -.11166255176067352f, .9937461614608765f, 7.4505797087454084e-9f,
                 2.980232594040899e-8f, compression: .2f)),
-            Route.SidekickPaid => Lesson("bumper_sidekick", .45).WithInstance(PlacedParts.Bumper(Player, -3.35f, 1.5f, 0)),
-            Route.SidekickUnpaid => Lesson("bumper_sidekick", .45).WithInstance(PlacedParts.Bumper(Player, -3.35f, 1.5f, 0, strength: 0f)),
-            Route.DepthPaid => Lesson("bumper_depth", .45).WithInstance(PlacedParts.Bumper(Player, 0, 1.5f, 3.35f)),
-            Route.DepthMiss => Lesson("bumper_depth", .45).WithInstance(PlacedParts.Bumper(Player, 0, 1.5f, 0)),
-            Route.WallPaid => Lesson("wall_and_bumper", .45).WithInstance(PlacedParts.Bumper(Player, -3.35f, 1.5f, 0))
-                .WithInstance(WorkshopInput.Generic(new PartId("wall"), new(4), -1.75f, 4, 0, 0, 0, 0, 1,
+            Route.SidekickPaid => Lesson("bumper_sidekick", .45).WithInstance(RuntimeTestServices.Bundle, PlacedParts.Bumper(Player, -3.35f, 1.5f, 0)),
+            Route.SidekickUnpaid => Lesson("bumper_sidekick", .45).WithInstance(RuntimeTestServices.Bundle, PlacedParts.Bumper(Player, -3.35f, 1.5f, 0, strength: 0f)),
+            Route.DepthPaid => Lesson("bumper_depth", .45).WithInstance(RuntimeTestServices.Bundle, PlacedParts.Bumper(Player, 0, 1.5f, 3.35f)),
+            Route.DepthMiss => Lesson("bumper_depth", .45).WithInstance(RuntimeTestServices.Bundle, PlacedParts.Bumper(Player, 0, 1.5f, 0)),
+            Route.WallPaid => Lesson("wall_and_bumper", .45).WithInstance(RuntimeTestServices.Bundle, PlacedParts.Bumper(Player, -3.35f, 1.5f, 0))
+                .WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(4), -1.75f, 4, 0, 0, 0, 0, 1,
                     new([new(new("width"), .4f), new(new("height"), 6f), new(new("thickness"), 1.5f)]))),
-            Route.WallMiss => Lesson("wall_and_bumper", .45).WithInstance(PlacedParts.Bumper(Player, -3.35f, 1.5f, 0)),
-            Route.ReadyReceiver => Lesson("ready_to_rebound", .45).WithInstance(WorkshopInput.Generic(new PartId("basket"), Player, 1.8f, 1.3f, 0, 0, 0, 0, 1)),
+            Route.WallMiss => Lesson("wall_and_bumper", .45).WithInstance(RuntimeTestServices.Bundle, PlacedParts.Bumper(Player, -3.35f, 1.5f, 0)),
+            Route.ReadyReceiver => Lesson("ready_to_rebound", .45).WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), Player, 1.8f, 1.3f, 0, 0, 0, 0, 1)),
             Route.ReadyMissingReceiver => Lesson("ready_to_rebound", .45),
             _ => throw new ArgumentOutOfRangeException(nameof(route))
         };
@@ -85,14 +85,14 @@ public sealed class LaunchLessonSolveTests
     public async Task AuthoredLessonSolvesAndOneMissingCausePreventsTheGoal(string lesson, SimulationCadence cadence)
     {
         var settings = WorkshopCadenceSettings.Default() with { Simulation = cadence };
-        var positive = PuzzleCatalogue.CreateSolution(new(lesson), new(2), settings, new(1), new(.45f));
+        var positive = PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(lesson), new(2), settings, new(1), new(.45f));
         // One connection or one granted part is necessary; fixtures and all other inputs stay.
         var control = positive.Connections.Count > 0
             ? positive with { Connections = positive.Connections.Without(positive.Connections[0]) }
             : positive.WithoutInstance((new PuzzleId(lesson) == new PuzzleId("wall_and_bumper")
                 ? positive.Instances.Single(instance => instance.PartId == new PartId("wall"))
                 : positive.Instances.First(instance => !instance.Locked)).Id);
-        control.Validate();
+        control.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         var limit = 10 * (int)settings.SimulationRate.Numerator;
         foreach (var solves in new[] { true, false })
         {
@@ -143,7 +143,7 @@ public sealed class LaunchLessonSolveTests
             if (!solves) continue;
             await harness.Require(WorkshopCommandKind.Save);
             var saved = new WorkshopSavedConstruction(bench, new(bench.Instances.Max(row => row.Id.Value) + 1));
-            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+            var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
             Assert.Equal(saved, loaded);
             await using var fresh = await WorkshopIntegrationHarness.Running(loaded.Construction);
             var replaySolved = false;
@@ -195,8 +195,8 @@ public sealed class LaunchLessonSolveTests
             ? new[] { 0f, .45f, 1f } : new[] { initial.Puzzle.Precision.Value };
         foreach (var precision in precisions)
         {
-            var bench = PuzzleCatalogue.WithPrecision(initial, new(precision));
-            bench.Validate();
+            var bench = PuzzleCatalogue.WithPrecision(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, initial, new(precision));
+            bench.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
             var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
             Assert.True(solves == Solved(bench, run), $"{route} at precision {precision}: expected solved={solves}");
             NoFixedCapacityTests.AssertSameState(built, reset, "Reset");

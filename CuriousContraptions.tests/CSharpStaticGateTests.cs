@@ -107,7 +107,7 @@ public sealed class CSharpStaticGateTests
     private static readonly Dictionary<string, string> VendoredFiles = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         [".gdignore"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        ["CuriousContraptions.FlatBuffers.csproj"] = "f481eca82f20a3b9794d5da8d24ab3075b59f66a39d886d9f10eb1de6c29ae18",
+        ["CuriousContraptions.FlatBuffers.csproj"] = "b29ee7e28eabe73f1d596eb1ef5bf2f96cc1ac665ddc80b5a0a21e1ab4aa8294",
         ["Directory.Build.props"] = "fbe5b5fc68e5fdb2444d929055a2e193231f88ee039e96d06b2a0aeec8173b92",
     }.Concat(VendoredFlatBuffersIdentityTests.Pinned).ToDictionary(StringComparer.Ordinal);
 
@@ -153,7 +153,7 @@ public sealed class CSharpStaticGateTests
         "dotnet_diagnostic.IDE0059.severity = warning",
         "dotnet_diagnostic.IDE0060.severity = warning",
         "[engine/gpu/WorkshopSimulation.cs]",
-        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Gpu.WorkshopSimulation.Initialize|M:CuriousContraptions.Gpu.WorkshopSimulation.Construct(CuriousContraptions.Gpu.WorkshopCompiledScene)|M:CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(System.Boolean)|M:CuriousContraptions.Gpu.WorkshopSimulation.Reset",
+        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Gpu.WorkshopSimulation.Initialize|M:CuriousContraptions.Gpu.WorkshopSimulation.Construct(CuriousContraptions.Gpu.ICompiledScene)|M:CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(System.Boolean)|M:CuriousContraptions.Gpu.WorkshopSimulation.Reset",
         "[engine/MachineWorld.Gpu.cs]",
         "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.MachineWorld.PresentWorkshopRead|M:CuriousContraptions.MachineWorld.DisposeWorkshop",
         "[CuriousContraptions.Simulation/Program.cs]",

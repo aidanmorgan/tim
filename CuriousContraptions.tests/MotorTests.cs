@@ -58,7 +58,7 @@ public sealed class MotorTests
         Quaternion? rotation = null)
     {
         var q = rotation ?? Quaternion.Identity;
-        return WorkshopInput.Generic(Motor, new(id), MotorAt.X, MotorAt.Y, MotorAt.Z, q.X, q.Y, q.Z, q.W,
+        return WorkshopInput.Generic(RuntimeTestServices.Bundle, Motor, new(id), MotorAt.X, MotorAt.Y, MotorAt.Z, q.X, q.Y, q.Z, q.W,
             new([new(new("speed"), speed), new(new("torque"), torque)]));
     }
 
@@ -147,7 +147,7 @@ public sealed class MotorTests
     }
 
     private static async Task<(WorkshopIntegrationHarness Harness, Probe Probe)> Start(WorkshopConstruction construction, GpuBodyId motor,
-        Quaternion? rotation = null, Func<WorkshopCompiledScene, WorkshopCompiledScene>? fixture = null)
+        Quaternion? rotation = null, Func<ICompiledScene, WorkshopCompiledScene>? fixture = null)
     {
         WorkshopIntegrationHarness harness;
         if (fixture is null) harness = await WorkshopIntegrationHarness.Running(construction);
@@ -168,7 +168,7 @@ public sealed class MotorTests
     /// <summary>The compiled scene with load spans, joints or an undriven slider appended: a test fixture for a load or slot the Motor has
     /// no socket for (its Drive socket is 11.1b). Each appended row takes fresh identities above the scene's own (a span two: its own and
     /// its route's).</summary>
-    private static WorkshopCompiledScene Rebuilt(WorkshopCompiledScene compiled, IReadOnlyList<TensileSpanDeclaration> spans,
+    private static WorkshopCompiledScene Rebuilt(ICompiledScene compiled, IReadOnlyList<TensileSpanDeclaration> spans,
         IReadOnlyList<RevoluteConstraintDeclaration> revolutes, IReadOnlyList<PrismaticConstraintDeclaration> prismatics)
     {
         var physics = compiled.Physics;
@@ -184,11 +184,11 @@ public sealed class MotorTests
             compiled.Activation, compiled.Presentation, compiled.Owners, compiled.RunControls);
     }
 
-    private static Func<WorkshopCompiledScene, WorkshopCompiledScene> WithSpans(
-        Func<PhysicsSceneDeclaration, IReadOnlyList<TensileSpanDeclaration>> spans) => compiled => Rebuilt(compiled, spans(compiled.Physics), [], []);
+    private static Func<ICompiledScene, WorkshopCompiledScene> WithSpans(
+        Func<IPhysicsSceneDeclaration, IReadOnlyList<TensileSpanDeclaration>> spans) => compiled => Rebuilt(compiled, spans(compiled.Physics), [], []);
 
     /// <summary>One complete single-span route with fresh span and route identities.</summary>
-    private static TensileSpanDeclaration Span(PhysicsSceneDeclaration physics, GpuBodyId a, Vector3 localA, GpuBodyId b, Vector3 localB,
+    private static TensileSpanDeclaration Span(IPhysicsSceneDeclaration physics, GpuBodyId a, Vector3 localA, GpuBodyId b, Vector3 localB,
         float length) =>
         new(new(physics.NextIdentity), new(physics.NextIdentity + 1), 0, a, localA, b, localB, length, true);
 
@@ -316,10 +316,10 @@ public sealed class MotorTests
     public void AnActivationWireIntoThePowerInputIsRefused()
     {
         var motor = MotorPart();
-        var button = WorkshopInput.Generic(new PartId("switch"), new(3), -3, 4, 0, 0, 0, 0, 1);
+        var button = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(3), -3, 4, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(motor, button);
         var wire = new WorkshopConnection(button.Id, PortId.ActivationOut, motor.Id, PortId.PowerIn, WorkshopConnectionDomain.Activation);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(wire).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(wire).Validate(RuntimeTestServices.Core.Supply, instances));
     }
 
     // Supply cut mid-run (owner, 3 November 2026: the rotor spins down under bearing friction). After 0.5 s at ω_t the battery is
@@ -476,7 +476,7 @@ public sealed class MotorTests
         var changed = await harness.Advance(30);
         Assert.All(changed, read => Assert.Equal(12f, read.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget).Scalar));
 
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new(harness.Construction, new(9)))).Construction;
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(harness.Construction, new(9)))).Construction;
         Assert.Equal(construction, loaded);
         Assert.Equal(DefaultSpeed, Assert.IsType<WorkshopGenericInstance>(loaded.Instances[0]).Parameters[new("speed")]);
 
@@ -499,7 +499,7 @@ public sealed class MotorTests
         var motor = MotorPart();
         var supply = PlacedParts.Battery(new(2), 3, 4, 0);
         var input = PlacedParts.Battery(new(3), 6, 4, 0, enabled: inputEnabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
-        var gate = WorkshopInput.Generic(new PartId("electrical_or"), new(4), 9, 4, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("electrical_or"), new(4), 9, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(motor, supply, input, gate))
         {
             Connections = new(
@@ -539,12 +539,12 @@ public sealed class MotorTests
     {
         var rim = MotorAt + RotorCentre + Rim;
         var origin = rim - new Vector3(0f, HangLength, 0f) - WeightTie;
-        var weight = WorkshopInput.Generic(new PartId("weight"), new(3), origin.X, origin.Y, origin.Z, 0, 0, 0, 1,
+        var weight = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("weight"), new(3), origin.X, origin.Y, origin.Z, 0, 0, 0, 1,
             new([new(new("mass"), WeightMass)]));
         return (Supplied(motor, wired: supplied, other: weight), weight);
     }
 
-    private static Func<WorkshopCompiledScene, WorkshopCompiledScene> HangSpan(WorkshopConstruction construction, GpuBodyId motor,
+    private static Func<ICompiledScene, WorkshopCompiledScene> HangSpan(WorkshopConstruction construction, GpuBodyId motor,
         GpuBodyId weight) => WithSpans(physics => [Span(physics, Rotor(construction, motor), Rim, weight, WeightTie, HangLength)]);
 
     // Speed 0 on an unloaded shaft (the rope-loaded brake is ASuppliedMotorAtSpeedZeroHoldsItsLoadedShaftStill): a supplied Motor at
@@ -837,7 +837,7 @@ public sealed class MotorTests
         var motor = MotorPart(speed: 12f, torque: 40f, rotation: rotation);
         var construction = Supplied(motor);
 
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new(construction, new(10))));
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(10))));
 
         Assert.Equal(construction.Instances, decoded.Construction.Instances);
         Assert.Equal(construction.Connections, decoded.Construction.Connections);
@@ -863,7 +863,7 @@ public sealed class MotorTests
     {
         var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2f);
         var motor = MotorPart(rotation: rotation);
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(3), -4, 4, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(3), -4, 4, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 4, 0);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(motor, battery, gate))
             { Connections = new(Power(battery.Id, motorWired ? motor.Id : gate.Id)) };
@@ -894,9 +894,9 @@ public sealed class MotorTests
     public async Task InAMixedSceneEachLampReadsItsOwnDrivenSlotAndAnUndrivenHingeHasItsOwnRow()
     {
         var motor = MotorPart();
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(3), -4, 4, 0, 0, 0, 0, 1);
-        var lever = WorkshopInput.Generic(new PartId("impact_lever"), new(4), -10, 4, 0, 0, 0, 0, 1);
-        var weight = WorkshopInput.Generic(new PartId("weight"), new(5), -3, 4, 4, 0, 0, 0, 1, new([new(new("mass"), 1f)]));
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(3), -4, 4, 0, 0, 0, 0, 1);
+        var lever = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("impact_lever"), new(4), -10, 4, 0, 0, 0, 0, 1);
+        var weight = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("weight"), new(5), -3, 4, 4, 0, 0, 0, 1, new([new(new("mass"), 1f)]));
         var battery = PlacedParts.Battery(new(2), 3, 4, 0);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(motor, battery, gate, lever, weight))
             { Connections = new(Power(battery.Id, motor.Id)) };
@@ -1020,7 +1020,7 @@ public sealed class MotorTests
     {
         var motor = MotorPart(speed: speed, torque: torque);
         Assert.Equal((speed, torque), (motor.Parameters[new("speed")], motor.Parameters[new("torque")]));
-        Supplied(motor).Validate();
+        Supplied(motor).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
     }
 
     // An out-of-range or non-finite speed or torque is refused atomically at every seam: the parameter collection, placement, an edit of
@@ -1035,10 +1035,10 @@ public sealed class MotorTests
         Assert.Throws<ArgumentException>(() => MotorPart(speed: speed, torque: torque));
         var admitted = Supplied(MotorPart());
         var current = Assert.IsType<WorkshopGenericInstance>(admitted.Instances[0]);
-        Assert.ThrowsAny<ArgumentException>(() => admitted.WithInstance(current with { Parameters = refused }).Validate());
+        Assert.ThrowsAny<ArgumentException>(() => admitted.WithInstance(RuntimeTestServices.Bundle, current with { Parameters = refused }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.Equal(DefaultSpeed, Assert.IsType<WorkshopGenericInstance>(admitted.Instances[0]).Parameters[new("speed")]);
         var bytes = PayloadInstanceTests.GenericSave("motor", [("speed", speed), ("torque", torque)]);
-        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
     }
 }
 
@@ -1060,7 +1060,7 @@ public sealed class MotorRotorArtTests(NativeSceneFixture godot)
     [InlineData(0f)]
     public async Task TheRotorArtFollowsTheCommittedRotorPoseAndResetsToItsScenePose(float speed)
     {
-        var motor = WorkshopInput.Generic(new PartId("motor"), new(1), 0, 4, 0, 0, 0, 0, 1,
+        var motor = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("motor"), new(1), 0, 4, 0, 0, 0, 0, 1,
             new([new(new("speed"), speed), new(new("torque"), 20f)]));
         var battery = PlacedParts.Battery(new(2), 3, 4, 0);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(motor, battery))
@@ -1069,7 +1069,7 @@ public sealed class MotorRotorArtTests(NativeSceneFixture godot)
                 WorkshopConnectionDomain.Electrical))
         };
         var rotor = construction.Instances.Identities[motor.Id].Hinges[0].Body;
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var root = new Godot.Node3D();
         var part = Assert.IsType<MachinePart>(registry.Create(new PartId("motor")));
         try

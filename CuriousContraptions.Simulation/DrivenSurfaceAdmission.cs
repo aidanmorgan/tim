@@ -24,7 +24,7 @@ internal static class DrivenSurfaceAdmission
         }
         var joints = new RevoluteConstraintDeclaration[layout.Revolutes];
         for (var index = 0; index < joints.Length; index++) joints[index] = PhysicsGpuAbi.ReadRevolute(input, index);
-        DrivenSurfaceDeclaration.ValidateAll(surfaces, colliders, joints);
+        PhysicsDeclarationValidation.ValidateAll(surfaces, colliders, joints);
     }
 
     private static float F(ReadOnlySpan<byte> row, int offset) => BinaryPrimitives.ReadSingleLittleEndian(row[offset..]);

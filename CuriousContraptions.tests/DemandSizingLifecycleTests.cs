@@ -10,7 +10,7 @@ public sealed class DemandSizingLifecycleTests
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
 
     private static WorkshopConstruction Scene(int count, ulong revision) => new(new(revision), Settings,
-        new(Enumerable.Range(0, count).Select(i => (IWorkshopInstance)WorkshopInput.Generic(
+        new(Enumerable.Range(0, count).Select(i => (IWorkshopInstance)WorkshopInput.Generic(RuntimeTestServices.Bundle,
             new PartId("ball"), new((ulong)i + 1), (float)(-7 + (i % 8) * 2), 4, (float)(-5 + (i / 8) * 2), 0, 0, 0, 1)).ToArray()));
 
     [Fact]
@@ -117,7 +117,7 @@ public sealed class DemandSizingLifecycleTests
             foreach (var count in new[] { 1, 40, 2 })
             {
                 var epoch = new SimulationEpoch((ulong)count);
-                var admitted = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Scene(count, 1), new(101, 206)), epoch, Profile);
+                var admitted = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Scene(count, 1), new(101, 206)), epoch, Profile);
                 await transport.Stage(admitted, WorkshopGpuOperation.Admit, PhysicsTickInputs.Admission);
                 var first = transport.Read();
                 Assert.Equal(admitted.Length, first.World.Length);

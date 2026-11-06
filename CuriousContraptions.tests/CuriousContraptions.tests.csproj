@@ -55,6 +55,8 @@
 
     <ItemGroup>
         <ProjectReference Include="../CuriousContraptions.csproj" />
+        <ProjectReference Include="../CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="../CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj" ReferenceOutputAssembly="false" />
         <ProjectReference Include="../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
         <ProjectReference Include="../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
         <!-- PackageRuntimeParityTests discovers every element package through the generator, which references the package glob,
@@ -65,6 +67,12 @@
 
     <!-- Explicit current test and native-boundary inputs; obsolete uncompiled tests were removed by Story 7.3. -->
     <ItemGroup>
+        <Compile Include="../CuriousContraptions.Animation.Worker/RuntimeProviders.cs" Link="AnimationRuntimeProviders.cs" />
+        <Compile Include="../CuriousContraptions.web/RuntimeProviders.cs" Link="WebRuntimeProviders.cs" />
+        <Compile Include="ProviderConstructionTests.cs" />
+        <Compile Include="WorkerHostStartupTests.cs" />
+        <Compile Include="WorkshopStartupRefusalTests.cs" />
+        <Compile Include="RuntimeTestServices.cs" />
         <Compile Include="SignalTestNodes.cs" />
         <Compile Include="ComposableSignalNodesTests.cs" />
         <Compile Include="GoalSignalSelectorTests.cs" />

@@ -59,8 +59,8 @@ public sealed class LampDetectorGuardTests
     /// <summary>The production passage tracker replayed over the committed reads: its crossing count and the ticks it fired.</summary>
     private static (ulong Passed, List<ulong> Fired) Replay(WorkshopConstruction construction, WorkshopRead built, IReadOnlyList<WorkshopRead> reads)
     {
-        var network = WorkshopActivationCompiler.Compile(construction);
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var tracker = PassageSensorTracker.Create(network.PassageSensors, scene, built.Bodies);
         var fired = new List<ulong>();
         foreach (var read in reads)
@@ -80,7 +80,7 @@ public sealed class LampDetectorGuardTests
         var sign = forwardDown ? -1 : 1;
         var detector = PlacedParts.Detector(new(1), 0, (float)(Plane), 0, 0, 0, (float)(sign * Half45), (float)(Half45));
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"), new(3), (float)(ballX), (float)(DropY), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(3), (float)(ballX), (float)(DropY), 0, 0, 0, 0, 1);
         if (!counted) return (Bench([detector, lamp, ball], Signal(detector.Id, lamp.Id)), detector.Id, lamp.Id, ball.Id);
         var counter = PlacedParts.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 2);
         var second = PlacedParts.Lamp(new(5), 4, 1, 3, 0, 0, 0, 1);
@@ -100,7 +100,7 @@ public sealed class LampDetectorGuardTests
         var trace = string.Join(" ", reads.Where(read => read.Tick.Value % 10 == 0).Select(read => $"{read.Tick.Value}:{Height(read, ball):F3}"));
 
         // Every committed passage is one input to the tally counter (target 9): its committed count and last input time.
-        var network = WorkshopActivationCompiler.Compile(bench);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench);
         var passages = new List<(ulong Tick, uint Ordinal)>();
         var count = 0U;
         foreach (var read in reads)
@@ -146,7 +146,7 @@ public sealed class LampDetectorGuardTests
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
         Assert.All(Enumerable.Range(0, reset.Activations.Count), i => Assert.Equal(ActivationPhase.Clear, reset.Activations[i].Phase));
         var saved = new WorkshopSavedConstruction(bench, new(7));
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.Equal(saved, loaded);
         Assert.Equal(bench.Connections.ToArray(), loaded.Construction.Connections.ToArray());
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, Ticks);
@@ -218,10 +218,10 @@ public sealed class LampDetectorGuardTests
     [Fact]
     public async Task ASwitchLightsItsLampOnTheFirstInputAndItStaysLitWhileAnUnwiredLampStaysDark()
     {
-        var hit = WorkshopInput.Generic(new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
         var dark = PlacedParts.Lamp(new(3), 4, 1, 3, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"), new(4), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(4), 0, 3, 0, 0, 0, 0, 1);
         var bench = Bench([hit, lamp, dark, ball], Signal(hit.Id, lamp.Id));
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, Ticks);
         var first = reads.FindIndex(read => Lit(read, lamp.Id));
@@ -246,7 +246,7 @@ public sealed class LampDetectorGuardTests
         var bench = Bench([setClock, resetClock, latch, battery, lamp, sticky], Power(battery.Id, setClock.Id), Power(battery.Id, resetClock.Id),
             Signal(setClock.Id, latch.Id, PortId.SetIn), Signal(resetClock.Id, latch.Id, PortId.ResetIn),
             Signal(latch.Id, lamp.Id), Signal(setClock.Id, sticky.Id));
-        var network = WorkshopActivationCompiler.Compile(bench);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench);
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 300);
         Assert.All(reads, read => Assert.Equal(network.StateLatchPhase(read.Activations, SignalTestNodes.Only(network, latch.Id)) == SimulationLatchPhase.On, Lit(read, lamp.Id)));
         Assert.Contains(reads, read => Lit(read, lamp.Id));
@@ -270,7 +270,7 @@ public sealed class LampDetectorGuardTests
         // tube .018 and ball union reach .35 give the conservative contact
         // height .084+sqrt((.35+.018)^2-.1^2)=.4382 m; .448 m clears it.
         var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .368f, 0), rotation);
-        var ball = WorkshopInput.Generic(new PartId("ball"), new(4), (float)(-4 + drop.X), (float)(plateHeight + drop.Y), (float)(drop.Z), 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(4), (float)(-4 + drop.X), (float)(plateHeight + drop.Y), (float)(drop.Z), 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(5), 6, 3, 0, 0, 0, 0, 1);
         var reads = await WorkshopIntegrationHarness.Observe(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), Ticks);
         Assert.All(reads, read => Assert.Equal(Lit(read, plate.Id), Lit(read, lamp.Id)));
@@ -285,27 +285,27 @@ public sealed class LampDetectorGuardTests
         var latch = PlacedParts.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 3, 0, 0, 0, 0, 0, 1);
         var counter = PlacedParts.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
-        var hit = WorkshopInput.Generic(new PartId("switch"), new(4), 0, 3, 0, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(4), 0, 3, 0, 0, 0, 0, 1);
         var other = PlacedParts.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
         var detector = PlacedParts.Detector(new(6), 6, 3, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(latch, lamp, counter, hit, other, detector);
         var level = Signal(latch.Id, lamp.Id);
-        new WorkshopConnections(level).Validate(instances);
-        new WorkshopConnections(Signal(hit.Id, lamp.Id), Signal(detector.Id, lamp.Id)).Validate(instances); // pulses may share a lamp
+        new WorkshopConnections(level).Validate(RuntimeTestServices.Core.Supply, instances);
+        new WorkshopConnections(Signal(hit.Id, lamp.Id), Signal(detector.Id, lamp.Id)).Validate(RuntimeTestServices.Core.Supply, instances); // pulses may share a lamp
         static void Refused(uint ordinal, string message, Action edit)
         {
             var refusal = Assert.Throws<WorkshopEditRejectedException>(edit);
             Assert.Equal((ordinal, message), ((uint)refusal.Reason, refusal.Message));
         }
         const string one = "A level input takes exactly one source.";
-        Refused(8, one, () => new WorkshopConnections(level, Signal(hit.Id, lamp.Id)).Validate(instances));
-        Refused(8, one, () => new WorkshopConnections(level, Signal(detector.Id, lamp.Id)).Validate(instances));
-        Refused(8, one, () => new WorkshopConnections(level, Signal(other.Id, lamp.Id)).Validate(instances));
-        Refused(7, "A level output can only light a Signal lamp.", () => new WorkshopConnections(Signal(latch.Id, counter.Id)).Validate(instances));
+        Refused(8, one, () => new WorkshopConnections(level, Signal(hit.Id, lamp.Id)).Validate(RuntimeTestServices.Core.Supply, instances));
+        Refused(8, one, () => new WorkshopConnections(level, Signal(detector.Id, lamp.Id)).Validate(RuntimeTestServices.Core.Supply, instances));
+        Refused(8, one, () => new WorkshopConnections(level, Signal(other.Id, lamp.Id)).Validate(RuntimeTestServices.Core.Supply, instances));
+        Refused(7, "A level output can only light a Signal lamp.", () => new WorkshopConnections(Signal(latch.Id, counter.Id)).Validate(RuntimeTestServices.Core.Supply, instances));
         // The save boundary refuses the same shape atomically, and a valid level-fed lamp's wire survives Save/Load.
         var valid = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instances, Connections: new(level));
-        Refused(8, one, () => WorkshopSaveCodec.Encode(new(valid with { Connections = new(level, Signal(hit.Id, lamp.Id)) }, new(7))));
-        Assert.Equal(level, Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new(valid, new(7))))
+        Refused(8, one, () => WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(valid with { Connections = new(level, Signal(hit.Id, lamp.Id)) }, new(7))));
+        Assert.Equal(level, Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(valid, new(7))))
             .Construction.Connections.ToArray()));
     }
 }

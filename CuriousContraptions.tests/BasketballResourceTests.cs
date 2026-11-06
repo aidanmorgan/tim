@@ -13,31 +13,31 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         var declared = (WorkshopGenericInstance)PlacedParts.Bumper(new(2), 0, 4, 0, strength: 8.000001f);
         Assert.Equal(8.000001f, declared.Parameters[new("strength")]);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1), declared));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1), declared));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         Assert.Equal(8.000001f, System.Buffers.Binary.BinaryPrimitives.ReadSingleLittleEndian(
             admitted.AsSpan(scene.World.ContactWorkOffset(0) + 16)));
         var saved = new WorkshopSavedConstruction(construction, new(3));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
         // A missing or nonfinite declared strength is no Bumper.
-        Assert.ThrowsAny<ArgumentException>(() => (declared with { Parameters = InstanceParameterCollection.Empty }).Validate());
+        Assert.ThrowsAny<ArgumentException>(() => (declared with { Parameters = InstanceParameterCollection.Empty }).Validate(RuntimeTestServices.Bundle));
         Assert.ThrowsAny<ArgumentException>(() => PlacedParts.Bumper(new(2), 0, 4, 0, strength: float.NaN));
     }
 
     [Fact]
     public void TheBundleAndSceneUseDeclaredNumericMaterials()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
         Assert.Equal(new[] { new PartId("ball"), new PartId("basket"), new PartId("ramp"), new PartId("switch"), new PartId("lamp"), new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or"), new PartId("electrical_xor"), new PartId("weight"), new PartId("rope_anchor"), new PartId("pulley"), new PartId("impact_lever"), new PartId("trampoline"), new PartId("motor") }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
         // Each package's declared f32 material compiles exactly (the generic dynamic-body compile): Basketball 0.34 m, 1 kg,
         // restitution 0.55, rolling 0.035; Bowling 0.28 m, 4 kg, restitution 0.14, rolling 0.03 (CAT-014, owner 9 Oct 2026).
-        var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(new PartId("ball"), new(1), -1, 2, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("bowling"), new(2), 1, 2, 0, 0, 0, 0, 1))), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), -1, 2, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), new(2), 1, 2, 0, 0, 0, 0, 1))), new(1, 2));
         (float Radius, float Mass, float Bounce, float Rolling) Values(ulong id)
         {
             var body = Assert.Single(scene.Bodies.ToArray(), row => row.Id == new GpuBodyId(id));
@@ -76,7 +76,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [Fact]
     public void DelayArtworkUsesSharedFullTurnAndSourcePhasePalette()
     {
-        var registry=new PartRegistry(); registry.Load();
+        var registry=new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var delay=(MachinePart)registry.Create(new PartId("delay"));
         try
         {
@@ -119,7 +119,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [Fact]
     public void ReceiverHaloFollowsTheDeclaredCaptureBlendAndRestsOnItsNeutralPalette()
     {
-        var registry=new PartRegistry(); registry.Load();
+        var registry=new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var receiver=(MachinePart)registry.Create(new PartId("basket"));
         try
         {
@@ -147,7 +147,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [Fact]
     public void BumperAndSwitchArtworkFollowOneDeclaredBlendAndHoldOnInvalidSamples()
     {
-        var registry=new PartRegistry(); registry.Load();
+        var registry=new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var bumper=(MachinePart)registry.Create(new PartId("bumper"));
         var toggle=(MachinePart)registry.Create(new PartId("switch"));
         try
@@ -184,7 +184,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [Fact]
     public void ADeclaredDelayPartBindsTheDelayCurve()
     {
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var part = registry.Create(new PartId("delay"));
         try
         {
@@ -207,7 +207,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public void UnknownCatalogueRejectsBeforeConstruction()
     {
         // C-Balls: a ball's material is its bundle entry alone (no separate material to omit), so only an unknown part is refused here.
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("unsupported")));
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("999")));
@@ -236,7 +236,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public async Task ActualWorldKeepsLaterCommittedPhaseWhenOriginalRunAckArrives(WorkshopSimulationPhase phase, bool sceneBeforeAck)
     {
         await using var client = new HeldWorkshopClient();
-        var world = new MachineWorld();
+        var world = RuntimeTestServices.CreateWorld();
         try
         {
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(client));
@@ -278,7 +278,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public async Task ActualWorldDoesNotReviveAfterRemovedSceneReceivesOriginalAppliedAck()
     {
         await using var client = new HeldWorkshopClient();
-        var world = new MachineWorld();
+        var world = RuntimeTestServices.CreateWorld();
         try
         {
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(client));
@@ -307,7 +307,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public async Task ARetiredTransportStopsUiBindingsWithoutThrowing(WorkshopTransportState retired)
     {
         await using var client = new RetiringUiClient();
-        var world = new MachineWorld();
+        var world = RuntimeTestServices.CreateWorld();
         try
         {
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(client));
@@ -360,7 +360,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     private static async Task<WorkshopFaultDiagnostic[]> PresentAndDispose(RetiringUiClient client, WorkshopTransportState state,
         Exception disposalFailure)
     {
-        var world = new MachineWorld();
+        var world = RuntimeTestServices.CreateWorld();
         try
         {
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(client));

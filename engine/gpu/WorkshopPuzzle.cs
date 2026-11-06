@@ -1,3 +1,4 @@
+using CuriousContraptions.Bundle;
 using CuriousContraptions.Abstractions;
 using System;
 using System.Linq;
@@ -73,7 +74,7 @@ public readonly record struct WorkshopPuzzle(PuzzleId Id, WorkshopPlacementMode 
 {
     public AssistanceProfile SecondaryAssistance => Id.IsAuthored ? PuzzleCatalogue.Definition(Id).Secondary : default;
 
-    public void Validate(WorkshopConstruction construction)
+    public void Validate(IBundleServices bundle, WorkshopConstruction construction)
     {
         if (!Id.IsAuthored)
         {
@@ -82,6 +83,6 @@ public readonly record struct WorkshopPuzzle(PuzzleId Id, WorkshopPlacementMode 
                     "Free Workshop has no authored settings.");
             return;
         }
-        PuzzleCatalogue.Validate(this, construction);
+        PuzzleCatalogue.Validate(bundle, this, construction);
     }
 }

@@ -73,10 +73,10 @@ public sealed class DrivenSurfaceBindingTests
     private static WorkshopConstruction Construction(bool loaded = true) =>
         new(new(2), WorkshopCadenceSettings.Default(),
             loaded ? new(PlacedParts.Battery(new(1), -4, 4, 0, enabled: ElectricalEnable.Enabled),
-                WorkshopInput.Generic(Bed, new(2), 0, 4, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(Cargo, new(3), 0, 4.30f, 0, 0, 0, 0, 1)) :
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, Bed, new(2), 0, 4, 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, Cargo, new(3), 0, 4.30f, 0, 0, 0, 0, 1)) :
                 new(PlacedParts.Battery(new(1), -4, 4, 0, enabled: ElectricalEnable.Enabled),
-                WorkshopInput.Generic(Bed, new(2), 0, 4, 0, 0, 0, 0, 1)),
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, Bed, new(2), 0, 4, 0, 0, 0, 0, 1)),
             Connections: new(new WorkshopConnection(new(1), PortId.Supply, new(2), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
 
     [Theory]
@@ -134,8 +134,8 @@ public sealed class DrivenSurfaceBindingTests
         {
             Instances = new(initial.Instances.Concat(new IWorkshopInstance[]
             {
-                WorkshopInput.Generic(Bed, new(4), 0, 4, 3, 0, 0, 0, 1),
-                WorkshopInput.Generic(Cargo, new(5), 0, 4.3f, 3, 0, 0, 0, 1)
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, Bed, new(4), 0, 4, 3, 0, 0, 0, 1),
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, Cargo, new(5), 0, 4.3f, 3, 0, 0, 0, 1)
             }).ToArray()),
             Connections = initial.Connections.With(new(new(1), PortId.Supply, new(4), PortId.PowerIn, WorkshopConnectionDomain.Electrical))
         };
@@ -170,8 +170,8 @@ public sealed class DrivenSurfaceBindingTests
             Assert.Equal(body.AngularVelocity, reset.AngularVelocity);
         }
         await harness.Require(WorkshopCommandKind.Save);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements.Concat([Bed, Cargo]).ToHashSet(),
-            WorkshopSaveCodec.Encode(new(construction, new(42))));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements.Concat([Bed, Cargo]).ToHashSet(),
+            WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(42))));
         await replay.Require(WorkshopCommandKind.Construct, loaded.Construction);
         var surfaces = replay.Simulation.Scene.Physics.DrivenSurfaces.ToArray();
         Assert.Equal(2, surfaces.Length);
@@ -322,7 +322,7 @@ public sealed class DrivenSurfaceBindingTests
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Bed, bed.Ports), (Cargo, cargo.Ports)]));
         var initial = Construction(false);
         var construction = initial with { Instances = new(initial.Instances.Append(
-            WorkshopInput.Generic(Cargo, new(3), x, 4.3f, 0, 0, 0, 0, 1)).ToArray()) };
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Cargo, new(3), x, 4.3f, 0, 0, 0, 0, 1)).ToArray()) };
         await harness.Require(WorkshopCommandKind.Construct, construction);
         await harness.Run(); await harness.Advance(120);
         Assert.True(harness.Committed.Bodies.TryGet(new(3), out var load));
@@ -355,7 +355,7 @@ public sealed class DrivenSurfaceBindingTests
         var initial = Construction(false);
         var construction = initial with
         {
-            Instances = new(initial.Instances.Append(WorkshopInput.Generic(upperId, new(3), 0, 4.3f, 0, 0, 0, 0, 1)).ToArray()),
+            Instances = new(initial.Instances.Append(WorkshopInput.Generic(RuntimeTestServices.Bundle, upperId, new(3), 0, 4.3f, 0, 0, 0, 0, 1)).ToArray()),
             Connections = initial.Connections.With(new(new(1), PortId.Supply, new(3), PortId.PowerIn, WorkshopConnectionDomain.Electrical))
         };
         await harness.Require(WorkshopCommandKind.Construct, construction);
@@ -377,7 +377,7 @@ public sealed class DrivenSurfaceBindingTests
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Bed, bed.Ports), (Cargo, cargo.Ports)]));
         var construction = Construction(false);
         if (loaded) construction = construction with { Instances = new(construction.Instances.Append(
-            WorkshopInput.Generic(Cargo, new(3), 0, 4.55f, 0, 0, 0, 0, 1)).ToArray()) };
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Cargo, new(3), 0, 4.55f, 0, 0, 0, 0, 1)).ToArray()) };
         await harness.Require(WorkshopCommandKind.Construct, construction);
         await harness.Run(); await harness.Advance(18);
         var shaft = construction.Instances.Identities[new(2)].Hinges[1].Body;
@@ -406,7 +406,7 @@ public sealed class DrivenSurfaceBindingTests
         else Assert.InRange(after.AngularVelocity.Z - before.AngularVelocity.Z, -.1f, .1f);
     }
 
-    private static float MechanicalEnergy(WorkshopRead read, PhysicsSceneDeclaration scene)
+    private static float MechanicalEnergy(WorkshopRead read, IPhysicsSceneDeclaration scene)
     {
         var energy = 0f;
         foreach (var body in scene.Bodies)
@@ -620,7 +620,7 @@ public sealed class DrivenSurfaceBindingTests
                 new(new(11), new(1), new(1), BoxFace.NegativeZ, new(CoordinateKind.Revolute, 0), Vector3.UnitX, MechanicalValue.Fixed(.3f))
             ]
         } };
-        var entries = PartRegistry.Read(BundleSchema.WriteEntries([bed, cargo]));
+        var entries = PartRegistry.Read(RuntimeTestServices.Bundle, BundleSchema.WriteEntries([bed, cargo]));
         var decoded = Assert.Single(entries, entry => entry.Metadata.Id == Bed.Value);
         var rows = decoded.Mechanical!.DrivenSurfaces;
         Assert.Equal(2, rows.Count);
@@ -667,7 +667,7 @@ public sealed class DrivenSurfaceBindingTests
     {
         await using var slow = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
         await using var fast = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
-        var entries = PartRegistry.Read(BundleSchema.WriteEntries([ParameterBedEntry(), CargoEntry()]));
+        var entries = PartRegistry.Read(RuntimeTestServices.Bundle, BundleSchema.WriteEntries([ParameterBedEntry(), CargoEntry()]));
         using var physics = DeclaredPhysics.Scoped(entries);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend(entries.Select(entry => (new PartId(entry.Metadata.Id), entry.Ports))));
         async Task<float> Run(WorkshopIntegrationHarness harness, float travel)
@@ -675,7 +675,7 @@ public sealed class DrivenSurfaceBindingTests
             var construction = Construction();
             var bed = (WorkshopGenericInstance)construction.Instances.Single(instance => instance.Id == new GpuBodyId(2));
             var parameters = bed.Parameters.ToDictionary(); parameters[new("travel")] = travel;
-            construction = construction.WithInstance(bed with { Parameters = new(parameters) });
+            construction = construction.WithInstance(RuntimeTestServices.Bundle, bed with { Parameters = new(parameters) });
             // A fresh installation has revision 2; the authored edit remains in its instance values.
             construction = construction with { Revision = new(2) };
             await harness.Require(WorkshopCommandKind.Construct, construction);
@@ -708,7 +708,7 @@ public sealed class DrivenSurfaceBindingTests
         using var physics = DeclaredPhysics.Scoped([bed, cargo]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Bed, bed.Ports), (Cargo, cargo.Ports)]));
         var x = count - 7f;
-        var construction = Construction().WithInstance(WorkshopInput.Generic(Cargo, new(3), x, 4.3f, 0, 0, 0, 0, 1)) with { Revision = new(2) };
+        var construction = Construction().WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, Cargo, new(3), x, 4.3f, 0, 0, 0, 0, 1)) with { Revision = new(2) };
         await harness.Require(WorkshopCommandKind.Construct, construction);
         await harness.Run(); await harness.Advance(40);
         Assert.True(harness.Committed.Bodies.TryGet(new(3), out var load));

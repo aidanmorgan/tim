@@ -9,15 +9,15 @@ public sealed class F32SaveBoundaryTests
 {
     private static WorkshopConstruction DecodeAuthoring(byte[] bytes)
     {
-        var buffer = WorkshopAuthoringFlatBuffers.OpenFrame(bytes, "CCWS", CuriousContraptions.Wire.SavedConstructionVerify.Verify);
+        var buffer = WorkshopAuthoringFlatBuffers.OpenFrame(RuntimeTestServices.Core.Codecs.Commands, bytes, "CCWS");
         var saved = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(buffer);
-        return WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(saved.Construction!.Value);
+        return WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved.Construction!.Value);
     }
 
     private static string Fixture(string name) => Path.Combine(twodog.Engine.ResolveProjectDir(), "CuriousContraptions.tests/Fixtures", name);
 
     private static WorkshopConstruction Lesson(string id, float precision) =>
-        PuzzleCatalogue.Create(new PuzzleId(id), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
+        PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId(id), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
 
     private static AssistanceKnot[] Knots(WorkshopPuzzle puzzle) =>
     [
@@ -53,13 +53,13 @@ public sealed class F32SaveBoundaryTests
         // A pre-9A.44 lesson save (captured at f1ad3bd1) is not a save of this schema: its puzzle's assistance vector holds 198
         // elements, which as 44-byte knot records overrun the buffer, so the verifier refuses it before any field rule.
         var legacy = File.ReadAllBytes(Fixture("save-f1ad3bd1-authored-puzzle.bin"));
-        var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, legacy));
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, legacy));
         Assert.Equal(VerifierExplanation, refusal.Message);
         // Independent current-authoring malformed-vector control: 198 declared 44-byte knots
         // exceed this small lesson packet. Never read an unsupported save through the current schema.
         const uint count = 198;
         var construction = Lesson("first_principles", .45f);
-        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        var encoded = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(3)));
         Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() =>
             DecodeAuthoring(WithKnotCount(encoded, construction.Puzzle, count))).Reason);
     }
@@ -80,7 +80,7 @@ public sealed class F32SaveBoundaryTests
         var before = simulation.Committed;
         var stored = Convert.ToBase64String(await File.ReadAllBytesAsync(Fixture("save-f1ad3bd1-authored-puzzle.bin"),
             TestContext.Current.CancellationToken));
-        var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.DecodeStored(SaveFixture.Elements, stored));
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.DecodeStored(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, stored));
         Assert.True(WorkshopUiFailure.IsRejection(refusal));
         Assert.Equal(VerifierExplanation, WorkshopUiFailure.Report(refusal, simulation.Diagnostics));
         NoFixedCapacityTests.AssertSameState(before, simulation.Committed, "the live simulation after a refused load");
@@ -92,9 +92,9 @@ public sealed class F32SaveBoundaryTests
     public void EightKnotsAreAMissingFieldAtTheSaveBoundary()
     {
         var construction = Lesson("first_principles", .45f);
-        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        var encoded = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(3)));
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.MissingField,
-            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, WithKnotCount(encoded, construction.Puzzle, 8)));
+            () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WithKnotCount(encoded, construction.Puzzle, 8)));
         // A current save with the wrong count is told its count.
         Assert.Equal("This save cannot be loaded: The saved puzzle holds 8 assistance knots; a puzzle holds exactly nine.", refusal.Message);
     }
@@ -112,7 +112,7 @@ public sealed class F32SaveBoundaryTests
         var construction = Lesson("first_principles", .45f);
         var profile = construction.Puzzle.TargetAssistance;
         Assert.Equal(new WorkshopSavedConstruction(construction, new(3)),
-            WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Forged(construction, 3)));
+            WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, SaveFixture.Forged(construction, 3)));
         var changed = forged switch
         {
             ForgedKnot.NegativeSpeed => profile with { Balanced = profile.Balanced with { CaptureSpeed = new(-.5f) } },
@@ -120,7 +120,7 @@ public sealed class F32SaveBoundaryTests
             _ => profile with { Forgiving = profile.Forgiving with { Precision = .1f } },
         };
         var save = SaveFixture.Forged(construction with { Puzzle = construction.Puzzle with { TargetAssistance = changed } }, 3);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, save));
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save));
     }
 
     [Fact]
@@ -129,11 +129,11 @@ public sealed class F32SaveBoundaryTests
         // In a save the knot vector is the last data before the buffer's end (FlatBuffers writes back to front): a tenth 44-byte
         // record lies past the end, so the verifier refuses the save before any field rule.
         var construction = Lesson("first_principles", .45f);
-        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        var encoded = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(3)));
         var first = encoded.AsSpan().IndexOf(Lanes(Knots(construction.Puzzle)[0]).SelectMany(value => BitConverter.GetBytes(value)).ToArray());
         Assert.True(encoded.Length - (first + 9 * 44) < 44, "the tenth record would end past the save");
         SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected,
-            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, WithKnotCount(encoded, construction.Puzzle, 10)));
+            () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WithKnotCount(encoded, construction.Puzzle, 10)));
     }
 
     [Theory]
@@ -143,7 +143,7 @@ public sealed class F32SaveBoundaryTests
     public void AKnotCountOtherThanNineIsATypedWireFaultAtTheAuthoringBoundary(uint count)
     {
         var construction = Lesson("first_principles", .45f);
-        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        var encoded = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(3)));
         Assert.Equal(construction, DecodeAuthoring(encoded)); // control: nine knots decode
         var fault = Assert.Throws<WireFaultException>(() => DecodeAuthoring(WithKnotCount(encoded, construction.Puzzle, count)));
         // Counts beyond the nine encoded records overrun this frame; a shorter vector reaches the authored count rule.
@@ -154,7 +154,7 @@ public sealed class F32SaveBoundaryTests
     public void ANineKnotF32SaveRoundTripsEveryLaneValue()
     {
         var construction = Lesson("first_principles", .45f);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new(construction, new(3))));
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(3))));
         var (expected, actual) = (Knots(construction.Puzzle), Knots(decoded.Construction.Puzzle));
         for (var knot = 0; knot < expected.Length; knot++)
             Assert.Equal(Lanes(expected[knot]), Lanes(actual[knot]));
@@ -166,9 +166,9 @@ public sealed class F32SaveBoundaryTests
     {
         var construction = Lesson("first_principles", 1f);
         var saved = new WorkshopSavedConstruction(construction, new(3));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
         var above = construction with { Puzzle = construction.Puzzle with { Precision = new(MathF.BitIncrement(1f)) } };
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Forged(above, 3)));
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, SaveFixture.Forged(above, 3)));
     }
 
     [Fact]
@@ -179,11 +179,11 @@ public sealed class F32SaveBoundaryTests
         var construction = Lesson("delayed_signal", .45f);
         var goal = construction.Puzzle.Goal;
         Assert.Equal(WorkshopGoalKind.ActivatedAfter, goal.Kind);
-        CuriousContraptions.Wire.SavedConstruction Opened(float seconds) => WorkshopSaveCodec.Open(SaveFixture.Forged(
+        CuriousContraptions.Wire.SavedConstruction Opened(float seconds) => WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, SaveFixture.Forged(
             construction with { Puzzle = construction.Puzzle with { Goal = goal with { MinimumDuration = new(seconds) } } },
             construction.Instances.Max(instance => instance.Id.Value) + 1));
-        WorkshopSavePrevalidation.Check(Opened(120f), SaveFixture.Elements);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSavePrevalidation.Check(Opened(MathF.BitIncrement(120f)), SaveFixture.Elements));
+        WorkshopSavePrevalidation.Check(RuntimeTestServices.Core.Supply, Opened(120f), SaveFixture.Elements);
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSavePrevalidation.Check(RuntimeTestServices.Core.Supply, Opened(MathF.BitIncrement(120f)), SaveFixture.Elements));
     }
 
     /// <summary>The encoded buffer with one lane of one profile's Balanced knot (the knot records are contiguous, 44 bytes each in
@@ -214,10 +214,10 @@ public sealed class F32SaveBoundaryTests
     public void APoisonedKnotLaneIsTheTypedRefusalAtTheSaveBoundary(int profile, int lane, float value)
     {
         var construction = Lesson("first_principles", .45f);
-        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
-        Assert.Equal(new WorkshopSavedConstruction(construction, new(3)), WorkshopSaveCodec.Decode(SaveFixture.Elements, encoded)); // control
+        var encoded = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(3)));
+        Assert.Equal(new WorkshopSavedConstruction(construction, new(3)), WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, encoded)); // control
         SaveFixture.Refused(float.IsFinite(value) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite,
-            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, WithKnotLane(encoded, construction.Puzzle, profile, lane, value)));
+            () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WithKnotLane(encoded, construction.Puzzle, profile, lane, value)));
     }
 
     // Authoring boundary: the same lanes break the authored knot rule, refused as the typed OutOfRange wire fault.
@@ -226,7 +226,7 @@ public sealed class F32SaveBoundaryTests
     public void APoisonedKnotLaneIsTheTypedWireFaultAtTheAuthoringBoundary(int profile, int lane, float value)
     {
         var construction = Lesson("first_principles", .45f);
-        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        var encoded = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(3)));
         Assert.Equal(construction, DecodeAuthoring(encoded)); // control
         var fault = Assert.Throws<WireFaultException>(() =>
             DecodeAuthoring(WithKnotLane(encoded, construction.Puzzle, profile, lane, value)));
@@ -238,7 +238,7 @@ public sealed class F32SaveBoundaryTests
     public void AKnotOffItsAuthoredPrecisionIsTheTypedWireFaultAtTheAuthoringBoundary()
     {
         var construction = Lesson("first_principles", .45f);
-        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        var encoded = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(3)));
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() =>
             DecodeAuthoring(WithKnotLane(encoded, construction.Puzzle, 1, 0, .5f))).Reason);
     }
@@ -248,9 +248,9 @@ public sealed class F32SaveBoundaryTests
     public void AnEmptyKnotVectorWithoutTheDeprecatedSlotIsToldItsCount()
     {
         var construction = Lesson("first_principles", .45f);
-        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        var encoded = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction, new(3)));
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.MissingField,
-            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, WithKnotCount(encoded, construction.Puzzle, 0)));
+            () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WithKnotCount(encoded, construction.Puzzle, 0)));
         Assert.Equal("This save cannot be loaded: The saved puzzle holds 0 assistance knots; a puzzle holds exactly nine.", refusal.Message);
     }
 
@@ -262,6 +262,6 @@ public sealed class F32SaveBoundaryTests
     {
         var construction = Lesson("first_principles", .45f);
         var forged = construction with { Puzzle = construction.Puzzle with { Precision = new(value) } };
-        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Forged(forged, 3)));
+        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, SaveFixture.Forged(forged, 3)));
     }
 }

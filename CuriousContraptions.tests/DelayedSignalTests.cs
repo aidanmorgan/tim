@@ -20,7 +20,7 @@ public sealed class DelayedSignalTests
         Assert.ThrowsAny<JsonException>(() => PuzzleContentReader.ReadIndex("{"));
         Assert.Equal(before, Lesson(.45f));
         var reversed = before with { Instances = new(before.Instances.Reverse().ToArray()) };
-        reversed.Validate(); // source lookup uses identity, not first generic-instance position.
+        reversed.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle); // source lookup uses identity, not first generic-instance position.
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public sealed class DelayedSignalTests
     }
 
     private static WorkshopConstruction Lesson(float precision) =>
-        PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
+        PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
 
     [Theory]
     [InlineData(0, .2)]
@@ -55,18 +55,18 @@ public sealed class DelayedSignalTests
         Assert.Equal(new CellOrigin(-48,16,0), trigger.Cell);
         Assert.Equal(new CellOrigin(48,16,0), construction.Instances.Single(instance => instance.PartId == new PartId("lamp")).Cell);
         Assert.Equal((float)threshold, trigger.Parameters[new ParameterId("trigger_threshold")]);
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1,2));
         Assert.Equal(1,scene.Triggers.Length);
         Assert.Equal((float)threshold, scene.Triggers[0].Threshold.Value);
         var save = new WorkshopSavedConstruction(construction, new(4));
-        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(save)));
-        var changed = construction.WithInstance(WorkshopInput.Generic(new PartId("delay"), new(4), 0, 1, 0, 0, 0, 0, 1));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save)));
+        var changed = construction.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(4), 0, 1, 0, 0, 0, 0, 1));
         changed = changed with { Connections = new(new(new(2),PortId.ActivationOut,new(4),PortId.ActivationIn,WorkshopConnectionDomain.Activation),
             new(new(4),PortId.ActivationOut,new(3),PortId.ActivationIn,WorkshopConnectionDomain.Activation)) };
-        Assert.Equal(changed, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(changed,new(5)))).Construction);
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => changed.WithInstance(WorkshopInput.Generic(new PartId("basket"), new(5),0,1,0,0,0,0,1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(Payloads.First(construction) with { Locked=false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDuration=new(.5f) } } }).Validate());
+        Assert.Equal(changed, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(changed,new(5)))).Construction);
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => changed.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(5),0,1,0,0,0,0,1)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(RuntimeTestServices.Bundle, Payloads.First(construction) with { Locked=false }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDuration=new(.5f) } } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
 
     [Theory]
@@ -141,9 +141,9 @@ public sealed class DelayedSignalTests
     [Fact]
     public void PreviousSchemaAndForeignGoalDataReject()
     {
-        var bytes=WorkshopSaveCodec.Encode(new(Lesson(1f),new(4)));
+        var bytes=WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(Lesson(1f),new(4)));
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4),5);
-        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes));
         var goal=Lesson(1f).Puzzle.Goal;
         Assert.Throws<ArgumentException>(() => (goal with { Body=default }).Validate());
         Assert.Throws<ArgumentException>(() => (goal with { Body=goal.Target, SourceNode=goal.TargetNode }).Validate());

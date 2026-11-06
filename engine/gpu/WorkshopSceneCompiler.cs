@@ -1,3 +1,4 @@
+using CuriousContraptions.Bundle;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,15 +22,15 @@ public static class WorkshopSceneCompiler
         _ => throw new ArgumentException("Unsupported actuator coordinate.")
     };
 
-    public static WorkshopCompiledScene Compile(WorkshopConstruction construction, PhysicsDocumentId document, CompiledSceneId identity)
+    public static ICompiledScene Compile(ICoreServices core, IBundleServices bundle, WorkshopConstruction construction, PhysicsDocumentId document, CompiledSceneId identity)
     {
         foreach (var instance in construction.Instances)
             if (instance.PartId == default || !DeclaredPhysics.Entries.ContainsKey(instance.PartId))
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedPart,
                     instance.PartId == default ? "An element identity is required." : $"No declaration exists for '{instance.PartId}'.");
-        construction.Validate();
-        var physics = WorkshopPhysicsCompiler.Compile(construction, document);
-        var activation = WorkshopActivationCompiler.Compile(construction);
+        construction.Validate(core.Supply, bundle);
+        var physics = WorkshopPhysicsCompiler.Compile(core, bundle, construction, document);
+        var activation = WorkshopActivationCompiler.Compile(core, bundle, construction);
         var nodes = activation.Nodes.ToArray();
         var tracks = new List<CompiledPresentationTrack>(16);
         var runControls = new List<RunControlRow>(16);
@@ -42,21 +43,21 @@ public static class WorkshopSceneCompiler
             // Each declared run-time control of an unlocked part compiles one row; a locked part offers none. A scalar lane's row carries
             // its declared parameter's bounds; an enable lane's carries none.
             if (!owner.Locked)
-                foreach (var control in DeclaredPhysics.RunControls(owner.PartId))
+                foreach (var control in DeclaredPhysics.RunControls(bundle, owner.PartId))
                 {
                     var declared = DeclaredPhysics.Of(owner.PartId).Metadata.Parameters.Single(parameter => parameter.Key == control.Parameter.Value);
-                    var scalar = RunControlLanes.ValueKind(control.Lane) == RunControlValueKind.Scalar;
+                    var scalar = core.RunControls.ValueKind(control.Lane) == RunControlValueKind.Scalar;
                     runControls.Add(new(new RunControlId(checked((ulong)runControls.Count + 1)), owner.Id, control.Lane,
-                        RunControlLanes.Slot(physics, control.Lane, owner.Id), scalar ? declared.Minimum : 0f, scalar ? declared.Maximum : 0f));
+                        core.RunControls.Slot(physics, control.Lane, owner.Id), scalar ? declared.Minimum : 0f, scalar ? declared.Maximum : 0f));
                 }
             for (var i = 0; i < bindings.Count; i++)
-                tracks.Add(new(new AnimationTargetId(WorkshopDeclaredPresentation.TargetBase + (ulong)tracks.Count),
+                tracks.Add(new(new AnimationTargetId(core.Presentation.TargetBase + (ulong)tracks.Count),
                     owner.Id, i, CompileBinding(bindings[i], owner.PartId),
                     bindings[i].SignalNode is { } selected ? nodes.Single(node => node.Id == construction.Instances.Identities[owner.Id].Signals[selected].Node) : default, capacity,
                     bindings[i].Actuator is { } actuator ? ResolveActuator(construction.Instances.Identities[owner.Id], actuator) : null,
                     bindings[i].GuidePort is { } guide ? construction.Instances.Identities[owner.Id].Guides[guide] : default));
         }
-        return new(identity, construction.Revision, construction.Settings, physics, activation, tracks,
+        return core.CreateScene(identity, construction.Revision, construction.Settings, physics, activation, tracks,
             construction.Instances.Select(instance => instance.Id), runControls);
     }
 }

@@ -7,7 +7,7 @@ using CuriousContraptions.Gpu;
 using Godot;
 using Vector3 = System.Numerics.Vector3;
 
-[assembly: AssemblyFixture(typeof(CuriousContraptions.Tests.DeclaredPortsFixture))]
+[assembly: CollectionBehavior(typeof(CuriousContraptions.Tests.NativeSceneCollectionFactory), DisableTestParallelization = true)]
 
 namespace CuriousContraptions.Tests;
 
@@ -17,9 +17,9 @@ internal static class TestBundle
 {
     public static IReadOnlyList<BundlePackage> Packages { get; } = Discover();
 
-    public static string Json { get; } = BundleGenerator.Generate(twodog.Engine.ResolveProjectDir()).Json ?? throw new InvalidOperationException("Test bundle failed to bake.");
+    public static string Json { get; } = BundleGenerator.Generate(new CuriousContraptions.Bundle.BundleServices(), twodog.Engine.ResolveProjectDir()).Json ?? throw new InvalidOperationException("Test bundle failed to bake.");
 
-    public static IReadOnlyList<BundleEntry> Entries { get; } = PartRegistry.Read(Json);
+    public static IReadOnlyList<BundleEntry> Entries { get; } = PartRegistry.Read(RuntimeTestServices.Bundle, Json);
 
     public static ElementPortCatalogue Ports { get; } = ElementPortCatalogue.FromBundle(Entries);
 
@@ -77,17 +77,6 @@ internal static class TestBundle
         var discovered = PackageDiscovery.Discover(twodog.Engine.ResolveProjectDir());
         if (discovered.Errors.Count > 0) throw new InvalidOperationException(string.Join("; ", discovered.Errors));
         return discovered.Packages;
-    }
-}
-
-/// <summary>Installs the bundle's declared ports once for the whole test assembly, as the Workshop does after its registry loads and
-/// the Simulation worker does at bootstrap.</summary>
-public sealed class DeclaredPortsFixture
-{
-    public DeclaredPortsFixture()
-    {
-        DeclaredPhysics.Install(TestBundle.Entries);
-        DeclaredPorts.Install(TestBundle.Ports);
     }
 }
 
@@ -270,7 +259,7 @@ public sealed class BundlePortsTests
     {
         const string declared = "\"Role\": \"PowerIn\"";
         Assert.Contains(declared, TestBundle.Json, StringComparison.Ordinal);
-        var refused = Assert.Throws<InvalidDataException>(() => PartRegistry.Read(TestBundle.Json.Replace(declared, replacement, StringComparison.Ordinal)));
+        var refused = Assert.Throws<InvalidDataException>(() => PartRegistry.Read(RuntimeTestServices.Bundle, TestBundle.Json.Replace(declared, replacement, StringComparison.Ordinal)));
         Assert.Contains("PortRole", refused.Message, StringComparison.Ordinal);
     }
 
@@ -288,7 +277,7 @@ public sealed class BundlePortsTests
         [new(6)] = new PartId("lamp"), [new(7)] = new PartId("wall"),
     };
 
-    private static void Validate(WorkshopConnection link) => new WorkshopConnections(link).Validate(id => Parts.TryGetValue(id, out var part) ? part : null);
+    private static void Validate(WorkshopConnection link) => new WorkshopConnections(link).Validate(RuntimeTestServices.Core.Supply, id => Parts.TryGetValue(id, out var part) ? part : null);
 
     /// <summary>AC4: a wrong-domain or output-to-output link is still refused; the matching link is admitted (positive control).</summary>
     [Fact]

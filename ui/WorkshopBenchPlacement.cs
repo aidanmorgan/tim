@@ -26,8 +26,8 @@ public static class WorkshopBenchPlacement
         WorkshopConstruction proposed;
         try
         {
-            proposed = world.Construction.WithInstance(world.CaptureInstance(part, body, position, rotation, dimensions));
-            proposed.Validate();
+            proposed = world.Construction.WithInstance(world.Bundle, world.CaptureInstance(part, body, position, rotation, dimensions));
+            proposed.Validate(world.Core.Supply, world.Bundle);
         }
         catch (Exception error) when (error is WorkshopEditRejectedException)
         {

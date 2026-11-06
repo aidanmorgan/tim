@@ -29,7 +29,7 @@ public partial class Workshop
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Puzzle identities are exhausted.");
             var nextId = new GpuBodyId(_nextId.Value + count);
             var candidate = id.IsAuthored
-                ? PuzzleCatalogue.Create(id, World.Construction.Revision, World.Construction.Settings,
+                ? PuzzleCatalogue.Create(_core.Supply, _bundle, id, World.Construction.Revision, World.Construction.Settings,
                     _nextId, new(PrecisionInput(_precision.Value) / 100f))
                 : new WorkshopConstruction(World.Construction.Revision, World.Construction.Settings, WorkshopInstances.Empty);
             if (!await SubmitConstruction(candidate)) { PresentMode(); return; }
@@ -83,7 +83,7 @@ public partial class Workshop
         try
         {
             var precision = new PuzzlePrecision(value / 100f);
-            var candidate = PuzzleCatalogue.WithPrecision(World.Construction, precision);
+            var candidate = PuzzleCatalogue.WithPrecision(_core.Supply, _bundle, World.Construction, precision);
             if (!await SubmitConstruction(candidate)) { _precision.SetValueNoSignal(World.Construction.Puzzle.Precision.Value * 100f); return; }
             _precisionText.Text = value < 33 ? "Forgiving" : value > 66 ? "Precise" : "Balanced";
             _status.Text = PuzzleCatalogue.Presentation(World.Construction.Puzzle.Id).PrecisionStatus;

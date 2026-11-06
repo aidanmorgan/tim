@@ -3,10 +3,8 @@ using System;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Why the Animation worker held a channel control instead of applying it.</summary>
-public enum AnimationDeferralCause : uint { Preparation = 1, Recalibrating = 2 }
 
 /// <summary>What one Animation service turn does.</summary>
-public enum AnimationServiceTurn { Wait, ApplyDeferred, Evaluate }
 
 /// <summary>
 /// The Animation worker's one deferred channel control (Story 9.4b). A control that arrives while an installation is
@@ -16,10 +14,10 @@ public enum AnimationServiceTurn { Wait, ApplyDeferred, Evaluate }
 /// resumes on the next turn and never at a reversed time. Every hold is a counted, typed
 /// AnimationControlDeferred diagnostic.
 /// </summary>
-public sealed class AnimationControlDeferral
+public sealed class AnimationControlDeferral : IAnimationControlDeferral
 {
-    public WorkshopDiagnostics Diagnostics { get; }
-    public AnimationControlDeferral(WorkshopDiagnostics? diagnostics = null) => Diagnostics = diagnostics ?? new();
+    public IWorkshopDiagnostics Diagnostics { get; }
+    public AnimationControlDeferral(IWorkshopDiagnostics? diagnostics = null) => Diagnostics = diagnostics ?? new WorkshopDiagnostics();
     private byte[]? _held;
 
     public bool IsHolding => _held is not null;

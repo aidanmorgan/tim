@@ -22,10 +22,10 @@ public static partial class PackageValidator
     /// <summary>The f32 rounding a scene's decimal text may differ from the declared anchor by (metres).</summary>
     private const float AnchorTolerance = 1e-5f;
 
-    public static IReadOnlyList<BundleError> Validate(IReadOnlyList<BundlePackage> packages)
+    public static IReadOnlyList<BundleError> Validate(IBundleServices services, IReadOnlyList<BundlePackage> packages)
     {
         ArgumentNullException.ThrowIfNull(packages);
-        return BundleValidator.Validate(packages.Select(package => new NamedEntry(package.Package, BundleSchema.Entry(package.Declaration))).ToArray());
+        return services.Validate(packages.Select(package => new NamedEntry(package.Package, services.Entry(package.Declaration))).ToArray());
     }
 
     /// <summary>Every declared asset path that is not a file in its own package directory under <paramref name="root"/>.</summary>

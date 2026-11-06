@@ -46,7 +46,7 @@ public sealed class ComposedPhysicalObservationTests
             sample => sample.Owner == new GpuBodyId(2) && sample.Binding == binding).Value.CanonicalBits);
     }
 
-    private static WorkshopCompiledScene WithTracks(WorkshopCompiledScene scene, IEnumerable<CompiledPresentationTrack> tracks) =>
+    private static WorkshopCompiledScene WithTracks(ICompiledScene scene, IEnumerable<CompiledPresentationTrack> tracks) =>
         new(scene.Identity, scene.Revision, scene.Settings, scene.Physics, scene.Activation, tracks, scene.Owners, scene.RunControls);
 
     [Theory]
@@ -67,9 +67,9 @@ public sealed class ComposedPhysicalObservationTests
         PartId part = new(entry.Metadata.Id);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(part, entry.Ports), (new PartId("actuator_obstacle"), obstacle.Ports)]));
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(
-            PlacedParts.Battery(new(1), 6, 5, 0), WorkshopInput.Generic(part, new(2), 0, 5, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new("powered_gate"), new(3), 10, 5, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new("actuator_obstacle"), new(4), -2, 5.7f, 0, 0, 0, 0, 1)),
+            PlacedParts.Battery(new(1), 6, 5, 0), WorkshopInput.Generic(RuntimeTestServices.Bundle, part, new(2), 0, 5, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new("powered_gate"), new(3), 10, 5, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new("actuator_obstacle"), new(4), -2, 5.7f, 0, 0, 0, 0, 1)),
             Connections: new(new WorkshopConnection(new(1), PortId.Supply, new(2), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         await harness.Require(WorkshopCommandKind.Construct, bench);
         for (var i = 0; i < entry.Presentation.Bindings.Count; i++)
@@ -78,8 +78,8 @@ public sealed class ComposedPhysicalObservationTests
         var scene = harness.Simulation.Scene;
         var owned = harness.Committed.Presentation.Actuators.ToArray().Where(row => row.Owner == new GpuBodyId(2)).ToArray();
         Assert.Equal(2, owned.Length);
-        Assert.Single(owned, row => row.Blocked);
-        Assert.Single(owned, row => !row.Blocked);
+        Assert.Single(owned, row => row.IsBlocked());
+        Assert.Single(owned, row => !row.IsBlocked());
         var decoded = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(harness.Latest with { Scene = scene })).Scene!;
         for (var i = 0; i < entry.Presentation.Bindings.Count; i++)
         {
@@ -87,7 +87,7 @@ public sealed class ComposedPhysicalObservationTests
             var selected = scene.Presentation.Single(track => track.Owner == new GpuBodyId(2) && track.Binding == i);
             var read = Assert.Single(harness.Committed.Presentation.Actuators.ToArray(), row => row.Drive == selected.Actuator);
             Assert.True(read.SupplyClosed);
-            Assert.Equal(binding.Node == "Blocked", read.Blocked);
+            Assert.Equal(binding.Node == "Blocked", read.IsBlocked());
             Assert.Equal(binding.Node == "Blocked" ? .81f : 3f, Sample(harness, i));
             Assert.Equal(selected.Actuator, decoded.Presentation.Single(track => track.Target == selected.Target).Actuator);
             Assert.Equal(binding.StateValues, decoded.Presentation.Single(track => track.Target == selected.Target).Declaration.StateValues);
@@ -133,7 +133,7 @@ public sealed class ComposedPhysicalObservationTests
 
     private static WorkshopConstruction GuideBench(BundleEntry entry)
     {
-        var owner = WorkshopInput.Generic(new(entry.Metadata.Id), new(2), 0, 6, -.12f, 0, 0, 0, 1);
+        var owner = WorkshopInput.Generic(RuntimeTestServices.Bundle, new(entry.Metadata.Id), new(2), 0, 6, -.12f, 0, 0, 0, 1);
         var weights = new[] { WeightTests.Placed(3, -3, 3, 0, 2), WeightTests.Placed(5, 3, 3, 0, 6) };
         var partners = new[] { WeightTests.Placed(4, -1, 3, 0, 6), WeightTests.Placed(6, 1, 3, 0, 8) };
         var links = new List<WorkshopConnection>();
@@ -149,7 +149,7 @@ public sealed class ComposedPhysicalObservationTests
             links.Add(new(owner.Id, names[i], partners[i].Id, PortId.Tie, WorkshopConnectionDomain.Rope, length / 2));
         }
         return new(new(2), WorkshopCadenceSettings.Default(), new(owner, weights[0], weights[1], partners[0], partners[1],
-            WorkshopInput.Generic(new("pulley"), new(7), 7, 6, 0, 0, 0, 0, 1)), Connections: new(links.ToArray()));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(7), 7, 6, 0, 0, 0, 0, 1)), Connections: new(links.ToArray()));
     }
 
     [Theory]
@@ -204,7 +204,7 @@ public sealed class ComposedPhysicalObservationTests
         for (var i = 0; i < entry.Presentation.Bindings.Count; i++) Assert.Equal(0f, Sample(harness, i));
     }
 
-    private static void AssertGuideAdmission(PhysicsSceneDeclaration scene, RopeGuideId foreign)
+    private static void AssertGuideAdmission(IPhysicsSceneDeclaration scene, RopeGuideId foreign)
     {
         var spans = scene.TensileSpans.ToArray();
         var first = Array.FindIndex(spans, span => span.Guide.Value != 0);

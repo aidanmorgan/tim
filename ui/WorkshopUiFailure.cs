@@ -24,7 +24,7 @@ public static class WorkshopUiFailure
     }
 
     /// <summary>Records the failure on its channel and returns the status-line text to show the player.</summary>
-    public static string Report(Exception error, WorkshopDiagnostics diagnostics)
+    public static string Report(Exception error, IWorkshopDiagnostics diagnostics)
     {
         ArgumentNullException.ThrowIfNull(error);
         if (IsRejection(error))

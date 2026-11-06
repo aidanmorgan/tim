@@ -28,7 +28,7 @@ public sealed class PayloadInstanceTests
 
     /// <summary>The one placement seam of this suite.</summary>
     internal static IWorkshopInstance Place(PartId kind, ulong id, double x, double y, double z) =>
-        WorkshopInput.Generic(kind, new(id), (float)(x), (float)(y), (float)(z), 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, new(id), (float)(x), (float)(y), (float)(z), 0, 0, 0, 1);
 
     private static WorkshopConstruction Free(params IWorkshopInstance[] instances) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances));
@@ -46,7 +46,7 @@ public sealed class PayloadInstanceTests
     [Fact]
     public void BothKindsCompileTheOwnerDeclaredMaterialsOnOneBench()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Free(Place(new PartId("ball"), 3, -1, 2, 0), Place(new PartId("bowling"), 4, 1, 2, 0)), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Free(Place(new PartId("ball"), 3, -1, 2, 0), Place(new PartId("bowling"), 4, 1, 2, 0)), new(1, 2));
         foreach (var (id, kind, radius, mass, bounce, rolling) in new[]
         {
             (3UL, new PartId("ball"), .34f, 1f, .55f, .035f),
@@ -79,8 +79,8 @@ public sealed class PayloadInstanceTests
     [Fact]
     public void AReceiverDeclaresOnePayloadPolicyWhateverTheInstanceOrder()
     {
-        var receiver = WorkshopInput.Generic(new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
-        var scene = WorkshopPhysicsCompiler.Compile(Free(Place(new PartId("bowling"), 7, -2, 3, 0), Place(new PartId("ball"), 3, 2, 3, 0), receiver), new(1, 2));
+        var receiver = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Free(Place(new PartId("bowling"), 7, -2, 3, 0), Place(new PartId("ball"), 3, 2, 3, 0), receiver), new(1, 2));
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllPayloads, default), Assert.Single(scene.Sensors.ToArray()).Targets);
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllPayloads, default), Assert.Single(scene.Guides.ToArray()).Targets);
         Assert.All(scene.Bodies.ToArray().Where(body => body.Id.Value is 3 or 7), body => Assert.True(scene.Sensors[0].Targets.Contains(body.Id, body.Payload)));
@@ -102,14 +102,14 @@ public sealed class PayloadInstanceTests
     [Fact]
     public void AReceiverPolicyExcludesNonPayloadBodiesWithoutAllocatingPairState()
     {
-        var receiver = WorkshopInput.Generic(new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
+        var receiver = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
         var domino = PlacedParts.Domino(new(2), 3, .1f, 0, 0, 0, 0, 1);
-        var alone = WorkshopPhysicsCompiler.Compile(Free(domino, receiver), new(1, 2));
+        var alone = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Free(domino, receiver), new(1, 2));
         Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(alone.Sensors.ToArray()).Targets.Kind);
         Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(alone.Guides.ToArray()).Targets.Kind);
         var nonPayload = alone.Bodies.ToArray().Single(body => body.Id == domino.Id);
         Assert.False(alone.Sensors[0].Targets.Contains(nonPayload.Id, nonPayload.Payload));
-        var mixed = WorkshopPhysicsCompiler.Compile(Free(domino, receiver, Place(new PartId("ball"), 9, -3, 2, 0)), new(1, 2));
+        var mixed = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Free(domino, receiver, Place(new PartId("ball"), 9, -3, 2, 0)), new(1, 2));
         var payload = mixed.Bodies.ToArray().Single(body => body.Id == new GpuBodyId(9));
         Assert.True(Assert.Single(mixed.Sensors.ToArray()).Targets.Contains(payload.Id, payload.Payload));
         Assert.True(Assert.Single(mixed.Guides.ToArray()).Targets.Contains(payload.Id, payload.Payload));
@@ -119,21 +119,21 @@ public sealed class PayloadInstanceTests
     [Fact]
     public void TwoCaptureOwnersAdmitWithEitherPayloadKindAndNonPayloadBodies()
     {
-        var first = WorkshopInput.Generic(new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
-        var second = WorkshopInput.Generic(new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1);
+        var first = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(5), 0, 1, 0, 0, 0, 0, 1);
+        var second = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(6), 4, 1, 0, 0, 0, 0, 1);
         var domino = PlacedParts.Domino(new(2), 3, .1f, 0, 0, 0, 0, 1);
-        new WorkshopInstances(first, second, domino).Validate();
+        new WorkshopInstances(first, second, domino).Validate(RuntimeTestServices.Bundle);
         foreach (var kind in new[] { new PartId("ball"), new PartId("bowling") })
         {
             var construction = Free(first, second, domino, Place(kind, 9, -3, 2, 0));
-            construction.Validate();
-            var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+            var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
             Assert.Equal(2, scene.Sensors.Length);
             Assert.Equal(2, scene.Guides.Length);
             Assert.Empty(PhysicsInteractionSnapshot.Empty.Captures);
         }
         // One capture owner guides any number of payloads.
-        new WorkshopInstances(first, domino, Place(new PartId("ball"), 9, -3, 2, 0), Place(new PartId("bowling"), 10, -5, 2, 0)).Validate();
+        new WorkshopInstances(first, domino, Place(new PartId("ball"), 9, -3, 2, 0), Place(new PartId("bowling"), 10, -5, 2, 0)).Validate(RuntimeTestServices.Bundle);
     }
 
     // In an authored lesson every contact trigger and finite-work Bumper names the lesson's payload; in free play they act on every
@@ -144,11 +144,11 @@ public sealed class PayloadInstanceTests
         var named = 0;
         foreach (var lesson in new[] { "bumper_sidekick", "bumper_depth", "wall_and_bumper", "delayed_signal" })
         {
-            var level = PuzzleCatalogue.Create(new(lesson), new(1), WorkshopCadenceSettings.Default(), new(11), new(.45f));
+            var level = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(lesson), new(1), WorkshopCadenceSettings.Default(), new(11), new(.45f));
             if (WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(new PartId("bumper")))
-                level = level.WithInstance(WorkshopInput.Generic(new PartId("bumper"), new(900), 3, 1, 0, 0, 0, 0, 1));
+                level = level.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(900), 3, 1, 0, 0, 0, 0, 1));
             var payload = Assert.Single(level.Instances, instance => instance.PartId == new PartId("ball")).Id;
-            var scene = WorkshopPhysicsCompiler.Compile(level, new(1, 2));
+            var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, level, new(1, 2));
             foreach (var targets in scene.Triggers.ToArray().Select(t => t.Targets).Concat(scene.ContactWorks.ToArray().Select(w => w.Targets)))
             {
                 Assert.Equal(BodyTargetKind.AllDynamic, targets.Kind);
@@ -156,7 +156,7 @@ public sealed class PayloadInstanceTests
             var target = WorkshopPhysicsCompiler.ResolveTarget(TargetSelector.Named("interaction_target"), level.Puzzle, level.Instances);
             Assert.Equal(new BodyTargetSet(BodyTargetKind.NamedBody, payload), target);
             named++;
-            var free = WorkshopPhysicsCompiler.Compile(level with { Puzzle = default }, new(1, 2));
+            var free = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, level with { Puzzle = default }, new(1, 2));
             Assert.All(free.Triggers.ToArray().Select(t => t.Targets).Concat(free.ContactWorks.ToArray().Select(w => w.Targets)),
                 targets => Assert.Equal(BodyTargetKind.AllDynamic, targets.Kind));
         }
@@ -173,7 +173,7 @@ public sealed class PayloadInstanceTests
         foreach (var height in new[] { 64d, -64d })
         {
             var placed = Place(kind, 1, 0, height, 0);
-            var body = Assert.Single(WorkshopPhysicsCompiler.Compile(Free(placed), new(1, 2)).Bodies.ToArray(), b => b.Id == placed.Id);
+            var body = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Free(placed), new(1, 2)).Bodies.ToArray(), b => b.Id == placed.Id);
             Assert.Equal(placed.Cell, body.Cell);
         }
         Assert.Throws<ArgumentOutOfRangeException>(() => Place(kind, 1, 0, 64.01, 0));
@@ -187,7 +187,7 @@ public sealed class PayloadInstanceTests
     public async Task APayloadRestingOnTheBenchStaysWithoutDrift(string part)
     {
         var kind = new PartId(part);
-        var radius = (float)Assert.Single(WorkshopPhysicsCompiler.Compile(Free(Place(kind, 1, 0, 2, 0)), new(1, 2)).Colliders.ToArray(),
+        var radius = (float)Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Free(Place(kind, 1, 0, 2, 0)), new(1, 2)).Colliders.ToArray(),
             c => c.Body == new GpuBodyId(1) && c.Shape == ColliderShapeKind.Sphere).Radius.Value;
         var reads = await WorkshopIntegrationHarness.Observe(Free(Place(kind, 1, 0, BenchY + radius, 0)), 3 * TicksPerSecond);
         var start = Find(reads[0].Bodies, new(1));
@@ -206,7 +206,7 @@ public sealed class PayloadInstanceTests
     public void APayloadDrivenIntoTheBenchAtFortyMetresPerSecondNeverTunnels(string part)
     {
         var kind = new PartId(part);
-        var scene = WorkshopPhysicsCompiler.Compile(Free(Place(kind, 1, 0, 1, 0)), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Free(Place(kind, 1, 0, 1, 0)), new(1, 2));
         var radius = (float)Assert.Single(scene.Colliders.ToArray(), c => c.Body == new GpuBodyId(1) && c.Shape == ColliderShapeKind.Sphere).Radius.Value;
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var count = BinaryPrimitives.ReadUInt32LittleEndian(admitted.AsSpan(PhysicsGpuAbi.HeaderBodyCountOffset));
@@ -232,7 +232,7 @@ public sealed class PayloadInstanceTests
     [InlineData("bowling", 2, false)]
     public async Task AReceiverCapturesEitherKindAndAShiftedMissNever(string part, double shift, bool captures)
     {
-        var construction = Free(Place(new PartId(part), 1, shift, 1.1, 0), WorkshopInput.Generic(new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1));
+        var construction = Free(Place(new PartId(part), 1, shift, 1.1, 0), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 0, 1, 0, 0, 0, 0, 1));
         var reads = await WorkshopIntegrationHarness.Observe(construction, 2 * TicksPerSecond);
         static bool Latched(WorkshopRead read) =>
             Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched);
@@ -247,8 +247,8 @@ public sealed class PayloadInstanceTests
     {
         var construction = Free(Place(new PartId("ball"), 1, -1.5, 3, 0), Place(new PartId("bowling"), 2, 1.5, 3, 0));
         var saved = new WorkshopSavedConstruction(construction, new(3));
-        var bytes = WorkshopSaveCodec.Encode(saved);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
         Assert.Equal([new PartId("ball"), new PartId("bowling")], loaded.Construction.Instances.Select(i => i.PartId).ToArray());
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 2 * TicksPerSecond);
@@ -332,7 +332,7 @@ public sealed class PayloadInstanceTests
             ("ramp", PreConversionResizedRamp(), WorkshopSaveRejection.OutOfRange)
         })
         {
-            var refusal = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+            var refusal = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
             Assert.True(reason == refusal.Reason, $"{name}: {refusal.Reason} ({refusal.Message})");
         }
     }
@@ -373,10 +373,10 @@ public sealed class PayloadInstanceTests
     [InlineData("bowling")]
     public void ABareGenericPayloadRecordLoadsAndAnyParameterIsRefused(string part)
     {
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, GenericSave(part));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, GenericSave(part));
         var payload = Assert.IsType<WorkshopGenericInstance>(Assert.Single(loaded.Construction.Instances));
         Assert.Equal((new PartId(part), 0), (payload.PartId, payload.Parameters.Count));
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,
             GenericSave(part, [("radius", .5f)])));
     }
 }

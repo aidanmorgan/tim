@@ -14,7 +14,7 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopFormatTests
 {
     private static WorkshopSavedConstruction Saved() => new(new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1), WorkshopInput.Generic(new PartId("pipe"),new(2), 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), 2)])))), new(3));
+        new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(2), 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), 2)])))), new(3));
 
     [Fact]
     public void NoWireOrSaveRecordDeclaresAFormatVersion()
@@ -56,6 +56,7 @@ public sealed class WorkshopFormatTests
             ["CuriousContraptions.web/wwwroot/native-clock.ts"] = ["fullVersionList", "version"],
             // A handle's slot generation, so a stale handle cannot address a reused slot.
             ["engine/presentation/AnimationBatch.cs"] = ["Version", "version", "_versions"],
+            ["CuriousContraptions.Abstractions/AnimationDefinitions.cs"] = ["Version"],
             // Commit stamps: a prepared commit applies only if nothing committed since it was prepared.
             ["engine/gpu/WorkshopPoseHistory.cs"] = ["Version", "version", "_version"],
             ["engine/gpu/WorkshopClientCursor.cs"] = ["Version", "_version"],
@@ -129,14 +130,14 @@ public sealed class WorkshopFormatTests
         // A well-formed buffer of another root (a command) and a save whose construction table is absent.
         var command = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
             CompiledSceneFixture.Compile(Saved().Construction), Session: new(1, 2), Cadence: new(1), Projection: new(1)));
-        SaveFixture.Refused(WorkshopSaveRejection.UnknownIdentifier, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,command));
+        SaveFixture.Refused(WorkshopSaveRejection.UnknownIdentifier, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,command));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(64);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
         builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value, WorkshopSaveCodec.Identifier);
-        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,builder.SizedByteArray()));
+        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,builder.SizedByteArray()));
         // Control: the same codec admits its own encoding.
-        Assert.Equal(Saved(), WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(Saved())));
+        Assert.Equal(Saved(), WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, Saved())));
     }
 
     /// <summary>Only the verifier sees this: a part id string whose terminating zero is overwritten still reads as "pipe" through the
@@ -144,13 +145,13 @@ public sealed class WorkshopFormatTests
     [Fact]
     public void AnUnterminatedPartIdStringFailsTheVerifier()
     {
-        var bytes = WorkshopSaveCodec.Encode(Saved());
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, Saved());
         var name = "pipe\0"u8.ToArray();
         var at = bytes.AsSpan().IndexOf(name);
         Assert.True(at > 0, "the saved pipe's part id string");
         var corrupted = (byte[])bytes.Clone();
         corrupted[at + 4] = (byte)'x';
-        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,corrupted));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,corrupted));
     }
 
     /// <summary>A slot written by the retired versioned schema (magic, version, next body id, construction; a seven-word settings
@@ -176,17 +177,17 @@ public sealed class WorkshopFormatTests
         builder.AddUlong(2, 1, 0);
         builder.AddOffset(3, record.Value, 0);
         builder.FinishSizePrefixed(builder.EndTable(), WorkshopSaveCodec.Identifier);
-        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,builder.SizedByteArray()));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,builder.SizedByteArray()));
     }
 
     [Fact]
     public void AnOutOfBoundsTableOffsetFailsTheVerifier()
     {
-        var bytes = WorkshopSaveCodec.Encode(Saved());
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, Saved());
         var corrupted = (byte[])bytes.Clone();
         // After the 4-byte size prefix: the root table offset points past the buffer.
         BinaryPrimitives.WriteUInt32LittleEndian(corrupted.AsSpan(4), (uint)bytes.Length * 4);
-        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,corrupted));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,corrupted));
         Assert.Equal(WireFaultReason.UnknownIdentifier, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(corrupted)).Reason);
         Assert.Equal(WireFaultReason.UnknownIdentifier, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(corrupted)).Reason);
     }

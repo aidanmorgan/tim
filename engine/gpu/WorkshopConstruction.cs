@@ -1,3 +1,4 @@
+using CuriousContraptions.Bundle;
 using System;
 using System.Collections.Generic;
 
@@ -6,33 +7,33 @@ namespace CuriousContraptions.Gpu;
 /// <summary>Immutable authored Workshop composition; parts compile declarations for the shared engine.</summary>
 public readonly record struct WorkshopConstruction(ConstructionRevision Revision, WorkshopCadenceSettings Settings, WorkshopInstances Instances, WorkshopPuzzle Puzzle = default, WorkshopConnections Connections = null!)
 {
-    public WorkshopConstruction WithInstance(IWorkshopInstance instance) =>
-        PuzzleCatalogue.WithInstance(this, instance);
+    public WorkshopConstruction WithInstance(IBundleServices bundle, IWorkshopInstance instance) =>
+        PuzzleCatalogue.WithInstance(bundle, this, instance);
     public WorkshopConnections Connections { get; init; } = Connections ?? WorkshopConnections.Empty;
     public WorkshopConstruction WithoutInstance(GpuBodyId id) => this with { Instances = Instances.Without(id), Connections = Connections.Without(id) };
     public static Acceleration Gravity => new(9.81f);
     public static Metres WorkbenchSurface => new(-0.46f);
-    public void Validate()
+    public void Validate(ISupplyQueries supply, IBundleServices bundle)
     {
         if (Revision.Value == 0) throw new ArgumentException("Construction revision must be nonzero.");
         Settings.Validate();
         ArgumentNullException.ThrowIfNull(Instances);
-        Instances.Validate(); ArgumentNullException.ThrowIfNull(Connections); Connections.Validate(Instances);
-        Puzzle.Validate(this);
+        Instances.Validate(bundle); ArgumentNullException.ThrowIfNull(Connections); Connections.Validate(supply, Instances);
+        Puzzle.Validate(bundle, this);
     }
 }
 
 /// <summary>Canonical f32 authoring helpers; external adapters validate and narrow before calling.</summary>
 public static class WorkshopInput
 {
-    public static WorkshopGenericInstance Generic(PartId partId, GpuBodyId id, float x, float y, float z,
+    public static WorkshopGenericInstance Generic(IBundleServices bundle, PartId partId, GpuBodyId id, float x, float y, float z,
         float qx, float qy, float qz, float qw, InstanceParameterCollection? parameters = null)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopGenericInstance(partId, id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
             CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)))
             { Parameters = parameters ?? InstanceParameterCollection.Defaults(partId) };
-        result.Validate(); return result;
+        result.Validate(bundle); return result;
     }
     internal static (int Cell, float Local) Position(float metres)
     {

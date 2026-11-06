@@ -5,33 +5,6 @@ using System.Collections.Generic;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Why the Simulation worker refused a physical read receipt (Story 9A.3). Closed set.</summary>
-public enum ReadReceiptRejection
-{
-    /// <summary>Not the 24-byte receipt identity (session, then publication) the worker published with its read.</summary>
-    Malformed = 1,
-    /// <summary>Another runtime session's receipt, or none.</summary>
-    WrongSession,
-    /// <summary>A publication this worker has not published.</summary>
-    Unpublished,
-    /// <summary>A publication an earlier receipt already retired: a duplicate or out-of-order receipt.</summary>
-    Retired,
-}
-
-/// <summary>A refused physical read receipt. It retires nothing, and the worker reports it as a transport failure.</summary>
-public sealed class ReadReceiptRejectedException : Exception
-{
-    public ReadReceiptRejectedException(ReadReceiptRejection reason, string message) : base(message)
-    {
-        if (!Enum.IsDefined(reason)) throw new ArgumentOutOfRangeException(nameof(reason), reason, "Undefined read receipt rejection.");
-        Reason = reason;
-    }
-
-    public ReadReceiptRejection Reason { get; }
-}
-
-/// <summary>A published physical read the browser has not yet receipted, and when it was published on the master clock.</summary>
-public readonly record struct UnreceiptedRead(PublicationSequence Publication, MasterTimeNanoseconds Published);
-
 /// <summary>
 /// The Simulation worker's own reliable-read accounting (Story 9A.3). Every published read is recorded with its master time, and
 /// each browser receipt is matched here, never in script. Receipts are cumulative: the worker coalesces an unposted ordinary read
@@ -39,7 +12,7 @@ public readonly record struct UnreceiptedRead(PublicationSequence Publication, M
 /// is never cleared, so a receipt in flight across a Reset still retires its read. A read left unreceipted past
 /// <see cref="StallNanoseconds"/> is a reliable-read stall: the run loop stops with <see cref="WorkshopRejection.ReliableStalled"/>.
 /// </summary>
-public sealed class WorkshopReliableReadLedger
+public sealed class WorkshopReliableReadLedger : IReliableReadLedger
 {
     /// <summary>The stall bound: 500 ms, the bound the browser measured before this story. Exactly the bound is not a stall.</summary>
     public const long StallNanoseconds = 500_000_000;

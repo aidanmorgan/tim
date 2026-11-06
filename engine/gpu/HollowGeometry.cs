@@ -4,10 +4,6 @@ using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>Which surface of a hollow solid a closest point lies on: the end rim at −h (a torus's end face at a = 0), the outer wall,
-/// the end rim at +h (a torus's end face at a = θ) or the bore.</summary>
-public enum HollowSurface : byte { Start = 0, Outer = 1, End = 2, Bore = 3 }
-
 /// <summary>One posed hollow collider (engine-hollow-shapes, owner decision "true hollow shapes", 25 Oct 2026) and its exact signed
 /// distance field: the single geometric definition the narrowphase and placement both read. Every kind is a 2D profile revolved about
 /// the local axis <see cref="Y"/>:

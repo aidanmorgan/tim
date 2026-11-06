@@ -23,7 +23,7 @@ public sealed partial class BrowserWorkshopClient
     public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        var declaration = UiCurveDeclaration.For(target); declaration.Validate();
+        var declaration = _core.UiCurves.CurveFor(target); declaration.Validate();
         if (declaration.Feedback != WorkshopUiFeedback.Control) throw new ArgumentException("UI target follows committed feedback, not a control.");
         if (kind is not (AnimationControlKind.Reveal or AnimationControlKind.Hide or AnimationControlKind.Visibility))
             throw new ArgumentException("UI control requires its autonomous kind.");
@@ -40,7 +40,7 @@ public sealed partial class BrowserWorkshopClient
             // Queued until a schedule is installed and the lease is free; the queue stays bounded by its supersede rule.
             if (_schedule is not { } schedule || _animationPending is not null || _preparation is not null) return;
             var request = _uiQueue[0];
-            var declaration = UiCurveDeclaration.For(request.Target);
+            var declaration = _core.UiCurves.CurveFor(request.Target);
             var generation = request.Kind is AnimationControlKind.Reveal or AnimationControlKind.Hide ? checked(_hintGeneration + 1) : _hintGeneration;
             _uiQueue.RemoveAt(0);
             if (generation == 0) continue; // Visibility before the first Reveal has no registered target.
@@ -73,7 +73,7 @@ public sealed partial class BrowserWorkshopClient
     { _goalRequested = null; _goalSample = null; _goalOrdinal = 0; _goalRetry = false; _goalWake = null; }
     private void RetryRejectedGoal(WorkshopAnimationControl command)
     {
-        if (command.Target == UiCurves.Goal.AnimationTarget && command.World == Epoch && _goalRequested is { } occurrence &&
+        if (command.Target == _core.UiCurves.Goal.AnimationTarget && command.World == Epoch && _goalRequested is { } occurrence &&
             command.EventOrdinal == occurrence.Ordinal && F32Bits.Equal(command.EventPhase, (float)occurrence.Phase))
             _goalRetry = true;
     }
@@ -90,7 +90,7 @@ public sealed partial class BrowserWorkshopClient
         var solved = WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, latest.Read, Epoch, _construction.Instances.Identities);
         _goalWake.Evaluated(latest.Read.Tick, solved is not null);
         if (solved is not { } occurrence) return;
-        var declaration = UiCurves.Goal;
+        var declaration = _core.UiCurves.Goal;
         SendAnimation(new(declaration.AnimationTarget, Epoch, checked(_animationSequence + 1), 1,
             AnimationControlKind.Endpoint, true, (float)1, (float)1, declaration.Duration,
             declaration.Curve, occurrence.Ordinal, (float)occurrence.Phase), schedule);
@@ -114,7 +114,7 @@ public sealed partial class BrowserWorkshopClient
     {
         ObjectDisposedException.ThrowIf(_disposed, this); ThrowIfTransportFailed(); PumpDeclaredVisibility(); PumpUi();
         opacity = default;
-        var declaration = UiCurveDeclaration.For(target); declaration.Validate();
+        var declaration = _core.UiCurves.CurveFor(target); declaration.Validate();
         if (!AdmitPresentationFrame(frame)) return false;
         return declaration.Feedback switch
         {

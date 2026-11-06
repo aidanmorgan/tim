@@ -64,7 +64,7 @@ public sealed class EventRingProducerTests
     public async Task EachBumperHitPublishesExactlyOneImpactAtItsOwnTimeAndNoTrigger()
     {
         GpuBodyId ball = new(1), bumper = new(2);
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([WorkshopInput.Generic(new PartId("ball"), ball, 0, 4.5f, 0, 0, 0, 0, 1),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), ball, 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(bumper, 0, 3, 0)], []));
         await ring.Advance(360);
         var impacts = ring.Of(SimulationEventKind.Impact).ToList();
@@ -106,7 +106,7 @@ public sealed class EventRingProducerTests
         var sign = forwardDown ? -1 : 1;
         var detector = PlacedParts.Detector(new(1), 0, (float)(Floor + .62), 0, 0, 0, (float)(sign * Half45), (float)(Half45));
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"), new(3), (float)(ballX), (float)(Floor + .34 + 3), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(3), (float)(ballX), (float)(Floor + .34 + 3), 0, 0, 0, 0, 1);
         return (Bench([detector, lamp, ball], [Signal(detector.Id, lamp.Id)]), detector.Id, lamp.Id, ball.Id);
     }
 
@@ -157,7 +157,7 @@ public sealed class EventRingProducerTests
     {
         GpuBodyId ball = new(1), receiver = new(2);
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([PayloadInstanceTests.Place(new PartId("ball"), 1, shift, 1.1, 0),
-            WorkshopInput.Generic(new PartId("basket"), receiver, 0, 1, 0, 0, 0, 0, 1)], []));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), receiver, 0, 1, 0, 0, 0, 0, 1)], []));
         await ring.Advance(240);
         if (!captures) { Assert.Empty(ring.Records); return; }
         var latched = ring.Reads.First(read => Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched));
@@ -176,7 +176,7 @@ public sealed class EventRingProducerTests
     {
         var plateY = Floor + .22;
         var plate = PlacedParts.Plate(new(1), -4, (float)(plateY), 0, .5f);
-        var ball = WorkshopInput.Generic(new PartId("ball"), new(2), -4, (float)(plateY + .08 + .345 + drop), 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(2), -4, (float)(plateY + .08 + .345 + drop), 0, 0, 0, 0, 1);
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([plate, ball], []));
         await ring.Advance(720);
         var edges = Edges(ring.Reads, read => Node(read, plate.Id).Phase == ActivationPhase.Latched);
@@ -204,9 +204,9 @@ public sealed class EventRingProducerTests
     [InlineData(64f, false)]
     public async Task AnImpactSwitchPublishesOneTriggerAndASubThresholdContactNothing(float threshold, bool fires)
     {
-        var hit = WorkshopInput.Generic(new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), threshold)]));
+        var hit = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), threshold)]));
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"), new(4), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(4), 0, 3, 0, 0, 0, 0, 1);
         await using var ring = await WorkshopIntegrationHarness.Running(Bench([hit, lamp, ball], [Signal(hit.Id, lamp.Id)]));
         await ring.Advance(480);
         Assert.Contains(ring.Reads, read => read.Bodies.TryGet(ball.Id, out var row) && row.Body.Velocity.Y > 0); // the ball struck and rebounded
@@ -385,7 +385,7 @@ public sealed class EventRingProducerTests
         Assert.Empty(ring.Records);
         // A candidate for tick 120 (the first pulse), staged and then discarded.
         var committed = ring.Committed;
-        var candidate = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed, []));
+        var candidate = await ring.Device.Advance(committed, new(999_999), TickControlComposition.For(committed, []));
         Assert.Equal(120UL, candidate.Read.Tick.Value);
         ring.Device.Discard(new(999_999));
         Assert.Empty(ring.Device.Events.Pending);
@@ -411,7 +411,7 @@ public sealed class EventRingProducerTests
         await using var ring = await WorkshopIntegrationHarness.Running(Periodic(1f, 9));
         await ring.Advance(119);
         var committed = ring.Committed;
-        _ = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed, []));
+        _ = await ring.Device.Advance(committed, new(999_999), TickControlComposition.For(committed, []));
         ring.Device.Discard(new(999_999));
         await ring.Advance(1);
         var record = Assert.Single(ring.Records);
@@ -461,11 +461,11 @@ public sealed class EventRingProducerTests
     {
         var bench = Memory();
         var saved = new WorkshopSavedConstruction(bench, new(7));
-        var before = WorkshopSaveCodec.Encode(saved);
+        var before = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
         await using var original = await WorkshopIntegrationHarness.Running(bench);
         await original.Advance(600);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, before);
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(original.Construction, new(7)))));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, before);
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new WorkshopSavedConstruction(original.Construction, new(7)))));
         await using var replay = await WorkshopIntegrationHarness.Running(loaded.Construction);
         await replay.Advance(600);
         AssertMemoryCycle(original.Records);
@@ -516,7 +516,7 @@ public sealed class EventRingProducerTests
         for (var i = 0; i < n; i++)
         {
             parts.Add(PlacedParts.Bumper(new((ulong)(2 * i + 1)), (float)(-60 + 3 * i), 3, 0));
-            parts.Add(WorkshopInput.Generic(new PartId("ball"), new((ulong)(2 * i + 2)), (float)(-60 + 3 * i), 6, 0, 0, 0, 0, 1));
+            parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new((ulong)(2 * i + 2)), (float)(-60 + 3 * i), 6, 0, 0, 0, 0, 1));
         }
         await using var ring = await WorkshopIntegrationHarness.Building(Bench([.. parts], []));
         Assert.Equal(n, ring.Device.CommittedContactWork.Count);
@@ -746,7 +746,7 @@ public sealed class EventRingProducerTests
         {
             var id = new PartId(entry.Metadata.Id);
             var part = PackageRuntimeParityTests.Placed(id);
-            IWorkshopInstance[] parts = [part, WorkshopInput.Generic(new PartId("ball"), new(2), 6, 3, 0, 0, 0, 0, 1)];
+            IWorkshopInstance[] parts = [part, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(2), 6, 3, 0, 0, 0, 0, 1)];
             WorkshopConnection[] links = [];
             if (DeclaredPorts.Current.Has(id, PortId.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output))
             {
@@ -754,8 +754,8 @@ public sealed class EventRingProducerTests
                 links = [Signal(part.Id, new(3))];
             }
             await using var ring = await WorkshopIntegrationHarness.Building(Bench(parts, links));
-            var scene = WorkshopPhysicsCompiler.Compile(Bench(parts, links), new(1, 2));
-            var network = WorkshopActivationCompiler.Compile(Bench(parts, links));
+            var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(parts, links), new(1, 2));
+            var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(parts, links));
             SimulationEventKind[] Produced(GpuBodyId owner) =>
                 scene.ContactWorks.ToArray().Where(row => row.Owner == owner).Select(_ => SimulationEventKind.Impact)
                     .Concat(scene.Sensors.ToArray().Where(row => row.Frame == owner).Select(_ => SimulationEventKind.Captured))
@@ -770,7 +770,7 @@ public sealed class EventRingProducerTests
             // Review F3: the wired lamp conforms in each of its wirings: a level indicator (fed by a memory or a load level) and a
             // first-input indicator (fed by a pulse) both declare and produce nothing.
             if (links.Length == 0) continue;
-            lampKinds.Add(WorkshopActivationCompiler.Compile(Bench(parts, links)).Nodes.ToArray().Single(node => node.Owner == new GpuBodyId(3)).Kind);
+            lampKinds.Add(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(parts, links)).Nodes.ToArray().Single(node => node.Owner == new GpuBodyId(3)).Kind);
             Assert.True(Produced(new(3))
                 .SequenceEqual(TestBundle.Entry(new PartId("lamp")).Events.Select(descriptor => descriptor.Kind)), $"{entry.Metadata.Id}: the wired lamp produces a record kind");
         }
@@ -801,7 +801,18 @@ public sealed class EventRingProducerTests
         Assert.Equal(["CuriousContraptions.Simulation/WorkshopGpuDevice.cs", "engine/gpu/EventRecordProducer.cs"], Hits("EventRingOutbox"));
         Assert.Empty(Hits("EventRingBuffer.Append")); // the C# reference writer is the tests' only; production publishes through the worker
         Assert.Equal(["CuriousContraptions.Simulation/wwwroot/worker.ts"], Hits("function prepareEvents("));
-        Assert.Equal(["CuriousContraptions.Simulation/Program.cs", "CuriousContraptions.Simulation/WorkshopGpuDevice.cs"], Hits("DrainEvents"));
+        // A bodyless declaration has no executable reference. Include direct/conditional calls and method groups.
+        static bool ExecutableDrain(Microsoft.CodeAnalysis.SyntaxNode node) => node switch
+        {
+            Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax method =>
+                method.Identifier.ValueText == "DrainEvents" && (method.Body is not null || method.ExpressionBody is not null),
+            Microsoft.CodeAnalysis.CSharp.Syntax.IdentifierNameSyntax name => name.Identifier.ValueText == "DrainEvents",
+            _ => false
+        };
+        var drainOwners = sources.Where(path => path.EndsWith(".cs", StringComparison.Ordinal))
+            .Where(path => Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, path)))
+                .GetRoot().DescendantNodes().Any(ExecutableDrain)).Order().ToArray();
+        Assert.Equal(["CuriousContraptions.Simulation/Program.cs", "CuriousContraptions.Simulation/WorkshopGpuDevice.cs"], drainOwners);
         foreach (var retired in new[] { "readEventRing", "createEventConsumer", "WorkshopEventRing", "eventBuffer" }) Assert.Empty(Hits(retired));
         // Story 9A.23 + 9A.25b: the occurrence-carrying reliable reads, the main-thread one-shot relay and the one-shot relay drivers.
         foreach (var retired in new[] { "occurrenceReads", "reserveOccurrenceRead", "releaseOccurrenceRead", "retainOccurrence", "RequiresReliableRead",

@@ -6,7 +6,7 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopDelayTests
 {
-    private static WorkshopGenericInstance Delay(float seconds) => WorkshopInput.Generic(new PartId("delay"), new(3), 1, 2, -.5f, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), seconds)]));
+    private static WorkshopGenericInstance Delay(float seconds) => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(3), 1, 2, -.5f, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), seconds)]));
     [Fact]
     public void CanonicalF32ProductCeilingPreservesDeadlineBoundaries()
     {
@@ -17,27 +17,27 @@ public sealed class WorkshopDelayTests
         {
             var durations = new float[] {.1f,1f,8.9375f,12f};
             for (var i = 0; i < durations.Length; i++)
-                Assert.Equal(expected[i], ActivationTimerDeclaration.Duration(durations[i], rate));
+                Assert.Equal(expected[i], ActivationTimerTransitions.Duration(durations[i], rate));
         }
         // Fixed boundary expectations: the primitive accepts positive values below the package minimum.
         foreach (var (seconds, ticks) in new[] { (MathF.BitDecrement(.1f), 12u), (.1f, 12u), (MathF.BitIncrement(.1f), 13u),
             (MathF.BitDecrement(1f), 120u), (1f, 120u), (MathF.BitIncrement(1f), 121u), (12f, 1440u) })
-            Assert.Equal(ticks, ActivationTimerDeclaration.Duration(seconds, SimulationCadence.Hz120));
-        Assert.Equal(12u, ActivationTimerDeclaration.Duration(.1f, SimulationCadence.Hz120));
-        Assert.Equal(24u, ActivationTimerDeclaration.Duration(.2f, SimulationCadence.Hz120));
+            Assert.Equal(ticks, ActivationTimerTransitions.Duration(seconds, SimulationCadence.Hz120));
+        Assert.Equal(12u, ActivationTimerTransitions.Duration(.1f, SimulationCadence.Hz120));
+        Assert.Equal(24u, ActivationTimerTransitions.Duration(.2f, SimulationCadence.Hz120));
     }
     [Fact]
     public void DurationPoseAndConnectionsRoundTripAndCompileTheBaseHousingAndFace()
     {
-        var trigger = WorkshopInput.Generic(new PartId("switch"), new(1), -2, 2, 0, 0, 0, 0, 1);
+        var trigger = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(1), -2, 2, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 3, 2, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(trigger, lamp, Delay(8.9375f)), Connections: new(
                 new(new(1), PortId.ActivationOut, new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation),
                 new(new(3), PortId.ActivationOut, new(2), PortId.ActivationIn, WorkshopConnectionDomain.Activation)));
         var saved = new WorkshopSavedConstruction(construction, new(4));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1,2));
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(3)).ToArray();
         // The base, housing and face (below), then the hub pip, the indicator and the two port sockets as spheres
         // (elements-visible-solid; the collider-vs-art test checks them against the art).
@@ -64,16 +64,16 @@ public sealed class WorkshopDelayTests
     public void InvalidCanonicalDurationPaddingAndPreviousSchemasReject()
     {
         var saved = new WorkshopSavedConstruction(new(new(1), WorkshopCadenceSettings.Default(), new(Delay(1f))), new(4));
-        var bytes = WorkshopSaveCodec.Encode(saved);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
         foreach (var invalid in new[] { 0f, -.1f, .09f, 13f, float.NaN, float.PositiveInfinity, MathF.BitDecrement(.1f), MathF.BitIncrement(12f) })
         {
             var malformedConstruction = saved.Construction with {
                 Instances = new WorkshopInstances(new WorkshopGenericInstance(new PartId("delay"), new(2), new(0, 0, 0), new(0, 0, 0), CanonicalRotation.Identity) { Parameters = new([new(new ParameterId("delay_seconds"), invalid)]) })
             };
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-            var crOffset = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
+            var crOffset = SaveFixture.Record(builder, malformedConstruction);
             var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
-            SaveFixture.Refused(float.IsFinite(invalid) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
+            SaveFixture.Refused(float.IsFinite(invalid) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,savedBytes));
         }
         foreach (var invalid in new[] {float.NaN,float.PositiveInfinity,.09f,12.01f})
             Assert.Throws<ArgumentException>(() => Delay(invalid));
@@ -82,24 +82,24 @@ public sealed class WorkshopDelayTests
     public void FullPopulationAndDelayDirectionUseExistingCapacities()
     {
         var instances = new WorkshopInstances(
-            WorkshopInput.Generic(new PartId("ball"),new(1),0,5,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("basket"), new(2),4,1,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("ramp"), new(3),-4,2,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("ramp"), new(4),-2,2,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("switch"), new(5),0,1,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("switch"), new(6),2,1,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1),0,5,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2),4,1,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(3),-4,2,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(4),-2,2,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(5),0,1,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(6),2,1,0,0,0,0,1),
             PlacedParts.Lamp(new(7),5,2,0,0,0,0,1), Delay(1f) with {Id=new(8)});
         var construction = new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),instances);
-        var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction,new(1,2));
         Assert.Equal(9,scene.Bodies.Length);
         // Free play has no per-kind count: a third switch is admitted within the compiled tables.
         new WorkshopInstances(instances[4],instances[5],
-            WorkshopInput.Generic(new PartId("switch"), new(9),3,1,0,0,0,0,1)).Validate();
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(9),3,1,0,0,0,0,1)).Validate(RuntimeTestServices.Bundle);
         foreach (var edge in new[] {
             new WorkshopConnection(new(8),PortId.ActivationIn,new(7),PortId.ActivationIn,WorkshopConnectionDomain.Activation),
             new WorkshopConnection(new(5),PortId.ActivationOut,new(8),PortId.ActivationOut,WorkshopConnectionDomain.Activation),
             new WorkshopConnection(new(8),PortId.ActivationOut,new(7),PortId.ActivationIn,WorkshopConnectionDomain.Electrical) })
-            EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (construction with {Connections=new(edge)}).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (construction with {Connections=new(edge)}).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
     [Fact]
     public void PortsAndPuzzlePopulationRemainBounded()
@@ -107,9 +107,9 @@ public sealed class WorkshopDelayTests
         Assert.True(DeclaredPorts.Current.Has(new PartId("delay"), PortId.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         Assert.True(DeclaredPorts.Current.Has(new PartId("delay"), PortId.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
         Assert.False(DeclaredPorts.Current.Has(new PartId("delay"), PortId.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output));
-        new WorkshopInstances(Delay(1f), Delay(2f) with {Id=new(4)}).Validate(); // No per-kind delay count in free play.
-        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(Delay(1f)).Validate());
+        new WorkshopInstances(Delay(1f), Delay(2f) with {Id=new(4)}).Validate(RuntimeTestServices.Bundle); // No per-kind delay count in free play.
+        var puzzle = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(RuntimeTestServices.Bundle, Delay(1f)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
 
     private static WorkshopConnection Signal(ulong source, ulong target) =>
@@ -123,11 +123,11 @@ public sealed class WorkshopDelayTests
     public async Task RealContactChainedTimersFireAtThirtySixTicksRegardlessOfEntityOrder(bool reverse)
     {
         var first = Delay(.1f) with { Id = new(3) };
-        var second = WorkshopInput.Generic(new PartId("delay"), new(5), 2, 1, 0, 0, 0, 0, 1,
+        var second = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(5), 2, 1, 0, 0, 0, 0, 1,
             new InstanceParameterCollection([new(new ParameterId("delay_seconds"), .2f)]));
         IWorkshopInstance[] parts = [
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1),
             first, PlacedParts.Lamp(new(4), 4, 1, 0, 0, 0, 0, 1), second];
         if (reverse) Array.Reverse(parts);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts),
@@ -151,12 +151,12 @@ public sealed class WorkshopDelayTests
         const float seconds = .1234567f;
         Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(seconds));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1),
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(2), 0, 1, 0, 0, 0, 0, 1),
                 Delay(seconds), PlacedParts.Lamp(new(4), 4, 1, 0, 0, 0, 0, 1)),
             Connections: new(Signal(2, 3), Signal(3, 4)));
         var saved = new WorkshopSavedConstruction(construction, new(5));
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
         Assert.Equal(saved, loaded);
         var restored = Assert.IsType<WorkshopGenericInstance>(loaded.Construction.Instances.Single(part => part.Id.Value == 3));
         Assert.True(F32Bits.Equal(seconds, restored.Parameters[new("delay_seconds")]));
@@ -176,14 +176,14 @@ public sealed class WorkshopDelayTests
     {
         var current = Delay(.1234567f);
         var invalid = current with { Parameters = new([new(new ParameterId("duration_seconds"), 1f)]) };
-        Assert.Throws<ArgumentException>(invalid.Validate);
+        Assert.Throws<ArgumentException>(() => invalid.Validate(RuntimeTestServices.Bundle));
         Assert.True(F32Bits.Equal(.1234567f, current.Parameters[new("delay_seconds")]));
         var saved = new WorkshopSavedConstruction(new(new(1), WorkshopCadenceSettings.Default(), new(current)), new(4));
         var malformed = saved.Construction with { Instances = new(invalid) };
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var record = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, malformed, validate: false);
+        var record = SaveFixture.Record(builder, malformed);
         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () =>
-            WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Finish(builder, record, 4)));
+            WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, SaveFixture.Finish(builder, record, 4)));
         Assert.Equal(current, saved.Construction.Instances[0]);
     }
 

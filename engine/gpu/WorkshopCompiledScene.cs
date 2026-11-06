@@ -9,22 +9,14 @@ using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions.Gpu;
 
-public readonly record struct CompiledSceneId(ulong Value);
-public readonly record struct CompiledPresentationBinding(PresentationProperty Property, PresentationDriver Driver, PresentationValueMapping Mapping,
-    float From, float To, PresentationCurve Curve, float Duration, PresentationOverlap Overlap, float Threshold,
-    PresentationTimerPhase Phase, float Response, float? Intermediate, PortRole? Socket,
-    SimulationEventKind Event, PresentationEventMagnitude EventMagnitude, PresentationActuatorStateValues? StateValues = null);
-public readonly record struct CompiledPresentationTrack(AnimationTargetId Target, GpuBodyId Owner, int Binding,
-    CompiledPresentationBinding Declaration, ActivationNodeDeclaration Activation, float SourceCapacity, SupplyConsumer? Actuator = null, RopeGuideId Guide = default);
-
 /// <summary>The complete runtime installation. No authored instance, package identity or bundle is retained.</summary>
-public sealed class WorkshopCompiledScene
+public sealed class WorkshopCompiledScene : ICompiledScene
 {
     public CompiledSceneId Identity { get; }
     public ConstructionRevision Revision { get; }
     public WorkshopCadenceSettings Settings { get; }
-    public PhysicsSceneDeclaration Physics { get; }
-    public ActivationNetwork Activation { get; }
+    public IPhysicsSceneDeclaration Physics { get; }
+    public IActivationProgram Activation { get; }
     public ImmutableArray<CompiledPresentationTrack> Presentation { get; }
     public ImmutableArray<GpuBodyId> Owners { get; }
     /// <summary>The run-control table: one row per declared RunControl parameter of an unlocked instance, each naming the lane slot
@@ -32,7 +24,7 @@ public sealed class WorkshopCompiledScene
     public ImmutableArray<RunControlRow> RunControls { get; }
 
     public WorkshopCompiledScene(CompiledSceneId identity, ConstructionRevision revision, WorkshopCadenceSettings settings,
-        PhysicsSceneDeclaration physics, ActivationNetwork activation, IEnumerable<CompiledPresentationTrack> presentation,
+        IPhysicsSceneDeclaration physics, IActivationProgram activation, IEnumerable<CompiledPresentationTrack> presentation,
         IEnumerable<GpuBodyId> owners, IEnumerable<RunControlRow> runControls)
     {
         Identity = identity; Revision = revision; Settings = settings;

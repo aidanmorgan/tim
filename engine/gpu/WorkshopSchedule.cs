@@ -3,40 +3,33 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
-public enum ScheduleControlKind : uint { Prepare = 1, Prepared = 2, Commit = 3, Applied = 4, Abort = 5, Presented = 6 }
-public enum ScheduleTransition : uint { Configure = 1, Run = 2, Pause = 3, Resume = 4, Step = 5, Completed = 6, Reset = 7 }
-
-public readonly record struct WorkshopSchedule(
-    WorkshopCadenceSettings Settings, CadenceRevision Revision, ClockGeneration MasterGeneration,
-    MonotonicNanoseconds MasterNativeOrigin, MasterTimeNanoseconds InstalledAt,
-    PulseOrdinal FirstAnimation, PulseOrdinal FirstPresentation,
-    MasterTimeNanoseconds PriorAnimationApplied, MasterTimeNanoseconds PriorPresentationApplied,
-    WorkshopWorldProjection World)
+public static class WorkshopScheduleRules
 {
-    public void Validate()
+
+    public static void Validate(this WorkshopSchedule schedule)
     {
-        Settings.Validate(); Revision.Validate(); MasterNativeOrigin.Validate(); InstalledAt.Validate();
-        PriorAnimationApplied.Validate(); PriorPresentationApplied.Validate(); World.Validate(Settings);
-        if (MasterGeneration.Value == 0 || World.AnchorMaster.Value > InstalledAt.Value ||
-            FirstAnimation != WorkshopPulse.FirstAfter(Settings.AnimationRate, InstalledAt, PriorAnimationApplied) ||
-            FirstPresentation != WorkshopPulse.FirstAfter(Settings.PresentationRate, InstalledAt, PriorPresentationApplied))
+        schedule.Settings.Validate(); schedule.Revision.Validate(); schedule.MasterNativeOrigin.Validate(); schedule.InstalledAt.Validate();
+        schedule.PriorAnimationApplied.Validate(); schedule.PriorPresentationApplied.Validate(); schedule.World.Validate(schedule.Settings);
+        if (schedule.MasterGeneration.Value == 0 || schedule.World.AnchorMaster.Value > schedule.InstalledAt.Value ||
+            schedule.FirstAnimation != WorkshopPulse.FirstAfter(schedule.Settings.AnimationRate, schedule.InstalledAt, schedule.PriorAnimationApplied) ||
+            schedule.FirstPresentation != WorkshopPulse.FirstAfter(schedule.Settings.PresentationRate, schedule.InstalledAt, schedule.PriorPresentationApplied))
             throw new ArgumentException("Invalid shared-master schedule.");
         // A valid ordinal alone does not prove its timestamp fits the admitted clock representation.
-        var animationDeadline = WorkshopPulse.Deadline(Settings.AnimationRate, FirstAnimation);
-        var presentationDeadline = WorkshopPulse.Deadline(Settings.PresentationRate, FirstPresentation);
+        var animationDeadline = WorkshopPulse.Deadline(schedule.Settings.AnimationRate, schedule.FirstAnimation);
+        var presentationDeadline = WorkshopPulse.Deadline(schedule.Settings.PresentationRate, schedule.FirstPresentation);
         checked
         {
-            _ = MasterNativeOrigin.Value + InstalledAt.Value;
-            _ = MasterNativeOrigin.Value + animationDeadline.Value;
-            _ = MasterNativeOrigin.Value + presentationDeadline.Value;
+            _ = schedule.MasterNativeOrigin.Value + schedule.InstalledAt.Value;
+            _ = schedule.MasterNativeOrigin.Value + animationDeadline.Value;
+            _ = schedule.MasterNativeOrigin.Value + presentationDeadline.Value;
         }
     }
 
-    public void ValidateDisplay(PulseRate admittedDisplayRate)
+    public static void ValidateDisplay(this WorkshopSchedule schedule, PulseRate admittedDisplayRate)
     {
-        Validate(); admittedDisplayRate.Validate();
-        if (Settings.Presentation == PresentationCadence.AdmittedDisplay &&
-            Settings.PresentationRate != admittedDisplayRate)
+        schedule.Validate(); admittedDisplayRate.Validate();
+        if (schedule.Settings.Presentation == PresentationCadence.AdmittedDisplay &&
+            schedule.Settings.PresentationRate != admittedDisplayRate)
             throw new ArgumentException("Schedule does not match the admitted display rate.");
     }
 
@@ -54,41 +47,21 @@ public readonly record struct WorkshopSchedule(
     }
 
     /// <summary>Uncapped elapsed debt: a late final tick must not hide overload at the Run limit.</summary>
-    public bool ExceedsPhysicalDebt(SimulationTick committedTick, MasterTimeNanoseconds masterNow)
+    public static bool ExceedsPhysicalDebt(this WorkshopSchedule schedule, SimulationTick committedTick, MasterTimeNanoseconds masterNow)
     {
-        Validate(); masterNow.Validate();
-        if (committedTick.Value < World.AnchorTick.Value || committedTick.Value > Settings.RunTickLimit ||
-            masterNow.Value < World.AnchorMaster.Value)
+        schedule.Validate(); masterNow.Validate();
+        if (committedTick.Value < schedule.World.AnchorTick.Value || committedTick.Value > schedule.Settings.RunTickLimit ||
+            masterNow.Value < schedule.World.AnchorMaster.Value)
             throw new ArgumentException("Invalid physical debt endpoint.");
-        if (World.Playback != WorldPlayback.Running) return false;
-        var elapsedScaled = checked((Int128)(masterNow.Value - World.AnchorMaster.Value) * Settings.SimulationRate.Numerator);
-        var committedScaled = checked((Int128)(committedTick.Value - World.AnchorTick.Value) * WorkshopPulse.NanosecondsPerSecond);
-        return elapsedScaled - committedScaled > (Int128)100_000_000 * Settings.SimulationRate.Numerator;
+        if (schedule.World.Playback != WorldPlayback.Running) return false;
+        var elapsedScaled = checked((Int128)(masterNow.Value - schedule.World.AnchorMaster.Value) * schedule.Settings.SimulationRate.Numerator);
+        var committedScaled = checked((Int128)(committedTick.Value - schedule.World.AnchorTick.Value) * WorkshopPulse.NanosecondsPerSecond);
+        return elapsedScaled - committedScaled > (Int128)100_000_000 * schedule.Settings.SimulationRate.Numerator;
     }
-}
-
-public readonly record struct ScheduleControlHeader(
-    ScheduleControlKind Kind, RuntimeSessionId Session, ClockGeneration MasterGeneration,
-    CadenceRevision Revision, ProjectionEpoch Projection,
-    WorkshopRuntimeRole Sender, WorkshopRuntimeRole Recipient)
-{
-    public void Validate()
+    public static void Match(this ScheduleControlHeader header, WorkshopSchedule schedule)
     {
-        Session.Validate(); Revision.Validate(); Projection.Validate();
-        if (MasterGeneration.Value == 0 || !Enum.IsDefined(Kind) || !Enum.IsDefined(Sender) || !Enum.IsDefined(Recipient))
-            throw new ArgumentException("Invalid schedule-control identity.");
-        var downstream = Kind is ScheduleControlKind.Prepare or ScheduleControlKind.Commit or ScheduleControlKind.Abort;
-        var validRoute = downstream
-            ? Sender == WorkshopRuntimeRole.Simulation && Recipient is WorkshopRuntimeRole.Browser or WorkshopRuntimeRole.Animation
-            : Recipient == WorkshopRuntimeRole.Simulation && Sender is WorkshopRuntimeRole.Browser or WorkshopRuntimeRole.Animation;
-        if (!validRoute || (Kind == ScheduleControlKind.Presented && Sender != WorkshopRuntimeRole.Browser))
-            throw new ArgumentException("Unsupported schedule-control route.");
-    }
-
-    public void Match(WorkshopSchedule schedule)
-    {
-        Validate(); schedule.Validate();
-        if (Revision != schedule.Revision || Projection != schedule.World.Epoch || MasterGeneration != schedule.MasterGeneration)
+        header.Validate(); schedule.Validate();
+        if (header.Revision != schedule.Revision || header.Projection != schedule.World.Epoch || header.MasterGeneration != schedule.MasterGeneration)
             throw new ArgumentException("Header and schedule identities differ.");
     }
 }
@@ -154,7 +127,7 @@ public static class WorkshopScheduleWire
                 : declared != PayloadBytes(kind)) ||
             control.Length != HeaderBytes + (long)declared)
             throw new ArgumentException("Unsupported schedule-control length.");
-        var header = new ScheduleControlHeader(kind, RuntimeSessionId.Read(control[8..24]),
+        var header = new ScheduleControlHeader(kind, RuntimeSessionCodec.Read(control[8..24]),
             new(BinaryPrimitives.ReadUInt64LittleEndian(control[24..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(control[32..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(control[40..])),

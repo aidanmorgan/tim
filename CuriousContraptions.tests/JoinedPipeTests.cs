@@ -19,7 +19,7 @@ public sealed class JoinedPipeTests
 
     private static WorkshopConstruction Lesson(float precision) =>
         // Revision 2: the production Simulation admits the first Construct after its initial revision 1.
-        PuzzleCatalogue.Create(new("joined_pipe"), new(2), WorkshopCadenceSettings.Default(), BallId, new(precision));
+        PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("joined_pipe"), new(2), WorkshopCadenceSettings.Default(), BallId, new(precision));
 
     private static JsonElement Content()
     {
@@ -29,7 +29,7 @@ public sealed class JoinedPipeTests
 
     private static IReadOnlyDictionary<PartId, PartDefinition> Definitions()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
         return registry.Definitions;
     }
@@ -39,7 +39,7 @@ public sealed class JoinedPipeTests
     private static WorkshopGenericInstance PipeAt(Vector3 position, Quaternion rotation, float length, bool locked = false)
     {
         var q = rotation.Normalized();
-        return WorkshopInput.Generic(new PartId("pipe"),PipeId, (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), new InstanceParameterCollection([new(new("length"), length)])) with { Locked = locked };
+        return WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),PipeId, (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), new InstanceParameterCollection([new(new("length"), length)])) with { Locked = locked };
     }
 
     /// <summary>The granted pipe tilted downhill (−45° about Z), offered 0.1 m off the bend's upper mouth and snapped by the query.</summary>
@@ -119,7 +119,7 @@ public sealed class JoinedPipeTests
     public void SnappedAndAuthoredPipesLeaveRoomForTheBallAtBothMouths()
     {
         var lesson = Lesson(1f);
-        var authored = PuzzleCatalogue.CreateSolution(new("joined_pipe"), new(2), WorkshopCadenceSettings.Default(), BallId, new(1));
+        var authored = PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("joined_pipe"), new(2), WorkshopCadenceSettings.Default(), BallId, new(1));
         var definitions = Definitions();
         var ball = lesson.Instances.Single(row => row.Id == BallId);
         var ballShapes = definitions[ball.PartId].Colliders;
@@ -163,20 +163,20 @@ public sealed class JoinedPipeTests
     public void ValidateAdmitsTheGrantedPipeOnly()
     {
         var lesson = Lesson(1f);
-        var placed = lesson.WithInstance(Snapped(lesson, 2));
-        placed.Validate();
+        var placed = lesson.WithInstance(RuntimeTestServices.Bundle, Snapped(lesson, 2));
+        placed.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
 
         // A second pipe exceeds the inventory.
-        var second = WorkshopInput.Generic(new PartId("pipe"),new(5), 3, 6, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), 2)]));
-        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(second).Validate());
+        var second = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(5), 3, 6, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new("length"), 2)]));
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(RuntimeTestServices.Bundle, second).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         // A locked player pipe, an unlocked or second bend and any other part reject.
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(Snapped(lesson, 2) with { Locked = true }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(RuntimeTestServices.Bundle, Snapped(lesson, 2) with { Locked = true }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported,
-            () => placed.WithInstance(WorkshopInput.Generic(new PartId("pipe_bend_90"), new(5), 3, 3, 0, 0, 0, 0, 1)).Validate());
+            () => placed.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_90"), new(5), 3, 3, 0, 0, 0, 0, 1)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported,
-            () => placed.WithInstance(WorkshopInput.Generic(new PartId("ramp"), new(5), 3, 1, 0, 0, 0, 0, 1)).Validate());
+            () => placed.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(5), 3, 1, 0, 0, 0, 0, 1)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported,
-            () => placed.WithInstance(WorkshopInput.Generic(new PartId("pipe_bend_45"), new(5), 3, 3, 0, 0, 0, 0, 1)).Validate());
+            () => placed.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_45"), new(5), 3, 3, 0, 0, 0, 0, 1)).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
 
     [Fact]
@@ -184,15 +184,15 @@ public sealed class JoinedPipeTests
     {
         var lesson = Lesson(0f);
         var bend = (WorkshopGenericInstance)lesson.Instances.Single(instance => instance.Id == BendId);
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (lesson with { Instances = lesson.Instances.Without(BendId) }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Cell = new(bend.Cell.X + 1, bend.Cell.Y, bend.Cell.Z) }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Rotation = CanonicalRotation.Identity }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { PartId = new PartId("pipe_bend_45") }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(Payloads.First(lesson) with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(((WorkshopGenericInstance)lesson.Instances.Single(instance => instance.PartId == new PartId("basket"))) with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 2 } }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (lesson with { Instances = lesson.Instances.Without(BendId) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(RuntimeTestServices.Bundle, bend with { Locked = false }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(RuntimeTestServices.Bundle, bend with { Cell = new(bend.Cell.X + 1, bend.Cell.Y, bend.Cell.Z) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(RuntimeTestServices.Bundle, bend with { Rotation = CanonicalRotation.Identity }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(RuntimeTestServices.Bundle, bend with { PartId = new PartId("pipe_bend_45") }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(RuntimeTestServices.Bundle, Payloads.First(lesson) with { Locked = false }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(RuntimeTestServices.Bundle, ((WorkshopGenericInstance)lesson.Instances.Single(instance => instance.PartId == new PartId("basket"))) with { Locked = false }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 2 } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
 
     // Story 9A.44: between knots the Receiver takes the f32 linear blend of its two bracketing authored knots, each operation rounded
@@ -241,10 +241,10 @@ public sealed class JoinedPipeTests
         var receiver = ((WorkshopGenericInstance)lesson.Instances.Single(instance => instance.PartId == new PartId("basket")));
         Assert.Equal(((float)margin, (float)speed, (float)dwell, (float)accel),
             (receiver.Parameters[new("capture_margin")], receiver.Parameters[new("capture_speed_limit")], receiver.Parameters[new("capture_dwell")], receiver.Parameters[new("force_maximum_acceleration")]));
-        var placed = lesson.WithInstance(Snapped(lesson, 2));
+        var placed = lesson.WithInstance(RuntimeTestServices.Bundle, Snapped(lesson, 2));
         var saved = new WorkshopSavedConstruction(placed, new(5));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
-        var updated = PuzzleCatalogue.WithPrecision(placed, new(.45f));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved)));
+        var updated = PuzzleCatalogue.WithPrecision(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, placed, new(.45f));
         Assert.Equal(.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == new PartId("basket"))).Parameters[new("capture_margin")]);
         Assert.Equal(placed.Instances.Single(i => i.Id == PipeId), updated.Instances.Single(i => i.Id == PipeId));
     }
@@ -255,7 +255,7 @@ public sealed class JoinedPipeTests
     public async Task TheSnappedTwoMetrePipeDeliversTheBallAndResetRestoresTheBench()
     {
         var lesson = Lesson(1f);
-        var bench = lesson.WithInstance(Snapped(lesson, 2));
+        var bench = lesson.WithInstance(RuntimeTestServices.Bundle, Snapped(lesson, 2));
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
         Assert.True(Solved(bench, run), $"the joined route solves (ball last at {Ball(run[^1])})");
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
@@ -265,7 +265,7 @@ public sealed class JoinedPipeTests
     public async Task TheDefaultLengthSnappedLeavesTheBallOnTheOuterShell()
     {
         var lesson = Lesson(1f);
-        var bench = lesson.WithInstance(Snapped(lesson, 3.6f));
+        var bench = lesson.WithInstance(RuntimeTestServices.Bundle, Snapped(lesson, 3.6f));
         var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
         Assert.False(Solved(bench, run), $"a 3.6 m pipe misses the drop line (ball last at {Ball(run[^1])})");
     }
@@ -279,7 +279,7 @@ public sealed class JoinedPipeTests
         var definitions = Definitions();
         Assert.Null(TubeMouthSnap.Find(definitions, lesson.Instances, new(new PartId("pipe"), PipeId, false, unsnapped.Parameters),
             UnsnappedPosition(snapped), Rz(-45)));
-        var bench = lesson.WithInstance(unsnapped);
+        var bench = lesson.WithInstance(RuntimeTestServices.Bundle, unsnapped);
         var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
         Assert.False(Solved(bench, run), $"the unsnapped route does not solve (ball last at {Ball(run[^1])})");
         // The ball lands on the shifted pipe's outer shell: it never enters the bore and leaves the route between the mouths.

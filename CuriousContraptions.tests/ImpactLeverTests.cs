@@ -14,7 +14,7 @@ namespace CuriousContraptions.Tests;
 public sealed class ImpactLeverTests
 {
     private static WorkshopGenericInstance Lever(ulong id = 1, float x = 0, float y = 3, float z = 0, float mass = 2f, float angleDeg = 0f) =>
-        WorkshopInput.Generic(new PartId("impact_lever"), new(id), x, y, z, 0, 0, 0, 1,
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("impact_lever"), new(id), x, y, z, 0, 0, 0, 1,
             new(new Dictionary<ParameterId, float>
             {
                 [new("beam_mass")] = mass,
@@ -26,10 +26,10 @@ public sealed class ImpactLeverTests
     private const float BeamTop = 3f + 0.12f;
 
     private static WorkshopGenericInstance Basketball(ulong id = 2, float x = 1.2f, float y = 3.46f, float z = 0) =>
-        WorkshopInput.Generic(new PartId("ball"), new(id), x, y, z, 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(id), x, y, z, 0, 0, 0, 1);
 
     private static WorkshopGenericInstance BowlingBall(ulong id = 3, float x = -1.2f, float y = 6f, float z = 0) =>
-        WorkshopInput.Generic(new PartId("bowling"), new(id), x, y, z, 0, 0, 0, 1);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), new(id), x, y, z, 0, 0, 0, 1);
 
     private static float BodyY(WorkshopRead read, GpuBodyId id)
     {
@@ -416,8 +416,8 @@ public sealed class ImpactLeverTests
         // Falling counterweight (4 kg) routed through pulleys lifts lever TieA
         // Lever at (0, 3, 0). TieA is at (-1.8, 0, 0) relative to beam, so world position is (-1.8, 3, 0).
         var lever = Lever(1, 0, 3, 0);
-        var p1 = WorkshopInput.Generic(new("pulley"), new(2), -1.8f, 6f, -.12f, 0, 0, 0, 1);
-        var p2 = WorkshopInput.Generic(new("pulley"), new(3), -4.0f, 6f, -.12f, 0, 0, 0, 1);
+        var p1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(2), -1.8f, 6f, -.12f, 0, 0, 0, 1);
+        var p2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(3), -4.0f, 6f, -.12f, 0, 0, 0, 1);
         var weight = WeightTests.Placed(4, -4.0f, 4.5f, 0f, 4f);
 
         var tieLever = new Vector3(-1.8f, 3f, 0f);
@@ -464,8 +464,8 @@ public sealed class ImpactLeverTests
     public void OutOfRangeBeamMass_IsRefused(float mass)
     {
         Assert.ThrowsAny<ArgumentException>(() =>
-            WorkshopInput.Generic(new PartId("impact_lever"), new(1), 0, 3, 0, 0, 0, 0, 1,
-                new(new Dictionary<ParameterId, float> { [new("beam_mass")] = mass })).Validate());
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("impact_lever"), new(1), 0, 3, 0, 0, 0, 0, 1,
+                new(new Dictionary<ParameterId, float> { [new("beam_mass")] = mass })).Validate(RuntimeTestServices.Bundle));
     }
 
     [Theory]
@@ -476,8 +476,8 @@ public sealed class ImpactLeverTests
     public void OutOfRangeInitialAngle_IsRefused(float angle)
     {
         Assert.ThrowsAny<ArgumentException>(() =>
-            WorkshopInput.Generic(new PartId("impact_lever"), new(1), 0, 3, 0, 0, 0, 0, 1,
-                new(new Dictionary<ParameterId, float> { [new("initial_angle")] = angle })).Validate());
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("impact_lever"), new(1), 0, 3, 0, 0, 0, 0, 1,
+                new(new Dictionary<ParameterId, float> { [new("initial_angle")] = angle })).Validate(RuntimeTestServices.Bundle));
     }
 
     [Fact]
@@ -518,8 +518,8 @@ public sealed class ImpactLeverTests
         // Falling counterweight (4 kg) routed through pulleys lifts lever TieB
         // Lever at (0, 3, 0). TieB is at (1.8, 0, 0) relative to beam, so world position is (1.8, 3, 0).
         var lever = Lever(1, 0, 3, 0);
-        var p1 = WorkshopInput.Generic(new("pulley"), new(2), 1.8f, 6f, -.12f, 0, 0, 0, 1);
-        var p2 = WorkshopInput.Generic(new("pulley"), new(3), 4.0f, 6f, -.12f, 0, 0, 0, 1);
+        var p1 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(2), 1.8f, 6f, -.12f, 0, 0, 0, 1);
+        var p2 = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("pulley"), new(3), 4.0f, 6f, -.12f, 0, 0, 0, 1);
         var weight = WeightTests.Placed(4, 4.0f, 4.5f, 0f, 4f);
 
         var tieLever = new Vector3(1.8f, 3f, 0f);
@@ -677,8 +677,8 @@ public sealed class ImpactLeverTests
         var lever = Lever(1, 0, 3, 0, mass: 4.5f, angleDeg: 12f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(lever));
         var saved = new WorkshopSavedConstruction(construction, new(10));
-        var bytes = WorkshopSaveCodec.Encode(saved);
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(saved.Construction.Instances, loaded.Construction.Instances);
     }
 
@@ -700,7 +700,7 @@ public sealed class ImpactLeverTests
         };
         var malformed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(forgedInstance));
         var savedBytes = SaveFixture.Forged(malformed, 10);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, savedBytes));
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, savedBytes));
     }
 
     [Fact]
@@ -708,7 +708,7 @@ public sealed class ImpactLeverTests
     {
         var lever = Lever(1, 0, 3, 0);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(lever));
-        var valid = WorkshopPhysicsCompiler.Compile(construction, new(101, 206));
+        var valid = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(101, 206));
         var revolute = valid.Revolutes[0];
 
         // Duplicate pair: same body pair reversed or identical

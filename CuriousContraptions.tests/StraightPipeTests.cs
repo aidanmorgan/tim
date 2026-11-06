@@ -26,7 +26,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void PartRegistry_DiscoversPipeDefinitionAndConfiguresInstance()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(new PartId("pipe")));
@@ -93,9 +93,9 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void WorkshopPhysicsCompiler_CompilesPipeIntoStaticBodyWithItsThreeHollowColliders()
     {
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(pipe));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
 
         Assert.Equal(2, scene.Bodies.Length); // plane + pipe
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(10));
@@ -118,24 +118,24 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void SaveCodec_RoundTripsPipeAndPreservesDeclaredColliders()
     {
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, pipe));
         var save = new WorkshopSavedConstruction(construction, new(11));
 
-        var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save);
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
 
         Assert.Equal(save, decoded);
-        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(decoded)));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, decoded)));
 
         var decodedPipe = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
         Assert.Equal(new PartId("pipe"), decodedPipe.PartId);
         Assert.Equal(3.6f, decodedPipe.Parameters[new("length")]);
-        AssertPipeColliders(decodedPipe.DeclaredColliders);
+        AssertPipeColliders(decodedPipe.DeclaredColliders(RuntimeTestServices.Bundle));
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
-        var fbSave = WorkshopSaveCodec.Open(bytes);
+        var fbSave = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes);
         Assert.True(fbSave.Construction.HasValue);
         var fbPipe = fbSave.Construction.Value.Instances(1);
         Assert.True(fbPipe.HasValue);
@@ -146,19 +146,19 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     public void WorkbenchCapacity_AdmitsCompoundPipesWithoutColliderLimit()
     {
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
-        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
+        var world = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 0, 3 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
 
         var threePipes = new WorkshopInstances(
-            WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1));
-        new WorkshopInstances([.. threePipes]).Validate();
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1));
+        new WorkshopInstances([.. threePipes]).Validate(RuntimeTestServices.Bundle);
 
         var twentyPipes = new WorkshopInstances(
-            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
-        new WorkshopInstances([.. twentyPipes]).Validate();
+            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
+        new WorkshopInstances([.. twentyPipes]).Validate(RuntimeTestServices.Bundle);
     }
 
     /// <summary>The bore admits a ball of radius under 0.65 m end to end: the shell Tube's inner radius and each collar's innermost
@@ -166,7 +166,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void BoreGeometry_MatchesTheDeclaredMouths()
     {
-        var colliders = DeclaredPhysics.Colliders(new PartId("pipe"));
+        var colliders = DeclaredPhysics.Colliders(RuntimeTestServices.Bundle, new PartId("pipe"));
         var bore = TestBundle.Entry(new PartId("pipe")).TubeMouths.Select(m => m.BoreRadius).Distinct().Single();
         Assert.True(MathF.Abs(colliders[0].HalfExtents.X - bore) <= 1e-6f, $"the shell's bore {colliders[0].HalfExtents.X} is not {bore}");
         foreach (var collar in colliders.Skip(1))
@@ -179,10 +179,10 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void PhysicsGpuAbi_AdmissionAcceptsPipeSceneDeclaration()
     {
-        var pipe = WorkshopInput.Generic(new PartId("pipe"),new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(new PartId("ball"),new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, pipe));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
 
         var profile = new WorkshopGpuProfile(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), profile);

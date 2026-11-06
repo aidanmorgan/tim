@@ -17,7 +17,7 @@ public sealed class WorkshopAnimationTracksTests
     [Fact]
     public void WorldRetirementPreservesUiIdentityAndProgressWhileRetiringOldWorldTargets()
     {
-        var tracks = new WorkshopAnimationTracks();
+        var tracks = new WorkshopAnimationTracks(new CuriousContraptions.Presentation.AnimationServices());
         var ui = Ui(1);
         var world = Ui(2) with { World = new(1), Kind = AnimationControlKind.Endpoint, From = .4f, To = .4f };
         tracks.Apply(ui, AnimationTestTime.Seconds(0)); tracks.Apply(world, AnimationTestTime.Seconds(0));
@@ -33,13 +33,13 @@ public sealed class WorkshopAnimationTracksTests
         Assert.Throws<ArgumentException>(() => tracks.Apply(world with { World = new(2), Kind = AnimationControlKind.Visibility }, AnimationTestTime.Seconds(.5)));
         Assert.Equal(.5f, Read(tracks, 1)); Assert.Equal(.8f, Read(tracks, 2));
         Assert.Equal(16, tracks.Capacity);
-        Assert.Equal(16, new WorkshopAnimationTracks().Capacity);
+        Assert.Equal(16, new WorkshopAnimationTracks(new CuriousContraptions.Presentation.AnimationServices()).Capacity);
     }
 
     [Fact]
     public void SessionRegistryGrowsAtWatermarkAndKeepsAllRunningChannels()
     {
-        var tracks = new WorkshopAnimationTracks();
+        var tracks = new WorkshopAnimationTracks(new CuriousContraptions.Presentation.AnimationServices());
         for (ulong target = 1; target <= 12; target++) tracks.Apply(Ui(target), AnimationTestTime.Seconds(0));
         Assert.Equal(16, tracks.Capacity);
         tracks.Apply(Ui(13), AnimationTestTime.Seconds(0));

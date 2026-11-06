@@ -17,9 +17,6 @@
     <ProjectReference Include="../CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj" />
     <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
     <ProjectReference Include="../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
-    <InternalsVisibleTo Include="CuriousContraptions" />
     <InternalsVisibleTo Include="CuriousContraptions.tests" />
-    <InternalsVisibleTo Include="CuriousContraptions.Simulation" />
-    <InternalsVisibleTo Include="CuriousContraptions.Animation.Worker" />
   </ItemGroup>
 </Project>

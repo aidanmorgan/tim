@@ -4,7 +4,6 @@ using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.Gpu;
 
-public enum ElectricalEnable : byte { Disabled = 0, Enabled = 1 }
 public readonly record struct ElectricalTransfer(float Remaining, float Debit);
 
 /// <summary>One finite source feeding distinct declared storage loads at 120 Hz. Balances and power lie inside

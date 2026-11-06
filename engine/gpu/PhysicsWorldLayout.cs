@@ -13,7 +13,7 @@ namespace CuriousContraptions.Gpu;
 /// </summary>
 public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int Materials, int Sensors, int Dynamic, int Guides,
     int Triggers, int ContactWorks, int OrientationSensors, int ElectricalSources, int ElectricalBindings,
-    int Prismatics, int ContactLoads, int TensileSpans, int Revolutes, int CompliantSurfaces)
+    int Prismatics, int ContactLoads, int TensileSpans, int Revolutes, int CompliantSurfaces) : IPhysicsWorldLayout
 {
     /// <summary>The body table directly follows the header in every world.</summary>
     public static int BodiesOffset => PhysicsGpuAbi.HeaderBytes;

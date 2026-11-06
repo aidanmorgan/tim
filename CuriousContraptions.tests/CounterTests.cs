@@ -14,7 +14,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void PartRegistry_DiscoversCounterDefinitionAndConfiguresInstance()
     {
-        var registry = new PartRegistry();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(new PartId("counter")));
@@ -162,13 +162,13 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void TheDeclaredTargetIsAWholeNumberFromOneToNine()
     {
-        for (var t = 1; t <= 9; t++) PlacedParts.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, t).Validate();
+        for (var t = 1; t <= 9; t++) PlacedParts.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, t).Validate(RuntimeTestServices.Bundle);
         Assert.Equal(3f, InstanceParameterCollection.Defaults(new PartId("counter"))[new ParameterId("target_count")]);
-        static void Refused(float target) => Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(new PartId("counter"), new(1), 0, 0, 0, 0, 0, 0, 1,
-            new([new(new("target_count"), target)])).Validate());
+        static void Refused(float target) => Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("counter"), new(1), 0, 0, 0, 0, 0, 0, 1,
+            new([new(new("target_count"), target)])).Validate(RuntimeTestServices.Bundle));
         foreach (var target in new[] { 0f, -1f, 10f, 2.5f, float.NaN, float.PositiveInfinity }) Refused(target);
-        Assert.Throws<ArgumentException>(() => (WorkshopInput.Generic(new PartId("counter"), new(1), 0, 0, 0, 0, 0, 0, 1) with
-            { Parameters = InstanceParameterCollection.Empty }).Validate());
+        Assert.Throws<ArgumentException>(() => (WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("counter"), new(1), 0, 0, 0, 0, 0, 0, 1) with
+            { Parameters = InstanceParameterCollection.Empty }).Validate(RuntimeTestServices.Bundle));
     }
 
     [Fact]
@@ -178,7 +178,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var detector = PlacedParts.Detector(new(2), -2, 0, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), 0, -2, 0);
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(5), 0, 2, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(5), 0, 2, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(counter, detector, lamp, battery, gate);
 
@@ -188,11 +188,11 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var conn4 = new WorkshopConnection(counter.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
 
         var connections = new WorkshopConnections(conn1, conn2, conn3, conn4);
-        connections.Validate(instances);
+        connections.Validate(RuntimeTestServices.Core.Supply, instances);
 
         // Invalid: Activation on electrical socket
         var invalidConn = new WorkshopConnection(detector.Id, PortId.ActivationOut, counter.Id, PortId.PowerIn, WorkshopConnectionDomain.Activation);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(invalidConn).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(invalidConn).Validate(RuntimeTestServices.Core.Supply, instances));
     }
 
     [Fact]
@@ -200,7 +200,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     {
         var counter = PlacedParts.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
         var battery = PlacedParts.Battery(new(2), -2, 0, 0);
-        var gate = WorkshopInput.Generic(new PartId("powered_gate"), new(3), 2, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(3), 2, 0, 0, 0, 0, 0, 1);
 
         // Without battery connected: gate blade drag is 0
         var connNoBattery = new WorkshopConnection(counter.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical);
@@ -210,7 +210,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             new([counter, battery, gate]),
             Connections: new([connNoBattery]));
 
-        var sceneUnpowered = WorkshopPhysicsCompiler.Compile(constructionUnpowered, new(1, 1));
+        var sceneUnpowered = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, constructionUnpowered, new(1, 1));
         var bladeUnpowered = sceneUnpowered.Bodies.ToArray().First(b => b.Id == constructionUnpowered.Instances.Identities[gate.Id].Sliders[0].Body);
         Assert.Equal(0f, bladeUnpowered.LinearDrag.Value);
 
@@ -229,7 +229,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             new([counter, battery, gate]),
             Connections: new([connBattery, connNoBattery]));
 
-        var scenePowered = WorkshopPhysicsCompiler.Compile(constructionPowered, new(1, 1));
+        var scenePowered = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, constructionPowered, new(1, 1));
         var bladePowered = scenePowered.Bodies.ToArray().First(b => b.Id == constructionPowered.Instances.Identities[gate.Id].Sliders[0].Body);
         Assert.Equal(0f, bladePowered.LinearDrag.Value);
         Assert.Contains(scenePowered.SupplyGraph.Nodes.ToArray(),node=>node.Owner==counter.Id && node.Kind==SupplyNodeKind.Contact);
@@ -252,7 +252,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             new([detector, counter, lamp]),
             Connections: new([conn1, conn2]));
 
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var activations = network.Clear();
         var timers = network.ClearTimers();
         var memory = network.ClearMemory();
@@ -329,7 +329,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([detector, counter]),
             Connections: new([new WorkshopConnection(detector.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn,
                 WorkshopConnectionDomain.Activation)]));
-        var network = WorkshopActivationCompiler.Compile(construction);
+        var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var sensor = construction.Instances.Identities[detector.Id].Signals[new("signal")].Passage;
         PassageSensorRead Pass(uint ordinal) => new(sensor, detector.Id, new(10), new(11), PassageSensorPhase.Fired, ordinal, 0f, new(2f), new(ordinal / 4));
 
@@ -349,7 +349,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.True(network.ContactClosed(retried.Activations, network.ClearTimers(), counter.Id));
 
         // Admission (Reset) recompiles the network and clears the row: count 0, no last input, contact open.
-        var reset = WorkshopActivationCompiler.Compile(construction);
+        var reset = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var cleared = network.Memory(reset.ClearMemory(), SignalTestNodes.Only(network, counter.Id));
         Assert.Equal(ActivationMemory.Clear(reset.Nodes.ToArray().Single(node => node.Owner == counter.Id)), cleared);
         Assert.Equal(0U, cleared.Count);
@@ -383,10 +383,10 @@ public sealed class CounterTests(NativeSceneFixture godot)
     {
         var counter = PlacedParts.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
         IWorkshopInstance[] instances = [counter];
-        new WorkshopInstances([.. instances]).Validate();
+        new WorkshopInstances([.. instances]).Validate(RuntimeTestServices.Bundle);
 
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
-        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+        var world = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(counter)), new(1, 2)).World;
         Assert.Equal(1 + 1, world.Bodies);
         Assert.Equal(0, world.Dynamic);

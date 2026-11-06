@@ -3,21 +3,6 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PosePublicationPreparation { Ready = 0, StorageUnavailable = 1 }
-
-public readonly record struct PoseRingBody(
-    GpuBodyId Id,
-    float Px, float Py, float Pz,
-    float Qx, float Qy, float Qz, float Qw,
-    float Vx, float Vy, float Vz,
-    uint Flags);
-
-public readonly record struct PoseRingSlot(
-    ulong Sequence,
-    long TimestampNanoseconds,
-    int BodyCount,
-    PoseRingBody[] Bodies);
-
 /// <summary>
 /// Lock-free zero-copy triple-buffered SharedArrayBuffer pose ring layout and codecs. Each of the three slots has a 16-byte header
 /// followed by one 64-byte record per moving body. Story 9R.5b: the ring's body capacity is its own length (no fixed capacity);

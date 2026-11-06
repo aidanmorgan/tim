@@ -7,7 +7,7 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopWallTests
 {
     private static WorkshopGenericInstance Wall(InstanceParameterCollection dimensions) =>
-        WorkshopInput.Generic(new PartId("wall"), new(2), .125f, 2, -.25f, 0, 0, .382683432365f, .923879532511f, dimensions);
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(2), .125f, 2, -.25f, 0, 0, .382683432365f, .923879532511f, dimensions);
     private static WorkshopSavedConstruction Saved(InstanceParameterCollection dimensions) =>
         new(new(new(1), WorkshopCadenceSettings.Default(), new(Wall(dimensions))), new(3));
 
@@ -17,9 +17,9 @@ public sealed class WorkshopWallTests
         foreach (var dimensions in new[] { WallFixture.Default, WallFixture.Minimum, WallFixture.Maximum })
         {
             var saved = Saved(dimensions);
-            var bytes = WorkshopSaveCodec.Encode(saved);
-            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
-            var scene = WorkshopPhysicsCompiler.Compile(saved.Construction, new(1, 2));
+            var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes));
+            var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, saved.Construction, new(1, 2));
             var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(2));
             Assert.Equal(Wall(dimensions).Rotation, body.Rotation);
             Assert.Equal(RigidMotionKind.Static, body.Motion);
@@ -38,7 +38,7 @@ public sealed class WorkshopWallTests
     [Fact]
     public void GenericShapeEnvelopeAcceptsSixteenAndRejectsTheNextF32Value()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Saved(WallFixture.Maximum).Construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Saved(WallFixture.Maximum).Construction, new(1, 2));
         var box = Assert.Single(scene.Colliders.ToArray(), c => c.Shape == ColliderShapeKind.Box);
         box.Validate();
         (box with { HalfExtents = new(16f, 16f, 16f) }).Validate();
@@ -55,8 +55,8 @@ public sealed class WorkshopWallTests
     public void InvalidSubmittedParametersRejectAtomicallyWhileExactF32ValuesRoundTrip()
     {
         var saved = Saved(WallFixture.Values(3.1234567f, 2.2345678f, .3456789f));
-        var bytes = WorkshopSaveCodec.Encode(saved);
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
         var wall = Assert.IsType<WorkshopGenericInstance>(saved.Construction.Instances[0]);
         var geometry = CuriousContraptions.Bundle.BundleGeometry.Colliders(DeclaredPhysics.Of(new PartId("wall")), wall.Parameters.ToBundleValues());
         Assert.Equal(3.1234567f * .5f, Assert.Single(geometry).HalfExtents.X);
@@ -66,17 +66,17 @@ public sealed class WorkshopWallTests
             var values = wall.Parameters.ToDictionary(pair => pair.Key, pair => pair.Value);
             values[new(key)] = value;
             var invalid = wall with { Parameters = new(values) };
-            Assert.Throws<ArgumentException>(() => invalid.Validate());
-            Assert.Throws<ArgumentException>(() => saved.Construction.WithInstance(invalid).Validate());
+            Assert.Throws<ArgumentException>(() => invalid.Validate(RuntimeTestServices.Bundle));
+            Assert.Throws<ArgumentException>(() => saved.Construction.WithInstance(RuntimeTestServices.Bundle, invalid).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-            var record = WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder,
-                saved.Construction with { Instances = new(invalid) }, validate: false);
+            var record = SaveFixture.Record(builder,
+                saved.Construction with { Instances = new(invalid) });
             Assert.Throws<WorkshopSaveRejectedException>(() =>
-                WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Finish(builder, record, saved.NextBodyId.Value)));
-            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+                WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, SaveFixture.Finish(builder, record, saved.NextBodyId.Value)));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
         }
         Assert.Throws<ArgumentException>(() => new InstanceParameterCollection([new(new("width"), 1f), new(new("width"), 2f)]));
-        Assert.Throws<ArgumentException>(() => (wall with { Parameters = InstanceParameterCollection.Empty }).Validate());
+        Assert.Throws<ArgumentException>(() => (wall with { Parameters = InstanceParameterCollection.Empty }).Validate(RuntimeTestServices.Bundle));
     }
 
 
@@ -88,14 +88,14 @@ public sealed class WorkshopWallTests
     public void RealSimulationRotatedWallBlocksMovingBallWhileAbsentWallDoesNot(float yaw, float speed)
     {
         var normal = new System.Numerics.Vector3(MathF.Sin(yaw), 0, MathF.Cos(yaw));
-        var wall = WorkshopInput.Generic(new PartId("wall"), new(2), 0, 3, 0, 0, (float)(MathF.Sin(yaw / 2)), 0, (float)(MathF.Cos(yaw / 2)),
+        var wall = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(2), 0, 3, 0, 0, (float)(MathF.Sin(yaw / 2)), 0, (float)(MathF.Cos(yaw / 2)),
             WallFixture.Values(3, 6, .25f));
-        var ball = WorkshopInput.Generic(new PartId("ball"),new(1), (float)(-2 * normal.X), 3, (float)(-2 * normal.Z), 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), (float)(-2 * normal.X), 3, (float)(-2 * normal.Z), 0, 0, 0, 1);
         float Probe(bool includeWall)
         {
             var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
                 includeWall ? new(ball, wall) : new(ball));
-            var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
             var bytes = PhysicsGpuAbi.Admission(scene, new(1),
                 new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
             var offset = scene.Layout.GetBodyOffset(ball.Id);
@@ -120,16 +120,16 @@ public sealed class WorkshopWallTests
     [Fact]
     public async Task RealSimulationResetAndSaveLoadRestoreGenericWallAndItsContact()
     {
-        var wall = WorkshopInput.Generic(new PartId("wall"), new(2), 0, 2, 0, 0, 0, 0, 1,
+        var wall = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(2), 0, 2, 0, 0, 0, 0, 1,
             WallFixture.Values(3.1234567f, .4f, 2f));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1), wall));
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4, 0, 0, 0, 0, 1), wall));
         var saved = new WorkshopSavedConstruction(construction, new(3));
-        var bytes = WorkshopSaveCodec.Encode(saved);
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 120);
         NoFixedCapacityTests.AssertSameState(built, reset, "Wall Reset");
         Assert.True(reads.All(read => (read.Bodies[0].Body.Cell.Y + read.Bodies[0].Body.Local.Y) / 16f > 2.2f));
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 120);
         Assert.All(replay, read => Assert.True((read.Bodies[0].Body.Cell.Y + read.Bodies[0].Body.Local.Y) / 16f > 2.2f));
@@ -145,30 +145,30 @@ public sealed class WorkshopWallTests
         Assert.False(DeclaredPorts.Current.Has(new PartId("wall"), PortId.ActivationIn,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         // Free play has no per-kind wall count; only the compiled table capacities limit the population.
-        new WorkshopInstances(wall, wall with { Id = new(3) }).Validate();
-        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(4), new(1f));
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(wall).Validate());
-        var construction = Saved(WallFixture.Default).Construction.WithInstance(
+        new WorkshopInstances(wall, wall with { Id = new(3) }).Validate(RuntimeTestServices.Bundle);
+        var puzzle = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(4), new(1f));
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(RuntimeTestServices.Bundle, wall).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
+        var construction = Saved(WallFixture.Default).Construction.WithInstance(RuntimeTestServices.Bundle,
             PlacedParts.Lamp(new(3), 3, 2, 0, 0, 0, 0, 1)) with
         {
             Connections = new(new WorkshopConnection(wall.Id, PortId.ActivationOut,
                 new(3), PortId.ActivationIn, WorkshopConnectionDomain.Activation))
         };
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => construction.Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
     }
 
     [Fact]
     public void AllAdmittedInstancesCompileIntoExactlySizedTablesWithoutNewLaw()
     {
         var instances = new WorkshopInstances(
-            WorkshopInput.Generic(new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("basket"), new(2), 3, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("ramp"), new(3), -3, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("ramp"), new(4), -1, 2, 0, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("switch"), new(5), 0, 1, 2, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 6, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(2), 3, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(3), -3, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(4), -1, 2, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(5), 0, 1, 2, 0, 0, 0, 1),
             PlacedParts.Lamp(new(6), 3, 1, 2, 0, 0, 0, 1),
-            WorkshopInput.Generic(new PartId("wall"), new(7), -4, 4, -2, 0, 0, 0, 1, WallFixture.Maximum));
-        var scene = WorkshopPhysicsCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), instances), new(1, 2));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(7), -4, 4, -2, 0, 0, 0, 1, WallFixture.Maximum));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(1), WorkshopCadenceSettings.Default(), instances), new(1, 2));
         Assert.Equal(8, scene.Bodies.Length);
         // The 13 colliders of the harvest shapes plus, since elements-visible-solid, two rails on each of the two ramps, the lamp's
         // bulb and stem, and the switch's two terminals and socket, plus the Basketball seam: 23.
@@ -185,7 +185,7 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
     [Fact]
     public void ActualResourceThreeAxesArtworkAndProjectionFollowCanonicalFullPose()
     {
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var definition = registry.Definitions[new PartId("wall")];
         Assert.Single(definition.Colliders);
         var part = Assert.IsAssignableFrom<MachinePart>(registry.Create(new PartId("wall")));
@@ -232,7 +232,7 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
     [Fact]
     public void ExistingRampSelectionRingTracksResizeAndCanonicalRestore()
     {
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var ramp = Assert.IsAssignableFrom<MachinePart>(registry.Create(new PartId("ramp")));
         try
         {

@@ -4,44 +4,6 @@ using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
 
-public readonly record struct GpuPassageSensorId(ulong Value);
-public readonly record struct PassageSequence(ulong Value);
-
-public readonly record struct PassageSensorDeclaration(
-    GpuPassageSensorId Id,
-    GpuBodyId Frame,
-    CellOrigin Cell,
-    LocalPosition Local,
-    CanonicalRotation Rotation,
-    Metres Radius,
-    Metres RearmClearance)
-{
-    public void Validate()
-    {
-        if (Id.Value == 0 || Frame.Value == 0) throw new ArgumentException("Invalid passage sensor identity.");
-        Rotation.Validate();
-        PhysicsDeclarationBounds.Range(Radius.Value, 0.01f, 10f);
-        PhysicsDeclarationBounds.Range(RearmClearance.Value, 0.001f, 10f);
-    }
-}
-
-public enum PassageSensorPhase : uint { Unarmed, Armed, Fired }
-
-public readonly record struct PassageSensorRead(
-    GpuPassageSensorId Id,
-    GpuBodyId Frame,
-    GpuBodyId Body,
-    GpuColliderId Collider,
-    PassageSensorPhase Phase,
-    uint EventOrdinal,
-    float EventPhase,
-    LinearSpeed Speed,
-    PassageSequence Sequence);
-
-public readonly record struct PassagePairKey(GpuPassageSensorId Sensor, GpuBodyId Body);
-public readonly record struct PassageBodyState(GpuPassageSensorId Sensor, GpuBodyId Body,
-    PassageSensorPhase Phase, ulong PassedCount);
-
 /// <summary>Immutable candidate state: one previous pose per dynamic participant and only actual remembered interactions.</summary>
 public sealed class PassageSensorTracker
 {
@@ -66,7 +28,7 @@ public sealed class PassageSensorTracker
     }
 
     public static PassageSensorTracker Create(ReadOnlySpan<PassageSensorDeclaration> sensors,
-        PhysicsSceneDeclaration scene, PhysicsBodyReadSet bodies)
+        IPhysicsSceneDeclaration scene, PhysicsBodyReadSet bodies)
     {
         ArgumentNullException.ThrowIfNull(scene);
         var declaredBodies = new Dictionary<GpuBodyId, RigidMotionKind>(16);
@@ -122,7 +84,7 @@ public sealed class PassageSensorTracker
         return sensorList.Length == 0 ? Empty : new(sensorList,participants.ToArray(),new(declaredBodies.Keys),[],[],new PassageSequence[sensorList.Length]);
     }
 
-    public PassageSensorTracker Advance(SimulationTick tick, PhysicsBodyReadSet bodies, PhysicsMotionRead motion)
+    public PassageSensorTracker Advance(SimulationTick tick, PhysicsBodyReadSet bodies, IPhysicsMotionRead motion)
     {
         if (_sensors.Length == 0) return this;
         ArgumentNullException.ThrowIfNull(motion);

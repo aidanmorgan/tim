@@ -20,12 +20,12 @@ public static class DeclaredPhysics
     public static IReadOnlyDictionary<PartId, BundleEntry> Entries => _entries ??
         throw new InvalidOperationException("The physical element bundle is not installed.");
 
-    public static void Install(IReadOnlyList<BundleEntry> entries)
+    public static void Install(IBundleServices bundle, IReadOnlyList<BundleEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
-        var errors = BundleValidator.Validate(entries.Select(entry => new NamedEntry(entry.Metadata.Id, entry)).ToArray());
+        var errors = bundle.Validate(entries.Select(entry => new NamedEntry(entry.Metadata.Id, entry)).ToArray());
         if (errors.Count != 0) throw new ArgumentException(string.Join("; ", errors));
-        var identity = BundleSchema.WriteEntries(entries);
+        var identity = bundle.WriteEntries(entries);
         var admitted = entries.ToImmutableDictionary(entry => new PartId(entry.Metadata.Id));
         lock (Gate)
         {
@@ -70,8 +70,8 @@ public static class DeclaredPhysics
     public static IReadOnlyDictionary<string, float> Parameters(IWorkshopInstance instance) =>
         ((WorkshopGenericInstance)instance).Parameters.ToBundleValues();
 
-    public static IReadOnlyList<ExtractedCollider> Colliders(PartId part, IReadOnlyDictionary<string, float>? parameters = null) =>
-        BundleGeometry.Colliders(Of(part), parameters).Select(Admit).ToArray();
+    public static IReadOnlyList<ExtractedCollider> Colliders(IBundleServices bundle, PartId part, IReadOnlyDictionary<string, float>? parameters = null) =>
+        bundle.Colliders(Of(part), parameters).Select(Admit).ToArray();
 
     public static ExtractedCollider Admit(CuriousContraptions.Abstractions.ColliderDescriptor descriptor)
     {
@@ -111,12 +111,12 @@ public static class DeclaredPhysics
         Of(part).Electrical?.Supply?.Store;
 
     /// <summary>The part's declared run-time controls, in parameter order: each RunControl parameter with the one lane it binds.</summary>
-    public static IReadOnlyList<DeclaredRunControl> RunControls(PartId part) => RunControls(Of(part));
+    public static IReadOnlyList<DeclaredRunControl> RunControls(IBundleServices bundle, PartId part) => RunControls(bundle, Of(part));
 
     /// <summary>This declaration's run-time controls. The admitted bundle binds each RunControl parameter to exactly one lane.</summary>
-    public static IReadOnlyList<DeclaredRunControl> RunControls(BundleEntry entry) => entry.Metadata.Parameters
+    public static IReadOnlyList<DeclaredRunControl> RunControls(IBundleServices bundle, BundleEntry entry) => entry.Metadata.Parameters
         .Where(parameter => parameter.RunEdit == CuriousContraptions.Abstractions.ParameterRunEdit.RunControl)
-        .Select(parameter => new DeclaredRunControl(new(parameter.Key), RunControlBindings.Lanes(entry, parameter.Key).Single())).ToArray();
+        .Select(parameter => new DeclaredRunControl(new(parameter.Key), bundle.Lanes(entry, parameter.Key).Single())).ToArray();
     /// <summary>Explicit package capability; collision geometry never determines capture eligibility.</summary>
     public static bool IsPayload(PartId part) => Of(part).Mechanical?.Payload == PayloadPolicy.CaptureTarget;
 

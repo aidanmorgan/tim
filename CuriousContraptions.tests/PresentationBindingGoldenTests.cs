@@ -49,7 +49,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
                 new("Visual/Visual_Halo", PresentationProperty.AlbedoBlue, 189f/255, 1)],
             _ => throw new ArgumentOutOfRangeException(nameof(id))
         };
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var part = registry.Create(id);
         try
         {
@@ -67,11 +67,11 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
             // The production evaluator over a real admitted read of the part alone, and one record of its kind from it at that read's
             // physical instant; the evaluator advances in world time.
             var owner = new GpuBodyId(1);
-            var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(WorkshopInput.Generic(id, owner, 0, 2, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(new PartId("ball"), new(2), 6, 3, 0, 0, 0, 0, 1)));
+            var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(WorkshopInput.Generic(RuntimeTestServices.Bundle, id, owner, 0, 2, 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(2), 6, 3, 0, 0, 0, 0, 1)));
             var read = (await WorkshopIntegrationHarness.Observe(bench, 1))[1];
             var start = read.Capture!.Value.Time;
-            var presentation = new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(bench), new(default, WorkshopResponseKind.Read,
+            var presentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(bench), new(default, WorkshopResponseKind.Read,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, read, new(101, 206), new(1),
                 new(1), new(1), new(1), new(read.Tick.Value)));
             var world = new WorkshopWorldProjection(read.Epoch, new(1), read.Tick, new(start.Value), WorldPlayback.Running);
@@ -105,7 +105,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
     [Fact]
     public void UnsupportedPropertyCurveAndMissingNodeAreRejectedAtTheirAdmissionBoundary()
     {
-        var registry = new PartRegistry(); registry.Load();
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle); registry.Load();
         var entry = DeclaredPhysics.Of(new PartId("clock"));
         var pulse = entry.Presentation.Bindings[1];
         PresentationBinding[] invalid = [
@@ -126,9 +126,9 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
         var candidate = definition.Scene!.Instantiate<MachinePart>();
         try
         {
-            var changed = new PartDefinition(definition.PartId, definition.Title, definition.Description, definition.Category,
+            var changed = new PartDefinition(RuntimeTestServices.Bundle, definition.PartId, definition.Title, definition.Description, definition.Category,
                 definition.Color, definition.IconPath, definition.Scene, missing);
-            candidate.Configure(changed);
+            candidate.Configure(RuntimeTestServices.Core.Presentation, changed);
             Assert.Throws<ArgumentException>(() => candidate.EnsureConstructed());
             Assert.Same(entry, DeclaredPhysics.Of(new PartId("clock")));
         }

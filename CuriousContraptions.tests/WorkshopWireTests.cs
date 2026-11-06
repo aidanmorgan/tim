@@ -215,7 +215,7 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => WorkshopClockWire.DecodePeer(oldVersion));
     }
 
-    private static WorkshopSchedule SharedSchedule() => WorkshopSchedule.Create(
+    private static WorkshopSchedule SharedSchedule() => WorkshopScheduleRules.Create(
         WorkshopCadenceSettings.Default(), new(2), new(1), new(1000), new(50_000_000),
         new(41_666_667), new(41_666_667),
         new(new(1), new(3), new(0), new(50_000_000), WorldPlayback.Running));
@@ -262,9 +262,9 @@ public sealed class WorkshopWireTests
         schedule.ValidateDisplay(new(60, 1));
         Assert.Throws<ArgumentException>(() => schedule.ValidateDisplay(new(60000, 1001)));
         var late = new MasterTimeNanoseconds(long.MaxValue);
-        Assert.Throws<OverflowException>(() => WorkshopSchedule.Create(schedule.Settings, new(3), new(1), new(0),
+        Assert.Throws<OverflowException>(() => WorkshopScheduleRules.Create(schedule.Settings, new(3), new(1), new(0),
             late, new(0), new(0), schedule.World));
-        Assert.Throws<OverflowException>(() => WorkshopSchedule.Create(schedule.Settings, new(3), new(1), new(5_000_000),
+        Assert.Throws<OverflowException>(() => WorkshopScheduleRules.Create(schedule.Settings, new(3), new(1), new(5_000_000),
             new(long.MaxValue - 10_000_000), new(0), new(0), schedule.World));
         var bytes = new byte[WorkshopScheduleWire.ScheduleBytes];
         WorkshopScheduleWire.WriteSchedule(basis, bytes);
@@ -374,7 +374,7 @@ public sealed class WorkshopWireTests
         Assert.Equal(AnimationCadence.Hz60, settings.Animation);
         Assert.Equal(PresentationCadence.Hz60, settings.Presentation);
         Assert.Equal(new PulseRate(60, 1), settings.PresentationRate);
-        var schedule = WorkshopSchedule.Create(settings, new(1), new(1), new(0), new(0), new(0), new(0),
+        var schedule = WorkshopScheduleRules.Create(settings, new(1), new(1), new(0), new(0), new(0), new(0),
             new(new(1), new(1), new(0), new(0), WorldPlayback.Building));
         schedule.ValidateDisplay(new(144, 1));
         Assert.Equal(new MasterTimeNanoseconds(16_666_667), WorkshopPulse.Deadline(settings.PresentationRate, schedule.FirstPresentation));
@@ -488,6 +488,55 @@ public sealed class WorkshopWireTests
         else Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(bytes, read.Bodies, read.Tick));
     }
 
+
+    [Fact]
+    public void OpaquePresentationPreparationsRejectForeignOwnersImplementationsAndStaleCommitsAtomically()
+    {
+        var core = RuntimeTestServices.Core;
+        var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
+            Stamped(new(new(1), default, default, new(1))), Session, default, new(1), new(1), new(1));
+        var cursor = core.CreateClientCursor(Session);
+        var otherCursor = core.CreateClientCursor(Session);
+        var prepared = cursor.PrepareInstallation(response);
+        var stale = cursor.PrepareInstallation(response);
+        Assert.Throws<InvalidOperationException>(() => otherCursor.Commit(prepared));
+        Assert.Throws<InvalidOperationException>(() => cursor.Commit(new ForeignCursorPreparation(response)));
+        Assert.Equal(0UL, cursor.Revision.Value);
+        Assert.Equal(0UL, otherCursor.Revision.Value);
+        cursor.Commit(prepared);
+        Assert.Equal(response.Read.Revision, cursor.Revision);
+        Assert.Throws<InvalidOperationException>(() => cursor.Commit(stale));
+        Assert.Equal(response.Read.Revision, cursor.Revision);
+
+        var schedule = core.Scheduling.Create(Settings, new(1), new(1), default, new(100_000_000),
+            default, default, new(new(1), new(1), default, new(100_000_000), WorldPlayback.Building));
+        var history = core.CreatePoseHistory();
+        var otherHistory = core.CreatePoseHistory();
+        var install = history.PrepareInstall(schedule, response, null, PresentationBoundary.Seed, 1);
+        var oldInstall = history.PrepareInstall(schedule, response, null, PresentationBoundary.Seed, 1);
+        Assert.Throws<InvalidOperationException>(() => otherHistory.Commit(install));
+        Assert.Throws<InvalidOperationException>(() => history.Commit(new ForeignHistoryPreparation()));
+        Assert.Equal(0, history.Count);
+        Assert.Equal(0, otherHistory.Count);
+        history.Commit(install);
+        Assert.Equal(1, history.Count);
+        Assert.Equal(response, history.Latest);
+        Assert.Throws<InvalidOperationException>(() => history.Commit(oldInstall));
+        Assert.Equal(response, history.Latest);
+        var retired = otherHistory.PrepareInstall(schedule, response, null, PresentationBoundary.Seed, 1);
+        otherHistory.Retire();
+        Assert.Throws<InvalidOperationException>(() => otherHistory.Commit(retired));
+        Assert.Equal(0, otherHistory.Count);
+        Assert.Equal(PresentationQuality.Retired, otherHistory.Quality);
+    }
+
+    private sealed record ForeignCursorPreparation(WorkshopResponse Response) : ICursorPreparation
+    {
+        public bool Applicable => true;
+    }
+    private sealed class ForeignHistoryPreparation : IPoseHistoryPreparation;
+
     private static PhysicsBodyReadSet Bodies(CanonicalBody body) =>
         new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, default, default) });
     private static WorkshopGenericInstance OnlyBall(WorkshopConstruction construction) =>
@@ -510,7 +559,7 @@ public sealed class WorkshopWireTests
         var candidate = cursor.PrepareAcknowledgement(command, response, order, disposed);
         cursor.Commit(candidate); return new(response, candidate.Applicable);
     }
-    private static WorkshopConstruction Construction => new(new(2), Settings, new(WorkshopInput.Generic(new PartId("ball"),new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1)));
+    private static WorkshopConstruction Construction => new(new(2), Settings, new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1)));
 
 
     [Fact]
@@ -562,7 +611,7 @@ public sealed class WorkshopWireTests
                     new(tick + 1), capture)), peer.Session, new(tick + 1), new(1), new(1), new(1));
             if (boundary == PresentationBoundary.Run)
             {
-                var schedule = WorkshopSchedule.Create(Settings, new(1), peer.Generation, peer.MasterOrigin,
+                var schedule = WorkshopScheduleRules.Create(Settings, new(1), peer.Generation, peer.MasterOrigin,
                     new(browserTime + 50_000_000), default, default,
                     new(new(1), new(1), new(tick), new(browserTime + 50_000_000), WorldPlayback.Running));
                 history.Commit(history.PrepareInstall(schedule, response, mapped, boundary, clock.DisplayEpoch));
@@ -616,7 +665,7 @@ public sealed class WorkshopWireTests
             {
                 var playback = boundary == PresentationBoundary.Seed ? WorldPlayback.Building : WorldPlayback.Running;
                 var at = boundary == PresentationBoundary.Seed ? 100_000_000L : 300_000_000L;
-                var schedule = WorkshopSchedule.Create(Settings, new(1), peer.Generation, peer.MasterOrigin,
+                var schedule = WorkshopScheduleRules.Create(Settings, new(1), peer.Generation, peer.MasterOrigin,
                     new(at), default, default, new(new(1), response.Projection, response.Read.Tick, new(at), playback));
                 history.Commit(history.PrepareInstall(schedule, response, mapped, boundary, 1));
             }
@@ -682,9 +731,9 @@ public sealed class WorkshopWireTests
         var current = Construction with { Instances = new(OnlyBall(Construction) with { Id = new(1) }) };
         var ball = OnlyBall(current);
         var read = Stamped(new(new(1), new(0), Bodies(new CanonicalBody(ball.Id, 1, 0, ball.Cell, ball.Local, default))));
-        var proposed = current.WithInstance(ball with { Cell = new(32, 64, 0) }) with { Revision = new(3) };
-        var currentScene = WorkshopPhysicsCompiler.Compile(current, new(Session.Low, Session.High));
-        var proposedScene = WorkshopPhysicsCompiler.Compile(proposed, new(Session.Low, Session.High));
+        var proposed = current.WithInstance(RuntimeTestServices.Bundle, ball with { Cell = new(32, 64, 0) }) with { Revision = new(3) };
+        var currentScene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, current, new(Session.Low, Session.High));
+        var proposedScene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, proposed, new(Session.Low, Session.High));
         read.Bodies.ValidateScene(currentScene, read.Epoch, read.Tick);
         Assert.Throws<ArgumentException>(() => read.Bodies.ValidateScene(proposedScene, read.Epoch, read.Tick));
         Assert.Equal(ball.Cell, read.Bodies[0].Body.Cell);
@@ -870,7 +919,7 @@ public sealed class WorkshopWireTests
             Rotation = new(BitConverter.UInt32BitsToSingle(0x80000000), 0f, 0f, 1f)
         };
         var command = new WorkshopCommand(new(0x20000000000001), WorkshopCommandKind.Construct,
-            new(0x30000000000001), new(1), CompiledSceneFixture.Compile(Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(ball)), Session: Session, Cadence: new(1), Projection: new(1));
+            new(0x30000000000001), new(1), CompiledSceneFixture.Compile(Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(RuntimeTestServices.Bundle, ball)), Session: Session, Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(bytes);
         Assert.Equal(command with { Scene = null }, decoded with { Scene = null });
@@ -880,12 +929,12 @@ public sealed class WorkshopWireTests
 
 
 
-    private static PhysicsSceneDeclaration GenericScene => WorkshopPhysicsCompiler.Compile(
-        Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(OnlyBall(Construction) with { Id = new(1) }), new(101, 206));
+    private static IPhysicsSceneDeclaration GenericScene => WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle,
+        Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(RuntimeTestServices.Bundle, OnlyBall(Construction) with { Id = new(1) }), new(101, 206));
     [Fact]
     public void AuthoredCompilerAndWirePreserveRepresentableWideBodyIdentity()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction, new(101, 206));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction, new(101, 206));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
         Assert.True(PhysicsGpuAbi.ReadDynamicBodies(admitted).TryGet(OnlyBall(Construction).Id, out var body));
         Assert.Equal(OnlyBall(Construction).Cell, body.Body.Cell);
@@ -945,8 +994,8 @@ public sealed class WorkshopWireTests
     [InlineData(1)]
     public void GuideDeclarationPreservesAuthoredKnotsAndRejectsCandidateMutation(double precision)
     {
-        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((float)precision));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var construction = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((float)precision));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         Assert.Equal(1, scene.Guides.Length);
         var guide = scene.Guides[0];
         var knot = construction.Puzzle.TargetAssistance.Evaluate(construction.Puzzle.Precision);
@@ -974,7 +1023,7 @@ public sealed class WorkshopWireTests
     [Fact]
     public void GuideAdmissionRejectsUnsupportedOrAmbiguousForceOwnership()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f)), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f)), new(1, 2));
         var guide = scene.Guides[0];
         PhysicsSceneDeclaration Replace(params PlanarGuideDeclaration[] values) => new(scene.Document, scene.NextIdentity,
             scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, values);
@@ -1077,8 +1126,8 @@ public sealed class WorkshopWireTests
         }
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ByteLength(new byte[PhysicsGpuAbi.HeaderBytes - 1]));
         // A candidate world one collider longer than its source never validates against it.
-        var longer = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction.WithoutInstance(OnlyBall(Construction).Id)
-            .WithInstance(OnlyBall(Construction) with { Id = new(1) }).WithInstance(WorkshopInput.Generic(new PartId("wall"), new(2), 4, 2, 0, 0, 0, 0, 1, WallFixture.Default)),
+        var longer = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction.WithoutInstance(OnlyBall(Construction).Id)
+            .WithInstance(RuntimeTestServices.Bundle, OnlyBall(Construction) with { Id = new(1) }).WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(2), 4, 2, 0, 0, 0, 0, 1, WallFixture.Default)),
             new(101, 206)), new(2), Profile);
         // Story 9R.5b: the Wall also adds a body and a material row, so the exact length follows the longer world's own layout.
         Assert.Equal(colliders + 1, PhysicsGpuAbi.Layout(longer).Colliders);

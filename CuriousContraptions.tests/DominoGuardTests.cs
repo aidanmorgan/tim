@@ -18,9 +18,9 @@ public sealed class DominoGuardTests
     /// <summary>domino_effect with its four inventory tiles at x = -4, -3, -2, -1 (ids 4-7), optionally without one, end wired to the lamp.</summary>
     private static WorkshopConstruction Lesson(float precision, bool wired = true, int skip = -1)
     {
-        var result = PuzzleCatalogue.Create(new("domino_effect"), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
+        var result = PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("domino_effect"), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
         for (var i = 0; i < 4; i++)
-            if (i != skip) result = result.WithInstance(PlacedParts.Domino(new((ulong)(4 + i)), (float)(-4 + i), (float)(Upright + .01), 0, 0, 0, 0, 1));
+            if (i != skip) result = result.WithInstance(RuntimeTestServices.Bundle, PlacedParts.Domino(new((ulong)(4 + i)), (float)(-4 + i), (float)(Upright + .01), 0, 0, 0, 0, 1));
         return wired ? result with { Connections = new(Signal(End, Lamp)) } : result;
     }
 
@@ -62,7 +62,7 @@ public sealed class DominoGuardTests
     public async Task TheWiredLessonCascadeTopplesByContactFiresOnceAtFortyFiveDegreesAndSolvesOnce(float precision)
     {
         var lesson = Lesson((float)precision);
-        lesson.Validate();
+        lesson.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(lesson, Ticks);
         // The chain topples in order, each tile starting to turn only after the one before it: real contact, not a shared push.
         var order = new GpuBodyId[] { new(4), new(5), new(6), new(7), End };
@@ -110,9 +110,9 @@ public sealed class DominoGuardTests
     {
         var unwired = Lesson(.45f, wired: false);
         var ids = unwired.Instances.Identities[End].Signals[new("signal")];
-        var sensor = Assert.Single(WorkshopPhysicsCompiler.Compile(unwired, new(1, 2)).OrientationSensors.ToArray(), row => row.Id == ids.Orientation);
+        var sensor = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, unwired, new(1, 2)).OrientationSensors.ToArray(), row => row.Id == ids.Orientation);
         Assert.Equal(End, sensor.Body);
-        var node = Assert.Single(WorkshopActivationCompiler.Compile(unwired).Nodes.ToArray(), row => row.Id == ids.Node);
+        var node = Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, unwired).Nodes.ToArray(), row => row.Id == ids.Node);
         Assert.Equal((End, ids.Orientation), (node.Owner, node.Sensor));
         var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(unwired, Ticks);
         Assert.True(run.Max(read => Tilt(Find(read, End))) > 60, "the end tile still falls");
@@ -128,7 +128,7 @@ public sealed class DominoGuardTests
     public async Task AnUprightWiredTileStandsAndNeverFires()
     {
         var bench = Bench([PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
-        Assert.Single(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).OrientationSensors.ToArray());
+        Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)).OrientationSensors.ToArray());
         var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(bench, 480);
         Assert.All(run, read => Assert.Equal(ActivationPhase.Clear, LatchOf(read, new(1)).Phase));
         Assert.True(run.Max(read => Tilt(Find(read, new(1)))) < 1, "the tile stands");
@@ -161,10 +161,13 @@ public sealed class DominoGuardTests
     public void AnActivationInputIntoADominoIsRefusedAtTheEditAndSaveBoundaries()
     {
         var into = Bench([PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, into.Validate);
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => into.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var bytes = SaveFixture.Finish(builder, WorkshopAuthoringFlatBuffers.EncodeConstructionRecord(builder, into, validate: false), 3);
-        SaveFixture.Refused(WorkshopSaveRejection.InvalidConnection, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        // Explicit corrupt wire: socket zero on the Domino is its output, never an activation input.
+        // Preserve the original invalid-direction record and its InvalidConnection refusal.
+        var bytes = SaveFixture.Finish(builder, SaveFixture.Record(builder, into,
+            [new(1, 2, (uint)WorkshopConnectionDomain.Activation, 0, 0)]), 3);
+        SaveFixture.Refused(WorkshopSaveRejection.InvalidConnection, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
     }
 
     [Fact]
@@ -173,8 +176,8 @@ public sealed class DominoGuardTests
         foreach (var y in new[] { 64d, -64d })
         {
             var bench = Bench([PlacedParts.Domino(new(1), 0, (float)(y), 0, 0, 0, 0, 1)]);
-            bench.Validate();
-            Assert.Single(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Bodies.ToArray(), body => body.Motion == RigidMotionKind.Dynamic);
+            bench.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
+            Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)).Bodies.ToArray(), body => body.Motion == RigidMotionKind.Dynamic);
         }
         Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(1), 0, 64.0001f, 0, 0, 0, 0, 1));
         Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(1), 0, -64.0001f, 0, 0, 0, 0, 1));
@@ -224,7 +227,7 @@ public sealed class DominoGuardTests
     {
         var lesson = Lesson(.45f);
         var save = new WorkshopSavedConstruction(lesson, new(8));
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(save));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, save));
         Assert.Equal(save, loaded);
         var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(lesson, 900);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 900);

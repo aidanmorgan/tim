@@ -2,11 +2,8 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-public readonly record struct WorkshopDelivery(WorkshopResponse Response, bool Applicable);
-public readonly record struct WorkshopCompletion(WorkshopCommandResult Result, bool Applicable);
-
 /// <summary>Staged presentation admission. Original reliable results are never rewritten.</summary>
-public sealed class WorkshopClientCursor
+public sealed class WorkshopClientCursor : IWorkshopClientCursor
 {
     private readonly RuntimeSessionId _session;
     public SimulationEpoch Epoch { get; private set; } = new(1);
@@ -19,10 +16,10 @@ public sealed class WorkshopClientCursor
 
     public WorkshopClientCursor(RuntimeSessionId session) { session.Validate(); _session = session; }
 
-    public readonly record struct Prepared(WorkshopClientCursor Owner, ulong Version,
-        WorkshopResponse Response, bool Applicable, ulong ReadOrder, PublicationSequence Publication);
+    private sealed record Prepared(WorkshopClientCursor Owner, ulong Version,
+        WorkshopResponse Response, bool Applicable, ulong ReadOrder, PublicationSequence Publication) : ICursorPreparation;
 
-    public Prepared PrepareRead(WorkshopResponse response)
+    public ICursorPreparation PrepareRead(WorkshopResponse response)
     {
         if (response.Kind != WorkshopResponseKind.Read || response.Session != _session || response.Publication.Value == 0)
             throw new ArgumentException("Expected an owned physical publication.");
@@ -32,11 +29,11 @@ public sealed class WorkshopClientCursor
             response.Read.Tick.Value >= _tick.Value;
         if (applicable && (ReadOrder == ulong.MaxValue || _version == ulong.MaxValue))
             throw new InvalidOperationException("Presentation read order exhausted.");
-        return new(this, _version, response, applicable, applicable ? ReadOrder + 1 : ReadOrder,
+        return new Prepared(this, _version, response, applicable, applicable ? ReadOrder + 1 : ReadOrder,
             response.Publication.Value > _publication.Value ? response.Publication : _publication);
     }
 
-    public Prepared PrepareAcknowledgement(WorkshopCommand command, WorkshopResponse response, ulong dispatchedReadOrder, bool disposed)
+    public ICursorPreparation PrepareAcknowledgement(WorkshopCommand command, WorkshopResponse response, ulong dispatchedReadOrder, bool disposed)
     {
         if (command.Session != _session || response.Session != _session ||
             response.Kind != WorkshopResponseKind.Acknowledgement || response.Sequence != command.Sequence ||
@@ -54,20 +51,20 @@ public sealed class WorkshopClientCursor
             (!nextEpoch && response.Read.Revision == Revision && dispatchedReadOrder != ReadOrder))
             applicable = false;
         if (applicable && _version == ulong.MaxValue) throw new InvalidOperationException("Presentation cursor exhausted.");
-        return new(this, _version, response, applicable, ReadOrder, _publication);
+        return new Prepared(this, _version, response, applicable, ReadOrder, _publication);
     }
 
-    public Prepared PrepareInstallation(WorkshopResponse response)
+    public ICursorPreparation PrepareInstallation(WorkshopResponse response)
     {
         if (response.Session != _session || response.Read.Epoch.Value < Epoch.Value ||
             response.Read.Revision.Value < Revision.Value || _version == ulong.MaxValue)
             throw new ArgumentException("Invalid schedule endpoint cursor.");
-        return new(this, _version, response, true, ReadOrder, _publication);
+        return new Prepared(this, _version, response, true, ReadOrder, _publication);
     }
 
-    public void Commit(Prepared prepared)
+    public void Commit(ICursorPreparation candidate)
     {
-        if (!ReferenceEquals(prepared.Owner, this) || prepared.Version != _version)
+        if (candidate is not Prepared prepared || !ReferenceEquals(prepared.Owner, this) || prepared.Version != _version)
             throw new InvalidOperationException("Prepared cursor no longer owns this recipient.");
         if (!prepared.Applicable) return;
         Phase = prepared.Response.Phase;

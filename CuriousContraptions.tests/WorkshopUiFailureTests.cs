@@ -42,7 +42,7 @@ public sealed class WorkshopUiFailureTests
         // A missing source identity is invalid before port lookup; same-owner signal links are supported.
         var link = new WorkshopConnection(default, PortId.ActivationOut, new(1), PortId.ActivationIn,
             WorkshopConnectionDomain.Activation);
-        var error = Record.Exception(() => new WorkshopConnections(link).Validate(WorkshopInstances.Empty));
+        var error = Record.Exception(() => new WorkshopConnections(link).Validate(RuntimeTestServices.Core.Supply, WorkshopInstances.Empty));
         var rejection = Assert.IsType<WorkshopEditRejectedException>(error);
         Assert.Equal(WorkshopEditRejection.InvalidConnection, rejection.Reason);
         var (status, diagnostic) = Report(rejection);
@@ -146,11 +146,64 @@ public sealed class WorkshopUiFailureTests
         bool PassesCaught(InvocationExpressionSyntax invocation) => !string.IsNullOrEmpty(caught) && invocation.ArgumentList.Arguments
             .Any(argument => argument.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>().Any(name => name.Identifier.ValueText == caught));
         var invocations = clause.Block.DescendantNodes().OfType<InvocationExpressionSyntax>().ToArray();
-        return Invokes(clause.Block, "WorkshopUiFailure", "Report") || Invokes(clause.Block, "Diagnostics", "Fault")
+        return RefuseStartupReports(clause, caught) || Invokes(clause.Block, "WorkshopUiFailure", "Report") || Invokes(clause.Block, "Diagnostics", "Fault")
             || clause.Block.DescendantNodes().OfType<ThrowStatementSyntax>().Any(statement => statement.Expression is null)
             || invocations.Any(invocation => invocation.Expression is IdentifierNameSyntax { Identifier.ValueText: "HandlerFailed" } && PassesCaught(invocation))
             || invocations.Any(invocation => invocation.Expression is MemberAccessExpressionSyntax { Expression: IdentifierNameSyntax { Identifier.ValueText: "GD" }, Name.Identifier.ValueText: "PushError" }
                 && PassesCaught(invocation));
+    }
+
+    // This one additional reporter is checked at its declaration, not accepted merely by its name.
+    private static bool RefuseStartupReports(CatchClauseSyntax clause, string? caught)
+    {
+        if (string.IsNullOrEmpty(caught)) return false;
+        var calls = clause.Block.Statements.OfType<ExpressionStatementSyntax>();
+        if (!calls.Any(statement => statement.Expression is InvocationExpressionSyntax
+            { Expression: IdentifierNameSyntax { Identifier.ValueText: "RefuseStartup" } } call
+            && call.ArgumentList.Arguments.Count == 1
+            && call.ArgumentList.Arguments[0].Expression is IdentifierNameSyntax argument
+            && argument.Identifier.ValueText == caught)) return false;
+        var owner = clause.Ancestors().OfType<ClassDeclarationSyntax>().FirstOrDefault();
+        var reporters = owner?.Members.OfType<MethodDeclarationSyntax>()
+            .Where(method => method.Identifier.ValueText == "RefuseStartup").ToArray();
+        if (reporters is not [var reporter] || reporter.Modifiers.Count != 1
+            || !reporter.Modifiers[0].IsKind(SyntaxKind.ProtectedKeyword)
+            || reporter.ReturnType is not PredefinedTypeSyntax result || !result.Keyword.IsKind(SyntaxKind.VoidKeyword)
+            || reporter.ParameterList.Parameters is not [var parameter]
+            || parameter.Type is not IdentifierNameSyntax { Identifier.ValueText: "EngineProviderException" }) return false;
+        return reporter.Body?.Statements.OfType<ExpressionStatementSyntax>()
+            .Any(statement => PushesWholeParameter(statement.Expression, parameter.Identifier.ValueText)) == true;
+    }
+
+    private static bool PushesWholeParameter(ExpressionSyntax expression, string parameter) =>
+        expression is InvocationExpressionSyntax
+        { Expression: MemberAccessExpressionSyntax { Expression: IdentifierNameSyntax { Identifier.ValueText: "GD" },
+            Name.Identifier.ValueText: "PushError" } } call
+        && call.ArgumentList.Arguments.Count == 1
+        && IsWholeParameter(call.ArgumentList.Arguments[0].Expression, parameter);
+
+    private static bool IsWholeParameter(ExpressionSyntax expression, string parameter) =>
+        expression is InvocationExpressionSyntax
+        { Expression: MemberAccessExpressionSyntax { Expression: IdentifierNameSyntax receiver,
+            Name.Identifier.ValueText: "ToString" } } whole
+        && receiver.Identifier.ValueText == parameter && whole.ArgumentList.Arguments.Count == 0;
+
+    [Theory]
+    [InlineData("protected", "GD.PushError(failure.ToString());", "RefuseStartup(error);", true)]
+    [InlineData("protected", "GD.PushError(failure.ToString());", "RefuseStartup(other);", false)]
+    [InlineData("protected", "GD.PushError(failure.ToString());", "Other.RefuseStartup(error);", false)]
+    [InlineData("protected", "", "RefuseStartup(error);", false)]
+    [InlineData("protected", "GD.PushError(failure.Message);", "RefuseStartup(error);", false)]
+    [InlineData("protected", "GD.PushError(other.ToString());", "RefuseStartup(error);", false)]
+    [InlineData("private", "GD.PushError(failure.ToString());", "RefuseStartup(error);", false)]
+    public void RefusalReporterRequiresTheExactProtectedBoundaryAndWholeCaughtException(
+        string visibility, string report, string call, bool reports)
+    {
+        var source = $"class Workshop {{ {visibility} void RefuseStartup(EngineProviderException failure) {{ {report} }} " +
+            $"void M() {{ try {{ }} catch (EngineProviderException error) {{ {call} }} }} }}";
+        var cancellation = TestContext.Current.CancellationToken;
+        var root = CSharpSyntaxTree.ParseText(source, cancellationToken: cancellation).GetRoot(cancellation);
+        Assert.Equal(reports, CatchReports(Assert.Single(root.DescendantNodes().OfType<CatchClauseSyntax>())));
     }
 
     [Theory]

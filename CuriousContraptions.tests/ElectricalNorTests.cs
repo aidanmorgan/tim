@@ -28,14 +28,14 @@ public sealed class ElectricalNorTests
     {
         var parts=new List<IWorkshopInstance>{
             Battery(1,-16,true),Battery(2,-10,true),
-            WorkshopInput.Generic(new PartId("switch"),new(3),-13,1,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("switch"),new(4),-7,1,0,0,0,0,1)};
-        if((closed & ElectricalInputState.FirstOnly)!=0) parts.Add(WorkshopInput.Generic(new PartId("ball"),new(5),-13,3,0,0,0,0,1));
-        if((closed & ElectricalInputState.SecondOnly)!=0) parts.Add(WorkshopInput.Generic(new PartId("ball"),new(6),-7,3,0,0,0,0,1));
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"),new(3),-13,1,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"),new(4),-7,1,0,0,0,0,1)};
+        if((closed & ElectricalInputState.FirstOnly)!=0) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(5),-13,3,0,0,0,0,1));
+        if((closed & ElectricalInputState.SecondOnly)!=0) parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(6),-7,3,0,0,0,0,1));
         parts.Add(Battery(Supply,-2,supplyEnabled));
-        var gate=WorkshopInput.Generic(Kind,new(Gate),3,3,0,0,0,0,1);
+        var gate=WorkshopInput.Generic(RuntimeTestServices.Bundle, Kind,new(Gate),3,3,0,0,0,0,1);
         if(gateFirst) parts.Insert(0,gate); else parts.Add(gate);
-        parts.Add(WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1));
+        parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1));
         var links=new[]{Link(1,3),Link(2,4),Link(3,Gate,PortId.FirstIn),Link(4,Gate,PortId.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)};
         if(reverseLinks) Array.Reverse(links);
         return new(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(links));
@@ -86,7 +86,7 @@ public sealed class ElectricalNorTests
     {
         var construction=SwitchMachine(ElectricalInputState.FirstOnly,supplyEnabled:true);
         var saved=new WorkshopSavedConstruction(construction,new(10));
-        var bytes=WorkshopSaveCodec.Encode(saved);var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
+        var bytes=WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);var loaded=WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
         Assert.Equal(saved,loaded);
         Assert.Equal(construction.Connections,loaded.Construction.Connections);
         Assert.Contains(loaded.Construction.Instances,instance=>instance.PartId==Kind && instance.Id==new GpuBodyId(Gate));
@@ -150,9 +150,9 @@ public sealed class ElectricalNorTests
     {
         ulong either=gateFirst?Gate:6, nor=gateFirst?6:Gate;
         var parts=new List<IWorkshopInstance>{Battery(1,-8,true),Battery(2,-5,true),
-            WorkshopInput.Generic(ElectricalOrTests.Kind,new(either),-1,3,-3,0,0,0,1),
-            WorkshopInput.Generic(Kind,new(nor),3,3,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)};
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, ElectricalOrTests.Kind,new(either),-1,3,-3,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Kind,new(nor),3,3,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)};
         if(gateFirst) parts.Reverse();
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(
             Link(1,nor,PortId.FirstIn),Link(1,either,PortId.FirstIn),Link(2,either),
@@ -183,15 +183,15 @@ public sealed class ElectricalNorTests
     public async Task MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds()
     {
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(
-            WorkshopInput.Generic(Kind,new(Gate),3,3,0,0,0,0,1),
-            WorkshopInput.Generic(BothGateTests.Kind,new(4),-3,3,-3,0,0,0,1),
-            WorkshopInput.Generic(BothGateTests.Kind,new(6),-6,3,-3,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Kind,new(Gate),3,3,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, BothGateTests.Kind,new(4),-3,3,-3,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, BothGateTests.Kind,new(6),-6,3,-3,0,0,0,1),
             Battery(Supply,-2,true),
-            WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
             Connections:new(Link(4,6,PortId.FirstIn),Link(4,6,PortId.SecondIn),Link(4,6),
                 Link(6,4,PortId.FirstIn),Link(6,4,PortId.SecondIn),Link(6,4),
                 Link(4,Gate,PortId.FirstIn),Link(6,Gate,PortId.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)));
-        construction.Validate();
+        construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,60);
         Assert.All(reads,read=>
         {
@@ -206,10 +206,10 @@ public sealed class ElectricalNorTests
     /// <summary>Each loop as an acyclic construction plus the one wire that closes it, and the ids the refusal must name.</summary>
     internal static (WorkshopConstruction Open, WorkshopConnection Closing, string Ids) LoopCase(FeedbackLoop loop)
     {
-        IWorkshopInstance Nor(ulong id,float x)=>WorkshopInput.Generic(Kind,new(id),(float)(x),3,0,0,0,0,1);
-        IWorkshopInstance Both(ulong id,float x)=>WorkshopInput.Generic(BothGateTests.Kind,new(id),(float)(x),3,-3,0,0,0,1);
-        IWorkshopInstance Nand(ulong id,float x)=>WorkshopInput.Generic(ElectricalNandTests.Kind,new(id),(float)(x),3,-3,0,0,0,1);
-        IWorkshopInstance Either(ulong id,float x)=>WorkshopInput.Generic(ElectricalOrTests.Kind,new(id),(float)(x),3,-3,0,0,0,1);
+        IWorkshopInstance Nor(ulong id,float x)=>WorkshopInput.Generic(RuntimeTestServices.Bundle, Kind,new(id),(float)(x),3,0,0,0,0,1);
+        IWorkshopInstance Both(ulong id,float x)=>WorkshopInput.Generic(RuntimeTestServices.Bundle, BothGateTests.Kind,new(id),(float)(x),3,-3,0,0,0,1);
+        IWorkshopInstance Nand(ulong id,float x)=>WorkshopInput.Generic(RuntimeTestServices.Bundle, ElectricalNandTests.Kind,new(id),(float)(x),3,-3,0,0,0,1);
+        IWorkshopInstance Either(ulong id,float x)=>WorkshopInput.Generic(RuntimeTestServices.Bundle, ElectricalOrTests.Kind,new(id),(float)(x),3,-3,0,0,0,1);
         var supply=Battery(1,-8,true);
         var (parts,links,closing,ids)=loop switch
         {
@@ -222,7 +222,7 @@ public sealed class ElectricalNorTests
                 Link(6,4,PortId.SecondIn),"4, 6"),
             FeedbackLoop.MixedWithNand => (new[]{supply,Nor(4,0),Nand(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,PortId.SecondIn)},
                 Link(6,4,PortId.FirstIn),"4, 6"),
-            FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Nor(4,0),WorkshopInput.Generic(new PartId("switch"),new(6),4,1,0,0,0,0,1)},
+            FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Nor(4,0),WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"),new(6),4,1,0,0,0,0,1)},
                 new[]{Link(1,4),Link(4,6)},Link(6,4,PortId.FirstIn),"4, 6"),
             FeedbackLoop.EnteringPowerIn => (new[]{supply,Nor(4,0),Both(6,4),Both(7,8)},
                 new[]{Link(1,6),Link(1,7),Link(4,7,PortId.FirstIn),Link(7,6,PortId.FirstIn)},
@@ -242,17 +242,17 @@ public sealed class ElectricalNorTests
     public async Task ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(FeedbackLoop loop)
     {
         var (open,closing,ids)=LoopCase(loop);
-        open.Validate(); // the control: the same parts without the closing wire are admitted
+        open.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle); // the control: the same parts without the closing wire are admitted
         var looped=open with {Connections=open.Connections.With(closing)};
-        var refusal=EditRefusal.Is(WorkshopEditRejection.NonmonotoneFeedback,looped.Validate);
+        var refusal=EditRefusal.Is(WorkshopEditRejection.NonmonotoneFeedback,() => looped.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.Contains("parts "+ids+".",refusal.Message,StringComparison.Ordinal);
         Assert.StartsWith("Break the wire loop",refusal.Message,StringComparison.Ordinal);
         // Wire order does not change the refusal.
-        EditRefusal.Is(WorkshopEditRejection.NonmonotoneFeedback,()=>(open with {Connections=new(looped.Connections.Reverse().ToArray())}).Validate());
+        EditRefusal.Is(WorkshopEditRejection.NonmonotoneFeedback,()=>(open with {Connections=new(looped.Connections.Reverse().ToArray())}).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         // A stored save holding the loop is refused before any instance is constructed.
-        var saveRefusal=SaveFixture.Refused(WorkshopSaveRejection.InvalidConnection,()=>WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Forged(looped,10)));
+        var saveRefusal=SaveFixture.Refused(WorkshopSaveRejection.InvalidConnection,()=>WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,SaveFixture.Forged(looped,10)));
         Assert.Equal(WorkshopEditRejection.NonmonotoneFeedback,Assert.IsType<WorkshopEditRejectedException>(saveRefusal.InnerException).Reason);
-        Assert.Equal(open,WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Forged(open,10)).Construction); // control
+        Assert.Equal(open,WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,SaveFixture.Forged(open,10)).Construction); // control
         // The simulation refuses the candidate and keeps its construction.
         await using var device=new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()),new(101,206));
         await using var simulation=new WorkshopSimulation(device,new WorkshopPhysicsEngineTests.StepClock(),CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty)),
@@ -268,9 +268,9 @@ public sealed class ElectricalNorTests
     public void CompiledGraphRejectsNonmonotoneCycleAsAnInvariant()
     {
         var (open,closing,_)=LoopCase(FeedbackLoop.ThroughBothGate);
-        var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
-        var edges=WorkshopSupplyCompiler.Compile(open,DeclaredPhysics.Of).Edges;
-        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives);
+        var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, open,new(1,2));
+        var edges=WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, open,DeclaredPhysics.Of).Edges;
+        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges.ToArray(),scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives);
         var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,Enum.Parse<PortRole>(closing.Input.Value))).ToArray();
         var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives));
         Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",invariant.Message);
@@ -290,9 +290,9 @@ public sealed class ElectricalNorTests
         }
         Assert.Equal(LogicGateOperation.Nor,DeclaredPhysics.Of(Kind).Electrical!.Supply!.Value.Operation);
         var construction=SwitchMachine(ElectricalInputState.Neither,true);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,new PortId("invalid")))}).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,new PortId("invalid")))}).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(
-            new(new(3),PortId.ActivationOut,new(Gate),PortId.ActivationIn,WorkshopConnectionDomain.Activation))}).Validate());
+            new(new(3),PortId.ActivationOut,new(Gate),PortId.ActivationIn,WorkshopConnectionDomain.Activation))}).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.DoesNotContain(DeclaredPorts.Current.Of(Kind).ToArray(),port=>port.Domain==WorkshopConnectionDomain.Activation);
     }
 
@@ -301,8 +301,8 @@ public sealed class ElectricalNorTests
     internal static WorkshopConstruction BatteryMachine()=>
         new(new(2),WorkshopCadenceSettings.Default(),new(
             Battery(1,-8,false),Battery(2,-5,false),Battery(3,-2,true),
-            WorkshopInput.Generic(Kind,new(4),3,3,0,0,0,0,1),
-            WorkshopInput.Generic(new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, Kind,new(4),3,3,0,0,0,0,1),
+            WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"),new(Consumer),9,3,0,0,0,0,1)),
             Connections:new(Link(1,4,PortId.FirstIn),Link(2,4,PortId.SecondIn),Link(3,4),Link(4,Consumer)));
 
     /// <summary>Battery controls reaching each row in turn: 00, 10, 01, 11 supplied, then 00 without supply.</summary>
@@ -343,7 +343,7 @@ public sealed class ElectricalNorPresentationTests(NativeSceneFixture godot)
         var construction=ElectricalNorTests.BatteryMachine();
         var rows=ElectricalNorTests.Rows;
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,rows.Select(row=>(row.Controls,2)).ToArray());
-        var registry=new PartRegistry();registry.Load();
+        var registry=new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);registry.Load();
         var part=registry.Create(ElectricalNorTests.Kind);
         try
         {
@@ -371,7 +371,7 @@ public sealed class ElectricalNorPresentationTests(NativeSceneFixture godot)
             {
                 var read=phases[i][^1];
                 var response=BothGatePresentationTests.Response(read,++publication);
-                if(evaluator is null){evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),response);time=read.Capture!.Value.Time.Value/1_000_000_000d;}
+                if(evaluator is null){evaluator=new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction),response);time=read.Capture!.Value.Time.Value/1_000_000_000d;}
                 else evaluator.Accept(response);
                 time+=.2;
                 foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
@@ -380,7 +380,7 @@ public sealed class ElectricalNorPresentationTests(NativeSceneFixture godot)
                 Assert.Equal(Lit(rows[i].Active),Colour("OutputLamp"));
             }
             var (built,_,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,2);
-            evaluator=new WorkshopDeclaredPresentation(CompiledSceneFixture.Compile(construction),BothGatePresentationTests.Response(reset,1));
+            evaluator=new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction),BothGatePresentationTests.Response(reset,1));
             foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time+1))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
             Assert.Equal(built.Presentation.Actuators.ToArray(), reset.Presentation.Actuators.ToArray());
         Assert.Equal(built.Presentation.Loads.ToArray(), reset.Presentation.Loads.ToArray());

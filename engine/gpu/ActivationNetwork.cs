@@ -7,112 +7,18 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Gpu;
 
-public readonly record struct ActivationNodeId(ulong Value);
-/// <summary>StickyFirstInput is a declared indicator's first-input-wins hold (never reset within a run); StateLatch is the bistable
-/// Set/Reset memory (CAT-037); LevelIndicator is a declared indicator whose input is wired from a level ActivationOut (the latch or
-/// a declared contact-load sensor), mirroring it. PassageSource is a declared passage aperture's crossing pulse.
-/// ContactLoadSource is a declared contact-load row's committed level (Story 9R.4 D3): Latched from its first Loaded tick until its
-/// committed release hold (Story 9R.5, ReleaseHoldTicks after the last Loaded tick) expires.
-/// The kinds are distinct and share no name.</summary>
-public enum ActivationNodeKind : uint { ContactSource = 1, StickyFirstInput = 2, Timer = 3, OrientationSource = 4, PassageSource = 5, Counter = 6, Oscillator = 7, StateLatch = 8, LevelIndicator = 9, ContactLoadSource = 10 }
-public enum ActivationPhase : uint { Clear, Latched }
-/// <summary>Committed bistable memory of one State Latch.</summary>
-public enum SimulationLatchPhase : uint { Off = 0, On = 1 }
-/// <summary>Requests a State Latch accumulates within one tick; Reset dominates Set at the boundary.</summary>
-[Flags]
-public enum StateLatchRequest : uint { None = 0, Set = 1, Reset = 2 }
-public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, GpuBodyId Owner,
-    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerProvider = default,
-    GpuContactLoadSensorId ContactLoad = default, uint ReleaseHoldTicks = 0,
-    TimerCompletionPolicy Completion = TimerCompletionPolicy.Latch, TimerBoundary Boundary = TimerBoundary.BeforePhysics,
-    TimerElapsedSignal ElapsedSignal = TimerElapsedSignal.Activation);
-/// <summary>One routed signal; Input names the target socket (ActivationIn, or SetIn/ResetIn on a State Latch).</summary>
-public readonly record struct CompiledSignalContact(GpuBodyId Owner, ActivationNodeId Node, SignalContactState State);
-public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target, PortRole Input);
-
-public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId Owner, ActivationPhase Phase,
-    GpuEventSourceId Source, GpuBodyId Body, GpuColliderId Collider, uint EventOrdinal,
-    float EventPhase, ContactSpeed ApproachSpeed, ActivationOccurrenceKind Kind = default,
-    ActivationNodeId Emitter = default, uint CauseOrdinal = 0, float CausePhase = default, ActivationCauseKind CauseKind = ActivationCauseKind.Unknown)
-{
-    public ActivationOccurrence Occurrence => new(Kind, Emitter, new(EventOrdinal, EventPhase),
-        new(Source, Body, Collider, new(CauseOrdinal, CausePhase), ApproachSpeed, CauseKind));
-    public static ActivationLatch From(ActivationNodeDeclaration node, ActivationOccurrence occurrence) =>
-        new(node.Id, node.Owner, ActivationPhase.Latched, occurrence.Cause.Source, occurrence.Cause.Body,
-            occurrence.Cause.Collider, occurrence.Time.Ordinal, occurrence.Time.Phase, occurrence.Cause.ApproachSpeed,
-            occurrence.Kind, occurrence.Emitter, occurrence.Cause.Time.Ordinal, occurrence.Cause.Time.Phase, occurrence.Cause.Kind);
-    public static ActivationLatch Clear(ActivationNodeDeclaration node) => new(node.Id, node.Owner,
-        ActivationPhase.Clear, default, default, default, 0, 0f, new(0f));
-    public void Validate()
-    {
-        if (Node.Value == 0 || Owner.Value == 0 || !Enum.IsDefined(Phase) ||
-            !PhysicalPhase.IsAdmitted(EventOrdinal, EventPhase) ||
-            !float.IsFinite(ApproachSpeed.Value) || ApproachSpeed.Value < 0f || ApproachSpeed.Value > 4096f)
-            throw new ArgumentException("Invalid activation latch.");
-        if (Phase == ActivationPhase.Clear)
-        {
-            if (Source.Value != 0 || Body.Value != 0 || Collider.Value != 0 || EventOrdinal != 0 ||
-                EventPhase != 0f || ApproachSpeed.Value != 0f ||
-                CauseKind != ActivationCauseKind.Unknown || Kind != 0 || Emitter.Value != 0 || CauseOrdinal != 0 || CausePhase != 0f)
-                throw new ArgumentException("Clear activation retained an event.");
-        }
-        else Occurrence.Validate();
-    }
-}
-
-/// <summary>The committed activation population, sized exactly from the compiled network (no fixed activation table; owner
-/// decision, 20 Oct 2026; Story 9R.5b: no instance bound either).</summary>
-public readonly struct PhysicsActivationRead
-{
-    private readonly ActivationLatch[]? _values;
-    public int Count => _values?.Length ?? 0;
-    public PhysicsActivationRead(ReadOnlySpan<ActivationLatch> values)
-    {
-        for (var i = 0; i < values.Length; i++)
-        {
-            values[i].Validate();
-            if (i != 0 && values[i - 1].Node.Value >= values[i].Node.Value)
-                throw new ArgumentException("Activation nodes must be uniquely ordered.");
-        }
-        _values = values.ToArray();
-    }
-    public ActivationLatch this[int index] => index >= 0 && index < Count ? _values![index] : throw new ArgumentOutOfRangeException(nameof(index));
-}
-
-/// <summary>Emitted: a node emitted an occurrence at this boundary. LevelChanged: a level node's committed level rose or released.</summary>
-public enum ActivationTransitionKind : uint { Emitted = 1, LevelChanged = 2 }
-
-/// <summary>One discrete transition a Physical-stage candidate made (Story 9A.22): never committed state. Count is the emitting
-/// node's memory-row count after the emission (0 without a row); Level is the new level of a LevelChanged node; Occurrence is the
-/// emitted occurrence, or the occurrence a rising level holds (default when a level releases).</summary>
-public readonly record struct ActivationTransition(ActivationTransitionKind Kind, ActivationNodeId Node,
-    ActivationOccurrence Occurrence, uint Count, ActivationPhase Level);
-
-/// <summary>The transitions of one candidate, in the order the network made them.</summary>
-public readonly struct ActivationTransitionRead
-{
-    private readonly ActivationTransition[]? _values;
-    public int Count => _values?.Length ?? 0;
-    public ActivationTransitionRead(ReadOnlySpan<ActivationTransition> values) => _values = values.ToArray();
-    public ActivationTransition this[int index] => index >= 0 && index < Count ? _values![index] : throw new ArgumentOutOfRangeException(nameof(index));
-}
-
-/// <summary>The committed discrete checkpoint: activations, timers and the Counter/oscillator memory rows (Story 9R.1 D3), with the
-/// transitions the Physical stage made to reach it (empty at admission and in the scheduled stage; never committed).</summary>
-public readonly record struct ActivationCheckpoint(PhysicsActivationRead Activations, PhysicsTimerRead Timers,
-    PhysicsMemoryRead Memory = default, ActivationTransitionRead Transitions = default);
-
 /// <summary>Uncommitted scheduled state and due occurrences awaiting their post-physics destinations.</summary>
-public sealed class ActivationSchedule
+public sealed class ActivationSchedule : IActivationSchedule
 {
     public ActivationCheckpoint State { get; }
-    internal ActivationOccurrence[] Deferred { get; }
+    private readonly ActivationOccurrence[] _deferred;
+    public ReadOnlySpan<ActivationOccurrence> Deferred => _deferred;
     internal ActivationSchedule(ActivationCheckpoint state, ActivationOccurrence[] deferred)
-    { State = state; Deferred = deferred; }
+    { State = state; _deferred = deferred; }
 }
 
 /// <summary>One bounded C# discrete network. Catalogue parts declare nodes; none owns a clock or callback.</summary>
-public sealed class ActivationNetwork
+public sealed class ActivationNetwork : IActivationProgram
 {
     private readonly ActivationNodeDeclaration[] _nodes;
     private readonly ActivationEdge[] _edges;
@@ -261,7 +167,7 @@ public sealed class ActivationNetwork
         _ => throw new ArgumentOutOfRangeException(nameof(kind))
     };
 
-    public void ValidateCommittedMemory(PhysicsMemoryRead memory, SimulationTick tick, PhysicsSceneDeclaration scene)
+    public void ValidateCommittedMemory(PhysicsMemoryRead memory, SimulationTick tick, IPhysicsSceneDeclaration scene)
     {
         ValidateMemory(memory);
         var end = ActivationTime.Boundary(tick, _substeps);
@@ -350,14 +256,14 @@ public sealed class ActivationNetwork
     private enum EvaluationStage { Scheduled, Physical }
 
     /// <summary>Stages already-due timer transitions and deliveries before the electrical/physical solve. The input checkpoint is immutable.</summary>
-    public ActivationSchedule AdvanceScheduled(ActivationCheckpoint committed, SimulationTick boundary)
+    public IActivationSchedule AdvanceScheduled(ActivationCheckpoint committed, SimulationTick boundary)
     {
         var state = Consume(committed.Activations, committed.Timers, [], boundary, [], [], default, committed.Memory, [],
             EvaluationStage.Scheduled, [], out var deferred);
-        return new(state, deferred);
+        return new ActivationSchedule(state, deferred);
     }
 
-    public ActivationCheckpoint ConsumeScheduled(ActivationSchedule scheduled, ReadOnlySpan<ContactTriggerRead> events,
+    public ActivationCheckpoint ConsumeScheduled(IActivationSchedule scheduled, ReadOnlySpan<ContactTriggerRead> events,
         SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations, ReadOnlySpan<PassageSensorRead> passages,
         SupplyOutputRead supply, ReadOnlySpan<ContactLoadSensorRead> contactLoads) =>
         Consume(scheduled.State.Activations, scheduled.State.Timers, events, boundary, orientations, passages, supply,
@@ -722,7 +628,7 @@ public sealed class ActivationNetwork
         }
     }
 
-    internal void ValidateOrigins(PhysicsActivationRead values, PhysicsTimerRead timers, SimulationTick tick, PhysicsSceneDeclaration scene)
+    public void ValidateOrigins(PhysicsActivationRead values, PhysicsTimerRead timers, SimulationTick tick, IPhysicsSceneDeclaration scene)
     {
         ValidatePopulation(values, timers);
         var end = ActivationTime.Boundary(tick, _substeps);
@@ -733,7 +639,7 @@ public sealed class ActivationNetwork
     }
 
     public void ValidateRead(PhysicsActivationRead values, PhysicsTimerRead timers, SimulationTick tick,
-        uint substeps, PhysicsSceneDeclaration scene)
+        uint substeps, IPhysicsSceneDeclaration scene)
     {
         ValidatePopulation(values, timers);
         if (substeps != _substeps) throw new ArgumentException("Activation clock changed.");
@@ -792,7 +698,7 @@ public sealed class ActivationNetwork
     }
 
     private void ValidateRearmingTimer(ActivationTimerState state, ActivationTimerDeclaration declared,
-        PhysicsActivationRead values, SimulationTick tick, uint substeps, ActivationTime end, PhysicsSceneDeclaration scene)
+        PhysicsActivationRead values, SimulationTick tick, uint substeps, ActivationTime end, IPhysicsSceneDeclaration scene)
     {
         var slot = Slot(state.Node);
 
@@ -810,7 +716,7 @@ public sealed class ActivationNetwork
     }
 
     private void ValidateTimerRead(ActivationTimerState state, ActivationTimerDeclaration declared,
-        PhysicsActivationRead values, SimulationTick tick, uint substeps, ActivationTime end, PhysicsSceneDeclaration scene)
+        PhysicsActivationRead values, SimulationTick tick, uint substeps, ActivationTime end, IPhysicsSceneDeclaration scene)
     {
         var slot = Slot(state.Node);
         if (declared.Completion == TimerCompletionPolicy.Rearm)
@@ -837,7 +743,7 @@ public sealed class ActivationNetwork
         if (values[slot] != output) throw new ArgumentException("Timer completion output changed.");
     }
 
-    private void ValidateOccurrence(ActivationOccurrence occurrence, ActivationTime end, PhysicsSceneDeclaration scene)
+    private void ValidateOccurrence(ActivationOccurrence occurrence, ActivationTime end, IPhysicsSceneDeclaration scene)
     {
         occurrence.Validate();
         if (occurrence.Time.CompareTo(end) > 0) throw new ArgumentException("Future activation read.");
@@ -881,7 +787,7 @@ public sealed class ActivationNetwork
             throw new ArgumentException("Activation cause names no originating node.");
     }
 
-    private GpuBodyId ValidateContactCause(ActivationOccurrence occurrence, int emitter, ContactTriggerDeclaration contact, PhysicsSceneDeclaration scene)
+    private GpuBodyId ValidateContactCause(ActivationOccurrence occurrence, int emitter, ContactTriggerDeclaration contact, IPhysicsSceneDeclaration scene)
     {
         var admittedTarget=false;
         foreach(var body in scene.Bodies)
@@ -919,7 +825,7 @@ public sealed class ActivationNetwork
         return row.Frame;
     }
 
-    private (GpuBodyId ColliderOwner, bool ContactLoad) ResolvePhysicalCause(ActivationOccurrence occurrence, int emitter, PhysicsSceneDeclaration scene)
+    private (GpuBodyId ColliderOwner, bool ContactLoad) ResolvePhysicalCause(ActivationOccurrence occurrence, int emitter, IPhysicsSceneDeclaration scene)
     {
         // The document allocates every physical identity once, so one source id names at most one trigger or sensor.
         ContactTriggerDeclaration? trigger = null; OrientationSensorDeclaration? sensor = null; PassageSensorDeclaration? passage = null;

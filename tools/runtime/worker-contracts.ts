@@ -1,6 +1,7 @@
 export const enum PosePublicationPreparation { Ready = 0, StorageUnavailable = 1 }
 export const enum EventPublicationPreparation { Ready = 0, StorageUnavailable = 1, SequenceExhausted = 2 }
 export interface ManagedHost {
+    InitializeHost(): void;
     ScheduleRoles(): number[];
     ClockDerivationProfile(): number[];
     ClockDerivationQualified(): boolean;

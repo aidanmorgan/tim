@@ -6,9 +6,6 @@ using W = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Gpu;
 
-public readonly record struct WorkshopObservationBatch(RuntimeSessionId Session, WorkshopRuntimeRole Role,
-    ImmutableArray<WorkshopDiagnostic> Records, string? Incomplete = null);
-
 public static partial class WorkshopWireFlatBuffers
 {
     public const string ObservationIdentifier = "CCWO";
@@ -35,7 +32,7 @@ public static partial class WorkshopWireFlatBuffers
         {
             var root = W.WorkshopObservationBatch.GetRootAsWorkshopObservationBatch(
                 OpenFrame(bytes, ObservationIdentifier, W.WorkshopObservationBatchVerify.Verify));
-            var session = RuntimeSessionId.Read(root.GetSessionArray());
+            var session = RuntimeSessionCodec.Read(root.GetSessionArray());
             var role = ObservationEnum<WorkshopRuntimeRole>(root.Role);
             var records = ImmutableArray.CreateBuilder<WorkshopDiagnostic>(root.RecordsLength);
             for (var i = 0; i < root.RecordsLength; i++)

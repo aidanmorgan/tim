@@ -4,98 +4,12 @@ using System.Collections.Generic;
 
 namespace CuriousContraptions.Presentation;
 
-public enum AnimationProperty { LocalRotationAngle = 1, LocalTranslation = 2, Opacity = 3, UniformScale = 4, ColourBlend = 5, ColourRed = 6, ColourGreen = 7, ColourBlue = 8 }
-public enum AnimationCurve { Linear, SmoothStep, SinePulse, CubicSmoothStep }
-public enum AnimationRepeat { Once, Loop, PingPong }
-public enum AnimationClock { Presentation, Simulation }
-public enum AnimationPlayback { Stopped, Playing, Completed }
-public enum AnimationStop { Hold, RestoreInitial }
-public enum AnimationEndpoint { From, To }
-
-public readonly record struct AnimationTargetId
-{
-    public ulong Value { get; }
-    public AnimationTargetId(ulong value)
-    {
-        ArgumentOutOfRangeException.ThrowIfZero(value);
-        Value = value;
-    }
-}
-public readonly record struct AnimationGeneration
-{
-    public ulong Value { get; }
-    public AnimationGeneration(ulong value)
-    {
-        ArgumentOutOfRangeException.ThrowIfZero(value);
-        Value = value;
-    }
-}
-public readonly record struct AnimationBinding(AnimationTargetId Target, AnimationProperty Property);
-public readonly record struct AnimationHandle
-{
-    internal AnimationBatch Owner { get; }
-    public AnimationGeneration Generation { get; }
-    public int Slot { get; }
-    public ulong Version { get; }
-    internal AnimationHandle(AnimationBatch owner, AnimationGeneration generation, int slot, ulong version)
-    {
-        Owner = owner; Generation = generation; Slot = slot; Version = version;
-    }
-}
-public readonly record struct AnimationSample(AnimationBinding Binding, AnimationValue Value);
-public readonly record struct AnimationRead(AnimationPlayback Playback, AnimationValue Value, bool Visible);
-public readonly record struct AnimationFrameWork(int Evaluated, int DirtyWrites, int Scheduled, int Registered);
-
-/// <summary>Canonical property-specific clip with f32 local evaluation.</summary>
-public sealed record AnimationDefinition
-{
-    public AnimationValue From { get; }
-    public AnimationValue To { get; }
-    public AnimationDurationSeconds Duration { get; }
-    public AnimationCurve Curve { get; }
-    public AnimationRepeat Repeat { get; }
-    public AnimationClock Clock { get; }
-
-    public AnimationDefinition(AnimationValue from, AnimationValue to, AnimationDurationSeconds duration,
-        AnimationCurve curve, AnimationRepeat repeat, AnimationClock clock)
-    {
-        AnimationValue.SameProperty(from, to);
-        AnimationNumbers.Positive(duration.Value);
-        if (!Enum.IsDefined(curve)) throw new ArgumentOutOfRangeException(nameof(curve));
-        if (!Enum.IsDefined(repeat)) throw new ArgumentOutOfRangeException(nameof(repeat));
-        if (!Enum.IsDefined(clock)) throw new ArgumentOutOfRangeException(nameof(clock));
-        From = from; To = to; Duration = duration; Curve = curve; Repeat = repeat; Clock = clock;
-    }
-
-    internal AnimationValue Evaluate(float position, bool completed)
-    {
-        var phase = completed ? 1 : Repeat switch
-        {
-            AnimationRepeat.Once => position,
-            AnimationRepeat.Loop => position % 1,
-            AnimationRepeat.PingPong => 1 - Math.Abs(position % 2 - 1),
-            _ => throw new InvalidOperationException("Unsupported animation repetition.")
-        };
-        if (phase == 0) return From;
-        if (phase == 1) return Curve == AnimationCurve.SinePulse ? From : To;
-        var p = Math.Min(phase, 1 - phase);
-        var smooth = p * p * p * (p * (p * 6 - 15) + 10);
-        var amount = Curve switch
-        {
-            AnimationCurve.Linear => phase,
-            AnimationCurve.CubicSmoothStep => phase * phase * (3 - 2 * phase),
-            AnimationCurve.SmoothStep => phase <= .5f ? smooth : 1 - smooth,
-            AnimationCurve.SinePulse => MathF.Sin(MathF.PI * phase),
-            _ => throw new InvalidOperationException("Unsupported animation curve.")
-        };
-        return AnimationValue.FromScalar(From.Property, AnimationNumbers.Interpolate(From.Number, To.Number, amount));
-    }
-}
-
 /// <summary>Single-thread animation owner with demand-grown storage its owner may reserve (<see cref="EnsureCapacity"/>). Output is
 /// borrowed until the next mutation. Registration allocates; stable-topology frame evaluation does not.</summary>
-public sealed class AnimationBatch
+public sealed class AnimationBatch : IAnimationBatch
 {
+    private sealed record Handle(AnimationBatch Owner, AnimationGeneration Generation, int Slot, ulong Version) : IAnimationHandle;
+
     private enum AnimationKind { Clip, ExponentialFollow, Impulses, Oscillation }
     private struct Slot
     {
@@ -156,21 +70,21 @@ public sealed class AnimationBatch
         catch (OutOfMemoryException) { throw new AnimationStorageException(); }
     }
 
-    public AnimationHandle Register(AnimationBinding binding,AnimationDefinition definition)
+    public IAnimationHandle Register(AnimationBinding binding,AnimationDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
         return RegisterSlot(binding,new(){Kind=AnimationKind.Clip,Definition=definition,Clock=definition.Clock,
             Initial=definition.From},definition.From,definition.To);
     }
 
-    public AnimationHandle RegisterFollow(AnimationBinding binding,AnimationFollowDefinition definition)
+    public IAnimationHandle RegisterFollow(AnimationBinding binding,AnimationFollowDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
         return RegisterSlot(binding,new(){Kind=AnimationKind.ExponentialFollow,Follow=definition,Clock=definition.Clock,
             Initial=definition.Initial,AnchorValue=definition.Initial,TargetValue=definition.Initial},definition.From,definition.To);
     }
 
-    public AnimationHandle RegisterOscillation(AnimationBinding binding,AnimationOscillationDefinition definition)
+    public IAnimationHandle RegisterOscillation(AnimationBinding binding,AnimationOscillationDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
         if(binding.Property is not (AnimationProperty.LocalRotationAngle or AnimationProperty.LocalTranslation) ||
@@ -180,7 +94,7 @@ public sealed class AnimationBatch
             Oscillation=new(definition),Initial=AnimationValue.FromScalar(binding.Property,0)},
             AnimationValue.FromScalar(binding.Property,0),AnimationValue.FromScalar(binding.Property,0));
     }
-    public void ValidateOscillationKick(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationSignedStrength strength,PhysicalTime clockTime)
+    public void ValidateOscillationKick(IAnimationHandle handle,AnimationOccurrenceId occurrence,AnimationSignedStrength strength,PhysicalTime clockTime)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.Oscillation)throw new InvalidOperationException("Kick requires an oscillation binding.");
@@ -188,43 +102,43 @@ public sealed class AnimationBatch
             throw new ArgumentOutOfRangeException(nameof(clockTime));
         slot.Oscillation!.ValidateKick(occurrence,strength,clockTime);
     }
-    public void KickOscillation(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationSignedStrength strength,PhysicalTime clockTime)
+    public void KickOscillation(IAnimationHandle handle,AnimationOccurrenceId occurrence,AnimationSignedStrength strength,PhysicalTime clockTime)
     {
         ValidateOscillationKick(handle,occurrence,strength,clockTime);
         var index=Resolve(handle);ref var slot=ref _slots[index];
         slot.Oscillation!.Kick(occurrence,strength,clockTime);
         slot.Admitted=clockTime;slot.Playback=AnimationPlayback.Playing;_sampleCount=0;Schedule(index);
     }
-    public AnimationOscillationRead ReadOscillation(AnimationHandle handle)
+    public AnimationOscillationRead ReadOscillation(IAnimationHandle handle)
     {
         ref var slot=ref _slots[Resolve(handle)];
         if(slot.Kind!=AnimationKind.Oscillation)throw new InvalidOperationException("Diagnostics require an oscillation binding.");
         return slot.Oscillation!.Read(Clock(slot.Clock));
     }
 
-    public AnimationHandle RegisterImpulses(AnimationBinding binding,AnimationImpulseDefinition definition,AnimationValue from,AnimationValue to)
+    public IAnimationHandle RegisterImpulses(AnimationBinding binding,AnimationImpulseDefinition definition,AnimationValue from,AnimationValue peak)
     {
         ArgumentNullException.ThrowIfNull(definition);
-        AnimationValue.SameProperty(from,to);
+        AnimationValue.SameProperty(from,peak);
         return RegisterSlot(binding,new(){Kind=AnimationKind.Impulses,Clock=definition.Clock,
-            Impulses=new(definition),Initial=from,ImpulsePeak=to},from,to);
+            Impulses=new(definition),Initial=from,ImpulsePeak=peak},from,peak);
     }
 
-    public void ValidateImpulseAdmission(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength)
+    public void ValidateImpulseAdmission(IAnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.Impulses)throw new InvalidOperationException("Impulse admission requires an impulse definition.");
         slot.Impulses!.ValidateAdmission(occurrence,strength);
     }
 
-    public void ReserveImpulses(AnimationHandle handle, int additional)
+    public void ReserveImpulses(IAnimationHandle handle, int additional)
     {
         ref var slot = ref _slots[Resolve(handle)];
         if (slot.Kind != AnimationKind.Impulses) throw new InvalidOperationException("Impulse reservation requires an impulse definition.");
         slot.Impulses!.Reserve(additional);
     }
 
-    public void EnqueueImpulse(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength,PhysicalTime occurredAt)
+    public void EnqueueImpulse(IAnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength,PhysicalTime occurredAt)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.Impulses)throw new InvalidOperationException("Impulse admission requires an impulse definition.");
@@ -232,14 +146,14 @@ public sealed class AnimationBatch
         _sampleCount=0;slot.Playback=AnimationPlayback.Playing;Schedule(index);
     }
 
-    public AnimationImpulseRead ReadImpulses(AnimationHandle handle)
+    public AnimationImpulseRead ReadImpulses(IAnimationHandle handle)
     {
         ref var slot=ref _slots[Resolve(handle)];
         if(slot.Kind!=AnimationKind.Impulses)throw new InvalidOperationException("Impulse diagnostics require an impulse definition.");
         return slot.Impulses!.Read();
     }
 
-    public void CancelImpulses(AnimationHandle handle)
+    public void CancelImpulses(IAnimationHandle handle)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.Impulses)throw new InvalidOperationException("Impulse cancellation requires an impulse definition.");
@@ -247,7 +161,7 @@ public sealed class AnimationBatch
         _sampleCount=0;Schedule(index);
     }
 
-    private AnimationHandle RegisterSlot(AnimationBinding binding,Slot slot,AnimationValue from,AnimationValue to)
+    private Handle RegisterSlot(AnimationBinding binding,Slot slot,AnimationValue from,AnimationValue to)
     {
         AnimationValue.SameProperty(from,to);
         if(binding.Target.Value==0 || !Enum.IsDefined(binding.Property) || binding.Property!=from.Property)
@@ -264,15 +178,18 @@ public sealed class AnimationBatch
         catch (OutOfMemoryException) { throw new AnimationStorageException(); }
         catch (OverflowException) { throw new AnimationStorageException(); }
         var index=_free[_freeCount-1];var version=checked(_versions[index]+1);
+        Handle handle;
+        try { handle = new(this, Generation, index, version); }
+        catch (OutOfMemoryException) { throw new AnimationStorageException(); }
         _sampleCount=0;_freeCount--;_versions[index]=version;
         slot.Binding=binding;slot.Playback=AnimationPlayback.Stopped;slot.Value=slot.Initial;
         slot.Rate=new((float)1);slot.Admitted=Clock(slot.Clock);slot.Visible=true;slot.ActiveIndex=-1;
         _slots[index]=slot;_writers.Add(binding,index);Schedule(index);
-        return new(this,Generation,index,version);
+        return handle;
     }
 
     /// <summary>Retarget at an admitted clock boundary, including elapsed invisible/skipped frames.</summary>
-    public void ValidateFollowValue(AnimationHandle handle,AnimationValue target,PhysicalTime clockTime)
+    public void ValidateFollowValue(IAnimationHandle handle,AnimationValue target,PhysicalTime clockTime)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.ExponentialFollow)throw new InvalidOperationException("Value following requires a follow definition.");
@@ -284,7 +201,7 @@ public sealed class AnimationBatch
             throw new ArgumentOutOfRangeException(nameof(clockTime));
     }
 
-    public void FollowValue(AnimationHandle handle,AnimationValue target,PhysicalTime clockTime)
+    public void FollowValue(IAnimationHandle handle,AnimationValue target,PhysicalTime clockTime)
     {
         ValidateFollowValue(handle,target,clockTime);
         var index=Resolve(handle);ref var slot=ref _slots[index];
@@ -304,10 +221,10 @@ public sealed class AnimationBatch
             AnimationNumbers.Interpolate(slot.TargetValue.Number,slot.AnchorValue.Number,decay));
     }
 
-    public void Start(AnimationHandle handle) => StartAt(handle, Clock(_slots[Resolve(handle)].Clock));
+    public void Start(IAnimationHandle handle) => StartAt(handle, Clock(_slots[Resolve(handle)].Clock));
 
     /// <summary>Start at an admitted clock boundary, even between rendered frames.</summary>
-    public void StartAt(AnimationHandle handle, PhysicalTime clockTime)
+    public void StartAt(IAnimationHandle handle, PhysicalTime clockTime)
     {
         var index = Resolve(handle);
         if(_slots[index].Kind!=AnimationKind.Clip)throw new InvalidOperationException("Start requires a clip definition.");
@@ -325,7 +242,7 @@ public sealed class AnimationBatch
     /// <summary>Restart a once-clip from its From value at an occurrence's clock time, which may already have passed (an
     /// occurrence observed late): the clip is at the phase it would have reached had it started then, and at To once
     /// that time plus its duration has passed. A future occurrence is admitted at its own time, as <see cref="StartAt"/>.</summary>
-    public void StartAtOccurrence(AnimationHandle handle, PhysicalTime occurredAt)
+    public void StartAtOccurrence(IAnimationHandle handle, PhysicalTime occurredAt)
     {
         var index = Resolve(handle);
         ref var slot = ref _slots[index];
@@ -342,7 +259,7 @@ public sealed class AnimationBatch
 
     /// <summary>Drive a once-clip toward either endpoint without resetting its phase.
     /// A reversal evaluates the control boundary even if no frame was rendered.</summary>
-    public void DriveTo(AnimationHandle handle, AnimationEndpoint endpoint, PhysicalTime clockTime)
+    public void DriveTo(IAnimationHandle handle, AnimationEndpoint endpoint, PhysicalTime clockTime)
     {
         var index = Resolve(handle);
         ref var slot = ref _slots[index];
@@ -366,7 +283,7 @@ public sealed class AnimationBatch
 
     /// <summary>Signed clip-seconds per clock-second for a Loop. Zero holds phase.
     /// Changes integrate the old rate to the admitted boundary, including skipped frames.</summary>
-    public void SetLoopRate(AnimationHandle handle, AnimationPlaybackRate rate, PhysicalTime clockTime)
+    public void SetLoopRate(IAnimationHandle handle, AnimationPlaybackRate rate, PhysicalTime clockTime)
     {
         var index = Resolve(handle);
         ref var slot = ref _slots[index];
@@ -409,7 +326,7 @@ public sealed class AnimationBatch
         slot.Definition!.Repeat == AnimationRepeat.Once &&
         (slot.Endpoint == AnimationEndpoint.To ? position >= 1 : position <= 0);
 
-    public void Stop(AnimationHandle handle, AnimationStop policy, PhysicalTime clockTime)
+    public void StopPlayback(IAnimationHandle handle, AnimationStop policy, PhysicalTime clockTime)
     {
         var index = Resolve(handle);
         if (!Enum.IsDefined(policy)) throw new ArgumentOutOfRangeException(nameof(policy));
@@ -449,7 +366,7 @@ public sealed class AnimationBatch
         Schedule(index);
     }
 
-    public void SetVisible(AnimationHandle handle, bool visible)
+    public void SetVisible(IAnimationHandle handle, bool visible)
     {
         var index = Resolve(handle);
         _sampleCount = 0;
@@ -457,7 +374,7 @@ public sealed class AnimationBatch
         if (visible) Schedule(index);
     }
 
-    public AnimationBinding Binding(AnimationHandle handle) => _slots[Resolve(handle)].Binding;
+    public AnimationBinding Binding(IAnimationHandle handle) => _slots[Resolve(handle)].Binding;
 
     /// <summary>Borrow the binding at an active batch position; valid until mutation.</summary>
     public AnimationBinding ScheduledBindingAt(int index)
@@ -466,13 +383,13 @@ public sealed class AnimationBatch
         return _slots[_active[index]].Binding;
     }
 
-    public AnimationRead Read(AnimationHandle handle)
+    public AnimationRead Read(IAnimationHandle handle)
     {
         ref var slot = ref _slots[Resolve(handle)];
         return new(slot.Playback, slot.Value, slot.Visible);
     }
 
-    public void Remove(AnimationHandle handle)
+    public void Remove(IAnimationHandle handle)
     {
         var index = Resolve(handle);
         _sampleCount = 0;
@@ -611,12 +528,14 @@ public sealed class AnimationBatch
         AnimationClock.Simulation => _simulationTime,
         _ => throw new InvalidOperationException("Unsupported animation clock.")
     };
-    private int Resolve(AnimationHandle handle)
+    private int Resolve(IAnimationHandle handle)
     {
-        if (!ReferenceEquals(handle.Owner, this) || handle.Generation != Generation || handle.Slot < 0 || handle.Slot >= _slots.Length ||
-            (_slots[handle.Slot].Definition is null&&_slots[handle.Slot].Follow is null&&_slots[handle.Slot].Impulses is null&&_slots[handle.Slot].Oscillation is null) || handle.Version != _versions[handle.Slot])
+        if (handle is not Handle owned || !ReferenceEquals(owned.Owner, this) || owned.Generation != Generation ||
+            owned.Slot < 0 || owned.Slot >= _slots.Length ||
+            (_slots[owned.Slot].Definition is null && _slots[owned.Slot].Follow is null &&
+             _slots[owned.Slot].Impulses is null && _slots[owned.Slot].Oscillation is null) || owned.Version != _versions[owned.Slot])
             throw new ArgumentException("Animation handle is stale or not owned by this registry.", nameof(handle));
-        return handle.Slot;
+        return owned.Slot;
     }
     private void Schedule(int index)
     {
