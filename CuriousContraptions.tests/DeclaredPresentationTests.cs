@@ -57,6 +57,10 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             Assert.Equal(authoredColour, authoredMaterial.AlbedoColor);
             Assert.Equal(authoredMaterial.EmissionEnabled, material.EmissionEnabled);
             Assert.Equal(new Color(drive.Blocked ? "#e8b764" : connected ? "#f7cb52" : "#556573"), material.AlbedoColor);
+            part.ResetPhysicalVisuals();
+            Assert.Equal(new Color("#556573"), Assert.IsType<StandardMaterial3D>(indicator.MaterialOverride).AlbedoColor);
+            Assert.Equal(new Color("#556573"), controlMaterial.AlbedoColor);
+            Assert.Equal(authoredColour, authoredMaterial.AlbedoColor);
             evaluator.Accept(Response(reads[2], 2));
             Assert.Throws<ArgumentException>(() => evaluator.Accept(endpoint));
             var next = Response(reads[2], 3);
