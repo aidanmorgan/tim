@@ -62,11 +62,11 @@ public sealed class LampDetectorGuardTests
         var network = WorkshopActivationCompiler.Compile(construction);
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var tracker = PassageSensorTracker.Create(network.PassageSensors, scene, built.Bodies);
-        var outputs = new PassageSensorRead[8];
         var fired = new List<ulong>();
         foreach (var read in reads)
         {
-            tracker = tracker.Advance(read.Tick, read.Bodies, Assert.IsType<PhysicsMotionRead>(read.Motion), outputs, out var count);
+            tracker = tracker.Advance(read.Tick, read.Bodies, Assert.IsType<PhysicsMotionRead>(read.Motion));
+            var count = tracker.Fired.Length;
             for (var i = 0; i < count; i++) fired.Add(read.Tick.Value);
         }
         return ((ulong)tracker.States.Sum(state => (long)state.PassedCount), fired);

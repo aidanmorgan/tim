@@ -728,14 +728,13 @@ public sealed class CompoundPassageBoundaryTests
         Assert.True(final[body].Position.X < 0, "the committed endpoint has returned upstream");
         Assert.True(Enumerable.Range(1,7).Any(i => motion.TrySample(body, new((ulong)i, -.4096f), out var pose) &&
             (pose.Cell.X + pose.Local.X) / 16 > 0), "the real trajectory crossed within the tick");
-        var outputs = new PassageSensorRead[1];
-        var candidate = tracker.Advance(new(1), bodies, motion, outputs, out var count);
+        var candidate = tracker.Advance(new(1), bodies, motion);
+        var count = candidate.Fired.Length;
         Assert.Equal(expected, count);
-        Assert.Equal(expected, candidate.Fired.Count);
         Assert.Empty(tracker.States); // discarded candidate cannot earn the pass
-        Assert.Throws<ArgumentNullException>(() => tracker.Advance(new(1), bodies, null!, outputs, out _));
+        Assert.Throws<ArgumentNullException>(() => tracker.Advance(new(1), bodies, null!));
         var admission = PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength(initial.Count)], initial, new(0));
-        Assert.Throws<ArgumentException>(() => tracker.Advance(new(1), bodies, admission, outputs, out _));
+        Assert.Throws<ArgumentException>(() => tracker.Advance(new(1), bodies, admission));
     }
 
 
@@ -765,16 +764,17 @@ public sealed class CompoundPassageBoundaryTests
         Assert.Empty(initial.States);
         Assert.Equal(1,initial.ParticipantCount);
         var tracker=initial;
-        var outputs=new PassageSensorRead[policies.Length];
         var fired=0;
         world.Step((int)(240/speed),(tick,state)=>
         {
             var layout=PhysicsGpuAbi.Layout(state.World);
             var motion=PhysicsMotionRead.Decode(state.World.AsSpan(layout.MotionOffset,layout.MotionBytes),
                 PhysicsGpuAbi.ReadDynamicBodies(state.World),new((ulong)tick));
-            var candidate=tracker.Advance(new((ulong)tick),Read(state),motion,outputs,out var count);
+            var candidate=tracker.Advance(new((ulong)tick),Read(state),motion);
+            var count = candidate.Fired.Length;
             // Candidate evaluation leaves the prior immutable interaction snapshot available to discard.
-            var replay=tracker.Advance(new((ulong)tick),Read(state),motion,new PassageSensorRead[policies.Length],out var repeated);
+            var replay=tracker.Advance(new((ulong)tick),Read(state),motion);
+            var repeated = replay.Fired.Length;
             Assert.Equal(count,repeated);
             Assert.Equal(candidate.States,replay.States);
             fired+=count;
@@ -812,17 +812,19 @@ public sealed class CompoundPassageBoundaryTests
         var initial=PassageSensorTracker.Create(sensors,scene,At(initiallyUpstream ? -1 : -.1f,.8f));
         var motion = new PassageMotionFixture(At(initiallyUpstream ? -1 : -.1f,.8f));
         Assert.Empty(initial.States);
-        var outputs=new PassageSensorRead[1];
-        var band=initial.Advance(new(1),At(-.1f,.8f),motion.Create(At(-.1f,.8f)),outputs,out var entry);
+        var band=initial.Advance(new(1),At(-.1f,.8f),motion.Create(At(-.1f,.8f)));
+        var entry = band.Fired.Length;
         Assert.Equal(0,entry);
         Assert.Equal(initiallyUpstream ? 1 : 0,band.States.Count);
-        var lateral=band.Advance(new(2),At(-.1f,0),motion.Create(At(-.1f,0)),outputs,out var sideways);
+        var lateral=band.Advance(new(2),At(-.1f,0),motion.Create(At(-.1f,0)));
+        var sideways = lateral.Fired.Length;
         Assert.Equal(0,sideways);
-        var passed=lateral.Advance(new(3),At(.1f,0),motion.Create(At(.1f,0)),outputs,out var crossing);
+        var passed=lateral.Advance(new(3),At(.1f,0),motion.Create(At(.1f,0)));
+        var crossing = passed.Fired.Length;
         Assert.Equal(initiallyUpstream ? 1 : 0,crossing);
         Assert.Equal(initiallyUpstream ? 1 : 0,passed.States.Count);
         Assert.Empty(initial.States);
-        Assert.Throws<ArgumentException>(()=>initial.Advance(new(4),new([]),motion.Create(At(.1f,0)),outputs,out _));
+        Assert.Throws<ArgumentException>(()=>initial.Advance(new(4),new([]),motion.Create(At(.1f,0))));
         Assert.Empty(initial.States);
     }
 
@@ -853,12 +855,12 @@ public sealed class CompoundPassageBoundaryTests
         Assert.Equal(1, tracker.ParticipantCount);
         // Literal seam centreline .336 + tube .014 = .35 m, plus CAT-002
         // clearance .02 m. The previous bare-sphere .34 m rule arms too soon.
-        var output = new PassageSensorRead[1];
         var count = 0;
         ulong tick = 0;
         foreach (var x in new[] { .01f, -upstream, .01f })
         {
-            tracker = tracker.Advance(new(++tick), At(x), motion.Create(At(x)), output, out var fired);
+            tracker = tracker.Advance(new(++tick), At(x), motion.Create(At(x)));
+            var fired = tracker.Fired.Length;
             count += fired;
         }
         Assert.Equal(expected, count);

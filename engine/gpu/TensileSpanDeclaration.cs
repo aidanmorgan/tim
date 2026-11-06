@@ -24,7 +24,7 @@ public readonly record struct RopeGuideDeclaration(RopeGuideId Id, GpuBodyId Bod
 /// <summary>One ordered straight span.</summary>
 public readonly record struct TensileSpanDeclaration(RopeSpanId Id, RopeRouteId Route, uint Order,
     GpuBodyId BodyA, Vector3 LocalA, GpuBodyId BodyB, Vector3 LocalB, float MaximumLength, bool Complete,
-    float GuideRadius = 0f, Vector3 GuideOffset = default)
+    float GuideRadius = 0f, Vector3 GuideOffset = default, RopeGuideId Guide = default)
 {
     public void Validate()
     {
@@ -34,6 +34,8 @@ public readonly record struct TensileSpanDeclaration(RopeSpanId Id, RopeRouteId 
         if (!Finite(LocalA) || !Finite(LocalB)) throw new ArgumentException("Nonfinite tensile attachment.");
         if (!float.IsFinite(GuideRadius) || GuideRadius < 0f) throw new ArgumentException("Invalid guide radius.");
         if (!Finite(GuideOffset)) throw new ArgumentException("Nonfinite guide offset.");
+        if ((Guide.Value == 0) != (GuideRadius == 0f) || (Guide.Value == 0 && GuideOffset != Vector3.Zero))
+            throw new ArgumentException("Guide identity and geometry must be declared together.");
     }
     private static bool Finite(Vector3 value) => float.IsFinite(value.X) && float.IsFinite(value.Y) && float.IsFinite(value.Z);
 }

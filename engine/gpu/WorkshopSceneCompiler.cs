@@ -12,7 +12,14 @@ public static class WorkshopSceneCompiler
     private static CompiledPresentationBinding CompileBinding(PresentationBinding binding, PartId partId) =>
         new(binding.Property, binding.Driver, binding.Mapping, binding.From, binding.To, binding.Curve, binding.Duration,
             binding.Overlap, binding.Threshold, binding.Phase, binding.Response, binding.Intermediate,
-            binding.Socket.HasValue ? DeclaredPorts.Current.Role(partId, binding.Socket.Value) : null, binding.Event, binding.EventMagnitude);
+            binding.Socket.HasValue ? DeclaredPorts.Current.Role(partId, binding.Socket.Value) : null, binding.Event, binding.EventMagnitude, binding.StateValues);
+
+    private static SupplyConsumer ResolveActuator(CompiledPartIdentities ids, CoordinateReference coordinate) => coordinate.Kind switch
+    {
+        CoordinateKind.Prismatic => SupplyConsumer.Prismatic(ids.Sliders[coordinate.Index].Joint),
+        CoordinateKind.Revolute => SupplyConsumer.Revolute(ids.Hinges[coordinate.Index].Joint),
+        _ => throw new ArgumentException("Unsupported actuator coordinate.")
+    };
 
     public static WorkshopCompiledScene Compile(WorkshopConstruction construction, PhysicsDocumentId document, CompiledSceneId identity)
     {
@@ -45,7 +52,9 @@ public static class WorkshopSceneCompiler
             for (var i = 0; i < bindings.Count; i++)
                 tracks.Add(new(new AnimationTargetId(WorkshopDeclaredPresentation.TargetBase + (ulong)tracks.Count),
                     owner.Id, i, CompileBinding(bindings[i], owner.PartId),
-                    bindings[i].SignalNode is { } selected ? nodes.Single(node => node.Id == construction.Instances.Identities[owner.Id].Signals[selected].Node) : default, capacity));
+                    bindings[i].SignalNode is { } selected ? nodes.Single(node => node.Id == construction.Instances.Identities[owner.Id].Signals[selected].Node) : default, capacity,
+                    bindings[i].Actuator is { } actuator ? ResolveActuator(construction.Instances.Identities[owner.Id], actuator) : null,
+                    bindings[i].GuidePort is { } guide ? construction.Instances.Identities[owner.Id].Guides[guide] : default));
         }
         return new(identity, construction.Revision, construction.Settings, physics, activation, tracks,
             construction.Instances.Select(instance => instance.Id), runControls);

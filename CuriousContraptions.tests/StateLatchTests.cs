@@ -190,7 +190,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Equal(ActivationNodeKind.LevelIndicator, nodes.Single(node => node.Owner == lamp.Id).Kind);
         Assert.Equal(ActivationNodeKind.StickyFirstInput, nodes.Single(node => node.Owner == sticky.Id).Kind);
         var activations = network.Clear(); var timers = network.ClearTimers(); var memory = network.ClearMemory();
-        var electrical = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery.Id, new Joules(3600f), default, ElectricalEnable.Enabled)]);
+        var electrical = new SupplyOutputRead([new(battery.Id, true)]);
         bool Lit(GpuBodyId owner)
         {
             for (var i = 0; i < activations.Count; i++) if (activations[i].Owner == owner) return activations[i].Phase == ActivationPhase.Latched;
@@ -393,9 +393,9 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var on = new WorkshopTickControls([ElectricalEnable.Enabled]);
         var off = new WorkshopTickControls([ElectricalEnable.Disabled]);
         Assert.Equal(1, scene.SupplyGraph.DriveSlots); // the gate's driven slider
-        Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph, on, _ => true).SupplyClosed[0]);
-        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph, on, _ => false).SupplyClosed[0]);
-        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph, off, _ => true).SupplyClosed[0]);
+        Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph, on, _ => true, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
+        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph, on, _ => false, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
+        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph, off, _ => true, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
         Assert.Throws<ArgumentException>(() => new PhysicsTickInputs([ElectricalEnable.Enabled], []).Validate(1, [true], 0));
         // A closed slot is admitted only where a drive is declared.
         new PhysicsTickInputs([ElectricalEnable.Enabled], [true]).Validate(1, [true], 0);
@@ -407,10 +407,10 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         // Memory without a supply compiles no route; a battery wired straight to the gate compiles one Direct route (Story 9R.3).
         var unsupplied = routed with { Connections = new(new WorkshopConnection(latch.Id, PortId.Supply, gate.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) };
         var unsuppliedScene=WorkshopPhysicsCompiler.Compile(unsupplied,new(1,2));
-        Assert.False(PhysicsTickInputs.Compose(unsuppliedScene.SupplyGraph,on,_=>true).SupplyClosed[0]);
+        Assert.False(PhysicsTickInputs.Compose(unsuppliedScene.SupplyGraph,on,_=>true, PlacedParts.InitialElectrical(unsuppliedScene)).SupplyClosed[0]);
         var direct=routed with {Connections=new(Power(battery.Id,gate.Id))};
         var directScene=WorkshopPhysicsCompiler.Compile(direct,new(1,2));
-        Assert.True(PhysicsTickInputs.Compose(directScene.SupplyGraph,on,_=>false).SupplyClosed[0]);
+        Assert.True(PhysicsTickInputs.Compose(directScene.SupplyGraph,on,_=>false, PlacedParts.InitialElectrical(directScene)).SupplyClosed[0]);
 
         // A Counter's supply contact compiles the same route kind: closed only while its committed value is reached.
         var counter = PlacedParts.Counter(new(4), 0, 3, 0, 0, 0, 0, 1, 3);
@@ -447,7 +447,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         {
             var enables = new ElectricalEnable[scene.Electrical.Sources.Length];
             enables[SourceOf(batteryA.Id)] = a; enables[SourceOf(batteryB.Id)] = b;
-            return PhysicsTickInputs.Compose(scene.SupplyGraph, new(enables), contact).SupplyClosed;
+            return PhysicsTickInputs.Compose(scene.SupplyGraph, new(enables), contact, PlacedParts.InitialElectrical(scene)).SupplyClosed;
         }
         // Both latches On, battery A enabled and battery B disabled (its authored state): only gate A is supplied; the plain gate never is.
         var both = Closed(ElectricalEnable.Enabled, ElectricalEnable.Disabled, _ => true);
@@ -472,7 +472,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
                 Signal(clock.Id, counter.Id, PortId.ActivationIn)));
         var network = WorkshopActivationCompiler.Compile(construction);
         var activations = network.Clear(); var timers = network.ClearTimers(); var memory = network.ClearMemory();
-        var electrical = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery.Id, new Joules(3600f), default, ElectricalEnable.Enabled)]);
+        var electrical = new SupplyOutputRead([new(battery.Id, true)]);
         var latchClosedAt = 0; var counterClosedAt = 0;
         for (var tick = 1; tick <= 300; tick++)
         {
@@ -548,7 +548,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var activations = network.Clear();
         var timers = network.ClearTimers();
         var memory = network.ClearMemory();
-        var electrical = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery, new Joules(3600f), default, ElectricalEnable.Enabled)]);
+        var electrical = new SupplyOutputRead([new(battery, true)]);
         var phases = new SimulationLatchPhase[ticks];
         for (var tick = 1; tick <= ticks; tick++)
         {

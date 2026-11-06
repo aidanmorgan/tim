@@ -336,9 +336,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
                 Connections: new([conn1, conn2]));
             await scene.World.ReplaceConstruction(construction);
             var compiled = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-            var declaration = new PhysicsSceneDeclaration(compiled.Document, compiled.NextIdentity, compiled.Bodies,
-                compiled.Colliders, compiled.Materials, [], [], tensileSpans: compiled.TensileSpans.ToArray());
-            var source = PhysicsGpuAbi.Admission(declaration, new(1),
+            var source = PhysicsGpuAbi.Admission(compiled, new(1),
                 new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
             var candidate = new byte[source.Length];
             var inputs = new PhysicsTickInputs([], []);

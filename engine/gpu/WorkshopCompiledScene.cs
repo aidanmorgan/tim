@@ -13,9 +13,9 @@ public readonly record struct CompiledSceneId(ulong Value);
 public readonly record struct CompiledPresentationBinding(PresentationProperty Property, PresentationDriver Driver, PresentationValueMapping Mapping,
     float From, float To, PresentationCurve Curve, float Duration, PresentationOverlap Overlap, float Threshold,
     PresentationTimerPhase Phase, float Response, float? Intermediate, PortRole? Socket,
-    SimulationEventKind Event, PresentationEventMagnitude EventMagnitude);
+    SimulationEventKind Event, PresentationEventMagnitude EventMagnitude, PresentationActuatorStateValues? StateValues = null);
 public readonly record struct CompiledPresentationTrack(AnimationTargetId Target, GpuBodyId Owner, int Binding,
-    CompiledPresentationBinding Declaration, ActivationNodeDeclaration Activation, float SourceCapacity);
+    CompiledPresentationBinding Declaration, ActivationNodeDeclaration Activation, float SourceCapacity, SupplyConsumer? Actuator = null, RopeGuideId Guide = default);
 
 /// <summary>The complete runtime installation. No authored instance, package identity or bundle is retained.</summary>
 public sealed class WorkshopCompiledScene
@@ -90,10 +90,11 @@ public sealed class WorkshopCompiledScene
         var orientations = Physics.OrientationSensors.ToArray();
         var loads = Physics.ContactLoadSensors.ToArray();
         var passages = Activation.PassageSensors.ToArray();
-        var sources = Physics.Electrical.Sources.ToArray();
+        var providers = Physics.SupplyGraph.Nodes.ToArray();
         if (passages.Any(sensor => !owners.Contains(sensor.Frame)) ||
             nodes.Any(node => InvalidPhysicalReference(node, triggers, orientations, loads, passages) ||
-                node.PowerSource.Value != 0 && !sources.Any(row => row.Owner == node.PowerSource)))
+                node.PowerProvider.Value != 0 && !providers.Any(row => row.Owner == node.PowerProvider &&
+                    row.Kind is SupplyNodeKind.Source or SupplyNodeKind.Contact or SupplyNodeKind.LogicGate)))
             throw new ArgumentException("Compiled activation references a foreign capability.");
         if (nodes.Any(node => !owners.Contains(node.Owner)))
             throw new ArgumentException("Activation owner is outside the installed scene.");
@@ -119,10 +120,21 @@ public sealed class WorkshopCompiledScene
             var d = track.Declaration;
             if (!owners.Contains(track.Owner) || track.Target.Value == 0 || !targets.Add(track.Target) ||
                 track.Binding < 0 || !bindings.Add((track.Owner, track.Binding)) ||
-                InvalidSignalBinding(track, nodes) || InvalidTrackFields(track) ||
+                InvalidSignalBinding(track, nodes) || InvalidPhysicalBinding(track) || InvalidTrackFields(track) ||
                 InvalidBindingEvaluation(d) || InvalidBindingValues(d))
                 throw new ArgumentException("Compiled presentation track is invalid.");
         }
+    }
+
+    private bool InvalidPhysicalBinding(CompiledPresentationTrack track)
+    {
+        var actuatorDriver = track.Declaration.Driver is PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState;
+        if (actuatorDriver != track.Actuator.HasValue) return true;
+        if (track.Actuator is { } actuator && !Physics.SupplyGraph.Nodes.ToArray().Any(node =>
+            node.Owner == track.Owner && !node.Consumers.IsDefault && node.Consumers.Contains(actuator))) return true;
+        var guideDriver = track.Declaration.Driver == PresentationDriver.CommittedWheelAngle;
+        return guideDriver != (track.Guide.Value != 0) || guideDriver &&
+            !Physics.RopeGuides.ToArray().Any(guide => guide.Id == track.Guide && OwnsBody(track.Owner, guide.Body));
     }
 
     private static bool InvalidSignalBinding(CompiledPresentationTrack track, ActivationNodeDeclaration[] nodes)
@@ -156,7 +168,9 @@ public sealed class WorkshopCompiledScene
 
     private static bool InvalidBindingValues(CompiledPresentationBinding d)
     {
-        return !float.IsFinite(d.From) || !float.IsFinite(d.To) || !float.IsFinite(d.Duration) || d.Duration < 0 ||
+        return (d.Driver == PresentationDriver.CommittedActuatorState) != d.StateValues.HasValue ||
+                (d.StateValues is { } states && (!states.IsFinite() || d.Intermediate.HasValue)) ||
+                !float.IsFinite(d.From) || !float.IsFinite(d.To) || !float.IsFinite(d.Duration) || d.Duration < 0 ||
                 !float.IsFinite(d.Threshold) || !float.IsFinite(d.Response) || d.Response < 0 ||
                 (d.Intermediate is { } intermediate && !float.IsFinite(intermediate));
     }

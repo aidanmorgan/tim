@@ -177,7 +177,7 @@ public static partial class WorkshopWireFlatBuffers
             {
                 var m = read.Memory[i];
                 ActivationMemoryRecord.CreateActivationMemoryRecord(builder, m.Node.Value, (uint)m.Kind, m.Count,
-                    m.Last.Ordinal, m.Last.Phase, (uint)m.Phase, m.DueTick,
+                    m.Last.Ordinal, m.Last.Phase, (uint)m.Phase, m.DueTick, m.PassageSequence.Value,
                     (uint)m.Dispatched.Kind, m.Dispatched.Emitter.Value, m.Dispatched.Time.Ordinal, m.Dispatched.Time.Phase,
                     m.Dispatched.Cause.Source.Value, m.Dispatched.Cause.Body.Value, m.Dispatched.Cause.Collider.Value,
                     m.Dispatched.Cause.Time.Ordinal, m.Dispatched.Cause.Time.Phase, m.Dispatched.Cause.ApproachSpeed.Value,
@@ -755,7 +755,7 @@ public static partial class WorkshopWireFlatBuffers
                 new((ActivationOccurrenceKind)m.DispatchedKind, new(m.DispatchedEmitter),
                     new(m.DispatchedOrdinal, m.DispatchedPhase),
                     new(new(m.CauseSource), new(m.CauseBody), new(m.CauseCollider),
-                        new(m.CauseOrdinal, m.CausePhase), new(m.CauseSpeed), (ActivationCauseKind)m.CauseKind)));
+                        new(m.CauseOrdinal, m.CausePhase), new(m.CauseSpeed), (ActivationCauseKind)m.CauseKind)), new(m.PassageSequence));
         }
 
         return memoryValues;

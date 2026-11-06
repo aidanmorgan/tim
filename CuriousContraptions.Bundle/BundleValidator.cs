@@ -217,6 +217,9 @@ public static class BundleValidator
                 Finite("Presentation.From", binding.From); Finite("Presentation.To", binding.To);
                 Finite("Presentation.Duration", binding.Duration); Finite("Presentation.Threshold", binding.Threshold);
                 Finite("Presentation.Response", binding.Response);
+                if ((binding.Driver == PresentationDriver.CommittedActuatorState) != binding.StateValues.HasValue ||
+                    binding.StateValues is { } stateValues && (!stateValues.IsFinite() || binding.Intermediate.HasValue))
+                    OutOfRange("Presentation.StateValues");
                 if (binding.Intermediate is { } middle) Finite("Presentation.Intermediate", middle);
                 if (binding.Duration < 0 || binding.Duration > 30 || binding.Response < 0 ||
                     (binding.Curve == PresentationCurve.ExponentialFollow && binding.Response <= 0))
@@ -240,6 +243,10 @@ public static class BundleValidator
                         (electrical?.Supply?.Kind != SupplyCapabilityKind.LogicGate ||
                          !ports.Any(port => port.Id == socket && port.Domain == SimulationDomain.Electrical))))
                     OutOfRange("Presentation.Socket");
+                if ((binding.Driver == PresentationDriver.CommittedWheelAngle) != binding.GuidePort.HasValue ||
+                    binding.GuidePort is { } guide && !ports.Any(port => port.Id == guide &&
+                        port.Domain == SimulationDomain.Rope && port.AttachmentRole == RopeAttachmentRole.Guide))
+                    OutOfRange("Presentation.GuidePort");
         }
 
         private void PresentationBindingCapabilities(PresentationBinding binding, SignalPayload? signal, MechanicalPayload? mechanical)
@@ -254,13 +261,20 @@ public static class BundleValidator
                 // A committed deflection binding reads the row only a declared compliant surface compiles.
                 if (binding.Driver == PresentationDriver.CommittedSurfaceDeflection && mechanical?.CompliantSurface is null)
                     OutOfRange("Presentation.CompliantSurface");
-                // A committed blocked state is read only from a prismatic drive's moving contact; a revolute slot reports none.
-                if (binding.Driver == PresentationDriver.CommittedActuatorState && mechanical?.Sliders.Any(slider => slider.Drive is not null) != true)
-                    OutOfRange("Presentation.ActuatorState");
-                // A committed drive binding reads only a driven slot of its owner: it requires a driven slider or hinge.
-                if (binding.Driver == PresentationDriver.CommittedActuatorDrive && mechanical?.Sliders.Any(slider => slider.Drive is not null) != true &&
-                    mechanical?.Hinges.Any(hinge => hinge.Drive is not null) != true)
-                    OutOfRange("Presentation.ActuatorDrive");
+                var actuatorDriver = binding.Driver is PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState;
+                if (actuatorDriver != binding.Actuator.HasValue) OutOfRange("Presentation.Actuator");
+                if (binding.Actuator is { } actuator)
+                {
+                    var valid = actuator.Index >= 0 && (actuator.Kind switch
+                    {
+                        CoordinateKind.Prismatic => mechanical is not null && actuator.Index < mechanical.Sliders.Count &&
+                            mechanical.Sliders[actuator.Index].Drive is not null,
+                        CoordinateKind.Revolute => mechanical is not null && actuator.Index < mechanical.Hinges.Count &&
+                            mechanical.Hinges[actuator.Index].Drive is not null,
+                        _ => false
+                    });
+                    if (!valid) OutOfRange("Presentation.Actuator");
+                }
         }
 
         private void PresentationBindingEvents(PresentationBinding binding, IReadOnlyList<EventDescriptor> events)

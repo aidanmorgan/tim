@@ -5,6 +5,7 @@ using System.Numerics;
 namespace CuriousContraptions.Gpu;
 
 public readonly record struct GpuPassageSensorId(ulong Value);
+public readonly record struct PassageSequence(ulong Value);
 
 public readonly record struct PassageSensorDeclaration(
     GpuPassageSensorId Id,
@@ -34,7 +35,8 @@ public readonly record struct PassageSensorRead(
     PassageSensorPhase Phase,
     uint EventOrdinal,
     float EventPhase,
-    LinearSpeed Speed);
+    LinearSpeed Speed,
+    PassageSequence Sequence);
 
 public readonly record struct PassagePairKey(GpuPassageSensorId Sensor, GpuBodyId Body);
 public readonly record struct PassageBodyState(GpuPassageSensorId Sensor, GpuBodyId Body,
@@ -44,22 +46,23 @@ public readonly record struct PassageBodyState(GpuPassageSensorId Sensor, GpuBod
 public sealed class PassageSensorTracker
 {
     private readonly record struct Participant(GpuBodyId Body, GpuColliderId Collider, float Radius, Vector3 Previous);
-    public static readonly PassageSensorTracker Empty = new([], [], [], [], []);
+    public static readonly PassageSensorTracker Empty = new([], [], [], [], [], []);
     private readonly PassageSensorDeclaration[] _sensors;
     private readonly Participant[] _participants;
     private readonly HashSet<GpuBodyId> _admittedBodies;
     private readonly PassageBodyState[] _states;
     private readonly PassageSensorRead[] _fired;
+    private readonly PassageSequence[] _sequences;
     public IReadOnlyList<PassageSensorDeclaration> Sensors => _sensors;
     public IReadOnlyList<PassageBodyState> States => _states;
     public int ParticipantCount => _participants.Length;
-    /// <summary>All actual passes, including multiple bodies at one aperture; network observations reduce these per sensor.</summary>
-    public IReadOnlyList<PassageSensorRead> Fired => _fired;
+    /// <summary>All actual passes, including multiple bodies at one aperture; each has an independent per-sensor delivery identity.</summary>
+    public ReadOnlySpan<PassageSensorRead> Fired => _fired;
 
     private PassageSensorTracker(PassageSensorDeclaration[] sensors, Participant[] participants,
-        HashSet<GpuBodyId> admittedBodies, PassageBodyState[] states, PassageSensorRead[] fired)
+        HashSet<GpuBodyId> admittedBodies, PassageBodyState[] states, PassageSensorRead[] fired, PassageSequence[] sequences)
     {
-        _sensors=sensors; _participants=participants; _admittedBodies=admittedBodies; _states=states; _fired=fired;
+        _sensors=sensors; _participants=participants; _admittedBodies=admittedBodies; _states=states; _fired=fired; _sequences=sequences;
     }
 
     public static PassageSensorTracker Create(ReadOnlySpan<PassageSensorDeclaration> sensors,
@@ -116,14 +119,11 @@ public sealed class PassageSensorTracker
             if(declared.Value==RigidMotionKind.Dynamic && !readBodies.Contains(declared.Key))
                 throw new ArgumentException("Passage participant is missing.",nameof(bodies));
         participants.Sort((a,b)=>a.Body.Value.CompareTo(b.Body.Value));
-        return sensorList.Length == 0 ? Empty : new(sensorList,participants.ToArray(),new(declaredBodies.Keys),[],[]);
+        return sensorList.Length == 0 ? Empty : new(sensorList,participants.ToArray(),new(declaredBodies.Keys),[],[],new PassageSequence[sensorList.Length]);
     }
 
-    public PassageSensorTracker Advance(SimulationTick tick, PhysicsBodyReadSet bodies, PhysicsMotionRead motion,
-        Span<PassageSensorRead> outputs, out int outputCount)
+    public PassageSensorTracker Advance(SimulationTick tick, PhysicsBodyReadSet bodies, PhysicsMotionRead motion)
     {
-        if (outputs.Length<_sensors.Length) throw new ArgumentException("Passage output requires one slot per policy.",nameof(outputs));
-        outputCount=0;
         if (_sensors.Length == 0) return this;
         ArgumentNullException.ThrowIfNull(motion);
         motion.ValidateBinding(bodies, tick);
@@ -139,7 +139,6 @@ public sealed class PassageSensorTracker
             var detectorPos=RenderPosition(sensor.Cell,sensor.Local);
             var qInv=Quaternion.Conjugate(new(sensor.Rotation.X,sensor.Rotation.Y,sensor.Rotation.Z,sensor.Rotation.W));
             var boreRadiusSq=sensor.Radius.Value*sensor.Radius.Value;
-            var observed=false;
             for(var b=0;b<_participants.Length;b++)
             {
                 var participant=_participants[b];
@@ -172,9 +171,8 @@ public sealed class PassageSensorTracker
                             passedCount=checked(passedCount+1);
                             var speed=Math.Clamp(MathF.Abs(distance*WorkshopCadenceSettings.PhysicalFrequency),0,4096);
                             var read=new PassageSensorRead(sensor.Id,sensor.Frame,participant.Body,participant.Collider,
-                                PassageSensorPhase.Fired,ordinal,0,new(speed));
+                                PassageSensorPhase.Fired,ordinal,0,new(speed),default);
                             fired.Add(read);
-                            if(!observed) { outputs[outputCount++]=read; observed=true; }
                         }
                     }
                     local=next;
@@ -185,7 +183,32 @@ public sealed class PassageSensorTracker
                     nextStates.Add(new(sensor.Id,participant.Body,phase,passedCount));
             }
         }
-        return new(_sensors,participants,_admittedBodies,nextStates.ToArray(),fired.ToArray());
+        var sequences = (PassageSequence[])_sequences.Clone();
+        var occurrences = SequenceOccurrences(fired, sequences);
+        return new(_sensors,participants,_admittedBodies,nextStates.ToArray(),occurrences,sequences);
+    }
+
+    private PassageSensorRead[] SequenceOccurrences(List<PassageSensorRead> fired, PassageSequence[] sequences)
+    {
+        fired.Sort((a, b) =>
+        {
+            var order = a.Id.Value.CompareTo(b.Id.Value);
+            if (order == 0) order = a.EventOrdinal.CompareTo(b.EventOrdinal);
+            if (order == 0) order = a.EventPhase.CompareTo(b.EventPhase);
+            if (order == 0) order = a.Body.Value.CompareTo(b.Body.Value);
+            return order != 0 ? order : a.Collider.Value.CompareTo(b.Collider.Value);
+        });
+        var occurrences = fired.ToArray();
+        var sensor = 0;
+        for (var i = 0; i < occurrences.Length; i++)
+        {
+            while (_sensors[sensor].Id != occurrences[i].Id) sensor++;
+            if (sequences[sensor].Value == ulong.MaxValue)
+                throw new ArgumentException("Passage sequence exhausted.");
+            sequences[sensor] = new(sequences[sensor].Value + 1);
+            occurrences[i] = occurrences[i] with { Sequence = sequences[sensor] };
+        }
+        return occurrences;
     }
 
     private Participant[] UpdatedParticipants(PhysicsBodyReadSet bodies)

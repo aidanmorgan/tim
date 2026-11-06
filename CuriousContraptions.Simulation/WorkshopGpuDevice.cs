@@ -34,7 +34,6 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     // Story 9R.5b: read scratch sized from the admitted world's populations, reallocated only when a world needs more (per Run).
     private ContactTriggerRead[] _triggerScratch = new ContactTriggerRead[4];
     private OrientationSensorRead[] _orientationScratch = new OrientationSensorRead[4];
-    private PassageSensorRead[] _passageScratch = new PassageSensorRead[4];
     private ContactLoadSensorRead[] _loadScratch = new ContactLoadSensorRead[4];
 
     /// <summary>A cleared span of exactly <paramref name="count"/> rows, growing the owned array only when it is too short.</summary>
@@ -151,11 +150,12 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 scheduled = network.AdvanceScheduled(new(_committedActivations, _committedTimers, _committedMemory), expectedTick);
                 var checkpoint = scheduled.State;
                 inputs = PhysicsTickInputs.Compose(supply.Graph, controls,
-                    owner => network.ContactClosed(checkpoint.Activations, checkpoint.Timers, owner));
+                    owner => network.ContactClosed(checkpoint.Activations, checkpoint.Timers, owner),
+                    PhysicsGpuAbi.ReadElectrical(_committedWorld.Span));
             }
             if(operation==WorkshopGpuOperation.Admit)
             {
-                _triggerScratch = new ContactTriggerRead[4]; _orientationScratch = new OrientationSensorRead[4]; _passageScratch = new PassageSensorRead[4]; _loadScratch = new ContactLoadSensorRead[4];
+                _triggerScratch = new ContactTriggerRead[4]; _orientationScratch = new OrientationSensorRead[4]; _loadScratch = new ContactLoadSensorRead[4];
                 inputs = new([], [], supply.Graph.NeutralReads()) { Cuts = inputs.Cuts, Guides = inputs.Guides, AdmissionTransmissions = inputs.AdmissionTransmissions, AdmissionDrivenSurfaces = inputs.AdmissionDrivenSurfaces };
             }
             await EnsureInitialized();
@@ -191,9 +191,6 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             var orientationCount = layout.OrientationSensors;
             Span<OrientationSensorRead> orientations = Scratch(ref _orientationScratch, orientationCount);
             for (var i = 0; i < orientationCount; i++) orientations[i] = PhysicsGpuAbi.ReadOrientationSensor(bytes.Span, i);
-            // One read per declared passage sensor (no fixed table).
-            Span<PassageSensorRead> passages = Scratch(ref _passageScratch, network.PassageSensors.Length);
-            int passageCount = 0;
             if (operation == WorkshopGpuOperation.Admit)
             {
                 _candidatePassageTracker = PassageSensorTracker.Create(network.PassageSensors,
@@ -201,16 +198,17 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             }
             else
             {
-                _candidatePassageTracker = _committedPassageTracker.Advance(expectedTick, bodies, validated.Motion, passages, out passageCount);
+                _candidatePassageTracker = _committedPassageTracker.Advance(expectedTick, bodies, validated.Motion);
             }
             var electrical = PhysicsGpuAbi.ReadElectrical(bytes.Span);
             // Story 9R.4: every contact-load row's committed phase (tick N) feeds its plate's level; its route closes at tick N+1.
             var loadCount = PhysicsGpuAbi.ReadContactLoadCount(bytes.Span);
             Span<ContactLoadSensorRead> loads = Scratch(ref _loadScratch, loadCount);
             for (var i = 0; i < loadCount; i++) loads[i] = PhysicsGpuAbi.ReadContactLoadSensor(bytes.Span, i);
+            var effectiveSupply = ResolveEffectiveSupply(operation, supply, controls, scheduled, network, electrical);
             var logical = operation == WorkshopGpuOperation.Admit ? new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory()) :
                 network.ConsumeScheduled(scheduled ?? throw new InvalidOperationException("Scheduled checkpoint missing."),
-                    triggers[..triggerCount], expectedTick, orientations[..orientationCount], passages[..passageCount], electrical, loads[..loadCount]);
+                    triggers[..triggerCount], expectedTick, orientations[..orientationCount], _candidatePassageTracker.Fired, effectiveSupply, loads[..loadCount]);
             _candidateActivations = logical.Activations; _candidateTimers = logical.Timers; _candidateMemory = logical.Memory;            _candidateNetwork = network; _candidateSupply = supply;
             // Story 9A.23 D9: the contact-work occurrence rows are device-private. They feed only the Impact records and the reservoir
             // accounting (ValidateCandidate checks the ledger's advance); the read carries the owners' stores.
@@ -260,6 +258,16 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             throw;
         }
     }
+    private static SupplyOutputRead ResolveEffectiveSupply(WorkshopGpuOperation operation, CompiledSupply supply,
+        WorkshopTickControls? controls, ActivationSchedule? scheduled, ActivationNetwork network, PhysicsElectricalRead electrical)
+    {
+        if (operation == WorkshopGpuOperation.Admit) return default;
+        if (controls is null) throw new InvalidOperationException("Tick controls missing.");
+        if (scheduled is null) throw new InvalidOperationException("Scheduled checkpoint missing.");
+        return supply.Graph.Resolve(controls,
+            owner => network.ContactClosed(scheduled.State.Activations, scheduled.State.Timers, owner), electrical).Outputs;
+    }
+
     public void Commit(CommandSequence sequence)
     {
         if (_disposed || _active != sequence || sequence.Value == 0)
@@ -312,7 +320,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         _disposed = true;
         DisposeGateIfIdle();
         _committedWorld = default; _candidateWorld = default;
-        _triggerScratch = []; _orientationScratch = []; _passageScratch = []; _loadScratch = [];
+        _triggerScratch = []; _orientationScratch = []; _loadScratch = [];
         _candidateCaptures = default;
         _committedInteractions=PhysicsInteractionSnapshot.Empty; _candidateInteractions=PhysicsInteractionSnapshot.Empty;
         _committedActivations = default; _candidateActivations = default;

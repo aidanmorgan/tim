@@ -648,56 +648,60 @@ dueTick():bigint {
   return this.bb!.readUint64(this.bb_pos + 32);
 }
 
+passageSequence():bigint {
+  return this.bb!.readUint64(this.bb_pos + 40);
+}
+
 dispatchedKind():number {
-  return this.bb!.readUint32(this.bb_pos + 40);
+  return this.bb!.readUint32(this.bb_pos + 48);
 }
 
 dispatchedEmitter():bigint {
-  return this.bb!.readUint64(this.bb_pos + 48);
+  return this.bb!.readUint64(this.bb_pos + 56);
 }
 
 dispatchedOrdinal():number {
-  return this.bb!.readUint32(this.bb_pos + 56);
+  return this.bb!.readUint32(this.bb_pos + 64);
 }
 
 dispatchedPhase():number {
-  return this.bb!.readFloat32(this.bb_pos + 60);
+  return this.bb!.readFloat32(this.bb_pos + 68);
 }
 
 causeSource():bigint {
-  return this.bb!.readUint64(this.bb_pos + 64);
-}
-
-causeBody():bigint {
   return this.bb!.readUint64(this.bb_pos + 72);
 }
 
-causeCollider():bigint {
+causeBody():bigint {
   return this.bb!.readUint64(this.bb_pos + 80);
 }
 
+causeCollider():bigint {
+  return this.bb!.readUint64(this.bb_pos + 88);
+}
+
 causeOrdinal():number {
-  return this.bb!.readUint32(this.bb_pos + 88);
+  return this.bb!.readUint32(this.bb_pos + 96);
 }
 
 causePhase():number {
-  return this.bb!.readFloat32(this.bb_pos + 92);
+  return this.bb!.readFloat32(this.bb_pos + 100);
 }
 
 causeSpeed():number {
-  return this.bb!.readFloat32(this.bb_pos + 96);
+  return this.bb!.readFloat32(this.bb_pos + 104);
 }
 
 causeKind():number {
-  return this.bb!.readUint32(this.bb_pos + 100);
+  return this.bb!.readUint32(this.bb_pos + 108);
 }
 
 static sizeOf():number {
-  return 104;
+  return 112;
 }
 
-static createActivationMemoryRecord(builder:flatbuffers.Builder, node: bigint, kind: number, count: number, last_ordinal: number, last_phase: number, phase: number, due_tick: bigint, dispatched_kind: number, dispatched_emitter: bigint, dispatched_ordinal: number, dispatched_phase: number, cause_source: bigint, cause_body: bigint, cause_collider: bigint, cause_ordinal: number, cause_phase: number, cause_speed: number, cause_kind: number):flatbuffers.Offset {
-  builder.prep(8, 104);
+static createActivationMemoryRecord(builder:flatbuffers.Builder, node: bigint, kind: number, count: number, last_ordinal: number, last_phase: number, phase: number, due_tick: bigint, passage_sequence: bigint, dispatched_kind: number, dispatched_emitter: bigint, dispatched_ordinal: number, dispatched_phase: number, cause_source: bigint, cause_body: bigint, cause_collider: bigint, cause_ordinal: number, cause_phase: number, cause_speed: number, cause_kind: number):flatbuffers.Offset {
+  builder.prep(8, 112);
   builder.writeInt32(cause_kind);
   builder.writeFloat32(cause_speed);
   builder.writeFloat32(cause_phase);
@@ -710,6 +714,7 @@ static createActivationMemoryRecord(builder:flatbuffers.Builder, node: bigint, k
   builder.writeInt64(BigInt(dispatched_emitter ?? 0));
   builder.pad(4);
   builder.writeInt32(dispatched_kind);
+  builder.writeInt64(BigInt(passage_sequence ?? 0));
   builder.writeInt64(BigInt(due_tick ?? 0));
   builder.pad(4);
   builder.writeInt32(phase);
@@ -1324,7 +1329,7 @@ electricalLength():number {
 
 activationMemory(index: number, obj?:ActivationMemoryRecord):ActivationMemoryRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 44);
-  return offset ? (obj || new ActivationMemoryRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 104, this.bb!) : null;
+  return offset ? (obj || new ActivationMemoryRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 112, this.bb!) : null;
 }
 
 activationMemoryLength():number {
@@ -1552,7 +1557,7 @@ static addActivationMemory(builder:flatbuffers.Builder, activationMemoryOffset:f
 }
 
 static startActivationMemoryVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(104, numElems, 8);
+  builder.startVector(112, numElems, 8);
 }
 
 static addMotion(builder:flatbuffers.Builder, motionOffset:flatbuffers.Offset) {
@@ -6406,7 +6411,7 @@ intervalTicks():number {
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
-powerSource():bigint {
+powerProvider():bigint {
   const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
@@ -6476,8 +6481,8 @@ static addIntervalTicks(builder:flatbuffers.Builder, intervalTicks:number) {
   builder.addFieldInt32(8, intervalTicks, 0);
 }
 
-static addPowerSource(builder:flatbuffers.Builder, powerSource:bigint) {
-  builder.addFieldInt64(9, powerSource, BigInt('0'));
+static addPowerProvider(builder:flatbuffers.Builder, powerProvider:bigint) {
+  builder.addFieldInt64(9, powerProvider, BigInt('0'));
 }
 
 static addContactLoad(builder:flatbuffers.Builder, contactLoad:bigint) {
@@ -6505,7 +6510,7 @@ static endCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder)
   return offset;
 }
 
-static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, kind:number, trigger:bigint, durationTicks:number, sensor:bigint, passage:bigint, targetCount:number, intervalTicks:number, powerSource:bigint, contactLoad:bigint, releaseHoldTicks:number, completion:number, boundary:number, elapsedSignal:number):flatbuffers.Offset {
+static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, kind:number, trigger:bigint, durationTicks:number, sensor:bigint, passage:bigint, targetCount:number, intervalTicks:number, powerProvider:bigint, contactLoad:bigint, releaseHoldTicks:number, completion:number, boundary:number, elapsedSignal:number):flatbuffers.Offset {
   CapabilityActivationNodeDeclarationRecord.startCapabilityActivationNodeDeclarationRecord(builder);
   CapabilityActivationNodeDeclarationRecord.addId(builder, id);
   CapabilityActivationNodeDeclarationRecord.addOwner(builder, owner);
@@ -6516,7 +6521,7 @@ static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Build
   CapabilityActivationNodeDeclarationRecord.addPassage(builder, passage);
   CapabilityActivationNodeDeclarationRecord.addTargetCount(builder, targetCount);
   CapabilityActivationNodeDeclarationRecord.addIntervalTicks(builder, intervalTicks);
-  CapabilityActivationNodeDeclarationRecord.addPowerSource(builder, powerSource);
+  CapabilityActivationNodeDeclarationRecord.addPowerProvider(builder, powerProvider);
   CapabilityActivationNodeDeclarationRecord.addContactLoad(builder, contactLoad);
   CapabilityActivationNodeDeclarationRecord.addReleaseHoldTicks(builder, releaseHoldTicks);
   CapabilityActivationNodeDeclarationRecord.addCompletion(builder, completion);
@@ -6728,6 +6733,43 @@ static createSignalContactRecord(builder:flatbuffers.Builder, owner: bigint, nod
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
+export class ActuatorStateValuesRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ActuatorStateValuesRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+unpowered():number {
+  return this.bb!.readFloat32(this.bb_pos);
+}
+
+powered():number {
+  return this.bb!.readFloat32(this.bb_pos + 4);
+}
+
+blocked():number {
+  return this.bb!.readFloat32(this.bb_pos + 8);
+}
+
+static sizeOf():number {
+  return 12;
+}
+
+static createActuatorStateValuesRecord(builder:flatbuffers.Builder, unpowered: number, powered: number, blocked: number):flatbuffers.Offset {
+  builder.prep(4, 12);
+  builder.writeFloat32(blocked);
+  builder.writeFloat32(powered);
+  builder.writeFloat32(unpowered);
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
 export class CapabilityPresentationBindingRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -6746,143 +6788,152 @@ static getSizePrefixedRootAsCapabilityPresentationBindingRecord(bb:flatbuffers.B
   return (obj || new CapabilityPresentationBindingRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-mapping():number {
+stateValues(obj?:ActuatorStateValuesRecord):ActuatorStateValuesRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+  return offset ? (obj || new ActuatorStateValuesRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
-property():number {
+mapping():number {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
-driver():number {
+property():number {
   const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
-from():number {
+driver():number {
   const offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
-to():number {
+from():number {
   const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-curve():number {
+to():number {
   const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+curve():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 duration():number {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 overlap():number {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 threshold():number {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 phase():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 response():number {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 intermediate():number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
+  const offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : null;
 }
 
 socket():number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
+  const offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : null;
 }
 
 event():number {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
-eventMagnitude():number {
   const offset = this.bb!.__offset(this.bb_pos, 32);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
+eventMagnitude():number {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
 static startCapabilityPresentationBindingRecord(builder:flatbuffers.Builder) {
-  builder.startObject(15);
+  builder.startObject(16);
+}
+
+static addStateValues(builder:flatbuffers.Builder, stateValuesOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(0, stateValuesOffset, 0);
 }
 
 static addMapping(builder:flatbuffers.Builder, mapping:number) {
-  builder.addFieldInt32(0, mapping, 0);
+  builder.addFieldInt32(1, mapping, 0);
 }
 
 static addProperty(builder:flatbuffers.Builder, property:number) {
-  builder.addFieldInt32(1, property, 0);
+  builder.addFieldInt32(2, property, 0);
 }
 
 static addDriver(builder:flatbuffers.Builder, driver:number) {
-  builder.addFieldInt32(2, driver, 0);
+  builder.addFieldInt32(3, driver, 0);
 }
 
 static addFrom(builder:flatbuffers.Builder, from:number) {
-  builder.addFieldFloat32(3, from, 0.0);
+  builder.addFieldFloat32(4, from, 0.0);
 }
 
 static addTo(builder:flatbuffers.Builder, to:number) {
-  builder.addFieldFloat32(4, to, 0.0);
+  builder.addFieldFloat32(5, to, 0.0);
 }
 
 static addCurve(builder:flatbuffers.Builder, curve:number) {
-  builder.addFieldInt32(5, curve, 0);
+  builder.addFieldInt32(6, curve, 0);
 }
 
 static addDuration(builder:flatbuffers.Builder, duration:number) {
-  builder.addFieldFloat32(6, duration, 0.0);
+  builder.addFieldFloat32(7, duration, 0.0);
 }
 
 static addOverlap(builder:flatbuffers.Builder, overlap:number) {
-  builder.addFieldInt32(7, overlap, 0);
+  builder.addFieldInt32(8, overlap, 0);
 }
 
 static addThreshold(builder:flatbuffers.Builder, threshold:number) {
-  builder.addFieldFloat32(8, threshold, 0.0);
+  builder.addFieldFloat32(9, threshold, 0.0);
 }
 
 static addPhase(builder:flatbuffers.Builder, phase:number) {
-  builder.addFieldInt32(9, phase, 0);
+  builder.addFieldInt32(10, phase, 0);
 }
 
 static addResponse(builder:flatbuffers.Builder, response:number) {
-  builder.addFieldFloat32(10, response, 0.0);
+  builder.addFieldFloat32(11, response, 0.0);
 }
 
 static addIntermediate(builder:flatbuffers.Builder, intermediate:number) {
-  builder.addFieldFloat32(11, intermediate, null);
+  builder.addFieldFloat32(12, intermediate, null);
 }
 
 static addSocket(builder:flatbuffers.Builder, socket:number) {
-  builder.addFieldInt32(12, socket, null);
+  builder.addFieldInt32(13, socket, null);
 }
 
 static addEvent(builder:flatbuffers.Builder, event:number) {
-  builder.addFieldInt32(13, event, 0);
+  builder.addFieldInt32(14, event, 0);
 }
 
 static addEventMagnitude(builder:flatbuffers.Builder, eventMagnitude:number) {
-  builder.addFieldInt32(14, eventMagnitude, 0);
+  builder.addFieldInt32(15, eventMagnitude, 0);
 }
 
 static endCapabilityPresentationBindingRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -6890,8 +6941,9 @@ static endCapabilityPresentationBindingRecord(builder:flatbuffers.Builder):flatb
   return offset;
 }
 
-static createCapabilityPresentationBindingRecord(builder:flatbuffers.Builder, mapping:number, property:number, driver:number, from:number, to:number, curve:number, duration:number, overlap:number, threshold:number, phase:number, response:number, intermediate:number|null, socket:number|null, event:number, eventMagnitude:number):flatbuffers.Offset {
+static createCapabilityPresentationBindingRecord(builder:flatbuffers.Builder, stateValuesOffset:flatbuffers.Offset, mapping:number, property:number, driver:number, from:number, to:number, curve:number, duration:number, overlap:number, threshold:number, phase:number, response:number, intermediate:number|null, socket:number|null, event:number, eventMagnitude:number):flatbuffers.Offset {
   CapabilityPresentationBindingRecord.startCapabilityPresentationBindingRecord(builder);
+  CapabilityPresentationBindingRecord.addStateValues(builder, stateValuesOffset);
   CapabilityPresentationBindingRecord.addMapping(builder, mapping);
   CapabilityPresentationBindingRecord.addProperty(builder, property);
   CapabilityPresentationBindingRecord.addDriver(builder, driver);
@@ -7095,8 +7147,18 @@ sourceCapacity():number {
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
+actuator(obj?:CapabilitySupplyConsumerRecord):CapabilitySupplyConsumerRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? (obj || new CapabilitySupplyConsumerRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+guide():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
 static startCompiledPresentationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(6);
+  builder.startObject(8);
 }
 
 static addTarget(builder:flatbuffers.Builder, target:bigint) {
@@ -7121,6 +7183,14 @@ static addActivation(builder:flatbuffers.Builder, activationOffset:flatbuffers.O
 
 static addSourceCapacity(builder:flatbuffers.Builder, sourceCapacity:number) {
   builder.addFieldFloat32(5, sourceCapacity, 0.0);
+}
+
+static addActuator(builder:flatbuffers.Builder, actuatorOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(6, actuatorOffset, 0);
+}
+
+static addGuide(builder:flatbuffers.Builder, guide:bigint) {
+  builder.addFieldInt64(7, guide, BigInt('0'));
 }
 
 static endCompiledPresentationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -7465,8 +7535,13 @@ guideOffset(obj?:Vec3f):Vec3f|null {
   return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
+guide():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
 static startTensileSpanRecord(builder:flatbuffers.Builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -7511,6 +7586,10 @@ static addGuideRadius(builder:flatbuffers.Builder, guideRadius:number) {
 
 static addGuideOffset(builder:flatbuffers.Builder, guideOffsetOffset:flatbuffers.Offset) {
   builder.addFieldStruct(10, guideOffsetOffset, 0);
+}
+
+static addGuide(builder:flatbuffers.Builder, guide:bigint) {
+  builder.addFieldInt64(11, guide, BigInt('0'));
 }
 
 static endTensileSpanRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -9422,7 +9501,6 @@ static finishSizePrefixedSavedConstructionBuffer(builder:flatbuffers.Builder, of
 
 }
 
-
 // ---- hand-written helpers (everything above is flatc output; see schemas/README.md) ----------------------------------------
 // Story 9A.2: every Workshop buffer is size-prefixed and carries its root's identifier, exactly as the C# codec frames it.
 export const COMMAND_IDENTIFIER = 'CCWC';
@@ -9579,7 +9657,11 @@ export interface MockResponseParams {
         eventOrdinal?: number;
         eventPhase?: number;
     }[];
-    activationMemory?: { node?: bigint; kind?: number; count?: number; lastOrdinal?: number; lastPhase?: number; phase?: number; dueTick?: bigint }[];
+    activationMemory?: {
+        node?: bigint; kind?: number; count?: number; lastOrdinal?: number; lastPhase?: number; phase?: number; dueTick?: bigint;
+        passageSequence: bigint; dispatchedKind: number; dispatchedEmitter: bigint; dispatchedOrdinal: number; dispatchedPhase: number;
+        causeSource: bigint; causeBody: bigint; causeCollider: bigint; causeOrdinal: number; causePhase: number; causeSpeed: number; causeKind: number;
+    }[];
 }
 
 export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
@@ -9661,7 +9743,10 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
         for (let i = params.activationMemory.length - 1; i >= 0; i--) {
             const m = params.activationMemory[i]!;
             ActivationMemoryRecord.createActivationMemoryRecord(builder, m.node ?? 1n, m.kind ?? 6, m.count ?? 0, m.lastOrdinal ?? 0,
-                m.lastPhase ?? 0, m.phase ?? 0, m.dueTick ?? 0n);
+                m.lastPhase ?? 0, m.phase ?? 0, m.dueTick ?? 0n, m.passageSequence,
+                m.dispatchedKind, m.dispatchedEmitter, m.dispatchedOrdinal, m.dispatchedPhase,
+                m.causeSource, m.causeBody, m.causeCollider, m.causeOrdinal,
+                m.causePhase, m.causeSpeed, m.causeKind);
         }
         memoryOffset = builder.endVector();
     }

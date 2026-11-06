@@ -13,7 +13,7 @@ public enum OscillatorPhase : uint { Stopped = 0, Running = 1 }
 /// (its emission is its Latched activation); an oscillator keeps its pulse count, its phase and its next due tick; a contact-load level
 /// (Pressure Plate) keeps the due tick of its release hold (Story 9R.5).</summary>
 public readonly record struct ActivationMemory(ActivationNodeId Node, ActivationNodeKind Kind, uint Count, ActivationTime Last,
-    OscillatorPhase Phase, ulong DueTick, ActivationOccurrence Dispatched = default)
+    OscillatorPhase Phase, ulong DueTick, ActivationOccurrence Dispatched = default, PassageSequence PassageSequence = default)
 {
     /// <summary>One canonical delivery counts even when another emitter has the same time; uint state saturates.</summary>
     public (ActivationMemory Memory, bool Crossed) CountInput(uint target, ActivationTime time)
@@ -40,6 +40,8 @@ public readonly record struct ActivationMemory(ActivationNodeId Node, Activation
         {
             if (Count != 0 || Last != default || Phase != OscillatorPhase.Stopped || DueTick != 0)
                 throw new ArgumentException("Passage memory holds only its latest dispatched occurrence.");
+            if ((Dispatched == default) != (PassageSequence.Value == 0))
+                throw new ArgumentException("Passage sequence and occurrence must be present together.");
             if (Dispatched != default)
             {
                 Dispatched.Validate();
@@ -47,7 +49,7 @@ public readonly record struct ActivationMemory(ActivationNodeId Node, Activation
                     throw new ArgumentException("Foreign passage cursor.");
             }
         }
-        else if (Dispatched != default) throw new ArgumentException("Unexpected passage cursor.");
+        else if (Dispatched != default || PassageSequence.Value != 0) throw new ArgumentException("Unexpected passage cursor.");
         if (Kind == ActivationNodeKind.Counter && (Phase != OscillatorPhase.Stopped || DueTick != 0))
             throw new ArgumentException("A counter's memory has no oscillator phase.");
         // Story 9R.5: a contact-load level's memory is only its release hold, the boundary its held level is due to clear (0: released).

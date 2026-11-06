@@ -59,6 +59,12 @@ public sealed class MechanicalCoordinateBindingsTests
         var mixedEntry = motorEntry with
         {
             Metadata = motorEntry.Metadata with { Id = MixedDriverPart.Value },
+            Presentation = motorEntry.Presentation with
+            {
+                // This fixture drives the second hinge; the inherited lamp follows that exact coordinate.
+                Bindings = motorEntry.Presentation.Bindings.Select(binding =>
+                    binding with { Actuator = new CoordinateReference(CoordinateKind.Revolute, 1) }).ToImmutableArray()
+            },
             Footprint = new ElementFootprint(Bodies: 4, MovingBodies: 3, PrismaticConstraints: 1, RevoluteConstraints: 2),
             Mechanical = mixedMechanical,
             Ports =

@@ -17,7 +17,7 @@ public sealed class DeclaredOscillatorTests
         Connections: supplied ? new(new WorkshopConnection(Source, PortId.Supply, Owner, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) : new());
 
     // The declared capability selects the oscillator node with every field the record arm set: the owner's identity, the interval in
-    // whole ticks, the PowerIn route's one upstream source (none when unsupplied) and its node-owned pulse origin. Each value is stated.
+    // whole ticks, the exact PowerIn provider (none when disconnected) and its node-owned pulse origin. Each value is stated.
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -29,15 +29,11 @@ public sealed class DeclaredOscillatorTests
             supplied ? Source : default), node);
     }
 
-    // D2 (review B1): more than one upstream source on the clock's PowerIn is refused by the oscillator arm itself, with its own message.
-    // Two batteries wired straight to the clock's PowerIn never reach that arm: connection validation refuses them first ("This power
-    // input already has a supplier.", the case ClockGuardTests.TwoSourcesOnOneClockAreRefused exercises). Here both batteries supply a
-    // latch's PowerIn, which admits two suppliers, and its switched Supply feeds the clock, so construction validation admits the bench
-    // and only the arm refuses it. Control: one battery through the same latch compiles, that battery the clock's power source.
+    // The oscillator selects the contact output; source accounting belongs only to consumers that debit a finite store.
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void TwoUpstreamSourcesThroughALatchAreRefusedByTheOscillatorItself(bool twoBatteries)
+    public void TheOscillatorSelectsItsContactOutputIndependentOfUpstreamSourceCount(bool twoBatteries)
     {
         GpuBodyId first = new(1), second = new(2), latch = new(3), clock = new(4);
         static WorkshopConnection Wire(GpuBodyId source, GpuBodyId target) =>
@@ -47,14 +43,7 @@ public sealed class DeclaredOscillatorTests
                 PlacedParts.Clock(clock, 0, 3, 0, 0, 0, 0, 1, 1f)),
             Connections: twoBatteries ? new(Wire(first, latch), Wire(second, latch), Wire(latch, clock)) : new(Wire(first, latch), Wire(latch, clock)));
         bench.Validate();
-        if (twoBatteries)
-        {
-            var refusal = Assert.Throws<WorkshopEditRejectedException>(() => WorkshopActivationCompiler.Compile(bench));
-            Assert.Equal((WorkshopEditRejection.PowerInputSupplied, "This source-accounted input requires one upstream source."),
-                (refusal.Reason, refusal.Message));
-        }
-        else
-            Assert.Equal(first, Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), node => node.Owner == clock).PowerSource);
+        Assert.Equal(latch, Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), node => node.Owner == clock).PowerProvider);
     }
 
     private static byte[] Save(IReadOnlyList<(string Key, float Value)> parameters) => PayloadInstanceTests.GenericSave("clock", parameters);

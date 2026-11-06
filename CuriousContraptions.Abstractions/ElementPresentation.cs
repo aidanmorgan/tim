@@ -25,7 +25,20 @@ public enum PresentationDriver : byte
     CommittedSurfaceDeflection
 }
 
-public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2 }
+public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2, ActuatorStateValues = 3 }
+
+public enum ActuatorObservationState : byte { Unpowered, Powered, Blocked }
+public readonly record struct PresentationActuatorStateValues(float Unpowered, float Powered, float Blocked)
+{
+    public bool IsFinite() => float.IsFinite(Unpowered) && float.IsFinite(Powered) && float.IsFinite(Blocked);
+    public float Map(ActuatorObservationState state) => state switch
+    {
+        ActuatorObservationState.Unpowered => Unpowered,
+        ActuatorObservationState.Powered => Powered,
+        ActuatorObservationState.Blocked => Blocked,
+        _ => throw new ArgumentOutOfRangeException(nameof(state))
+    };
+}
 
 public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep }
 public enum PresentationOverlap : byte { Replace, SaturatingSum, Maximum }
@@ -44,7 +57,8 @@ public readonly record struct PresentationBinding(
     string Node, PresentationProperty Property, PresentationDriver Driver, PresentationValueMapping Mapping,
     float From, float To, PresentationCurve Curve, float Duration,
     PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortId? Socket = null,
-    SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any, SignalNodeId? SignalNode = null);
+    SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any, SignalNodeId? SignalNode = null,
+    CoordinateReference? Actuator = null, PortId? GuidePort = null, PresentationActuatorStateValues? StateValues = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(
@@ -79,7 +93,19 @@ public static class PresentationDriverRules
         PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerRemaining;
 
     public static bool SupportsMapping(PresentationDriver driver, PresentationValueMapping mapping) =>
-        mapping == PresentationValueMapping.Identity || mapping == PresentationValueMapping.SineCyclesToUnit && ContinuousNormalized(driver);
+        driver == PresentationDriver.CommittedActuatorState
+            ? mapping == PresentationValueMapping.ActuatorStateValues
+            : mapping == PresentationValueMapping.Identity || mapping == PresentationValueMapping.SineCyclesToUnit && ContinuousNormalized(driver);
+
+    /// <summary>Construction/Reset projection: zero scalar input or the declared Unpowered actuator state.</summary>
+    public static float InitialValue(PresentationBinding binding)
+    {
+        if (binding.Curve == PresentationCurve.ExponentialFollow) return 0;
+        var amount = binding.Mapping == PresentationValueMapping.ActuatorStateValues
+            ? binding.StateValues!.Value.Map(ActuatorObservationState.Unpowered)
+            : Map(0, binding.Mapping);
+        return float.Lerp(binding.From, binding.To, amount);
+    }
 
     public static float Map(float input, PresentationValueMapping mapping)
     {

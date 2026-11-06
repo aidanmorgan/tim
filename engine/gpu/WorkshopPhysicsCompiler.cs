@@ -417,18 +417,18 @@ public static class WorkshopPhysicsCompiler
                         bodyA, DeclaredPorts.Current.LocalPosition(instanceA, a.Socket),
                         bodyB, DeclaredPorts.Current.LocalPosition(instanceB, b.Socket),
                         route.Spans[order].RopeLength!.Value, route.Complete,
-                        guideRadius, guideOffset));
+                        guideRadius, guideOffset, isGuide ? identities[instanceB.Id].Guides[portB.Id] : default));
                 }
             }
             var ropeGuides = new List<RopeGuideDeclaration>();
             foreach (var instance in construction.Instances.OfType<WorkshopGenericInstance>().OrderBy(i => i.Id.Value))
             {
                 var ports = DeclaredPorts.Current.Of(instance.PartId);
-                foreach (var port in ports)
+                foreach (var port in ports.ToArray().OrderBy(port => port.Id))
                 {
                     if (port.AttachmentRole == RopeAttachmentRole.Guide)
                     {
-                        var guideId = new RopeGuideId((ulong)ropeGuides.Count + 1);
+                        var guideId = identities[instance.Id].Guides[port.Id];
                         var guideBody = ResolvePortBody(instance.Id, port.Body);
                         ropeGuides.Add(new(guideId, guideBody, port.GuideRadius, port.GuideOffset));
                     }

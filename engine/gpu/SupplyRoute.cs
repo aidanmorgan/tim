@@ -34,7 +34,29 @@ public readonly record struct SupplyConsumer
 public readonly record struct SupplyNodeDeclaration(GpuBodyId Owner, SupplyNodeKind Kind,
     ElectricalSourceId Source = default, ImmutableArray<SupplyConsumer> Consumers = default, LogicGateOperation? Operation = null);
 public readonly record struct SupplyEdge(GpuBodyId Source, GpuBodyId Target, PortRole Input);
-public readonly record struct SupplyResolution(bool[] Consumers, ElectricalLogicRead[] Logic);
+public readonly record struct SupplyOutput(GpuBodyId Provider, bool Powered);
+
+/// <summary>Effective outputs of the admitted supply graph at one phase boundary.</summary>
+public readonly struct SupplyOutputRead
+{
+    private readonly SupplyOutput[]? _rows;
+    public SupplyOutputRead(ReadOnlySpan<SupplyOutput> rows)
+    {
+        var seen = new System.Collections.Generic.HashSet<GpuBodyId>();
+        foreach (var row in rows)
+            if (row.Provider.Value == 0 || !seen.Add(row.Provider))
+                throw new ArgumentException("Supply outputs require unique declared providers.");
+        _rows = rows.ToArray();
+    }
+    public bool IsPowered(GpuBodyId provider)
+    {
+        if (provider.Value == 0) return false;
+        foreach (var row in _rows ?? [])
+            if (row.Provider == provider) return row.Powered;
+        throw new ArgumentException("Selected supply provider is missing.");
+    }
+}
+public readonly record struct SupplyResolution(bool[] Consumers, ElectricalLogicRead[] Logic, SupplyOutputRead Outputs);
 
 /// <summary>Declared topology shared by physical supply projection and source provenance queries.</summary>
 public sealed record SupplyTopology(SupplyNodeDeclaration[] Nodes, SupplyEdge[] Edges)
@@ -183,14 +205,23 @@ public sealed class CompiledSupplyGraph
 
     public ElectricalLogicRead[] NeutralReads() => _nodes.Where(node=>node.Kind==SupplyNodeKind.LogicGate)
         .OrderBy(node=>node.Owner.Value).Select(node=>new ElectricalLogicRead(node.Owner,ElectricalInputState.Neither,false,false)).ToArray();
-    public SupplyResolution Resolve(WorkshopTickControls controls, Func<GpuBodyId,bool> contactClosed)
+    public SupplyResolution Resolve(WorkshopTickControls controls, Func<GpuBodyId,bool> contactClosed, PhysicsElectricalRead electrical)
     {
         ArgumentNullException.ThrowIfNull(contactClosed);
+        if (electrical.Count != controls.SourceEnable.Length)
+            throw new ArgumentException("Supply source population differs from controls.");
         var powered = new bool[_nodes.Length];
         var contacts = new bool[_nodes.Length];
         for (var i=0;i<_nodes.Length;i++)
         {
-            if (_sources[i]>=0) powered[i]=controls.SourceEnable[_sources[i]]==ElectricalEnable.Enabled;
+            if (_sources[i] >= 0)
+            {
+                var slot = _sources[i];
+                var source = electrical[slot];
+                if (source.Id != _nodes[i].Source || source.Owner != _nodes[i].Owner)
+                    throw new ArgumentException("Supply source identity changed.");
+                powered[i] = controls.SourceEnable[slot] == ElectricalEnable.Enabled && source.Remaining.Value > 0;
+            }
             if (_nodes[i].Kind==SupplyNodeKind.Contact) contacts[i]=contactClosed(_nodes[i].Owner);
         }
         // Components in evaluation order: every input of a component is settled before it is visited. A singleton is evaluated
@@ -217,7 +248,8 @@ public sealed class CompiledSupplyGraph
                     (Input(i,PortRole.SecondIn) ? ElectricalInputState.SecondOnly : ElectricalInputState.Neither),
                     Input(i,PortRole.PowerIn),powered[i]));
         }
-        return new(closed,logic.OrderBy(row=>row.Owner.Value).ToArray());
+        return new(closed,logic.OrderBy(row=>row.Owner.Value).ToArray(),
+            new SupplyOutputRead(_nodes.Select((node, i) => new SupplyOutput(node.Owner, powered[i])).ToArray()));
         bool Input(int node, PortRole socket) => _inputs[node].Any(edge=>edge.Input==socket && powered[edge.Source]);
         bool Active(int i) => _nodes[i].Kind switch
         {
@@ -366,9 +398,9 @@ public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] S
     public DrivenSurfaceDeclaration[] AdmissionDrivenSurfaces { get; init; } = [];
     public MechanicalTransmissionDeclaration[] AdmissionTransmissions { get; init; } = [];
     public static PhysicsTickInputs Admission { get; } = new([], []);
-    public static PhysicsTickInputs Compose(CompiledSupplyGraph graph, WorkshopTickControls controls, Func<GpuBodyId, bool> contactClosed)
+    public static PhysicsTickInputs Compose(CompiledSupplyGraph graph, WorkshopTickControls controls, Func<GpuBodyId, bool> contactClosed, PhysicsElectricalRead electrical)
     {
-        var resolved=graph.Resolve(controls,contactClosed);
+        var resolved=graph.Resolve(controls,contactClosed,electrical);
         return new(controls.SourceEnable,resolved.Consumers,resolved.Logic) { Cuts = controls.Cuts, Guides = controls.Guides, DriveTarget = controls.DriveTarget };
     }
     /// <summary>Refuses inputs that differ from the admitted tables: one defined enable per source, one supply flag per drive slot

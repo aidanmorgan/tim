@@ -274,12 +274,14 @@ describe('Run/Reset snapshot: bit-exact comparison', () => {
     });
 
     test('committed counter and clock memory is compared', () => {
-        const clockRunning = { node: 2n, kind: 7, count: 0, phase: 1, dueTick: 120n };
-        const s0 = snapshotFrom(response({ activationMemory: [{ node: 2n, kind: 7 }, { node: 3n, kind: 6 }] }), saved(), BENCH);
+        const clearCursor = { passageSequence: 0n, dispatchedKind: 0, dispatchedEmitter: 0n, dispatchedOrdinal: 0, dispatchedPhase: 0,
+            causeSource: 0n, causeBody: 0n, causeCollider: 0n, causeOrdinal: 0, causePhase: 0, causeSpeed: 0, causeKind: 0 };
+        const clockRunning = { ...clearCursor, node: 2n, kind: 7, count: 0, phase: 1, dueTick: 120n };
+        const s0 = snapshotFrom(response({ activationMemory: [{ ...clearCursor, node: 2n, kind: 7 }, { ...clearCursor, node: 3n, kind: 6 }] }), saved(), BENCH);
         assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(response({
-            activationMemory: [clockRunning, { node: 3n, kind: 6 }] }), saved(), BENCH))), /read\.activation_memory\[0\]\.phase 0≠1/);
+            activationMemory: [clockRunning, { ...clearCursor, node: 3n, kind: 6 }] }), saved(), BENCH))), /read\.activation_memory\[0\]\.phase 0≠1/);
         assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(response({
-            activationMemory: [{ node: 2n, kind: 7 }, { node: 3n, kind: 6, count: 2 }] }), saved(), BENCH))), /read\.activation_memory\[1\]\.count 0≠2/);
+            activationMemory: [{ ...clearCursor, node: 2n, kind: 7 }, { ...clearCursor, node: 3n, kind: 6, count: 2 }] }), saved(), BENCH))), /read\.activation_memory\[1\]\.count 0≠2/);
     });
 
     test('the tick is compared', () => {

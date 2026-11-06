@@ -203,7 +203,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var activeActivations = network.Clear();
         var activeTimers = network.ClearTimers();
         var activeMemory = network.ClearMemory();
-        var electrical = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery.Id, new Joules(3600f), default, ElectricalEnable.Enabled)]);
+        var electrical = new SupplyOutputRead([new(battery.Id, true)]);
 
         // 600 ticks = 5.0 seconds at 120 Hz
         var pulseTicks = new List<ulong>();
@@ -286,9 +286,9 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var activeActivations = network.Clear();
         var activeTimers = network.ClearTimers();
         var activeMemory = network.ClearMemory();
-        var powered = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery.Id, new Joules(3600f), default, ElectricalEnable.Enabled)]);
-        var unpowered = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery.Id, new Joules(3600f), default, ElectricalEnable.Disabled)]);
-        void Step(ulong tick, PhysicsElectricalRead electrical)
+        var powered = new SupplyOutputRead([new(battery.Id, true)]);
+        var unpowered = new SupplyOutputRead([new(battery.Id, false)]);
+        void Step(ulong tick, SupplyOutputRead electrical)
         {
             var checkpoint = network.Consume(activeActivations, activeTimers, [], new(tick), [], [], electrical, memory: activeMemory);
             activeActivations = checkpoint.Activations;
@@ -339,7 +339,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([battery, clock]),
             Connections: new([new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)]));
         var network = WorkshopActivationCompiler.Compile(construction);
-        var powered = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery.Id, new Joules(3600f), default, ElectricalEnable.Enabled)]);
+        var powered = new SupplyOutputRead([new(battery.Id, true)]);
         var cleared = network.Memory(network.ClearMemory(), SignalTestNodes.Only(network, clock.Id));
         Assert.Equal((OscillatorPhase.Stopped, 0UL, 0U), (cleared.Phase, cleared.DueTick, cleared.Count));
 
@@ -415,7 +415,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         Assert.Equal(clock.Id, node.Owner);
         Assert.Equal(ActivationNodeKind.Oscillator, node.Kind);
         Assert.Equal(300U, node.IntervalTicks); // 2.5 seconds at the declared 120 Hz commit cadence.
-        Assert.Equal(battery.Id, node.PowerSource);
+        Assert.Equal(battery.Id, node.PowerProvider);
         Assert.Single(decoded.Physics.SupplyGraph.Edges.ToArray());
     }
 }

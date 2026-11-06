@@ -130,7 +130,7 @@ public sealed class SwitchElectricalTests
     }
 
     [Fact]
-    public void CyclicClockProvenanceTerminatesAndMultipleSourcesRemainRejectedForAccounting()
+    public void CyclicClockSelectsItsProviderWhileFiniteStorageRetainsDirectSourceAccounting()
     {
         var construction=Machine();
         var second=WorkshopInput.Generic(new PartId("switch"),new(6),-8,1,0,0,0,0,1);
@@ -138,12 +138,12 @@ public sealed class SwitchElectricalTests
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{second,clock}).ToArray()),
             Connections=new(Power(2,6),Power(6,2),Power(6,7))};
         var network=WorkshopActivationCompiler.Compile(construction);
-        Assert.Equal(default,network.Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerSource);
+        Assert.Equal(new GpuBodyId(6),network.Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerProvider);
         var sourced=construction with {Connections=construction.Connections.With(Power(3,2))};
-        Assert.Equal(new GpuBodyId(3),WorkshopActivationCompiler.Compile(sourced).Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerSource);
+        Assert.Equal(new GpuBodyId(6),WorkshopActivationCompiler.Compile(sourced).Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerProvider);
         var battery=PlacedParts.Battery(new(8), -6, 4, 0);
         var ambiguous=sourced with {Instances=new(sourced.Instances.Concat(new IWorkshopInstance[]{battery}).ToArray()),Connections=sourced.Connections.With(Power(8,6))};
-        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied,()=>WorkshopActivationCompiler.Compile(ambiguous));
+        Assert.Equal(new GpuBodyId(6), WorkshopActivationCompiler.Compile(ambiguous).Nodes.ToArray().Single(node => node.Owner == clock.Id).PowerProvider);
         var bumper=WorkshopInput.Generic(new PartId("bumper"),new(9),12,1,0,0,0,0,1);
         var storage=ambiguous with {Instances=new(ambiguous.Instances.Concat(new IWorkshopInstance[]{bumper}).ToArray()),Connections=ambiguous.Connections.With(Power(6,9))};
         // Physical compile is isolated from activation compilation; it must reject the storage binding itself.

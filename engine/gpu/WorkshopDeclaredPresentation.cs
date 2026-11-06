@@ -22,9 +22,7 @@ public sealed class WorkshopDeclaredPresentation
         public required CompiledPresentationBinding Declaration;
         public required AnimationTargetId Target;
         public ActivationNodeDeclaration Node;
-        /// <summary>The driven slots the owner's compiled consumer node names: a committed-drive binding reads only these rows, never an
-        /// undriven slot the same owner also carries.</summary>
-        public System.Collections.Immutable.ImmutableArray<SupplyConsumer> Drives = [];
+        public SupplyConsumer? Actuator;
         public float Capacity;
         public AnimationHandle? Handle;
         public float Input;
@@ -58,27 +56,12 @@ public sealed class WorkshopDeclaredPresentation
         _time = new(checked(endpoint.Read.Tick.Value * construction.Settings.PhysicalStepsPerCommit));
         _substeps = construction.Settings.PhysicalStepsPerCommit;
         var tracks = new List<Track>(construction.Presentation.Length);
-        var guideIndexByOwner = new Dictionary<GpuBodyId, int>();
         foreach (var binding in construction.Presentation)
         {
             var declaration = binding.Declaration;
-            var drives = System.Collections.Immutable.ImmutableArray<SupplyConsumer>.Empty;
-            foreach (var node in construction.Physics.SupplyGraph.Nodes)
-                if (node.Owner == binding.Owner && node.Kind == SupplyNodeKind.Consumer && !node.Consumers.IsDefault) drives = node.Consumers;
-            var guide = default(RopeGuideId);
-            if (declaration.Driver == PresentationDriver.CommittedWheelAngle)
-            {
-                var idx = guideIndexByOwner.GetValueOrDefault(binding.Owner, 0);
-                guideIndexByOwner[binding.Owner] = idx + 1;
-                var ownerGuides = new List<RopeGuideDeclaration>();
-                foreach (var g in construction.Physics.RopeGuides)
-                    if (g.Body == binding.Owner) ownerGuides.Add(g);
-                if (ownerGuides.Count > 0)
-                    guide = ownerGuides[idx % ownerGuides.Count].Id;
-            }
             tracks.Add(new Track { Owner = binding.Owner, Index = binding.Binding, Declaration = declaration,
                 Target = binding.Target, Node = binding.Activation, Value = declaration.From, Rest = declaration.From,
-                Capacity = binding.SourceCapacity, Drives = drives, Guide = guide });
+                Capacity = binding.SourceCapacity, Actuator = binding.Actuator, Guide = binding.Guide });
         }
         _tracks = tracks.ToArray();
         _batch = new();
@@ -248,7 +231,10 @@ public sealed class WorkshopDeclaredPresentation
             staged[i] = _tracks[i].Copy();
             // A one-shot cue has no committed query: only its ring records drive it.
             if (staged[i].Declaration.Driver == PresentationDriver.Event) continue;
-            staged[i].Input = PresentationDriverRules.Map(Query(staged[i], read), staged[i].Declaration.Mapping);
+            var declaration = staged[i].Declaration;
+            staged[i].Input = declaration.Driver == PresentationDriver.CommittedActuatorState
+                ? declaration.StateValues!.Value.Map(QueryActuatorState(staged[i], read))
+                : PresentationDriverRules.Map(Query(staged[i], read), declaration.Mapping);
             if (!float.IsFinite(staged[i].Input)) throw new ArgumentException("Nonfinite presentation query.");
             if (staged[i].Declaration.Curve == PresentationCurve.LinearDecay)
             {
@@ -316,7 +302,6 @@ public sealed class WorkshopDeclaredPresentation
             case PresentationDriver.CommittedCharge:
                 return QuerySource(track, read);
             case PresentationDriver.CommittedActuatorDrive:
-            case PresentationDriver.CommittedActuatorState:
                 return QueryActuator(track, read);
             case PresentationDriver.CommittedContactLoadPhase:
                 return QueryContactLoad(track, read);
@@ -405,13 +390,21 @@ public sealed class WorkshopDeclaredPresentation
         throw new ArgumentException("Declared presentation query is absent from the committed read.");
     }
 
+    private static ActuatorObservationState QueryActuatorState(Track track, WorkshopRead read)
+    {
+        foreach (var actuator in read.Presentation.Actuators)
+            if (actuator.Owner == track.Owner && actuator.Drive == track.Actuator)
+                return actuator.Blocked ? ActuatorObservationState.Blocked :
+                    actuator.SupplyClosed ? ActuatorObservationState.Powered : ActuatorObservationState.Unpowered;
+        throw new ArgumentException("Declared actuator state is absent from the committed read.");
+    }
+
     private static float QueryActuator(Track track, WorkshopRead read)
     {
-        var d = track.Declaration;
         foreach (var actuator in read.Presentation.Actuators)
-            if (actuator.Owner == track.Owner && track.Drives.Contains(actuator.Drive))
-                return d.Driver == PresentationDriver.CommittedActuatorState && actuator.Blocked ? .5f : actuator.SupplyClosed ? 1 : 0;
-        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+            if (actuator.Owner == track.Owner && actuator.Drive == track.Actuator)
+                return actuator.SupplyClosed ? 1 : 0;
+        throw new ArgumentException("Declared actuator drive is absent from the committed read.");
     }
 
     private static float QueryContactLoad(Track track, WorkshopRead read)
@@ -493,8 +486,7 @@ public sealed class WorkshopDeclaredPresentation
             else
             {
                 var from = d.Driver == PresentationDriver.CommittedContactLoadPhase ? track.Rest : d.From;
-                track.Value = d.Driver == PresentationDriver.CommittedActuatorState && amount == .5f && d.Intermediate is { } middle
-                    ? middle : float.Lerp(from, d.To, amount);
+                track.Value = float.Lerp(from, d.To, amount);
             }
             _samples.Add(new(track.Target, track.Owner, track.Index, Value(d.Property, track.Value)));
         }

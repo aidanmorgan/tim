@@ -86,12 +86,12 @@ public sealed class DeclaredIndicatorPassageTests
         }
         var tracker = PassageSensorTracker.Create([sensor with { Frame = detector.Id }], scene, At(from));
         var motion = new PassageMotionFixture(At(from));
-        var outputs = new PassageSensorRead[4];
         var fired = 0;
         var steps = (int)MathF.Round((to - from) / .01f);
         for (var step = 1; step <= steps; step++)
         {
-            tracker = tracker.Advance(new SimulationTick((ulong)step), At(from + step * .01f), motion.Create(At(from + step * .01f)), outputs, out var count);
+            tracker = tracker.Advance(new SimulationTick((ulong)step), At(from + step * .01f), motion.Create(At(from + step * .01f)));
+            var count = tracker.Fired.Length;
             fired += count;
         }
         return fired;

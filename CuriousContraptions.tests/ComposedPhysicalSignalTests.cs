@@ -113,9 +113,11 @@ public sealed class ComposedPhysicalSignalTests
         else Assert.Empty(harness.Of(SimulationEventKind.TriggerActivated));
     }
     [Theory]
-    [InlineData(-2f, "left", "right")]
-    [InlineData(2f, "right", "left")]
-    public async Task TwoLoadFacesOnOneStaticFrameKeepTheirOwnState(float ballX, string loaded, string empty)
+    [InlineData(-2f, "left", "right", false)]
+    [InlineData(2f, "right", "left", false)]
+    [InlineData(-2f, "left", "right", true)]
+    [InlineData(2f, "right", "left", true)]
+    public async Task TwoLoadFacesOnOneStaticFrameKeepTheirOwnState(float ballX, string loaded, string empty, bool reverse)
     {
         await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
         PartId part = new("twin_load_faces");
@@ -135,8 +137,13 @@ public sealed class ComposedPhysicalSignalTests
                 sensor with { Id = new("right"), RegionCollider = sensor.RegionCollider + geometry.Length,
                     SupportingColliders = sensor.SupportingColliders.Select(index => index + geometry.Length).ToArray() }], [], []),
             Events = [new(SimulationEventKind.ContactLoad, new("left")), new(SimulationEventKind.ContactLoad, new("right"))],
-            Presentation = original.Presentation with { Bindings = [], Bodies = [], Parameters = [] }
+            Presentation = original.Presentation with { Bindings =
+                [LoadBinding("LeftLoad", "left", -3, 7), LoadBinding("RightLoad", "right", -5, 11),
+                 ActivationBinding("LeftActivation", "left", 13, 17), ActivationBinding("RightActivation", "right", 19, 23)],
+                Bodies = [], Parameters = [] }
         };
+        if (reverse) entry = entry with { Signal = entry.Signal! with { Nodes = entry.Signal!.Nodes.Reverse().ToArray() },
+            Presentation = entry.Presentation with { Bindings = entry.Presentation.Bindings.Reverse().ToArray() } };
         Assert.Empty(BundleValidator.Validate([new("load_faces", entry)]));
         using var physics = DeclaredPhysics.Scoped([entry]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(part, entry.Ports)]));
@@ -158,6 +165,7 @@ public sealed class ComposedPhysicalSignalTests
         Assert.Equal(ActivationPhase.Clear, Assert.Single(activations, row => row.Node == Node(bench, empty)).Phase);
         Assert.Equal(loaded == "left", harness.Simulation.Scene.Activation.ContactClosed(
             harness.Committed.Activations, harness.Committed.Timers, new(2)));
+        AssertLoadVisuals(harness, entry, loaded);
         var prior = harness.Committed;
         var foreign = rows.ToArray();
         foreign[0] = foreign[0] with { Frame = new(3) };
@@ -169,6 +177,27 @@ public sealed class ComposedPhysicalSignalTests
             row => row.Sensor == identities[new(loaded)].ContactLoad).Phase);
         await harness.Reset();
         Assert.All(harness.Committed.Presentation.Loads.ToArray(), row => Assert.Equal(ContactLoadPhase.Empty, row.Phase));
+        AssertLoadVisuals(harness, entry, null);
+    }
+
+    private static PresentationBinding LoadBinding(string target, string signal, float from, float to) =>
+        new(target, PresentationProperty.LocalX, PresentationDriver.CommittedContactLoadPhase, PresentationValueMapping.Identity,
+            from, to, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0, PresentationTimerPhase.None, SignalNode: new(signal));
+
+    private static PresentationBinding ActivationBinding(string target, string signal, float from, float to) =>
+        new(target, PresentationProperty.LocalX, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity,
+            from, to, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0, PresentationTimerPhase.None, SignalNode: new(signal));
+
+    private static void AssertLoadVisuals(WorkshopIntegrationHarness harness, BundleEntry entry, string? loaded)
+    {
+        var samples = harness.Presentation!.Advance(new(harness.Committed.Tick.Value * 4));
+        for (var i = 0; i < entry.Presentation.Bindings.Count; i++)
+        {
+            var binding = entry.Presentation.Bindings[i];
+            var value = BitConverter.UInt32BitsToSingle(Assert.Single(samples,
+                sample => sample.Owner == new GpuBodyId(2) && sample.Binding == i).Value.CanonicalBits);
+            Assert.Equal(loaded is not null && binding.SignalNode == new SignalNodeId(loaded) ? binding.To : binding.From, value);
+        }
     }
 
     private static BundleEntry DelayedPassageEntry(PartId part, bool reverse)
@@ -303,4 +332,118 @@ public sealed class ComposedPhysicalSignalTests
             row => row.Source == new GpuEventSourceId(Node(bench, "quiet").Value));
     }
 
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TwoBodiesInOneApertureCommitBothOccurrencesAndPreserveReplayBoundaries(bool reverse)
+    {
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        PartId part = new("same_commit_aperture");
+        var original = TestBundle.Entry(new("ball_detector"));
+        var sensor = Assert.IsType<SignalPassageDescriptor>(Assert.Single(original.Signal!.Nodes)) with { ApertureRadius = 2 };
+        SignalNodeDescriptor[] nodes = [sensor, new SignalPulseCountDescriptor(new("count"), new("target")),
+            new SignalPulseCountDescriptor(new("quiet"), new("target"))];
+        var entry = original with
+        {
+            Metadata = original.Metadata with { Id = part.Value,
+                Parameters = [new("target", ParameterUnit.None, ParameterKind.WholeNumber, 1, 8, 2, [])] },
+            Colliders = BundleGeometry.Colliders(original).Select(c => c with { Offset = c.Offset + new Vector3(0, 5, 0) }).ToArray(),
+            ColliderBindings = [],
+            Signal = original.Signal with { Nodes = reverse ? nodes.Reverse().ToArray() : nodes, Edges = [Edge("signal", "count")] },
+            Events = [new(SimulationEventKind.Passage, new("signal")), new(SimulationEventKind.ThresholdReached, new("count"))],
+            Presentation = original.Presentation with { Bindings = [] }
+        };
+        Assert.Empty(BundleValidator.Validate([new("same_commit", entry)]));
+        using var physics = DeclaredPhysics.Scoped([entry]);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(part, entry.Ports)]));
+        var q = MathF.Sqrt(.5f);
+        IWorkshopInstance[] instances =
+        [
+            WorkshopInput.Generic(part, new(2), 0, 2, 0, 0, 0, -q, q),
+            WorkshopInput.Generic(new("ball"), new(3), -.5f, 4, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(new("ball"), new(4), .5f, 4, 0, 0, 0, 0, 1)
+        ];
+        var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(reverse ? instances.Reverse().ToArray() : instances));
+        await harness.Require(WorkshopCommandKind.Construct, bench);
+        await harness.Run();
+        var before = harness.Committed;
+        var retried = false;
+        for (var tick = 0; !harness.Of(SimulationEventKind.Passage).Any() && tick < 120; tick++)
+        {
+            before = harness.Committed;
+            var node = Node(bench, "count");
+            var networkAtTick = harness.Simulation.Scene.Activation;
+            var staged = await harness.Device.Advance(before, new(900001), WorkshopTickControls.For(before, []));
+            var stagedCount = networkAtTick.Memory(staged.Read.Memory, node).Count;
+            harness.Device.Discard(staged.Sequence);
+            if (stagedCount == 2)
+            {
+                var retry = await harness.Device.Advance(before, new(900002), WorkshopTickControls.For(before, []));
+                Assert.Equal(2u, networkAtTick.Memory(retry.Read.Memory, node).Count);
+                Assert.Equal(networkAtTick.Memory(staged.Read.Memory, Node(bench, "signal")),
+                    networkAtTick.Memory(retry.Read.Memory, Node(bench, "signal")));
+                harness.Device.Discard(retry.Sequence);
+                Assert.Equal(0u, networkAtTick.Memory(harness.Committed.Memory, node).Count);
+                retried = true;
+            }
+            var result = await harness.AdvanceOne();
+            Assert.True(result.Outcome == WorkshopCommandOutcome.Applied,
+                string.Join("\n", harness.Simulation.Diagnostics.Snapshot().OfType<WorkshopFaultDiagnostic>().Select(row => row.Detail)));
+        }
+        var events = harness.Of(SimulationEventKind.Passage).OrderBy(row => row.Other).ToArray();
+        Assert.Equal(2, events.Length);
+        Assert.True(retried);
+        Assert.Equal(new ulong[] { 3, 4 }, events.Select(row => row.Other));
+        Assert.Equal(events[0].Tick, events[1].Tick); // The interface must retain both occurrences in one commit.
+        var network = harness.Simulation.Scene.Activation;
+        var source = Node(bench, "signal");
+        Assert.Equal(2u, network.Memory(harness.Committed.Memory, Node(bench, "count")).Count);
+        Assert.Equal(0u, network.Memory(harness.Committed.Memory, Node(bench, "quiet")).Count);
+        Assert.Single(harness.Of(SimulationEventKind.ThresholdReached));
+        var first = SelectedLatch(harness, bench, "signal").Occurrence;
+        var cursor = network.Memory(harness.Committed.Memory, source);
+        Assert.Equal(new GpuBodyId(3), first.Cause.Body);
+        Assert.Equal(new GpuBodyId(4), cursor.Dispatched.Cause.Body);
+        Assert.Equal(new PassageSequence(2), cursor.PassageSequence);
+        var decoded = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(harness.Latest));
+        Assert.Equal(cursor, network.Memory(decoded.Read.Memory, source));
+        Assert.Throws<ArgumentException>(() => (cursor with { PassageSequence = default }).Validate());
+        Assert.Throws<ArgumentException>(() => (cursor with { Dispatched = default }).Validate());
+        PassageSensorRead Read(ActivationOccurrence occurrence, ulong sequence) => new(
+            bench.Instances.Identities[new(2)].Signals[new("signal")].Passage, new(2),
+            occurrence.Cause.Body, occurrence.Cause.Collider, PassageSensorPhase.Fired,
+            occurrence.Time.Ordinal, occurrence.Time.Phase, new(occurrence.Cause.ApproachSpeed.Value), new(sequence));
+        var latest = Read(cursor.Dispatched, 2);
+        ActivationCheckpoint Consume(WorkshopRead prior, params PassageSensorRead[] reads) =>
+            network.Consume(prior.Activations, prior.Timers, [], harness.Committed.Tick, [], reads, memory: prior.Memory);
+        var replay = Consume(before, Read(first, 1), latest);
+        Assert.Equal(2u, network.Memory(replay.Memory, Node(bench, "count")).Count);
+        Assert.Throws<ArgumentException>(() => Consume(before, latest, Read(first, 1)));
+        var exhausted = new PhysicsMemoryRead(Enumerable.Range(0, harness.Committed.Memory.Count)
+            .Select(i => harness.Committed.Memory[i].Node == source
+                ? cursor with { PassageSequence = new(ulong.MaxValue) } : harness.Committed.Memory[i]).ToArray());
+        foreach (var wrapped in new[] { latest with { Sequence = default }, latest with { Sequence = new(1) } })
+            Assert.Throws<ArgumentException>(() => network.Consume(harness.Committed.Activations, harness.Committed.Timers,
+                [], harness.Committed.Tick, [], [wrapped], memory: exhausted));
+        Assert.Equal(new PassageSequence(ulong.MaxValue), network.Memory(exhausted, source).PassageSequence);
+        var held = Consume(harness.Committed, latest);
+        Assert.Equal(2u, network.Memory(held.Memory, Node(bench, "count")).Count);
+        foreach (var invalid in new[] { latest with { Sequence = new(1) }, latest with { Body = new(3) },
+            latest with { Sequence = new(3) }, latest with { Sequence = new(3), EventOrdinal = 0 },
+            latest with { Sequence = new(3), Id = new(999999) }, latest with { Sequence = new(3), Frame = new(3) },
+            latest with { Sequence = new(4) }, latest with { Sequence = new(3), EventOrdinal = checked((uint)(harness.Committed.Tick.Value * 4 + 4)) } })
+            Assert.Throws<ArgumentException>(() => Consume(harness.Committed, invalid));
+        Assert.Equal(2u, network.Memory(harness.Committed.Memory, Node(bench, "count")).Count);
+        Assert.Equal(first, SelectedLatch(harness, bench, "signal").Occurrence);
+        await harness.Reset();
+        Assert.All(Enumerable.Range(0, harness.Committed.Memory.Count), i =>
+        {
+            Assert.Equal(default, harness.Committed.Memory[i].PassageSequence);
+            Assert.Equal(default, harness.Committed.Memory[i].Dispatched);
+        });
+        await harness.Run();
+        await harness.Advance(100);
+        Assert.Equal(2u, network.Memory(harness.Committed.Memory, Node(bench, "count")).Count);
+    }
 }

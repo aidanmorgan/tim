@@ -22,7 +22,7 @@ public enum SimulationLatchPhase : uint { Off = 0, On = 1 }
 [Flags]
 public enum StateLatchRequest : uint { None = 0, Set = 1, Reset = 2 }
 public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, GpuBodyId Owner,
-    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerSource = default,
+    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerProvider = default,
     GpuContactLoadSensorId ContactLoad = default, uint ReleaseHoldTicks = 0,
     TimerCompletionPolicy Completion = TimerCompletionPolicy.Latch, TimerBoundary Boundary = TimerBoundary.BeforePhysics,
     TimerElapsedSignal ElapsedSignal = TimerElapsedSignal.Activation);
@@ -245,7 +245,7 @@ public sealed class ActivationNetwork
         (node.Kind == ActivationNodeKind.ContactLoadSource ? node.ReleaseHoldTicks == 0 : node.ReleaseHoldTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Timer ? node.DurationTicks == 0 : node.DurationTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Counter ? node.TargetCount < 1 : node.TargetCount != 0) ||
-                (node.Kind == ActivationNodeKind.Oscillator ? node.IntervalTicks == 0 : (node.IntervalTicks != 0 || node.PowerSource.Value != 0));
+                (node.Kind == ActivationNodeKind.Oscillator ? node.IntervalTicks == 0 : (node.IntervalTicks != 0 || node.PowerProvider.Value != 0));
 
     public static SignalNodeKind Operation(ActivationNodeKind kind) => kind switch
     {
@@ -343,9 +343,9 @@ public sealed class ActivationNetwork
     /// A network with Counter or oscillator nodes requires their committed rows (an empty population is rejected).</summary>
     public ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
         ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
-        ReadOnlySpan<PassageSensorRead> passages = default, PhysicsElectricalRead electrical = default,
+        ReadOnlySpan<PassageSensorRead> passages = default, SupplyOutputRead supply = default,
         PhysicsMemoryRead memory = default, ReadOnlySpan<ContactLoadSensorRead> contactLoads = default) =>
-        Consume(committed, committedTimers, events, boundary, orientations, passages, electrical, memory, contactLoads, EvaluationStage.Physical, [], out _);
+        Consume(committed, committedTimers, events, boundary, orientations, passages, supply, memory, contactLoads, EvaluationStage.Physical, [], out _);
 
     private enum EvaluationStage { Scheduled, Physical }
 
@@ -359,13 +359,13 @@ public sealed class ActivationNetwork
 
     public ActivationCheckpoint ConsumeScheduled(ActivationSchedule scheduled, ReadOnlySpan<ContactTriggerRead> events,
         SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations, ReadOnlySpan<PassageSensorRead> passages,
-        PhysicsElectricalRead electrical, ReadOnlySpan<ContactLoadSensorRead> contactLoads) =>
-        Consume(scheduled.State.Activations, scheduled.State.Timers, events, boundary, orientations, passages, electrical,
+        SupplyOutputRead supply, ReadOnlySpan<ContactLoadSensorRead> contactLoads) =>
+        Consume(scheduled.State.Activations, scheduled.State.Timers, events, boundary, orientations, passages, supply,
             scheduled.State.Memory, contactLoads, EvaluationStage.Physical, scheduled.Deferred, out _);
 
     private ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
         ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
-        ReadOnlySpan<PassageSensorRead> passages, PhysicsElectricalRead electrical,
+        ReadOnlySpan<PassageSensorRead> passages, SupplyOutputRead supply,
         PhysicsMemoryRead memory, ReadOnlySpan<ContactLoadSensorRead> contactLoads, EvaluationStage stage,
         ReadOnlySpan<ActivationOccurrence> scheduledOccurrences, out ActivationOccurrence[] deferredOccurrences)
     {
@@ -392,7 +392,7 @@ public sealed class ActivationNetwork
         QueueOrientations(orientations, values, end, stage, ref count);
         QueuePassages(passages, rows, end, ref count);
         if (stage == EvaluationStage.Physical) CommitContactLoads(values, rows, contactLoads, boundary, end);
-        QueueTimedOccurrences(timers, rows, electrical, boundary, stage, ref count);
+        QueueTimedOccurrences(timers, rows, supply, boundary, stage, ref count);
         RouteOccurrences(values, rows, timers, latchRequests, latchSetBy, boundary, stage, scheduledOccurrences, deferred, ref count);
         // Every request routed this tick resolves at the boundary: Reset dominates, otherwise Set, otherwise memory holds.
         for (var i = 0; i < _nodes.Length; i++)
@@ -495,28 +495,30 @@ public sealed class ActivationNetwork
                 if (_nodes[j].Kind == ActivationNodeKind.PassageSource && _nodes[j].Passage == item.Id) slot = j;
             if (slot < 0 || !Enum.IsDefined(item.Phase))
                 throw new ArgumentException("Unowned passage occurrence.");
-            for (var j = 0; j < i; j++) if (passages[j].Id == item.Id)
-                throw new ArgumentException("Duplicate passage occurrence batch.");
-            if (item.Phase != PassageSensorPhase.Fired) continue;
+            if (item.Phase != PassageSensorPhase.Fired || item.Sequence.Value == 0 ||
+                !_passageSensors.Any(sensor => sensor.Id == item.Id && sensor.Frame == item.Frame))
+                throw new ArgumentException("Invalid passage occurrence identity.");
             var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Passage, _nodes[slot].Id, time,
                 new(new(item.Id.Value), item.Body, item.Collider, time, new(item.Speed.Value), ActivationCauseKind.Physical));
             occurrence.Validate();
             if (time.CompareTo(end) > 0) throw new ArgumentException("Future passage occurrence.");
             var memorySlot = _memorySlots[slot];
-            if (rows[memorySlot].Dispatched != default)
+            var prior = rows[memorySlot];
+            if (item.Sequence == prior.PassageSequence)
             {
-                var prior = rows[memorySlot].Dispatched;
-                var order = time.CompareTo(prior.Time);
-                if (order < 0 || (order == 0 && occurrence != prior)) throw new ArgumentException("Stale or changed occurrence.");
-                if (order == 0) continue;
+                if (occurrence != prior.Dispatched) throw new ArgumentException("Changed passage replay.");
+                continue;
             }
-            rows[memorySlot] = rows[memorySlot] with { Dispatched = occurrence };
+            if (prior.PassageSequence.Value == ulong.MaxValue || item.Sequence.Value != prior.PassageSequence.Value + 1 ||
+                (prior.Dispatched != default && (time < prior.Dispatched.Time || occurrence == prior.Dispatched)))
+                throw new ArgumentException("Stale, gapped or duplicate passage occurrence.");
+            rows[memorySlot] = prior with { Dispatched = occurrence, PassageSequence = item.Sequence };
             Push(ref count, occurrence);
         }
     }
 
-    private void QueueTimedOccurrences(Span<ActivationTimerState> timers, Span<ActivationMemory> rows, PhysicsElectricalRead electrical, SimulationTick boundary, EvaluationStage stage, ref int count)
+    private void QueueTimedOccurrences(Span<ActivationTimerState> timers, Span<ActivationMemory> rows, SupplyOutputRead supply, SimulationTick boundary, EvaluationStage stage, ref int count)
     {
         for (var pass = 0; pass < 2; pass++)
             for (var i = 0; i < _timers.Length; i++)
@@ -529,18 +531,7 @@ public sealed class ActivationNetwork
         {
             if (stage != EvaluationStage.Physical || _nodes[i].Kind != ActivationNodeKind.Oscillator) continue;
             var node = _nodes[i];
-            var isPowered = false;
-            if (node.PowerSource.Value != 0)
-            {
-                for (var e = 0; e < electrical.Count; e++)
-                {
-                    if (electrical[e].Owner == node.PowerSource && electrical[e].Available)
-                    {
-                        isPowered = true;
-                        break;
-                    }
-                }
-            }
+            var isPowered = supply.IsPowered(node.PowerProvider);
 
             var slot = _memorySlots[i];
             if (!isPowered)
@@ -568,8 +559,8 @@ public sealed class ActivationNetwork
 
     private void RouteOccurrences(Span<ActivationLatch> values, Span<ActivationMemory> rows, Span<ActivationTimerState> timers, Span<StateLatchRequest> latchRequests, Span<ActivationOccurrence> latchSetBy, SimulationTick boundary, EvaluationStage stage, ReadOnlySpan<ActivationOccurrence> scheduledOccurrences, List<ActivationOccurrence>? deferred, ref int count)
     {
-        // Every source emits once. At most one physical event and one timer event per node;
-        // positive integer durations prevent instantaneous timer cycles.
+        // Passage batches have already passed sequence/replay validation and may contain simultaneous causes.
+        // Positive integer durations prevent instantaneous timer cycles.
         while (count != 0)
         {
             var first = 0;
@@ -579,7 +570,7 @@ public sealed class ActivationNetwork
             if (stage == EvaluationStage.Physical && values[source].Phase != ActivationPhase.Clear)
             {
                 if (_nodes[source].Kind == ActivationNodeKind.PassageSource &&
-                    occurrence.Time.CompareTo(values[source].Occurrence.Time) > 0)
+                    occurrence.Kind == ActivationOccurrenceKind.Passage)
                 {
                 }
                 else if (occurrence.Kind == ActivationOccurrenceKind.ThresholdReached && values[source].Phase == ActivationPhase.Latched)
@@ -975,7 +966,11 @@ public sealed class ActivationNetwork
     private static int Compare(ActivationOccurrence a, ActivationOccurrence b)
     {
         var time = a.Time.CompareTo(b.Time);
-        return time != 0 ? time : a.Emitter.Value.CompareTo(b.Emitter.Value);
+        if (time != 0) return time;
+        var emitter = a.Emitter.Value.CompareTo(b.Emitter.Value);
+        if (emitter != 0) return emitter;
+        var body = a.Cause.Body.Value.CompareTo(b.Cause.Body.Value);
+        return body != 0 ? body : a.Cause.Collider.Value.CompareTo(b.Cause.Collider.Value);
     }
 }
 

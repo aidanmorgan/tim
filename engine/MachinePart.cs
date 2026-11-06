@@ -192,7 +192,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         {
             var declaration = Definition.Presentation.Bindings[pair.Key];
             pair.Value.ApplyValue(WorkshopDeclaredPresentation.Value(declaration.Property,
-                declaration.Curve == PresentationCurve.ExponentialFollow ? 0 : declaration.From));
+                PresentationDriverRules.InitialValue(declaration)));
         }
     }
     internal void ApplyPhysicalSpans()
@@ -240,7 +240,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
             var binding = new WorkshopVisualBinding(target, property, declaration.From, declaration.To);
             _declaredBindings.Add(i, binding);
             binding.ApplyValue(WorkshopDeclaredPresentation.Value(declaration.Property,
-                declaration.Curve == PresentationCurve.ExponentialFollow ? 0 : declaration.From));
+                PresentationDriverRules.InitialValue(declaration)));
         }
         foreach (var binding in presentation.Bodies)
         {

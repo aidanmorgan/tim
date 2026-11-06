@@ -367,7 +367,7 @@ public sealed class PhysicsSceneDeclaration
         ValidateContactPolicies(triggers, contactWorks, colliders, bodyMap, nextIdentity, ids);
         ValidateObservations(orientationSensors, contactLoadSensors, colliders, dynamicColliders, bodyMap, nextIdentity, ids);
         ValidateJoints(prismatics, revolutes, bodyMap, nextIdentity, ids);
-        _tensileSpans = ValidateTensile(tensileSpans, bodyMap);
+        _tensileSpans = ValidateTensile(tensileSpans, bodyMap, ropeGuides);
         var guideIds = new HashSet<RopeGuideId>();
         foreach (var guide in ropeGuides)
         {
@@ -577,13 +577,15 @@ public sealed class PhysicsSceneDeclaration
         }
     }
 
-    private static TensileSpanDeclaration[] ValidateTensile(ReadOnlySpan<TensileSpanDeclaration> tensileSpans, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap)
+    private static TensileSpanDeclaration[] ValidateTensile(ReadOnlySpan<TensileSpanDeclaration> tensileSpans, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap, ReadOnlySpan<RopeGuideDeclaration> guides)
     {
         var spanIds = new HashSet<RopeSpanId>();
         var routeOrders = new HashSet<(RopeRouteId, uint)>();
+        var guideUses = new HashSet<RopeGuideId>();
         foreach (var span in tensileSpans)
         {
             span.Validate();
+            ValidateTensileGuide(span, guides, guideUses);
             if (!spanIds.Add(span.Id) || !routeOrders.Add((span.Route, span.Order)) ||
                 !bodyMap.TryGetValue(span.BodyA, out var a) || !bodyMap.TryGetValue(span.BodyB, out var b) ||
                 a.Motion is not (RigidMotionKind.Static or RigidMotionKind.Dynamic) ||
@@ -595,6 +597,26 @@ public sealed class PhysicsSceneDeclaration
         }
         var sortedSpans = tensileSpans.ToArray();
         Array.Sort(sortedSpans, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        ValidateTensileRoutes(sortedSpans);
+        return sortedSpans;
+    }
+
+    private static void ValidateTensileGuide(TensileSpanDeclaration span, ReadOnlySpan<RopeGuideDeclaration> guides,
+        HashSet<RopeGuideId> guideUses)
+    {
+        if (span.Guide.Value != 0)
+        {
+            var found = false;
+            foreach (var guide in guides)
+                if (guide.Id == span.Guide && guide.Body == span.BodyB && guide.Radius == span.GuideRadius && guide.Offset == span.GuideOffset)
+                    found = true;
+            if (!found || !guideUses.Add(span.Guide))
+                throw new ArgumentException("A route junction requires its exact, uniquely used declared guide.");
+        }
+    }
+
+    private static void ValidateTensileRoutes(TensileSpanDeclaration[] sortedSpans)
+    {
         var orderedRoutes = new Dictionary<RopeRouteId, SortedDictionary<uint, TensileSpanDeclaration>>();
         foreach (var span in sortedSpans)
         {
@@ -614,9 +636,9 @@ public sealed class PhysicsSceneDeclaration
                     throw new ArgumentException("Tensile route must be one ordered acyclic chain.");
                 previous = span;
             }
-            if (previous is { } last && !visited.Add(last.BodyB)) throw new ArgumentException("Tensile route closes a cycle.");
+            if (previous is { } last && (!visited.Add(last.BodyB) || last.Guide.Value != 0))
+                throw new ArgumentException("Tensile route must end at a terminal without a guide.");
         }
-        return sortedSpans;
     }
 
     private static void Identity(ulong id, ulong next, HashSet<ulong> identities)

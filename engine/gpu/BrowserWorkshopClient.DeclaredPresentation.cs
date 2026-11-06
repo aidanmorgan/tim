@@ -36,7 +36,8 @@ public sealed partial class BrowserWorkshopClient
                     var declaration = DeclaredPhysics.Of(instance.PartId).Presentation.Bindings[target.Value.Binding];
                     SendAnimation(new(target.Key, schedule.World.WorldGeneration, checked(_animationSequence + 1),
                         schedule.World.Epoch.Value, AnimationControlKind.Visibility, visible,
-                        declaration.From, declaration.From, 1, AnimationCurve.Linear,
+                        CuriousContraptions.Abstractions.PresentationDriverRules.InitialValue(declaration),
+                        CuriousContraptions.Abstractions.PresentationDriverRules.InitialValue(declaration), 1, AnimationCurve.Linear,
                         Property: WorkshopDeclaredPresentation.Property(declaration.Property)), schedule);
                     foreach (var owned in _declaredTargets)
                         if (owned.Value.Owner == target.Value.Owner) _declaredVisibilitySent[owned.Key] = visible;

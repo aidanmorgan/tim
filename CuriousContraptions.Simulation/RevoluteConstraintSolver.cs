@@ -159,12 +159,6 @@ internal static class RevoluteConstraintSolver
 
         for (var rowIndex = 0; rowIndex < RevoluteRows.Count; rowIndex++)
         {
-            if (count == 1)
-            {
-                SolveSingleConstraint(joints[0], rowIndex, useBias);
-                continue;
-            }
-
             for (var i = 0; i < count; i++) remaining[i] = i;
             var remainingCount = count;
 
@@ -244,32 +238,6 @@ internal static class RevoluteConstraintSolver
         }
     }
 
-    private static void SolveSingleConstraint(SimRevoluteJoint joint, int rowIndex, bool useBias)
-    {
-                        if (rowIndex == (int)RevoluteRowKind.Axial && joint.Stiffness == 0f && joint.Damping == 0f)
-        {
-            joint.Impulses[rowIndex] = 0f;
-            return;
-        }
-        ref readonly var row = ref joint.Rows[rowIndex];
-        var invMass = ConstraintMass(joint.A, row.La, row.Aa) + ConstraintMass(joint.B, row.Lb, row.Ab);
-        var vel = ConstraintVelocity(joint.A, row.La, row.Aa) + ConstraintVelocity(joint.B, row.Lb, row.Ab);
-        var bias = useBias || (rowIndex == (int)RevoluteRowKind.Axial && (joint.Stiffness > 0f || joint.Damping > 0f)) || (IsStop(rowIndex) && row.Error > 0f) ? row.Bias : 0f;
-
-        var vInvMass = Vector128.Create(invMass, 0f, 0f, 0f);
-        var vVel = Vector128.Create(vel, 0f, 0f, 0f);
-        var vTarget = Vector128.Create(row.VelocityTarget, 0f, 0f, 0f);
-        var vError = Vector128.Create(row.Error, 0f, 0f, 0f);
-        var vGamma = Vector128.Create(row.Gamma, 0f, 0f, 0f);
-        var vBias = Vector128.Create(bias, 0f, 0f, 0f);
-        var vAccum = Vector128.Create(joint.Impulses[rowIndex], 0f, 0f, 0f);
-        var vMin = Vector128.Create(row.Minimum, 0f, 0f, 0f);
-        var vMax = Vector128.Create(row.Maximum, 0f, 0f, 0f);
-
-        var result = SoftConstraint.Solve4(vInvMass, vVel, vTarget, vError, vGamma, vBias, vAccum, vMin, vMax);
-        joint.Impulses[rowIndex] = result.Accumulated.GetElement(0);
-        ApplyConstraintImpulse(joint, joint.Rows[rowIndex], result.Delta.GetElement(0));
-    }
 
     private static int SelectIndependentJoints(List<SimRevoluteJoint> joints, Span<int> remaining,
         ref int remainingCount, Span<int> groupIndices)

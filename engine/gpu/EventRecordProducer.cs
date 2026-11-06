@@ -102,7 +102,7 @@ public sealed class EventRecordProducer
             }
         }
         // Passage: every pass of the step, counted per aperture from the committed per-body pass counts, in time order.
-        var fired = new List<PassageSensorRead>(candidate.Passages.Fired);
+        var fired = new List<PassageSensorRead>(candidate.Passages.Fired.ToArray());
         fired.Sort((a, b) => a.EventOrdinal != b.EventOrdinal ? a.EventOrdinal.CompareTo(b.EventOrdinal) : a.Body.Value.CompareTo(b.Body.Value));
         var passes = new Dictionary<GpuPassageSensorId, ulong>(4);
         foreach (var state in committed.Passages.States) passes[state.Sensor] = passes.GetValueOrDefault(state.Sensor) + state.PassedCount;

@@ -11,6 +11,10 @@ namespace CuriousContraptions.Tests;
 /// evidence-9a-32/probe/PlacedParts-record-path.cs.txt.)</summary>
 internal static class PlacedParts
 {
+    public static PhysicsElectricalRead InitialElectrical(PhysicsSceneDeclaration scene) => new(
+        scene.Electrical.Sources.ToArray().Select(source =>
+            new ElectricalSourceRead(source.Id, source.Owner, source.InitialEnergy, default, source.Enabled)).ToArray());
+
     /// <summary>A Battery with its declared store: capacity (J), power limit (W), initial charge (fraction of capacity) and the
     /// enable state as its Choice index. The defaults are the package's (3600 J, 120 W, full, Enabled).</summary>
     public static WorkshopGenericInstance Battery(GpuBodyId id, float x, float y, float z, float capacity = 3600f,

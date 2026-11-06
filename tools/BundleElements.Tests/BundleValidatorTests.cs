@@ -178,7 +178,8 @@ public sealed class BundleValidatorTests
     public void ACommittedDriveBindingIsInstantLinearOrATimedSmoothStep()
     {
         var lamp = new PresentationBinding("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorDrive, PresentationValueMapping.Identity,
-            85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None);
+            85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None,
+            Actuator: new(CoordinateKind.Prismatic, 0));
         static IReadOnlyList<Bundle.BundleError> Check(PresentationBinding binding, PrismaticDriveDescriptor? drive)
         {
             var candidate = Bundle.BundleSchema.Entry(new Fixture
@@ -192,7 +193,7 @@ public sealed class BundleValidatorTests
         foreach (var invalid in new[] { lamp with { Duration = 0f }, lamp with { Curve = PresentationCurve.Linear } })
             Assert.Contains(Check(invalid, Fixture.Drive()), error => error.Detail.Contains(".Presentation.DriverCurve", StringComparison.Ordinal));
         // The binding reads only a driven slot of its owner: on an owner with no driven slider or hinge it would read nothing.
-        Assert.Contains(Check(lamp, null), error => error.Detail.Contains(".Presentation.ActuatorDrive", StringComparison.Ordinal));
+        Assert.Contains(Check(lamp, null), error => error.Detail.Contains(".Presentation.Actuator", StringComparison.Ordinal));
     }
 
     // Story 11.1a: a drive value bound to a parameter reads it in the drive value's own unit; a slider's maximum effort is in newtons.
@@ -210,13 +211,14 @@ public sealed class BundleValidatorTests
         Assert.Equal((Bundle.BundleErrorCode.OutOfRange, "FixtureDrive.Sliders[0].Drive.MaxEffort: outside its declared range"), (refused.Code, refused.Detail));
     }
 
-    // Story 11.1a: a committed blocked-state binding reads a prismatic drive's moving contact, which only a driven slider has (a revolute
-    // slot reports none): admitted on a driven slider, refused on the same fixture with its slider undriven.
+    // A committed state binding selects its declared driven slider and maps its three states explicitly.
+    // Removing that slider's drive makes the exact actuator reference invalid.
     [Fact]
     public void ACommittedActuatorStateBindingNeedsADrivenSlider()
     {
-        var state = new PresentationBinding("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorState, PresentationValueMapping.Identity,
-            85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None);
+        var state = new PresentationBinding("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorState, PresentationValueMapping.ActuatorStateValues,
+            0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None,
+            Actuator: new(CoordinateKind.Prismatic, 0), StateValues: new(85f / 255f, 247f / 255f, 232f / 255f));
         static IReadOnlyList<Bundle.BundleError> Check(PrismaticDriveDescriptor? drive, PresentationBinding binding)
         {
             var candidate = Bundle.BundleSchema.Entry(new Fixture
@@ -226,7 +228,7 @@ public sealed class BundleValidatorTests
             return Bundle.BundleValidator.Validate([new("Fixture", candidate with { Presentation = candidate.Presentation with { Bindings = [binding] } })]);
         }
         Assert.Empty(Check(Fixture.Drive(), state));
-        Assert.Contains(Check(null, state), error => error.Detail.Contains(".Presentation.ActuatorState", StringComparison.Ordinal));
+        Assert.Contains(Check(null, state), error => error.Detail.Contains(".Presentation.Actuator", StringComparison.Ordinal));
     }
 
     // Story 10.2a (CAT-067 D3): a body mass bound to a parameter names one declared Real kilogram parameter whose whole range lies in

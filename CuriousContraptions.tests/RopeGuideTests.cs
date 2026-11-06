@@ -80,8 +80,8 @@ public sealed class RopeGuideTests
         var span0 = (totalLength - 4f) * .5f;
         var spans = new TensileSpanDeclaration[]
         {
-            new(new(1), new(1), 0, a, new(0, .2f, 0), g1, new(0, .2f, .05f), span0, true, 0.2f, new(0f, 0f, 0.05f)),
-            new(new(2), new(1), 1, g1, new(0, .2f, .05f), g2, new(0, .6f, .15f), 4f, true, 0.6f, new(0f, 0f, 0.15f)),
+            new(new(1), new(1), 0, a, new(0, .2f, 0), g1, new(0, .2f, .05f), span0, true, 0.2f, new(0f, 0f, 0.05f), new(1)),
+            new(new(2), new(1), 1, g1, new(0, .2f, .05f), g2, new(0, .6f, .15f), 4f, true, 0.6f, new(0f, 0f, 0.15f), new(2)),
             new(new(3), new(1), 2, g2, new(0, .6f, .15f), b, new(0, .2f, 0), span0, true),
         };
         var physicsScene = new PhysicsSceneDeclaration(compiled.Document, compiled.NextIdentity,
@@ -144,7 +144,7 @@ public sealed class RopeGuideTests
 
         var spans = new TensileSpanDeclaration[]
         {
-            new(new(1), new(1), 0, a, new(0, .2f, 0), g, new(0, .4f, .12f), spanLen, true, 0.4f, new(0f, 0f, 0.12f)),
+            new(new(1), new(1), 0, a, new(0, .2f, 0), g, new(0, .4f, .12f), spanLen, true, 0.4f, new(0f, 0f, 0.12f), new(1)),
             new(new(2), new(1), 1, g, new(0, .4f, .12f), b, new(0, .2f, 0), spanLen, true),
         };
         var compiled = scene.Admit().Scene;
@@ -379,10 +379,10 @@ public sealed class RopeGuideTests
         // Two distinct routes through distinct guide ports on the same body
         var spans = new TensileSpanDeclaration[]
         {
-            new(new(1), new(1), 0, a, new(0, .2f, 0), body, new(-0.3f, .2f, .05f), 3.5f, true, 0.2f, new(-0.3f, 0f, 0.05f)),
+            new(new(1), new(1), 0, a, new(0, .2f, 0), body, new(-0.3f, .2f, .05f), 3.5f, true, 0.2f, new(-0.3f, 0f, 0.05f), guideId1),
             new(new(2), new(1), 1, body, new(-0.3f, .2f, .05f), anchor1, Vector3.Zero, 3.5f, true),
 
-            new(new(3), new(2), 0, b, new(0, .2f, 0), body, new(0.3f, .4f, .05f), 3.5f, true, 0.4f, new(0.3f, 0f, 0.05f)),
+            new(new(3), new(2), 0, b, new(0, .2f, 0), body, new(0.3f, .4f, .05f), 3.5f, true, 0.4f, new(0.3f, 0f, 0.05f), guideId2),
             new(new(4), new(2), 1, body, new(0.3f, .4f, .05f), anchor2, Vector3.Zero, 3.5f, true)
         };
 

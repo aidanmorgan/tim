@@ -603,16 +603,6 @@ internal static partial class WorkshopCollisionKernels
             }
         }
 
-        if (p4 == null)
-        {
-            var p3Pos = new Vector3(p3.Px, p3.Py, p3.Pz);
-            foreach (var p in points)
-            {
-                if (ReferenceEquals(p, p1) || ReferenceEquals(p, p2) || ReferenceEquals(p, p3)) continue;
-                var d = (new Vector3(p.Px, p.Py, p.Pz) - p3Pos).LengthSquared();
-                if (d > best) { best = d; p4 = p; }
-            }
-        }
 
         return p4;
     }

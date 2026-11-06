@@ -730,8 +730,8 @@ public sealed class RopeTests
         var span0 = (totalLength - 4f) * .5f;
         var spans = new TensileSpanDeclaration[]
         {
-            new(new(1), new(1), 0, a, new(0, .2f, 0), p1, new(0, .4f, .12f), span0, true, 0.4f, new(0f, 0f, 0.12f)),
-            new(new(2), new(1), 1, p1, new(0, .4f, .12f), p2, new(0, .4f, .12f), 4f, true, 0.4f, new(0f, 0f, 0.12f)),
+            new(new(1), new(1), 0, a, new(0, .2f, 0), p1, new(0, .4f, .12f), span0, true, 0.4f, new(0f, 0f, 0.12f), new(1)),
+            new(new(2), new(1), 1, p1, new(0, .4f, .12f), p2, new(0, .4f, .12f), 4f, true, 0.4f, new(0f, 0f, 0.12f), new(2)),
             new(new(3), new(1), 2, p2, new(0, .4f, .12f), b, new(0, .2f, 0), span0, true),
         };
         var physicsScene = new PhysicsSceneDeclaration(compiled.Document, compiled.NextIdentity,

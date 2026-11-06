@@ -248,7 +248,6 @@ public static partial class PhysicsGpuAbi
             var routeGuides = new RouteGuideFrame[ordered.Length > 1 ? ordered.Length - 1 : 0];
             for (var i = 0; i < ordered.Length - 1; i++)
             {
-                var guideBody = ordered[i].raw.Span.BodyB;
                 var radius = ordered[i].raw.Span.GuideRadius;
                 var offset = ordered[i].raw.Span.GuideOffset;
                 if (ordered[i].raw.Span.BodyB == ordered[i + 1].raw.Span.BodyA)
@@ -256,19 +255,7 @@ public static partial class PhysicsGpuAbi
                     var angle = radius > 0f
                         ? ((travel / radius) % MathF.Tau + MathF.Tau) % MathF.Tau
                         : 0f;
-                    if (inputs.Guides is { Length: > 0 })
-                    {
-                        foreach (var g in inputs.Guides)
-                        {
-                            if (g.Body == guideBody &&
-                                MathF.Abs(g.Radius - radius) < 1e-4f &&
-                                Vector3.DistanceSquared(g.Offset, offset) < 1e-4f)
-                            {
-                                guideMap[g.Id] = (travel, angle);
-                                break;
-                            }
-                        }
-                    }
+                    guideMap[ordered[i].raw.Span.Guide] = (travel, angle);
                 }
                 routeGuides[i] = new(ordered[i].raw.FrameBPos, ordered[i].raw.FrameBRot, radius, offset);
             }

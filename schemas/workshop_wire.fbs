@@ -164,6 +164,7 @@ struct ActivationMemoryRecord {
     last_phase: float;
     phase: uint32;
     due_tick: uint64;
+    passage_sequence: ulong;
     dispatched_kind: uint;
     dispatched_emitter: ulong;
     dispatched_ordinal: uint;
@@ -628,7 +629,7 @@ table CapabilityActivationNodeDeclarationRecord {
     passage: ulong;
     target_count: uint;
     interval_ticks: uint;
-    power_source: ulong;
+    power_provider: ulong;
     contact_load: ulong;
     release_hold_ticks: uint;
     completion: uint;
@@ -658,7 +659,14 @@ struct SignalContactRecord {
     state: uint;
 }
 
+struct ActuatorStateValuesRecord {
+    unpowered: float;
+    powered: float;
+    blocked: float;
+}
+
 table CapabilityPresentationBindingRecord {
+    state_values: ActuatorStateValuesRecord;
     mapping: uint;
     property: uint;
     driver: uint;
@@ -696,6 +704,8 @@ table CompiledPresentationRecord {
     declaration: CapabilityPresentationBindingRecord (required);
     activation: CapabilityActivationNodeDeclarationRecord;
     source_capacity: float;
+    actuator: CapabilitySupplyConsumerRecord;
+    guide: ulong;
 }
 
 table RopeSpanReadRecord {
@@ -737,6 +747,7 @@ table TensileSpanRecord {
     complete: bool;
     guide_radius: float;
     guide_offset: Vec3f;
+    guide: ulong;
 }
 
 // One compliant membrane on a static frame body (Story 10.5, CAT-065): footprint half extents, rest height and stroke in the

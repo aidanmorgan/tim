@@ -215,8 +215,8 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.Equal(battery.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Source).Owner);
         Assert.Equal(gate.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Consumer).Owner);
         bool NoContact(GpuBodyId owner)=>throw new InvalidOperationException("Direct supply consulted a contact.");
-        Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph,new([ElectricalEnable.Enabled]),NoContact).SupplyClosed[0]);
-        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph,new([ElectricalEnable.Disabled]),NoContact).SupplyClosed[0]);
+        Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph,new([ElectricalEnable.Enabled]),NoContact, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
+        Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph,new([ElectricalEnable.Disabled]),NoContact, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
         Assert.Empty(scene.Electrical.Bindings.ToArray());
         Assert.Equal(0f,scene.Bodies.ToArray().Single(body=>body.Id==scene.Prismatics.ToArray().Single(joint => joint.BodyA == gate.Id).BodyB).LinearDrag.Value);
     }
@@ -229,7 +229,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var scene=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(gate1,gate2,battery1,battery2),
             Connections:new(Supply(battery1.Id,gate1.Id),Supply(battery2.Id,gate2.Id))),new(1,1));
         var enables=scene.Electrical.Sources.ToArray().Select(source=>source.Owner==battery1.Id?ElectricalEnable.Disabled:ElectricalEnable.Enabled).ToArray();
-        var closed=PhysicsTickInputs.Compose(scene.SupplyGraph,new(enables),_=>true).SupplyClosed;
+        var closed=PhysicsTickInputs.Compose(scene.SupplyGraph,new(enables),_=>true, PlacedParts.InitialElectrical(scene)).SupplyClosed;
         Assert.False(closed[Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate1.Id)]);
         Assert.True(closed[Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate2.Id)]);
     }
@@ -246,12 +246,12 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var scene=WorkshopPhysicsCompiler.Compile(construction,new(1,1));
         Assert.Equal(plate.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Contact).Owner);
         bool Closed(ElectricalEnable enable,bool contact)=>PhysicsTickInputs.Compose(scene.SupplyGraph,
-            new([enable]),owner=>owner==plate.Id?contact:throw new InvalidOperationException()).SupplyClosed[0];
+            new([enable]),owner=>owner==plate.Id?contact:throw new InvalidOperationException(), PlacedParts.InitialElectrical(scene)).SupplyClosed[0];
         Assert.True(Closed(ElectricalEnable.Enabled,true));Assert.False(Closed(ElectricalEnable.Enabled,false));Assert.False(Closed(ElectricalEnable.Disabled,true));
         var unsupplied=WorkshopPhysicsCompiler.Compile(construction with {Connections=new(Supply(plate.Id,gate.Id))},new(1,1));
-        Assert.False(PhysicsTickInputs.Compose(unsupplied.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true).SupplyClosed[0]);
+        Assert.False(PhysicsTickInputs.Compose(unsupplied.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true, PlacedParts.InitialElectrical(unsupplied)).SupplyClosed[0]);
         var ungated=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(battery,plate),Connections:new(Supply(battery.Id,plate.Id))),new(1,1));
-        Assert.Empty(PhysicsTickInputs.Compose(ungated.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true).SupplyClosed);
+        Assert.Empty(PhysicsTickInputs.Compose(ungated.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true, PlacedParts.InitialElectrical(ungated)).SupplyClosed);
         Assert.Equal(plate.Id,Assert.Single(ungated.ContactLoadSensors.ToArray()).Frame);
     }
 

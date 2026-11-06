@@ -190,7 +190,7 @@ public sealed class BothGateTests
         construction=construction with {Instances=new(construction.Instances.Append(clock).ToArray()),Connections=construction.Connections.With(Link(4,7))};
         var topology=WorkshopSupplyCompiler.Compile(construction,DeclaredPhysics.Of);
         Assert.Equal(new[]{new GpuBodyId(3)},topology.UpstreamSources(clock.Id));
-        Assert.Equal(new GpuBodyId(3),WorkshopActivationCompiler.Compile(construction).Nodes.ToArray().Single(row=>row.Owner==clock.Id).PowerSource);
+        Assert.Equal(new GpuBodyId(4),WorkshopActivationCompiler.Compile(construction).Nodes.ToArray().Single(row=>row.Owner==clock.Id).PowerProvider);
         var conditionOnly=construction with {Connections=construction.Connections.Without(Link(3,4))};
         Assert.Empty(WorkshopSupplyCompiler.Compile(conditionOnly,DeclaredPhysics.Of).UpstreamSources(clock.Id));
         Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)255,true,true));

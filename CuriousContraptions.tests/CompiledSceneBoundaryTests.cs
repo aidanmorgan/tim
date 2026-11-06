@@ -194,24 +194,35 @@ public sealed class CompiledSceneBoundaryTests
             var buffer = new ByteBuffer(bytes);
             var root = new Table(4 + buffer.GetInt(4), buffer);
             var binding = Child(Rows(Child(root, sceneField), 29)[trackIndex], 3);
+            var fields = new CuriousContraptions.Wire.CapabilityPresentationBindingRecord().__assign(binding.bb_pos, buffer);
+            Assert.Equal((uint)tracks[trackIndex].Declaration.Mapping, fields.Mapping);
+            Assert.Equal((uint)tracks[trackIndex].Declaration.Driver, fields.Driver);
+            Assert.Equal(.25f, fields.From);
             switch (defect)
             {
                 case PresentationDefect.MissingMapping:
-                    BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(binding.bb_pos - buffer.GetInt(binding.bb_pos) + 4), 0); break;
+                    BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(binding.bb_pos - buffer.GetInt(binding.bb_pos) + 6), 0);
+                    Assert.Equal(0U, fields.Mapping); break;
                 case PresentationDefect.UnknownMapping:
-                    Write(0, uint.MaxValue); break;
+                    Write(1, uint.MaxValue); Assert.Equal(uint.MaxValue, fields.Mapping); break;
                 case PresentationDefect.IncompatibleMapping:
-                    Write(0, (uint)CuriousContraptions.Abstractions.PresentationValueMapping.SineCyclesToUnit); break;
+                    Write(1, (uint)CuriousContraptions.Abstractions.PresentationValueMapping.SineCyclesToUnit);
+                    Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationValueMapping.SineCyclesToUnit, fields.Mapping); break;
                 case PresentationDefect.InvalidElectricalSocket:
-                    Write(12, (uint)CuriousContraptions.Abstractions.PortRole.ActivationIn); break;
+                    Write(13, (uint)CuriousContraptions.Abstractions.PortRole.ActivationIn);
+                    Assert.Equal((uint)CuriousContraptions.Abstractions.PortRole.ActivationIn, fields.Socket); break;
                 case PresentationDefect.NonfiniteFrom:
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(binding, 3)), float.NaN); break;
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(binding, 4)), float.NaN);
+                    Assert.True(float.IsNaN(fields.From)); break;
                 case PresentationDefect.MissingSocket:
-                    Write(2, (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedElectricalSocket); break;
+                    Write(3, (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedElectricalSocket);
+                    Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedElectricalSocket, fields.Driver); break;
                 case PresentationDefect.UnsupportedCurve:
-                    Write(5, (uint)CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse); break;
+                    Write(6, (uint)CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse);
+                    Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse, fields.Curve); break;
                 case PresentationDefect.IncompatibleDriver:
-                    Write(2, (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPhase); break;
+                    Write(3, (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPhase);
+                    Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPhase, fields.Driver); break;
                 default: throw new ArgumentOutOfRangeException(nameof(defect));
             }
             void Write(int field, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(Slot(binding, field)), value);

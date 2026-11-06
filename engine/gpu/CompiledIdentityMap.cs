@@ -18,7 +18,7 @@ public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArr
     ImmutableArray<CompiledSliderIdentities> Sliders, ImmutableDictionary<SignalNodeId, CompiledSignalIdentities> Signals,
     ElectricalSourceId Source, GpuContactWorkId Work,
     CompiledCaptureIdentities Capture, ImmutableArray<CompiledHingeIdentities> Hinges,
-    CompliantSurfaceId CompliantSurface, ImmutableArray<DrivenSurfaceId> DrivenSurfaces);
+    CompliantSurfaceId CompliantSurface, ImmutableArray<DrivenSurfaceId> DrivenSurfaces, ImmutableDictionary<PortId, RopeGuideId> Guides);
 
 /// <summary>One immutable scene-sized allocation shared by every consumer of an authored instance collection.</summary>
 public sealed class CompiledIdentityMap
@@ -75,6 +75,7 @@ public sealed class CompiledIdentityMap
         }
         Plane = new(Allocate()); PlaneMaterial = new(Allocate()); PlaneCollider = new(Allocate());
         _payloads = instances.Where(instance => entries[instance.PartId].Mechanical?.Payload == CuriousContraptions.Abstractions.Mechanical.PayloadPolicy.CaptureTarget).Select(instance=>instance.Id).ToImmutableHashSet();
+        var nextGuide = 1UL;
         var parts = ImmutableDictionary.CreateBuilder<GpuBodyId, CompiledPartIdentities>();
         var owners = ImmutableDictionary.CreateBuilder<GpuBodyId, GpuBodyId>();
         foreach (var instance in instances.OrderBy(instance => instance.Id.Value))
@@ -91,8 +92,11 @@ public sealed class CompiledIdentityMap
             var compliant = entry.Mechanical?.CompliantSurface is not null ? new CompliantSurfaceId(Allocate()) : default;
             var surfaces = ImmutableArray.CreateBuilder<DrivenSurfaceId>();
             foreach (var surface in entry.Mechanical?.DrivenSurfaces ?? []) surfaces.Add(new(Allocate()));
+            var guides = ImmutableDictionary.CreateBuilder<PortId, RopeGuideId>();
+            foreach (var port in entry.Ports.Where(port => port.AttachmentRole == RopeAttachmentRole.Guide).OrderBy(port => port.Id))
+                guides.Add(port.Id, new(nextGuide++));
             parts.Add(instance.Id, new(material, colliders, sliders, signals, source, work,
-                capture, hinges, compliant, surfaces.ToImmutable()));
+                capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable()));
         }
         _parts = parts.ToImmutable(); _owners = owners.ToImmutable(); NextIdentity = next;
     }

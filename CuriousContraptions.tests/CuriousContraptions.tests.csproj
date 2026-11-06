@@ -69,6 +69,7 @@
         <Compile Include="ComposableSignalNodesTests.cs" />
         <Compile Include="GoalSignalSelectorTests.cs" />
     <Compile Include="ComposedPhysicalSignalTests.cs" />
+    <Compile Include="ComposedPhysicalObservationTests.cs" />
     <Compile Include="ElementIsolationTests.cs" />
         <Compile Include="PoseRingEncapsulationTests.cs" />
         <Compile Include="WorkshopIntegrationHarness.cs" />

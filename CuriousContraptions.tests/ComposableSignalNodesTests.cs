@@ -505,4 +505,228 @@ public sealed class ComposableSignalNodesTests
         Assert.Equal(0u, network.Memory(harness.Committed.Memory, Node(bench, "b")).Count);
     }
 
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task EachOscillatorUsesItsExactInputInsteadOfItsOwnersOtherSupply(bool secondConnected, bool reverse)
+    {
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        PortId secondInput = new("other_power");
+        var entry = Entry(reverse, connected: false, cosmetics: false);
+        var power = Assert.Single(entry.Ports);
+        entry = entry with
+        {
+            Ports = reverse ? [power with { Id = secondInput }, power] : [power, power with { Id = secondInput }],
+            Signal = entry.Signal! with { Nodes = entry.Signal!.Nodes.Select(node =>
+                node is SignalOscillatorDescriptor oscillator && node.Id == new SignalNodeId("slow")
+                    ? oscillator with { SupplyInput = secondInput } : node).ToArray() }
+        };
+        Assert.Empty(BundleValidator.Validate([new("separate_inputs", entry)]));
+        using var physics = DeclaredPhysics.Scoped([entry]);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Part, entry.Ports)]));
+        var bench = Bench() with { Instances = new(Bench().Instances.Append(
+            PlacedParts.Battery(new(3), 4, 4, 0, enabled: ElectricalEnable.Disabled)).ToArray()) };
+        var secondWire = new WorkshopConnection(new(3), PortId.Supply, new(2), secondInput, WorkshopConnectionDomain.Electrical);
+        if (secondConnected) bench = bench with { Connections = bench.Connections.With(secondWire) };
+        var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements.Append(Part).ToHashSet(),
+            WorkshopSaveCodec.Encode(new(bench, new(4))));
+        Assert.Equal(bench, saved.Construction);
+        await harness.Require(WorkshopCommandKind.Construct, saved.Construction);
+        await harness.Run(); await harness.Advance(24);
+        ActivationMemory Memory(string local) => harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, Node(bench, local));
+        Assert.Equal(2u, Memory("fast").Count);
+        Assert.Equal(0u, Memory("slow").Count);
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+            runControl: WorkshopIntegrationHarness.RunControl(harness.Simulation.Scene, new(3), RunControlValue.Of(ElectricalEnable.Enabled)));
+        await harness.Advance(25);
+        Assert.Equal(4u, Memory("fast").Count);
+        Assert.Equal(secondConnected ? 1u : 0u, Memory("slow").Count);
+        Assert.Equal(secondConnected ? OscillatorPhase.Running : OscillatorPhase.Stopped, Memory("slow").Phase);
+        var duplicate = bench with { Connections = bench.Connections.With(
+            new WorkshopConnection(new(1), PortId.Supply, new(2), secondInput, WorkshopConnectionDomain.Electrical)) };
+        if (secondConnected) Assert.Throws<WorkshopEditRejectedException>(() => duplicate.Validate());
+        await harness.Reset();
+        Assert.Equal(0u, Memory("fast").Count); Assert.Equal(0u, Memory("slow").Count);
+        Assert.Equal(OscillatorPhase.Stopped, Memory("slow").Phase);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task EffectiveContactAndGatePowerStopBothOscillatorsWithTheBatteryStillEnabled(bool throughGate)
+    {
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        var entry = Entry(connected: false, cosmetics: false);
+        using var physics = DeclaredPhysics.Scoped([entry]);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Part, entry.Ports)]));
+        static WorkshopConnection Power(ulong source, ulong target, PortId? input = null) =>
+            new(new(source), PortId.Supply, new(target), input ?? PortId.PowerIn, WorkshopConnectionDomain.Electrical);
+        static WorkshopConnection Pulse(ulong source, PortId input) =>
+            new(new(source), PortId.ActivationOut, new(3), input, WorkshopConnectionDomain.Activation);
+        var instances = new List<IWorkshopInstance>(Bench().Instances)
+        {
+            PlacedParts.Latch(new(3), 7, 4, 0, 0, 0, 0, 1),
+            PlacedParts.Clock(new(4), 10, 4, 0, 0, 0, 0, 1, .1f),
+            PlacedParts.Battery(new(5), 13, 4, 0, enabled: ElectricalEnable.Disabled),
+            PlacedParts.Clock(new(6), 10, 7, 0, 0, 0, 0, 1, .1f),
+            PlacedParts.Battery(new(7), 13, 7, 0, enabled: ElectricalEnable.Disabled)
+        };
+        var wires = new List<WorkshopConnection> { Power(1, 3), Power(5, 4), Power(7, 6), Pulse(4, PortId.SetIn), Pulse(6, PortId.ResetIn) };
+        if (throughGate)
+        {
+            instances.Add(WorkshopInput.Generic(new("both_gate"), new(8), 16, 4, 0, 0, 0, 0, 1));
+            instances.Add(PlacedParts.Battery(new(9), 19, 4, 0));
+            wires.AddRange([Power(1, 8), Power(3, 8, PortId.FirstIn), Power(9, 8, PortId.SecondIn), Power(8, 2)]);
+        }
+        else wires.Add(Power(3, 2));
+        var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(instances.ToArray()), Connections: new(wires.ToArray()));
+        await harness.Require(WorkshopCommandKind.Construct, bench);
+        await harness.Run(); await harness.Advance(25);
+        ActivationMemory Memory(string local) => harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, Node(bench, local));
+        bool Closed() => harness.Simulation.Scene.Activation.ContactClosed(harness.Committed.Activations, harness.Committed.Timers, new(3));
+        async Task Switch(bool closed)
+        {
+            var battery = new GpuBodyId(closed ? 5UL : 7UL);
+            await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+                runControl: WorkshopIntegrationHarness.RunControl(harness.Simulation.Scene, battery, RunControlValue.Of(ElectricalEnable.Enabled)));
+            for (var ticks = 0; Closed() != closed && ticks < 26; ticks++) await harness.Advance(1);
+            Assert.Equal(closed, Closed());
+            await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+                runControl: WorkshopIntegrationHarness.RunControl(harness.Simulation.Scene, battery, RunControlValue.Of(ElectricalEnable.Disabled)));
+            await harness.Advance(1); // New physical/discrete contact state routes at the next tick.
+            Assert.True(Enumerable.Range(0, harness.Committed.Electrical.Count).Select(i => harness.Committed.Electrical[i])
+                .Single(source => source.Owner == new GpuBodyId(1)).Available);
+        }
+        Assert.Equal(OscillatorPhase.Stopped, Memory("fast").Phase);
+        Assert.Equal(OscillatorPhase.Stopped, Memory("slow").Phase);
+        await Switch(true);
+        Assert.Equal(harness.Committed.Tick.Value + 12, Memory("fast").DueTick);
+        Assert.Equal(harness.Committed.Tick.Value + 24, Memory("slow").DueTick);
+        await harness.Advance(24);
+        Assert.Equal(2u, Memory("fast").Count); Assert.Equal(1u, Memory("slow").Count);
+        await Switch(false);
+        var fast = Memory("fast").Count; var slow = Memory("slow").Count;
+        await harness.Advance(30);
+        Assert.Equal(fast, Memory("fast").Count); Assert.Equal(slow, Memory("slow").Count);
+        Assert.Equal(OscillatorPhase.Stopped, Memory("fast").Phase);
+        Assert.Equal(OscillatorPhase.Stopped, Memory("slow").Phase);
+        await Switch(true);
+        Assert.Equal(harness.Committed.Tick.Value + 12, Memory("fast").DueTick);
+        Assert.Equal(harness.Committed.Tick.Value + 24, Memory("slow").DueTick);
+        await harness.Advance(11);
+        Assert.Equal(fast, Memory("fast").Count); Assert.Equal(slow, Memory("slow").Count);
+        await harness.Advance(13);
+        Assert.Equal(fast + 2, Memory("fast").Count); Assert.Equal(slow + 1, Memory("slow").Count);
+        await harness.Reset();
+        Assert.False(Closed());
+        Assert.Equal(0u, Memory("fast").Count); Assert.Equal(0u, Memory("slow").Count);
+    }
+
+    [Theory]
+    [InlineData("delay", false)]
+    [InlineData("quiet", true)]
+    public async Task SameKindEventCuesSelectTheirExactSiblingAndReset(string selected, bool reverse)
+    {
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        var entry = Entry(reverse, cosmetics: false);
+        PresentationBinding Cue(string target, string node, float from, float to) =>
+            new(target, PresentationProperty.LocalX, PresentationDriver.Event, PresentationValueMapping.Identity,
+                from, to, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0, PresentationTimerPhase.None,
+                Event: SimulationEventKind.TriggerActivated, SignalNode: new(node));
+        PresentationBinding[] cues = [Cue("FirstCue", "delay", -2, 7), Cue("SecondCue", "quiet", 3, 11)];
+        entry = entry with { Signal = entry.Signal! with { Edges = [Edge("fast", selected)] },
+            Presentation = entry.Presentation with { Bindings = reverse ? cues.Reverse().ToArray() : cues } };
+        Assert.Empty(BundleValidator.Validate([new("event_cues", entry)]));
+        using var physics = DeclaredPhysics.Scoped([entry]);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Part, entry.Ports)]));
+        var bench = Bench();
+        await harness.Require(WorkshopCommandKind.Construct, bench);
+        await harness.Run(); await harness.Advance(48);
+        Assert.Single(harness.Of(SimulationEventKind.TriggerActivated), row => row.Source == new GpuEventSourceId(Node(bench, selected).Value));
+        void AssertCues(bool active)
+        {
+            // Harness delivery calls the production AcceptEvents before accepting each committed read.
+            var samples = harness.Presentation!.Advance(new(harness.Committed.Tick.Value * 4));
+            for (var i = 0; i < entry.Presentation.Bindings.Count; i++)
+            {
+                var binding = entry.Presentation.Bindings[i];
+                var value = BitConverter.UInt32BitsToSingle(Assert.Single(samples,
+                    sample => sample.Owner == new GpuBodyId(2) && sample.Binding == i).Value.CanonicalBits);
+                Assert.Equal(active && binding.SignalNode == new SignalNodeId(selected) ? binding.To : binding.From, value);
+            }
+        }
+        AssertCues(true);
+        await harness.Reset();
+        AssertCues(false);
+        await harness.Run(); await harness.Advance(48);
+        AssertCues(true);
+    }
+
+    [Fact]
+    public void ActuatorStateMapsSerializeOnlyAuthoredValuesAndRejectDerivedFlags()
+    {
+        var entry = TestBundle.Entry(new("powered_gate"));
+        var json = BundleSchema.WriteEntries([entry]);
+        using var document = System.Text.Json.JsonDocument.Parse(json);
+        var root = document.RootElement;
+        // Inspect semantic fields, not serialized byte identity.
+        var map = root.GetProperty("Elements")[0].GetProperty("Presentation").GetProperty("Bindings")[0].GetProperty("StateValues");
+        Assert.Equal(["Blocked", "Powered", "Unpowered"], map.EnumerateObject().Select(property => property.Name).Order().ToArray());
+        Assert.Equal(85f / 255f, map.GetProperty("Unpowered").GetSingle());
+        Assert.Equal(247f / 255f, map.GetProperty("Powered").GetSingle());
+        Assert.Equal(232f / 255f, map.GetProperty("Blocked").GetSingle());
+        Assert.Equal(entry.Presentation.Bindings[0].StateValues,
+            BundleSchema.Read(json).Elements[0].Presentation.Bindings[0].StateValues);
+        var malformed = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        malformed["Elements"]![0]!["Presentation"]!["Bindings"]![0]!["StateValues"]!["IsFinite"] = true;
+        Assert.Throws<System.Text.Json.JsonException>(() => BundleSchema.Read(malformed.ToJsonString()));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task BothOscillatorsUsePostPhysicsAvailabilityWhenTheirEnabledSourceDepletes(bool enoughEnergy)
+    {
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        var entry = Entry(connected: false, cosmetics: false);
+        using var physics = DeclaredPhysics.Scoped([entry]);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(Part, entry.Ports)]));
+        var bench = Bench() with { Instances = new(
+            PlacedParts.Battery(new(1), -4, 4, 0, capacity: enoughEnergy ? 3600 : 60, initialCharge: enoughEnergy ? 1 : .001f),
+            WorkshopInput.Generic(Part, new(2), 0, 4, 0, 0, 0, 0, 1),
+            PlacedParts.Bumper(new(3), 4, 3, 0, 20),
+            WorkshopInput.Generic(new("bowling"), new(4), 4, 6, 0, 0, 0, 0, 1)) };
+        bench = bench with { Connections = bench.Connections.With(
+            new WorkshopConnection(new(1), PortId.Supply, new(3), PortId.PowerIn, WorkshopConnectionDomain.Electrical)) };
+        await harness.Require(WorkshopCommandKind.Construct, bench);
+        var initial = harness.Committed.Electrical[0].Remaining;
+        Assert.True(initial.Value > 0);
+        await harness.Run();
+        var exhausted = false;
+        for (var tick = 0; tick < 240; tick++) // Two-second stall guard: payload spends stored work, then recharge exhausts the small source.
+        {
+            await harness.Advance(1);
+            var source = harness.Committed.Electrical[0];
+            Assert.Equal(ElectricalEnable.Enabled, source.Enabled);
+            if (source.Remaining.Value != 0) continue;
+            exhausted = true;
+            Assert.True(source.Debit.Value > 0); // The observed boundary is the actual depletion tick.
+            foreach (var local in new[] { "fast", "slow" })
+                Assert.Equal(OscillatorPhase.Stopped,
+                    harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, Node(bench, local)).Phase);
+            break;
+        }
+        Assert.Equal(!enoughEnergy, exhausted);
+        var before = harness.Of(SimulationEventKind.TriggerActivated).Count();
+        await harness.Advance(48);
+        if (enoughEnergy) Assert.True(harness.Of(SimulationEventKind.TriggerActivated).Count() > before);
+        else Assert.Equal(before, harness.Of(SimulationEventKind.TriggerActivated).Count());
+        await harness.Reset();
+        Assert.Equal(initial, harness.Committed.Electrical[0].Remaining);
+        foreach (var local in new[] { "fast", "slow" })
+            Assert.Equal(OscillatorPhase.Stopped,
+                harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, Node(bench, local)).Phase);
+    }
 }

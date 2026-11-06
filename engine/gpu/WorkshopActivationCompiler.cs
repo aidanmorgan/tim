@@ -61,17 +61,21 @@ public static class WorkshopActivationCompiler
             SignalMemoryDescriptor => new(node.Id, node.Owner, ActivationNodeKind.StateLatch, default),
             SignalIndicatorDescriptor => new(node.Id, node.Owner, IndicatorKind(node.Id, graph), default),
             SignalOscillatorDescriptor oscillator => new(node.Id, node.Owner, ActivationNodeKind.Oscillator, default,
-                IntervalTicks: Duration(oscillator.IntervalParameter), PowerSource: Source(supply, node.Owner)),
+                IntervalTicks: Duration(oscillator.IntervalParameter), PowerProvider: Provider(construction, supply, node.Owner, oscillator.SupplyInput)),
             _ => throw new ArgumentException("Unsupported signal operation.")
         };
     }
 
-    private static GpuBodyId Source(SupplyTopology supply, GpuBodyId owner)
+    private static GpuBodyId Provider(WorkshopConstruction construction, SupplyTopology supply, GpuBodyId owner, PortId input)
     {
-        var sources = supply.UpstreamSources(owner);
-        if (sources.Length > 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
-            "This source-accounted input requires one upstream source.");
-        return sources.Length == 1 ? sources[0] : default;
+        var wires = construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical &&
+            link.Target == owner && link.Input == input).ToArray();
+        if (wires.Length == 0) return default;
+        if (wires.Length != 1 || !supply.Nodes.Any(node => node.Owner == wires[0].Source &&
+            node.Kind is SupplyNodeKind.Source or SupplyNodeKind.Contact or SupplyNodeKind.LogicGate))
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
+                "The selected oscillator input requires one declared supply output.");
+        return wires[0].Source;
     }
 
     public static uint CounterTarget(float value)

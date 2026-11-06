@@ -194,7 +194,7 @@ public sealed class DeclaredPrismaticDriveTests
         var paths = new[] { new List<Substep>(),new List<Substep>() };
         for (var tick=0;tick<480;tick++)
         {
-            var input = PhysicsTickInputs.Compose(graph,new([source.Enabled]),_=>false);
+            var input = PhysicsTickInputs.Compose(graph,new([source.Enabled]),_=>false, PhysicsGpuAbi.ReadElectrical(current));
             interactions = engine.Advance(current,candidate,input,interactions);
             (current,candidate)=(candidate,current);
             for(var i=0;i<2;i++) paths[i].AddRange(Pieces(Motion(current),moving[i].Value));
@@ -773,7 +773,7 @@ public static class NativeTwoDriveScenario
         {
             var sources = PhysicsGpuAbi.ReadElectrical(current);
             var input = PhysicsTickInputs.Compose(scene.SupplyGraph,
-                new WorkshopTickControls(Enumerable.Range(0, sources.Count).Select(i => sources[i].Enabled).ToArray()), _ => false);
+                new WorkshopTickControls(Enumerable.Range(0, sources.Count).Select(i => sources[i].Enabled).ToArray()), _ => false, PhysicsGpuAbi.ReadElectrical(current));
             interactions = engine.Advance(current, candidate, input, interactions);
             (current, candidate) = (candidate, current);
         }

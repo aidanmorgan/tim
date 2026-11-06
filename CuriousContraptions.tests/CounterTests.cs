@@ -266,7 +266,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var ballColliderId = new GpuColliderId(11);
 
         // Tick 1: passage 1
-        var passageRead1 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 1, 0f, new(2f));
+        var passageRead1 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 1, 0f, new(2f), new(1));
         var cp1 = network.Consume(activations, timers, [], new(1), [], [passageRead1], memory: memory);
         activations = cp1.Activations; timers = cp1.Timers; memory = cp1.Memory;
 
@@ -280,7 +280,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.Equal(1U, network.Memory(cpHeld.Memory, SignalTestNodes.Only(network, counter.Id)).Count);
 
         // Tick 2: passage 2 (distinct time: ordinal 2)
-        var passageRead2 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 2, 0f, new(2f));
+        var passageRead2 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 2, 0f, new(2f), new(2));
         var cp2 = network.Consume(activations, timers, [], new(2), [], [passageRead2], memory: memory);
         activations = cp2.Activations; timers = cp2.Timers; memory = cp2.Memory;
 
@@ -288,7 +288,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
 
         // Tick 3: passage 3 (target reached!)
-        var passageRead3 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 3, 0f, new(2f));
+        var passageRead3 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 3, 0f, new(2f), new(3));
         var cp3 = network.Consume(activations, timers, [], new(3), [], [passageRead3], memory: memory);
         activations = cp3.Activations; timers = cp3.Timers; memory = cp3.Memory;
 
@@ -302,7 +302,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         // Saturation: 20 extra passages
         for (uint i = 4; i < 24; i++)
         {
-            var passageReadExtra = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, i, 0f, new(2f));
+            var passageReadExtra = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, i, 0f, new(2f), new(i));
             var cpExtra = network.Consume(activations, timers, [], new(i), [], [passageReadExtra], memory: memory);
             activations = cpExtra.Activations; timers = cpExtra.Timers; memory = cpExtra.Memory;
         }
@@ -331,7 +331,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
                 WorkshopConnectionDomain.Activation)]));
         var network = WorkshopActivationCompiler.Compile(construction);
         var sensor = construction.Instances.Identities[detector.Id].Signals[new("signal")].Passage;
-        PassageSensorRead Pass(uint ordinal) => new(sensor, detector.Id, new(10), new(11), PassageSensorPhase.Fired, ordinal, 0f, new(2f));
+        PassageSensorRead Pass(uint ordinal) => new(sensor, detector.Id, new(10), new(11), PassageSensorPhase.Fired, ordinal, 0f, new(2f), new(ordinal / 4));
 
         var committed = network.Consume(network.Clear(), network.ClearTimers(), [], new(1), [], [Pass(4)], memory: network.ClearMemory());
         committed = network.Consume(committed.Activations, committed.Timers, [], new(2), [], [Pass(8)], memory: committed.Memory);

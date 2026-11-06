@@ -586,7 +586,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         ActivationCheckpoint Step(ulong tick, ContactLoadPhase phase, float mass) => network.Consume(state.Activations, state.Timers, [],
             new(tick), [], memory: state.Memory, contactLoads: [new(row.Id, row.Frame, row.Region, mass, phase)]);
         bool Next(ActivationCheckpoint committed) => PhysicsTickInputs.Compose(scene.SupplyGraph,
-            new([ElectricalEnable.Enabled]), owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner)).SupplyClosed[prismatic];
+            new([ElectricalEnable.Enabled]), owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner), PlacedParts.InitialElectrical(scene)).SupplyClosed[prismatic];
         ActivationLatch Level(ActivationCheckpoint committed)
         {
             for (var i = 0; i < committed.Activations.Count; i++) if (committed.Activations[i].Owner == plate.Id) return committed.Activations[i];
@@ -802,7 +802,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
                 contactLoads: [new(row.Id, row.Frame, row.Region, loaded[i] ? 1f : 0f, loaded[i] ? ContactLoadPhase.Loaded : ContactLoadPhase.Empty)]);
             var committed = state;
             var next = PhysicsTickInputs.Compose(scene.SupplyGraph, new([ElectricalEnable.Enabled]),
-                owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner)).SupplyClosed[prismatic];
+                owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner), PlacedParts.InitialElectrical(scene)).SupplyClosed[prismatic];
             trace.Add((network.ContactClosed(state.Activations, network.ClearTimers(), plate.Id), Latched(state.Activations, lamp.Id), next));
         }
         return trace;
