@@ -95,7 +95,7 @@ public static class BundleSchema
         typeof(ExactEnumConverter<PresentationAxes>), typeof(ExactEnumConverter<PresentationProperty>),
         typeof(ExactEnumConverter<PresentationDriver>), typeof(ExactEnumConverter<PresentationValueMapping>), typeof(ExactEnumConverter<PresentationCurve>),
         typeof(ExactEnumConverter<PresentationOverlap>),
-        typeof(ExactEnumConverter<PresentationTimerPhase>), typeof(ExactEnumConverter<PresentationEventMagnitude>)
+        typeof(ExactEnumConverter<PresentationEventMagnitude>)
     ])]
 [JsonSerializable(typeof(BundleDocument))]
 internal sealed partial class BundleJsonContext : JsonSerializerContext;

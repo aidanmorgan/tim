@@ -10,10 +10,10 @@ public sealed class StateLatchElementDeclaration : ISignalElement, ISupplyElemen
 {
     public ElementPresentation Presentation => new(1.2f, PresentationAxes.None,
         [
-            new("Visual/Rocker", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, -.25f, .25f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
-            new("Visual/IndicatorLamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
-            new("Visual/IndicatorLamp", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
-            new("Visual/IndicatorLamp", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal"))
+            new("Visual/Rocker", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, -.25f, .25f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, SignalNode: new("signal")),
+            new("Visual/IndicatorLamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, SignalNode: new("signal")),
+            new("Visual/IndicatorLamp", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, SignalNode: new("signal")),
+            new("Visual/IndicatorLamp", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(

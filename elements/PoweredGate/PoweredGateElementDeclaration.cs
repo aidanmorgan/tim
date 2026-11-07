@@ -15,9 +15,9 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, ISupplyEleme
 {
     public ElementPresentation Presentation => new(1.5f, PresentationAxes.None,
         [
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorState, PresentationValueMapping.ActuatorStateValues, 0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Actuator: new(CoordinateKind.Prismatic, 0), StateValues: new(85f / 255f, 247f / 255f, 232f / 255f)),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActuatorState, PresentationValueMapping.ActuatorStateValues, 0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Actuator: new(CoordinateKind.Prismatic, 0), StateValues: new(101f / 255f, 203f / 255f, 183f / 255f)),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActuatorState, PresentationValueMapping.ActuatorStateValues, 0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Actuator: new(CoordinateKind.Prismatic, 0), StateValues: new(115f / 255f, 82f / 255f, 100f / 255f))
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorState, PresentationValueMapping.StateValues, 0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, Actuator: new(CoordinateKind.Prismatic, 0), StateValues: new(85f / 255f, 247f / 255f, 232f / 255f)),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActuatorState, PresentationValueMapping.StateValues, 0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, Actuator: new(CoordinateKind.Prismatic, 0), StateValues: new(101f / 255f, 203f / 255f, 183f / 255f)),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActuatorState, PresentationValueMapping.StateValues, 0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, Actuator: new(CoordinateKind.Prismatic, 0), StateValues: new(115f / 255f, 82f / 255f, 100f / 255f))
         ], [new("Visual/Blade", new PackageBodyIndex(1), Vector3.Zero)], [], []);
 
     public ElementMetadata Metadata => new(

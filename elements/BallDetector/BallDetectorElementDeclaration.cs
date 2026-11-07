@@ -15,9 +15,9 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignal
 {
     public ElementPresentation Presentation => new(1.15f, PresentationAxes.None,
         [
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.Event, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage, SignalNode: new("signal")),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.Event, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage, SignalNode: new("signal")),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.Event, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage, SignalNode: new("signal"))
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.Event, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.Passage, SignalNode: new("signal")),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.Event, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.Passage, SignalNode: new("signal")),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.Event, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.Passage, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(

@@ -50,7 +50,7 @@ public sealed class ComposableSignalNodesTests
     }
     private static PresentationBinding Binding(string target, string node, PresentationDriver driver, PresentationValueMapping mapping) =>
         new(target, PresentationProperty.LocalX, driver, mapping, 0, 1, PresentationCurve.Linear, 0,
-            PresentationOverlap.Replace, 0, PresentationTimerPhase.None, SignalNode: new(node));
+            PresentationOverlap.Replace, 0, SignalNode: new(node));
     private static WorkshopConstruction Bench(bool supplied = true) => new(new(2), WorkshopCadenceSettings.Default(),
         new(PlacedParts.Battery(new(1), -4, 4, 0, enabled: supplied ? ElectricalEnable.Enabled : ElectricalEnable.Disabled),
             WorkshopInput.Generic(RuntimeTestServices.Bundle, Part, new(2), 0, 4, 0, 0, 0, 0, 1)),
@@ -721,7 +721,7 @@ public sealed class ComposableSignalNodesTests
         var entry = Entry(reverse, cosmetics: false);
         PresentationBinding Cue(string target, string node, float from, float to) =>
             new(target, PresentationProperty.LocalX, PresentationDriver.Event, PresentationValueMapping.Identity,
-                from, to, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0, PresentationTimerPhase.None,
+                from, to, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0,
                 Event: SimulationEventKind.TriggerActivated, SignalNode: new(node));
         PresentationBinding[] cues = [Cue("FirstCue", "delay", -2, 7), Cue("SecondCue", "quiet", 3, 11)];
         entry = entry with { Signal = entry.Signal! with { Edges = [Edge("fast", selected)] },
@@ -761,10 +761,10 @@ public sealed class ComposableSignalNodesTests
         var root = document.RootElement;
         // Inspect semantic fields, not serialized byte identity.
         var map = root.GetProperty("Elements")[0].GetProperty("Presentation").GetProperty("Bindings")[0].GetProperty("StateValues");
-        Assert.Equal(["Blocked", "Powered", "Unpowered"], map.EnumerateObject().Select(property => property.Name).Order().ToArray());
-        Assert.Equal(85f / 255f, map.GetProperty("Unpowered").GetSingle());
-        Assert.Equal(247f / 255f, map.GetProperty("Powered").GetSingle());
-        Assert.Equal(232f / 255f, map.GetProperty("Blocked").GetSingle());
+        Assert.Equal(["State0", "State1", "State2"], map.EnumerateObject().Select(property => property.Name).Order().ToArray());
+        Assert.Equal(85f / 255f, map.GetProperty("State0").GetSingle());
+        Assert.Equal(247f / 255f, map.GetProperty("State1").GetSingle());
+        Assert.Equal(232f / 255f, map.GetProperty("State2").GetSingle());
         Assert.Equal(entry.Presentation.Bindings[0].StateValues,
             BundleSchema.Read(json).Elements[0].Presentation.Bindings[0].StateValues);
         var malformed = System.Text.Json.Nodes.JsonNode.Parse(json)!;

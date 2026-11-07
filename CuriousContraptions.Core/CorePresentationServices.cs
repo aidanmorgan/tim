@@ -13,7 +13,6 @@ public sealed class CorePresentationServices : IPresentationServices
     public IWorkshopDeclaredPresentation Create(IAnimationServices animation, ICompiledScene construction, WorkshopResponse endpoint) => new WorkshopDeclaredPresentation(animation, construction, endpoint);
     public IReadOnlyList<(AnimationTargetId Target, GpuBodyId Owner, int Binding)> Targets(ICompiledScene construction) => WorkshopDeclaredPresentation.Targets(construction);
     public PhysicalTime EventTime(SimulationEventRecord record) => WorkshopDeclaredPresentation.EventTime(record);
-    public PresentationTimerPhase TimerPhase(ActivationTimerPhase phase) => WorkshopDeclaredPresentation.TimerPhase(phase);
     public AnimationProperty PropertyFor(PresentationProperty channel) => WorkshopDeclaredPresentation.Property(channel);
     public AnimationValue ValueFor(PresentationProperty channel, float value) => WorkshopDeclaredPresentation.Value(channel, value);
     public bool MatchesPlayback(WorkshopSimulationPhase phase, WorldPlayback playback) => WorkshopPoseHistory.MatchesPlayback(phase, playback);

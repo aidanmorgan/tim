@@ -12,7 +12,7 @@ public static class WorkshopSceneCompiler
 {
     private static CompiledPresentationBinding CompileBinding(PresentationBinding binding, PartId partId) =>
         new(binding.Property, binding.Driver, binding.Mapping, binding.From, binding.To, binding.Curve, binding.Duration,
-            binding.Overlap, binding.Threshold, binding.Phase, binding.Response, binding.Intermediate,
+            binding.Overlap, binding.Threshold, binding.Response,
             binding.Socket.HasValue ? WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(partId), binding.Socket.Value).Terminal : null, binding.Event, binding.EventMagnitude, binding.StateValues);
 
     private static SupplyConsumer ResolveActuator(CompiledPartIdentities ids, CoordinateReference coordinate) => coordinate.Kind switch

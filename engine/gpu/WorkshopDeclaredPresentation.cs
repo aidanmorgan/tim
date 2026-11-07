@@ -30,7 +30,6 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         public AnimationValue FollowTarget;
         public uint Count;
         public float Value;
-        public float Rest;
         public RopeGuideId Guide;
         public bool Visible = true;
         public Track Copy() => (Track)MemberwiseClone();
@@ -61,7 +60,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         {
             var declaration = binding.Declaration;
             tracks.Add(new Track { Owner = binding.Owner, Index = binding.Binding, Declaration = declaration,
-                Target = binding.Target, Node = binding.Activation, Value = declaration.From, Rest = declaration.From,
+                Target = binding.Target, Node = binding.Activation, Value = PresentationDriverRules.InitialValue(declaration),
                 Capacity = binding.SourceCapacity, Actuator = binding.Actuator, Guide = binding.Guide, Source = binding.Source, SupplyNode = binding.SupplyNode });
         }
         _tracks = tracks.ToArray();
@@ -73,9 +72,9 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             var binding = new AnimationBinding(track.Target, Property(d.Property));
             if (d.Curve == PresentationCurve.ExponentialFollow)
             {
-                track.Value = 0;
+                track.Value = PresentationDriverRules.InitialValue(d);
                 track.Handle = _batch.RegisterFollow(binding, new(Value(d.Property, d.From), Value(d.Property, d.To),
-                    Value(d.Property, 0), new(d.Response), AnimationClock.Simulation));
+                    Value(d.Property, track.Value), new(d.Response), AnimationClock.Simulation));
             }
             else if (d.Driver == PresentationDriver.Event && d.Curve == PresentationCurve.SineSquaredPulse)
                 // Each record adds one pulse at its own physical time; overlapping pulses combine (the bundle admits SaturatingSum).
@@ -93,13 +92,13 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             else if (d.Duration > 0)
                 track.Handle = _batch.Register(new(track.Target, AnimationProperty.ColourBlend),
                     new(new(new AnimationColourBlend(0)), new(new AnimationColourBlend(1)), new(d.Duration),
-                        d.Curve switch
-                        {
-                            PresentationCurve.SmoothStep => AnimationCurve.SmoothStep,
-                            PresentationCurve.CubicSmoothStep => AnimationCurve.CubicSmoothStep,
-                            _ => throw new ArgumentException("Unsupported compiled endpoint curve.")
-                        },
-                        AnimationRepeat.Once, AnimationClock.Simulation));
+                    d.Curve switch
+                    {
+                        PresentationCurve.SmoothStep => AnimationCurve.SmoothStep,
+                        PresentationCurve.CubicSmoothStep => AnimationCurve.CubicSmoothStep,
+                        _ => throw new ArgumentException("Unsupported compiled endpoint curve.")
+                    },
+                    AnimationRepeat.Once, AnimationClock.Simulation));
         }
         _batch.Advance(++_frame, default, _time);
         // Installation begins with the current occurrence, not an unobserved historical backlog.
@@ -233,8 +232,8 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             // A one-shot cue has no committed query: only its ring records drive it.
             if (staged[i].Declaration.Driver == PresentationDriver.Event) continue;
             var declaration = staged[i].Declaration;
-            staged[i].Input = declaration.Driver == PresentationDriver.CommittedActuatorState
-                ? declaration.StateValues!.Value.Map(QueryActuatorState(staged[i], read))
+            staged[i].Input = declaration.Mapping == PresentationValueMapping.StateValues
+                ? MapDiscreteState(staged[i], read)
                 : PresentationDriverRules.Map(Query(staged[i], read), declaration.Mapping);
             if (!float.IsFinite(staged[i].Input)) throw new ArgumentException("Nonfinite presentation query.");
             if (staged[i].Declaration.Curve == PresentationCurve.LinearDecay)
@@ -278,7 +277,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             }
             else if (track.Handle is { } handle && input != track.Input)
                 _batch.DriveTo(handle, input >= 1 ? AnimationEndpoint.To : AnimationEndpoint.From, _time);
-            track.Node = next.Node; track.Input = input; track.Count = next.Count; track.Rest = next.Rest;
+            track.Node = next.Node; track.Input = input; track.Count = next.Count;
         }
     }
 
@@ -295,7 +294,6 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             case PresentationDriver.CommittedTimerProgress:
             case PresentationDriver.CommittedTimerRemaining:
             case PresentationDriver.CommittedTimerActive:
-            case PresentationDriver.CommittedTimerPhase:
                 return QueryTimer(track, read);
             case PresentationDriver.CommittedElectricalSocket:
                 return QueryElectricalSocket(track, read);
@@ -304,8 +302,6 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 return QuerySource(track, read);
             case PresentationDriver.CommittedActuatorDrive:
                 return QueryActuator(track, read);
-            case PresentationDriver.CommittedContactLoadPhase:
-                return QueryContactLoad(track, read);
             case PresentationDriver.CommittedWheelAngle:
                 return QueryWheelAngle(track, read);
             case PresentationDriver.CommittedSurfaceDeflection:
@@ -351,8 +347,6 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         {
             var timer = read.Timers[i];
             if (timer.Node != track.Node.Id) continue;
-            if (d.Driver == PresentationDriver.CommittedTimerPhase)
-                return TimerPhase(timer.Phase) == d.Phase ? 1 : 0;
             if (d.Driver == PresentationDriver.CommittedTimerActive)
                 return timer.Phase == ActivationTimerPhase.Counting ? 1 : 0;
             if (d.Driver == PresentationDriver.CommittedTimerRemaining)
@@ -408,16 +402,35 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         throw new ArgumentException("Declared actuator drive is absent from the committed read.");
     }
 
-    private static float QueryContactLoad(Track track, WorkshopRead read)
+    private static ContactLoadPhase QueryContactLoadPhase(Track track, WorkshopRead read)
     {
-        var d = track.Declaration;
         foreach (var load in read.Presentation.Loads)
             if (load.Sensor == track.Node.ContactLoad)
-            {
-                track.Rest = load.Phase == ContactLoadPhase.Underweight ? d.Intermediate ?? d.From : d.From;
-                return load.Phase == ContactLoadPhase.Loaded ? 1 : 0;
-            }
+                return load.Phase;
         throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static ActivationTimerPhase QueryTimerPhase(Track track, WorkshopRead read)
+    {
+        for (var i = 0; i < read.Timers.Count; i++)
+        {
+            var timer = read.Timers[i];
+            if (timer.Node == track.Node.Id)
+                return timer.Phase;
+        }
+        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static float MapDiscreteState(Track track, WorkshopRead read)
+    {
+        var d = track.Declaration;
+        return d.Driver switch
+        {
+            PresentationDriver.CommittedActuatorState => d.StateValues!.Value.Map(QueryActuatorState(track, read)),
+            PresentationDriver.CommittedContactLoadPhase => d.StateValues!.Value.Map(QueryContactLoadPhase(track, read)),
+            PresentationDriver.CommittedTimerPhase => d.StateValues!.Value.Map(QueryTimerPhase(track, read)),
+            _ => throw new ArgumentException("Unsupported discrete state driver.")
+        };
     }
 
     private static float QueryWheelAngle(Track track, WorkshopRead read)
@@ -472,9 +485,10 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         foreach (var track in _tracks)
         {
             var d = track.Declaration;
-            if (!track.Visible || (d.Driver == PresentationDriver.CommittedTimerPhase && track.Input == 0)) continue;
+            if (!track.Visible) continue;
             var amount = track.Handle is { } handle
-                ? BitConverter.UInt32BitsToSingle(_batch.Read(handle).Value.CanonicalBits) : track.Input;
+                ? BitConverter.UInt32BitsToSingle(_batch.Read(handle).Value.CanonicalBits)
+                : track.Input;
             if (d.Driver == PresentationDriver.Event)
             {
                 // The one-shot blend arithmetic of the 9A.25a goldens (AnimationValue.Blend), bit for bit.
@@ -483,12 +497,8 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 _samples.Add(new(track.Target, track.Owner, track.Index, value));
                 continue;
             }
-            if (d.Curve == PresentationCurve.ExponentialFollow || d.Driver == PresentationDriver.CommittedWheelAngle) track.Value = amount;
-            else
-            {
-                var from = d.Driver == PresentationDriver.CommittedContactLoadPhase ? track.Rest : d.From;
-                track.Value = float.Lerp(from, d.To, amount);
-            }
+            if (d.Curve == PresentationCurve.ExponentialFollow) track.Value = amount;
+            else track.Value = float.Lerp(d.From, d.To, amount);
             _samples.Add(new(track.Target, track.Owner, track.Index, Value(d.Property, track.Value)));
         }
         return _samples;
@@ -512,14 +522,6 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         throw new ArgumentException("Visibility requires a declared target.");
     }
 
-    public static PresentationTimerPhase TimerPhase(ActivationTimerPhase phase) => phase switch
-    {
-        ActivationTimerPhase.Ready => PresentationTimerPhase.Ready,
-        ActivationTimerPhase.Counting => PresentationTimerPhase.Counting,
-        ActivationTimerPhase.Finished => PresentationTimerPhase.Finished,
-        _ => throw new ArgumentException("Unknown committed timer phase.")
-    };
-
     public static AnimationProperty Property(PresentationProperty property) => property switch
     {
         PresentationProperty.Visible => AnimationProperty.ColourBlend,
@@ -533,4 +535,3 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
     };
     public static AnimationValue Value(PresentationProperty property, float value) => WorkshopAnimationWire.Value(Property(property), value);
 }
-

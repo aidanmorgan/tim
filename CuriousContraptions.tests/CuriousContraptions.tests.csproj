@@ -75,6 +75,7 @@
         <Compile Include="RuntimeTestServices.cs" />
         <Compile Include="SignalTestNodes.cs" />
         <Compile Include="ComposableSignalNodesTests.cs" />
+        <Compile Include="ComposableAnimationMappingTests.cs" />
         <Compile Include="GoalSignalSelectorTests.cs" />
         <Compile Include="ComposableSupplyRoutingTests.cs" />
     <Compile Include="ComposedPhysicalSignalTests.cs" />

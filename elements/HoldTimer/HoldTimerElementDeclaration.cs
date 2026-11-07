@@ -45,10 +45,10 @@ public sealed class HoldTimerElementDeclaration : ISignalElement, ISupplyElement
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes => [new("switched_contact", ElectricalRole.Switch,12f,.05f,0f,100f)];
     public ElementPresentation Presentation => new(.95f, PresentationAxes.None,
     [
-        new("Visual/Remaining", PresentationProperty.ScaleX, PresentationDriver.CommittedTimerRemaining, PresentationValueMapping.Identity, .001f,1f,PresentationCurve.Linear,0f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None, SignalNode: new("signal")),
-        new("Visual/Remaining", PresentationProperty.Visible, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,0f,1f,PresentationCurve.Linear,0f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None, SignalNode: new("signal")),
-        new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,85f/255f,247f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None, SignalNode: new("signal")),
-        new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,101f/255f,203f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None, SignalNode: new("signal")),
-        new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,115f/255f,82f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None, SignalNode: new("signal"))
+        new("Visual/Remaining", PresentationProperty.ScaleX, PresentationDriver.CommittedTimerRemaining, PresentationValueMapping.Identity, .001f,1f,PresentationCurve.Linear,0f,PresentationOverlap.Replace,0f,SignalNode: new("signal")),
+        new("Visual/Remaining", PresentationProperty.Visible, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,0f,1f,PresentationCurve.Linear,0f,PresentationOverlap.Replace,0f,SignalNode: new("signal")),
+        new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,85f/255f,247f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,SignalNode: new("signal")),
+        new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,101f/255f,203f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,SignalNode: new("signal")),
+        new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerActive, PresentationValueMapping.Identity,115f/255f,82f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,SignalNode: new("signal"))
     ],[],[],[]);
 }

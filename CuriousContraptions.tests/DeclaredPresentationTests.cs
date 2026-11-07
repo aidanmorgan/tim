@@ -258,11 +258,9 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var loaded = reads.Last(read => read.Presentation.Loads[0].Phase == ContactLoadPhase.Loaded);
         var presentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(loaded, 1));
         var start = Time(loaded);
-        Assert.Equal(85f / 255f, Scalar(presentation.Advance(AnimationTestTime.Seconds(start)), plate.Id, 0));
-        Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .15625f),
-            Scalar(presentation.Advance(AnimationTestTime.Seconds(start + .03125)), plate.Id, 0));
-        Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .5f),
-            Scalar(presentation.Advance(AnimationTestTime.Seconds(start + .0625)), plate.Id, 0));
+        Assert.Equal(247f / 255f, Scalar(presentation.Advance(AnimationTestTime.Seconds(start)), plate.Id, 0));
+        Assert.Equal(247f / 255f, Scalar(presentation.Advance(AnimationTestTime.Seconds(start + .03125)), plate.Id, 0));
+        Assert.Equal(247f / 255f, Scalar(presentation.Advance(AnimationTestTime.Seconds(start + .0625)), plate.Id, 0));
         Assert.Equal(247f / 255f, Scalar(presentation.Advance(AnimationTestTime.Seconds(start + .125)), plate.Id, 0));
         var resetPresentation = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction), Response(reset, 2) with { Projection = new(2) });
         Assert.Equal(85f / 255f, Scalar(resetPresentation.Advance(AnimationTestTime.Seconds(Time(reset))), plate.Id, 0));

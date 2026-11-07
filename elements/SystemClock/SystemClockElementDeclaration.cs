@@ -10,10 +10,10 @@ public sealed class SystemClockElementDeclaration : ISignalElement, ISupplyEleme
 {
     public ElementPresentation Presentation => new(1.1f, PresentationAxes.None,
         [
-            new("Visual/PendulumPivot", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedOscillatorPhase, PresentationValueMapping.SineCyclesToUnit, -.42f, .42f, PresentationCurve.ExponentialFollow, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 30f, SignalNode: new("signal")),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedOscillatorPulse, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedOscillatorPulse, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedOscillatorPulse, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None, SignalNode: new("signal"))
+            new("Visual/PendulumPivot", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedOscillatorPhase, PresentationValueMapping.SineCyclesToUnit, -.42f, .42f, PresentationCurve.ExponentialFollow, 0f, PresentationOverlap.Replace, 0f, Response: 30f, SignalNode: new("signal")),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedOscillatorPulse, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, SignalNode: new("signal")),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedOscillatorPulse, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, SignalNode: new("signal")),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedOscillatorPulse, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(

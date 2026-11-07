@@ -183,7 +183,7 @@ public sealed class BundleValidatorTests
     public void ASurfaceDeflectionBindingRequiresADeclaredCompliantSurface()
     {
         var sag = new PresentationBinding("Visual/Bed", PresentationProperty.LocalY, PresentationDriver.CommittedSurfaceDeflection, PresentationValueMapping.Identity,
-            .19f, -.81f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None);
+            .19f, -.81f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f);
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate, PresentationBinding binding) => Bundle.BundleValidator.Validate(
             [new("Fixture", candidate with { Presentation = candidate.Presentation with { Bindings = [binding] } })]);
         Assert.Empty(Check(Bundle.BundleSchema.Entry(new CompliantFixture()), sag));
@@ -203,7 +203,7 @@ public sealed class BundleValidatorTests
     public void ACommittedDriveBindingIsInstantLinearOrATimedSmoothStep()
     {
         var lamp = new PresentationBinding("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorDrive, PresentationValueMapping.Identity,
-            85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None,
+            85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f,
             Actuator: new(CoordinateKind.Prismatic, 0));
         static IReadOnlyList<Bundle.BundleError> Check(PresentationBinding binding, PrismaticDriveDescriptor? drive)
         {
@@ -254,8 +254,8 @@ public sealed class BundleValidatorTests
     [Fact]
     public void ACommittedActuatorStateBindingNeedsADrivenSlider()
     {
-        var state = new PresentationBinding("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorState, PresentationValueMapping.ActuatorStateValues,
-            0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None,
+        var state = new PresentationBinding("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorState, PresentationValueMapping.StateValues,
+            0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f,
             Actuator: new(CoordinateKind.Prismatic, 0), StateValues: new(85f / 255f, 247f / 255f, 232f / 255f));
         static IReadOnlyList<Bundle.BundleError> Check(PrismaticDriveDescriptor? drive, PresentationBinding binding)
         {
@@ -281,7 +281,7 @@ public sealed class BundleValidatorTests
     {
         var binding = new PresentationBinding("Visual/Socket", PresentationProperty.AlbedoRed,
             PresentationDriver.CommittedElectricalSocket, PresentationValueMapping.Identity,
-            0f, 1f, PresentationCurve.SmoothStep, .2f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None,
+            0f, 1f, PresentationCurve.SmoothStep, .2f, PresentationOverlap.Replace, 0f,
             Socket: PortId.PowerIn);
 
         var logicGate = Bundle.BundleSchema.Entry(new CuriousContraptions.Elements.BothGate.BothGateElementDeclaration());

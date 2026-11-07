@@ -782,7 +782,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityPresentationBindingRecord.StartCapabilityPresentationBindingRecord(b);
         if (value.StateValues is { } states)
             W.CapabilityPresentationBindingRecord.AddStateValues(b,
-                W.ActuatorStateValuesRecord.CreateActuatorStateValuesRecord(b, states.Unpowered, states.Powered, states.Blocked));
+                W.ActuatorStateValuesRecord.CreateActuatorStateValuesRecord(b, states.State0, states.State1, states.State2));
         W.CapabilityPresentationBindingRecord.AddProperty(b, (uint)value.Property);
         W.CapabilityPresentationBindingRecord.AddDriver(b, (uint)value.Driver);
         W.CapabilityPresentationBindingRecord.AddMapping(b, (uint)value.Mapping);
@@ -792,9 +792,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityPresentationBindingRecord.AddDuration(b, value.Duration);
         W.CapabilityPresentationBindingRecord.AddOverlap(b, (uint)value.Overlap);
         W.CapabilityPresentationBindingRecord.AddThreshold(b, value.Threshold);
-        W.CapabilityPresentationBindingRecord.AddPhase(b, (uint)value.Phase);
         W.CapabilityPresentationBindingRecord.AddResponse(b, value.Response);
-        if (value.Intermediate is { } intermediate) W.CapabilityPresentationBindingRecord.AddIntermediate(b, intermediate);
         if (value.Socket is { } socket) W.CapabilityPresentationBindingRecord.AddSocket(b, (uint)socket);
         W.CapabilityPresentationBindingRecord.AddEvent(b, (uint)value.Event);
         W.CapabilityPresentationBindingRecord.AddEventMagnitude(b, (uint)value.EventMagnitude);
@@ -811,13 +809,11 @@ public static partial class WorkshopWireFlatBuffers
         row.Duration,
         ObservationEnum<CuriousContraptions.Abstractions.PresentationOverlap>(row.Overlap),
         row.Threshold,
-        ObservationEnum<CuriousContraptions.Abstractions.PresentationTimerPhase>(row.Phase),
         row.Response,
-        row.Intermediate is { } intermediate ? intermediate : null,
         row.Socket is { } socket ? ObservationEnum<CuriousContraptions.Abstractions.Electrical.SupplyTerminal>(socket) : null,
         ObservationEnum<CuriousContraptions.Abstractions.SimulationEventKind>(row.Event),
         ObservationEnum<CuriousContraptions.Abstractions.PresentationEventMagnitude>(row.EventMagnitude),
-        row.StateValues is { } states ? new CuriousContraptions.Abstractions.PresentationActuatorStateValues(states.Unpowered, states.Powered, states.Blocked) : null);
+        row.StateValues is { } states ? new CuriousContraptions.Abstractions.PresentationStateValues(states.Unpowered, states.Powered, states.Blocked) : null);
 
     private static Offset<W.CapabilityWorkshopCadenceSettingsRecord> EncodeCapabilityWorkshopCadenceSettingsRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.WorkshopCadenceSettings value)
     {

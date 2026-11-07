@@ -51,8 +51,7 @@ public sealed class TrampolineElementDeclaration : ICompliantSurfaceElement, ISc
         Bindings:
         [
             new("Visual/Visual_Bed", PresentationProperty.LocalY, PresentationDriver.CommittedSurfaceDeflection, PresentationValueMapping.Identity,
-                BedRestY, BedRestY - (MaxStroke - FloorClearance) / MaxStroke, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f,
-                PresentationTimerPhase.None)
+                BedRestY, BedRestY - (MaxStroke - FloorClearance) / MaxStroke, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f)
         ],
         Bodies: [],
         Spans: [],

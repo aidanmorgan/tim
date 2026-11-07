@@ -10,12 +10,12 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
 {
     public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
         [
-            new("Visual/Bulb", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 85f / 255f, 1f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
-            new("Visual/Bulb", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 101f / 255f, 240f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
-            new("Visual/Bulb", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 115f / 255f, 165f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
-            new("Visual/Bulb", PresentationProperty.EmissionRed, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 0f, 233f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
-            new("Visual/Bulb", PresentationProperty.EmissionGreen, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 0f, 178f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal")),
-            new("Visual/Bulb", PresentationProperty.EmissionBlue, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 0f, 76f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SignalNode: new("signal"))
+            new("Visual/Bulb", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 85f / 255f, 1f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, SignalNode: new("signal")),
+            new("Visual/Bulb", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 101f / 255f, 240f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, SignalNode: new("signal")),
+            new("Visual/Bulb", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 115f / 255f, 165f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, SignalNode: new("signal")),
+            new("Visual/Bulb", PresentationProperty.EmissionRed, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 0f, 233f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, SignalNode: new("signal")),
+            new("Visual/Bulb", PresentationProperty.EmissionGreen, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 0f, 178f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, SignalNode: new("signal")),
+            new("Visual/Bulb", PresentationProperty.EmissionBlue, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity, 0f, 76f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(

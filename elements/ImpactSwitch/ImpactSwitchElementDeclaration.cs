@@ -13,10 +13,10 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
 {
     public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
         [
-            new("Visual/Button", PresentationProperty.LocalY, PresentationDriver.Event, PresentationValueMapping.Identity, .06f, -.02f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal")),
-            new("Visual/Button", PresentationProperty.AlbedoRed, PresentationDriver.Event, PresentationValueMapping.Identity, .94f, 191f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal")),
-            new("Visual/Button", PresentationProperty.AlbedoGreen, PresentationDriver.Event, PresentationValueMapping.Identity, .43f, 245f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal")),
-            new("Visual/Button", PresentationProperty.AlbedoBlue, PresentationDriver.Event, PresentationValueMapping.Identity, .33f, 176f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal"))
+            new("Visual/Button", PresentationProperty.LocalY, PresentationDriver.Event, PresentationValueMapping.Identity, .06f, -.02f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal")),
+            new("Visual/Button", PresentationProperty.AlbedoRed, PresentationDriver.Event, PresentationValueMapping.Identity, .94f, 191f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal")),
+            new("Visual/Button", PresentationProperty.AlbedoGreen, PresentationDriver.Event, PresentationValueMapping.Identity, .43f, 245f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal")),
+            new("Visual/Button", PresentationProperty.AlbedoBlue, PresentationDriver.Event, PresentationValueMapping.Identity, .33f, 176f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.TriggerActivated, SignalNode: new("signal"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(

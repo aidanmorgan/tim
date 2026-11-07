@@ -24,10 +24,10 @@ public sealed class ReceiverElementDeclaration : IResidenceSensorElement, IPlana
 
     public ElementPresentation Presentation => new(.85f, PresentationAxes.None,
         [
-            new("Visual/Visual_Halo", PresentationProperty.UniformScale, PresentationDriver.Event, PresentationValueMapping.Identity, 1.02f, 1.02f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Captured),
-            new("Visual/Visual_Halo", PresentationProperty.AlbedoRed, PresentationDriver.Event, PresentationValueMapping.Identity, 189f / 255f, 1f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Captured),
-            new("Visual/Visual_Halo", PresentationProperty.AlbedoGreen, PresentationDriver.Event, PresentationValueMapping.Identity, 244f / 255f, 1f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Captured),
-            new("Visual/Visual_Halo", PresentationProperty.AlbedoBlue, PresentationDriver.Event, PresentationValueMapping.Identity, 189f / 255f, 1f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Captured)
+            new("Visual/Visual_Halo", PresentationProperty.UniformScale, PresentationDriver.Event, PresentationValueMapping.Identity, 1.02f, 1.02f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.Captured),
+            new("Visual/Visual_Halo", PresentationProperty.AlbedoRed, PresentationDriver.Event, PresentationValueMapping.Identity, 189f / 255f, 1f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.Captured),
+            new("Visual/Visual_Halo", PresentationProperty.AlbedoGreen, PresentationDriver.Event, PresentationValueMapping.Identity, 244f / 255f, 1f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.Captured),
+            new("Visual/Visual_Halo", PresentationProperty.AlbedoBlue, PresentationDriver.Event, PresentationValueMapping.Identity, 189f / 255f, 1f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, Event: SimulationEventKind.Captured)
         ], [], [], []);
 
     public ElementMetadata Metadata => new(

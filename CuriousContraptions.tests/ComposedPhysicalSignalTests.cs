@@ -182,12 +182,12 @@ public sealed class ComposedPhysicalSignalTests
     }
 
     private static PresentationBinding LoadBinding(string target, string signal, float from, float to) =>
-        new(target, PresentationProperty.LocalX, PresentationDriver.CommittedContactLoadPhase, PresentationValueMapping.Identity,
-            from, to, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0, PresentationTimerPhase.None, SignalNode: new(signal));
+        new(target, PresentationProperty.LocalX, PresentationDriver.CommittedContactLoadPhase, PresentationValueMapping.StateValues,
+            0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0, SignalNode: new(signal), StateValues: new(from, to, from));
 
     private static PresentationBinding ActivationBinding(string target, string signal, float from, float to) =>
         new(target, PresentationProperty.LocalX, PresentationDriver.CommittedActivation, PresentationValueMapping.Identity,
-            from, to, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0, PresentationTimerPhase.None, SignalNode: new(signal));
+            from, to, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0, SignalNode: new(signal));
 
     private static void AssertLoadVisuals(WorkshopIntegrationHarness harness, BundleEntry entry, string? loaded)
     {
@@ -197,7 +197,10 @@ public sealed class ComposedPhysicalSignalTests
             var binding = entry.Presentation.Bindings[i];
             var value = BitConverter.UInt32BitsToSingle(Assert.Single(samples,
                 sample => sample.Owner == new GpuBodyId(2) && sample.Binding == i).Value.CanonicalBits);
-            Assert.Equal(loaded is not null && binding.SignalNode == new SignalNodeId(loaded) ? binding.To : binding.From, value);
+            var expected = binding.Mapping == PresentationValueMapping.StateValues
+                ? (loaded is not null && binding.SignalNode == new SignalNodeId(loaded) ? binding.StateValues!.Value.State1 : binding.StateValues!.Value.State0)
+                : (loaded is not null && binding.SignalNode == new SignalNodeId(loaded) ? binding.To : binding.From);
+            Assert.Equal(expected, value);
         }
     }
 

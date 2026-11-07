@@ -20,9 +20,9 @@ public sealed class ComposedPhysicalObservationTests
             new(MechanicalValue.Fixed(1.2f), MechanicalValue.Fixed(1.6f), MechanicalValue.Fixed(8),
                 MechanicalValue.Fixed(20), MechanicalValue.Fixed(20)));
         PrismaticSliderDescriptor[] sliders = [Slider(-2), Slider(2)];
-        PresentationBinding State(string target, int index, PresentationActuatorStateValues values) =>
-            new(target, PresentationProperty.LocalX, PresentationDriver.CommittedActuatorState, PresentationValueMapping.ActuatorStateValues,
-                0, 1, PresentationCurve.Linear, 0, PresentationOverlap.Replace, 0, PresentationTimerPhase.None,
+        PresentationBinding State(string target, int index, PresentationStateValues values) =>
+            new(target, PresentationProperty.LocalX, PresentationDriver.CommittedActuatorState, PresentationValueMapping.StateValues,
+                0, 1, PresentationCurve.Linear, 0, PresentationOverlap.Replace, 0,
                 Actuator: new(CoordinateKind.Prismatic, index), StateValues: values);
         PresentationBinding[] bindings = [State("Blocked", reverse ? 1 : 0, new(.13f, .47f, .81f)),
             State("Free", reverse ? 0 : 1, new(-2, 3, 8))];
@@ -82,7 +82,7 @@ public sealed class ComposedPhysicalObservationTests
             Connections: new(new WorkshopConnection(new(1), PortId.Supply, new(2), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         await harness.Require(WorkshopCommandKind.Construct, bench);
         for (var i = 0; i < entry.Presentation.Bindings.Count; i++)
-            Assert.Equal(entry.Presentation.Bindings[i].StateValues!.Value.Unpowered, Sample(harness, i));
+            Assert.Equal(entry.Presentation.Bindings[i].StateValues!.Value.State0, Sample(harness, i));
         await harness.Run(); await harness.Advance(480); // Four-second guard for contact to hold one driven coordinate at rest.
         var scene = harness.Simulation.Scene;
         var owned = harness.Committed.Presentation.Actuators.ToArray().Where(row => row.Owner == new GpuBodyId(2)).ToArray();
@@ -115,7 +115,7 @@ public sealed class ComposedPhysicalObservationTests
         await harness.Reset();
         Assert.All(harness.Committed.Presentation.Actuators.ToArray(), row => Assert.False(row.SupplyClosed));
         for (var i = 0; i < entry.Presentation.Bindings.Count; i++)
-            Assert.Equal(entry.Presentation.Bindings[i].StateValues!.Value.Unpowered, Sample(harness, i));
+            Assert.Equal(entry.Presentation.Bindings[i].StateValues!.Value.State0, Sample(harness, i));
     }
 
     private static BundleEntry Guides(bool reverse, bool removeFirst, bool sameGeometry)

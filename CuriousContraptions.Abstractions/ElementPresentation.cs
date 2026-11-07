@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Abstractions;
 
@@ -25,40 +26,58 @@ public enum PresentationDriver : byte
     CommittedSurfaceDeflection
 }
 
-public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2, ActuatorStateValues = 3 }
+public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2, StateValues = 3 }
 
 public enum ActuatorObservationState : byte { Unpowered, Powered, Blocked }
-public readonly record struct PresentationActuatorStateValues(float Unpowered, float Powered, float Blocked)
+
+public readonly record struct PresentationStateValues(float State0, float State1, float State2)
 {
-    public bool IsFinite() => float.IsFinite(Unpowered) && float.IsFinite(Powered) && float.IsFinite(Blocked);
+    public bool IsFinite() => float.IsFinite(State0) && float.IsFinite(State1) && float.IsFinite(State2);
+
     public float Map(ActuatorObservationState state) => state switch
     {
-        ActuatorObservationState.Unpowered => Unpowered,
-        ActuatorObservationState.Powered => Powered,
-        ActuatorObservationState.Blocked => Blocked,
+        ActuatorObservationState.Unpowered => State0,
+        ActuatorObservationState.Powered => State1,
+        ActuatorObservationState.Blocked => State2,
         _ => throw new ArgumentOutOfRangeException(nameof(state))
+    };
+
+    public float Map(ContactLoadPhase phase) => phase switch
+    {
+        ContactLoadPhase.Empty => State0,
+        ContactLoadPhase.Loaded => State1,
+        ContactLoadPhase.Underweight => State2,
+        _ => throw new ArgumentOutOfRangeException(nameof(phase))
+    };
+
+    public float Map(ActivationTimerPhase phase) => phase switch
+    {
+        ActivationTimerPhase.Ready => State0,
+        ActivationTimerPhase.Counting => State1,
+        ActivationTimerPhase.Finished => State2,
+        _ => throw new ArgumentOutOfRangeException(nameof(phase))
     };
 }
 
 public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep }
 public enum PresentationOverlap : byte { Replace, SaturatingSum, Maximum }
-public enum PresentationTimerPhase : byte { None, Ready, Counting, Finished }
+
 /// <summary>Package body ordinal: zero is the authored root; subsequent ordinals name declared child bodies.</summary>
 public readonly record struct PackageBodyIndex(int Value);
 /// <summary>Which records of its kind cue an event binding: any record, or only one whose Magnitude is positive (an Impact that paid
 /// energy, so an unpaid or empty-store hit leaves the cue at rest).</summary>
 public enum PresentationEventMagnitude : byte { Any, Positive }
 
-/// <summary>A package-owned property writer. Threshold selects count/charge levels; phase selects a timer phase. An
+/// <summary>A package-owned property writer. Threshold selects count/charge levels. An
 /// <see cref="PresentationDriver.Event"/> binding names the ring record kind that cues it and which of its records do (Story 9A.25b);
 /// every committed driver names <see cref="SimulationEventKind.None"/> and <see cref="PresentationEventMagnitude.Any"/>. Values and time
 /// are f32.</summary>
 public readonly record struct PresentationBinding(
     string Node, PresentationProperty Property, PresentationDriver Driver, PresentationValueMapping Mapping,
     float From, float To, PresentationCurve Curve, float Duration,
-    PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortId? Socket = null,
+    PresentationOverlap Overlap, float Threshold, float Response = 0f, PortId? Socket = null,
     SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any, SignalNodeId? SignalNode = null,
-    CoordinateReference? Actuator = null, PortId? GuidePort = null, PresentationActuatorStateValues? StateValues = null, Electrical.LocalSupplyNodeId? SupplyNode = null);
+    CoordinateReference? Actuator = null, PortId? GuidePort = null, PresentationStateValues? StateValues = null, Electrical.LocalSupplyNodeId? SupplyNode = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(
@@ -92,19 +111,48 @@ public static class PresentationDriverRules
     public static bool ContinuousNormalized(PresentationDriver driver) => driver is PresentationDriver.CommittedOscillatorPhase or
         PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerRemaining;
 
-    public static bool SupportsMapping(PresentationDriver driver, PresentationValueMapping mapping) =>
-        driver == PresentationDriver.CommittedActuatorState
-            ? mapping == PresentationValueMapping.ActuatorStateValues
-            : mapping == PresentationValueMapping.Identity || mapping == PresentationValueMapping.SineCyclesToUnit && ContinuousNormalized(driver);
+    public static bool Discrete3State(PresentationDriver driver) => driver is
+        PresentationDriver.CommittedActuatorState or
+        PresentationDriver.CommittedContactLoadPhase or
+        PresentationDriver.CommittedTimerPhase;
 
-    /// <summary>Construction/Reset projection: zero scalar input or the declared Unpowered actuator state.</summary>
-    public static float InitialValue(PresentationBinding binding)
+    public static bool ContinuousPhysical(PresentationDriver driver) => driver is
+        PresentationDriver.CommittedWheelAngle or
+        PresentationDriver.CommittedSurfaceDeflection or
+        PresentationDriver.CommittedTimerProgress or
+        PresentationDriver.CommittedTimerRemaining or
+        PresentationDriver.CommittedOscillatorPhase;
+
+    public static bool LevelDriver(PresentationDriver driver) => driver is
+        PresentationDriver.CommittedActivation or
+        PresentationDriver.CommittedCount or
+        PresentationDriver.CommittedElectricalSocket or
+        PresentationDriver.CommittedSupply or
+        PresentationDriver.CommittedCharge or
+        PresentationDriver.CommittedActuatorDrive or
+        PresentationDriver.CommittedTimerActive;
+
+    public static bool SupportsMapping(PresentationDriver driver, PresentationValueMapping mapping) => mapping switch
     {
-        if (binding.Curve == PresentationCurve.ExponentialFollow) return 0;
-        var amount = binding.Mapping == PresentationValueMapping.ActuatorStateValues
-            ? binding.StateValues!.Value.Map(ActuatorObservationState.Unpowered)
-            : Map(0, binding.Mapping);
-        return float.Lerp(binding.From, binding.To, amount);
+        PresentationValueMapping.StateValues => Discrete3State(driver),
+        PresentationValueMapping.SineCyclesToUnit => ContinuousNormalized(driver),
+        PresentationValueMapping.Identity => !Discrete3State(driver),
+        _ => false
+    };
+
+    /// <summary>Construction/Reset projection: zero scalar input or the declared State0 state.</summary>
+    public static float InitialValue(PresentationBinding binding) =>
+        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues);
+
+    public static float InitialValue(CompiledPresentationBinding binding) =>
+        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues);
+
+    public static float InitialValue(PresentationValueMapping mapping, float from, float to, PresentationStateValues? stateValues)
+    {
+        var amount = mapping == PresentationValueMapping.StateValues
+            ? stateValues!.Value.State0
+            : Map(0, mapping);
+        return float.Lerp(from, to, amount);
     }
 
     public static float Map(float input, PresentationValueMapping mapping)
@@ -118,26 +166,36 @@ public static class PresentationDriverRules
         };
     }
 
-    public static bool Supports(PresentationDriver driver, PresentationCurve curve, float duration, PresentationOverlap overlap) => driver switch
-                {
-                    // Story 9A.25b: a ring-kind cue replays a Replace endpoint clip or adds a saturating pulse per record.
-                    PresentationDriver.Event => duration > 0 &&
-                        ((curve == PresentationCurve.SmoothStep && overlap == PresentationOverlap.Replace) ||
-                         (curve == PresentationCurve.SineSquaredPulse && overlap == PresentationOverlap.SaturatingSum)),
-                    PresentationDriver.CommittedActivation or
-                        PresentationDriver.CommittedCount or PresentationDriver.CommittedElectricalSocket => curve == PresentationCurve.SmoothStep && duration > 0 && overlap == PresentationOverlap.Replace,
-                    PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTimerProgress =>
-                        curve is PresentationCurve.ExponentialFollow or PresentationCurve.Linear && duration == 0 && overlap == PresentationOverlap.Replace,
-                    PresentationDriver.CommittedOscillatorPulse => curve == PresentationCurve.LinearDecay && duration > 0 && overlap == PresentationOverlap.Maximum,
-                    PresentationDriver.CommittedContactLoadPhase => curve == PresentationCurve.CubicSmoothStep && duration > 0 && overlap == PresentationOverlap.Replace,
-                    // A committed on/off level: shown at once, or blended over its declared time (the Motor's supply lamp, CAT-042).
-                    PresentationDriver.CommittedTimerActive or PresentationDriver.CommittedActuatorDrive => overlap == PresentationOverlap.Replace &&
-                        ((curve == PresentationCurve.Linear && duration == 0) || (curve == PresentationCurve.SmoothStep && duration > 0)),
-                    PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
-                        PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorState or
-                        PresentationDriver.CommittedWheelAngle or PresentationDriver.CommittedSurfaceDeflection =>
-                            curve == PresentationCurve.Linear && duration == 0 && overlap == PresentationOverlap.Replace,
-                    _ => false
-                };
-
+    public static bool Supports(PresentationDriver driver, PresentationCurve curve, float duration, PresentationOverlap overlap)
+    {
+        if (driver == PresentationDriver.Event)
+        {
+            return duration > 0 &&
+                ((curve is PresentationCurve.SmoothStep or PresentationCurve.CubicSmoothStep && overlap == PresentationOverlap.Replace) ||
+                 (curve == PresentationCurve.SineSquaredPulse && overlap == PresentationOverlap.SaturatingSum));
+        }
+        if (driver == PresentationDriver.CommittedOscillatorPulse)
+        {
+            return duration > 0 && curve == PresentationCurve.LinearDecay && overlap == PresentationOverlap.Maximum;
+        }
+        if (overlap != PresentationOverlap.Replace) return false;
+        if (ContinuousPhysical(driver))
+        {
+            return (curve is PresentationCurve.Linear or PresentationCurve.ExponentialFollow) && duration == 0;
+        }
+        if (Discrete3State(driver))
+        {
+            return curve == PresentationCurve.Linear && duration == 0;
+        }
+        if (LevelDriver(driver))
+        {
+            return curve switch
+            {
+                PresentationCurve.Linear => duration == 0,
+                PresentationCurve.SmoothStep or PresentationCurve.CubicSmoothStep => duration > 0,
+                _ => false
+            };
+        }
+        return false;
+    }
 }

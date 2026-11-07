@@ -171,7 +171,7 @@ public sealed class WorkshopCompiledScene : ICompiledScene
         var d = track.Declaration;
         return !float.IsFinite(track.SourceCapacity) || track.SourceCapacity < 0 ||
                 !Enum.IsDefined(d.Property) || !Enum.IsDefined(d.Driver) || !Enum.IsDefined(d.Curve) ||
-                !Enum.IsDefined(d.Overlap) || !Enum.IsDefined(d.Phase) || !Enum.IsDefined(d.Event) ||
+                !Enum.IsDefined(d.Overlap) || !Enum.IsDefined(d.Event) ||
                 !Enum.IsDefined(d.EventMagnitude) || (d.Socket is { } socket && !Enum.IsDefined(socket));
     }
 
@@ -181,18 +181,16 @@ public sealed class WorkshopCompiledScene : ICompiledScene
                 (d.Socket is { } electricalSocket && electricalSocket is not (CuriousContraptions.Abstractions.Electrical.SupplyTerminal.FirstIn or CuriousContraptions.Abstractions.Electrical.SupplyTerminal.SecondIn or CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn or CuriousContraptions.Abstractions.Electrical.SupplyTerminal.Output)) ||
                 !PresentationDriverRules.Supports(d.Driver, d.Curve, d.Duration, d.Overlap) || !PresentationDriverRules.SupportsMapping(d.Driver, d.Mapping) ||
                 (d.Curve == PresentationCurve.ExponentialFollow ? d.Response <= 0 : d.Response != 0) ||
-                (d.Driver == PresentationDriver.CommittedTimerPhase && d.Phase == PresentationTimerPhase.None) ||
                 (d.Driver == PresentationDriver.Event) != (d.Event != SimulationEventKind.None) ||
                 (d.Driver != PresentationDriver.Event && d.EventMagnitude != PresentationEventMagnitude.Any);
     }
 
     private static bool InvalidBindingValues(CompiledPresentationBinding d)
     {
-        return (d.Driver == PresentationDriver.CommittedActuatorState) != d.StateValues.HasValue ||
-                (d.StateValues is { } states && (!states.IsFinite() || d.Intermediate.HasValue)) ||
+        return (d.Mapping == PresentationValueMapping.StateValues) != d.StateValues.HasValue ||
+                (d.StateValues is { } states && !states.IsFinite()) ||
                 !float.IsFinite(d.From) || !float.IsFinite(d.To) || !float.IsFinite(d.Duration) || d.Duration < 0 ||
-                !float.IsFinite(d.Threshold) || !float.IsFinite(d.Response) || d.Response < 0 ||
-                (d.Intermediate is { } intermediate && !float.IsFinite(intermediate));
+                !float.IsFinite(d.Threshold) || !float.IsFinite(d.Response) || d.Response < 0;
     }
 
 }

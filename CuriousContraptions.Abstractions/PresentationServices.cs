@@ -51,7 +51,6 @@ public interface IPresentationServices
     IWorkshopDeclaredPresentation Create(IAnimationServices animation, ICompiledScene construction, WorkshopResponse endpoint);
     IReadOnlyList<(AnimationTargetId Target, GpuBodyId Owner, int Binding)> Targets(ICompiledScene construction);
     PhysicalTime EventTime(SimulationEventRecord record);
-    PresentationTimerPhase TimerPhase(ActivationTimerPhase phase);
     AnimationProperty PropertyFor(PresentationProperty channel);
     AnimationValue ValueFor(PresentationProperty channel, float value);
     bool MatchesPlayback(WorkshopSimulationPhase phase, WorldPlayback playback);

@@ -114,7 +114,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
             pulse with { Property = PresentationProperty.UniformScale, From = 0 },
             pulse with { Curve = PresentationCurve.ExponentialFollow, Response = 1 },
             pulse with { Overlap = PresentationOverlap.Replace },
-            pulse with { Response = 1 }, pulse with { Intermediate = float.NaN }
+            pulse with { Response = 1 }
         ];
         foreach (var binding in invalid)
         {

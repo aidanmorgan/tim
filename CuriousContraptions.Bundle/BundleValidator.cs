@@ -64,7 +64,7 @@ public static class BundleValidator
             MechanicalPayload? mechanical, ElectricalPayload? electrical, SignalPayload? signal, IReadOnlyList<EventDescriptor> events, int childBodies)
         {
             PresentationSizing(value, parameters);
-            var writers = new HashSet<(string, PresentationProperty, PresentationTimerPhase)>(4);
+            var writers = new HashSet<(string, PresentationProperty)>(4);
             foreach (var binding in value.Bindings)
             {
                 PresentationBindingIdentity(binding, signal);
@@ -72,10 +72,8 @@ public static class BundleValidator
                 PresentationBindingSocket(binding, electrical, ports);
                 PresentationBindingCapabilities(binding, signal, mechanical);
                 PresentationBindingEvents(binding, events);
-                if (!writers.Add((binding.Node, binding.Property, binding.Phase)))
+                if (!writers.Add((binding.Node, binding.Property)))
                     errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.Presentation: duplicate property writer"));
-                if (binding.Phase != PresentationTimerPhase.None && binding.Driver != PresentationDriver.CommittedTimerPhase)
-                    OutOfRange("Presentation.Phase");
             }
             PresentationBodies(value, childBodies);
             foreach (var span in value.Spans)
@@ -174,7 +172,6 @@ public static class BundleValidator
                     OutOfRange("Presentation.SignalNode");
                 Defined("Presentation.Curve", binding.Curve);
                 Defined("Presentation.Overlap", binding.Overlap);
-                Defined("Presentation.Phase", binding.Phase);
         }
 
         private void PresentationBindingValues(PresentationBinding binding)
@@ -182,10 +179,9 @@ public static class BundleValidator
                 Finite("Presentation.From", binding.From); Finite("Presentation.To", binding.To);
                 Finite("Presentation.Duration", binding.Duration); Finite("Presentation.Threshold", binding.Threshold);
                 Finite("Presentation.Response", binding.Response);
-                if ((binding.Driver == PresentationDriver.CommittedActuatorState) != binding.StateValues.HasValue ||
-                    binding.StateValues is { } stateValues && (!stateValues.IsFinite() || binding.Intermediate.HasValue))
+                if ((binding.Mapping == PresentationValueMapping.StateValues) != binding.StateValues.HasValue ||
+                    (binding.StateValues is { } stateValues && !stateValues.IsFinite()))
                     OutOfRange("Presentation.StateValues");
-                if (binding.Intermediate is { } middle) Finite("Presentation.Intermediate", middle);
                 if (binding.Duration < 0 || binding.Duration > 30 || binding.Response < 0 ||
                     (binding.Curve == PresentationCurve.ExponentialFollow && binding.Response <= 0))
                     OutOfRange("Presentation.Timing");
@@ -197,8 +193,10 @@ public static class BundleValidator
                         PresentationProperty.EmissionRed or PresentationProperty.EmissionGreen or PresentationProperty.EmissionBlue => input is >= 0 and <= 1,
                     _ => true
                 });
-                if (!AdmitsValue(binding.From) || !AdmitsValue(binding.To) || (binding.Intermediate is { } intermediate && !AdmitsValue(intermediate)))
+                if (!AdmitsValue(binding.From) || !AdmitsValue(binding.To))
                     OutOfRange("Presentation.Value");
+                if (binding.StateValues is { } values && (!AdmitsValue(values.State0) || !AdmitsValue(values.State1) || !AdmitsValue(values.State2)))
+                    OutOfRange("Presentation.StateValues");
         }
 
         private void PresentationBindingSocket(PresentationBinding binding, ElectricalPayload? electrical, IReadOnlyList<PortDescriptor> ports)
@@ -244,8 +242,7 @@ public static class BundleValidator
 
         private void PresentationBindingEvents(PresentationBinding binding, IReadOnlyList<EventDescriptor> events)
         {
-                if (!PresentationDriverRules.Supports(binding.Driver, binding.Curve, binding.Duration, binding.Overlap) || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
-                    (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
+                if (!PresentationDriverRules.Supports(binding.Driver, binding.Curve, binding.Duration, binding.Overlap) || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0))
                     OutOfRange("Presentation.DriverCurve");
                 // Story 9A.25b: exactly an event-driven binding names a record kind, and only a kind its package declares it produces.
                 if ((binding.Driver == PresentationDriver.Event) != (binding.Event != SimulationEventKind.None)) OutOfRange("Presentation.Event");

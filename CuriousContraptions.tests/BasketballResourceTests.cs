@@ -85,17 +85,17 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             var indicator=delay.Visual.GetChildren().OfType<MeshInstance3D>()
                 .Single(mesh=>mesh.Position==new Vector3(0,-.35f,.37f));
             foreach(var (phase,progress,colour) in new[] {
-                (CuriousContraptions.Abstractions.PresentationTimerPhase.Ready,0f,new Color("#556573")),
-                (CuriousContraptions.Abstractions.PresentationTimerPhase.Counting,.25f,new Color("#e8b764")),
-                (CuriousContraptions.Abstractions.PresentationTimerPhase.Finished,1f,new Color("#f7cb52")) })
+                (ActivationTimerPhase.Ready,0f,new Color("#556573")),
+                (ActivationTimerPhase.Counting,.25f,new Color("#e8b764")),
+                (ActivationTimerPhase.Finished,1f,new Color("#f7cb52")) })
             {
                 for (var i = 0; i < delay.Definition.Presentation.Bindings.Count; i++)
                 {
                     var binding = delay.Definition.Presentation.Bindings[i];
                     if (binding.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedTimerProgress)
                         delay.ApplyDeclaredProperty(i, WorkshopDeclaredPresentation.Value(binding.Property, float.Lerp(binding.From, binding.To, progress)));
-                    else if (binding.Phase == phase)
-                        delay.ApplyDeclaredProperty(i, WorkshopDeclaredPresentation.Value(binding.Property, binding.To));
+                    else if (binding.Mapping == CuriousContraptions.Abstractions.PresentationValueMapping.StateValues)
+                        delay.ApplyDeclaredProperty(i, WorkshopDeclaredPresentation.Value(binding.Property, binding.StateValues!.Value.Map(phase)));
                 }
                 var actual=((StandardMaterial3D)indicator.MaterialOverride).AlbedoColor;
                 Assert.Equal((float)colour.R,actual.R); Assert.Equal((float)colour.G,actual.G); Assert.Equal((float)colour.B,actual.B);
