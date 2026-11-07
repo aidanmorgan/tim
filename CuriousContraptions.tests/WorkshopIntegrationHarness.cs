@@ -175,17 +175,33 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         Dispatch(Command(kind, construction, target, settings, runControl, cut));
     /// <summary>The typed control that sets <paramref name="owner"/>'s <paramref name="lane"/> to <paramref name="value"/>, through its
     /// row in the installed run-control table. The owner must have a row on that lane.</summary>
-    public WorkshopRunControl RunControl(GpuBodyId owner, CuriousContraptions.Abstractions.RunControlLane lane, RunControlValue value, ElectricalSourceId source = default) =>
-        RunControl(Simulation.Scene, owner, lane, value, source);
+    public static WorkshopRunControl RunControl(RunControlRow row, RunControlValue value) => new(row.Owner, row.Id, value);
+
+    public WorkshopRunControl RunControl(GpuBodyId owner, CuriousContraptions.Abstractions.RunControlLane lane, RunControlValue value, ElectricalSourceId source = default, RevoluteConstraintId joint = default) =>
+        RunControl(Simulation.Scene, owner, lane, value, source, joint);
 
     /// <summary>The typed control that sets <paramref name="owner"/>'s <paramref name="lane"/> in <paramref name="scene"/>'s run-control
     /// table, found through <see cref="RunControlLanes.Find"/>. The owner must have a row on that lane.</summary>
     public static WorkshopRunControl RunControl(ICompiledScene scene, GpuBodyId owner, CuriousContraptions.Abstractions.RunControlLane lane,
-        RunControlValue value, ElectricalSourceId source = default)
+        RunControlValue value, ElectricalSourceId source = default, RevoluteConstraintId joint = default)
     {
         if (lane == CuriousContraptions.Abstractions.RunControlLane.SourceEnable && source == default)
             source = scene.RunControls.Where(r => r.Owner == owner && r.Lane == lane).Select(r => r.Source).Single();
-        return new(owner, (RunControlLanes.Find(scene.RunControls, owner, lane, source) ??
+        int laneIndex = -1;
+        if (joint != default)
+        {
+            var drives = scene.Physics.RevoluteDrives;
+            for (var i = 0; i < drives.Length; i++)
+                if (drives[i].Joint == joint) { laneIndex = i; break; }
+            if (laneIndex == -1)
+                throw new ArgumentException($"Joint {joint.Value} has no revolute drive.", nameof(joint));
+        }
+        else if (lane == CuriousContraptions.Abstractions.RunControlLane.RevoluteDriveTarget)
+        {
+            var singleRow = scene.RunControls.Where(r => r.Owner == owner && r.Lane == lane).Single();
+            laneIndex = singleRow.LaneIndex;
+        }
+        return new(owner, (RunControlLanes.Find(scene.RunControls, owner, lane, source, laneIndex) ??
             throw new InvalidOperationException($"Owner {owner.Value} has no {lane} run control.")).Id, value);
     }
 

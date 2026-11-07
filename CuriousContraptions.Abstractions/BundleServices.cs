@@ -91,4 +91,5 @@ public interface IBundleServices
     IReadOnlyList<ColliderDescriptor> Colliders(BundleEntry entry, IReadOnlyDictionary<string, float>? supplied = null);
     IReadOnlyList<TubeMouthDescriptor> Mouths(BundleEntry entry, IReadOnlyDictionary<string, float>? supplied = null);
     IReadOnlyList<RunControlLane> Lanes(BundleEntry entry, string key);
+    bool IsBoundToNonLane(BundleEntry entry, string key);
 }

@@ -155,7 +155,7 @@ public sealed class SourceStoreInstanceTests
     [Fact]
     public void ARunTimeControlExistsOnlyWhereThePackageDeclaresABoundParameterRunEditable()
     {
-        Assert.Equal(new[] { new DeclaredRunControl(new("speed"), RunControlLane.RevoluteDriveTarget) }, DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, new PartId("motor")));
+        Assert.Equal(new[] { new DeclaredRunControl(new("speed"), RunControlLane.RevoluteDriveTarget, Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0)) }, DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, new PartId("motor")));
         var entry = DeclaredPhysics.Of(new PartId("battery"));
         Assert.Equal(new[] { new DeclaredRunControl(new("enabled"), RunControlLane.SourceEnable, new("source")) }, DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, entry));
         Assert.Equal(DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, entry), DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, new PartId("battery")));

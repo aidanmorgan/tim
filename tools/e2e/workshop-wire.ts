@@ -1036,23 +1036,28 @@ export class RevoluteDriveTargetRecord {
   return this;
 }
 
-owner():bigint {
+joint():bigint {
   return this.bb!.readUint64(this.bb_pos);
 }
 
+owner():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
 targetSpeed():number {
-  return this.bb!.readFloat32(this.bb_pos + 8);
+  return this.bb!.readFloat32(this.bb_pos + 16);
 }
 
 static sizeOf():number {
-  return 16;
+  return 24;
 }
 
-static createRevoluteDriveTargetRecord(builder:flatbuffers.Builder, owner: bigint, target_speed: number):flatbuffers.Offset {
-  builder.prep(8, 16);
+static createRevoluteDriveTargetRecord(builder:flatbuffers.Builder, joint: bigint, owner: bigint, target_speed: number):flatbuffers.Offset {
+  builder.prep(8, 24);
   builder.pad(4);
   builder.writeFloat32(target_speed);
   builder.writeInt64(BigInt(owner ?? 0));
+  builder.writeInt64(BigInt(joint ?? 0));
   return builder.offset();
 }
 
@@ -1424,7 +1429,7 @@ compliantSurfacesLength():number {
 
 driveTargets(index: number, obj?:RevoluteDriveTargetRecord):RevoluteDriveTargetRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 64);
-  return offset ? (obj || new RevoluteDriveTargetRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 16, this.bb!) : null;
+  return offset ? (obj || new RevoluteDriveTargetRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 24, this.bb!) : null;
 }
 
 driveTargetsLength():number {
@@ -1661,7 +1666,7 @@ static addDriveTargets(builder:flatbuffers.Builder, driveTargetsOffset:flatbuffe
 }
 
 static startDriveTargetsVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(16, numElems, 8);
+  builder.startVector(24, numElems, 8);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {

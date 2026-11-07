@@ -286,7 +286,7 @@ public static partial class WorkshopWireFlatBuffers
         {
             Wire.WorkshopResponse.StartDriveTargetsVector(builder, read.DriveTargets.Count);
             for (var i = read.DriveTargets.Count - 1; i >= 0; i--)
-                RevoluteDriveTargetRecord.CreateRevoluteDriveTargetRecord(builder, read.DriveTargets[i].Owner.Value, read.DriveTargets[i].TargetSpeed);
+                RevoluteDriveTargetRecord.CreateRevoluteDriveTargetRecord(builder, read.DriveTargets[i].Joint.Value, read.DriveTargets[i].Owner.Value, read.DriveTargets[i].TargetSpeed);
             driveTargetOffset = builder.EndVector();
         }
         return driveTargetOffset;
@@ -562,7 +562,7 @@ public static partial class WorkshopWireFlatBuffers
         for (var i = 0; i < driveTargets.Length; i++)
         {
             var d = fb.DriveTargets(i)!.Value;
-            driveTargets[i] = new RevoluteDriveTargetRead(new GpuBodyId(d.Owner), d.TargetSpeed);
+            driveTargets[i] = new RevoluteDriveTargetRead(new RevoluteConstraintId(d.Joint), new GpuBodyId(d.Owner), d.TargetSpeed);
         }
 
         var ropeValues = DecodeRopesRead(fb);

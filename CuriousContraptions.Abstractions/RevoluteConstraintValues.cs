@@ -42,11 +42,11 @@ public readonly record struct RevoluteStateRead(bool Supplied, float Travel, flo
 /// <summary>One driven revolute's committed drive target (engine-revolute-drive-target): the base body of its hinge, which owns the
 /// drive, and the target speed (rad/s) the next step drives toward. Admission commits the declared target; a RevoluteDriveTarget run
 /// control changes it from the next committed step.</summary>
-public readonly record struct RevoluteDriveTargetRead(GpuBodyId Owner, float TargetSpeed)
+public readonly record struct RevoluteDriveTargetRead(RevoluteConstraintId Joint, GpuBodyId Owner, float TargetSpeed)
 {
     public void Validate()
     {
-        if (Owner.Value == 0 || !float.IsFinite(TargetSpeed) || MathF.Abs(TargetSpeed) > AngularVelocity.MaximumSpeed)
+        if (Joint.Value == 0 || Owner.Value == 0 || !float.IsFinite(TargetSpeed) || MathF.Abs(TargetSpeed) > AngularVelocity.MaximumSpeed)
             throw new ArgumentException("Invalid committed drive target.");
     }
 }
@@ -79,7 +79,7 @@ public readonly struct PhysicsDriveTargetRead
     {
         if (Count != other.Count) return false;
         for (var i = 0; i < Count; i++)
-            if (this[i].Owner != other[i].Owner || !F32Bits.Equal(this[i].TargetSpeed, other[i].TargetSpeed)) return false;
+            if (this[i].Joint != other[i].Joint || this[i].Owner != other[i].Owner || !F32Bits.Equal(this[i].TargetSpeed, other[i].TargetSpeed)) return false;
         return true;
     }
 }

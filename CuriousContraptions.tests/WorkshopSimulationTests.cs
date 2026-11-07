@@ -529,7 +529,13 @@ public sealed class WorkshopSimulationTests
     private static readonly GpuBodyId DrivenOwner = new(7);
     private static WorkshopConstruction DriveConstruction() => new(new(2), Settings, new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("motor"), DrivenOwner,
         0, 4, 0, 0, 0, 0, 1, new([new(new("speed"), 6f), new(new("torque"), 20f)]))));
-    private static float Target(WorkshopRead read) => read.RunControl(DrivenOwner, RunControlLane.RevoluteDriveTarget).Scalar;
+    private static float Target(WorkshopRead read)
+    {
+        for (var i = 0; i < read.DriveTargets.Count; i++)
+            if (read.DriveTargets[i].Owner == DrivenOwner)
+                return read.RunControl(DrivenOwner, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[i].Joint).Scalar;
+        throw new InvalidOperationException();
+    }
 
     private static async Task<RunControlRow> RunDriven(WorkshopSimulation simulation, ControlledDevice device)
     {

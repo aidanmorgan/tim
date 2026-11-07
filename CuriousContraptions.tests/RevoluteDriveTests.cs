@@ -806,7 +806,7 @@ public sealed class RevoluteDriveTests
         var (scene, _) = Rotor(targetSpeed: -3.5f);
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var read = PhysicsGpuAbi.ReadDriveTargets(admitted);
-        Assert.Equal((1, new RevoluteDriveTargetRead(scene.Revolutes[0].BodyA, -3.5f)), (read.Count, read[0]));
+        Assert.Equal((1, new RevoluteDriveTargetRead(scene.Revolutes[0].Id, scene.Revolutes[0].BodyA, -3.5f)), (read.Count, read[0]));
 
         var (undriven, _, _, _) = Hinged();
         Assert.Equal(0, PhysicsGpuAbi.ReadDriveTargets(undriven.Admit().Admitted).Count);

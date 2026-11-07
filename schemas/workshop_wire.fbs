@@ -238,8 +238,9 @@ struct RunControlRecord {
     maximum: float;
 }
 
-// One driven revolute's committed drive target, in compiled drive-table order: the hinge's base body and its target speed (rad/s).
+// One driven revolute's committed drive target, in compiled drive-table order: its joint, the hinge's base body and its target speed (rad/s).
 struct RevoluteDriveTargetRecord {
+    joint: uint64;
     owner: uint64;
     target_speed: float;
 }

@@ -54,7 +54,7 @@ public static class RunControlLanes
     }
 
     /// <summary>The lane slot through which <paramref name="owner"/> is driven on <paramref name="lane"/> in the installed physics.</summary>
-    public static int Slot(IPhysicsSceneDeclaration physics, RunControlLane lane, GpuBodyId owner, ElectricalSourceId source = default)
+    public static int Slot(IPhysicsSceneDeclaration physics, RunControlLane lane, GpuBodyId owner, ElectricalSourceId source = default, RevoluteConstraintId joint = default)
     {
         ArgumentNullException.ThrowIfNull(physics);
         if (lane == RunControlLane.SourceEnable)
@@ -64,14 +64,17 @@ public static class RunControlLanes
                 if (physics.Electrical.Sources[i].Owner == owner && physics.Electrical.Sources[i].Id == source) return i;
         }
         if (lane == RunControlLane.RevoluteDriveTarget)
+        {
+            if (joint == default) throw new ArgumentException("A revolute drive target control requires an exact joint identity.", nameof(joint));
             for (var i = 0; i < physics.RevoluteDrives.Length; i++)
-                if (DriveOwner(physics, i) == owner) return i;
+                if (physics.RevoluteDrives[i].Joint == joint && DriveOwner(physics, i) == owner) return i;
+        }
         throw new ArgumentException("The owner has no slot on this run-control lane.");
     }
 
     /// <summary>The committed value of <paramref name="owner"/>'s slot on <paramref name="lane"/>, found among the lane's committed
     /// slots. Every read of an installation carries each slot it compiled, locked owners included; a missing slot is refused.</summary>
-    public static RunControlValue RunControl(this WorkshopRead read, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source = default)
+    public static RunControlValue RunControl(this WorkshopRead read, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source = default, RevoluteConstraintId joint = default)
     {
         if (lane == RunControlLane.SourceEnable)
         {
@@ -80,20 +83,51 @@ public static class RunControlLanes
                 if (read.Electrical[i].Owner == owner && read.Electrical[i].Id == source) return RunControlValue.Of(read.Electrical[i].Enabled);
         }
         if (lane == RunControlLane.RevoluteDriveTarget)
+        {
+            if (joint == default) throw new ArgumentException("A revolute drive target control requires an exact joint identity.", nameof(joint));
             for (var i = 0; i < read.DriveTargets.Count; i++)
-                if (read.DriveTargets[i].Owner == owner) return RunControlValue.Of(read.DriveTargets[i].TargetSpeed);
+                if (read.DriveTargets[i].Owner == owner && read.DriveTargets[i].Joint == joint) return RunControlValue.Of(read.DriveTargets[i].TargetSpeed);
+        }
         throw new ArgumentException("The committed read carries no slot for this owner on this run-control lane.");
+    }
+
+    /// <summary>The committed value of the exact compiled run-control <paramref name="row"/>.</summary>
+    public static RunControlValue RunControl(this WorkshopRead read, RunControlRow row)
+    {
+        return row.Lane switch
+        {
+            RunControlLane.SourceEnable => (row.LaneIndex >= 0 && row.LaneIndex < read.Electrical.Count &&
+                read.Electrical[row.LaneIndex].Owner == row.Owner && read.Electrical[row.LaneIndex].Id == row.Source)
+                ? RunControlValue.Of(read.Electrical[row.LaneIndex].Enabled)
+                : throw new ArgumentException("The committed read carries no slot for this row."),
+            RunControlLane.RevoluteDriveTarget => (row.LaneIndex >= 0 && row.LaneIndex < read.DriveTargets.Count &&
+                read.DriveTargets[row.LaneIndex].Owner == row.Owner)
+                ? RunControlValue.Of(read.DriveTargets[row.LaneIndex].TargetSpeed)
+                : throw new ArgumentException("The committed read carries no slot for this row."),
+            _ => throw new ArgumentException("Undefined run-control lane.")
+        };
     }
 
     /// <summary>The row through which <paramref name="owner"/> drives <paramref name="lane"/>, or null when the table has none (a locked
     /// owner, or a part that declares no such run control).</summary>
-    public static RunControlRow? Find(IEnumerable<RunControlRow> rows, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source = default)
+    public static RunControlRow? Find(IEnumerable<RunControlRow> rows, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source = default, int laneIndex = -1)
     {
         ArgumentNullException.ThrowIfNull(rows);
         if (lane == RunControlLane.SourceEnable && source == default)
             throw new ArgumentException("A source enable control requires an exact source identity.", nameof(source));
+        if (lane == RunControlLane.RevoluteDriveTarget && laneIndex < 0)
+            throw new ArgumentException("A revolute drive target control requires an exact slot index.", nameof(laneIndex));
         foreach (var row in rows)
-            if (row.Owner == owner && row.Lane == lane && (lane != RunControlLane.SourceEnable || row.Source == source)) return row;
+        {
+            if (row.Owner != owner || row.Lane != lane) continue;
+            if (lane == RunControlLane.SourceEnable && row.Source != source) continue;
+            if (laneIndex >= 0)
+            {
+                if (row.LaneIndex == laneIndex) return row;
+                continue;
+            }
+            return row;
+        }
         return null;
     }
 }

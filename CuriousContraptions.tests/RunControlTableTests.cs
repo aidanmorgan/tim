@@ -207,7 +207,13 @@ public sealed class RunControlTableTests
         return Array.FindIndex(physics.RevoluteDrives.ToArray(), drive => revolutes.Single(joint => joint.Id == drive.Joint).BodyA == owner);
     }
 
-    private static float Target(WorkshopRead read, GpuBodyId owner) => read.RunControl(owner, RunControlLane.RevoluteDriveTarget).Scalar;
+    private static float Target(WorkshopRead read, GpuBodyId owner)
+    {
+        for (var i = 0; i < read.DriveTargets.Count; i++)
+            if (read.DriveTargets[i].Owner == owner)
+                return read.RunControl(owner, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[i].Joint).Scalar;
+        throw new ArgumentException("The committed read carries no slot for this owner on this run-control lane.");
+    }
 
     // Run compiles a RevoluteDriveTarget row for the unlocked Motor's speed with the declared parameter's bounds [0, 20] rad/s, at the
     // index of its drive in the compiled drive table (here the second: the locked Motor's hinge is the lower identity). The locked Motor
@@ -279,7 +285,7 @@ public sealed class RunControlTableTests
         Assert.Equal((LockedMotor, 4f), (read.DriveTargets[DriveIndex(physics, LockedMotor)].Owner, read.DriveTargets[DriveIndex(physics, LockedMotor)].TargetSpeed));
         Assert.Equal((Motor, 6f), (read.DriveTargets[DriveIndex(physics, Motor)].Owner, read.DriveTargets[DriveIndex(physics, Motor)].TargetSpeed));
         Assert.Equal(4f, Target(read, LockedMotor));
-        foreach (var invalid in new RevoluteDriveTargetRead[] { new(default, 1f), new(Motor, float.NaN), new(Motor, MathF.BitIncrement(AngularVelocity.MaximumSpeed)) })
+        foreach (var invalid in new RevoluteDriveTargetRead[] { new(default, Motor, 1f), new(new(1), default, 1f), new(new(1), Motor, float.NaN), new(new(1), Motor, MathF.BitIncrement(AngularVelocity.MaximumSpeed)) })
             Assert.Throws<ArgumentException>(() => new PhysicsDriveTargetRead([invalid]));
     }
 

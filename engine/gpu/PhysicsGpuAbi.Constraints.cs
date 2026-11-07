@@ -252,7 +252,7 @@ public static partial class PhysicsGpuAbi
         var values = new RevoluteDriveTargetRead[count];
         var next = 0;
         for (var i = 0; i < layout.Revolutes; i++)
-            if (ReadRevoluteDrive(data, i) is { } drive) values[next++] = new(ReadRevolute(data, i).BodyA, drive.TargetSpeed);
+            if (ReadRevoluteDrive(data, i) is { } drive) values[next++] = new(drive.Joint, ReadRevolute(data, i).BodyA, drive.TargetSpeed);
         return new(values);
     }
 

@@ -620,7 +620,13 @@ public sealed class BundleValidatorTests
             Hinges = [hinge, hinge with { Drive = new(MechanicalValue.Fixed(6f), MechanicalValue.FromParameter("torque")) }]
         } };
         Assert.Equal([RunControlLane.RevoluteDriveTarget], Bundle.RunControlBindings.Lanes(beside, "speed"));
-        Assert.True(RunEditRefused(beside, 0));
+        Assert.False(RunEditRefused(beside, 0));
+
+        var nonLaneBound = beside with { Mechanical = beside.Mechanical with
+        {
+            Hinges = [hinge with { Stiffness = MechanicalValue.FromParameter("speed") }]
+        } };
+        Assert.True(RunEditRefused(nonLaneBound, 0));
         Assert.False(RunEditRefused(RunEdit(beside, "speed", ParameterRunEdit.BuildOnly), 0));
     }
 

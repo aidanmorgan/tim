@@ -116,7 +116,7 @@ public sealed class MotorTests
                 Assert.Single(samples, sample => sample.Owner == owner && sample.Binding == binding).Value.CanonicalBits);
             return new((int)read.Tick.Value, position, new(body.Body.Velocity.X, body.Body.Velocity.Y, body.Body.Velocity.Z), angular,
                 new(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W), Vector3.Dot(angular, axis), state,
-                new(Channel(0), Channel(1), Channel(2)), read.RunControl(owner, RunControlLane.RevoluteDriveTarget).Scalar);
+                new(Channel(0), Channel(1), Channel(2)), read.RunControl(owner, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[0].Joint).Scalar);
         }
 
         /// <summary>Advances the presentation clock past the committed tick (a later frame of the animation worker).</summary>
@@ -474,7 +474,7 @@ public sealed class MotorTests
         await harness.Advance(30);
         await SetSpeed(harness, motor.Id, 12f);
         var changed = await harness.Advance(30);
-        Assert.All(changed, read => Assert.Equal(12f, read.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget).Scalar));
+        Assert.All(changed, read => Assert.Equal(12f, read.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[0].Joint).Scalar));
 
         var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(harness.Construction, new(9)))).Construction;
         Assert.Equal(construction, loaded);
@@ -483,9 +483,9 @@ public sealed class MotorTests
         var row = harness.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(12f)).Control;
         await harness.Reset();
         Assert.Null(harness.Simulation.HeldRunControl(row));
-        Assert.Equal(DefaultSpeed, harness.Committed.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget).Scalar);
+        Assert.Equal(DefaultSpeed, harness.Committed.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget, joint: harness.Committed.DriveTargets[0].Joint).Scalar);
         await harness.Run();
-        Assert.All(await harness.Advance(2), read => Assert.Equal(DefaultSpeed, read.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget).Scalar));
+        Assert.All(await harness.Advance(2), read => Assert.Equal(DefaultSpeed, read.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[0].Joint).Scalar));
     }
 
     // Supply routed through a switched element: a Battery powers an Either gate whose output wires the Motor's PowerIn; a second Battery

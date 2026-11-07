@@ -17,9 +17,11 @@ public static class WorkshopSceneCompiler
 
     private static SupplyConsumer ResolveActuator(CompiledPartIdentities ids, CoordinateReference coordinate) => coordinate.Kind switch
     {
-        CoordinateKind.Prismatic => SupplyConsumer.Prismatic(ids.Sliders[coordinate.Index].Joint),
-        CoordinateKind.Revolute => SupplyConsumer.Revolute(ids.Hinges[coordinate.Index].Joint),
-        _ => throw new ArgumentException("Unsupported actuator coordinate.")
+        CoordinateKind.Prismatic when coordinate.Index >= 0 && coordinate.Index < ids.Sliders.Length =>
+            SupplyConsumer.Prismatic(ids.Sliders[coordinate.Index].Joint),
+        CoordinateKind.Revolute when coordinate.Index >= 0 && coordinate.Index < ids.Hinges.Length =>
+            SupplyConsumer.Revolute(ids.Hinges[coordinate.Index].Joint),
+        _ => throw new ArgumentException("Unsupported or out-of-range actuator coordinate.")
     };
 
     public static ICompiledScene Compile(ICoreServices core, IBundleServices bundle, WorkshopConstruction construction, PhysicsDocumentId document, CompiledSceneId identity)
@@ -47,8 +49,17 @@ public static class WorkshopSceneCompiler
                     var scalar = core.RunControls.ValueKind(control.Lane) == RunControlValueKind.Scalar;
                     var source = control.SourceNode is { } selectedSource
                         ? construction.Instances.Identities[owner.Id].Supply[selectedSource].Source : default;
+                    var joint = default(RevoluteConstraintId);
+                    if (control.Lane == RunControlLane.RevoluteDriveTarget)
+                    {
+                        if (control.Coordinate is not { Kind: CoordinateKind.Revolute } coord)
+                            throw new ArgumentException("A revolute drive target run control requires a revolute coordinate reference.");
+                        if (coord.Index < 0 || coord.Index >= construction.Instances.Identities[owner.Id].Hinges.Length)
+                            throw new ArgumentException("Out-of-range revolute drive target coordinate.");
+                        joint = construction.Instances.Identities[owner.Id].Hinges[coord.Index].Joint;
+                    }
                     runControls.Add(new(new RunControlId(checked((ulong)runControls.Count + 1)), owner.Id, control.Lane,
-                        core.RunControls.Slot(physics, control.Lane, owner.Id, source), scalar ? declared.Minimum : 0f, scalar ? declared.Maximum : 0f, source));
+                        core.RunControls.Slot(physics, control.Lane, owner.Id, source, joint), scalar ? declared.Minimum : 0f, scalar ? declared.Maximum : 0f, source));
                 }
             for (var i = 0; i < bindings.Count; i++)
             {

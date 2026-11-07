@@ -4412,14 +4412,16 @@ public struct RevoluteDriveTargetRecord : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
   public RevoluteDriveTargetRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public ulong Owner { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
-  public float TargetSpeed { get { return __p.bb.GetFloat(__p.bb_pos + 8); } }
+  public ulong Joint { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public ulong Owner { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
+  public float TargetSpeed { get { return __p.bb.GetFloat(__p.bb_pos + 16); } }
 
-  public static Offset<CuriousContraptions.Wire.RevoluteDriveTargetRecord> CreateRevoluteDriveTargetRecord(FlatBufferBuilder builder, ulong Owner, float TargetSpeed) {
-    builder.Prep(8, 16);
+  public static Offset<CuriousContraptions.Wire.RevoluteDriveTargetRecord> CreateRevoluteDriveTargetRecord(FlatBufferBuilder builder, ulong Joint, ulong Owner, float TargetSpeed) {
+    builder.Prep(8, 24);
     builder.Pad(4);
     builder.PutFloat(TargetSpeed);
     builder.PutUlong(Owner);
+    builder.PutUlong(Joint);
     return new Offset<CuriousContraptions.Wire.RevoluteDriveTargetRecord>(builder.Offset);
   }
 }
@@ -5221,7 +5223,7 @@ public struct WorkshopResponse : IFlatbufferObject
   public int RopeGuidesLength { get { int o = __p.__offset(60); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.CompliantSurfaceReadRecord? CompliantSurfaces(int j) { int o = __p.__offset(62); return o != 0 ? (CuriousContraptions.Wire.CompliantSurfaceReadRecord?)(new CuriousContraptions.Wire.CompliantSurfaceReadRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int CompliantSurfacesLength { get { int o = __p.__offset(62); return o != 0 ? __p.__vector_len(o) : 0; } }
-  public CuriousContraptions.Wire.RevoluteDriveTargetRecord? DriveTargets(int j) { int o = __p.__offset(64); return o != 0 ? (CuriousContraptions.Wire.RevoluteDriveTargetRecord?)(new CuriousContraptions.Wire.RevoluteDriveTargetRecord()).__assign(__p.__vector(o) + j * 16, __p.bb) : null; }
+  public CuriousContraptions.Wire.RevoluteDriveTargetRecord? DriveTargets(int j) { int o = __p.__offset(64); return o != 0 ? (CuriousContraptions.Wire.RevoluteDriveTargetRecord?)(new CuriousContraptions.Wire.RevoluteDriveTargetRecord()).__assign(__p.__vector(o) + j * 24, __p.bb) : null; }
   public int DriveTargetsLength { get { int o = __p.__offset(64); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(31); }
@@ -5291,7 +5293,7 @@ public struct WorkshopResponse : IFlatbufferObject
   public static VectorOffset CreateCompliantSurfacesVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<CuriousContraptions.Wire.CompliantSurfaceReadRecord>>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartCompliantSurfacesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static void AddDriveTargets(FlatBufferBuilder builder, VectorOffset driveTargetsOffset) { builder.AddOffset(30, driveTargetsOffset.Value, 0); }
-  public static void StartDriveTargetsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(16, numElems, 8); }
+  public static void StartDriveTargetsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(24, numElems, 8); }
   public static Offset<CuriousContraptions.Wire.WorkshopResponse> EndWorkshopResponse(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.WorkshopResponse>(o);
@@ -5336,7 +5338,7 @@ static public class WorkshopResponseVerify
       && verifier.VerifyTable(tablePos, 58 /*Scene*/, CuriousContraptions.Wire.CompiledSceneRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 60 /*RopeGuides*/, CuriousContraptions.Wire.RopeGuideReadRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 62 /*CompliantSurfaces*/, CuriousContraptions.Wire.CompliantSurfaceReadRecordVerify.Verify, false)
-      && verifier.VerifyVectorOfData(tablePos, 64 /*DriveTargets*/, 16 /*CuriousContraptions.Wire.RevoluteDriveTargetRecord*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 64 /*DriveTargets*/, 24 /*CuriousContraptions.Wire.RevoluteDriveTargetRecord*/, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

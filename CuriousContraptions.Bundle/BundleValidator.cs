@@ -124,14 +124,12 @@ public static class BundleValidator
         private void CheckRunControls(BundleEntry entry)
         {
             // A run-time control is declared only on a parameter bound to exactly one run-controllable lane: the lane its compiled
-            // run-control row drives. A drive-target control also requires exactly one driven hinge on its part, so the owner's drive
-            // slot is unique.
+            // run-control row drives. It must not be bound to non-lane properties.
             for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
             {
                 if (entry.Metadata.Parameters[i].RunEdit != ParameterRunEdit.RunControl) continue;
                 var lanes = RunControlBindings.Lanes(entry, entry.Metadata.Parameters[i].Key);
-                if (lanes.Count != 1 || (lanes[0] == RunControlLane.RevoluteDriveTarget &&
-                        entry.Mechanical?.Hinges.Count(hinge => hinge.Drive is not null) != 1))
+                if (lanes.Count != 1 || RunControlBindings.IsBoundToNonLane(entry, entry.Metadata.Parameters[i].Key))
                     OutOfRange($"Metadata.Parameters[{i}].RunEdit");
             }
         }

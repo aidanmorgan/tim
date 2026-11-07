@@ -527,7 +527,7 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
             var drive = physics.RevoluteDrives[i];
             var owner = default(GpuBodyId);
             foreach (var joint in physics.Revolutes) if (joint.Id == drive.Joint) owner = joint.BodyA;
-            if (read.DriveTargets[i].Owner != owner || !F32Bits.Equal(read.DriveTargets[i].TargetSpeed, drive.TargetSpeed))
+            if (read.DriveTargets[i].Joint != drive.Joint || read.DriveTargets[i].Owner != owner || !F32Bits.Equal(read.DriveTargets[i].TargetSpeed, drive.TargetSpeed))
                 throw new ArgumentException("Admission did not commit the declared drive target.");
         }
     }
@@ -558,7 +558,7 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
         var targets = TickControlComposition.For(source, _runControls.Values).DriveTarget;
         if (read.DriveTargets.Count != targets.Length) throw new ArgumentException("Committed drive population changed.");
         for (var i = 0; i < targets.Length; i++)
-            if (read.DriveTargets[i].Owner != source.DriveTargets[i].Owner || !F32Bits.Equal(read.DriveTargets[i].TargetSpeed, targets[i]))
+            if (read.DriveTargets[i].Joint != source.DriveTargets[i].Joint || read.DriveTargets[i].Owner != source.DriveTargets[i].Owner || !F32Bits.Equal(read.DriveTargets[i].TargetSpeed, targets[i]))
                 throw new ArgumentException("Committed drive target differs from the authorised target.");
     }
 
