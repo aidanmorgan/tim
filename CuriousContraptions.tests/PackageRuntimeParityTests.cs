@@ -293,16 +293,16 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                         $"{package.Package}: body {body.Id.Value} moment {axis} is {Moment(axis)}, closed form {value}.");
                 checkedMoments++;
             }
-            if (DeclaredPhysics.Of(instance.PartId).Mechanical?.Capture is { } capture)
+            if (DeclaredPhysics.Of(instance.PartId).Mechanical?.Residence is { } residence)
             {
-                var margin = capture.UpperMargin.Evaluate(DeclaredPhysics.Parameters(instance));
+                var margin = residence.UpperMargin.Evaluate(DeclaredPhysics.Parameters(instance));
                 // A capture volume compiles per payload: place one ball beside the part.
                 var withBall = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
                     new WorkshopInstances(instance, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(2), 3, 3, 0, 0, 0, 0, 1))), new(1, 2));
                 foreach (var sensor in withBall.Sensors.ToArray())
                 {
-                    Assert.Equal(((float)((double)capture.Maximum.Y + margin)), (sensor.Maximum.Y));
-                    Assert.Equal(((capture.Minimum.X), (capture.Minimum.Y), (capture.Minimum.Z), (capture.Maximum.X), (capture.Maximum.Z)),
+                    Assert.Equal(((float)((double)residence.Maximum.Y + margin)), (sensor.Maximum.Y));
+                    Assert.Equal(((residence.Minimum.X), (residence.Minimum.Y), (residence.Minimum.Z), (residence.Maximum.X), (residence.Maximum.Z)),
                         ((sensor.Minimum.X), (sensor.Minimum.Y), (sensor.Minimum.Z), (sensor.Maximum.X), (sensor.Maximum.Z)));
                     checkedCaptures++;
                 }

@@ -506,31 +506,48 @@ public static class BundleValidator
             }
             for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters);
             for (var i = 0; i < mechanical.Hinges.Count; i++) Hinge($"Hinges[{i}]", mechanical.Hinges[i], parameters);
-            MechanicalCapture(mechanical, parameters);
+            MechanicalResidenceSensor(mechanical, parameters);
+            MechanicalPlanarGuide(mechanical, parameters);
             MechanicalContactWork(mechanical, parameters);
             MechanicalSurface(mechanical, parameters);
         }
 
-        private void MechanicalCapture(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
+        private void MechanicalResidenceSensor(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
         {
-            if (mechanical.Capture is { } capture)
+            if (mechanical.Residence is { } residence)
             {
-                Volume("Capture",capture.Minimum,capture.Maximum);
-                CaptureValue("Capture.UpperMargin",capture.UpperMargin,parameters,ParameterUnit.Metre,0f,1f);
-                CaptureValue("Capture.SpeedLimit",capture.SpeedLimit,parameters,ParameterUnit.MetrePerSecond,1f/1024f,64f);
-                CaptureValue("Capture.Dwell",capture.Dwell,parameters,ParameterUnit.Second,1f/1024f,30f);
-                var participation=parameters.SingleOrDefault(parameter=>parameter.Key==capture.ParticipationParameter);
-                if (string.IsNullOrWhiteSpace(capture.ParticipationParameter) || participation.Options is null ||
-                    participation.Key!=capture.ParticipationParameter || participation.Kind!=ParameterKind.Choice || participation.Minimum!=0f ||
-                    participation.Maximum!=1f || participation.Options.Count!=2 ||
-                    participation.Options[0]!="Disabled" || participation.Options[1]!="Enabled")
-                    OutOfRange("Capture.ParticipationParameter");
-                var guide=capture.Guide;
-                Volume("Capture.Guide",guide.Minimum,guide.Maximum);
-                if (Finite("Capture.Guide.SupportHeight",guide.SupportHeight) && MathF.Abs(guide.SupportHeight)>16f)
-                    OutOfRange("Capture.Guide.SupportHeight");
-                CaptureValue("Capture.Guide.SupportMargin",guide.SupportMargin,parameters,ParameterUnit.Metre,0f,1f);
-                CaptureValue("Capture.Guide.MaximumAcceleration",guide.MaximumAcceleration,parameters,ParameterUnit.MetrePerSecondSquared,0f,12f);
+                Volume("Residence", residence.Minimum, residence.Maximum);
+                CaptureValue("Residence.UpperMargin", residence.UpperMargin, parameters, ParameterUnit.Metre, 0f, 1f);
+                CaptureValue("Residence.SpeedLimit", residence.SpeedLimit, parameters, ParameterUnit.MetrePerSecond, 1f / 1024f, 64f);
+                CaptureValue("Residence.Dwell", residence.Dwell, parameters, ParameterUnit.Second, 1f / 1024f, 30f);
+                var participation = parameters.SingleOrDefault(parameter => parameter.Key == residence.ParticipationParameter);
+                if (string.IsNullOrWhiteSpace(residence.ParticipationParameter) || participation.Options is null ||
+                    participation.Key != residence.ParticipationParameter || participation.Kind != ParameterKind.Choice || participation.Minimum != 0f ||
+                    participation.Maximum != 1f || participation.Options.Count != 2 ||
+                    participation.Options[0] != "Disabled" || participation.Options[1] != "Enabled")
+                    OutOfRange("Residence.ParticipationParameter");
+                ValidateTargetSelector("Residence.Target", residence.Target);
+                Finite("Residence.Position", residence.Position);
+                Finite("Residence.Rotation", residence.Rotation);
+                if (float.IsFinite(residence.Rotation.LengthSquared()) && MathF.Abs(residence.Rotation.LengthSquared() - 1f) > 1e-4f)
+                    OutOfRange("Residence.Rotation");
+            }
+        }
+
+        private void MechanicalPlanarGuide(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            if (mechanical.PlanarGuide is { } guide)
+            {
+                Volume("PlanarGuide", guide.Minimum, guide.Maximum);
+                if (Finite("PlanarGuide.SupportHeight", guide.SupportHeight) && MathF.Abs(guide.SupportHeight) > 16f)
+                    OutOfRange("PlanarGuide.SupportHeight");
+                CaptureValue("PlanarGuide.SupportMargin", guide.SupportMargin, parameters, ParameterUnit.Metre, 0f, 1f);
+                CaptureValue("PlanarGuide.MaximumAcceleration", guide.MaximumAcceleration, parameters, ParameterUnit.MetrePerSecondSquared, 0f, 12f);
+                ValidateTargetSelector("PlanarGuide.Target", guide.Target);
+                Finite("PlanarGuide.Position", guide.Position);
+                Finite("PlanarGuide.Rotation", guide.Rotation);
+                if (float.IsFinite(guide.Rotation.LengthSquared()) && MathF.Abs(guide.Rotation.LengthSquared() - 1f) > 1e-4f)
+                    OutOfRange("PlanarGuide.Rotation");
             }
         }
 

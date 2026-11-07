@@ -280,6 +280,17 @@ public static class WorkshopPhysicsCompiler
 
         private void CompileSensors()
         {
+            CompileOrientationSensors();
+            CompileResidenceSensors();
+            CompilePlanarGuides();
+            CompileElectricalSources();
+            CompileContactTriggers();
+            CompileContactWorks();
+            CompileContactLoads();
+        }
+
+        private void CompileOrientationSensors()
+        {
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
                 foreach (var orientation in DeclaredPhysics.Of(owner.PartId).Signal?.Nodes.OfType<SignalOrientationDescriptor>() ?? [])
                 {
@@ -287,50 +298,88 @@ public static class WorkshopPhysicsCompiler
                     orientationSensors.Add(new(identities[owner.Id].Signals[orientation.Id].Orientation, body.Id,
                         body.Rotation, OrientationThreshold.Degrees(orientation.ThresholdDegrees)));
                 }
+        }
+
+        private void CompileResidenceSensors()
+        {
             foreach (var frame in construction.Instances.OfType<WorkshopGenericInstance>())
             {
-                if (DeclaredPhysics.Of(frame.PartId).Mechanical?.Capture is not { } capture) continue;
+                var entry = DeclaredPhysics.Of(frame.PartId);
                 var parameters = frame.Parameters.ToBundleValues();
-                // The declared f32 capture and guide values compile exactly; the upper bound is Y + margin with one f32 rounding.
-                var margin = capture.UpperMargin.Evaluate(parameters);
-                var speed = new LinearSpeed(capture.SpeedLimit.Evaluate(parameters));
-                var dwell = new DurationSeconds(capture.Dwell.Evaluate(parameters));
-                var participation = parameters[capture.ParticipationParameter] switch
+                if (entry.Mechanical?.Residence is { } residence)
                 {
-                    0f => SensorParticipation.Disabled,
-                    1f => SensorParticipation.Enabled,
-                    _ => throw new ArgumentException("Undefined declared capture participation.")
-                };
-                var captureRows = identities[frame.Id].Capture;
-                sensors.Add(new(captureRows.Sensor, frame.Id, new(BodyTargetKind.AllPayloads,default), RigidLocalPose.Identity,
-                    new(capture.Minimum.X,capture.Minimum.Y,capture.Minimum.Z),
-                    new(capture.Maximum.X,capture.Maximum.Y+margin,capture.Maximum.Z),
-                    speed,dwell,participation));
-                var guide = capture.Guide;
-                guides.Add(new(captureRows.Guide,frame.Id,new(BodyTargetKind.AllPayloads,default),RigidLocalPose.Identity,
-                    new(guide.Minimum.X,guide.Minimum.Y,guide.Minimum.Z),
-                    new(guide.Maximum.X,guide.Maximum.Y,guide.Maximum.Z),
-                    new(guide.SupportHeight),new(guide.SupportMargin.Evaluate(parameters)),
-                    new(guide.MaximumAcceleration.Evaluate(parameters))));
+                    var margin = residence.UpperMargin.Evaluate(parameters);
+                    var speed = new LinearSpeed(residence.SpeedLimit.Evaluate(parameters));
+                    var dwell = new DurationSeconds(residence.Dwell.Evaluate(parameters));
+                    var participation = parameters[residence.ParticipationParameter] switch
+                    {
+                        0f => SensorParticipation.Disabled,
+                        1f => SensorParticipation.Enabled,
+                        _ => throw new ArgumentException("Undefined declared capture participation.")
+                    };
+                    var targets = ResolveTarget(residence.Target, construction.Puzzle, construction.Instances);
+                    var pose = new RigidLocalPose(new(residence.Position.X, residence.Position.Y, residence.Position.Z),
+                        CanonicalRotation.Normalize(residence.Rotation.X, residence.Rotation.Y, residence.Rotation.Z, residence.Rotation.W));
+                    var captureRows = identities[frame.Id].Capture;
+                    sensors.Add(new(captureRows.Sensor, frame.Id, targets, pose,
+                        new(residence.Minimum.X, residence.Minimum.Y, residence.Minimum.Z),
+                        new(residence.Maximum.X, residence.Maximum.Y + margin, residence.Maximum.Z),
+                        speed, dwell, participation));
+                }
             }
+        }
+
+        private void CompilePlanarGuides()
+        {
+            foreach (var frame in construction.Instances.OfType<WorkshopGenericInstance>())
+            {
+                var entry = DeclaredPhysics.Of(frame.PartId);
+                var parameters = frame.Parameters.ToBundleValues();
+                if (entry.Mechanical?.PlanarGuide is { } guide)
+                {
+                    var targets = ResolveTarget(guide.Target, construction.Puzzle, construction.Instances);
+                    var pose = new RigidLocalPose(new(guide.Position.X, guide.Position.Y, guide.Position.Z),
+                        CanonicalRotation.Normalize(guide.Rotation.X, guide.Rotation.Y, guide.Rotation.Z, guide.Rotation.W));
+                    var captureRows = identities[frame.Id].Capture;
+                    guides.Add(new(captureRows.Guide, frame.Id, targets, pose,
+                        new(guide.Minimum.X, guide.Minimum.Y, guide.Minimum.Z),
+                        new(guide.Maximum.X, guide.Maximum.Y, guide.Maximum.Z),
+                        new(guide.SupportHeight), new(guide.SupportMargin.Evaluate(parameters)),
+                        new(guide.MaximumAcceleration.Evaluate(parameters))));
+                }
+            }
+        }
+
+        private void CompileElectricalSources()
+        {
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
                 foreach (var source in (DeclaredPhysics.Of(owner.PartId).Electrical?.SupplyGraph?.Nodes ?? []).OfType<SupplySourceDescriptor>())
                     electricalSources.Add(ElectricalSourceFor(identities[owner.Id].Supply[source.Id].Source, owner.Id, source.Store, owner.Parameters));
+        }
+
+        private void CompileContactTriggers()
+        {
             foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
                 foreach (var contact in DeclaredPhysics.Of(trigger.PartId).Signal?.Nodes.OfType<SignalContactDescriptor>() ?? [])
                     triggers.Add(new(identities[trigger.Id].Signals[contact.Id].Trigger, identities.Body(trigger.Id, contact.Body),
                         ResolveTarget(contact.Target, construction.Puzzle, construction.Instances),
                         new(trigger.Parameters[contact.ThresholdParameter])));
+        }
+
+        private void CompileContactWorks()
+        {
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
                 if (DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWork is { } work)
                     contactWorks.Add(ContactWorkFor(identities[owner.Id].Work, owner.Id,
                         ResolveTarget(work.Target, construction.Puzzle, construction.Instances),
                         work, owner.Parameters));
-            // A declared contact-load sensor compiles its row for every owner, wired or not, in instance order.
+        }
+
+        private void CompileContactLoads()
+        {
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
                 foreach (var load in DeclaredPhysics.Of(owner.PartId).Signal?.Nodes.OfType<SignalContactLoadDescriptor>() ?? [])
                     contactLoads.Add(ContactLoadSensorFor(bundle, owner, load, identities));
-
         }
 
         private void ValidateHollowPlacement()

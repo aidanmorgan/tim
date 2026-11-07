@@ -17,36 +17,60 @@ public sealed class BundleValidatorTests
         {
             Parameters = [new("participation", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"])]
         });
-        var capture = new Abstractions.Mechanical.ResidenceCaptureDescriptor(
+        var residence = new Abstractions.Mechanical.ResidenceSensorDescriptor(
             new(-.66f, -.4f, -.66f), new(.66f, .45f, .66f),
-            Abstractions.Mechanical.MechanicalValue.Fixed(.02f),
             Abstractions.Mechanical.MechanicalValue.Fixed(1.5f),
             Abstractions.Mechanical.MechanicalValue.Fixed(.35f), "participation",
-            new(new(-1.1f, .5f, -1.1f), new(1.1f, 1.5f, 1.1f), .5f,
-                Abstractions.Mechanical.MechanicalValue.Fixed(0f), Abstractions.Mechanical.MechanicalValue.Fixed(0f)));
-        IReadOnlyList<Bundle.BundleError> Check(Abstractions.Mechanical.ResidenceCaptureDescriptor value) =>
-            Bundle.BundleValidator.Validate([new("Fixture", entry with { Mechanical = entry.Mechanical! with { Capture = value } })]);
-        Assert.Empty(Check(capture));
+            Target: TargetSelector.AllPayloads,
+            Position: Vector3.Zero,
+            Rotation: Quaternion.Identity,
+            UpperMargin: Abstractions.Mechanical.MechanicalValue.Fixed(.02f));
+        var guide = new Abstractions.Mechanical.PlanarGuideDescriptor(
+            new(-1.1f, .5f, -1.1f), new(1.1f, 1.5f, 1.1f), .5f,
+            Abstractions.Mechanical.MechanicalValue.Fixed(0f), Abstractions.Mechanical.MechanicalValue.Fixed(0f),
+            Target: TargetSelector.AllPayloads,
+            Position: Vector3.Zero,
+            Rotation: Quaternion.Identity);
+
+        IReadOnlyList<Bundle.BundleError> CheckResidence(Abstractions.Mechanical.ResidenceSensorDescriptor value) =>
+            Bundle.BundleValidator.Validate([new("Fixture", entry with { Mechanical = entry.Mechanical! with { Residence = value } })]);
+        IReadOnlyList<Bundle.BundleError> CheckGuide(Abstractions.Mechanical.PlanarGuideDescriptor value) =>
+            Bundle.BundleValidator.Validate([new("Fixture", entry with { Mechanical = entry.Mechanical! with { PlanarGuide = value } })]);
+
+        Assert.Empty(CheckResidence(residence));
+        Assert.Empty(CheckGuide(guide));
+
         foreach (var invalid in new[]
         {
-            capture with { ParticipationParameter = null! },
-            capture with { ParticipationParameter = "" },
-            capture with { ParticipationParameter = "unknown" },
-            capture with { Minimum = new(float.NaN, 0f, 0f) },
-            capture with { Maximum = capture.Minimum },
-            capture with { UpperMargin = Abstractions.Mechanical.MechanicalValue.Fixed(-1f) },
-            capture with { SpeedLimit = Abstractions.Mechanical.MechanicalValue.Fixed(0f) },
-            capture with { Dwell = Abstractions.Mechanical.MechanicalValue.FromParameter("unknown") },
-            capture with { Guide = capture.Guide with { Minimum = new(float.PositiveInfinity, 0f, 0f) } },
-            capture with { Guide = capture.Guide with { Maximum = capture.Guide.Minimum } },
-            capture with { Guide = capture.Guide with { SupportHeight = 17f } },
-            capture with { Guide = capture.Guide with { SupportMargin = Abstractions.Mechanical.MechanicalValue.Fixed(1.01f) } },
-            capture with { Guide = capture.Guide with { MaximumAcceleration = Abstractions.Mechanical.MechanicalValue.Fixed(12.01f) } }
-        }) Assert.NotEmpty(Check(invalid));
+            residence with { ParticipationParameter = null! },
+            residence with { ParticipationParameter = "" },
+            residence with { ParticipationParameter = "unknown" },
+            residence with { Minimum = new(float.NaN, 0f, 0f) },
+            residence with { Maximum = residence.Minimum },
+            residence with { UpperMargin = Abstractions.Mechanical.MechanicalValue.Fixed(-1f) },
+            residence with { SpeedLimit = Abstractions.Mechanical.MechanicalValue.Fixed(0f) },
+            residence with { Dwell = Abstractions.Mechanical.MechanicalValue.FromParameter("unknown") },
+            residence with { Position = new(float.NaN, 0f, 0f) },
+            residence with { Rotation = new(1f, 1f, 1f, 1f) },
+            residence with { Target = new((TargetSelectorKind)99) }
+        }) Assert.NotEmpty(CheckResidence(invalid));
+
+        foreach (var invalid in new[]
+        {
+            guide with { Minimum = new(float.PositiveInfinity, 0f, 0f) },
+            guide with { Maximum = guide.Minimum },
+            guide with { SupportHeight = 17f },
+            guide with { SupportMargin = Abstractions.Mechanical.MechanicalValue.Fixed(1.01f) },
+            guide with { MaximumAcceleration = Abstractions.Mechanical.MechanicalValue.Fixed(12.01f) },
+            guide with { Position = new(float.NaN, 0f, 0f) },
+            guide with { Rotation = new(1f, 1f, 1f, 1f) },
+            guide with { Target = new((TargetSelectorKind)99) }
+        }) Assert.NotEmpty(CheckGuide(invalid));
+
         Assert.NotEmpty(Bundle.BundleValidator.Validate([new("Fixture", entry with
         {
             Metadata = entry.Metadata with { Parameters = [] },
-            Mechanical = entry.Mechanical! with { Capture = capture }
+            Mechanical = entry.Mechanical! with { Residence = residence }
         })]));
     }
 

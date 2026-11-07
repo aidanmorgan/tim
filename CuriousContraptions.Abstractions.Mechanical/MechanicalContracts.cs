@@ -22,9 +22,14 @@ public interface IHingeElement : IMechanicalElement
     IReadOnlyList<RevoluteHingeDescriptor> Hinges { get; }
 }
 
-public interface IResidenceCaptureElement : IMechanicalElement
+public interface IResidenceSensorElement : IMechanicalElement
 {
-    ResidenceCaptureDescriptor Capture { get; }
+    ResidenceSensorDescriptor ResidenceSensor { get; }
+}
+
+public interface IPlanarGuideElement : IMechanicalElement
+{
+    PlanarGuideDescriptor PlanarGuide { get; }
 }
 
 public interface IContactWorkElement : IMechanicalElement

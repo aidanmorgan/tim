@@ -44,9 +44,25 @@ public sealed class WorkshopCompiledScene : ICompiledScene
         return false;
     }
 
-    public bool OwnsCapture(CapturePairKey pair) =>
-        Physics.Sensors.ToArray().Any(sensor => sensor.Id == pair.Policy) &&
-        Physics.Bodies.ToArray().Any(body => body.Id == pair.Target && body.Payload == PayloadPolicy.CaptureTarget);
+    public bool OwnsCapture(CapturePairKey pair)
+    {
+        foreach (var sensor in Physics.Sensors)
+        {
+            if (sensor.Id == pair.Policy)
+            {
+                foreach (var body in Physics.Bodies)
+                {
+                    if (body.Id == pair.Target &&
+                        (sensor.Targets.Kind != BodyTargetKind.AllDynamic || body.Motion == RigidMotionKind.Dynamic) &&
+                        sensor.Targets.Contains(body.Id, body.Payload))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     public void Validate()
     {

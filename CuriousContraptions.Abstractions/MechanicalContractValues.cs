@@ -169,16 +169,34 @@ public readonly record struct MechanicalValue(MechanicalValueSource Source, floa
     };
 }
 
-/// <summary>Package-owned residence volume. UpperMargin extends its local Y maximum; remaining values bind declared parameters.</summary>
-public readonly record struct ResidenceCaptureDescriptor(
-    Vector3 Minimum, Vector3 Maximum, MechanicalValue UpperMargin,
-    MechanicalValue SpeedLimit, MechanicalValue Dwell, string ParticipationParameter,
-    PlanarGuideDescriptor Guide);
+/// <summary>Package-owned residence sensor volume. UpperMargin extends its local Y maximum; remaining values bind declared parameters.</summary>
+public readonly record struct ResidenceSensorDescriptor(
+    Vector3 Minimum,
+    Vector3 Maximum,
+    MechanicalValue SpeedLimit,
+    MechanicalValue Dwell,
+    string ParticipationParameter,
+    TargetSelector Target = default,
+    Vector3 Position = default,
+    Quaternion Rotation = default,
+    MechanicalValue UpperMargin = default)
+{
+    public Quaternion Rotation { get; init; } = Rotation == default ? Quaternion.Identity : Rotation;
+}
 
-/// <summary>A bounded lateral guide in the same owner frame as its residence volume.</summary>
+/// <summary>A bounded lateral guide in a declared local frame.</summary>
 public readonly record struct PlanarGuideDescriptor(
-    Vector3 Minimum, Vector3 Maximum, float SupportHeight,
-    MechanicalValue SupportMargin, MechanicalValue MaximumAcceleration);
+    Vector3 Minimum,
+    Vector3 Maximum,
+    float SupportHeight,
+    MechanicalValue SupportMargin,
+    MechanicalValue MaximumAcceleration,
+    TargetSelector Target = default,
+    Vector3 Position = default,
+    Quaternion Rotation = default)
+{
+    public Quaternion Rotation { get; init; } = Rotation == default ? Quaternion.Identity : Rotation;
+}
 
 /// <summary>A finite contact-work store on the element's static body. Its target speed is the named Real m/s parameter; its preload is
 /// the kinetic energy (½·ReferenceMass)·s·s of the reference mass at that speed, so the parameter range bounds the store. A contact

@@ -1,4 +1,5 @@
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Abstractions.Signal;
 using CuriousContraptions.Abstractions.Electrical;
 using System;
@@ -28,6 +29,8 @@ public sealed class CompiledIdentityMap
     private readonly ImmutableDictionary<GpuBodyId, CompiledPartIdentities> _parts;
     private readonly ImmutableDictionary<GpuBodyId, GpuBodyId> _owners;
     private readonly ImmutableHashSet<GpuBodyId> _payloads;
+    private readonly ImmutableHashSet<GpuBodyId> _dynamicBodies;
+    private readonly ImmutableDictionary<GpuBodyId, TargetSelector> _residenceTargets;
     public GpuBodyId Plane { get; }
     public GpuMaterialId PlaneMaterial { get; }
     public GpuColliderId PlaneCollider { get; }
@@ -48,15 +51,32 @@ public sealed class CompiledIdentityMap
     public bool TryCapture(GpuBodyId owner, GpuBodyId target, out CompiledCaptureIdentities capture)
     {
         capture = default;
-        if (!_payloads.Contains(target) || !_parts.TryGetValue(owner,out var rows) || rows.Capture.Sensor.Value==0) return false;
-        capture=rows.Capture; return true;
+        if (!_parts.TryGetValue(owner, out var rows) || rows.Capture.Sensor.Value == 0) return false;
+        if (!MatchesTarget(owner, target)) return false;
+        capture = rows.Capture;
+        return true;
     }
 
     public bool OwnsCapture(CapturePairKey key)
     {
-        if(!_payloads.Contains(key.Target)) return false;
-        foreach(var rows in _parts.Values) if(rows.Capture.Sensor==key.Policy && key.Policy.Value!=0) return true;
+        foreach (var (owner, rows) in _parts)
+            if (rows.Capture.Sensor == key.Policy && key.Policy.Value != 0 && MatchesTarget(owner, key.Target))
+                return true;
         return false;
+    }
+
+    private bool MatchesTarget(GpuBodyId owner, GpuBodyId target)
+    {
+        if (!_residenceTargets.TryGetValue(owner, out var selector)) return false;
+        return selector.Kind switch
+        {
+            TargetSelectorKind.AllPayloads => _payloads.Contains(target),
+            TargetSelectorKind.AllDynamic => _dynamicBodies.Contains(target),
+            TargetSelectorKind.Named => ulong.TryParse(selector.NamedTarget, out var id)
+                ? target.Value == id
+                : ((selector.NamedTarget is "puzzle_target" or "interaction_target") && _dynamicBodies.Contains(target)),
+            _ => false
+        };
     }
 
     public CompiledIdentityMap(IReadOnlyList<IWorkshopInstance> instances, IReadOnlyDictionary<PartId, CuriousContraptions.Bundle.BundleEntry> entries)
@@ -80,29 +100,62 @@ public sealed class CompiledIdentityMap
         var nextGuide = 1UL;
         var parts = ImmutableDictionary.CreateBuilder<GpuBodyId, CompiledPartIdentities>();
         var owners = ImmutableDictionary.CreateBuilder<GpuBodyId, GpuBodyId>();
+        var dynamicBodies = ImmutableHashSet.CreateBuilder<GpuBodyId>();
+        var residenceTargets = ImmutableDictionary.CreateBuilder<GpuBodyId, TargetSelector>();
         foreach (var instance in instances.OrderBy(instance => instance.Id.Value))
         {
             var entry = entries[instance.PartId];
-            var material = new GpuMaterialId(Allocate());
-            var colliders = Colliders(entry.Colliders.Count);
-            var (sliders, hinges) = AllocateChildren(instance.Id, entry, owners, Allocate, Colliders);
-            var signals = AllocateSignals(entry, Allocate);
-            var supply = ImmutableDictionary.CreateBuilder<LocalSupplyNodeId, CompiledSupplyIdentities>();
-            foreach (var node in (entry.Electrical?.SupplyGraph?.Nodes ?? []).OrderBy(node => node.Id))
-                supply.Add(node.Id, new(new(Allocate()), node is SupplySourceDescriptor ? new(Allocate()) : default));
-            var work = entry.Mechanical?.ContactWork is not null ? new GpuContactWorkId(Allocate()) : default;
-            var capture = entry.Mechanical?.Capture is not null
-                ? new CompiledCaptureIdentities(new(Allocate()),new(Allocate())) : default;
-            var compliant = entry.Mechanical?.CompliantSurface is not null ? new CompliantSurfaceId(Allocate()) : default;
-            var surfaces = ImmutableArray.CreateBuilder<DrivenSurfaceId>();
-            foreach (var surface in entry.Mechanical?.DrivenSurfaces ?? []) surfaces.Add(new(Allocate()));
-            var guides = ImmutableDictionary.CreateBuilder<PortId, RopeGuideId>();
-            foreach (var port in entry.Ports.Where(port => port.AttachmentRole == RopeAttachmentRole.Guide).OrderBy(port => port.Id))
-                guides.Add(port.Id, new(nextGuide++));
-            parts.Add(instance.Id, new(material, colliders, sliders, signals, supply.ToImmutable(), work,
-                capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable()));
+            parts.Add(instance.Id, AllocatePart(instance, entry, owners, dynamicBodies, residenceTargets, Allocate, Colliders, ref nextGuide));
         }
-        _parts = parts.ToImmutable(); _owners = owners.ToImmutable(); NextIdentity = next;
+        _parts = parts.ToImmutable(); _owners = owners.ToImmutable();
+        _dynamicBodies = dynamicBodies.ToImmutable();
+        _residenceTargets = residenceTargets.ToImmutable();
+        NextIdentity = next;
+    }
+
+    private static CompiledPartIdentities AllocatePart(
+        IWorkshopInstance instance,
+        CuriousContraptions.Bundle.BundleEntry entry,
+        ImmutableDictionary<GpuBodyId, GpuBodyId>.Builder owners,
+        ImmutableHashSet<GpuBodyId>.Builder dynamicBodies,
+        ImmutableDictionary<GpuBodyId, TargetSelector>.Builder residenceTargets,
+        Func<ulong> Allocate,
+        Func<int, ImmutableArray<GpuColliderId>> Colliders,
+        ref ulong nextGuide)
+    {
+        var material = new GpuMaterialId(Allocate());
+        var colliders = Colliders(entry.Colliders.Count);
+        var (sliders, hinges) = AllocateChildren(instance.Id, entry, owners, Allocate, Colliders);
+        if (entry.Mechanical?.KinematicMode == KinematicMode.Dynamic)
+            dynamicBodies.Add(instance.Id);
+        foreach (var s in sliders) dynamicBodies.Add(s.Body);
+        foreach (var h in hinges) dynamicBodies.Add(h.Body);
+        if (entry.Mechanical?.Residence is { } res)
+            residenceTargets.Add(instance.Id, res.Target);
+
+        var signals = AllocateSignals(entry, Allocate);
+        var supply = AllocateSupply(entry, Allocate);
+        var work = entry.Mechanical?.ContactWork is not null ? new GpuContactWorkId(Allocate()) : default;
+        var capture = new CompiledCaptureIdentities(
+            entry.Mechanical?.Residence is not null ? new(Allocate()) : default,
+            entry.Mechanical?.PlanarGuide is not null ? new(Allocate()) : default);
+        var compliant = entry.Mechanical?.CompliantSurface is not null ? new CompliantSurfaceId(Allocate()) : default;
+        var surfaces = ImmutableArray.CreateBuilder<DrivenSurfaceId>();
+        foreach (var surface in entry.Mechanical?.DrivenSurfaces ?? []) surfaces.Add(new(Allocate()));
+        var guides = ImmutableDictionary.CreateBuilder<PortId, RopeGuideId>();
+        foreach (var port in entry.Ports.Where(port => port.AttachmentRole == RopeAttachmentRole.Guide).OrderBy(port => port.Id))
+            guides.Add(port.Id, new(nextGuide++));
+        return new(material, colliders, sliders, signals, supply, work,
+            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable());
+    }
+
+    private static ImmutableDictionary<LocalSupplyNodeId, CompiledSupplyIdentities> AllocateSupply(
+        CuriousContraptions.Bundle.BundleEntry entry, Func<ulong> Allocate)
+    {
+        var supply = ImmutableDictionary.CreateBuilder<LocalSupplyNodeId, CompiledSupplyIdentities>();
+        foreach (var node in (entry.Electrical?.SupplyGraph?.Nodes ?? []).OrderBy(node => node.Id))
+            supply.Add(node.Id, new(new(Allocate()), node is SupplySourceDescriptor ? new(Allocate()) : default));
+        return supply.ToImmutable();
     }
 
     private static (ImmutableArray<CompiledSliderIdentities>, ImmutableArray<CompiledHingeIdentities>) AllocateChildren(

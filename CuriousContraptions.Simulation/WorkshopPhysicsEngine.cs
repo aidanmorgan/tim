@@ -116,6 +116,13 @@ internal sealed class WorkshopPhysicsEngine
             ReadF32(span, rotation + PhysicsGpuAbi.RotationZOffset), ReadF32(span, rotation + PhysicsGpuAbi.RotationWOffset)));
     }
 
+    private static (Vector3 Translation, Quaternion Rotation) ReadPose(ReadOnlySpan<byte> span, int offset)
+    {
+        var rotation = offset + PhysicsGpuAbi.PoseRotationOffset;
+        return (ReadVector(span, offset), new(ReadF32(span, rotation), ReadF32(span, rotation + PhysicsGpuAbi.RotationYOffset),
+            ReadF32(span, rotation + PhysicsGpuAbi.RotationZOffset), ReadF32(span, rotation + PhysicsGpuAbi.RotationWOffset)));
+    }
+
     private static void EmitContactEvents(Span<byte> span, PhysicsWorldLayout layout, SimCollider colStatic, SimBody bDyn, float approach, Vector3 normalTowardDyn, ContactPoint contact, int substep, uint sourceOrdinal, ImmutableDictionary<WorkPairKey,ContactWorkOccurrence>.Builder workStates)
     {
         var bStatic = colStatic.Body;
@@ -820,16 +827,19 @@ internal sealed class WorkshopPhysicsEngine
             var speedLimit = ReadF32(span, sensorOffset + PhysicsGpuAbi.SensorSpeedLimitOffset);
             var dwell = ReadF32(span, sensorOffset + PhysicsGpuAbi.SensorDwellOffset);
 
-            _allBodies.TryGetValue(frameSlot,out var frameBody);
-            foreach(var targetBody in _dynamicBodies)
+            _allBodies.TryGetValue(frameSlot, out var frameBody);
+            var (sensorPos, sensorRot) = ReadPose(span, sensorOffset + PhysicsGpuAbi.SensorPoseOffset);
+            var worldRot = frameBody != null ? Quaternion.Normalize(Quaternion.Multiply(frameBody.Rotation, sensorRot)) : Quaternion.Identity;
+            var worldPos = frameBody != null ? frameBody.Position + WorkshopCollisionKernels.RotateVector(frameBody.Rotation, sensorPos) : Vector3.Zero;
+            foreach (var targetBody in _dynamicBodies)
             {
-            if(!PhysicsGpuAbi.MatchesTarget(span,kind,named,(uint)targetBody.BodySlot)) continue;
-            var targetId=new GpuBodyId((ulong)targetBody.BodyIdHigh<<32 | targetBody.BodyIdLow);
-            var key=new CapturePairKey(sensorId,targetId);
-            var previous=committedInteractions.Residence(key);
-            var prevPhase=(uint)previous.Phase;
-            var prevStartOrdinal=previous.StartOrdinal;
-            var prevStartPhase=previous.StartPhase;
+            if (!PhysicsGpuAbi.MatchesTarget(span, kind, named, (uint)targetBody.BodySlot)) continue;
+            var targetId = new GpuBodyId((ulong)targetBody.BodyIdHigh << 32 | targetBody.BodyIdLow);
+            var key = new CapturePairKey(sensorId, targetId);
+            var previous = committedInteractions.Residence(key);
+            var prevPhase = (uint)previous.Phase;
+            var prevStartOrdinal = previous.StartOrdinal;
+            var prevStartPhase = previous.StartPhase;
             uint phase = 0;
             uint startOrdinal = 0;
             float startPhase = 0f;
@@ -839,8 +849,8 @@ internal sealed class WorkshopPhysicsEngine
 
             if (participation == 1 && targetBody != null && frameBody != null)
             {
-                var rel = targetBody.Position - frameBody.Position;
-                var loc = WorkshopCollisionKernels.InvRotateVector(frameBody.Rotation, rel);
+                var rel = targetBody.Position - worldPos;
+                var loc = WorkshopCollisionKernels.InvRotateVector(worldRot, rel);
                 var speed = targetBody.LinearVelocity.Length();
 
                 var inside = loc.X >= minX && loc.X <= maxX &&
@@ -1048,18 +1058,22 @@ internal sealed class WorkshopPhysicsEngine
             if (maxAcc <= 0f) continue;
             if (!_allBodies.TryGetValue(frameSlot, out var frameBody)) continue;
 
-            var up = WorkshopCollisionKernels.RotateVector(frameBody.Rotation, Vector3.UnitY);
+            var (guidePos, guideRot) = ReadPose(span, guideOffset + PhysicsGpuAbi.GuidePoseOffset);
+            var worldRot = Quaternion.Normalize(Quaternion.Multiply(frameBody.Rotation, guideRot));
+            var worldPos = frameBody.Position + WorkshopCollisionKernels.RotateVector(frameBody.Rotation, guidePos);
+
+            var up = WorkshopCollisionKernels.RotateVector(worldRot, Vector3.UnitY);
             var lowest = float.PositiveInfinity;
             foreach (var child in _colliders)
             {
                 if (child.Body != targetBody) continue;
                 WorkshopCollisionKernels.RefreshCollider(child);
                 var point = WorkshopCollisionKernels.SupportPoint(child, -up);
-                lowest = MathF.Min(lowest, Vector3.Dot(point - frameBody.Position, up));
+                lowest = MathF.Min(lowest, Vector3.Dot(point - worldPos, up));
             }
-            var rel = targetBody.Position - frameBody.Position;
-            var loc = WorkshopCollisionKernels.InvRotateVector(frameBody.Rotation, rel);
-            var locV = WorkshopCollisionKernels.InvRotateVector(frameBody.Rotation, targetBody.LinearVelocity);
+            var rel = targetBody.Position - worldPos;
+            var loc = WorkshopCollisionKernels.InvRotateVector(worldRot, rel);
+            var locV = WorkshopCollisionKernels.InvRotateVector(worldRot, targetBody.LinearVelocity);
 
             var inside = loc.X >= minX && loc.X <= maxX &&
                          loc.Y >= minY && loc.Y <= maxY &&
@@ -1072,7 +1086,7 @@ internal sealed class WorkshopPhysicsEngine
                 var flatLen = MathF.Sqrt(loc.X * loc.X + loc.Z * loc.Z);
                 var accScale = -maxAcc / MathF.Max(1.0f, flatLen);
                 var aloc = new Vector3(loc.X * accScale, 0f, loc.Z * accScale);
-                var aWorld = WorkshopCollisionKernels.RotateVector(frameBody.Rotation, aloc);
+                var aWorld = WorkshopCollisionKernels.RotateVector(worldRot, aloc);
                 var distance=loc.X*loc.X+loc.Z*loc.Z;
                 var owner=(ulong)frameBody.BodyIdHigh<<32 | frameBody.BodyIdLow;
                 var guide=BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(guideOffset+PhysicsGpuAbi.RecordIdentityOffset,8));
@@ -1081,6 +1095,7 @@ internal sealed class WorkshopPhysicsEngine
             }
         }
             targetBody.Vx+=bestAcceleration.X*dt;
+            targetBody.Vy+=bestAcceleration.Y*dt;
             targetBody.Vz+=bestAcceleration.Z*dt;
         }
 

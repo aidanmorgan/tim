@@ -64,9 +64,9 @@ public sealed class F32LaneRoundTripTests
         // Receiver: its capture speed limit and dwell, the upper bound Y plus the margin (one f32 rounding), and its guide.
         var sensor = scene.Sensors.ToArray().Single(row => row.Frame == Receiver);
         var guide = scene.Guides.ToArray().Single(row => row.Frame == Receiver);
-        var capture = DeclaredPhysics.Of(new PartId("basket")).Mechanical!.Capture!.Value;
+        var residence = DeclaredPhysics.Of(new PartId("basket")).Mechanical!.Residence!.Value;
         var sensorOffset = layout.GetSensorOffset(sensor.Id);
-        Assert.Equal((Bits(Speed), Bits(Dwell), Bits(capture.Maximum.Y + Margin)), (Lane(admitted, sensorOffset + PhysicsGpuAbi.SensorSpeedLimitOffset),
+        Assert.Equal((Bits(Speed), Bits(Dwell), Bits(residence.Maximum.Y + Margin)), (Lane(admitted, sensorOffset + PhysicsGpuAbi.SensorSpeedLimitOffset),
             Lane(admitted, sensorOffset + PhysicsGpuAbi.SensorDwellOffset), Lane(admitted, sensorOffset + PhysicsGpuAbi.SensorMaximumOffset + 4)));
         var guideOffset = layout.GetGuideOffset(guide.Id);
         Assert.Equal((Bits(SupportMargin), Bits(Acceleration)), (Lane(admitted, guideOffset + PhysicsGpuAbi.GuideSupportMarginOffset),
