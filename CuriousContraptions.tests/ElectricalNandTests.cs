@@ -86,7 +86,9 @@ public sealed class ElectricalNandTests
         Assert.Equal(saved,loaded);
         Assert.Equal(construction.Connections,loaded.Construction.Connections);
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,240);
-        Assert.Equal(new(new(Gate),ElectricalInputState.Neither,false,false),Logic(built));
+        Assert.Equal(ElectricalInputState.Neither, Logic(built).Inputs);
+        Assert.False(Logic(built).Supplied);
+        Assert.False(Logic(built).Active);
         Assert.All(reads,read=>
         {
             var open=Logic(read).Inputs!=ElectricalInputState.Both;
@@ -102,7 +104,9 @@ public sealed class ElectricalNandTests
         Assert.Equal(built.Presentation.Loads.ToArray(), reset.Presentation.Loads.ToArray());
         Assert.Equal(built.Presentation.Logic.ToArray(), reset.Presentation.Logic.ToArray());
         var (_,replay,_)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,240);
-        Assert.Equal(new(new(Gate),ElectricalInputState.Neither,false,false),Logic(built));
+        Assert.Equal(ElectricalInputState.Neither, Logic(built).Inputs);
+        Assert.False(Logic(built).Supplied);
+        Assert.False(Logic(built).Active);
         Assert.All(replay,read=>
         {
             var open=Logic(read).Inputs!=ElectricalInputState.Both;
@@ -268,9 +272,13 @@ public sealed class ElectricalNandTests
         var (open,closing,_)=LoopCase(FeedbackLoop.ThroughBothGate);
         var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, open,new(1,2));
         var edges=WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, open,DeclaredPhysics.Of).Edges;
-        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges.ToArray(),scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives);
-        var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,Enum.Parse<PortRole>(closing.Input.Value))).ToArray();
-        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives));
+        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges.ToArray(),scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,[],[]);
+        var sourceEndpoint = WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(open.Instances.Single(i => i.Id == closing.Source).PartId), closing.Output);
+        var targetEndpoint = WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(open.Instances.Single(i => i.Id == closing.Target).PartId), closing.Input);
+        var sourceNode = open.Instances.Identities[closing.Source].Supply[sourceEndpoint.Node].Node;
+        var targetNode = open.Instances.Identities[closing.Target].Supply[targetEndpoint.Node].Node;
+        var looped=edges.Append(new SupplyEdge(sourceNode,targetNode,targetEndpoint.Terminal)).ToArray();
+        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,[],[]));
         Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",invariant.Message);
     }
 
@@ -279,11 +287,11 @@ public sealed class ElectricalNandTests
     {
         Assert.Equal(NandTruth,new[]{(false,false),(false,true),(true,false),(true,true)}
             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Nand,row.Item1,row.Item2)).ToArray());
-        Assert.True(CompiledSupplyGraph.IsMonotone(LogicGateOperation.And));
-        Assert.False(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Nand));
+        Assert.True(SupplyCycles.IsMonotone(LogicGateOperation.And));
+        Assert.False(SupplyCycles.IsMonotone(LogicGateOperation.Nand));
         Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)5,true,true));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone((LogicGateOperation)5));
-        Assert.Equal(LogicGateOperation.Nand,DeclaredPhysics.Of(Kind).Electrical!.Supply!.Value.Operation);
+        Assert.Throws<ArgumentOutOfRangeException>(()=>SupplyCycles.IsMonotone((LogicGateOperation)5));
+        Assert.Equal(LogicGateOperation.Nand,DeclaredPhysics.Of(Kind).Electrical!.SupplyGraph!.Nodes.OfType<SupplyLogicDescriptor>().Single().Operation);
         var construction=SwitchMachine(ElectricalInputState.Neither,true);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,new PortId("invalid")))}).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(
@@ -308,9 +316,9 @@ public sealed class ElectricalNandTests
         var expected=new[]{(ElectricalInputState.Neither,true,true),(ElectricalInputState.FirstOnly,true,true),
             (ElectricalInputState.Both,true,false),(ElectricalInputState.Both,false,false)};
         for(var i=0;i<phases.Count;i++)
-            Assert.All(phases[i],read=>Assert.Equal(new(new(4),expected[i].Item1,expected[i].Item2,expected[i].Item3),Logic(read,4)));
+            Assert.All(phases[i],read=>Assert.Equal(expected[i],(Logic(read,4).Inputs,Logic(read,4).Supplied,Logic(read,4).Active)));
         var (built,_,_)=await WorkshopIntegrationHarness.ObserveReset(construction,1);
-        Assert.Equal(new(new(4),ElectricalInputState.Neither,false,false),Logic(built,4));
+        Assert.Equal((ElectricalInputState.Neither,false,false),(Logic(built,4).Inputs,Logic(built,4).Supplied,Logic(built,4).Active));
         WorkshopMessages.ValidatePresentationOwners(built,CompiledSceneFixture.Compile(construction));
         foreach(var read in phases.SelectMany(rows=>rows)) WorkshopMessages.ValidatePresentationOwners(read,CompiledSceneFixture.Compile(construction));
         var row=Logic(phases[0][^1],4);

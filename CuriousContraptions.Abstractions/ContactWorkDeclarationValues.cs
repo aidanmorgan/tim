@@ -72,7 +72,7 @@ public readonly record struct ContactWorkRead(GpuContactWorkId Id, GpuBodyId Own
         if (Id.Value == 0 || Owner.Value == 0)
             throw new ArgumentException("Invalid contact-work observation identity.");
         RemainingEnergy.Validate();
-        SuppliedEnergy.Validate(8f);
+        SuppliedEnergy.Validate(float.MaxValue);
     }
 }
 

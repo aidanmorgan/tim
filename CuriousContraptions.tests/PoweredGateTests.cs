@@ -214,7 +214,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.Equal(2,scene.SupplyGraph.Nodes.Length);
         Assert.Equal(battery.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Source).Owner);
         Assert.Equal(gate.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Consumer).Owner);
-        bool NoContact(GpuBodyId owner)=>throw new InvalidOperationException("Direct supply consulted a contact.");
+        bool NoContact(SupplyNodeId owner)=>throw new InvalidOperationException("Direct supply consulted a contact.");
         Assert.True(TickControlComposition.Compose(scene.SupplyGraph,new([ElectricalEnable.Enabled]),NoContact, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
         Assert.False(TickControlComposition.Compose(scene.SupplyGraph,new([ElectricalEnable.Disabled]),NoContact, PlacedParts.InitialElectrical(scene)).SupplyClosed[0]);
         Assert.Empty(scene.Electrical.Bindings.ToArray());
@@ -244,9 +244,9 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var construction=new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),new(gate,battery,plate),
             Connections:new(Supply(battery.Id,plate.Id),Supply(plate.Id,gate.Id)));
         var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction,new(1,1));
-        Assert.Equal(plate.Id,Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Contact).Owner);
+        var plateContact = Assert.Single(scene.SupplyGraph.Nodes.ToArray(),node=>node.Kind==SupplyNodeKind.Contact).Id;
         bool Closed(ElectricalEnable enable,bool contact)=>TickControlComposition.Compose(scene.SupplyGraph,
-            new([enable]),owner=>owner==plate.Id?contact:throw new InvalidOperationException(), PlacedParts.InitialElectrical(scene)).SupplyClosed[0];
+            new([enable]),node=>node==plateContact?contact:throw new InvalidOperationException(), PlacedParts.InitialElectrical(scene)).SupplyClosed[0];
         Assert.True(Closed(ElectricalEnable.Enabled,true));Assert.False(Closed(ElectricalEnable.Enabled,false));Assert.False(Closed(ElectricalEnable.Disabled,true));
         var unsupplied=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction with {Connections=new(Supply(plate.Id,gate.Id))},new(1,1));
         Assert.False(TickControlComposition.Compose(unsupplied.SupplyGraph,new([ElectricalEnable.Enabled]),_=>true, PlacedParts.InitialElectrical(unsupplied)).SupplyClosed[0]);
@@ -261,10 +261,10 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var gate=Gate(1);var battery=Battery(2,ElectricalEnable.Enabled);
         var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(1),WorkshopCadenceSettings.Default(),new(gate,battery)),new(1,1));
         CompiledSupplyGraph Admit(SupplyNodeDeclaration[] nodes,params SupplyEdge[] edges)=>new(nodes,edges,
-            scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives);
-        var source=new SupplyNodeDeclaration(battery.Id,SupplyNodeKind.Source,scene.Electrical.Sources[0].Id);
-        var consumer=new SupplyNodeDeclaration(gate.Id,SupplyNodeKind.Consumer,Consumers:[SupplyConsumer.Prismatic(scene.Prismatics[0].Id)]);
-        Assert.Equal(2,Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,PortRole.PowerIn)).Nodes.Length);
+            scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,[],[]);
+        var source=new SupplyNodeDeclaration(new(1),battery.Id,SupplyNodeKind.Source,scene.Electrical.Sources[0].Id);
+        var consumer=new SupplyNodeDeclaration(new(2),gate.Id,SupplyNodeKind.Consumer,Consumers:[SupplyConsumer.Prismatic(scene.Prismatics[0].Id)]);
+        Assert.Equal(2,Admit([source,consumer],new SupplyEdge(new(1),new(2),CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn)).Nodes.Length);
         Assert.Throws<ArgumentException>(()=>Admit([source with {Kind=(SupplyNodeKind)99}]));
         Assert.Throws<ArgumentException>(()=>Admit([source with {Source=default}]));
         Assert.Throws<ArgumentException>(()=>Admit([source,source]));
@@ -272,10 +272,10 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         // A consumer names its joint with its drive kind's own identity type: a revolute consumer carrying the gate prismatic's identity
         // value names no revolute and is refused. (An undefined kind cannot be constructed; the wire decode refuses one.)
         Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumers=[SupplyConsumer.Revolute(new(scene.Prismatics[0].Id.Value))]}]));
-        Assert.Throws<ArgumentException>(()=>Admit([new(default,SupplyNodeKind.Contact)]));
-        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(gate.Id,battery.Id,PortRole.PowerIn)));
-        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,PortRole.PowerIn),new(battery.Id,gate.Id,PortRole.PowerIn)));
-        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,new(999),PortRole.PowerIn)));
+        Assert.Throws<ArgumentException>(()=>Admit([new(new(3),battery.Id,SupplyNodeKind.Contact)]));
+        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(new(2),new(1),CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn)));
+        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(new(1),new(2),CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn),new(new(1),new(2),CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn)));
+        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(new(1),new(999),CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn)));
     }
 
     [Fact]

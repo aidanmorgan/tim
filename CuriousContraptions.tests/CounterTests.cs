@@ -253,13 +253,14 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Connections: new([conn1, conn2]));
 
         var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
+        var counterContact = construction.Instances.Identities[counter.Id].Supply.Values.First().Node;
         var activations = network.Clear();
         var timers = network.ClearTimers();
         var memory = network.ClearMemory();
 
         Assert.Equal(0U, network.Memory(memory, SignalTestNodes.Only(network, counter.Id)).Count);
         Assert.Equal(3u, network.GetCounterTarget( SignalTestNodes.Only(network, counter.Id)));
-        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
+        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counterContact));
 
         var sensorId = construction.Instances.Identities[detector.Id].Signals[new("signal")].Passage;
         var ballBodyId = new GpuBodyId(10);
@@ -271,7 +272,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         activations = cp1.Activations; timers = cp1.Timers; memory = cp1.Memory;
 
         Assert.Equal(1U, network.Memory(memory, SignalTestNodes.Only(network, counter.Id)).Count);
-        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
+        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counterContact));
         var lampSlot = network.Nodes.ToArray().ToList().FindIndex(n => n.Id == construction.Instances.Identities[lamp.Id].Signals[new("signal")].Node);
         Assert.Equal(ActivationPhase.Clear, activations[lampSlot].Phase);
 
@@ -285,7 +286,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         activations = cp2.Activations; timers = cp2.Timers; memory = cp2.Memory;
 
         Assert.Equal(2U, network.Memory(memory, SignalTestNodes.Only(network, counter.Id)).Count);
-        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
+        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counterContact));
 
         // Tick 3: passage 3 (target reached!)
         var passageRead3 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 3, 0f, new(2f), new(3));
@@ -293,7 +294,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         activations = cp3.Activations; timers = cp3.Timers; memory = cp3.Memory;
 
         Assert.Equal(3U, network.Memory(memory, SignalTestNodes.Only(network, counter.Id)).Count);
-        Assert.True(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
+        Assert.True(network.ContactClosed(activations, network.ClearTimers(), counterContact));
 
         // Lamp must be latched now!
         Assert.Equal(ActivationPhase.Latched, activations[lampSlot].Phase);
@@ -308,14 +309,14 @@ public sealed class CounterTests(NativeSceneFixture godot)
         }
 
         // Remains reached and saturated
-        Assert.True(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
+        Assert.True(network.ContactClosed(activations, network.ClearTimers(), counterContact));
         Assert.Equal(ActivationPhase.Latched, activations[lampSlot].Phase);
 
         // Clearing (admission) restores counter to 0 and lamp to Clear
         activations = network.Clear();
         memory = network.ClearMemory();
         Assert.Equal(0U, network.Memory(memory, SignalTestNodes.Only(network, counter.Id)).Count);
-        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
+        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counterContact));
         Assert.Equal(ActivationPhase.Clear, activations[lampSlot].Phase);
     }
 
@@ -330,6 +331,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Connections: new([new WorkshopConnection(detector.Id, PortId.ActivationOut, counter.Id, PortId.ActivationIn,
                 WorkshopConnectionDomain.Activation)]));
         var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
+        var counterContact = construction.Instances.Identities[counter.Id].Supply.Values.First().Node;
         var sensor = construction.Instances.Identities[detector.Id].Signals[new("signal")].Passage;
         PassageSensorRead Pass(uint ordinal) => new(sensor, detector.Id, new(10), new(11), PassageSensorPhase.Fired, ordinal, 0f, new(2f), new(ordinal / 4));
 
@@ -346,14 +348,14 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.Equal(2U, network.Memory(committed.Memory, SignalTestNodes.Only(network, counter.Id)).Count);
         var retried = network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)], memory: committed.Memory);
         Assert.Equal(3U, network.Memory(retried.Memory, SignalTestNodes.Only(network, counter.Id)).Count);
-        Assert.True(network.ContactClosed(retried.Activations, network.ClearTimers(), counter.Id));
+        Assert.True(network.ContactClosed(retried.Activations, network.ClearTimers(), counterContact));
 
         // Admission (Reset) recompiles the network and clears the row: count 0, no last input, contact open.
         var reset = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var cleared = network.Memory(reset.ClearMemory(), SignalTestNodes.Only(network, counter.Id));
         Assert.Equal(ActivationMemory.Clear(reset.Nodes.ToArray().Single(node => node.Owner == counter.Id)), cleared);
         Assert.Equal(0U, cleared.Count);
-        Assert.False(reset.ContactClosed(reset.Clear(), reset.ClearTimers(), counter.Id));
+        Assert.False(reset.ContactClosed(reset.Clear(), reset.ClearTimers(), counterContact));
 
         // A checkpoint without the counter's row is rejected rather than counted from an implicit zero.
         Assert.Throws<ArgumentException>(() => network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)]));

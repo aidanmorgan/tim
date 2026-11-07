@@ -68,8 +68,12 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply,
-        Control: new(new("signal"), SignalContactState.Latched));
+    public SupplyGraphDescriptor SupplyGraph => new(
+        [new SupplyContactDescriptor(new("contact"), new(new("signal"), SignalContactState.Latched))], [],
+        [
+            new(PortId.PowerIn, new(new("contact"), SupplyTerminal.PowerIn)),
+            new(PortId.Supply, new(new("contact"), SupplyTerminal.Output))
+        ]);
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes => [new("switched_contact", ElectricalRole.Switch, 12f, .05f, 0f, 100f)];
 
     public IReadOnlyList<SignalNodeDescriptor> SignalNodes => [new SignalContactDescriptor(new("signal"), new(0), new("trigger_threshold"))];

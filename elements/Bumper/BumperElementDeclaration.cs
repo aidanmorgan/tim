@@ -9,7 +9,7 @@ namespace CuriousContraptions.Elements.Bumper;
 /// <summary>The Pinball Bumper (CAT-015): a static compound head, upper ring and cap whose finite contact-work store kicks a qualifying ball radially. Its one
 /// typed parameter, strength, is the store's target speed; the preload is a 1 kg reference mass at that speed (32 J at the default
 /// 8 m/s, 200 J at 20 m/s). The editor clamps a finite strength into 0–20 m/s.</summary>
-public sealed class BumperElementDeclaration : IContactWorkElement, IElectricalElement, ISceneGeometryElement
+public sealed class BumperElementDeclaration : IContactWorkElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.8f, PresentationAxes.None,
         [
@@ -34,7 +34,7 @@ public sealed class BumperElementDeclaration : IContactWorkElement, IElectricalE
             new("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 20f, Default: 8f, Options: [], EditorPolicy: ParameterEditorPolicy.Clamp)
         ]);
 
-    public ContactWorkDescriptor ContactWork => new("strength", ReferenceMass: 1f, Threshold: .05f, CooldownPhysicalSteps: 72);
+    public ContactWorkDescriptor ContactWork => new(new("work"), "strength", ReferenceMass: 1f, Threshold: .05f, CooldownPhysicalSteps: 72);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
@@ -67,6 +67,10 @@ public sealed class BumperElementDeclaration : IContactWorkElement, IElectricalE
         gravity: Vector3.Zero);
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
+
+    public SupplyGraphDescriptor SupplyGraph => new(
+        [new SupplyConsumerDescriptor(new("consumer"), [new SupplyContactWorkTarget(new("work"))])], [],
+        [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

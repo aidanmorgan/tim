@@ -9,21 +9,21 @@ public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryEl
 {
     public ElementPresentation Presentation => new(.8f, PresentationAxes.None,
         [
-            new("Visual/Terminal", PresentationProperty.AlbedoRed, PresentationDriver.CommittedSupply, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Terminal", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedSupply, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Terminal", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedSupply, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Mark_0", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.25f, PresentationTimerPhase.None),
-            new("Visual/Mark_0", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.25f, PresentationTimerPhase.None),
-            new("Visual/Mark_0", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.25f, PresentationTimerPhase.None),
-            new("Visual/Mark_1", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.5f, PresentationTimerPhase.None),
-            new("Visual/Mark_1", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.5f, PresentationTimerPhase.None),
-            new("Visual/Mark_1", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.5f, PresentationTimerPhase.None),
-            new("Visual/Mark_2", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.75f, PresentationTimerPhase.None),
-            new("Visual/Mark_2", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.75f, PresentationTimerPhase.None),
-            new("Visual/Mark_2", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.75f, PresentationTimerPhase.None),
-            new("Visual/Mark_3", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 1f, PresentationTimerPhase.None),
-            new("Visual/Mark_3", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 1f, PresentationTimerPhase.None),
-            new("Visual/Mark_3", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 1f, PresentationTimerPhase.None)
+            new("Visual/Terminal", PresentationProperty.AlbedoRed, PresentationDriver.CommittedSupply, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Terminal", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedSupply, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Terminal", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedSupply, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_0", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.25f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_0", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.25f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_0", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.25f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_1", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.5f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_1", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.5f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_1", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.5f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_2", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.75f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_2", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.75f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_2", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0.75f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_3", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 1f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_3", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 1f, PresentationTimerPhase.None, SupplyNode: new("source")),
+            new("Visual/Mark_3", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCharge, PresentationValueMapping.Identity, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 1f, PresentationTimerPhase.None, SupplyNode: new("source"))
         ], [], [], []);
 
     public ElementMetadata Metadata => new(
@@ -67,8 +67,11 @@ public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryEl
 
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.Source, null, PortId.Supply,
-        Store: new("capacity", "power_limit", "initial_charge", "enabled"));
+    public SupplyGraphDescriptor SupplyGraph => new(
+        [new SupplySourceDescriptor(new("source"), new(new("capacity"), new("power_limit"), new("initial_charge"), new("enabled")))], [],
+        [
+            new(PortId.Supply, new(new("source"), SupplyTerminal.Output))
+        ]);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

@@ -25,8 +25,9 @@ public sealed class DeclaredOscillatorTests
     {
         var bench = Bench(2.5f, supplied);
         var node = Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray());
+        var expectedProvider = supplied ? bench.Instances.Identities[Source].Supply.Values.First().Node : default;
         Assert.Equal(new ActivationNodeDeclaration(bench.Instances.Identities[Owner].Signals[new("signal")].Node, Owner, ActivationNodeKind.Oscillator, default, 0, default, default, 0, 300,
-            supplied ? Source : default), node);
+            expectedProvider), node);
     }
 
     // The oscillator selects the contact output; source accounting belongs only to consumers that debit a finite store.
@@ -43,7 +44,8 @@ public sealed class DeclaredOscillatorTests
                 PlacedParts.Clock(clock, 0, 3, 0, 0, 0, 0, 1, 1f)),
             Connections: twoBatteries ? new(Wire(first, latch), Wire(second, latch), Wire(latch, clock)) : new(Wire(first, latch), Wire(latch, clock)));
         bench.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
-        Assert.Equal(latch, Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray(), node => node.Owner == clock).PowerProvider);
+        var latchProvider = bench.Instances.Identities[latch].Supply.Values.First().Node;
+        Assert.Equal(latchProvider, Assert.Single(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench).Nodes.ToArray(), node => node.Owner == clock).PowerProvider);
     }
 
     private static byte[] Save(IReadOnlyList<(string Key, float Value)> parameters) => PayloadInstanceTests.GenericSave("clock", parameters);

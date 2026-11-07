@@ -177,14 +177,14 @@ public sealed class DeclaredPrismaticDriveTests
         var baseScene = fixture.Admit().Scene;
         var source = new ElectricalSourceDeclaration(new(1000),battery,new(1000),new(100),1,
             enabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
-        SupplyNodeDeclaration[] nodes = [new(battery,SupplyNodeKind.Source,source.Id),
-            new(frame,SupplyNodeKind.Consumer,Consumers:[..joints.Select(SupplyConsumer.Prismatic)])];
-        SupplyEdge[] edges = [new(battery,frame,PortRole.PowerIn)];
-        var graph = new CompiledSupplyGraph(nodes,edges,[source],baseScene.Prismatics,baseScene.PrismaticDrives,[],[]);
+        SupplyNodeDeclaration[] nodes = [new(new(1001),battery,SupplyNodeKind.Source,source.Id),
+            new(new(1002),frame,SupplyNodeKind.Consumer,Consumers:[..joints.Select(SupplyConsumer.Prismatic)])];
+        SupplyEdge[] edges = [new(new(1001),new(1002),CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn)];
+        var graph = new CompiledSupplyGraph(nodes,edges,[source],baseScene.Prismatics,baseScene.PrismaticDrives,[],[],[],[]);
         Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph(
             [nodes[0],nodes[1] with { Consumers=[SupplyConsumer.Prismatic(joints[0]),SupplyConsumer.Prismatic(joints[0])] }],edges,[source],
-            baseScene.Prismatics,baseScene.PrismaticDrives,[],[]));
-        var scene = new PhysicsSceneDeclaration(baseScene.Document,1001,baseScene.Bodies,baseScene.Colliders,
+            baseScene.Prismatics,baseScene.PrismaticDrives,[],[],[],[]));
+        var scene = new PhysicsSceneDeclaration(baseScene.Document,1003,baseScene.Bodies,baseScene.Colliders,
             baseScene.Materials,[],[],prismatics:baseScene.Prismatics,prismaticDrives:baseScene.PrismaticDrives,
             electricalSources:[source],supplyNodes:nodes,supplyEdges:edges);
         var current = PhysicsGpuAbi.Admission(scene,new(1),new(SimulationCadence.Hz120,PhysicalStepProfile.Canonical480Hz,new(1)));
@@ -300,8 +300,8 @@ public sealed class DeclaredPrismaticDriveTests
         // A route may drive only a slider that declares a drive: the springboard's passive slider is never a consumer.
         var spring = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), new(1), 0, 3, 0, 0, 0, 0, 1);
         var passive = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new(new(2), WorkshopCadenceSettings.Default(), new(spring)), new(1, 2));
-        Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph([new(spring.Id, SupplyNodeKind.Consumer, Consumers: [SupplyConsumer.Prismatic(passive.Prismatics[0].Id)])],
-            [], [], passive.Prismatics, passive.PrismaticDrives, [], []));
+        Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph([new(new(1), spring.Id, SupplyNodeKind.Consumer, Consumers: [SupplyConsumer.Prismatic(passive.Prismatics[0].Id)])],
+            [], [], passive.Prismatics, passive.PrismaticDrives, [], [], [], []));
     }
 
     [Fact]
@@ -746,6 +746,15 @@ public static class NativeTwoDriveScenario
             Metadata = template.Metadata with { Id = "native_two_drives", PaletteOrder = entries.Max(e => e.Metadata.PaletteOrder) + 1 },
             Footprint = new(3, 2, 2, 0), Colliders = [shape], ColliderBindings = [], TubeMouths = [], TubeMouthBindings = [],
             Mechanical = template.Mechanical! with { Sliders = sliders },
+            Electrical = template.Electrical! with
+            {
+                SupplyGraph = template.Electrical.SupplyGraph! with
+                {
+                    Nodes = [new CuriousContraptions.Abstractions.Electrical.SupplyConsumerDescriptor(new("consumer"), [
+                        new CuriousContraptions.Abstractions.Electrical.SupplyDriveTarget(new(CoordinateKind.Prismatic, 0)),
+                        new CuriousContraptions.Abstractions.Electrical.SupplyDriveTarget(new(CoordinateKind.Prismatic, 1))])]
+                }
+            },
             Presentation = new(1, CuriousContraptions.Abstractions.PresentationAxes.None, [],
                 [new("Visual/First", new(1), Vector3.Zero), new("Visual/Second", new(2), Vector3.Zero)], [], [])
         };

@@ -1,6 +1,7 @@
 using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Signal;
+using CuriousContraptions.Abstractions.Electrical;
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 
@@ -262,7 +263,14 @@ public sealed class ComposableSignalNodesTests
         entry = entry with
         {
             Ports = [.. entry.Ports, Assert.Single(contact.Ports, port => port.Id == PortId.Supply)],
-            Electrical = contact.Electrical! with { Nodes = [.. entry.Electrical!.Nodes, .. contact.Electrical!.Nodes], Supply = contact.Electrical!.Supply!.Value with { Control = new(new(selected), state) } },
+            Electrical = contact.Electrical! with
+            {
+                Nodes = [.. entry.Electrical!.Nodes, .. contact.Electrical!.Nodes],
+                SupplyGraph = contact.Electrical!.SupplyGraph! with
+                {
+                    Nodes = [.. contact.Electrical!.SupplyGraph!.Nodes.Select(node => node is SupplyContactDescriptor sc ? sc with { Control = new(new(selected), state) } : node)]
+                }
+            },
             Signal = entry.Signal! with { Edges = [.. entry.Signal!.Edges, Edge("fast", "memory_b", SignalTerminal.Set)] }
         };
         Assert.Empty(BundleValidator.Validate([new("selected_contact", entry)]));
@@ -271,7 +279,8 @@ public sealed class ComposableSignalNodesTests
         var bench = Bench();
         await harness.Require(WorkshopCommandKind.Construct, bench);
         await harness.Run();
-        bool Closed() => harness.Simulation.Scene.Activation.ContactClosed(harness.Committed.Activations, harness.Committed.Timers, new(2));
+        var contactNode = harness.Simulation.Scene.Activation.Contacts.Single(c => c.Owner.Value == 2).Contact;
+        bool Closed() => harness.Simulation.Scene.Activation.ContactClosed(harness.Committed.Activations, harness.Committed.Timers, contactNode);
         Assert.False(Closed());
         await harness.Advance(14); // Fast pulse at12 sets B and starts delay; A waits for elapsed at18.
         Assert.Equal(early, Closed());
@@ -548,7 +557,14 @@ public sealed class ComposableSignalNodesTests
             Ports = reverse ? [power with { Id = secondInput }, power] : [power, power with { Id = secondInput }],
             Signal = entry.Signal! with { Nodes = entry.Signal!.Nodes.Select(node =>
                 node is SignalOscillatorDescriptor oscillator && node.Id == new SignalNodeId("slow")
-                    ? oscillator with { SupplyInput = secondInput } : node).ToArray() }
+                    ? oscillator with { SupplyInput = secondInput } : node).ToArray() },
+            Electrical = entry.Electrical! with
+            {
+                SupplyGraph = new(
+                    [.. entry.Electrical!.SupplyGraph!.Nodes, new SupplyConsumerDescriptor(new("slow_consumer"), [])],
+                    [],
+                    [.. entry.Electrical!.SupplyGraph!.Ports, new(secondInput, new(new("slow_consumer"), SupplyTerminal.PowerIn))])
+            }
         };
         entry = IndependentSignalCompositionTests.Compose(entry, composition);
         var collider = Assert.Single(entry.Colliders);
@@ -656,7 +672,8 @@ public sealed class ComposableSignalNodesTests
         await harness.Require(WorkshopCommandKind.Construct, bench);
         await harness.Run(); await harness.Advance(25);
         ActivationMemory Memory(string local) => harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, Node(bench, local));
-        bool Closed() => harness.Simulation.Scene.Activation.ContactClosed(harness.Committed.Activations, harness.Committed.Timers, new(3));
+        var contactNode = harness.Simulation.Scene.Activation.Contacts.Single(c => c.Owner.Value == 3).Contact;
+        bool Closed() => harness.Simulation.Scene.Activation.ContactClosed(harness.Committed.Activations, harness.Committed.Timers, contactNode);
         async Task Switch(bool closed)
         {
             var battery = new GpuBodyId(closed ? 5UL : 7UL);

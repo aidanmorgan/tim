@@ -350,7 +350,7 @@ public static partial class WorkshopWireFlatBuffers
             for(var i=read.Presentation.Logic.Length-1;i>=0;i--)
             {
                 var logic=read.Presentation.Logic[i];
-                ElectricalLogicRecord.CreateElectricalLogicRecord(builder,logic.Owner.Value,(byte)logic.Inputs,logic.Supplied,logic.Active);
+                ElectricalLogicRecord.CreateElectricalLogicRecord(builder,logic.Node.Value,logic.Owner.Value,(byte)logic.Inputs,logic.Supplied,logic.Active);
             }
             logicOffset=builder.EndVector();
         }
@@ -575,7 +575,7 @@ public static partial class WorkshopWireFlatBuffers
         for(var i=0;i<logicValues.Length;i++)
         {
             var logic=fb.ElectricalLogic(i)!.Value;
-            logicValues[i]=new(new(logic.Owner),(ElectricalInputState)logic.Inputs,logic.Supplied,logic.Active);
+            logicValues[i]=new(new(logic.Node),new(logic.Owner),(ElectricalInputState)logic.Inputs,logic.Supplied,logic.Active);
         }
         var actuatorValues = new ActuatorDriveRead[fb.ActuatorDrivesLength];
         for (var i = 0; i < actuatorValues.Length; i++)

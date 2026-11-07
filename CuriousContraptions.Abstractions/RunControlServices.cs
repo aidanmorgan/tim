@@ -9,7 +9,7 @@ public interface IRunControlServices
     bool Resolves(RunControlRow row, IPhysicsSceneDeclaration physics);
     bool BoundsAdmitted(RunControlRow row);
     bool WithinBounds(RunControlRow row, RunControlValue value);
-    int Slot(IPhysicsSceneDeclaration physics, RunControlLane lane, GpuBodyId owner);
-    RunControlValue Read(WorkshopRead read, GpuBodyId owner, RunControlLane lane);
-    RunControlRow? Find(IEnumerable<RunControlRow> rows, GpuBodyId owner, RunControlLane lane);
+    int Slot(IPhysicsSceneDeclaration physics, RunControlLane lane, GpuBodyId owner, ElectricalSourceId source = default);
+    RunControlValue Read(WorkshopRead read, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source = default);
+    RunControlRow? Find(IEnumerable<RunControlRow> rows, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source = default);
 }

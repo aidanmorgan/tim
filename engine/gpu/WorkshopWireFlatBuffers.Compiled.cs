@@ -452,12 +452,13 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityElectricalStorageBindingRecord.StartCapabilityElectricalStorageBindingRecord(b);
         W.CapabilityElectricalStorageBindingRecord.AddSource(b, value.Source.Value);
         W.CapabilityElectricalStorageBindingRecord.AddStorage(b, value.Storage.Value);
+        W.CapabilityElectricalStorageBindingRecord.AddRoute(b, value.Route.Value);
         return W.CapabilityElectricalStorageBindingRecord.EndCapabilityElectricalStorageBindingRecord(b);
     }
 
     private static CuriousContraptions.Gpu.ElectricalStorageBinding DecodeCapabilityElectricalStorageBindingRecord(W.CapabilityElectricalStorageBindingRecord row) => new(
         new CuriousContraptions.Gpu.ElectricalSourceId(row.Source),
-        new CuriousContraptions.Gpu.GpuContactWorkId(row.Storage));
+        new CuriousContraptions.Gpu.GpuContactWorkId(row.Storage), new SupplyNodeId(row.Route));
 
     private static Offset<W.CapabilityPrismaticConstraintDeclarationRecord> EncodeCapabilityPrismaticConstraintDeclarationRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.PrismaticConstraintDeclaration value)
     {
@@ -571,7 +572,11 @@ public static partial class WorkshopWireFlatBuffers
     {
         var consumers = W.CapabilitySupplyNodeDeclarationRecord.CreateConsumersVector(b,
             (value.Consumers.IsDefault ? [] : value.Consumers).Select(item => EncodeCapabilitySupplyConsumerRecord(b, item)).ToArray());
+        var storages = W.CapabilitySupplyNodeDeclarationRecord.CreateStoragesVector(b,
+            (value.Storages.IsDefault ? [] : value.Storages).Select(id => id.Value).ToArray());
         W.CapabilitySupplyNodeDeclarationRecord.StartCapabilitySupplyNodeDeclarationRecord(b);
+        W.CapabilitySupplyNodeDeclarationRecord.AddId(b, value.Id.Value);
+        W.CapabilitySupplyNodeDeclarationRecord.AddStorages(b, storages);
         W.CapabilitySupplyNodeDeclarationRecord.AddOwner(b, value.Owner.Value);
         W.CapabilitySupplyNodeDeclarationRecord.AddKind(b, (uint)value.Kind);
         W.CapabilitySupplyNodeDeclarationRecord.AddSource(b, value.Source.Value);
@@ -581,11 +586,12 @@ public static partial class WorkshopWireFlatBuffers
     }
 
     private static CuriousContraptions.Gpu.SupplyNodeDeclaration DecodeCapabilitySupplyNodeDeclarationRecord(W.CapabilitySupplyNodeDeclarationRecord row) => new(
-        new CuriousContraptions.Gpu.GpuBodyId(row.Owner),
+        new SupplyNodeId(row.Id), new CuriousContraptions.Gpu.GpuBodyId(row.Owner),
         ObservationEnum<CuriousContraptions.Gpu.SupplyNodeKind>(row.Kind),
         new CuriousContraptions.Gpu.ElectricalSourceId(row.Source),
         Enumerable.Range(0, row.ConsumersLength).Select(i => DecodeCapabilitySupplyConsumerRecord(Required(row.Consumers(i), "Consumers"))).ToImmutableArray(),
-        row.Operation is { } operation ? ObservationEnum<CuriousContraptions.Abstractions.Electrical.LogicGateOperation>(operation) : null);
+        row.Operation is { } operation ? ObservationEnum<CuriousContraptions.Abstractions.Electrical.LogicGateOperation>(operation) : null,
+        Enumerable.Range(0, row.StoragesLength).Select(i => new GpuContactWorkId(row.Storages(i))).ToImmutableArray());
 
     private static Offset<W.CapabilitySupplyConsumerRecord> EncodeCapabilitySupplyConsumerRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.SupplyConsumer value)
     {
@@ -623,9 +629,8 @@ public static partial class WorkshopWireFlatBuffers
     }
 
     private static CuriousContraptions.Gpu.SupplyEdge DecodeCapabilitySupplyEdgeRecord(W.CapabilitySupplyEdgeRecord row) => new(
-        new CuriousContraptions.Gpu.GpuBodyId(row.Source),
-        new CuriousContraptions.Gpu.GpuBodyId(row.Target),
-        ObservationEnum<CuriousContraptions.Abstractions.PortRole>(row.Input));
+        new SupplyNodeId(row.Source), new SupplyNodeId(row.Target),
+        ObservationEnum<CuriousContraptions.Abstractions.Electrical.SupplyTerminal>(row.Input));
 
     private static Offset<W.CapabilityContactLoadSensorDeclarationRecord> EncodeCapabilityContactLoadSensorDeclarationRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.ContactLoadSensorDeclaration value)
     {
@@ -726,7 +731,7 @@ public static partial class WorkshopWireFlatBuffers
         new CuriousContraptions.Gpu.GpuPassageSensorId(row.Passage),
         row.TargetCount,
         row.IntervalTicks,
-        new CuriousContraptions.Gpu.GpuBodyId(row.PowerProvider),
+        new SupplyNodeId(row.PowerProvider),
         new CuriousContraptions.Gpu.GpuContactLoadSensorId(row.ContactLoad),
         row.ReleaseHoldTicks,
         ObservationEnum<CuriousContraptions.Abstractions.Signal.TimerCompletionPolicy>(row.Completion),
@@ -809,7 +814,7 @@ public static partial class WorkshopWireFlatBuffers
         ObservationEnum<CuriousContraptions.Abstractions.PresentationTimerPhase>(row.Phase),
         row.Response,
         row.Intermediate is { } intermediate ? intermediate : null,
-        row.Socket is { } socket ? ObservationEnum<CuriousContraptions.Abstractions.PortRole>(socket) : null,
+        row.Socket is { } socket ? ObservationEnum<CuriousContraptions.Abstractions.Electrical.SupplyTerminal>(socket) : null,
         ObservationEnum<CuriousContraptions.Abstractions.SimulationEventKind>(row.Event),
         ObservationEnum<CuriousContraptions.Abstractions.PresentationEventMagnitude>(row.EventMagnitude),
         row.StateValues is { } states ? new CuriousContraptions.Abstractions.PresentationActuatorStateValues(states.Unpowered, states.Powered, states.Blocked) : null);
@@ -880,14 +885,14 @@ public static partial class WorkshopWireFlatBuffers
         var contactRows = scene.Activation.Contacts.ToArray();
         W.CompiledSceneRecord.StartSignalContactsVector(b, contactRows.Length);
         for (var i = contactRows.Length - 1; i >= 0; i--)
-            W.SignalContactRecord.CreateSignalContactRecord(b, contactRows[i].Owner.Value, contactRows[i].Node.Value, (uint)contactRows[i].State);
+            W.SignalContactRecord.CreateSignalContactRecord(b, contactRows[i].Contact.Value, contactRows[i].Owner.Value, contactRows[i].Node.Value, (uint)contactRows[i].State);
         var contacts = b.EndVector();
         var owners = W.CompiledSceneRecord.CreateOwnersVector(b, scene.Owners.Select(owner => owner.Value).ToArray());
         W.CompiledSceneRecord.StartRunControlsVector(b, scene.RunControls.Length);
         for (var i = scene.RunControls.Length - 1; i >= 0; i--)
         {
             var control = scene.RunControls[i];
-            W.RunControlRecord.CreateRunControlRecord(b, control.Id.Value, control.Owner.Value, checked((uint)control.LaneIndex), (byte)control.Lane,
+            W.RunControlRecord.CreateRunControlRecord(b, control.Source.Value, control.Id.Value, control.Owner.Value, checked((uint)control.LaneIndex), (byte)control.Lane,
                 control.Minimum, control.Maximum);
         }
         var runControls = b.EndVector();
@@ -905,6 +910,8 @@ public static partial class WorkshopWireFlatBuffers
             W.CompiledPresentationRecord.AddSourceCapacity(b, track.SourceCapacity);
             W.CompiledPresentationRecord.AddActuator(b, actuator);
             W.CompiledPresentationRecord.AddGuide(b, track.Guide.Value);
+            W.CompiledPresentationRecord.AddSource(b, track.Source.Value);
+            W.CompiledPresentationRecord.AddSupplyNode(b, track.SupplyNode.Value);
             return W.CompiledPresentationRecord.EndCompiledPresentationRecord(b);
         }).ToArray());
         W.CompiledSceneRecord.StartCompiledSceneRecord(b);
@@ -988,7 +995,7 @@ public static partial class WorkshopWireFlatBuffers
                 Enumerable.Range(0, row.SignalContactsLength).Select(i =>
                 {
                     var contact = row.SignalContacts(i)!.Value;
-                    return new CompiledSignalContact(new(contact.Owner), new(contact.Node), ObservationEnum<CuriousContraptions.Abstractions.SignalContactState>(contact.State));
+                    return new CompiledSignalContact(new(contact.Contact), new(contact.Owner), new(contact.Node), ObservationEnum<CuriousContraptions.Abstractions.SignalContactState>(contact.State));
                 }).ToArray());
             var presentation = Enumerable.Range(0, row.PresentationLength).Select(i =>
             {
@@ -996,14 +1003,14 @@ public static partial class WorkshopWireFlatBuffers
                 return new CompiledPresentationTrack(new(track.Target), new(track.Owner), track.Binding,
                     DecodeCapabilityPresentationBindingRecord(Required(track.Declaration, "declaration")),
                     track.Activation is { } node ? DecodeCapabilityActivationNodeDeclarationRecord(node) : default, track.SourceCapacity,
-                    track.Actuator is { } drive ? DecodeCapabilitySupplyConsumerRecord(drive) : null, new(track.Guide));
+                    track.Actuator is { } drive ? DecodeCapabilitySupplyConsumerRecord(drive) : null, new(track.Guide), new(track.Source), new(track.SupplyNode));
             });
             return new(new(row.Identity), new(row.Revision), DecodeCapabilityWorkshopCadenceSettingsRecord(Required(row.Settings, "settings")),
                 physics, activation, presentation,
                 Enumerable.Range(0, row.OwnersLength).Select(i => new GpuBodyId(row.Owners(i))),
                 Enumerable.Range(0, row.RunControlsLength).Select(i => Required(row.RunControls(i), "RunControls")).Select(control =>
                     new RunControlRow(new(control.Id), new(control.Owner), (CuriousContraptions.Abstractions.RunControlLane)control.Lane,
-                        checked((int)control.LaneIndex), control.Minimum, control.Maximum)));
+                        checked((int)control.LaneIndex), control.Minimum, control.Maximum, new(control.Source))));
         }
         catch (Exception error) when (error is ArgumentException or InvalidOperationException or OverflowException)
         { throw new WireFaultException(WireFaultReason.OutOfRange, "Invalid compiled scene capabilities.", error); }

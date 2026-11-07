@@ -10,5 +10,5 @@ public interface IElectricalElement : IPuzzleElementDeclaration
 
 public interface ISupplyElement : IElectricalElement
 {
-    SupplyCapabilityDescriptor Supply { get; }
+    SupplyGraphDescriptor SupplyGraph { get; }
 }

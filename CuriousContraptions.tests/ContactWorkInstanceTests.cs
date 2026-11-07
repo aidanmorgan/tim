@@ -63,7 +63,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public void TheCompiledStoreTakesEveryValueFromTheDeclaredCapability()
     {
-        var descriptor = new CuriousContraptions.Abstractions.Mechanical.ContactWorkDescriptor("speed", 2f, .5f, 100);
+        var descriptor = new CuriousContraptions.Abstractions.Mechanical.ContactWorkDescriptor(new("work"), "speed", 2f, .5f, 100);
         var targets = new BodyTargetSet(BodyTargetKind.NamedBody, new(9));
         var work = WorkshopPhysicsCompiler.ContactWorkFor(new(10), new(7), targets, descriptor, new([new(new("speed"), 3f)]));
         Assert.Equal((new GpuContactWorkId(10), new GpuBodyId(7), targets, 3f, 9f, .5f, 100u),
@@ -231,16 +231,22 @@ public sealed class ContactWorkInstanceTests
         else Assert.Equal((0f, 0f), (later.RemainingEnergy.Value, later.SuppliedEnergy.Value));
     }
 
-    // Routing a store through a switch is refused: a finite-work store needs one direct declared source.
+    // CAT-024 / Story 9A.46i: routing a store through a switch is admitted and binds storage to the upstream source through the switch.
     [Fact]
-    public void SwitchedStoreRoutingIsRefused()
+    public void SwitchedStoreRoutingIsAdmittedAndBindsStorage()
     {
         var battery = PlacedParts.Battery(Source, 3, 1, 0);
         var toggle = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(4), 5, 1, 0, 0, 0, 0, 1);
         var bench = Free(PlacedParts.Bumper(Owner, 0, 3, 0), battery, toggle) with { Connections = new(
             new WorkshopConnection(Source, PortId.Supply, toggle.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical),
             new WorkshopConnection(toggle.Id, PortId.Supply, Owner, PortId.PowerIn, WorkshopConnectionDomain.Electrical)) };
-        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2));
+        Assert.Equal(1, scene.Electrical.Bindings.Length);
+        var binding = scene.Electrical.Bindings[0];
+        var sourceId = bench.Instances.Identities[Source].Supply.Values.First().Source;
+        var workId = bench.Instances.Identities[Owner].Work;
+        Assert.Equal(sourceId, binding.Source);
+        Assert.Equal(workId, binding.Storage);
     }
 
     [Fact]

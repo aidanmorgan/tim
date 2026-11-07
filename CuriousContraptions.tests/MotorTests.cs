@@ -998,8 +998,8 @@ public sealed class MotorTests
         var unpowered = entry with { Ports = entry.Ports.Where(port => port.Id != PortId.PowerIn).ToArray() };
 
         var error = Assert.Single(BundleValidator.Validate([new("motor", unpowered)]));
-        Assert.Equal(BundleErrorCode.UnresolvedReference, error.Code);
-        Assert.StartsWith("motor.Hinges[0].Drive:", error.Detail, StringComparison.Ordinal);
+        Assert.Equal(BundleErrorCode.OutOfRange, error.Code);
+        Assert.Contains("SupplyGraph.Port.Reference", error.Detail);
     }
 
     public static TheoryData<string, float, WorkshopSaveRejection> RefusedParameters() => new()

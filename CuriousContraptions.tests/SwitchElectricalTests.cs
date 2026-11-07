@@ -138,12 +138,13 @@ public sealed class SwitchElectricalTests
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{second,clock}).ToArray()),
             Connections=new(Power(2,6),Power(6,2),Power(6,7))};
         var network=WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
-        Assert.Equal(new GpuBodyId(6),network.Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerProvider);
+        var switchNode = construction.Instances.Identities[second.Id].Supply.Values.First().Node;
+        Assert.Equal(switchNode,network.Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerProvider);
         var sourced=construction with {Connections=construction.Connections.With(Power(3,2))};
-        Assert.Equal(new GpuBodyId(6),WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, sourced).Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerProvider);
+        Assert.Equal(switchNode,WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, sourced).Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerProvider);
         var battery=PlacedParts.Battery(new(8), -6, 4, 0);
         var ambiguous=sourced with {Instances=new(sourced.Instances.Concat(new IWorkshopInstance[]{battery}).ToArray()),Connections=sourced.Connections.With(Power(8,6))};
-        Assert.Equal(new GpuBodyId(6), WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, ambiguous).Nodes.ToArray().Single(node => node.Owner == clock.Id).PowerProvider);
+        Assert.Equal(ambiguous.Instances.Identities[second.Id].Supply.Values.First().Node, WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, ambiguous).Nodes.ToArray().Single(node => node.Owner == clock.Id).PowerProvider);
         var bumper=WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"),new(9),12,1,0,0,0,0,1);
         var storage=ambiguous with {Instances=new(ambiguous.Instances.Concat(new IWorkshopInstance[]{bumper}).ToArray()),Connections=ambiguous.Connections.With(Power(6,9))};
         // Physical compile is isolated from activation compilation; it must reject the storage binding itself.
@@ -152,6 +153,6 @@ public sealed class SwitchElectricalTests
         var direct=storage with {Connections=new(Power(3,9))};
         Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, direct,new(1,2)).Electrical.Bindings.ToArray());
         var indirect=storage with {Connections=new(Power(3,2),Power(2,9))};
-        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied,()=>WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, indirect,new(1,2)));
+        Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, indirect,new(1,2)).Electrical.Bindings.ToArray());
     }
 }

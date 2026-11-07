@@ -142,8 +142,9 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         _transmissions = transmissions.ToArray();
         Array.Sort(_transmissions, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);
+        foreach (var node in supplyNodes) Identity(node.Id.Value, nextIdentity, ids);
         Electrical = new(electricalSources, electricalBindings, bodies, contactWorks);
-        SupplyGraph = new(supplyNodes, supplyEdges, Electrical.Sources, _prismatics, _prismaticDrives, _revolutes, _revoluteDrives);
+        SupplyGraph = new(supplyNodes, supplyEdges, Electrical.Sources, _prismatics, _prismaticDrives, _revolutes, _revoluteDrives, Electrical.Bindings, contactWorks);
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();

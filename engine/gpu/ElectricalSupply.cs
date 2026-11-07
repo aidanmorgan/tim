@@ -6,8 +6,7 @@ namespace CuriousContraptions.Gpu;
 
 public readonly record struct ElectricalTransfer(float Remaining, float Debit);
 
-/// <summary>One finite source feeding distinct declared storage loads at 120 Hz. Balances and power lie inside
-/// <see cref="ElectricalSourceEnvelope"/>.</summary>
+/// <summary>One finite source feeding distinct declared storage loads at 120 Hz.</summary>
 public static class ElectricalSupply
 {
     public const float PhaseSeconds = 1f / 120f;
@@ -82,15 +81,27 @@ public static class ElectricalSupply
         ReadOnlySpan<float> balances, ReadOnlySpan<float> capacities, Span<float> nextBalances)
     {
         if (!Enum.IsDefined(enabled) || !float.IsFinite(sourceBalance) || sourceBalance < 0 ||
-            sourceBalance > ElectricalSourceEnvelope.MaximumCapacity || !float.IsFinite(maximumPower) ||
-            maximumPower is < ElectricalSourceEnvelope.MinimumPower or > ElectricalSourceEnvelope.MaximumPower ||
+            !float.IsFinite(maximumPower) || maximumPower <= 0f ||
             balances.Length != capacities.Length || nextBalances.Length != balances.Length ||
             balances.Overlaps(nextBalances) || capacities.Overlaps(nextBalances))
             throw new ArgumentException("Invalid finite electrical allocation.");
+        ValidateCapacityAggregate(capacities);
         for (var i = 0; i < balances.Length; i++)
-            if (!float.IsFinite(capacities[i]) || capacities[i] is < 0f or > ElectricalSourceEnvelope.MaximumCapacity ||
-                !float.IsFinite(balances[i]) || balances[i] < 0f || balances[i] > capacities[i])
+            if (!float.IsFinite(balances[i]) || balances[i] < 0f || balances[i] > capacities[i])
                 throw new ArgumentException("Invalid electrical storage balance.");
     }
 
+    /// <summary>The maximum future demand must be representable even when all recipients are currently full.</summary>
+    public static void ValidateCapacityAggregate(ReadOnlySpan<float> capacities)
+    {
+        var total = 0f;
+        foreach (var capacity in capacities)
+        {
+            if (!float.IsFinite(capacity) || capacity < 0f)
+                throw new ArgumentException("Invalid electrical storage capacity.");
+            total += capacity;
+            if (!float.IsFinite(total))
+                throw new ArgumentException("Aggregate electrical storage capacity is not representable.");
+        }
+    }
 }

@@ -21,24 +21,28 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(3), 4, 0, 0, 0, 0, 0, 1);
         var routed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, latch, gate),
             Connections: new(Power(battery.Id, latch.Id), Power(latch.Id, gate.Id)));
-        Assert.Equal(new[]{battery.Id}, WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, routed,DeclaredPhysics.Of).UpstreamSources(gate.Id));
+        var gateNode = routed.Instances.Identities[gate.Id].Supply.Values.First().Node;
+        var batterySource = routed.Instances.Identities[battery.Id].Supply.Values.First().Source;
+        Assert.Equal(new[]{batterySource}, WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, routed,DeclaredPhysics.Of).UpstreamSources(gateNode));
         foreach (var removed in new[] { battery.PartId, latch.PartId })
         {
             CuriousContraptions.Bundle.BundleEntry Without(PartId part)
             {
                 var entry = DeclaredPhysics.Of(part);
-                return part == removed ? entry with { Electrical = entry.Electrical! with { Supply = null } } : entry;
+                return part == removed ? entry with { Electrical = entry.Electrical! with { SupplyGraph = null } } : entry;
             }
-            Assert.Empty(WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, routed,Without).UpstreamSources(gate.Id));
+            Assert.Empty(WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, routed,Without).UpstreamSources(gateNode));
             Assert.Equal(DeclaredPhysics.Of(removed).Ports, Without(removed).Ports);
         }
         var direct = routed with { Connections = new(Power(battery.Id, gate.Id)) };
-        Assert.Equal(new[]{battery.Id},WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, direct,DeclaredPhysics.Of).UpstreamSources(gate.Id));
+        var directGateNode = direct.Instances.Identities[gate.Id].Supply.Values.First().Node;
+        var directBatterySource = direct.Instances.Identities[battery.Id].Supply.Values.First().Source;
+        Assert.Equal(new[]{directBatterySource},WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, direct,DeclaredPhysics.Of).UpstreamSources(directGateNode));
         Assert.Empty(WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, direct, part =>
         {
             var entry = DeclaredPhysics.Of(part);
-            return entry.Electrical is { } electrical ? entry with { Electrical = electrical with { Supply = null } } : entry;
-        }).UpstreamSources(gate.Id));
+            return entry.Electrical is { } electrical ? entry with { Electrical = electrical with { SupplyGraph = null } } : entry;
+        }).UpstreamSources(directGateNode));
     }
     private static readonly Color Slate = new("#556573");
     private static readonly Color Gold = new("#f7cb52");
@@ -190,7 +194,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Equal(ActivationNodeKind.LevelIndicator, nodes.Single(node => node.Owner == lamp.Id).Kind);
         Assert.Equal(ActivationNodeKind.StickyFirstInput, nodes.Single(node => node.Owner == sticky.Id).Kind);
         var activations = network.Clear(); var timers = network.ClearTimers(); var memory = network.ClearMemory();
-        var electrical = new SupplyOutputRead([new(battery.Id, true)]);
+        var batteryNode = construction.Instances.Identities[battery.Id].Supply.Values.First().Node;
+        var electrical = new SupplyOutputRead([new(batteryNode, true, true)]);
         bool Lit(GpuBodyId owner)
         {
             for (var i = 0; i < activations.Count; i++) if (activations[i].Owner == owner) return activations[i].Phase == ActivationPhase.Latched;
@@ -247,7 +252,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Equal(2, network.Edges.ToArray().Count(edge => edge.Target == construction.Instances.Identities[latch.Id].Signals[new("signal")].Node));
 
         var transitions = new List<(ulong Tick, ActivationTransition Transition)>();
-        var phases = Run(network, battery.Id, 600, transitions);
+        var batteryNode = construction.Instances.Identities[battery.Id].Supply.Values.First().Node;
+        var phases = Run(network, batteryNode, 600, transitions);
 
         Assert.All(phases.Take(119), phase => Assert.Equal(SimulationLatchPhase.Off, phase));
         Assert.All(phases.Skip(119).Take(60), phase => Assert.Equal(SimulationLatchPhase.On, phase)); // ticks 120..179 held without input
@@ -278,13 +284,14 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(clock, latch, battery),
             Connections: new(Power(battery.Id, clock.Id), Signal(clock.Id, latch.Id, PortId.SetIn), Signal(clock.Id, latch.Id, PortId.ResetIn)));
         construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
-        var phases = Run(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction), battery.Id, 480, []);
+        var batteryNode = construction.Instances.Identities[battery.Id].Supply.Values.First().Node;
+        var phases = Run(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction), batteryNode, 480, []);
         Assert.All(phases, phase => Assert.Equal(SimulationLatchPhase.Off, phase));
 
         // Control: the same source on SetIn alone turns the latch On at its first pulse.
         var control = construction with { Connections = new(Power(battery.Id, clock.Id), Signal(clock.Id, latch.Id, PortId.SetIn)) };
         var transitions = new List<(ulong Tick, ActivationTransition Transition)>();
-        var controlPhases = Run(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, control), battery.Id, 480, transitions);
+        var controlPhases = Run(WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, control), batteryNode, 480, transitions);
         Assert.Equal(SimulationLatchPhase.Off, controlPhases[118]);
         Assert.Equal(SimulationLatchPhase.On, controlPhases[119]);
         Assert.Equal(SimulationLatchPhase.On, controlPhases[479]);
@@ -443,7 +450,9 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         int PrismaticOf(GpuBodyId gate)=>Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate);
         int SourceOf(GpuBodyId battery)=>Array.FindIndex(scene.Electrical.Sources.ToArray(),source=>source.Owner==battery);
         Assert.Equal(0,PrismaticOf(plain.Id));
-        bool[] Closed(ElectricalEnable a, ElectricalEnable b, Func<GpuBodyId, bool> contact)
+        var latchANode = scene.SupplyGraph.Nodes.ToArray().Single(n => n.Owner == latchA.Id && n.Kind == SupplyNodeKind.Contact).Id;
+        var latchBNode = scene.SupplyGraph.Nodes.ToArray().Single(n => n.Owner == latchB.Id && n.Kind == SupplyNodeKind.Contact).Id;
+        bool[] Closed(ElectricalEnable a, ElectricalEnable b, Func<SupplyNodeId, bool> contact)
         {
             var enables = new ElectricalEnable[scene.Electrical.Sources.Length];
             enables[SourceOf(batteryA.Id)] = a; enables[SourceOf(batteryB.Id)] = b;
@@ -453,10 +462,10 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var both = Closed(ElectricalEnable.Enabled, ElectricalEnable.Disabled, _ => true);
         Assert.False(both[PrismaticOf(plain.Id)]); Assert.True(both[PrismaticOf(gateA.Id)]); Assert.False(both[PrismaticOf(gateB.Id)]);
         // Each gate follows its own latch: only latch B closed, both batteries enabled → only gate B.
-        var onlyB = Closed(ElectricalEnable.Enabled, ElectricalEnable.Enabled, owner => owner == latchB.Id);
+        var onlyB = Closed(ElectricalEnable.Enabled, ElectricalEnable.Enabled, node => node == latchBNode);
         Assert.False(onlyB[PrismaticOf(gateA.Id)]); Assert.True(onlyB[PrismaticOf(gateB.Id)]);
         // Each gate follows its own battery: latch A closed but battery A disabled, battery B enabled → neither gate.
-        var crossed = Closed(ElectricalEnable.Disabled, ElectricalEnable.Enabled, owner => owner == latchA.Id);
+        var crossed = Closed(ElectricalEnable.Disabled, ElectricalEnable.Enabled, node => node == latchANode);
         Assert.False(crossed[PrismaticOf(gateA.Id)]); Assert.False(crossed[PrismaticOf(gateB.Id)]);
     }
 
@@ -472,18 +481,22 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
                 Signal(clock.Id, counter.Id, PortId.ActivationIn)));
         var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
         var activations = network.Clear(); var timers = network.ClearTimers(); var memory = network.ClearMemory();
-        var electrical = new SupplyOutputRead([new(battery.Id, true)]);
+        var batteryNode = construction.Instances.Identities[battery.Id].Supply.Values.First().Node;
+        var electrical = new SupplyOutputRead([new(batteryNode, true, true)]);
+        var latchContact = construction.Instances.Identities[latch.Id].Supply.Values.First().Node;
+        var counterContact = construction.Instances.Identities[counter.Id].Supply.Values.First().Node;
+        var clockContact = construction.Instances.Identities[clock.Id].Supply.Values.First().Node;
         var latchClosedAt = 0; var counterClosedAt = 0;
         for (var tick = 1; tick <= 300; tick++)
         {
             var checkpoint = network.Consume(activations, timers, [], new((ulong)tick), [], [], electrical, memory: memory);
             activations = checkpoint.Activations; timers = checkpoint.Timers; memory = checkpoint.Memory;
-            if (latchClosedAt == 0 && network.ContactClosed(activations, network.ClearTimers(), latch.Id)) latchClosedAt = tick;
-            if (counterClosedAt == 0 && network.ContactClosed(activations, network.ClearTimers(), counter.Id)) counterClosedAt = tick;
+            if (latchClosedAt == 0 && network.ContactClosed(activations, network.ClearTimers(), latchContact)) latchClosedAt = tick;
+            if (counterClosedAt == 0 && network.ContactClosed(activations, network.ClearTimers(), counterContact)) counterClosedAt = tick;
         }
         Assert.Equal(120, latchClosedAt);   // first pulse sets the latch
         Assert.Equal(240, counterClosedAt); // the counter (target 2) closes on the second pulse, never on elapsed time alone
-        Assert.Throws<ArgumentException>(() => network.ContactClosed(activations, network.ClearTimers(), clock.Id));
+        Assert.Throws<ArgumentException>(() => network.ContactClosed(activations, network.ClearTimers(), clockContact));
     }
 
     [Fact]
@@ -542,14 +555,14 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Equal(expected.Instances.Single(instance => instance.PartId == new PartId("latch")), latch);
     }
 
-    private static SimulationLatchPhase[] Run(IActivationProgram network, GpuBodyId battery, int ticks,
+    private static SimulationLatchPhase[] Run(IActivationProgram network, SupplyNodeId battery, int ticks,
         List<(ulong Tick, ActivationTransition Transition)> transitions)
     {
         var latchOwner = network.Nodes.ToArray().Single(node => node.Kind == ActivationNodeKind.StateLatch).Owner;
         var activations = network.Clear();
         var timers = network.ClearTimers();
         var memory = network.ClearMemory();
-        var electrical = new SupplyOutputRead([new(battery, true)]);
+        var electrical = new SupplyOutputRead([new(battery, true, true)]);
         var phases = new SimulationLatchPhase[ticks];
         for (var tick = 1; tick <= ticks; tick++)
         {

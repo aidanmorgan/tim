@@ -24,9 +24,7 @@ public sealed class ElectricalSupplyPlan : IElectricalSupplyPlan
             foreach (var body in bodies) if (body.Id == source.Owner) ownsBody = true;
             if (!ownsBody || (i > 0 && sources[i - 1].Id.Value >= source.Id.Value))
                 throw new ArgumentException("Electrical source requires an owned body and ordered unique identity.");
-            for (var j = 0; j < i; j++)
-                if (sources[j].Owner == source.Owner)
-                    throw new ArgumentException("An electrical source owner was declared twice.");
+
         }
         for (var i = 0; i < bindings.Length; i++)
         {
@@ -35,13 +33,29 @@ public sealed class ElectricalSupplyPlan : IElectricalSupplyPlan
             var storageFound = false;
             foreach (var source in sources) if (source.Id == binding.Source) sourceFound = true;
             foreach (var storage in storages) if (storage.Id == binding.Storage) storageFound = true;
-            if (!sourceFound || !storageFound)
+            if (!sourceFound || !storageFound || binding.Route.Value == 0)
                 throw new ArgumentException("Electrical route names a foreign source or storage.");
             for (var j = 0; j < i; j++)
                 if (bindings[j].Storage == binding.Storage)
                     throw new ArgumentException("A storage input already has an electrical supplier.");
         }
+        ValidateCapacityAggregates(sources, bindings, storages);
         _sources = sources.ToArray();
         _bindings = bindings.ToArray();
+    }
+
+    private static void ValidateCapacityAggregates(ReadOnlySpan<ElectricalSourceDeclaration> sources,
+        ReadOnlySpan<ElectricalStorageBinding> bindings, ReadOnlySpan<ContactWorkDeclaration> storages)
+    {
+        var capacities = new System.Collections.Generic.List<float>();
+        foreach (var source in sources)
+        {
+            capacities.Clear();
+            foreach (var binding in bindings)
+                if (binding.Source == source.Id)
+                    foreach (var storage in storages)
+                        if (storage.Id == binding.Storage) capacities.Add(storage.InitialEnergy.Value);
+            ElectricalSupply.ValidateCapacityAggregate(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(capacities));
+        }
     }
 }

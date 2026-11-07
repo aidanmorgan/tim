@@ -271,13 +271,16 @@ public sealed class BundlePortsTests
         Assert.Equal(TestBundle.Ports, DeclaredPorts.Current);
     }
 
-    private static readonly Dictionary<GpuBodyId, PartId> Parts = new()
-    {
-        [new(1)] = new PartId("switch"), [new(2)] = new PartId("delay"), [new(3)] = new PartId("battery"), [new(4)] = new PartId("counter"), [new(5)] = new PartId("latch"),
-        [new(6)] = new PartId("lamp"), [new(7)] = new PartId("wall"),
-    };
+    private static readonly WorkshopInstances Instances = new(
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), new(1), 0, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), new(2), 0, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("battery"), new(3), 0, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("counter"), new(4), 0, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("latch"), new(5), 0, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("lamp"), new(6), 0, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), new(7), 0, 0, 0, 0, 0, 0, 1));
 
-    private static void Validate(WorkshopConnection link) => new WorkshopConnections(link).Validate(RuntimeTestServices.Core.Supply, id => Parts.TryGetValue(id, out var part) ? part : null);
+    private static void Validate(WorkshopConnection link) => new WorkshopConnections(link).Validate(RuntimeTestServices.Core.Supply, Instances);
 
     /// <summary>AC4: a wrong-domain or output-to-output link is still refused; the matching link is admitted (positive control).</summary>
     [Fact]

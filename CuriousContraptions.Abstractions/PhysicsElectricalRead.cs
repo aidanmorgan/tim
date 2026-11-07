@@ -11,8 +11,8 @@ public readonly record struct ElectricalSourceRead(ElectricalSourceId Id, GpuBod
     {
         if (Id.Value == 0 || Owner.Value == 0 || !Enum.IsDefined(Enabled))
             throw new ArgumentException("Invalid electrical observation identity.");
-        Remaining.Validate(CuriousContraptions.Abstractions.Electrical.ElectricalSourceEnvelope.MaximumCapacity);
-        Debit.Validate(8f);
+        Remaining.Validate(float.MaxValue);
+        Debit.Validate(float.MaxValue);
     }
 }
 

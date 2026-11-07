@@ -85,8 +85,7 @@ public sealed class WorkshopCompiledScene : ICompiledScene
         var providers = Physics.SupplyGraph.Nodes.ToArray();
         if (passages.Any(sensor => !owners.Contains(sensor.Frame)) ||
             nodes.Any(node => InvalidPhysicalReference(node, triggers, orientations, loads, passages) ||
-                node.PowerProvider.Value != 0 && !providers.Any(row => row.Owner == node.PowerProvider &&
-                    row.Kind is SupplyNodeKind.Source or SupplyNodeKind.Contact or SupplyNodeKind.LogicGate)))
+                node.PowerProvider.Value != 0 && !providers.Any(row => row.Id == node.PowerProvider && row.Kind is SupplyNodeKind.Source or SupplyNodeKind.Contact or SupplyNodeKind.LogicGate)))
             throw new ArgumentException("Compiled activation references a foreign capability.");
         if (nodes.Any(node => !owners.Contains(node.Owner)))
             throw new ArgumentException("Activation owner is outside the installed scene.");
@@ -112,10 +111,23 @@ public sealed class WorkshopCompiledScene : ICompiledScene
             var d = track.Declaration;
             if (!owners.Contains(track.Owner) || track.Target.Value == 0 || !targets.Add(track.Target) ||
                 track.Binding < 0 || !bindings.Add((track.Owner, track.Binding)) ||
-                InvalidSignalBinding(track, nodes) || InvalidPhysicalBinding(track) || InvalidTrackFields(track) ||
+                InvalidSignalBinding(track, nodes) || InvalidSupplyBinding(track) || InvalidPhysicalBinding(track) || InvalidTrackFields(track) ||
                 InvalidBindingEvaluation(d) || InvalidBindingValues(d))
                 throw new ArgumentException("Compiled presentation track is invalid.");
         }
+    }
+
+    private bool InvalidSupplyBinding(CompiledPresentationTrack track)
+    {
+        var sourceDriver = track.Declaration.Driver is PresentationDriver.CommittedSupply or PresentationDriver.CommittedCharge;
+        if (sourceDriver != (track.Source.Value != 0)) return true;
+        if (sourceDriver && !Physics.Electrical.Sources.ToArray().Any(source => source.Id == track.Source &&
+            source.Owner == track.Owner && source.Capacity.Value == track.SourceCapacity)) return true;
+        if (!sourceDriver && track.SourceCapacity != 0f) return true;
+        var socketDriver = track.Declaration.Driver == PresentationDriver.CommittedElectricalSocket;
+        return socketDriver != (track.SupplyNode.Value != 0) || socketDriver &&
+            !Physics.SupplyGraph.Nodes.ToArray().Any(node => node.Id == track.SupplyNode && node.Owner == track.Owner &&
+                node.Kind == SupplyNodeKind.LogicGate);
     }
 
     private bool InvalidPhysicalBinding(CompiledPresentationTrack track)
@@ -150,7 +162,7 @@ public sealed class WorkshopCompiledScene : ICompiledScene
     private static bool InvalidBindingEvaluation(CompiledPresentationBinding d)
     {
         return (d.Driver == PresentationDriver.CommittedElectricalSocket) != d.Socket.HasValue ||
-                (d.Socket is { } electricalSocket && electricalSocket is not (PortRole.FirstIn or PortRole.SecondIn or PortRole.PowerIn or PortRole.Supply)) ||
+                (d.Socket is { } electricalSocket && electricalSocket is not (CuriousContraptions.Abstractions.Electrical.SupplyTerminal.FirstIn or CuriousContraptions.Abstractions.Electrical.SupplyTerminal.SecondIn or CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn or CuriousContraptions.Abstractions.Electrical.SupplyTerminal.Output)) ||
                 !PresentationDriverRules.Supports(d.Driver, d.Curve, d.Duration, d.Overlap) || !PresentationDriverRules.SupportsMapping(d.Driver, d.Mapping) ||
                 (d.Curve == PresentationCurve.ExponentialFollow ? d.Response <= 0 : d.Response != 0) ||
                 (d.Driver == PresentationDriver.CommittedTimerPhase && d.Phase == PresentationTimerPhase.None) ||

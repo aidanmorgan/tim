@@ -13,7 +13,8 @@ public static class RunControlBindings
     {
         ArgumentNullException.ThrowIfNull(entry);
         var lanes = new List<RunControlLane>(1);
-        if (entry.Electrical?.Supply?.Store is { } store && store.Enable == key) lanes.Add(RunControlLane.SourceEnable);
+        foreach (var source in (entry.Electrical?.SupplyGraph?.Nodes ?? []).OfType<CuriousContraptions.Abstractions.Electrical.SupplySourceDescriptor>())
+            if (source.Store.Enable.Value == key) lanes.Add(RunControlLane.SourceEnable);
         if (entry.Mechanical is { } mechanical)
             foreach (var hinge in mechanical.Hinges)
                 if (hinge.Drive is { TargetSpeed: { Source: MechanicalValueSource.Parameter } target } && target.Parameter == key)

@@ -181,7 +181,7 @@ public sealed class HoldTimerTests
             new(new(2),new(3),PortRole.ActivationIn),new(new(2),new(4),PortRole.ActivationIn),
             new(new(2),new(6),PortRole.ResetIn),new(new(5),new(4),PortRole.ActivationIn),
             new(new(5),new(6),PortRole.SetIn)
-        ], contacts: [new(new(3), new(3), SignalContactState.TimerCounting)]);
+        ], contacts: [new(new(3), new(3), new(3), SignalContactState.TimerCounting)]);
         var first = new ContactTriggerRead(new(9),new(1),new(99),1,new(100),0,0f,new(1f));
         var initial = network.Consume(network.Clear(),network.ClearTimers(),[first],new(0),[],memory:network.ClearMemory());
         var scheduled = network.AdvanceScheduled(initial,new(12));

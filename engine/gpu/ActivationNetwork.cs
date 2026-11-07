@@ -22,7 +22,7 @@ public sealed class ActivationNetwork : IActivationProgram
 {
     private readonly ActivationNodeDeclaration[] _nodes;
     private readonly ActivationEdge[] _edges;
-    private readonly System.Collections.Generic.Dictionary<GpuBodyId, CompiledSignalContact> _contacts;
+    private readonly System.Collections.Generic.Dictionary<SupplyNodeId, CompiledSignalContact> _contacts;
     private readonly ActivationTimerDeclaration[] _timers;
     private readonly PassageSensorDeclaration[] _passageSensors;
     private readonly uint _substeps;
@@ -40,7 +40,7 @@ public sealed class ActivationNetwork : IActivationProgram
     // Story 9A.22: the Physical stage's transitions, cleared at each Consume and copied into its checkpoint.
     private readonly List<ActivationTransition> _transitions = new(32);
     public uint Substeps => _substeps;
-    public IEnumerable<CompiledSignalContact> Contacts => _contacts.Values.OrderBy(contact => contact.Owner.Value);
+    public IEnumerable<CompiledSignalContact> Contacts => _contacts.Values.OrderBy(contact => contact.Contact.Value);
     public ReadOnlySpan<ActivationNodeDeclaration> Nodes => _nodes;
     public ReadOnlySpan<ActivationEdge> Edges => _edges;
     public ReadOnlySpan<PassageSensorDeclaration> PassageSensors => _passageSensors;
@@ -52,7 +52,7 @@ public sealed class ActivationNetwork : IActivationProgram
         _ = ActivationTime.Boundary(new(0), substeps); _substeps = substeps;
         // Owner decision, 20 Oct 2026: no activation-slot limit, and (Story 9R.5b) no instance or connection bound.
         _nodes = nodes.ToArray(); _edges = edges.ToArray();
-        _contacts = contacts.ToArray().ToDictionary(contact => contact.Owner);
+        _contacts = contacts.ToArray().ToDictionary(contact => contact.Contact);
         ValidateContactBindings(contacts.Length);
         _passageSensors = passageSensors.ToArray();
         Array.Sort(_nodes, (a,b) => a.Id.Value.CompareTo(b.Id.Value));
@@ -77,7 +77,7 @@ public sealed class ActivationNetwork : IActivationProgram
     }
     private void ValidateContactBindings(int count)
     {
-        if (_contacts.Count != count || _contacts.Values.Any(contact => !Enum.IsDefined(contact.State) || !_nodes.Any(node => node.Id == contact.Node && node.Owner == contact.Owner &&
+        if (_contacts.Count != count || _contacts.Values.Any(contact => contact.Contact.Value == 0 || !Enum.IsDefined(contact.State) || !_nodes.Any(node => node.Id == contact.Node && node.Owner == contact.Owner &&
                 (contact.State == SignalContactState.TimerCounting ? node.Kind == ActivationNodeKind.Timer :
                     node.Kind is ActivationNodeKind.ContactSource or ActivationNodeKind.Counter or ActivationNodeKind.StateLatch or ActivationNodeKind.ContactLoadSource or ActivationNodeKind.OrientationSource or ActivationNodeKind.PassageSource))))
             throw new ArgumentException("Declared contact must own an admitted activation state.");
@@ -236,10 +236,10 @@ public sealed class ActivationNetwork : IActivationProgram
         throw new ArgumentException("State latch not found for node.");
     }
     /// <summary>A switched contact (State Latch, Counter or contact-load level) is closed exactly while its committed value is Latched.</summary>
-    public bool ContactClosed(PhysicsActivationRead values, PhysicsTimerRead timers, GpuBodyId owner)
+    public bool ContactClosed(PhysicsActivationRead values, PhysicsTimerRead timers, SupplyNodeId id)
     {
         ValidatePopulation(values, timers);
-        if (!_contacts.TryGetValue(owner, out var contact)) throw new ArgumentException("Owner has no declared supplied contact.");
+        if (!_contacts.TryGetValue(id, out var contact)) throw new ArgumentException("Owner has no declared supplied contact.");
         return contact.State == SignalContactState.TimerCounting
             ? timers[TimerSlot(contact.Node)].Phase == ActivationTimerPhase.Counting
             : values[Slot(contact.Node)].Phase == ActivationPhase.Latched;

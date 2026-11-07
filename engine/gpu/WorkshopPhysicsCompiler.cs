@@ -98,27 +98,15 @@ public static class WorkshopPhysicsCompiler
             colliders.Add(new(identities.PlaneCollider, plane, planeMaterial,
                 ColliderShapeKind.Plane, RigidLocalPose.Identity, new(0f), default));
             CompileBodies();
-            var contactWorkOwners = CompileSensors();
+            CompileSensors();
             ValidateHollowPlacement();
             var (tensile, ropeGuides, transmissions) = CompileConnections();
             return core.CreatePhysicsScene(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
-                construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
-                    .Select(link => new ElectricalStorageBinding(identities[link.Source].Source, identities[link.Target].Work)).ToArray(), prismatics.ToArray(),
+                WorkshopSupplyCompiler.StorageBindings(topology), prismatics.ToArray(),
                 supplyNodes, topology.Edges.ToArray(), contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray(),
                 compliantSurfaces.ToArray(), revoluteDrives.ToArray(),
                 ropeGuides: ropeGuides.ToArray(),
                 transmissions: transmissions.ToArray(), drivenSurfaces: drivenSurfaces.ToArray());
-        }
-
-        // A declared drive is enabled by its owner's PowerIn route.
-        private void Consume(GpuBodyId owner, SupplyConsumer consumer)
-        {
-            var slot = Array.FindIndex(supplyNodes, node => node.Owner == owner && node.Kind == SupplyNodeKind.Consumer);
-            if (slot < 0) throw new ArgumentException("A supplied drive requires its owner's declared electrical input.");
-            supplyNodes[slot] = supplyNodes[slot] with
-            {
-                Consumers = supplyNodes[slot].Consumers.IsDefault ? [consumer] : supplyNodes[slot].Consumers.Add(consumer)
-            };
         }
 
         private void AddGeometry(GpuBodyId owner, GpuMaterialId material, IReadOnlyList<GpuColliderId> colliderIdentities,
@@ -180,7 +168,6 @@ public static class WorkshopPhysicsCompiler
                 if (slider.Drive is not { } drive) continue;
                 drives.Add(new(joint, drive.Target.Evaluate(parameters), drive.MaxSpeed.Evaluate(parameters),
                     drive.StoppingAcceleration.Evaluate(parameters), drive.MaxEffort.Evaluate(parameters), drive.MaxPower.Evaluate(parameters)));
-                Consume(instance.Id, SupplyConsumer.Prismatic(joint));
             }
         }
 
@@ -217,7 +204,6 @@ public static class WorkshopPhysicsCompiler
                     hinge.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
                 if (hinge.Drive is not { } rotary) continue;
                 revoluteDrives.Add(new(joint, rotary.TargetSpeed.Evaluate(parameters), rotary.MaxTorque.Evaluate(parameters)));
-                Consume(instance.Id, SupplyConsumer.Revolute(joint));
             }
         }
         private void CompileBodies()
@@ -292,7 +278,7 @@ public static class WorkshopPhysicsCompiler
                 throw new ArgumentException("Logical owner declares inconsistent physical geometry.");
         }
 
-        private HashSet<GpuBodyId> CompileSensors()
+        private void CompileSensors()
         {
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
                 foreach (var orientation in DeclaredPhysics.Of(owner.PartId).Signal?.Nodes.OfType<SignalOrientationDescriptor>() ?? [])
@@ -328,8 +314,8 @@ public static class WorkshopPhysicsCompiler
                     new(guide.MaximumAcceleration.Evaluate(parameters))));
             }
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
-                if (DeclaredPhysics.SourceStore(owner.PartId) is { } store)
-                    electricalSources.Add(ElectricalSourceFor(identities[owner.Id].Source, owner.Id, store, owner.Parameters));
+                foreach (var source in (DeclaredPhysics.Of(owner.PartId).Electrical?.SupplyGraph?.Nodes ?? []).OfType<SupplySourceDescriptor>())
+                    electricalSources.Add(ElectricalSourceFor(identities[owner.Id].Supply[source.Id].Source, owner.Id, source.Store, owner.Parameters));
             foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
                 foreach (var contact in DeclaredPhysics.Of(trigger.PartId).Signal?.Nodes.OfType<SignalContactDescriptor>() ?? [])
                     triggers.Add(new(identities[trigger.Id].Signals[contact.Id].Trigger, identities.Body(trigger.Id, contact.Body),
@@ -344,16 +330,7 @@ public static class WorkshopPhysicsCompiler
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
                 foreach (var load in DeclaredPhysics.Of(owner.PartId).Signal?.Nodes.OfType<SignalContactLoadDescriptor>() ?? [])
                     contactLoads.Add(ContactLoadSensorFor(bundle, owner, load, identities));
-            var contactWorkOwners = contactWorks.Select(cw => cw.Owner).ToHashSet();
-            foreach(var link in construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target)))
-            {
-                var sources=topology.UpstreamSources(link.Target);
-                if(sources.Length!=1 || sources[0]!=link.Source)
-                    throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
-                        "Finite-work storage requires one direct declared source; switched storage routing is unsupported.");
-            }
 
-            return contactWorkOwners;
         }
 
         private void ValidateHollowPlacement()
@@ -464,9 +441,9 @@ public static class WorkshopPhysicsCompiler
     /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>
     internal static ElectricalSourceDeclaration ElectricalSourceFor(ElectricalSourceId identity, GpuBodyId owner, SupplySourceStoreDescriptor store,
         InstanceParameterCollection parameters) =>
-        new(identity, owner, new(parameters[new ParameterId(store.Capacity)]),
-            new(parameters[new ParameterId(store.PowerLimit)]), parameters[new ParameterId(store.InitialCharge)],
-            parameters[new ParameterId(store.Enable)] switch
+        new(identity, owner, new(parameters[store.Capacity]),
+            new(parameters[store.PowerLimit]), parameters[store.InitialCharge],
+            parameters[store.Enable] switch
             {
                 0f => ElectricalEnable.Disabled,
                 1f => ElectricalEnable.Enabled,

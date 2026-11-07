@@ -153,7 +153,7 @@ public interface ICompiledSupplyGraph
     ReadOnlySpan<SupplyEdge> Edges { get; }
     int DriveSlots { get; }
     ElectricalLogicRead[] NeutralReads();
-    SupplyResolution Resolve(WorkshopTickControls controls, Func<GpuBodyId, bool> contactClosed, PhysicsElectricalRead electrical);
+    SupplyResolution Resolve(WorkshopTickControls controls, Func<SupplyNodeId, bool> contactClosed, PhysicsElectricalRead electrical);
 }
 
 public interface IActivationProgram
@@ -170,7 +170,7 @@ public interface IActivationProgram
     ActivationMemory Memory(PhysicsMemoryRead values, ActivationNodeId node);
     uint GetCounterTarget(ActivationNodeId node);
     SimulationLatchPhase StateLatchPhase(PhysicsActivationRead values, ActivationNodeId node);
-    bool ContactClosed(PhysicsActivationRead values, PhysicsTimerRead timers, GpuBodyId owner);
+    bool ContactClosed(PhysicsActivationRead values, PhysicsTimerRead timers, SupplyNodeId id);
     ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
         ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
         ReadOnlySpan<PassageSensorRead> passages = default, SupplyOutputRead supply = default,

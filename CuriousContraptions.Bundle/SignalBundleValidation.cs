@@ -16,8 +16,7 @@ internal static class SignalBundleValidation
         var signal = entry.Signal;
         if (signal is null)
         {
-            if (entry.Ports.Any(port => port.Domain == SimulationDomain.Signal) || entry.Electrical?.Supply?.Control is not null ||
-                entry.Electrical?.Supply?.Kind == SupplyCapabilityKind.SwitchedContact) Refuse("Missing");
+            if (entry.Ports.Any(port => port.Domain == SimulationDomain.Signal) || entry.Electrical?.SupplyGraph?.Nodes.Any(node => node is SupplyContactDescriptor) == true) Refuse("Missing");
             if (entry.Events.Any(occurrence => occurrence.SignalNode is not null || SimulationEvents.SignalSource(occurrence.Kind)))
                 Refuse("Event.Source");
             return errors;
@@ -100,16 +99,14 @@ internal static class SignalBundleValidation
 
     private static void ValidateContact(BundleEntry entry, Dictionary<SignalNodeId, SignalNodeDescriptor> nodes, Action<string> Refuse)
     {
-        var supply = entry.Electrical?.Supply;
-        if (supply is { Kind: SupplyCapabilityKind.SwitchedContact })
+        foreach (var contact in (entry.Electrical?.SupplyGraph?.Nodes ?? []).OfType<SupplyContactDescriptor>())
         {
-            if (supply.Value.Control is not { } control || !nodes.TryGetValue(control.Node, out var controlled) ||
-                !Enum.IsDefined(control.State) || (control.State == SignalContactState.TimerCounting
-                    ? controlled is not SignalTimerDescriptor
-                    : controlled is SignalTimerDescriptor or SignalIndicatorDescriptor or SignalOscillatorDescriptor))
+            var control = contact.Control;
+            if (!nodes.TryGetValue(control.Node, out var controlled) || !Enum.IsDefined(control.State) ||
+                (control.State == SignalContactState.TimerCounting ? controlled is not SignalTimerDescriptor :
+                    controlled is SignalTimerDescriptor or SignalIndicatorDescriptor or SignalOscillatorDescriptor))
                 Refuse("Contact.Control");
         }
-        else if (supply?.Control is not null) Refuse("Contact.UnexpectedControl");
     }
 
     private static void ValidateNode(BundleEntry entry, SignalNodeDescriptor node, Action<string> refuse)

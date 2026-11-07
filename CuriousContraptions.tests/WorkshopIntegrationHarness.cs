@@ -175,15 +175,19 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         Dispatch(Command(kind, construction, target, settings, runControl, cut));
     /// <summary>The typed control that sets <paramref name="owner"/>'s <paramref name="lane"/> to <paramref name="value"/>, through its
     /// row in the installed run-control table. The owner must have a row on that lane.</summary>
-    public WorkshopRunControl RunControl(GpuBodyId owner, CuriousContraptions.Abstractions.RunControlLane lane, RunControlValue value) =>
-        RunControl(Simulation.Scene, owner, lane, value);
+    public WorkshopRunControl RunControl(GpuBodyId owner, CuriousContraptions.Abstractions.RunControlLane lane, RunControlValue value, ElectricalSourceId source = default) =>
+        RunControl(Simulation.Scene, owner, lane, value, source);
 
     /// <summary>The typed control that sets <paramref name="owner"/>'s <paramref name="lane"/> in <paramref name="scene"/>'s run-control
     /// table, found through <see cref="RunControlLanes.Find"/>. The owner must have a row on that lane.</summary>
     public static WorkshopRunControl RunControl(ICompiledScene scene, GpuBodyId owner, CuriousContraptions.Abstractions.RunControlLane lane,
-        RunControlValue value) =>
-        new(owner, (RunControlLanes.Find(scene.RunControls, owner, lane) ??
+        RunControlValue value, ElectricalSourceId source = default)
+    {
+        if (lane == CuriousContraptions.Abstractions.RunControlLane.SourceEnable && source == default)
+            source = scene.RunControls.Where(r => r.Owner == owner && r.Lane == lane).Select(r => r.Source).Single();
+        return new(owner, (RunControlLanes.Find(scene.RunControls, owner, lane, source) ??
             throw new InvalidOperationException($"Owner {owner.Value} has no {lane} run control.")).Id, value);
+    }
 
     /// <summary>The typed control that sets the one lane of <paramref name="owner"/>'s rows that takes <paramref name="value"/>'s kind.</summary>
     public static WorkshopRunControl RunControl(ICompiledScene scene, GpuBodyId owner, RunControlValue value) =>

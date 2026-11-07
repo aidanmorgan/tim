@@ -34,6 +34,15 @@ public sealed class ComposedPhysicalObservationTests
             Colliders = [shape with { Offset = new(0, -2, 0) }],
             ColliderBindings = [], TubeMouths = [], TubeMouthBindings = [],
             Mechanical = template.Mechanical! with { Sliders = reverse ? sliders.Reverse().ToArray() : sliders },
+            Electrical = template.Electrical! with
+            {
+                SupplyGraph = template.Electrical.SupplyGraph! with
+                {
+                    Nodes = [new CuriousContraptions.Abstractions.Electrical.SupplyConsumerDescriptor(new("consumer"), [
+                        new CuriousContraptions.Abstractions.Electrical.SupplyDriveTarget(new(CoordinateKind.Prismatic, 0)),
+                        new CuriousContraptions.Abstractions.Electrical.SupplyDriveTarget(new(CoordinateKind.Prismatic, 1))])]
+                }
+            },
             Presentation = new(1, PresentationAxes.None, reverse ? bindings.Reverse().ToArray() : bindings,
                 [new("FirstBody", new(1), Vector3.Zero), new("SecondBody", new(2), Vector3.Zero)], [], [])
         };

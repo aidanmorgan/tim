@@ -65,7 +65,9 @@ public sealed class BothGateTests
         var bytes=WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);var loaded=WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,bytes);
         Assert.Equal(saved,loaded);
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,120);
-        Assert.Equal(new(new(4),ElectricalInputState.Neither,false,false),Logic(built));
+        Assert.Equal(ElectricalInputState.Neither, Logic(built).Inputs);
+        Assert.False(Logic(built).Supplied);
+        Assert.False(Logic(built).Active);
         Assert.All(reads,read=>
         {
             Assert.Equal(inputs,Logic(read).Inputs);Assert.Equal(supply,Logic(read).Supplied);
@@ -116,7 +118,7 @@ public sealed class BothGateTests
         Assert.All(phases[1],read=>
         {
             Assert.False(Drive(read).SupplyClosed);
-            Assert.All(read.Presentation.Logic.ToArray(),row=>Assert.Equal(new(row.Owner,ElectricalInputState.Neither,false,false),row));
+            Assert.All(read.Presentation.Logic.ToArray(),row=>Assert.Equal(new(row.Node,row.Owner,ElectricalInputState.Neither,false,false),row));
         });
         Assert.All(phases[2],read=>Assert.True(Drive(read).SupplyClosed));
         Assert.True(BladeY(phases[0][^1])>BladeY(phases[0][0])+.2f);
@@ -189,10 +191,13 @@ public sealed class BothGateTests
         var clock=PlacedParts.Clock(new(7),12,3,0,0,0,0,1,1f);
         construction=construction with {Instances=new(construction.Instances.Append(clock).ToArray()),Connections=construction.Connections.With(Link(4,7))};
         var topology=WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, construction,DeclaredPhysics.Of);
-        Assert.Equal(new[]{new GpuBodyId(3)},topology.UpstreamSources(clock.Id));
-        Assert.Equal(new GpuBodyId(4),WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction).Nodes.ToArray().Single(row=>row.Owner==clock.Id).PowerProvider);
+        var clockNode = construction.Instances.Identities[clock.Id].Supply.Values.First().Node;
+        var sourceId = construction.Instances.Identities[new GpuBodyId(3)].Supply.Values.First().Source;
+        Assert.Equal(new[]{sourceId},topology.UpstreamSources(clockNode));
+        var gateNode = construction.Instances.Identities[new GpuBodyId(4)].Supply.Values.First().Node;
+        Assert.Equal(gateNode,WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction).Nodes.ToArray().Single(row=>row.Owner==clock.Id).PowerProvider);
         var conditionOnly=construction with {Connections=construction.Connections.Without(Link(3,4))};
-        Assert.Empty(WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, conditionOnly,DeclaredPhysics.Of).UpstreamSources(clock.Id));
+        Assert.Empty(WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, conditionOnly,DeclaredPhysics.Of).UpstreamSources(clockNode));
         Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)255,true,true));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,PortId.FirstIn))}).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=> (construction with {Connections=construction.Connections.With(Link(1,4,new PortId("invalid")))}).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));

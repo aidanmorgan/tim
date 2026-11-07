@@ -23,19 +23,19 @@ public readonly record struct RopeSpanRead(RopeSpanId Id, RopeRouteId Route, uin
 
 [Flags]
 public enum ElectricalInputState : byte { Neither=0, FirstOnly=1, SecondOnly=2, Both=3 }
-public readonly record struct ElectricalLogicRead(GpuBodyId Owner, ElectricalInputState Inputs, bool Supplied, bool Active)
+public readonly record struct ElectricalLogicRead(SupplyNodeId Node, GpuBodyId Owner, ElectricalInputState Inputs, bool Supplied, bool Active)
 {
     public void Validate()
     {
-        if (Owner.Value==0 || !Enum.IsDefined(Inputs) || (Active && !Supplied))
+        if (Node.Value==0 || Owner.Value==0 || !Enum.IsDefined(Inputs) || (Active && !Supplied))
             throw new ArgumentException("Invalid committed electrical logic observation.");
     }
-    public bool At(PortRole role) => role switch
+    public bool At(CuriousContraptions.Abstractions.Electrical.SupplyTerminal role) => role switch
     {
-        PortRole.FirstIn => (Inputs & ElectricalInputState.FirstOnly)!=0,
-        PortRole.SecondIn => (Inputs & ElectricalInputState.SecondOnly)!=0,
-        PortRole.PowerIn => Supplied,
-        PortRole.Supply => Active,
+        CuriousContraptions.Abstractions.Electrical.SupplyTerminal.FirstIn => (Inputs & ElectricalInputState.FirstOnly)!=0,
+        CuriousContraptions.Abstractions.Electrical.SupplyTerminal.SecondIn => (Inputs & ElectricalInputState.SecondOnly)!=0,
+        CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn => Supplied,
+        CuriousContraptions.Abstractions.Electrical.SupplyTerminal.Output => Active,
         _ => throw new ArgumentOutOfRangeException(nameof(role))
     };
 }
@@ -144,7 +144,7 @@ public readonly struct PhysicsPresentationRead
         for(var i=0;i<logic.Length;i++)
         {
             logic[i].Validate();
-            if(i>0 && logic[i-1].Owner.Value>=logic[i].Owner.Value)
+            if(i>0 && logic[i-1].Node.Value>=logic[i].Node.Value)
                 throw new ArgumentException("Electrical logic observations require ordered unique owners.");
         }
         _actuators = actuators.ToArray(); _loads = loads.ToArray(); _logic=logic.ToArray();

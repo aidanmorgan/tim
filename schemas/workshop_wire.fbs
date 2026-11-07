@@ -179,6 +179,7 @@ struct ActivationMemoryRecord {
 }
 
 struct ElectricalLogicRecord {
+    node: uint64;
     owner: uint64;
     inputs: uint8;
     supplied: bool;
@@ -228,6 +229,7 @@ struct RunControlCommandRecord {
 // One compiled run-control row: a declared RunControl parameter of one unlocked instance, the lane slot it drives and the declared
 // parameter's bounds (zero on an Enable-kind lane).
 struct RunControlRecord {
+    source: uint64;
     id: uint64;
     owner: uint64;
     lane_index: uint32;
@@ -520,6 +522,7 @@ table CapabilityElectricalSourceDeclarationRecord {
 }
 
 table CapabilityElectricalStorageBindingRecord {
+    route: ulong;
     source: ulong;
     storage: ulong;
 }
@@ -576,6 +579,8 @@ table CapabilitySupplyConsumerRecord {
 }
 
 table CapabilitySupplyNodeDeclarationRecord {
+    id: ulong;
+    storages: [ulong];
     owner: ulong;
     kind: uint;
     source: ulong;
@@ -654,6 +659,7 @@ table CapabilityPassageSensorDeclarationRecord {
 }
 
 struct SignalContactRecord {
+    contact: ulong;
     owner: ulong;
     node: ulong;
     state: uint;
@@ -698,6 +704,8 @@ table CapabilityPulseRateRecord {
 }
 
 table CompiledPresentationRecord {
+    source: ulong;
+    supply_node: ulong;
     target: ulong;
     owner: ulong;
     binding: int;

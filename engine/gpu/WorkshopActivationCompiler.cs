@@ -1,6 +1,7 @@
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Signal;
+using CuriousContraptions.Abstractions.Electrical;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,7 @@ public static class WorkshopActivationCompiler
     {
         construction.Validate(core.Supply, bundle);
         var graph = new WorkshopSignalGraph(construction.Instances, construction.Connections);
-        var supply = WorkshopSupplyCompiler.Compile(core.Supply, construction, DeclaredPhysics.Of);
-        var nodes = graph.Nodes.Select(node => CompileNode(core, construction, graph, supply, node)).ToArray();
+        var nodes = graph.Nodes.Select(node => CompileNode(core, construction, graph, node)).ToArray();
         var passages = new List<PassageSensorDeclaration>();
         foreach (var resolved in graph.Nodes)
             if (resolved.Declaration is SignalPassageDescriptor passage)
@@ -23,13 +23,12 @@ public static class WorkshopActivationCompiler
                     passage, construction.Instances.Identities));
         return core.CreateActivation(nodes, Edges(graph), new WorkshopGpuProfile(construction.Settings.Simulation,
             construction.Settings.Physical, new(1)).Substeps, passages.ToArray(),
-            construction.Instances.Where(instance => DeclaredPhysics.Of(instance.PartId).Electrical?.Supply?.Kind ==
-                CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact).Select(instance =>
-                {
-                    var control = DeclaredPhysics.Of(instance.PartId).Electrical!.Supply!.Value.Control!.Value;
-                    return new CompiledSignalContact(instance.Id,
-                        construction.Instances.Identities[instance.Id].Signals[control.Node].Node, control.State);
-                }).ToArray());
+            construction.Instances.SelectMany(instance =>
+                (DeclaredPhysics.Of(instance.PartId).Electrical?.SupplyGraph?.Nodes ?? []).OfType<SupplyContactDescriptor>()
+                    .Select(contact => new CompiledSignalContact(
+                        construction.Instances.Identities[instance.Id].Supply[contact.Id].Node, instance.Id,
+                        construction.Instances.Identities[instance.Id].Signals[contact.Control.Node].Node,
+                        contact.Control.State))).ToArray());
     }
 
     public static ActivationEdge[] Edges(WorkshopSignalGraph graph) =>
@@ -42,7 +41,7 @@ public static class WorkshopActivationCompiler
         })).ToArray();
 
     private static ActivationNodeDeclaration CompileNode(ICoreServices core, WorkshopConstruction construction, WorkshopSignalGraph graph,
-        ISupplyTopology supply, ResolvedSignalNode node)
+        ResolvedSignalNode node)
     {
         var owner = (WorkshopGenericInstance)construction.Instances.Single(instance => instance.Id == node.Owner);
         var ids = construction.Instances.Identities[node.Owner].Signals[node.Declaration.Id];
@@ -62,21 +61,24 @@ public static class WorkshopActivationCompiler
             SignalMemoryDescriptor => new(node.Id, node.Owner, ActivationNodeKind.StateLatch, default),
             SignalIndicatorDescriptor => new(node.Id, node.Owner, IndicatorKind(node.Id, graph), default),
             SignalOscillatorDescriptor oscillator => new(node.Id, node.Owner, ActivationNodeKind.Oscillator, default,
-                IntervalTicks: Duration(oscillator.IntervalParameter), PowerProvider: Provider(construction, supply, node.Owner, oscillator.SupplyInput)),
+                IntervalTicks: Duration(oscillator.IntervalParameter), PowerProvider: Provider(construction, node.Owner, oscillator.SupplyInput)),
             _ => throw new ArgumentException("Unsupported signal operation.")
         };
     }
 
-    private static GpuBodyId Provider(WorkshopConstruction construction, ISupplyTopology supply, GpuBodyId owner, PortId input)
+    private static SupplyNodeId Provider(WorkshopConstruction construction, GpuBodyId owner, PortId input)
     {
-        var wires = construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical &&
-            link.Target == owner && link.Input == input).ToArray();
-        if (wires.Length == 0) return default;
-        if (wires.Length != 1 || !supply.Nodes.Any(node => node.Owner == wires[0].Source &&
-            node.Kind is SupplyNodeKind.Source or SupplyNodeKind.Contact or SupplyNodeKind.LogicGate))
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
-                "The selected oscillator input requires one declared supply output.");
-        return wires[0].Source;
+        var instance = construction.Instances.Single(instance => instance.Id == owner);
+        var endpoint = WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(instance.PartId), input);
+        if (endpoint.Terminal != SupplyTerminal.PowerIn)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection,
+                "An oscillator selects a declared power input.");
+        var incoming = construction.Connections.FirstOrDefault(link =>
+            link.Domain == WorkshopConnectionDomain.Electrical && link.Target == owner && link.Input == input);
+        if (incoming.Source.Value == 0) return default;
+        var supplier = construction.Instances.Single(i => i.Id == incoming.Source);
+        var sourceEndpoint = WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(supplier.PartId), incoming.Output);
+        return construction.Instances.Identities[supplier.Id].Supply[sourceEndpoint.Node].Node;
     }
 
     public static uint CounterTarget(float value)

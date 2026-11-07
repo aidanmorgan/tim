@@ -52,10 +52,11 @@ public static class BundleValidator
             errors.AddRange(DrivenSurfaceValidation.Validate(entry));
             Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Signal, entry.Events, childBodies);
             CheckEvents(entry.Events);
-            if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports, entry.Electrical?.Supply);
-            if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports, entry.Metadata.Parameters);
+            if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
+            if (entry.Electrical is { } electrical) Electrical(electrical);
             CheckRunControls(entry);
             errors.AddRange(SignalBundleValidation.Validate(entry));
+            errors.AddRange(SupplyBundleValidation.Validate(entry));
             if (entry.Fluid is { } fluid) Fluid(fluid);
         }
 
@@ -204,7 +205,7 @@ public static class BundleValidator
         {
                 if ((binding.Driver == PresentationDriver.CommittedElectricalSocket) != binding.Socket.HasValue ||
                     (binding.Socket is { } socket &&
-                        (electrical?.Supply?.Kind != SupplyCapabilityKind.LogicGate ||
+                        (electrical?.SupplyGraph is null ||
                          !ports.Any(port => port.Id == socket && port.Domain == SimulationDomain.Electrical))))
                     OutOfRange("Presentation.Socket");
                 if ((binding.Driver == PresentationDriver.CommittedWheelAngle) != binding.GuidePort.HasValue ||
@@ -489,8 +490,7 @@ public static class BundleValidator
             Finite(path + ".Material.BounceThreshold", collider.Material.BounceThreshold);
         }
 
-        private void Mechanical(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
-            SupplyCapabilityDescriptor? supply)
+        private void Mechanical(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
         {
             Defined("KinematicMode", mechanical.KinematicMode);
             Defined("Payload", mechanical.Payload);
@@ -506,16 +506,6 @@ public static class BundleValidator
             }
             for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters);
             for (var i = 0; i < mechanical.Hinges.Count; i++) Hinge($"Hinges[{i}]", mechanical.Hinges[i], parameters);
-            // The owner's PowerIn route enables every declared drive; each retains its own physical limits.
-            var driven = mechanical.Sliders.Select((slider, index) => (Path: $"Sliders[{index}]", Driven: slider.Drive is not null))
-                .Concat(mechanical.Hinges.Select((hinge, index) => (Path: $"Hinges[{index}]", Driven: hinge.Drive is not null)))
-                .Where(pair => pair.Driven).ToArray();
-            // The owner compiles a consumer node only when it has an electrical PowerIn input and declares no supply capability of its
-            // own (a source, switched contact or logic gate compiles another node kind, so its drives could never be supplied).
-            if (driven.Length > 0 && (supply is not null || !ports.Any(port => port.Role == PortRole.PowerIn &&
-                    port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input)))
-                errors.Add(new(BundleErrorCode.UnresolvedReference,
-                    $"{source}.{driven[0].Path}.Drive: a supplied drive requires an electrical PowerIn input on a consumer (no supply capability)"));
             MechanicalCapture(mechanical, parameters);
             MechanicalContactWork(mechanical, parameters);
             MechanicalSurface(mechanical, parameters);
@@ -548,6 +538,7 @@ public static class BundleValidator
         {
             if (mechanical.ContactWork is { } work)
             {
+                if (work.Id == default) OutOfRange("ContactWork.Identity");
                 // The runtime store's domain (ContactWorkDeclaration): target speed 0–20 m/s, preload at most 200 J, threshold 0–64 m/s,
                 // cooldown 9–14400 physical steps, on one static owner body.
                 Real("ContactWork.StrengthParameter", work.StrengthParameter, parameters);
@@ -590,27 +581,6 @@ public static class BundleValidator
                 CaptureValue("CompliantSurface.Tension", surface.Tension, parameters, ParameterUnit.NewtonPerMetre, 120f, 1200f);
                 CaptureValue("CompliantSurface.DampingRatio", surface.DampingRatio, parameters, ParameterUnit.None, 0.08f, 0.8f);
             }
-        }
-
-        private void SupplyPorts(ElectricalPayload electrical, SupplyCapabilityDescriptor supply, IReadOnlyList<PortDescriptor> ports)
-        {
-            var role = supply.Kind switch
-            {
-                SupplyCapabilityKind.Source => ElectricalRole.Source,
-                SupplyCapabilityKind.SwitchedContact => ElectricalRole.Switch,
-                SupplyCapabilityKind.LogicGate => ElectricalRole.LogicGate,
-                _ => (ElectricalRole)byte.MaxValue
-            };
-            if (supply.Operation is { } operation) Defined("Supply.Operation", operation);
-            if ((supply.Kind == SupplyCapabilityKind.LogicGate) != supply.Operation.HasValue ||
-                (supply.Kind == SupplyCapabilityKind.LogicGate &&
-                    (!ports.Any(port => port.Role == PortRole.FirstIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
-                     !ports.Any(port => port.Role == PortRole.SecondIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input))))
-                OutOfRange("Supply.Operation");
-            if (!electrical.Nodes.Any(node => node.Role == role) ||
-                !ports.Any(port => port.Id == supply.Output && port.Role == PortRole.Supply && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Output) ||
-                (supply.Kind == SupplyCapabilityKind.Source ? supply.Input is not null : (supply.Input is not { } inPort || !ports.Any(port => port.Id == inPort && port.Role == PortRole.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input))))
-                OutOfRange("Supply");
         }
 
         private static bool InSurfaceRange(float metres) => metres >= 1f / 1024f && metres <= 16f;
@@ -836,17 +806,9 @@ public static class BundleValidator
                 errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.{path}: '{key}' names no declared Real parameter"));
         }
 
-        private void Electrical(ElectricalPayload electrical, IReadOnlyList<PortDescriptor> ports, IReadOnlyList<ParameterDescriptor> parameters)
+        private void Electrical(ElectricalPayload electrical)
         {
-            if (electrical.Supply is { } supply)
-            {
-                if ((supply.Kind == SupplyCapabilityKind.Source) != supply.Store.HasValue) OutOfRange("Supply.Store");
-                if (supply.Store is { } store) SourceStore(store, parameters);
-                Defined("Supply.Kind", supply.Kind);
-                if (string.IsNullOrWhiteSpace(supply.Output.Value)) OutOfRange("Supply.Output");
-                if (supply.Input is { } input && string.IsNullOrWhiteSpace(input.Value)) OutOfRange("Supply.Input");
-                SupplyPorts(electrical, supply, ports);
-            }
+            if (electrical.Nodes.Count == 0) OutOfRange("ElectricalNodes.Count");
             for (var i = 0; i < electrical.Nodes.Count; i++)
             {
                 var node = electrical.Nodes[i];
@@ -857,44 +819,6 @@ public static class BundleValidator
                 Finite(path + ".Capacitance", node.Capacitance);
                 Finite(path + ".MaxPower", node.MaxPower);
             }
-        }
-
-        /// <summary>A Source's finite store names four distinct declared parameters of their own kind and unit, each range inside the
-        /// electrical source envelope. The enable state lists exactly Disabled then Enabled, so its index 1 always means Enabled.</summary>
-        private void SourceStore(SupplySourceStoreDescriptor store, IReadOnlyList<ParameterDescriptor> parameters)
-        {
-            string[] keys = [store.Capacity, store.PowerLimit, store.InitialCharge, store.Enable];
-            if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Length) OutOfRange("Supply.Store");
-            StoreValue("Supply.Store.Capacity", store.Capacity, parameters, ParameterUnit.Joule,
-                ElectricalSourceEnvelope.MinimumCapacity, ElectricalSourceEnvelope.MaximumCapacity);
-            StoreValue("Supply.Store.PowerLimit", store.PowerLimit, parameters, ParameterUnit.Watt,
-                ElectricalSourceEnvelope.MinimumPower, ElectricalSourceEnvelope.MaximumPower);
-            StoreValue("Supply.Store.InitialCharge", store.InitialCharge, parameters, ParameterUnit.None, 0f, 1f);
-            if (StoreParameter("Supply.Store.Enable", store.Enable, parameters) is { } enable &&
-                (enable.Kind != ParameterKind.Choice || enable.Unit != ParameterUnit.None ||
-                 !enable.Options.SequenceEqual(["Disabled", "Enabled"], StringComparer.Ordinal)))
-                OutOfRange("Supply.Store.Enable");
-        }
-
-        private void StoreValue(string path, string key, IReadOnlyList<ParameterDescriptor> parameters, ParameterUnit unit,
-            float minimum, float maximum)
-        {
-            if (StoreParameter(path, key, parameters) is { } parameter &&
-                (parameter.Kind != ParameterKind.Real || parameter.Unit != unit || !(parameter.Minimum >= minimum) || !(parameter.Maximum <= maximum)))
-                OutOfRange(path);
-        }
-
-        /// <summary>The one declared parameter a store key names; an absent key is unresolved and a duplicated one out of range.</summary>
-        private ParameterDescriptor? StoreParameter(string path, string key, IReadOnlyList<ParameterDescriptor> parameters)
-        {
-            var matches = parameters.Where(parameter => parameter.Key == key).ToArray();
-            if (matches.Length == 0)
-            {
-                errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.{path}: '{key}' names no declared parameter"));
-                return null;
-            }
-            if (matches.Length > 1) { OutOfRange(path); return null; }
-            return matches[0];
         }
 
         private void Fluid(FluidPayload fluid)

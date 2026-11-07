@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using CuriousContraptions.Abstractions.Mechanical;
+using CuriousContraptions.Abstractions.Electrical;
 using CuriousContraptions.Bundle;
 
 namespace CuriousContraptions.Gpu;
 
 /// <summary>One declared run-time control of a part: its RunControl parameter and the one lane that parameter binds.</summary>
-public readonly record struct DeclaredRunControl(CuriousContraptions.Abstractions.ParameterId Parameter, CuriousContraptions.Abstractions.RunControlLane Lane);
+public readonly record struct DeclaredRunControl(CuriousContraptions.Abstractions.ParameterId Parameter, CuriousContraptions.Abstractions.RunControlLane Lane, LocalSupplyNodeId? SourceNode = null);
 
 /// <summary>The immutable physical declarations baked into the process's element bundle.</summary>
 public static class DeclaredPhysics
@@ -106,17 +107,15 @@ public static class DeclaredPhysics
 
     public static bool Contains(PartId part) => _entries?.ContainsKey(part) == true;
 
-    /// <summary>The finite store the part's Source supply capability declares; null for every other part.</summary>
-    public static CuriousContraptions.Abstractions.Electrical.SupplySourceStoreDescriptor? SourceStore(PartId part) =>
-        Of(part).Electrical?.Supply?.Store;
-
     /// <summary>The part's declared run-time controls, in parameter order: each RunControl parameter with the one lane it binds.</summary>
     public static IReadOnlyList<DeclaredRunControl> RunControls(IBundleServices bundle, PartId part) => RunControls(bundle, Of(part));
 
     /// <summary>This declaration's run-time controls. The admitted bundle binds each RunControl parameter to exactly one lane.</summary>
     public static IReadOnlyList<DeclaredRunControl> RunControls(IBundleServices bundle, BundleEntry entry) => entry.Metadata.Parameters
         .Where(parameter => parameter.RunEdit == CuriousContraptions.Abstractions.ParameterRunEdit.RunControl)
-        .Select(parameter => new DeclaredRunControl(new(parameter.Key), bundle.Lanes(entry, parameter.Key).Single())).ToArray();
+        .Select(parameter => new DeclaredRunControl(new(parameter.Key), bundle.Lanes(entry, parameter.Key).Single(),
+            (entry.Electrical?.SupplyGraph?.Nodes ?? []).OfType<SupplySourceDescriptor>()
+                .Where(source => source.Store.Enable.Value == parameter.Key).Select(source => (LocalSupplyNodeId?)source.Id).SingleOrDefault())).ToArray();
     /// <summary>Explicit package capability; collision geometry never determines capture eligibility.</summary>
     public static bool IsPayload(PartId part) => Of(part).Mechanical?.Payload == PayloadPolicy.CaptureTarget;
 

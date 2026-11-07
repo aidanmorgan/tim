@@ -17,6 +17,7 @@ internal static class WorkshopSavePrevalidation
     /// one of them (Story 9A.15).</summary>
     public static void Check(ISupplyQueries supply, SavedConstruction saved, IReadOnlySet<PartId> elements)
     {
+        ArgumentNullException.ThrowIfNull(supply);
         ArgumentNullException.ThrowIfNull(elements);
         var record = saved.Construction ?? throw Refuse(WorkshopSaveRejection.MissingField, "The save holds no construction.");
         if (record.Revision == 0) throw Refuse(WorkshopSaveRejection.OutOfRange, "The saved construction revision is zero.");
@@ -29,12 +30,12 @@ internal static class WorkshopSavePrevalidation
             if (!parts.TryAdd(new(instance.Id), part))
                 throw Refuse(WorkshopSaveRejection.DuplicateInstance, $"Two saved parts share identity {instance.Id}.");
         }
-        CheckConnections(supply, record, parts);
-        CheckPuzzle(record, elements);
+        if (saved.NextBodyId == 0) throw Refuse(WorkshopSaveRejection.InvalidAllocator, "The save's next part identity is zero.");
         foreach (var id in parts.Keys)
             if (saved.NextBodyId <= id.Value)
                 throw Refuse(WorkshopSaveRejection.InvalidAllocator, "The save's next part identity is not above every saved identity.");
-        if (saved.NextBodyId == 0) throw Refuse(WorkshopSaveRejection.InvalidAllocator, "The save's next part identity is zero.");
+        CheckPuzzle(record, elements);
+        CheckConnections(supply, record, parts);
     }
 
     private static WorkshopSaveRejectedException Refuse(WorkshopSaveRejection reason, string detail) =>
@@ -140,8 +141,11 @@ internal static class WorkshopSavePrevalidation
         try
         {
             var connections = new WorkshopConnections(links);
-            connections.Validate(supply, id => parts.TryGetValue(id, out var part) ? part : null);
+            connections.Validate(id => parts.TryGetValue(id, out var part) ? part : null);
             WorkshopSignalGraph.Validate(parts, connections);
+            var instances = new IWorkshopInstance[record.InstancesLength];
+            for (var i = 0; i < instances.Length; i++) instances[i] = WorkshopAuthoringFlatBuffers.MapInstance(record.Instances(i)!.Value);
+            connections.Validate(supply, new WorkshopInstances(instances));
         }
         catch (WorkshopEditRejectedException refusal)
         {

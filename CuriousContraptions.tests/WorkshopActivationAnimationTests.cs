@@ -109,9 +109,10 @@ public sealed class WorkshopActivationAnimationTests
             runControl: new(battery.Id, row.Id, RunControlValue.Of(ElectricalEnable.Enabled)));
         Assert.Equal(WorkshopCommandOutcome.Applied, sent.Response.Result.Outcome);
         const CuriousContraptions.Abstractions.RunControlLane lane = CuriousContraptions.Abstractions.RunControlLane.SourceEnable;
-        Assert.Equal(RunControlValue.Of(ElectricalEnable.Disabled), session.Committed.RunControl(battery.Id, lane));
+        Assert.Throws<ArgumentException>(() => session.Committed.RunControl(battery.Id, lane));
+        Assert.Equal(RunControlValue.Of(ElectricalEnable.Disabled), session.Committed.RunControl(battery.Id, lane, row.Source));
         await session.Advance(1);
-        Assert.Equal(RunControlValue.Of(ElectricalEnable.Enabled), session.Committed.RunControl(battery.Id, lane));
+        Assert.Equal(RunControlValue.Of(ElectricalEnable.Enabled), session.Committed.RunControl(battery.Id, lane, row.Source));
     }
 
     [Fact]

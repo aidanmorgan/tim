@@ -67,14 +67,15 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
     public void Validate(ISupplyQueries supply, WorkshopInstances instances)
     {
         ArgumentNullException.ThrowIfNull(instances);
-        Validate(supply, id => instances.FirstOrDefault(part => part.Id == id)?.PartId);
+        Validate(id => instances.FirstOrDefault(part => part.Id == id)?.PartId);
         _ = new WorkshopSignalGraph(instances, this);
+        _ = WorkshopSupplyCompiler.StorageBindings(WorkshopSupplyCompiler.Compile(supply, instances, this, DeclaredPhysics.Of));
     }
 
     /// <summary>The connection rules over the parts the construction names: a typed refusal for every inadmissible connection.
     /// The ports are the loaded bundle's declared ports (Story 9A.17). A stored save's pre-validation applies them to its saved
     /// part identities before any instance is constructed.</summary>
-    internal void Validate(ISupplyQueries supply, Func<GpuBodyId, PartId?> partOf)
+    internal void Validate(Func<GpuBodyId, PartId?> partOf)
     {
         ArgumentNullException.ThrowIfNull(partOf);
         if (_items.Length == 0) return;
@@ -100,7 +101,7 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
             if (link.Domain == WorkshopConnectionDomain.Activation)
                 ValidateActivation(ports, source.Value, target.Value, link, outRole, inRole);
             else if (link.Domain == WorkshopConnectionDomain.Electrical)
-                ValidateElectrical(target.Value, link, outRole, inRole, seen);
+                ValidateElectrical(source.Value, target.Value, link);
             else if (link.Domain == WorkshopConnectionDomain.Rope)
                 ValidateRope(link, outRole, inRole);
             else if (link.Domain == WorkshopConnectionDomain.Mechanical)
@@ -108,23 +109,11 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
         }
         _ = RopeTopology.Compile(_items, endpoint =>
             ports.Of(partOf(endpoint.Body)!.Value).ToArray().Single(port => port.Id == endpoint.Socket).AttachmentRole);
-        // Every electrical wire is a potential path, open contacts included: a loop through a nonmonotone gate is refused here, in
-        // build mode, before any construction or solve sees it. The rule reads each part's declared gate law, never its identity.
-        var loop = supply.NonmonotoneCycle(
-            _items.Where(link => link.Domain == WorkshopConnectionDomain.Electrical).Select(link => (link.Source, link.Target)),
-            owner => DeclaredPhysics.Of(partOf(owner)!.Value).Electrical?.Supply?.Operation);
-        if (loop.Length != 0)
-        {
-            // The bottom status line wraps but never truncates: name the first few parts (ascending ids) and count the rest.
-            var named = string.Join(", ", loop.Take(LoopPartsNamed).Select(owner => owner.Value));
-            var rest = loop.Length > LoopPartsNamed ? $" and {loop.Length - LoopPartsNamed} more" : "";
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.NonmonotoneFeedback,
-                $"Break the wire loop through parts {named}{rest}. This gate's output cannot feed its own inputs.");
-        }
     }
+
     private static void ValidateIdentity(WorkshopConnection link, HashSet<WorkshopConnection> seen)
     {
-        if (link.Source.Value == 0 || link.Target.Value == 0 || (link.Source == link.Target && link.Domain != WorkshopConnectionDomain.Activation) ||
+        if (link.Source.Value == 0 || link.Target.Value == 0 || (link.Source == link.Target && link.Domain is not (WorkshopConnectionDomain.Activation or WorkshopConnectionDomain.Electrical)) ||
             string.IsNullOrWhiteSpace(link.Output.Value) || string.IsNullOrWhiteSpace(link.Input.Value) ||
             !Enum.IsDefined(link.Domain) || !seen.Add(link))
             throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported or duplicate connection.");
@@ -143,19 +132,12 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
             throw new WorkshopEditRejectedException(WorkshopEditRejection.LevelDrivesLevelInputOnly, "A level output can only light a Signal lamp.");
     }
 
-    private static void ValidateElectrical(PartId target, WorkshopConnection link, PortRole outRole, PortRole inRole, HashSet<WorkshopConnection> seen)
+    private static void ValidateElectrical(PartId source, PartId target, WorkshopConnection link)
     {
-        if (outRole != PortRole.Supply || inRole is not (PortRole.PowerIn or PortRole.FirstIn or PortRole.SecondIn))
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported electrical socket.");
-        foreach (var previous in seen)
-        {
-            if (previous != link && previous.Source == link.Source && previous.Target == link.Target && previous.Input == link.Input && previous.Domain == WorkshopConnectionDomain.Electrical)
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Duplicate electrical connection from same source to same input.");
-            if (previous != link && previous.Target == link.Target && previous.Input == link.Input &&
-                previous.Domain == WorkshopConnectionDomain.Electrical &&
-                DeclaredPhysics.Of(target).Electrical?.Supply?.Kind is not (SupplyCapabilityKind.SwitchedContact or SupplyCapabilityKind.LogicGate))
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied, "This power input already has a supplier.");
-        }
+        var output = WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(source), link.Output);
+        var input = WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(target), link.Input);
+        if (output.Terminal != SupplyTerminal.Output || input.Terminal == SupplyTerminal.Output)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported electrical endpoint.");
     }
 
     private static void ValidateRope(WorkshopConnection link, PortRole outRole, PortRole inRole)

@@ -203,7 +203,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var activeActivations = network.Clear();
         var activeTimers = network.ClearTimers();
         var activeMemory = network.ClearMemory();
-        var electrical = new SupplyOutputRead([new(battery.Id, true)]);
+        var batteryNode = construction.Instances.Identities[battery.Id].Supply.Values.First().Node;
+        var electrical = new SupplyOutputRead([new(batteryNode, true, true)]);
 
         // 600 ticks = 5.0 seconds at 120 Hz
         var pulseTicks = new List<ulong>();
@@ -231,7 +232,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
 
         // Downstream Counter reached 5
         Assert.Equal(5U, network.Memory(activeMemory, SignalTestNodes.Only(network, counter.Id)).Count);
-        Assert.True(network.ContactClosed(activeActivations, network.ClearTimers(), counter.Id));
+        Assert.True(network.ContactClosed(activeActivations, network.ClearTimers(), construction.Instances.Identities[counter.Id].Supply.Values.First().Node));
     }
 
     [Fact]
@@ -265,7 +266,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         Assert.Equal(OscillatorPhase.Stopped, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Phase);
         Assert.Equal(0U, network.Memory(activeMemory, SignalTestNodes.Only(network, clock.Id)).Count);
         Assert.Equal(0U, network.Memory(activeMemory, SignalTestNodes.Only(network, counter.Id)).Count);
-        Assert.False(network.ContactClosed(activeActivations, network.ClearTimers(), counter.Id));
+        Assert.False(network.ContactClosed(activeActivations, network.ClearTimers(), construction.Instances.Identities[counter.Id].Supply.Values.First().Node));
     }
 
     [Fact]
@@ -286,8 +287,9 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var activeActivations = network.Clear();
         var activeTimers = network.ClearTimers();
         var activeMemory = network.ClearMemory();
-        var powered = new SupplyOutputRead([new(battery.Id, true)]);
-        var unpowered = new SupplyOutputRead([new(battery.Id, false)]);
+        var batteryNode2 = construction.Instances.Identities[battery.Id].Supply.Values.First().Node;
+        var powered = new SupplyOutputRead([new(batteryNode2, true, true)]);
+        var unpowered = new SupplyOutputRead([new(batteryNode2, false, false)]);
         void Step(ulong tick, SupplyOutputRead electrical)
         {
             var checkpoint = network.Consume(activeActivations, activeTimers, [], new(tick), [], [], electrical, memory: activeMemory);
@@ -339,7 +341,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([battery, clock]),
             Connections: new([new WorkshopConnection(battery.Id, PortId.Supply, clock.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)]));
         var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction);
-        var powered = new SupplyOutputRead([new(battery.Id, true)]);
+        var batteryNode3 = construction.Instances.Identities[battery.Id].Supply.Values.First().Node;
+        var powered = new SupplyOutputRead([new(batteryNode3, true, true)]);
         var cleared = network.Memory(network.ClearMemory(), SignalTestNodes.Only(network, clock.Id));
         Assert.Equal((OscillatorPhase.Stopped, 0UL, 0U), (cleared.Phase, cleared.DueTick, cleared.Count));
 
@@ -415,7 +418,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
         Assert.Equal(clock.Id, node.Owner);
         Assert.Equal(ActivationNodeKind.Oscillator, node.Kind);
         Assert.Equal(300U, node.IntervalTicks); // 2.5 seconds at the declared 120 Hz commit cadence.
-        Assert.Equal(battery.Id, node.PowerProvider);
+        var expectedSourceNode = decoded.Physics.SupplyGraph.Nodes.ToArray().Single(n => n.Owner == battery.Id && n.Kind == SupplyNodeKind.Source).Id;
+        Assert.Equal(expectedSourceNode, node.PowerProvider);
         Assert.Single(decoded.Physics.SupplyGraph.Edges.ToArray());
     }
 }

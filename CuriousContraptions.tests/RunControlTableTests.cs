@@ -52,8 +52,9 @@ public sealed class RunControlTableTests
         var locked = Array.FindIndex(scene.Physics.Electrical.Sources.ToArray(), source => source.Owner == LockedSource);
         WorkshopCompiledScene With(params RunControlRow[] rows) => new(scene.Identity, scene.Revision, scene.Settings, scene.Physics,
             scene.Activation, scene.Presentation, scene.Owners, rows);
-        Assert.Equal([row, row with { Id = new(row.Id.Value + 1), Owner = LockedSource, LaneIndex = locked }],
-            With(row, row with { Id = new(row.Id.Value + 1), Owner = LockedSource, LaneIndex = locked }).RunControls);
+        var lockedRow = row with { Id = new(row.Id.Value + 1), Owner = LockedSource, LaneIndex = locked, Source = scene.Physics.Electrical.Sources[locked].Id };
+        Assert.Equal([row, lockedRow],
+            With(row, lockedRow).RunControls);
         foreach (var rows in new RunControlRow[][]
         {
             [row with { Id = new(0) }],
@@ -82,7 +83,7 @@ public sealed class RunControlTableTests
         var compiled = Compiled();
         var row = Assert.Single(compiled.RunControls);
         var locked = Array.FindIndex(compiled.Physics.Electrical.Sources.ToArray(), source => source.Owner == LockedSource);
-        RunControlRow[] rows = [row, row with { Id = new(row.Id.Value + 1), Owner = LockedSource, LaneIndex = locked }];
+        RunControlRow[] rows = [row, row with { Id = new(row.Id.Value + 1), Owner = LockedSource, LaneIndex = locked, Source = compiled.Physics.Electrical.Sources[locked].Id }];
         Assert.NotEqual(rows[0].LaneIndex, rows[1].LaneIndex);
         var scene = new WorkshopCompiledScene(compiled.Identity, compiled.Revision, compiled.Settings, compiled.Physics,
             compiled.Activation, compiled.Presentation, compiled.Owners, rows);
@@ -101,8 +102,8 @@ public sealed class RunControlTableTests
         var root = new Table(4 + buffer.GetInt(4), buffer);
         var record = new Table(root.__indirect(root.bb_pos + root.__offset(4 + 11 * 2)), buffer);
         var rows = record.__vector(record.__offset(4 + 28 * 2));
-        Assert.Equal((byte)RunControlLane.SourceEnable, bytes[rows + 20]);
-        bytes[rows + 20] = 7;
+        Assert.Equal((byte)RunControlLane.SourceEnable, bytes[rows + 28]);
+        bytes[rows + 28] = 7;
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => harness.Router.Dispatch(bytes)).Reason);
         // Nothing was installed, and the same valid Construct is still the next reliable request.
         Assert.Empty(harness.Simulation.Scene.RunControls);
@@ -172,12 +173,14 @@ public sealed class RunControlTableTests
     {
         await using var harness = await WorkshopIntegrationHarness.Running(Bench(authored));
         var row = Assert.Single(harness.Simulation.Scene.RunControls);
-        Assert.Equal(RunControlValue.Of(authored), harness.Committed.RunControl(Source, RunControlLane.SourceEnable));
-        Assert.Equal(RunControlValue.Of(ElectricalEnable.Enabled), harness.Committed.RunControl(LockedSource, RunControlLane.SourceEnable));
-        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(Gate, RunControlLane.SourceEnable));
+        var lockedSourceId = Assert.Single(harness.Simulation.Scene.Physics.Electrical.Sources.ToArray(), s => s.Owner == LockedSource).Id;
+        Assert.Equal(RunControlValue.Of(authored), harness.Committed.RunControl(Source, RunControlLane.SourceEnable, row.Source));
+        Assert.Equal(RunControlValue.Of(ElectricalEnable.Enabled), harness.Committed.RunControl(LockedSource, RunControlLane.SourceEnable, lockedSourceId));
+        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(Source, RunControlLane.SourceEnable));
+        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(Gate, RunControlLane.SourceEnable, row.Source));
         await harness.Require(WorkshopCommandKind.ConfigureRunControl, runControl: new(Source, row.Id, RunControlValue.Of(control)));
-        Assert.Equal(RunControlValue.Of(authored), harness.Committed.RunControl(Source, RunControlLane.SourceEnable));
-        Assert.Equal(RunControlValue.Of(control), (await harness.Advance(1))[0].RunControl(Source, RunControlLane.SourceEnable));
+        Assert.Equal(RunControlValue.Of(authored), harness.Committed.RunControl(Source, RunControlLane.SourceEnable, row.Source));
+        Assert.Equal(RunControlValue.Of(control), (await harness.Advance(1))[0].RunControl(Source, RunControlLane.SourceEnable, row.Source));
     }
 
     // ---- the RevoluteDriveTarget lane (engine-revolute-drive-target) ---------------------------------------------------------------

@@ -6,6 +6,8 @@ using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.Gpu;
 
+public readonly record struct SupplyNodeId(ulong Value);
+
 public enum SupplyNodeKind { Source, Contact, Consumer, LogicGate }
 
 /// <summary>Which kind of declared drive a consumer node's route enables.</summary>
@@ -31,10 +33,10 @@ public readonly record struct SupplyConsumer
     public static SupplyConsumer Revolute(RevoluteConstraintId joint) => new(SupplyConsumerKind.RevoluteDrive, default, joint);
 }
 
-public readonly record struct SupplyNodeDeclaration(GpuBodyId Owner, SupplyNodeKind Kind,
-    ElectricalSourceId Source = default, ImmutableArray<SupplyConsumer> Consumers = default, LogicGateOperation? Operation = null);
-public readonly record struct SupplyEdge(GpuBodyId Source, GpuBodyId Target, PortRole Input);
-public readonly record struct SupplyOutput(GpuBodyId Provider, bool Powered);
+public readonly record struct SupplyNodeDeclaration(SupplyNodeId Id, GpuBodyId Owner, SupplyNodeKind Kind,
+    ElectricalSourceId Source = default, ImmutableArray<SupplyConsumer> Consumers = default, LogicGateOperation? Operation = null, ImmutableArray<GpuContactWorkId> Storages = default);
+public readonly record struct SupplyEdge(SupplyNodeId Source, SupplyNodeId Target, SupplyTerminal Input);
+public readonly record struct SupplyOutput(SupplyNodeId Provider, bool Powered, bool Supplied);
 
 /// <summary>Effective outputs of the admitted supply graph at one phase boundary.</summary>
 public readonly struct SupplyOutputRead
@@ -42,18 +44,20 @@ public readonly struct SupplyOutputRead
     private readonly SupplyOutput[]? _rows;
     public SupplyOutputRead(ReadOnlySpan<SupplyOutput> rows)
     {
-        var seen = new System.Collections.Generic.HashSet<GpuBodyId>();
+        var seen = new System.Collections.Generic.HashSet<SupplyNodeId>();
         foreach (var row in rows)
             if (row.Provider.Value == 0 || !seen.Add(row.Provider))
                 throw new ArgumentException("Supply outputs require unique declared providers.");
         _rows = rows.ToArray();
     }
-    public bool IsPowered(GpuBodyId provider)
+    public bool IsPowered(SupplyNodeId provider) => Selected(provider).Powered;
+    public bool IsSupplied(SupplyNodeId provider) => Selected(provider).Supplied;
+    private SupplyOutput Selected(SupplyNodeId provider)
     {
-        if (provider.Value == 0) return false;
+        if (provider.Value == 0) return default;
         foreach (var row in _rows ?? [])
-            if (row.Provider == provider) return row.Powered;
+            if (row.Provider == provider) return row;
         throw new ArgumentException("Selected supply provider is missing.");
     }
 }
-public readonly record struct SupplyResolution(bool[] Consumers, ElectricalLogicRead[] Logic, SupplyOutputRead Outputs);
+public readonly record struct SupplyResolution(bool[] Consumers, bool[] StorageRoutes, ElectricalLogicRead[] Logic, SupplyOutputRead Outputs);

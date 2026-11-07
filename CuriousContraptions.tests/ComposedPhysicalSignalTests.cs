@@ -1,6 +1,7 @@
 using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Signal;
+using CuriousContraptions.Abstractions.Electrical;
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 
@@ -131,8 +132,8 @@ public sealed class ComposedPhysicalSignalTests
                 .. geometry.Select(collider => collider with { Offset = collider.Offset + new Vector3(2, 0, 0) })],
             ColliderBindings = [],
             Ports = original.Ports.Where(port => port.Domain == SimulationDomain.Electrical).ToArray(),
-            Electrical = original.Electrical! with { Supply = original.Electrical!.Supply!.Value with
-                { Control = new(new("left"), SignalContactState.Latched) } },
+            Electrical = original.Electrical! with { SupplyGraph = original.Electrical!.SupplyGraph! with
+                { Nodes = [.. original.Electrical!.SupplyGraph!.Nodes.Select(node => node is SupplyContactDescriptor sc ? sc with { Control = new(new("left"), SignalContactState.Latched) } : node)] } },
             Signal = new([sensor with { Id = new("left") },
                 sensor with { Id = new("right"), RegionCollider = sensor.RegionCollider + geometry.Length,
                     SupportingColliders = sensor.SupportingColliders.Select(index => index + geometry.Length).ToArray() }], [], []),
@@ -164,7 +165,7 @@ public sealed class ComposedPhysicalSignalTests
         Assert.Equal(ActivationPhase.Latched, Assert.Single(activations, row => row.Node == Node(bench, loaded)).Phase);
         Assert.Equal(ActivationPhase.Clear, Assert.Single(activations, row => row.Node == Node(bench, empty)).Phase);
         Assert.Equal(loaded == "left", harness.Simulation.Scene.Activation.ContactClosed(
-            harness.Committed.Activations, harness.Committed.Timers, new(2)));
+            harness.Committed.Activations, harness.Committed.Timers, bench.Instances.Identities[new(2)].Supply.Values.Single().Node));
         AssertLoadVisuals(harness, entry, loaded);
         var prior = harness.Committed;
         var foreign = rows.ToArray();

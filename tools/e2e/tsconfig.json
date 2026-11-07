@@ -12,7 +12,8 @@
     "skipLibCheck": true,
     "types": ["node"],
     "paths": {
-      "playwright": ["/opt/homebrew/lib/node_modules/@playwright/mcp/node_modules/playwright"]
+      "playwright": ["/opt/homebrew/lib/node_modules/@playwright/mcp/node_modules/playwright"],
+      "flatbuffers": ["/opt/homebrew/lib/node_modules/flatbuffers"]
     }
   },
   "include": ["*.ts", "unit/*.ts"]

@@ -46,7 +46,7 @@ public readonly record struct RunControlValue
 /// parameter's declared bounds. A SourceEnable row's lane index is its owner's source in compiled source order, and its bounds are zero;
 /// a RevoluteDriveTarget row's lane index is its owner's drive in the compiled drive table, and a scalar outside its bounds is refused.</summary>
 public readonly record struct RunControlRow(RunControlId Id, GpuBodyId Owner, RunControlLane Lane, int LaneIndex, float Minimum,
-    float Maximum);
+    float Maximum, ElectricalSourceId Source = default);
 
 /// <summary>Explicit player input: one declared parameter edited during Run. The next committed step applies the value to the row's
 /// lane; the control never edits the authored construction, so Reset and a save keep the authored value.</summary>

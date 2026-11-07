@@ -85,8 +85,12 @@ public sealed class CounterElementDeclaration : ISignalElement, ISupplyElement, 
         new(PortId.ActivationOut, new(new("signal"), SignalTerminal.Output))
     ];
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply,
-        Control: new(new("signal"), SignalContactState.Latched));
+    public SupplyGraphDescriptor SupplyGraph => new(
+        [new SupplyContactDescriptor(new("contact"), new(new("signal"), SignalContactState.Latched))], [],
+        [
+            new(PortId.PowerIn, new(new("contact"), SupplyTerminal.PowerIn)),
+            new(PortId.Supply, new(new("contact"), SupplyTerminal.Output))
+        ]);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

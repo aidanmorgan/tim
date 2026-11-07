@@ -279,6 +279,8 @@ internal sealed class WorkshopPhysicsEngine
             if (driven[layout.Prismatics + r]) revoluteDrives++;
         }
         inputs.Validate(supplyCount, driven, revoluteDrives);
+        if (inputs.StorageRoutes is null || inputs.StorageRoutes.Length != layout.ElectricalBindings)
+            throw new ArgumentException("Physics storage eligibility differs from admitted routes.");
         // engine-revolute-drive-target: each driven revolute commits this tick's target before its substeps. The world's revolutes and
         // the compiled drive table are both in joint identity order, so a driven revolute's rank among the driven ones is its drive index.
         for (int r = 0, drive = 0; r < layout.Revolutes; r++)
@@ -983,7 +985,7 @@ internal sealed class WorkshopPhysicsEngine
                 for (var route = 0; route < layout.ElectricalBindings; route++)
                 {
                     var bindingOffset = layout.ElectricalBindingOffset(route);
-                    if (ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingSourceOffset) != supply) continue;
+                    if (!inputs.StorageRoutes[route] || ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingSourceOffset) != supply) continue;
                     var targetStore = (int)ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingStorageOffset);
                     var storeOffset = layout.ContactWorkOffset(targetStore);
                     _storeIndices.Add(storeOffset);

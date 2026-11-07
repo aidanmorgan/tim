@@ -521,7 +521,8 @@ public sealed class WorkshopPhysicsEngineTests
         var interactions = PhysicsInteractionSnapshot.Empty;
         var layout = PhysicsGpuAbi.Layout(admitted);
         var inputs = new PhysicsTickInputs(Enumerable.Repeat(ElectricalEnable.Enabled, enabledSources).ToArray(),
-            new bool[layout.Prismatics + layout.Revolutes]) { DriveTarget = PhysicsGpuAbi.ReadDriveTargets(admitted).TargetSpeeds() };
+            new bool[layout.Prismatics + layout.Revolutes]) { DriveTarget = PhysicsGpuAbi.ReadDriveTargets(admitted).TargetSpeeds(),
+            StorageRoutes = Enumerable.Repeat(true, layout.ElectricalBindings).ToArray() };
         for (var tick = 1; tick <= ticks; tick++)
         {
             interactions = engine.Advance(source, candidate, inputs, interactions);

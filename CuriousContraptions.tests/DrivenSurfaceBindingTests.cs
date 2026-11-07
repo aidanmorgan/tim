@@ -48,6 +48,13 @@ public sealed class DrivenSurfaceBindingTests
                 Hinges = reordered ? [driven, passive] : [passive, driven],
                 DrivenSurfaces = [new(new(1), new(0), new(0), face,
                     new(CoordinateKind.Revolute, reordered ? 0 : 1), Vector3.UnitX, MechanicalValue.Fixed(.2f))]
+            },
+            Electrical = motor.Electrical! with
+            {
+                SupplyGraph = motor.Electrical.SupplyGraph! with
+                {
+                    Nodes = [new SupplyConsumerDescriptor(new("consumer"), [new SupplyDriveTarget(new(CoordinateKind.Revolute, reordered ? 0 : 1))])]
+                }
             }
         };
     }

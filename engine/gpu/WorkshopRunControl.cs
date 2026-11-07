@@ -23,9 +23,9 @@ public static class RunControlLanes
         return row.Lane switch
         {
             RunControlLane.SourceEnable => row.LaneIndex >= 0 && row.LaneIndex < physics.Electrical.Sources.Length &&
-                physics.Electrical.Sources[row.LaneIndex].Owner == row.Owner,
+                physics.Electrical.Sources[row.LaneIndex].Owner == row.Owner && physics.Electrical.Sources[row.LaneIndex].Id == row.Source,
             RunControlLane.RevoluteDriveTarget => row.LaneIndex >= 0 && row.LaneIndex < physics.RevoluteDrives.Length &&
-                DriveOwner(physics, row.LaneIndex) == row.Owner,
+                DriveOwner(physics, row.LaneIndex) == row.Owner && row.Source == default,
             _ => false
         };
     }
@@ -54,12 +54,15 @@ public static class RunControlLanes
     }
 
     /// <summary>The lane slot through which <paramref name="owner"/> is driven on <paramref name="lane"/> in the installed physics.</summary>
-    public static int Slot(IPhysicsSceneDeclaration physics, RunControlLane lane, GpuBodyId owner)
+    public static int Slot(IPhysicsSceneDeclaration physics, RunControlLane lane, GpuBodyId owner, ElectricalSourceId source = default)
     {
         ArgumentNullException.ThrowIfNull(physics);
         if (lane == RunControlLane.SourceEnable)
+        {
+            if (source == default) throw new ArgumentException("A source enable control requires an exact source identity.", nameof(source));
             for (var i = 0; i < physics.Electrical.Sources.Length; i++)
-                if (physics.Electrical.Sources[i].Owner == owner) return i;
+                if (physics.Electrical.Sources[i].Owner == owner && physics.Electrical.Sources[i].Id == source) return i;
+        }
         if (lane == RunControlLane.RevoluteDriveTarget)
             for (var i = 0; i < physics.RevoluteDrives.Length; i++)
                 if (DriveOwner(physics, i) == owner) return i;
@@ -68,11 +71,14 @@ public static class RunControlLanes
 
     /// <summary>The committed value of <paramref name="owner"/>'s slot on <paramref name="lane"/>, found among the lane's committed
     /// slots. Every read of an installation carries each slot it compiled, locked owners included; a missing slot is refused.</summary>
-    public static RunControlValue RunControl(this WorkshopRead read, GpuBodyId owner, RunControlLane lane)
+    public static RunControlValue RunControl(this WorkshopRead read, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source = default)
     {
         if (lane == RunControlLane.SourceEnable)
+        {
+            if (source == default) throw new ArgumentException("A source enable control requires an exact source identity.", nameof(source));
             for (var i = 0; i < read.Electrical.Count; i++)
-                if (read.Electrical[i].Owner == owner) return RunControlValue.Of(read.Electrical[i].Enabled);
+                if (read.Electrical[i].Owner == owner && read.Electrical[i].Id == source) return RunControlValue.Of(read.Electrical[i].Enabled);
+        }
         if (lane == RunControlLane.RevoluteDriveTarget)
             for (var i = 0; i < read.DriveTargets.Count; i++)
                 if (read.DriveTargets[i].Owner == owner) return RunControlValue.Of(read.DriveTargets[i].TargetSpeed);
@@ -81,11 +87,13 @@ public static class RunControlLanes
 
     /// <summary>The row through which <paramref name="owner"/> drives <paramref name="lane"/>, or null when the table has none (a locked
     /// owner, or a part that declares no such run control).</summary>
-    public static RunControlRow? Find(IEnumerable<RunControlRow> rows, GpuBodyId owner, RunControlLane lane)
+    public static RunControlRow? Find(IEnumerable<RunControlRow> rows, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source = default)
     {
         ArgumentNullException.ThrowIfNull(rows);
+        if (lane == RunControlLane.SourceEnable && source == default)
+            throw new ArgumentException("A source enable control requires an exact source identity.", nameof(source));
         foreach (var row in rows)
-            if (row.Owner == owner && row.Lane == lane) return row;
+            if (row.Owner == owner && row.Lane == lane && (lane != RunControlLane.SourceEnable || row.Source == source)) return row;
         return null;
     }
 }

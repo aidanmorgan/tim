@@ -185,7 +185,7 @@ public readonly record struct PlanarGuideDescriptor(
 /// approaching faster than <see cref="Threshold"/> qualifies once per target every <see cref="CooldownPhysicalSteps"/> physical
 /// steps.</summary>
 public readonly record struct ContactWorkDescriptor(
-    string StrengthParameter, float ReferenceMass, float Threshold, uint CooldownPhysicalSteps,
+    CuriousContraptions.Abstractions.Electrical.LocalContactWorkId Id, string StrengthParameter, float ReferenceMass, float Threshold, uint CooldownPhysicalSteps,
     TargetSelector Target = default);
 
 /// <summary>A rectangular compliant membrane on the element's static frame body. <see cref="HalfExtents"/> (m) are the footprint's half

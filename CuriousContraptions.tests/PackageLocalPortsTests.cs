@@ -129,7 +129,10 @@ public sealed class PackageLocalPortsTests
             Ports = customPorts,
             Signal = baseEntry.Signal! with { Ports =
                 [new(outA, new(new("signal"), SignalTerminal.Output)),
-                 new(outB, new(new("signal"), SignalTerminal.Output))] }
+                 new(outB, new(new("signal"), SignalTerminal.Output))] },
+            Electrical = baseEntry.Electrical! with { SupplyGraph = baseEntry.Electrical!.SupplyGraph! with { Ports =
+                [new(supA, new(new("contact"), CuriousContraptions.Abstractions.Electrical.SupplyTerminal.Output)),
+                 new(supB, new(new("contact"), CuriousContraptions.Abstractions.Electrical.SupplyTerminal.Output))] } }
         };
 
         using var physicsScope = DeclaredPhysics.Scoped([customEntry]);
@@ -165,7 +168,7 @@ public sealed class PackageLocalPortsTests
 
         var elecRefusal = Assert.Throws<WorkshopEditRejectedException>(() => dupElecConstruction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         Assert.Equal(WorkshopEditRejection.InvalidConnection, elecRefusal.Reason);
-        Assert.Contains("Duplicate electrical connection", elecRefusal.Message, StringComparison.Ordinal);
+        Assert.Contains("Unsupported or duplicate resolved supply edge", elecRefusal.Message, StringComparison.Ordinal);
     }
 
     [Fact]

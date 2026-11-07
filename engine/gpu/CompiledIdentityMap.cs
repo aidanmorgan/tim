@@ -1,5 +1,6 @@
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Signal;
+using CuriousContraptions.Abstractions.Electrical;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -14,9 +15,10 @@ public sealed record CompiledHingeIdentities(GpuBodyId Body, GpuMaterialId Mater
 public readonly record struct CompiledCaptureIdentities(GpuSensorId Sensor, GpuForceId Guide);
 public readonly record struct CompiledSignalIdentities(ActivationNodeId Node, GpuContactTriggerId Trigger,
     GpuOrientationSensorId Orientation, GpuContactLoadSensorId ContactLoad, GpuPassageSensorId Passage);
+public readonly record struct CompiledSupplyIdentities(SupplyNodeId Node, ElectricalSourceId Source);
 public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArray<GpuColliderId> Colliders,
     ImmutableArray<CompiledSliderIdentities> Sliders, ImmutableDictionary<SignalNodeId, CompiledSignalIdentities> Signals,
-    ElectricalSourceId Source, GpuContactWorkId Work,
+    ImmutableDictionary<LocalSupplyNodeId, CompiledSupplyIdentities> Supply, GpuContactWorkId Work,
     CompiledCaptureIdentities Capture, ImmutableArray<CompiledHingeIdentities> Hinges,
     CompliantSurfaceId CompliantSurface, ImmutableArray<DrivenSurfaceId> DrivenSurfaces, ImmutableDictionary<PortId, RopeGuideId> Guides);
 
@@ -85,7 +87,9 @@ public sealed class CompiledIdentityMap
             var colliders = Colliders(entry.Colliders.Count);
             var (sliders, hinges) = AllocateChildren(instance.Id, entry, owners, Allocate, Colliders);
             var signals = AllocateSignals(entry, Allocate);
-            var source = entry.Electrical?.Supply?.Store is not null ? new ElectricalSourceId(Allocate()) : default;
+            var supply = ImmutableDictionary.CreateBuilder<LocalSupplyNodeId, CompiledSupplyIdentities>();
+            foreach (var node in (entry.Electrical?.SupplyGraph?.Nodes ?? []).OrderBy(node => node.Id))
+                supply.Add(node.Id, new(new(Allocate()), node is SupplySourceDescriptor ? new(Allocate()) : default));
             var work = entry.Mechanical?.ContactWork is not null ? new GpuContactWorkId(Allocate()) : default;
             var capture = entry.Mechanical?.Capture is not null
                 ? new CompiledCaptureIdentities(new(Allocate()),new(Allocate())) : default;
@@ -95,7 +99,7 @@ public sealed class CompiledIdentityMap
             var guides = ImmutableDictionary.CreateBuilder<PortId, RopeGuideId>();
             foreach (var port in entry.Ports.Where(port => port.AttachmentRole == RopeAttachmentRole.Guide).OrderBy(port => port.Id))
                 guides.Add(port.Id, new(nextGuide++));
-            parts.Add(instance.Id, new(material, colliders, sliders, signals, source, work,
+            parts.Add(instance.Id, new(material, colliders, sliders, signals, supply.ToImmutable(), work,
                 capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable()));
         }
         _parts = parts.ToImmutable(); _owners = owners.ToImmutable(); NextIdentity = next;

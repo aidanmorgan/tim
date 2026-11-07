@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.SystemClock;
 
-public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
+public sealed class SystemClockElementDeclaration : ISignalElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.1f, PresentationAxes.None,
         [
@@ -60,6 +60,10 @@ public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalE
     [
         new(PortId.ActivationOut, new(new("signal"), SignalTerminal.Output))
     ];
+
+    public SupplyGraphDescriptor SupplyGraph => new(
+        [new SupplyConsumerDescriptor(new("consumer"), [])], [],
+        [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

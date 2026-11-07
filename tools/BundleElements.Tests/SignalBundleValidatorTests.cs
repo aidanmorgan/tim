@@ -131,7 +131,9 @@ public sealed class SignalBundleValidatorTests
         foreach (var id in new[] { "wall", "ball", "powered_gate" })
         {
             var physical = Entry(id);
-            Assert.Empty(Check(clock with { Mechanical = physical.Mechanical, Presentation = clock.Presentation with { Bodies = physical.Presentation.Bodies } }));
+            var mechanical = physical.Mechanical is null ? null : physical.Mechanical with
+            { Sliders = physical.Mechanical.Sliders.Select(slider => slider with { Drive = null }).ToArray() };
+            Assert.Empty(Check(clock with { Mechanical = mechanical, Presentation = clock.Presentation with { Bodies = physical.Presentation.Bodies } }));
         }
         Assert.Empty(Check(clock with { Footprint = default, Colliders = [] }));
         Refused(clock with { Signal = clock.Signal! with { Nodes = [] } });
@@ -152,7 +154,7 @@ public sealed class SignalBundleValidatorTests
         foreach (var maximum in new[] { 10f, 200f, MathF.BitDecrement(4294967296f) })
             Assert.Empty(Check(Parameter(counter, parameter with { Maximum = maximum })));
         Refused(counter with { Ports = [] });
-        Assert.Empty(Check(counter with { Electrical = counter.Electrical! with { Supply = null } }));
+        Assert.Empty(Check(counter with { Ports = counter.Ports.Where(p => p.Domain != SimulationDomain.Electrical).ToArray(), Electrical = null }));
         Assert.Empty(Check(counter with { Footprint = default, Colliders = [] }));
         Refused(counter with { Signal = counter.Signal! with { Nodes = [] } });
         Refused(counter with { Presentation = counter.Presentation with { Bindings = [counter.Presentation.Bindings[0] with { SignalNode = new("missing") }] } });
@@ -171,10 +173,10 @@ public sealed class SignalBundleValidatorTests
         Refused(latch with { Ports = latch.Ports.Select(port => port == output ? port with { Signal = PortSignalKind.Pulse } : port).ToArray() });
         Refused(latch with { Signal = latch.Signal! with { Ports = [.. latch.Signal.Ports, latch.Signal.Ports[0]] } });
         Refused(latch with { Signal = latch.Signal! with { Ports = [new(PortId.SetIn, new(new("signal"), SignalTerminal.Input))] } });
-        Assert.Empty(Check(latch with { Electrical = latch.Electrical! with { Supply = null } }));
-        var supply = latch.Electrical!.Supply!.Value;
-        Refused(latch with { Electrical = latch.Electrical with { Supply = supply with { Control = null } } });
-        Refused(latch with { Electrical = latch.Electrical with { Supply = supply with { Control = new(new("missing"), SignalContactState.Latched) } } });
+        Assert.Empty(Check(latch with { Ports = latch.Ports.Where(p => p.Domain != SimulationDomain.Electrical).ToArray(), Electrical = null }));
+        var contact = latch.Electrical!.SupplyGraph!.Nodes.OfType<CuriousContraptions.Abstractions.Electrical.SupplyContactDescriptor>().Single();
+        Refused(latch with { Electrical = latch.Electrical with { SupplyGraph = latch.Electrical.SupplyGraph with { Nodes = [contact with { Control = new(new("missing"), SignalContactState.Latched) }] } } });
+        Refused(latch with { Electrical = latch.Electrical with { SupplyGraph = latch.Electrical.SupplyGraph with { Nodes = [contact with { Control = new(new("signal"), (SignalContactState)99) }] } } });
         foreach (var id in new[] { "wall", "ball", "powered_gate" })
         {
             var physical = Entry(id);

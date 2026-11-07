@@ -23,6 +23,8 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         public ActivationNodeDeclaration Node;
         public SupplyConsumer? Actuator;
         public float Capacity;
+        public ElectricalSourceId Source;
+        public SupplyNodeId SupplyNode;
         public IAnimationHandle? Handle;
         public float Input;
         public AnimationValue FollowTarget;
@@ -60,7 +62,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             var declaration = binding.Declaration;
             tracks.Add(new Track { Owner = binding.Owner, Index = binding.Binding, Declaration = declaration,
                 Target = binding.Target, Node = binding.Activation, Value = declaration.From, Rest = declaration.From,
-                Capacity = binding.SourceCapacity, Actuator = binding.Actuator, Guide = binding.Guide });
+                Capacity = binding.SourceCapacity, Actuator = binding.Actuator, Guide = binding.Guide, Source = binding.Source, SupplyNode = binding.SupplyNode });
         }
         _tracks = tracks.ToArray();
         _batch = animation.CreateBatch();
@@ -371,7 +373,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
     {
         var d = track.Declaration;
         foreach (var logic in read.Presentation.Logic)
-            if (logic.Owner == track.Owner) return logic.At(d.Socket!.Value) ? 1 : 0;
+            if (logic.Node == track.SupplyNode) return logic.At(d.Socket!.Value) ? 1 : 0;
         throw new ArgumentException("Declared presentation query is absent from the committed read.");
     }
 
@@ -381,7 +383,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         for (var i = 0; i < read.Electrical.Count; i++)
         {
             var source = read.Electrical[i];
-            if (source.Owner != track.Owner) continue;
+            if (source.Id != track.Source) continue;
             if (d.Driver == PresentationDriver.CommittedSupply) return source.Available ? 1 : 0;
             if (track.Capacity <= 0) throw new ArgumentException("Charge binding lacks its declared capacity.");
             return source.Remaining.Value >= track.Capacity * d.Threshold ? 1 : 0;

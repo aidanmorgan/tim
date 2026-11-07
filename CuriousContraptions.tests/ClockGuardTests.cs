@@ -96,7 +96,8 @@ public sealed class ClockGuardTests
         var bench = Bench(seconds, cadence: cadence);
         var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench);
         Assert.Equal(interval, Assert.Single(network.Nodes.ToArray(), node => node.Owner == Owner).IntervalTicks);
-        var powered = new SupplyOutputRead([new(Source, true)]);
+        var provider = bench.Instances.Identities[Source].Supply.Values.First().Node;
+        var powered = new SupplyOutputRead([new(provider, true, true)]);
         var committed = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
         for (ulong tick = 1; tick <= 7200; tick++)
         {

@@ -31,7 +31,14 @@ public sealed class BothGateElementDeclaration : ISupplyElement, ISceneGeometryE
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".",new(1f,.3f,0f,.1f))];
     public IReadOnlyList<EventDescriptor> Events => [];
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes => [new("logic",ElectricalRole.LogicGate,12f,.05f,0f,100f)];
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.LogicGate,PortId.PowerIn,PortId.Supply,LogicGateOperation.And);
+    public SupplyGraphDescriptor SupplyGraph => new(
+        [new SupplyLogicDescriptor(new("logic"), LogicGateOperation.And)], [],
+        [
+            new(PortId.PowerIn, new(new("logic"), SupplyTerminal.PowerIn)),
+            new(PortId.FirstIn, new(new("logic"), SupplyTerminal.FirstIn)),
+            new(PortId.SecondIn, new(new("logic"), SupplyTerminal.SecondIn)),
+            new(PortId.Supply, new(new("logic"), SupplyTerminal.Output))
+        ]);
     public ElementPresentation Presentation => new(1.1f,PresentationAxes.None,
     [
         new("Visual/FirstLamp",PresentationProperty.AlbedoRed,PresentationDriver.CommittedElectricalSocket, PresentationValueMapping.Identity,85f/255f,247f/255f,PresentationCurve.SmoothStep,.1f,PresentationOverlap.Replace,0f,PresentationTimerPhase.None,Socket:PortId.FirstIn),

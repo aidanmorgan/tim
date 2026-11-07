@@ -11,7 +11,7 @@ namespace CuriousContraptions.Elements.PoweredGate;
 /// 16-box sleeve ring (each box turned about +X to its angle), solid from the 0.65 m bore to the drawn 0.70 m sleeve, its tangential
 /// width 2 · 0.70 · tan(π/16) so the outer faces meet; the motor housing above it; the two blade rails; and the PowerIn socket and
 /// indicator spheres. The 0.78 m collars are not yet solid: they need a ring kind (engine-hollow-shapes).</summary>
-public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalElement, ISceneGeometryElement
+public sealed class PoweredGateElementDeclaration : ISliderElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.5f, PresentationAxes.None,
         [
@@ -84,6 +84,10 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
             new(Target: MechanicalValue.Fixed(1.55f), MaxSpeed: MechanicalValue.Fixed(2.8f), StoppingAcceleration: MechanicalValue.Fixed(14f),
                 MaxEffort: MechanicalValue.Fixed(60f), MaxPower: MechanicalValue.Fixed(120f)))
     ];
+
+    public SupplyGraphDescriptor SupplyGraph => new(
+        [new SupplyConsumerDescriptor(new("consumer"), [new SupplyDriveTarget(new(CoordinateKind.Prismatic, 0))])], [],
+        [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

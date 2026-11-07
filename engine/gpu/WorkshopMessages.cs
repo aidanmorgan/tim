@@ -103,11 +103,11 @@ public static class WorkshopMessages
             expectedLogic++;
             var found=false;
             foreach(var logic in read.Presentation.Logic)
-                if(logic.Owner==node.Owner)
+                if(logic.Node==node.Id && logic.Owner==node.Owner)
                 {
                     found=true;
                     var expected=logic.Supplied && CompiledSupplyGraph.Evaluate(node.Operation!.Value,
-                        logic.At(PortRole.FirstIn),logic.At(PortRole.SecondIn));
+                        logic.At(CuriousContraptions.Abstractions.Electrical.SupplyTerminal.FirstIn),logic.At(CuriousContraptions.Abstractions.Electrical.SupplyTerminal.SecondIn));
                     if(logic.Active!=expected || (read.Tick.Value==0 &&
                         (logic.Inputs!=ElectricalInputState.Neither || logic.Supplied || logic.Active)))
                         throw new ArgumentException("Electrical logic observation contradicts its declared operation or admission state.");

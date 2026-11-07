@@ -581,12 +581,13 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         Assert.Equal(ActivationNodeKind.ContactLoadSource, Assert.Single(network.Nodes.ToArray(), node => node.Owner == plate.Id).Kind);
         var row = Assert.Single(scene.ContactLoadSensors.ToArray());
+        var contact = network.Contacts.Single(c => c.Owner == plate.Id).Contact;
         var prismatic=Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate.Id);
         var state = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
         ActivationCheckpoint Step(ulong tick, ContactLoadPhase phase, float mass) => network.Consume(state.Activations, state.Timers, [],
             new(tick), [], memory: state.Memory, contactLoads: [new(row.Id, row.Frame, row.Region, mass, phase)]);
         bool Next(ActivationCheckpoint committed) => TickControlComposition.Compose(scene.SupplyGraph,
-            new([ElectricalEnable.Enabled]), owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner), PlacedParts.InitialElectrical(scene)).SupplyClosed[prismatic];
+            new([ElectricalEnable.Enabled]), c => network.ContactClosed(committed.Activations, network.ClearTimers(), c), PlacedParts.InitialElectrical(scene)).SupplyClosed[prismatic];
         ActivationLatch Level(ActivationCheckpoint committed)
         {
             for (var i = 0; i < committed.Activations.Count; i++) if (committed.Activations[i].Owner == plate.Id) return committed.Activations[i];
@@ -594,9 +595,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         }
 
         state = Step(1, ContactLoadPhase.Underweight, .4f);
-        Assert.False(network.ContactClosed(state.Activations, network.ClearTimers(), plate.Id)); Assert.False(Next(state));
+        Assert.False(network.ContactClosed(state.Activations, network.ClearTimers(), contact)); Assert.False(Next(state));
         state = Step(2, ContactLoadPhase.Loaded, 1);
-        Assert.True(network.ContactClosed(state.Activations, network.ClearTimers(), plate.Id)); Assert.True(Next(state));
+        Assert.True(network.ContactClosed(state.Activations, network.ClearTimers(), contact)); Assert.True(Next(state));
         var onset = Level(state);
         Assert.Equal((ActivationOccurrenceKind.ContactLoad, row.Region, plate.Id), (onset.Kind, onset.Collider, onset.Body));
         state = Step(3, ContactLoadPhase.Loaded, 1);
@@ -605,16 +606,16 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         for (ulong tick = 4; tick <= 14; tick++)
         {
             state = Step(tick, ContactLoadPhase.Empty, 0);
-            Assert.True(network.ContactClosed(state.Activations, network.ClearTimers(), plate.Id), $"held at tick {tick}"); Assert.True(Next(state));
+            Assert.True(network.ContactClosed(state.Activations, network.ClearTimers(), contact), $"held at tick {tick}"); Assert.True(Next(state));
             Assert.Equal(onset, Level(state)); // the held level keeps its onset
         }
         state = Step(15, ContactLoadPhase.Empty, 0);
-        Assert.False(network.ContactClosed(state.Activations, network.ClearTimers(), plate.Id)); Assert.False(Next(state));
+        Assert.False(network.ContactClosed(state.Activations, network.ClearTimers(), contact)); Assert.False(Next(state));
         // A load present for one tick only is still held for the release hold; an Underweight tick does not qualify.
         state = Step(16, ContactLoadPhase.Loaded, 1);
         Assert.True(Next(state));
         state = Step(17, ContactLoadPhase.Underweight, .4f);
-        Assert.True(network.ContactClosed(state.Activations, network.ClearTimers(), plate.Id)); Assert.True(Next(state));
+        Assert.True(network.ContactClosed(state.Activations, network.ClearTimers(), contact)); Assert.True(Next(state));
         // Every row must be read each tick: a missing read would silently freeze the gate.
         Assert.Throws<ArgumentException>(() => network.Consume(state.Activations, state.Timers, [], new(18), [], memory: state.Memory));
     }
@@ -794,6 +795,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var row = Assert.Single(scene.ContactLoadSensors.ToArray());
         var prismatic=Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate.Id);
+        var contact = network.Contacts.Single(c => c.Owner == plate.Id).Contact;
         var state = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
         var trace = new List<(bool, bool, bool)>();
         for (var i = 0; i < loaded.Length; i++)
@@ -802,8 +804,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
                 contactLoads: [new(row.Id, row.Frame, row.Region, loaded[i] ? 1f : 0f, loaded[i] ? ContactLoadPhase.Loaded : ContactLoadPhase.Empty)]);
             var committed = state;
             var next = TickControlComposition.Compose(scene.SupplyGraph, new([ElectricalEnable.Enabled]),
-                owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner), PlacedParts.InitialElectrical(scene)).SupplyClosed[prismatic];
-            trace.Add((network.ContactClosed(state.Activations, network.ClearTimers(), plate.Id), Latched(state.Activations, lamp.Id), next));
+                c => network.ContactClosed(committed.Activations, network.ClearTimers(), c), PlacedParts.InitialElectrical(scene)).SupplyClosed[prismatic];
+            trace.Add((network.ContactClosed(state.Activations, network.ClearTimers(), contact), Latched(state.Activations, lamp.Id), next));
         }
         return trace;
     }

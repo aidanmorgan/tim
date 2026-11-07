@@ -58,7 +58,7 @@ public readonly record struct PresentationBinding(
     float From, float To, PresentationCurve Curve, float Duration,
     PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortId? Socket = null,
     SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any, SignalNodeId? SignalNode = null,
-    CoordinateReference? Actuator = null, PortId? GuidePort = null, PresentationActuatorStateValues? StateValues = null);
+    CoordinateReference? Actuator = null, PortId? GuidePort = null, PresentationActuatorStateValues? StateValues = null, Electrical.LocalSupplyNodeId? SupplyNode = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(

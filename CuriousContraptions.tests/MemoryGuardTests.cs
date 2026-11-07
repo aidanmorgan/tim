@@ -93,6 +93,7 @@ public sealed class MemoryGuardTests
     {
         var bench = ThreeBalls(target);
         var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench);
+        var counterContact = network.Contacts.Single(c => c.Owner == Counter).Contact;
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(600);
         var reads = ring.Reads;
@@ -112,7 +113,7 @@ public sealed class MemoryGuardTests
         {
             Assert.Empty(thresholds);
             Assert.All(reads, read => Assert.False(Lit(read, Counter) || Lit(read, CounterLamp) ||
-                network.ContactClosed(read.Activations, read.Timers, Counter), $"nothing emitted at {read.Tick.Value}"));
+                network.ContactClosed(read.Activations, read.Timers, counterContact), $"nothing emitted at {read.Tick.Value}"));
             return;
         }
         var emitted = crossings[emittingCrossing - 1];
@@ -125,7 +126,7 @@ public sealed class MemoryGuardTests
             var on = read.Tick.Value >= emitted;
             Assert.Equal(on, Lit(read, Counter));
             Assert.Equal(on, Lit(read, CounterLamp));
-            Assert.Equal(on, network.ContactClosed(read.Activations, read.Timers, Counter));
+            Assert.Equal(on, network.ContactClosed(read.Activations, read.Timers, counterContact));
         });
     }
 
@@ -176,11 +177,12 @@ public sealed class MemoryGuardTests
     {
         var bench = ThreeBalls(3);
         var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench);
+        var counterContact = network.Contacts.Single(c => c.Owner == Counter).Contact;
         var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 600);
         Assert.Equal(3u, network.Memory(reads[^1].Memory, SignalTestNodes.Only(network, Counter)).Count);
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
         Assert.Equal(0u, network.Memory(reset.Memory, SignalTestNodes.Only(network, Counter)).Count);
-        Assert.False(network.ContactClosed(reset.Activations, reset.Timers, Counter));
+        Assert.False(network.ContactClosed(reset.Activations, reset.Timers, counterContact));
 
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(600);
@@ -225,6 +227,7 @@ public sealed class MemoryGuardTests
             Supply(LatchBattery, SetClock), Supply(LatchBattery, ResetClock), Signal(SetClock, Latch, PortId.SetIn),
             Signal(ResetClock, Latch, PortId.ResetIn), Signal(Latch, LevelLamp));
         var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench);
+        var latchContact = network.Contacts.Single(c => c.Owner == Latch).Contact;
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(720);
         var on = false;
@@ -237,7 +240,7 @@ public sealed class MemoryGuardTests
             on = next;
             Assert.Equal(on ? SimulationLatchPhase.On : SimulationLatchPhase.Off, network.StateLatchPhase(read.Activations, SignalTestNodes.Only(network, Latch)));
             Assert.Equal(on, Lit(read, LevelLamp));
-            Assert.Equal(on, network.ContactClosed(read.Activations, read.Timers, Latch));
+            Assert.Equal(on, network.ContactClosed(read.Activations, read.Timers, latchContact));
         }
         Assert.Contains((360UL, 0u), edges);
         var memory = ring.Of(SimulationEventKind.MemoryChanged).ToArray();
@@ -255,6 +258,7 @@ public sealed class MemoryGuardTests
             Supply(LatchBattery, SetClock), Signal(SetClock, Latch, PortId.SetIn), Signal(SetClock, Latch, PortId.ResetIn),
             Signal(Latch, LevelLamp));
         var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench);
+        var latchContact = network.Contacts.Single(c => c.Owner == Latch).Contact;
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(600);
         Assert.Equal([120UL, 240UL, 360UL, 480UL, 600UL], ring.Of(SimulationEventKind.TriggerActivated).Select(record => record.Tick));
@@ -263,7 +267,7 @@ public sealed class MemoryGuardTests
         {
             Assert.Equal(SimulationLatchPhase.Off, network.StateLatchPhase(read.Activations, SignalTestNodes.Only(network, Latch)));
             Assert.False(Lit(read, LevelLamp));
-            Assert.False(network.ContactClosed(read.Activations, read.Timers, Latch));
+            Assert.False(network.ContactClosed(read.Activations, read.Timers, latchContact));
         });
     }
 

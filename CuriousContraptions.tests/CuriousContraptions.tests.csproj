@@ -76,6 +76,7 @@
         <Compile Include="SignalTestNodes.cs" />
         <Compile Include="ComposableSignalNodesTests.cs" />
         <Compile Include="GoalSignalSelectorTests.cs" />
+        <Compile Include="ComposableSupplyRoutingTests.cs" />
     <Compile Include="ComposedPhysicalSignalTests.cs" />
     <Compile Include="ComposedPhysicalObservationTests.cs" />
     <Compile Include="ElementIsolationTests.cs" />

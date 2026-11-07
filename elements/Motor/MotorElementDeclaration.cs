@@ -13,7 +13,7 @@ namespace CuriousContraptions.Elements.Motor;
 /// also a run-time control (owner, 3 November 2026): during Run it sets the drive's committed target from the next physics step, and
 /// Reset and a save keep the authored speed. The torque is build-only. The supply lamp follows the drive's committed supplied state. The
 /// Drive socket and its mechanical coupling are Story 11.1b.</summary>
-public sealed class MotorElementDeclaration : IHingeElement, IElectricalElement, ISceneGeometryElement
+public sealed class MotorElementDeclaration : IHingeElement, ISupplyElement, ISceneGeometryElement
 {
     private const float RotorMass = .5f;
     private const float RotorRadius = .3f;
@@ -113,6 +113,10 @@ public sealed class MotorElementDeclaration : IHingeElement, IElectricalElement,
 
     /// <summary>Inert electrical data (CAT-042 §6, decision 10): supply is on/off, with drain deferred. The rating is the drive's peak
     /// mechanical power, 100 N·m × 20 rad/s = 2000 W at 12 V.</summary>
+    public SupplyGraphDescriptor SupplyGraph => new(
+        [new SupplyConsumerDescriptor(new("consumer"), [new SupplyDriveTarget(new(CoordinateKind.Revolute, 0))])], [],
+        [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]);
+
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [
         new("motor", ElectricalRole.Consumer, RatedVoltage: 12f, Resistance: 12f * 12f / 2000f, Capacitance: 0f, MaxPower: 2000f)

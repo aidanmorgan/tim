@@ -696,6 +696,12 @@ public sealed class RevoluteDriveTests
         {
             Ports = [.. lever.Ports, new(CuriousContraptions.Abstractions.PortId.PowerIn, CuriousContraptions.Abstractions.SimulationDomain.Electrical,
                 CuriousContraptions.Abstractions.PortDirection.Input, CuriousContraptions.Abstractions.PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ)],
+            Electrical = new CuriousContraptions.Bundle.ElectricalPayload(
+                [new("drive", CuriousContraptions.Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
+                new CuriousContraptions.Abstractions.Electrical.SupplyGraphDescriptor(
+                    [new CuriousContraptions.Abstractions.Electrical.SupplyConsumerDescriptor(new("drive_cons"), [new CuriousContraptions.Abstractions.Electrical.SupplyDriveTarget(new(CuriousContraptions.Abstractions.CoordinateKind.Revolute, 0))])],
+                    [],
+                    [new(CuriousContraptions.Abstractions.PortId.PowerIn, new(new("drive_cons"), CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn))])),
             Mechanical = lever.Mechanical! with
             {
                 Hinges = [lever.Mechanical.Hinges[0] with

@@ -79,17 +79,17 @@ public partial class Workshop
     // Reset and a save are untouched. An accepted change shows as queued until a later committed tick of the same epoch reports it; a
     // second change while paused replaces it. A locked part compiles no row: its control shows its committed value, disabled, with no
     // field and no action. The per-frame refresh updates the shown text only, never a field the player is typing in.
-    private readonly System.Collections.Generic.List<(GpuBodyId Owner, RunControlLane Lane, ParameterDescriptor Parameter, Action<string> Show)> _runControlViews = new(4);
+    private readonly System.Collections.Generic.List<(GpuBodyId Owner, RunControlLane Lane, ElectricalSourceId Source, ParameterDescriptor Parameter, Action<string> Show)> _runControlViews = new(4);
     private readonly System.Collections.Generic.Dictionary<RunControlId, (ulong Epoch, ulong Tick, RunControlValue Value)> _runControlQueued = new(16);
     private bool _runControlSending;
 
     /// <summary>What a control shows: the owner's committed lane value, unless an accepted change to its row is still queued (until a
     /// later committed tick of the same epoch reports it).</summary>
-    private RunControlValue RunControlIntent(GpuBodyId owner, RunControlLane lane)
+    private RunControlValue RunControlIntent(GpuBodyId owner, RunControlLane lane, ElectricalSourceId source)
     {
         var read = World.WorkshopRead;
-        var committed = _core.RunControls.Read(read, owner, lane);
-        if (_core.RunControls.Find(World.RunControls, owner, lane) is { } row && _runControlQueued.TryGetValue(row.Id, out var pending))
+        var committed = _core.RunControls.Read(read, owner, lane, source);
+        if (_core.RunControls.Find(World.RunControls, owner, lane, source) is { } row && _runControlQueued.TryGetValue(row.Id, out var pending))
         {
             if (pending.Epoch != read.Epoch.Value ||
                 (read.Tick.Value > pending.Tick && committed == pending.Value))
@@ -101,16 +101,16 @@ public partial class Workshop
 
     /// <summary>What a control shows: an enable toggle names the change one click makes; a scalar shows its parameter, the committed
     /// value and the parameter's units. Either adds "(queued)" while an accepted change is pending.</summary>
-    private string RunControlText(GpuBodyId owner, RunControlLane lane, ParameterDescriptor parameter)
+    private string RunControlText(GpuBodyId owner, RunControlLane lane, ElectricalSourceId source, ParameterDescriptor parameter)
     {
-        var intent = RunControlIntent(owner, lane);
-        var queued = _core.RunControls.Find(World.RunControls, owner, lane) is { } row && _runControlQueued.ContainsKey(row.Id);
+        var intent = RunControlIntent(owner, lane, source);
+        var queued = _core.RunControls.Find(World.RunControls, owner, lane, source) is { } row && _runControlQueued.ContainsKey(row.Id);
         var units = ParameterUnits(parameter.Unit);
         return intent.Kind switch
         {
             RunControlValueKind.Enable => intent.Enable == ElectricalEnable.Enabled ? "Disable supply" : "Enable supply",
             RunControlValueKind.Scalar => parameter.Key + ": " +
-                _core.RunControls.Read(World.WorkshopRead, owner, lane).Scalar.ToString("R", CultureInfo.InvariantCulture) + (units.Length == 0 ? "" : " " + units),
+                _core.RunControls.Read(World.WorkshopRead, owner, lane, source).Scalar.ToString("R", CultureInfo.InvariantCulture) + (units.Length == 0 ? "" : " " + units),
             _ => throw new System.Diagnostics.UnreachableException("A committed run-control value has an undefined kind.")
         } + (queued ? " (queued)" : "");
     }
@@ -124,7 +124,7 @@ public partial class Workshop
 
     private void RefreshRunControlObservation()
     {
-        foreach (var (owner, lane, parameter, show) in _runControlViews) show(RunControlText(owner, lane, parameter));
+        foreach (var (owner, lane, source, parameter, show) in _runControlViews) show(RunControlText(owner, lane, source, parameter));
     }
 
     private void AddRunControls(MachinePart part, WorkshopGenericInstance instance, System.Collections.Generic.IReadOnlyList<DeclaredRunControl> controls)
@@ -133,31 +133,33 @@ public partial class Workshop
         foreach (var declared in controls)
         {
             var lane = declared.Lane;
+            var source = declared.SourceNode is { } selected
+                ? World.Construction.Instances.Identities[owner].Supply[selected].Source : default;
             var parameter = part.Definition.Parameters.Single(descriptor => descriptor.Key == declared.Parameter.Value);
-            var row = _core.RunControls.Find(World.RunControls, owner, lane);
+            var row = _core.RunControls.Find(World.RunControls, owner, lane, source);
             var disabled = row is null || _gpuPending || _runControlSending;
             switch (_core.RunControls.ValueKind(lane))
             {
                 case RunControlValueKind.Enable:
                 {
-                    var view = SignalButton(RunControlText(owner, lane, parameter), row is { } compiled
-                        ? () => ApplyRunControl(new(owner, compiled.Id, RunControlNext(RunControlIntent(owner, lane))))
+                    var view = SignalButton(RunControlText(owner, lane, source, parameter), row is { } compiled
+                        ? () => ApplyRunControl(new(owner, compiled.Id, RunControlNext(RunControlIntent(owner, lane, source))))
                         : null);
                     view.Disabled = disabled;
                     _connectionChoices.AddChild(view);
-                    _runControlViews.Add((owner, lane, parameter, text => view.Text = text));
+                    _runControlViews.Add((owner, lane, source, parameter, text => view.Text = text));
                     break;
                 }
                 case RunControlValueKind.Scalar:
                 {
                     var line = new HBoxContainer();
-                    var value = Text(RunControlText(owner, lane, parameter), 14);
+                    var value = Text(RunControlText(owner, lane, source, parameter), 14);
                     line.AddChild(value);
                     LineEdit? field = null;
                     if (row is not null)
                     {
                         // The field starts at the value the control intends: a queued change while it is pending, else the committed value.
-                        field = new LineEdit { Text = RunControlIntent(owner, lane).Scalar.ToString("R", CultureInfo.InvariantCulture),
+                        field = new LineEdit { Text = RunControlIntent(owner, lane, source).Scalar.ToString("R", CultureInfo.InvariantCulture),
                             Name = parameter.Key, CustomMinimumSize = new(140, 36) };
                         line.AddChild(field);
                     }
@@ -167,7 +169,7 @@ public partial class Workshop
                     set.Disabled = disabled;
                     line.AddChild(set);
                     _connectionChoices.AddChild(line);
-                    _runControlViews.Add((owner, lane, parameter, text => value.Text = text));
+                    _runControlViews.Add((owner, lane, source, parameter, text => value.Text = text));
                     break;
                 }
                 default: throw new System.Diagnostics.UnreachableException("A declared run control names an undefined lane kind.");
@@ -207,7 +209,7 @@ public partial class Workshop
         if (control.Value.Kind == RunControlValueKind.Enable) return "Supply";
         foreach (var row in World.RunControls)
             if (row.Id == control.Control)
-                foreach (var (owner, lane, parameter, _) in _runControlViews)
+                foreach (var (owner, lane, _, parameter, _) in _runControlViews)
                     if (owner == row.Owner && lane == row.Lane) return parameter.Key;
         throw new System.Diagnostics.UnreachableException("A scalar run control is sent only from its own view.");
     }

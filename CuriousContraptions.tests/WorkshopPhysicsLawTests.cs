@@ -259,7 +259,7 @@ internal sealed class LawScene
     {
         var source = new ElectricalSourceDeclaration(new(_next++), owner, new(1000f), new(100f), 1f, enabled);
         _sources.Add(source);
-        _supplyNodes.Add(new(owner, SupplyNodeKind.Source, source.Id));
+        _supplyNodes.Add(new(new(_next++), owner, SupplyNodeKind.Source, source.Id));
         return source;
     }
 
@@ -267,8 +267,13 @@ internal sealed class LawScene
     /// owner through PowerIn when one is given (otherwise never supplied).</summary>
     public void Consumer(GpuBodyId owner, ElectricalSourceDeclaration? source, params SupplyConsumer[] drives)
     {
-        _supplyNodes.Add(new(owner, SupplyNodeKind.Consumer, Consumers: [.. drives]));
-        if (source is { } wired) _supplyEdges.Add(new(wired.Owner, owner, PortRole.PowerIn));
+        var consumerId = new SupplyNodeId(_next++);
+        _supplyNodes.Add(new(consumerId, owner, SupplyNodeKind.Consumer, Consumers: [.. drives]));
+        if (source is { } wired)
+        {
+            var sourceNode = _supplyNodes.Single(node => node.Owner == wired.Owner && node.Kind == SupplyNodeKind.Source).Id;
+            _supplyEdges.Add(new(sourceNode, consumerId, CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn));
+        }
     }
     private readonly List<ElectricalSourceDeclaration> _sources = [];
     private readonly List<SupplyNodeDeclaration> _supplyNodes = [];
@@ -301,7 +306,7 @@ internal sealed class LawScene
             foreach (var owner in unnamed)
             {
                 var index = nodes.FindIndex(node => node.Owner == owner.Key && node.Kind == SupplyNodeKind.Consumer);
-                if (index < 0) nodes.Add(new(owner.Key, SupplyNodeKind.Consumer, Consumers: [.. owner]));
+                if (index < 0) nodes.Add(new(new(_next++), owner.Key, SupplyNodeKind.Consumer, Consumers: [.. owner]));
                 else nodes[index] = nodes[index] with { Consumers = nodes[index].Consumers.AddRange(owner) };
             }
         }

@@ -193,7 +193,7 @@ public sealed class CompiledSceneBoundaryTests
         {
             var buffer = new ByteBuffer(bytes);
             var root = new Table(4 + buffer.GetInt(4), buffer);
-            var binding = Child(Rows(Child(root, sceneField), 29)[trackIndex], 3);
+            var binding = Child(Rows(Child(root, sceneField), 29)[trackIndex], 5);
             var fields = new CuriousContraptions.Wire.CapabilityPresentationBindingRecord().__assign(binding.bb_pos, buffer);
             Assert.Equal((uint)tracks[trackIndex].Declaration.Mapping, fields.Mapping);
             Assert.Equal((uint)tracks[trackIndex].Declaration.Driver, fields.Driver);
@@ -256,7 +256,7 @@ public sealed class CompiledSceneBoundaryTests
             Collision = ConnectedCollision.Enabled
         };
         var scene = new WorkshopCompiledScene(compiled.Identity, compiled.Revision, compiled.Settings,
-            new PhysicsSceneDeclaration(physics.Document, physics.NextIdentity, physics.Bodies, physics.Colliders, physics.Materials,
+            new PhysicsSceneDeclaration(physics.Document, physics.NextIdentity + 1, physics.Bodies, physics.Colliders, physics.Materials,
                 physics.Sensors, physics.Guides, physics.Triggers, physics.ContactWorks, physics.OrientationSensors,
                 physics.Electrical.Sources.ToArray(), physics.Electrical.Bindings.ToArray(), physics.Prismatics,
                 physics.SupplyGraph.Nodes.ToArray(), physics.SupplyGraph.Edges.ToArray(), physics.ContactLoadSensors, physics.PrismaticDrives,
@@ -363,9 +363,9 @@ public sealed class CompiledSceneBoundaryTests
         {
             Lower = -MathF.PI, Upper = MathF.PI, Travel = CuriousContraptions.Abstractions.Mechanical.RevoluteTravel.Continuous
         };
-        SupplyNodeDeclaration consumer = new(hinge.BodyA, SupplyNodeKind.Consumer, Consumers: [SupplyConsumer.Revolute(hinge.Id)]);
+        SupplyNodeDeclaration consumer = new(new(physics.NextIdentity), hinge.BodyA, SupplyNodeKind.Consumer, Consumers: [SupplyConsumer.Revolute(hinge.Id)]);
         return new WorkshopCompiledScene(compiled.Identity, compiled.Revision, compiled.Settings,
-            new PhysicsSceneDeclaration(physics.Document, physics.NextIdentity, physics.Bodies, physics.Colliders, physics.Materials,
+            new PhysicsSceneDeclaration(physics.Document, physics.NextIdentity + 1, physics.Bodies, physics.Colliders, physics.Materials,
                 physics.Sensors, physics.Guides, physics.Triggers, physics.ContactWorks, physics.OrientationSensors,
                 physics.Electrical.Sources.ToArray(), physics.Electrical.Bindings.ToArray(), physics.Prismatics,
                 [.. physics.SupplyGraph.Nodes.ToArray(), consumer], physics.SupplyGraph.Edges.ToArray(), physics.ContactLoadSensors,
@@ -455,7 +455,7 @@ public sealed class CompiledSceneBoundaryTests
                 BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 32)), 2)), 0f);
                 break;
             case DriveDefect.UndefinedConsumerKind: // supply_nodes[last].consumers[0].kind := 2
-                BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(Slot(Assert.Single(Rows(Rows(scene, 18)[^1], 3)), 0)), 2);
+                BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(Slot(Assert.Single(Rows(Rows(scene, 18)[^1], 5)), 0)), 2);
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(defect));
         }

@@ -27,6 +27,7 @@ public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 /// next physics step.</summary>
 public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] SupplyClosed, ElectricalLogicRead[]? Logic = null)
 {
+    public bool[] StorageRoutes { get; init; } = [];
     public RopeSpanId[] Cuts { get; init; } = [];
     public RopeGuideDeclaration[] Guides { get; init; } = [];
     /// <summary>Every revolute drive's target speed (rad/s) for this step, in drive-table order: exactly one per driven revolute.</summary>

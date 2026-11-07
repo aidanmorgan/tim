@@ -90,6 +90,39 @@ public sealed class ElectricalSupplyTests
         Assert.Equal(0f, result.Debit);
     }
 
+    [Theory]
+    [InlineData(30f, 5f)]
+    [InlineData(20000f, 1200f)]
+    public void UnfamiliarSourcesShareTheSameFiniteAllocationLaw(float energy, float power)
+    {
+        new ElectricalSourceDeclaration(new(1), new(2), new(energy), new(power), 1f, ElectricalEnable.Enabled).Validate();
+        float[] before = [0f, 0f], capacity = [32f, 0f], after = [-1f, -1f];
+        var transfer = ElectricalSupply.Allocate(ElectricalEnable.Enabled, energy, power, before, capacity, after);
+        // Canonical accounting excludes created work; the zero-capacity recipient has no demand.
+        Assert.True(after[0] > 0f);
+        Assert.Equal(0f, after[1]);
+        Assert.Equal(energy - transfer.Remaining, transfer.Debit);
+        Assert.Equal(transfer.Debit, after[0]);
+        Assert.InRange(transfer.Debit, 0f, power / 120f);
+        new ElectricalSourceRead(new(1), new(2), new(transfer.Remaining), new(transfer.Debit), ElectricalEnable.Enabled).Validate();
+        new ContactWorkRead(new(3), new(4), 0, new(after[0]), new(after[0])).Validate();
+        if (power == 1200f) Assert.Equal(10f, transfer.Debit);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void UnrepresentableFutureDemandIsRefusedBeforeWritingEvenForFullRecipients(bool full)
+    {
+        float[] capacities = [float.MaxValue, float.MaxValue];
+        float[] balances = full ? [float.MaxValue, float.MaxValue] : [0f, 0f];
+        float[] output = [123f, 456f];
+        Assert.Throws<ArgumentException>(() => ElectricalSupply.Allocate(ElectricalEnable.Enabled,
+            30f, 5f, balances, capacities, output));
+        Assert.Equal(123f, output[0]);
+        Assert.Equal(456f, output[1]);
+    }
+
     [Fact]
     public void EqualFourLoadDemandSharesOneSimdBudget()
     {
@@ -154,7 +187,7 @@ public sealed class ElectricalSupplyTests
     [Theory]
     [InlineData(float.NaN)]
     [InlineData(-1f)]
-    [InlineData(14401f)]
+    [InlineData(float.PositiveInfinity)]
     public void InvalidSourceRejectsBeforeWriting(float balance)
     {
         float[] before = [0f], capacity = [32f], after = [123f];
@@ -223,9 +256,9 @@ public sealed class ElectricalSupplyTests
         source.Validate();
         Assert.Equal(3600f, source.InitialEnergy.Value);
         Assert.Throws<ArgumentException>(() => new Joules(201f).Validate());
-        new Joules(14400f).Validate(CuriousContraptions.Abstractions.Electrical.ElectricalSourceEnvelope.MaximumCapacity);
+        new Joules(14400f).Validate(float.MaxValue);
         Assert.Throws<ArgumentException>(() => (source with { InitialFraction = float.NaN }).Validate());
-        Assert.Throws<ArgumentException>(() => (source with { Capacity = new(59f) }).Validate());
+        Assert.Throws<ArgumentException>(() => (source with { Capacity = new(0f) }).Validate());
     }
 
     [Fact]
@@ -246,15 +279,15 @@ public sealed class ElectricalSupplyTests
             new(new(20), new(3), new(BodyTargetKind.AllDynamic, default), new(8f), new(32f), new(.05f), 72),
             new(new(21), new(4), new(BodyTargetKind.AllDynamic, default), new(8f), new(32f), new(.05f), 72)
         ];
-        ElectricalStorageBinding[] routes = [new(new(10), new(20)), new(new(10), new(21))];
+        ElectricalStorageBinding[] routes = [new(new(10), new(20), new(1)), new(new(10), new(21), new(2))];
         var plan = new ElectricalSupplyPlan(sources, routes, bodies, stores);
         Assert.Equal(2, plan.Bindings.Length);
-        routes[1] = new(new(11), new(20));
+        routes[1] = new(new(11), new(20), new(3));
         Assert.Throws<ArgumentException>(() => new ElectricalSupplyPlan(sources, routes, bodies, stores));
         Assert.Equal(new GpuContactWorkId(21), plan.Bindings[1].Storage);
-        routes[1] = new(new(99), new(21));
+        routes[1] = new(new(99), new(21), new(4));
         Assert.Throws<ArgumentException>(() => new ElectricalSupplyPlan(sources, routes, bodies, stores));
-        routes[1] = new(new(10), new(99));
+        routes[1] = new(new(10), new(99), new(5));
         Assert.Throws<ArgumentException>(() => new ElectricalSupplyPlan(sources, routes, bodies, stores));
         sources[1] = sources[0];
         Assert.Throws<ArgumentException>(() => new ElectricalSupplyPlan(sources, [], bodies, stores));

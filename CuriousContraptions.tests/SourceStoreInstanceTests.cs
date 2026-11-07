@@ -131,7 +131,7 @@ public sealed class SourceStoreInstanceTests
     [Fact]
     public void ASyntheticStoreCompilesItsOwnKeysAndValues()
     {
-        var store = new SupplySourceStoreDescriptor("q", "p", "f", "on");
+        var store = new SupplySourceStoreDescriptor(new("q"), new("p"), new("f"), new("on"));
         InstanceParameterCollection Values(float on) => new([new(new("q"), 777.5f), new(new("p"), 33.25f), new(new("f"), .375f), new(new("on"), on)]);
         var off = WorkshopPhysicsCompiler.ElectricalSourceFor(new(10), new(9), store, Values(0f));
         Assert.Equal((new GpuBodyId(9), 777.5f, 33.25f, .375f, ElectricalEnable.Disabled),
@@ -143,9 +143,10 @@ public sealed class SourceStoreInstanceTests
         // The Battery's compiled store is exactly its package's store over its own parameters.
         var battery = PlacedParts.Battery(Source, 3, 1, 0, 1234.5f, 77.25f, .625f, ElectricalEnable.Disabled);
         var compiled = Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, GateBench(battery), new(1, 2)).Electrical.Sources.ToArray());
-        Assert.Equal(WorkshopPhysicsCompiler.ElectricalSourceFor(GateBench(battery).Instances.Identities[Source].Source, Source, DeclaredPhysics.SourceStore(new PartId("battery"))!.Value, battery.Parameters), compiled);
+        var batteryStore = (DeclaredPhysics.Of(new PartId("battery")).Electrical?.SupplyGraph?.Nodes ?? []).OfType<SupplySourceDescriptor>().Single().Store!;
+        Assert.Equal(WorkshopPhysicsCompiler.ElectricalSourceFor(GateBench(battery).Instances.Identities[Source].Supply.Values.First().Source, Source, batteryStore, battery.Parameters), compiled);
         // Only a declared Source compiles a store: no other part does.
-        Assert.All(TestBundle.Entries.Where(entry => entry.Metadata.Id != "battery"), entry => Assert.Null(entry.Electrical?.Supply?.Store));
+        Assert.All(TestBundle.Entries.Where(entry => entry.Metadata.Id != "battery"), entry => Assert.Null((entry.Electrical?.SupplyGraph?.Nodes ?? []).OfType<SupplySourceDescriptor>().FirstOrDefault()?.Store));
     }
 
     // The run-time control is the declaration's: a Source store whose enable state is RunControl has one, and so does the Motor, whose
@@ -156,7 +157,7 @@ public sealed class SourceStoreInstanceTests
     {
         Assert.Equal(new[] { new DeclaredRunControl(new("speed"), RunControlLane.RevoluteDriveTarget) }, DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, new PartId("motor")));
         var entry = DeclaredPhysics.Of(new PartId("battery"));
-        Assert.Equal(new[] { new DeclaredRunControl(new("enabled"), RunControlLane.SourceEnable) }, DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, entry));
+        Assert.Equal(new[] { new DeclaredRunControl(new("enabled"), RunControlLane.SourceEnable, new("source")) }, DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, entry));
         Assert.Equal(DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, entry), DeclaredPhysics.RunControls(RuntimeTestServices.Bundle, new PartId("battery")));
         var buildOnly = entry with { Metadata = entry.Metadata with { Parameters = entry.Metadata.Parameters
             .Select(parameter => parameter with { RunEdit = ParameterRunEdit.BuildOnly }).ToArray() } };

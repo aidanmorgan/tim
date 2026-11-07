@@ -101,7 +101,9 @@ public sealed class ElectricalXorTests
         Assert.Equal(construction.Connections,loaded.Construction.Connections);
         Assert.Contains(loaded.Construction.Instances,instance=>instance.PartId==Kind && instance.Id==new GpuBodyId(Gate));
         var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,240);
-        Assert.Equal(new(new(Gate),ElectricalInputState.Neither,false,false),Logic(built));
+        Assert.Equal(ElectricalInputState.Neither, Logic(built).Inputs);
+        Assert.False(Logic(built).Supplied);
+        Assert.False(Logic(built).Active);
         Assert.All(reads,read=>
         {
             var first=Logic(read).Inputs==ElectricalInputState.FirstOnly;
@@ -117,7 +119,9 @@ public sealed class ElectricalXorTests
         Assert.Equal(built.Presentation.Loads.ToArray(), reset.Presentation.Loads.ToArray());
         Assert.Equal(built.Presentation.Logic.ToArray(), reset.Presentation.Logic.ToArray());
         var (_,replay,_)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,240);
-        Assert.Equal(new(new(Gate),ElectricalInputState.Neither,false,false),Logic(built));
+        Assert.Equal(ElectricalInputState.Neither, Logic(built).Inputs);
+        Assert.False(Logic(built).Supplied);
+        Assert.False(Logic(built).Active);
         Assert.All(replay,read=>
         {
             var first=Logic(read).Inputs==ElectricalInputState.FirstOnly;
@@ -178,8 +182,8 @@ public sealed class ElectricalXorTests
         var (rest,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(reconvergent,90);
         Assert.All(reads,read=>
         {
-            Assert.Equal(new(new(either),ElectricalInputState.FirstOnly,true,true),Logic(read,either));
-            Assert.Equal(new(new(xor),ElectricalInputState.Both,true,false),Logic(read,xor));
+            Assert.Equal((ElectricalInputState.FirstOnly,true,true),(Logic(read,either).Inputs,Logic(read,either).Supplied,Logic(read,either).Active));
+            Assert.Equal((ElectricalInputState.Both,true,false),(Logic(read,xor).Inputs,Logic(read,xor).Supplied,Logic(read,xor).Active));
             Assert.False(Powered(read));AssertBladeStill(read,BladeY(rest));
         });
         NoFixedCapacityTests.AssertSameState(rest,reset,"reconvergent Exactly one gate Reset");
@@ -214,7 +218,7 @@ public sealed class ElectricalXorTests
         Assert.All(phases[1],read=>
         {
             Assert.True(Logic(read,4).Active);Assert.True(Logic(read,6).Active);
-            Assert.Equal(new(new(Gate),ElectricalInputState.FirstOnly,true,true),Logic(read));Assert.True(Powered(read));
+            Assert.Equal((ElectricalInputState.FirstOnly,true,true),(Logic(read).Inputs,Logic(read).Supplied,Logic(read).Active));Assert.True(Powered(read));
         });
         Assert.True(BladeY(phases[1][^1])>rest+.2f);
         Assert.All(phases[2],read=>{Assert.False(Logic(read,4).Active);Assert.False(Logic(read).Active);Assert.False(Powered(read));});
@@ -285,9 +289,13 @@ public sealed class ElectricalXorTests
         var (open,closing,_)=LoopCase(FeedbackLoop.WithOr);
         var scene=WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, open,new(1,2));
         var edges=WorkshopSupplyCompiler.Compile(RuntimeTestServices.Core.Supply, open,DeclaredPhysics.Of).Edges;
-        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges.ToArray(),scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives);
-        var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,Enum.Parse<PortRole>(closing.Input.Value))).ToArray();
-        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives));
+        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges.ToArray(),scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,[],[]);
+        var sourceEndpoint = WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(open.Instances.Single(i => i.Id == closing.Source).PartId), closing.Output);
+        var targetEndpoint = WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(open.Instances.Single(i => i.Id == closing.Target).PartId), closing.Input);
+        var sourceNode = open.Instances.Identities[closing.Source].Supply[sourceEndpoint.Node].Node;
+        var targetNode = open.Instances.Identities[closing.Target].Supply[targetEndpoint.Node].Node;
+        var looped=edges.Append(new SupplyEdge(sourceNode,targetNode,targetEndpoint.Terminal)).ToArray();
+        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Revolutes,scene.RevoluteDrives,[],[]));
         Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",invariant.Message);
     }
 
@@ -296,14 +304,14 @@ public sealed class ElectricalXorTests
     {
         Assert.Equal(XorTruth,new[]{(false,false),(false,true),(true,false),(true,true)}
             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Xor,row.Item1,row.Item2)).ToArray());
-        Assert.False(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Xor));
+        Assert.False(SupplyCycles.IsMonotone(LogicGateOperation.Xor));
         Assert.False(SupplyCycles.Monotone(LogicGateOperation.Xor));
         foreach(var undefined in new[]{(LogicGateOperation)5,(LogicGateOperation)255})
         {
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate(undefined,true,false));
-            Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone(undefined));
+            Assert.Throws<ArgumentOutOfRangeException>(()=>SupplyCycles.IsMonotone(undefined));
         }
-        Assert.Equal(LogicGateOperation.Xor,DeclaredPhysics.Of(Kind).Electrical!.Supply!.Value.Operation);
+        Assert.Equal(LogicGateOperation.Xor,DeclaredPhysics.Of(Kind).Electrical!.SupplyGraph!.Nodes.OfType<SupplyLogicDescriptor>().Single().Operation);
         var construction=SwitchMachine(ElectricalInputState.Neither,true);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,new PortId("invalid")))}).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(
@@ -336,9 +344,9 @@ public sealed class ElectricalXorTests
         var construction=BatteryMachine();
         var phases=await WorkshopIntegrationHarness.ObservePhases(construction,Rows.Select(row=>(row.Controls,3)).ToArray());
         for(var i=0;i<phases.Count;i++)
-            Assert.All(phases[i],read=>Assert.Equal(new(new(4),Rows[i].Inputs,Rows[i].Supplied,Rows[i].Active),Logic(read,4)));
+            Assert.All(phases[i],read=>Assert.Equal((Rows[i].Inputs,Rows[i].Supplied,Rows[i].Active),(Logic(read,4).Inputs,Logic(read,4).Supplied,Logic(read,4).Active)));
         var (built,_,_)=await WorkshopIntegrationHarness.ObserveReset(construction,1);
-        Assert.Equal(new(new(4),ElectricalInputState.Neither,false,false),Logic(built,4));
+        Assert.Equal((ElectricalInputState.Neither,false,false),(Logic(built,4).Inputs,Logic(built,4).Supplied,Logic(built,4).Active));
         WorkshopMessages.ValidatePresentationOwners(built,CompiledSceneFixture.Compile(construction));
         foreach(var read in phases.SelectMany(rows=>rows)) WorkshopMessages.ValidatePresentationOwners(read,CompiledSceneFixture.Compile(construction));
         WorkshopRead Replace(WorkshopRead read,ElectricalLogicRead logic)=>read with {Presentation=new(read.Presentation.Actuators,read.Presentation.Loads,[logic])};

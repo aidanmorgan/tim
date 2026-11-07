@@ -2,6 +2,7 @@ using CuriousContraptions.Abstractions.Mechanical;
 using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Signal;
+using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.BundleElements.Tests;
 
@@ -56,7 +57,7 @@ public sealed class BundleValidatorTests
     {
         var strength = new ParameterDescriptor("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 20f, 8f, [], ParameterEditorPolicy.Clamp);
         var entry = Bundle.BundleSchema.Entry(new Fixture { Parameters = [strength] });
-        var work = new Abstractions.Mechanical.ContactWorkDescriptor("strength", 1f, .05f, 72);
+        var work = new Abstractions.Mechanical.ContactWorkDescriptor(new("work"), "strength", 1f, .05f, 72);
         Bundle.BundleEntry With(Abstractions.Mechanical.ContactWorkDescriptor value, params ParameterDescriptor[] parameters) =>
             entry with { Metadata = entry.Metadata with { Parameters = parameters }, Mechanical = entry.Mechanical! with { ContactWork = value } };
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
@@ -182,10 +183,17 @@ public sealed class BundleValidatorTests
             Actuator: new(CoordinateKind.Prismatic, 0));
         static IReadOnlyList<Bundle.BundleError> Check(PresentationBinding binding, PrismaticDriveDescriptor? drive)
         {
+            var targets = drive is not null ? new SupplyTarget[] { new SupplyDriveTarget(new(CoordinateKind.Prismatic, 0)) } : [];
             var candidate = Bundle.BundleSchema.Entry(new Fixture
             {
                 Parameters = Fixture.SpringParameters, Ports = [Fixture.PowerIn], Sliders = [Fixture.Slider() with { Drive = drive }]
-            });
+            }) with
+            {
+                Electrical = new([new("consumer", Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
+                    new SupplyGraphDescriptor(
+                        [new SupplyConsumerDescriptor(new("consumer"), targets)], [],
+                        [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]))
+            };
             return Bundle.BundleValidator.Validate([new("Fixture", candidate with { Presentation = candidate.Presentation with { Bindings = [binding] } })]);
         }
         Assert.Empty(Check(lamp, Fixture.Drive()));
@@ -205,7 +213,13 @@ public sealed class BundleValidatorTests
             Parameters = [.. Fixture.SpringParameters, new("effort", unit, ParameterKind.Real, 1f, 60f, 20f, [])],
             Ports = [Fixture.PowerIn],
             Sliders = [Fixture.Slider() with { Drive = Fixture.Drive() with { MaxEffort = MechanicalValue.FromParameter("effort") } }]
-        }))]);
+        }) with
+        {
+            Electrical = new([new("consumer", Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
+                new SupplyGraphDescriptor(
+                    [new SupplyConsumerDescriptor(new("consumer"), [new SupplyDriveTarget(new(CoordinateKind.Prismatic, 0))])], [],
+                    [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]))
+        })]);
         Assert.Empty(UnitErrors(ParameterUnit.Newton));
         var refused = Assert.Single(UnitErrors(ParameterUnit.Watt));
         Assert.Equal((Bundle.BundleErrorCode.OutOfRange, "FixtureDrive.Sliders[0].Drive.MaxEffort: outside its declared range"), (refused.Code, refused.Detail));
@@ -221,14 +235,44 @@ public sealed class BundleValidatorTests
             Actuator: new(CoordinateKind.Prismatic, 0), StateValues: new(85f / 255f, 247f / 255f, 232f / 255f));
         static IReadOnlyList<Bundle.BundleError> Check(PrismaticDriveDescriptor? drive, PresentationBinding binding)
         {
+            var targets = drive is not null ? new SupplyTarget[] { new SupplyDriveTarget(new(CoordinateKind.Prismatic, 0)) } : [];
             var candidate = Bundle.BundleSchema.Entry(new Fixture
             {
                 Parameters = Fixture.SpringParameters, Ports = [Fixture.PowerIn], Sliders = [Fixture.Slider() with { Drive = drive }]
-            });
+            }) with
+            {
+                Electrical = new([new("consumer", Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
+                    new SupplyGraphDescriptor(
+                        [new SupplyConsumerDescriptor(new("consumer"), targets)], [],
+                        [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]))
+            };
             return Bundle.BundleValidator.Validate([new("Fixture", candidate with { Presentation = candidate.Presentation with { Bindings = [binding] } })]);
         }
         Assert.Empty(Check(Fixture.Drive(), state));
         Assert.Contains(Check(null, state), error => error.Detail.Contains(".Presentation.Actuator", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ACommittedElectricalSocketBindingNeedsALogicNodeSocket()
+    {
+        var binding = new PresentationBinding("Visual/Socket", PresentationProperty.AlbedoRed,
+            PresentationDriver.CommittedElectricalSocket, PresentationValueMapping.Identity,
+            0f, 1f, PresentationCurve.SmoothStep, .2f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None,
+            Socket: PortId.PowerIn);
+
+        var logicGate = Bundle.BundleSchema.Entry(new CuriousContraptions.Elements.BothGate.BothGateElementDeclaration());
+        var validErrors = Bundle.BundleValidator.Validate([new("both_gate", logicGate with { Presentation = logicGate.Presentation with { Bindings = [binding] } })]);
+        Assert.DoesNotContain(validErrors, e => e.Detail.Contains("Presentation.Socket"));
+
+        var motor = Bundle.BundleSchema.Entry(new CuriousContraptions.Elements.Motor.MotorElementDeclaration());
+        var nonLogicErrors = Bundle.BundleValidator.Validate([new("motor", motor with { Presentation = motor.Presentation with { Bindings = [binding] } })]);
+        var nonLogic = Assert.Single(nonLogicErrors, e => e.Detail.Contains("SupplyGraph.Presentation.Socket"));
+        Assert.Equal(Bundle.BundleErrorCode.OutOfRange, nonLogic.Code);
+
+        var unboundBinding = binding with { Socket = new PortId("unbound_socket") };
+        var unboundErrors = Bundle.BundleValidator.Validate([new("both_gate", logicGate with { Presentation = logicGate.Presentation with { Bindings = [unboundBinding] } })]);
+        var unbound = Assert.Single(unboundErrors, e => e.Detail.Contains("SupplyGraph.Presentation.Socket"));
+        Assert.Equal(Bundle.BundleErrorCode.OutOfRange, unbound.Code);
     }
 
     // Story 10.2a (CAT-067 D3): a body mass bound to a parameter names one declared Real kilogram parameter whose whole range lies in
@@ -384,7 +428,7 @@ public sealed class BundleValidatorTests
             Metadata = timer.Metadata with { Parameters = StoreParameters },
             Ports = [new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, Vector3.Zero, Vector3.UnitX)],
             Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
-                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortId.Supply, Store: Store))
+                new SupplyGraphDescriptor([new SupplySourceDescriptor(new("source"), Store)], [], [new(PortId.Supply, new(new("source"), SupplyTerminal.Output))]))
         };
         var logic=supply with
         {
@@ -395,26 +439,38 @@ public sealed class BundleValidatorTests
                 new(PortId.PowerIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.PowerIn,null,Vector3.Zero,Vector3.UnitX),
                 new(PortId.Supply,SimulationDomain.Electrical,PortDirection.Output,PortRole.Supply,null,Vector3.Zero,Vector3.UnitX)],
             Electrical=new([new("logic",Abstractions.Electrical.ElectricalRole.LogicGate,12f,.1f,0f,100f)],
-                new(Abstractions.Electrical.SupplyCapabilityKind.LogicGate,PortId.PowerIn,PortId.Supply,Abstractions.Electrical.LogicGateOperation.And))
+                new SupplyGraphDescriptor(
+                    [new SupplyLogicDescriptor(new("logic"), Abstractions.Electrical.LogicGateOperation.And)], [],
+                    [
+                        new(PortId.PowerIn, new(new("logic"), SupplyTerminal.PowerIn)),
+                        new(PortId.FirstIn, new(new("logic"), SupplyTerminal.FirstIn)),
+                        new(PortId.SecondIn, new(new("logic"), SupplyTerminal.SecondIn)),
+                        new(PortId.Supply, new(new("logic"), SupplyTerminal.Output))
+                    ]))
         };
         Assert.Empty(Check(logic));
-        Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=null}}}));
-        Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Nand}}}));
-        Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Nor}}}));
-        Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Or}}}));
-        Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Xor}}}));
-        Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)5}}}));
-        Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)255}}}));
+        static Bundle.BundleEntry WithOp(Bundle.BundleEntry e, Abstractions.Electrical.LogicGateOperation op) => e with
+        {
+            Electrical = e.Electrical! with
+            {
+                SupplyGraph = e.Electrical.SupplyGraph! with { Nodes = [new SupplyLogicDescriptor(new("logic"), op)] }
+            }
+        };
+        Assert.Empty(Check(WithOp(logic, Abstractions.Electrical.LogicGateOperation.Nand)));
+        Assert.Empty(Check(WithOp(logic, Abstractions.Electrical.LogicGateOperation.Nor)));
+        Assert.Empty(Check(WithOp(logic, Abstractions.Electrical.LogicGateOperation.Or)));
+        Assert.Empty(Check(WithOp(logic, Abstractions.Electrical.LogicGateOperation.Xor)));
+        Assert.NotEmpty(Check(WithOp(logic, (Abstractions.Electrical.LogicGateOperation)5)));
+        Assert.NotEmpty(Check(WithOp(logic, (Abstractions.Electrical.LogicGateOperation)255)));
         Assert.NotEmpty(Check(logic with {Ports=logic.Ports.Where(port=>port.Id!=PortId.SecondIn).ToArray()}));
-        Assert.NotEmpty(Check(supply with {Electrical=supply.Electrical! with {Supply=supply.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.And}}}));
+        Assert.NotEmpty(Check(supply with {Electrical=supply.Electrical! with {SupplyGraph=supply.Electrical.SupplyGraph! with {Nodes=[new SupplyLogicDescriptor(new("source"), Abstractions.Electrical.LogicGateOperation.And)]}}}));
         Assert.Empty(Check(supply));
         Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with
-            { Supply = new((Abstractions.Electrical.SupplyCapabilityKind)255, null, PortId.Supply) } }));
-        Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with
-            { Supply = new(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply) } }));
+            { SupplyGraph = new([new CustomDescriptor(new("custom"))], [], []) } }));
         Assert.NotEmpty(Check(supply with { Ports = [] }));
         Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with { Nodes = [] } }));
     }
+    private sealed record CustomDescriptor(Abstractions.Electrical.LocalSupplyNodeId Id) : Abstractions.Electrical.SupplyNodeDescriptor(Id);
     private static string[] Errors(params (string Package, IPuzzleElementDeclaration Declaration)[] packages) =>
         PackageValidator.Validate(new CuriousContraptions.Bundle.BundleServices(), packages.Select(package => new BundlePackage(package.Package, package.Declaration)).ToArray())
             .Select(error => error.ToString()).ToArray();
@@ -427,7 +483,7 @@ public sealed class BundleValidatorTests
         new("initial_charge", ParameterUnit.None, ParameterKind.Real, 0f, 1f, 1f, [], ParameterEditorPolicy.Clamp),
         new("enabled", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"], RunEdit: ParameterRunEdit.RunControl)
     ];
-    private static readonly Abstractions.Electrical.SupplySourceStoreDescriptor Store = new("capacity", "power_limit", "initial_charge", "enabled");
+    private static readonly Abstractions.Electrical.SupplySourceStoreDescriptor Store = new(new("capacity"), new("power_limit"), new("initial_charge"), new("enabled"));
 
     private static Bundle.BundleEntry Source(IReadOnlyList<ParameterDescriptor> parameters, Abstractions.Electrical.SupplySourceStoreDescriptor? store)
     {
@@ -437,7 +493,7 @@ public sealed class BundleValidatorTests
             Domains = [SimulationDomain.Mechanical, SimulationDomain.Electrical],
             Ports = [new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, Vector3.Zero, Vector3.UnitX)],
             Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
-                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortId.Supply, Store: store))
+                store is null ? null : new SupplyGraphDescriptor([new SupplySourceDescriptor(new("source"), store.Value)], [], [new(PortId.Supply, new(new("source"), SupplyTerminal.Output))]))
         };
     }
 
@@ -448,24 +504,30 @@ public sealed class BundleValidatorTests
         StoreParameters.Select(parameter => parameter.Key == key ? change(parameter) : parameter).ToArray();
 
     [Fact]
-    public void ASourceStoreNamesFourDistinctTypedParametersInsideTheEnvelope()
+    public void ASourceStoreNamesFourDistinctTypedParametersInsideTheFiniteDomain()
     {
         Assert.Empty(CheckSource(StoreParameters, Store));
-        // The envelope's own bounds are admitted.
+        Assert.Empty(CheckSource(StoreParameters.Select(parameter => parameter.Key switch
+        {
+            "capacity" => parameter with { Minimum = 30f, Maximum = 20000f, Default = 30f },
+            "power_limit" => parameter with { Minimum = 5f, Maximum = 1200f, Default = 5f },
+            _ => parameter
+        }).ToArray(), Store));
+        // Product parameter bounds are declaration data, within the generic finite domain.
         Assert.Empty(CheckSource(Replace("power_limit", p => p with { Minimum = 10f, Maximum = 480f, Default = 10f }), Store));
         foreach (var (name, parameters, store) in new (string, ParameterDescriptor[], Abstractions.Electrical.SupplySourceStoreDescriptor?)[]
         {
             ("missing store", StoreParameters, null),
             ("absent capacity key", StoreParameters.Where(p => p.Key != "capacity").ToArray(), Store),
-            ("unknown key", StoreParameters, Store with { PowerLimit = "power" }),
+            ("unknown key", StoreParameters, Store with { PowerLimit = new("power") }),
             ("duplicated key", [.. StoreParameters, StoreParameters[0]], Store),
-            ("two roles share one key", StoreParameters, Store with { InitialCharge = "capacity" }),
+            ("two roles share one key", StoreParameters, Store with { InitialCharge = new("capacity") }),
             ("capacity in watts", Replace("capacity", p => p with { Unit = ParameterUnit.Watt }), Store),
-            ("capacity below 60 J", Replace("capacity", p => p with { Minimum = 59f }), Store),
-            ("capacity above 14400 J", Replace("capacity", p => p with { Maximum = 14401f }), Store),
+            ("zero source capacity", Replace("capacity", p => p with { Minimum = 0f }), Store),
+            ("nonfinite capacity", Replace("capacity", p => p with { Maximum = float.PositiveInfinity }), Store),
             ("power in joules", Replace("power_limit", p => p with { Unit = ParameterUnit.Joule }), Store),
-            ("power below 10 W", Replace("power_limit", p => p with { Minimum = 9.99f }), Store),
-            ("power above 480 W", Replace("power_limit", p => p with { Maximum = 480.5f }), Store),
+            ("zero source power", Replace("power_limit", p => p with { Minimum = 0f }), Store),
+            ("nonfinite power", Replace("power_limit", p => p with { Maximum = float.PositiveInfinity }), Store),
             ("charge above 1", Replace("initial_charge", p => p with { Maximum = 1.5f }), Store),
             ("charge with a unit", Replace("initial_charge", p => p with { Unit = ParameterUnit.Metre }), Store),
             ("whole-number capacity", Replace("capacity", p => p with { Kind = ParameterKind.WholeNumber }), Store),
@@ -476,10 +538,10 @@ public sealed class BundleValidatorTests
             ("enable with three options", Replace("enabled", p => p with { Maximum = 2f, Options = ["Disabled", "Enabled", "Boost"] }), Store),
         })
             Assert.True(CheckSource(parameters, store).Count > 0, name);
-        // A store on anything but a Source is refused.
+        // An unadmitted capability descriptor on a fixture is refused.
         var gate = Source(StoreParameters, Store);
         Assert.NotEmpty(Bundle.BundleValidator.Validate([new("Fixture", gate with { Electrical = gate.Electrical! with
-            { Supply = new(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, PortId.PowerIn, PortId.Supply, Store: Store) } })]));
+            { SupplyGraph = new([new CustomDescriptor(new("custom"))], [], []) } })]));
     }
 
     // engine-run-control-table: a RunControl parameter binds exactly one run-controllable lane, found by the one generic resolver
@@ -606,9 +668,16 @@ public sealed class BundleValidatorTests
     {
         PortDescriptor Port(Vector3 normal) => new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null,
             Vector3.Zero, normal);
-        Assert.Empty(Errors(("Fixture", new Fixture { Ports = [Port(-Vector3.UnitY)] })));
+        var entry = Bundle.BundleSchema.Entry(new Fixture { Ports = [Port(-Vector3.UnitY)] }) with
+        {
+            Electrical = new([new("c", Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
+                new SupplyGraphDescriptor([new SupplyConsumerDescriptor(new("c"), [])], [],
+                    [new(PortId.PowerIn, new(new("c"), SupplyTerminal.PowerIn))]))
+        };
+        Assert.Empty(Bundle.BundleValidator.Validate([new("Fixture", entry)]));
         Assert.Equal(["BUNDLE006 FixtureNormal.Ports[0].Normal: outside its declared range"],
-            Errors(("FixtureNormal", new Fixture { Ports = [Port(new(0f, 2f, 0f))] })));
+            Bundle.BundleValidator.Validate([new("FixtureNormal", entry with { Ports = [Port(new(0f, 2f, 0f))] })])
+                .Select(e => e.ToString()));
     }
 
     /// <summary>Stories 9A.14 and 9A.18: a missing icon (or scene) fails the bundle build, and an asset outside the package's own
@@ -734,21 +803,34 @@ public sealed class BundleValidatorTests
             })));
 
     // C-Gate (9A.19): a supplied drive is declaration data; the bundle refuses one the runtime could not admit.
-    private static string[] DriveErrors(Abstractions.Mechanical.PrismaticDriveDescriptor drive, bool powerIn = true, int sliders = 1) =>
-        Errors(("FixtureDrive", new Fixture
+    private static string[] DriveErrors(Abstractions.Mechanical.PrismaticDriveDescriptor drive, bool hasConsumer = true, int sliders = 1)
+    {
+        var targets = hasConsumer
+            ? Enumerable.Range(0, sliders).Select(i => (SupplyTarget)new SupplyDriveTarget(new(CoordinateKind.Prismatic, i))).ToArray()
+            : [];
+        var entry = Bundle.BundleSchema.Entry(new Fixture
         {
             Parameters = Fixture.SpringParameters,
-            Ports = powerIn ? [Fixture.PowerIn] : [],
+            Ports = [Fixture.PowerIn],
             Sliders = Enumerable.Repeat(Fixture.Slider() with { Drive = drive }, sliders).ToArray()
-        }));
+        }) with
+        {
+            Electrical = new([new("consumer", Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
+                new SupplyGraphDescriptor(
+                    [new SupplyConsumerDescriptor(new("consumer"), targets)], [],
+                    [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]))
+        };
+        return Bundle.BundleValidator.Validate([new("FixtureDrive", entry)])
+            .Select(error => error.ToString()).ToArray();
+    }
 
     [Fact]
     public void ADrivenSliderWithAPowerInIsAdmitted() => Assert.Empty(DriveErrors(Fixture.Drive()));
 
     [Fact]
-    public void ADrivenSliderWithoutAPowerInIsRefused() =>
-        Assert.Equal(["BUNDLE007 FixtureDrive.Sliders[0].Drive: a supplied drive requires an electrical PowerIn input on a consumer (no supply capability)"],
-            DriveErrors(Fixture.Drive(), powerIn: false));
+    public void ADrivenSliderRequiresAConsumerTarget() =>
+        Assert.Equal(["BUNDLE006 fixture.SupplyGraph.Drive.MissingConsumer"],
+            DriveErrors(Fixture.Drive(), hasConsumer: false));
 
     [Fact]
     public void OnePowerInEnablesEveryDeclaredSlider() =>
@@ -892,10 +974,14 @@ public sealed class BundleValidatorTests
         Refused(With(lever, hinge with { Travel = (RevoluteTravel)2 }), "Hinges[0].Travel", Bundle.BundleErrorCode.UndefinedEnum);
 
         var driven = full with { Drive = new(MechanicalValue.Fixed(6f), MechanicalValue.Fixed(2f)) };
-        Refused(With(lever, driven), "Hinges[0].Drive", Bundle.BundleErrorCode.UnresolvedReference);
+        Assert.Contains(Check(With(lever, driven)), error => error.Code == Bundle.BundleErrorCode.OutOfRange && (error.Detail.EndsWith("SupplyGraph.Missing", StringComparison.Ordinal) || error.Detail.EndsWith("Drive.MissingConsumer", StringComparison.Ordinal)));
         var powered = lever with
         {
-            Ports = [.. lever.Ports, new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ)]
+            Ports = [.. lever.Ports, new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ)],
+            Electrical = new([new("consumer", Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
+                new SupplyGraphDescriptor(
+                    [new SupplyConsumerDescriptor(new("consumer"), [new SupplyDriveTarget(new(CoordinateKind.Revolute, 0))])], [],
+                    [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]))
         };
         RevoluteHingeDescriptor Drive(float target, float torque) =>
             full with { Drive = new(MechanicalValue.Fixed(target), MechanicalValue.Fixed(torque)) };
@@ -921,23 +1007,21 @@ public sealed class BundleValidatorTests
         Refused(With(Parameterised(ParameterUnit.RadianPerSecond, ParameterUnit.Joule), bound), "Hinges[0].Drive.MaxTorque");
     }
 
-    // engine-revolute-drive: a drive is supplied only through a consumer node, which the compiler builds for a part with a PowerIn input
-    // and no supply capability of its own. A part that declares one (here the Pressure Plate's switched contact) compiles another node
-    // kind, so a driven joint on it is refused, for either joint kind, while the same driven joint on a consumer is admitted.
+    // engine-revolute-drive: a drive is supplied through an explicit consumer target in its supply graph.
     [Fact]
-    public void ADriveOnAPartWithItsOwnSupplyCapabilityIsRefusedForEitherJointKind()
+    public void ADriveRequiresAConsumerTargetForEitherJointKind()
     {
         var bundle = Bundle.BundleSchema.Read(BundleGenerator.Generate(new CuriousContraptions.Bundle.BundleServices(), TestRepository.Root).Json!).Elements;
         var contact = bundle.Single(entry => entry.Metadata.Id == "pressure_plate").Electrical;
-        Assert.Equal(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, contact!.Supply!.Value.Kind);
+        Assert.IsType<SupplyContactDescriptor>(contact!.SupplyGraph!.Nodes.Single());
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
-        static bool RefusesDrive(Bundle.BundleEntry candidate, string path) => Check(candidate).Any(error =>
-            error.Code == Bundle.BundleErrorCode.UnresolvedReference && error.Detail.StartsWith($"Candidate.{path}.Drive:", StringComparison.Ordinal));
+        static bool RefusesDrive(Bundle.BundleEntry candidate) => Check(candidate).Any(error =>
+            error.Code == Bundle.BundleErrorCode.OutOfRange && error.Detail.EndsWith("Drive.MissingConsumer", StringComparison.Ordinal));
 
         var gate = bundle.Single(entry => entry.Metadata.Id == "powered_gate");
         Assert.NotNull(gate.Mechanical!.Sliders[0].Drive);
-        Assert.False(RefusesDrive(gate, "Sliders[0]"));
-        Assert.True(RefusesDrive(gate with { Electrical = contact }, "Sliders[0]"));
+        Assert.False(RefusesDrive(gate));
+        Assert.True(RefusesDrive(gate with { Electrical = contact }));
 
         var lever = bundle.Single(entry => entry.Metadata.Id == "impact_lever");
         var hinge = lever.Mechanical!.Hinges[0] with
@@ -948,10 +1032,15 @@ public sealed class BundleValidatorTests
         var driven = lever with
         {
             Ports = [.. lever.Ports, new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ)],
-            Mechanical = lever.Mechanical with { Hinges = [hinge] }
+            Mechanical = lever.Mechanical with { Hinges = [hinge] },
+            Electrical = new([new("consumer", Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
+                new SupplyGraphDescriptor(
+                    [new SupplyConsumerDescriptor(new("consumer"), [new SupplyDriveTarget(new(CoordinateKind.Revolute, 0))])],
+                    [],
+                    [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]))
         };
         Assert.Empty(Check(driven));
-        Assert.True(RefusesDrive(driven with { Electrical = contact }, "Hinges[0]"));
+        Assert.True(RefusesDrive(driven with { Electrical = contact }));
     }
 
     [Fact]

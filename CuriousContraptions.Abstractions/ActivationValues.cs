@@ -22,12 +22,12 @@ public enum SimulationLatchPhase : uint { Off = 0, On = 1 }
 [Flags]
 public enum StateLatchRequest : uint { None = 0, Set = 1, Reset = 2 }
 public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, GpuBodyId Owner,
-    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerProvider = default,
+    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, SupplyNodeId PowerProvider = default,
     GpuContactLoadSensorId ContactLoad = default, uint ReleaseHoldTicks = 0,
     TimerCompletionPolicy Completion = TimerCompletionPolicy.Latch, TimerBoundary Boundary = TimerBoundary.BeforePhysics,
     TimerElapsedSignal ElapsedSignal = TimerElapsedSignal.Activation);
 /// <summary>One routed signal; Input names the target socket (ActivationIn, or SetIn/ResetIn on a State Latch).</summary>
-public readonly record struct CompiledSignalContact(GpuBodyId Owner, ActivationNodeId Node, SignalContactState State);
+public readonly record struct CompiledSignalContact(SupplyNodeId Contact, GpuBodyId Owner, ActivationNodeId Node, SignalContactState State);
 public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target, PortRole Input);
 
 public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId Owner, ActivationPhase Phase,

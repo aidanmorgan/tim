@@ -65,6 +65,13 @@ public sealed class MechanicalCoordinateBindingsTests
                 Bindings = motorEntry.Presentation.Bindings.Select(binding =>
                     binding with { Actuator = new CoordinateReference(CoordinateKind.Revolute, 1) }).ToImmutableArray()
             },
+            Electrical = motorEntry.Electrical! with
+            {
+                SupplyGraph = new(
+                    [new SupplyConsumerDescriptor(new("consumer"), [new SupplyDriveTarget(new(CoordinateKind.Revolute, 1))])],
+                    [],
+                    [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))])
+            },
             Footprint = new ElementFootprint(Bodies: 4, MovingBodies: 3, PrismaticConstraints: 1, RevoluteConstraints: 2),
             Mechanical = mixedMechanical,
             Ports =
@@ -110,6 +117,7 @@ public sealed class MechanicalCoordinateBindingsTests
         {
             Metadata = motorEntry.Metadata with { Id = DrivenPart.Value, Parameters = [] },
             Presentation = motorEntry.Presentation with { Bindings = [] },
+            Electrical = null,
             Footprint = new ElementFootprint(Bodies: 2, MovingBodies: 1, PrismaticConstraints: 0, RevoluteConstraints: 1),
             Mechanical = drivenMechanical,
             Ports =
@@ -533,6 +541,7 @@ public sealed class MechanicalCoordinateBindingsTests
         {
             Metadata = motorEntry.Metadata with { Id = drivenPart.Value, Parameters = [] },
             Presentation = motorEntry.Presentation with { Bindings = [] },
+            Electrical = null,
             Mechanical = motorEntry.Mechanical with { Hinges = [unpoweredHinge] },
             Ports = [drivenPort]
         };
@@ -623,6 +632,7 @@ public sealed class MechanicalCoordinateBindingsTests
         {
             Metadata = motorEntry.Metadata with { Id = drivenPart.Value, Parameters = [] },
             Presentation = motorEntry.Presentation with { Bindings = [] },
+            Electrical = null,
             Mechanical = motorEntry.Mechanical with { Hinges = [unpoweredHinge] },
             Ports = [drivenPort]
         };

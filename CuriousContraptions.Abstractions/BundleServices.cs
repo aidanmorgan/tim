@@ -36,7 +36,7 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDec
     IReadOnlyList<DrivenSurfaceDescriptor> DrivenSurfaces,
     ResidenceCaptureDescriptor? Capture = null, ContactWorkDescriptor? ContactWork = null);
 
-public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
+public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyGraphDescriptor? SupplyGraph);
 
 /// <summary>Independent local signal nodes and their internal and public terminal bindings.</summary>
 public sealed record SignalPayload(IReadOnlyList<SignalNodeDescriptor> Nodes,
