@@ -9,8 +9,6 @@ public sealed class ElementIsolationTests
     private static readonly string Root = twodog.Engine.ResolveProjectDir();
     private static ElementIsolation Scanner() => new(Root, TestBundle.Entries);
 
-
-
     [Fact]
     public void NestedConditionalMembersKeepOriginalLocations()
     {
@@ -66,16 +64,128 @@ public sealed class ElementIsolationTests
 
     [Theory]
     [InlineData("WorkshopBattery")]
-    [InlineData("WorkshopClock")]
+    [InlineData("WorkshopSystemClock")]
     [InlineData("BatterySettings")]
     [InlineData("PipeDimensions")]
     [InlineData("WallLessons")]
     [InlineData("AddBatteryConfiguration")]
+    [InlineData("BatterySolver")]
+    [InlineData("batterySolver")]
+    [InlineData("IBatterySolver")]
+    [InlineData("PulleyWheelRead")]
+    [InlineData("pulleyWheelRead")]
+    [InlineData("CounterReached")]
+    [InlineData("counterReached")]
+    [InlineData("WorkshopPulley")]
+    [InlineData("ApplyBatteryConfiguration")]
+    [InlineData("Pulleys")]
+    [InlineData("pulleys")]
+    [InlineData("Batteries")]
+    [InlineData("batteries")]
+    [InlineData("Counters")]
+    [InlineData("counters")]
+    [InlineData("Dominoes")]
+    [InlineData("dominoes")]
+    [InlineData("BallDetectors")]
+    [InlineData("ballDetectors")]
     public void PackageOwnedIdentifiersAreRejectedWithALocation(string name)
     {
         var hit = Assert.Single(Scanner().ScanCSharp("engine/probe.cs", "class " + name + " {}"));
         Assert.Equal((ElementIsolation.Rule.PackageIdentifier, name, "engine/probe.cs", 1),
             (hit.Rule, hit.Token, hit.File, hit.Line));
+    }
+
+    [Fact]
+    public void ProhibitedElementUsingDirectivesAreRejected()
+    {
+        var source = "using CuriousContraptions.Elements.Battery;\nclass Probe {}";
+        var hit = Assert.Single(Scanner().ScanCSharp("engine/probe.cs", source));
+        Assert.Equal(ElementIsolation.Rule.PackageIdentifier, hit.Rule);
+        Assert.Equal("CuriousContraptions.Elements.Battery", hit.Token);
+        Assert.Equal(1, hit.Line);
+    }
+
+    [Fact]
+    public void ProhibitedTypeScriptFixturesAreRejected()
+    {
+        var source = "function compileBattery() {}\nconst part = `${PartId.Battery}`;";
+        var hits = Scanner().ScanJavaScript("CuriousContraptions.web/wwwroot/probe.ts", source);
+        Assert.Contains(hits, hit => hit.Rule == ElementIsolation.Rule.PackageIdentifier && hit.Token == "compileBattery" && hit.Line == 1);
+        Assert.Contains(hits, hit => hit.Rule == ElementIsolation.Rule.NamedPart && hit.Line == 2);
+    }
+
+    [Theory]
+    [InlineData("import { Something } from '../../elements/Battery/Something.js';")]
+    [InlineData("import '../../elements/Battery/battery.js';")]
+    [InlineData("import { Battery } from './other.js';")]
+    public void TypeScriptElementImportsAreRejected(string source)
+    {
+        var hits = Scanner().ScanJavaScript("CuriousContraptions.web/wwwroot/probe.ts", source);
+        Assert.Contains(hits, hit => hit.Rule == ElementIsolation.Rule.PackageIdentifier);
+    }
+
+    [Theory]
+    [InlineData("class Probe { void Run() => CuriousContraptions.Elements.Battery.SomeType.Run(); }", "CuriousContraptions.Elements.Battery.SomeType.Run")]
+    [InlineData("class Probe { void Run() => global::CuriousContraptions.Elements.Battery.SomeType.Run(); }", "global::CuriousContraptions.Elements.Battery.SomeType.Run")]
+    [InlineData("class Probe { object x = nameof(CuriousContraptions.Elements.Battery.SomeType); }", "CuriousContraptions.Elements.Battery.SomeType")]
+    [InlineData("class Probe { global::CuriousContraptions.Elements.Battery.SomeType x; }", "global::CuriousContraptions.Elements.Battery.SomeType")]
+    public void QualifiedElementNamespaceExpressionsAreRejected(string code, string expectedToken)
+    {
+        var hit = Assert.Single(Scanner().ScanCSharp("engine/probe.cs", code));
+        Assert.Equal((ElementIsolation.Rule.PackageIdentifier, expectedToken, "engine/probe.cs", 1),
+            (hit.Rule, hit.Token, hit.File, hit.Line));
+    }
+
+    [Fact]
+    public void DynamicallyRegisteredPackageIsGuardedWithoutScannerChanges()
+    {
+        var gizmoEntry = TestBundle.Entries[0] with
+        {
+            Metadata = TestBundle.Entries[0].Metadata with
+            {
+                Id = "gizmo",
+                ScenePath = "res://elements/Gizmo/Gizmo.tscn"
+            }
+        };
+        var isolation = new ElementIsolation(Root, TestBundle.Entries.Append(gizmoEntry));
+        var source = "class GizmoSolver {}\nclass GizmoWheelRead {}\nenum GizmoReached {}\nclass WorkshopGizmo {}\nclass ApplyGizmoConfiguration {}\nclass Probe { object Gizmos; }\n";
+        var hits = isolation.ScanCSharp("engine/probe.cs", source);
+        Assert.Equal(6, hits.Count(hit => hit.Rule == ElementIsolation.Rule.PackageIdentifier));
+        Assert.Contains(hits, hit => hit.Token == "GizmoSolver");
+        Assert.Contains(hits, hit => hit.Token == "GizmoWheelRead");
+        Assert.Contains(hits, hit => hit.Token == "GizmoReached");
+        Assert.Contains(hits, hit => hit.Token == "WorkshopGizmo");
+        Assert.Contains(hits, hit => hit.Token == "ApplyGizmoConfiguration");
+        Assert.Contains(hits, hit => hit.Token == "Gizmos");
+
+        var usingHits = isolation.ScanCSharp("engine/probe.cs", "using CuriousContraptions.Elements.Gizmo;\nclass P {}");
+        Assert.Contains(usingHits, hit => hit.Rule == ElementIsolation.Rule.PackageIdentifier && hit.Token == "CuriousContraptions.Elements.Gizmo");
+
+        var tsHits = isolation.ScanJavaScript("CuriousContraptions.web/wwwroot/probe.ts", "function compileGizmo() {}\nconst x = `${PartId.Gizmo}`;");
+        Assert.Contains(tsHits, hit => hit.Rule == ElementIsolation.Rule.PackageIdentifier && hit.Token == "compileGizmo");
+        Assert.Contains(tsHits, hit => hit.Rule == ElementIsolation.Rule.NamedPart);
+    }
+
+    [Theory]
+    [InlineData("class Probe { RopeWinding W = RopeWinding.CounterClockwise; }")]
+    [InlineData("class Probe { bool S(Vector3 p) => SmoothClosestWall(p, Vector3.Zero, default); }")]
+    [InlineData("class Probe { MonotonicNanoseconds? Wall => DisplayWall; }")]
+    [InlineData("class Probe { ClockProbe Probe; }")]
+    [InlineData("class Probe { ClockObservation Observation; }")]
+    [InlineData("class Probe { void Check() { var Clocks = 1; } }")]
+    [InlineData("class Probe { int latches; }")]
+    [InlineData("class Probe { CaptureLatchPhase Phase; }")]
+    [InlineData("class Probe { SimulationEventKind E = SimulationEventKind.ThresholdReached; }")]
+    [InlineData("class Probe { SimulationEventKind E = SimulationEventKind.MemoryChanged; }")]
+    [InlineData("class Probe { ActivationNodeKind K = ActivationNodeKind.Counter; }")]
+    [InlineData("class Probe { ActivationNodeKind K = ActivationNodeKind.StateLatch; }")]
+    [InlineData("class RevoluteConstraintSolver {}")]
+    [InlineData("class TensileConstraintSolver {}")]
+    [InlineData("class RopeGuideRead {}")]
+    [InlineData("class RevoluteDriveTargetRead {}")]
+    public void LegitimateGeometryCavityTimingAndCapabilityNamesRemainAllowed(string code)
+    {
+        Assert.Empty(Scanner().ScanCSharp("engine/probe.cs", code));
     }
 
     [Fact]

@@ -15,6 +15,19 @@ public sealed class ElementIsolation
     public sealed record Hit(string File, string Symbol, Rule Rule, string Token, int Line);
     private sealed record Lexeme(string Text, int Start, bool Literal);
     private static readonly string[] Outputs = ["bin", "obj", ".godot", ".git"];
+    private static readonly string[] Suffixes =
+    [
+        "Solver", "ConstraintSolver", "TransmissionSolver", "FrictionSolver",
+        "Read", "WheelRead", "Observation", "Record", "TargetRead", "StateRead",
+        "Reached", "Set", "Triggered", "Fired", "StateChanged", "Changed",
+        "Settings", "Dimensions", "Lessons", "Simulation", "Payload",
+        "Logic", "Handler", "Controller", "Dispatch"
+    ];
+    private static readonly string[] Prefixes =
+    [
+        "Solve", "Step", "Compile", "Simulate", "Execute", "Dispatch",
+        "Query", "Read", "On", "Workshop"
+    ];
     private readonly string Root;
     private readonly string[] Ids;
     private readonly Dictionary<string, string> Aliases = new(StringComparer.Ordinal);
@@ -25,14 +38,9 @@ public sealed class ElementIsolation
         var declarations = entries.ToArray();
         Ids = declarations.Select(entry => entry.Metadata.Id).ToArray();
         foreach (var entry in declarations)
-        {
-            Aliases[Pascal(entry.Metadata.Id)] = entry.Metadata.Id;
             Aliases[entry.Metadata.ScenePath.Split('/')[^2]] = entry.Metadata.Id;
-        }
     }
 
-    private static string Pascal(string value) => string.Concat(Regex.Matches(value, "[A-Za-z0-9]+")
-        .Select(match => char.ToUpperInvariant(match.Value[0]) + match.Value[1..]));
     private static SyntaxNode Parse(string source)
     {
         // Scan every conditional branch, independently of this tool's build symbols.
@@ -44,16 +52,78 @@ public sealed class ElementIsolation
                 if (characters[i] is not ('\r' or '\n')) characters[i] = ' ';
         return CSharpSyntaxTree.ParseText(new string(characters)).GetRoot();
     }
+
+    private static string ToCamel(string value) =>
+        char.ToLowerInvariant(value[0]) + value[1..];
+
+    private static bool MatchesSuffix(string identifier, string name)
+    {
+        var camel = ToCamel(name);
+        var iface = "I" + name;
+        foreach (var suffix in Suffixes)
+        {
+            if (identifier == name + suffix || identifier == camel + suffix || identifier == iface + suffix)
+                return true;
+        }
+        return false;
+    }
+
+    private static bool MatchesPrefix(string identifier, string name)
+    {
+        foreach (var prefix in Prefixes)
+            if (identifier == prefix + name || identifier == ToCamel(prefix) + name) return true;
+        return false;
+    }
+
+    private static bool MatchesCompound(string identifier, string name)
+    {
+        if (identifier == "Workshop" + name + "Solver" || identifier == "workshop" + name + "Solver") return true;
+        if (identifier == "Add" + name + "Configuration" || identifier == "add" + name + "Configuration") return true;
+        if (identifier == "Apply" + name + "Configuration" || identifier == "apply" + name + "Configuration") return true;
+        return false;
+    }
+
+    private static bool MatchesPlural(string identifier, string name)
+    {
+        var camel = ToCamel(name);
+        if (identifier == name + "s" || identifier == camel + "s") return true;
+        if (name.EndsWith('y') && (identifier == name[..^1] + "ies" || identifier == camel[..^1] + "ies")) return true;
+        if ((name.EndsWith('o') || name.EndsWith('x') || name.EndsWith('s') ||
+             name.EndsWith("ch", StringComparison.Ordinal) || name.EndsWith("sh", StringComparison.Ordinal)) &&
+            (identifier == name + "es" || identifier == camel + "es")) return true;
+        return false;
+    }
+
     private string? PackageIdentifier(string identifier)
     {
         foreach (var (name, id) in Aliases)
         {
-            // Generic laws may use capability vocabulary. Package records and package-owned configuration may not escape.
-            if (identifier == "Workshop" + name || identifier == name + "Settings" ||
-                identifier == name + "Dimensions" || identifier == name + "Lessons" || identifier == name + "Simulation" ||
-                identifier == "Add" + name + "Configuration" || identifier == "Apply" + name + "Configuration") return id;
+            if (MatchesSuffix(identifier, name) || MatchesPrefix(identifier, name) ||
+                MatchesCompound(identifier, name) || MatchesPlural(identifier, name))
+                return id;
         }
         return null;
+    }
+
+    private bool HasElementNamespace(string text, out string nameToken)
+    {
+        var segments = text.Split(['.', ':'], StringSplitOptions.RemoveEmptyEntries);
+        for (var i = 0; i < segments.Length - 1; i++)
+        {
+            if (segments[i] == "Elements" && Aliases.ContainsKey(segments[i + 1]))
+            {
+                nameToken = segments[i + 1];
+                return true;
+            }
+        }
+        if (segments.Length > 0 && segments[^1] == "Elements" &&
+            (text.StartsWith("CuriousContraptions", StringComparison.Ordinal) || text.StartsWith("global::CuriousContraptions", StringComparison.Ordinal)))
+        {
+            nameToken = "Elements";
+            return true;
+        }
+        nameToken = "";
+        return false;
     }
 
     private static string Symbol(SyntaxNode node)
@@ -70,38 +140,91 @@ public sealed class ElementIsolation
         return string.Join(".", members);
     }
 
+    private static bool IsStringLiteral(SyntaxToken token) =>
+        token.IsKind(SyntaxKind.StringLiteralToken) ||
+        token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken) ||
+        token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken) ||
+        token.IsKind(SyntaxKind.InterpolatedStringTextToken);
+
+    private void ScanTokens(SyntaxNode syntax, Action<SyntaxToken, Rule, string> add)
+    {
+        foreach (var token in syntax.DescendantTokens(descendIntoTrivia: true))
+        {
+            if (IsStringLiteral(token) && Ids.Contains(token.ValueText, StringComparer.Ordinal))
+                add(token, Rule.ElementLiteral, token.ValueText);
+            else if (token.IsKind(SyntaxKind.IdentifierToken) && PackageIdentifier(token.ValueText) is not null)
+                add(token, Rule.PackageIdentifier, token.ValueText);
+        }
+    }
+
+    private void ScanNamespaceReferences(SyntaxNode syntax, Action<SyntaxToken, Rule, string> add)
+    {
+        foreach (var use in syntax.DescendantNodes().OfType<UsingDirectiveSyntax>())
+        {
+            var text = use.Name?.ToString();
+            if (text is not null && HasElementNamespace(text, out var nameToken))
+            {
+                var token = use.Name!.DescendantTokens().LastOrDefault(t => t.ValueText == nameToken);
+                add(token.Kind() != SyntaxKind.None ? token : use.GetFirstToken(), Rule.PackageIdentifier, text);
+            }
+        }
+        foreach (var qualified in syntax.DescendantNodes().OfType<QualifiedNameSyntax>())
+        {
+            if (qualified.Parent is not UsingDirectiveSyntax and not QualifiedNameSyntax)
+                CheckNamespaceNode(qualified, qualified.ToString(), add);
+        }
+        foreach (var member in syntax.DescendantNodes().OfType<MemberAccessExpressionSyntax>())
+        {
+            if (member.Parent is not MemberAccessExpressionSyntax)
+                CheckNamespaceNode(member, member.ToString(), add);
+        }
+    }
+
+    private void CheckNamespaceNode(SyntaxNode node, string text, Action<SyntaxToken, Rule, string> add)
+    {
+        if (HasElementNamespace(text, out var nameToken))
+        {
+            var token = node.DescendantTokens().LastOrDefault(t => t.ValueText == nameToken);
+            add(token.Kind() != SyntaxKind.None ? token : node.GetFirstToken(), Rule.PackageIdentifier, text);
+        }
+    }
+
+    private static HashSet<string> ResolvePartAliases(SyntaxNode syntax) =>
+        syntax.DescendantNodes().OfType<UsingDirectiveSyntax>()
+            .Where(use => use.Alias is not null && use.Name?.ToString().Split('.').Last() == "PartId")
+            .Select(use => use.Alias!.Name.Identifier.ValueText).Append("PartId").ToHashSet(StringComparer.Ordinal);
+
+    private void ScanMembers(SyntaxNode syntax, HashSet<string> partAliases, Action<SyntaxToken, Rule, string> add)
+    {
+        foreach (var member in syntax.DescendantNodes().OfType<MemberAccessExpressionSyntax>())
+        {
+            if (Aliases.ContainsKey(member.Name.Identifier.ValueText) && (partAliases.Contains(member.Expression.ToString()) || member.Expression.ToString().EndsWith(".PartId", StringComparison.Ordinal)))
+                add(member.Name.Identifier, Rule.NamedPart, member.Name.Identifier.ValueText);
+            else if (member.Expression.ToString() == "CosmeticCurves" && Aliases.ContainsKey(member.Name.Identifier.ValueText))
+                add(member.Name.Identifier, Rule.PackageIdentifier, "CosmeticCurves." + member.Name.Identifier.ValueText);
+        }
+    }
+
+    private static void ScanPatterns(SyntaxNode syntax, HashSet<string> partAliases, Action<SyntaxToken, Rule, string> add)
+    {
+        foreach (var name in syntax.DescendantNodes().OfType<IdentifierNameSyntax>().Where(name => partAliases.Contains(name.Identifier.ValueText)))
+            if (name.Ancestors().TakeWhile(parent => parent is not StatementSyntax).Any(parent =>
+                parent is DeclarationPatternSyntax or TypePatternSyntax || parent is BinaryExpressionSyntax binary && binary.IsKind(SyntaxKind.IsExpression) || parent is TypeArgumentListSyntax arguments &&
+                arguments.Parent is GenericNameSyntax generic && generic.Identifier.ValueText == "OfType"))
+                add(name.Identifier, Rule.NamedPart, "<type-pattern>");
+    }
+
     public List<Hit> ScanCSharp(string file, string source)
     {
         var hits = new List<Hit>();
         var syntax = Parse(source);
         void Add(SyntaxToken token, Rule rule, string value) =>
             hits.Add(new(file, Symbol(token.Parent!), rule, value, token.GetLocation().GetLineSpan().StartLinePosition.Line + 1));
-        foreach (var token in syntax.DescendantTokens(descendIntoTrivia: true))
-        {
-            if (token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken) ||
-                token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken) || token.IsKind(SyntaxKind.InterpolatedStringTextToken))
-            {
-                if (Ids.Contains(token.ValueText, StringComparer.Ordinal)) Add(token, Rule.ElementLiteral, token.ValueText);
-            }
-            if (token.IsKind(SyntaxKind.IdentifierToken) && PackageIdentifier(token.ValueText) is not null)
-                Add(token, Rule.PackageIdentifier, token.ValueText);
-        }
-        var partAliases = syntax.DescendantNodes().OfType<UsingDirectiveSyntax>()
-            .Where(use => use.Alias is not null && use.Name?.ToString().Split('.').Last() == "PartId")
-            .Select(use => use.Alias!.Name.Identifier.ValueText).Append("PartId").ToHashSet(StringComparer.Ordinal);
-        foreach (var member in syntax.DescendantNodes().OfType<MemberAccessExpressionSyntax>())
-        {
-            if (Aliases.ContainsKey(member.Name.Identifier.ValueText) && (partAliases.Contains(member.Expression.ToString()) || member.Expression.ToString().EndsWith(".PartId", StringComparison.Ordinal)))
-                Add(member.Name.Identifier, Rule.NamedPart, member.Name.Identifier.ValueText);
-            else if (member.Expression.ToString() == "CosmeticCurves" && Aliases.ContainsKey(member.Name.Identifier.ValueText))
-                Add(member.Name.Identifier, Rule.PackageIdentifier, "CosmeticCurves." + member.Name.Identifier.ValueText);
-        }
-        // Declaration/type patterns, including 'is PartId', switch type arms and OfType<PartId>.
-        foreach (var name in syntax.DescendantNodes().OfType<IdentifierNameSyntax>().Where(name => partAliases.Contains(name.Identifier.ValueText)))
-            if (name.Ancestors().TakeWhile(parent => parent is not StatementSyntax).Any(parent =>
-                parent is DeclarationPatternSyntax or TypePatternSyntax || parent is BinaryExpressionSyntax binary && binary.IsKind(SyntaxKind.IsExpression) || parent is TypeArgumentListSyntax arguments &&
-                arguments.Parent is GenericNameSyntax generic && generic.Identifier.ValueText == "OfType"))
-                Add(name.Identifier, Rule.NamedPart, "<type-pattern>");
+        ScanTokens(syntax, Add);
+        ScanNamespaceReferences(syntax, Add);
+        var partAliases = ResolvePartAliases(syntax);
+        ScanMembers(syntax, partAliases, Add);
+        ScanPatterns(syntax, partAliases, Add);
         return hits;
     }
 
@@ -164,6 +287,48 @@ public sealed class ElementIsolation
         result.Add(new(Unescape(text.ToString()), start, true));
     }
 
+    private bool HasElementPath(string text)
+    {
+        var parts = text.Replace('\\', '/').Split('/');
+        for (var i = 0; i < parts.Length - 1; i++)
+        {
+            if (parts[i] == "elements" && (Aliases.ContainsKey(parts[i + 1]) || Ids.Contains(parts[i + 1], StringComparer.Ordinal)))
+                return true;
+        }
+        return false;
+    }
+
+    private bool IsElementImportPath(List<Lexeme> tokens, int index)
+    {
+        var token = tokens[index];
+        if (!token.Literal) return false;
+        if (HasElementPath(token.Text)) return true;
+        if (index > 0 && tokens[index - 1].Text is "from" or "import")
+        {
+            var parts = token.Text.Replace('\\', '/').Split('/');
+            if (parts.Any(p => Aliases.ContainsKey(p) || Ids.Contains(p, StringComparer.Ordinal)))
+                return true;
+        }
+        return false;
+    }
+
+    private bool IsProhibitedImportToken(List<Lexeme> tokens, int index)
+    {
+        var token = tokens[index];
+        if (token.Literal || !Aliases.ContainsKey(token.Text)) return false;
+        var hasImport = false;
+        for (var j = index - 1; j >= 0 && j >= index - 6; j--)
+        {
+            if (tokens[j].Text is "import" or "export") { hasImport = true; break; }
+        }
+        if (!hasImport) return false;
+        for (var j = index + 1; j < tokens.Count && j <= index + 6; j++)
+        {
+            if (tokens[j].Text == "from") return true;
+        }
+        return false;
+    }
+
     public List<Hit> ScanJavaScript(string file, string source)
     {
         var hits = new List<Hit>();
@@ -172,9 +337,21 @@ public sealed class ElementIsolation
         {
             var token = tokens[i];
             var line = source.AsSpan(0, token.Start).Count('\n') + 1;
-            Rule? rule = token.Literal && Ids.Contains(token.Text, StringComparer.Ordinal) ? Rule.ElementLiteral :
-                !token.Literal && PackageIdentifier(token.Text) is not null ? Rule.PackageIdentifier : null;
-            if (!token.Literal && i >= 2 && tokens[i - 2].Text == "PartId" && tokens[i - 1].Text == ".") rule = Rule.NamedPart;
+            Rule? rule = null;
+            if (token.Literal)
+            {
+                if (Ids.Contains(token.Text, StringComparer.Ordinal))
+                    rule = Rule.ElementLiteral;
+                else if (IsElementImportPath(tokens, i))
+                    rule = Rule.PackageIdentifier;
+            }
+            else
+            {
+                if (PackageIdentifier(token.Text) is not null || IsProhibitedImportToken(tokens, i))
+                    rule = Rule.PackageIdentifier;
+                else if (i >= 2 && tokens[i - 2].Text == "PartId" && tokens[i - 1].Text == ".")
+                    rule = Rule.NamedPart;
+            }
             if (rule is not null) hits.Add(new(file, "<module>", rule.Value, token.Text, line));
         }
         return hits;
