@@ -195,7 +195,8 @@ public class CurrentCatalogueTests
         // Every package in the generated bundle, including the Hold Timer (CAT-033) and the supplied gates: Both (CAT-013), Not both
         // (CAT-024), Neither (CAT-025), Either (CAT-026) and Exactly one (CAT-027), the Weight (CAT-067), the Pulley (CAT-053),
         // and the Impact Lever (CAT-034), the Trampoline (CAT-065) and the Electric motor (CAT-042).
-        Assert.Equal(34, plan.Admitted.Count);
+        Assert.Equal(35, plan.Admitted.Count);
+        Assert.Equal(new SourcePath("elements/Conveyor/ConveyorElementDeclaration.cs"), plan.Admitted[new("conveyor")]);
         Assert.Equal(new SourcePath("elements/Motor/MotorElementDeclaration.cs"), plan.Admitted[new("motor")]);
         Assert.Equal(new SourcePath("elements/Trampoline/TrampolineElementDeclaration.cs"), plan.Admitted[new("trampoline")]);
         Assert.Equal(new SourcePath("elements/ImpactLever/ImpactLeverElementDeclaration.cs"), plan.Admitted[new("impact_lever")]);

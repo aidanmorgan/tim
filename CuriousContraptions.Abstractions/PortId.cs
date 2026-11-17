@@ -29,4 +29,6 @@ public readonly record struct PortId : IComparable<PortId>
     public static PortId Tie => new("Tie");
     public static PortId TieA => new("TieA");
     public static PortId TieB => new("TieB");
+    public static PortId Drive => new("Drive");
+    public static PortId DriveIn => new("DriveIn");
 }

@@ -88,6 +88,10 @@ public sealed class BundlePortsTests
         new(socket, Enum.Parse<PortRole>(socket.Value), WorkshopConnectionDomain.Activation, direction, signal, new(x, y, z));
     private static WorkshopPort Electrical(PortId socket, WorkshopPortDirection direction, float x, float y, float z) =>
         new(socket, Enum.Parse<PortRole>(socket.Value), WorkshopConnectionDomain.Electrical, direction, null, new(x, y, z));
+    private static WorkshopPort Mechanical(PortId socket, WorkshopPortDirection direction, float x, float y, float z,
+        CoordinateReference? coordinate = null, float coordinatePerRadian = 0f) =>
+        new(socket, Enum.Parse<PortRole>(socket.Value), WorkshopConnectionDomain.Mechanical, direction, null, new(x, y, z),
+            Coordinate: coordinate, CoordinatePerRadian: coordinatePerRadian);
 
     private const WorkshopPortDirection In = WorkshopPortDirection.Input;
     private const WorkshopPortDirection Out = WorkshopPortDirection.Output;
@@ -119,7 +123,9 @@ public sealed class BundlePortsTests
             new(-1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1)), new(PortId.TieB, PortRole.TieB, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1))], new(2, 1, 0, 1)),
         ["trampoline"] = ([], new(1, 0, 0, 0)),
-        ["motor"] = ([Electrical(PortId.PowerIn, In, -.55f, 0f, 0f)], new(2, 1, 0, 1)),
+        ["motor"] = ([Electrical(PortId.PowerIn, In, -.55f, 0f, 0f), Mechanical(PortId.Drive, Out, 0f, 0f, .65f, new(CoordinateKind.Revolute, 0), 1f)], new(2, 1, 0, 1)),
+        ["conveyor"] = ([Mechanical(PortId.DriveIn, In, -1.35f, -.07f, .78f, new(CoordinateKind.Revolute, 0), 1f),
+            Mechanical(PortId.Drive, Out, 1.35f, -.07f, .78f, new(CoordinateKind.Revolute, 0), 1f)], new(2, 1, 0, 1)),
         ["bumper"] = ([Electrical(PortId.PowerIn, In, 0f, 0f, .65f)], new(1, 0, 0, 0)),
         ["clock"] = ([Electrical(PortId.PowerIn, In, -.78f, 0f, 0f), Activation(PortId.ActivationOut, Out, Pulse, .78f, 0f, 0f)],
             new(1, 0, 0, 0)),

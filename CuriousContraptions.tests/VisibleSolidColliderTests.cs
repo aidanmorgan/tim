@@ -84,6 +84,12 @@ public sealed class VisibleSolidColliderTests
         [new PartId("motor")] = new(["Visual/Visual_Base", "Visual/Visual_Body", "Visual/Visual_Housing", "Visual/Visual_Stud", "Visual/Lamp",
             "Visual/Rotor/Visual_Rotor"], null, [], ["Visual/Rotor/Visual_Index"], "Visual/Rotor"),
 
+        // CAT-019: the driven roller turns on its hinge; carrier box and idle roller are static.
+        [new PartId("conveyor")] = new(
+            ["Visual/Visual_Carrier", "Visual/Visual_RailA", "Visual/Visual_RailB", "Visual/Visual_IdleRoller",
+             "Visual/Visual_SupportA", "Visual/Visual_SupportB", "Visual/Roller/Visual_Roller"],
+            null, [], ["Visual/Roller/PulleyIn/*", "Visual/PulleyOut/*"], "Visual/Roller"),
+
         // Every other element package, classified the same way.
         // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
         [new PartId("ball")] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], null),

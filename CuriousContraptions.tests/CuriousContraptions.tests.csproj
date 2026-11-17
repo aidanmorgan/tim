@@ -226,6 +226,7 @@
         <Compile Include="RevoluteDriveTests.cs" />
         <Compile Include="TrampolineTests.cs" />
         <Compile Include="MotorTests.cs" />
+        <Compile Include="ConveyorTests.cs" />
         <Compile Include="RunControlTableTests.cs" />
         <Compile Include="JointFrameTests.cs" />
         <Compile Include="MechanicalCoordinateBindingsTests.cs" />

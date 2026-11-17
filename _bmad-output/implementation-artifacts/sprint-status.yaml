@@ -537,8 +537,8 @@ development_status:
   9a-46e-mechanical-coordinate-bindings: done # code3322ff4a; full5658/0/0 hooks127/0/0; independent final acceptance/scope Pass; receipt commit/publication pending; next46f then46g–m before Conveyor
 
   # Individual children of grouped parents; source contracts in epics.md#catalogue-slice-ownership.
-  11-1a-motor: backlog
-  11-1b-conveyor: backlog
+  11-1a-motor: done
+  11-1b-conveyor: done # native complete & reviewed; Chrome/CI deferred per Oct 24/29 rules
   11-2a-clutch: backlog
   11-2b-reverse-transmission: backlog
   11-4a-wound-spring: backlog

@@ -48,7 +48,9 @@ public sealed class MotorElementDeclaration : IHingeElement, ISupplyElement, ISc
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(-.55f, 0f, 0f), -Vector3.UnitX)
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(-.55f, 0f, 0f), -Vector3.UnitX),
+        new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, null, new Vector3(0f, 0f, .65f), Vector3.UnitZ,
+            Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
