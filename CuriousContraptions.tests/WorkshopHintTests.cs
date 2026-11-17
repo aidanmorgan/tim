@@ -405,6 +405,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
             Epoch = new(Epoch.Value + 1);
             return Task.FromResult(new WorkshopDelivery(Response(WorkshopSimulationPhase.Building), true));
         }
+        public System.Collections.Generic.IReadOnlyList<CuriousContraptions.Abstractions.MechanicalLinkGeometry> MechanicalFrames(ulong frame, WorkshopPresentationSample physical) => [];
         public void SetDeclaredVisible(GpuBodyId owner, bool visible) { }
         public bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out System.Collections.Generic.IReadOnlyList<DeclaredPresentationSample> samples) { samples = System.Array.Empty<DeclaredPresentationSample>(); return false; }
         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No command is pending.");

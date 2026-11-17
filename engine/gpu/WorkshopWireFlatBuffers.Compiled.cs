@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
@@ -886,6 +887,8 @@ public static partial class WorkshopWireFlatBuffers
         var revolute_drives = W.CompiledSceneRecord.CreateRevoluteDrivesVector(b, scene.Physics.RevoluteDrives.ToArray().Select(value => EncodeCapabilityRevoluteDriveDeclarationRecord(b, value)).ToArray());
         var rope_guides = scene.Physics.RopeGuides.IsEmpty ? default :
             W.CompiledSceneRecord.CreateRopeGuidesVector(b, scene.Physics.RopeGuides.ToArray().Select(v => EncodeRopeGuide(b, v)).ToArray());
+        var mechanicalLinks = W.CompiledSceneRecord.CreateMechanicalLinksVector(b,
+            scene.MechanicalLinks.Select(link => EncodeMechanicalLink(b, link)).ToArray());
         var drivenSurfaces = W.CompiledSceneRecord.CreateDrivenSurfacesVector(b,
             scene.Physics.DrivenSurfaces.ToArray().Select(value => EncodeDrivenSurface(b, value)).ToArray());
         var transmissions = scene.Physics.Transmissions.IsEmpty ? default :
@@ -962,9 +965,29 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddRevoluteDrives(b, revolute_drives);
         if (rope_guides.Value != 0) W.CompiledSceneRecord.AddRopeGuides(b, rope_guides);
         W.CompiledSceneRecord.AddDrivenSurfaces(b, drivenSurfaces);
+        W.CompiledSceneRecord.AddMechanicalLinks(b, mechanicalLinks);
         if (transmissions.Value != 0) W.CompiledSceneRecord.AddTransmissions(b, transmissions);
         return W.CompiledSceneRecord.EndCompiledSceneRecord(b);
     }
+
+    private static Offset<W.MechanicalRimPresentationRecord> EncodeMechanicalRim(FlatBufferBuilder b, CompiledMechanicalRim rim)
+    {
+        var centre = EncodeCapabilityVector3Record(b, rim.Centre);
+        var frame = EncodeCapabilityQuaternionRecord(b, rim.Frame);
+        return W.MechanicalRimPresentationRecord.CreateMechanicalRimPresentationRecord(b, rim.Support.Value, rim.Joint.Value,
+            rim.CoordinateSupport.Value, centre, frame, rim.Radius, rim.AnglePerCoordinate);
+    }
+    private static Offset<W.MechanicalLinkPresentationRecord> EncodeMechanicalLink(FlatBufferBuilder b, CompiledMechanicalLink link)
+    {
+        var source = EncodeMechanicalRim(b, link.Source); var target = EncodeMechanicalRim(b, link.TargetRim);
+        return W.MechanicalLinkPresentationRecord.CreateMechanicalLinkPresentationRecord(b, link.Target.Value, source, target);
+    }
+    private static CompiledMechanicalRim DecodeMechanicalRim(W.MechanicalRimPresentationRecord rim) =>
+        new(new(rim.Support), new(rim.Joint), new(rim.CoordinateSupport),
+            DecodeCapabilityVector3Record(Required(rim.Centre, "rim centre")),
+            DecodeCapabilityQuaternionRecord(Required(rim.Frame, "rim frame")), rim.Radius, rim.AnglePerCoordinate);
+    private static CompiledMechanicalLink DecodeMechanicalLink(W.MechanicalLinkPresentationRecord link) =>
+        new(new(link.Target), DecodeMechanicalRim(Required(link.Source, "source rim")), DecodeMechanicalRim(Required(link.TargetRim, "target rim")));
 
     internal static WorkshopCompiledScene DecodeCompiledScene(W.CompiledSceneRecord row)
     {
@@ -1023,7 +1046,8 @@ public static partial class WorkshopWireFlatBuffers
                 Enumerable.Range(0, row.OwnersLength).Select(i => new GpuBodyId(row.Owners(i))),
                 Enumerable.Range(0, row.RunControlsLength).Select(i => Required(row.RunControls(i), "RunControls")).Select(control =>
                     new RunControlRow(new(control.Id), new(control.Owner), (CuriousContraptions.Abstractions.RunControlLane)control.Lane,
-                        checked((int)control.LaneIndex), control.Minimum, control.Maximum, new(control.Source))));
+                        checked((int)control.LaneIndex), control.Minimum, control.Maximum, new(control.Source))),
+                Enumerable.Range(0, row.MechanicalLinksLength).Select(i => DecodeMechanicalLink(Required(row.MechanicalLinks(i), "mechanical link"))));
         }
         catch (Exception error) when (error is ArgumentException or InvalidOperationException or OverflowException)
         { throw new WireFaultException(WireFaultReason.OutOfRange, "Invalid compiled scene capabilities.", error); }

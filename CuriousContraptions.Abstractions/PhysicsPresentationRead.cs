@@ -70,6 +70,9 @@ public readonly record struct ActuatorDriveRead(
 }
 
 /// <summary>Committed observation of one package-owned mechanical transmission slot, ordered by ascending unique transmission identity.</summary>
+/// <summary>Authoritative normalized angular reaction impulse in N*m*s; no accumulated reaction while disengaged.</summary>
+public readonly record struct MechanicalTransmissionStateRead(float Impulse);
+
 public readonly record struct MechanicalTransmissionRead(
     MechanicalTransmissionId Transmission,
     GpuBodyId Owner,

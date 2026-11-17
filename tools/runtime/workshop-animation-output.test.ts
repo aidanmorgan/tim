@@ -15,7 +15,7 @@ test('every admitted target publishes its latest sample in order, holding one re
     let imports!: AnimationImports, closed = false, controls = 0;
     const messages: Posted[] = [];
     const host = {
-        OutputKinds: () => [1, 2, 3],
+        OutputKinds: () => [1, 2, 3, 4],
         Bootstrap: () => {}, AnimationControl: () => { controls++; }
     };
     // Story 9R.5b: the latest-sample table has no target capacity; this many targets is only the harness's population.
@@ -61,9 +61,12 @@ test('every admitted target publishes its latest sample in order, holding one re
     self.onmessage({ data: { bootstrap: new Uint8Array(64), masterPort: channel.port1, clockRing: clockRing.createClockRing() } });
     self.onmessage({ data: { animationControl: new Uint8Array(104) } });
     assert.equal(controls, 1, 'current renamed export is callable');
-    function sample(target: number, pulse: number) {
-        const bytes = new Uint8Array(104), view = new DataView(bytes.buffer);
-        view.setUint32(60, 2, true); view.setBigUint64(64, BigInt(target), true);
+    function sample(target: number, pulse: number, generation = 1) {
+        const geometry = target % 2 === 0;
+        const bytes = new Uint8Array(geometry ? 128 + 12 * (target + 5) : 104), view = new DataView(bytes.buffer);
+        if (geometry) view.setInt32(88, target + 5, true);
+        view.setUint32(60, geometry ? 4 : 2, true); view.setBigUint64(64, BigInt(target), true);
+        view.setBigUint64(32, BigInt(generation), true);
         view.setBigUint64(40, BigInt(pulse), true); return bytes;
     }
     imports.output(sample(1, 1)); // Hold its receipt while every admitted target publishes.
@@ -76,10 +79,23 @@ test('every admitted target publishes its latest sample in order, holding one re
         const current = messages.at(-1)!.animationOutput;
         const view = new DataView(current.buffer, current.byteOffset, current.byteLength);
         assert.equal(view.getBigUint64(64, true), BigInt(target));
+        assert.equal(view.getUint32(60, true), target % 2 === 0 ? 4 : 2);
+        assert.equal(current.byteLength, target % 2 === 0 ? 128 + 12 * (target + 5) : 104,
+            'variable geometry payload remains complete through coalescing');
         assert.equal(view.getBigUint64(40, true), 3n, 'only latest per target survives');
         self.onmessage({ data: { animationAcknowledged: current } });
     }
     assert.equal(messages.filter(value => value.animationOutput).length, targets + 1);
+    imports.output(sample(2, 4, 1)); // An old geometry sample is already in flight when Reset installs a new epoch.
+    const retired = messages.at(-1)!.animationOutput;
+    imports.output(sample(2, 5, 1));
+    imports.output(sample(2, 1, 2));
+    self.onmessage({ data: { animationAcknowledged: retired } });
+    const installed = messages.at(-1)!.animationOutput;
+    const identity = new DataView(installed.buffer, installed.byteOffset, installed.byteLength);
+    assert.equal(identity.getBigUint64(32, true), 2n, 'latest current generation replaces queued retired geometry');
+    assert.equal(identity.getBigUint64(40, true), 1n, 'a new generation need not exceed an old pulse ordinal');
+    self.onmessage({ data: { animationAcknowledged: installed } });
     imports.output(sample(1, 4)); imports.output(sample(2, 4));
     self.onmessage({ data: { dispose: true } });
     const afterDispose = messages.length;

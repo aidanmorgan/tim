@@ -37,7 +37,7 @@ async function animationWorker() {
     const installed = { epoch: 0 };
     const waits: Promise<Uint8Array | null>[] = [];
     const host = {
-        OutputKinds: () => [1, 2, 3], Bootstrap: () => {}, AnimationControl: () => {},
+        OutputKinds: () => [1, 2, 3, 4], Bootstrap: () => {}, AnimationControl: () => {},
         Service: () => {
             // External host output carries its consumed-delivery count. Posted output proves
             // the worker services after delivery, including turns without a matching ring.

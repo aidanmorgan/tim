@@ -14,6 +14,8 @@ internal sealed class SimMechanicalTransmission
     public int Count;
     public float InverseMass;
     public bool Engaged;
+    public float Impulse;
+    public int Offset;
 }
 
 internal static class MechanicalTransmissionSolver
@@ -24,6 +26,7 @@ internal static class MechanicalTransmissionSolver
         if (!transmission.Engaged)
         {
             transmission.InverseMass = 0f;
+            transmission.Impulse = 0f;
             return;
         }
         var driving = transmission.DrivingJoint;
@@ -40,6 +43,7 @@ internal static class MechanicalTransmissionSolver
         for (var i = 0; i < transmission.Count; i++)
             inverseMass += ConstraintMass(transmission.Bodies[i], Vector3.Zero, transmission.Jacobians[i]);
         transmission.InverseMass = inverseMass;
+        if (inverseMass <= 0f) transmission.Impulse = 0f;
     }
 
     private static void Add(SimMechanicalTransmission transmission, SimBody body, Vector3 jacobian)
@@ -62,6 +66,12 @@ internal static class MechanicalTransmissionSolver
         for (var i = 0; i < transmission.Count; i++)
             velocity += ConstraintVelocity(transmission.Bodies[i], Vector3.Zero, transmission.Jacobians[i]);
         var impulse = -velocity / transmission.InverseMass;
+        transmission.Impulse += impulse;
+        Apply(transmission, impulse);
+    }
+
+    public static void Apply(SimMechanicalTransmission transmission, float impulse)
+    {
         for (var i = 0; i < transmission.Count; i++)
             ApplyBodyImpulse(transmission.Bodies[i], Vector3.Zero, transmission.Jacobians[i], impulse);
     }

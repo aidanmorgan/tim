@@ -33,6 +33,8 @@ public interface IWorkshopAnimationTracks
 public interface IWorkshopDeclaredPresentation
 {
     ulong Lapped { get; }
+    IReadOnlyList<MechanicalLinkGeometry> MechanicalGeometry { get; }
+    IReadOnlyList<MechanicalLinkSample> MechanicalSamples(WorkshopSchedule schedule, PulseOrdinal pulse, MasterTimeNanoseconds observedAt);
     void AcceptEvents(EventRingDelivery delivery, WorkshopWorldProjection world);
     void Accept(WorkshopResponse response);
     bool CanRetain(ICompiledScene construction, WorkshopResponse endpoint);

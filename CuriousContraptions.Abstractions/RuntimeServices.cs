@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using CuriousContraptions.Presentation;
 using System.Collections.Generic;
@@ -148,5 +149,5 @@ public interface ICoreServices
         ReadOnlySpan<CompiledSignalContact> contacts = default);
     ICompiledScene CreateScene(CompiledSceneId identity, ConstructionRevision revision, WorkshopCadenceSettings settings,
         IPhysicsSceneDeclaration physics, IActivationProgram activation, IEnumerable<CompiledPresentationTrack> presentation,
-        IEnumerable<GpuBodyId> owners, IEnumerable<RunControlRow> runControls);
+        IEnumerable<GpuBodyId> owners, IEnumerable<RunControlRow> runControls, IEnumerable<CompiledMechanicalLink>? mechanicalLinks = null);
 }

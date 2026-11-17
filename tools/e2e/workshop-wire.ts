@@ -6903,6 +6903,8 @@ static createFourStateValuesRecord(builder:flatbuffers.Builder, state0: number, 
 
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
 export class CapabilityPresentationBindingRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -7066,6 +7068,8 @@ static endCapabilityPresentationBindingRecord(builder:flatbuffers.Builder):flatb
 }
 
 }
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
 export class CapabilityWorkshopCadenceSettingsRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -8185,6 +8189,162 @@ static endDrivenSurfaceRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
+export class MechanicalRimPresentationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):MechanicalRimPresentationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsMechanicalRimPresentationRecord(bb:flatbuffers.ByteBuffer, obj?:MechanicalRimPresentationRecord):MechanicalRimPresentationRecord {
+  return (obj || new MechanicalRimPresentationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsMechanicalRimPresentationRecord(bb:flatbuffers.ByteBuffer, obj?:MechanicalRimPresentationRecord):MechanicalRimPresentationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new MechanicalRimPresentationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+support():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+joint():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+coordinateSupport():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+centre(obj?:CapabilityVector3Record):CapabilityVector3Record|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new CapabilityVector3Record()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+frame(obj?:CapabilityQuaternionRecord):CapabilityQuaternionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityQuaternionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+radius():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+anglePerCoordinate():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startMechanicalRimPresentationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(7);
+}
+
+static addSupport(builder:flatbuffers.Builder, support:bigint) {
+  builder.addFieldInt64(0, support, BigInt('0'));
+}
+
+static addJoint(builder:flatbuffers.Builder, joint:bigint) {
+  builder.addFieldInt64(1, joint, BigInt('0'));
+}
+
+static addCoordinateSupport(builder:flatbuffers.Builder, coordinateSupport:bigint) {
+  builder.addFieldInt64(2, coordinateSupport, BigInt('0'));
+}
+
+static addCentre(builder:flatbuffers.Builder, centreOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, centreOffset, 0);
+}
+
+static addFrame(builder:flatbuffers.Builder, frameOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, frameOffset, 0);
+}
+
+static addRadius(builder:flatbuffers.Builder, radius:number) {
+  builder.addFieldFloat32(5, radius, 0.0);
+}
+
+static addAnglePerCoordinate(builder:flatbuffers.Builder, anglePerCoordinate:number) {
+  builder.addFieldFloat32(6, anglePerCoordinate, 0.0);
+}
+
+static endMechanicalRimPresentationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 10) // centre
+  builder.requiredField(offset, 12) // frame
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class MechanicalLinkPresentationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):MechanicalLinkPresentationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsMechanicalLinkPresentationRecord(bb:flatbuffers.ByteBuffer, obj?:MechanicalLinkPresentationRecord):MechanicalLinkPresentationRecord {
+  return (obj || new MechanicalLinkPresentationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsMechanicalLinkPresentationRecord(bb:flatbuffers.ByteBuffer, obj?:MechanicalLinkPresentationRecord):MechanicalLinkPresentationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new MechanicalLinkPresentationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+target():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+source(obj?:MechanicalRimPresentationRecord):MechanicalRimPresentationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new MechanicalRimPresentationRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+targetRim(obj?:MechanicalRimPresentationRecord):MechanicalRimPresentationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new MechanicalRimPresentationRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+static startMechanicalLinkPresentationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
+
+static addTarget(builder:flatbuffers.Builder, target:bigint) {
+  builder.addFieldInt64(0, target, BigInt('0'));
+}
+
+static addSource(builder:flatbuffers.Builder, sourceOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, sourceOffset, 0);
+}
+
+static addTargetRim(builder:flatbuffers.Builder, targetRimOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, targetRimOffset, 0);
+}
+
+static endMechanicalLinkPresentationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 6) // source
+  builder.requiredField(offset, 8) // target_rim
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
 export class CompiledSceneRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -8528,8 +8688,18 @@ drivenSurfacesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+mechanicalLinks(index: number, obj?:MechanicalLinkPresentationRecord):MechanicalLinkPresentationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 76);
+  return offset ? (obj || new MechanicalLinkPresentationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+mechanicalLinksLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 76);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(36);
+  builder.startObject(37);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -9008,10 +9178,27 @@ static startDrivenSurfacesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
+static addMechanicalLinks(builder:flatbuffers.Builder, mechanicalLinksOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(36, mechanicalLinksOffset, 0);
+}
+
+static createMechanicalLinksVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startMechanicalLinksVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 8) // settings
   builder.requiredField(offset, 74) // driven_surfaces
+  builder.requiredField(offset, 76) // mechanical_links
   return offset;
 }
 

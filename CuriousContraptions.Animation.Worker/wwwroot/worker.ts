@@ -76,7 +76,7 @@ runtime.setModuleImports<AnimationImports>('workshopAnimation', {
         if (disposed) return;
         const value = new Uint8Array(bytes);
         const kind = new DataView(value.buffer).getUint32(60, true);
-        if (kind === outputKinds[1]) {
+        if (kind === outputKinds[1] || kind === outputKinds[3]) {
             const target = new DataView(value.buffer).getBigUint64(64, true);
             latestSamples.set(target, value); flushSample();
         }

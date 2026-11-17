@@ -1,6 +1,10 @@
 <Project>
   <ItemGroup>
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)CoreRunControlServices.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MechanicalLinkValidation.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MechanicalLinkPresentation.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MechanicalLinkTravel.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MechanicalLinkWire.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)CoreGeometry.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)CoreSupplyQueries.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)CoreMemoryServices.cs" />

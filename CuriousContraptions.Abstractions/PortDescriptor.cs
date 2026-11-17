@@ -60,7 +60,8 @@ public readonly record struct PortDescriptor(
     CoordinateReference? Coordinate = null,
     float CoordinatePerRadian = 0f,
     float GuideRadius = 0f,
-    Vector3 GuideOffset = default);
+    Vector3 GuideOffset = default,
+    MechanicalRimDescriptor? MechanicalRim = null);
 
 public enum RopeAttachmentRole : byte { None = 0, Anchor = 1, Load = 2, Guide = 3 }
 

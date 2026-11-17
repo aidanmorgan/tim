@@ -19,6 +19,7 @@ public sealed class WorkshopCompiledScene : ICompiledScene
     private readonly PackageBodyMembership _membership;
     public IActivationProgram Activation { get; }
     public ImmutableArray<CompiledPresentationTrack> Presentation { get; }
+    public ImmutableArray<CompiledMechanicalLink> MechanicalLinks { get; }
     public ImmutableArray<GpuBodyId> Owners { get; }
     /// <summary>The run-control table: one row per declared RunControl parameter of an unlocked instance, each naming the lane slot
     /// it drives while Running or Paused.</summary>
@@ -26,7 +27,7 @@ public sealed class WorkshopCompiledScene : ICompiledScene
 
     public WorkshopCompiledScene(CompiledSceneId identity, ConstructionRevision revision, WorkshopCadenceSettings settings,
         IPhysicsSceneDeclaration physics, IActivationProgram activation, IEnumerable<CompiledPresentationTrack> presentation,
-        IEnumerable<GpuBodyId> owners, IEnumerable<RunControlRow> runControls)
+        IEnumerable<GpuBodyId> owners, IEnumerable<RunControlRow> runControls, IEnumerable<CompiledMechanicalLink>? mechanicalLinks = null)
     {
         Identity = identity; Revision = revision; Settings = settings;
         Physics = physics ?? throw new ArgumentNullException(nameof(physics));
@@ -34,6 +35,8 @@ public sealed class WorkshopCompiledScene : ICompiledScene
         Activation = activation ?? throw new ArgumentNullException(nameof(activation));
         Presentation = presentation.ToImmutableArray(); Owners = owners.ToImmutableArray();
         RunControls = runControls.ToImmutableArray();
+        MechanicalLinks = mechanicalLinks?.ToImmutableArray() ?? [];
+        MechanicalLinkValidation.Validate(MechanicalLinks, Physics, Presentation, _membership);
         Validate();
     }
 

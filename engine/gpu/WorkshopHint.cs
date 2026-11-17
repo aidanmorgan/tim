@@ -117,7 +117,7 @@ public static class WorkshopAnimationWire
             (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[OutputPropertyOffset..]));
         result.AppliedAt.Validate();
         _ = Value(result.Property, result.Value);
-        if (!IsChannel(result.Property) || !Enum.IsDefined(kind) || result.Generation == 0 || !float.IsFinite(result.Value) ||
+        if (!IsChannel(result.Property) || kind is not (AnimationOutputKind.Sample or AnimationOutputKind.Acknowledgement or AnimationOutputKind.Rejected) || result.Generation == 0 || !float.IsFinite(result.Value) ||
             !PhysicalPhase.IsAdmitted(result.EventOrdinal, result.EventPhase) ||
             (result.World.Value == 0 && (result.EventOrdinal != 0 || result.EventPhase != 0f)))
             throw new ArgumentException("Invalid animation channel output.");

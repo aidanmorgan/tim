@@ -93,7 +93,8 @@ public static partial class PhysicsGpuAbi
 
     // Mechanical transmission row (MechanicalTransmissionBytes = 64): identity U64 at 0, owner body slot (or NoBody when unowned),
     // driving and driven revolute slots, f32 ratio and f32 close_seconds (+0f when untimed) in MechanicalTransmissionDeclarationBytes;
-    // then U32 supplied (0 or 1), f32 closure [0, 1], U32 phase, and trailing zero padding.
+    // then U32 supplied, f32 closure, U32 phase, transition origin ordinal/closure, f32 accumulated angular impulse at52,
+    // and zero padding from56. Impulse is N*m*s against the normalized merged transmission Jacobian.
     public const int MechanicalTransmissionBytes = 64;
     public const int MechanicalTransmissionOwnerOffset = 8;
     public const int MechanicalTransmissionDrivingOffset = 12;
@@ -106,7 +107,8 @@ public static partial class PhysicsGpuAbi
     public const int MechanicalTransmissionPhaseOffset = 36;
     public const int MechanicalTransmissionOriginOrdinalOffset = 40;
     public const int MechanicalTransmissionOriginClosureOffset = 48;
-    public const int MechanicalTransmissionPaddingOffset = 52;
+    public const int MechanicalTransmissionImpulseOffset = 52;
+    public const int MechanicalTransmissionPaddingOffset = 56;
     public const int CompliantSurfaceTensionOffset = 32;
     public const int CompliantSurfaceDampingRatioOffset = 36;
     public const int CompliantSurfaceDeclarationBytes = 40;
@@ -468,6 +470,7 @@ public static partial class PhysicsGpuAbi
                 WriteEnergy(record, MechanicalTransmissionClosureOffset, 0f);
                 U32(record, MechanicalTransmissionPhaseOffset, (uint)TransmissionEngagementPhase.Open);
             }
+            F32(record, MechanicalTransmissionImpulseOffset, 0f);
             record[MechanicalTransmissionPaddingOffset..].Clear();
         }
     }
@@ -522,6 +525,9 @@ public static partial class PhysicsGpuAbi
         if (supplied > 1 || !float.IsFinite(closure) || closure < 0f || closure > 1f || !Enum.IsDefined(phase) ||
             (closure == 0f && !PhysicsDeclarationBounds.Zero(closure)))
             throw new ArgumentException("Invalid mechanical transmission committed state.");
+        var impulse = RF(record, MechanicalTransmissionImpulseOffset);
+        if (!float.IsFinite(impulse) || (phase != TransmissionEngagementPhase.Engaged && impulse != 0f))
+            throw new ArgumentException("Invalid mechanical transmission reaction impulse.");
         if (PhysicsDeclarationBounds.Zero(closeSeconds))
         {
             if (supplied != 0 || closure != 1f || phase != TransmissionEngagementPhase.Engaged ||
@@ -536,6 +542,13 @@ public static partial class PhysicsGpuAbi
                 TransmissionEngagementPhase.Opening);
         if (phase != expected)
             throw new ArgumentException("Timed mechanical transmission phase disagrees with its supply or closure.");
+    }
+
+    /// <summary>Committed angular reaction, N*m*s against the normalized transmission Jacobian.</summary>
+    public static MechanicalTransmissionStateRead ReadMechanicalTransmissionState(ReadOnlySpan<byte> data, int index)
+    {
+        _ = ReadMechanicalTransmission(data, index);
+        return new(RF(data, Layout(data).MechanicalTransmissionOffset(index) + MechanicalTransmissionImpulseOffset));
     }
 
     public static MechanicalTransmissionRead[] ReadMechanicalTransmissionReads(ReadOnlySpan<byte> data)

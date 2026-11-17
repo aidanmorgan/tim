@@ -77,6 +77,6 @@ public static class WorkshopSceneCompiler
             }
         }
         return core.CreateScene(identity, construction.Revision, construction.Settings, physics, activation, tracks,
-            construction.Instances.Select(instance => instance.Id), runControls);
+            construction.Instances.Select(instance => instance.Id), runControls, MechanicalLinkCompiler.Compile(construction, physics));
     }
 }

@@ -190,11 +190,14 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
                         receiveObservation(client, item.observation);
                     } else if (item.animationOutput instanceof Uint8Array) {
                         if (!animationBootstrapped || !client.animationReady) throw new Error('Animation output precedes admission.');
-                        if (item.animationOutput.length !== ANIMATION_OUTPUT_BYTES) throw new Error('Wrong Animation output length.');
-                        deliver(client, item.animationOutput, now(), animationOutput);
+                        if (item.animationOutput.length < ANIMATION_OUTPUT_BYTES) throw new Error('Wrong Animation output length.');
                         const output = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, ANIMATION_OUTPUT_BYTES);
+                        const outputKind = output.getUint32(ANIMATION_OUTPUT_KIND_OFFSET, true);
+                        if (outputKind !== client.hintKinds[3] && item.animationOutput.length !== ANIMATION_OUTPUT_BYTES)
+                            throw new Error('Wrong scalar Animation output length.');
+                        deliver(client, item.animationOutput, now(), animationOutput);
                         const kind = output.getUint32(ANIMATION_OUTPUT_KIND_OFFSET, true);
-                        if (kind === client.hintKinds[1]) {
+                        if (kind === client.hintKinds[1] || kind === client.hintKinds[3]) {
                             const animationAcknowledged = item.animationOutput.slice();
                             animation.postMessage({ animationAcknowledged }, [animationAcknowledged.buffer]);
                         } else if (kind === client.hintKinds[0] || kind === client.hintKinds[2]) {
@@ -293,7 +296,7 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
 }
 export function animationQualified(id: number) { return owner(id).animationQualified === true; }
 export function animationKinds(id: number, kinds: number[]) {
-    if (kinds.length !== 3 || new Set(kinds).size !== 3) throw new Error('Invalid Animation output ABI.');
+    if (kinds.length !== 4 || new Set(kinds).size !== 4) throw new Error('Invalid Animation output ABI.');
     owner(id).hintKinds = Array.from(kinds);
 }
 export function scheduleResult(id: number, bytes: Uint8Array) {

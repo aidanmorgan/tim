@@ -144,6 +144,12 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         if (!float.IsFinite(port.LocalPosition.X) || !float.IsFinite(port.LocalPosition.Y) || !float.IsFinite(port.LocalPosition.Z))
             throw Refused(ElementPortRejection.NonFinitePosition, element, index, "declares a non-finite anchor");
         ValidateAttachment(element, index, port, domain);
+        if (port.MechanicalRim is { } rim)
+        {
+            if (domain != WorkshopConnectionDomain.Mechanical)
+                throw Refused(ElementPortRejection.OutOfRange, element, index, "Rim belongs to a mechanical port.");
+            rim.Validate();
+        }
         if (domain == WorkshopConnectionDomain.Mechanical)
         {
             if (port.Coordinate is not { Kind: CoordinateKind.Revolute, Index: >= 0 })
@@ -159,7 +165,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
                 throw Refused(ElementPortRejection.OutOfRange, element, index, "declares coordinate-per-radian on a non-mechanical port");
         }
         return new(port.Id, port.Role, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body,
-            port.GuideRadius, port.GuideOffset, port.Coordinate, port.CoordinatePerRadian);
+            port.GuideRadius, port.GuideOffset, port.Coordinate, port.CoordinatePerRadian, port.MechanicalRim);
     }
 
     private static void ValidateRole(PartId element, int index, PortDescriptor port,

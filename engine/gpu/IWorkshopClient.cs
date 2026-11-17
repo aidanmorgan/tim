@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using CuriousContraptions.Presentation;
+using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Gpu;
 
@@ -17,6 +18,7 @@ internal interface IWorkshopClient : IAsyncDisposable
     bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out AnimationOpacity opacity);
     void SetDeclaredVisible(GpuBodyId owner, bool visible);
     bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out IReadOnlyList<DeclaredPresentationSample> samples);
+    IReadOnlyList<MechanicalLinkGeometry> MechanicalFrames(ulong frame, WorkshopPresentationSample physical);
     SimulationEpoch Epoch { get; }
     AuthorityRevision Revision { get; }
     WorkshopCommandIdentity? Pending { get; }

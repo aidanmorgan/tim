@@ -1,4 +1,6 @@
 using System;
+using System.Buffers.Binary;
+using CuriousContraptions.Abstractions;
 using System.Collections.Generic;
 using CuriousContraptions.Presentation;
 
@@ -6,6 +8,46 @@ namespace CuriousContraptions.Gpu;
 
 public sealed partial class BrowserWorkshopClient
 {
+    private readonly HashSet<AnimationTargetId> _mechanicalTargets = new();
+    private readonly Dictionary<AnimationTargetId, MechanicalLinkSample> _mechanicalSamples = new();
+    private readonly List<MechanicalLinkGeometry> _mechanicalFrame = new();
+
+    private void ReceiveMechanicalGeometry(byte[] bytes)
+    {
+        var active = _schedule ?? throw new InvalidOperationException("Geometry before schedule.");
+        var cadence = new CadenceRevision(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(24)));
+        cadence.Validate();
+        var sample = _core.Codecs.Animation.ReadGeometry(bytes, Peer.Session, Peer.Generation, cadence);
+        // Recognized current-format output can still be in flight when its installation retires.
+        if (cadence.Value < active.Revision.Value || sample.World.Value < active.World.WorldGeneration.Value ||
+            (sample.World == active.World.WorldGeneration && sample.Generation < active.World.Epoch.Value)) return;
+        if (cadence != active.Revision) throw new ArgumentException("Future geometry cadence.");
+        if (sample.World != active.World.WorldGeneration || sample.Generation != active.World.Epoch.Value ||
+            !_mechanicalTargets.Contains(sample.Geometry.Target) ||
+            !Clock.TryMasterNow(_transport.EventTime(_id.Value), out var now) ||
+            sample.AppliedAt.Value < active.InstalledAt.Value || sample.AppliedAt.Value > now.Upper ||
+            sample.Pulse.Value < active.FirstAnimation.Value ||
+            _core.Scheduling.Deadline(active.Settings.AnimationRate, sample.Pulse).Value > sample.AppliedAt.Value ||
+            sample.Geometry.Tick.Value < active.World.AnchorTick.Value ||
+            sample.Geometry.Tick.Value > _core.Scheduling.DueTick(active.World, active.Settings, sample.AppliedAt).Value ||
+            (_mechanicalSamples.TryGetValue(sample.Geometry.Target, out var previous) &&
+                (sample.Pulse.Value <= previous.Pulse.Value || sample.Geometry.Tick.Value < previous.Geometry.Tick.Value)))
+            throw new ArgumentException("Foreign or reversed geometry sample.");
+        _mechanicalSamples[sample.Geometry.Target] = sample;
+    }
+
+    public IReadOnlyList<MechanicalLinkGeometry> MechanicalFrames(ulong frame, WorkshopPresentationSample physical)
+    {
+        _mechanicalFrame.Clear();
+        if (!AdmitPresentationFrame(frame) || _schedule is not { } active) return _mechanicalFrame;
+        foreach (var sample in _mechanicalSamples.Values)
+            if (sample.World == active.World.WorldGeneration && sample.Generation == active.World.Epoch.Value &&
+                sample.AppliedAt.Value <= _frameMaster.Value &&
+                new PhysicalTime(checked(sample.Geometry.Tick.Value * active.Settings.PhysicalStepsPerCommit)) <= physical.SimulationTime.Time)
+                _mechanicalFrame.Add(sample.Geometry);
+        return _mechanicalFrame;
+    }
+
     private readonly Dictionary<AnimationTargetId, (GpuBodyId Owner, int Binding)> _declaredTargets = new(16);
     private readonly Dictionary<AnimationTargetId, WorkshopAnimationSample> _declaredSamples = new(16);
     private readonly List<DeclaredPresentationSample> _declaredFrame = new(16);
@@ -56,6 +98,8 @@ public sealed partial class BrowserWorkshopClient
 
     private void InstallDeclaredTargets(ICompiledScene construction)
     {
+        _mechanicalTargets.Clear(); _mechanicalSamples.Clear(); _mechanicalFrame.Clear();
+        foreach (var link in construction.MechanicalLinks) _mechanicalTargets.Add(link.Target);
         _declaredTargets.Clear(); _declaredSamples.Clear(); _declaredVisibility.Clear(); _declaredVisibilitySent.Clear();
         foreach (var target in _core.Presentation.Targets(construction))
             _declaredTargets.Add(target.Target, (target.Owner, target.Binding));
@@ -103,4 +147,3 @@ public sealed partial class BrowserWorkshopClient
         return _declaredFrame.Count > 0;
     }
 }
-

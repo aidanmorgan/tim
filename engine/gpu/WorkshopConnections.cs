@@ -23,7 +23,7 @@ public readonly record struct WorkshopPort(PortId Id, PortRole Role, WorkshopCon
     float GuideRadius = 0f,
     Vector3 GuideOffset = default,
     CoordinateReference? Coordinate = null,
-    float CoordinatePerRadian = 0f);
+    float CoordinatePerRadian = 0f, MechanicalRimDescriptor? MechanicalRim = null);
 public readonly record struct WorkshopConnection(GpuBodyId Source, PortId Output, GpuBodyId Target,
     PortId Input, WorkshopConnectionDomain Domain, float? RopeLength = null);
 

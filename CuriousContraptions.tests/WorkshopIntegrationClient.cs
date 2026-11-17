@@ -44,6 +44,11 @@ internal sealed class WorkshopIntegrationClient(WorkshopIntegrationHarness harne
             Captures: read.Captures, Activations: read.Activations, Timers: read.Timers);
         return true;
     }
+    public IReadOnlyList<CuriousContraptions.Abstractions.MechanicalLinkGeometry> MechanicalFrames(ulong frame, WorkshopPresentationSample physical)
+    {
+        harness.Presentation!.Advance(harness.Schedule, new((ulong)harness.Time.Nanoseconds * 480 / 1_000_000_000));
+        return harness.Presentation.MechanicalGeometry;
+    }
     public void SetDeclaredVisible(GpuBodyId owner, bool visible)
     {
         foreach (var target in WorkshopDeclaredPresentation.Targets(harness.Simulation.Scene))

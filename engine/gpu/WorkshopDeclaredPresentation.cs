@@ -36,6 +36,25 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         public bool Visible = true;
         public Track Copy() => (Track)MemberwiseClone();
     }
+    private readonly List<MechanicalLinkGeometry> _geometry = new();
+    private readonly List<MechanicalLinkSample> _geometrySamples = new();
+    /// <summary>The existing worker turn supplies its qualified lower master bound. Never relabel a newer physical read
+    /// with the earlier animation deadline; defer that read until an existing turn can causally observe it.</summary>
+    public IReadOnlyList<MechanicalLinkSample> MechanicalSamples(WorkshopSchedule schedule, PulseOrdinal pulse, MasterTimeNanoseconds observedAt)
+    {
+        _geometrySamples.Clear();
+        if (schedule.World.WorldGeneration != _latest.Read.Epoch || schedule.World.Epoch != _latest.Projection ||
+            schedule.Settings != _construction.Settings) throw new ArgumentException("Foreign geometry schedule.");
+        if (observedAt.Value < schedule.InstalledAt.Value || pulse.Value < schedule.FirstAnimation.Value ||
+            WorkshopPulse.Deadline(schedule.Settings.AnimationRate, pulse).Value > observedAt.Value ||
+            _latest.Read.Tick.Value < schedule.World.AnchorTick.Value ||
+            _latest.Read.Tick.Value > WorkshopProjection.DueTick(schedule.World, schedule.Settings, observedAt).Value)
+            return _geometrySamples;
+        foreach (var geometry in _geometry)
+            _geometrySamples.Add(new(schedule.World.WorldGeneration, schedule.World.Epoch.Value, pulse, observedAt, geometry));
+        return _geometrySamples;
+    }
+    public IReadOnlyList<MechanicalLinkGeometry> MechanicalGeometry => _geometry;
     private ulong _lastSequence;
     /// <summary>Event records the cursor skipped (lapped or reused while copied) in this installation: cumulative and typed. A lapped
     /// cue is lost and never replayed; committed levels self-correct from the next read.</summary>
@@ -509,6 +528,9 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         }
         _batch.Advance(++_frame, default, _time);
         _samples.Clear();
+        _geometry.Clear();
+        foreach (var link in _construction.MechanicalLinks)
+            _geometry.Add(MechanicalLinkPresentation.Evaluate(link, _latest.Read, _construction.Physics));
         foreach (var track in _tracks)
         {
             var d = track.Declaration;

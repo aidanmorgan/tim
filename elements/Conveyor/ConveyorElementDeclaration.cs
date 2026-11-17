@@ -17,7 +17,9 @@ public sealed class ConveyorElementDeclaration : IHingeElement, IDrivenSurfaceEl
     private const float RollerWidth = 1.3f;
 
     public ElementPresentation Presentation => new(.85f, PresentationAxes.None,
-        [], [new("Visual/Roller", new PackageBodyIndex(1), Vector3.Zero)], [], []);
+        [new("Visual/PulleyOut", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedRevoluteAngle,
+            PresentationValueMapping.Identity, 0f, 1f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f,
+            Actuator: new(CoordinateKind.Revolute, 0))], [new("Visual/Roller", new PackageBodyIndex(1), Vector3.Zero)], [], []);
 
     public ElementMetadata Metadata => new(
         Id: "conveyor",
@@ -41,10 +43,12 @@ public sealed class ConveyorElementDeclaration : IHingeElement, IDrivenSurfaceEl
     [
         new(PortId.DriveIn, SimulationDomain.Mechanical, PortDirection.Input, PortRole.DriveIn, null,
             new Vector3(-1.35f, -.07f, .78f), Vector3.UnitZ,
-            Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f),
+            Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f,
+            MechanicalRim: new(new(0), new(-1.35f, -.07f, .78f), Quaternion.Identity, .22f, 1f)),
         new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, null,
             new Vector3(1.35f, -.07f, .78f), Vector3.UnitZ,
-            Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f)
+            Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f,
+            MechanicalRim: new(new(0), new(1.35f, -.07f, .78f), Quaternion.Identity, .22f, 1f))
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];

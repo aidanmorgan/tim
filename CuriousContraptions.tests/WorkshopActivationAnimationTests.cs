@@ -391,6 +391,7 @@ public sealed class WorkshopActivationAnimationTests
         public BrowserWorkshopClient Client { get; }
         public ICompiledScene InstalledScene => _world.Simulation.Scene;
         public WorkshopRead Committed => _world.Committed;
+        public IWorkshopDeclaredPresentation Presentation => _world.Presentation!;
         public WorkshopSchedule Schedule => _installed!.Value;
         public List<ChannelControl> Controls { get; } = [];
         public bool HoldPreparation { get; set; }

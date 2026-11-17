@@ -57,6 +57,10 @@ public partial class MachineWorld
         return _workshopClient is not null && !TransportRetired &&
             _workshopClient.TryUiFrame(Engine.GetProcessFrames(), _workshopPresentation, target, out opacity);
     }
+    public System.Collections.Generic.IReadOnlyList<CuriousContraptions.Abstractions.MechanicalLinkGeometry> MechanicalFrames() =>
+        _workshopClient is not null && !TransportRetired
+            ? _workshopClient.MechanicalFrames(Engine.GetProcessFrames(), _workshopPresentation) : [];
+
     public Task InitializeWorkshop() => InitializeWorkshop(async () => await BrowserWorkshopClient.Create(Core, Bundle));
 
     internal async Task InitializeWorkshop(Func<Task<IWorkshopClient>> createClient)

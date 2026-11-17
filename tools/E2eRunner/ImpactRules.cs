@@ -27,6 +27,7 @@ internal static class ImpactRules
         ["Trampoline"] = new("trampoline"), ["Motor"] = new("motor"),
         ["Conveyor"] = new("conveyor"),
         ["Clutch"] = new("clutch"),
+        ["ReverseTransmission"] = new("reverse_transmission"),
     };
 
     /// <summary>Every engine/ (outside engine/gpu), ui/ and scenes/ source to its Workshop area. A file's Godot .uid sidecar follows

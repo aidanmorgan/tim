@@ -519,7 +519,7 @@ test('two animation owners send sequential controls only after managed ACK deliv
     h.workers[0].onmessage({ data: { animationPeer: new Uint8Array(64) } });
     h.workers[1].onmessage({ data: { ready: true, nativeClock: new Float64Array([2, 1, 1, 0, .001, 1, 1]) } });
     h.workers[1].onmessage({ data: { qualified: true } });
-    h.api.animationKinds(id, [1, 2, 3]);
+    h.api.animationKinds(id, [1, 2, 3, 4]);
     const first = new Uint8Array(104), second = new Uint8Array(104);
     new DataView(first.buffer).setBigUint64(56, 4n, true);
     new DataView(second.buffer).setBigUint64(56, 5n, true);
@@ -541,7 +541,7 @@ test('an Animation sample records the f32 channel value at 56 and the u16 proper
     h.workers[0].onmessage({ data: { animationPeer: new Uint8Array(64) } });
     h.workers[1].onmessage({ data: { ready: true, nativeClock: new Float64Array([2, 1, 1, 0, .001, 1, 1]) } });
     h.workers[1].onmessage({ data: { qualified: true } });
-    h.api.animationKinds(id, [1, 2, 3]);
+    h.api.animationKinds(id, [1, 2, 3, 4]);
     const sample = new Uint8Array(104), view = new DataView(sample.buffer);
     view.setUint32(60, 2, true);            // the sample kind (the second declared output kind)
     view.setBigUint64(64, 7n, true);        // its target
@@ -573,4 +573,41 @@ test('transport retirement retains error name message stack and nested cause', a
         'TransportCause', 'underlying transport cause', 'cause-stack-marker'])
         assert.ok(String(detail).includes(fragment), fragment);
     h.api.dispose(id);
+});
+
+test('variable geometry reaches managed admission intact and acknowledges before subsequent output', async () => {
+    const h = await clientHarness(), id = await h.ready();
+    h.workers[0].onmessage({ data: { animationPeer: new Uint8Array(64) } });
+    h.workers[1].onmessage({ data: { ready: true, nativeClock: new Float64Array([2, 1, 1, 0, .001, 1, 1]) } });
+    h.workers[1].onmessage({ data: { qualified: true } });
+    h.api.animationKinds(id, [1, 2, 3, 4]);
+    for (const [ordinal, count] of [[1, 5], [2, 37]]) {
+        const payload = new Uint8Array(128 + count * 12), data = new DataView(payload.buffer);
+        data.setUint32(60, 4, true);
+        data.setBigUint64(64, 6n << 32n, true);
+        data.setBigUint64(40, BigInt(ordinal), true);
+        data.setBigUint64(80, BigInt(ordinal * 2), true);
+        data.setInt32(88, count, true);
+        data.setFloat32(104, .25 * ordinal, true); data.setFloat32(116, -.5 * ordinal, true);
+        for (let i = 0; i < count - 1; i++) data.setFloat32(128 + 12 * i, i * .125, true);
+        h.onOutput(() => {
+            assert.equal(h.messages.filter(message => message.animationAcknowledged).length, ordinal - 1,
+                'managed admission completes before transport acknowledgement');
+            const bytes = h.api.eventBytes(id);
+            assert.equal(bytes.byteLength, 128 + count * 12);
+            const delivered = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+            assert.equal(delivered.getBigUint64(64, true), 6n << 32n);
+            assert.equal(delivered.getBigUint64(40, true), BigInt(ordinal));
+            assert.equal(delivered.getBigUint64(80, true), BigInt(ordinal * 2));
+            assert.equal(delivered.getInt32(88, true), count);
+            assert.equal(delivered.getFloat32(104, true), .25 * ordinal);
+            assert.equal(delivered.getFloat32(116, true), -.5 * ordinal);
+            for (let i = 0; i < count; i++)
+                assert.equal(delivered.getFloat32(128 + 12 * i, true), i == count - 1 ? 0 : i * .125);
+        });
+        h.workers[1].onmessage({ data: { animationOutput: payload } });
+        assert.equal(h.outputCalls(), ordinal);
+        assert.equal(h.messages.filter(message => message.animationAcknowledged).length, ordinal);
+    }
+    assert.equal(h.errors.length, 0); h.api.dispose(id);
 });

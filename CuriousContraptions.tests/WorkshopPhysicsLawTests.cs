@@ -760,7 +760,15 @@ public sealed class WorkshopPhysicsLawTests
         "ElectricalBindingSourceOffset", "ElectricalBindingStorageOffset",
         // Core route identity/integrity apply to any declared tensile route. Contact anchor is a geometric support point,
         // not the RopeAnchor package: SupportDisplacement and AnchorDisplacement use only SimBody/collider geometry.
-        "RopeRouteId", "RopeIntegrity", "RopeGeometry", "AnchorDisplacement", "anchor"];
+        "RopeRouteId", "RopeIntegrity", "RopeGeometry", "AnchorDisplacement", "anchor",
+        // Exact vocabulary of the declared joint-ratio law and its ABI, not ReverseTransmission or a product recipe.
+        // Keep the catalogue word "transmission" scanned in every other identifier.
+        "SimMechanicalTransmission", "MechanicalTransmissionSolver", "transmission",
+        "TransmissionClosed", "TransmissionEngagementPhase",
+        "MechanicalTransmissionOffset", "MechanicalTransmissionDrivingOffset", "MechanicalTransmissionDrivenOffset",
+        "MechanicalTransmissionRatioOffset", "MechanicalTransmissionImpulseOffset", "MechanicalTransmissionCloseSecondsOffset",
+        "MechanicalTransmissionClosureOffset", "MechanicalTransmissionSuppliedOffset", "MechanicalTransmissionPhaseOffset",
+        "MechanicalTransmissionOriginOrdinalOffset", "MechanicalTransmissionOriginClosureOffset"];
 
     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token
@@ -811,7 +819,7 @@ public sealed class WorkshopPhysicsLawTests
 
     private static readonly string[] ShippedSolverFiles = ["WorkshopPhysicsEngine.cs", "WorkshopCollisionKernels.cs",
         "WorkshopConstraintSolver.cs", "PrismaticConstraintSolver.cs", "WorkshopDynamicBvh.cs",
-        "TensileConstraintSolver.cs", "ConstraintBodyImpulse.cs"];
+        "TensileConstraintSolver.cs", "ConstraintBodyImpulse.cs", "MechanicalTransmissionSolver.cs"];
 
     [Fact]
     public void TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations()
@@ -893,6 +901,16 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("ropeAnchorForce", true)]
     [InlineData("anchorBoost", true)]
     [InlineData("ropeSpecificForce", true)]
+    [InlineData("SimMechanicalTransmission", false)]
+    [InlineData("MechanicalTransmissionSolver", false)]
+    [InlineData("transmission", false)]
+    [InlineData("TransmissionEngagementPhase", false)]
+    [InlineData("PhysicsGpuAbi.MechanicalTransmissionImpulseOffset", false)]
+    [InlineData("ReverseTransmission", true)]
+    [InlineData("reverseTransmissionForce", true)]
+    [InlineData("transmissionBoost", true)]
+    [InlineData("Transmission", true)]
+    [InlineData("MechanicalTransmissionProductForce", true)]
     [InlineData("gravityLoad", false)]       // the prismatic drive's generic gravity term (renamed from "weight" in 10.2a)
     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);

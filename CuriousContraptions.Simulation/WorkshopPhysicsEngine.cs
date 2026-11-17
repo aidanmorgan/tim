@@ -733,6 +733,7 @@ internal sealed class WorkshopPhysicsEngine
                 var drivenSlot = checked((int)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionDrivenOffset));
                 _transmissions.Add(new SimMechanicalTransmission
                 {
+                    Offset = offset,
                     DrivingJoint = _revoluteJoints[drivingSlot],
                     DrivenJoint = _revoluteJoints[drivenSlot],
                     Ratio = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionRatioOffset)
@@ -743,6 +744,7 @@ internal sealed class WorkshopPhysicsEngine
         for (var index = 0; index < layout.MechanicalTransmissions; index++)
         {
             var offset = layout.MechanicalTransmissionOffset(index);
+            _transmissions[index].Impulse = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionImpulseOffset);
             var closeSeconds = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionCloseSecondsOffset);
             if (closeSeconds == 0f)
             {
@@ -768,6 +770,7 @@ internal sealed class WorkshopPhysicsEngine
             WriteF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionClosureOffset, closure == 0f ? 0f : closure);
             WriteU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionPhaseOffset, (uint)phase);
             _transmissions[index].Engaged = phase == TransmissionEngagementPhase.Engaged;
+            if (!_transmissions[index].Engaged) _transmissions[index].Impulse = 0f;
         }
     }
 
@@ -1218,6 +1221,7 @@ internal sealed class WorkshopPhysicsEngine
         foreach (var transmission in _transmissions)
         {
             MechanicalTransmissionSolver.Prepare(transmission);
+            MechanicalTransmissionSolver.Apply(transmission, transmission.Impulse);
         }
         foreach (var tensile in _tensile)
         {
@@ -1319,6 +1323,8 @@ internal sealed class WorkshopPhysicsEngine
 
     private void CommitConstraints(Span<byte> span, float dt)
     {
+        foreach (var transmission in _transmissions)
+            WriteF32(span, transmission.Offset + PhysicsGpuAbi.MechanicalTransmissionImpulseOffset, transmission.Impulse);
         foreach (var tensile in _tensile)
         {
             foreach (var offset in tensile.Offsets)

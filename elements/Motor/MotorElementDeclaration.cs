@@ -50,7 +50,8 @@ public sealed class MotorElementDeclaration : IHingeElement, ISupplyElement, ISc
     [
         new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(-.55f, 0f, 0f), -Vector3.UnitX),
         new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, null, new Vector3(0f, 0f, .65f), Vector3.UnitZ,
-            Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f)
+            Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f,
+            MechanicalRim: new(new(0), new(0f, 0f, .605f), Quaternion.Identity, .3f, 1f))
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];

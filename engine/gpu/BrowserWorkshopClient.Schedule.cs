@@ -141,13 +141,16 @@ public sealed partial class BrowserWorkshopClient
     private void ReconcileAnimationSchedule(WorkshopSchedule schedule)
     {
         _declaredVisibilitySent.Clear();
+        if (_schedule?.World.Epoch != schedule.World.Epoch) _mechanicalSamples.Clear();
         if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration) RetireGoalFeedback();
-        if (_schedule?.Revision != schedule.Revision) { _declaredSamples.Clear(); _hintOrdinal = _goalOrdinal = 0; }
+        if (_schedule?.Revision != schedule.Revision) { _declaredSamples.Clear(); _mechanicalSamples.Clear(); _hintOrdinal = _goalOrdinal = 0; }
     }
     private void ReceiveAnimation() => ReceiveAnimation(_transport.EventBytes(_id.Value));
     internal void ReceiveAnimation(byte[] bytes)
     {
-        if (bytes.Length != _core.Codecs.Animation.OutputBytes) throw new ArgumentException("Invalid Animation frame.");
+        if (bytes.Length < _core.Codecs.Animation.OutputBytes) throw new ArgumentException("Invalid Animation frame.");
+        if ((AnimationOutputKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(_core.Codecs.Animation.OutputKindOffset)) == AnimationOutputKind.Geometry)
+        { ReceiveMechanicalGeometry(bytes); return; }
         var cadence = new CadenceRevision(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(24)));
         cadence.Validate();
         var sample = _core.Codecs.Animation.Read(bytes, Peer.Session, Peer.Generation, cadence, out var kind);

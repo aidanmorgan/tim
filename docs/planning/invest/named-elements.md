@@ -1854,7 +1854,7 @@ Owner **S311**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S312**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** It cannot reverse by duplicating input work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-203` under canonical **S312**. [EL-203 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-203-reverse-transmission.md). Also retains [CAT-057 acceptance](../elements/CAT-057-reverse_transmission.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-203` under canonical **S312**. [EL-203 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-203-reverse-transmission.md). Also retains [CAT-057 acceptance](../elements/CAT-057-reverse_transmission.md); a refinement does not waive distinct behavior. **Native implementation complete:** [Story 11.2b implementation and native evidence](../../../_bmad-output/implementation-artifacts/spec-11-2b-reverse-transmission.md) implements the fixed reversing package and necessary shared link/reaction repair. Independent native review and the full local round passed (6,191/0/0); normal commit/publication checks follow; browser qualification remains at the post-catalogue gate. Entry decisions and collaborator integration remain owned by this slice.
 
 [Full specification and all variants](../requirements.md#element-203).
 

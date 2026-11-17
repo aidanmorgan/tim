@@ -206,6 +206,7 @@ public interface ICompiledScene
     IPhysicsSceneDeclaration Physics { get; }
     IActivationProgram Activation { get; }
     ImmutableArray<CompiledPresentationTrack> Presentation { get; }
+    ImmutableArray<CompiledMechanicalLink> MechanicalLinks { get; }
     ImmutableArray<GpuBodyId> Owners { get; }
     ImmutableArray<RunControlRow> RunControls { get; }
     bool TryRunControl(RunControlId id, out RunControlRow row);

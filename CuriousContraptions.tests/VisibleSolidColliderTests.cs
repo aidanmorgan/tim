@@ -99,6 +99,11 @@ public sealed class VisibleSolidColliderTests
              "Visual/InputShaft/Visual_InputSpoke", "Visual/OutputShaft/Visual_OutputSpoke"],
             ["Visual/InputShaft", "Visual/OutputShaft"]),
 
+        [new PartId("reverse_transmission")] = new(
+            ["Visual/Base", "Visual/Housing", "Visual/InputWheel/Disc", "Visual/OutputWheel/Disc"],
+            null, [], ["Visual/InputWheel/Index", "Visual/InputWheel/Mark", "Visual/OutputWheel/Index", "Visual/OutputWheel/Mark"],
+            ["Visual/InputWheel", "Visual/OutputWheel"]),
+
         // Every other element package, classified the same way.
         // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
         [new PartId("ball")] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], []),

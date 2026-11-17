@@ -433,6 +433,13 @@ public static class BundleValidator
         private void Port(string path, PortDescriptor port, IReadOnlyList<ParameterDescriptor> parameters, int childBodies, MechanicalPayload? mechanical)
         {
             Text(path + ".Id", port.Id.Value);
+            if (port.MechanicalRim is { } rim)
+            {
+                try { rim.Validate(); }
+                catch (ArgumentException) { OutOfRange(path + ".MechanicalRim"); }
+                if (port.Domain != SimulationDomain.Mechanical || rim.Support.Value > childBodies)
+                    OutOfRange(path + ".MechanicalRim.Support");
+            }
             Defined(path + ".Role", port.Role);
             Defined(path + ".Domain", port.Domain);
             Defined(path + ".Direction", port.Direction);

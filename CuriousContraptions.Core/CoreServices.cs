@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Threading.Tasks;
 using CuriousContraptions.Presentation;
@@ -59,6 +60,6 @@ public sealed class CoreServices : ICoreServices
         new ActivationNetwork(nodes, edges, substeps, passageSensors, contacts);
     public ICompiledScene CreateScene(CompiledSceneId identity, ConstructionRevision revision, WorkshopCadenceSettings settings,
         IPhysicsSceneDeclaration physics, IActivationProgram activation, IEnumerable<CompiledPresentationTrack> presentation,
-        IEnumerable<GpuBodyId> owners, IEnumerable<RunControlRow> runControls) =>
-        new WorkshopCompiledScene(identity, revision, settings, physics, activation, presentation, owners, runControls);
+        IEnumerable<GpuBodyId> owners, IEnumerable<RunControlRow> runControls, IEnumerable<CompiledMechanicalLink>? mechanicalLinks = null) =>
+        new WorkshopCompiledScene(identity, revision, settings, physics, activation, presentation, owners, runControls, mechanicalLinks);
 }

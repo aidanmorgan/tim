@@ -126,7 +126,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                 throw new ArgumentException("Unexpected master bootstrap identity.");
             client._peer = peer;
             client._clock = core.Clocks.CreateMapping(peer, client.Diagnostics);
-            client._transport.AnimationKinds(client._id.Value, [(int)AnimationOutputKind.Acknowledgement, (int)AnimationOutputKind.Sample, (int)AnimationOutputKind.Rejected]);
+            client._transport.AnimationKinds(client._id.Value, [(int)AnimationOutputKind.Acknowledgement, (int)AnimationOutputKind.Sample, (int)AnimationOutputKind.Rejected, (int)AnimationOutputKind.Geometry]);
             client._transport.ActivateClient(client._id.Value);
             if (client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay)
             {

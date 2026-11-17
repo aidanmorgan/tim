@@ -47,7 +47,7 @@ public static partial class Program
         Diagnostics.Fault(FaultSite.TraceFlush, new InvalidOperationException(detail));
 
     public static void Main() { }
-    [JSExport] public static int[] OutputKinds() => [(int)AnimationOutputKind.Acknowledgement, (int)AnimationOutputKind.Sample, (int)AnimationOutputKind.Rejected];
+    [JSExport] public static int[] OutputKinds() => [(int)AnimationOutputKind.Acknowledgement, (int)AnimationOutputKind.Sample, (int)AnimationOutputKind.Rejected, (int)AnimationOutputKind.Geometry];
     [JSImport("now", "workshopAnimation")] private static partial double NativeMilliseconds();
     [JSImport("probe", "workshopAnimation")] private static partial void SendProbe(byte[] bytes);
     [JSImport("control", "workshopAnimation")] private static partial void SendControl(byte[] bytes);
@@ -112,6 +112,9 @@ public static partial class Program
                     new(sample.Target, schedule.World.WorldGeneration, 1, schedule.World.Epoch.Value,
                         AnimationControlKind.Endpoint, true, 0, 0, .01f, AnimationCurve.Linear, Property: sample.Value.Property),
                     BitConverter.UInt32BitsToSingle(sample.Value.CanonicalBits));
+        if (_declared is { } geometryOwner)
+            foreach (var sample in geometryOwner.MechanicalSamples(schedule, due, new(checked((long)interval.Lower))))
+                SendOutput(Core.Codecs.Animation.Geometry(Peer.Session, Peer.Generation, schedule.Revision, sample));
         _lastOrdinal = due.Value;
     }
 

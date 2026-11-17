@@ -551,7 +551,7 @@
 
 **First visible interaction / minimum collaborators:** Motor drives Reverse transmission then Conveyor travels in opposite direction.
 
-**Distinct controls / next boundary:** Disconnected source, two reversers restore direction and no independent power; load-law proof stays explicit.
+**Distinct controls / next boundary:** Disconnected source, two reversers restore direction and no independent power; load-law proof stays explicit. [Story 11.2b implementation/native evidence](../../../_bmad-output/implementation-artifacts/spec-11-2b-reverse-transmission.md) includes current Motor/Clutch/Conveyor/Reverse pairings, signed-source controls, stall/backdrive/contact, geometry and lifecycle. Independent native review and the full local round passed (6,191/0/0); normal commit/publication checks follow; this is not browser qualification.
 
 <a id="cat-058-i"></a>
 ### CAT-058-I · rope_anchor

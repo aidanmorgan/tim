@@ -235,6 +235,14 @@
         <Compile Include="IndependentResidenceGuideTests.cs" />
         <Compile Include="ExactCapabilityControlsTests.cs" />
         <Compile Include="ClutchTests.cs" />
+        <Compile Include="ReverseTransmissionTests.cs" />
+        <Compile Include="ReverseTransmissionLoadTests.cs" />
+        <Compile Include="ReverseTransmissionStateTests.cs" />
+        <Compile Include="ReverseTransmissionLifecycleTests.cs" />
+        <Compile Include="ReverseTransmissionArtTests.cs" />
+        <Compile Include="MechanicalLinkPresentationTests.cs" />
+        <Compile Include="MechanicalLinkSchedulingTests.cs" />
+        <Compile Include="MechanicalLinkMappingTests.cs" />
         <Compile Include="ClutchGeneralityTests.cs" />
     </ItemGroup>
 

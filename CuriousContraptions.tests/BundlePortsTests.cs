@@ -6,6 +6,7 @@ using CuriousContraptions.BundleElements;
 using CuriousContraptions.Gpu;
 using Godot;
 using Vector3 = System.Numerics.Vector3;
+using Quaternion = System.Numerics.Quaternion;
 
 [assembly: CollectionBehavior(typeof(CuriousContraptions.Tests.NativeSceneCollectionFactory), DisableTestParallelization = true)]
 
@@ -89,9 +90,9 @@ public sealed class BundlePortsTests
     private static WorkshopPort Electrical(PortId socket, WorkshopPortDirection direction, float x, float y, float z) =>
         new(socket, Enum.Parse<PortRole>(socket.Value), WorkshopConnectionDomain.Electrical, direction, null, new(x, y, z));
     private static WorkshopPort Mechanical(PortId socket, WorkshopPortDirection direction, float x, float y, float z,
-        CoordinateReference? coordinate = null, float coordinatePerRadian = 0f) =>
+        CoordinateReference coordinate, float coordinatePerRadian, MechanicalRimDescriptor rim) =>
         new(socket, Enum.Parse<PortRole>(socket.Value), WorkshopConnectionDomain.Mechanical, direction, null, new(x, y, z),
-            Coordinate: coordinate, CoordinatePerRadian: coordinatePerRadian);
+            Coordinate: coordinate, CoordinatePerRadian: coordinatePerRadian, MechanicalRim: rim);
 
     private const WorkshopPortDirection In = WorkshopPortDirection.Input;
     private const WorkshopPortDirection Out = WorkshopPortDirection.Output;
@@ -123,12 +124,16 @@ public sealed class BundlePortsTests
             new(-1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1)), new(PortId.TieB, PortRole.TieB, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1))], new(2, 1, 0, 1)),
         ["trampoline"] = ([], new(1, 0, 0, 0)),
-        ["motor"] = ([Electrical(PortId.PowerIn, In, -.55f, 0f, 0f), Mechanical(PortId.Drive, Out, 0f, 0f, .65f, new(CoordinateKind.Revolute, 0), 1f)], new(2, 1, 0, 1)),
-        ["conveyor"] = ([Mechanical(PortId.DriveIn, In, -1.35f, -.07f, .78f, new(CoordinateKind.Revolute, 0), 1f),
-            Mechanical(PortId.Drive, Out, 1.35f, -.07f, .78f, new(CoordinateKind.Revolute, 0), 1f)], new(2, 1, 0, 1)),
-        ["clutch"] = ([Mechanical(PortId.DriveIn, In, -.65f, 0f, .55f, new(CoordinateKind.Revolute, 0), 1f),
-            Mechanical(PortId.Drive, Out, .65f, 0f, .55f, new(CoordinateKind.Revolute, 1), 1f),
+        ["motor"] = ([Electrical(PortId.PowerIn, In, -.55f, 0f, 0f), Mechanical(PortId.Drive, Out, 0f, 0f, .65f, new(CoordinateKind.Revolute, 0), 1f, new(new(0), new(0f, 0f, .605f), Quaternion.Identity, .3f, 1f))], new(2, 1, 0, 1)),
+        ["conveyor"] = ([Mechanical(PortId.DriveIn, In, -1.35f, -.07f, .78f, new(CoordinateKind.Revolute, 0), 1f, new(new(0), new(-1.35f, -.07f, .78f), Quaternion.Identity, .22f, 1f)),
+            Mechanical(PortId.Drive, Out, 1.35f, -.07f, .78f, new(CoordinateKind.Revolute, 0), 1f, new(new(0), new(1.35f, -.07f, .78f), Quaternion.Identity, .22f, 1f))], new(2, 1, 0, 1)),
+        ["clutch"] = ([Mechanical(PortId.DriveIn, In, -.65f, 0f, .55f, new(CoordinateKind.Revolute, 0), 1f, new(new(0), new(-.65f, 0f, .495f), Quaternion.Identity, .28f, 1f)),
+            Mechanical(PortId.Drive, Out, .65f, 0f, .55f, new(CoordinateKind.Revolute, 1), 1f, new(new(0), new(.65f, 0f, .495f), Quaternion.Identity, .28f, 1f)),
             Electrical(PortId.PowerIn, In, 0f, -.35f, .5f)], new(3, 2, 0, 2)),
+        ["reverse_transmission"] = ([Mechanical(PortId.DriveIn, In, -.36f, 0f, .4f, new(CoordinateKind.Revolute, 0), -1f,
+            new(new(0), new(-.36f, 0f, .39f), Quaternion.Identity, .32f, 1f)),
+            Mechanical(PortId.Drive, Out, .36f, 0f, .4f, new(CoordinateKind.Revolute, 1), -1f,
+            new(new(0), new(.36f, 0f, .39f), Quaternion.Identity, .32f, 1f))], new(3, 2, 0, 2)),
         ["bumper"] = ([Electrical(PortId.PowerIn, In, 0f, 0f, .65f)], new(1, 0, 0, 0)),
         ["clock"] = ([Electrical(PortId.PowerIn, In, -.78f, 0f, 0f), Activation(PortId.ActivationOut, Out, Pulse, .78f, 0f, 0f)],
             new(1, 0, 0, 0)),

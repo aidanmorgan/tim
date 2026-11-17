@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using CuriousContraptions.Presentation;
 
@@ -42,6 +43,8 @@ public interface IClockCodec
 
 public interface IAnimationCodec
 {
+    byte[] Geometry(RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence, MechanicalLinkSample sample);
+    MechanicalLinkSample ReadGeometry(ReadOnlySpan<byte> bytes, RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence);
     byte[] Control(RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence,
         WorkshopAnimationControl control);
     WorkshopAnimationControl ReadControl(ReadOnlySpan<byte> bytes, RuntimeSessionId session,

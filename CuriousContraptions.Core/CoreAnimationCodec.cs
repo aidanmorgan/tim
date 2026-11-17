@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Presentation;
@@ -6,6 +7,10 @@ namespace CuriousContraptions.Runtime;
 
 public sealed class CoreAnimationCodec : IAnimationCodec
 {
+    public byte[] Geometry(RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence, MechanicalLinkSample sample) =>
+        MechanicalLinkWire.Encode(session, master, cadence, sample);
+    public MechanicalLinkSample ReadGeometry(ReadOnlySpan<byte> bytes, RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence) =>
+        MechanicalLinkWire.Decode(bytes, session, master, cadence);
     public byte[] Control(RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence,
         WorkshopAnimationControl control) => WorkshopAnimationWire.Control(session, master, cadence, control);
     public WorkshopAnimationControl ReadControl(ReadOnlySpan<byte> bytes, RuntimeSessionId session,

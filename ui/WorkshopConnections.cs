@@ -98,14 +98,14 @@ public partial class Workshop
                 if (!CanEdit) return;
                 EndGizmo(false); _tool = null; ClearPreview(); _dragging = _lifting = false;
                 _linkSource = (owner, port); ClearConnectionChoices();
-                _status.Text = port.Domain == WorkshopConnectionDomain.Rope ? "Click another Tie socket. Rope length is measured when connected. Escape cancels." : port.Domain == WorkshopConnectionDomain.Electrical ? "Click a part with a PowerIn socket. Escape cancels." : "Click a part with an ActivationIn socket. Escape cancels.";
+                _status.Text = ConnectionPrompt(port.Domain);
             });
             button.Icon = null; button.Disabled = !CanEdit; _connectionChoices.AddChild(button);
         }
         foreach (var link in World.Construction.Connections)
         {
             if (link.Source != part.AuthoredId && link.Target != part.AuthoredId) continue;
-            var button = SignalButton(link.Domain == WorkshopConnectionDomain.Rope ? "Disconnect rope" : link.Domain == WorkshopConnectionDomain.Electrical ? "Disconnect supply" : "Disconnect signal", () => ChangeConnection(link, false));
+            var button = SignalButton(DisconnectLabel(link.Domain), () => ChangeConnection(link, false));
             button.Icon = null; button.Disabled = !CanEdit; _connectionChoices.AddChild(button);
         }
     }
@@ -169,6 +169,7 @@ public partial class Workshop
             _linkSource = null; RefreshConnectionChoices(); RefreshConnectionArtwork(World.WorkshopRead.Presentation.Ropes);
             _status.Text = link.Domain == WorkshopConnectionDomain.Rope ? (add ? "Rope connected." : "Rope disconnected.") : link.Domain == WorkshopConnectionDomain.Electrical
                 ? (add ? "Supply connected." : "Supply disconnected.")
+                : link.Domain == WorkshopConnectionDomain.Mechanical ? (add ? "Shaft connected." : "Shaft disconnected.")
                 : (add ? "Activation connected." : "Activation disconnected.");
         }
         catch (Exception error) { var failure = WorkshopUiFailure.Report(error, Diagnostics); if (!_workshopUiRemoved) _status.Text = failure; }
@@ -193,6 +194,7 @@ public partial class Workshop
         var segmentCount = 0; var knotCount = 0;
         foreach (var link in World.Construction.Connections)
         {
+            if (link.Domain == WorkshopConnectionDomain.Mechanical) continue;
             if (link.Domain != WorkshopConnectionDomain.Rope)
             {
                 var source = World.Parts.Single(part => part.AuthoredId == link.Source);
@@ -228,10 +230,40 @@ public partial class Workshop
             if (!startIsGuide) DrawConnectionKnot(_connectionArtwork, ref knotCount, start);
             if (!endIsGuide) DrawConnectionKnot(_connectionArtwork, ref knotCount, end);
         }
+        DrawMechanicalLinks(ref segmentCount, ref knotCount);
         for (var i = segmentCount; i < _connectionSegments.Count; i++) _connectionSegments[i].Visible = false;
         for (var i = knotCount; i < _connectionKnots.Count; i++) _connectionKnots[i].Visible = false;
 
     }
+    private void DrawMechanicalLinks(ref int segmentCount, ref int knotCount)
+    {
+        var artwork = _connectionArtwork ?? throw new InvalidOperationException("Connection artwork is absent.");
+        foreach (var geometry in World.MechanicalFrames())
+        {
+            for (var index = 1; index < geometry.Points.Length; index++)
+                DrawConnectionSegment(artwork, ref segmentCount, GeometryPoint(geometry.Points[index - 1]),
+                    GeometryPoint(geometry.Points[index]), new("#293954"), .025f, true);
+            DrawConnectionKnot(artwork, ref knotCount, GeometryPoint(geometry.SourceMarker));
+            DrawConnectionKnot(artwork, ref knotCount, GeometryPoint(geometry.TargetMarker));
+        }
+    }
+    internal static string ConnectionPrompt(WorkshopConnectionDomain domain) => domain switch
+    {
+        WorkshopConnectionDomain.Rope => "Click another Tie socket. Rope length is measured when connected. Escape cancels.",
+        WorkshopConnectionDomain.Electrical => "Click a part with a PowerIn socket. Escape cancels.",
+        WorkshopConnectionDomain.Mechanical => "Click a part with a DriveIn socket. Escape cancels.",
+        WorkshopConnectionDomain.Activation => "Click a part with an ActivationIn socket. Escape cancels.",
+        _ => throw new ArgumentOutOfRangeException(nameof(domain))
+    };
+    internal static string DisconnectLabel(WorkshopConnectionDomain domain) => domain switch
+    {
+        WorkshopConnectionDomain.Rope => "Disconnect rope",
+        WorkshopConnectionDomain.Electrical => "Disconnect supply",
+        WorkshopConnectionDomain.Mechanical => "Disconnect shaft",
+        WorkshopConnectionDomain.Activation => "Disconnect signal",
+        _ => throw new ArgumentOutOfRangeException(nameof(domain))
+    };
+    private Vector3 GeometryPoint(System.Numerics.Vector3 point) => World.ToGlobal(new(point.X, point.Y, point.Z));
     private void ReconcileQueuedCuts()
     {
         if (_queuedCuts.Count != 0)
