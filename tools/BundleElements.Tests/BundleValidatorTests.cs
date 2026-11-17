@@ -953,12 +953,14 @@ public sealed class BundleValidatorTests
             Ports = [lever.Ports[0] with { Body = new PackageBodyIndex(99) }, lever.Ports[1]]
         }, "Ports[0].Body");
 
-        // Constant initial angle out of range
+        // InitialAngle is authored degrees; the limits are ±pi/6 radians (±30 degrees).
+        Assert.Empty(Check(lever with { Mechanical = lever.Mechanical with
+            { Hinges = [hinge with { InitialAngle = MechanicalValue.Fixed(1.5f) }] } }));
         Refused(lever with
         {
             Mechanical = lever.Mechanical with
             {
-                Hinges = [hinge with { InitialAngle = MechanicalValue.Fixed(1.5f) }]
+                Hinges = [hinge with { InitialAngle = MechanicalValue.Fixed(31f) }]
             }
         }, "Hinges[0].InitialAngle");
 

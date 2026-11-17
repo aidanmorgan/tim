@@ -15,7 +15,7 @@ internal static class SupplyBundleValidation
         var graph = entry.Electrical?.SupplyGraph;
         if (graph is null)
         {
-            if (entry.Ports.Any(port => port.Domain == SimulationDomain.Electrical) || Driven(entry).Any()) Refuse("Missing");
+            if (entry.Ports.Any(port => port.Domain == SimulationDomain.Electrical) || Driven(entry).Any() || TimedTransmissions(entry).Any()) Refuse("Missing");
             return errors;
         }
         if (graph.Nodes is null || graph.Edges is null || graph.Ports is null) { Refuse("Collections"); return errors; }
@@ -28,6 +28,8 @@ internal static class SupplyBundleValidation
         }
         foreach (var drive in Driven(entry))
             if (!targets.Contains(new SupplyDriveTarget(drive))) Refuse("Drive.MissingConsumer");
+        foreach (var transmission in TimedTransmissions(entry))
+            if (!targets.Contains(new SupplyTransmissionTarget(transmission))) Refuse("Transmission.MissingConsumer");
         ValidatePorts(entry, graph, nodes, Refuse);
         ValidateEdges(graph, nodes, Refuse);
         ValidatePresentation(entry, graph, nodes, Refuse);
@@ -59,8 +61,17 @@ internal static class SupplyBundleValidation
     {
         SupplyContactWorkTarget work => work.Store != default && entry.Mechanical?.ContactWork?.Id == work.Store,
         SupplyDriveTarget drive => Driven(entry).Contains(drive.Coordinate),
+        SupplyTransmissionTarget transmission => transmission.Transmission.Value != 0 &&
+            TimedTransmissions(entry).Contains(transmission.Transmission),
         _ => false
     };
+
+    private static IEnumerable<LocalMechanicalTransmissionId> TimedTransmissions(BundleEntry entry)
+    {
+        if (entry.Mechanical?.Transmissions is not { } transmissions) yield break;
+        foreach (var transmission in transmissions)
+            if (transmission.CloseSeconds is not null) yield return transmission.Id;
+    }
 
     private static IEnumerable<CoordinateReference> Driven(BundleEntry entry)
     {

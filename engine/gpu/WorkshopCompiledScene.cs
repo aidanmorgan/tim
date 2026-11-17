@@ -16,6 +16,7 @@ public sealed class WorkshopCompiledScene : ICompiledScene
     public ConstructionRevision Revision { get; }
     public WorkshopCadenceSettings Settings { get; }
     public IPhysicsSceneDeclaration Physics { get; }
+    private readonly PackageBodyMembership _membership;
     public IActivationProgram Activation { get; }
     public ImmutableArray<CompiledPresentationTrack> Presentation { get; }
     public ImmutableArray<GpuBodyId> Owners { get; }
@@ -29,6 +30,7 @@ public sealed class WorkshopCompiledScene : ICompiledScene
     {
         Identity = identity; Revision = revision; Settings = settings;
         Physics = physics ?? throw new ArgumentNullException(nameof(physics));
+        _membership = new PackageBodyMembership(Physics);
         Activation = activation ?? throw new ArgumentNullException(nameof(activation));
         Presentation = presentation.ToImmutableArray(); Owners = owners.ToImmutableArray();
         RunControls = runControls.ToImmutableArray();
@@ -71,6 +73,9 @@ public sealed class WorkshopCompiledScene : ICompiledScene
         var owners = Owners.ToHashSet();
         if (owners.Count != Owners.Length || Owners.Any(owner => owner.Value == 0))
             throw new ArgumentException("Compiled scene ownership is invalid.");
+        _membership.ValidateOwners(owners);
+        ValidateTransmissionOwnership(owners);
+        ValidateSupplyOwnership();
         ValidateRunControls(owners);
         if (Activation.Substeps != Settings.PhysicalStepsPerCommit)
             throw new ArgumentException("Compiled activation cadence differs from physics.");
@@ -107,9 +112,44 @@ public sealed class WorkshopCompiledScene : ICompiledScene
             throw new ArgumentException("Activation owner is outside the installed scene.");
     }
 
-    private bool OwnsBody(GpuBodyId owner, GpuBodyId body) => owner == body ||
-        Physics.Prismatics.ToArray().Any(joint => joint.BodyA == owner && joint.BodyB == body) ||
-        Physics.Revolutes.ToArray().Any(joint => joint.BodyA == owner && joint.BodyB == body);
+    private bool OwnsBody(GpuBodyId owner, GpuBodyId body) => _membership.Owns(owner, body);
+
+    private void ValidateTransmissionOwnership(HashSet<GpuBodyId> owners)
+    {
+        foreach (var transmission in Physics.Transmissions)
+        {
+            if (transmission.Owner == default) continue;
+            if (!owners.Contains(transmission.Owner) || !OwnsBody(transmission.Owner, transmission.Owner) ||
+                !OwnsJoint(transmission.Owner, transmission.DrivingJoint) || !OwnsJoint(transmission.Owner, transmission.DrivenJoint))
+                throw new ArgumentException("Internal transmission names a foreign package target.");
+        }
+    }
+
+    private bool OwnsJoint(GpuBodyId owner, RevoluteConstraintId id)
+    {
+        foreach (var joint in Physics.Revolutes)
+            if (joint.Id == id) return OwnsBody(owner, joint.BodyB);
+        return false;
+    }
+
+    private void ValidateSupplyOwnership()
+    {
+        foreach (var node in Physics.SupplyGraph.Nodes)
+        {
+            if (node.Consumers.IsDefaultOrEmpty) continue;
+            foreach (var consumer in node.Consumers)
+            {
+                var owned = consumer.Kind switch
+                {
+                    SupplyConsumerKind.PrismaticDrive => Physics.Prismatics.ToArray().Any(j => j.Id == consumer.PrismaticJoint && OwnsBody(node.Owner, j.BodyB)),
+                    SupplyConsumerKind.RevoluteDrive => Physics.Revolutes.ToArray().Any(j => j.Id == consumer.RevoluteJoint && OwnsBody(node.Owner, j.BodyB)),
+                    SupplyConsumerKind.MechanicalTransmission => Physics.Transmissions.ToArray().Any(t => t.Id == consumer.TransmissionId && t.Owner == node.Owner),
+                    _ => false
+                };
+                if (!owned) throw new ArgumentException("Supply consumer names a foreign package target.");
+            }
+        }
+    }
 
     private bool InvalidPhysicalReference(ActivationNodeDeclaration node, ContactTriggerDeclaration[] triggers,
         OrientationSensorDeclaration[] orientations, ContactLoadSensorDeclaration[] loads, PassageSensorDeclaration[] passages) =>
@@ -148,13 +188,26 @@ public sealed class WorkshopCompiledScene : ICompiledScene
 
     private bool InvalidPhysicalBinding(CompiledPresentationTrack track)
     {
-        var actuatorDriver = track.Declaration.Driver is PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState;
+        var angleDriver = track.Declaration.Driver == PresentationDriver.CommittedRevoluteAngle;
+        var actuatorDriver = angleDriver || track.Declaration.Driver is PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState;
         if (actuatorDriver != track.Actuator.HasValue) return true;
-        if (track.Actuator is { } actuator && !Physics.SupplyGraph.Nodes.ToArray().Any(node =>
-            node.Owner == track.Owner && !node.Consumers.IsDefault && node.Consumers.Contains(actuator))) return true;
+        if (track.Actuator is { } actuator)
+        {
+            if (angleDriver)
+            {
+                if (actuator.Kind != SupplyConsumerKind.RevoluteDrive || !Physics.Revolutes.ToArray().Any(joint =>
+                    joint.Id == actuator.RevoluteJoint && OwnsBody(track.Owner, joint.BodyA))) return true;
+            }
+            else if (!Physics.SupplyGraph.Nodes.ToArray().Any(node =>
+                node.Owner == track.Owner && !node.Consumers.IsDefault && node.Consumers.Contains(actuator))) return true;
+        }
         var guideDriver = track.Declaration.Driver == PresentationDriver.CommittedWheelAngle;
-        return guideDriver != (track.Guide.Value != 0) || guideDriver &&
-            !Physics.RopeGuides.ToArray().Any(guide => guide.Id == track.Guide && OwnsBody(track.Owner, guide.Body));
+        if (guideDriver != (track.Guide.Value != 0) || (guideDriver &&
+            !Physics.RopeGuides.ToArray().Any(guide => guide.Id == track.Guide && OwnsBody(track.Owner, guide.Body))))
+            return true;
+        var transmissionDriver = track.Declaration.Driver is PresentationDriver.CommittedTransmissionClosure or PresentationDriver.CommittedTransmissionPhase;
+        return transmissionDriver != (track.Transmission.Value != 0) || (transmissionDriver &&
+            !Physics.Transmissions.ToArray().Any(t => t.Id == track.Transmission && t.Owner == track.Owner));
     }
 
     private static bool InvalidSignalBinding(CompiledPresentationTrack track, ActivationNodeDeclaration[] nodes)
@@ -187,8 +240,10 @@ public sealed class WorkshopCompiledScene : ICompiledScene
 
     private static bool InvalidBindingValues(CompiledPresentationBinding d)
     {
-        return (d.Mapping == PresentationValueMapping.StateValues) != d.StateValues.HasValue ||
+        return PresentationDriverRules.Discrete3State(d.Driver) != d.StateValues.HasValue ||
+                PresentationDriverRules.Discrete4State(d.Driver) != d.FourStateValues.HasValue ||
                 (d.StateValues is { } states && !states.IsFinite()) ||
+                (d.FourStateValues is { } four && !four.IsFinite()) ||
                 !float.IsFinite(d.From) || !float.IsFinite(d.To) || !float.IsFinite(d.Duration) || d.Duration < 0 ||
                 !float.IsFinite(d.Threshold) || !float.IsFinite(d.Response) || d.Response < 0;
     }

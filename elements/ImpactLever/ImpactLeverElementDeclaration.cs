@@ -91,6 +91,7 @@ public sealed class ImpactLeverElementDeclaration : IHingeElement, ISceneGeometr
     public IReadOnlyList<RevoluteHingeDescriptor> Hinges =>
     [
         new(
+            Support: new(0),
             BaseFrame: new(Vector3.Zero, Quaternion.Identity),
             MovingFrame: new(Vector3.Zero, Quaternion.Identity),
             LowerLimit: -MathF.PI / 6f,

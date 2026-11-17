@@ -22,6 +22,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         public required AnimationTargetId Target;
         public ActivationNodeDeclaration Node;
         public SupplyConsumer? Actuator;
+        public GpuBodyId CoordinateOwner;
         public float Capacity;
         public ElectricalSourceId Source;
         public SupplyNodeId SupplyNode;
@@ -31,6 +32,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         public uint Count;
         public float Value;
         public RopeGuideId Guide;
+        public MechanicalTransmissionId Transmission;
         public bool Visible = true;
         public Track Copy() => (Track)MemberwiseClone();
     }
@@ -61,7 +63,11 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             var declaration = binding.Declaration;
             tracks.Add(new Track { Owner = binding.Owner, Index = binding.Binding, Declaration = declaration,
                 Target = binding.Target, Node = binding.Activation, Value = PresentationDriverRules.InitialValue(declaration),
-                Capacity = binding.SourceCapacity, Actuator = binding.Actuator, Guide = binding.Guide, Source = binding.Source, SupplyNode = binding.SupplyNode });
+                Capacity = binding.SourceCapacity, Actuator = binding.Actuator, Guide = binding.Guide, Source = binding.Source,
+                CoordinateOwner = binding.Actuator is { } actuator ? actuator.Kind == SupplyConsumerKind.RevoluteDrive
+                    ? construction.Physics.Revolutes.ToArray().Single(joint => joint.Id == actuator.RevoluteJoint).BodyA
+                    : construction.Physics.Prismatics.ToArray().Single(joint => joint.Id == actuator.PrismaticJoint).BodyA : default,
+                SupplyNode = binding.SupplyNode, Transmission = binding.Transmission });
         }
         _tracks = tracks.ToArray();
         _batch = animation.CreateBatch();
@@ -300,12 +306,16 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             case PresentationDriver.CommittedSupply:
             case PresentationDriver.CommittedCharge:
                 return QuerySource(track, read);
+            case PresentationDriver.CommittedRevoluteAngle:
+                return QueryRevoluteAngle(track, read);
             case PresentationDriver.CommittedActuatorDrive:
                 return QueryActuator(track, read);
             case PresentationDriver.CommittedWheelAngle:
                 return QueryWheelAngle(track, read);
             case PresentationDriver.CommittedSurfaceDeflection:
                 return QuerySurfaceDeflection(track, read);
+            case PresentationDriver.CommittedTransmissionClosure:
+                return QueryTransmission(track, read).Closure;
             default: throw new ArgumentException("Unsupported committed presentation driver.");
         }
     }
@@ -388,16 +398,24 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
     private static ActuatorObservationState QueryActuatorState(Track track, WorkshopRead read)
     {
         foreach (var actuator in read.Presentation.Actuators)
-            if (actuator.Owner == track.Owner && actuator.Drive == track.Actuator)
+            if (actuator.Owner == track.CoordinateOwner && actuator.Drive == track.Actuator)
                 return actuator.IsBlocked() ? ActuatorObservationState.Blocked :
                     actuator.SupplyClosed ? ActuatorObservationState.Powered : ActuatorObservationState.Unpowered;
         throw new ArgumentException("Declared actuator state is absent from the committed read.");
     }
 
+    private static float QueryRevoluteAngle(Track track, WorkshopRead read)
+    {
+        foreach (var coordinate in read.Presentation.Actuators)
+            if (coordinate.Owner == track.CoordinateOwner && coordinate.Drive == track.Actuator)
+                return coordinate.Coordinate;
+        throw new ArgumentException("Declared revolute coordinate is absent from the committed read.");
+    }
+
     private static float QueryActuator(Track track, WorkshopRead read)
     {
         foreach (var actuator in read.Presentation.Actuators)
-            if (actuator.Owner == track.Owner && actuator.Drive == track.Actuator)
+            if (actuator.Owner == track.CoordinateOwner && actuator.Drive == track.Actuator)
                 return actuator.SupplyClosed ? 1 : 0;
         throw new ArgumentException("Declared actuator drive is absent from the committed read.");
     }
@@ -429,6 +447,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             PresentationDriver.CommittedActuatorState => d.StateValues!.Value.Map(QueryActuatorState(track, read)),
             PresentationDriver.CommittedContactLoadPhase => d.StateValues!.Value.Map(QueryContactLoadPhase(track, read)),
             PresentationDriver.CommittedTimerPhase => d.StateValues!.Value.Map(QueryTimerPhase(track, read)),
+            PresentationDriver.CommittedTransmissionPhase => d.FourStateValues!.Value.Map(QueryTransmission(track, read).Phase),
             _ => throw new ArgumentException("Unsupported discrete state driver.")
         };
     }
@@ -446,6 +465,14 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         foreach (var surface in read.Presentation.Surfaces)
             if (surface.Frame == track.Owner)
                 return surface.Deflection;
+        throw new ArgumentException("Declared presentation query is absent from the committed read.");
+    }
+
+    private static MechanicalTransmissionRead QueryTransmission(Track track, WorkshopRead read)
+    {
+        foreach (var transmission in read.Presentation.Transmissions)
+            if (transmission.Transmission == track.Transmission && transmission.Owner == track.Owner)
+                return transmission;
         throw new ArgumentException("Declared presentation query is absent from the committed read.");
     }
 

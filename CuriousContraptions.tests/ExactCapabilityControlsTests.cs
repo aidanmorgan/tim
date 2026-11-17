@@ -216,10 +216,10 @@ public sealed class ExactCapabilityControlsTests
         Assert.Equal(12f, read.DriveTargets[1].TargetSpeed);
 
         // Committed reads can resolve run controls by exact joint or row
-        Assert.Equal(5f, read.RunControl(owner, RunControlLane.RevoluteDriveTarget, joint: joint0).Scalar);
-        Assert.Equal(12f, read.RunControl(owner, RunControlLane.RevoluteDriveTarget, joint: joint1).Scalar);
-        Assert.Equal(5f, read.RunControl(rows[0]).Scalar);
-        Assert.Equal(12f, read.RunControl(rows[1]).Scalar);
+        Assert.Equal(5f, read.RunControl(harness.Simulation.Scene.Physics, owner, RunControlLane.RevoluteDriveTarget, joint: joint0).Scalar);
+        Assert.Equal(12f, read.RunControl(harness.Simulation.Scene.Physics, owner, RunControlLane.RevoluteDriveTarget, joint: joint1).Scalar);
+        Assert.Equal(5f, read.RunControl(harness.Simulation.Scene.Physics, rows[0]).Scalar);
+        Assert.Equal(12f, read.RunControl(harness.Simulation.Scene.Physics, rows[1]).Scalar);
 
         // Verify differing actuator supply states
         var actHinge0 = read.Presentation.Actuators.ToArray().First(a => a.Drive == SupplyConsumer.Revolute(joint0));
@@ -252,8 +252,8 @@ public sealed class ExactCapabilityControlsTests
         read = harness.Committed;
         Assert.Equal(5f, read.DriveTargets[0].TargetSpeed);
         Assert.Equal(18f, read.DriveTargets[1].TargetSpeed);
-        Assert.Equal(5f, read.RunControl(rows[0]).Scalar);
-        Assert.Equal(18f, read.RunControl(rows[1]).Scalar);
+        Assert.Equal(5f, read.RunControl(harness.Simulation.Scene.Physics, rows[0]).Scalar);
+        Assert.Equal(18f, read.RunControl(harness.Simulation.Scene.Physics, rows[1]).Scalar);
 
         // Slider state and indicator remain unchanged
         actSlider = read.Presentation.Actuators.ToArray().First(a => a.Drive == SupplyConsumer.Prismatic(jointSlider));
@@ -267,8 +267,8 @@ public sealed class ExactCapabilityControlsTests
         read = harness.Committed;
         Assert.Equal(-8f, read.DriveTargets[0].TargetSpeed);
         Assert.Equal(18f, read.DriveTargets[1].TargetSpeed);
-        Assert.Equal(-8f, read.RunControl(rows[0]).Scalar);
-        Assert.Equal(18f, read.RunControl(rows[1]).Scalar);
+        Assert.Equal(-8f, read.RunControl(harness.Simulation.Scene.Physics, rows[0]).Scalar);
+        Assert.Equal(18f, read.RunControl(harness.Simulation.Scene.Physics, rows[1]).Scalar);
     }
 
     [Theory]
@@ -354,8 +354,8 @@ public sealed class ExactCapabilityControlsTests
         await harness.Require(WorkshopCommandKind.Reset);
         Assert.Equal(5f, harness.Committed.DriveTargets[0].TargetSpeed);
         Assert.Equal(12f, harness.Committed.DriveTargets[1].TargetSpeed);
-        Assert.Equal(5f, harness.Committed.RunControl(rows[0]).Scalar);
-        Assert.Equal(12f, harness.Committed.RunControl(rows[1]).Scalar);
+        Assert.Equal(5f, harness.Committed.RunControl(harness.Simulation.Scene.Physics, rows[0]).Scalar);
+        Assert.Equal(12f, harness.Committed.RunControl(harness.Simulation.Scene.Physics, rows[1]).Scalar);
 
         // Verify authored parameters are preserved on the generic instance
         var instance = (WorkshopGenericInstance)construction.Instances[1];
@@ -379,8 +379,8 @@ public sealed class ExactCapabilityControlsTests
         await harness.Require(WorkshopCommandKind.Construct, restoredConstruction with { Revision = new(harness.Simulation.Scene.Revision.Value + 1) });
         Assert.Equal(5f, harness.Committed.DriveTargets[0].TargetSpeed);
         Assert.Equal(12f, harness.Committed.DriveTargets[1].TargetSpeed);
-        Assert.Equal(5f, harness.Committed.RunControl(restoredRows[0]).Scalar);
-        Assert.Equal(12f, harness.Committed.RunControl(restoredRows[1]).Scalar);
+        Assert.Equal(5f, harness.Committed.RunControl(harness.Simulation.Scene.Physics, restoredRows[0]).Scalar);
+        Assert.Equal(12f, harness.Committed.RunControl(harness.Simulation.Scene.Physics, restoredRows[1]).Scalar);
     }
 
     [Fact]
@@ -400,7 +400,7 @@ public sealed class ExactCapabilityControlsTests
         var read = harness.Committed;
 
         // Calling read.RunControl with joint == default must throw ArgumentException unconditionally
-        var exRead = Assert.Throws<ArgumentException>(() => read.RunControl(owner, RunControlLane.RevoluteDriveTarget, joint: default));
+        var exRead = Assert.Throws<ArgumentException>(() => read.RunControl(harness.Simulation.Scene.Physics, owner, RunControlLane.RevoluteDriveTarget, joint: default));
         Assert.Contains("exact joint identity", exRead.Message);
 
         // Calling Core.RunControls.Slot with joint == default must throw ArgumentException unconditionally
@@ -431,15 +431,15 @@ public sealed class ExactCapabilityControlsTests
         var validRow = rows[0];
 
         // Valid read succeeds
-        Assert.Equal(5f, harness.Committed.RunControl(validRow).Scalar);
+        Assert.Equal(5f, harness.Committed.RunControl(harness.Simulation.Scene.Physics, validRow).Scalar);
 
         // Tampered row with mismatched owner throws ArgumentException
         var foreignOwnerRow = validRow with { Owner = new GpuBodyId(999) };
-        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(foreignOwnerRow));
+        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(harness.Simulation.Scene.Physics, foreignOwnerRow));
 
         // Tampered row with out-of-range slot throws ArgumentException
         var outOfRangeSlotRow = validRow with { LaneIndex = 999 };
-        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(outOfRangeSlotRow));
+        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(harness.Simulation.Scene.Physics, outOfRangeSlotRow));
     }
 
     [Fact]

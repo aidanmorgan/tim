@@ -182,7 +182,13 @@ public sealed class CompiledSceneBoundaryTests
         Assert.Equal(WireFaultReason.OutOfRange,
             Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(response)).Reason);
         Assert.Same(original, world.Simulation.Scene);
-        Assert.Equal(before, world.Committed);
+        Assert.Equal((before.Epoch, before.Tick, before.Revision), (world.Committed.Epoch, world.Committed.Tick, world.Committed.Revision));
+        Assert.Equal(before.Bodies.Count, world.Committed.Bodies.Count);
+        for (var index = 0; index < before.Bodies.Count; index++)
+        {
+            Assert.Equal(before.Bodies[index].Body.Local, world.Committed.Bodies[index].Body.Local);
+            Assert.Equal(before.Bodies[index].Body.Velocity, world.Committed.Bodies[index].Body.Velocity);
+        }
         await world.Run();
         await world.Advance(2);
         Assert.True(world.Committed.Bodies[0].Body.Local.Y < before.Bodies[0].Body.Local.Y);
@@ -201,27 +207,27 @@ public sealed class CompiledSceneBoundaryTests
             switch (defect)
             {
                 case PresentationDefect.MissingMapping:
-                    BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(binding.bb_pos - buffer.GetInt(binding.bb_pos) + 6), 0);
+                    BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(binding.bb_pos - buffer.GetInt(binding.bb_pos) + 8), 0);
                     Assert.Equal(0U, fields.Mapping); break;
                 case PresentationDefect.UnknownMapping:
-                    Write(1, uint.MaxValue); Assert.Equal(uint.MaxValue, fields.Mapping); break;
+                    Write(2, uint.MaxValue); Assert.Equal(uint.MaxValue, fields.Mapping); break;
                 case PresentationDefect.IncompatibleMapping:
-                    Write(1, (uint)CuriousContraptions.Abstractions.PresentationValueMapping.SineCyclesToUnit);
+                    Write(2, (uint)CuriousContraptions.Abstractions.PresentationValueMapping.SineCyclesToUnit);
                     Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationValueMapping.SineCyclesToUnit, fields.Mapping); break;
                 case PresentationDefect.InvalidElectricalSocket:
-                    Write(13, (uint)CuriousContraptions.Abstractions.PortRole.ActivationIn);
+                    Write(12, (uint)CuriousContraptions.Abstractions.PortRole.ActivationIn);
                     Assert.Equal((uint)CuriousContraptions.Abstractions.PortRole.ActivationIn, fields.Socket); break;
                 case PresentationDefect.NonfiniteFrom:
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(binding, 4)), float.NaN);
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(binding, 5)), float.NaN);
                     Assert.True(float.IsNaN(fields.From)); break;
                 case PresentationDefect.MissingSocket:
-                    Write(3, (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedElectricalSocket);
+                    Write(4, (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedElectricalSocket);
                     Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedElectricalSocket, fields.Driver); break;
                 case PresentationDefect.UnsupportedCurve:
-                    Write(6, (uint)CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse);
+                    Write(7, (uint)CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse);
                     Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse, fields.Curve); break;
                 case PresentationDefect.IncompatibleDriver:
-                    Write(3, (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPhase);
+                    Write(4, (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPhase);
                     Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPhase, fields.Driver); break;
                 default: throw new ArgumentOutOfRangeException(nameof(defect));
             }

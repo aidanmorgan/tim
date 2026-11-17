@@ -254,7 +254,24 @@ internal static class WorkshopObservationProjection
             surfaces.Push(row);
         }
         value.SetProperty("surfaces", surfaces);
+        ProjectTransmissions(value, read.Presentation.Transmissions);
         return value;
+    }
+
+    private static void ProjectTransmissions<T>(T value, ReadOnlySpan<MechanicalTransmissionRead> items)
+        where T : IWorkshopObservationObject<T>
+    {
+        using var transmissions = T.Array();
+        foreach (var source in items)
+        {
+            using var row = T.Object();
+            row.SetProperty("transmission", Exact(source.Transmission.Value));
+            row.SetProperty("owner", Exact(source.Owner.Value));
+            row.SetProperty("closure", source.Closure);
+            row.SetProperty("phase", WorkshopObservationProjection.EnumValue(source.Phase));
+            transmissions.Push(row);
+        }
+        value.SetProperty("transmissions", transmissions);
     }
 
     private static T Stamp<T>(WorkshopClockStamp source) where T : IWorkshopObservationObject<T>

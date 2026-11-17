@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
+using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Gpu;
 
@@ -88,6 +90,23 @@ public static partial class PhysicsGpuAbi
     public const int CompliantSurfaceHalfZOffset = 20;
     public const int CompliantSurfaceRestHeightOffset = 24;
     public const int CompliantSurfaceMaxStrokeOffset = 28;
+
+    // Mechanical transmission row (MechanicalTransmissionBytes = 64): identity U64 at 0, owner body slot (or NoBody when unowned),
+    // driving and driven revolute slots, f32 ratio and f32 close_seconds (+0f when untimed) in MechanicalTransmissionDeclarationBytes;
+    // then U32 supplied (0 or 1), f32 closure [0, 1], U32 phase, and trailing zero padding.
+    public const int MechanicalTransmissionBytes = 64;
+    public const int MechanicalTransmissionOwnerOffset = 8;
+    public const int MechanicalTransmissionDrivingOffset = 12;
+    public const int MechanicalTransmissionDrivenOffset = 16;
+    public const int MechanicalTransmissionRatioOffset = 20;
+    public const int MechanicalTransmissionCloseSecondsOffset = 24;
+    public const int MechanicalTransmissionDeclarationBytes = 28;
+    public const int MechanicalTransmissionSuppliedOffset = 28;
+    public const int MechanicalTransmissionClosureOffset = 32;
+    public const int MechanicalTransmissionPhaseOffset = 36;
+    public const int MechanicalTransmissionOriginOrdinalOffset = 40;
+    public const int MechanicalTransmissionOriginClosureOffset = 48;
+    public const int MechanicalTransmissionPaddingOffset = 52;
     public const int CompliantSurfaceTensionOffset = 32;
     public const int CompliantSurfaceDampingRatioOffset = 36;
     public const int CompliantSurfaceDeclarationBytes = 40;
@@ -422,6 +441,132 @@ public static partial class PhysicsGpuAbi
                     onTop |= ReadCompliantSample(candidate, i, body, sample).State == CompliantSampleState.OnTop;
             if (ReadCompliantSurfaceDeflection(candidate, i).Deflection > 0f && !onTop)
                 throw new ArgumentException("A compliant surface is deflected with no sample on top.");
+        }
+    }
+
+    private static void WriteMechanicalTransmissionAdmission(Span<byte> data, IPhysicsSceneDeclaration scene)
+    {
+        for (var i = 0; i < scene.Transmissions.Length; i++)
+        {
+            var value = scene.Transmissions[i];
+            var record = data.Slice(scene.Layout.GetMechanicalTransmissionOffset(value.Id.Value), MechanicalTransmissionBytes);
+            U64(record, RecordIdentityOffset, value.Id.Value);
+            U32(record, MechanicalTransmissionOwnerOffset,
+                value.Owner == default ? NoBody : (uint)scene.Layout.GetBodySlot(value.Owner));
+            U32(record, MechanicalTransmissionDrivingOffset, (uint)scene.Layout.GetRevoluteSlot(value.DrivingJoint.Value));
+            U32(record, MechanicalTransmissionDrivenOffset, (uint)scene.Layout.GetRevoluteSlot(value.DrivenJoint.Value));
+            WriteEnergy(record, MechanicalTransmissionRatioOffset, value.Ratio);
+            WriteEnergy(record, MechanicalTransmissionCloseSecondsOffset, value.CloseSeconds);
+            U32(record, MechanicalTransmissionSuppliedOffset, 0u);
+            if (PhysicsDeclarationBounds.Zero(value.CloseSeconds))
+            {
+                F32(record, MechanicalTransmissionClosureOffset, 1f);
+                U32(record, MechanicalTransmissionPhaseOffset, (uint)TransmissionEngagementPhase.Engaged);
+            }
+            else
+            {
+                WriteEnergy(record, MechanicalTransmissionClosureOffset, 0f);
+                U32(record, MechanicalTransmissionPhaseOffset, (uint)TransmissionEngagementPhase.Open);
+            }
+            record[MechanicalTransmissionPaddingOffset..].Clear();
+        }
+    }
+
+    public static MechanicalTransmissionDeclaration ReadMechanicalTransmission(ReadOnlySpan<byte> data, int index)
+    {
+        Header(data);
+        var layout = Layout(data);
+        if (index < 0 || index >= layout.MechanicalTransmissions) throw new ArgumentException("Invalid mechanical transmission table.");
+        var record = data.Slice(layout.MechanicalTransmissionOffset(index), MechanicalTransmissionBytes);
+        var ownerSlot = R32(record, MechanicalTransmissionOwnerOffset);
+        var drivingSlot = R32(record, MechanicalTransmissionDrivingOffset);
+        var drivenSlot = R32(record, MechanicalTransmissionDrivenOffset);
+        if (drivingSlot >= (uint)layout.Revolutes || drivenSlot >= (uint)layout.Revolutes ||
+            drivingSlot == drivenSlot || !AllZero(record[MechanicalTransmissionPaddingOffset..]))
+            throw new ArgumentException("Invalid mechanical transmission record.");
+        var driving = ReadRevolute(data, (int)drivingSlot);
+        var driven = ReadRevolute(data, (int)drivenSlot);
+        var owner = ReadTransmissionOwner(data, layout, ownerSlot);
+        var closeSeconds = RF(record, MechanicalTransmissionCloseSecondsOffset);
+        if ((closeSeconds == 0f && !PhysicsDeclarationBounds.Zero(closeSeconds)) ||
+            (ownerSlot == NoBody && !PhysicsDeclarationBounds.Zero(closeSeconds)))
+            throw new ArgumentException("Invalid mechanical transmission close duration.");
+        var result = new MechanicalTransmissionDeclaration(
+            new(R64(record, RecordIdentityOffset)), driving.Id, driven.Id,
+            RF(record, MechanicalTransmissionRatioOffset), closeSeconds, owner);
+        result.Validate();
+        ValidateMechanicalTransmissionState(record, result.CloseSeconds);
+        var ordinal = checked(R64(data, HeaderTickOffset) * ReadProfile(data).Substeps);
+        if (R64(record, MechanicalTransmissionOriginOrdinalOffset) > ordinal)
+            throw new ArgumentException("Transmission transition origin is in the future.");
+        return result;
+    }
+
+    private static GpuBodyId ReadTransmissionOwner(ReadOnlySpan<byte> data, PhysicsWorldLayout layout, uint ownerSlot)
+    {
+        if (ownerSlot == NoBody) return default;
+        if (ownerSlot >= (uint)layout.Bodies)
+            throw new ArgumentException("Invalid mechanical transmission owner slot.");
+        var owner = new GpuBodyId(R64(data, layout.BodyOffset((int)ownerSlot)));
+        return owner;
+    }
+
+    private static void ValidateMechanicalTransmissionState(ReadOnlySpan<byte> record, float closeSeconds)
+    {
+        var originClosure = RF(record, MechanicalTransmissionOriginClosureOffset);
+        if (!float.IsFinite(originClosure) || originClosure < 0f || originClosure > 1f)
+            throw new ArgumentException("Invalid transmission transition closure.");
+        var supplied = R32(record, MechanicalTransmissionSuppliedOffset);
+        var closure = RF(record, MechanicalTransmissionClosureOffset);
+        var phase = (TransmissionEngagementPhase)R32(record, MechanicalTransmissionPhaseOffset);
+        if (supplied > 1 || !float.IsFinite(closure) || closure < 0f || closure > 1f || !Enum.IsDefined(phase) ||
+            (closure == 0f && !PhysicsDeclarationBounds.Zero(closure)))
+            throw new ArgumentException("Invalid mechanical transmission committed state.");
+        if (PhysicsDeclarationBounds.Zero(closeSeconds))
+        {
+            if (supplied != 0 || closure != 1f || phase != TransmissionEngagementPhase.Engaged ||
+                R64(record, MechanicalTransmissionOriginOrdinalOffset) != 0 || !PhysicsDeclarationBounds.Zero(originClosure))
+                throw new ArgumentException("Untimed mechanical transmission state disagrees with admission.");
+            return;
+        }
+        var expected = supplied == 1
+            ? (closure == 1f ? TransmissionEngagementPhase.Engaged :
+                closure > 0f ? TransmissionEngagementPhase.Closing : (TransmissionEngagementPhase)uint.MaxValue)
+            : (PhysicsDeclarationBounds.Zero(closure) ? TransmissionEngagementPhase.Open :
+                TransmissionEngagementPhase.Opening);
+        if (phase != expected)
+            throw new ArgumentException("Timed mechanical transmission phase disagrees with its supply or closure.");
+    }
+
+    public static MechanicalTransmissionRead[] ReadMechanicalTransmissionReads(ReadOnlySpan<byte> data)
+    {
+        var layout = Layout(data);
+        var list = new List<MechanicalTransmissionRead>(layout.MechanicalTransmissions);
+        for (var i = 0; i < layout.MechanicalTransmissions; i++)
+        {
+            var declaration = ReadMechanicalTransmission(data, i);
+            if (declaration.Owner == default) continue;
+            var record = data.Slice(layout.MechanicalTransmissionOffset(i), MechanicalTransmissionBytes);
+            var item = new MechanicalTransmissionRead(declaration.Id, declaration.Owner,
+                RF(record, MechanicalTransmissionClosureOffset),
+                (TransmissionEngagementPhase)R32(record, MechanicalTransmissionPhaseOffset));
+            item.Validate();
+            list.Add(item);
+        }
+        list.Sort((a, b) => a.Transmission.Value.CompareTo(b.Transmission.Value));
+        return [.. list];
+    }
+
+    private static void ValidateMechanicalTransmissionCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source)
+    {
+        var layout = Layout(source);
+        for (var i = 0; i < layout.MechanicalTransmissions; i++)
+        {
+            _ = ReadMechanicalTransmission(candidate, i);
+            var offset = layout.MechanicalTransmissionOffset(i);
+            if (!candidate.Slice(offset, MechanicalTransmissionDeclarationBytes)
+                    .SequenceEqual(source.Slice(offset, MechanicalTransmissionDeclarationBytes)))
+                throw new ArgumentException("Mechanical transmission declaration changed.");
         }
     }
 }

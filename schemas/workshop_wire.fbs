@@ -306,6 +306,8 @@ table WorkshopResponse {
     compliant_surfaces: [CompliantSurfaceReadRecord];
     // engine-revolute-drive-target: every driven revolute's committed target speed, in compiled drive-table order.
     drive_targets: [RevoluteDriveTargetRecord];
+    // Package-owned mechanical transmission states ordered by transmission identity.
+    transmissions: [MechanicalTransmissionReadRecord];
 }
 
 table WorkshopCommand {
@@ -323,7 +325,7 @@ table WorkshopCommand {
     scene: CompiledSceneRecord;
 }
 
-// Every buffer is size-prefixed and carries its root's identifier (Story 9A.2): "CCWC" WorkshopCommand, "CCWR" WorkshopResponse
+// Every buffer is size-prefixed and carries its root's identifier (Story 9A.2): "CWCM" WorkshopCommand, "CWRM" WorkshopResponse
 // (acknowledgements, physical reads and schedule endpoints) and "CCWS" SavedConstruction. A schema declares one file_identifier,
 // so the codecs pass each root's identifier to FinishSizePrefixed and to the verifier. No field or check names a format generation.
 // Concrete session diagnostic payloads, carried by the same verified codec ("CCWO").
@@ -672,7 +674,15 @@ struct ActuatorStateValuesRecord {
     blocked: float;
 }
 
+struct FourStateValuesRecord {
+    state0: float;
+    state1: float;
+    state2: float;
+    state3: float;
+}
+
 table CapabilityPresentationBindingRecord {
+    four_state_values: FourStateValuesRecord;
     state_values: ActuatorStateValuesRecord;
     mapping: uint;
     property: uint;
@@ -683,9 +693,7 @@ table CapabilityPresentationBindingRecord {
     duration: float;
     overlap: uint;
     threshold: float;
-    phase: uint;
     response: float;
-    intermediate: float = null;
     socket: uint = null;
     event: uint;
     event_magnitude: uint;
@@ -715,6 +723,7 @@ table CompiledPresentationRecord {
     source_capacity: float;
     actuator: CapabilitySupplyConsumerRecord;
     guide: ulong;
+    transmission: ulong;
 }
 
 table RopeSpanReadRecord {
@@ -742,6 +751,13 @@ table RopeGuideReadRecord {
 table CompliantSurfaceReadRecord {
     frame: ulong;
     deflection: float;
+}
+
+table MechanicalTransmissionReadRecord {
+    transmission: ulong;
+    owner: ulong;
+    closure: float;
+    phase: uint;
 }
 
 table TensileSpanRecord {
@@ -781,12 +797,14 @@ table CapabilityRopeGuideRecord {
     offset: Vec3f;
 }
 
-// One bilateral mechanical transmission link between revolute joints.
+// One mechanical transmission link between revolute joints (untimed or timed by electrical supply).
 table MechanicalTransmissionRecord {
     id: ulong;
     driving_hinge: ulong;
     driven_hinge: ulong;
     ratio: float;
+    close_seconds: float = 0.0;
+    owner: ulong;
 }
 
 table DrivenSurfaceRecord {

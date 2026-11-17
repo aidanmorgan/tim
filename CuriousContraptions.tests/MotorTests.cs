@@ -116,7 +116,7 @@ public sealed class MotorTests
                 Assert.Single(samples, sample => sample.Owner == owner && sample.Binding == binding).Value.CanonicalBits);
             return new((int)read.Tick.Value, position, new(body.Body.Velocity.X, body.Body.Velocity.Y, body.Body.Velocity.Z), angular,
                 new(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W), Vector3.Dot(angular, axis), state,
-                new(Channel(0), Channel(1), Channel(2)), read.RunControl(owner, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[0].Joint).Scalar);
+                new(Channel(0), Channel(1), Channel(2)), read.RunControl(harness.Simulation.Scene.Physics, owner, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[0].Joint).Scalar);
         }
 
         /// <summary>Advances the presentation clock past the committed tick (a later frame of the animation worker).</summary>
@@ -474,7 +474,7 @@ public sealed class MotorTests
         await harness.Advance(30);
         await SetSpeed(harness, motor.Id, 12f);
         var changed = await harness.Advance(30);
-        Assert.All(changed, read => Assert.Equal(12f, read.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[0].Joint).Scalar));
+        Assert.All(changed, read => Assert.Equal(12f, read.RunControl(harness.Simulation.Scene.Physics, motor.Id, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[0].Joint).Scalar));
 
         var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(harness.Construction, new(9)))).Construction;
         Assert.Equal(construction, loaded);
@@ -483,9 +483,9 @@ public sealed class MotorTests
         var row = harness.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(12f)).Control;
         await harness.Reset();
         Assert.Null(harness.Simulation.HeldRunControl(row));
-        Assert.Equal(DefaultSpeed, harness.Committed.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget, joint: harness.Committed.DriveTargets[0].Joint).Scalar);
+        Assert.Equal(DefaultSpeed, harness.Committed.RunControl(harness.Simulation.Scene.Physics, motor.Id, RunControlLane.RevoluteDriveTarget, joint: harness.Committed.DriveTargets[0].Joint).Scalar);
         await harness.Run();
-        Assert.All(await harness.Advance(2), read => Assert.Equal(DefaultSpeed, read.RunControl(motor.Id, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[0].Joint).Scalar));
+        Assert.All(await harness.Advance(2), read => Assert.Equal(DefaultSpeed, read.RunControl(harness.Simulation.Scene.Physics, motor.Id, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[0].Joint).Scalar));
     }
 
     // Supply routed through a switched element: a Battery powers an Either gate whose output wires the Motor's PowerIn; a second Battery
@@ -766,16 +766,19 @@ public sealed class MotorTests
     [Fact]
     public async Task ALockedMotorShaftDoesNoWork()
     {
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        var entry = TestBundle.Entry(Motor);
+        var hinge = entry.Mechanical!.Hinges[0];
+        entry = entry with { Mechanical = entry.Mechanical with { Hinges =
+            [hinge with { Travel = RevoluteTravel.Limited, LowerLimit = -.5f, UpperLimit = 0f }] } };
+        using var declared = DeclaredPhysics.Scoped([entry]);
         var motor = MotorPart();
+        // The authored start is the upper hard stop: a positive powered target cannot turn or do work.
         var construction = Supplied(motor);
-        var battery = construction.Instances[1].Id;
-        var rotor = Rotor(construction, motor.Id);
-        var turn = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 2f);
-        var batteryAt = new Vector3(3f, 4f, 0f);
-        var (harness, probe) = await Start(construction, motor.Id, fixture: compiled => Rebuilt(compiled, [], [new RevoluteConstraintDeclaration(
-            new(compiled.Physics.NextIdentity), battery, rotor, new(MotorAt + RotorCentre - batteryAt, turn), new(Vector3.Zero, turn), -.5f, .5f,
-            RevoluteTravel.Limited, 0f, 0f, 0f, ConnectedCollision.Disabled)], []));
-        await using var _ = harness;
+        await harness.Require(WorkshopCommandKind.Construct, construction);
+        await harness.Run();
+        var probe = new Probe(harness, motor.Id, Rotor(construction, motor.Id), Vector3.UnitZ);
+        probe.Initial = probe.Observe();
         var ticks = await probe.Advance(TicksPerSecond);
 
         Assert.All(ticks, tick => Assert.True(tick.State.Supplied && MathF.Abs(tick.State.Travel) <= .01f && tick.State.Work <= EnergySlack(DefaultSpeed),
@@ -885,44 +888,55 @@ public sealed class MotorTests
     }
 
     // A scene mixing an undriven hinge (the Impact Lever), the Motor and a Powered Gate, with only the Motor wired, plus an undriven
-    // slider appended to the compiled scene whose base is the Motor's housing and whose moving body is a separate Weight. Every slot has
-    // a row: the prismatic slots first (the gate's, then the appended one), then the two revolute slots by identity. The lever's row names
+    // slider declared within the Motor package, supported by its housing. Every slot has
+    // a row: the prismatic slots first by identity, then the two revolute slots by identity. The lever's row names
     // its own undriven hinge as a revolute slot and is never supplied. Each lamp reads its own owner's driven slot: the Motor owns an
     // undriven prismatic row that sorts before its driven revolute row, so a lamp reading the owner's first row would stay slate; the
     // Motor's lamp is gold. The unsupplied gate's indicator stays slate.
     [Fact]
     public async Task InAMixedSceneEachLampReadsItsOwnDrivenSlotAndAnUndrivenHingeHasItsOwnRow()
     {
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        var entry = TestBundle.Entry(Motor);
+        var slider = TestBundle.Entry(new("powered_gate")).Mechanical!.Sliders[0] with
+        {
+            BaseFrame = new(new(-3f, 0f, 4f), Quaternion.Identity), MovingFrame = new(Vector3.Zero, Quaternion.Identity),
+            LowerLimit = -1f, UpperLimit = 1f, Stiffness = MechanicalValue.Fixed(14f),
+            Damping = MechanicalValue.Fixed(4f), Compression = MechanicalValue.Fixed(0f), Drive = null,
+            MovingBody = new(MassFrameDeclaration.Constant(1f, Vector3.Zero, new(.1f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)),
+                TestBundle.Entry(new("powered_gate")).Mechanical!.Sliders[0].MovingBody.Colliders)
+        };
+        entry = entry with
+        {
+            Footprint = new(3, 2, 1, 1),
+            Mechanical = entry.Mechanical! with { Sliders = [slider] },
+            Presentation = entry.Presentation with { Bodies = entry.Presentation.Bodies.Select(b => b with { Body = new(2) }).ToArray() }
+        };
+        using var declared = DeclaredPhysics.Scoped([entry]);
         var motor = MotorPart();
         var gate = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), new(3), -4, 4, 0, 0, 0, 0, 1);
         var lever = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("impact_lever"), new(4), -10, 4, 0, 0, 0, 0, 1);
-        var weight = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("weight"), new(5), -3, 4, 4, 0, 0, 0, 1, new([new(new("mass"), 1f)]));
         var battery = PlacedParts.Battery(new(2), 3, 4, 0);
-        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(motor, battery, gate, lever, weight))
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(motor, battery, gate, lever))
             { Connections = new(Power(battery.Id, motor.Id)) };
         var identities = construction.Instances.Identities;
         var motorHinge = identities[motor.Id].Hinges[0].Joint;
         var leverHinge = identities[lever.Id].Hinges[0].Joint;
-        PrismaticConstraintId appended = default;
-        var (harness, probe) = await Start(construction, motor.Id, fixture: compiled =>
-        {
-            appended = new(compiled.Physics.NextIdentity);
-            // The Weight slides along the housing's +Y between ±1 m from where it is placed, on the Powered Gate's 14 N/m, 4 N·s/m
-            // spring (a slider requires one); nothing drives the slot.
-            return Rebuilt(compiled, [], [], [new PrismaticConstraintDeclaration(appended, motor.Id, weight.Id,
-                new(new Vector3(-3f, 0f, 4f), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity), -1f, 1f, 14f, 4f,
-                ConnectedCollision.Disabled)]);
-        });
-        await using var _ = harness;
+        var appended = identities[motor.Id].Sliders[0].Joint;
+        await harness.Require(WorkshopCommandKind.Construct, construction);
+        await harness.Run();
+        var probe = new Probe(harness, motor.Id, Rotor(construction, motor.Id), Vector3.UnitZ);
+        probe.Initial = probe.Observe();
         var tick = (await probe.Advance(TicksPerSecond / 4))[^1];
 
         var rows = harness.Committed.Presentation.Actuators.ToArray();
         SupplyConsumer[] revolutes = motorHinge.Value < leverHinge.Value
             ? [SupplyConsumer.Revolute(motorHinge), SupplyConsumer.Revolute(leverHinge)]
             : [SupplyConsumer.Revolute(leverHinge), SupplyConsumer.Revolute(motorHinge)];
-        Assert.Equal([SupplyConsumer.Prismatic(identities[gate.Id].Sliders[0].Joint), SupplyConsumer.Prismatic(appended), .. revolutes],
+        Assert.Equal([.. new[] { identities[gate.Id].Sliders[0].Joint, appended }.OrderBy(id => id.Value).Select(SupplyConsumer.Prismatic), .. revolutes],
             rows.Select(row => row.Drive));
-        Assert.Equal((motor.Id, false), (rows[1].Owner, rows[1].SupplyClosed));
+        var passive = Assert.Single(rows, row => row.Drive == SupplyConsumer.Prismatic(appended));
+        Assert.Equal((motor.Id, false), (passive.Owner, passive.SupplyClosed));
         var leverRow = Assert.Single(rows, row => row.Drive == SupplyConsumer.Revolute(leverHinge));
         Assert.Equal((lever.Id, false, false), (leverRow.Owner, leverRow.SupplyClosed, leverRow.MovingContact));
         Assert.True(Assert.Single(rows, row => row.Drive == SupplyConsumer.Revolute(motorHinge)).SupplyClosed);

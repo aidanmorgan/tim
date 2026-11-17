@@ -142,7 +142,7 @@ function member<T extends number>(table: Readonly<Record<string, T>>, value: num
 }
 
 // MachineWorld.LogWorkshop prints "CCGPU <base64>" for every command the Workshop UI issues (Construct for placement, edits, wiring,
-// level selection and Load; Run; Reset; Save; Pause; Resume). The bytes are the one codec's size-prefixed "CCWR" FlatBuffers response
+// level selection and Load; Run; Reset; Save; Pause; Resume). The bytes are the one codec's size-prefixed "CWRM" FlatBuffers response
 // (WorkshopWireFlatBuffers.EncodeResponse), decoded through the generated schema. Unknown values reject at this boundary.
 const ACK_PREFIX = 'CCGPU ';
 function decodeAcknowledgement(text: string): WorkshopAcknowledgement {

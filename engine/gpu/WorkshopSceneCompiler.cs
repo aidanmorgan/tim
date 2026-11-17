@@ -13,7 +13,7 @@ public static class WorkshopSceneCompiler
     private static CompiledPresentationBinding CompileBinding(PresentationBinding binding, PartId partId) =>
         new(binding.Property, binding.Driver, binding.Mapping, binding.From, binding.To, binding.Curve, binding.Duration,
             binding.Overlap, binding.Threshold, binding.Response,
-            binding.Socket.HasValue ? WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(partId), binding.Socket.Value).Terminal : null, binding.Event, binding.EventMagnitude, binding.StateValues);
+            binding.Socket.HasValue ? WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(partId), binding.Socket.Value).Terminal : null, binding.Event, binding.EventMagnitude, binding.StateValues, binding.FourStateValues);
 
     private static SupplyConsumer ResolveActuator(CompiledPartIdentities ids, CoordinateReference coordinate) => coordinate.Kind switch
     {
@@ -72,7 +72,8 @@ public static class WorkshopSceneCompiler
                     owner.Id, i, CompileBinding(bindings[i], owner.PartId),
                     bindings[i].SignalNode is { } selected ? nodes.Single(node => node.Id == construction.Instances.Identities[owner.Id].Signals[selected].Node) : default, capacity,
                     bindings[i].Actuator is { } actuator ? ResolveActuator(construction.Instances.Identities[owner.Id], actuator) : null,
-                    bindings[i].GuidePort is { } guide ? construction.Instances.Identities[owner.Id].Guides[guide] : default, source, supplyNode));
+                    bindings[i].GuidePort is { } guide ? construction.Instances.Identities[owner.Id].Guides[guide] : default, source, supplyNode,
+                    bindings[i].Transmission is { } transId ? identities.Transmissions[transId] : default));
             }
         }
         return core.CreateScene(identity, construction.Revision, construction.Settings, physics, activation, tracks,

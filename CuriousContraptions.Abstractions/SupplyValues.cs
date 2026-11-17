@@ -10,17 +10,17 @@ public readonly record struct SupplyNodeId(ulong Value);
 
 public enum SupplyNodeKind { Source, Contact, Consumer, LogicGate }
 
-/// <summary>Which kind of declared drive a consumer node's route enables.</summary>
-public enum SupplyConsumerKind : uint { PrismaticDrive, RevoluteDrive }
+/// <summary>Which kind of declared actuator or transmission a consumer node's route enables.</summary>
+public enum SupplyConsumerKind : uint { PrismaticDrive, RevoluteDrive, MechanicalTransmission }
 
-/// <summary>A typed reference from a consumer node to one driven joint: a prismatic drive named by its prismatic identity, or a
-/// revolute drive named by its revolute identity. Only the two factories construct one, so a kind always carries its own identity
-/// type; the other identity is unset.</summary>
+/// <summary>A typed reference from a consumer node to one driven joint or timed mechanical transmission. Only the static factories
+/// construct one, so a kind always carries its own identity type; the other identities are unset.</summary>
 public readonly record struct SupplyConsumer
 {
-    private SupplyConsumer(SupplyConsumerKind kind, PrismaticConstraintId prismaticJoint, RevoluteConstraintId revoluteJoint)
+    private SupplyConsumer(SupplyConsumerKind kind, PrismaticConstraintId prismaticJoint, RevoluteConstraintId revoluteJoint,
+        MechanicalTransmissionId transmissionId)
     {
-        Kind = kind; PrismaticJoint = prismaticJoint; RevoluteJoint = revoluteJoint;
+        Kind = kind; PrismaticJoint = prismaticJoint; RevoluteJoint = revoluteJoint; TransmissionId = transmissionId;
     }
 
     public SupplyConsumerKind Kind { get; }
@@ -28,9 +28,13 @@ public readonly record struct SupplyConsumer
     public PrismaticConstraintId PrismaticJoint { get; }
     /// <summary>The driven revolute, for <see cref="SupplyConsumerKind.RevoluteDrive"/>; unset otherwise.</summary>
     public RevoluteConstraintId RevoluteJoint { get; }
+    /// <summary>The timed mechanical transmission, for <see cref="SupplyConsumerKind.MechanicalTransmission"/>; unset otherwise.</summary>
+    public MechanicalTransmissionId TransmissionId { get; }
 
-    public static SupplyConsumer Prismatic(PrismaticConstraintId joint) => new(SupplyConsumerKind.PrismaticDrive, joint, default);
-    public static SupplyConsumer Revolute(RevoluteConstraintId joint) => new(SupplyConsumerKind.RevoluteDrive, default, joint);
+    public static SupplyConsumer Prismatic(PrismaticConstraintId joint) => new(SupplyConsumerKind.PrismaticDrive, joint, default, default);
+    public static SupplyConsumer Revolute(RevoluteConstraintId joint) => new(SupplyConsumerKind.RevoluteDrive, default, joint, default);
+    public static SupplyConsumer Transmission(MechanicalTransmissionId transmission) =>
+        new(SupplyConsumerKind.MechanicalTransmission, default, default, transmission);
 }
 
 public readonly record struct SupplyNodeDeclaration(SupplyNodeId Id, GpuBodyId Owner, SupplyNodeKind Kind,
@@ -60,4 +64,4 @@ public readonly struct SupplyOutputRead
         throw new ArgumentException("Selected supply provider is missing.");
     }
 }
-public readonly record struct SupplyResolution(bool[] Consumers, bool[] StorageRoutes, ElectricalLogicRead[] Logic, SupplyOutputRead Outputs);
+public readonly record struct SupplyResolution(bool[] Consumers, bool[] StorageRoutes, ElectricalLogicRead[] Logic, SupplyOutputRead Outputs, bool[] Transmissions);

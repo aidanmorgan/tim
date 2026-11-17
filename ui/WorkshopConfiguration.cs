@@ -10,6 +10,7 @@ namespace CuriousContraptions;
 
 public partial class Workshop
 {
+    private IPhysicsSceneDeclaration? _runControlPhysics;
     private void AddConfigurationChoices(MachinePart part)
     {
         if (World.Construction.Instances.FirstOrDefault(instance => instance.Id == part.AuthoredId) is WorkshopGenericInstance generic)
@@ -88,7 +89,7 @@ public partial class Workshop
     private RunControlValue RunControlIntent(RunControlRow? row, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source, RevoluteConstraintId joint)
     {
         var read = World.WorkshopRead;
-        var committed = row is not null ? _core.RunControls.Read(read, row.Value) : _core.RunControls.Read(read, owner, lane, source, joint);
+        var committed = row is not null ? _core.RunControls.Read(read, _runControlPhysics!, row.Value) : _core.RunControls.Read(read, _runControlPhysics!, owner, lane, source, joint);
         if (row is { } r && _runControlQueued.TryGetValue(r.Id, out var pending))
         {
             if (pending.Epoch != read.Epoch.Value ||
@@ -110,7 +111,7 @@ public partial class Workshop
         {
             RunControlValueKind.Enable => intent.Enable == ElectricalEnable.Enabled ? "Disable supply" : "Enable supply",
             RunControlValueKind.Scalar => parameter.Key + ": " +
-                (row is not null ? _core.RunControls.Read(World.WorkshopRead, row.Value) : _core.RunControls.Read(World.WorkshopRead, owner, lane, source, joint)).Scalar.ToString("R", CultureInfo.InvariantCulture) + (units.Length == 0 ? "" : " " + units),
+                (row is not null ? _core.RunControls.Read(World.WorkshopRead, _runControlPhysics!, row.Value) : _core.RunControls.Read(World.WorkshopRead, _runControlPhysics!, owner, lane, source, joint)).Scalar.ToString("R", CultureInfo.InvariantCulture) + (units.Length == 0 ? "" : " " + units),
             _ => throw new System.Diagnostics.UnreachableException("A committed run-control value has an undefined kind.")
         } + (queued ? " (queued)" : "");
     }
@@ -131,6 +132,7 @@ public partial class Workshop
     {
         var owner = instance.Id;
         var physics = WorkshopPhysicsCompiler.Compile(_core, _bundle, World.Construction, new(1, 1));
+        _runControlPhysics = physics;
         for (var i = 0; i < controls.Count; i++)
         {
             var declared = controls[i];

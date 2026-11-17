@@ -138,13 +138,13 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         foreach (var surface in drivenSurfaces) Identity(surface.Id.Value, nextIdentity, ids);
         _drivenSurfaces = drivenSurfaces.ToArray();
         Array.Sort(_drivenSurfaces, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
-        PhysicsDeclarationValidation.ValidateAll(transmissions, _revolutes.Select(joint => joint.Id).ToHashSet());
+        PhysicsDeclarationValidation.ValidateAll(transmissions, bodyMap, _revolutes);
         _transmissions = transmissions.ToArray();
         Array.Sort(_transmissions, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);
         foreach (var node in supplyNodes) Identity(node.Id.Value, nextIdentity, ids);
         Electrical = new(electricalSources, electricalBindings, bodies, contactWorks);
-        SupplyGraph = new(supplyNodes, supplyEdges, Electrical.Sources, _prismatics, _prismaticDrives, _revolutes, _revoluteDrives, Electrical.Bindings, contactWorks);
+        SupplyGraph = new(supplyNodes, supplyEdges, Electrical.Sources, _prismatics, _prismaticDrives, _revolutes, _revoluteDrives, Electrical.Bindings, contactWorks, _transmissions);
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();
@@ -162,10 +162,10 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         World = new(_bodies.Length, _colliders.Length, _materials.Length, _sensors.Length, dynamicCount, _guides.Length,
             _triggers.Length, _contactWorks.Length, _orientationSensors.Length, Electrical.Sources.Length,
             Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length, _tensileSpans.Length, _revolutes.Length,
-            _compliantSurfaces.Length);
+            _compliantSurfaces.Length, _transmissions.Length);
         _worldView = World;
         _ = World.ByteLength;
-        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes, _compliantSurfaces);
+        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes, _compliantSurfaces, _transmissions);
     }
 
     private static (Dictionary<GpuBodyId, RigidBodyDeclaration> Bodies, int DynamicCount, HashSet<GpuBodyId> DynamicColliders) ValidateGeometry(ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders, ReadOnlySpan<ContactMaterialDeclaration> materials, ulong nextIdentity, HashSet<ulong> ids)

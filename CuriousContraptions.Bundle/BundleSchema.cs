@@ -26,6 +26,7 @@ public static class BundleSchema
                     mechanical is IHingeElement hinge ? hinge.Hinges : [],
                     mechanical is ICompliantSurfaceElement compliant ? compliant.CompliantSurface : null,
                     mechanical is IDrivenSurfaceElement driven ? driven.DrivenSurfaces : [],
+                    mechanical is IMechanicalTransmissionElement transmissions ? transmissions.Transmissions : [],
                     mechanical is IResidenceSensorElement sensor ? sensor.ResidenceSensor : null,
                     mechanical is IPlanarGuideElement guide ? guide.PlanarGuide : null,
                     mechanical is IContactWorkElement work ? work.ContactWork : null) : null,
@@ -82,6 +83,7 @@ public static class BundleSchema
     [
         typeof(Vector2Converter), typeof(Vector3Converter), typeof(QuaternionConverter), typeof(ParameterIdConverter), typeof(PackageBodyIndexConverter),
         typeof(PortIdConverter), typeof(SignalNodeIdConverter), typeof(LocalSupplyNodeIdConverter), typeof(LocalContactWorkIdConverter),
+        typeof(LocalMechanicalTransmissionIdConverter),
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<CoordinateKind>),
@@ -174,6 +176,22 @@ internal sealed class PortIdConverter : JsonConverter<PortId>
     {
         if (value == default) throw new JsonException("A port requires an identity.");
         writer.WriteStringValue(value.Value);
+    }
+}
+
+internal sealed class LocalMechanicalTransmissionIdConverter : JsonConverter<LocalMechanicalTransmissionId>
+{
+    public override LocalMechanicalTransmissionId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetUInt32(out var value) || value == 0)
+            throw new JsonException("A mechanical transmission id is a nonzero unsigned integer.");
+        return new(value);
+    }
+
+    public override void Write(Utf8JsonWriter writer, LocalMechanicalTransmissionId value, JsonSerializerOptions options)
+    {
+        if (value.Value == 0) throw new JsonException("A mechanical transmission id is nonzero.");
+        writer.WriteNumberValue(value.Value);
     }
 }
 

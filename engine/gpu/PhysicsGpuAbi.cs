@@ -14,8 +14,8 @@ public readonly record struct PhysicsCandidateRead(PhysicsBodyReadSet Bodies, Ph
 /// every game value is one IEEE-754 f32 (Story 9A.44).</summary>
 public static partial class PhysicsGpuAbi
 {
-    /// <summary>The world header (Story 9R.5b: 144 bytes, every table population among its counts).</summary>
-    public const int HeaderBytes = 144;
+    /// <summary>The world header (160 bytes, every table population among its counts).</summary>
+    public const int HeaderBytes = 160;
     public const int BodyBytes = 160;
     // Body: f32 pose32/48, velocities64/76; immutable mass/material lanes start88.
     public const int BodyVelocityOffset = 64;
@@ -148,6 +148,7 @@ public static partial class PhysicsGpuAbi
         WriteTensileAdmission(data, scene);
         WriteRevoluteAdmission(data, scene);
         WriteCompliantSurfaceAdmission(data, scene);
+        WriteMechanicalTransmissionAdmission(data, scene);
         WriteContactLoadAdmission(data, scene);
         return bytes;
     }
@@ -303,6 +304,7 @@ public static partial class PhysicsGpuAbi
         ValidateRevoluteCandidate(candidate, source);
         ValidateContactLoadCandidate(candidate, source);
         ValidateCompliantSurfaceCandidate(candidate, source);
+        ValidateMechanicalTransmissionCandidate(candidate, source);
         return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(layout.MotionOffset, layout.MotionBytes), bodies, expectedTick));
     }
 

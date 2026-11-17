@@ -130,7 +130,7 @@ public readonly record struct RevoluteDriveDescriptor(
     MechanicalValue TargetSpeed,
     MechanicalValue MaxTorque);
 
-/// <summary>One revolute hinge joining the element's base body to a moving body. At rest the two frames coincide; the moving body
+/// <summary>One revolute hinge joining its declared package support body to its own moving body. At rest the two frames coincide; the moving body
 /// may rotate from <see cref="LowerLimit"/> to <see cref="UpperLimit"/> (radians) around the base frame's local Z, or without end when
 /// its <see cref="Travel"/> is <see cref="RevoluteTravel.Continuous"/>. The axial spring's stiffness
 /// and damping, and the starting angle, are the element parameters these keys name. <see cref="FrictionTorque"/> is the hinge's
@@ -138,6 +138,7 @@ public readonly record struct RevoluteDriveDescriptor(
 /// resisted by it, once the net torque is above. <see cref="Drive"/> is the hinge's supplied velocity drive, or null for a passive
 /// hinge.</summary>
 public readonly record struct RevoluteHingeDescriptor(
+    [property: System.Text.Json.Serialization.JsonRequired] PackageBodyIndex Support,
     HingeFrame BaseFrame,
     HingeFrame MovingFrame,
     float LowerLimit,
@@ -228,3 +229,48 @@ public enum BoxFace : byte { PositiveX, NegativeX, PositiveY, NegativeY, Positiv
 public readonly record struct DrivenSurfaceDescriptor(
     LocalDrivenSurfaceId Id, PackageBodyIndex Carrier, BodyColliderIndex Collider,
     BoxFace Face, CoordinateReference Source, Vector3 LocalDirection, MechanicalValue TravelPerRadian);
+
+public readonly record struct LocalMechanicalTransmissionId(uint Value);
+
+public enum TransmissionEngagementPhase : uint
+{
+    Open = 0,
+    Closing = 1,
+    Engaged = 2,
+    Opening = 3
+}
+
+/// <summary>An internal mechanical coupling between two declared revolute coordinates, optionally timed by an electrical supply.</summary>
+public readonly record struct MechanicalTransmissionDescriptor(
+    LocalMechanicalTransmissionId Id,
+    CoordinateReference Driving,
+    CoordinateReference Driven,
+    MechanicalValue Ratio,
+    MechanicalValue? CloseSeconds = null);
+
+
+/// <summary>Dependency order for the package's declared carrying hinges. Identity order stays authored.</summary>
+public static class HingeSupportOrder
+{
+    private enum VisitState { Unvisited, Visiting, Complete }
+    public static int[] Resolve(int sliders, IReadOnlyList<RevoluteHingeDescriptor> hinges)
+    {
+        var order = new List<int>(hinges.Count);
+        var states = new VisitState[hinges.Count];
+        for (var i = 0; i < hinges.Count; i++) Visit(i);
+        return order.ToArray();
+
+        void Visit(int index)
+        {
+            if (states[index] == VisitState.Complete) return;
+            if (states[index] == VisitState.Visiting) throw new ArgumentException("Cyclic hinge support.");
+            states[index] = VisitState.Visiting;
+            var support = hinges[index].Support.Value;
+            if (support < 0 || support > sliders + hinges.Count)
+                throw new ArgumentException("Absent hinge support.");
+            if (support > sliders) Visit(support - sliders - 1);
+            states[index] = VisitState.Complete;
+            order.Add(index);
+        }
+    }
+}

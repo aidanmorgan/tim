@@ -15,8 +15,8 @@ namespace CuriousContraptions.Gpu;
 public static partial class WorkshopWireFlatBuffers
 {
 
-    public const string CommandIdentifier = "CCWC";
-    public const string ResponseIdentifier = "CCWR";
+    public const string CommandIdentifier = "CWCM";
+    public const string ResponseIdentifier = "CWRM";
     private const int IdentifierOffset = FlatBufferConstants.SizePrefixLength + sizeof(int);
     private const int FrameHeaderBytes = IdentifierOffset + FlatBufferConstants.FileIdentifierLength;
 
@@ -42,7 +42,7 @@ public static partial class WorkshopWireFlatBuffers
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
-        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 31, _ => 0 };
+        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 32, _ => 0 };
         if (fieldCount != 0)
         {
             var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
@@ -50,9 +50,42 @@ public static partial class WorkshopWireFlatBuffers
             if (buffer.GetUshort(vtable) > 4 + fieldCount * 2)
                 throw new WireFaultException(WireFaultReason.OutOfRange, "Runtime record contains undefined fields.");
         }
+        if (fieldCount != 0) ValidateBindingShapes(buffer, identifier == CommandIdentifier ? 11 : 27);
         return ByteBufferUtil.RemoveSizePrefix(buffer);
     }
 
+
+    // Current nested binding shape: undefined appended fields are refused after structural verification.
+    private static void ValidateBindingShapes(ByteBuffer buffer, int sceneField)
+    {
+        var root = FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength);
+        var scene = TableTarget(buffer, root, sceneField);
+        if (scene == 0) return;
+        var vector = TableTarget(buffer, scene, 29);
+        if (vector == 0) return;
+        var count = buffer.GetInt(vector);
+        for (var i = 0; i < count; i++)
+        {
+            var element = vector + sizeof(int) + i * sizeof(int);
+            var track = element + buffer.GetInt(element);
+            var binding = TableTarget(buffer, track, 5);
+            if (binding == 0) continue;
+            var vtable = binding - buffer.GetInt(binding);
+            if (buffer.GetUshort(vtable) > 4 + 15 * 2)
+                throw new WireFaultException(WireFaultReason.OutOfRange, "Presentation binding contains undefined fields.");
+        }
+    }
+
+    private static int TableTarget(ByteBuffer buffer, int table, int field)
+    {
+        var vtable = table - buffer.GetInt(table);
+        var index = 4 + field * 2;
+        if (index >= buffer.GetUshort(vtable)) return 0;
+        var offset = buffer.GetUshort(vtable + index);
+        if (offset == 0) return 0;
+        var location = table + offset;
+        return location + buffer.GetInt(location);
+    }
 
     // Runtime roots contain compiled capability rows and nested presentation descriptors; authoring roots
     // contain instance/parameter vectors. No current path nests more than two table vectors.
@@ -373,6 +406,23 @@ public static partial class WorkshopWireFlatBuffers
         return surfaceOffset;
     }
 
+    private static VectorOffset? EncodeTransmissionOffset(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        VectorOffset? transmissionOffset = null;
+        if (!read.Presentation.Transmissions.IsEmpty)
+        {
+            var offsets = new Offset<Wire.MechanicalTransmissionReadRecord>[read.Presentation.Transmissions.Length];
+            for (var i = 0; i < read.Presentation.Transmissions.Length; i++)
+            {
+                var t = read.Presentation.Transmissions[i];
+                offsets[i] = Wire.MechanicalTransmissionReadRecord.CreateMechanicalTransmissionReadRecord(
+                    builder, t.Transmission.Value, t.Owner.Value, t.Closure, (uint)t.Phase);
+            }
+            transmissionOffset = Wire.WorkshopResponse.CreateTransmissionsVector(builder, offsets);
+        }
+        return transmissionOffset;
+    }
+
     private static VectorOffset? EncodeGuideOffset(FlatBufferBuilder builder, WorkshopRead read)
     {
         VectorOffset? guideOffset = null;
@@ -417,6 +467,7 @@ public static partial class WorkshopWireFlatBuffers
         var ropesVector = Wire.WorkshopResponse.CreateRopesVector(builder, ropeOffsets);
         var guideOffset = EncodeGuideOffset(builder, read);
         var surfaceOffset = EncodeSurfaceOffset(builder, read);
+        var transmissionOffset = EncodeTransmissionOffset(builder, read);
         var logicOffset = EncodeLogicOffset(builder, read);
         var actuatorOffset = EncodeActuatorOffset(builder, read);
         var loadOffset = EncodeLoadOffset(builder, read);
@@ -470,6 +521,7 @@ public static partial class WorkshopWireFlatBuffers
         if (contactWorksOffset.HasValue) Wire.WorkshopResponse.AddContactWorks(builder, contactWorksOffset.Value);
         if (electricalOffset.HasValue) Wire.WorkshopResponse.AddElectrical(builder, electricalOffset.Value);
         if (driveTargetOffset.HasValue) Wire.WorkshopResponse.AddDriveTargets(builder, driveTargetOffset.Value);
+        if (transmissionOffset.HasValue) Wire.WorkshopResponse.AddTransmissions(builder, transmissionOffset.Value);
         if (memoryOffset.HasValue) Wire.WorkshopResponse.AddActivationMemory(builder, memoryOffset.Value);
         if (motion.HasValue) Wire.WorkshopResponse.AddMotion(builder, motion.Value);
         if (response.Memory is { } observed)
@@ -570,6 +622,7 @@ public static partial class WorkshopWireFlatBuffers
         var guideValues = DecodeGuidesRead(fb);
 
         var surfaceValues = DecodeSurfacesRead(fb);
+        var transmissionValues = DecodeTransmissionsRead(fb);
 
         var logicValues=new ElectricalLogicRead[fb.ElectricalLogicLength];
         for(var i=0;i<logicValues.Length;i++)
@@ -581,7 +634,7 @@ public static partial class WorkshopWireFlatBuffers
         for (var i = 0; i < actuatorValues.Length; i++)
         {
             var a = fb.ActuatorDrives(i)!.Value;
-            actuatorValues[i] = new(SupplyConsumerOf(a.Kind, a.Joint), new(a.Owner), a.SupplyClosed, a.MovingContact, a.Coordinate, a.Speed,
+            actuatorValues[i] = new(ActuatorConsumerOf(a.Kind, a.Joint), new(a.Owner), a.SupplyClosed, a.MovingContact, a.Coordinate, a.Speed,
                 a.Lower, a.Upper);
         }
         var loadValues = new ContactLoadSensorRead[fb.ContactLoadsLength];
@@ -600,7 +653,8 @@ public static partial class WorkshopWireFlatBuffers
 
         var read = new WorkshopRead(epoch, tick, bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores),
-            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, guideValues, surfaceValues),
+            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues),
+            new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, guideValues, surfaceValues, transmissionValues),
             new PhysicsDriveTargetRead(driveTargets));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);
@@ -742,6 +796,18 @@ public static partial class WorkshopWireFlatBuffers
             surfaceValues[i] = new(new(row.Frame), row.Deflection);
         }
         return surfaceValues;
+    }
+
+    private static MechanicalTransmissionRead[] DecodeTransmissionsRead(Wire.WorkshopResponse fb)
+    {
+        var values = new MechanicalTransmissionRead[fb.TransmissionsLength];
+        for (var i = 0; i < values.Length; i++)
+        {
+            var row = Required(fb.Transmissions(i), "mechanical transmission observation");
+            values[i] = new(new(row.Transmission), new(row.Owner), row.Closure,
+                ObservationEnum<CuriousContraptions.Abstractions.Mechanical.TransmissionEngagementPhase>(row.Phase));
+        }
+        return values;
     }
 
     private static ActivationMemory[] DecodeMemoryRead(Wire.WorkshopResponse fb)

@@ -129,6 +129,11 @@ public static class RunControlBindings
              Matches(surface.DampingRatio, key)))
             return true;
 
+        if (mechanical.Transmissions is { } transmissions &&
+            transmissions.Any(transmission => Matches(transmission.Ratio, key) ||
+                (transmission.CloseSeconds is { } closeSeconds && Matches(closeSeconds, key))))
+            return true;
+
         return mechanical.DrivenSurfaces.Any(driven => Matches(driven.TravelPerRadian, key));
     }
 

@@ -44,9 +44,11 @@ public sealed record SupplyConsumerDescriptor(LocalSupplyNodeId Id, IReadOnlyLis
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "Target")]
 [JsonDerivedType(typeof(SupplyContactWorkTarget), "ContactWork")]
 [JsonDerivedType(typeof(SupplyDriveTarget), "Drive")]
+[JsonDerivedType(typeof(SupplyTransmissionTarget), "Transmission")]
 public abstract record SupplyTarget;
 public sealed record SupplyContactWorkTarget(LocalContactWorkId Store) : SupplyTarget;
 public sealed record SupplyDriveTarget(CoordinateReference Coordinate) : SupplyTarget;
+public sealed record SupplyTransmissionTarget(CuriousContraptions.Abstractions.Mechanical.LocalMechanicalTransmissionId Transmission) : SupplyTarget;
 
 /// <summary>The reusable terminal contract; sockets expose endpoints without selecting a product recipe.</summary>
 public static class SupplyTerminals

@@ -1,4 +1,5 @@
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Abstractions.Mechanical;
 using System;
 using System.Numerics;
 
@@ -60,10 +61,34 @@ public readonly record struct ActuatorDriveRead(
 
     public void Validate()
     {
-        if (!Enum.IsDefined(Drive.Kind) || Slot.Joint == 0 || Owner.Value == 0 ||
+        if (Drive.Kind is not (SupplyConsumerKind.PrismaticDrive or SupplyConsumerKind.RevoluteDrive) ||
+            Slot.Joint == 0 || Owner.Value == 0 ||
             (Drive.Kind == SupplyConsumerKind.RevoluteDrive && MovingContact) || !float.IsFinite(Coordinate) || !float.IsFinite(Speed) ||
             !float.IsFinite(Lower) || !float.IsFinite(Upper) || Lower > Upper)
             throw new ArgumentException("Invalid committed actuator observation.");
+    }
+}
+
+/// <summary>Committed observation of one package-owned mechanical transmission slot, ordered by ascending unique transmission identity.</summary>
+public readonly record struct MechanicalTransmissionRead(
+    MechanicalTransmissionId Transmission,
+    GpuBodyId Owner,
+    float Closure,
+    TransmissionEngagementPhase Phase)
+{
+    public void Validate()
+    {
+        if (Transmission.Value == 0 || Owner.Value == 0 || !float.IsFinite(Closure) || Closure < 0f || Closure > 1f || !Enum.IsDefined(Phase))
+            throw new ArgumentException("Invalid committed mechanical transmission observation.");
+        var consistent = Phase switch
+        {
+            TransmissionEngagementPhase.Open => PhysicsDeclarationBounds.Zero(Closure),
+            TransmissionEngagementPhase.Engaged => Closure == 1f,
+            TransmissionEngagementPhase.Closing => Closure > 0f && Closure < 1f,
+            TransmissionEngagementPhase.Opening => Closure > 0f,
+            _ => false
+        };
+        if (!consistent) throw new ArgumentException("Committed transmission phase disagrees with its closure.");
     }
 }
 
@@ -99,12 +124,14 @@ public readonly struct PhysicsPresentationRead
     private readonly ActuatorDriveRead[]? _actuators;
     private readonly ContactLoadSensorRead[]? _loads;
     private readonly ElectricalLogicRead[]? _logic;
+    private readonly MechanicalTransmissionRead[]? _transmissions;
     public ReadOnlySpan<ElectricalLogicRead> Logic => _logic;
     public ReadOnlySpan<ActuatorDriveRead> Actuators => _actuators;
     public ReadOnlySpan<ContactLoadSensorRead> Loads => _loads;
+    public ReadOnlySpan<MechanicalTransmissionRead> Transmissions => _transmissions;
     public PhysicsPresentationRead(ReadOnlySpan<ActuatorDriveRead> actuators, ReadOnlySpan<ContactLoadSensorRead> loads, ReadOnlySpan<ElectricalLogicRead> logic = default,
         ReadOnlySpan<RopeSpanRead> ropes = default, ReadOnlySpan<RopeGuideRead> guides = default,
-        ReadOnlySpan<CompliantSurfaceRead> surfaces = default)
+        ReadOnlySpan<CompliantSurfaceRead> surfaces = default, ReadOnlySpan<MechanicalTransmissionRead> transmissions = default)
     {
         for (var i = 0; i < surfaces.Length; i++)
         {
@@ -133,6 +160,23 @@ public readonly struct PhysicsPresentationRead
             if (i > 0 && actuators[i - 1].Slot.CompareTo(actuators[i].Slot) >= 0)
                 throw new ArgumentException("Actuator observations require ordered unique drive slots.");
         }
+        ValidateLoads(loads);
+        for(var i=0;i<logic.Length;i++)
+        {
+            logic[i].Validate();
+            if(i>0 && logic[i-1].Node.Value>=logic[i].Node.Value)
+                throw new ArgumentException("Electrical logic observations require ordered unique owners.");
+        }
+        for (var i = 0; i < transmissions.Length; i++)
+        {
+            transmissions[i].Validate();
+            if (i > 0 && transmissions[i - 1].Transmission.Value >= transmissions[i].Transmission.Value)
+                throw new ArgumentException("Mechanical transmission observations require ordered unique identities.");
+        }
+        _actuators = actuators.ToArray(); _loads = loads.ToArray(); _logic=logic.ToArray(); _transmissions = transmissions.ToArray();
+    }
+    private static void ValidateLoads(ReadOnlySpan<ContactLoadSensorRead> loads)
+    {
         for (var i = 0; i < loads.Length; i++)
         {
             var load = loads[i];
@@ -141,15 +185,9 @@ public readonly struct PhysicsPresentationRead
                 (i > 0 && loads[i - 1].Sensor.Value >= load.Sensor.Value))
                 throw new ArgumentException("Invalid committed contact-load observation.");
         }
-        for(var i=0;i<logic.Length;i++)
-        {
-            logic[i].Validate();
-            if(i>0 && logic[i-1].Node.Value>=logic[i].Node.Value)
-                throw new ArgumentException("Electrical logic observations require ordered unique owners.");
-        }
-        _actuators = actuators.ToArray(); _loads = loads.ToArray(); _logic=logic.ToArray();
     }
+
     public bool HasSameBits(PhysicsPresentationRead other) =>
         Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads) && Logic.SequenceEqual(other.Logic) && Ropes.SequenceEqual(other.Ropes) &&
-        Guides.SequenceEqual(other.Guides) && Surfaces.SequenceEqual(other.Surfaces);
+        Guides.SequenceEqual(other.Guides) && Surfaces.SequenceEqual(other.Surfaces) && Transmissions.SequenceEqual(other.Transmissions);
 }

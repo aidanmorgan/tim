@@ -50,6 +50,7 @@ public static class BundleValidator
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
             errors.AddRange(DrivenSurfaceValidation.Validate(entry));
+            errors.AddRange(MechanicalTransmissionValidation.Validate(entry));
             Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Signal, entry.Events, childBodies);
             CheckEvents(entry.Events);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
@@ -177,8 +178,10 @@ public static class BundleValidator
                 Finite("Presentation.From", binding.From); Finite("Presentation.To", binding.To);
                 Finite("Presentation.Duration", binding.Duration); Finite("Presentation.Threshold", binding.Threshold);
                 Finite("Presentation.Response", binding.Response);
-                if ((binding.Mapping == PresentationValueMapping.StateValues) != binding.StateValues.HasValue ||
-                    (binding.StateValues is { } stateValues && !stateValues.IsFinite()))
+                if ((PresentationDriverRules.Discrete3State(binding.Driver)) != binding.StateValues.HasValue ||
+                    PresentationDriverRules.Discrete4State(binding.Driver) != binding.FourStateValues.HasValue ||
+                    (binding.StateValues is { } stateValues && !stateValues.IsFinite()) ||
+                    (binding.FourStateValues is { } fourStates && !fourStates.IsFinite()))
                     OutOfRange("Presentation.StateValues");
                 if (binding.Duration < 0 || binding.Duration > 30 || binding.Response < 0 ||
                     (binding.Curve == PresentationCurve.ExponentialFollow && binding.Response <= 0))
@@ -195,6 +198,8 @@ public static class BundleValidator
                     OutOfRange("Presentation.Value");
                 if (binding.StateValues is { } values && (!AdmitsValue(values.State0) || !AdmitsValue(values.State1) || !AdmitsValue(values.State2)))
                     OutOfRange("Presentation.StateValues");
+                if (binding.FourStateValues is { } four && (!AdmitsValue(four.State0) || !AdmitsValue(four.State1) || !AdmitsValue(four.State2) || !AdmitsValue(four.State3)))
+                    OutOfRange("Presentation.FourStateValues");
         }
 
         private void PresentationBindingSocket(PresentationBinding binding, ElectricalPayload? electrical, IReadOnlyList<PortDescriptor> ports)
@@ -222,16 +227,26 @@ public static class BundleValidator
                 // A committed deflection binding reads the row only a declared compliant surface compiles.
                 if (binding.Driver == PresentationDriver.CommittedSurfaceDeflection && mechanical?.CompliantSurface is null)
                     OutOfRange("Presentation.CompliantSurface");
-                var actuatorDriver = binding.Driver is PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState;
+                PresentationBindingActuator(binding, mechanical);
+                var transmissionDriver = binding.Driver is PresentationDriver.CommittedTransmissionClosure or PresentationDriver.CommittedTransmissionPhase;
+                if (transmissionDriver != binding.Transmission.HasValue) OutOfRange("Presentation.Transmission");
+                if (binding.Transmission is { } transmissionId &&
+                    (transmissionId.Value == 0 || mechanical?.Transmissions?.Any(item => item.Id == transmissionId) != true))
+                    OutOfRange("Presentation.Transmission");
+        }
+
+        private void PresentationBindingActuator(PresentationBinding binding, MechanicalPayload? mechanical)
+        {
+                var actuatorDriver = binding.Driver is PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState or PresentationDriver.CommittedRevoluteAngle;
                 if (actuatorDriver != binding.Actuator.HasValue) OutOfRange("Presentation.Actuator");
                 if (binding.Actuator is { } actuator)
                 {
                     var valid = actuator.Index >= 0 && (actuator.Kind switch
                     {
                         CoordinateKind.Prismatic => mechanical is not null && actuator.Index < mechanical.Sliders.Count &&
-                            mechanical.Sliders[actuator.Index].Drive is not null,
+                            mechanical.Sliders[actuator.Index].Drive is not null && binding.Driver != PresentationDriver.CommittedRevoluteAngle,
                         CoordinateKind.Revolute => mechanical is not null && actuator.Index < mechanical.Hinges.Count &&
-                            mechanical.Hinges[actuator.Index].Drive is not null,
+                            (binding.Driver == PresentationDriver.CommittedRevoluteAngle || mechanical.Hinges[actuator.Index].Drive is not null),
                         _ => false
                     });
                     if (!valid) OutOfRange("Presentation.Actuator");
@@ -500,6 +515,8 @@ public static class BundleValidator
                 Finite($"AnchorPoints[{i}].Axis", anchor.Axis);
             }
             for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters);
+            try { _ = HingeSupportOrder.Resolve(mechanical.Sliders.Count, mechanical.Hinges); }
+            catch (ArgumentException) { OutOfRange("Hinges.Support"); }
             for (var i = 0; i < mechanical.Hinges.Count; i++) Hinge($"Hinges[{i}]", mechanical.Hinges[i], parameters);
             MechanicalResidenceSensor(mechanical, parameters);
             MechanicalPlanarGuide(mechanical, parameters);
@@ -757,7 +774,8 @@ public static class BundleValidator
             Value(path + ".InitialAngle", hinge.InitialAngle, parameters, allowNegative: true);
             if (hinge.InitialAngle.Source == MechanicalValueSource.Constant && float.IsFinite(hinge.InitialAngle.Constant))
             {
-                if (hinge.InitialAngle.Constant < hinge.LowerLimit || hinge.InitialAngle.Constant > hinge.UpperLimit)
+                var radians = hinge.InitialAngle.Constant * (MathF.PI / 180f);
+                if (radians < hinge.LowerLimit || radians > hinge.UpperLimit)
                     OutOfRange(path + ".InitialAngle");
             }
             var body = hinge.MovingBody;

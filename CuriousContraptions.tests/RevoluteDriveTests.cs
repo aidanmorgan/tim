@@ -637,7 +637,8 @@ public sealed class RevoluteDriveTests
 
     public enum ConsumerDefect { NoConsumer, NoPrismaticConsumer, UndrivenHinge, NotTheOwner, NamedTwice }
 
-    // Every declared drive is consumed by exactly one consumer node, which must be the joint's base (BodyA) and name a declared drive.
+    // Every declared drive is consumed by exactly one consumer node. Physical admission checks drive references;
+    // compiled package admission separately checks that the consumer owns the joint through its package support tree.
     // A revolute or prismatic drive no node consumes, a revolute consumer naming an undriven hinge, one on a node that does not own the
     // joint, and one node naming the same drive twice are each refused with their own reason; the owned, driven, singly consumed control
     // is admitted.
@@ -652,7 +653,7 @@ public sealed class RevoluteDriveTests
         var (control, anchor, _, joint) = Hinged();
         control.RevoluteDrive(joint, TargetSpeed, MaxTorque);
         control.Consumer(anchor, null, SupplyConsumer.Revolute(joint));
-        _ = control.Admit(consumeUnnamedDrives: false);
+        var admittedControl = control.Admit(consumeUnnamedDrives: false);
 
         var (scene, owner, _, hinge) = Hinged();
         var other = scene.StaticBox(Hinge + new Vector3(3f, 0f, 0f), new(.1f));
@@ -675,6 +676,17 @@ public sealed class RevoluteDriveTests
             case ConsumerDefect.NotTheOwner: scene.Consumer(other, null, SupplyConsumer.Revolute(hinge)); break;
             case ConsumerDefect.NamedTwice: scene.Consumer(owner, null, SupplyConsumer.Revolute(hinge), SupplyConsumer.Revolute(hinge)); break;
             default: throw new ArgumentOutOfRangeException(nameof(defect));
+        }
+        if (defect == ConsumerDefect.NotTheOwner)
+        {
+            var empty = CompiledSceneFixture.Compile(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty));
+            _ = new WorkshopCompiledScene(empty.Identity, empty.Revision, empty.Settings, admittedControl.Scene,
+                empty.Activation, [], [anchor], []);
+            var physical = scene.Admit(consumeUnnamedDrives: false).Scene;
+            Assert.Equal("Supply consumer names a foreign package target.",
+                Assert.Throws<ArgumentException>(() => new WorkshopCompiledScene(empty.Identity, empty.Revision, empty.Settings,
+                    physical, empty.Activation, [], [owner, other], [])).Message);
+            return;
         }
         var message = Assert.Throws<ArgumentException>(() => scene.Admit(consumeUnnamedDrives: false)).Message;
         Assert.Equal(defect switch

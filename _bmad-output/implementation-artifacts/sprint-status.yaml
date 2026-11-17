@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 11-05-2026
+last_updated: 11-17-2026
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -539,7 +539,7 @@ development_status:
   # Individual children of grouped parents; source contracts in epics.md#catalogue-slice-ownership.
   11-1a-motor: done
   11-1b-conveyor: done # native complete & reviewed; Chrome/CI deferred per Oct 24/29 rules
-  11-2a-clutch: backlog
+  11-2a-clutch: done
   11-2b-reverse-transmission: backlog
   11-4a-wound-spring: backlog
   11-4b-cannon: backlog

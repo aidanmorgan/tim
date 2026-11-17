@@ -174,13 +174,13 @@ public sealed class RunControlTableTests
         await using var harness = await WorkshopIntegrationHarness.Running(Bench(authored));
         var row = Assert.Single(harness.Simulation.Scene.RunControls);
         var lockedSourceId = Assert.Single(harness.Simulation.Scene.Physics.Electrical.Sources.ToArray(), s => s.Owner == LockedSource).Id;
-        Assert.Equal(RunControlValue.Of(authored), harness.Committed.RunControl(Source, RunControlLane.SourceEnable, row.Source));
-        Assert.Equal(RunControlValue.Of(ElectricalEnable.Enabled), harness.Committed.RunControl(LockedSource, RunControlLane.SourceEnable, lockedSourceId));
-        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(Source, RunControlLane.SourceEnable));
-        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(Gate, RunControlLane.SourceEnable, row.Source));
+        Assert.Equal(RunControlValue.Of(authored), harness.Committed.RunControl(harness.Simulation.Scene.Physics, Source, RunControlLane.SourceEnable, row.Source));
+        Assert.Equal(RunControlValue.Of(ElectricalEnable.Enabled), harness.Committed.RunControl(harness.Simulation.Scene.Physics, LockedSource, RunControlLane.SourceEnable, lockedSourceId));
+        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(harness.Simulation.Scene.Physics, Source, RunControlLane.SourceEnable));
+        Assert.Throws<ArgumentException>(() => harness.Committed.RunControl(harness.Simulation.Scene.Physics, Gate, RunControlLane.SourceEnable, row.Source));
         await harness.Require(WorkshopCommandKind.ConfigureRunControl, runControl: new(Source, row.Id, RunControlValue.Of(control)));
-        Assert.Equal(RunControlValue.Of(authored), harness.Committed.RunControl(Source, RunControlLane.SourceEnable, row.Source));
-        Assert.Equal(RunControlValue.Of(control), (await harness.Advance(1))[0].RunControl(Source, RunControlLane.SourceEnable, row.Source));
+        Assert.Equal(RunControlValue.Of(authored), harness.Committed.RunControl(harness.Simulation.Scene.Physics, Source, RunControlLane.SourceEnable, row.Source));
+        Assert.Equal(RunControlValue.Of(control), (await harness.Advance(1))[0].RunControl(harness.Simulation.Scene.Physics, Source, RunControlLane.SourceEnable, row.Source));
     }
 
     // ---- the RevoluteDriveTarget lane (engine-revolute-drive-target) ---------------------------------------------------------------
@@ -207,11 +207,11 @@ public sealed class RunControlTableTests
         return Array.FindIndex(physics.RevoluteDrives.ToArray(), drive => revolutes.Single(joint => joint.Id == drive.Joint).BodyA == owner);
     }
 
-    private static float Target(WorkshopRead read, GpuBodyId owner)
+    private static float Target(IPhysicsSceneDeclaration physics, WorkshopRead read, GpuBodyId owner)
     {
         for (var i = 0; i < read.DriveTargets.Count; i++)
             if (read.DriveTargets[i].Owner == owner)
-                return read.RunControl(owner, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[i].Joint).Scalar;
+                return read.RunControl(physics, owner, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[i].Joint).Scalar;
         throw new ArgumentException("The committed read carries no slot for this owner on this run-control lane.");
     }
 
@@ -284,7 +284,7 @@ public sealed class RunControlTableTests
         Assert.Equal(2, read.DriveTargets.Count);
         Assert.Equal((LockedMotor, 4f), (read.DriveTargets[DriveIndex(physics, LockedMotor)].Owner, read.DriveTargets[DriveIndex(physics, LockedMotor)].TargetSpeed));
         Assert.Equal((Motor, 6f), (read.DriveTargets[DriveIndex(physics, Motor)].Owner, read.DriveTargets[DriveIndex(physics, Motor)].TargetSpeed));
-        Assert.Equal(4f, Target(read, LockedMotor));
+        Assert.Equal(4f, Target(harness.Simulation.Scene.Physics, read, LockedMotor));
         foreach (var invalid in new RevoluteDriveTargetRead[] { new(default, Motor, 1f), new(new(1), default, 1f), new(new(1), Motor, float.NaN), new(new(1), Motor, MathF.BitIncrement(AngularVelocity.MaximumSpeed)) })
             Assert.Throws<ArgumentException>(() => new PhysicsDriveTargetRead([invalid]));
     }
@@ -310,11 +310,11 @@ public sealed class RunControlTableTests
             Assert.Equal((WorkshopCommandOutcome.Rejected, reason), (refused.Outcome, refused.Reason));
             Assert.Null(harness.Simulation.HeldRunControl(row.Id));
         }
-        Assert.Equal(6f, Target((await harness.Advance(1))[0], Motor));
+        Assert.Equal(6f, Target(harness.Simulation.Scene.Physics, (await harness.Advance(1))[0], Motor));
         foreach (var bound in new[] { 0f, 20f })
         {
             await harness.Require(WorkshopCommandKind.ConfigureRunControl, runControl: new(Motor, row.Id, RunControlValue.Of(bound)));
-            Assert.Equal(bound, Target((await harness.Advance(1))[0], Motor));
+            Assert.Equal(bound, Target(harness.Simulation.Scene.Physics, (await harness.Advance(1))[0], Motor));
         }
     }
 
@@ -330,15 +330,15 @@ public sealed class RunControlTableTests
             runControl: harness.RunControl(Supply, RunControlLane.SourceEnable, RunControlValue.Of(ElectricalEnable.Enabled)));
         await harness.Require(WorkshopCommandKind.ConfigureRunControl,
             runControl: harness.RunControl(Motor, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(12f)));
-        Assert.Equal((ElectricalEnable.Disabled, 6f), (Enable(harness.Committed, Supply), Target(harness.Committed, Motor)));
+        Assert.Equal((ElectricalEnable.Disabled, 6f), (Enable(harness.Committed, Supply), Target(harness.Simulation.Scene.Physics, harness.Committed, Motor)));
 
         var both = (await harness.Advance(1))[0];
-        Assert.Equal((ElectricalEnable.Enabled, 12f), (Enable(both, Supply), Target(both, Motor)));
+        Assert.Equal((ElectricalEnable.Enabled, 12f), (Enable(both, Supply), Target(harness.Simulation.Scene.Physics, both, Motor)));
 
         await harness.Require(WorkshopCommandKind.ConfigureRunControl,
             runControl: harness.RunControl(Motor, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(8f)));
         var later = (await harness.Advance(1))[0];
-        Assert.Equal((ElectricalEnable.Enabled, 8f, 4f), (Enable(later, Supply), Target(later, Motor), Target(later, LockedMotor)));
+        Assert.Equal((ElectricalEnable.Enabled, 8f, 4f), (Enable(later, Supply), Target(harness.Simulation.Scene.Physics, later, Motor), Target(harness.Simulation.Scene.Physics, later, LockedMotor)));
     }
 
     // No electrical phase gates a drive target. At 240 Hz a tick is two 480 Hz substeps and an electrical phase falls every fourth
@@ -355,9 +355,9 @@ public sealed class RunControlTableTests
         await harness.Require(WorkshopCommandKind.ConfigureRunControl,
             runControl: harness.RunControl(Motor, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(12f)));
         var noPhase = (await harness.Advance(1))[0];
-        Assert.Equal((ElectricalEnable.Disabled, 12f), (Enable(noPhase, Supply), Target(noPhase, Motor)));
+        Assert.Equal((ElectricalEnable.Disabled, 12f), (Enable(noPhase, Supply), Target(harness.Simulation.Scene.Physics, noPhase, Motor)));
         var phase = (await harness.Advance(1))[0];
-        Assert.Equal((ElectricalEnable.Enabled, 12f), (Enable(phase, Supply), Target(phase, Motor)));
+        Assert.Equal((ElectricalEnable.Enabled, 12f), (Enable(phase, Supply), Target(harness.Simulation.Scene.Physics, phase, Motor)));
     }
 
     // The engine maps each driven revolute to its drive by rank among the driven ones, never by revolute index. An undriven Impact
@@ -381,7 +381,7 @@ public sealed class RunControlTableTests
         await harness.Require(WorkshopCommandKind.ConfigureRunControl,
             runControl: harness.RunControl(first, RunControlLane.RevoluteDriveTarget, RunControlValue.Of(12f)));
         var reads = await harness.Advance(30);
-        Assert.All(reads, read => Assert.Equal((12f, 6f), (Target(read, first), Target(read, second))));
+        Assert.All(reads, read => Assert.Equal((12f, 6f), (Target(harness.Simulation.Scene.Physics, read, first), Target(harness.Simulation.Scene.Physics, read, second))));
         var rotor = construction.Instances.Identities[first].Hinges[0].Body;
         Assert.True(reads[^1].Bodies.TryGet(rotor, out var body));
         Assert.True(MathF.Abs(body.AngularVelocity.Z - 12f) <= .02f * 12f, $"The first Motor's shaft spins at {body.AngularVelocity.Z} rad/s");

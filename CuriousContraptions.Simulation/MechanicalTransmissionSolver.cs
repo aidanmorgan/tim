@@ -13,6 +13,7 @@ internal sealed class SimMechanicalTransmission
     public readonly Vector3[] Jacobians = new Vector3[4];
     public int Count;
     public float InverseMass;
+    public bool Engaged;
 }
 
 internal static class MechanicalTransmissionSolver
@@ -20,6 +21,11 @@ internal static class MechanicalTransmissionSolver
     public static void Prepare(SimMechanicalTransmission transmission)
     {
         transmission.Count = 0;
+        if (!transmission.Engaged)
+        {
+            transmission.InverseMass = 0f;
+            return;
+        }
         var driving = transmission.DrivingJoint;
         var driven = transmission.DrivenJoint;
         // Scaling the whole velocity equation preserves its law and avoids ratio-squared overflow.

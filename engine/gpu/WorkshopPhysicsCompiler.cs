@@ -71,6 +71,7 @@ public static class WorkshopPhysicsCompiler
         private readonly List<RevoluteDriveDeclaration> revoluteDrives = new(4);
         private readonly List<CompliantSurfaceDeclaration> compliantSurfaces = new(4);
         private readonly List<DrivenSurfaceDeclaration> drivenSurfaces = new();
+        private readonly List<MechanicalTransmissionDeclaration> internalTransmissions = new();
         private readonly List<ElectricalSourceDeclaration> electricalSources = new(4);
         private readonly List<OrientationSensorDeclaration> orientationSensors = new(4);
         private readonly List<ContactLoadSensorDeclaration> contactLoads = new(4);
@@ -173,14 +174,15 @@ public static class WorkshopPhysicsCompiler
 
         private void CompileHinges(IWorkshopInstance instance, CompiledPartIdentities rows, IReadOnlyDictionary<string, float> parameters, IReadOnlyDictionary<ParameterId, float> values, IReadOnlyList<RevoluteHingeDescriptor> hinges)
         {
-            for (var i = 0; i < hinges.Count; i++)
+            foreach (var i in HingeSupportOrder.Resolve(rows.Sliders.Length, hinges))
             {
                 var hinge = hinges[i];
                 var moving = rows.Hinges[i].Body;
                 var initialAngleDeg = hinge.InitialAngle.Evaluate(parameters);
                 var initialAngleRad = initialAngleDeg * (MathF.PI / 180f);
-                var rA = new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W);
-                var pA = new Vector3((instance.Cell.X + instance.Local.X) / 16f, (instance.Cell.Y + instance.Local.Y) / 16f, (instance.Cell.Z + instance.Local.Z) / 16f);
+                var support = bodies.Single(body => body.Id == identities.Body(instance.Id, hinge.Support));
+                var rA = new Quaternion(support.Rotation.X, support.Rotation.Y, support.Rotation.Z, support.Rotation.W);
+                var pA = new Vector3((support.Cell.X + support.Local.X) / 16f, (support.Cell.Y + support.Local.Y) / 16f, (support.Cell.Z + support.Local.Z) / 16f);
                 var (pB, rB) = HingeMovingTransform(pA, rA,
                     new(hinge.BaseFrame.Position, hinge.BaseFrame.Rotation),
                     new(hinge.MovingFrame.Position, hinge.MovingFrame.Rotation),
@@ -197,7 +199,7 @@ public static class WorkshopPhysicsCompiler
                     new(movingMass.Gravity.X, movingMass.Gravity.Y, movingMass.Gravity.Z), new(movingMass.LinearDrag), MassProperties(movingMass)));
                 AddGeometry(moving, rows.Hinges[i].Material, rows.Hinges[i].Colliders, body.Colliders);
                 var joint = rows.Hinges[i].Joint;
-                revolutes.Add(new(joint, instance.Id, moving,
+                revolutes.Add(new(joint, support.Id, moving,
                     new(hinge.BaseFrame.Position, hinge.BaseFrame.Rotation), new(hinge.MovingFrame.Position, hinge.MovingFrame.Rotation),
                     hinge.LowerLimit, hinge.UpperLimit, hinge.Travel, hinge.Stiffness.Evaluate(parameters), hinge.Damping.Evaluate(parameters),
                     hinge.FrictionTorque.Evaluate(parameters),
@@ -242,18 +244,7 @@ public static class WorkshopPhysicsCompiler
                 AddGeometry(instance.Id, rows.Material, rows.Colliders, shapes);
                 CompileSliders(instance, rows, parameters, values, sliders);
                 CompileHinges(instance, rows, parameters, values, hinges);
-                if (mechanical is not null)
-                    for (var index = 0; index < mechanical.DrivenSurfaces.Count; index++)
-                    {
-                        var surface = mechanical.DrivenSurfaces[index];
-                        var carrier = ResolvePortBody(instance.Id, surface.Carrier);
-                        var colliderRows = surface.Carrier.Value == 0 ? rows.Colliders :
-                            surface.Carrier.Value <= rows.Sliders.Length ? rows.Sliders[surface.Carrier.Value - 1].Colliders :
-                            rows.Hinges[surface.Carrier.Value - 1 - rows.Sliders.Length].Colliders;
-                        drivenSurfaces.Add(new(rows.DrivenSurfaces[index], carrier, colliderRows[surface.Collider.Value],
-                            surface.Face, rows.Hinges[surface.Source.Index].Joint, surface.LocalDirection,
-                            surface.TravelPerRadian.Evaluate(parameters)));
-                    }
+                if (mechanical is not null) CompileDrivenSurfaces(instance.Id, rows, parameters, mechanical.DrivenSurfaces);
                 if (mechanical?.CompliantSurface is { } compliant)
                 {
                     compliantSurfaces.Add(new CompliantSurfaceDeclaration(
@@ -267,6 +258,37 @@ public static class WorkshopPhysicsCompiler
                         compliant.Tension.Evaluate(parameters),
                         compliant.DampingRatio.Evaluate(parameters)));
                 }
+                if (mechanical is not null) CompileTransmissions(instance.Id, rows, parameters, mechanical.Transmissions);
+            }
+        }
+
+        private void CompileDrivenSurfaces(GpuBodyId owner, CompiledPartIdentities rows,
+            IReadOnlyDictionary<string, float> parameters, IReadOnlyList<DrivenSurfaceDescriptor> surfaces)
+        {
+            for (var index = 0; index < surfaces.Count; index++)
+            {
+                var surface = surfaces[index];
+                var carrier = ResolvePortBody(owner, surface.Carrier);
+                var colliderRows = surface.Carrier.Value == 0 ? rows.Colliders :
+                    surface.Carrier.Value <= rows.Sliders.Length ? rows.Sliders[surface.Carrier.Value - 1].Colliders :
+                    rows.Hinges[surface.Carrier.Value - 1 - rows.Sliders.Length].Colliders;
+                drivenSurfaces.Add(new(rows.DrivenSurfaces[index], carrier, colliderRows[surface.Collider.Value],
+                    surface.Face, rows.Hinges[surface.Source.Index].Joint, surface.LocalDirection,
+                    surface.TravelPerRadian.Evaluate(parameters)));
+            }
+        }
+
+        private void CompileTransmissions(GpuBodyId owner, CompiledPartIdentities rows,
+            IReadOnlyDictionary<string, float> parameters, IReadOnlyList<MechanicalTransmissionDescriptor> transmissions)
+        {
+            for (var index = 0; index < transmissions.Count; index++)
+            {
+                var item = transmissions[index];
+                var driving = rows.Hinges[item.Driving.Index].Joint;
+                var driven = rows.Hinges[item.Driven.Index].Joint;
+                var ratio = item.Ratio.Evaluate(parameters);
+                var closeSeconds = item.CloseSeconds?.Evaluate(parameters) ?? 0f;
+                internalTransmissions.Add(new(rows.Transmissions[item.Id], driving, driven, ratio, closeSeconds, owner));
             }
         }
 
@@ -463,7 +485,9 @@ public static class WorkshopPhysicsCompiler
                     }
                 }
             }
-            var transmissions = new List<MechanicalTransmissionDeclaration>();
+            var transmissions = new List<MechanicalTransmissionDeclaration>(internalTransmissions);
+            var reservedIds = new HashSet<ulong>(internalTransmissions.Select(t => t.Id.Value));
+            var nextExternalId = 1UL;
             foreach (var link in construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Mechanical))
             {
                 var sourceInstance = (WorkshopGenericInstance)construction.Instances.Single(p => p.Id == link.Source);
@@ -478,7 +502,8 @@ public static class WorkshopPhysicsCompiler
                 var drivenJoint = identities[targetInstance.Id].Hinges[targetCoord.Index].Joint;
                 var ratio = sourcePort.CoordinatePerRadian / targetPort.CoordinatePerRadian;
 
-                var transmissionId = new MechanicalTransmissionId((ulong)transmissions.Count + 1);
+                while (reservedIds.Contains(nextExternalId)) nextExternalId++;
+                var transmissionId = new MechanicalTransmissionId(nextExternalId++);
                 transmissions.Add(new(transmissionId, drivingJoint, drivenJoint, ratio));
             }
             return (tensile, ropeGuides, transmissions);

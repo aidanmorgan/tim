@@ -23,7 +23,10 @@ public enum PresentationDriver : byte
     CommittedContactLoadPhase, CommittedActuatorState, CommittedTimerRemaining, CommittedTimerActive, CommittedElectricalSocket,
     CommittedWheelAngle,
     /// <summary>The owner's committed compliant-surface deflection in metres (0 at rest): the value is From + (To − From) · deflection.</summary>
-    CommittedSurfaceDeflection
+    CommittedSurfaceDeflection,
+    CommittedTransmissionClosure,
+    CommittedTransmissionPhase,
+    CommittedRevoluteAngle
 }
 
 public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2, StateValues = 3 }
@@ -57,6 +60,21 @@ public readonly record struct PresentationStateValues(float State0, float State1
         ActivationTimerPhase.Finished => State2,
         _ => throw new ArgumentOutOfRangeException(nameof(phase))
     };
+
+}
+
+public readonly record struct PresentationFourStateValues(float State0, float State1, float State2, float State3)
+{
+    public bool IsFinite() => float.IsFinite(State0) && float.IsFinite(State1) && float.IsFinite(State2) && float.IsFinite(State3);
+
+    public float Map(Mechanical.TransmissionEngagementPhase phase) => phase switch
+    {
+        Mechanical.TransmissionEngagementPhase.Open => State0,
+        Mechanical.TransmissionEngagementPhase.Opening => State3,
+        Mechanical.TransmissionEngagementPhase.Closing => State1,
+        Mechanical.TransmissionEngagementPhase.Engaged => State2,
+        _ => throw new ArgumentOutOfRangeException(nameof(phase))
+    };
 }
 
 public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep }
@@ -77,7 +95,8 @@ public readonly record struct PresentationBinding(
     float From, float To, PresentationCurve Curve, float Duration,
     PresentationOverlap Overlap, float Threshold, float Response = 0f, PortId? Socket = null,
     SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any, SignalNodeId? SignalNode = null,
-    CoordinateReference? Actuator = null, PortId? GuidePort = null, PresentationStateValues? StateValues = null, Electrical.LocalSupplyNodeId? SupplyNode = null);
+    CoordinateReference? Actuator = null, PortId? GuidePort = null, PresentationStateValues? StateValues = null,
+    Electrical.LocalSupplyNodeId? SupplyNode = null, Mechanical.LocalMechanicalTransmissionId? Transmission = null, PresentationFourStateValues? FourStateValues = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(
@@ -109,16 +128,21 @@ public static class PresentationDriverRules
         driver == PresentationDriver.Event && SimulationEvents.SignalSource(kind);
 
     public static bool ContinuousNormalized(PresentationDriver driver) => driver is PresentationDriver.CommittedOscillatorPhase or
-        PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerRemaining;
+        PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerRemaining or
+        PresentationDriver.CommittedTransmissionClosure;
 
     public static bool Discrete3State(PresentationDriver driver) => driver is
         PresentationDriver.CommittedActuatorState or
         PresentationDriver.CommittedContactLoadPhase or
         PresentationDriver.CommittedTimerPhase;
 
+    public static bool Discrete4State(PresentationDriver driver) => driver == PresentationDriver.CommittedTransmissionPhase;
+
     public static bool ContinuousPhysical(PresentationDriver driver) => driver is
         PresentationDriver.CommittedWheelAngle or
+        PresentationDriver.CommittedRevoluteAngle or
         PresentationDriver.CommittedSurfaceDeflection or
+        PresentationDriver.CommittedTransmissionClosure or
         PresentationDriver.CommittedTimerProgress or
         PresentationDriver.CommittedTimerRemaining or
         PresentationDriver.CommittedOscillatorPhase;
@@ -134,23 +158,23 @@ public static class PresentationDriverRules
 
     public static bool SupportsMapping(PresentationDriver driver, PresentationValueMapping mapping) => mapping switch
     {
-        PresentationValueMapping.StateValues => Discrete3State(driver),
+        PresentationValueMapping.StateValues => Discrete3State(driver) || Discrete4State(driver),
         PresentationValueMapping.SineCyclesToUnit => ContinuousNormalized(driver),
-        PresentationValueMapping.Identity => !Discrete3State(driver),
+        PresentationValueMapping.Identity => !Discrete3State(driver) && !Discrete4State(driver),
         _ => false
     };
 
     /// <summary>Construction/Reset projection: zero scalar input or the declared State0 state.</summary>
     public static float InitialValue(PresentationBinding binding) =>
-        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues);
+        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues);
 
     public static float InitialValue(CompiledPresentationBinding binding) =>
-        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues);
+        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues);
 
-    public static float InitialValue(PresentationValueMapping mapping, float from, float to, PresentationStateValues? stateValues)
+    public static float InitialValue(PresentationValueMapping mapping, float from, float to, PresentationStateValues? stateValues, PresentationFourStateValues? fourStateValues)
     {
         var amount = mapping == PresentationValueMapping.StateValues
-            ? stateValues!.Value.State0
+            ? (fourStateValues?.State0 ?? stateValues!.Value.State0)
             : Map(0, mapping);
         return float.Lerp(from, to, amount);
     }
@@ -183,7 +207,7 @@ public static class PresentationDriverRules
         {
             return (curve is PresentationCurve.Linear or PresentationCurve.ExponentialFollow) && duration == 0;
         }
-        if (Discrete3State(driver))
+        if (Discrete3State(driver) || Discrete4State(driver))
         {
             return curve == PresentationCurve.Linear && duration == 0;
         }

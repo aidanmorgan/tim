@@ -287,7 +287,7 @@ public sealed class CatalogueIntegrationTests
         PartId[] membraneInteractions = [new("trampoline")];
         // MotorTests.ASuppliedMotorSpinsUpToItsSpeedHoldsItAndPaysOnlyItsBearingLoss spins a Battery-supplied rotor; the unpowered,
         // stalled and back-driven cases are its controls.
-        PartId[] driveInteractions = [new("motor"), new("conveyor")];
+        PartId[] driveInteractions = [new("motor"), new("conveyor"), new("clutch")];
         var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions)
             .Order().ToArray();
         var actual = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),

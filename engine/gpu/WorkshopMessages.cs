@@ -48,10 +48,10 @@ public static class WorkshopMessages
                 throw new ArgumentException("Capture observation names a foreign policy or target.");
         // Render body reads omit static bodies; ownership belongs to the authored construction.
         foreach (var actuator in read.Presentation.Actuators)
-            if (!HasOwner(actuator.Owner)) throw new ArgumentException("Actuator observation names a foreign owner.");
+            if (!HasActuatorOwner(actuator, construction.Physics)) throw new ArgumentException("Actuator observation names a foreign joint or owner.");
         ValidateLoadOwners(read, construction);
         ValidateLogicOwners(read, construction);
-        bool HasOwner(GpuBodyId owner) => construction.Owners.Contains(owner);
+        ValidateTransmissionOwners(read, construction);
 
     }
 
@@ -130,6 +130,33 @@ public static class WorkshopMessages
                 throw new ArgumentException("Contact-load observation names a foreign sensor, frame or region.");
     }
 
+    private static bool HasActuatorOwner(ActuatorDriveRead read, IPhysicsSceneDeclaration physics) => read.Drive.Kind switch
+    {
+        SupplyConsumerKind.PrismaticDrive => physics.Prismatics.ToArray().Any(joint => joint.Id == read.Drive.PrismaticJoint && joint.BodyA == read.Owner),
+        SupplyConsumerKind.RevoluteDrive => physics.Revolutes.ToArray().Any(joint => joint.Id == read.Drive.RevoluteJoint && joint.BodyA == read.Owner),
+        _ => false
+    };
+
+    private static void ValidateTransmissionOwners(WorkshopRead read, ICompiledScene construction)
+    {
+        var owned = construction.Physics.Transmissions.ToArray().Where(t => t.Owner != default).ToArray();
+        var observed = read.Presentation.Transmissions;
+        if (observed.Length != (read.Epoch.Value == 0 ? 0 : owned.Length))
+            throw new ArgumentException("Mechanical transmission observation population differs from its installation.");
+        for (var i = 0; i < observed.Length; i++)
+        {
+            if (observed[i].Transmission != owned[i].Id || observed[i].Owner != owned[i].Owner)
+                throw new ArgumentException("Mechanical transmission observation names a foreign owner.");
+            if (read.Tick.Value == 0)
+            {
+                var untimed = owned[i].CloseSeconds == 0f;
+                if (observed[i].Phase != (untimed ? CuriousContraptions.Abstractions.Mechanical.TransmissionEngagementPhase.Engaged : CuriousContraptions.Abstractions.Mechanical.TransmissionEngagementPhase.Open) ||
+                    (untimed ? observed[i].Closure != 1f : !PhysicsDeclarationBounds.Zero(observed[i].Closure)))
+                    throw new ArgumentException("Mechanical transmission admission state disagrees with its declaration.");
+            }
+        }
+    }
+
     internal static void ValidateScheduleIdentity(WorkshopResponse response)
     {
         if (response.Read.Epoch.Value == 0)
@@ -150,7 +177,7 @@ public static class WorkshopMessages
             if (capture.Domain != WorkshopClockDomain.SimulationMonotonic || read.Epoch.Value == 0)
                 throw new ArgumentException("Physical read requires its simulation native clock.");
         }
-        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0 || read.Presentation.Ropes.Length != 0)
+        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0 || read.Presentation.Ropes.Length != 0 || read.Presentation.Transmissions.Length != 0)
             throw new ArgumentException("An installed physical read requires its original capture.");
     }
 }

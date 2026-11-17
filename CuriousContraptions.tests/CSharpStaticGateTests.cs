@@ -692,7 +692,7 @@ public sealed class CSharpStaticGateTests
         "elements/Wall/Wall.csproj", "elements/Weight/Weight.csproj", "elements/RopeAnchor/RopeAnchor.csproj",
         "elements/Pulley/Pulley.csproj", "elements/ImpactLever/ImpactLever.csproj",
         "elements/Trampoline/Trampoline.csproj", "elements/Motor/Motor.csproj",
-        "elements/Conveyor/Conveyor.csproj",
+        "elements/Conveyor/Conveyor.csproj", "elements/Clutch/Clutch.csproj",
     ];
     private static readonly string[] RequiredAnalyzers =
     [

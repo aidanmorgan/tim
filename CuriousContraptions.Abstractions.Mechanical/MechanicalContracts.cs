@@ -47,6 +47,11 @@ public interface IDrivenSurfaceElement : IMechanicalElement
     IReadOnlyList<DrivenSurfaceDescriptor> DrivenSurfaces { get; }
 }
 
+public interface IMechanicalTransmissionElement : IMechanicalElement
+{
+    IReadOnlyList<MechanicalTransmissionDescriptor> Transmissions { get; }
+}
+
 public static class BoxFaces
 {
     public static Vector3 Normal(BoxFace face) => face switch

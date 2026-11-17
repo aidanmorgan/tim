@@ -128,17 +128,17 @@ public sealed class ComposableAnimationMappingTests(NativeSceneFixture godot)
         {
             var expectedIdentity = driver is not (PresentationDriver.CommittedActuatorState or
                                                  PresentationDriver.CommittedContactLoadPhase or
-                                                 PresentationDriver.CommittedTimerPhase);
+                                                 PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedTransmissionPhase);
             Assert.Equal(expectedIdentity, PresentationDriverRules.SupportsMapping(driver, PresentationValueMapping.Identity));
 
             var expectedSine = driver is PresentationDriver.CommittedOscillatorPhase or
                                         PresentationDriver.CommittedTimerProgress or
-                                        PresentationDriver.CommittedTimerRemaining;
+                                        PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTransmissionClosure;
             Assert.Equal(expectedSine, PresentationDriverRules.SupportsMapping(driver, PresentationValueMapping.SineCyclesToUnit));
 
             var expectedState = driver is PresentationDriver.CommittedActuatorState or
                                          PresentationDriver.CommittedContactLoadPhase or
-                                         PresentationDriver.CommittedTimerPhase;
+                                         PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedTransmissionPhase;
             Assert.Equal(expectedState, PresentationDriverRules.SupportsMapping(driver, PresentationValueMapping.StateValues));
 
             Assert.False(PresentationDriverRules.SupportsMapping(driver, (PresentationValueMapping)99));

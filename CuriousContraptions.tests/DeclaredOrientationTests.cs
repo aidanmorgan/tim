@@ -82,10 +82,11 @@ public sealed class DeclaredOrientationTests
     private const string PipeSave = "PAEAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAAJAAAAAAAAAAAAAAAMACwAIAAIAAAABAAMAAAAKAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAAAAAAIAAACMAAAAJAAAACAAQAAwACwAAAAgABQABAAAAAAAAAAAAAAAAAAAADwAIAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAwAAAAIAAAAAAAAAAYAAAAAgAAAAAAAAAAAAAABAAAAAAAAAAEAAAAYmFsbAAAFgBAADQAMAAAACQAGAAIAAAAAAAEABYAAAAAADBAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAABAAAAAAAAAAAAAAAEAAAAcGlwZQAAAAA=";
     private const string PipeCommand = "jAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAADwBAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAsACAACAAAAAQADAAAACgAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAAAAAACAAAAjAAAACQAAAAgAEAAMAAsAAAAIAAUAAQAAAAAAAAAAAAAAAAAAAA8ACAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAMAAAACAAAAAAAAAAGAAAAAIAAAAAAAAAAAAAAAQAAAAAAAAABAAAAGJhbGwAABYAPAA0ADAAAAAkABgACAAAAAAABAAWAAAAAAAwQAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAMAAAAAQAAAAAAAAAEAAAAcGlwZQAAAAAQAAAAAQAAAAAAAAACAAAAAAAAAA==";
 
+    // These pinned historical commands retain a retired identifier; generated current malformed frames below still reach verification.
     [Theory]
-    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
-    [InlineData("plate", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("clock", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
+    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("plate", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("clock", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
     public void ABaseEncoderSaveWhoseSlotsMovedIsRefusedTypedAtBothBoundaries(string name,
         WorkshopSaveRejection save, WireFaultReason command)
     {
@@ -109,7 +110,7 @@ public sealed class DeclaredOrientationTests
         Assert.Equal("This save cannot be loaded: Invalid declared parameters.",
             SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
-        Assert.Equal(WireFaultReason.VerifierRejected, fault.Reason);
+        Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);
     }
 
     // ---------- a field beyond the current InstanceRecord table is refused, never ignored (coordinator decision 2, 23 Oct 2026) ----------

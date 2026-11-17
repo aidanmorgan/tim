@@ -9,11 +9,12 @@ namespace CuriousContraptions.Gpu;
 /// is no fixed table capacity: memory is the only bound (owner decision, 20 Oct 2026).
 /// Table order: bodies, materials, residence sensors, guides, triggers, contact works, orientation sensors,
 /// the motion payload, electrical sources, electrical bindings, prismatic joints, contact-load rows, tensile spans, revolute joints,
-/// compliant surfaces, compliant engagements (surfaces × dynamic bodies), colliders.
+/// compliant surfaces, compliant engagements (surfaces × dynamic bodies), mechanical transmissions, colliders.
 /// </summary>
 public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int Materials, int Sensors, int Dynamic, int Guides,
     int Triggers, int ContactWorks, int OrientationSensors, int ElectricalSources, int ElectricalBindings,
-    int Prismatics, int ContactLoads, int TensileSpans, int Revolutes, int CompliantSurfaces) : IPhysicsWorldLayout
+    int Prismatics, int ContactLoads, int TensileSpans, int Revolutes, int CompliantSurfaces,
+    int MechanicalTransmissions = 0) : IPhysicsWorldLayout
 {
     /// <summary>The body table directly follows the header in every world.</summary>
     public static int BodiesOffset => PhysicsGpuAbi.HeaderBytes;
@@ -35,7 +36,8 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     public int CompliantSurfacesOffset => After(RevoluteJointsOffset, Revolutes, PhysicsGpuAbi.RevoluteBytes);
     /// <summary>The committed engagement table: one row per (compliant surface, dynamic body), derived from those two populations.</summary>
     public int CompliantEngagementsOffset => After(CompliantSurfacesOffset, CompliantSurfaces, PhysicsGpuAbi.CompliantSurfaceBytes);
-    public int CollidersOffset => After(CompliantEngagementsOffset, (long)CompliantSurfaces * Dynamic, PhysicsGpuAbi.CompliantEngagementBytes);
+    public int MechanicalTransmissionsOffset => After(CompliantEngagementsOffset, (long)CompliantSurfaces * Dynamic, PhysicsGpuAbi.CompliantEngagementBytes);
+    public int CollidersOffset => After(MechanicalTransmissionsOffset, MechanicalTransmissions, PhysicsGpuAbi.MechanicalTransmissionBytes);
     /// <summary>The exact world length.</summary>
     public int ByteLength => After(CollidersOffset, Colliders, PhysicsGpuAbi.ColliderBytes);
 
@@ -60,6 +62,7 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
         if ((uint)dynamicIndex >= (uint)Dynamic) throw new ArgumentOutOfRangeException(nameof(dynamicIndex));
         return CompliantEngagementsOffset + (surface * Dynamic + dynamicIndex) * PhysicsGpuAbi.CompliantEngagementBytes;
     }
+    public int MechanicalTransmissionOffset(int slot) => Row(MechanicalTransmissionsOffset, slot, MechanicalTransmissions, PhysicsGpuAbi.MechanicalTransmissionBytes);
 
     /// <summary>The layout a world header declares. Every count is a non-negative population; a world whose tables cannot be
     /// addressed (longer than an array can hold) is rejected.</summary>
@@ -75,7 +78,8 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
             Count(header, PhysicsGpuAbi.HeaderPrismaticCountOffset), Count(header, PhysicsGpuAbi.HeaderContactLoadCountOffset),
             Count(header, PhysicsGpuAbi.HeaderTensileSpanCountOffset),
             Count(header, PhysicsGpuAbi.HeaderRevoluteCountOffset),
-            Count(header, PhysicsGpuAbi.HeaderCompliantSurfaceCountOffset));
+            Count(header, PhysicsGpuAbi.HeaderCompliantSurfaceCountOffset),
+            Count(header, PhysicsGpuAbi.HeaderMechanicalTransmissionCountOffset));
         _ = layout.ByteLength;
         return layout;
     }
@@ -94,6 +98,7 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
         Write(header, PhysicsGpuAbi.HeaderTensileSpanCountOffset, TensileSpans);
         Write(header, PhysicsGpuAbi.HeaderRevoluteCountOffset, Revolutes);
         Write(header, PhysicsGpuAbi.HeaderCompliantSurfaceCountOffset, CompliantSurfaces);
+        Write(header, PhysicsGpuAbi.HeaderMechanicalTransmissionCountOffset, MechanicalTransmissions);
     }
 
     private static int Count(ReadOnlySpan<byte> header, int offset)

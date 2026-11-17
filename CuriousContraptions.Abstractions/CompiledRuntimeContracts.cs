@@ -60,6 +60,8 @@ public interface ICompiledMemoryLayout
     IReadOnlyDictionary<ulong, int> RevoluteOffsets { get; }
     IReadOnlyDictionary<ulong, int> CompliantSurfaceSlots { get; }
     IReadOnlyDictionary<ulong, int> CompliantSurfaceOffsets { get; }
+    IReadOnlyDictionary<ulong, int> MechanicalTransmissionSlots { get; }
+    IReadOnlyDictionary<ulong, int> MechanicalTransmissionOffsets { get; }
     int GetBodySlot(GpuBodyId id);
     int GetBodyOffset(GpuBodyId id);
     int GetColliderSlot(GpuColliderId id);
@@ -84,6 +86,8 @@ public interface ICompiledMemoryLayout
     int GetRevoluteOffset(ulong id);
     int GetCompliantSurfaceSlot(ulong id);
     int GetCompliantSurfaceOffset(ulong id);
+    int GetMechanicalTransmissionSlot(ulong id);
+    int GetMechanicalTransmissionOffset(ulong id);
 }
 
 public interface IPhysicsWorldLayout
@@ -104,6 +108,7 @@ public interface IPhysicsWorldLayout
     int TensileSpans { get; }
     int Revolutes { get; }
     int CompliantSurfaces { get; }
+    int MechanicalTransmissions { get; }
     int MaterialsOffset { get; }
     int SensorsOffset { get; }
     int GuidesOffset { get; }
@@ -120,6 +125,7 @@ public interface IPhysicsWorldLayout
     int RevoluteJointsOffset { get; }
     int CompliantSurfacesOffset { get; }
     int CompliantEngagementsOffset { get; }
+    int MechanicalTransmissionsOffset { get; }
     int CollidersOffset { get; }
     int ByteLength { get; }
     int BodyOffset(int slot);
@@ -138,6 +144,7 @@ public interface IPhysicsWorldLayout
     int RevoluteOffset(int slot);
     int CompliantSurfaceOffset(int slot);
     int CompliantEngagementOffset(int surface, int dynamicIndex);
+    int MechanicalTransmissionOffset(int slot);
     void WriteCounts(Span<byte> header);
 }
 

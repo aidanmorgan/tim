@@ -137,7 +137,7 @@ public static partial class PhysicsGpuAbi
         var surfaces = new CompliantSurfaceRead[layout.CompliantSurfaces];
         for (var i = 0; i < surfaces.Length; i++) surfaces[i] = ReadCompliantSurfaceDeflection(bytes, i);
         Array.Sort(surfaces, (a, b) => a.Frame.Value.CompareTo(b.Frame.Value));
-        return new(actuators, loads, inputs.Logic, ropes, guides, surfaces);
+        return new(actuators, loads, inputs.Logic, ropes, guides, surfaces, ReadMechanicalTransmissionReads(bytes));
     }
     private static Vector3 PresentationVector(ReadOnlySpan<byte> body, int offset) =>
         new(RF(body, offset), RF(body, offset + 4), RF(body, offset + 8));

@@ -30,6 +30,7 @@ export enum SimulationCadence { Hz60 = 1, Hz120 = 2, Hz240 = 3 }
 export enum SimulationDomain { None = 0, Mechanical = 1 << 0, Electrical = 1 << 1, Signal = 1 << 2, Fluid = 1 << 3, Audio = 1 << 4 }
 export enum SimulationEventKind { None = 0, Impact = 1, Passage = 2, ThresholdReached = 3, MemoryChanged = 4, ContactLoad = 5, Captured = 6, ElectricalPowered = 7, TriggerActivated = 8 }
 export enum TraceEnd { Complete = 0, Reset = 1, Disposed = 2, Fault = 4, InvalidRecord = 5, Overflow = 6 }
+export enum TransmissionEngagementPhase { Open = 0, Closing = 1, Engaged = 2, Opening = 3 }
 export enum TraceTimingStatus { Complete, Incomplete }
 export enum WorkshopCaptureKind { Pose, Timing }
 export enum WorkshopCaptureStage { Begin, Chunk, End }
@@ -75,6 +76,7 @@ export interface CommittedObservation {
     readonly actuators: readonly ObservedActuator[]; readonly loads: readonly ObservedLoad[]; readonly logic: readonly ObservedLogic[];
     readonly guides: readonly ObservedGuideRead[];
     readonly surfaces: readonly ObservedCompliantSurface[];
+    readonly transmissions: readonly ObservedMechanicalTransmission[];
 }
 export interface CommandReceiptObservation {
     readonly ordinal: string; readonly sequence: string; readonly kind: WorkshopCommandKind;
@@ -109,6 +111,7 @@ export interface ObservedLogic { readonly owner: string; readonly inputs: Electr
 export interface ObservedGuideRead { readonly guide: string; readonly travel: number; readonly angle: number; }
 /** A compliant surface's committed bed deflection (Story 10.5): its frame body and the depth in metres of its deepest OnTop sample. */
 export interface ObservedCompliantSurface { readonly frame: string; readonly deflection: number; }
+export interface ObservedMechanicalTransmission { readonly transmission: string; readonly owner: string; readonly closure: number; readonly phase: TransmissionEngagementPhase; }
 export enum DiagnosticCategory { Fault, Rejection, AfterRetirement, ClockRecalibrated, ClockReplyRejected, ClockRenewedLate, ClockOffsetWide, ClockDerivation, AnimationControlDeferred, DebtFault, TickFailed, BalanceTransfer, Capture, ClockSample, AnimationSample, Presentation }
 export interface ObservedInterval { readonly lower: string; readonly upper: string; }
 export interface ObservedPeer { readonly sessionLow: string; readonly sessionHigh: string; readonly generation: string; readonly requesterGeneration: string; readonly role: WorkshopRuntimeRole; readonly origin: string; readonly uncertainty: string; }

@@ -48,6 +48,7 @@
     <Project Path="elements/Trampoline/Trampoline.csproj" />
     <Project Path="elements/Motor/Motor.csproj" />
     <Project Path="elements/Conveyor/Conveyor.csproj" />
+    <Project Path="elements/Clutch/Clutch.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/BundleElements/BundleElements.csproj" />

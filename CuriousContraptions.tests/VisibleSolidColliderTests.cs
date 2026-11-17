@@ -51,7 +51,7 @@ public sealed class VisibleSolidColliderTests
     /// binding moves, which a static collider cannot follow;</item>
     /// </list></summary>
     /// <remarks><paramref name="Fit"/> widens the dimension agreement for a stated drawing reason (m).</remarks>
-    private sealed record ArtSpec(string[] Solid, string[]? Hollow, string[] Arc, string[] Decorative, string? MovingRoot,
+    private sealed record ArtSpec(string[] Solid, string[]? Hollow, string[] Arc, string[] Decorative, string[] MovingRoots,
         float Fit = 0f);
 
     /// <summary>One drawn primitive in its body's frame. Extents: a box's half sizes, a sphere's radius, a cylinder's (r, h, r); an open
@@ -62,69 +62,78 @@ public sealed class VisibleSolidColliderTests
 
     private static readonly Dictionary<PartId, ArtSpec> Specs = new()
     {
-        [new PartId("lamp")] = new(["Visual/Visual_Base", "Visual/Visual_Stem", "Visual/Bulb"], null, [], [], null),
+        [new PartId("lamp")] = new(["Visual/Visual_Base", "Visual/Visual_Stem", "Visual/Bulb"], null, [], [], []),
         [new PartId("switch")] = new(["Visual/Visual_Base", "Visual/Button", "Visual/Visual_Terminal1", "Visual/Visual_Terminal2",
-            "Visual/Visual_Socket"], null, [], [], null),
+            "Visual/Visual_Socket"], null, [], [], []),
         // The countdown hand turns with the timer (a presentation binding); a static collider cannot follow it.
         [new PartId("delay")] = new(["Visual/Visual_Body", "Visual/Visual_Face", "Visual/Visual_Base", "Visual/Visual_CenterPip",
-            "Visual/Indicator", "Visual/Visual_PortIn", "Visual/Visual_PortOut"], null, [], ["Visual/CountdownHand/Visual_HandMesh"], null),
-        [new PartId("ramp")] = new(["Visual/Visual_Body", "Visual/Visual_RailA", "Visual/Visual_RailB"], null, [], [], null),
+            "Visual/Indicator", "Visual/Visual_PortIn", "Visual/Visual_PortOut"], null, [], ["Visual/CountdownHand/Visual_HandMesh"], []),
+        [new PartId("ramp")] = new(["Visual/Visual_Body", "Visual/Visual_RailA", "Visual/Visual_RailB"], null, [], [], []),
         // The four charge marks and the plus symbol are the gauge and label printed on the body.
         [new PartId("battery")] = new(["Visual/Visual_Body", "Visual/Visual_Stripe", "Visual/Terminal"], null, [],
-            ["Visual/Mark_0", "Visual/Mark_1", "Visual/Mark_2", "Visual/Mark_3", "Visual/Visual_PlusH", "Visual/Visual_PlusV"], null),
+            ["Visual/Mark_0", "Visual/Mark_1", "Visual/Mark_2", "Visual/Mark_3", "Visual/Visual_PlusH", "Visual/Visual_PlusV"], []),
         // The chevron is the arrow printed on the housing.
         [new PartId("ball_detector")] = new(["Visual/Visual_Housing", "Visual/Visual_Socket", "Visual/Visual_Indicator"],
-            ["Visual/Visual_Collar"], [], ["Visual/Visual_Chevron/Arm_1", "Visual/Visual_Chevron/Arm_2"], null),
+            ["Visual/Visual_Collar"], [], ["Visual/Visual_Chevron/Arm_1", "Visual/Visual_Chevron/Arm_2"], []),
         [new PartId("powered_gate")] = new(
             ["Visual/Visual_Housing", "Visual/Visual_Rail_Start", "Visual/Visual_Rail_End", "Visual/Blade/Visual_Blade",
                 "Visual/Visual_Socket", "Visual/Visual_Indicator"],
-            ["Visual/Visual_Sleeve", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [], "Visual/Blade"),
+            ["Visual/Visual_Sleeve", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [], ["Visual/Blade"]),
 
         // CAT-042: the rotor turns on its hinge (its own body); the gold index is printed flush on the rotor face.
         [new PartId("motor")] = new(["Visual/Visual_Base", "Visual/Visual_Body", "Visual/Visual_Housing", "Visual/Visual_Stud", "Visual/Lamp",
-            "Visual/Rotor/Visual_Rotor"], null, [], ["Visual/Rotor/Visual_Index"], "Visual/Rotor"),
+            "Visual/Rotor/Visual_Rotor"], null, [], ["Visual/Rotor/Visual_Index"], ["Visual/Rotor"]),
 
         // CAT-019: the driven roller turns on its hinge; carrier box and idle roller are static.
         [new PartId("conveyor")] = new(
             ["Visual/Visual_Carrier", "Visual/Visual_RailA", "Visual/Visual_RailB", "Visual/Visual_IdleRoller",
              "Visual/Visual_SupportA", "Visual/Visual_SupportB", "Visual/Roller/Visual_Roller"],
-            null, [], ["Visual/Roller/PulleyIn/*", "Visual/PulleyOut/*"], "Visual/Roller"),
+            null, [], ["Visual/Roller/PulleyIn/*", "Visual/PulleyOut/*"], ["Visual/Roller"]),
+
+        // CAT-018: two dynamic cylinder shafts rotate on hinges; enclosed axle rod, plates and spokes are decorative.
+        [new PartId("clutch")] = new(
+            ["Visual/Visual_Base", "Visual/Visual_BlockLeft", "Visual/Visual_BlockRight", "Visual/Visual_Coil",
+             "Visual/Visual_Stud", "Visual/Lamp", "Visual/InputShaft/Visual_InputShaft", "Visual/OutputShaft/Visual_OutputShaft"],
+            null, [],
+            ["Visual/Visual_Axle", "Visual/PlateLeft/*", "Visual/PlateRight/*",
+             "Visual/InputShaft/Visual_InputSpoke", "Visual/OutputShaft/Visual_OutputSpoke"],
+            ["Visual/InputShaft", "Visual/OutputShaft"]),
 
         // Every other element package, classified the same way.
         // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
-        [new PartId("ball")] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], null),
-        [new PartId("bowling")] = new(["Visual/Visual_Sphere"], null, [], [], null),
+        [new PartId("ball")] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], []),
+        [new PartId("bowling")] = new(["Visual/Visual_Sphere"], null, [], [], []),
         // The base lies inside the head; the impact ring is scaled by the impact cue. The upper ring is the
         // drawn full torus (engine-hollow-shapes).
-        [new PartId("bumper")] = new(["Visual/BumperHead", "Visual/Visual_Cap"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], null),
+        [new PartId("bumper")] = new(["Visual/BumperHead", "Visual/Visual_Cap"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], []),
         // The pips: engine-multi-collider-dynamic.
-        [new PartId("domino")] = new(["Visual/Visual_Body", "Visual/Visual_Pip1", "Visual/Visual_Pip2"], null, [], [], null),
+        [new PartId("domino")] = new(["Visual/Visual_Body", "Visual/Visual_Pip1", "Visual/Visual_Pip2"], null, [], [], []),
         // The stripes are flush with the faces. The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the
         // collider takes the full thickness, 0.001·t thicker per face, at most 2 mm at the 2 m maximum thickness.
-        [new PartId("wall")] = new(["Visual/Visual_Body"], null, [], ["Visual/Visual_StripeLeft", "Visual/Visual_StripeRight"], null, Fit: .002f),
+        [new PartId("wall")] = new(["Visual/Visual_Body"], null, [], ["Visual/Visual_StripeLeft", "Visual/Visual_StripeRight"], [], Fit: .002f),
         // The body is drawn at mass m by a uniform scale 0.136734·m + 0.453070 of its 0.35166413 m radius, and the collider's radius
         // is 0.04808397·m + 0.15932827: the declared constants differ by 0.35166413·(0.136734·m + 0.453070) − (0.04808397·m +
         // 0.15932827), at most 4.0e-6 m at the 8 kg bound (the half-height by 3.2e-6 m).
         // The base, and the bands and eye (tori on a dynamic body): engine-multi-collider-dynamic.
-        [new PartId("weight")] = new(["Visual/Visual_Body", "Visual/Visual_Base"], ["Visual/Visual_BandLower", "Visual/Visual_BandUpper", "Visual/Visual_Eye"], [], [], null, Fit: 4e-6f),
+        [new PartId("weight")] = new(["Visual/Visual_Body", "Visual/Visual_Base"], ["Visual/Visual_BandLower", "Visual/Visual_BandUpper", "Visual/Visual_Eye"], [], [], [], Fit: 4e-6f),
         // The halo is a glow.
         [new PartId("basket")] = new(["Visual/Visual_Floor", "Visual/Visual_Left", "Visual/Visual_Right", "Visual/Visual_Back", "Visual/Visual_Front"],
-            null, [], ["Visual/Visual_Halo"], null),
+            null, [], ["Visual/Visual_Halo"], []),
         // The studs and the ring torus would be colliders past the fifth, reaching the contact-load row: engine-multi-collider-dynamic.
         [new PartId("pressure_plate")] = new(["Visual/Visual_Base", "Visual/Visual_Top", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply",
-            "Visual/Visual_Socket_ActivationOut", "Visual/Stud_0", "Visual/Stud_1", "Visual/Stud_2", "Visual/Stud_3"], ["Visual/Visual_Ring"], [], [], null),
+            "Visual/Visual_Socket_ActivationOut", "Visual/Stud_0", "Visual/Stud_1", "Visual/Stud_2", "Visual/Stud_3"], ["Visual/Visual_Ring"], [], [], []),
         // The stripe is printed on the plate; the coil is drawn by the spring's compression.
         [new PartId("spring")] = new(["Visual/Visual_Base", "Visual/Plate/Visual_Plate"], null, [], ["Visual/Plate/Visual_Stripe", "Visual/Coil/*"],
-            "Visual/Plate"),
+            ["Visual/Plate"]),
         // engine-hollow-shapes: the pipe family's shells, stubs and collars are its true hollow colliders; a bend's shell chords draw
         // its torus segment.
-        [new PartId("pipe")] = new([], ["Visual/Visual_Shell", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [], null),
+        [new PartId("pipe")] = new([], ["Visual/Visual_Shell", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [], []),
         [new PartId("pipe_bend_45")] = new([], ["Visual/Visual_Shell/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"],
-            ["Visual/Visual_Shell/Visual_Shell_Seg_*"], [], null),
+            ["Visual/Visual_Shell/Visual_Shell_Seg_*"], [], []),
         [new PartId("pipe_bend_90")] = new([], ["Visual/Visual_Shell/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"],
-            ["Visual/Visual_Shell/Visual_Shell_Seg_*"], [], null),
+            ["Visual/Visual_Shell/Visual_Shell_Seg_*"], [], []),
         [new PartId("funnel")] = new([], ["Visual/Visual_Shell", "Visual/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [],
-            null),
+            []),
         // Static control labels are flat printing, independently checked in FaceMarkingTests.
         [new PartId("both_gate")] = Logic(["Visual/UpperPath", "Visual/LowerPath"]),
         [new PartId("electrical_nand")] = Logic(["Visual/Pictogram/*", "Visual/TruthDot*"]),
@@ -133,23 +142,23 @@ public sealed class VisibleSolidColliderTests
         [new PartId("electrical_xor")] = Logic(["Visual/Pictogram/*", "Visual/TruthDot*"]),
         // The remaining-time bar is driven by the timer; its static track is printed.
         [new PartId("hold_timer")] = new(["Visual/Body", "Visual/Foot", "Visual/Face", "Visual/Indicator", "Visual/PortTrigger",
-            "Visual/PortInput", "Visual/PortOutput"], null, [], ["Visual/Remaining/*", "Visual/Track"], null),
+            "Visual/PortInput", "Visual/PortOutput"], null, [], ["Visual/Remaining/*", "Visual/Track"], []),
         // The ActivationOut socket (r 0.075 at (0, −0.72, 0.1)) lies wholly inside the foot (|y + 0.72| ≤ 0.08, z ≤ 0.425).
         [new PartId("counter")] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", .. Enumerable.Range(0, 9).Select(i => $"Visual/DotLamp_{i}"),
             "Visual/Visual_Socket_ActivationIn", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply"], null, [],
-            ["Visual/Visual_Socket_ActivationOut"], null),
+            ["Visual/Visual_Socket_ActivationOut"], []),
         // The rocker turns with state; the set, reset and output cues are printed.
         [new PartId("latch")] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/IndicatorLamp", "Visual/Visual_Socket_SetIn",
             "Visual/Visual_Socket_ResetIn", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply", "Visual/Visual_Socket_ActivationOut"],
-            null, [], ["Visual/Rocker", "Visual/SetMarker", "Visual/ResetMarker/*", "Visual/OutMarker/*"], null),
+            null, [], ["Visual/Rocker", "Visual/SetMarker", "Visual/ResetMarker/*", "Visual/OutMarker/*"], []),
         // The pendulum swings with the clock. The recess stands 2 cm proud of the face. The pivot cap: engine-multi-collider-dynamic.
         [new PartId("clock")] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/PivotCap", "Visual/Visual_Indicator", "Visual/Visual_Socket_PowerIn",
-            "Visual/Visual_Socket_ActivationOut", "Visual/Recess"], null, [], ["Visual/PendulumPivot/*"], null),
+            "Visual/Visual_Socket_ActivationOut", "Visual/Recess"], null, [], ["Visual/PendulumPivot/*"], []),
     };
 
     private static ArtSpec Logic(string[] printed) => new(["Visual/Body", "Visual/Foot", "Visual/Face", "Visual/FirstLamp", "Visual/SecondLamp",
             "Visual/OutputLamp", "Visual/PortFirst", "Visual/PortSecond", "Visual/PortPower", "Visual/PortOutput"], null, [],
-        [.. printed, "Visual/FirstMark", "Visual/SecondMarkLeft", "Visual/SecondMarkRight"], null);
+        [.. printed, "Visual/FirstMark", "Visual/SecondMarkLeft", "Visual/SecondMarkRight"], []);
 
     /// <summary>Whether an art path is named by a classification entry: exactly, or by its prefix when the entry ends with "*".</summary>
     private static bool Names(string entry, string path) =>
@@ -175,7 +184,7 @@ public sealed class VisibleSolidColliderTests
         var entry = TestBundle.Entry(element);
         foreach (var parameters in ParameterSets(entry))
         {
-            var art = Art(entry, spec.MovingRoot, parameters);
+            var art = Art(entry, spec.MovingRoots, parameters);
             string[] entries = [.. spec.Solid, .. spec.Hollow ?? [], .. spec.Arc, .. spec.Decorative];
             Assert.All(art.Keys, path => Assert.True(entries.Count(e => Names(e, path)) == 1, $"{element}: art '{path}' is not classified once"));
             Assert.All(entries, e => Assert.True(art.Keys.Any(path => Names(e, path)), $"{element}: '{e}' names no art"));
@@ -205,7 +214,7 @@ public sealed class VisibleSolidColliderTests
             foreach (var path in spec.Solid)
             {
                 var solid = art[path] ?? throw new InvalidOperationException($"{element}: solid art '{path}' is not a box, full sphere or straight cylinder.");
-                var onMoving = spec.MovingRoot is { } root && path.StartsWith(root + "/", StringComparison.Ordinal);
+                var onMoving = spec.MovingRoots.Any(root => path.StartsWith(root + "/", StringComparison.Ordinal));
                 var pool = onMoving ? moving : colliders;
                 var match = pool.FindIndex(collider => Matches(solid, collider, Tol + spec.Fit));
                 if (match < 0) unmatched.Add($"'{path}' ({solid.Kind}, centre {solid.Centre}, half {solid.Extents})");
@@ -225,7 +234,7 @@ public sealed class VisibleSolidColliderTests
     /// <summary>Every mesh of the element's scene in the frame of the body that owns it, with the declared presentation parameter
     /// scales and offsets applied to their nodes (for example the Ramp's Visual node scales X by length / 3 and Z by width / 1.3). A
     /// mesh that is not a box, a full sphere or a straight cylinder has no primitive shape (null).</summary>
-    private static Dictionary<string, Solid?> Art(BundleEntry entry, string? movingRoot, IReadOnlyDictionary<string, float> parameters)
+    private static Dictionary<string, Solid?> Art(BundleEntry entry, string[] movingRoots, IReadOnlyDictionary<string, float> parameters)
     {
         var root = ResourceLoader.Load<PackedScene>(entry.Metadata.ScenePath).Instantiate<Node3D>();
         try
@@ -239,7 +248,7 @@ public sealed class VisibleSolidColliderTests
                 for (Node node = mesh; node != root; node = node.GetParent())
                 {
                     var nodePath = root.GetPathTo(node).ToString();
-                    if (movingRoot == nodePath) break;
+                    if (movingRoots.Contains(nodePath, StringComparer.Ordinal)) break;
                     var local = ((Node3D)node).Transform;
                     var (scale, origin) = (new Godot.Vector3(1, 1, 1), local.Origin);
                     foreach (var binding in entry.Presentation.Parameters.Where(b => b.Node == nodePath))

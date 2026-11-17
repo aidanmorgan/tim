@@ -34,6 +34,7 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDec
     IReadOnlyList<AnchorPointDescriptor> AnchorPoints, IReadOnlyList<PrismaticSliderDescriptor> Sliders,
     IReadOnlyList<RevoluteHingeDescriptor> Hinges, CompliantSurfaceDescriptor? CompliantSurface,
     IReadOnlyList<DrivenSurfaceDescriptor> DrivenSurfaces,
+    IReadOnlyList<MechanicalTransmissionDescriptor> Transmissions,
     ResidenceSensorDescriptor? Residence = null, PlanarGuideDescriptor? PlanarGuide = null, ContactWorkDescriptor? ContactWork = null);
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyGraphDescriptor? SupplyGraph);

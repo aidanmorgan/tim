@@ -6,7 +6,7 @@ namespace CuriousContraptions.Tests;
 
 /// <summary>C-Memory (9A.41 + 9A.43): the declared pulse count and memory capabilities, the nodes they compile to, the deleted record
 /// layout's saves (pinned base-encoder bytes) at both decode boundaries, and the authored content key the counter record carried.</summary>
-// Historical command fixtures are obsolete authored envelopes and refuse structurally before instance fields.
+// Historical command fixtures retain their retired root identifier; the current decoder refuses it before structural verification.
 // Current compiled field boundaries are exercised by CompiledSceneBoundaryTests; save checks retain their field-level controls.
 public sealed class DeclaredMemoryTests
 {
@@ -141,7 +141,7 @@ public sealed class DeclaredMemoryTests
             () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save));
         Assert.False(string.IsNullOrWhiteSpace(rejected.Message));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
-        Assert.Equal(WireFaultReason.VerifierRejected, fault.Reason);
+        Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);
         Assert.False(string.IsNullOrWhiteSpace(fault.Message));
     }
 
@@ -152,7 +152,7 @@ public sealed class DeclaredMemoryTests
         var (save, command) = Bytes("generic_lamp");
         Assert.Equal(BeyondSave, SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
-        Assert.Equal(WireFaultReason.VerifierRejected, fault.Reason);
+        Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);
         Assert.False(string.IsNullOrWhiteSpace(fault.Message));
     }
 

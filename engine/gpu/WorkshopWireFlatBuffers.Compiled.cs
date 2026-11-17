@@ -50,10 +50,11 @@ public static partial class WorkshopWireFlatBuffers
     }
 
     private static Offset<W.MechanicalTransmissionRecord> EncodeMechanicalTransmission(FlatBufferBuilder b, MechanicalTransmissionDeclaration value) =>
-        W.MechanicalTransmissionRecord.CreateMechanicalTransmissionRecord(b, value.Id.Value, value.DrivingJoint.Value, value.DrivenJoint.Value, value.Ratio);
+        W.MechanicalTransmissionRecord.CreateMechanicalTransmissionRecord(
+            b, value.Id.Value, value.DrivingJoint.Value, value.DrivenJoint.Value, value.Ratio, value.CloseSeconds, value.Owner.Value);
 
     private static MechanicalTransmissionDeclaration DecodeMechanicalTransmission(W.MechanicalTransmissionRecord row) =>
-        new(new(row.Id), new(row.DrivingHinge), new(row.DrivenHinge), row.Ratio);
+        new(new(row.Id), new(row.DrivingHinge), new(row.DrivenHinge), row.Ratio, row.CloseSeconds, new(row.Owner));
 
     private static Offset<W.DrivenSurfaceRecord> EncodeDrivenSurface(FlatBufferBuilder b, DrivenSurfaceDeclaration value)
     {
@@ -601,6 +602,7 @@ public static partial class WorkshopWireFlatBuffers
         {
             CuriousContraptions.Gpu.SupplyConsumerKind.PrismaticDrive => value.PrismaticJoint.Value,
             CuriousContraptions.Gpu.SupplyConsumerKind.RevoluteDrive => value.RevoluteJoint.Value,
+            CuriousContraptions.Gpu.SupplyConsumerKind.MechanicalTransmission => value.TransmissionId.Value,
             _ => throw new ArgumentException("Undefined supply consumer kind.")
         });
         return W.CapabilitySupplyConsumerRecord.EndCapabilitySupplyConsumerRecord(b);
@@ -609,14 +611,23 @@ public static partial class WorkshopWireFlatBuffers
     private static CuriousContraptions.Gpu.SupplyConsumer DecodeCapabilitySupplyConsumerRecord(W.CapabilitySupplyConsumerRecord row) =>
         SupplyConsumerOf(row.Kind, row.Joint);
 
-    /// <summary>The wire's kind selects the identity type its joint is decoded as; an undefined kind is refused. Shared by the compiled
-    /// consumer record and the committed actuator drive record.</summary>
+    /// <summary>The wire's kind selects the identity type its target is decoded as in compiled supply graphs; an undefined kind is refused.</summary>
     private static CuriousContraptions.Gpu.SupplyConsumer SupplyConsumerOf(uint kind, ulong joint) =>
         ObservationEnum<CuriousContraptions.Gpu.SupplyConsumerKind>(kind) switch
         {
             CuriousContraptions.Gpu.SupplyConsumerKind.PrismaticDrive => CuriousContraptions.Gpu.SupplyConsumer.Prismatic(new(joint)),
             CuriousContraptions.Gpu.SupplyConsumerKind.RevoluteDrive => CuriousContraptions.Gpu.SupplyConsumer.Revolute(new(joint)),
+            CuriousContraptions.Gpu.SupplyConsumerKind.MechanicalTransmission => CuriousContraptions.Gpu.SupplyConsumer.Transmission(new(joint)),
             _ => throw new ArgumentException("Undefined supply consumer kind.")
+        };
+
+    /// <summary>Actuator drive wires and presentation tracks accept only prismatic or revolute drives, never transmission targets.</summary>
+    private static CuriousContraptions.Gpu.SupplyConsumer ActuatorConsumerOf(uint kind, ulong joint) =>
+        ObservationEnum<CuriousContraptions.Gpu.SupplyConsumerKind>(kind) switch
+        {
+            CuriousContraptions.Gpu.SupplyConsumerKind.PrismaticDrive => CuriousContraptions.Gpu.SupplyConsumer.Prismatic(new(joint)),
+            CuriousContraptions.Gpu.SupplyConsumerKind.RevoluteDrive => CuriousContraptions.Gpu.SupplyConsumer.Revolute(new(joint)),
+            _ => throw new ArgumentException("Undefined actuator drive kind.")
         };
 
     private static Offset<W.CapabilitySupplyEdgeRecord> EncodeCapabilitySupplyEdgeRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.SupplyEdge value)
@@ -780,6 +791,9 @@ public static partial class WorkshopWireFlatBuffers
     private static Offset<W.CapabilityPresentationBindingRecord> EncodeCapabilityPresentationBindingRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.CompiledPresentationBinding value)
     {
         W.CapabilityPresentationBindingRecord.StartCapabilityPresentationBindingRecord(b);
+        if (value.FourStateValues is { } four)
+            W.CapabilityPresentationBindingRecord.AddFourStateValues(b,
+                W.FourStateValuesRecord.CreateFourStateValuesRecord(b, four.State0, four.State1, four.State2, four.State3));
         if (value.StateValues is { } states)
             W.CapabilityPresentationBindingRecord.AddStateValues(b,
                 W.ActuatorStateValuesRecord.CreateActuatorStateValuesRecord(b, states.State0, states.State1, states.State2));
@@ -813,7 +827,8 @@ public static partial class WorkshopWireFlatBuffers
         row.Socket is { } socket ? ObservationEnum<CuriousContraptions.Abstractions.Electrical.SupplyTerminal>(socket) : null,
         ObservationEnum<CuriousContraptions.Abstractions.SimulationEventKind>(row.Event),
         ObservationEnum<CuriousContraptions.Abstractions.PresentationEventMagnitude>(row.EventMagnitude),
-        row.StateValues is { } states ? new CuriousContraptions.Abstractions.PresentationStateValues(states.Unpowered, states.Powered, states.Blocked) : null);
+        row.StateValues is { } states ? new CuriousContraptions.Abstractions.PresentationStateValues(states.Unpowered, states.Powered, states.Blocked) : null,
+        row.FourStateValues is { } four ? new CuriousContraptions.Abstractions.PresentationFourStateValues(four.State0, four.State1, four.State2, four.State3) : null);
 
     private static Offset<W.CapabilityWorkshopCadenceSettingsRecord> EncodeCapabilityWorkshopCadenceSettingsRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.WorkshopCadenceSettings value)
     {
@@ -908,6 +923,7 @@ public static partial class WorkshopWireFlatBuffers
             W.CompiledPresentationRecord.AddGuide(b, track.Guide.Value);
             W.CompiledPresentationRecord.AddSource(b, track.Source.Value);
             W.CompiledPresentationRecord.AddSupplyNode(b, track.SupplyNode.Value);
+            W.CompiledPresentationRecord.AddTransmission(b, track.Transmission.Value);
             return W.CompiledPresentationRecord.EndCompiledPresentationRecord(b);
         }).ToArray());
         W.CompiledSceneRecord.StartCompiledSceneRecord(b);
@@ -999,7 +1015,8 @@ public static partial class WorkshopWireFlatBuffers
                 return new CompiledPresentationTrack(new(track.Target), new(track.Owner), track.Binding,
                     DecodeCapabilityPresentationBindingRecord(Required(track.Declaration, "declaration")),
                     track.Activation is { } node ? DecodeCapabilityActivationNodeDeclarationRecord(node) : default, track.SourceCapacity,
-                    track.Actuator is { } drive ? DecodeCapabilitySupplyConsumerRecord(drive) : null, new(track.Guide), new(track.Source), new(track.SupplyNode));
+                    track.Actuator is { } drive ? ActuatorConsumerOf(drive.Kind, drive.Joint) : null, new(track.Guide),
+                    new(track.Source), new(track.SupplyNode), new MechanicalTransmissionId(track.Transmission));
             });
             return new(new(row.Identity), new(row.Revision), DecodeCapabilityWorkshopCadenceSettingsRecord(Required(row.Settings, "settings")),
                 physics, activation, presentation,

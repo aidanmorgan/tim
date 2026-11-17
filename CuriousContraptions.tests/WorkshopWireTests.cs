@@ -1070,6 +1070,7 @@ public sealed class WorkshopWireTests
     [InlineData(56, 2u)]
     [InlineData(96, 1u)]
     [InlineData(PhysicsGpuAbi.HeaderCompliantSurfaceCountOffset, 1u)]
+    [InlineData(PhysicsGpuAbi.HeaderMechanicalTransmissionCountOffset, 1u)]
     [InlineData(PhysicsGpuAbi.HeaderPaddingOffset, 1u)]
     public void GenericCandidateRejectsChangedHeaderIdentityOrPadding(int offset, uint value)
     {

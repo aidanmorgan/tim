@@ -45,12 +45,10 @@ internal sealed class BrowserGpuTransport(IEventRingPublication events) : IWorks
             if (input.Length != PhysicsGpuAbi.ByteLength(input.Span))
                 throw new ArgumentException("Invalid GPU candidate input length.");
             var layout = PhysicsGpuAbi.Layout(input.Span);
-            var joints = new HashSet<RevoluteConstraintId>();
-            for (var i = 0; i < layout.Revolutes; i++)
-                joints.Add(new(BinaryPrimitives.ReadUInt64LittleEndian(input.Span.Slice(layout.RevoluteOffset(i) + PhysicsGpuAbi.RecordIdentityOffset, 8))));
-            PhysicsDeclarationValidation.ValidateAll(inputs.AdmissionTransmissions, joints);
+            for (var i = 0; i < layout.MechanicalTransmissions; i++)
+                _ = PhysicsGpuAbi.ReadMechanicalTransmission(input.Span, i);
             DrivenSurfaceAdmission.Validate(input.Span, inputs.AdmissionDrivenSurfaces);
-            _admissionEngine = new(inputs.AdmissionTransmissions, inputs.AdmissionDrivenSurfaces);
+            _admissionEngine = new(inputs.AdmissionDrivenSurfaces);
             var candidate = Candidate(input.Length, true);
             _preparedSpare = new byte[_candidateBuffer.Length];
             input.CopyTo(candidate);
@@ -58,7 +56,7 @@ internal sealed class BrowserGpuTransport(IEventRingPublication events) : IWorks
         }
         else if (operation == WorkshopGpuOperation.Advance)
         {
-            if (inputs.AdmissionTransmissions.Length != 0 || inputs.AdmissionDrivenSurfaces.Length != 0)
+            if (inputs.AdmissionDrivenSurfaces.Length != 0)
                 throw new ArgumentException("Transmission topology is installed only during admission.");
             _candidateInteractions=_engine!.Advance(_currentBuffer.AsMemory(0, _currentLength), Candidate(_currentLength, false), inputs, _currentInteractions);
         }

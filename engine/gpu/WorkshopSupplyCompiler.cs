@@ -97,6 +97,9 @@ public static class WorkshopSupplyCompiler
                 case SupplyContactWorkTarget:
                     stores.Add(identities.Work);
                     break;
+                case SupplyTransmissionTarget transmission:
+                    drives.Add(SupplyConsumer.Transmission(identities.Transmissions[transmission.Transmission]));
+                    break;
                 default: throw new ArgumentException("Unknown supply consumer target.");
             }
         return new(id, owner, SupplyNodeKind.Consumer, Consumers: drives.ToImmutable(), Storages: stores.ToImmutable());

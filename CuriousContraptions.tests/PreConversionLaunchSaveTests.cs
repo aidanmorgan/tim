@@ -8,7 +8,7 @@ namespace CuriousContraptions.Tests;
 /// refused with a typed reason at both boundaries, the stored save's pre-validation and the worker's command decode, and never misread.
 /// There is no migration. The old bytes are the record path's own encoder output (fixed input provenance in Fixtures/README-pre-conversion.md; receipt
 /// evidence-c-bumper-spring/baseline/old-layout-equality.txt).</summary>
-// Historical command fixtures are obsolete authored envelopes and refuse structurally before instance fields.
+// Historical command fixtures retain their retired root identifier; the current decoder refuses it before structural verification.
 // Current compiled field boundaries are exercised by CompiledSceneBoundaryTests; save checks retain their field-level controls.
 public sealed class PreConversionLaunchSaveTests
 {
@@ -48,15 +48,15 @@ public sealed class PreConversionLaunchSaveTests
     // a generic counter (its target still beyond the table) whose missing declared target is refused OutOfRange. Every other reason is
     // unchanged.
     [Theory]
-    [InlineData("bumper strength 8", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("bumper strength 0", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("spring default", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("spring charged", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("battery default", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
-    [InlineData("counter", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("switch threshold", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("resized ramp", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
+    [InlineData("bumper strength 8", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("bumper strength 0", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("spring default", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("spring charged", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery default", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("counter", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("switch threshold", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("resized ramp", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
     public void APreConversionRecordIsRefusedWithATypedReasonAtBothBoundaries(string name, WorkshopSaveRejection save,
         WireFaultReason command)
     {
@@ -78,19 +78,19 @@ public sealed class PreConversionLaunchSaveTests
     // C-Memory's 8-field table: the old Domino's bounce in slot 7 is now the parameters offset (VerifierRejected), and the old Counter
     // is a generic counter missing its declared target (OutOfRange); every other reason is unchanged.
     [Theory]
-    [InlineData("battery_default", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("battery_disabled", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("battery_custom_120_30_half", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("battery_custom_disabled_zero", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
-    [InlineData("counter", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("impact_switch", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("ramp", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("bumper", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("receiver", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("springboard", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("wall", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
-    [InlineData("hold_timer", WorkshopSaveRejection.OutOfRange, WireFaultReason.VerifierRejected)]
+    [InlineData("battery_default", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_disabled", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_custom_120_30_half", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_custom_disabled_zero", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("counter", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("impact_switch", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("ramp", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("bumper", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("receiver", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("springboard", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("wall", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("hold_timer", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
     public void APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(string name,
         WorkshopSaveRejection save, WireFaultReason command)
     {

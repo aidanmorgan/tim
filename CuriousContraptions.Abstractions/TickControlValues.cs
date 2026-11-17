@@ -33,20 +33,26 @@ public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] S
     /// <summary>Every revolute drive's target speed (rad/s) for this step, in drive-table order: exactly one per driven revolute.</summary>
     public float[] DriveTarget { get; init; } = [];
     public DrivenSurfaceDeclaration[] AdmissionDrivenSurfaces { get; init; } = [];
-    public MechanicalTransmissionDeclaration[] AdmissionTransmissions { get; init; } = [];
+    /// <summary>Per mechanical transmission row whether its compiled supply route is closed this tick (always false for untimed rows).</summary>
+    public bool[] TransmissionClosed { get; init; } = [];
     public static PhysicsTickInputs Admission { get; } = new([], []);
 
     /// <summary>Refuses inputs that differ from the admitted tables: one defined enable per source, one supply flag per drive slot
-    /// (<paramref name="driven"/>: whether each slot declares a drive), closed only on a slot that declares one, and one admitted target
-    /// per revolute drive (<paramref name="drives"/>).</summary>
-    public void Validate(int sources, ReadOnlySpan<bool> driven, int drives)
+    /// (<paramref name="driven"/>: whether each slot declares a drive), closed only on a slot that declares one, one admitted target
+    /// per revolute drive (<paramref name="drives"/>), and one supply flag per mechanical transmission slot (<paramref name="timedTransmissions"/>:
+    /// whether each slot is timed).</summary>
+    public void Validate(int sources, ReadOnlySpan<bool> driven, int drives, ReadOnlySpan<bool> timedTransmissions)
     {
         if (SourceEnable is null || SupplyClosed is null || SourceEnable.Length != sources ||
-            SupplyClosed.Length != driven.Length || SourceEnable.Any(value => !Enum.IsDefined(value)))
-            throw new ArgumentException("Physics tick inputs differ from the admitted source and drive-slot tables.");
+            SupplyClosed.Length != driven.Length || SourceEnable.Any(value => !Enum.IsDefined(value)) ||
+            TransmissionClosed is null || TransmissionClosed.Length != timedTransmissions.Length)
+            throw new ArgumentException("Physics tick inputs differ from the admitted source, drive-slot, and transmission tables.");
         for (var slot = 0; slot < driven.Length; slot++)
             if (SupplyClosed[slot] && !driven[slot])
                 throw new ArgumentException("Physics tick inputs close the supply of a slot that declares no drive.");
+        for (var slot = 0; slot < timedTransmissions.Length; slot++)
+            if (TransmissionClosed[slot] && !timedTransmissions[slot])
+                throw new ArgumentException("Physics tick inputs close the supply of an untimed transmission.");
         ValidateDriveTargets(DriveTarget, drives);
     }
     /// <summary>Exactly one finite target per drive, each within the angular speed envelope.</summary>

@@ -11,13 +11,11 @@ namespace CuriousContraptions.Simulation;
 
 internal sealed class WorkshopPhysicsEngine
 {
-    private readonly MechanicalTransmissionDeclaration[] _declaredTransmissions;
     private readonly DrivenSurfaceDeclaration[] _declaredSurfaces;
     private readonly List<SimDrivenSurface> _surfaces = [];
 
-    public WorkshopPhysicsEngine(ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default, ReadOnlySpan<DrivenSurfaceDeclaration> surfaces = default)
+    public WorkshopPhysicsEngine(ReadOnlySpan<DrivenSurfaceDeclaration> surfaces = default)
     {
-        _declaredTransmissions = transmissions.ToArray();
         _declaredSurfaces = surfaces.ToArray();
     }
 
@@ -40,7 +38,9 @@ internal sealed class WorkshopPhysicsEngine
     private List<SimJoint> _joints = new(4);
     private List<SimRevoluteJoint> _revoluteJoints = new(4);
     private readonly List<SimMechanicalTransmission> _transmissions = [];
+    private bool _surfacesResolved;
     private bool _transmissionsResolved;
+    private bool[] _timedTransmissions = new bool[4];
     private readonly List<SimTensileRoute> _tensile = new(4);
     private readonly List<SimTensileRoute> _tensilePool = new(4);
     private List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
@@ -89,10 +89,10 @@ internal sealed class WorkshopPhysicsEngine
         _storeIndices = new(4); _balances = new(4); _capacities = new(4); _credits = new(4);
         _bodyPool = new(16); _colliderPool = new(32); _jointPool = new(4); _revoluteJointPool = new(4); _manifoldPool = new(16);
         _loadCounted = new GpuBodyId[64]; _loadDeclarations = new ContactLoadSensorDeclaration[4]; _loadFrames = new int[4]; _loadMass = new float[4];
-        _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4]; _drivenSlots = new bool[4];
+        _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4]; _drivenSlots = new bool[4]; _timedTransmissions = new bool[4];
         _restitutionStamp = 0;
         _probeContacts.Clear(); _probeCollider = new();
-        _transmissions.Clear(); _surfaces.Clear(); _transmissionsResolved = false;
+        _transmissions.Clear(); _surfaces.Clear(); _surfacesResolved = false; _transmissionsResolved = false;
         _tensile.Clear(); _tensilePool.Clear();
         _bvh.Reset();
     }
@@ -285,7 +285,10 @@ internal sealed class WorkshopPhysicsEngine
             driven[layout.Prismatics + r] = (RevoluteDriveKind)ReadU32(span, layout.RevoluteOffset(r) + PhysicsGpuAbi.RevoluteDriveKindOffset) == RevoluteDriveKind.Supplied;
             if (driven[layout.Prismatics + r]) revoluteDrives++;
         }
-        inputs.Validate(supplyCount, driven, revoluteDrives);
+        Span<bool> timed = Scratch(ref _timedTransmissions, layout.MechanicalTransmissions);
+        for (var t = 0; t < layout.MechanicalTransmissions; t++)
+            timed[t] = ReadF32(span, layout.MechanicalTransmissionOffset(t) + PhysicsGpuAbi.MechanicalTransmissionCloseSecondsOffset) > 0f;
+        inputs.Validate(supplyCount, driven, revoluteDrives, timed);
         if (inputs.StorageRoutes is null || inputs.StorageRoutes.Length != layout.ElectricalBindings)
             throw new ArgumentException("Physics storage eligibility differs from admitted routes.");
         // engine-revolute-drive-target: each driven revolute commits this tick's target before its substeps. The world's revolutes and
@@ -321,7 +324,7 @@ internal sealed class WorkshopPhysicsEngine
 
         _staticBodies.Clear();
         _dynamicBodies.Clear();
-        var revoluteJointMap = _transmissionsResolved ? null : new Dictionary<RevoluteConstraintId, SimRevoluteJoint>();
+        var revoluteJointMap = _surfacesResolved ? null : new Dictionary<RevoluteConstraintId, SimRevoluteJoint>();
         _allBodies.Clear();
 
         ReadBodies(span, layout, bodyCount);
@@ -330,6 +333,7 @@ internal sealed class WorkshopPhysicsEngine
         ReadPrismatics(span, layout, inputs);
         ReadRevolutes(span, layout, inputs, revoluteJointMap);
         var dt = WorkshopConstraintSolver.SubstepSeconds;
+        ReadTransmissions(span, layout, inputs, checked(currentTick * (ulong)steps), checked((currentTick + 1) * (ulong)steps));
         PrepareBroadphase(dt, steps);
         // Story 9R.4: every compiled contact-load row, read once per tick. A row's tick measurement is the maximum qualifying mass
         // of its substeps (D2), written over the copied source state so a removed body reads Empty on the very next tick.
@@ -704,15 +708,6 @@ internal sealed class WorkshopPhysicsEngine
         // refresh from committed state every tick; each row and its scratch remain owned here.
         if (revoluteJointMap is not null)
         {
-            foreach (var declaration in _declaredTransmissions)
-            {
-                _transmissions.Add(new SimMechanicalTransmission
-                {
-                    DrivingJoint = revoluteJointMap[declaration.DrivingJoint],
-                    DrivenJoint = revoluteJointMap[declaration.DrivenJoint],
-                    Ratio = declaration.Ratio
-                });
-            }
             foreach (var declaration in _declaredSurfaces)
             {
                 var collider = _colliders.Single(value => value.Id == declaration.Collider.Value);
@@ -722,9 +717,58 @@ internal sealed class WorkshopPhysicsEngine
                     LocalDirection = declaration.LocalDirection, TravelPerRadian = declaration.TravelPerRadian
                 });
             }
+            _surfacesResolved = true;
+        }
+    }
+
+    private void ReadTransmissions(Span<byte> span, PhysicsWorldLayout layout, PhysicsTickInputs inputs, ulong previousOrdinal, ulong currentOrdinal)
+    {
+        if (!_transmissionsResolved)
+        {
+            _transmissions.Clear();
+            for (var index = 0; index < layout.MechanicalTransmissions; index++)
+            {
+                var offset = layout.MechanicalTransmissionOffset(index);
+                var drivingSlot = checked((int)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionDrivingOffset));
+                var drivenSlot = checked((int)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionDrivenOffset));
+                _transmissions.Add(new SimMechanicalTransmission
+                {
+                    DrivingJoint = _revoluteJoints[drivingSlot],
+                    DrivenJoint = _revoluteJoints[drivenSlot],
+                    Ratio = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionRatioOffset)
+                });
+            }
             _transmissionsResolved = true;
         }
-
+        for (var index = 0; index < layout.MechanicalTransmissions; index++)
+        {
+            var offset = layout.MechanicalTransmissionOffset(index);
+            var closeSeconds = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionCloseSecondsOffset);
+            if (closeSeconds == 0f)
+            {
+                _transmissions[index].Engaged = true;
+                continue;
+            }
+            var supplied = inputs.TransmissionClosed[index];
+            var closure = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionClosureOffset);
+            if (supplied != (ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionSuppliedOffset) == 1))
+            {
+                BinaryPrimitives.WriteUInt64LittleEndian(span[(offset + PhysicsGpuAbi.MechanicalTransmissionOriginOrdinalOffset)..], previousOrdinal);
+                WriteF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionOriginClosureOffset, closure);
+            }
+            var origin = BinaryPrimitives.ReadUInt64LittleEndian(span[(offset + PhysicsGpuAbi.MechanicalTransmissionOriginOrdinalOffset)..]);
+            var initial = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionOriginClosureOffset);
+            var elapsed = new CuriousContraptions.Abstractions.PhysicalTime(currentOrdinal).SecondsSince(new CuriousContraptions.Abstractions.PhysicalTime(origin));
+            var travel = MathF.Min(elapsed, closeSeconds) / closeSeconds;
+            closure = Math.Clamp(initial + (supplied ? travel : -travel), 0f, 1f);
+            var phase = supplied
+                ? (closure == 1f ? TransmissionEngagementPhase.Engaged : TransmissionEngagementPhase.Closing)
+                : (closure == 0f ? TransmissionEngagementPhase.Open : TransmissionEngagementPhase.Opening);
+            WriteU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionSuppliedOffset, supplied ? 1u : 0u);
+            WriteF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionClosureOffset, closure == 0f ? 0f : closure);
+            WriteU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionPhaseOffset, (uint)phase);
+            _transmissions[index].Engaged = phase == TransmissionEngagementPhase.Engaged;
+        }
     }
 
     private void PrepareBroadphase(float dt, int steps)

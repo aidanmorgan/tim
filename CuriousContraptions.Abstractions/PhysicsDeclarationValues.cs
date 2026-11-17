@@ -22,8 +22,21 @@ public readonly record struct MechanicalTransmissionDeclaration(
     MechanicalTransmissionId Id,
     RevoluteConstraintId DrivingJoint,
     RevoluteConstraintId DrivenJoint,
-    float Ratio)
+    float Ratio,
+    float CloseSeconds = 0f,
+    GpuBodyId Owner = default)
 {
+    /// <summary>Largest duration representable by the physical clock's unsigned ordinal span.</summary>
+    public static float MaximumCloseSeconds { get; } = ClockDurationLimit();
+
+    public static bool IsTimedDuration(float seconds) => float.IsFinite(seconds) && seconds > 0f && seconds <= MaximumCloseSeconds;
+
+    private static float ClockDurationLimit()
+    {
+        var seconds = (float)(ulong.MaxValue / Abstractions.PhysicalTime.Frequency);
+        return (UInt128)seconds * Abstractions.PhysicalTime.Frequency > ulong.MaxValue ? MathF.BitDecrement(seconds) : seconds;
+    }
+
     public void Validate()
     {
         if (Id.Value == 0) throw new ArgumentException("Mechanical transmission identity is required.");
@@ -31,6 +44,11 @@ public readonly record struct MechanicalTransmissionDeclaration(
             throw new ArgumentException("A mechanical transmission requires distinct admitted revolute joints.");
         if (!float.IsFinite(Ratio) || Ratio == 0f)
             throw new ArgumentException("Transmission ratio must be finite and nonzero.");
+        if (!PhysicsDeclarationBounds.Zero(CloseSeconds) &&
+            !IsTimedDuration(CloseSeconds))
+            throw new ArgumentException("Transmission close duration must be +0 or positive and within the physical clock span.");
+        if (CloseSeconds > 0f && Owner.Value == 0)
+            throw new ArgumentException("A timed mechanical transmission requires an owner body.");
     }
 
 

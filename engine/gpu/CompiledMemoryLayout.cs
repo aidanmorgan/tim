@@ -35,6 +35,8 @@ public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
     private readonly Dictionary<ulong, int> _revoluteOffsets = new(4);
     private readonly Dictionary<ulong, int> _compliantSurfaceSlots = new(4);
     private readonly Dictionary<ulong, int> _compliantSurfaceOffsets = new(4);
+    private readonly Dictionary<ulong, int> _mechanicalTransmissionSlots = new(4);
+    private readonly Dictionary<ulong, int> _mechanicalTransmissionOffsets = new(4);
 
     public IReadOnlyDictionary<GpuBodyId, int> BodySlots => _bodySlots;
     public IReadOnlyDictionary<GpuBodyId, int> BodyOffsets => _bodyOffsets;
@@ -60,6 +62,8 @@ public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
     public IReadOnlyDictionary<ulong, int> RevoluteOffsets => _revoluteOffsets;
     public IReadOnlyDictionary<ulong, int> CompliantSurfaceSlots => _compliantSurfaceSlots;
     public IReadOnlyDictionary<ulong, int> CompliantSurfaceOffsets => _compliantSurfaceOffsets;
+    public IReadOnlyDictionary<ulong, int> MechanicalTransmissionSlots => _mechanicalTransmissionSlots;
+    public IReadOnlyDictionary<ulong, int> MechanicalTransmissionOffsets => _mechanicalTransmissionOffsets;
 
     public int GetBodySlot(GpuBodyId id) => _bodySlots[id];
     public int GetBodyOffset(GpuBodyId id) => _bodyOffsets[id];
@@ -85,6 +89,8 @@ public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
     public int GetRevoluteOffset(ulong id) => _revoluteOffsets[id];
     public int GetCompliantSurfaceSlot(ulong id) => _compliantSurfaceSlots[id];
     public int GetCompliantSurfaceOffset(ulong id) => _compliantSurfaceOffsets[id];
+    public int GetMechanicalTransmissionSlot(ulong id) => _mechanicalTransmissionSlots[id];
+    public int GetMechanicalTransmissionOffset(ulong id) => _mechanicalTransmissionOffsets[id];
 
     public static CompiledMemoryLayout Build(
         PhysicsWorldLayout world,
@@ -99,7 +105,8 @@ public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
         ReadOnlySpan<ElectricalSourceDeclaration> electricalSources,
         ReadOnlySpan<PrismaticConstraintDeclaration> prismatics,
         ReadOnlySpan<RevoluteConstraintDeclaration> revolutes,
-        ReadOnlySpan<CompliantSurfaceDeclaration> compliantSurfaces)
+        ReadOnlySpan<CompliantSurfaceDeclaration> compliantSurfaces,
+        ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default)
     {
         var layout = new CompiledMemoryLayout();
         for (var i = 0; i < bodies.Length; i++)
@@ -173,6 +180,12 @@ public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
             var id = compliantSurfaces[i].Id.Value;
             layout._compliantSurfaceSlots[id] = i;
             layout._compliantSurfaceOffsets[id] = world.CompliantSurfaceOffset(i);
+        }
+        for (var i = 0; i < transmissions.Length; i++)
+        {
+            var id = transmissions[i].Id.Value;
+            layout._mechanicalTransmissionSlots[id] = i;
+            layout._mechanicalTransmissionOffsets[id] = world.MechanicalTransmissionOffset(i);
         }
         return layout;
     }

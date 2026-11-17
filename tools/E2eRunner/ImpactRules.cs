@@ -26,6 +26,7 @@ internal static class ImpactRules
         ["StateLatch"] = new PartId("latch"), ["SystemClock"] = new PartId("clock"), ["Wall"] = new PartId("wall"), ["Weight"] = new("weight"), ["RopeAnchor"] = new("rope_anchor"),
         ["Trampoline"] = new("trampoline"), ["Motor"] = new("motor"),
         ["Conveyor"] = new("conveyor"),
+        ["Clutch"] = new("clutch"),
     };
 
     /// <summary>Every engine/ (outside engine/gpu), ui/ and scenes/ source to its Workshop area. A file's Godot .uid sidecar follows

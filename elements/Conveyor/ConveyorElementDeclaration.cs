@@ -76,6 +76,7 @@ public sealed class ConveyorElementDeclaration : IHingeElement, IDrivenSurfaceEl
     public IReadOnlyList<RevoluteHingeDescriptor> Hinges =>
     [
         new(
+            Support: new(0),
             BaseFrame: new(new Vector3(-1.35f, -.07f, 0f), Quaternion.Identity),
             MovingFrame: new(Vector3.Zero, Quaternion.Identity),
             LowerLimit: -MathF.PI,

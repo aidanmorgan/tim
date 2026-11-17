@@ -214,7 +214,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     {
         _ = godot;
         var hinges = Packages().Where(package => package.Declaration is IHingeElement).ToArray();
-        Assert.Equal(["Conveyor", "ImpactLever", "Motor"], hinges.Select(package => package.Package).Order());
+        Assert.Equal(["Clutch", "Conveyor", "ImpactLever", "Motor"], hinges.Select(package => package.Package).Order());
         foreach (var package in hinges)
         {
             var element = (IHingeElement)package.Declaration;
@@ -531,6 +531,10 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("width", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 1.2f, Generic(new PartId("conveyor"), "width"), []),
                 ("surface_per_radian", ParameterUnit.MetrePerRadian, ParameterKind.Real, Lane.Single, 2f / 3f, Generic(new PartId("conveyor"), "surface_per_radian"), [])
             ],
+            "clutch" =>
+            [
+                ("close_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, .2f, Generic(new PartId("clutch"), "close_seconds"), [])
+            ],
             _ => []
         };
     }
@@ -548,7 +552,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" =>
             WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),

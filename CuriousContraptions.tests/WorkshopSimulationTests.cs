@@ -529,11 +529,11 @@ public sealed class WorkshopSimulationTests
     private static readonly GpuBodyId DrivenOwner = new(7);
     private static WorkshopConstruction DriveConstruction() => new(new(2), Settings, new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("motor"), DrivenOwner,
         0, 4, 0, 0, 0, 0, 1, new([new(new("speed"), 6f), new(new("torque"), 20f)]))));
-    private static float Target(WorkshopRead read)
+    private static float Target(IPhysicsSceneDeclaration physics, WorkshopRead read)
     {
         for (var i = 0; i < read.DriveTargets.Count; i++)
             if (read.DriveTargets[i].Owner == DrivenOwner)
-                return read.RunControl(DrivenOwner, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[i].Joint).Scalar;
+                return read.RunControl(physics, DrivenOwner, RunControlLane.RevoluteDriveTarget, joint: read.DriveTargets[i].Joint).Scalar;
         throw new InvalidOperationException();
     }
 
@@ -556,7 +556,7 @@ public sealed class WorkshopSimulationTests
     {
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         var row = await RunDriven(simulation, device);
-        Assert.Equal(6f, Target(simulation.Committed));
+        Assert.Equal(6f, Target(simulation.Scene.Physics, simulation.Committed));
         Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureRunControl(new(DrivenOwner, row.Id, RunControlValue.Of(12f))).Outcome);
         var source = simulation.Committed;
 
@@ -573,7 +573,7 @@ public sealed class WorkshopSimulationTests
         else
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, result.Outcome);
-            Assert.Equal(12f, Target(simulation.Committed));
+            Assert.Equal(12f, Target(simulation.Scene.Physics, simulation.Committed));
         }
     }
 
@@ -608,20 +608,20 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(WorkshopCommandOutcome.Cancelled, (await cancelled).Outcome);
         device.CompleteAdvance(0);
         Assert.Equal(WorkshopCommandOutcome.Superseded, (await discarded).Outcome);
-        Assert.Equal((new SimulationTick(0), 6f), (simulation.Committed.Tick, Target(simulation.Committed)));
+        Assert.Equal((new SimulationTick(0), 6f), (simulation.Committed.Tick, Target(simulation.Scene.Physics, simulation.Committed)));
         Assert.Equal(faster, simulation.HeldRunControl(row.Id));
 
         var next = simulation.Advance().AsTask();
         device.CompleteAdvance(1);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await next).Outcome);
         Assert.Equal([12f], device.Controls[1].DriveTarget);
-        Assert.Equal(12f, Target(simulation.Committed));
+        Assert.Equal(12f, Target(simulation.Scene.Physics, simulation.Committed));
 
         var reset = simulation.Reset().AsTask();
         device.CompleteAdmission(2);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await reset).Outcome);
         Assert.Null(simulation.HeldRunControl(row.Id));
-        Assert.Equal(6f, Target(simulation.Committed));
+        Assert.Equal(6f, Target(simulation.Scene.Physics, simulation.Committed));
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
         var after = simulation.Advance().AsTask();
         device.CompleteAdvance(2);
@@ -690,13 +690,13 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureRunControl(new(DrivenOwner, row.Id, RunControlValue.Of(10f))).Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureRunControl(new(DrivenOwner, row.Id, RunControlValue.Of(14f))).Outcome);
         Assert.Equal(RunControlValue.Of(14f), simulation.HeldRunControl(row.Id));
-        Assert.Equal(6f, Target(simulation.Committed));
+        Assert.Equal(6f, Target(simulation.Scene.Physics, simulation.Committed));
 
         var step = simulation.StepOnce().AsTask();
         device.CompleteAdvance(0);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await step).Outcome);
         Assert.Equal([14f], device.Controls[0].DriveTarget);
-        Assert.Equal(14f, Target(simulation.Committed));
+        Assert.Equal(14f, Target(simulation.Scene.Physics, simulation.Committed));
     }
 
     [Theory]

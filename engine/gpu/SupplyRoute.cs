@@ -90,6 +90,7 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
     private readonly int[] _sources;
     private readonly int[] _storageRoutes;
     private readonly int[][] _consumers;
+    private readonly int[][] _transmissionConsumers;
     private readonly (int Source, SupplyTerminal Input)[][] _inputs;
     private readonly int[][] _components;
     private readonly bool[] _cyclic;
@@ -97,11 +98,12 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
     /// <summary>The number of drive slots a resolution closes or opens: every admitted prismatic slot first, then every admitted
     /// revolute slot, each in its table's identity order. A joint without a drive keeps an always-open slot.</summary>
     public int DriveSlots { get; }
+    public int TransmissionSlots { get; }
     public CompiledSupplyGraph(ReadOnlySpan<SupplyNodeDeclaration> nodes, ReadOnlySpan<SupplyEdge> edges,
         ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> prismatics,
         ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives, ReadOnlySpan<RevoluteConstraintDeclaration> revolutes,
         ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives, ReadOnlySpan<ElectricalStorageBinding> bindings,
-        ReadOnlySpan<ContactWorkDeclaration> storages)
+        ReadOnlySpan<ContactWorkDeclaration> storages, ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default)
     {
         try
         {
@@ -116,8 +118,9 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
             throw new ArgumentException(ex.Message, ex);
         }
         _nodes = nodes.ToArray(); _edges = edges.ToArray();
-        _sources = new int[nodes.Length]; _consumers = new int[nodes.Length][];
+        _sources = new int[nodes.Length]; _consumers = new int[nodes.Length][]; _transmissionConsumers = new int[nodes.Length][];
         DriveSlots = prismatics.Length + revolutes.Length;
+        TransmissionSlots = transmissions.Length;
         Array.Fill(_sources, -1);
         var slots = new System.Collections.Generic.Dictionary<SupplyNodeId,int>(16);
         var inputs = new System.Collections.Generic.List<(int Source, SupplyTerminal Input)>[nodes.Length];
@@ -125,17 +128,19 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
         for (var i=0;i<nodes.Length;i++)
         {
             inputs[i] = new(4);
-            (_sources[i], _consumers[i]) = AdmitNode(nodes[i], i, slots, sources, seenConsumers,
-                prismatics, prismaticDrives, revolutes, revoluteDrives);
+            (_sources[i], _consumers[i], _transmissionConsumers[i]) = AdmitNode(nodes[i], i, slots, sources, seenConsumers,
+                prismatics, prismaticDrives, revolutes, revoluteDrives, transmissions);
         }
-        // Every declared drive of either kind is consumed by exactly one consumer node (uniqueness is checked above): a drive no route
-        // names could never be supplied.
+        // Every declared drive and timed transmission is consumed by exactly one consumer node (uniqueness checked above).
         foreach (var drive in prismaticDrives)
             if (!seenConsumers.Contains(SupplyConsumer.Prismatic(drive.Joint)))
                 throw new ArgumentException("A declared prismatic drive has no consumer node.");
         foreach (var drive in revoluteDrives)
             if (!seenConsumers.Contains(SupplyConsumer.Revolute(drive.Joint)))
                 throw new ArgumentException("A declared revolute drive has no consumer node.");
+        foreach (var transmission in transmissions)
+            if (transmission.CloseSeconds > 0f && !seenConsumers.Contains(SupplyConsumer.Transmission(transmission.Id)))
+                throw new ArgumentException("A declared timed mechanical transmission has no consumer node.");
         _storageRoutes = AdmitStorageTargets(nodes, bindings, storages, slots);
         AdmitEdges(nodes, edges, slots, inputs);
         _inputs=inputs.Select(list=>list.ToArray()).ToArray();
@@ -150,7 +155,7 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
                 throw new ArgumentException("A nonmonotone electrical gate lies on a directed cycle.");
         }
     }
-    private static (int SourceSlot, int[] Consumers) AdmitNode(
+    private static (int SourceSlot, int[] Consumers, int[] TransmissionConsumers) AdmitNode(
         SupplyNodeDeclaration node,
         int slot,
         Dictionary<SupplyNodeId, int> slots,
@@ -159,7 +164,8 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
         ReadOnlySpan<PrismaticConstraintDeclaration> prismatics,
         ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives,
         ReadOnlySpan<RevoluteConstraintDeclaration> revolutes,
-        ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives)
+        ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives,
+        ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions)
     {
         if (!Enum.IsDefined(node.Kind) || !slots.TryAdd(node.Id, slot) ||
             node.Id.Value == 0 || node.Owner.Value == 0)
@@ -174,15 +180,16 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
                 if (sources[s].Id == node.Source && sources[s].Owner == node.Owner) sourceIndex = s;
             if (sourceIndex < 0 || (!node.Consumers.IsDefaultOrEmpty || !node.Storages.IsDefaultOrEmpty))
                 throw new ArgumentException("Electrical source node is not admitted.");
-            return (sourceIndex, []);
+            return (sourceIndex, [], []);
         }
         if (node.Kind is SupplyNodeKind.Contact or SupplyNodeKind.LogicGate)
         {
             if (node.Source != default || !node.Consumers.IsDefaultOrEmpty || !node.Storages.IsDefaultOrEmpty)
                 throw new ArgumentException("Electrical contact cannot carry a source or drive consumers.");
-            return (-1, []);
+            return (-1, [], []);
         }
-        return (-1, AdmitConsumers(node, seenConsumers, prismatics, prismaticDrives, revolutes, revoluteDrives));
+        var (drives, timed) = AdmitConsumers(node, seenConsumers, prismatics, prismaticDrives, revolutes, revoluteDrives, transmissions);
+        return (-1, drives, timed);
     }
     private static int[] AdmitStorageTargets(ReadOnlySpan<SupplyNodeDeclaration> nodes,
         ReadOnlySpan<ElectricalStorageBinding> bindings, ReadOnlySpan<ContactWorkDeclaration> storages,
@@ -206,7 +213,7 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
         return routes;
     }
 
-    private static int ResolveConsumerSlot(GpuBodyId owner, SupplyConsumer consumer,
+    private static int ResolveConsumerSlot(SupplyConsumer consumer,
         ReadOnlySpan<PrismaticConstraintDeclaration> prismatics, ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives,
         ReadOnlySpan<RevoluteConstraintDeclaration> revolutes, ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives)
     {
@@ -217,12 +224,12 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
         {
             case SupplyConsumerKind.PrismaticDrive:
                 for (var c=0;c<prismatics.Length;c++)
-                    if (prismatics[c].Id==consumer.PrismaticJoint && prismatics[c].BodyA==owner) slot=c;
+                    if (prismatics[c].Id==consumer.PrismaticJoint) slot=c;
                 foreach(var drive in prismaticDrives) if(drive.Joint==consumer.PrismaticJoint) supplied=true;
                 break;
             case SupplyConsumerKind.RevoluteDrive:
                 for (var r=0;r<revolutes.Length;r++)
-                    if (revolutes[r].Id==consumer.RevoluteJoint && revolutes[r].BodyA==owner) slot=prismatics.Length+r;
+                    if (revolutes[r].Id==consumer.RevoluteJoint) slot=prismatics.Length+r;
                 foreach(var drive in revoluteDrives) if(drive.Joint==consumer.RevoluteJoint) supplied=true;
                 break;
             default:
@@ -249,20 +256,47 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
         }
     }
 
-    private static int[] AdmitConsumers(SupplyNodeDeclaration node, System.Collections.Generic.HashSet<SupplyConsumer> seenConsumers,
+    private static (int[] Drives, int[] Transmissions) AdmitConsumers(SupplyNodeDeclaration node, System.Collections.Generic.HashSet<SupplyConsumer> seenConsumers,
         ReadOnlySpan<PrismaticConstraintDeclaration> prismatics, ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives,
-        ReadOnlySpan<RevoluteConstraintDeclaration> revolutes, ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives)
+        ReadOnlySpan<RevoluteConstraintDeclaration> revolutes, ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives,
+        ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions)
     {
         if (node.Source != default) throw new ArgumentException("Electrical consumer cannot declare a source.");
         var admitted = new System.Collections.Generic.List<int>(4);
+        var timedTransmissions = new System.Collections.Generic.List<int>(2);
         if (!node.Consumers.IsDefaultOrEmpty) foreach (var consumer in node.Consumers)
         {
-            var slot = ResolveConsumerSlot(node.Owner, consumer, prismatics, prismaticDrives, revolutes, revoluteDrives);
-            if (!seenConsumers.Add(consumer))
-                throw new ArgumentException("Electrical consumer names a driven joint more than once.");
-            admitted.Add(slot);
+            if (consumer.Kind == SupplyConsumerKind.MechanicalTransmission)
+            {
+                var slot = ResolveTransmissionSlot(node.Owner, consumer.TransmissionId, transmissions);
+                if (!seenConsumers.Add(consumer))
+                    throw new ArgumentException("Electrical consumer names a driven target more than once.");
+                timedTransmissions.Add(slot);
+            }
+            else
+            {
+                var slot = ResolveConsumerSlot(consumer, prismatics, prismaticDrives, revolutes, revoluteDrives);
+                if (!seenConsumers.Add(consumer))
+                    throw new ArgumentException("Electrical consumer names a driven joint more than once.");
+                admitted.Add(slot);
+            }
         }
-        return admitted.ToArray();
+        return (admitted.ToArray(), timedTransmissions.ToArray());
+    }
+
+    private static int ResolveTransmissionSlot(GpuBodyId owner, MechanicalTransmissionId id,
+        ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions)
+    {
+        for (var i = 0; i < transmissions.Length; i++)
+        {
+            var transmission = transmissions[i];
+            if (transmission.Id == id)
+            {
+                if (transmission.Owner == owner && transmission.CloseSeconds > 0f) return i;
+                break;
+            }
+        }
+        throw new ArgumentException("Electrical consumer names no timed mechanical transmission its node owns.");
     }
 
     public ElectricalLogicRead[] NeutralReads() => _nodes.Where(node=>node.Kind==SupplyNodeKind.LogicGate)
@@ -300,10 +334,12 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
             }
         }
         var closed=new bool[DriveSlots];
+        var closedTransmissions = new bool[TransmissionSlots];
         var logic=new System.Collections.Generic.List<ElectricalLogicRead>(4);
         for(var i=0;i<_nodes.Length;i++)
         {
             foreach (var consumer in _consumers[i]) closed[consumer]=powered[i];
+            foreach (var transmission in _transmissionConsumers[i]) closedTransmissions[transmission] = powered[i];
             if(_nodes[i].Kind==SupplyNodeKind.LogicGate)
                 logic.Add(new(_nodes[i].Id,_nodes[i].Owner,
                     (Input(i,SupplyTerminal.FirstIn) ? ElectricalInputState.FirstOnly : ElectricalInputState.Neither) |
@@ -311,7 +347,8 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
                     Input(i,SupplyTerminal.PowerIn),powered[i]));
         }
         return new(closed,_storageRoutes.Select(slot => powered[slot]).ToArray(),logic.OrderBy(row=>row.Node.Value).ToArray(),
-            new SupplyOutputRead(_nodes.Select((node, i) => new SupplyOutput(node.Id, powered[i], Input(i, SupplyTerminal.PowerIn))).ToArray()));
+            new SupplyOutputRead(_nodes.Select((node, i) => new SupplyOutput(node.Id, powered[i], Input(i, SupplyTerminal.PowerIn))).ToArray()),
+            closedTransmissions);
         bool Input(int node, SupplyTerminal socket) => _inputs[node].Any(edge=>edge.Input==socket && powered[edge.Source]);
         bool Active(int i) => _nodes[i].Kind switch
         {
@@ -356,6 +393,13 @@ public static class TickControlComposition
     public static PhysicsTickInputs Compose(ICompiledSupplyGraph graph, WorkshopTickControls controls, Func<SupplyNodeId, bool> contactClosed, PhysicsElectricalRead electrical)
     {
         var resolved=graph.Resolve(controls,contactClosed,electrical);
-        return new(controls.SourceEnable,resolved.Consumers,resolved.Logic) { StorageRoutes = resolved.StorageRoutes, Cuts = controls.Cuts, Guides = controls.Guides, DriveTarget = controls.DriveTarget };
+        return new(controls.SourceEnable,resolved.Consumers,resolved.Logic)
+        {
+            StorageRoutes = resolved.StorageRoutes,
+            Cuts = controls.Cuts,
+            Guides = controls.Guides,
+            DriveTarget = controls.DriveTarget,
+            TransmissionClosed = resolved.Transmissions
+        };
     }
 }

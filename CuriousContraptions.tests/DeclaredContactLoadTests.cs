@@ -8,7 +8,7 @@ namespace CuriousContraptions.Tests;
 /// hold come from its package's declared contact-load sensor, compiled through one shared helper
 /// (<see cref="WorkshopPhysicsCompiler.ContactLoadSensorFor"/>), for every plate, wired or not. Expected values are stated literally
 /// from CAT-052 §2, owner decision (h) and the Q3 override,.</summary>
-// Historical command fixtures are obsolete authored envelopes and refuse structurally before instance fields.
+// Historical command fixtures retain their retired root identifier; the current decoder refuses it before structural verification.
 // Current compiled field boundaries are exercised by CompiledSceneBoundaryTests; save checks retain their field-level controls.
 public sealed class DeclaredContactLoadTests
 {
@@ -152,6 +152,6 @@ public sealed class DeclaredContactLoadTests
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.False(string.IsNullOrWhiteSpace(refusal.Message));
-        Assert.Equal(WireFaultReason.VerifierRejected, fault.Reason);
+        Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);
     }
 }

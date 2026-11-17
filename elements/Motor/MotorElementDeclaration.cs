@@ -87,6 +87,7 @@ public sealed class MotorElementDeclaration : IHingeElement, ISupplyElement, ISc
     public IReadOnlyList<RevoluteHingeDescriptor> Hinges =>
     [
         new(
+            Support: new(0),
             BaseFrame: new(new Vector3(0f, 0f, .54f), Quaternion.Identity),
             MovingFrame: new(Vector3.Zero, Quaternion.Identity),
             LowerLimit: -MathF.PI,

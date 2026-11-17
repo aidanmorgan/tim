@@ -44,12 +44,12 @@ public static class RunControlLanes
     public static bool WithinBounds(RunControlRow row, RunControlValue value) =>
         value.Kind != RunControlValueKind.Scalar || (value.Scalar >= row.Minimum && value.Scalar <= row.Maximum);
 
-    /// <summary>The owner of drive <paramref name="index"/> in the compiled drive table: the base body of the hinge it drives.</summary>
+    /// <summary>The owner of drive <paramref name="index"/> in the compiled drive table: the physical package root carrying the hinge it drives.</summary>
     private static GpuBodyId DriveOwner(IPhysicsSceneDeclaration physics, int index)
     {
         var joint = physics.RevoluteDrives[index].Joint;
         foreach (var revolute in physics.Revolutes)
-            if (revolute.Id == joint) return revolute.BodyA;
+            if (revolute.Id == joint) return new PackageBodyMembership(physics).Root(revolute.BodyB);
         throw new ArgumentException("A compiled drive names no admitted revolute.");
     }
 
@@ -74,7 +74,7 @@ public static class RunControlLanes
 
     /// <summary>The committed value of <paramref name="owner"/>'s slot on <paramref name="lane"/>, found among the lane's committed
     /// slots. Every read of an installation carries each slot it compiled, locked owners included; a missing slot is refused.</summary>
-    public static RunControlValue RunControl(this WorkshopRead read, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source = default, RevoluteConstraintId joint = default)
+    public static RunControlValue RunControl(this WorkshopRead read, IPhysicsSceneDeclaration physics, GpuBodyId owner, RunControlLane lane, ElectricalSourceId source = default, RevoluteConstraintId joint = default)
     {
         if (lane == RunControlLane.SourceEnable)
         {
@@ -86,13 +86,14 @@ public static class RunControlLanes
         {
             if (joint == default) throw new ArgumentException("A revolute drive target control requires an exact joint identity.", nameof(joint));
             for (var i = 0; i < read.DriveTargets.Count; i++)
-                if (read.DriveTargets[i].Owner == owner && read.DriveTargets[i].Joint == joint) return RunControlValue.Of(read.DriveTargets[i].TargetSpeed);
+                if (read.DriveTargets[i].Joint == joint && Slot(physics, lane, owner, joint: joint) == i &&
+                    TargetOwnerMatches(physics, read.DriveTargets[i])) return RunControlValue.Of(read.DriveTargets[i].TargetSpeed);
         }
         throw new ArgumentException("The committed read carries no slot for this owner on this run-control lane.");
     }
 
     /// <summary>The committed value of the exact compiled run-control <paramref name="row"/>.</summary>
-    public static RunControlValue RunControl(this WorkshopRead read, RunControlRow row)
+    public static RunControlValue RunControl(this WorkshopRead read, IPhysicsSceneDeclaration physics, RunControlRow row)
     {
         return row.Lane switch
         {
@@ -101,11 +102,19 @@ public static class RunControlLanes
                 ? RunControlValue.Of(read.Electrical[row.LaneIndex].Enabled)
                 : throw new ArgumentException("The committed read carries no slot for this row."),
             RunControlLane.RevoluteDriveTarget => (row.LaneIndex >= 0 && row.LaneIndex < read.DriveTargets.Count &&
-                read.DriveTargets[row.LaneIndex].Owner == row.Owner)
+                Resolves(row, physics) && physics.RevoluteDrives[row.LaneIndex].Joint == read.DriveTargets[row.LaneIndex].Joint &&
+                TargetOwnerMatches(physics, read.DriveTargets[row.LaneIndex]))
                 ? RunControlValue.Of(read.DriveTargets[row.LaneIndex].TargetSpeed)
                 : throw new ArgumentException("The committed read carries no slot for this row."),
             _ => throw new ArgumentException("Undefined run-control lane.")
         };
+    }
+
+    private static bool TargetOwnerMatches(IPhysicsSceneDeclaration physics, RevoluteDriveTargetRead read)
+    {
+        foreach (var joint in physics.Revolutes)
+            if (joint.Id == read.Joint) return joint.BodyA == read.Owner;
+        return false;
     }
 
     /// <summary>The row through which <paramref name="owner"/> drives <paramref name="lane"/>, or null when the table has none (a locked

@@ -1,7 +1,7 @@
 namespace CuriousContraptions.Gpu;
 
 /// <summary>
-/// The 144-byte world header (Story 9.4b, Murdoch-2 R2-F4; Story 9R.5b adds the prismatic and contact-load counts). Every reader and writer of the physical world names these
+/// The 160-byte world header (Story 9.4b, Murdoch-2 R2-F4; Story 9R.5b adds the prismatic and contact-load counts). Every reader and writer of the physical world names these
 /// offsets; <c>WorkshopAbiLiteralScanTests</c> fails on a literal header offset in production code.
 /// </summary>
 public static partial class PhysicsGpuAbi
@@ -44,8 +44,10 @@ public static partial class PhysicsGpuAbi
     public const int HeaderRevoluteCountOffset = 132;
     /// <summary>Header word holding the compliant surface row count (Story 10.5).</summary>
     public const int HeaderCompliantSurfaceCountOffset = 136;
-    /// <summary>Header padding word (zero tail).</summary>
-    public const int HeaderPaddingOffset = 140;
+    /// <summary>Header word holding the mechanical transmission row count.</summary>
+    public const int HeaderMechanicalTransmissionCountOffset = 140;
+    /// <summary>Header padding words (zero tail to 160 bytes).</summary>
+    public const int HeaderPaddingOffset = 144;
 
     // Contact-work record (ContactWorkBytes): identity U64 at 0, owner body slot U32, target kind, the f32 target and
     // admission speeds, cooldown, named target slot, occurrence count, preload, padding 40..47, available work, the work

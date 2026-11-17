@@ -396,7 +396,7 @@ internal sealed class LawWorld(IPhysicsSceneDeclaration scene, byte[] admitted, 
     /// canonical, [-0.5, 0.5), on every tick (the host rejects a remainder that rounds to 0.5).</summary>
     public LawState Step(int ticks, Action<int, LawState>? observe = null, bool supplied = false, WorkshopPhysicsEngine? engine = null)
     {
-        engine ??= new WorkshopPhysicsEngine(scene.Transmissions);
+        engine ??= new WorkshopPhysicsEngine();
         engine.Reset();
         var source = (byte[])admitted.Clone();
         var candidate = new byte[source.Length];
@@ -407,8 +407,13 @@ internal sealed class LawWorld(IPhysicsSceneDeclaration scene, byte[] admitted, 
         var revoluteDrives = scene.RevoluteDrives.ToArray();
         var driven = scene.Prismatics.ToArray().Select(joint => prismaticDrives.Any(drive => drive.Joint == joint.Id))
             .Concat(scene.Revolutes.ToArray().Select(joint => revoluteDrives.Any(drive => drive.Joint == joint.Id)));
+        var timed = scene.Transmissions.ToArray().Select(t => t.CloseSeconds > 0f);
         var inputs = new PhysicsTickInputs(scene.Electrical.Sources.ToArray().Select(source => source.Enabled).ToArray(),
-            driven.Select(slot => supplied && slot).ToArray()) { DriveTarget = revoluteDrives.Select(drive => drive.TargetSpeed).ToArray() };
+            driven.Select(slot => supplied && slot).ToArray())
+        {
+            DriveTarget = revoluteDrives.Select(drive => drive.TargetSpeed).ToArray(),
+            TransmissionClosed = timed.Select(slot => supplied && slot).ToArray()
+        };
         for (var tick = 1; tick <= ticks; tick++)
         {
             interactions = engine.Advance(source, candidate, inputs, interactions);

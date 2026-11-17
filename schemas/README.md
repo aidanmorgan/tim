@@ -4,7 +4,7 @@
 
 `workshop_authoring.fbs` owns authored construction and saves. The main assembly owns `WorkshopAuthoringFlatBuffers` and `WorkshopSaveCodec`. It includes the runtime schema for shared numeric structs. Main compiles authoring into the runtime schema before dispatch; there is no second decoder or old-format path.
 
-- Every buffer is size-prefixed and carries its root's identifier: `CCWC` (`WorkshopCommand`), `CCWR` (`WorkshopResponse`) and
+- Every buffer is size-prefixed and carries its root's identifier: `CWCM` (`WorkshopCommand`), `CWRM` (`WorkshopResponse`) and
   `CCWS` (`SavedConstruction`). A schema declares one `file_identifier`, so the codecs pass each root's identifier to
   `FinishSizePrefixed` and to the verifier.
 - A decoder checks the size prefix, then the identifier, then runs the FlatBuffers verifier, and decodes once. A refused buffer is
