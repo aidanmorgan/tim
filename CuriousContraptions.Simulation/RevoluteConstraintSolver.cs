@@ -135,8 +135,7 @@ internal static class RevoluteConstraintSolver
 
     public static void ApplyConstraintImpulse(SimRevoluteJoint joint, in ConstraintRowData row, float impulse)
     {
-        ApplyBodyImpulse(joint.A, row.La, row.Aa, impulse);
-        ApplyBodyImpulse(joint.B, row.Lb, row.Ab, impulse);
+        new ImpulseJacobian(joint.A, row.La, row.Aa, joint.B, row.Lb, row.Ab).Apply(impulse);
     }
 
     public static void SweepConstraints(List<SimRevoluteJoint> joints, bool useBias)
@@ -186,7 +185,7 @@ internal static class RevoluteConstraintSolver
                         else
                         {
                             ref readonly var row = ref joint.Rows[rowIndex];
-                            invMasses[lane] = ConstraintMass(joint.A, row.La, row.Aa) + ConstraintMass(joint.B, row.Lb, row.Ab);
+                            invMasses[lane] = ConstraintMass(joint.A, row.La, row.Aa, joint.B, row.Lb, row.Ab);
                             vels[lane] = ConstraintVelocity(joint.A, row.La, row.Aa) + ConstraintVelocity(joint.B, row.Lb, row.Ab);
                             errors[lane] = row.Error;
                             gammas[lane] = row.Gamma;
@@ -253,8 +252,7 @@ internal static class RevoluteConstraintSolver
             for (var g = 0; g < groupCount; g++)
             {
                 var gj = joints[groupIndices[g]];
-                if (gj.A.BodySlot == joint.A.BodySlot || gj.A.BodySlot == joint.B.BodySlot ||
-                    gj.B.BodySlot == joint.A.BodySlot || gj.B.BodySlot == joint.B.BodySlot)
+                if (Coupled(gj.A, gj.B, joint.A, joint.B))
                 {
                     conflict = true;
                     break;

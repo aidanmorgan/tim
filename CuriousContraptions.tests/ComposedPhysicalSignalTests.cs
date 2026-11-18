@@ -133,7 +133,7 @@ public sealed class ComposedPhysicalSignalTests
             ColliderBindings = [],
             Ports = original.Ports.Where(port => port.Domain == SimulationDomain.Electrical).ToArray(),
             Electrical = original.Electrical! with { SupplyGraph = original.Electrical!.SupplyGraph! with
-                { Nodes = [.. original.Electrical!.SupplyGraph!.Nodes.Select(node => node is SupplyContactDescriptor sc ? sc with { Control = new(new("left"), SignalContactState.Latched) } : node)] } },
+                { Nodes = [.. original.Electrical!.SupplyGraph!.Nodes.Select(node => node is SupplyContactDescriptor sc ? sc with { Control = new SignalStateContactControl(new("left"), SignalContactState.Latched) } : node)] } },
             Signal = new([sensor with { Id = new("left") },
                 sensor with { Id = new("right"), RegionCollider = sensor.RegionCollider + geometry.Length,
                     SupportingColliders = sensor.SupportingColliders.Select(index => index + geometry.Length).ToArray() }], [], []),
@@ -224,7 +224,7 @@ public sealed class ComposedPhysicalSignalTests
                 [.. original.Metadata.Parameters, new("delay_seconds", ParameterUnit.Second, ParameterKind.Real, .01f, 4f, .25f, []),
                  new("target", ParameterUnit.None, ParameterKind.WholeNumber, 1, 8, 1, [])] },
             Ports = [.. original.Ports, new(new("delay_in"), SimulationDomain.Signal, PortDirection.Input,
-                PortRole.ActivationIn, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)],
+                PortRole.ActivationIn, new("ActivationIn", SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)],
             Signal = original.Signal with { Nodes = reverse ? nodes.Reverse().ToArray() : nodes,
                 Edges = reverse ? edges.Reverse().ToArray() : edges,
                 Ports = [.. original.Signal.Ports, new(new("delay_in"), new(new("delay"), SignalTerminal.Input))] },

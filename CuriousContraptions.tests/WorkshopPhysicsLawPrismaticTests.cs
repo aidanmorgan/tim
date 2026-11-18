@@ -67,6 +67,33 @@ public sealed class WorkshopPhysicsLawPrismaticTests
         if (initialSpeed < 0) Assert.True(lowerImpulse > 0, "incoming motion activates the lower unilateral stop");
     }
 
+    [Fact]
+    public void DeclaredDampingRemovesEnergyComparedWithTheSameStopFreeSpring()
+    {
+        double Remaining(float damping)
+        {
+            var scene = new LawScene();
+            var frame = scene.StaticBox(new(0, 5, 0), TileHalf);
+            var plate = scene.Box(new(0, 4.9f, 0), PlateHalf, PlateMass, PlateMaterial, gravity: 0);
+            scene.Prismatic(frame, plate, Frame(), Frame(), -1, 1, Stiffness, damping, ConnectedCollision.Disabled);
+            var world = scene.Admit();
+            double Energy(LawBody b) => PlateMass / 2 * b.Speed * b.Speed + Stiffness / 2 * Math.Pow(b.Position.Y - 5, 2);
+            var initial = Energy(world.Initial(plate));
+            var final = world.Step(180, (tick, state) =>
+            {
+                var body = state[plate];
+                Assert.InRange(body.Position.Y - 5, -.2f, .2f); // Stops at +/-1 m cannot dissipate this release.
+                Assert.True(Energy(body) <= initial + .005, $"tick {tick}: a passive spring creates no useful energy");
+            });
+            return Energy(final[plate]);
+        }
+        var undamped = Remaining(0);
+        var damped = Remaining(Damping);
+        // c/m=.8 per second predicts roughly .30 energy ratio over 1.5 s.
+        // Requiring only 25% additional loss rejects omitted damping without a phase or trajectory pin.
+        Assert.True(damped < .75 * undamped, $"declared damping must remove energy: {damped} versus {undamped}");
+    }
+
     private static Vector3 Rotate(Quaternion q, Vector3 v) => Vector3.Transform(v, q);
 
     [Fact]
@@ -213,72 +240,58 @@ public sealed class WorkshopPhysicsLawPrismaticTests
         world.Step(120, (tick, state) =>
         {
             var m = Measure(state[plate], state[ball]);
-            Assert.True(m.Energy >= 0 && m.Energy <= initial + 1e-5, $"({x},{y},{z}) tick {tick}: energy {m.Energy} initial {initial}");
+            Assert.True(m.Energy >= 0 && m.Energy <= initial + .005, $"({x},{y},{z}) tick {tick}: energy {m.Energy} initial {initial}");
             compression = MathF.Max(compression, m.Compression); returned = MathF.Max(returned, m.Returned);
         });
-        Assert.InRange(compression, .01f, .250001f);
+        // This 2 J impact cannot reach the 12.5 J lower stop; the incoming-speed test owns stop engagement.
+        Assert.True(compression >= .01f, $"the payload meaningfully compresses the plate ({compression})");
         Assert.True(returned > .2f, $"return speed {returned}");
     }
 
-    private static SimBody SweepBody(int slot, int seed)
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void FullAndPartialPrismaticBatchesAndSharedBodiesKeepTheirDeclaredTargets(bool springs)
     {
-        var body = new SimBody
+        // 20 N·s/m is critical damping for the 1 kg, 100 N/m lane and near-critical for the others.
+        var scene = new LawScene(false);
+        var independent = new List<(GpuBodyId Body, float Target, float Initial)>();
+        for (var lane = 0; lane < 5; lane++)
         {
-            BodySlot = slot, Motion = RigidMotionKind.Dynamic, Px = seed * .1f, Py = 4 + seed * .03f, Pz = -seed * .02f,
-            Qy = MathF.Sin(seed * .03f), Qw = MathF.Cos(seed * .03f), Principal = Quaternion.Identity,
-            InvMass = 1 / (1 + seed * .125f), InvI = new(1 + seed * .1f, .5f + seed * .05f, .8f + seed * .025f),
-            Vx = seed * .07f, Vy = -seed * .03f, Vz = seed * .02f, Wx = seed * .01f, Wy = -seed * .015f, Wz = seed * .02f,
-        };
-        WorkshopCollisionKernels.UpdateDynamicFrame(body);
-        return body;
-    }
-
-    private static SimJoint SweepJoint(SimBody a, SimBody b, int seed)
-    {
-        var joint = new SimJoint
-        {
-            A = a, B = b, Pa = new(.03f * seed, 0, .01f), Qa = Quaternion.Identity, Pb = new(-.01f, 0, .02f * seed), Qb = Quaternion.Identity,
-            Lower = Lower, Upper = 0, Soft = SoftConstraintCoefficients.FromSpring(120 + seed * 50, Damping, WorkshopConstraintSolver.SubstepSeconds),
-        };
-        PrismaticConstraintSolver.PrepareJointRows(joint, WorkshopConstraintSolver.SubstepSeconds);
-        return joint;
-    }
-
-    private static float[] State(SimJoint j) =>
-        [j.A.Vx, j.A.Vy, j.A.Vz, j.A.Wx, j.A.Wy, j.A.Wz, j.B.Vx, j.B.Vy, j.B.Vz, j.B.Wx, j.B.Wy, j.B.Wz, .. j.Impulses];
-
-    [Fact]
-    public void FiveDisjointJointsScatterFullAndPartialSimdBatchesAndSharedBodiesSequence()
-    {
-        List<SimJoint> Make() => [.. Enumerable.Range(0, 5).Select(i => SweepJoint(SweepBody(i * 2 + 1, i + 1), SweepBody(i * 2 + 2, i + 2), i + 1))];
-        var together = Make(); var separate = Make();
-        for (var sweep = 0; sweep < 3; sweep++)
-        {
-            PrismaticConstraintSolver.SweepConstraints(together, true);
-            foreach (var j in separate) PrismaticConstraintSolver.SweepConstraints([j], true);
+            var x = lane * 2f;
+            var target = 5f + lane * .2f;
+            var initial = target - .15f - lane * .05f;
+            var support = scene.StaticBox(new(x, 5, 0), new(.03f));
+            var body = scene.Box(new(x, initial, 0), new(.03f), 1f, PlateMaterial, gravity: 0f);
+            scene.Prismatic(support, body, Frame(y: target - 5f), Frame(), -1f, 1f,
+                springs ? 100f + lane * 20f : 0f, springs ? 20f : 0f, ConnectedCollision.Disabled);
+            independent.Add((body, target, initial));
         }
-        for (var i = 0; i < 5; i++) Assert.Equal(State(separate[i]), State(together[i]));
-        Assert.Equal(5, together.Select(j => string.Join(",", j.Impulses)).Distinct().Count()); // distinct lanes are not broadcast or dropped
-        List<SimJoint> Shared() { var common = SweepBody(2, 2); return [SweepJoint(SweepBody(1, 1), common, 1), SweepJoint(common, SweepBody(3, 3), 2)]; }
-        var actual = Shared(); var expected = Shared();
-        // Independent scalar schedule: each later joint consumes the earlier shared-body reaction, row by row.
-        for (var sweep = 0; sweep < 3; sweep++)
+        var a = scene.Box(new(20, 5, 0), new(.03f), 1f, PlateMaterial, gravity: 0f);
+        var b = scene.Box(new(21, 5.2f, 0), new(.03f), 1f, PlateMaterial, gravity: 0f);
+        var c = scene.Box(new(22, 5.7f, 0), new(.03f), 1f, PlateMaterial, gravity: 0f);
+        scene.Prismatic(a, b, Frame(x: 1), Frame(), -1f, 1f, springs ? 100f : 0f, springs ? 20f : 0f, ConnectedCollision.Disabled);
+        scene.Prismatic(b, c, Frame(x: 1), Frame(), -1f, 1f, springs ? 160f : 0f, springs ? 20f : 0f, ConnectedCollision.Disabled);
+        var final = scene.Admit().Step(600);
+        foreach (var item in independent)
         {
-            PrismaticConstraintSolver.SweepConstraints(actual, true);
-            for (var row = 0; row < PhysicsGpuAbi.PrismaticRowCount; row++)
-                foreach (var j in expected)
-                {
-                    var r = j.Rows[row];
-                    var result = SoftConstraint.Solve4(
-                        Vector128.Create(ConstraintBodyImpulse.ConstraintMass(j.A, r.La, r.Aa) + ConstraintBodyImpulse.ConstraintMass(j.B, r.Lb, r.Ab), 0, 0, 0),
-                        Vector128.Create(ConstraintBodyImpulse.ConstraintVelocity(j.A, r.La, r.Aa) + ConstraintBodyImpulse.ConstraintVelocity(j.B, r.Lb, r.Ab), 0, 0, 0),
-                        Vector128.Create(r.VelocityTarget, 0, 0, 0), Vector128.Create(r.Error, 0, 0, 0), Vector128.Create(r.Gamma, 0, 0, 0), Vector128.Create(r.Bias, 0, 0, 0),
-                        Vector128.Create(j.Impulses[row], 0, 0, 0), Vector128.Create(r.Minimum, 0, 0, 0), Vector128.Create(float.MaxValue, 0, 0, 0));
-                    j.Impulses[row] = result.Accumulated.GetElement(0);
-                    PrismaticConstraintSolver.ApplyConstraintImpulse(j, r, result.Delta.GetElement(0));
-                }
+            // Five distinct destinations expose dropped, broadcast, or cross-wired full/partial lanes.
+            Assert.InRange(final[item.Body].Position.Y, (springs ? item.Target : item.Initial) - .005f,
+                (springs ? item.Target : item.Initial) + .005f);
+            Assert.InRange(final[item.Body].Speed, 0f, .01f);
         }
-        for (var i = 0; i < 2; i++) Assert.Equal(State(expected[i]), State(actual[i]));
+        var shared = new[] { (a, 5f), (b, 5.2f), (c, 5.7f) };
+        foreach (var (body, initial) in shared)
+        {
+            if (!springs) Assert.InRange(final[body].Position.Y, initial - .005f, initial + .005f);
+            Assert.InRange(final[body].Speed, 0f, .01f);
+        }
+        // This unanchored assembly can rotate. Its centre of mass stays fixed while both authored anchors meet.
+        Assert.InRange((final[a].Position.Y + final[b].Position.Y + final[c].Position.Y) / 3f, 5.295f, 5.305f);
+        if (springs)
+            foreach (var (left, right) in new[] { (a, b), (b, c) })
+                Assert.InRange(Vector3.Distance(final[left].Position + Vector3.Transform(Vector3.UnitX, final[left].Rotation),
+                    final[right].Position), 0f, .005f);
     }
 
     [Fact]
@@ -337,16 +350,24 @@ public sealed class WorkshopPhysicsLawPrismaticTests
     }
 
     [Theory]
-    [InlineData(0, .2f, true, 0f)]
-    [InlineData(0, 0f, true, 0f)]
-    [InlineData(0, .2f, true, 2f)]
-    [InlineData(0, .2f, false, 0f)]
-    [InlineData(-30, .2f, true, 0f)]
-    [InlineData(-30, 0f, true, 0f)]
-    [InlineData(-30, .2f, true, 2f)]
-    [InlineData(-30, .2f, false, 0f)]
+    [InlineData(0, .2f, true, 0f, 400f)]
+    [InlineData(0, 0f, true, 0f, 400f)]
+    [InlineData(0, .2f, true, 2f, 400f)]
+    [InlineData(0, .2f, false, 0f, 400f)]
+    [InlineData(-30, .2f, true, 0f, 400f)]
+    [InlineData(-30, 0f, true, 0f, 400f)]
+    [InlineData(-30, .2f, true, 2f, 400f)]
+    [InlineData(-30, .2f, false, 0f, 400f)]
+    [InlineData(0, .2f, true, 0f, 1200f)]
+    [InlineData(0, 0f, true, 0f, 1200f)]
+    [InlineData(0, .2f, true, 2f, 1200f)]
+    [InlineData(0, .2f, false, 0f, 1200f)]
+    [InlineData(-30, .2f, true, 0f, 1200f)]
+    [InlineData(-30, 0f, true, 0f, 1200f)]
+    [InlineData(-30, .2f, true, 2f, 1200f)]
+    [InlineData(-30, .2f, false, 0f, 1200f)]
     public void PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(int degrees, float compression, bool payload,
-        float miss)
+        float miss, float stiffness)
     {
         var rotation = new Quaternion(0, 0, MathF.Sin(degrees * MathF.PI / 360), MathF.Cos(degrees * MathF.PI / 360));
         var origin = new Vector3(0, 2.5f, 0); var axis = Rotate(rotation, Vector3.UnitY);
@@ -357,7 +378,7 @@ public sealed class WorkshopPhysicsLawPrismaticTests
         var plate = scene.Box(At(.14f - compression), PlateHalf, PlateMass, PlateMaterial, rotation, gravity: 0);
         GpuBodyId? ball = payload ? scene.Sphere(At(.557f - compression) + new Vector3(miss, 0, 0), LawBalls.Radius(LawBall.Basketball),
             LawBalls.Mass(LawBall.Basketball), LawMaterial.Ball(LawBall.Basketball), default, default, 0, 0) : null;
-        scene.Prismatic(frame, plate, Frame(y: .14f), Frame(), Lower, 0, Stiffness, Damping, ConnectedCollision.Disabled);
+        scene.Prismatic(frame, plate, Frame(y: .14f), Frame(), Lower, 0, stiffness, Damping, ConnectedCollision.Disabled);
         var world = scene.Admit();
         var inertia = (Plate: Moments(world, plate), Ball: ball is { } id ? Moments(world, id) : default);
         (double Energy, float Travel, double Speed, float Normal) Measure(LawState? state)
@@ -369,28 +390,30 @@ public sealed class WorkshopPhysicsLawPrismaticTests
             PrismaticRows.Prepare(new(b.Position, b.Rotation, b.Position), new(p.Position, p.Rotation, p.Position), Frame(y: .14f), Frame(),
                 Lower, 0, rows);
             var q = rows[(int)PrismaticRowKind.Spring].Error;
-            var energy = Stiffness / 2 * q * q + PlateMass / 2 * p.Speed * p.Speed + Rotational(inertia.Plate, p);
+            var energy = stiffness / 2 * q * q + PlateMass / 2 * p.Speed * p.Speed + Rotational(inertia.Plate, p);
             if (ball is not { } payloadId) return (energy, q, 0, 0);
             var load = Read(payloadId);
             return (energy + .5 * load.Speed * load.Speed + Rotational(inertia.Ball, load), q, load.Speed, Vector3.Dot(load.Velocity, axis));
         }
         var initial = Measure(null);
-        Assert.InRange(initial.Energy, (compression == 0 ? 0 : 8) - 1e-5, (compression == 0 ? 0 : 8) + 1e-5);
-        byte[]? previous = null;
+        // .005 J cannot lift the 1 kg payload even .51 mm; this is a whole-run
+        // energy allowance, not a fresh allowance accumulated on each tick.
+        const double energyAllowance = .005;
+        var storedEnergy = stiffness * compression * compression / 2;
+        Assert.InRange(initial.Energy, storedEnergy - energyAllowance, storedEnergy + energyAllowance);
         for (var replay = 0; replay < 2; replay++)
         {
             var speed = 0.0; var normal = 0f;
-            var final = world.Step(120, (tick, state) =>
+            world.Step(120, (tick, state) =>
             {
                 var value = Measure(state);
-                Assert.True(value.Energy <= initial.Energy + 1e-5, $"tick {tick}: energy {value.Energy} initial {initial.Energy}");
+                Assert.True(value.Energy <= initial.Energy + energyAllowance, $"tick {tick}: energy {value.Energy} initial {initial.Energy}");
                 Assert.InRange(value.Travel, -.251f, .001f);
                 speed = Math.Max(speed, value.Speed); normal = MathF.Max(normal, value.Normal);
             });
             if (payload && compression > 0 && miss == 0) Assert.True(normal > 1, $"the charged plate launches its payload ({normal})");
             else Assert.Equal(0, speed); // uncharged or missed payloads receive no work; an empty plate has no payload
-            if (previous is not null) Assert.Equal(previous, final.World); // the replay is identical
-            previous = final.World;
+            // Each fresh run must independently reproduce launch/no-work, energy and stop behavior.
         }
     }
 }

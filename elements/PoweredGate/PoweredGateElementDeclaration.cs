@@ -35,7 +35,7 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, ISupplyEleme
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(0f, 1.65f, .92f), Vector3.UnitZ)
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new Vector3(0f, 1.65f, .92f), Vector3.UnitZ)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
@@ -76,7 +76,7 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, ISupplyEleme
     public IReadOnlyList<PrismaticSliderDescriptor> Sliders =>
     [
         new(new(Vector3.Zero, Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
-            0f, 1.55f, MechanicalValue.Fixed(14f), MechanicalValue.Fixed(4f), MechanicalValue.Fixed(0f), false,
+            MechanicalValue.Fixed(0f), MechanicalValue.Fixed(1.55f), MechanicalValue.Fixed(14f), MechanicalValue.Fixed(4f), MechanicalValue.Fixed(0f), false,
             new(MassFrameDeclaration.Constant(1f, Vector3.Zero,
                 new Vector3((.72f * .72f + .72f * .72f) / 3f,
                     (.06f * .06f + .72f * .72f) / 3f, (.06f * .06f + .72f * .72f) / 3f),

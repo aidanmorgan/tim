@@ -37,7 +37,7 @@ public sealed record SupplyGraphDescriptor(IReadOnlyList<SupplyNodeDescriptor> N
 [JsonDerivedType(typeof(SupplyConsumerDescriptor), "Consumer")]
 public abstract record SupplyNodeDescriptor(LocalSupplyNodeId Id);
 public sealed record SupplySourceDescriptor(LocalSupplyNodeId Id, SupplySourceStoreDescriptor Store) : SupplyNodeDescriptor(Id);
-public sealed record SupplyContactDescriptor(LocalSupplyNodeId Id, SignalContactControl Control) : SupplyNodeDescriptor(Id);
+public sealed record SupplyContactDescriptor(LocalSupplyNodeId Id, SupplyContactControl Control) : SupplyNodeDescriptor(Id);
 public sealed record SupplyLogicDescriptor(LocalSupplyNodeId Id, LogicGateOperation Operation) : SupplyNodeDescriptor(Id);
 public sealed record SupplyConsumerDescriptor(LocalSupplyNodeId Id, IReadOnlyList<SupplyTarget> Targets) : SupplyNodeDescriptor(Id);
 

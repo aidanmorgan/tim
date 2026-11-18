@@ -6,7 +6,8 @@ using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Simulation;
 
-internal readonly record struct ContactFeatureIdentity(int A, int B, int Feature);
+internal readonly record struct ContactFeatureIdentity(int A, int B, int Feature, int OwnerA, int OwnerB,
+    CuriousContraptions.Abstractions.Mechanical.BoxFace? FaceA, CuriousContraptions.Abstractions.Mechanical.BoxFace? FaceB);
 
 /// <summary>Exact collider-pair feature membership, independent of enumeration and normal rotation, for contact warm starts.</summary>
 internal sealed class ContactFeatureSetKey : IEquatable<ContactFeatureSetKey>
@@ -16,12 +17,17 @@ internal sealed class ContactFeatureSetKey : IEquatable<ContactFeatureSetKey>
     {
         _features = new ContactFeatureIdentity[points.Count];
         for (var i = 0; i < points.Count; i++)
-            _features[i] = new(points[i].ColA.Index, points[i].ColB.Index, points[i].Feature);
+            _features[i] = new(points[i].ColA.Index, points[i].ColB.Index, points[i].Feature,
+                points[i].A.BodySlot, points[i].B.BodySlot, points[i].FaceA, points[i].FaceB);
         Array.Sort(_features, (a, b) =>
         {
             var ownerA = a.A.CompareTo(b.A); if (ownerA != 0) return ownerA;
             var ownerB = a.B.CompareTo(b.B); if (ownerB != 0) return ownerB;
-            return a.Feature.CompareTo(b.Feature);
+            var feature = a.Feature.CompareTo(b.Feature); if (feature != 0) return feature;
+            var materialA = a.OwnerA.CompareTo(b.OwnerA); if (materialA != 0) return materialA;
+            var materialB = a.OwnerB.CompareTo(b.OwnerB); if (materialB != 0) return materialB;
+            var faceA = Nullable.Compare(a.FaceA, b.FaceA);
+            return faceA != 0 ? faceA : Nullable.Compare(a.FaceB, b.FaceB);
         });
     }
     public bool Equals(ContactFeatureSetKey? other) => other is not null &&
@@ -246,12 +252,8 @@ internal static class WorkshopFrictionSolver
 
     private static void Apply(ContactPatch p, Vector3 delta) => p.Jacobian.Apply(delta);
 
-    private static void Angular(SimBody body, Vector3 torque)
-    {
-        if (body.Motion != RigidMotionKind.Dynamic) return;
-        var dw = WorkshopCollisionKernels.ApplyInvInertia(body, torque);
-        body.Wx += dw.X; body.Wy += dw.Y; body.Wz += dw.Z;
-    }
+    private static void Angular(SimBody body, Vector3 torque) =>
+        ConstraintBodyImpulse.ApplyBodyImpulse(body, Vector3.Zero, torque, 1f);
 
     // Cyclic Jacobi diagonalization of the symmetric PSD effective mass. Twelve sweeps
     // bound work; a rotation stops below one f32 relative epsilon of the two diagonals.

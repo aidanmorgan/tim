@@ -1,3 +1,4 @@
+using SocketGlyph = CuriousContraptions.Abstractions.SocketGlyph;
 using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
 
@@ -98,7 +99,7 @@ public sealed class WorkshopDominoTests
             Assert.Throws<ArgumentException>(() => (domino with { Parameters = new([new(new(forged), 1f)]) }).Validate(RuntimeTestServices.Bundle));
         Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(2), 0, 65, 0, 0, 0, 0, 1));
         Assert.Throws<ArgumentException>(() => PlacedParts.Domino(new(2), 0, 0, 0, 0, 0, 0, 0));
-        Assert.Equal([new WorkshopPort(PortId.ActivationOut, PortRole.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Pulse,
+        Assert.Equal([new WorkshopPort(PortId.ActivationOut, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Pulse,
             new(0f, .55f, 0f))], DeclaredPorts.Current.Of(new PartId("domino")).ToArray());
         Assert.True(DeclaredPorts.Current.Has(new PartId("domino"), PortId.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
         Assert.False(DeclaredPorts.Current.Has(new PartId("domino"), PortId.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));

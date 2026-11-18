@@ -979,11 +979,11 @@ public sealed partial class ClutchTests
             Footprint = new(5, 4, 0, 4),
             Ports =
             [
-                new(PortId.DriveIn, SimulationDomain.Mechanical, PortDirection.Input, PortRole.DriveIn, null,
+                new(PortId.DriveIn, SimulationDomain.Mechanical, PortDirection.Input, PortRole.DriveIn, new("DriveIn", SocketGlyph.Text), null,
                     new(-1.2f, 0f, 0.43f), Vector3.UnitZ, Coordinate: new(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f),
-                new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, null,
+                new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, new("Drive", SocketGlyph.Text), null,
                     new(1.2f, -0.8f, 0.43f), Vector3.UnitZ, Coordinate: new(CoordinateKind.Revolute, 3), CoordinatePerRadian: 1f),
-                new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null,
+                new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null,
                     new(-0.55f, 0f, 0f), -Vector3.UnitX)
             ],
             Mechanical = template.Mechanical with

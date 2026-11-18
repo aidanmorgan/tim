@@ -22,10 +22,10 @@ public sealed class BothGateElementDeclaration : ISupplyElement, ISceneGeometryE
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.FirstIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.FirstIn,null,new(-.94f,.35f,0),-Vector3.UnitX),
-        new(PortId.SecondIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.SecondIn,null,new(-.94f,-.35f,0),-Vector3.UnitX),
-        new(PortId.PowerIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.PowerIn,null,new(0,-.75f,.55f),Vector3.UnitZ),
-        new(PortId.Supply,SimulationDomain.Electrical,PortDirection.Output,PortRole.Supply,null,new(.94f,0,0),Vector3.UnitX)
+        new(PortId.FirstIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.FirstIn, new("FirstIn", SocketGlyph.First),null,new(-.94f,.35f,0),-Vector3.UnitX),
+        new(PortId.SecondIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.SecondIn, new("SecondIn", SocketGlyph.Second),null,new(-.94f,-.35f,0),-Vector3.UnitX),
+        new(PortId.PowerIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.PowerIn, new("PowerIn", SocketGlyph.Power),null,new(0,-.75f,.55f),Vector3.UnitZ),
+        new(PortId.Supply,SimulationDomain.Electrical,PortDirection.Output,PortRole.Supply, new("Supply", SocketGlyph.Text),null,new(.94f,0,0),Vector3.UnitX)
     ];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".",new(1f,.3f,0f,.1f))];

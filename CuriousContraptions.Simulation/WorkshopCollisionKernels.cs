@@ -27,6 +27,7 @@ internal enum ContactSupport : byte
 
 internal sealed class SimBody
 {
+    public GuideComponent? Guide;
     public int BodySlot;
     public int BodyOffset;
     public uint BodyIdLow;
@@ -85,6 +86,8 @@ internal sealed class SimCollider
     public int BodySlot;
     public SimBody Body = null!;
     public int MaterialSlot;
+    public SimJoint? Extrusion;
+    public float Cut, DistalOffset;
     public ShapeKind Shape;
     public float Tx, Ty, Tz;
     public Quaternion Rq;
@@ -114,6 +117,7 @@ internal sealed class ContactPoint
     public float Px, Py, Pz;
     public float Gap;
     public int Feature;
+    public CuriousContraptions.Abstractions.Mechanical.BoxFace? FaceA, FaceB;
     /// <summary>Set once by the narrowphase that classified the contact; read by the support displacement and the rolling row.</summary>
     public ContactSupport SupportA;
     public ContactSupport SupportB;
@@ -139,6 +143,8 @@ internal sealed class ContactPoint
 
 internal sealed class NormalContactBlock
 {
+    public float[] Mass = [];
+    public bool MassValid;
     public readonly List<ContactPoint> Points = new(4);
     public ContactFeatureSetKey Key = null!;
 }
@@ -189,18 +195,8 @@ internal static partial class WorkshopCollisionKernels
         body.InvI.Y * (Vector3.Dot(a, body.PrincipalY) * Vector3.Dot(b, body.PrincipalY)) +
         body.InvI.Z * (Vector3.Dot(a, body.PrincipalZ) * Vector3.Dot(b, body.PrincipalZ));
 
-    public static void ApplyImpulse(SimBody b, Vector3 p, Vector3 r)
-    {
-        if (b.Motion != RigidMotionKind.Dynamic) return;
-        b.Vx += p.X * b.InvMass;
-        b.Vy += p.Y * b.InvMass;
-        b.Vz += p.Z * b.InvMass;
-        var t = Vector3.Cross(r, p);
-        var dw = ApplyInvInertia(b, t);
-        b.Wx += dw.X;
-        b.Wy += dw.Y;
-        b.Wz += dw.Z;
-    }
+    public static void ApplyImpulse(SimBody b, Vector3 p, Vector3 r) =>
+        ConstraintBodyImpulse.ApplyBodyImpulse(b, p, Vector3.Cross(r, p), 1f);
 
     public static Vector3 PointVelocity(SimBody b, Vector3 r)
     {
@@ -213,6 +209,11 @@ internal static partial class WorkshopCollisionKernels
 
     public static void RefreshCollider(SimCollider c)
     {
+        if (c.Extrusion is { } extrusion)
+        {
+            RefreshExtrusion(c, extrusion);
+            return;
+        }
         var body = c.Body;
         var bq = new Quaternion(body.Qx, body.Qy, body.Qz, body.Qw);
         if (c.Tx == 0f && c.Ty == 0f && c.Tz == 0f)
@@ -241,6 +242,22 @@ internal static partial class WorkshopCollisionKernels
         c.U0 = Vector3.Transform(Vector3.UnitX, cq);
         c.U1 = Vector3.Transform(Vector3.UnitY, cq);
         c.U2 = Vector3.Transform(Vector3.UnitZ, cq);
+    }
+
+    private static void RefreshExtrusion(SimCollider collider, SimJoint joint)
+    {
+        var declaration = new ClippedExtrusionDeclaration(default, default, default,
+            collider.Cut, collider.DistalOffset, new(collider.Hx, collider.Hz));
+        var (centre, half) = declaration.Bounds(PrismaticMotorSolver.Coordinate(joint));
+        var rotation = Quaternion.Multiply(joint.A.Rotation, joint.Qa);
+        var origin = joint.A.Position + Vector3.Transform(joint.Pa, joint.A.Rotation);
+        var position = origin + Vector3.Transform(centre, rotation);
+        collider.Px = position.X; collider.Py = position.Y; collider.Pz = position.Z;
+        collider.Qx = rotation.X; collider.Qy = rotation.Y; collider.Qz = rotation.Z; collider.Qw = rotation.W;
+        collider.Hy = half.Y;
+        collider.U0 = Vector3.Transform(Vector3.UnitX, rotation);
+        collider.U1 = Vector3.Transform(Vector3.UnitY, rotation);
+        collider.U2 = Vector3.Transform(Vector3.UnitZ, rotation);
     }
 
     /// <summary>The farthest surface point from the collider centre. A plane

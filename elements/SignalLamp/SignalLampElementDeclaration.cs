@@ -34,7 +34,7 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
     /// <summary>The only input that admits a level: a lamp then follows that one level output alone.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)
+        new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, new("ActivationIn", SocketGlyph.Text), PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];

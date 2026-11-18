@@ -458,7 +458,7 @@ public sealed partial class ClutchTests
         var trackPosition = vector + 4 + buffer.GetInt(vector + 4);
         var bindingPosition = Target(buffer, trackPosition, 5);
         var bindingVtable = bindingPosition - buffer.GetInt(bindingPosition);
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(current.AsSpan(bindingVtable), 36);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(current.AsSpan(bindingVtable), 38);
         Assert.Throws<WireFaultException>(() => harness.Router.Dispatch(current));
         Assert.Same(priorScene, harness.Simulation.Scene);
         Assert.Equal(priorTick, harness.Committed.Tick);

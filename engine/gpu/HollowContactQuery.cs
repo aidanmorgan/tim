@@ -633,8 +633,30 @@ public static class HollowContactQuery
     {
         var reach = partner.Reach + hollow.Reach + margin;
         if (Vector3.DistanceSquared(partner.Position, hollow.Position) > reach * reach) return;
+        if (BoundsAreSeparated(partner, hollow, margin)) return;
         SurfaceWitnesses(partner, hollow, false, margin, ref points);
         SurfaceWitnesses(hollow, partner, true, margin, ref points);
+    }
+
+    private static bool BoundsAreSeparated(HollowSolid a, HollowSolid b, float margin)
+    {
+        a.Bounds(out var minA, out var maxA);
+        b.Bounds(out var minB, out var maxB);
+        var extentA = (maxA - minA) * .5f;
+        var extentB = (maxB - minB) * .5f;
+        var scale = CoordinateScale(a.Position) + CoordinateScale(b.Position)
+            + CoordinateScale(extentA) + CoordinateScale(extentB);
+        var threshold = margin + CuriousContraptions.Abstractions.PhysicalTolerance.ContactSeparationMetres;
+        // The uncapped reconstruction estimate determines eligibility; uncertain pairs retain the full query.
+        if (!float.IsFinite(scale) || !float.IsFinite(threshold) ||
+            !Finite(minA) || !Finite(maxA) || !Finite(minB) || !Finite(maxB) ||
+            (64f / 16777216f) * scale > CuriousContraptions.Abstractions.PhysicalTolerance.ContactSeparationMetres)
+            return false;
+        var gap = Vector3.Max(minA - maxB, minB - maxA);
+        return (gap.X > 0f && gap.X > threshold) || (gap.Y > 0f && gap.Y > threshold) ||
+            (gap.Z > 0f && gap.Z > threshold);
+
+        static bool Finite(Vector3 value) => float.IsFinite(value.X) && float.IsFinite(value.Y) && float.IsFinite(value.Z);
     }
 
     private static bool InIncidentCone(Vector3 direction, ReadOnlySpan<Vector3> generators, ReadOnlySpan<float> allowances)

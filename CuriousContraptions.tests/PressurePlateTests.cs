@@ -106,9 +106,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         // Story 9R.5 D4: ActivationOut (a level) is listed before Supply, as on the latch, so the drawer keeps the Supply row.
         Assert.Equal(
-            [new WorkshopPort(PortId.PowerIn, PortRole.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null, new(-1.18f, -.08f, 0f)),
-             new WorkshopPort(PortId.ActivationOut, PortRole.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level, new(0f, -.08f, 1.18f)),
-             new WorkshopPort(PortId.Supply, PortRole.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null, new(1.18f, -.08f, 0f))],
+            [new WorkshopPort(PortId.PowerIn, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null, new(-1.18f, -.08f, 0f)),
+             new WorkshopPort(PortId.ActivationOut, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level, new(0f, -.08f, 1.18f)),
+             new WorkshopPort(PortId.Supply, PortRole.Supply, new("Supply", SocketGlyph.Text), WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null, new(1.18f, -.08f, 0f))],
             DeclaredPorts.Current.Of(new PartId("pressure_plate")).ToArray());
         Assert.Equal(new Vector3(-1.18f, -0.08f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("pressure_plate"), PortId.PowerIn));
         Assert.Equal(new Vector3(1.18f, -0.08f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("pressure_plate"), PortId.Supply));

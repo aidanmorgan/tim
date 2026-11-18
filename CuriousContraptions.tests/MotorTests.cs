@@ -901,7 +901,7 @@ public sealed class MotorTests
         var slider = TestBundle.Entry(new("powered_gate")).Mechanical!.Sliders[0] with
         {
             BaseFrame = new(new(-3f, 0f, 4f), Quaternion.Identity), MovingFrame = new(Vector3.Zero, Quaternion.Identity),
-            LowerLimit = -1f, UpperLimit = 1f, Stiffness = MechanicalValue.Fixed(14f),
+            LowerLimit = MechanicalValue.Fixed(-1f), UpperLimit = MechanicalValue.Fixed(1f), Stiffness = MechanicalValue.Fixed(14f),
             Damping = MechanicalValue.Fixed(4f), Compression = MechanicalValue.Fixed(0f), Drive = null,
             MovingBody = new(MassFrameDeclaration.Constant(1f, Vector3.Zero, new(.1f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)),
                 TestBundle.Entry(new("powered_gate")).Mechanical!.Sliders[0].MovingBody.Colliders)

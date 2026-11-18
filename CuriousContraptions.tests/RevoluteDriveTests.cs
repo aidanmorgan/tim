@@ -707,7 +707,7 @@ public sealed class RevoluteDriveTests
         CuriousContraptions.Bundle.BundleEntry Driven(float target) => lever with
         {
             Ports = [.. lever.Ports, new(CuriousContraptions.Abstractions.PortId.PowerIn, CuriousContraptions.Abstractions.SimulationDomain.Electrical,
-                CuriousContraptions.Abstractions.PortDirection.Input, CuriousContraptions.Abstractions.PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ)],
+                CuriousContraptions.Abstractions.PortDirection.Input, CuriousContraptions.Abstractions.PortRole.PowerIn, new("PowerIn", CuriousContraptions.Abstractions.SocketGlyph.Text), null, Vector3.Zero, Vector3.UnitZ)],
             Electrical = new CuriousContraptions.Bundle.ElectricalPayload(
                 [new("drive", CuriousContraptions.Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
                 new CuriousContraptions.Abstractions.Electrical.SupplyGraphDescriptor(

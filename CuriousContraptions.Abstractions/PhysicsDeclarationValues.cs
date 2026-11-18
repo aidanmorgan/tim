@@ -180,7 +180,7 @@ public readonly record struct RigidBodyDeclaration(
 /// <see cref="FullSweep"/>.</summary>
 public readonly record struct ColliderDeclaration(
     GpuColliderId Id, GpuBodyId Body, GpuMaterialId Material, ColliderShapeKind Shape,
-    RigidLocalPose Pose, Metres Radius, MetreVector HalfExtents)
+    RigidLocalPose Pose, Metres Radius, MetreVector HalfExtents, ClippedExtrusionDeclaration? Extrusion = null)
 {
     /// <summary>The full turn of a whole torus: 2π in f32.</summary>
     public const float FullSweep = MathF.Tau;
@@ -192,6 +192,17 @@ public readonly record struct ColliderDeclaration(
         if (Id.Value == 0 || Body.Value == 0 || Material.Value == 0 || !Enum.IsDefined(Shape))
             throw new ArgumentException("Invalid collider identity or shape.");
         Pose.Validate();
+        if (Extrusion is { } extrusion)
+        {
+            extrusion.Validate();
+            if (Shape != ColliderShapeKind.Box || Body != extrusion.MaterialBody)
+                throw new ArgumentException("A clipped extrusion requires its material body's box collider.");
+        }
+        ValidateShape();
+    }
+
+    private void ValidateShape()
+    {
         switch (Shape)
         {
             case ColliderShapeKind.Sphere:

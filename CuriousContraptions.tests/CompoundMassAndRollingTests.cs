@@ -1024,7 +1024,7 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
             Vector3.Zero, Quaternion.Identity, new(0, 0, 0, .1f), 0);
         var sliders = Enumerable.Range(0, 2).Select(index => new PrismaticSliderDescriptor(
             new(new(index == 0 ? -2 : 2, 0, 0), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
-            -1, 1, MechanicalValue.Fixed(1f / 1024), MechanicalValue.Fixed(0), MechanicalValue.Fixed((index + 1) * .05f), false,
+            MechanicalValue.Fixed(-1), MechanicalValue.Fixed(1), MechanicalValue.Fixed(1f / 1024), MechanicalValue.Fixed(0), MechanicalValue.Fixed((index + 1) * .05f), false,
             new(MassFrameDeclaration.Constant(1, Vector3.Zero, Vector3.One, Quaternion.Identity, 0, Vector3.Zero), [shape]), null)).ToArray();
         var entry = template with
         {

@@ -1,4 +1,5 @@
 using CuriousContraptions.Abstractions;
+using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Simulation;
 
@@ -100,34 +101,84 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
     private ulong _sequence, _publication;
     private bool _disposed;
 
-    private WorkshopIntegrationHarness()
+    private readonly ObservedWorldTransport? _worldObserver;
+    /// <summary>Read only after a successful enclosing command; transport commit alone is not command acceptance.</summary>
+    public ReadOnlyMemory<byte> CommittedWorld
+    {
+        get
+        {
+            var world = _worldObserver?.TransportCommitted ?? throw new InvalidOperationException("World observation was not requested.");
+            if (world.IsEmpty || Simulation.HasPendingGpuOperation || Latest.Result.Outcome != WorkshopCommandOutcome.Applied ||
+                BinaryPrimitives.ReadUInt64LittleEndian(world.Span[PhysicsGpuAbi.HeaderEpochOffset..]) != Committed.Epoch.Value ||
+                BinaryPrimitives.ReadUInt64LittleEndian(world.Span[PhysicsGpuAbi.HeaderTickOffset..]) != Committed.Tick.Value)
+                throw new InvalidOperationException("No world matches the accepted command observation.");
+            return world;
+        }
+    }
+
+    private WorkshopIntegrationHarness(bool observeWorld = false)
     {
         var entries = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "elements", "elements.bundle.json")));
         DeclaredPhysics.Install(RuntimeTestServices.Bundle, entries);
         DeclaredPorts.Install(ElementPortCatalogue.FromBundle(entries));
-        Device = new(new BrowserGpuTransport(Publication), new(101, 206));
+        IWorkshopGpuTransport transport = new BrowserGpuTransport(Publication);
+        if (observeWorld) transport = _worldObserver = new ObservedWorldTransport(transport);
+        Device = new(transport, new(101, 206));
         _host = new(this);
         Executor = new(Device, _host);
         Router = new(Executor.Execute);
     }
 
-    public static async Task<WorkshopIntegrationHarness> Initialized(WorkshopCadenceSettings settings)
+    internal const string CleanupFailureDiagnostic = "WorkshopHarnessCleanupFailure";
+
+    public static async Task<WorkshopIntegrationHarness> Initialized(WorkshopCadenceSettings settings,
+        Action<WorkshopIntegrationHarness>? acquired = null, bool observeWorld = false)
     {
-        var harness = new WorkshopIntegrationHarness();
-        await harness.Require(WorkshopCommandKind.Initialize, settings: settings);
-        return harness;
+        var harness = new WorkshopIntegrationHarness(observeWorld);
+        try
+        {
+            acquired?.Invoke(harness);
+            await harness.Require(WorkshopCommandKind.Initialize, settings: settings);
+            return harness;
+        }
+        catch (Exception error)
+        {
+            try { await harness.DisposeAsync(); }
+            catch (AggregateException cleanup) { error.Data[CleanupFailureDiagnostic] = cleanup; }
+            throw;
+        }
     }
-    public static async Task<WorkshopIntegrationHarness> Building(WorkshopConstruction construction)
+    public static async Task<WorkshopIntegrationHarness> Building(WorkshopConstruction construction,
+        Action<WorkshopIntegrationHarness>? acquired = null)
     {
-        var harness = await Initialized(construction.Settings);
-        await harness.Require(WorkshopCommandKind.Construct, construction);
-        return harness;
+        var harness = await Initialized(construction.Settings, acquired);
+        try
+        {
+            await harness.Require(WorkshopCommandKind.Construct, construction);
+            return harness;
+        }
+        catch (Exception error)
+        {
+            try { await harness.DisposeAsync(); }
+            catch (AggregateException cleanup) { error.Data[CleanupFailureDiagnostic] = cleanup; }
+            throw;
+        }
     }
-    public static async Task<WorkshopIntegrationHarness> Running(WorkshopConstruction construction)
+    public static async Task<WorkshopIntegrationHarness> Running(WorkshopConstruction construction,
+        Action<WorkshopIntegrationHarness>? acquired = null)
     {
-        var harness = await Building(construction);
-        await harness.Run();
-        return harness;
+        var harness = await Building(construction, acquired);
+        try
+        {
+            await harness.Run();
+            return harness;
+        }
+        catch (Exception error)
+        {
+            try { await harness.DisposeAsync(); }
+            catch (AggregateException cleanup) { error.Data[CleanupFailureDiagnostic] = cleanup; }
+            throw;
+        }
     }
 
     public WorkshopCommand Command(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
@@ -213,7 +264,8 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         WorkshopCadenceSettings? settings = null, WorkshopRunControl? runControl = null, RopeSpanId? cut = null)
     {
         var response = await Execute(kind, construction, settings: settings, runControl: runControl, cut: cut);
-        Assert.Equal(WorkshopCommandOutcome.Applied, response.Result.Outcome);
+        Assert.True(response.Result.Outcome == WorkshopCommandOutcome.Applied,
+            $"{kind} refused: {response.Result.Reason}; {string.Join("\n", Simulation.Diagnostics.Snapshot().Select(row => row.ToString()))}");
         return response.Result;
     }
     private void Accept(WorkshopResponse response)
@@ -305,8 +357,33 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         if (_disposed) return;
-        await Require(WorkshopCommandKind.Dispose);
+        // Terminal ownership prevents duplicate commands, even when a teardown reports failure.
         _disposed = true;
+        try
+        {
+            if (Latest.Read.Epoch.Value != 0) await Require(WorkshopCommandKind.Dispose);
+        }
+        catch (Exception wire)
+        {
+            try { await DisposeOwnedResources(); }
+            catch (AggregateException local) { throw new AggregateException("Workshop harness teardown failed.", wire, local); }
+            throw new AggregateException("Workshop wire teardown failed.", wire);
+        }
+        await DisposeOwnedResources();
+    }
+
+    private async ValueTask DisposeOwnedResources()
+    {
+        // A partially initialized harness can own a device without a simulation.
+        try { await Executor.DisposeAsync(); }
+        catch (Exception executor)
+        {
+            try { await Device.DisposeAsync(); }
+            catch (Exception device) { throw new AggregateException("Workshop owned resource teardown failed.", executor, device); }
+            throw new AggregateException("Workshop executor teardown failed.", executor);
+        }
+        try { await Device.DisposeAsync(); }
+        catch (Exception device) { throw new AggregateException("Workshop device teardown failed.", device); }
     }
 
     public static async Task<List<WorkshopRead>> Observe(WorkshopConstruction construction, int ticks) =>

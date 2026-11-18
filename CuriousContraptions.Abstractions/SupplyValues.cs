@@ -37,8 +37,11 @@ public readonly record struct SupplyConsumer
         new(SupplyConsumerKind.MechanicalTransmission, default, default, transmission);
 }
 
+public readonly record struct PrismaticEndpointContact(PrismaticConstraintId Joint, CoordinateEndpoint Endpoint);
+
 public readonly record struct SupplyNodeDeclaration(SupplyNodeId Id, GpuBodyId Owner, SupplyNodeKind Kind,
-    ElectricalSourceId Source = default, ImmutableArray<SupplyConsumer> Consumers = default, LogicGateOperation? Operation = null, ImmutableArray<GpuContactWorkId> Storages = default);
+    ElectricalSourceId Source = default, ImmutableArray<SupplyConsumer> Consumers = default, LogicGateOperation? Operation = null,
+    ImmutableArray<GpuContactWorkId> Storages = default, PrismaticEndpointContact? CoordinateContact = null);
 public readonly record struct SupplyEdge(SupplyNodeId Source, SupplyNodeId Target, SupplyTerminal Input);
 public readonly record struct SupplyOutput(SupplyNodeId Provider, bool Powered, bool Supplied);
 
@@ -64,4 +67,5 @@ public readonly struct SupplyOutputRead
         throw new ArgumentException("Selected supply provider is missing.");
     }
 }
-public readonly record struct SupplyResolution(bool[] Consumers, bool[] StorageRoutes, ElectricalLogicRead[] Logic, SupplyOutputRead Outputs, bool[] Transmissions);
+public readonly record struct SupplyResolution(bool[] Consumers, bool[] StorageRoutes, ElectricalLogicRead[] Logic, SupplyOutputRead Outputs, bool[] Transmissions,
+    PrismaticCommandInput[] PrismaticCommands);

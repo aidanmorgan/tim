@@ -175,8 +175,8 @@ public sealed class SignalBundleValidatorTests
         Refused(latch with { Signal = latch.Signal! with { Ports = [new(PortId.SetIn, new(new("signal"), SignalTerminal.Input))] } });
         Assert.Empty(Check(latch with { Ports = latch.Ports.Where(p => p.Domain != SimulationDomain.Electrical).ToArray(), Electrical = null }));
         var contact = latch.Electrical!.SupplyGraph!.Nodes.OfType<CuriousContraptions.Abstractions.Electrical.SupplyContactDescriptor>().Single();
-        Refused(latch with { Electrical = latch.Electrical with { SupplyGraph = latch.Electrical.SupplyGraph with { Nodes = [contact with { Control = new(new("missing"), SignalContactState.Latched) }] } } });
-        Refused(latch with { Electrical = latch.Electrical with { SupplyGraph = latch.Electrical.SupplyGraph with { Nodes = [contact with { Control = new(new("signal"), (SignalContactState)99) }] } } });
+        Refused(latch with { Electrical = latch.Electrical with { SupplyGraph = latch.Electrical.SupplyGraph with { Nodes = [contact with { Control = new SignalStateContactControl(new("missing"), SignalContactState.Latched) }] } } });
+        Refused(latch with { Electrical = latch.Electrical with { SupplyGraph = latch.Electrical.SupplyGraph with { Nodes = [contact with { Control = new SignalStateContactControl(new("signal"), (SignalContactState)99) }] } } });
         foreach (var id in new[] { "wall", "ball", "powered_gate" })
         {
             var physical = Entry(id);

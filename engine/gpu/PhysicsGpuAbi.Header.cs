@@ -107,7 +107,10 @@ public static partial class PhysicsGpuAbi
     public const int ColliderPoseOffset = 24;
     public const int ColliderRadiusOffset = 52;
     public const int ColliderHalfExtentsOffset = 56;
-    public const int ColliderPaddingOffset = 68;
+    public const int ColliderExtrusionJointOffset = 68;
+    public const int ColliderExtrusionCutOffset = 72;
+    public const int ColliderExtrusionDistalOffset = 76;
+    public const int ColliderPaddingOffset = 80;
 
     // Material record (MaterialBytes): f32 restitution, bounce threshold, friction and rolling resistance.
     public const int MaterialRestitutionOffset = 8;

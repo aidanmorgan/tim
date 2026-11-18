@@ -376,7 +376,7 @@ development_status:
   # merged into 9a-c-memory (21 Oct 2026)
   9a-43-generic-instance-state-latch: done # scoped native/publication Passf5ffdb; browser pending
   # 47 (element)
-  11-3-linear-pusher-telescopic-actuator: backlog
+  11-3-linear-pusher-telescopic-actuator: done # native/full-local/review Pass; normal commit/publication checks follow; browser pending
   # 48 (deletion): one slice with 9a-25b; before Epic 14 and any new one-shot cue
   9a-23-event-ring-consumers: done # scoped native/publication Passf1ad3b; browser pending
   # delivered in one slice with 9a-23 (one-shot part of 9a-25)

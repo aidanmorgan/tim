@@ -138,13 +138,21 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     [InlineData(8f)]
     public void ArtworkAndPickRadiusFollowTheLength(float metres)
     {
+        void RequireNoEngineErrors(string phase)
+        {
+            var errors = godot.Errors.Drain();
+            Assert.True(errors.Length == 0, $"Pipe lifecycle {phase}: {string.Join("; ", errors.Select(error => error.ToString()))}");
+        }
         var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
+        RequireNoEngineErrors("catalogue load");
         var part = registry.Create(new PartId("pipe"));
         try
         {
+            RequireNoEngineErrors("instantiation");
             godot.Tree.Root.AddChild(part);
             part.EnsureConstructed();
+            RequireNoEngineErrors("scene construction");
             Assert.Equal(3.6f, part.Dimensions.X);
             Assert.Equal(ResizeAxes.X, part.ResizableAxes);
             part.SetDimensions(new(metres, part.Dimensions.Y, part.Dimensions.Z));
@@ -169,12 +177,14 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
             Assert.Equal(1f, part.Dimensions.X);
             Assert.Throws<ArgumentException>(() => part.SetDimensions(new(float.NaN, 1, 1)));
             Assert.Equal(1f, part.Dimensions.X);
+            RequireNoEngineErrors("resizing");
         }
         finally
         {
             part.GetParent()?.RemoveChild(part);
             part.Free();
         }
+        RequireNoEngineErrors("scene release");
     }
 
     /// <summary>Every commit path captures the pipe it edits: the presented length when the part gives one, else the committed pipe's

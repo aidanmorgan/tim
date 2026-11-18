@@ -14,7 +14,7 @@ public sealed class ComposedPhysicalObservationTests
         var shape = new ColliderDescriptor(CuriousContraptions.Abstractions.ColliderShapeKind.Box, new(.1f),
             Vector3.Zero, Quaternion.Identity, new(0, 0, 0, .1f), 0);
         PrismaticSliderDescriptor Slider(float x) => new(new(new(x, 0, 0), Quaternion.Identity),
-            new(Vector3.Zero, Quaternion.Identity), -.2f, 2, MechanicalValue.Fixed(3), MechanicalValue.Fixed(.5f),
+            new(Vector3.Zero, Quaternion.Identity), MechanicalValue.Fixed(-.2f), MechanicalValue.Fixed(2), MechanicalValue.Fixed(3), MechanicalValue.Fixed(.5f),
             MechanicalValue.Fixed(0), true,
             new(MassFrameDeclaration.Constant(1, Vector3.Zero, Vector3.One, Quaternion.Identity, 0, new(0, -9.81f, 0)), [shape]),
             new(MechanicalValue.Fixed(1.2f), MechanicalValue.Fixed(1.6f), MechanicalValue.Fixed(8),

@@ -12,7 +12,22 @@ namespace CuriousContraptions.Tests;
 public sealed class PackageLocalPortsTests
 {
     private static PortDescriptor Port(PortId id, SimulationDomain domain, PortDirection direction, PortRole role, PortSignalKind? signal, Vector3? position = null) =>
-        new(id, domain, direction, role, signal, position ?? Vector3.Zero, Vector3.UnitY);
+        new(id, domain, direction, role, new(id.Value, SocketGlyph.Text), signal, position ?? Vector3.Zero, Vector3.UnitY);
+
+    [Theory]
+    [InlineData(null, SocketGlyph.Text)]
+    [InlineData(" ", SocketGlyph.Text)]
+    [InlineData("Control", (SocketGlyph)255)]
+    public void MissingOrUnknownSocketPresentationRefusesWithoutReplacingInstalledCatalogue(string? label, SocketGlyph glyph)
+    {
+        var before = DeclaredPorts.Current;
+        var port = Port(new("arbitrary"), SimulationDomain.Electrical, PortDirection.Input, PortRole.FirstIn, null)
+            with { Presentation = new(label!, glyph) };
+        var error = Assert.Throws<ElementPortRejectedException>(() =>
+            ElementPortCatalogue.Declare([(new("unfamiliar"), [port])]));
+        Assert.Equal(ElementPortRejection.UndefinedSocket, error.Reason);
+        Assert.Same(before, DeclaredPorts.Current);
+    }
 
     [Fact]
     public void DuplicateLocalPortIdOnSameElement_RefusesAtomically()
@@ -188,12 +203,12 @@ public sealed class PackageLocalPortsTests
 
         // ElementPortCatalogue.Admit rejects undefined/whitespace port id and undefined role
         var refusalEmptyId = Assert.Throws<ElementPortRejectedException>(() =>
-            ElementPortCatalogue.Declare([(new PartId("custom"), [new PortDescriptor(default, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)])]));
+            ElementPortCatalogue.Declare([(new PartId("custom"), [new PortDescriptor(default, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)])]));
         Assert.Equal(ElementPortRejection.UndefinedSocket, refusalEmptyId.Reason);
         Assert.Contains("A port needs an identity", refusalEmptyId.Message, StringComparison.Ordinal);
 
         var refusalUndefinedRole = Assert.Throws<ElementPortRejectedException>(() =>
-            ElementPortCatalogue.Declare([(new PartId("custom"), [new PortDescriptor(new PortId("p1"), SimulationDomain.Signal, PortDirection.Output, (PortRole)999, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)])]));
+            ElementPortCatalogue.Declare([(new PartId("custom"), [new PortDescriptor(new PortId("p1"), SimulationDomain.Signal, PortDirection.Output, (PortRole)999, new("Invalid role", SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)])]));
         Assert.Equal(ElementPortRejection.UndefinedSocket, refusalUndefinedRole.Reason);
         Assert.Contains("names the undefined role 999", refusalUndefinedRole.Message, StringComparison.Ordinal);
     }

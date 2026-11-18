@@ -115,6 +115,8 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             throw Refused(ElementPortRejection.UndefinedSocket, element, index, "A port needs an identity.");
         if (!Enum.IsDefined(port.Role))
             throw Refused(ElementPortRejection.UndefinedSocket, element, index, $"names the undefined role {(uint)port.Role}");
+        if (string.IsNullOrWhiteSpace(port.Presentation.Label) || !Enum.IsDefined(port.Presentation.Glyph))
+            throw Refused(ElementPortRejection.UndefinedSocket, element, index, "declares missing or undefined socket presentation");
         var domain = port.Domain switch
         {
             SimulationDomain.Signal => WorkshopConnectionDomain.Activation,
@@ -164,7 +166,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             if (port.CoordinatePerRadian != 0f)
                 throw Refused(ElementPortRejection.OutOfRange, element, index, "declares coordinate-per-radian on a non-mechanical port");
         }
-        return new(port.Id, port.Role, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body,
+        return new(port.Id, port.Role, port.Presentation, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body,
             port.GuideRadius, port.GuideOffset, port.Coordinate, port.CoordinatePerRadian, port.MechanicalRim);
     }
 

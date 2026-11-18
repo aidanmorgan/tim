@@ -168,7 +168,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     public void EverySliderPackageDeclaresTheCompiledPrismaticJointAndMovingBody()
     {
         var sliders = Packages().Where(package => package.Declaration is ISliderElement).ToArray();
-        Assert.Equal(["PoweredGate", "Springboard"], sliders.Select(package => package.Package));
+        Assert.Equal(["LinearPusher", "PoweredGate", "Springboard"], sliders.Select(package => package.Package));
         foreach (var package in sliders)
         {
             var element = (ISliderElement)package.Declaration;
@@ -185,7 +185,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 Assert.Equal(Owner, joint.BodyA);
                 AssertFrame(where + ".BaseFrame", slider.BaseFrame, joint.FrameA);
                 AssertFrame(where + ".MovingFrame", slider.MovingFrame, joint.FrameB);
-                Assert.True((slider.LowerLimit) == (joint.Lower) && (slider.UpperLimit) == (joint.Upper),
+                Assert.True(slider.LowerLimit.Evaluate(maxima) == joint.Lower && slider.UpperLimit.Evaluate(maxima) == joint.Upper,
                     $"{where}: limits [{slider.LowerLimit}, {slider.UpperLimit}] declared, [{joint.Lower}, {joint.Upper}] compiled.");
                 Assert.True((slider.Stiffness.Evaluate(maxima)) == (joint.Stiffness), $"{where}.StiffnessParameter binds {joint.Stiffness}.");
                 Assert.True((slider.Damping.Evaluate(maxima)) == (joint.Damping), $"{where}.DampingParameter binds {joint.Damping}.");
@@ -332,17 +332,20 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         // Every slider at its default parameters (the rows the retired golden held), against the numbers its package authors:
         // the Powered gate's blade travels 0 → 1.55 m on a 14 N/m, 4 N·s/m spring; the Springboard's plate 0.25 m down from a base
         // frame 0.14 m up, on its default 400 N/m, 0.2 N·s/m spring. Neither joint's bodies collide.
-        var authored = new Dictionary<string, (float Lower, float Upper, float Stiffness, float Damping, float BaseY)>
+        var authored = new Dictionary<string, (float Lower, float Upper, float Stiffness, float Damping, System.Numerics.Vector3 Base, System.Numerics.Quaternion Rotation)>
         {
-            ["powered_gate"] = (0f, 1.55f, 14f, 4f, 0f), ["spring"] = (-.25f, 0f, 400f, .2f, .14f),
+            ["powered_gate"] = (0f, 1.55f, 14f, 4f, System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity),
+            ["spring"] = (-.25f, 0f, 400f, .2f, new(0f, .14f, 0f), System.Numerics.Quaternion.Identity),
+            ["linear_pusher"] = (0f, 2.4f, 0f, 0f, new(.85f, 0f, 0f),
+                System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, -MathF.PI / 2f)),
         };
         foreach (var (key, row) in authored)
         {
             var joint = Assert.Single(Compile(Placed(new PartId(key))).Prismatics.ToArray());
             Assert.Equal(((row.Lower), (row.Upper), (row.Stiffness), (row.Damping)),
                 ((joint.Lower), (joint.Upper), (joint.Stiffness), (joint.Damping)));
-            Assert.Equal(((row.BaseY), System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity),
-                ((joint.FrameA.Position.Y), joint.FrameA.Rotation, joint.FrameB.Position, joint.FrameB.Rotation));
+            Assert.Equal((row.Base, row.Rotation, System.Numerics.Vector3.Zero, row.Rotation),
+                (joint.FrameA.Position, joint.FrameA.Rotation, joint.FrameB.Position, joint.FrameB.Rotation));
             Assert.Equal(ConnectedCollision.Disabled, joint.Collision);
         }
         Assert.Equal(authored.Count, Packages().Count(package => package.Declaration is ISliderElement));
@@ -535,6 +538,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             [
                 ("close_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, .2f, Generic(new PartId("clutch"), "close_seconds"), [])
             ],
+            "linear_pusher" =>
+            [
+                ("stroke", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 2.4f, Generic(new PartId("linear_pusher"), "stroke"), []),
+                ("speed", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, 1.5f, Generic(new PartId("linear_pusher"), "speed"), []),
+                ("acceleration", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Lane.Single, 12f, Generic(new PartId("linear_pusher"), "acceleration"), []),
+                ("force", ParameterUnit.Newton, ParameterKind.Real, Lane.Single, 40f, Generic(new PartId("linear_pusher"), "force"), [])
+            ],
             _ => []
         };
     }
@@ -552,7 +562,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" =>
             WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),
@@ -569,6 +579,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "spring" => PlacedParts.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1, parameters["initial_compression"],
             parameters["stiffness"], parameters["damping"]),
         "powered_gate" => Placed(id),
+        "linear_pusher" => WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1,
+            new(parameters.Select(pair => new KeyValuePair<ParameterId, float>(new(pair.Key), pair.Value)).ToArray())),
         _ => throw new ArgumentException($"No slider placement for packaged part '{id}'.")
     };
 

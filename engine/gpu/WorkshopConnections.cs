@@ -17,7 +17,7 @@ public enum WorkshopSignalKind : uint { Pulse = 1, Level = 2 }
 /// <summary>One declared socket, admitted from the element bundle (<see cref="ElementPortCatalogue"/>). Signal is declared on every
 /// activation port and absent (null) on every electrical port; LocalPosition is the declared f32 anchor in the part's local frame
 /// (metres), the wire artwork's endpoint.</summary>
-public readonly record struct WorkshopPort(PortId Id, PortRole Role, WorkshopConnectionDomain Domain, WorkshopPortDirection Direction,
+public readonly record struct WorkshopPort(PortId Id, PortRole Role, SocketPresentation Presentation, WorkshopConnectionDomain Domain, WorkshopPortDirection Direction,
     WorkshopSignalKind? Signal, Vector3 LocalPosition, RopeAttachmentRole AttachmentRole = RopeAttachmentRole.None, PortPositionBinding? PositionBinding = null,
     CuriousContraptions.Abstractions.PackageBodyIndex Body = default,
     float GuideRadius = 0f,

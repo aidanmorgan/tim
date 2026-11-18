@@ -36,8 +36,8 @@ public sealed class SystemClockElementDeclaration : ISignalElement, ISupplyEleme
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(-.78f, 0f, 0f), -Vector3.UnitX),
-        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, new Vector3(.78f, 0f, 0f), Vector3.UnitX)
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new Vector3(-.78f, 0f, 0f), -Vector3.UnitX),
+        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, new Vector3(.78f, 0f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The housing and its foot.</summary>

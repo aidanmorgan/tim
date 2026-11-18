@@ -41,6 +41,16 @@ public readonly struct HollowSolid(ColliderShapeKind kind, Vector3 position, Vec
         _ => Radius + LaneY
     };
 
+    /// <summary>Conservative world bounds of the transformed local box, including every partial-sweep endpoint.</summary>
+    public void Bounds(out Vector3 min, out Vector3 max)
+    {
+        var radial = Kind == ColliderShapeKind.Torus ? Radius + LaneY
+            : Kind == ColliderShapeKind.Frustum ? MathF.Max(Radius, LaneZ) : Radius;
+        var extent = radial * Vector3.Abs(X) + LaneY * Vector3.Abs(Y) + radial * Vector3.Abs(Z);
+        min = Position - extent;
+        max = Position + extent;
+    }
+
     /// <summary>Analytic incident outward feature normals at a measured surface witness.
     /// Distances are nonnegative distances to bounded features, including end annuli.</summary>
     internal void FeatureProjections(Vector3 point, Span<float> distances, Span<Vector3> directions, Span<Vector3> witnesses)

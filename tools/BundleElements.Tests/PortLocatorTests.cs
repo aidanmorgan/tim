@@ -10,7 +10,7 @@ namespace CuriousContraptions.BundleElements.Tests;
 /// (Story 9R.6). Any mismatch fails the bundle build.</summary>
 public sealed class PortLocatorTests
 {
-    private static PortDescriptor PowerIn(Vector3 at) => new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, at, -Vector3.UnitX);
+    private static PortDescriptor PowerIn(Vector3 at) => new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, at, -Vector3.UnitX);
 
     private const string Header = "[gd_scene format=3]\n\n[node name=\"Fixture\" type=\"Node3D\"]\n\n";
 
@@ -74,7 +74,7 @@ public sealed class PortLocatorTests
 
     /// <summary>A rope tie on body <paramref name="body"/> at x = -1.8 m in that body's frame, like the Impact Lever's TieA.</summary>
     private static PortDescriptor BodyTie(int body) =>
-        new(PortId.TieA, SimulationDomain.Rope, PortDirection.Bidirectional, PortRole.TieA, null, new(-1.8f, 0f, 0f), -Vector3.UnitX,
+        new(PortId.TieA, SimulationDomain.Rope, PortDirection.Bidirectional, PortRole.TieA, new("TieA", SocketGlyph.Text), null, new(-1.8f, 0f, 0f), -Vector3.UnitX,
             RopeAttachmentRole.Load, null, new PackageBodyIndex(body));
 
     private const string BeamBody = "[node name=\"Visual\" type=\"Node3D\" parent=\".\"]\n\n[node name=\"Beam\" type=\"Node3D\" parent=\"Visual\"]\n\n";
@@ -122,7 +122,7 @@ public sealed class PortLocatorTests
     public void ASignalKindIsDeclaredExactlyOnSignalPorts()
     {
         PortDescriptor Port(SimulationDomain domain, PortSignalKind? signal) =>
-            new(PortId.ActivationOut, domain, PortDirection.Output, PortRole.ActivationOut, signal, Vector3.Zero, Vector3.UnitY);
+            new(PortId.ActivationOut, domain, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), signal, Vector3.Zero, Vector3.UnitY);
         Assert.Empty(PackageValidator.Validate(new CuriousContraptions.Bundle.BundleServices(), [new("Fixture", new SignalFixture
         {
             Ports = [Port(SimulationDomain.Signal, PortSignalKind.Level)],

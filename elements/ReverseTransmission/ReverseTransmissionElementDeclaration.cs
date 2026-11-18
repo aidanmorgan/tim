@@ -24,10 +24,10 @@ public sealed class ReverseTransmissionElementDeclaration : IHingeElement, IMech
         [new("Visual/InputWheel", new(1), Vector3.Zero), new("Visual/OutputWheel", new(2), Vector3.Zero)], [], []);
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.DriveIn, SimulationDomain.Mechanical, PortDirection.Input, PortRole.DriveIn, null,
+        new(PortId.DriveIn, SimulationDomain.Mechanical, PortDirection.Input, PortRole.DriveIn, new("DriveIn", SocketGlyph.Text), null,
             new(-.36f, 0f, .4f), Vector3.UnitZ, Coordinate: new(CoordinateKind.Revolute, 0), CoordinatePerRadian: -1f,
             MechanicalRim: new(new(0), new(-.36f, 0f, .39f), Quaternion.Identity, .32f, 1f)),
-        new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, null,
+        new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, new("Drive", SocketGlyph.Text), null,
             new(.36f, 0f, .4f), Vector3.UnitZ, Coordinate: new(CoordinateKind.Revolute, 1), CoordinatePerRadian: -1f,
             MechanicalRim: new(new(0), new(.36f, 0f, .39f), Quaternion.Identity, .32f, 1f))
     ];

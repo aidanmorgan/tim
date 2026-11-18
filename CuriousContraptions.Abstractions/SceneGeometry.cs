@@ -12,6 +12,15 @@ public interface ISceneGeometryElement : IPuzzleElementDeclaration
     IReadOnlyList<SceneBodyGeometry> SceneBodies { get; }
 }
 
+/// <summary>A rigid shaft clipped by an explicitly named prismatic support frame; local Y is axial.</summary>
+public readonly record struct ClippedExtrusionDescriptor(CoordinateReference Coordinate, PackageBodyIndex MaterialBody,
+    PackageBodyIndex ClippingBody, Mechanical.BodyColliderIndex Collider, float Cut, float DistalOffset, Vector2 HalfExtents);
+
+public interface IClippedExtrusionElement : IPuzzleElementDeclaration
+{
+    IReadOnlyList<ClippedExtrusionDescriptor> Extrusions { get; }
+}
+
 public enum GeometryComponent : byte { HalfExtentX, HalfExtentY, HalfExtentZ, OffsetX, OffsetY, OffsetZ, Radius }
 
 /// <summary>A bounded declared real parameter drives one collider component: multiplier * value + offset.</summary>

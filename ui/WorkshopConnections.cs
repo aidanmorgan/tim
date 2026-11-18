@@ -23,43 +23,32 @@ public partial class Workshop
         var button = Button(label, action); button.Text = label; button.Icon = null;
         button.AddThemeFontSizeOverride("font_size", 12); return button;
     }
-    private static string SocketLabel(PortRole role, PortId id)
+    private static WorkshopButton SocketButton(WorkshopPort port, Action action, string prefix = "")
     {
-        if (id.Value != role.ToString())
-            return $"{role} ({id.Value})";
-        return role switch
+        var presentation = port.Presentation;
+        var button = SignalButton(presentation.Glyph == SocketGlyph.Text ? prefix + presentation.Label : "", action);
+        button.TooltipText = presentation.Label;
+        button.AccessibilityName = presentation.Label;
+        if (presentation.Glyph != SocketGlyph.Text)
         {
-            PortRole.ActivationOut => "ActivationOut",
-            PortRole.ActivationIn => "ActivationIn",
-            PortRole.PowerIn => "PowerIn",
-            PortRole.FirstIn => "FirstIn (one mark)",
-            PortRole.SecondIn => "SecondIn (two marks)",
-            PortRole.Supply => "Supply",
-            PortRole.Tie => "Tie",
-            PortRole.TieA => "TieA",
-            PortRole.TieB => "TieB",
-            PortRole.Drive => "Drive",
-            PortRole.DriveIn => "DriveIn",
-            _ => id.Value
-        };
-    }
-    /// <summary>The State Latch's two activation inputs are chosen by icon only, matching the on-part marks (DESIGN.md Set/Reset latch).</summary>
-    private static string SocketIcon(PortRole role) => role switch
-    {
-        PortRole.SetIn => "socket_set",
-        PortRole.ResetIn => "socket_reset",
-        PortRole.FirstIn => "first_input",
-        PortRole.SecondIn => "second_input",
-        PortRole.PowerIn => "socket_power",
-        _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Socket has no icon-only choice.")
-    };
-    private static WorkshopButton SocketIconButton(PortRole role, Action action)
-    {
-        var button = SignalButton("", action);
-        button.Text = ""; button.Icon = WorkshopIcons.Pictogram(SocketIcon(role));
-        button.IconAlignment = HorizontalAlignment.Center;
-        button.AddThemeConstantOverride("icon_max_width", 28);
-        button.SetMeta("socket", (int)role);
+            var asset = presentation.Glyph switch
+            {
+                SocketGlyph.Set => "socket_set",
+                SocketGlyph.Reset => "socket_reset",
+                SocketGlyph.First => "first_input",
+                SocketGlyph.Second => "second_input",
+                SocketGlyph.Power => "socket_power",
+                SocketGlyph.Extend => "extend_input",
+                SocketGlyph.Retract => "retract_input",
+                SocketGlyph.Extended => "extended_output",
+                SocketGlyph.Retracted => "retracted_output",
+                _ => throw new ArgumentOutOfRangeException(nameof(port), "Undefined socket glyph.")
+            };
+            button.Icon = WorkshopIcons.Pictogram(asset);
+            button.IconAlignment = HorizontalAlignment.Center;
+            button.AddThemeConstantOverride("icon_max_width", 28);
+        }
+        button.SetMeta("socket", (int)port.Role);
         return button;
     }
     private void ClearConnectionChoices()
@@ -93,14 +82,14 @@ public partial class Workshop
         {
             if (port.Direction is not (WorkshopPortDirection.Output or WorkshopPortDirection.Bidirectional)) continue;
             var owner = part.AuthoredId;
-            var button = SignalButton("Connect " + SocketLabel(port.Role, port.Id), () =>
+            var button = SocketButton(port, () =>
             {
                 if (!CanEdit) return;
                 EndGizmo(false); _tool = null; ClearPreview(); _dragging = _lifting = false;
                 _linkSource = (owner, port); ClearConnectionChoices();
                 _status.Text = ConnectionPrompt(port.Domain);
-            });
-            button.Icon = null; button.Disabled = !CanEdit; _connectionChoices.AddChild(button);
+            }, "Connect ");
+            button.Disabled = !CanEdit; _connectionChoices.AddChild(button);
         }
         foreach (var link in World.Construction.Connections)
         {
@@ -120,12 +109,7 @@ public partial class Workshop
         {
             if (port.Direction is not (WorkshopPortDirection.Input or WorkshopPortDirection.Bidirectional) || port.Domain != source.Port.Domain) continue;
             var link = new WorkshopConnection(source.Owner, source.Port.Id, target.AuthoredId, port.Id, port.Domain);
-            var numbered = World.Registry.Ports.Has(target.PartId, PortRole.FirstIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input);
-            var button = port.Role is PortRole.SetIn or PortRole.ResetIn or PortRole.FirstIn or PortRole.SecondIn ||
-                (numbered && port.Role == PortRole.PowerIn)
-                ? SocketIconButton(port.Role, () => ChangeConnection(link, true))
-                // The UI font has no arrow glyph; "to" reads the same and always renders.
-                : SignalButton(SocketLabel(source.Port.Role, source.Port.Id) + " to " + SocketLabel(port.Role, port.Id), () => ChangeConnection(link, true));
+            var button = SocketButton(port, () => ChangeConnection(link, true), source.Port.Presentation.Label + " to ");
             _connectionChoices.AddChild(button); choices++;
         }
         _status.Text = choices == 0 ? "These parts have no matching sockets. Choose another part."

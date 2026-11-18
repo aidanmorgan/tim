@@ -289,7 +289,11 @@ public sealed class LatchSupplyFixtureTests
     {
         var reads = (await Run(Machine(9, payload: true), 360)).Reads; var cut = Strike(reads, SwitchB);
         var opening = Drive(reads[cut]).Coordinate; var atCut = Ball(reads[cut]);
-        Assert.True(opening > .05f && opening < 1.50f, $"guard: mid-stroke strike required, opening {opening}");
+        var diagnostic = $"cut={cut} drive={Drive(reads[cut])} ball={atCut}; final drive={Drive(reads[^1])} ball={Ball(reads[^1])}; " +
+            $"postcut min opening={reads.Skip(cut).Min(read => Drive(read).Coordinate)} max penetration={reads.Skip(cut).Max(read => BladePenetration(Ball(read), Drive(read).Coordinate))}";
+        Assert.True(Drive(reads[cut]).Speed > ActuatorObservations.RestSpeed &&
+            opening < Drive(reads[cut]).Upper - ActuatorObservations.StopSlop,
+            $"guard: supply cuts while the blade is still opening below its endpoint; {diagnostic}");
         Assert.True(atCut.X > -(BallRadius + BladeHalfThickness) && atCut.X < 0f, $"guard: the ball is partly through the blade plane, x {atCut.X}");
         var falling = reads.FindIndex(cut, read => Drive(read).Speed < -.5f);
         var landed = reads.FindIndex(falling, read => MathF.Abs(Drive(read).Speed) <= .05f);

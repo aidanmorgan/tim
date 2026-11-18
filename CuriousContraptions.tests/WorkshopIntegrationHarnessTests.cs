@@ -8,6 +8,75 @@ public sealed class WorkshopIntegrationHarnessTests
 {
 
     [Fact]
+    public async Task FailedFactoryAcquisitionReleasesItsWorkerAndPreservesTheRefusal()
+    {
+        WorkshopIntegrationHarness? acquired = null;
+        var invalid = WorkshopCadenceSettings.Default() with { Simulation = (SimulationCadence)0 };
+        await Assert.ThrowsAnyAsync<ArgumentException>(() => WorkshopIntegrationHarness.Initialized(invalid, value => acquired = value));
+        var partial = Assert.IsType<WorkshopIntegrationHarness>(acquired);
+        Assert.Throws<InvalidOperationException>(() => partial.Simulation);
+        await AssertReleased(partial);
+
+        var pipe = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"), new(1), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(2), 0, 3.6f, 0, 0, 0, 0, 1);
+        var overlap = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(pipe, ball));
+        var refusal = await Assert.ThrowsAsync<WorkshopEditRejectedException>(() =>
+            WorkshopIntegrationHarness.Building(overlap, value => acquired = value));
+        Assert.Equal(WorkshopEditRejection.InitialOverlap, refusal.Reason);
+        Assert.Contains(nameof(WorkshopPhysicsCompiler), refusal.StackTrace);
+        Assert.False(refusal.Data.Contains(WorkshopIntegrationHarness.CleanupFailureDiagnostic));
+        var rejected = Assert.IsType<WorkshopIntegrationHarness>(acquired);
+        Assert.Equal(WorkshopSimulationPhase.Disposed, rejected.Simulation.Phase);
+        await AssertReleased(rejected);
+    }
+
+    [Fact]
+    public async Task AcquiredObserverFailureStillReleasesTheFactoryOwnedDevice()
+    {
+        WorkshopIntegrationHarness? acquired = null;
+        var original = new InvalidOperationException("observer refused acquisition");
+        var failure = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default(), value =>
+            {
+                acquired = value;
+                throw original;
+            }));
+        Assert.Same(original, failure);
+        await AssertReleased(Assert.IsType<WorkshopIntegrationHarness>(acquired));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task SuccessfulFactoryTransfersLiveOwnershipToItsCaller(bool running)
+    {
+        var construction = Bench(SimulationCadence.Hz120);
+        WorkshopIntegrationHarness? harness = null;
+        try
+        {
+            if (running) harness = await WorkshopIntegrationHarness.Running(construction);
+            else harness = await WorkshopIntegrationHarness.Building(construction);
+            Assert.Equal(running ? WorkshopSimulationPhase.Running : WorkshopSimulationPhase.Building, harness.Simulation.Phase);
+            Assert.NotNull(harness.Publication.Memory);
+            await harness.Device.Prepare();
+        }
+        finally { if (harness is not null) await harness.DisposeAsync(); }
+        Assert.NotNull(harness);
+        Assert.Equal(WorkshopSimulationPhase.Disposed, harness.Simulation.Phase);
+        await AssertReleased(harness);
+    }
+
+    private static async Task AssertReleased(WorkshopIntegrationHarness harness)
+    {
+        Assert.Null(harness.Publication.Memory);
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => harness.Device.Prepare());
+        var sequence = harness.Latest.Sequence;
+        await harness.DisposeAsync();
+        Assert.Equal(sequence, harness.Latest.Sequence);
+        Assert.Null(harness.Publication.Memory);
+    }
+
+    [Fact]
     public async Task SuccessiveCadenceCommandsPublishNewAuthorityAndDriveTheRealWorld()
     {
         await using var harness = await WorkshopIntegrationHarness.Building(Bench(SimulationCadence.Hz120));
@@ -544,7 +613,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             [
                 "Motion", "ball", "bumper", "domino", "bowling", "spring", "pipe", "pipe_bend_45",
                 "pipe_bend_90", "funnel", "powered_gate", "weight", "rope_anchor", "pulley", "impact_lever", "trampoline", "conveyor", "reverse_transmission",
-                "Goals", "basket", "lamp", "Power", "switch", "battery", "motor", "clutch",
+                "Goals", "basket", "lamp", "Power", "switch", "battery", "motor", "clutch", "linear_pusher",
                 "Control", "delay", "ball_detector", "pressure_plate", "counter", "clock", "latch",
                 "hold_timer", "both_gate", "electrical_nand", "electrical_nor", "electrical_or", "electrical_xor",
                 "Structure", "wall", "ramp"

@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Gpu;
 
@@ -30,20 +31,37 @@ public readonly record struct PrismaticConstraintDeclaration(PrismaticConstraint
 /// <summary>How a prismatic's drive is enabled: it has none, or it drives while its owner's compiled PowerIn route is closed.</summary>
 public enum PrismaticDriveKind : uint { None, Supplied }
 
+/// <summary>Committed motor command, ideal-brake state, and positive delivered energy in joules.</summary>
+public readonly record struct PrismaticMotorRead(PrismaticDrivePhase Phase, float CommandSpeed,
+    bool Holding, float HoldCoordinate, float Impulse, float Work, float TickWork)
+{
+    public void Validate()
+    {
+        if (!Enum.IsDefined(Phase) || !float.IsFinite(CommandSpeed) || !float.IsFinite(HoldCoordinate) ||
+            !float.IsFinite(Impulse) || !float.IsFinite(Work) || Work < 0f || !float.IsFinite(TickWork) || TickWork < 0f)
+            throw new ArgumentException("Invalid committed prismatic motor observation.");
+    }
+}
+
 /// <summary>The supplied drive of one prismatic joint, moving its BodyB along the joint axis toward <see cref="Target"/> (m) at the
 /// stopping-profile speed sign(d)·min(<see cref="MaxSpeed"/>, √(2·<see cref="StoppingAcceleration"/>·|d|), |d|/h) for a substep h,
 /// with its force bounded
 /// by <see cref="MaxEffort"/> (N) and its power by <see cref="MaxPower"/> (W). A separate table, so the joint rows stay the
 /// declared slider's rows.</summary>
 public readonly record struct PrismaticDriveDeclaration(PrismaticConstraintId Joint, float Target, float MaxSpeed,
-    float StoppingAcceleration, float MaxEffort, float MaxPower)
+    float StoppingAcceleration, float MaxEffort, float MaxPower,
+    PrismaticTargetSelection Selection = PrismaticTargetSelection.Fixed,
+    PrismaticInactiveResponse Inactive = PrismaticInactiveResponse.Free,
+    SupplyNodeId Positive = default, SupplyNodeId Negative = default)
 {
     public void Validate(PrismaticConstraintDeclaration joint)
     {
         if (Joint.Value == 0 || Joint != joint.Id || !float.IsFinite(Target) || Target < joint.Lower || Target > joint.Upper ||
-            !Positive(MaxSpeed) || MaxSpeed > LinearVelocity.MaximumSpeed || !Positive(StoppingAcceleration) ||
-            !Positive(MaxEffort) || !Positive(MaxPower))
+            !PositiveValue(MaxSpeed) || MaxSpeed > LinearVelocity.MaximumSpeed || !PositiveValue(StoppingAcceleration) ||
+            !PositiveValue(MaxEffort) || !PositiveValue(MaxPower) || !Enum.IsDefined(Selection) || !Enum.IsDefined(Inactive) ||
+            (Selection == PrismaticTargetSelection.Fixed ? Positive != default || Negative != default :
+                Positive == default || Negative == default || Positive == Negative))
             throw new ArgumentException("Invalid prismatic drive declaration.");
-        static bool Positive(float value) => float.IsFinite(value) && value > 0f;
+        static bool PositiveValue(float value) => float.IsFinite(value) && value > 0f;
     }
 }

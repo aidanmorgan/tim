@@ -55,8 +55,8 @@ public sealed class ExactCapabilityControlsTests
         var slider0 = new PrismaticSliderDescriptor(
             BaseFrame: new(new(0, 1, 0), Quaternion.Identity),
             MovingFrame: new(Vector3.Zero, Quaternion.Identity),
-            LowerLimit: 0f,
-            UpperLimit: 1f,
+            LowerLimit: MechanicalValue.Fixed(0f),
+            UpperLimit: MechanicalValue.Fixed(1f),
             Stiffness: MechanicalValue.Fixed(20f),
             Damping: MechanicalValue.Fixed(2f),
             Compression: MechanicalValue.Fixed(0f),
@@ -86,9 +86,9 @@ public sealed class ExactCapabilityControlsTests
 
         var ports = new[]
         {
-            new PortDescriptor(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new(-0.55f, 0, 0), -Vector3.UnitX),
-            new PortDescriptor(new PortId("power_in_1"), SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new(-0.55f, 0, 0.5f), -Vector3.UnitX),
-            new PortDescriptor(new PortId("power_in_slider"), SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new(-0.55f, 0, -0.5f), -Vector3.UnitX)
+            new PortDescriptor(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new(-0.55f, 0, 0), -Vector3.UnitX),
+            new PortDescriptor(new PortId("power_in_1"), SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new(-0.55f, 0, 0.5f), -Vector3.UnitX),
+            new PortDescriptor(new PortId("power_in_slider"), SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new(-0.55f, 0, -0.5f), -Vector3.UnitX)
         };
 
         var supplyGraph = independentConsumers
@@ -544,21 +544,22 @@ public sealed class ExactCapabilityControlsTests
         var errorsA = BundleValidator.Validate([new("test", hingeBound)]);
         Assert.Contains(errorsA, e => e.Code == BundleErrorCode.OutOfRange && e.Detail.Contains("Metadata.Parameters[0].RunEdit"));
 
-        // Case B: Parameter 'run_param' is RunControl and also bound to Slider.Compression (non-lane property)
+        // Case B: a valid metre-domain compression parameter is not a run-control lane.
         var sliderBound = baseEntry with
         {
-            Metadata = baseEntry.Metadata with { Parameters = [param, baseEntry.Metadata.Parameters[1]] },
+            Metadata = baseEntry.Metadata with { Parameters = [param, baseEntry.Metadata.Parameters[1],
+                new("compression_param", ParameterUnit.Metre, ParameterKind.Real, 0f, .5f, .2f, [], RunEdit: ParameterRunEdit.RunControl)] },
             Mechanical = baseEntry.Mechanical! with
             {
                 Hinges = [baseEntry.Mechanical.Hinges[0] with
                 {
                     Drive = new(MechanicalValue.FromParameter("run_param"), MechanicalValue.Fixed(10f))
                 }, baseEntry.Mechanical.Hinges[1]],
-                Sliders = [baseEntry.Mechanical.Sliders[0] with { Compression = MechanicalValue.FromParameter("run_param") }]
+                Sliders = [baseEntry.Mechanical.Sliders[0] with { LowerLimit = MechanicalValue.Fixed(-.5f), Compression = MechanicalValue.FromParameter("compression_param") }]
             }
         };
         var errorsB = BundleValidator.Validate([new("test", sliderBound)]);
-        Assert.Contains(errorsB, e => e.Code == BundleErrorCode.OutOfRange && e.Detail.Contains("Metadata.Parameters[0].RunEdit"));
+        Assert.Contains(errorsB, e => e.Code == BundleErrorCode.OutOfRange && e.Detail.Contains("Metadata.Parameters[2].RunEdit"));
 
         // Case C: Parameter declared as RunControl on a property with NO lane binding (only on slider stiffness)
         var noLaneEntry = baseEntry with

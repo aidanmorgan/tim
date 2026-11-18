@@ -23,50 +23,6 @@ internal static partial class WorkshopCollisionKernels
     /// <summary>The radius of a ball about the collider's centre that contains it.</summary>
     internal static float HollowReach(SimCollider c) => Hollow(c).Reach;
 
-    /// <summary>The collider's world bounds (no fattening). A tube or frustum is bounded by its outer cylinder, h |a_i| + r √(1 − a_i²)
-    /// per world axis; a torus segment by its centreline arc's exact bounds (its endpoints and any axis extreme inside the sweep)
-    /// widened by the tube's outer radius.</summary>
-    internal static void HollowBounds(SimCollider c, out Vector3 min, out Vector3 max)
-    {
-        if (c.Shape != ShapeKind.Torus)
-        {
-            var r = c.Shape == ShapeKind.Frustum ? MathF.Max(c.Radius, c.Hz) : c.Radius;
-            var e = new Vector3(Span(c.U1.X), Span(c.U1.Y), Span(c.U1.Z));
-            min = c.Position - e;
-            max = c.Position + e;
-            return;
-
-            float Span(float a) => c.Hy * MathF.Abs(a) + r * MathF.Sqrt(MathF.Max(0f, 1f - a * a));
-        }
-        var full = c.Hz == ColliderDeclaration.FullSweep;
-        Span<float> lo = stackalloc float[3];
-        Span<float> hi = stackalloc float[3];
-        for (var i = 0; i < 3; i++)
-        {
-            var u0 = i == 0 ? c.U0.X : i == 1 ? c.U0.Y : c.U0.Z;
-            var u2 = i == 0 ? c.U2.X : i == 1 ? c.U2.Y : c.U2.Z;
-            var amplitude = c.Radius * MathF.Sqrt(u0 * u0 + u2 * u2);
-            float top, bottom;
-            if (full) { top = amplitude; bottom = -amplitude; }
-            else
-            {
-                var start = c.Radius * u0;
-                var end = c.Radius * (u0 * MathF.Cos(c.Hz) + u2 * MathF.Sin(c.Hz));
-                top = MathF.Max(start, end);
-                bottom = MathF.Min(start, end);
-                // c_i(a) = R·A·cos(a − β): its maximum at β and its minimum at β + π, when inside the sweep.
-                var beta = MathF.Atan2(u2, u0);
-                if (HollowSolid.InSweep(beta, c.Hz)) top = amplitude;
-                if (HollowSolid.InSweep(beta + MathF.PI, c.Hz)) bottom = -amplitude;
-            }
-            var centre = i == 0 ? c.Px : i == 1 ? c.Py : c.Pz;
-            lo[i] = centre + bottom - c.Hy;
-            hi[i] = centre + top + c.Hy;
-        }
-        min = new(lo[0], lo[1], lo[2]);
-        max = new(hi[0], hi[1], hi[2]);
-    }
-
 
     private static void CollideHollow(SimCollider partner, SimCollider collider, float margin, List<ContactPoint> contacts)
     {

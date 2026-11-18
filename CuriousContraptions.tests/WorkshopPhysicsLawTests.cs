@@ -768,12 +768,17 @@ public sealed class WorkshopPhysicsLawTests
         "MechanicalTransmissionOffset", "MechanicalTransmissionDrivingOffset", "MechanicalTransmissionDrivenOffset",
         "MechanicalTransmissionRatioOffset", "MechanicalTransmissionImpulseOffset", "MechanicalTransmissionCloseSecondsOffset",
         "MechanicalTransmissionClosureOffset", "MechanicalTransmissionSuppliedOffset", "MechanicalTransmissionPhaseOffset",
-        "MechanicalTransmissionOriginOrdinalOffset", "MechanicalTransmissionOriginClosureOffset"];
+        "MechanicalTransmissionOriginOrdinalOffset", "MechanicalTransmissionOriginClosureOffset",
+        // Exact mathematical vectors, declared prismatic drive state and reusable coupled-trial storage.
+        // Catalogue words remain scanned in all other identifiers, including LinearPusher and motorElement.
+        "linear", "_linear", "otherLinear", "LinearVelocity", "MaxLinearSpeed", "LinearA", "LinearB",
+        "PrismaticMotorSolver", "MotorActive", "MotorImpulse", "HoldCoordinate", "PrismaticHoldCoordinateOffset",
+        "PrismaticMotorImpulseOffset", "_motorTrial", "MotorBudgetsHold", "_transmissionImpulses", "rope"];
 
     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token
     // (a future Springboard-specific name) is still found.
-    private const string GenericQualifiedNames = @"\b(?:PrismaticRowKind\.Spring|SoftConstraintCoefficients\.FromSpring|CaptureLatch\.Clear|CaptureLatchPhase\.Clear|retained\.Latch|PhysicsMotionRead\.AnchorOrdinalOffset|PhysicsMotionRead\.AnchorPhaseOffset)\b";
+    private const string GenericQualifiedNames = @"\b(?:PrismaticRowKind\.Spring|PrismaticCommand\.Hold|SoftConstraintCoefficients\.FromSpring|CaptureLatch\.Clear|CaptureLatchPhase\.Clear|retained\.Latch|PhysicsMotionRead\.AnchorOrdinalOffset|PhysicsMotionRead\.AnchorPhaseOffset)\b";
 
     /// <summary>Murdoch-2 R2-F5: the scanned element names are the catalogue's, never a hand list. Every word of every element
     /// package Id in <c>elements/</c> and of every undelivered part (letters only, three or more), so a new element is scanned the
@@ -819,7 +824,9 @@ public sealed class WorkshopPhysicsLawTests
 
     private static readonly string[] ShippedSolverFiles = ["WorkshopPhysicsEngine.cs", "WorkshopCollisionKernels.cs",
         "WorkshopConstraintSolver.cs", "PrismaticConstraintSolver.cs", "WorkshopDynamicBvh.cs",
-        "TensileConstraintSolver.cs", "ConstraintBodyImpulse.cs", "MechanicalTransmissionSolver.cs"];
+        "TensileConstraintSolver.cs", "ConstraintBodyImpulse.cs", "MechanicalTransmissionSolver.cs",
+        "GuideComponent.cs", "GuidePreparedRow.cs", "GuideQr.cs", "GuideWorkspace.cs", "ImpulseJacobian.cs",
+        "PrismaticMotorSolver.cs", "PrismaticTrialWorkspace.cs", "WorkshopPhysicsEngine.Extrusions.cs", "WorkshopPhysicsEngine.Motors.cs"];
 
     [Fact]
     public void TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations()
@@ -911,6 +918,15 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("transmissionBoost", true)]
     [InlineData("Transmission", true)]
     [InlineData("MechanicalTransmissionProductForce", true)]
+    [InlineData("LinearPusher", true)]
+    [InlineData("pusherDrive", true)]
+    [InlineData("linearPusherState", true)]
+    [InlineData("motorElement", true)]
+    [InlineData("LinearVelocity", false)]
+    [InlineData("MaxLinearSpeed", false)]
+    [InlineData("PrismaticMotorSolver", false)]
+    [InlineData("PrismaticCommand.Hold", false)]
+    [InlineData("Hold", true)]
     [InlineData("gravityLoad", false)]       // the prismatic drive's generic gravity term (renamed from "weight" in 10.2a)
     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);

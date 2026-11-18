@@ -50,6 +50,7 @@ public static class BundleValidator
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
             errors.AddRange(DrivenSurfaceValidation.Validate(entry));
+            errors.AddRange(ClippedExtrusionValidation.Validate(entry));
             errors.AddRange(MechanicalTransmissionValidation.Validate(entry));
             Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Signal, entry.Events, childBodies);
             CheckEvents(entry.Events);
@@ -180,12 +181,19 @@ public static class BundleValidator
                 Finite("Presentation.Response", binding.Response);
                 if ((PresentationDriverRules.Discrete3State(binding.Driver)) != binding.StateValues.HasValue ||
                     PresentationDriverRules.Discrete4State(binding.Driver) != binding.FourStateValues.HasValue ||
+                    (binding.Driver == PresentationDriver.CommittedPrismaticPhase) != binding.PrismaticValues.HasValue ||
+                    (binding.PrismaticValues is { } phases && !phases.IsFinite()) ||
                     (binding.StateValues is { } stateValues && !stateValues.IsFinite()) ||
                     (binding.FourStateValues is { } fourStates && !fourStates.IsFinite()))
                     OutOfRange("Presentation.StateValues");
                 if (binding.Duration < 0 || binding.Duration > 30 || binding.Response < 0 ||
                     (binding.Curve == PresentationCurve.ExponentialFollow && binding.Response <= 0))
                     OutOfRange("Presentation.Timing");
+                PresentationStateDomains(binding);
+        }
+
+        private void PresentationStateDomains(PresentationBinding binding)
+        {
                 bool AdmitsValue(float input) => float.IsFinite(input) && (binding.Property switch
                 {
                     PresentationProperty.Visible => input is 0f or 1f,
@@ -200,6 +208,9 @@ public static class BundleValidator
                     OutOfRange("Presentation.StateValues");
                 if (binding.FourStateValues is { } four && (!AdmitsValue(four.State0) || !AdmitsValue(four.State1) || !AdmitsValue(four.State2) || !AdmitsValue(four.State3)))
                     OutOfRange("Presentation.FourStateValues");
+                if (binding.PrismaticValues is { } p && (!AdmitsValue(p.Holding) || !AdmitsValue(p.Positive) ||
+                    !AdmitsValue(p.Negative) || !AdmitsValue(p.Blocked) || !AdmitsValue(p.Conflict) || !AdmitsValue(p.Unpowered)))
+                    OutOfRange("Presentation.PrismaticValues");
         }
 
         private void PresentationBindingSocket(PresentationBinding binding, ElectricalPayload? electrical, IReadOnlyList<PortDescriptor> ports)
@@ -237,7 +248,8 @@ public static class BundleValidator
 
         private void PresentationBindingActuator(PresentationBinding binding, MechanicalPayload? mechanical)
         {
-                var actuatorDriver = binding.Driver is PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState or PresentationDriver.CommittedRevoluteAngle;
+                var actuatorDriver = binding.Driver is PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState or
+                    PresentationDriver.CommittedRevoluteAngle or PresentationDriver.CommittedPrismaticPhase;
                 if (actuatorDriver != binding.Actuator.HasValue) OutOfRange("Presentation.Actuator");
                 if (binding.Actuator is { } actuator)
                 {
@@ -245,7 +257,8 @@ public static class BundleValidator
                     {
                         CoordinateKind.Prismatic => mechanical is not null && actuator.Index < mechanical.Sliders.Count &&
                             mechanical.Sliders[actuator.Index].Drive is not null && binding.Driver != PresentationDriver.CommittedRevoluteAngle,
-                        CoordinateKind.Revolute => mechanical is not null && actuator.Index < mechanical.Hinges.Count &&
+                        CoordinateKind.Revolute => binding.Driver != PresentationDriver.CommittedPrismaticPhase &&
+                            mechanical is not null && actuator.Index < mechanical.Hinges.Count &&
                             (binding.Driver == PresentationDriver.CommittedRevoluteAngle || mechanical.Hinges[actuator.Index].Drive is not null),
                         _ => false
                     });
@@ -441,6 +454,8 @@ public static class BundleValidator
                     OutOfRange(path + ".MechanicalRim.Support");
             }
             Defined(path + ".Role", port.Role);
+            Text(path + ".Presentation.Label", port.Presentation.Label);
+            Defined(path + ".Presentation.Glyph", port.Presentation.Glyph);
             Defined(path + ".Domain", port.Domain);
             Defined(path + ".Direction", port.Direction);
             if (port.Signal is { } signal) Defined(path + ".Signal", signal);
@@ -736,11 +751,7 @@ public static class BundleValidator
             Finite(path + ".MovingFrame.Position", slider.MovingFrame.Position);
             Finite(path + ".MovingFrame.Rotation", slider.MovingFrame.Rotation);
             if (float.IsFinite(slider.MovingFrame.Rotation.LengthSquared()) && MathF.Abs(slider.MovingFrame.Rotation.LengthSquared() - 1f) > 1e-4f) OutOfRange(path + ".MovingFrame.Rotation");
-            if (Finite(path + ".LowerLimit", slider.LowerLimit) & Finite(path + ".UpperLimit", slider.UpperLimit))
-            {
-                if (slider.LowerLimit > 0f) OutOfRange(path + ".LowerLimit");
-                else if (slider.UpperLimit < 0f || slider.UpperLimit <= slider.LowerLimit) OutOfRange(path + ".UpperLimit");
-            }
+            if (!MechanicalValueDomain.SliderTravel(slider, parameters)) OutOfRange(path + ".Travel");
             Value(path + ".Stiffness", slider.Stiffness, parameters);
             Value(path + ".Damping", slider.Damping, parameters);
             Value(path + ".Compression", slider.Compression, parameters);
@@ -752,7 +763,7 @@ public static class BundleValidator
             if (slider.Drive is { } drive)
             {
                 // The target lies within the travel; every bound is a finite positive f32 (a zero bound is a drive that cannot move).
-                DriveValue(path + ".Drive.Target", drive.Target, parameters, slider.LowerLimit, slider.UpperLimit, positive: false, ParameterUnit.Metre);
+                // Correlated target/limit domains are checked together by SliderTravel.
                 // 64 m/s: the game-grade envelope's linear speed bound.
                 DriveValue(path + ".Drive.MaxSpeed", drive.MaxSpeed, parameters, 0f, 64f, positive: true, ParameterUnit.MetrePerSecond);
                 DriveValue(path + ".Drive.StoppingAcceleration", drive.StoppingAcceleration, parameters, 0f, float.MaxValue, positive: true,
@@ -811,7 +822,13 @@ public static class BundleValidator
         private void DriveValue(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters, float minimum, float maximum, bool positive,
             ParameterUnit unit)
         {
-            if (value.Source == MechanicalValueSource.Constant && value.Parameter is null && float.IsFinite(value.Constant))
+            if (value.Source == MechanicalValueSource.Product)
+            {
+                if (!MechanicalValueDomain.TryRange(value, parameters, unit, out var lower, out var upper) ||
+                    lower < minimum || upper > maximum || (positive && lower <= 0f)) OutOfRange(path);
+                return;
+            }
+            if (value.Source == MechanicalValueSource.Constant && value.Product is null && value.Parameter is null && float.IsFinite(value.Constant))
             {
                 if (value.Constant < minimum || value.Constant > maximum || (positive && value.Constant <= 0f)) OutOfRange(path);
                 return;
@@ -826,6 +843,7 @@ public static class BundleValidator
 
         private void Value(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters, bool allowNegative = false)
         {
+            if (value.Source == MechanicalValueSource.Product || value.Product is not null) { OutOfRange(path); return; }
             Defined(path + ".Source", value.Source);
             Finite(path + ".Constant", value.Constant);
             if (value.Source == MechanicalValueSource.Parameter)

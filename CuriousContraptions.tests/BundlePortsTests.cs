@@ -86,12 +86,12 @@ internal static class TestBundle
 public sealed class BundlePortsTests
 {
     private static WorkshopPort Activation(PortId socket, WorkshopPortDirection direction, WorkshopSignalKind signal, float x, float y, float z) =>
-        new(socket, Enum.Parse<PortRole>(socket.Value), WorkshopConnectionDomain.Activation, direction, signal, new(x, y, z));
-    private static WorkshopPort Electrical(PortId socket, WorkshopPortDirection direction, float x, float y, float z) =>
-        new(socket, Enum.Parse<PortRole>(socket.Value), WorkshopConnectionDomain.Electrical, direction, null, new(x, y, z));
+        new(socket, Enum.Parse<PortRole>(socket.Value), new(socket.Value, socket == PortId.SetIn ? SocketGlyph.Set : socket == PortId.ResetIn ? SocketGlyph.Reset : SocketGlyph.Text), WorkshopConnectionDomain.Activation, direction, signal, new(x, y, z));
+    private static WorkshopPort Electrical(PortId socket, WorkshopPortDirection direction, float x, float y, float z, SocketGlyph glyph = SocketGlyph.Text) =>
+        new(socket, Enum.Parse<PortRole>(socket.Value), new(socket.Value, socket == PortId.FirstIn ? SocketGlyph.First : socket == PortId.SecondIn ? SocketGlyph.Second : glyph), WorkshopConnectionDomain.Electrical, direction, null, new(x, y, z));
     private static WorkshopPort Mechanical(PortId socket, WorkshopPortDirection direction, float x, float y, float z,
         CoordinateReference coordinate, float coordinatePerRadian, MechanicalRimDescriptor rim) =>
-        new(socket, Enum.Parse<PortRole>(socket.Value), WorkshopConnectionDomain.Mechanical, direction, null, new(x, y, z),
+        new(socket, Enum.Parse<PortRole>(socket.Value), new(socket.Value, SocketGlyph.Text), WorkshopConnectionDomain.Mechanical, direction, null, new(x, y, z),
             Coordinate: coordinate, CoordinatePerRadian: coordinatePerRadian, MechanicalRim: rim);
 
     private const WorkshopPortDirection In = WorkshopPortDirection.Input;
@@ -103,25 +103,25 @@ public sealed class BundlePortsTests
     /// copied from the deleted engine port switch tables and the packages.</summary>
     private static readonly Dictionary<string, (WorkshopPort[] Ports, ElementFootprint Footprint)> Golden = new(StringComparer.Ordinal)
     {
-        ["both_gate"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_nand"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_nor"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_or"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_xor"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["both_gate"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f, SocketGlyph.Power), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["electrical_nand"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f, SocketGlyph.Power), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["electrical_nor"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f, SocketGlyph.Power), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["electrical_or"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f, SocketGlyph.Power), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["electrical_xor"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f, SocketGlyph.Power), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
         ["ball"] = ([], new(1, 1, 0, 0)),
         ["ball_detector"] = ([Activation(PortId.ActivationOut, Out, Pulse, 0f, 1.12f, 0f)], new(1, 0, 0, 0)),
         ["basket"] = ([], new(1, 0, 0, 0)),
         ["battery"] = ([Electrical(PortId.Supply, Out, 0f, .62f, 0f)], new(1, 0, 0, 0)),
         ["bowling"] = ([], new(1, 1, 0, 0)),
-        ["weight"] = ([new(PortId.Tie, PortRole.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+        ["weight"] = ([new(PortId.Tie, PortRole.Tie, new("Tie", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(0f, 4f * (.5771f * .136734f) + .5771f * .453070f, 0f), RopeAttachmentRole.Load,
             new(new("mass"), new(0f, .5771f * .136734f, 0f), new(0f, .5771f * .453070f, 0f)))], new(1, 1, 0, 0)),
-        ["rope_anchor"] = ([new(PortId.Tie, PortRole.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+        ["rope_anchor"] = ([new(PortId.Tie, PortRole.Tie, new("Tie", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(0f, 0f, .18f), RopeAttachmentRole.Anchor)], new(1, 0, 0, 0)),
-        ["pulley"] = ([new(PortId.Tie, PortRole.Tie, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+        ["pulley"] = ([new(PortId.Tie, PortRole.Tie, new("Tie", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(0f, .4f, .12f), RopeAttachmentRole.Guide, GuideRadius: 0.4f, GuideOffset: new(0f, 0f, .12f))], new(1, 0, 0, 0)),
-        ["impact_lever"] = ([new(PortId.TieA, PortRole.TieA, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
-            new(-1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1)), new(PortId.TieB, PortRole.TieB, WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+        ["impact_lever"] = ([new(PortId.TieA, PortRole.TieA, new("TieA", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
+            new(-1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1)), new(PortId.TieB, PortRole.TieB, new("TieB", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1))], new(2, 1, 0, 1)),
         ["trampoline"] = ([], new(1, 0, 0, 0)),
         ["motor"] = ([Electrical(PortId.PowerIn, In, -.55f, 0f, 0f), Mechanical(PortId.Drive, Out, 0f, 0f, .65f, new(CoordinateKind.Revolute, 0), 1f, new(new(0), new(0f, 0f, .605f), Quaternion.Identity, .3f, 1f))], new(2, 1, 0, 1)),
@@ -151,6 +151,11 @@ public sealed class BundlePortsTests
         ["pipe"] = ([], new(1, 0, 0, 0)),
         ["pipe_bend_45"] = ([], new(1, 0, 0, 0)),
         ["pipe_bend_90"] = ([], new(1, 0, 0, 0)),
+        ["linear_pusher"] = ([Electrical(PortId.PowerIn, In, -.45f, -.4f, .5f, SocketGlyph.Power),
+            new(new("ExtendIn"), PortRole.FirstIn, new("Extend", SocketGlyph.Extend), WorkshopConnectionDomain.Electrical, In, null, new(.15f, -.4f, .5f)),
+            new(new("RetractIn"), PortRole.SecondIn, new("Retract", SocketGlyph.Retract), WorkshopConnectionDomain.Electrical, In, null, new(.55f, -.4f, .5f)),
+            new(new("RetractedOut"), PortRole.Supply, new("Retracted", SocketGlyph.Retracted), WorkshopConnectionDomain.Electrical, Out, null, new(-.45f, .4f, .45f)),
+            new(new("ExtendedOut"), PortRole.Supply, new("Extended", SocketGlyph.Extended), WorkshopConnectionDomain.Electrical, Out, null, new(.45f, .4f, .45f))], new(2, 1, 1, 0)),
         ["powered_gate"] = ([Electrical(PortId.PowerIn, In, 0f, 1.65f, .92f)], new(2, 1, 1, 0)),
         ["pressure_plate"] = ([Electrical(PortId.PowerIn, In, -1.18f, -.08f, 0f), Activation(PortId.ActivationOut, Out, Level, 0f, -.08f, 1.18f),
             Electrical(PortId.Supply, Out, 1.18f, -.08f, 0f)], new(1, 0, 0, 0)),
@@ -229,7 +234,7 @@ public sealed class BundlePortsTests
     };
 
     private static PortDescriptor Port(PortId id, SimulationDomain domain, PortDirection direction, PortRole role, PortSignalKind? signal) =>
-        new(id, domain, direction, role, signal, Vector3.Zero, Vector3.UnitY);
+        new(id, domain, direction, role, new(id.Value, SocketGlyph.Text), signal, Vector3.Zero, Vector3.UnitY);
 
     /// <summary>Owner rule: an invalid declaration is refused structurally with a typed reason that names the element and port.</summary>
     [Theory]

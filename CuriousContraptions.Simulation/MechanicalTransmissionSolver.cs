@@ -39,9 +39,7 @@ internal static class MechanicalTransmissionSolver
         Add(transmission, driving.B, -sourceAxis);
         Add(transmission, driven.A, -targetAxis);
         Add(transmission, driven.B, targetAxis);
-        var inverseMass = 0f;
-        for (var i = 0; i < transmission.Count; i++)
-            inverseMass += ConstraintMass(transmission.Bodies[i], Vector3.Zero, transmission.Jacobians[i]);
+        var inverseMass = Row(transmission).Mass();
         transmission.InverseMass = inverseMass;
         if (inverseMass <= 0f) transmission.Impulse = 0f;
     }
@@ -70,9 +68,7 @@ internal static class MechanicalTransmissionSolver
         Apply(transmission, impulse);
     }
 
-    public static void Apply(SimMechanicalTransmission transmission, float impulse)
-    {
-        for (var i = 0; i < transmission.Count; i++)
-            ApplyBodyImpulse(transmission.Bodies[i], Vector3.Zero, transmission.Jacobians[i], impulse);
-    }
+    private static ImpulseJacobian Row(SimMechanicalTransmission transmission) =>
+        new(transmission.Bodies.AsSpan(0, transmission.Count), default, transmission.Jacobians);
+    public static void Apply(SimMechanicalTransmission transmission, float impulse) => Row(transmission).Apply(impulse);
 }

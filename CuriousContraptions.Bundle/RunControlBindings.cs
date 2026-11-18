@@ -24,7 +24,10 @@ public static class RunControlBindings
     }
 
     private static bool Matches(MechanicalValue value, string key) =>
-        value.Source == MechanicalValueSource.Parameter && value.Parameter == key;
+        (value.Source == MechanicalValueSource.Parameter && value.Parameter == key) ||
+        (value.Product is { } product &&
+            ((product.Left.Source == MechanicalValueSource.Parameter && product.Left.Parameter == key) ||
+             (product.Right.Source == MechanicalValueSource.Parameter && product.Right.Parameter == key)));
 
     private static bool Matches(MassScalar scalar, string key) =>
         scalar.Parameter?.Value == key;
@@ -91,6 +94,7 @@ public static class RunControlBindings
     private static bool IsBoundToSlider(PrismaticSliderDescriptor slider, string key)
     {
         if (Matches(slider.MovingBody.MassFrame, key) ||
+            Matches(slider.LowerLimit, key) || Matches(slider.UpperLimit, key) ||
             Matches(slider.Stiffness, key) ||
             Matches(slider.Damping, key) ||
             Matches(slider.Compression, key))

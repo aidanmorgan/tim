@@ -41,11 +41,11 @@ public sealed class ConveyorElementDeclaration : IHingeElement, IDrivenSurfaceEl
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.DriveIn, SimulationDomain.Mechanical, PortDirection.Input, PortRole.DriveIn, null,
+        new(PortId.DriveIn, SimulationDomain.Mechanical, PortDirection.Input, PortRole.DriveIn, new("DriveIn", SocketGlyph.Text), null,
             new Vector3(-1.35f, -.07f, .78f), Vector3.UnitZ,
             Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f,
             MechanicalRim: new(new(0), new(-1.35f, -.07f, .78f), Quaternion.Identity, .22f, 1f)),
-        new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, null,
+        new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, new("Drive", SocketGlyph.Text), null,
             new Vector3(1.35f, -.07f, .78f), Vector3.UnitZ,
             Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f,
             MechanicalRim: new(new(0), new(1.35f, -.07f, .78f), Quaternion.Identity, .22f, 1f))

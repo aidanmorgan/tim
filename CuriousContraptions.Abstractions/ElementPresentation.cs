@@ -26,7 +26,8 @@ public enum PresentationDriver : byte
     CommittedSurfaceDeflection,
     CommittedTransmissionClosure,
     CommittedTransmissionPhase,
-    CommittedRevoluteAngle
+    CommittedRevoluteAngle,
+    CommittedPrismaticPhase
 }
 
 public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2, StateValues = 3 }
@@ -96,7 +97,8 @@ public readonly record struct PresentationBinding(
     PresentationOverlap Overlap, float Threshold, float Response = 0f, PortId? Socket = null,
     SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any, SignalNodeId? SignalNode = null,
     CoordinateReference? Actuator = null, PortId? GuidePort = null, PresentationStateValues? StateValues = null,
-    Electrical.LocalSupplyNodeId? SupplyNode = null, Mechanical.LocalMechanicalTransmissionId? Transmission = null, PresentationFourStateValues? FourStateValues = null);
+    Electrical.LocalSupplyNodeId? SupplyNode = null, Mechanical.LocalMechanicalTransmissionId? Transmission = null,
+    PresentationFourStateValues? FourStateValues = null, PrismaticPhaseValues? PrismaticValues = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(
@@ -158,23 +160,24 @@ public static class PresentationDriverRules
 
     public static bool SupportsMapping(PresentationDriver driver, PresentationValueMapping mapping) => mapping switch
     {
-        PresentationValueMapping.StateValues => Discrete3State(driver) || Discrete4State(driver),
+        PresentationValueMapping.StateValues => Discrete3State(driver) || Discrete4State(driver) || driver == PresentationDriver.CommittedPrismaticPhase,
         PresentationValueMapping.SineCyclesToUnit => ContinuousNormalized(driver),
-        PresentationValueMapping.Identity => !Discrete3State(driver) && !Discrete4State(driver),
+        PresentationValueMapping.Identity => !Discrete3State(driver) && !Discrete4State(driver) && driver != PresentationDriver.CommittedPrismaticPhase,
         _ => false
     };
 
     /// <summary>Construction/Reset projection: zero scalar input or the declared State0 state.</summary>
     public static float InitialValue(PresentationBinding binding) =>
-        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues);
+        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues, binding.PrismaticValues);
 
     public static float InitialValue(CompiledPresentationBinding binding) =>
-        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues);
+        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues, binding.PrismaticValues);
 
-    public static float InitialValue(PresentationValueMapping mapping, float from, float to, PresentationStateValues? stateValues, PresentationFourStateValues? fourStateValues)
+    public static float InitialValue(PresentationValueMapping mapping, float from, float to, PresentationStateValues? stateValues,
+        PresentationFourStateValues? fourStateValues, PrismaticPhaseValues? prismaticValues = null)
     {
         var amount = mapping == PresentationValueMapping.StateValues
-            ? (fourStateValues?.State0 ?? stateValues!.Value.State0)
+            ? (prismaticValues?.Unpowered ?? fourStateValues?.State0 ?? stateValues!.Value.State0)
             : Map(0, mapping);
         return float.Lerp(from, to, amount);
     }
@@ -207,7 +210,7 @@ public static class PresentationDriverRules
         {
             return (curve is PresentationCurve.Linear or PresentationCurve.ExponentialFollow) && duration == 0;
         }
-        if (Discrete3State(driver) || Discrete4State(driver))
+        if (Discrete3State(driver) || Discrete4State(driver) || driver == PresentationDriver.CommittedPrismaticPhase)
         {
             return curve == PresentationCurve.Linear && duration == 0;
         }

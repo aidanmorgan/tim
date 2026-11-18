@@ -193,12 +193,12 @@ public sealed class ComposableSignalNodesTests
         await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
         var entry = Entry();
         PortId first = new("first_alias"), second = new("second_alias"), input = new("counter_input");
-        var source = new PortDescriptor(first, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut,
+        var source = new PortDescriptor(first, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text),
             PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY);
         entry = entry with
         {
             Ports = [.. entry.Ports, source, source with { Id = second },
-                new(input, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)],
+                new(input, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, new("ActivationIn", SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)],
             Signal = entry.Signal! with { Ports =
                 [new(first, Endpoint("fast", SignalTerminal.Output)), new(second, Endpoint("fast", SignalTerminal.Output)),
                  new(input, Endpoint("count", SignalTerminal.Input))] }
@@ -268,7 +268,7 @@ public sealed class ComposableSignalNodesTests
                 Nodes = [.. entry.Electrical!.Nodes, .. contact.Electrical!.Nodes],
                 SupplyGraph = contact.Electrical!.SupplyGraph! with
                 {
-                    Nodes = [.. contact.Electrical!.SupplyGraph!.Nodes.Select(node => node is SupplyContactDescriptor sc ? sc with { Control = new(new(selected), state) } : node)]
+                    Nodes = [.. contact.Electrical!.SupplyGraph!.Nodes.Select(node => node is SupplyContactDescriptor sc ? sc with { Control = new SignalStateContactControl(new(selected), state) } : node)]
                 }
             },
             Signal = entry.Signal! with { Edges = [.. entry.Signal!.Edges, Edge("fast", "memory_b", SignalTerminal.Set)] }
@@ -409,7 +409,7 @@ public sealed class ComposableSignalNodesTests
     {
         var entry = Entry();
         PortDescriptor Port(string id, PortDirection direction, PortRole role) =>
-            new(new(id), SimulationDomain.Signal, direction, role, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY);
+            new(new(id), SimulationDomain.Signal, direction, role, new(id, SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY);
         return entry with
         {
             Ports = [.. entry.Ports, Port("fast_out", PortDirection.Output, PortRole.ActivationOut),
@@ -508,8 +508,8 @@ public sealed class ComposableSignalNodesTests
             Signal = new([new SignalPulseCountDescriptor(new("a"), new("target")), new SignalPulseCountDescriptor(new("b"), new("target"))],
                 [Edge("a", "b")], [new(new("a_in"), Endpoint("a", SignalTerminal.Input)), new(new("b_out"), Endpoint("b", SignalTerminal.Output))]),
             Ports = [.. entry.Ports,
-                new(new("a_in"), SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY),
-                new(new("b_out"), SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)],
+                new(new("a_in"), SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, new("ActivationIn", SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY),
+                new(new("b_out"), SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)],
             Events = [], Presentation = entry.Presentation with { Bindings = [] }
         };
         Assert.Empty(BundleValidator.Validate([new("open_graph", entry)]));

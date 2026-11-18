@@ -34,6 +34,12 @@ public enum PortRole : uint
     DriveIn = 13
 }
 
+/// <summary>Package-selected socket artwork; Text explicitly requests a text choice.</summary>
+public enum SocketGlyph : byte { Text, Set, Reset, First, Second, Power, Extend, Retract, Extended, Retracted }
+
+/// <summary>Package-owned label and artwork, independent of routing roles and port identities.</summary>
+public readonly record struct SocketPresentation(string Label, SocketGlyph Glyph);
+
 public enum CoordinateKind : byte
 {
     Revolute = 1,
@@ -51,6 +57,7 @@ public readonly record struct PortDescriptor(
     SimulationDomain Domain,
     PortDirection Direction,
     PortRole Role,
+    SocketPresentation Presentation,
     PortSignalKind? Signal,
     Vector3 LocalPosition,
     Vector3 Normal,

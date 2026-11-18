@@ -61,6 +61,18 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
     IPhysicsWorldLayout IPhysicsSceneDeclaration.World => _worldView;
     private readonly IPhysicsWorldLayout _worldView;
 
+    private static void ValidateExtrusions(ReadOnlySpan<ColliderDeclaration> colliders, ReadOnlySpan<PrismaticConstraintDeclaration> prismatics)
+    {
+        foreach (var collider in colliders)
+        {
+            if (collider.Extrusion is not { } extrusion) continue;
+            var found = false;
+            foreach (var joint in prismatics)
+                if (joint.Id == extrusion.Coordinate) { extrusion.ValidateCollider(collider, joint); found = true; break; }
+            if (!found) throw new ArgumentException("Clipped extrusion coordinate is missing.");
+        }
+    }
+
     public PhysicsSceneDeclaration(PhysicsDocumentId document, ulong nextIdentity,
         ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders,
         ReadOnlySpan<ContactMaterialDeclaration> materials, ReadOnlySpan<ResidenceSensorDeclaration> sensors,
@@ -88,6 +100,7 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         ValidateContactPolicies(triggers, contactWorks, colliders, bodyMap, nextIdentity, ids);
         ValidateObservations(orientationSensors, contactLoadSensors, colliders, dynamicColliders, bodyMap, nextIdentity, ids);
         ValidateJoints(prismatics, revolutes, bodyMap, nextIdentity, ids);
+        ValidateExtrusions(colliders, prismatics);
         _tensileSpans = ValidateTensile(tensileSpans, bodyMap, ropeGuides);
         var guideIds = new HashSet<RopeGuideId>();
         foreach (var guide in ropeGuides)

@@ -25,13 +25,17 @@ internal sealed class FrictionJacobian
     private readonly SimBody[] _bodies = new SimBody[6];
     private readonly Vector3[] _linear = new Vector3[18];
     private readonly Vector3[] _angular = new Vector3[18];
+    private readonly Vector3[] _appliedLinear = new Vector3[6], _appliedAngular = new Vector3[6];
     private readonly Quaternion[] _rotations = new Quaternion[6];
+    private readonly GuideComponent?[] _guides = new GuideComponent?[6];
+    private readonly int[] _generations = new int[6];
     private int _count;
 
     public bool FramesUnchanged()
     {
         for (var body = 0; body < _count; body++)
-            if (_bodies[body].Rotation != _rotations[body]) return false;
+            if (_bodies[body].Rotation != _rotations[body] || _bodies[body].Guide != _guides[body] ||
+                (_bodies[body].Guide?.Generation ?? 0) != _generations[body]) return false;
         return true;
     }
 
@@ -47,7 +51,12 @@ internal sealed class FrictionJacobian
         }
         AddSurface(patch.SurfaceA, patch, 1f);
         AddSurface(patch.SurfaceB, patch, -1f);
-        for (var body = 0; body < _count; body++) _rotations[body] = _bodies[body].Rotation;
+        for (var body = 0; body < _count; body++)
+        {
+            _rotations[body] = _bodies[body].Rotation;
+            _guides[body] = _bodies[body].Guide;
+            _generations[body] = _bodies[body].Guide?.Generation ?? 0;
+        }
     }
 
     private void AddSurface(SimDrivenSurface? surface, ContactPatch patch, float sign)
@@ -73,18 +82,8 @@ internal sealed class FrictionJacobian
         _angular[index * 3 + row] += angular;
     }
 
-    public float Mass(int first, int second)
-    {
-        var mass = 0f;
-        for (var body = 0; body < _count; body++)
-        {
-            if (_bodies[body].Motion != Gpu.RigidMotionKind.Dynamic) continue;
-            var offset = body * 3;
-            mass += _bodies[body].InvMass * Vector3.Dot(_linear[offset + first], _linear[offset + second]) +
-                WorkshopCollisionKernels.InverseInertiaCoupling(_bodies[body], _angular[offset + first], _angular[offset + second]);
-        }
-        return mass;
-    }
+    private ImpulseJacobian Row(int row) => new(_bodies.AsSpan(0, _count), _linear, _angular, 3, row);
+    public float Mass(int first, int second) => ImpulseJacobian.Coupling(Row(first), Row(second));
 
     public float Velocity(int row)
     {
@@ -99,9 +98,9 @@ internal sealed class FrictionJacobian
         for (var body = 0; body < _count; body++)
         {
             var offset = body * 3;
-            ConstraintBodyImpulse.ApplyBodyImpulse(_bodies[body],
-                impulse.X * _linear[offset] + impulse.Y * _linear[offset + 1] + impulse.Z * _linear[offset + 2],
-                impulse.X * _angular[offset] + impulse.Y * _angular[offset + 1] + impulse.Z * _angular[offset + 2], 1f);
+            _appliedLinear[body] = impulse.X * _linear[offset] + impulse.Y * _linear[offset + 1] + impulse.Z * _linear[offset + 2];
+            _appliedAngular[body] = impulse.X * _angular[offset] + impulse.Y * _angular[offset + 1] + impulse.Z * _angular[offset + 2];
         }
+        new ImpulseJacobian(_bodies.AsSpan(0, _count), _appliedLinear, _appliedAngular).Apply(1f);
     }
 }

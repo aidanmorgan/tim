@@ -40,7 +40,7 @@ public sealed class WeightElementDeclaration : IMechanicalElement, ISceneGeometr
         new(0f, .5771f * .136734f, 0f), new(0f, .5771f * .453070f, 0f));
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, PortRole.Tie, null,
+        new(PortId.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, PortRole.Tie, new("Tie", SocketGlyph.Text), null,
             TieBinding.Evaluate(4f), Vector3.UnitY, RopeAttachmentRole.Load, TieBinding)
     ];
 

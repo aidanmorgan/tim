@@ -37,9 +37,9 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, new Vector3(.45f, 0f, .4f), Vector3.UnitZ),
-        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new(-.58f, 0f, 0f), -Vector3.UnitX),
-        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new(.58f, 0f, 0f), Vector3.UnitX)
+        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, new Vector3(.45f, 0f, .4f), Vector3.UnitZ),
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new(-.58f, 0f, 0f), -Vector3.UnitX),
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new(.58f, 0f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The base, then the button.</summary>
@@ -69,7 +69,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
     public SupplyGraphDescriptor SupplyGraph => new(
-        [new SupplyContactDescriptor(new("contact"), new(new("signal"), SignalContactState.Latched))], [],
+        [new SupplyContactDescriptor(new("contact"), new SignalStateContactControl(new("signal"), SignalContactState.Latched))], [],
         [
             new(PortId.PowerIn, new(new("contact"), SupplyTerminal.PowerIn)),
             new(PortId.Supply, new(new("contact"), SupplyTerminal.Output))
