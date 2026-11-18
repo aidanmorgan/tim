@@ -2,7 +2,7 @@
 title: 'Faster validation without weaker tests'
 type: refactor
 created: '2026-11-18'
-status: in-review
+status: done
 baseline_revision: c34f63903722295ae0e130aa3d279876d20420bb
 review_loop_iteration: 1
 followup_review_recommended: false
@@ -323,4 +323,5 @@ Independent affected native re-reviews by /root/test_loop_blind, /root/test_loop
 
 **Final diff scope — Scoped Pass:** informed reviewer /root/test_loop_engineering sequentially inspected all26owned files, six new, from original baseline c34f63903722295ae0e130aa3d279876d20420bb after affected reviews completed. Root optimization and both source lookups address measured costs. Existing typed indexes replace repeated copies/scans; no new cache/platform/API or alternate algorithm. Prior authorized artifact reuse/Preview/sleep work and patched toolchain retain their necessity. No unrelated cleanup, duplicate ledger or materially beneficial further simplification identified. Required E9 receipt inspected. This scope verdict does not itself replace full/compiler/hook/exact-SHA evidence.
 
-Remaining publication sequence follows the existing TODO workflow: commit the reviewed candidate through normal hooks, obtain independent SnapshotApproval on the resulting SHA, then publish without waiting for CI. Normal hooks are still required and their result must be read before exact-SHA approval. Remote build/artifact/deployment and actual Chrome qualification remain unverified. This scoped task does not advance the gameplay backlog.
+Implementation commit **fc3891e39a46266e70c3f253650f5753338f0b6b** passed mandatory normal hooks: five fresh staged compiler builds, zero policy errors/warnings, **134passed/0failed/0skipped**; raw /private/tmp/tim-native-fast-final.dB2jCc/commit.log. Independent /root/test_loop_engineering granted **SnapshotApproval: Pass** on that exact SHA after inspecting the committed candidate and actual receipts. The worktree was clean.
+This final status/receipt update changes only this spec and the scoped TODO entry; implementation and verification inputs remain unchanged. Its recording commit still runs normal hooks and receives exact-identity confirmation before publication. No new runtime test round or E9 run is warranted for accurate receipt-only additions. Publish the approved branch without waiting for CI. Remote build/artifact/deployment and actual Chrome qualification remain unverified. The owner's under-five-minute native target is met; this scoped task does not advance the gameplay backlog.

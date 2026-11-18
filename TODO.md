@@ -1,7 +1,6 @@
 # Current delivery
 
-
-**Scoped validation work:** [faster equivalent validation](_bmad-output/implementation-artifacts/spec-faster-test-loop.md) meets the owner's under-five-minute native target: **23m59s → 4m8s**; full solution **6247/0/0**, independent review and E9 pass. Owner: coordinator; next check: normal commit hooks and exact-SHA SnapshotApproval, then publish `perf-test-loop`. Browser and remote qualification remain pending. This does not advance the gameplay backlog.
+**Scoped validation work:** [faster equivalent validation](_bmad-output/implementation-artifacts/spec-faster-test-loop.md) is complete on `perf-test-loop`: native **23m59s → 4m8s**, meeting the under-five-minute target; full solution **6247/0/0**, normal hooks **134/0/0**, E9 and independent SnapshotApproval pass on implementation `fc3891e39a46266e70c3f253650f5753338f0b6b`. Next qualification: deferred post-catalogue Chrome proof. Browser and remote qualification remain pending. This does not advance the gameplay backlog.
 **Outcome:** implement every required named puzzle element and variant, then browser qualification; preserve unlimited Workshop and 150 progressively taught levels.
 
 **Latest publication:** Story 11.2a Clutch (CAT-018), `e9b7f79472598c3a46622878e61570c5f6207143` on `origin/main`. Independent Auto review and repairs passed; E9 metrics/coupling zero; full local solution **6071 passed, 0 failed, 0 skipped**; normal hooks **134/0/0**. [Clutch spec](./_bmad-output/implementation-artifacts/spec-11-2a-clutch.md). Remote build/artifact/deployment and browser qualification remain unverified.
