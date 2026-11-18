@@ -352,7 +352,7 @@ public sealed class DeclaredPrismaticDriveTests
             Assert.False(drive.IsBlocked(), $"not blocked: {drive}");
         });
         // The kinematic part of the predicate alone would read Blocked here; only the contact term tells them apart.
-        Assert.True(rest.Coordinate > rest.Lower + ActuatorObservations.StopSlop && rest.Coordinate < rest.Upper - ActuatorObservations.StopSlop);
+        Assert.True(rest.Coordinate > rest.Lower + PhysicalTolerance.ActuatorStopSlopMetres && rest.Coordinate < rest.Upper - PhysicalTolerance.ActuatorStopSlopMetres);
     }
 
     /// <summary>Review F4: the moving-contact lane covers every substep of the tick, not only the last. A ball bounces off a sprung
@@ -386,9 +386,9 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.True(rest.IsBlocked());
         Assert.False((rest with { MovingContact = false }).IsBlocked());
         Assert.False((rest with { Speed = ActuatorObservations.RestSpeed }).IsBlocked());
-        Assert.False((rest with { Coordinate = ActuatorObservations.StopSlop }).IsBlocked());
-        Assert.False((rest with { Coordinate = 1.55f - ActuatorObservations.StopSlop }).IsBlocked());
-        Assert.True((rest with { Coordinate = 2f * ActuatorObservations.StopSlop, SupplyClosed = true }).IsBlocked()); // one state, either direction
+        Assert.False((rest with { Coordinate = PhysicalTolerance.ActuatorStopSlopMetres }).IsBlocked());
+        Assert.False((rest with { Coordinate = 1.55f - PhysicalTolerance.ActuatorStopSlopMetres }).IsBlocked());
+        Assert.True((rest with { Coordinate = 2f * PhysicalTolerance.ActuatorStopSlopMetres, SupplyClosed = true }).IsBlocked()); // one state, either direction
     }
 
     // ---- D6: a ball resting against the closed, tilted blade passes through when the gate is enabled during Run ----

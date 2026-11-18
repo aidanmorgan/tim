@@ -20,11 +20,13 @@ public readonly record struct CompliantSurfaceId(ulong Value);
 public readonly record struct MechanicalTransmissionId(ulong Value);
 public readonly record struct MechanicalTransmissionDeclaration(
     MechanicalTransmissionId Id,
-    RevoluteConstraintId DrivingJoint,
-    RevoluteConstraintId DrivenJoint,
+    ConstraintCoordinateReference Driving,
+    ConstraintCoordinateReference Driven,
     float Ratio,
+    TransmissionConstraintKind ConstraintKind,
     float CloseSeconds = 0f,
-    GpuBodyId Owner = default)
+    GpuBodyId Owner = default,
+    PrismaticRetentionId? Retention = null, float InitialRetentionCoordinate = 0f)
 {
     /// <summary>Largest duration representable by the physical clock's unsigned ordinal span.</summary>
     public static float MaximumCloseSeconds { get; } = ClockDurationLimit();
@@ -40,8 +42,17 @@ public readonly record struct MechanicalTransmissionDeclaration(
     public void Validate()
     {
         if (Id.Value == 0) throw new ArgumentException("Mechanical transmission identity is required.");
-        if (DrivingJoint.Value == 0 || DrivenJoint.Value == 0 || DrivingJoint == DrivenJoint)
-            throw new ArgumentException("A mechanical transmission requires distinct admitted revolute joints.");
+        if (Retention is { } retention && (retention.Value == 0 || Owner.Value == 0 ||
+            Driven.Kind != Abstractions.CoordinateKind.Prismatic || ConstraintKind != TransmissionConstraintKind.NonPositiveVelocity ||
+            !PhysicsDeclarationBounds.Zero(CloseSeconds)))
+            throw new ArgumentException("Invalid compressive retention relation.");
+        if (!float.IsFinite(InitialRetentionCoordinate) ||
+            (Retention is null && !PhysicsDeclarationBounds.Zero(InitialRetentionCoordinate)))
+            throw new ArgumentException("Invalid authored retention coordinate.");
+        Driving.Validate();
+        Driven.Validate();
+        if (Driving == Driven || !Enum.IsDefined(ConstraintKind))
+            throw new ArgumentException("A mechanical transmission requires distinct coordinates and a supported constraint kind.");
         if (!float.IsFinite(Ratio) || Ratio == 0f)
             throw new ArgumentException("Transmission ratio must be finite and nonzero.");
         if (!PhysicsDeclarationBounds.Zero(CloseSeconds) &&

@@ -12,7 +12,7 @@ public static class WorkshopIcons
         if (!Cache.TryGetValue(name, out var texture))
         {
             // Resource loading follows SVG import remaps in exported Godot packs.
-            texture = GD.Load<Texture2D>("res://assets/icons/" + name + ".svg");
+            texture = WorkshopResources.LoadIcon("res://assets/icons/" + name + ".svg");
             if (texture == null) throw new System.InvalidOperationException("Cannot load icon: " + name);
             Cache.Add(name, texture);
         }

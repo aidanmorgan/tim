@@ -52,7 +52,7 @@ public sealed class LinearPusherTests
     public async Task ExtensionReportsMotorWorkAndEndpointPowerOnTheNextElectricalTick()
     {
         var reads = await WorkshopIntegrationHarness.Observe(Machine(true, true, false), 300);
-        var reached = reads.FindIndex(read => Read(read).Coordinate >= 1f - ActuatorObservations.StopSlop);
+        var reached = reads.FindIndex(read => Read(read).Coordinate >= 1f - PhysicalTolerance.ActuatorStopSlopMetres);
         Assert.True(reached > 0, "configured one-metre stroke must finish within the generous 2.5-second guard");
         var powered = reads.FindIndex(read => read.Presentation.Actuators.ToArray().Single(row => row.Owner == Gate).SupplyClosed);
         Assert.Equal(reached + 1, powered); // Declared next-electrical-tick causality, not an incidental arrival deadline.
@@ -88,14 +88,14 @@ public sealed class LinearPusherTests
         {
             var supplied = phase is not (1 or 4);
             var actuators = read.Presentation.Actuators.ToArray();
-            Assert.Equal(supplied && previous <= ActuatorObservations.StopSlop,
+            Assert.Equal(supplied && previous <= PhysicalTolerance.ActuatorStopSlopMetres,
                 actuators.Single(row => row.Owner == lowerConsumer).SupplyClosed);
-            Assert.Equal(supplied && previous >= 1f - ActuatorObservations.StopSlop,
+            Assert.Equal(supplied && previous >= 1f - PhysicalTolerance.ActuatorStopSlopMetres,
                 actuators.Single(row => row.Owner == Gate).SupplyClosed);
             previous = Read(read).Coordinate;
         }
-        Assert.True(Read(phases[3][^1]).Coordinate >= 1f - ActuatorObservations.StopSlop);
-        Assert.True(Read(phases[6][^1]).Coordinate <= ActuatorObservations.StopSlop);
+        Assert.True(Read(phases[3][^1]).Coordinate >= 1f - PhysicalTolerance.ActuatorStopSlopMetres);
+        Assert.True(Read(phases[6][^1]).Coordinate <= PhysicalTolerance.ActuatorStopSlopMetres);
         Assert.Contains(phases[3], read => Read(read).Coordinate is > .2f and < .8f);
         Assert.Contains(phases[6], read => Read(read).Coordinate is > .2f and < .8f);
     }
@@ -344,7 +344,7 @@ public sealed class LinearPusherTests
             await harness.Run(); await harness.Advance(480);
             Assert.True(Position(harness.Committed, new(6)).X > Position(initial, new(6)).X + 1f);
             Assert.True(Motor(harness.Committed).Work > 0f);
-            Assert.True(Read(harness.Committed).Coordinate >= 2.4f - ActuatorObservations.StopSlop);
+            Assert.True(Read(harness.Committed).Coordinate >= 2.4f - PhysicalTolerance.ActuatorStopSlopMetres);
             await harness.Reset();
             Assert.Equal(authored, harness.Construction); // All decoded poses, parameters, connections, settings and puzzle state.
             Assert.Equal(initial.Bodies.Count, harness.Committed.Bodies.Count);

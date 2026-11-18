@@ -55,7 +55,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void PressurePlateScene_ExtractsBaseTopAndSocketCollidersAndThreePortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/PressurePlate/pressure_plate.tscn");
+        var packedScene = WorkshopResources.LoadScene("res://elements/PressurePlate/pressure_plate.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

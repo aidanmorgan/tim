@@ -49,6 +49,7 @@
     <Project Path="elements/Motor/Motor.csproj" />
     <Project Path="elements/Conveyor/Conveyor.csproj" />
     <Project Path="elements/LinearPusher/LinearPusher.csproj" />
+    <Project Path="elements/WoundSpring/WoundSpring.csproj" />
     <Project Path="elements/Clutch/Clutch.csproj" />
     <Project Path="elements/ReverseTransmission/ReverseTransmission.csproj" />
   </Folder>

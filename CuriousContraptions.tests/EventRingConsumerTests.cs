@@ -276,18 +276,43 @@ public sealed class EventRingConsumerTests
         var (bench, owner, part, kind, ticks) = Scenario(name);
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
-        await run.Advance(ticks);
-        var cues = run.Delivered.Where(record => record.Source == EventSource(bench, owner, kind) && record.Kind == kind).ToArray();
-        Assert.Equal(name == "detector" ? 2 : 1, cues.Length);
-        Assert.Equal(run.Harness.Records.Count, run.Delivered.Count); // the cursor delivered every committed record exactly once
         var duration = (double)Duration(part);
+        var source = EventSource(bench, owner, kind);
         Assert.Equal(Cue(part, 0), run.Sample(run.Origin, owner)); // at rest before the first record
-        foreach (var record in cues)
+        // The live consumer runs as the worker does: each committed tick's records and read are accepted, then the presentation
+        // clock samples forward only, up to that committed time, at each delivered cue's planned instants.
+        var cues = new List<SimulationEventRecord>();
+        var planned = new List<(double At, double Amount)>();
+        void SampleReached()
         {
-            Assert.True(Animation.At(record) - run.Origin > duration, "each cue starts after the previous one completed");
-            for (var k = 0; k <= 4; k++) Assert.Equal(Cue(part, Quarter[k]), run.Sample(Animation.At(record) + duration * k / 4, owner));
+            foreach (var record in run.Delivered.Where(record => record.Source == source && record.Kind == kind).Skip(cues.Count).ToArray())
+            {
+                Assert.True(Animation.At(record) - run.Origin > duration, "each cue starts after the previous one completed");
+                cues.Add(record);
+                for (var k = 0; k <= 4; k++) planned.Add((Animation.At(record) + duration * k / 4, Quarter[k]));
+            }
+            var committed = run.Harness.Committed.Tick.Value / 120.0;
+            foreach (var sample in planned.Where(sample => sample.At <= committed).OrderBy(sample => sample.At).ToArray())
+            {
+                Assert.Equal(Cue(part, sample.Amount), run.Sample(sample.At, owner));
+                planned.Remove(sample);
+            }
         }
-        Assert.Equal(Cue(part, 1), run.Sample(Animation.At(cues[^1]) + 3 * duration, owner));
+        for (var tick = 0; tick < ticks; tick++)
+        {
+            await run.Advance(1);
+            SampleReached();
+        }
+        Assert.Equal(name == "detector" ? 2 : 1, cues.Count);
+        Assert.Equal(run.Harness.Records.Count, run.Delivered.Count); // the cursor delivered every committed record exactly once
+        planned.Add((Animation.At(cues[^1]) + 3 * duration, 1));
+        for (var tick = 0; tick < 480 && planned.Count > 0; tick++)
+        {
+            await run.Advance(1);
+            SampleReached();
+        }
+        Assert.Empty(planned); // every planned instant was sampled on the live consumer
+        Assert.Equal(name == "detector" ? 2 : 1, cues.Count);
     }
 
     // Controls: a miss, a sub-threshold contact, a glancing or a reverse crossing publish nothing, so nothing is cued.

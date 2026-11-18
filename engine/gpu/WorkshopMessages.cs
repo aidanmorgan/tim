@@ -52,6 +52,7 @@ public static class WorkshopMessages
         ValidateLoadOwners(read, construction);
         ValidateLogicOwners(read, construction);
         ValidateTransmissionOwners(read, construction);
+        ValidateRetentionOwners(read, construction);
 
     }
 
@@ -137,6 +138,26 @@ public static class WorkshopMessages
         _ => false
     };
 
+    private static void ValidateRetentionOwners(WorkshopRead read, ICompiledScene construction)
+    {
+        var owned = construction.Physics.Transmissions.ToArray().Where(t => t.Retention.HasValue)
+            .OrderBy(t => t.Retention!.Value.Value).ToArray();
+        var observed = read.Presentation.Retentions;
+        if (observed.Length != (read.Epoch.Value == 0 ? 0 : owned.Length))
+            throw new ArgumentException("Retention observation population differs from its installation.");
+        for (var i = 0; i < observed.Length; i++)
+        {
+            var row = observed[i];
+            if (row.Id != owned[i].Retention || row.Owner != owned[i].Owner || row.Coordinate != owned[i].Driven.Prismatic)
+                throw new ArgumentException("Retention observation names a foreign coordinate or owner.");
+            if (read.Tick.Value == 0 && (row.Mode != CuriousContraptions.Abstractions.Mechanical.RetentionMode.Retained ||
+                row.Compression != -owned[i].InitialRetentionCoordinate || row.AcceptedElasticEnergy != 0f ||
+                row.ReleasedElasticEnergy != 0f || row.WindingWork != 0f || row.PositiveWindingTransfer != 0f ||
+                row.ContactWork != 0f || row.GravityWork != 0f || row.RequestResult.HasValue))
+                throw new ArgumentException("Retention admission observations disagree with authored state.");
+        }
+    }
+
     private static void ValidateTransmissionOwners(WorkshopRead read, ICompiledScene construction)
     {
         var owned = construction.Physics.Transmissions.ToArray().Where(t => t.Owner != default).ToArray();
@@ -177,7 +198,7 @@ public static class WorkshopMessages
             if (capture.Domain != WorkshopClockDomain.SimulationMonotonic || read.Epoch.Value == 0)
                 throw new ArgumentException("Physical read requires its simulation native clock.");
         }
-        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0 || read.Presentation.Ropes.Length != 0 || read.Presentation.Transmissions.Length != 0)
+        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0 || read.Presentation.Ropes.Length != 0 || read.Presentation.Transmissions.Length != 0 || read.Presentation.Retentions.Length != 0)
             throw new ArgumentException("An installed physical read requires its original capture.");
     }
 }

@@ -154,7 +154,7 @@ public sealed class WorkshopSaveTests
         var json = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json"));
         Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(RuntimeTestServices.Core, RuntimeTestServices.Bundle, json.Replace("\"part\": \"ball\"", "\"part\": \"ball\", \"part\": \"ball\"")));
         Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(RuntimeTestServices.Core, RuntimeTestServices.Bundle, json.Replace("\"availability\": \"Playable\"", "\"availability\": \"Planned\"")));
-        Assert.Equal(12, PuzzleCatalogue.ReadDefinitions(RuntimeTestServices.Core, RuntimeTestServices.Bundle, json).Count);
+        Assert.Equal(14, PuzzleCatalogue.ReadDefinitions(RuntimeTestServices.Core, RuntimeTestServices.Bundle, json).Count);
     }
 
     public enum PlacedConfigurationDamage { Capture, Speed, Dwell, SupportMargin, Acceleration, Participation }

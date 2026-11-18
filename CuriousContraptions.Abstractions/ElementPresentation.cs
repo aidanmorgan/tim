@@ -27,7 +27,8 @@ public enum PresentationDriver : byte
     CommittedTransmissionClosure,
     CommittedTransmissionPhase,
     CommittedRevoluteAngle,
-    CommittedPrismaticPhase
+    CommittedPrismaticPhase,
+    CommittedRetentionReleased
 }
 
 public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2, StateValues = 3 }
@@ -98,7 +99,7 @@ public readonly record struct PresentationBinding(
     SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any, SignalNodeId? SignalNode = null,
     CoordinateReference? Actuator = null, PortId? GuidePort = null, PresentationStateValues? StateValues = null,
     Electrical.LocalSupplyNodeId? SupplyNode = null, Mechanical.LocalMechanicalTransmissionId? Transmission = null,
-    PresentationFourStateValues? FourStateValues = null, PrismaticPhaseValues? PrismaticValues = null);
+    PresentationFourStateValues? FourStateValues = null, PrismaticPhaseValues? PrismaticValues = null, Mechanical.LocalPrismaticRetentionId? Retention = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(
@@ -156,7 +157,8 @@ public static class PresentationDriverRules
         PresentationDriver.CommittedSupply or
         PresentationDriver.CommittedCharge or
         PresentationDriver.CommittedActuatorDrive or
-        PresentationDriver.CommittedTimerActive;
+        PresentationDriver.CommittedTimerActive or
+        PresentationDriver.CommittedRetentionReleased;
 
     public static bool SupportsMapping(PresentationDriver driver, PresentationValueMapping mapping) => mapping switch
     {
@@ -218,7 +220,7 @@ public static class PresentationDriverRules
         {
             return curve switch
             {
-                PresentationCurve.Linear => duration == 0,
+                PresentationCurve.Linear => duration >= 0,
                 PresentationCurve.SmoothStep or PresentationCurve.CubicSmoothStep => duration > 0,
                 _ => false
             };

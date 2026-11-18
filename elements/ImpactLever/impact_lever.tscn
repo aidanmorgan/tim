@@ -1,6 +1,5 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=15 format=3]
 
-[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_Navy"]
 albedo_color = Color(0.161, 0.224, 0.329, 1)
@@ -55,7 +54,6 @@ size = Vector3(0.26, 0.3, 0.6)
 size = Vector3(3.6, 0.24, 1.1)
 
 [node name="impact_lever" type="Node3D"]
-script = ExtResource("1")
 
 [node name="col_base" type="CollisionShape3D" parent="."]
 position = Vector3(0, -1.18, 0)

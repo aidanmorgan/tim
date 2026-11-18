@@ -89,7 +89,8 @@ public sealed class LaunchLessonSolveTests
     [
         new("first_principles"), new("spring_forward"), new("domino_effect"), new("bumper_sidekick"),
         new("bumper_depth"), new("wall_and_bumper"), new("delayed_signal"), new("clear_pipe"),
-        new("gentle_bend"), new("quarter_bend"), new("joined_pipe"), new("ready_to_rebound")
+        new("gentle_bend"), new("quarter_bend"), new("joined_pipe"), new("ready_to_rebound"),
+        new("wind_then_release"), new("saved_for_later")
     ];
 
     [Fact]

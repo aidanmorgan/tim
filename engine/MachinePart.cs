@@ -11,6 +11,28 @@ namespace CuriousContraptions;
 /// <summary>Render/input node only. Durable construction and motion are canonical worker values.</summary>
 public sealed partial class MachinePart : Node3D, IResizablePart
 {
+
+    /// <summary>Moves native authored artwork onto an explicitly owned runtime node without changing child paths.</summary>
+    internal static MachinePart InstantiateArtwork(PackedScene scene)
+    {
+        var artwork = scene.Instantiate<Node3D>();
+        try
+        {
+            var part = new MachinePart { Name = artwork.Name, Transform = artwork.Transform, Visible = artwork.Visible };
+            try
+            {
+                artwork.ReplaceBy(part, keepGroups: true);
+                return part;
+            }
+            catch
+            {
+                part.Free();
+                throw;
+            }
+        }
+        finally { artwork.Free(); }
+    }
+
     public PartDefinition Definition { get; private set; } = null!;
     public PartId PartId => Definition?.PartId ?? default;
     public string Uid => Name;

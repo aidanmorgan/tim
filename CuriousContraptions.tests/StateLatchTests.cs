@@ -104,7 +104,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void LatchScene_ExtractsHousingFootProudPartsAndFivePortLocators()
     {
-        var instance = ResourceLoader.Load<PackedScene>("res://elements/StateLatch/latch.tscn").Instantiate<Node3D>();
+        var instance = WorkshopResources.LoadScene("res://elements/StateLatch/latch.tscn").Instantiate<Node3D>();
         try
         {
             var (colliders, ports) = TestBundle.SceneGeometry(instance);

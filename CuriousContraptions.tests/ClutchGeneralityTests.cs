@@ -22,7 +22,7 @@ public sealed partial class ClutchTests
             Mechanical = template.Mechanical! with
             {
                 Transmissions = [new(new(1), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Revolute, 1),
-                    MechanicalValue.Fixed(1f), MechanicalValue.Fixed(seconds))]
+                    MechanicalValue.Fixed(1f), TransmissionConstraintKind.Bilateral, MechanicalValue.Fixed(seconds))]
             },
             Presentation = template.Presentation with
             {
@@ -346,7 +346,7 @@ public sealed partial class ClutchTests
                     Assert.Throws<ArgumentException>(() => new WorkshopCompiledScene(scene.Identity, scene.Revision, scene.Settings,
                         hostile, scene.Activation, scene.Presentation, scene.Owners, scene.RunControls));
                 }
-                RejectWire(frame, 5, owner.Value);
+                RejectWire(frame, 8, owner.Value);
             }
             // Remove only the external coupling from hostile-input fixtures so its occupied driving role cannot mask ownership.
             PhysicsSceneDeclaration WithEndpoints(MechanicalTransmissionDeclaration transmission) => new(
@@ -361,13 +361,13 @@ public sealed partial class ClutchTests
             var foreignJoint = construction.Instances.Identities[new(2)].Hinges[0].Joint;
             foreach (var (transmission, field) in new[]
             {
-                (internalRow with { DrivingJoint = foreignJoint }, 1),
-                (internalRow with { DrivenJoint = foreignJoint }, 2)
+                (internalRow with { Driving = new(foreignJoint) }, 1),
+                (internalRow with { Driven = new(foreignJoint) }, 2)
             })
             {
                 Assert.Equal(internalRow.Owner, transmission.Owner);
-                Assert.Equal(1, new[] { transmission.DrivingJoint == internalRow.DrivingJoint,
-                    transmission.DrivenJoint == internalRow.DrivenJoint }.Count(unchanged => unchanged));
+                Assert.Equal(1, new[] { transmission.Driving == internalRow.Driving,
+                    transmission.Driven == internalRow.Driven }.Count(unchanged => unchanged));
                 var hostile = WithEndpoints(transmission); // Must admit physically: no missing/duplicate coordinate can mask the guard.
                 Assert.Throws<ArgumentException>(() => new WorkshopCompiledScene(scene.Identity, scene.Revision, scene.Settings,
                     hostile, scene.Activation, scene.Presentation, scene.Owners, scene.RunControls));
@@ -587,7 +587,7 @@ public sealed partial class ClutchTests
                 supplyNodes: source.SupplyGraph.Nodes, supplyEdges: source.SupplyGraph.Edges,
                 revolutes: source.Revolutes, transmissions: [value]);
         _ = WithTransmission(transmission);
-        Assert.Throws<ArgumentException>(() => WithTransmission(transmission with { DrivingJoint = new(ulong.MaxValue) }));
+        Assert.Throws<ArgumentException>(() => WithTransmission(transmission with { Driving = new(new RevoluteConstraintId(ulong.MaxValue)) }));
         Assert.Throws<ArgumentException>(() => WithTransmission(transmission with { Owner = new(ulong.MaxValue) }));
         // An existing but different owner still cannot consume this package's supplied transmission.
         Assert.Throws<ArgumentException>(() => WithTransmission(transmission with { Owner = new(1) }));

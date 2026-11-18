@@ -16,7 +16,7 @@ public sealed class ReverseTransmissionArtTests(NativeSceneFixture godot)
     [InlineData(true)]
     public async Task NativeSceneAppliesWheelPosesConveyorWitnessAndEvaluatedLinkArtwork(bool rotated)
     {
-        var scene = GD.Load<PackedScene>(NativeTestBoundary.WorkshopResource).Instantiate<Workshop>();
+        var scene = new Workshop { Name = "Workshop" };
         scene.StartObservation = _ => Task.CompletedTask;
         await using var h = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
         scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(h));

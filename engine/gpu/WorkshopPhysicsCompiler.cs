@@ -262,7 +262,7 @@ public static class WorkshopPhysicsCompiler
                         compliant.Tension.Evaluate(parameters),
                         compliant.DampingRatio.Evaluate(parameters)));
                 }
-                if (mechanical is not null) CompileTransmissions(instance.Id, rows, parameters, mechanical.Transmissions);
+                if (mechanical is not null) CompileTransmissions(instance.Id, rows, parameters, mechanical.Transmissions, mechanical.Retentions, mechanical.Sliders);
             }
         }
 
@@ -298,18 +298,37 @@ public static class WorkshopPhysicsCompiler
         }
 
         private void CompileTransmissions(GpuBodyId owner, CompiledPartIdentities rows,
-            IReadOnlyDictionary<string, float> parameters, IReadOnlyList<MechanicalTransmissionDescriptor> transmissions)
+            IReadOnlyDictionary<string, float> parameters, IReadOnlyList<MechanicalTransmissionDescriptor> transmissions,
+            IReadOnlyList<PrismaticRetentionDescriptor> retentions, IReadOnlyList<PrismaticSliderDescriptor> sliders)
         {
             for (var index = 0; index < transmissions.Count; index++)
             {
                 var item = transmissions[index];
-                var driving = rows.Hinges[item.Driving.Index].Joint;
-                var driven = rows.Hinges[item.Driven.Index].Joint;
+                var driving = ResolveCoordinate(rows, item.Driving);
+                var driven = ResolveCoordinate(rows, item.Driven);
                 var ratio = item.Ratio.Evaluate(parameters);
                 var closeSeconds = item.CloseSeconds?.Evaluate(parameters) ?? 0f;
-                internalTransmissions.Add(new(rows.Transmissions[item.Id], driving, driven, ratio, closeSeconds, owner));
+                PrismaticRetentionId? retentionId = null;
+                var initial = 0f;
+                foreach (var retention in retentions)
+                    if (retention.WindingTransmission == item.Id)
+                    {
+                        retentionId = rows.Retentions[retention.Id];
+                        // 0f - c keeps an uncompressed store at +0, the value the wire's default elision decodes,
+                        // so local and decoded declarations agree bit for bit.
+                        initial = 0f - sliders[retention.Coordinate.Index].Compression.Evaluate(parameters);
+                    }
+                internalTransmissions.Add(new(rows.Transmissions[item.Id], driving, driven, ratio, item.ConstraintKind, closeSeconds, owner, retentionId, initial));
             }
         }
+
+        private static ConstraintCoordinateReference ResolveCoordinate(CompiledPartIdentities rows, CoordinateReference coordinate) =>
+            coordinate.Kind switch
+            {
+                CoordinateKind.Prismatic => new(rows.Sliders[coordinate.Index].Joint),
+                CoordinateKind.Revolute => new(rows.Hinges[coordinate.Index].Joint),
+                _ => throw new ArgumentException("Unsupported constraint coordinate.")
+            };
 
         private static void ValidateBodylessGeometry(BundleEntry entry)
         {
@@ -524,7 +543,7 @@ public static class WorkshopPhysicsCompiler
 
                 while (reservedIds.Contains(nextExternalId)) nextExternalId++;
                 var transmissionId = new MechanicalTransmissionId(nextExternalId++);
-                transmissions.Add(new(transmissionId, drivingJoint, drivenJoint, ratio));
+                transmissions.Add(new(transmissionId, new(drivingJoint), new(drivenJoint), ratio, TransmissionConstraintKind.Bilateral));
             }
             return (tensile, ropeGuides, transmissions);
         }

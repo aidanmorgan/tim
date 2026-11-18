@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CuriousContraptions.Abstractions.Mechanical;
 using System.Numerics;
 using System.Text.Json.Serialization;
 using CuriousContraptions.Abstractions;
@@ -9,7 +10,7 @@ public enum TimerCompletionPolicy : byte { Latch, Rearm }
 public enum TimerBoundary : byte { BeforeNetworks, BeforePhysics }
 public enum TimerElapsedSignal : byte { None, Activation }
 public enum SignalTerminal : byte { Input, Set, Reset, Output }
-public enum SignalNodeKind : byte { Contact, Indicator, Timer, Orientation, Passage, ContactLoad, Oscillator, PulseCount, Memory }
+public enum SignalNodeKind : byte { Contact, Indicator, Timer, Orientation, Passage, ContactLoad, Oscillator, PulseCount, Memory, PhysicalRequest }
 
 public readonly record struct SignalEndpoint(SignalNodeId Node, SignalTerminal Terminal);
 public readonly record struct SignalEdge(SignalEndpoint Source, SignalEndpoint Target);
@@ -25,6 +26,7 @@ public readonly record struct SignalPortBinding(PortId Port, SignalEndpoint Endp
 [JsonDerivedType(typeof(SignalOscillatorDescriptor), "Oscillator")]
 [JsonDerivedType(typeof(SignalPulseCountDescriptor), "PulseCount")]
 [JsonDerivedType(typeof(SignalMemoryDescriptor), "Memory")]
+[JsonDerivedType(typeof(SignalPhysicalRequestDescriptor), "PhysicalRequest")]
 public abstract record SignalNodeDescriptor(SignalNodeId Id)
 {
     [JsonIgnore]
@@ -39,6 +41,7 @@ public abstract record SignalNodeDescriptor(SignalNodeId Id)
         SignalOscillatorDescriptor => SignalNodeKind.Oscillator,
         SignalPulseCountDescriptor => SignalNodeKind.PulseCount,
         SignalMemoryDescriptor => SignalNodeKind.Memory,
+        SignalPhysicalRequestDescriptor => SignalNodeKind.PhysicalRequest,
         _ => throw new System.InvalidOperationException("Unsupported signal operation.")
     };
 }
@@ -59,5 +62,7 @@ public sealed record SignalOscillatorDescriptor(SignalNodeId Id, ParameterId Int
     PortId SupplyInput) : SignalNodeDescriptor(Id);
 public sealed record SignalPulseCountDescriptor(SignalNodeId Id, ParameterId TargetParameter) : SignalNodeDescriptor(Id);
 public sealed record SignalMemoryDescriptor(SignalNodeId Id) : SignalNodeDescriptor(Id);
+public sealed record SignalPhysicalRequestDescriptor(SignalNodeId Id, LocalPrismaticRetentionId Target,
+    PhysicalRequestOperation Request) : SignalNodeDescriptor(Id);
 
 /// <summary>The terminal contract of the existing signal operations, independent of public port roles.</summary>

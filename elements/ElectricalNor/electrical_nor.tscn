@@ -1,6 +1,5 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=27 format=3]
 
-[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
 [ext_resource type="ArrayMesh" path="res://elements/ElectricalNor/printed-ring.obj" id="Mesh_Bubble"]
 
@@ -95,7 +94,6 @@ radius = 0.09
 radius = 0.075
 
 [node name="electrical_nor" type="Node3D"]
-script = ExtResource("1")
 
 [node name="Visual" type="Node3D" parent="."]
 

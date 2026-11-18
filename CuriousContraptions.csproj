@@ -40,6 +40,7 @@
         <Compile Include="engine/WorkshopUiBinding.cs" />
         <Compile Include="engine/PartDefinition.cs" />
         <Compile Include="engine/PartRegistry.cs" />
+        <Compile Include="engine/WorkshopResources.cs" />
         <Compile Include="engine/TubeMouthSnap.cs" />
         <Compile Include="engine/PlacementPose.cs" />
         <Compile Include="engine/Workbench.cs" />

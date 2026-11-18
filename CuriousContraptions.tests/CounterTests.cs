@@ -79,7 +79,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void CounterScene_ExtractsItsSolidPartsAsCollidersAndPortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/Counter/counter.tscn");
+        var packedScene = WorkshopResources.LoadScene("res://elements/Counter/counter.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

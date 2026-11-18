@@ -255,7 +255,34 @@ internal static class WorkshopObservationProjection
         }
         value.SetProperty("surfaces", surfaces);
         ProjectTransmissions(value, read.Presentation.Transmissions);
+        ProjectRetentions(value, read.Presentation.Retentions);
         return value;
+    }
+
+    private static void ProjectRetentions<T>(T value, ReadOnlySpan<PrismaticRetentionRead> items)
+        where T : IWorkshopObservationObject<T>
+    {
+        using var values = T.Array();
+        foreach (var source in items)
+        {
+            using var row = T.Object();
+            row.SetProperty("id", Exact(source.Id.Value));
+            row.SetProperty("owner", Exact(source.Owner.Value));
+            row.SetProperty("coordinate", Exact(source.Coordinate.Value));
+            row.SetProperty("mode", EnumValue(source.Mode));
+            row.SetProperty("phase", EnumValue(source.Phase));
+            row.SetProperty("compression", source.Compression);
+            row.SetProperty("potential", source.Potential);
+            row.SetProperty("acceptedElasticEnergy", source.AcceptedElasticEnergy);
+            row.SetProperty("releasedElasticEnergy", source.ReleasedElasticEnergy);
+            row.SetProperty("windingWork", source.WindingWork);
+            row.SetProperty("positiveWindingTransfer", source.PositiveWindingTransfer);
+            row.SetProperty("contactWork", source.ContactWork);
+            row.SetProperty("gravityWork", source.GravityWork);
+            if (source.RequestResult is { } result) row.SetProperty("requestResult", EnumValue(result));
+            values.Push(row);
+        }
+        value.SetProperty("retentions", values);
     }
 
     private static void ProjectTransmissions<T>(T value, ReadOnlySpan<MechanicalTransmissionRead> items)

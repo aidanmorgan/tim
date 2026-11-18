@@ -543,6 +543,8 @@ public sealed class ExactCapabilityControlsTests
         };
         var errorsA = BundleValidator.Validate([new("test", hingeBound)]);
         Assert.Contains(errorsA, e => e.Code == BundleErrorCode.OutOfRange && e.Detail.Contains("Metadata.Parameters[0].RunEdit"));
+        // The same rad/s parameter on hinge FrictionTorque (N·m) is also the ordinary unit refusal at that field.
+        Assert.Contains(errorsA, e => e.Code == BundleErrorCode.OutOfRange && e.Detail.Contains("test.Hinges[0].FrictionTorque", StringComparison.Ordinal));
 
         // Case B: a valid metre-domain compression parameter is not a run-control lane.
         var sliderBound = baseEntry with
@@ -581,16 +583,20 @@ public sealed class ExactCapabilityControlsTests
         var errorsC = BundleValidator.Validate([new("test", noLaneEntry)]);
         Assert.Contains(errorsC, e => e.Code == BundleErrorCode.OutOfRange && e.Detail.Contains("Metadata.Parameters[2].RunEdit"));
 
-        // Control: The exact same entries with ParameterRunEdit.BuildOnly are valid and admitted!
-        var buildOnlyA = hingeBound with
+        // Control A: the same RunControl parameter used only in its lane (the hinge drive's target speed) is a clean admit, so case
+        // A's lane refusal comes from the non-lane friction-torque use alone. (The only rad/s-typed declaration field is that lane, so
+        // a BuildOnly variant of case A would still carry the ordinary N·m unit refusal and is not a clean control.)
+        var laneOnlyA = hingeBound with
         {
-            Metadata = hingeBound.Metadata with
+            Mechanical = hingeBound.Mechanical! with
             {
-                Parameters = hingeBound.Metadata.Parameters.Select(p => p with { RunEdit = ParameterRunEdit.BuildOnly }).ToArray()
+                Hinges = [hingeBound.Mechanical.Hinges[0] with { FrictionTorque = baseEntry.Mechanical!.Hinges[0].FrictionTorque },
+                    hingeBound.Mechanical.Hinges[1]]
             }
         };
-        Assert.Empty(BundleValidator.Validate([new("test", buildOnlyA)]));
+        Assert.Empty(BundleValidator.Validate([new("test", laneOnlyA)]));
 
+        // Controls B and C: the exact same entries with ParameterRunEdit.BuildOnly lose every run-control refusal.
         var buildOnlyB = sliderBound with
         {
             Metadata = sliderBound.Metadata with

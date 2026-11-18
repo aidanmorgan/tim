@@ -129,7 +129,7 @@ internal static class WorkshopConstraintSolver
 
     public static void WarmStartContact(ContactPoint c)
     {
-        ContactRow(c, c.Normal).Apply(c.LambdaN);
+        ContactRow(c, c.Normal).ApplyContact(c.LambdaN);
     }
 
     public static Vector3 RelativeVelocity(ContactPoint c)
@@ -367,8 +367,8 @@ internal static class WorkshopConstraintSolver
         m.LambdaR1 = n1;
         m.LambdaR2 = n2;
 
-        new ImpulseJacobian(c.A, Vector3.Zero, m.Roll1, c.B, Vector3.Zero, -m.Roll1).Apply(d1);
-        new ImpulseJacobian(c.A, Vector3.Zero, m.Roll2, c.B, Vector3.Zero, -m.Roll2).Apply(d2);
+        new ImpulseJacobian(c.A, Vector3.Zero, m.Roll1, c.B, Vector3.Zero, -m.Roll1).ApplyContact(d1);
+        new ImpulseJacobian(c.A, Vector3.Zero, m.Roll2, c.B, Vector3.Zero, -m.Roll2).ApplyContact(d2);
     }
 
     /// <summary>The normal row's branch for a point at <paramref name="separation"/>, with s = separation + slop. Apart (separation
@@ -515,7 +515,7 @@ internal static class WorkshopConstraintSolver
         var delta = total - c.LambdaN;
         c.LambdaN = total;
         if (total > c.MaxImpulse) c.MaxImpulse = total;
-        ContactRow(c, c.Normal).Apply(delta);
+        ContactRow(c, c.Normal).ApplyContact(delta);
     }
 
     public static void PrepareNormalBlocks(ContactManifold manifold, float h, HashSet<ContactFeatureSetKey> cache)
@@ -648,6 +648,8 @@ internal static class WorkshopConstraintSolver
         b.RestitutionRoot = b;
         b.RelaxedV = b.LinearVelocity;
         b.RelaxedW = b.AngularVelocity;
+        b.RelaxedContactTranslationalImpulse = b.WindowContactTranslationalImpulse;
+        b.RelaxedContactAngularImpulse = b.WindowContactAngularImpulse;
         touched.Add(b);
         if (b.Guide is { } guide)
             foreach (var linked in guide.Bodies)
@@ -841,6 +843,10 @@ internal static class WorkshopConstraintSolver
                 var w = body.RelaxedW + scale * (body.AngularVelocity - body.RelaxedW);
                 body.Vx = v.X; body.Vy = v.Y; body.Vz = v.Z;
                 body.Wx = w.X; body.Wy = w.Y; body.Wz = w.Z;
+                // Only the restitution pass's own impulses scale, with the velocity change they produced: −(1 − s)·P_restitution.
+                body.WindowContactTranslationalImpulse = body.RelaxedContactTranslationalImpulse + scale * (body.WindowContactTranslationalImpulse - body.RelaxedContactTranslationalImpulse);
+                body.WindowContactAngularImpulse = body.RelaxedContactAngularImpulse +
+                    scale * (body.WindowContactAngularImpulse - body.RelaxedContactAngularImpulse);
             }
             foreach (var m in islandManifolds)
             {

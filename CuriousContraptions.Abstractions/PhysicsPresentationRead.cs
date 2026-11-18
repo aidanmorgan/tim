@@ -70,9 +70,9 @@ public readonly record struct ActuatorDriveRead(
     }
 }
 
-/// <summary>Committed observation of one package-owned mechanical transmission slot, ordered by ascending unique transmission identity.</summary>
-/// <summary>Authoritative normalized angular reaction impulse in N*m*s; no accumulated reaction while disengaged.</summary>
-public readonly record struct MechanicalTransmissionStateRead(float Impulse);
+/// <summary>Committed state of one mechanical transmission slot: its normalized reaction impulse conjugate to the driven coordinate
+/// (N*s or N*m*s; zero while disengaged), and its accepted signed interface work and positive transfer (J).</summary>
+public readonly record struct MechanicalTransmissionStateRead(float Impulse, float Work, float PositiveWork);
 
 public readonly record struct MechanicalTransmissionRead(
     MechanicalTransmissionId Transmission,
@@ -129,13 +129,15 @@ public readonly struct PhysicsPresentationRead
     private readonly ContactLoadSensorRead[]? _loads;
     private readonly ElectricalLogicRead[]? _logic;
     private readonly MechanicalTransmissionRead[]? _transmissions;
+    private readonly PrismaticRetentionRead[]? _retentions;
+    public ReadOnlySpan<PrismaticRetentionRead> Retentions => _retentions;
     public ReadOnlySpan<ElectricalLogicRead> Logic => _logic;
     public ReadOnlySpan<ActuatorDriveRead> Actuators => _actuators;
     public ReadOnlySpan<ContactLoadSensorRead> Loads => _loads;
     public ReadOnlySpan<MechanicalTransmissionRead> Transmissions => _transmissions;
     public PhysicsPresentationRead(ReadOnlySpan<ActuatorDriveRead> actuators, ReadOnlySpan<ContactLoadSensorRead> loads, ReadOnlySpan<ElectricalLogicRead> logic = default,
         ReadOnlySpan<RopeSpanRead> ropes = default, ReadOnlySpan<RopeGuideRead> guides = default,
-        ReadOnlySpan<CompliantSurfaceRead> surfaces = default, ReadOnlySpan<MechanicalTransmissionRead> transmissions = default)
+        ReadOnlySpan<CompliantSurfaceRead> surfaces = default, ReadOnlySpan<MechanicalTransmissionRead> transmissions = default, ReadOnlySpan<PrismaticRetentionRead> retentions = default)
     {
         for (var i = 0; i < surfaces.Length; i++)
         {
@@ -143,6 +145,13 @@ public readonly struct PhysicsPresentationRead
             if (i > 0 && surfaces[i - 1].Frame.Value >= surfaces[i].Frame.Value)
                 throw new ArgumentException("Compliant surface observations require ordered unique frames.");
         }
+        for (var i = 0; i < retentions.Length; i++)
+        {
+            retentions[i].Validate();
+            if (i > 0 && retentions[i - 1].Id.Value >= retentions[i].Id.Value)
+                throw new ArgumentException("Retention observations require ordered unique identities.");
+        }
+        _retentions = retentions.ToArray();
         _surfaces = surfaces.ToArray();
         for (var i = 0; i < ropes.Length; i++)
         {
@@ -193,5 +202,6 @@ public readonly struct PhysicsPresentationRead
 
     public bool HasSameBits(PhysicsPresentationRead other) =>
         Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads) && Logic.SequenceEqual(other.Logic) && Ropes.SequenceEqual(other.Ropes) &&
-        Guides.SequenceEqual(other.Guides) && Surfaces.SequenceEqual(other.Surfaces) && Transmissions.SequenceEqual(other.Transmissions);
+        Guides.SequenceEqual(other.Guides) && Surfaces.SequenceEqual(other.Surfaces) && Transmissions.SequenceEqual(other.Transmissions) &&
+        Retentions.SequenceEqual(other.Retentions);
 }

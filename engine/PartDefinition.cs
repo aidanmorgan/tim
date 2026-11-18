@@ -42,6 +42,8 @@ public sealed class PartDefinition
     public Color Color { get; }
     /// <summary>The package's icon.svg, which the palette renders.</summary>
     public string IconPath { get; }
+    /// <summary>The authored scene identity; private loading does not require global cache registration.</summary>
+    public string ScenePath => _physics.Metadata.ScenePath;
     public PackedScene? Scene { get; }
 
     public ElementPresentation Presentation => _physics.Presentation;

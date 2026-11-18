@@ -136,6 +136,10 @@ internal static class SignalBundleValidation
                 ValidateLoad(entry, load, refuse);
                 if (!Parameter(entry, load.MinimumMassParameter, ParameterKind.Real, ParameterUnit.Kilogram, float.Epsilon)) refuse("Load.Parameter");
                 break;
+            case SignalPhysicalRequestDescriptor request:
+                if (!Enum.IsDefined(request.Request) || request.Target.Value == 0 ||
+                    entry.Mechanical?.Retentions?.Any(retention => retention.Id == request.Target) != true) refuse("PhysicalRequest");
+                break;
             case SignalMemoryDescriptor or SignalIndicatorDescriptor:
                 break;
             default: refuse("Operation"); break;

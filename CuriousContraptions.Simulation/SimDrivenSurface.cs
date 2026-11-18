@@ -101,6 +101,6 @@ internal sealed class FrictionJacobian
             _appliedLinear[body] = impulse.X * _linear[offset] + impulse.Y * _linear[offset + 1] + impulse.Z * _linear[offset + 2];
             _appliedAngular[body] = impulse.X * _angular[offset] + impulse.Y * _angular[offset + 1] + impulse.Z * _angular[offset + 2];
         }
-        new ImpulseJacobian(_bodies.AsSpan(0, _count), _appliedLinear, _appliedAngular).Apply(1f);
+        new ImpulseJacobian(_bodies.AsSpan(0, _count), _appliedLinear, _appliedAngular).ApplyContact(1f);
     }
 }

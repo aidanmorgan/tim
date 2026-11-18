@@ -132,6 +132,8 @@ public sealed class SelectionTests
         ["CuriousContraptions.web/wwwroot/workshop-client.js"] = FullReason.SharedRuntime,
         ["ui/Workshop.cs"] = FullReason.AllInteraction,
         ["ui/Workshop.cs.uid"] = FullReason.AllInteraction,
+        ["engine/WorkshopResources.cs"] = FullReason.AllInteraction,
+        ["engine/WorkshopResources.cs.uid"] = FullReason.AllInteraction,
         ["ui/WorkshopNewPanel.cs"] = FullReason.Unknown,
         ["notes.txt"] = FullReason.Unknown,
         ["tools/e2e/cat-099.test.ts"] = FullReason.Unknown,

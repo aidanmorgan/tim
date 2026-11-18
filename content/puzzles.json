@@ -34307,1264 +34307,1860 @@
   },
   {
     "id": "wind_then_release",
-    "availability": "Planned",
+    "availability": "Playable",
+    "interaction_target": "payload",
     "title": "Wind, then release",
     "subtitle": "59 / Stored energy",
     "description": "Wind the spring, then release it to send the orange ball into the basket.",
     "hint": "Place the spring beneath the orange ball, leaning slightly toward the basket. Wire battery to motor, belt motor to spring, and connect switch to delay to spring. The signal releases energy; it does not supply it.",
-    "inventory": {
-      "wound_spring": 1
-    },
-    "parts": [
+    "inventory": [
       {
-        "id": "payload",
-        "kind": "ball",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
+        "part": "wound_spring",
+        "count": 1,
+        "assistance": [
+          [
+            0,
+            0.2,
+            5,
+            0.2,
+            5,
+            0.4,
+            0.3,
+            3,
+            0.15,
+            0,
+            0.2
+          ],
+          [
+            0.45,
+            0.1,
+            2,
+            0.1,
+            2,
+            0.4,
+            0.174,
+            2.325,
+            0.24,
+            0,
+            0.47
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0.4,
+            0.02,
+            1.5,
+            0.35,
+            0,
+            0.8
+          ]
         ],
-        "locked": true,
-        "position": [
-          0.4063459,
-          4.5165033,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "battery",
-        "kind": "battery",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          -4,
-          3,
-          2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "motor",
-        "kind": "motor",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          -3,
-          5,
-          2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "trigger",
-        "kind": "switch",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          4,
-          2,
-          -2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "striker",
-        "kind": "ball",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          4,
-          7,
-          -2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "delay",
-        "kind": "delay",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          -3,
-          6,
-          -2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "receiver",
-        "kind": "basket",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          3.6,
-          1.2,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      }
-    ],
-    "goals": [
-      {
-        "type": "captured",
-        "target": "receiver",
-        "body": "payload"
+        "goal_target": false,
+        "configuration": null
       }
     ],
     "solution": [
       {
-        "id": "launcher",
-        "kind": "wound_spring",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0.2,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "launcher",
+        "instance": {
+          "part": "wound_spring",
+          "cell": [
+            0,
+            48,
+            0
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            -0.13052619993686676,
+            0.9914448857307434
+          ],
+          "locked": false,
+          "parameters": {
+            "stiffness": 160,
+            "stroke": 0.8,
+            "winding_lead": 0.1
           },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0.1,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          0,
-          3,
-          0
-        ],
-        "orientation": [
-          0.9659258127212524,
-          -0.258819043636322,
-          0,
-          0.258819043636322,
-          0.9659258127212524,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      }
-    ],
-    "solution_connections": [
-      {
-        "from": "battery",
-        "to": "motor",
-        "type": "electrical",
-        "from_port": "supply",
-        "to_port": "power_in"
-      },
-      {
-        "from": "motor",
-        "to": "launcher",
-        "type": "mechanical",
-        "from_port": "drive",
-        "to_port": "drive_in"
-      },
-      {
-        "from": "trigger",
-        "to": "delay",
-        "type": "activation",
-        "from_port": "activation_out",
-        "to_port": "activation_in"
-      },
-      {
-        "from": "delay",
-        "to": "launcher",
-        "type": "activation",
-        "from_port": "activation_out",
-        "to_port": "activation_in"
-      }
-    ]
-  },
-  {
-    "id": "saved_for_later",
-    "availability": "Planned",
-    "title": "Saved for later",
-    "subtitle": "60 / Stored energy",
-    "description": "Use a brief burst of motor power to wind the spring. Its stored energy can deliver the ball after the motor stops.",
-    "hint": "Put a hold timer between battery and motor. Connect the first delay to both the timer and the three-second delay; connect the latter to the spring. Belt motor to spring. Watch the motor stop before the latch opens.",
-    "inventory": {
-      "hold_timer": 1
-    },
-    "parts": [
-      {
-        "id": "payload",
-        "kind": "ball",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          0.4063459,
-          4.5165033,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "battery",
-        "kind": "battery",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          -4,
-          3,
-          2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "motor",
-        "kind": "motor",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          -3,
-          5,
-          2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "trigger",
-        "kind": "switch",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          4,
-          2,
-          -2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "striker",
-        "kind": "ball",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          4,
-          7,
-          -2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "delay",
-        "kind": "delay",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          -3,
-          6,
-          -2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "receiver",
-        "kind": "basket",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          3.6,
-          1.2,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "launcher",
-        "kind": "wound_spring",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          0,
-          3,
-          0
-        ],
-        "orientation": [
-          0.9659258127212524,
-          -0.258819043636322,
-          0,
-          0.258819043636322,
-          0.9659258127212524,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
-      },
-      {
-        "id": "release_delay",
-        "kind": "delay",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
-          },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": true,
-        "position": [
-          3,
-          6,
-          2
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {
-          "delay_seconds": 3
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0.2,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0.1,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
         }
       }
     ],
-    "goals": [
+    "solution_connections": [
       {
-        "type": "captured",
-        "target": "receiver",
-        "body": "payload"
+        "source": "battery",
+        "output": "Supply",
+        "target": "motor",
+        "input": "PowerIn",
+        "domain": "Electrical"
+      },
+      {
+        "source": "motor",
+        "output": "Drive",
+        "target": "launcher",
+        "input": "DriveIn",
+        "domain": "Mechanical"
+      },
+      {
+        "source": "trigger",
+        "output": "ActivationOut",
+        "target": "delay",
+        "input": "ActivationIn",
+        "domain": "Activation"
+      },
+      {
+        "source": "delay",
+        "output": "ActivationOut",
+        "target": "launcher",
+        "input": "ActivationIn",
+        "domain": "Activation"
+      }
+    ],
+    "placements": [
+      {
+        "slot": "payload",
+        "instance": {
+          "part": "ball",
+          "cell": [
+            7,
+            72,
+            0
+          ],
+          "local": [
+            -0.49846553802490234,
+            0.2640533447265625,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "battery",
+        "instance": {
+          "part": "battery",
+          "cell": [
+            -64,
+            48,
+            32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "capacity": 3600,
+            "power_limit": 120,
+            "initial_charge": 1,
+            "enabled": 1
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "motor",
+        "instance": {
+          "part": "motor",
+          "cell": [
+            -48,
+            80,
+            32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "speed": 6,
+            "torque": 20
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "trigger",
+        "instance": {
+          "part": "switch",
+          "cell": [
+            64,
+            32,
+            -32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "trigger_threshold": 0.8
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": [
+            {
+              "value": "TriggerThreshold",
+              "parameter": "trigger_threshold"
+            }
+          ]
+        }
+      },
+      {
+        "slot": "striker",
+        "instance": {
+          "part": "ball",
+          "cell": [
+            64,
+            112,
+            -32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "delay",
+        "instance": {
+          "part": "delay",
+          "cell": [
+            -48,
+            96,
+            -32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "delay_seconds": 1
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "receiver",
+        "instance": {
+          "part": "basket",
+          "cell": [
+            58,
+            19,
+            0
+          ],
+          "local": [
+            -0.40000152587890625,
+            0.20000076293945312,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "capture_participation": 1,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": [
+            {
+              "value": "CaptureMargin",
+              "parameter": "capture_margin"
+            },
+            {
+              "value": "CaptureSpeed",
+              "parameter": "capture_speed_limit"
+            },
+            {
+              "value": "CaptureDwell",
+              "parameter": "capture_dwell"
+            },
+            {
+              "value": "CaptureMargin",
+              "parameter": "force_support_margin"
+            },
+            {
+              "value": "GuideAcceleration",
+              "parameter": "force_maximum_acceleration"
+            }
+          ]
+        }
+      }
+    ],
+    "goal": {
+      "kind": "Captured",
+      "source": "payload",
+      "target": "receiver",
+      "minimum_seconds": 0
+    },
+    "connections_allowed": true,
+    "profiles": {
+      "primary": [
+        [
+          0,
+          0.2,
+          5,
+          0,
+          0,
+          0.4,
+          0.3,
+          3,
+          0.15,
+          0,
+          0.2
+        ],
+        [
+          0.45,
+          0.1,
+          2,
+          0,
+          0,
+          0.4,
+          0.174,
+          2.325,
+          0.24,
+          0,
+          0.47
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ],
+      "target": [
+        [
+          0,
+          0.2,
+          5,
+          0,
+          0,
+          0.4,
+          0.3,
+          3,
+          0.15,
+          0,
+          0.2
+        ],
+        [
+          0.45,
+          0.1,
+          2,
+          0,
+          0,
+          0.4,
+          0.174,
+          2.325,
+          0.24,
+          0,
+          0.47
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ],
+      "placement": [
+        [
+          0,
+          0.2,
+          5,
+          0.2,
+          5,
+          0.4,
+          0.3,
+          3,
+          0.15,
+          0,
+          0.2
+        ],
+        [
+          0.45,
+          0.1,
+          2,
+          0.1,
+          2,
+          0.4,
+          0.174,
+          2.325,
+          0.24,
+          0,
+          0.47
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ],
+      "secondary": [
+        [
+          0,
+          0.2,
+          5,
+          0,
+          0,
+          0.4,
+          0.3,
+          3,
+          0.15,
+          0,
+          0.2
+        ],
+        [
+          0.45,
+          0.1,
+          2,
+          0,
+          0,
+          0.4,
+          0.174,
+          2.325,
+          0.24,
+          0,
+          0.47
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ]
+    },
+    "presentation": {
+      "order": 58,
+      "title": "Wind, then release",
+      "task": "Wind the spring, then release it to send the orange ball into the basket.",
+      "hint": "Place the spring beneath the orange ball, leaning slightly toward the basket. Wire battery to motor, belt motor to spring, and connect switch to delay to spring. The signal releases energy; it does not supply it.",
+      "status": "Place the spring, then connect winding power and a separate release signal.",
+      "precision_status": "Receiver and switch assistance updated. Placement remains manual."
+    }
+  },
+  {
+    "id": "saved_for_later",
+    "availability": "Playable",
+    "interaction_target": "payload",
+    "title": "Saved for later",
+    "subtitle": "60 / Stored energy",
+    "description": "Use a brief burst of motor power to wind the spring. Its stored energy can deliver the ball after the motor stops.",
+    "hint": "Put a hold timer between battery and motor. Belt motor to spring. Connect switch to delay, then delay to both the timer and the three-second delay. Connect the three-second delay to the spring. Watch the motor stop before the latch opens.",
+    "inventory": [
+      {
+        "part": "hold_timer",
+        "count": 1,
+        "assistance": [
+          [
+            0,
+            0.2,
+            5,
+            0.2,
+            5,
+            0.4,
+            0.3,
+            3,
+            0.15,
+            0,
+            0.2
+          ],
+          [
+            0.45,
+            0.1,
+            2,
+            0.1,
+            2,
+            0.4,
+            0.174,
+            2.325,
+            0.24,
+            0,
+            0.47
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0.4,
+            0.02,
+            1.5,
+            0.35,
+            0,
+            0.8
+          ]
+        ],
+        "goal_target": false,
+        "configuration": null
       }
     ],
     "solution": [
       {
-        "id": "hold_timer",
-        "kind": "hold_timer",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0.2,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "hold_timer",
+        "instance": {
+          "part": "hold_timer",
+          "cell": [
+            -80,
+            96,
+            0
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "parameters": {
+            "hold_seconds": 2
           },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0.1,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          -5,
-          6,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0.2,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0.1,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
       }
     ],
     "solution_connections": [
       {
-        "from": "battery",
-        "to": "hold_timer",
-        "type": "electrical",
-        "from_port": "supply",
-        "to_port": "power_in"
+        "source": "battery",
+        "output": "Supply",
+        "target": "hold_timer",
+        "input": "PowerIn",
+        "domain": "Electrical"
       },
       {
-        "from": "hold_timer",
-        "to": "motor",
-        "type": "electrical",
-        "from_port": "supply",
-        "to_port": "power_in"
+        "source": "hold_timer",
+        "output": "Supply",
+        "target": "motor",
+        "input": "PowerIn",
+        "domain": "Electrical"
       },
       {
-        "from": "motor",
-        "to": "launcher",
-        "type": "mechanical",
-        "from_port": "drive",
-        "to_port": "drive_in"
+        "source": "motor",
+        "output": "Drive",
+        "target": "launcher",
+        "input": "DriveIn",
+        "domain": "Mechanical"
       },
       {
-        "from": "trigger",
-        "to": "delay",
-        "type": "activation",
-        "from_port": "activation_out",
-        "to_port": "activation_in"
+        "source": "trigger",
+        "output": "ActivationOut",
+        "target": "delay",
+        "input": "ActivationIn",
+        "domain": "Activation"
       },
       {
-        "from": "delay",
-        "to": "hold_timer",
-        "type": "activation",
-        "from_port": "activation_out",
-        "to_port": "activation_in"
+        "source": "delay",
+        "output": "ActivationOut",
+        "target": "hold_timer",
+        "input": "ActivationIn",
+        "domain": "Activation"
       },
       {
-        "from": "delay",
-        "to": "release_delay",
-        "type": "activation",
-        "from_port": "activation_out",
-        "to_port": "activation_in"
+        "source": "delay",
+        "output": "ActivationOut",
+        "target": "release_delay",
+        "input": "ActivationIn",
+        "domain": "Activation"
       },
       {
-        "from": "release_delay",
-        "to": "launcher",
-        "type": "activation",
-        "from_port": "activation_out",
-        "to_port": "activation_in"
+        "source": "release_delay",
+        "output": "ActivationOut",
+        "target": "launcher",
+        "input": "ActivationIn",
+        "domain": "Activation"
       }
-    ]
+    ],
+    "placements": [
+      {
+        "slot": "payload",
+        "instance": {
+          "part": "ball",
+          "cell": [
+            7,
+            72,
+            0
+          ],
+          "local": [
+            -0.49846553802490234,
+            0.2640533447265625,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "battery",
+        "instance": {
+          "part": "battery",
+          "cell": [
+            -64,
+            48,
+            32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "capacity": 3600,
+            "power_limit": 120,
+            "initial_charge": 1,
+            "enabled": 1
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "motor",
+        "instance": {
+          "part": "motor",
+          "cell": [
+            -48,
+            80,
+            32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "speed": 6,
+            "torque": 20
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "trigger",
+        "instance": {
+          "part": "switch",
+          "cell": [
+            64,
+            32,
+            -32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "trigger_threshold": 0.8
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": [
+            {
+              "value": "TriggerThreshold",
+              "parameter": "trigger_threshold"
+            }
+          ]
+        }
+      },
+      {
+        "slot": "striker",
+        "instance": {
+          "part": "ball",
+          "cell": [
+            64,
+            112,
+            -32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "delay",
+        "instance": {
+          "part": "delay",
+          "cell": [
+            -48,
+            96,
+            -32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "delay_seconds": 1
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "receiver",
+        "instance": {
+          "part": "basket",
+          "cell": [
+            58,
+            19,
+            0
+          ],
+          "local": [
+            -0.40000152587890625,
+            0.20000076293945312,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "capture_participation": 1,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": [
+            {
+              "value": "CaptureMargin",
+              "parameter": "capture_margin"
+            },
+            {
+              "value": "CaptureSpeed",
+              "parameter": "capture_speed_limit"
+            },
+            {
+              "value": "CaptureDwell",
+              "parameter": "capture_dwell"
+            },
+            {
+              "value": "CaptureMargin",
+              "parameter": "force_support_margin"
+            },
+            {
+              "value": "GuideAcceleration",
+              "parameter": "force_maximum_acceleration"
+            }
+          ]
+        }
+      },
+      {
+        "slot": "launcher",
+        "instance": {
+          "part": "wound_spring",
+          "cell": [
+            0,
+            48,
+            0
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            -0.13052619993686676,
+            0.9914448857307434
+          ],
+          "locked": true,
+          "parameters": {
+            "stiffness": 160,
+            "stroke": 0.8,
+            "winding_lead": 0.1
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      },
+      {
+        "slot": "release_delay",
+        "instance": {
+          "part": "delay",
+          "cell": [
+            48,
+            96,
+            32
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "delay_seconds": 3
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      }
+    ],
+    "goal": {
+      "kind": "Captured",
+      "source": "payload",
+      "target": "receiver",
+      "minimum_seconds": 0
+    },
+    "connections_allowed": true,
+    "profiles": {
+      "primary": [
+        [
+          0,
+          0.2,
+          5,
+          0,
+          0,
+          0.4,
+          0.3,
+          3,
+          0.15,
+          0,
+          0.2
+        ],
+        [
+          0.45,
+          0.1,
+          2,
+          0,
+          0,
+          0.4,
+          0.174,
+          2.325,
+          0.24,
+          0,
+          0.47
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ],
+      "target": [
+        [
+          0,
+          0.2,
+          5,
+          0,
+          0,
+          0.4,
+          0.3,
+          3,
+          0.15,
+          0,
+          0.2
+        ],
+        [
+          0.45,
+          0.1,
+          2,
+          0,
+          0,
+          0.4,
+          0.174,
+          2.325,
+          0.24,
+          0,
+          0.47
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ],
+      "placement": [
+        [
+          0,
+          0.2,
+          5,
+          0.2,
+          5,
+          0.4,
+          0.3,
+          3,
+          0.15,
+          0,
+          0.2
+        ],
+        [
+          0.45,
+          0.1,
+          2,
+          0.1,
+          2,
+          0.4,
+          0.174,
+          2.325,
+          0.24,
+          0,
+          0.47
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ],
+      "secondary": [
+        [
+          0,
+          0.2,
+          5,
+          0,
+          0,
+          0.4,
+          0.3,
+          3,
+          0.15,
+          0,
+          0.2
+        ],
+        [
+          0.45,
+          0.1,
+          2,
+          0,
+          0,
+          0.4,
+          0.174,
+          2.325,
+          0.24,
+          0,
+          0.47
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ]
+    },
+    "presentation": {
+      "order": 59,
+      "title": "Saved for later",
+      "task": "Use a brief burst of motor power to wind the spring. Its stored energy can deliver the ball after the motor stops.",
+      "hint": "Put a hold timer between battery and motor. Belt motor to spring. Connect switch to delay, then delay to both the timer and the three-second delay. Connect the three-second delay to the spring. Watch the motor stop before the latch opens.",
+      "status": "Place the Hold timer, then connect timed winding power, the belt and the switch's release chain.",
+      "precision_status": "Receiver and switch assistance updated. Placement remains manual."
+    }
   },
   {
     "id": "a_gentle_rebound",

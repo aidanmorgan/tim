@@ -111,6 +111,10 @@ public sealed class WorkshopCompiledScene : ICompiledScene
             nodes.Any(node => InvalidPhysicalReference(node, triggers, orientations, loads, passages) ||
                 node.PowerProvider.Value != 0 && !providers.Any(row => row.Id == node.PowerProvider && row.Kind is SupplyNodeKind.Source or SupplyNodeKind.Contact or SupplyNodeKind.LogicGate)))
             throw new ArgumentException("Compiled activation references a foreign capability.");
+        foreach (var node in nodes)
+            if (node.Kind == ActivationNodeKind.PhysicalRequest && !Physics.Transmissions.ToArray().Any(relation =>
+                relation.Retention == node.Retention && relation.Owner == node.Owner))
+                throw new ArgumentException("Physical request names a foreign retention capability.");
         if (nodes.Any(node => !owners.Contains(node.Owner)))
             throw new ArgumentException("Activation owner is outside the installed scene.");
     }
@@ -123,9 +127,17 @@ public sealed class WorkshopCompiledScene : ICompiledScene
         {
             if (transmission.Owner == default) continue;
             if (!owners.Contains(transmission.Owner) || !OwnsBody(transmission.Owner, transmission.Owner) ||
-                !OwnsJoint(transmission.Owner, transmission.DrivingJoint) || !OwnsJoint(transmission.Owner, transmission.DrivenJoint))
+                !OwnsJoint(transmission.Owner, transmission.Driving) || !OwnsJoint(transmission.Owner, transmission.Driven))
                 throw new ArgumentException("Internal transmission names a foreign package target.");
         }
+    }
+
+    private bool OwnsJoint(GpuBodyId owner, ConstraintCoordinateReference coordinate)
+    {
+        if (coordinate.Kind == CoordinateKind.Revolute) return OwnsJoint(owner, coordinate.Revolute);
+        foreach (var joint in Physics.Prismatics)
+            if (joint.Id == coordinate.Prismatic) return OwnsBody(owner, joint.BodyB);
+        return false;
     }
 
     private bool OwnsJoint(GpuBodyId owner, RevoluteConstraintId id)
@@ -214,6 +226,9 @@ public sealed class WorkshopCompiledScene : ICompiledScene
         if (guideDriver != (track.Guide.Value != 0) || (guideDriver &&
             !Physics.RopeGuides.ToArray().Any(guide => guide.Id == track.Guide && OwnsBody(track.Owner, guide.Body))))
             return true;
+        var retentionDriver = track.Declaration.Driver == PresentationDriver.CommittedRetentionReleased;
+        if (retentionDriver != (track.Retention.Value != 0) || retentionDriver &&
+            !Physics.Transmissions.ToArray().Any(t => t.Retention == track.Retention && t.Owner == track.Owner)) return true;
         var transmissionDriver = track.Declaration.Driver is PresentationDriver.CommittedTransmissionClosure or PresentationDriver.CommittedTransmissionPhase;
         return transmissionDriver != (track.Transmission.Value != 0) || (transmissionDriver &&
             !Physics.Transmissions.ToArray().Any(t => t.Id == track.Transmission && t.Owner == track.Owner));

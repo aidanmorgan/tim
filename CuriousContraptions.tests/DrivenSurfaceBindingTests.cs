@@ -601,6 +601,7 @@ public sealed class DrivenSurfaceBindingTests
 
     [Theory]
     [InlineData(ParameterUnit.MetrePerRadian, "m/rad")]
+    [InlineData(ParameterUnit.RadianPerMetre, "rad/m")]
     [InlineData(ParameterUnit.RadianPerSecond, "rad/s")]
     [InlineData(ParameterUnit.NewtonMetre, "N·m")]
     public void ConfigurationFormatsTravelAndSourceQuantities(ParameterUnit unit, string expected) =>

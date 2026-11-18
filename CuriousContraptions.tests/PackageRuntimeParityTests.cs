@@ -168,7 +168,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     public void EverySliderPackageDeclaresTheCompiledPrismaticJointAndMovingBody()
     {
         var sliders = Packages().Where(package => package.Declaration is ISliderElement).ToArray();
-        Assert.Equal(["LinearPusher", "PoweredGate", "Springboard"], sliders.Select(package => package.Package));
+        Assert.Equal(["LinearPusher", "PoweredGate", "Springboard", "WoundSpring"], sliders.Select(package => package.Package));
         foreach (var package in sliders)
         {
             var element = (ISliderElement)package.Declaration;
@@ -214,7 +214,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     {
         _ = godot;
         var hinges = Packages().Where(package => package.Declaration is IHingeElement).ToArray();
-        Assert.Equal(["Clutch", "Conveyor", "ImpactLever", "Motor", "ReverseTransmission"], hinges.Select(package => package.Package).Order());
+        Assert.Equal(["Clutch", "Conveyor", "ImpactLever", "Motor", "ReverseTransmission", "WoundSpring"], hinges.Select(package => package.Package).Order());
         foreach (var package in hinges)
         {
             var element = (IHingeElement)package.Declaration;
@@ -278,19 +278,40 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                     RuntimeShape.Box => (X: m * (b * b + c * c) / 3, Y: m * (a * a + c * c) / 3, Z: m * (a * a + b * b) / 3),
                     _ => throw new InvalidOperationException($"{package.Package}: no closed-form inertia for a dynamic {collider.Shape}.")
                 };
-                // The moments are compared in the collider's own axes (a cylinder's axis is its local Y), which are the body's principal
-                // axes only when the declared principal frame is the collider's turn: the Motor's rotor lays its axial moment on the
-                // hinge's +Z through Rx(90°), the same turn as its cylinder. A frame and pose agree to within a quaternion's sign.
+                // Principal axes may reverse sign or rotate inside an equal-moment eigenspace.
+                // Compare the physical tensor in body coordinates, not the chosen quaternion representation.
                 var frame = body.MassProperties.PrincipalFrame;
                 var pose = collider.Pose.Rotation;
-                Assert.True(MathF.Abs(frame.X * pose.X + frame.Y * pose.Y + frame.Z * pose.Z + frame.W * pose.W) >= 1f - 1e-6f,
-                    $"{package.Package}: body {body.Id.Value} principal frame {frame} is not its first collider's turn {pose}.");
                 var offset = scene.Layout.GetBodyOffset(body.Id) + PhysicsGpuAbi.BodyPrincipalInertiaOffset;
                 double Moment(int axis) => System.Buffers.Binary.BinaryPrimitives.ReadSingleLittleEndian(
                     admitted.AsSpan(offset + axis * PhysicsGpuAbi.PrincipalInertiaBytes));
-                foreach (var (axis, value) in new[] { (0, exact.X), (1, exact.Y), (2, exact.Z) })
-                    Assert.True(Math.Abs(Moment(axis) - value) / value <= 6.0 / (1 << 24),
-                        $"{package.Package}: body {body.Id.Value} moment {axis} is {Moment(axis)}, closed form {value}.");
+                static double[,] Axes(CanonicalRotation q)
+                {
+                    // Independent normalized rotation, in the same double arithmetic as the shape oracle.
+                    double x = q.X, y = q.Y, z = q.Z, w = q.W;
+                    var scale = 2d / (x * x + y * y + z * z + w * w);
+                    return new[,]
+                    {
+                        { 1 - scale * (y * y + z * z), scale * (x * y + w * z), scale * (x * z - w * y) },
+                        { scale * (x * y - w * z), 1 - scale * (x * x + z * z), scale * (y * z + w * x) },
+                        { scale * (x * z + w * y), scale * (y * z - w * x), 1 - scale * (x * x + y * y) }
+                    };
+                }
+                var actualAxes = Axes(frame); var shapeAxes = Axes(pose);
+                double[] shapeMoments = [exact.X, exact.Y, exact.Z];
+                var scale = shapeMoments.Max();
+                for (var row = 0; row < 3; row++)
+                    for (var column = 0; column < 3; column++)
+                    {
+                        double actualTensor = 0, shapeTensor = 0;
+                        for (var axis = 0; axis < 3; axis++)
+                        {
+                            actualTensor += Moment(axis) * actualAxes[axis, row] * actualAxes[axis, column];
+                            shapeTensor += shapeMoments[axis] * shapeAxes[axis, row] * shapeAxes[axis, column];
+                        }
+                        Assert.True(Math.Abs(actualTensor - shapeTensor) / scale <= 6.0 / (1 << 24),
+                            $"{package.Package}: body {body.Id.Value} inertia tensor [{row},{column}] is {actualTensor}, closed form {shapeTensor}.");
+                    }
                 checkedMoments++;
             }
             if (DeclaredPhysics.Of(instance.PartId).Mechanical?.Residence is { } residence)
@@ -334,6 +355,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         // frame 0.14 m up, on its default 400 N/m, 0.2 N·s/m spring. Neither joint's bodies collide.
         var authored = new Dictionary<string, (float Lower, float Upper, float Stiffness, float Damping, System.Numerics.Vector3 Base, System.Numerics.Quaternion Rotation)>
         {
+            ["wound_spring"] = (-.8f, 0f, 160f, 0f, new(0f, .9f, 0f), System.Numerics.Quaternion.Identity),
             ["powered_gate"] = (0f, 1.55f, 14f, 4f, System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity),
             ["spring"] = (-.25f, 0f, 400f, .2f, new(0f, .14f, 0f), System.Numerics.Quaternion.Identity),
             ["linear_pusher"] = (0f, 2.4f, 0f, 0f, new(.85f, 0f, 0f),
@@ -538,6 +560,12 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             [
                 ("close_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, .2f, Generic(new PartId("clutch"), "close_seconds"), [])
             ],
+            "wound_spring" =>
+            [
+                ("stiffness", ParameterUnit.NewtonPerMetre, ParameterKind.Real, Lane.Single, 160f, Generic(new PartId("wound_spring"), "stiffness"), []),
+                ("stroke", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .8f, Generic(new PartId("wound_spring"), "stroke"), []),
+                ("winding_lead", ParameterUnit.MetrePerRadian, ParameterKind.Real, Lane.Single, .1f, Generic(new PartId("wound_spring"), "winding_lead"), [])
+            ],
             "linear_pusher" =>
             [
                 ("stroke", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 2.4f, Generic(new PartId("linear_pusher"), "stroke"), []),
@@ -562,7 +590,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" =>
             WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),
@@ -579,7 +607,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "spring" => PlacedParts.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1, parameters["initial_compression"],
             parameters["stiffness"], parameters["damping"]),
         "powered_gate" => Placed(id),
-        "linear_pusher" => WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1,
+        "linear_pusher" or "wound_spring" => WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1,
             new(parameters.Select(pair => new KeyValuePair<ParameterId, float>(new(pair.Key), pair.Value)).ToArray())),
         _ => throw new ArgumentException($"No slider placement for packaged part '{id}'.")
     };

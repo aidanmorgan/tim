@@ -59,6 +59,8 @@ public static class WorkshopActivationCompiler
                 Completion: timer.Completion, Boundary: timer.Boundary, ElapsedSignal: timer.ElapsedSignal),
             SignalPulseCountDescriptor count => new(node.Id, node.Owner, ActivationNodeKind.Counter, default,
                 TargetCount: CounterTarget(owner.Parameters[count.TargetParameter])),
+            SignalPhysicalRequestDescriptor request => new(node.Id, node.Owner, ActivationNodeKind.PhysicalRequest, default,
+                Retention: construction.Instances.Identities[node.Owner].Retentions[request.Target], RequestOperation: request.Request),
             SignalMemoryDescriptor => new(node.Id, node.Owner, ActivationNodeKind.StateLatch, default),
             SignalIndicatorDescriptor => new(node.Id, node.Owner, IndicatorKind(node.Id, graph), default),
             SignalOscillatorDescriptor oscillator => new(node.Id, node.Owner, ActivationNodeKind.Oscillator, default,

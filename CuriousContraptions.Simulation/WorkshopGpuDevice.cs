@@ -176,7 +176,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                     network.ContactClosed(checkpoint.Activations, checkpoint.Timers, id);
                 inputs = TickControlComposition.Compose(supply.Graph, controls,
                     contactClosed,
-                    PhysicsGpuAbi.ReadElectrical(_committedWorld.Span));
+                    PhysicsGpuAbi.ReadElectrical(_committedWorld.Span)) with
+                { RetentionRequests = RetentionRequestComposition.Compose(network, _committedActivations) };
             }
             if(operation==WorkshopGpuOperation.Admit)
             {
@@ -289,8 +290,10 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             var actuator = actuators.Single(read => read.Drive == SupplyConsumer.Prismatic(endpoint.Joint));
             contacts.Add(node.Id, endpoint.Endpoint switch
             {
-                CuriousContraptions.Abstractions.CoordinateEndpoint.Lower => actuator.Coordinate <= actuator.Lower + ActuatorObservations.StopSlop,
-                CuriousContraptions.Abstractions.CoordinateEndpoint.Upper => actuator.Coordinate >= actuator.Upper - ActuatorObservations.StopSlop,
+                CuriousContraptions.Abstractions.CoordinateEndpoint.Lower =>
+                    actuator.Coordinate <= actuator.Lower + CuriousContraptions.Abstractions.PhysicalTolerance.ActuatorStopSlopMetres,
+                CuriousContraptions.Abstractions.CoordinateEndpoint.Upper =>
+                    actuator.Coordinate >= actuator.Upper - CuriousContraptions.Abstractions.PhysicalTolerance.ActuatorStopSlopMetres,
                 _ => throw new ArgumentException("Undefined coordinate endpoint.")
             });
         }

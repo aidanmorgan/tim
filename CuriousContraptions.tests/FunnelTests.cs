@@ -63,7 +63,7 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void FunnelScene_ExtractsItsFrustumStubsCollarsAndTwoMouthPortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/Funnel/funnel.tscn");
+        var packedScene = WorkshopResources.LoadScene("res://elements/Funnel/funnel.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

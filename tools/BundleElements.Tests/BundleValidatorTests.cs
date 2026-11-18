@@ -196,11 +196,10 @@ public sealed class BundleValidatorTests
                 error => error.Detail.Contains(".Presentation.DriverCurve", StringComparison.Ordinal));
     }
 
-    // Story 11.1a (CAT-042): a committed drive binding is an on/off level, shown at once (Linear, no duration) or blended over its
-    // declared time (SmoothStep, a positive duration), as the Motor's supply lamp is. A SmoothStep without a duration and a timed Linear
-    // binding are each refused.
+    // A committed endpoint level supports instantaneous Linear or timed Linear/SmoothStep transitions.
+    // SmoothStep needs positive duration; negative durations never describe a valid simulation-clock transition.
     [Fact]
-    public void ACommittedDriveBindingIsInstantLinearOrATimedSmoothStep()
+    public void ACommittedDriveBindingSupportsInstantOrTimedEndpointCurves()
     {
         var lamp = new PresentationBinding("Visual/Lamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorDrive, PresentationValueMapping.Identity,
             85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 0f,
@@ -222,7 +221,8 @@ public sealed class BundleValidatorTests
         }
         Assert.Empty(Check(lamp, Fixture.Drive()));
         Assert.Empty(Check(lamp with { Curve = PresentationCurve.Linear, Duration = 0f }, Fixture.Drive()));
-        foreach (var invalid in new[] { lamp with { Duration = 0f }, lamp with { Curve = PresentationCurve.Linear } })
+        Assert.Empty(Check(lamp with { Curve = PresentationCurve.Linear }, Fixture.Drive()));
+        foreach (var invalid in new[] { lamp with { Duration = 0f }, lamp with { Curve = PresentationCurve.Linear, Duration = -.1f } })
             Assert.Contains(Check(invalid, Fixture.Drive()), error => error.Detail.Contains(".Presentation.DriverCurve", StringComparison.Ordinal));
         // The binding reads only a driven slot of its owner: on an owner with no driven slider or hinge it would read nothing.
         Assert.Contains(Check(lamp, null), error => error.Detail.Contains(".Presentation.Actuator", StringComparison.Ordinal));

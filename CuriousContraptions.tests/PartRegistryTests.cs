@@ -21,7 +21,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"),
         new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"),
         new("weight"), new("rope_anchor"), new("pulley"), new("impact_lever"), new("trampoline"), new("motor"),
-        new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher")
+        new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring")
     ];
 
     private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);
@@ -53,7 +53,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
             Assert.Equal(metadata.IconPath, definition.IconPath);
             Assert.StartsWith("res://elements/", metadata.ScenePath, StringComparison.Ordinal);
             Assert.NotNull(definition.Scene);
-            Assert.Equal(metadata.ScenePath, definition.Scene.ResourcePath);
+            Assert.Equal(metadata.ScenePath, definition.ScenePath);
             // The payload predicate is derived from each admitted declaration: exactly the two ball packages.
             Assert.Equal(id == new PartId("ball") || id == new PartId("bowling"), DeclaredPhysics.IsPayload(id));
         }
@@ -148,6 +148,276 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         var registry = Loaded();
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("unknown-part")));
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("balloon")));
+    }
+
+    /// <summary>Private registry loads do not resurrect art wrappers while old finalizers are pending.</summary>
+    [Fact]
+    public async Task PrivateRegistryReloadsWhilePreviousSceneFinalizersArePending()
+    {
+        AssertNoNativeErrors("before private lifecycle check");
+        var gate = new ResourceFinalizerGate();
+        var scenes = new System.Collections.Generic.List<WeakReference>();
+        try
+        {
+            StartFinalizerBlocker(gate);
+            GC.Collect();
+            await gate.Started.Task.WaitAsync(ResourceFinalizerDeadline, TestContext.Current.CancellationToken);
+            var first = LoadCreateAndDropPrivateRegistry();
+            scenes.AddRange(first);
+            GC.Collect();
+            Assert.All(first, scene => Assert.False(scene.IsAlive, "The old scene wrapper must be collected before reload."));
+            AssertNoNativeErrors("old scene wrappers collected");
+
+            // Two real reloads cover the second reuse that failed in the baseline dependency diagnostic.
+            scenes.AddRange(LoadCreateAndDropPrivateRegistry());
+            AssertNoNativeErrors("first private reload");
+            scenes.AddRange(LoadCreateAndDropPrivateRegistry());
+            AssertNoNativeErrors("second private reload");
+        }
+        finally
+        {
+            gate.Release.TrySetResult();
+            await CompleteResourceFinalizers();
+            Assert.False(gate.TimedOut, "The diagnostic finalizer blocker exceeded its finite deadline.");
+        }
+        Assert.All(scenes, scene => Assert.False(scene.IsAlive, "Released registry scenes must retire."));
+        AssertNoNativeErrors("private registry cleanup");
+    }
+
+    /// <summary>Reload and refused reload preserve live nodes; private artwork retires after both instances are freed.</summary>
+    [Fact]
+    public async Task PrivateRegistryReloadKeepsLiveArtworkIndependentAndRefusalAtomic()
+    {
+        var resources = ExerciseLiveRegistryReload();
+        await CompleteResourceFinalizers();
+        Assert.All(resources, resource => Assert.False(resource.IsAlive, "Freed private artwork must not be retained."));
+        Assert.False(ResourceLoader.HasCached("res://elements/Ball/ball.tscn"));
+        Assert.False(ResourceLoader.HasCached("res://elements/Ball/ball.tscn::Mesh_Ball"));
+        Assert.False(ResourceLoader.HasCached("res://elements/Ball/ball.tscn::Mat_Ball"));
+        AssertNoNativeErrors("live registry and artwork cleanup");
+    }
+
+    [Fact]
+    public void PrivateImportedIconKeepsItsReadableImageAndApplicationOwner()
+    {
+        var icon = WorkshopIcons.Load("play");
+        Assert.True(icon.GetWidth() > 0);
+        Assert.True(icon.GetHeight() > 0);
+        using var image = icon.GetImage();
+        Assert.False(image.IsEmpty());
+        Assert.Same(icon, WorkshopIcons.Load("play"));
+        Assert.False(ResourceLoader.HasCached("res://assets/icons/play.svg"));
+        AssertNoNativeErrors("imported private icon");
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    private WeakReference[] LoadCreateAndDropPrivateRegistry()
+    {
+        var registry = Loaded();
+        Assert.Equal(PaletteRows, registry.Free.Keys);
+        var scenes = new System.Collections.Generic.List<WeakReference>();
+        foreach (var definition in registry.Definitions.Values)
+        {
+            Assert.NotNull(definition.Scene);
+            Assert.False(ResourceLoader.HasCached(definition.ScenePath));
+            scenes.Add(new WeakReference(definition.Scene));
+            var part = registry.Create(definition.PartId);
+            try
+            {
+                godot.Tree.Root.AddChild(part);
+                Assert.Equal(definition.PartId, part.PartId);
+                Assert.Same(definition, part.Definition);
+                Assert.NotEmpty(part.GetChildren());
+            }
+            finally
+            {
+                part.GetParent()?.RemoveChild(part);
+                part.Free();
+            }
+        }
+        Assert.False(ResourceLoader.HasCached("res://elements/Ball/ball.tscn::Mesh_Ball"));
+        Assert.False(ResourceLoader.HasCached("res://elements/Ball/ball.tscn::Mat_Ball"));
+        Assert.False(ResourceLoader.HasCached("res://elements/ElectricalNor/printed-ring.obj"));
+        return scenes.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    private WeakReference[] ExerciseLiveRegistryReload()
+    {
+        var registry = Loaded();
+        var id = new PartId("ball");
+        var originalDefinition = registry.Definitions[id];
+        var first = registry.Create(id);
+        MachinePart? second = null;
+        try
+        {
+            godot.Tree.Root.AddChild(first);
+            var firstMesh = first.GetNode<MeshInstance3D>("Visual/Visual_Sphere").Mesh;
+            var firstMaterial = Assert.IsType<StandardMaterial3D>(firstMesh.SurfaceGetMaterial(0));
+            registry.Load();
+            var replacementDefinition = registry.Definitions[id];
+            Assert.NotSame(originalDefinition.Scene, replacementDefinition.Scene);
+            Assert.Same(originalDefinition, first.Definition);
+            second = registry.Create(id);
+            godot.Tree.Root.AddChild(second);
+            var secondMesh = second.GetNode<MeshInstance3D>("Visual/Visual_Sphere").Mesh;
+            var secondMaterial = Assert.IsType<StandardMaterial3D>(secondMesh.SurfaceGetMaterial(0));
+            Assert.NotSame(firstMesh, secondMesh);
+            Assert.NotSame(firstMaterial, secondMaterial);
+            var secondColor = secondMaterial.AlbedoColor;
+            firstMaterial.AlbedoColor = Colors.Green;
+            Assert.Equal(Colors.Green, firstMaterial.AlbedoColor);
+            Assert.Equal(secondColor, secondMaterial.AlbedoColor);
+
+            Assert.Throws<InvalidDataException>(() => registry.Load("malformed"));
+            Assert.Same(replacementDefinition, registry.Definitions[id]);
+            Assert.Equal(PaletteRows, registry.Free.Keys);
+            Assert.Equal(id, first.PartId);
+            Assert.Equal(id, second.PartId);
+
+            first.GetParent()?.RemoveChild(first);
+            first.Free();
+            Assert.True(GodotObject.IsInstanceValid(second));
+            Assert.Equal(secondColor, secondMaterial.AlbedoColor);
+            Assert.Equal(id, second.PartId);
+            AssertNoNativeErrors("live reload and refused reload");
+            return [new(originalDefinition.Scene!), new(replacementDefinition.Scene!), new(firstMesh),
+                new(secondMesh), new(firstMaterial), new(secondMaterial)];
+        }
+        finally
+        {
+            if (GodotObject.IsInstanceValid(first))
+            {
+                first.GetParent()?.RemoveChild(first);
+                first.Free();
+            }
+            if (second is not null)
+            {
+                second.GetParent()?.RemoveChild(second);
+                second.Free();
+            }
+        }
+    }
+
+
+    [Fact]
+    public void NativeArtworkTransfersEveryCatalogueHierarchyWithoutChangingLocalProperties()
+    {
+        foreach (var definition in Loaded().Definitions.Values)
+        {
+            var artwork = definition.Scene!.Instantiate<Node3D>();
+            var part = MachinePart.InstantiateArtwork(definition.Scene);
+            try { AssertArtwork(artwork, part, artwork, part); }
+            finally { part.Free(); artwork.Free(); }
+        }
+    }
+
+    private static void AssertArtwork(Node expected, Node actual, Node expectedRoot, Node actualRoot)
+    {
+        Assert.Equal(expected.Name, actual.Name);
+        Assert.Equal(expected.GetClass(), actual.GetClass());
+        Assert.Equal(expected.GetPathTo(expectedRoot), actual.GetPathTo(actualRoot));
+        if (expected.Owner == expectedRoot) Assert.Same(actualRoot, actual.Owner);
+        if (expected is Node3D expected3D)
+        {
+            var actual3D = Assert.IsAssignableFrom<Node3D>(actual);
+            // Exact authored property transfer excludes lost transforms/visibility; no simulation comparison.
+            Assert.Equal(expected3D.Transform, actual3D.Transform);
+            Assert.Equal(expected3D.Visible, actual3D.Visible);
+        }
+        if (expected is MeshInstance3D mesh)
+        {
+            var actualMesh = Assert.IsType<MeshInstance3D>(actual);
+            Assert.Same(mesh.Mesh, actualMesh.Mesh);
+            Assert.Same(mesh.MaterialOverride, actualMesh.MaterialOverride);
+        }
+        Assert.Equal(expected.GetChildCount(), actual.GetChildCount());
+        for (var index = 0; index < expected.GetChildCount(); index++)
+            AssertArtwork(expected.GetChild(index), actual.GetChild(index), expectedRoot, actualRoot);
+    }
+
+    [Fact]
+    public void NativeArtworkTransfersNonDefaultRootAndNestedOwnership()
+    {
+        var root = new Node3D { Name = "authored", Position = new(2, 3, 4), Rotation = new(0, .5f, 0), Visible = false };
+        var child = new Node3D { Name = "Visual", Position = new(1, 0, 0) };
+        var nested = new Node3D { Name = "Marker", Position = new(0, 2, 0) };
+        root.AddChild(child); child.Owner = root;
+        child.AddChild(nested); nested.Owner = root;
+        root.AddToGroup("authored_group", persistent: true);
+        using var packed = new PackedScene();
+        try
+        {
+            Assert.Equal(Error.Ok, packed.Pack(root));
+            WorkshopResources.ValidateArtwork(packed);
+            var part = MachinePart.InstantiateArtwork(packed);
+            try
+            {
+                AssertArtwork(root, part, root, part);
+                Assert.True(part.IsInGroup("authored_group"));
+            }
+            finally { part.Free(); }
+        }
+        finally { root.Free(); }
+        AssertNoNativeErrors("non-default native artwork transfer");
+    }
+
+    [Fact]
+    public void ScriptBearingArtworkIsRefusedAndItsPackedOwnerDisposed()
+    {
+        var scripted = new MachinePart { Name = "unsupported" };
+        var packed = new PackedScene();
+        try
+        {
+            Assert.Equal(Error.Ok, packed.Pack(scripted));
+            var error = Assert.Throws<InvalidDataException>(() => WorkshopResources.ValidateArtwork(packed));
+            Assert.Contains("cannot contain scripts", error.Message, StringComparison.Ordinal);
+            Assert.False(GodotObject.IsInstanceValid(packed));
+        }
+        finally
+        {
+            packed.Dispose();
+            scripted.Free();
+        }
+        AssertNoNativeErrors("script-bearing artwork refusal");
+    }
+
+    private static readonly TimeSpan ResourceFinalizerDeadline = TimeSpan.FromSeconds(30);
+
+    private static async Task CompleteResourceFinalizers()
+    {
+        // PackedScene owns mesh resources, which own materials. Drain these three ownership levels.
+        for (var level = 0; level < 3; level++)
+        {
+            GC.Collect();
+            await Task.Run(GC.WaitForPendingFinalizers, TestContext.Current.CancellationToken)
+                .WaitAsync(ResourceFinalizerDeadline, TestContext.Current.CancellationToken);
+        }
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    private static void StartFinalizerBlocker(ResourceFinalizerGate gate) => _ = new ResourceFinalizerBlocker(gate);
+
+    private sealed class ResourceFinalizerGate
+    {
+        internal TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal volatile bool TimedOut;
+    }
+
+    private sealed class ResourceFinalizerBlocker(ResourceFinalizerGate gate)
+    {
+        ~ResourceFinalizerBlocker()
+        {
+            gate.Started.TrySetResult();
+            if (!gate.Release.Task.Wait(ResourceFinalizerDeadline)) gate.TimedOut = true;
+        }
+    }
+
+    private void AssertNoNativeErrors(string phase)
+    {
+        var errors = godot.Errors.Drain();
+        Assert.True(errors.Length == 0, $"{phase}: {string.Join(System.Environment.NewLine, errors.Select(error => error.ToString()))}");
     }
 
     [Fact]

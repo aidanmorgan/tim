@@ -9,6 +9,10 @@ public static class PhysicalTolerance
     /// <summary>The shared contact geometry allowance in metres.</summary>
     public const float ContactSeparationMetres = .0002f;
 
+    /// <summary>The game-grade envelope's resting contact slop for actuator and retention stops, 0.5 mm: a coordinate within it
+    /// of a stop is at that stop.</summary>
+    public const float ActuatorStopSlopMetres = 5e-4f;
+
     /// <summary>Curved incident-normal reconstruction allowance, capped by contact displacement.</summary>
     public static float IncidentNormalAllowance(float witnessWindowMetres, float radiusMetres)
     {

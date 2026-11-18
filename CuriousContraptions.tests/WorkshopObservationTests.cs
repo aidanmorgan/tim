@@ -663,9 +663,17 @@ public sealed class WorkshopObservationTests
             new(SupplyConsumer.Prismatic(new(9007199254740983)), new(9007199254740981), true, true, .5f, -.25f, 0f, 1.55f),
             new(SupplyConsumer.Revolute(new(9007199254740979)), new(9007199254740977), false, false, 7.5f, 6f, -MathF.PI, MathF.PI)
         ];
+        PrismaticRetentionRead[] retentions =
+        [
+            new(new(9007199254741001), new(9007199254741003), new(9007199254741005), CuriousContraptions.Abstractions.Mechanical.RetentionMode.Retained,
+                CuriousContraptions.Abstractions.Mechanical.RetentionPhase.Armed, .4f, 12.8f, 13f, .2f, -15f, 15.5f, .5f, -.25f, null),
+            new(new(9007199254741007), new(9007199254741009), new(9007199254741011), CuriousContraptions.Abstractions.Mechanical.RetentionMode.Releasing,
+                CuriousContraptions.Abstractions.Mechanical.RetentionPhase.Blocked, .2f, 3.2f, 12.8f, 9.6f, -14f, 14.25f, .75f, -.5f,
+                CuriousContraptions.Abstractions.Mechanical.RetentionRequestResult.Released)
+        ];
         var pres = new PhysicsPresentationRead(drives, response.Read.Presentation.Loads.ToArray(),
             response.Read.Presentation.Logic.ToArray(), response.Read.Presentation.Ropes.ToArray(), [new(new(9007199254740991), 1.25f, 3.125f)],
-            [new(new(9007199254740989), .375f)]);
+            [new(new(9007199254740989), .375f)], retentions: retentions);
         var read = response.Read with { Epoch = new(9007199254740993), Tick = new(9007199254740995),
             Captures = new([new(new(9007199254740997), new(9007199254740999), CaptureLatchPhase.Latched, 23, .5f)]),
             Presentation = pres };
@@ -684,6 +692,36 @@ public sealed class WorkshopObservationTests
         var surface = Assert.Single(Assert.IsType<ExternalObject>(projected.Fields["surfaces"]).Items);
         Assert.Equal("9007199254740989", surface.Fields["frame"]);
         Assert.Equal(.375f, surface.Fields["deflection"]);
+        var projectedRetentions = Assert.IsType<ExternalObject>(projected.Fields["retentions"]).Items;
+        Assert.Equal(2, projectedRetentions.Count);
+        Assert.Equal("9007199254741001", projectedRetentions[0].Fields["id"]);
+        Assert.Equal("9007199254741003", projectedRetentions[0].Fields["owner"]);
+        Assert.Equal("9007199254741005", projectedRetentions[0].Fields["coordinate"]);
+        Assert.Equal((int)CuriousContraptions.Abstractions.Mechanical.RetentionMode.Retained, projectedRetentions[0].Fields["mode"]);
+        Assert.Equal((int)CuriousContraptions.Abstractions.Mechanical.RetentionPhase.Armed, projectedRetentions[0].Fields["phase"]);
+        Assert.Equal(.4f, projectedRetentions[0].Fields["compression"]);
+        Assert.Equal(12.8f, projectedRetentions[0].Fields["potential"]);
+        Assert.Equal(13f, projectedRetentions[0].Fields["acceptedElasticEnergy"]);
+        Assert.Equal(.2f, projectedRetentions[0].Fields["releasedElasticEnergy"]);
+        Assert.Equal(-15f, projectedRetentions[0].Fields["windingWork"]);
+        Assert.Equal(15.5f, projectedRetentions[0].Fields["positiveWindingTransfer"]);
+        Assert.Equal(.5f, projectedRetentions[0].Fields["contactWork"]);
+        Assert.Equal(-.25f, projectedRetentions[0].Fields["gravityWork"]);
+        Assert.False(projectedRetentions[0].Fields.ContainsKey("requestResult"));
+        Assert.Equal("9007199254741007", projectedRetentions[1].Fields["id"]);
+        Assert.Equal("9007199254741009", projectedRetentions[1].Fields["owner"]);
+        Assert.Equal("9007199254741011", projectedRetentions[1].Fields["coordinate"]);
+        Assert.Equal((int)CuriousContraptions.Abstractions.Mechanical.RetentionMode.Releasing, projectedRetentions[1].Fields["mode"]);
+        Assert.Equal((int)CuriousContraptions.Abstractions.Mechanical.RetentionPhase.Blocked, projectedRetentions[1].Fields["phase"]);
+        Assert.Equal(.2f, projectedRetentions[1].Fields["compression"]);
+        Assert.Equal(3.2f, projectedRetentions[1].Fields["potential"]);
+        Assert.Equal(12.8f, projectedRetentions[1].Fields["acceptedElasticEnergy"]);
+        Assert.Equal(9.6f, projectedRetentions[1].Fields["releasedElasticEnergy"]);
+        Assert.Equal(-14f, projectedRetentions[1].Fields["windingWork"]);
+        Assert.Equal(14.25f, projectedRetentions[1].Fields["positiveWindingTransfer"]);
+        Assert.Equal(.75f, projectedRetentions[1].Fields["contactWork"]);
+        Assert.Equal(-.5f, projectedRetentions[1].Fields["gravityWork"]);
+        Assert.Equal((int)CuriousContraptions.Abstractions.Mechanical.RetentionRequestResult.Released, projectedRetentions[1].Fields["requestResult"]);
         var capture = Assert.Single(Assert.IsType<ExternalObject>(projected.Fields["captures"]).Items);
         Assert.Equal("9007199254740997", capture.Fields["sensor"]);
         Assert.Equal((int)CaptureLatchPhase.Latched, capture.Fields["phase"]);

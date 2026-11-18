@@ -1500,8 +1500,18 @@ transmissionsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+retentions(index: number, obj?:PrismaticRetentionReadRecord):PrismaticRetentionReadRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 68);
+  return offset ? (obj || new PrismaticRetentionReadRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+retentionsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 68);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(32);
+  builder.startObject(33);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1745,6 +1755,22 @@ static createTransmissionsVector(builder:flatbuffers.Builder, data:flatbuffers.O
 }
 
 static startTransmissionsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addRetentions(builder:flatbuffers.Builder, retentionsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(32, retentionsOffset, 0);
+}
+
+static createRetentionsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startRetentionsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
@@ -6747,8 +6773,18 @@ elapsedSignal():number {
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
+retention():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+requestOperation():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : null;
+}
+
 static startCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(15);
+  builder.startObject(17);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -6811,12 +6847,20 @@ static addElapsedSignal(builder:flatbuffers.Builder, elapsedSignal:number) {
   builder.addFieldInt32(14, elapsedSignal, 0);
 }
 
+static addRetention(builder:flatbuffers.Builder, retention:bigint) {
+  builder.addFieldInt64(15, retention, BigInt('0'));
+}
+
+static addRequestOperation(builder:flatbuffers.Builder, requestOperation:number) {
+  builder.addFieldInt8(16, requestOperation, null);
+}
+
 static endCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, kind:number, trigger:bigint, durationTicks:number, sensor:bigint, passage:bigint, targetCount:number, intervalTicks:number, powerProvider:bigint, contactLoad:bigint, releaseHoldTicks:number, completion:number, boundary:number, elapsedSignal:number):flatbuffers.Offset {
+static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, kind:number, trigger:bigint, durationTicks:number, sensor:bigint, passage:bigint, targetCount:number, intervalTicks:number, powerProvider:bigint, contactLoad:bigint, releaseHoldTicks:number, completion:number, boundary:number, elapsedSignal:number, retention:bigint, requestOperation:number|null):flatbuffers.Offset {
   CapabilityActivationNodeDeclarationRecord.startCapabilityActivationNodeDeclarationRecord(builder);
   CapabilityActivationNodeDeclarationRecord.addId(builder, id);
   CapabilityActivationNodeDeclarationRecord.addOwner(builder, owner);
@@ -6833,6 +6877,9 @@ static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Build
   CapabilityActivationNodeDeclarationRecord.addCompletion(builder, completion);
   CapabilityActivationNodeDeclarationRecord.addBoundary(builder, boundary);
   CapabilityActivationNodeDeclarationRecord.addElapsedSignal(builder, elapsedSignal);
+  CapabilityActivationNodeDeclarationRecord.addRetention(builder, retention);
+  if (requestOperation !== null)
+    CapabilityActivationNodeDeclarationRecord.addRequestOperation(builder, requestOperation);
   return CapabilityActivationNodeDeclarationRecord.endCapabilityActivationNodeDeclarationRecord(builder);
 }
 }
@@ -7555,8 +7602,13 @@ transmission():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
+retention():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
 static startCompiledPresentationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 }
 
 static addSource(builder:flatbuffers.Builder, source:bigint) {
@@ -7601,6 +7653,10 @@ static addGuide(builder:flatbuffers.Builder, guide:bigint) {
 
 static addTransmission(builder:flatbuffers.Builder, transmission:bigint) {
   builder.addFieldInt64(10, transmission, BigInt('0'));
+}
+
+static addRetention(builder:flatbuffers.Builder, retention:bigint) {
+  builder.addFieldInt64(11, retention, BigInt('0'));
 }
 
 static endCompiledPresentationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -7867,6 +7923,182 @@ static createCompliantSurfaceReadRecord(builder:flatbuffers.Builder, frame:bigin
   CompliantSurfaceReadRecord.addFrame(builder, frame);
   CompliantSurfaceReadRecord.addDeflection(builder, deflection);
   return CompliantSurfaceReadRecord.endCompliantSurfaceReadRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class PrismaticRetentionReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):PrismaticRetentionReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsPrismaticRetentionReadRecord(bb:flatbuffers.ByteBuffer, obj?:PrismaticRetentionReadRecord):PrismaticRetentionReadRecord {
+  return (obj || new PrismaticRetentionReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsPrismaticRetentionReadRecord(bb:flatbuffers.ByteBuffer, obj?:PrismaticRetentionReadRecord):PrismaticRetentionReadRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new PrismaticRetentionReadRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+coordinate():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+mode():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+phase():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+compression():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+potential():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+acceptedElasticEnergy():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+releasedElasticEnergy():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+windingWork():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+positiveWindingTransfer():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+contactWork():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+gravityWork():number {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+requestResult():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : null;
+}
+
+static startPrismaticRetentionReadRecord(builder:flatbuffers.Builder) {
+  builder.startObject(14);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
+static addCoordinate(builder:flatbuffers.Builder, coordinate:bigint) {
+  builder.addFieldInt64(2, coordinate, BigInt('0'));
+}
+
+static addMode(builder:flatbuffers.Builder, mode:number) {
+  builder.addFieldInt8(3, mode, 0);
+}
+
+static addPhase(builder:flatbuffers.Builder, phase:number) {
+  builder.addFieldInt8(4, phase, 0);
+}
+
+static addCompression(builder:flatbuffers.Builder, compression:number) {
+  builder.addFieldFloat32(5, compression, 0.0);
+}
+
+static addPotential(builder:flatbuffers.Builder, potential:number) {
+  builder.addFieldFloat32(6, potential, 0.0);
+}
+
+static addAcceptedElasticEnergy(builder:flatbuffers.Builder, acceptedElasticEnergy:number) {
+  builder.addFieldFloat32(7, acceptedElasticEnergy, 0.0);
+}
+
+static addReleasedElasticEnergy(builder:flatbuffers.Builder, releasedElasticEnergy:number) {
+  builder.addFieldFloat32(8, releasedElasticEnergy, 0.0);
+}
+
+static addWindingWork(builder:flatbuffers.Builder, windingWork:number) {
+  builder.addFieldFloat32(9, windingWork, 0.0);
+}
+
+static addPositiveWindingTransfer(builder:flatbuffers.Builder, positiveWindingTransfer:number) {
+  builder.addFieldFloat32(10, positiveWindingTransfer, 0.0);
+}
+
+static addContactWork(builder:flatbuffers.Builder, contactWork:number) {
+  builder.addFieldFloat32(11, contactWork, 0.0);
+}
+
+static addGravityWork(builder:flatbuffers.Builder, gravityWork:number) {
+  builder.addFieldFloat32(12, gravityWork, 0.0);
+}
+
+static addRequestResult(builder:flatbuffers.Builder, requestResult:number) {
+  builder.addFieldInt8(13, requestResult, null);
+}
+
+static endPrismaticRetentionReadRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createPrismaticRetentionReadRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, coordinate:bigint, mode:number, phase:number, compression:number, potential:number, acceptedElasticEnergy:number, releasedElasticEnergy:number, windingWork:number, positiveWindingTransfer:number, contactWork:number, gravityWork:number, requestResult:number|null):flatbuffers.Offset {
+  PrismaticRetentionReadRecord.startPrismaticRetentionReadRecord(builder);
+  PrismaticRetentionReadRecord.addId(builder, id);
+  PrismaticRetentionReadRecord.addOwner(builder, owner);
+  PrismaticRetentionReadRecord.addCoordinate(builder, coordinate);
+  PrismaticRetentionReadRecord.addMode(builder, mode);
+  PrismaticRetentionReadRecord.addPhase(builder, phase);
+  PrismaticRetentionReadRecord.addCompression(builder, compression);
+  PrismaticRetentionReadRecord.addPotential(builder, potential);
+  PrismaticRetentionReadRecord.addAcceptedElasticEnergy(builder, acceptedElasticEnergy);
+  PrismaticRetentionReadRecord.addReleasedElasticEnergy(builder, releasedElasticEnergy);
+  PrismaticRetentionReadRecord.addWindingWork(builder, windingWork);
+  PrismaticRetentionReadRecord.addPositiveWindingTransfer(builder, positiveWindingTransfer);
+  PrismaticRetentionReadRecord.addContactWork(builder, contactWork);
+  PrismaticRetentionReadRecord.addGravityWork(builder, gravityWork);
+  if (requestResult !== null)
+    PrismaticRetentionReadRecord.addRequestResult(builder, requestResult);
+  return PrismaticRetentionReadRecord.endPrismaticRetentionReadRecord(builder);
 }
 }
 
@@ -8301,57 +8533,102 @@ id():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
-drivingHinge():bigint {
+drivingCoordinate():bigint {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
-drivenHinge():bigint {
+drivenCoordinate():bigint {
   const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
-ratio():number {
+drivingKind():number {
   const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+drivenKind():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+constraintKind():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+ratio():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 closeSeconds():number {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 owner():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
+retention():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+initialRetentionCoordinate():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
 static startMechanicalTransmissionRecord(builder:flatbuffers.Builder) {
-  builder.startObject(6);
+  builder.startObject(11);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
   builder.addFieldInt64(0, id, BigInt('0'));
 }
 
-static addDrivingHinge(builder:flatbuffers.Builder, drivingHinge:bigint) {
-  builder.addFieldInt64(1, drivingHinge, BigInt('0'));
+static addDrivingCoordinate(builder:flatbuffers.Builder, drivingCoordinate:bigint) {
+  builder.addFieldInt64(1, drivingCoordinate, BigInt('0'));
 }
 
-static addDrivenHinge(builder:flatbuffers.Builder, drivenHinge:bigint) {
-  builder.addFieldInt64(2, drivenHinge, BigInt('0'));
+static addDrivenCoordinate(builder:flatbuffers.Builder, drivenCoordinate:bigint) {
+  builder.addFieldInt64(2, drivenCoordinate, BigInt('0'));
+}
+
+static addDrivingKind(builder:flatbuffers.Builder, drivingKind:number) {
+  builder.addFieldInt8(3, drivingKind, 0);
+}
+
+static addDrivenKind(builder:flatbuffers.Builder, drivenKind:number) {
+  builder.addFieldInt8(4, drivenKind, 0);
+}
+
+static addConstraintKind(builder:flatbuffers.Builder, constraintKind:number) {
+  builder.addFieldInt8(5, constraintKind, 0);
 }
 
 static addRatio(builder:flatbuffers.Builder, ratio:number) {
-  builder.addFieldFloat32(3, ratio, 0.0);
+  builder.addFieldFloat32(6, ratio, 0.0);
 }
 
 static addCloseSeconds(builder:flatbuffers.Builder, closeSeconds:number) {
-  builder.addFieldFloat32(4, closeSeconds, 0.0);
+  builder.addFieldFloat32(7, closeSeconds, 0.0);
 }
 
 static addOwner(builder:flatbuffers.Builder, owner:bigint) {
-  builder.addFieldInt64(5, owner, BigInt('0'));
+  builder.addFieldInt64(8, owner, BigInt('0'));
+}
+
+static addRetention(builder:flatbuffers.Builder, retention:bigint) {
+  builder.addFieldInt64(9, retention, BigInt('0'));
+}
+
+static addInitialRetentionCoordinate(builder:flatbuffers.Builder, initialRetentionCoordinate:number) {
+  builder.addFieldFloat32(10, initialRetentionCoordinate, 0.0);
 }
 
 static endMechanicalTransmissionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -8359,14 +8636,19 @@ static endMechanicalTransmissionRecord(builder:flatbuffers.Builder):flatbuffers.
   return offset;
 }
 
-static createMechanicalTransmissionRecord(builder:flatbuffers.Builder, id:bigint, drivingHinge:bigint, drivenHinge:bigint, ratio:number, closeSeconds:number, owner:bigint):flatbuffers.Offset {
+static createMechanicalTransmissionRecord(builder:flatbuffers.Builder, id:bigint, drivingCoordinate:bigint, drivenCoordinate:bigint, drivingKind:number, drivenKind:number, constraintKind:number, ratio:number, closeSeconds:number, owner:bigint, retention:bigint, initialRetentionCoordinate:number):flatbuffers.Offset {
   MechanicalTransmissionRecord.startMechanicalTransmissionRecord(builder);
   MechanicalTransmissionRecord.addId(builder, id);
-  MechanicalTransmissionRecord.addDrivingHinge(builder, drivingHinge);
-  MechanicalTransmissionRecord.addDrivenHinge(builder, drivenHinge);
+  MechanicalTransmissionRecord.addDrivingCoordinate(builder, drivingCoordinate);
+  MechanicalTransmissionRecord.addDrivenCoordinate(builder, drivenCoordinate);
+  MechanicalTransmissionRecord.addDrivingKind(builder, drivingKind);
+  MechanicalTransmissionRecord.addDrivenKind(builder, drivenKind);
+  MechanicalTransmissionRecord.addConstraintKind(builder, constraintKind);
   MechanicalTransmissionRecord.addRatio(builder, ratio);
   MechanicalTransmissionRecord.addCloseSeconds(builder, closeSeconds);
   MechanicalTransmissionRecord.addOwner(builder, owner);
+  MechanicalTransmissionRecord.addRetention(builder, retention);
+  MechanicalTransmissionRecord.addInitialRetentionCoordinate(builder, initialRetentionCoordinate);
   return MechanicalTransmissionRecord.endMechanicalTransmissionRecord(builder);
 }
 }

@@ -1,6 +1,5 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=21 format=3]
 
-[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
 [ext_resource type="ArrayMesh" path="res://elements/StateLatch/printed-disc.obj" id="Mesh_Bead"]
 
@@ -72,7 +71,6 @@ radius = 0.09
 radius = 0.075
 
 [node name="latch" type="Node3D"]
-script = ExtResource("1")
 
 [node name="Visual" type="Node3D" parent="."]
 

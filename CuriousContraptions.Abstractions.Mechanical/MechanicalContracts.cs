@@ -47,6 +47,11 @@ public interface IDrivenSurfaceElement : IMechanicalElement
     IReadOnlyList<DrivenSurfaceDescriptor> DrivenSurfaces { get; }
 }
 
+public interface IPrismaticRetentionElement : IMechanicalElement
+{
+    IReadOnlyList<PrismaticRetentionDescriptor> Retentions { get; }
+}
+
 public interface IMechanicalTransmissionElement : IMechanicalElement
 {
     IReadOnlyList<MechanicalTransmissionDescriptor> Transmissions { get; }

@@ -316,6 +316,7 @@ table WorkshopResponse {
     drive_targets: [RevoluteDriveTargetRecord];
     // Package-owned mechanical transmission states ordered by transmission identity.
     transmissions: [MechanicalTransmissionReadRecord];
+    retentions: [PrismaticRetentionReadRecord];
 }
 
 table WorkshopCommand {
@@ -668,6 +669,8 @@ table CapabilityActivationNodeDeclarationRecord {
     completion: uint;
     boundary: uint;
     elapsed_signal: uint;
+    retention: ulong;
+    request_operation: ubyte = null;
 }
 
 table CapabilityActivationEdgeRecord {
@@ -759,6 +762,7 @@ table CompiledPresentationRecord {
     actuator: CapabilitySupplyConsumerRecord;
     guide: ulong;
     transmission: ulong;
+    retention: ulong;
 }
 
 table RopeSpanReadRecord {
@@ -786,6 +790,23 @@ table RopeGuideReadRecord {
 table CompliantSurfaceReadRecord {
     frame: ulong;
     deflection: float;
+}
+
+table PrismaticRetentionReadRecord {
+    id: ulong;
+    owner: ulong;
+    coordinate: ulong;
+    mode: ubyte;
+    phase: ubyte;
+    compression: float;
+    potential: float;
+    accepted_elastic_energy: float;
+    released_elastic_energy: float;
+    winding_work: float;
+    positive_winding_transfer: float;
+    contact_work: float;
+    gravity_work: float;
+    request_result: ubyte = null;
 }
 
 table MechanicalTransmissionReadRecord {
@@ -832,14 +853,19 @@ table CapabilityRopeGuideRecord {
     offset: Vec3f;
 }
 
-// One mechanical transmission link between revolute joints (untimed or timed by electrical supply).
+// A typed generalized-coordinate relation (untimed or timed by electrical supply).
 table MechanicalTransmissionRecord {
     id: ulong;
-    driving_hinge: ulong;
-    driven_hinge: ulong;
+    driving_coordinate: ulong;
+    driven_coordinate: ulong;
+    driving_kind: ubyte;
+    driven_kind: ubyte;
+    constraint_kind: ubyte;
     ratio: float;
     close_seconds: float = 0.0;
     owner: ulong;
+    retention: ulong;
+    initial_retention_coordinate: float;
 }
 
 table DrivenSurfaceRecord {

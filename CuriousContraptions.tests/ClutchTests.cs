@@ -341,7 +341,7 @@ public sealed partial class ClutchTests
             Ports = [powerPort with { Id = drivePort }, powerPort with { Id = coilPort }],
             Mechanical = template.Mechanical with { Hinges = hinges, Transmissions =
                 [new(new(1), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Revolute, 1),
-                    MechanicalValue.Fixed(1f), MechanicalValue.Fixed(closeSeconds))] },
+                    MechanicalValue.Fixed(1f), TransmissionConstraintKind.Bilateral, MechanicalValue.Fixed(closeSeconds))] },
             Electrical = template.Electrical! with { SupplyGraph = new(
                 [new SupplyConsumerDescriptor(new("drive"), [new SupplyDriveTarget(new(CoordinateKind.Revolute, 0))]),
                  new SupplyConsumerDescriptor(new("coil"), [new SupplyTransmissionTarget(new(1))])], [],
@@ -992,8 +992,8 @@ public sealed partial class ClutchTests
                 Transmissions =
                 [
                     // Slot 1: timed transmission (0 -> 1); Slot 2: untimed fixed gear ratio (2 -> 3)
-                    new(new(1), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Revolute, 1), MechanicalValue.Fixed(1f), MechanicalValue.Fixed(0.2f)),
-                    new(new(2), new(CoordinateKind.Revolute, 2), new(CoordinateKind.Revolute, 3), MechanicalValue.Fixed(-1.5f), null)
+                    new(new(1), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Revolute, 1), MechanicalValue.Fixed(1f), TransmissionConstraintKind.Bilateral, MechanicalValue.Fixed(0.2f)),
+                    new(new(2), new(CoordinateKind.Revolute, 2), new(CoordinateKind.Revolute, 3), MechanicalValue.Fixed(-1.5f), TransmissionConstraintKind.Bilateral, null)
                 ]
             },
             Electrical = template.Electrical! with
@@ -1069,7 +1069,7 @@ public sealed partial class ClutchTests
             Mechanical = template.Mechanical! with
             {
                 Transmissions = [new(new(1), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Revolute, 1),
-                    MechanicalValue.Fixed(-2.5f), MechanicalValue.Fixed(0.1f))]
+                    MechanicalValue.Fixed(-2.5f), TransmissionConstraintKind.Bilateral, MechanicalValue.Fixed(0.1f))]
             }
         };
         Assert.Empty(BundleValidator.Validate([new("synthetic", entry)]));
@@ -1121,7 +1121,7 @@ public sealed partial class ClutchTests
             {
                 Hinges = [drivenInputHinge, template.Mechanical.Hinges[1]],
                 Transmissions = [new(new(1), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Revolute, 1),
-                    MechanicalValue.Fixed(1f), MechanicalValue.Fixed(0.15f))]
+                    MechanicalValue.Fixed(1f), TransmissionConstraintKind.Bilateral, MechanicalValue.Fixed(0.15f))]
             },
             Electrical = template.Electrical! with
             {

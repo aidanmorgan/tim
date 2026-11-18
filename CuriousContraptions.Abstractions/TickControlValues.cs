@@ -28,8 +28,11 @@ public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 /// next physics step.</summary>
 public readonly record struct PrismaticCommandInput(PrismaticConstraintId Joint, PrismaticCommand Command);
 
+public readonly record struct RetentionRequestInput(PrismaticRetentionId Target, PhysicalRequestOperation Operation, ActivationOccurrence Occurrence);
+
 public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] SupplyClosed, ElectricalLogicRead[]? Logic = null)
 {
+    public RetentionRequestInput[] RetentionRequests { get; init; } = [];
     public PrismaticCommandInput[] PrismaticCommands { get; init; } = [];
     public bool[] StorageRoutes { get; init; } = [];
     public RopeSpanId[] Cuts { get; init; } = [];

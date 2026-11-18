@@ -44,7 +44,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     [Fact]
     public void BallDetectorScene_ExtractsItsCollarTubeHousingSocketIndicatorAndThreePortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/BallDetector/ball_detector.tscn");
+        var packedScene = WorkshopResources.LoadScene("res://elements/BallDetector/ball_detector.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

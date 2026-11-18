@@ -52,6 +52,7 @@ public static class BundleValidator
             errors.AddRange(DrivenSurfaceValidation.Validate(entry));
             errors.AddRange(ClippedExtrusionValidation.Validate(entry));
             errors.AddRange(MechanicalTransmissionValidation.Validate(entry));
+            errors.AddRange(PrismaticRetentionValidation.Validate(entry));
             Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Signal, entry.Events, childBodies);
             CheckEvents(entry.Events);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
@@ -239,11 +240,20 @@ public static class BundleValidator
                 if (binding.Driver == PresentationDriver.CommittedSurfaceDeflection && mechanical?.CompliantSurface is null)
                     OutOfRange("Presentation.CompliantSurface");
                 PresentationBindingActuator(binding, mechanical);
+                PresentationBindingRetention(binding, mechanical);
                 var transmissionDriver = binding.Driver is PresentationDriver.CommittedTransmissionClosure or PresentationDriver.CommittedTransmissionPhase;
                 if (transmissionDriver != binding.Transmission.HasValue) OutOfRange("Presentation.Transmission");
                 if (binding.Transmission is { } transmissionId &&
                     (transmissionId.Value == 0 || mechanical?.Transmissions?.Any(item => item.Id == transmissionId) != true))
                     OutOfRange("Presentation.Transmission");
+        }
+
+        private void PresentationBindingRetention(PresentationBinding binding, MechanicalPayload? mechanical)
+        {
+                var retentionDriver = binding.Driver == PresentationDriver.CommittedRetentionReleased;
+                if (retentionDriver != binding.Retention.HasValue || binding.Retention is { } retained &&
+                    (retained.Value == 0 || mechanical?.Retentions?.Any(item => item.Id == retained) != true))
+                    OutOfRange("Presentation.Retention");
         }
 
         private void PresentationBindingActuator(PresentationBinding binding, MechanicalPayload? mechanical)
@@ -733,7 +743,10 @@ public static class BundleValidator
         private void CaptureValue(string path,MechanicalValue value,IReadOnlyList<ParameterDescriptor> parameters,
             ParameterUnit unit,float minimum,float maximum)
         {
+            // One refusal per field: a malformed source or unresolved key is already reported, so its range is not checked again.
+            var before = errors.Count;
             Value(path,value,parameters);
+            if(errors.Count!=before) return;
             if(value.Source==MechanicalValueSource.Constant)
             {
                 if(value.Constant<minimum || value.Constant>maximum) OutOfRange(path);
@@ -741,6 +754,14 @@ public static class BundleValidator
             else if(parameters.SingleOrDefault(parameter=>parameter.Key==value.Parameter) is { } parameter &&
                 (parameter.Unit!=unit || parameter.Minimum<minimum || parameter.Maximum>maximum))
                 OutOfRange(path);
+        }
+
+        /// <summary>A hinge's own spring stiffness and damping are constants: no rotational stiffness or damping parameter unit
+        /// exists, so a parameter source has no unit to check and is refused (Pass 3 F7 decision).</summary>
+        private void HingeConstant(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            if (value.Source == MechanicalValueSource.Parameter) { OutOfRange(path); return; }
+            Value(path, value, parameters);
         }
 
         private void Slider(string path, PrismaticSliderDescriptor slider, IReadOnlyList<ParameterDescriptor> parameters)
@@ -752,8 +773,9 @@ public static class BundleValidator
             Finite(path + ".MovingFrame.Rotation", slider.MovingFrame.Rotation);
             if (float.IsFinite(slider.MovingFrame.Rotation.LengthSquared()) && MathF.Abs(slider.MovingFrame.Rotation.LengthSquared() - 1f) > 1e-4f) OutOfRange(path + ".MovingFrame.Rotation");
             if (!MechanicalValueDomain.SliderTravel(slider, parameters)) OutOfRange(path + ".Travel");
-            Value(path + ".Stiffness", slider.Stiffness, parameters);
-            Value(path + ".Damping", slider.Damping, parameters);
+            // The ordinary slider owns its finite non-negative spring domain, constants and whole parameter ranges, in its units.
+            CaptureValue(path + ".Stiffness", slider.Stiffness, parameters, ParameterUnit.NewtonPerMetre, 0f, float.MaxValue);
+            CaptureValue(path + ".Damping", slider.Damping, parameters, ParameterUnit.NewtonSecondPerMetre, 0f, float.MaxValue);
             Value(path + ".Compression", slider.Compression, parameters);
             var body = slider.MovingBody;
             MassFrame(path + ".MovingBody.MassFrame", body.MassFrame, KinematicMode.Dynamic, parameters);
@@ -786,9 +808,9 @@ public static class BundleValidator
                 if (hinge.LowerLimit < -MathF.PI || hinge.LowerLimit > MathF.PI) OutOfRange(path + ".LowerLimit");
                 if (hinge.UpperLimit < -MathF.PI || hinge.UpperLimit > MathF.PI || hinge.UpperLimit <= hinge.LowerLimit) OutOfRange(path + ".UpperLimit");
             }
-            Value(path + ".Stiffness", hinge.Stiffness, parameters);
-            Value(path + ".Damping", hinge.Damping, parameters);
-            Value(path + ".FrictionTorque", hinge.FrictionTorque, parameters);
+            HingeConstant(path + ".Stiffness", hinge.Stiffness, parameters);
+            HingeConstant(path + ".Damping", hinge.Damping, parameters);
+            CaptureValue(path + ".FrictionTorque", hinge.FrictionTorque, parameters, ParameterUnit.NewtonMetre, 0f, float.MaxValue);
             Value(path + ".InitialAngle", hinge.InitialAngle, parameters, allowNegative: true);
             if (hinge.InitialAngle.Source == MechanicalValueSource.Constant && float.IsFinite(hinge.InitialAngle.Constant))
             {
@@ -822,28 +844,19 @@ public static class BundleValidator
         private void DriveValue(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters, float minimum, float maximum, bool positive,
             ParameterUnit unit)
         {
-            if (value.Source == MechanicalValueSource.Product)
-            {
-                if (!MechanicalValueDomain.TryRange(value, parameters, unit, out var lower, out var upper) ||
-                    lower < minimum || upper > maximum || (positive && lower <= 0f)) OutOfRange(path);
-                return;
-            }
-            if (value.Source == MechanicalValueSource.Constant && value.Product is null && value.Parameter is null && float.IsFinite(value.Constant))
-            {
-                if (value.Constant < minimum || value.Constant > maximum || (positive && value.Constant <= 0f)) OutOfRange(path);
-                return;
-            }
-            Value(path, value, parameters, allowNegative: !positive);
-            if (value.Source == MechanicalValueSource.Parameter &&
-                parameters.SingleOrDefault(parameter => parameter.Key == value.Parameter && parameter.Kind == ParameterKind.Real) is { Key: not null } parameter &&
-                (parameter.Minimum < minimum || parameter.Maximum > maximum || (positive && parameter.Minimum <= 0f) ||
-                 parameter.Unit != unit))
-                OutOfRange(path);
+            var before = errors.Count;
+            Defined(path + ".Source", value.Source);
+            Finite(path + ".Constant", value.Constant);
+            if (value.Source is MechanicalValueSource.Parameter or MechanicalValueSource.NegatedParameter)
+                Real(path + ".Parameter", value.Parameter ?? "", parameters);
+            if (errors.Count != before) return;
+            if (!MechanicalValueDomain.TryRange(value, parameters, unit, out var lower, out var upper) ||
+                lower < minimum || upper > maximum || (positive && lower <= 0f)) OutOfRange(path);
         }
 
         private void Value(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters, bool allowNegative = false)
         {
-            if (value.Source == MechanicalValueSource.Product || value.Product is not null) { OutOfRange(path); return; }
+            if (value.Source is MechanicalValueSource.Product or MechanicalValueSource.NegatedParameter || value.Product is not null) { OutOfRange(path); return; }
             Defined(path + ".Source", value.Source);
             Finite(path + ".Constant", value.Constant);
             if (value.Source == MechanicalValueSource.Parameter)

@@ -55,7 +55,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void PoweredGateScene_ExtractsItsSleeveCollarsFrameSocketsAndThreePortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/PoweredGate/powered_gate.tscn");
+        var packedScene = WorkshopResources.LoadScene("res://elements/PoweredGate/powered_gate.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

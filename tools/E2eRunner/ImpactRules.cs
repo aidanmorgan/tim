@@ -27,6 +27,7 @@ internal static class ImpactRules
         ["Trampoline"] = new("trampoline"), ["Motor"] = new("motor"),
         ["Conveyor"] = new("conveyor"),
         ["LinearPusher"] = new("linear_pusher"),
+        ["WoundSpring"] = new("wound_spring"),
         ["Clutch"] = new("clutch"),
         ["ReverseTransmission"] = new("reverse_transmission"),
     };
@@ -40,6 +41,7 @@ internal static class ImpactRules
         ["engine/MachineWorld.Gpu.cs"] = WorkshopArea.AllInteraction,
         ["engine/WorkshopUiBinding.cs"] = WorkshopArea.AllInteraction,
         ["engine/MachinePart.cs"] = WorkshopArea.AllInteraction,
+        ["engine/WorkshopResources.cs"] = WorkshopArea.AllInteraction,
         ["ui/Workshop.cs"] = WorkshopArea.AllInteraction,
         ["ui/WorkshopGpu.cs"] = WorkshopArea.AllInteraction,
         ["ui/WorkshopUiFailure.cs"] = WorkshopArea.AllInteraction,

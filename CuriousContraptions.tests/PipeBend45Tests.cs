@@ -48,7 +48,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
     [Fact]
     public void PipeBend45Scene_ExtractsItsTorusArcStubsCollarsAndTwoMouthPortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/PipeBend45/pipe_bend_45.tscn");
+        var packedScene = WorkshopResources.LoadScene("res://elements/PipeBend45/pipe_bend_45.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

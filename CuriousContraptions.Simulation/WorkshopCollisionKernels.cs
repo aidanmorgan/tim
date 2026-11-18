@@ -60,7 +60,14 @@ internal sealed class SimBody
     /// <summary>The substep's restitution energy bound: the kinetic energy before the contact solve (after gravity and drag), the
     /// velocities after the relax sweeps, and the group root and accumulators of the bodies joined by bouncing manifolds.</summary>
     public float PreSolveKinetic;
+    public float ContactWork;
+    /// <summary>The open accepted-work window (window-midpoint rule): the body's rates when the window opened at its fixed pose,
+    /// and the contact linear impulse and angular impulse about the centre of mass applied since. Closing the window credits
+    /// <see cref="ContactWork"/> once with P·(v_start+v_end)/2 + L·(ω_start+ω_end)/2.</summary>
+    public Vector3 WindowV, WindowW, WindowContactTranslationalImpulse, WindowContactAngularImpulse;
     public Vector3 RelaxedV, RelaxedW;
+    /// <summary>The open window's contact impulses when the restitution pass begins, so its clamp scales only that pass's own.</summary>
+    public Vector3 RelaxedContactTranslationalImpulse, RelaxedContactAngularImpulse;
     public SimBody RestitutionRoot = null!;
     public int RestitutionStamp;
     public float EnergyA, EnergyB, EnergyC, EnergyBudget, EnergyScale;
@@ -196,7 +203,7 @@ internal static partial class WorkshopCollisionKernels
         body.InvI.Z * (Vector3.Dot(a, body.PrincipalZ) * Vector3.Dot(b, body.PrincipalZ));
 
     public static void ApplyImpulse(SimBody b, Vector3 p, Vector3 r) =>
-        ConstraintBodyImpulse.ApplyBodyImpulse(b, p, Vector3.Cross(r, p), 1f);
+        new ImpulseJacobian(b, p, Vector3.Cross(r, p)).ApplyContact(1f);
 
     public static Vector3 PointVelocity(SimBody b, Vector3 r)
     {

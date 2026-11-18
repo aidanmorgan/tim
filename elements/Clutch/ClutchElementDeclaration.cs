@@ -146,7 +146,7 @@ public sealed class ClutchElementDeclaration : IHingeElement, IMechanicalTransmi
     public IReadOnlyList<MechanicalTransmissionDescriptor> Transmissions =>
     [
         new(CouplingId, new CoordinateReference(CoordinateKind.Revolute, 0), new CoordinateReference(CoordinateKind.Revolute, 1),
-            MechanicalValue.Fixed(1f), MechanicalValue.FromParameter("close_seconds"))
+            MechanicalValue.Fixed(1f), TransmissionConstraintKind.Bilateral, MechanicalValue.FromParameter("close_seconds"))
     ];
 
     public SupplyGraphDescriptor SupplyGraph => new(

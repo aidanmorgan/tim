@@ -1,4 +1,5 @@
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Abstractions.Mechanical;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ public readonly record struct ActivationNodeId(ulong Value);
 /// ContactLoadSource is a declared contact-load row's committed level (Story 9R.4 D3): Latched from its first Loaded tick until its
 /// committed release hold (Story 9R.5, ReleaseHoldTicks after the last Loaded tick) expires.
 /// The kinds are distinct and share no name.</summary>
-public enum ActivationNodeKind : uint { ContactSource = 1, StickyFirstInput = 2, Timer = 3, OrientationSource = 4, PassageSource = 5, Counter = 6, Oscillator = 7, StateLatch = 8, LevelIndicator = 9, ContactLoadSource = 10 }
+public enum ActivationNodeKind : uint { ContactSource = 1, StickyFirstInput = 2, Timer = 3, OrientationSource = 4, PassageSource = 5, Counter = 6, Oscillator = 7, StateLatch = 8, LevelIndicator = 9, ContactLoadSource = 10, PhysicalRequest = 11 }
 public enum ActivationPhase : uint { Clear, Latched }
 /// <summary>Committed bistable memory of one State Latch.</summary>
 public enum SimulationLatchPhase : uint { Off = 0, On = 1 }
@@ -25,7 +26,8 @@ public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, Gpu
     ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, SupplyNodeId PowerProvider = default,
     GpuContactLoadSensorId ContactLoad = default, uint ReleaseHoldTicks = 0,
     TimerCompletionPolicy Completion = TimerCompletionPolicy.Latch, TimerBoundary Boundary = TimerBoundary.BeforePhysics,
-    TimerElapsedSignal ElapsedSignal = TimerElapsedSignal.Activation);
+    TimerElapsedSignal ElapsedSignal = TimerElapsedSignal.Activation,
+    PrismaticRetentionId Retention = default, PhysicalRequestOperation? RequestOperation = null);
 /// <summary>One routed signal; Input names the target socket (ActivationIn, or SetIn/ResetIn on a State Latch).</summary>
 public readonly record struct CompiledSignalContact(SupplyNodeId Contact, GpuBodyId Owner, ActivationNodeId Node, SignalContactState State);
 public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target, PortRole Input);

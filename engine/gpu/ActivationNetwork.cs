@@ -117,7 +117,7 @@ public sealed class ActivationNetwork : IActivationProgram
         var links = new HashSet<ActivationEdge>(16);
         foreach (var edge in _edges)
             if (edge.Source == edge.Target || !links.Add(edge) || Slot(edge.Source) < 0 || Slot(edge.Target) < 0 ||
-                _nodes[Slot(edge.Source)].Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator ||
+                _nodes[Slot(edge.Source)].Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator or ActivationNodeKind.PhysicalRequest ||
                 // A level source drives level indicators only, and a level indicator listens to a level source only.
                 IsLevelSource(_nodes[Slot(edge.Source)].Kind) != (_nodes[Slot(edge.Target)].Kind == ActivationNodeKind.LevelIndicator) ||
                 _nodes[Slot(edge.Target)].Kind is ActivationNodeKind.ContactSource or ActivationNodeKind.OrientationSource or ActivationNodeKind.PassageSource or ActivationNodeKind.Oscillator or ActivationNodeKind.ContactLoadSource ||
@@ -148,6 +148,9 @@ public sealed class ActivationNetwork : IActivationProgram
                 (node.Kind == ActivationNodeKind.ContactLoadSource ? node.ContactLoad.Value == 0 || !loads.Add(node.ContactLoad) : node.ContactLoad.Value != 0);
 
     private static bool InvalidNodeState(ActivationNodeDeclaration node) =>
+        (node.Kind == ActivationNodeKind.PhysicalRequest
+            ? node.Retention.Value == 0 || node.RequestOperation is not { } request || !Enum.IsDefined(request)
+            : node.Retention.Value != 0 || node.RequestOperation.HasValue) ||
         (node.Kind == ActivationNodeKind.ContactLoadSource ? node.ReleaseHoldTicks == 0 : node.ReleaseHoldTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Timer ? node.DurationTicks == 0 : node.DurationTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Counter ? node.TargetCount < 1 : node.TargetCount != 0) ||
@@ -161,6 +164,7 @@ public sealed class ActivationNetwork : IActivationProgram
         ActivationNodeKind.ContactLoadSource => SignalNodeKind.ContactLoad,
         ActivationNodeKind.Counter => SignalNodeKind.PulseCount,
         ActivationNodeKind.StateLatch => SignalNodeKind.Memory,
+        ActivationNodeKind.PhysicalRequest => SignalNodeKind.PhysicalRequest,
         ActivationNodeKind.Oscillator => SignalNodeKind.Oscillator,
         ActivationNodeKind.Timer => SignalNodeKind.Timer,
         ActivationNodeKind.LevelIndicator or ActivationNodeKind.StickyFirstInput => SignalNodeKind.Indicator,
@@ -284,7 +288,8 @@ public sealed class ActivationNetwork : IActivationProgram
         var end = ActivationTime.Boundary(boundary, _substeps);
         Span<ActivationLatch> values = _scratchValues; values.Clear();
         Span<ActivationTimerState> timers = _scratchTimers; timers.Clear();
-        for (var i = 0; i < committed.Count; i++) values[i] = committed[i];
+        for (var i = 0; i < committed.Count; i++)
+            values[i] = _nodes[i].Kind == ActivationNodeKind.PhysicalRequest ? ActivationLatch.Clear(_nodes[i]) : committed[i];
         for (var i = 0; i < committedTimers.Count; i++) timers[i] = committedTimers[i];
         Array.Clear(_pending);
         _transitions.Clear();
@@ -513,7 +518,7 @@ public sealed class ActivationNetwork : IActivationProgram
         Span<ActivationLatch> values, Span<ActivationMemory> rows, Span<ActivationTimerState> timers,
         Span<StateLatchRequest> latchRequests, Span<ActivationOccurrence> latchSetBy, SimulationTick boundary, ref int count)
     {
-        if (_nodes[target].Kind == ActivationNodeKind.StickyFirstInput)
+        if (_nodes[target].Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.PhysicalRequest)
         {
             if (values[target].Phase == ActivationPhase.Clear) values[target] = ActivationLatch.From(_nodes[target], occurrence);
         }
@@ -683,6 +688,9 @@ public sealed class ActivationNetwork : IActivationProgram
         if (node.Kind == ActivationNodeKind.StateLatch &&
             !_edges.ToArray().Any(edge => edge.Target == node.Id && edge.Input == PortRole.SetIn && edge.Source == occurrence.Emitter))
             throw new ArgumentException("State latch memory is not owned by a routed Set.");
+        if (node.Kind == ActivationNodeKind.PhysicalRequest &&
+            !_edges.Any(edge => edge.Target == node.Id && edge.Source == occurrence.Emitter))
+            throw new ArgumentException("Physical request is not owned by a routed occurrence.");
         ValidatePhysicalActivation(node, occurrence);
         if (node.Kind == ActivationNodeKind.Counter &&
             (occurrence.Kind != ActivationOccurrenceKind.ThresholdReached || occurrence.Emitter != node.Id))

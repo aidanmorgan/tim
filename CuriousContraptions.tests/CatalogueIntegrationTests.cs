@@ -288,7 +288,7 @@ public sealed class CatalogueIntegrationTests
         // MotorTests.ASuppliedMotorSpinsUpToItsSpeedHoldsItAndPaysOnlyItsBearingLoss spins a Battery-supplied rotor; the unpowered,
         // stalled and back-driven cases are its controls.
         // LinearPusherTests and LinearPusherIntegrationTests execute head/shaft loads, rope restraint and the sensor-to-pipe control.
-        PartId[] driveInteractions = [new("motor"), new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher")];
+        PartId[] driveInteractions = [new("motor"), new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring")];
         var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions)
             .Order().ToArray();
         var actual = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),

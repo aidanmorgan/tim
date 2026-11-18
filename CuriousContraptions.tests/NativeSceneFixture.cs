@@ -154,7 +154,7 @@ public sealed class NativeSceneFixture : FixtureBase, IAsyncLifetime
     {
         // This assembly's single fixture must establish cold startup before any test accesses the catalogue.
         Assert.Throws<InvalidOperationException>(() => PuzzleCatalogue.Playable);
-        var scene = GD.Load<PackedScene>(NativeTestBoundary.WorkshopResource).Instantiate<Workshop>();
+        var scene = new Workshop { Name = "Workshop" };
         scene.StartObservation = _ => Task.CompletedTask; // External browser registration is explicitly supplied by this native host.
         scene.ClientFactory = async () =>
         {

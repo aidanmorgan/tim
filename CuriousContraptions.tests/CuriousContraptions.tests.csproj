@@ -143,6 +143,18 @@
         <Compile Include="ElectricalSupplyTests.cs" />
         <Compile Include="SoftConstraintTests.cs" />
         <Compile Include="PrismaticConstraintTests.cs" />
+        <Compile Include="PrismaticRetentionTests.cs" />
+        <Compile Include="WoundSpringIntegrationTests.cs" />
+    <Compile Include="RetentionRequestTests.cs" />
+    <Compile Include="WoundSpringContractTests.cs" />
+    <Compile Include="RetentionBoundaryTests.cs" />
+    <Compile Include="SpringTestEnergy.cs" />
+    <Compile Include="RetentionWorkTests.cs" />
+    <Compile Include="RetentionCompositionTests.cs" />
+    <Compile Include="WoundSpringControlTests.cs" />
+    <Compile Include="WoundSpringContactTests.cs" />
+    <Compile Include="WoundSpringLifecycleTests.cs" />
+    <Compile Include="WoundSpringArtTests.cs" />
         <Compile Include="WorkshopSpringboardTests.cs" />
         <Compile Include="WorkshopDominoTests.cs" />
         <Compile Include="DominoGuardTests.cs" />        <Compile Include="DeclaredOrientationTests.cs" />        <Compile Include="WorkshopBowlingTests.cs" />

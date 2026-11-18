@@ -251,8 +251,16 @@ internal sealed class LawScene
         _revoluteDrives.Add(new(joint, targetSpeed, maxTorque));
     private readonly List<RevoluteDriveDeclaration> _revoluteDrives = [];
     private readonly List<MechanicalTransmissionDeclaration> _transmissions = [];
-    public void Transmission(RevoluteConstraintId source, RevoluteConstraintId target, float ratio) =>
-        _transmissions.Add(new(new(_next++), source, target, ratio));
+    public void Transmission(ConstraintCoordinateReference source, ConstraintCoordinateReference target, float ratio) =>
+        _transmissions.Add(new(new(_next++), source, target, ratio, TransmissionConstraintKind.Bilateral));
+
+    public PrismaticRetentionId Retain(GpuBodyId owner, RevoluteConstraintId shaft, PrismaticConstraintId slider, float lead, float initial = 0f)
+    {
+        var id = new PrismaticRetentionId(_next++);
+        _transmissions.Add(new(new(_next++), new(shaft), new(slider), lead,
+            TransmissionConstraintKind.NonPositiveVelocity, Owner: owner, Retention: id, InitialRetentionCoordinate: initial));
+        return id;
+    }
 
     /// <summary>An electrical source owned by <paramref name="owner"/> (an ample store) and its supply graph source node.</summary>
     public ElectricalSourceDeclaration Source(GpuBodyId owner, ElectricalEnable enabled = ElectricalEnable.Enabled)
@@ -769,9 +777,13 @@ public sealed class WorkshopPhysicsLawTests
         "MechanicalTransmissionRatioOffset", "MechanicalTransmissionImpulseOffset", "MechanicalTransmissionCloseSecondsOffset",
         "MechanicalTransmissionClosureOffset", "MechanicalTransmissionSuppliedOffset", "MechanicalTransmissionPhaseOffset",
         "MechanicalTransmissionOriginOrdinalOffset", "MechanicalTransmissionOriginClosureOffset",
+        // Mixed coordinate kinds, unilateral relation and measured interface work apply to arbitrary declared joints.
+        "MechanicalTransmissionDrivingKindOffset", "MechanicalTransmissionDrivenKindOffset",
+        "TransmissionConstraintKind", "MechanicalTransmissionKindOffset", "MechanicalTransmissionWorkOffset",
+        "MechanicalTransmissionPositiveWorkOffset", "CommitTransmission",
         // Exact mathematical vectors, declared prismatic drive state and reusable coupled-trial storage.
         // Catalogue words remain scanned in all other identifiers, including LinearPusher and motorElement.
-        "linear", "_linear", "otherLinear", "LinearVelocity", "MaxLinearSpeed", "LinearA", "LinearB",
+        "linear", "Linear", "_linear", "otherLinear", "LinearVelocity", "MaxLinearSpeed", "LinearA", "LinearB",
         "PrismaticMotorSolver", "MotorActive", "MotorImpulse", "HoldCoordinate", "PrismaticHoldCoordinateOffset",
         "PrismaticMotorImpulseOffset", "_motorTrial", "MotorBudgetsHold", "_transmissionImpulses", "rope"];
 

@@ -82,7 +82,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void ClockScene_ExtractsItsSolidPartsAsCollidersAndPortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/SystemClock/clock.tscn");
+        var packedScene = WorkshopResources.LoadScene("res://elements/SystemClock/clock.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

@@ -100,7 +100,7 @@ public sealed class PartRegistry(IPresentationServices presentation, IBundleServ
         var metadata = entry.Metadata;
         if (!ResourceLoader.Exists(metadata.ScenePath)) throw Invalid($"{id}.Metadata.ScenePath: '{metadata.ScenePath}' does not exist");
         if (!Godot.FileAccess.FileExists(metadata.IconPath)) throw Invalid($"{id}.Metadata.IconPath: '{metadata.IconPath}' does not exist");
-        var scene = ResourceLoader.Load<PackedScene>(metadata.ScenePath)
+        var scene = WorkshopResources.LoadScene(metadata.ScenePath)
             ?? throw Invalid($"{id}.Metadata.ScenePath: '{metadata.ScenePath}' is not a scene");
         var color = metadata.Color;
         return new PartDefinition(bundle, id, metadata.DisplayName, metadata.Description, metadata.Category, new(color.R, color.G, color.B, color.A),
@@ -115,7 +115,7 @@ public sealed class PartRegistry(IPresentationServices presentation, IBundleServ
             throw new ArgumentException($"This catalogue part '{id}' is not supported by the current GPU Workshop.");
         if (definition.Scene is null)
             throw new ArgumentException($"Catalogue part '{id}' has no scene.");
-        var part = definition.Scene.Instantiate<MachinePart>();
+        var part = MachinePart.InstantiateArtwork(definition.Scene);
         try
         {
             part.Configure(presentation, definition);

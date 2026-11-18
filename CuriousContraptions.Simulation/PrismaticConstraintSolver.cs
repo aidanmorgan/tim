@@ -43,6 +43,7 @@ internal sealed class SimJoint
     public float Upper;
     /// <summary>The joint's declared axial stiffness (N/m), which its supplied drive holds against.</summary>
     public float Stiffness;
+    public SimPrismaticRetention? Retention;
     public SoftConstraintCoefficients Soft;
     public uint Collision;
     /// <summary>Refreshed each tick from the compiled supply route feeding the frame owner's PowerIn: closed while its source is
@@ -73,7 +74,9 @@ internal static class PrismaticConstraintSolver
         var localA = new ConstraintFrame(joint.Pa, joint.Qa);
         var localB = new ConstraintFrame(joint.Pb, joint.Qb);
 
-        PrismaticRows.Prepare(frameA, frameB, localA, localB, joint.Lower, joint.Upper, prepared);
+        var lower = joint.Retention is { Mode: RetentionMode.Releasing } released ? released.Bound : joint.Lower;
+        var upper = joint.Retention is { Mode: RetentionMode.Retained } retained ? retained.Bound : joint.Upper;
+        PrismaticRows.Prepare(frameA, frameB, localA, localB, lower, upper, prepared);
 
         for (var i = 0; i < 8; i++)
         {

@@ -156,6 +156,9 @@ public sealed class BundlePortsTests
             new(new("RetractIn"), PortRole.SecondIn, new("Retract", SocketGlyph.Retract), WorkshopConnectionDomain.Electrical, In, null, new(.55f, -.4f, .5f)),
             new(new("RetractedOut"), PortRole.Supply, new("Retracted", SocketGlyph.Retracted), WorkshopConnectionDomain.Electrical, Out, null, new(-.45f, .4f, .45f)),
             new(new("ExtendedOut"), PortRole.Supply, new("Extended", SocketGlyph.Extended), WorkshopConnectionDomain.Electrical, Out, null, new(.45f, .4f, .45f))], new(2, 1, 1, 0)),
+        ["wound_spring"] = ([Mechanical(PortId.DriveIn, In, -.62f, -.55f, .55f, new(CoordinateKind.Revolute, 0), -1f,
+            new(new(0), new(-.62f, -.55f, .55f), Quaternion.Identity, .26f, 1f)),
+            Activation(PortId.ActivationIn, In, Pulse, .62f, -.55f, .55f)], new(3, 2, 1, 1)),
         ["powered_gate"] = ([Electrical(PortId.PowerIn, In, 0f, 1.65f, .92f)], new(2, 1, 1, 0)),
         ["pressure_plate"] = ([Electrical(PortId.PowerIn, In, -1.18f, -.08f, 0f), Activation(PortId.ActivationOut, Out, Level, 0f, -.08f, 1.18f),
             Electrical(PortId.Supply, Out, 1.18f, -.08f, 0f)], new(1, 0, 0, 0)),
@@ -380,7 +383,7 @@ public sealed class BundlePortLocatorTests(NativeSceneFixture godot)
         foreach (var package in TestBundle.Packages)
         {
             var declaration = package.Declaration;
-            var scene = ResourceLoader.Load<PackedScene>(declaration.Metadata.ScenePath);
+            var scene = WorkshopResources.LoadScene(declaration.Metadata.ScenePath);
             Assert.NotNull(scene);
             var root = scene.Instantiate<Node3D>();
             try

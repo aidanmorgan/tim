@@ -253,7 +253,7 @@ internal static class WorkshopFrictionSolver
     private static void Apply(ContactPatch p, Vector3 delta) => p.Jacobian.Apply(delta);
 
     private static void Angular(SimBody body, Vector3 torque) =>
-        ConstraintBodyImpulse.ApplyBodyImpulse(body, Vector3.Zero, torque, 1f);
+        new ImpulseJacobian(body, Vector3.Zero, torque).ApplyContact(1f);
 
     // Cyclic Jacobi diagonalization of the symmetric PSD effective mass. Twelve sweeps
     // bound work; a rotation stops below one f32 relative epsilon of the two diagonals.

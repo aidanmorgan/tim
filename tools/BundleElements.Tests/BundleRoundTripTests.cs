@@ -43,6 +43,37 @@ public sealed class BundleRoundTripTests
         Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace("\"Travel\": \"Limited\"", "\"Travel\": 0", StringComparison.Ordinal)));
     }
 
+    [Theory]
+    [InlineData("ConstraintKind", "NonPositiveVelocity")]
+    [InlineData("Request", "Release")]
+    public void RetentionEnumsUseExactNamesAndRefuseNumericOrUnknownValues(string field, string name)
+    {
+        var json = BundleSchema.Write([Declaration("WoundSpring")]);
+        var canonical = System.Text.Json.JsonSerializer.Serialize(field) + ": " + System.Text.Json.JsonSerializer.Serialize(name);
+        Assert.Contains(canonical, json, StringComparison.Ordinal);
+        var decoded = Assert.Single(BundleSchema.Read(json).Elements);
+        Assert.Equal(TransmissionConstraintKind.NonPositiveVelocity, Assert.Single(decoded.Mechanical!.Transmissions).ConstraintKind);
+        Assert.Equal(PhysicalRequestOperation.Release, Assert.IsType<SignalPhysicalRequestDescriptor>(Assert.Single(decoded.Signal!.Nodes)).Request);
+        foreach (var invalid in new[] { "0", "\"Unknown\"", "\"" + name.ToLowerInvariant() + "\"" })
+            Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace(canonical,
+                System.Text.Json.JsonSerializer.Serialize(field) + ": " + invalid, StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public void LocalPrismaticRetentionIdSerializesAsScalarAndRefusesZeroOrObjects()
+    {
+        var json = BundleSchema.Write([Declaration("WoundSpring")]);
+        using var document = JsonDocument.Parse(json);
+        var element = document.RootElement.GetProperty("Elements")[0];
+        var retention = element.GetProperty("Mechanical").GetProperty("Retentions")[0];
+        Assert.Equal(JsonValueKind.Number, retention.GetProperty("Id").ValueKind);
+        Assert.Equal(1u, retention.GetProperty("Id").GetUInt32());
+        Assert.Contains("\"Retention\": 1", json, StringComparison.Ordinal);
+        foreach (var invalid in new[] { "0", "{\"Value\": 1}" })
+            Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace("\"Retention\": 1", "\"Retention\": " + invalid, StringComparison.Ordinal)));
+        Assert.Throws<JsonException>(() => BundleSchema.WriteEntries([BundleSchema.Read(json).Elements[0] with { Mechanical = BundleSchema.Read(json).Elements[0].Mechanical! with { Retentions = [new(new(0), new(CoordinateKind.Prismatic, 0), new(1))] } }]));
+    }
+
     // Guard: every enum the bundle schema's type graph reaches (from BundleDocument through public properties, collection elements and
     // nullable values) has an exact-name converter in the source-generated context, so no enum is written as a number.
     [Fact]
@@ -200,6 +231,8 @@ public sealed class BundleRoundTripTests
             AssertSame(mechanical.AnchorPoints, entry.Mechanical.AnchorPoints, "AnchorPoints");
             AssertSame(mechanical is ISliderElement slider ? slider.Sliders : [], entry.Mechanical.Sliders, "Sliders");
             AssertSame(mechanical is IHingeElement hinge ? hinge.Hinges : [], entry.Mechanical.Hinges, "Hinges");
+            AssertSame(mechanical is IMechanicalTransmissionElement transmissions ? transmissions.Transmissions : [], entry.Mechanical.Transmissions, "Transmissions");
+            AssertSame(mechanical is IPrismaticRetentionElement retentions ? retentions.Retentions : [], entry.Mechanical.Retentions, "Retentions");
             Assert.Equal(mechanical is IContactWorkElement, entry.Mechanical.ContactWork is not null);
             if (mechanical is IContactWorkElement work) AssertSame(work.ContactWork, entry.Mechanical.ContactWork!.Value, "ContactWork");
             Assert.Equal(mechanical is ICompliantSurfaceElement, entry.Mechanical.CompliantSurface is not null);

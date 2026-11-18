@@ -6,15 +6,15 @@ namespace CuriousContraptions.Gpu;
 
 public static class ActuatorObservations
 {
-    /// <summary>The game-grade envelope's resting contact slop, 0.5 mm: a coordinate within it of a stop is at that stop.</summary>
-    public const float StopSlop = 5e-4f;
     /// <summary>The game-grade envelope's at-rest linear speed, 0.01 m/s (its sleep threshold): slower axial motion is at rest.</summary>
     public const float RestSpeed = .01f;
 
     /// <summary>Something is in the way (CAT-051 Q3, coordinator decision 2, 22 Oct 2026): the moving body is in solver contact with
     /// another body, held at rest short of both stops. A slider resting in its interior with nothing touching it (an inverted or
     /// tilted mount at its spring-gravity equilibrium) is not blocked. A single state for both directions (Q4).</summary>
-    public static bool IsBlocked(this ActuatorDriveRead drive) => drive.MovingContact && drive.Coordinate > drive.Lower + StopSlop && drive.Coordinate < drive.Upper - StopSlop && MathF.Abs(drive.Speed) < RestSpeed;
+    public static bool IsBlocked(this ActuatorDriveRead drive) => drive.MovingContact &&
+        drive.Coordinate > drive.Lower + PhysicalTolerance.ActuatorStopSlopMetres &&
+        drive.Coordinate < drive.Upper - PhysicalTolerance.ActuatorStopSlopMetres && MathF.Abs(drive.Speed) < RestSpeed;
 }
 
 public static partial class PhysicsGpuAbi
@@ -138,7 +138,7 @@ public static partial class PhysicsGpuAbi
         var surfaces = new CompliantSurfaceRead[layout.CompliantSurfaces];
         for (var i = 0; i < surfaces.Length; i++) surfaces[i] = ReadCompliantSurfaceDeflection(bytes, i);
         Array.Sort(surfaces, (a, b) => a.Frame.Value.CompareTo(b.Frame.Value));
-        return new(actuators, loads, inputs.Logic, ropes, guides, surfaces, ReadMechanicalTransmissionReads(bytes));
+        return new(actuators, loads, inputs.Logic, ropes, guides, surfaces, ReadMechanicalTransmissionReads(bytes), ReadRetentions(bytes));
     }
     private static Vector3 PresentationVector(ReadOnlySpan<byte> body, int offset) =>
         new(RF(body, offset), RF(body, offset + 4), RF(body, offset + 8));

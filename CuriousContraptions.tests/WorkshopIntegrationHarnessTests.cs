@@ -324,9 +324,34 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
     private static bool HasLabel(Workshop scene, string text) => Descendants(scene).OfType<Label>().Any(label => label.Text == text);
     private static Workshop Scene()
     {
-        var scene = GD.Load<PackedScene>(NativeTestBoundary.WorkshopResource).Instantiate<Workshop>();
+        var scene = new Workshop { Name = "Workshop" };
         scene.StartObservation = _ => Task.CompletedTask; // Explicit native stand-in for browser registration.
         return scene;
+    }
+
+
+    [Fact]
+    public async Task ExplicitWorkshopNodesReloadAfterTheirRegistryResourcesFinalize()
+    {
+        for (var instance = 0; instance < 2; instance++)
+        {
+            var scene = Scene();
+            await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+            scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness));
+            try
+            {
+                godot.Tree.Root.AddChild(scene);
+                await scene.Startup;
+                Assert.NotNull(scene.World);
+                Assert.True(scene.IsInsideTree());
+            }
+            finally { scene.Free(); }
+            GC.Collect();
+            await Task.Run(GC.WaitForPendingFinalizers, TestContext.Current.CancellationToken)
+                .WaitAsync(TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken);
+            var errors = godot.Errors.Drain();
+            Assert.True(errors.Length == 0, string.Join(System.Environment.NewLine, errors.Select(error => error.ToString())));
+        }
     }
 
     [Fact]
@@ -612,7 +637,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             string[] expected =
             [
                 "Motion", "ball", "bumper", "domino", "bowling", "spring", "pipe", "pipe_bend_45",
-                "pipe_bend_90", "funnel", "powered_gate", "weight", "rope_anchor", "pulley", "impact_lever", "trampoline", "conveyor", "reverse_transmission",
+                "pipe_bend_90", "funnel", "powered_gate", "weight", "rope_anchor", "pulley", "impact_lever", "trampoline", "conveyor", "reverse_transmission", "wound_spring",
                 "Goals", "basket", "lamp", "Power", "switch", "battery", "motor", "clutch", "linear_pusher",
                 "Control", "delay", "ball_detector", "pressure_plate", "counter", "clock", "latch",
                 "hold_timer", "both_gate", "electrical_nand", "electrical_nor", "electrical_or", "electrical_xor",

@@ -1,5 +1,6 @@
 using CuriousContraptions.Abstractions;
 using System;
+using CuriousContraptions.Abstractions.Mechanical;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
@@ -52,10 +53,28 @@ public static partial class WorkshopWireFlatBuffers
 
     private static Offset<W.MechanicalTransmissionRecord> EncodeMechanicalTransmission(FlatBufferBuilder b, MechanicalTransmissionDeclaration value) =>
         W.MechanicalTransmissionRecord.CreateMechanicalTransmissionRecord(
-            b, value.Id.Value, value.DrivingJoint.Value, value.DrivenJoint.Value, value.Ratio, value.CloseSeconds, value.Owner.Value);
+            b, value.Id.Value, CoordinateIdentity(value.Driving), CoordinateIdentity(value.Driven),
+            (byte)value.Driving.Kind, (byte)value.Driven.Kind, (byte)value.ConstraintKind, value.Ratio, value.CloseSeconds, value.Owner.Value,
+            value.Retention?.Value ?? 0, value.InitialRetentionCoordinate);
 
     private static MechanicalTransmissionDeclaration DecodeMechanicalTransmission(W.MechanicalTransmissionRecord row) =>
-        new(new(row.Id), new(row.DrivingHinge), new(row.DrivenHinge), row.Ratio, row.CloseSeconds, new(row.Owner));
+        new(new(row.Id), DecodeCoordinate(row.DrivingKind, row.DrivingCoordinate), DecodeCoordinate(row.DrivenKind, row.DrivenCoordinate),
+            row.Ratio, ObservationEnum<TransmissionConstraintKind>(row.ConstraintKind), row.CloseSeconds, new(row.Owner),
+            row.Retention == 0 ? null : new PrismaticRetentionId(row.Retention), row.InitialRetentionCoordinate);
+
+    private static ulong CoordinateIdentity(ConstraintCoordinateReference coordinate) => coordinate.Kind switch
+    {
+        CoordinateKind.Prismatic => coordinate.Prismatic.Value,
+        CoordinateKind.Revolute => coordinate.Revolute.Value,
+        _ => throw new ArgumentException("Unsupported coordinate kind.")
+    };
+
+    private static ConstraintCoordinateReference DecodeCoordinate(byte kind, ulong identity) => ObservationEnum<CoordinateKind>(kind) switch
+    {
+        CoordinateKind.Prismatic => new(new PrismaticConstraintId(identity)),
+        CoordinateKind.Revolute => new(new RevoluteConstraintId(identity)),
+        _ => throw new ArgumentException("Unsupported coordinate kind.")
+    };
 
     private static Offset<W.DrivenSurfaceRecord> EncodeDrivenSurface(FlatBufferBuilder b, DrivenSurfaceDeclaration value)
     {
@@ -758,6 +777,8 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityActivationNodeDeclarationRecord.AddCompletion(b, (uint)value.Completion);
         W.CapabilityActivationNodeDeclarationRecord.AddBoundary(b, (uint)value.Boundary);
         W.CapabilityActivationNodeDeclarationRecord.AddElapsedSignal(b, (uint)value.ElapsedSignal);
+        W.CapabilityActivationNodeDeclarationRecord.AddRetention(b, value.Retention.Value);
+        if (value.RequestOperation is { } operation) W.CapabilityActivationNodeDeclarationRecord.AddRequestOperation(b, (byte)operation);
         return W.CapabilityActivationNodeDeclarationRecord.EndCapabilityActivationNodeDeclarationRecord(b);
     }
 
@@ -776,7 +797,8 @@ public static partial class WorkshopWireFlatBuffers
         row.ReleaseHoldTicks,
         ObservationEnum<CuriousContraptions.Abstractions.Signal.TimerCompletionPolicy>(row.Completion),
         ObservationEnum<CuriousContraptions.Abstractions.Signal.TimerBoundary>(row.Boundary),
-        ObservationEnum<CuriousContraptions.Abstractions.Signal.TimerElapsedSignal>(row.ElapsedSignal));
+        ObservationEnum<CuriousContraptions.Abstractions.Signal.TimerElapsedSignal>(row.ElapsedSignal),
+        new(row.Retention), row.RequestOperation is { } operation ? ObservationEnum<PhysicalRequestOperation>(operation) : null);
 
     private static Offset<W.CapabilityActivationEdgeRecord> EncodeCapabilityActivationEdgeRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.ActivationEdge value)
     {
@@ -961,6 +983,7 @@ public static partial class WorkshopWireFlatBuffers
             W.CompiledPresentationRecord.AddSource(b, track.Source.Value);
             W.CompiledPresentationRecord.AddSupplyNode(b, track.SupplyNode.Value);
             W.CompiledPresentationRecord.AddTransmission(b, track.Transmission.Value);
+            W.CompiledPresentationRecord.AddRetention(b, track.Retention.Value);
             return W.CompiledPresentationRecord.EndCompiledPresentationRecord(b);
         }).ToArray());
         W.CompiledSceneRecord.StartCompiledSceneRecord(b);
@@ -1073,7 +1096,7 @@ public static partial class WorkshopWireFlatBuffers
                     DecodeCapabilityPresentationBindingRecord(Required(track.Declaration, "declaration")),
                     track.Activation is { } node ? DecodeCapabilityActivationNodeDeclarationRecord(node) : default, track.SourceCapacity,
                     track.Actuator is { } drive ? ActuatorConsumerOf(drive.Kind, drive.Joint) : null, new(track.Guide),
-                    new(track.Source), new(track.SupplyNode), new MechanicalTransmissionId(track.Transmission));
+                    new(track.Source), new(track.SupplyNode), new MechanicalTransmissionId(track.Transmission), new PrismaticRetentionId(track.Retention));
             });
             return new(new(row.Identity), new(row.Revision), DecodeCapabilityWorkshopCadenceSettingsRecord(Required(row.Settings, "settings")),
                 physics, activation, presentation,

@@ -42,7 +42,7 @@ public static partial class WorkshopWireFlatBuffers
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
-        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 32, _ => 0 };
+        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 33, _ => 0 };
         if (fieldCount != 0)
         {
             var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
@@ -470,6 +470,7 @@ public static partial class WorkshopWireFlatBuffers
         var guideOffset = EncodeGuideOffset(builder, read);
         var surfaceOffset = EncodeSurfaceOffset(builder, read);
         var transmissionOffset = EncodeTransmissionOffset(builder, read);
+        var retentionOffset = EncodeRetentions(builder, read.Presentation.Retentions);
         var logicOffset = EncodeLogicOffset(builder, read);
         var actuatorOffset = EncodeActuatorOffset(builder, read);
         var loadOffset = EncodeLoadOffset(builder, read);
@@ -524,6 +525,7 @@ public static partial class WorkshopWireFlatBuffers
         if (electricalOffset.HasValue) Wire.WorkshopResponse.AddElectrical(builder, electricalOffset.Value);
         if (driveTargetOffset.HasValue) Wire.WorkshopResponse.AddDriveTargets(builder, driveTargetOffset.Value);
         if (transmissionOffset.HasValue) Wire.WorkshopResponse.AddTransmissions(builder, transmissionOffset.Value);
+        if (retentionOffset.Value != 0) Wire.WorkshopResponse.AddRetentions(builder, retentionOffset);
         if (memoryOffset.HasValue) Wire.WorkshopResponse.AddActivationMemory(builder, memoryOffset.Value);
         if (motion.HasValue) Wire.WorkshopResponse.AddMotion(builder, motion.Value);
         if (response.Memory is { } observed)
@@ -658,7 +660,7 @@ public static partial class WorkshopWireFlatBuffers
         var read = new WorkshopRead(epoch, tick, bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores),
             new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues),
-            new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, guideValues, surfaceValues, transmissionValues),
+            new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, guideValues, surfaceValues, transmissionValues, DecodeRetentions(fb)),
             new PhysicsDriveTargetRead(driveTargets));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);

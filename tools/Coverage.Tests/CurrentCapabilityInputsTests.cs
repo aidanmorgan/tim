@@ -131,6 +131,8 @@ public class CurrentCapabilityInputsTests
         Assert.Throws<InvalidDataException>(() => CurrentOwnerRelations.Parse(ids, [link]));
     }
 
+    private static readonly SymbolId[] ConstructionSymbols = [new("PartRegistry"), new("MachinePart"), new("WorkshopResources")];
+
     [Fact]
     public void AdmittedResourceClosureRejectsMissingDuplicateAndEscapingLinksAndBindsBytes()
     {
@@ -142,17 +144,19 @@ public class CurrentCapabilityInputsTests
         var scene = Path.Combine(directory, "elements/Ball/ball.tscn");
         var script = Path.Combine(directory, "engine/MachinePart.cs");
         const string resourceText = "Id: \"ball\",\nScenePath: \"res://elements/Ball/ball.tscn\",";
-        const string sceneText = "[ext_resource type=\"Script\" path=\"res://engine/MachinePart.cs\" id=\"1\"]\n[node name=\"ball\" type=\"Node3D\"]\nscript = ExtResource(\"1\")";
+        const string sceneText = "[node name=\"ball\" type=\"Node3D\"]";
         try
         {
             File.WriteAllText(resource, resourceText);
             File.WriteAllText(scene, sceneText);
             File.WriteAllText(script, "public class MachinePart {}");
+            File.WriteAllText(Path.Combine(directory, "engine/PartRegistry.cs"), "public class PartRegistry {}");
+            File.WriteAllText(Path.Combine(directory, "engine/WorkshopResources.cs"), "public class WorkshopResources {}");
             var first = CapabilityInputs.ReadResourceClosure(root, BallResource);
             Assert.Equal(2, first.Artifacts.Length);
-            Assert.Single(first.Symbols);
+            Assert.Equal(ConstructionSymbols, first.Symbols.Select(symbol => symbol.Symbol));
             File.WriteAllText(script, "public class MachinePart { public float Mass; }");
-            Assert.NotEqual(first.Symbols[0].FileHash, CapabilityInputs.ReadResourceClosure(root, BallResource).Symbols[0].FileHash);
+            Assert.NotEqual(first.Symbols[1].FileHash, CapabilityInputs.ReadResourceClosure(root, BallResource).Symbols[1].FileHash);
             File.WriteAllText(scene, sceneText + "\n# authored change");
             Assert.NotEqual(first.Artifacts[1].Hash, CapabilityInputs.ReadResourceClosure(root, BallResource).Artifacts[1].Hash);
             File.WriteAllText(resource, resourceText + "\n" + resourceText);
@@ -167,26 +171,38 @@ public class CurrentCapabilityInputsTests
     }
 
     [Theory]
-    [InlineData(false, "")]
-    [InlineData(false, "ScenePath: \"res://elements/Ball/ball.tscn\",\nScenePath: \"res://elements/Ball/ball.tscn\",")]
-    [InlineData(false, "ScenePath: \"res://elements/Ball/ball.svg\",")]
-    [InlineData(true, "")]
-    [InlineData(true, "script = ExtResource(\"unknown\")")]
-    [InlineData(true, "script = ExtResource(\"1\")\nscript = ExtResource(\"1\")")]
-    [InlineData(true, "script = null")]
-    public void ActualResourcePropertyBindingMustResolve(bool sceneBinding, string binding)
+    [InlineData("")]
+    [InlineData("ScenePath: \"res://elements/Ball/ball.tscn\",\nScenePath: \"res://elements/Ball/ball.tscn\",")]
+    [InlineData("ScenePath: \"res://elements/Ball/ball.svg\",")]
+    public void ActualResourcePropertyBindingMustResolve(string binding)
     {
         var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(Path.Combine(directory, "elements/Ball"));
-        Directory.CreateDirectory(Path.Combine(directory, "engine"));
         try
         {
-            File.WriteAllText(Path.Combine(directory, BallResource.Value),
-                "Id: \"ball\",\n" + (sceneBinding ? "ScenePath: \"res://elements/Ball/ball.tscn\"," : binding));
-            File.WriteAllText(Path.Combine(directory, "elements/Ball/ball.tscn"),
-                "[ext_resource type=\"Script\" path=\"res://engine/MachinePart.cs\" id=\"1\"]\n[node name=\"ball\" type=\"Node3D\"]\n" +
-                (sceneBinding ? binding : "script = ExtResource(\"1\")"));
-            File.WriteAllText(Path.Combine(directory, "engine/MachinePart.cs"), "public class MachinePart {}");
+            File.WriteAllText(Path.Combine(directory, BallResource.Value), "Id: \"ball\",\n" + binding);
+            File.WriteAllText(Path.Combine(directory, "elements/Ball/ball.tscn"), "[node name=\"ball\" type=\"Node3D\"]");
+            Assert.Throws<InvalidDataException>(() => CapabilityInputs.ReadResourceClosure(new(directory), BallResource));
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("[node name=\"ball\" type=\"Node\"]")]
+    [InlineData("[node name=\"ball\" type=\"Node3D\"]\n[node name=\"other\" type=\"Node3D\"]")]
+    [InlineData("[node name=\"ball\" type=\"Node3D\"]\nscript = null")]
+    [InlineData("[ext_resource type=\"Script\" path=\"res://engine/MachinePart.cs\" id=\"1\"]\n[node name=\"ball\" type=\"Node3D\"]")]
+    [InlineData("[ext_resource type=\"Mesh\" path=\"res://elements/Ball/mesh.obj\" id=\"1\"]\n[ext_resource type=\"Mesh\" path=\"res://elements/Ball/mesh.obj\" id=\"1\"]\n[node name=\"ball\" type=\"Node3D\"]")]
+    [InlineData("[ext_resource type=\"Mesh\" id=\"1\"]\n[node name=\"ball\" type=\"Node3D\"]")]
+    public void ArtworkRequiresOneNativeRootAndValidExternalIdentities(string scene)
+    {
+        var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(Path.Combine(directory, "elements/Ball"));
+        try
+        {
+            File.WriteAllText(Path.Combine(directory, BallResource.Value), "Id: \"ball\",\nScenePath: \"res://elements/Ball/ball.tscn\",");
+            File.WriteAllText(Path.Combine(directory, "elements/Ball/ball.tscn"), scene);
             Assert.Throws<InvalidDataException>(() => CapabilityInputs.ReadResourceClosure(new(directory), BallResource));
         }
         finally { Directory.Delete(directory, true); }

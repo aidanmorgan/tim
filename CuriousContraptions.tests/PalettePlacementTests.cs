@@ -967,7 +967,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     private (Workshop Scene, PlacementClient Client) BenchScene(PartId tool, PlacementAnswer answer = PlacementAnswer.Pending, IWorkshopSaveStore? store = null, SubViewport? viewport = null)
     {
         var client = new PlacementClient(answer);
-        var scene = GD.Load<PackedScene>("res://scenes/workshop.tscn").Instantiate<Workshop>();
+        var scene = new Workshop { Name = "Workshop" };
         scene.StartObservation = _ => Task.CompletedTask; // Explicit native stand-in for browser registration.
         scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(client);
         if (store is not null) scene.SaveStore = store;

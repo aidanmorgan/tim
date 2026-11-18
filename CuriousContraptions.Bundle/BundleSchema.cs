@@ -30,7 +30,8 @@ public static class BundleSchema
                     mechanical is IResidenceSensorElement sensor ? sensor.ResidenceSensor : null,
                     mechanical is IPlanarGuideElement guide ? guide.PlanarGuide : null,
                     mechanical is IContactWorkElement work ? work.ContactWork : null)
-                { Extrusions = mechanical is IClippedExtrusionElement extrusion ? extrusion.Extrusions : [] } : null,
+                { Extrusions = mechanical is IClippedExtrusionElement extrusion ? extrusion.Extrusions : [],
+                    Retentions = mechanical is IPrismaticRetentionElement retention ? retention.Retentions : [] } : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.SupplyGraph : null) : null,
             declaration is ISignalElement signal ? new SignalPayload(signal.SignalNodes, signal.SignalEdges, signal.SignalPorts) : null,
             declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
@@ -84,7 +85,7 @@ public static class BundleSchema
     [
         typeof(Vector2Converter), typeof(Vector3Converter), typeof(QuaternionConverter), typeof(ParameterIdConverter), typeof(PackageBodyIndexConverter),
         typeof(PortIdConverter), typeof(SignalNodeIdConverter), typeof(LocalSupplyNodeIdConverter), typeof(LocalContactWorkIdConverter),
-        typeof(LocalMechanicalTransmissionIdConverter),
+        typeof(LocalMechanicalTransmissionIdConverter), typeof(LocalPrismaticRetentionIdConverter),
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<CoordinateKind>),
@@ -93,7 +94,7 @@ public static class BundleSchema
         typeof(ExactEnumConverter<BoxFace>), typeof(ExactEnumConverter<RevoluteTravel>), typeof(ExactEnumConverter<TargetSelectorKind>),
         typeof(ExactEnumConverter<SupplyTerminal>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTerminal>), typeof(ExactEnumConverter<SignalContactState>),typeof(ExactEnumConverter<TimerCompletionPolicy>),
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),
-        typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>), typeof(ExactEnumConverter<CoordinateEndpoint>),
+        typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>), typeof(ExactEnumConverter<TransmissionConstraintKind>), typeof(ExactEnumConverter<PhysicalRequestOperation>), typeof(ExactEnumConverter<CoordinateEndpoint>),
         typeof(ExactEnumConverter<PrismaticTargetSelection>), typeof(ExactEnumConverter<PrismaticInactiveResponse>),
         typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>),
         typeof(ExactEnumConverter<PresentationAxes>), typeof(ExactEnumConverter<PresentationProperty>),
@@ -193,6 +194,22 @@ internal sealed class LocalMechanicalTransmissionIdConverter : JsonConverter<Loc
     public override void Write(Utf8JsonWriter writer, LocalMechanicalTransmissionId value, JsonSerializerOptions options)
     {
         if (value.Value == 0) throw new JsonException("A mechanical transmission id is nonzero.");
+        writer.WriteNumberValue(value.Value);
+    }
+}
+
+internal sealed class LocalPrismaticRetentionIdConverter : JsonConverter<LocalPrismaticRetentionId>
+{
+    public override LocalPrismaticRetentionId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetUInt32(out var value) || value == 0)
+            throw new JsonException("A prismatic retention id is a nonzero unsigned integer.");
+        return new(value);
+    }
+
+    public override void Write(Utf8JsonWriter writer, LocalPrismaticRetentionId value, JsonSerializerOptions options)
+    {
+        if (value.Value == 0) throw new JsonException("A prismatic retention id is nonzero.");
         writer.WriteNumberValue(value.Value);
     }
 }

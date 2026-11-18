@@ -259,9 +259,9 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
     public async Task ThreeNativeLampsFollowCommittedInputsAndSupplyThroughHideAndReset()
     {
         var construction=BothGateTests.Machine();
-        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],2),
-            ([new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],2),([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled))],2));
-        var first=phases[0][^1];var noSupply=phases[1][^1];var secondOnly=phases[2][^1];
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],60),
+            ([new(new(3),RunControlValue.Of(ElectricalEnable.Disabled))],60),([new(new(1),RunControlValue.Of(ElectricalEnable.Disabled))],2));
+        var first=phases[0][0];var noSupply=phases[1][0];var secondOnly=phases[2][0];
         var evaluator=new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction),Response(first,1));
         var registry=new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);registry.Load();
         var part=registry.Create(BothGateTests.Kind);var control=registry.Create(BothGateTests.Kind);
@@ -282,17 +282,20 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
             Assert.Equal(new Color("#f7cb52"),Colour(part,"FirstLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"SecondLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"OutputLamp"));
             Assert.Equal(new Color("#556573"),Colour(control,"OutputLamp")); // No property delivery cannot fake a powered lamp.
             var target=WorkshopDeclaredPresentation.Targets(CompiledSceneFixture.Compile(construction)).First(row=>row.Owner.Value==4).Target;
+            // Each new control is admitted at its real committed boundary, after previous visual samples.
+            time=noSupply.Tick.Value / 120d;
             evaluator.SetVisible(target,AnimationProperty.ColourRed,false);evaluator.Accept(Response(noSupply,2));
-            Assert.DoesNotContain(evaluator.Advance(AnimationTestTime.Seconds(time+.2)),sample=>sample.Owner.Value==4);
-            evaluator.SetVisible(target,AnimationProperty.ColourRed,true);Apply(time+.31);
+            Assert.DoesNotContain(evaluator.Advance(AnimationTestTime.Seconds(time)),sample=>sample.Owner.Value==4);
+            evaluator.SetVisible(target,AnimationProperty.ColourRed,true);Apply(time+.11);
             Assert.Equal(new Color("#f7cb52"),Colour(part,"FirstLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"SecondLamp"));Assert.Equal(new Color("#556573"),Colour(part,"OutputLamp"));
-            evaluator.Accept(Response(secondOnly,3));Apply(time+.5);
+            time=secondOnly.Tick.Value / 120d;
+            evaluator.Accept(Response(secondOnly,3));Apply(time+.11);
             Assert.Equal(new Color("#556573"),Colour(part,"FirstLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"SecondLamp"));
             Assert.Throws<ArgumentException>(()=>evaluator.Accept(Response(first,4)));
             Assert.Equal(new Color("#556573"),Colour(part,"OutputLamp"));
             var paused=Response(secondOnly,3) with {Kind=WorkshopResponseKind.Acknowledgement,Sequence=new(1),
                 Publication=default,Projection=new(2),Phase=WorkshopSimulationPhase.Paused};
-            evaluator.ValidateRebind(CompiledSceneFixture.Compile(construction),paused);evaluator.Rebind(CompiledSceneFixture.Compile(construction),paused);Apply(time+.6);
+            evaluator.ValidateRebind(CompiledSceneFixture.Compile(construction),paused);evaluator.Rebind(CompiledSceneFixture.Compile(construction),paused);Apply(time+.2);
             Assert.Equal(new Color("#556573"),Colour(part,"FirstLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"SecondLamp"));
             var loaded=WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(construction,new(6))));
             var (built,_,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,2);

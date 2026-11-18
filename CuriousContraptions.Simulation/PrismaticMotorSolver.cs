@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Gpu;
 using static CuriousContraptions.Simulation.ConstraintBodyImpulse;
@@ -35,10 +36,10 @@ internal static class PrismaticMotorSolver
             joint.Command == PrismaticCommand.Negative ? joint.Lower : joint.Upper;
         var distance = target - joint.StartCoordinate;
         var atTarget = drive.Selection == PrismaticTargetSelection.Fixed
-            ? MathF.Abs(distance) <= ActuatorObservations.StopSlop
+            ? MathF.Abs(distance) <= PhysicalTolerance.ActuatorStopSlopMetres
             : joint.Command == PrismaticCommand.Negative
-                ? joint.StartCoordinate <= joint.Lower + ActuatorObservations.StopSlop
-                : joint.StartCoordinate >= joint.Upper - ActuatorObservations.StopSlop;
+                ? joint.StartCoordinate <= joint.Lower + PhysicalTolerance.ActuatorStopSlopMetres
+                : joint.StartCoordinate >= joint.Upper - PhysicalTolerance.ActuatorStopSlopMetres;
         var lockNow = drive.Inactive == PrismaticInactiveResponse.SelfLock &&
             (!joint.SupplyClosed || !commanded || atTarget);
         if (lockNow && !joint.Holding) joint.HoldCoordinate = joint.StartCoordinate;

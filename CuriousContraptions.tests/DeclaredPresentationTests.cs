@@ -555,6 +555,114 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         }
     }
 
+    [Fact]
+    public async Task ScheduledAndLateLevelTransitionsRespectAdmittedCueTimes()
+    {
+        var settings = WorkshopCadenceSettings.Default();
+        var spring = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("wound_spring"), new(1), 0, 3, 0, 0, 0, 0, 1);
+        var construction = new WorkshopConstruction(new(2), settings, new(spring));
+        var compiled = CompiledSceneFixture.Compile(construction);
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 4);
+        var initial = reads[1];
+        var retention = Assert.Single(initial.Presentation.Retentions.ToArray());
+        WorkshopRead WithMode(WorkshopRead read, CuriousContraptions.Abstractions.Mechanical.RetentionMode mode) =>
+            read with { Presentation = new(read.Presentation.Actuators, read.Presentation.Loads, read.Presentation.Logic,
+                read.Presentation.Ropes, read.Presentation.Guides, read.Presentation.Surfaces, read.Presentation.Transmissions,
+                [retention with { Mode = mode, Phase = mode == CuriousContraptions.Abstractions.Mechanical.RetentionMode.Releasing
+                    ? CuriousContraptions.Abstractions.Mechanical.RetentionPhase.Releasing
+                    : CuriousContraptions.Abstractions.Mechanical.RetentionPhase.Idle }]) };
+        var evaluator = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), compiled, Response(initial, 1));
+        const long origin = 5_000_000_000;
+        var schedule = new WorkshopSchedule(settings, new(1), new(1), new(0), new(origin),
+            WorkshopPulse.FirstAfter(settings.AnimationRate, new(origin), default),
+            WorkshopPulse.FirstAfter(settings.PresentationRate, new(origin), default), default, default,
+            new(initial.Epoch, new(1), initial.Tick, new(origin), WorldPlayback.Running));
+        Assert.Equal(0f, Scalar(evaluator.Advance(schedule, PhysicalTime.FromNanoseconds(origin)), spring.Id, 0));
+        var releasedRead = WithMode(reads[3], CuriousContraptions.Abstractions.Mechanical.RetentionMode.Releasing);
+        evaluator.Accept(Response(releasedRead, 2));
+        // Master is still 1 tick after tick 1 (tick 2 < committed tick 3): hold pre-transition 0f without throwing.
+        var tickNs = 1_000_000_000L / 120;
+        Assert.Equal(0f, Scalar(evaluator.Advance(schedule, PhysicalTime.FromNanoseconds(origin + tickNs)), spring.Id, 0));
+        // Reaching committed tick 3 drains the cue; advancing 1/32 s into the 0.08125 s (8 rad/s) linear clip reaches -0.25 rad.
+        Assert.Equal(0f, Scalar(evaluator.Advance(AnimationTestTime.Seconds(Time(releasedRead))), spring.Id, 0));
+        Assert.Equal(-.25f, Scalar(evaluator.Advance(AnimationTestTime.Seconds(Time(releasedRead) + .03125)), spring.Id, 0), 6);
+        // Advancing _time past read 4 before accepting a rearm transition at read 4 starts the return at _time.
+        var lateTime = Time(reads[4]) + .1;
+        Assert.Equal(-.65f, Scalar(evaluator.Advance(AnimationTestTime.Seconds(lateTime)), spring.Id, 0));
+        evaluator.Accept(Response(WithMode(reads[4], CuriousContraptions.Abstractions.Mechanical.RetentionMode.Retained), 3));
+        Assert.Equal(-.65f, Scalar(evaluator.Advance(AnimationTestTime.Seconds(lateTime)), spring.Id, 0));
+        Assert.Equal(-.4f, Scalar(evaluator.Advance(AnimationTestTime.Seconds(lateTime + .03125)), spring.Id, 0), 6);
+    }
+
+    // Follow targets use the same committed-read admission as endpoint cues: a later read's pendulum target cannot move the
+    // presentation before that read's committed time, and moves it once the presentation clock reaches it.
+    [Fact]
+    public async Task FollowTargetIsAdmittedAtItsCommittedReadTime()
+    {
+        var settings = WorkshopCadenceSettings.Default();
+        var clock = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("clock"), new(2), 0, 3, 0, 0, 0, 0, 1,
+            new([new(new("interval_seconds"), .2f)]));
+        var construction = new WorkshopConstruction(new(2), settings, new(PlacedParts.Battery(new(1), -3, 3, 0), clock),
+            Connections: new(new WorkshopConnection(new(1), PortId.Supply, new(2), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 12);
+        var compiled = CompiledSceneFixture.Compile(construction);
+        var evaluator = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), compiled, Response(reads[1], 1));
+        var control = new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), compiled, Response(reads[1], 1));
+        float Pendulum(WorkshopDeclaredPresentation consumer, double at) => Scalar(consumer.Advance(AnimationTestTime.Seconds(at)), clock.Id, 0);
+        Assert.Equal(Pendulum(control, Time(reads[1])), Pendulum(evaluator, Time(reads[1])));
+        evaluator.Accept(Response(reads[12], 2));
+        var before = (Time(reads[1]) + Time(reads[12])) / 2;
+        Assert.Equal(Pendulum(control, before), Pendulum(evaluator, before));
+        var after = Time(reads[12]) + .05;
+        Assert.NotEqual(Pendulum(control, after), Pendulum(evaluator, after));
+    }
+
+    // T10: repeated stopped-clock reads retain the same zero target while the pendulum is still returning from a powered swing.
+    // Sample motion, not queue internals. Coalescing remains a source-reviewed storage rule, not an allocation claim from this test.
+    [Fact]
+    public async Task RepeatedUnchangedFollowTargetsPreserveAnActiveReturn()
+    {
+        var clock = WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("clock"), new(2), 0, 3, 0, 0, 0, 0, 1,
+            new([new(new("interval_seconds"), .2f)]));
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
+            new(PlacedParts.Battery(new(1), -3, 3, 0), clock),
+            Connections: new(new WorkshopConnection(new(1), PortId.Supply, new(2), PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
+        await using var harness = await WorkshopIntegrationHarness.Running(construction);
+        await harness.AdvanceOne();
+        var compiled = CompiledSceneFixture.Compile(construction);
+        var repeated = new WorkshopDeclaredPresentation(new AnimationServices(), compiled, Response(harness.Committed, 1));
+        var single = new WorkshopDeclaredPresentation(new AnimationServices(), compiled, Response(harness.Committed, 1));
+        await harness.Advance(5);
+        repeated.Accept(Response(harness.Committed, 2));
+        single.Accept(Response(harness.Committed, 2));
+        await harness.Advance(6);
+        await harness.Require(WorkshopCommandKind.ConfigureRunControl,
+            runControl: harness.RunControl(new(1), RunControlLane.SourceEnable,
+                RunControlValue.Of(ElectricalEnable.Disabled)));
+        await harness.AdvanceOne();
+        repeated.Accept(Response(harness.Committed, 3));
+        single.Accept(Response(harness.Committed, 3));
+        var stoppedAt = Time(harness.Committed);
+        float Pendulum(WorkshopDeclaredPresentation evaluator, double time) =>
+            Scalar(evaluator.Advance(AnimationTestTime.Seconds(time)), clock.Id, 0);
+        var start = Pendulum(single, stoppedAt);
+        Assert.Equal(start, Pendulum(repeated, stoppedAt), 6);
+        Assert.True(MathF.Abs(start) > .1f, "The stopped-clock target is zero, but the visible pendulum is still away from rest.");
+        for (var step = 1; step <= 5; step++)
+        {
+            await harness.AdvanceOne();
+            repeated.Accept(Response(harness.Committed, (ulong)(3 + step)));
+            var at = Time(harness.Committed);
+            // Defined exponential-follow contract: declared response 30/s, target zero. Six-decimal angle precision is the
+            // existing local evaluator tolerance; this excludes a frozen pose or restarting from the original swing each read.
+            var expected = start * MathF.Exp(-30f * (float)(at - stoppedAt));
+            Assert.Equal(expected, Pendulum(single, at), 6);
+            Assert.Equal(expected, Pendulum(repeated, at), 6);
+        }
+        Assert.True(MathF.Abs(Pendulum(repeated, Time(harness.Committed))) < MathF.Abs(start) / 2f,
+            "The pendulum visibly returns during the repeated unchanged observations.");
+    }
+
     private static double Time(WorkshopRead read) => read.Tick.Value / 120.0;
     private static StandardMaterial3D Material(MachinePart part, string path) =>
         Assert.IsType<StandardMaterial3D>(part.GetNode<MeshInstance3D>(path).MaterialOverride);

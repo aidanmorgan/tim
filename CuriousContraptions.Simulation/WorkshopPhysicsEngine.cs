@@ -1,4 +1,5 @@
 using System;
+using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -38,8 +39,8 @@ internal sealed partial class WorkshopPhysicsEngine
     private List<SimJoint> _joints = new(4);
     private List<SimRevoluteJoint> _revoluteJoints = new(4);
     private readonly List<SimMechanicalTransmission> _transmissions = [];
+    private readonly List<SimMechanicalTransmission> _couplingPool = new(4);
     private bool _surfacesResolved;
-    private bool _transmissionsResolved;
     private bool[] _timedTransmissions = new bool[4];
     private readonly List<SimTensileRoute> _tensile = new(4);
     private readonly List<SimTensileRoute> _tensilePool = new(4);
@@ -94,7 +95,7 @@ internal sealed partial class WorkshopPhysicsEngine
         _motorTrial = new();
         _guides = new();
         _probeContacts.Clear(); _probeCollider = new();
-        _transmissions.Clear(); _surfaces.Clear(); _surfacesResolved = false; _transmissionsResolved = false;
+        _transmissions.Clear(); _couplingPool.Clear(); _surfaces.Clear(); _surfacesResolved = false;
         _tensile.Clear(); _tensilePool.Clear();
         _bvh.Reset();
     }
@@ -338,6 +339,7 @@ internal sealed partial class WorkshopPhysicsEngine
         ReadRevolutes(span, layout, inputs, revoluteJointMap);
         var dt = WorkshopConstraintSolver.SubstepSeconds;
         ReadTransmissions(span, layout, inputs, checked(currentTick * (ulong)steps), checked((currentTick + 1) * (ulong)steps));
+        ApplyRetentionRequests(inputs);
         // Story 9R.4: every compiled contact-load row, read once per tick. A row's tick measurement is the maximum qualifying mass
         // of its substeps (D2), written over the copied source state so a removed body reads Empty on the very next tick.
         var loadRows = layout.ContactLoads;
@@ -425,6 +427,7 @@ internal sealed partial class WorkshopPhysicsEngine
             var b = _bodyPool[slot];
             b.Guide = null;
             b.BodySlot = slot;
+            b.ContactWork = 0f;
             b.BodyOffset = bodyOffset;
             b.BodyIdLow = bodyIdLow;
             b.BodyIdHigh = bodyIdHigh;
@@ -633,6 +636,7 @@ internal sealed partial class WorkshopPhysicsEngine
             while (_jointPool.Count <= index) _jointPool.Add(new SimJoint());
             var joint = _jointPool[index];
             joint.Offset = prismaticOffset;
+            joint.Retention = null;
             joint.A = _allBodies[aSlot];
             joint.B = _allBodies[bSlot];
             joint.Pa = pa; joint.Qa = qa; joint.Pb = pb; joint.Qb = qb;
@@ -741,34 +745,42 @@ internal sealed partial class WorkshopPhysicsEngine
         }
     }
 
+    private void BindCoordinate(SimConstraintCoordinate coordinate, CoordinateKind kind, int slot)
+    {
+        switch (kind)
+        {
+            case CoordinateKind.Prismatic: coordinate.Bind(_joints[slot]); break;
+            case CoordinateKind.Revolute: coordinate.Bind(_revoluteJoints[slot]); break;
+            default: throw new ArgumentException("Unsupported transmission coordinate.");
+        }
+    }
+
     private void ReadTransmissions(Span<byte> span, PhysicsWorldLayout layout, PhysicsTickInputs inputs, ulong previousOrdinal, ulong currentOrdinal)
     {
-        if (!_transmissionsResolved)
-        {
-            _transmissions.Clear();
-            for (var index = 0; index < layout.MechanicalTransmissions; index++)
-            {
-                var offset = layout.MechanicalTransmissionOffset(index);
-                var drivingSlot = checked((int)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionDrivingOffset));
-                var drivenSlot = checked((int)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionDrivenOffset));
-                _transmissions.Add(new SimMechanicalTransmission
-                {
-                    Offset = offset,
-                    DrivingJoint = _revoluteJoints[drivingSlot],
-                    DrivenJoint = _revoluteJoints[drivenSlot],
-                    Ratio = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionRatioOffset)
-                });
-            }
-            _transmissionsResolved = true;
-        }
+        _transmissions.Clear();
+        OpenWorkWindow();
         for (var index = 0; index < layout.MechanicalTransmissions; index++)
         {
+            while (_couplingPool.Count <= index) _couplingPool.Add(new());
+            var transmission = _couplingPool[index];
             var offset = layout.MechanicalTransmissionOffset(index);
-            _transmissions[index].Impulse = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionImpulseOffset);
+            var drivingSlot = checked((int)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionDrivingOffset));
+            var drivenSlot = checked((int)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionDrivenOffset));
+            transmission.Offset = offset;
+            BindCoordinate(transmission.Driving, (CoordinateKind)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionDrivingKindOffset), drivingSlot);
+            BindCoordinate(transmission.Driven, (CoordinateKind)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionDrivenKindOffset), drivenSlot);
+            transmission.ConstraintKind = (TransmissionConstraintKind)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionKindOffset);
+            transmission.Ratio = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionRatioOffset);
+            transmission.Impulse = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionImpulseOffset);
+            transmission.Work = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionWorkOffset);
+            transmission.PositiveWork = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionPositiveWorkOffset);
+            LoadRetention(span, transmission);
+            LoadWorkWindow(span, transmission);
+            _transmissions.Add(transmission);
             var closeSeconds = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionCloseSecondsOffset);
             if (closeSeconds == 0f)
             {
-                _transmissions[index].Engaged = true;
+                transmission.Engaged = transmission.Retention?.Mode != RetentionMode.Releasing;
                 continue;
             }
             var supplied = inputs.TransmissionClosed[index];
@@ -789,8 +801,8 @@ internal sealed partial class WorkshopPhysicsEngine
             WriteU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionSuppliedOffset, supplied ? 1u : 0u);
             WriteF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionClosureOffset, closure == 0f ? 0f : closure);
             WriteU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionPhaseOffset, (uint)phase);
-            _transmissions[index].Engaged = phase == TransmissionEngagementPhase.Engaged;
-            if (!_transmissions[index].Engaged) _transmissions[index].Impulse = 0f;
+            transmission.Engaged = phase == TransmissionEngagementPhase.Engaged;
+            if (!transmission.Engaged) transmission.Impulse = 0f;
         }
     }
 
@@ -991,7 +1003,9 @@ internal sealed partial class WorkshopPhysicsEngine
             TransferSupply(span, layout, inputs, sourceOrdinal, s);
             ApplyGuides(span, layout, dt);
             foreach (var joint in _joints) PrismaticMotorSolver.BeginSubstep(joint, dt);
+            foreach (var transmission in _transmissions) transmission.Retention?.BeginSubstep();
             // Compliant membranes are external forces like gravity, inside the restitution pass's pre-solve energy bound.
+            // The open accepted-work window runs from the previous position integration to the next (SolveIntegratedTrial).
             ApplyCompliantMembranes(span, layout, dt);
 
             foreach (var b in _dynamicBodies)
@@ -1016,6 +1030,7 @@ internal sealed partial class WorkshopPhysicsEngine
                 foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, false);
                 WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Relax, softCoeffs, dt);
             }
+            foreach (var transmission in _transmissions) transmission.Retention?.SampleRelaxedRate();
 
             WorkshopConstraintSolver.RestitutionPass(_manifolds, _restitutionBodies, ++_restitutionStamp);
             _guides.FlushReactions();
@@ -1027,6 +1042,7 @@ internal sealed partial class WorkshopPhysicsEngine
             UpdateCompliantContacts(span, layout);
 
             CommitContactObservations(span, layout, sourceOrdinal, s, workStates);
+            foreach (var transmission in _transmissions) CommitTransmission(span, transmission);
             CommitMotion(span, motionOffset, steps, s, sourceOrdinal);
         }
 
@@ -1330,8 +1346,7 @@ internal sealed partial class WorkshopPhysicsEngine
 
     private void CommitConstraints(Span<byte> span, float dt)
     {
-        foreach (var transmission in _transmissions)
-            WriteF32(span, transmission.Offset + PhysicsGpuAbi.MechanicalTransmissionImpulseOffset, transmission.Impulse);
+
         foreach (var tensile in _tensile)
         {
             foreach (var offset in tensile.Offsets)
@@ -1493,7 +1508,7 @@ internal sealed partial class WorkshopPhysicsEngine
                     _membraneAxes[i] = angular;
                 }
                 for (var i = 0; i < MembraneSamples; i++)
-                    if (_membraneImpulses[i] > 0f) ConstraintBodyImpulse.ApplyBodyImpulse(body, membrane.Normal, _membraneAxes[i], _membraneImpulses[i]);
+                    if (_membraneImpulses[i] > 0f) new ImpulseJacobian(body, membrane.Normal, _membraneAxes[i]).ApplyContact(_membraneImpulses[i]);
             }
         }
     }

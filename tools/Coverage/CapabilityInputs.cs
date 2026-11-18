@@ -134,8 +134,7 @@ public static class CapabilityInputs
     }
 
     public sealed record ResourceClosure(SourceArtifact[] Artifacts, SourceSymbol[] Symbols);
-    /// <summary>An admitted element's closure: its package declaration, the scene its ScenePath names, and that scene's root
-    /// script (Story 9A.14: the package declaration replaced the catalogue resource).</summary>
+    /// <summary>An admitted element's closure: package, native artwork, and the common runtime construction path.</summary>
     public static ResourceClosure ReadResourceClosure(DirectoryInfo root, SourcePath declaration)
     {
         var definition = File.ReadAllText(Path.Combine(root.FullName, declaration.Value));
@@ -145,40 +144,33 @@ public static class CapabilityInputs
         if (!scene.Value.EndsWith(".tscn", StringComparison.Ordinal) || scene.Value.Contains("..", StringComparison.Ordinal))
             throw new InvalidDataException("Admitted scene path is not a project scene.");
         var sceneText = File.ReadAllText(Path.Combine(root.FullName, scene.Value));
-        var script = RootScript(sceneText);
-        var scriptText = File.ReadAllText(Path.Combine(root.FullName, script.Value));
+        ValidateNativeArtwork(sceneText);
+        SourcePath[] construction = [new("engine/PartRegistry.cs"), new("engine/MachinePart.cs"), new("engine/WorkshopResources.cs")];
         return new([new(declaration, RequirementDiscovery.Hash(definition)), new(scene, RequirementDiscovery.Hash(sceneText))],
-            [new(script, new(Path.GetFileNameWithoutExtension(script.Value)), RequirementDiscovery.Hash(scriptText))]);
+            construction.Select(path => new SourceSymbol(path, new(Path.GetFileNameWithoutExtension(path.Value)),
+                RequirementDiscovery.Hash(File.ReadAllText(Path.Combine(root.FullName, path.Value))))).ToArray());
     }
 
-    private static SourcePath RootScript(string text)
+    private static void ValidateNativeArtwork(string text)
     {
         var sections = Regex.Matches(text, @"(?m)^\[([^\r\n]+)\]\r?$").Cast<Match>().ToArray();
         var roots = sections.Where(section => section.Groups[1].Value.StartsWith("node ", StringComparison.Ordinal) &&
                 !Regex.IsMatch(section.Groups[1].Value, @"\bparent\s*=")).ToArray();
-        if (roots.Length != 1) throw new InvalidDataException("Missing or duplicate admitted root resource section.");
-        var start = roots[0].Index + roots[0].Length;
-        var end = sections.FirstOrDefault(section => section.Index >= start)?.Index ?? text.Length;
-        const string property = "script";
-        var assignments = text[start..end].Split('\n').Select(line => line.Trim())
-            .Where(line => Regex.IsMatch(line, "^" + property + @"\s*=")).ToArray();
-        if (assignments.Length != 1) throw new InvalidDataException("Missing or duplicate admitted resource property binding.");
-        var reference = Regex.Match(assignments[0], "^" + property + " = ExtResource\\(\"([A-Za-z0-9_]+)\"\\)$");
-        if (!reference.Success) throw new InvalidDataException("Unsupported admitted resource property binding.");
-        var declarations = new Dictionary<string, (string Type, SourcePath Path)>(StringComparer.Ordinal);
+        if (roots.Length != 1 || !Regex.IsMatch(roots[0].Groups[1].Value, "\\btype=\"Node3D\"(?: |$)"))
+            throw new InvalidDataException("Admitted artwork must have one native Node3D root.");
+        if (Regex.IsMatch(text, @"(?m)^\s*script\s*="))
+            throw new InvalidDataException("Admitted artwork cannot bind scripts.");
+        var identities = new HashSet<string>(StringComparer.Ordinal);
         foreach (var section in sections.Where(section => section.Groups[1].Value.StartsWith("ext_resource ", StringComparison.Ordinal)))
         {
-            var declaration = Regex.Match(section.Groups[1].Value,
+            var external = Regex.Match(section.Groups[1].Value,
                 "^ext_resource type=\"([^\"]+)\" path=\"res://([^\"]+)\" id=\"([A-Za-z0-9_]+)\"$");
-            if (!declaration.Success || !declarations.TryAdd(declaration.Groups[3].Value,
-                (declaration.Groups[1].Value, new(declaration.Groups[2].Value))))
+            if (!external.Success || !identities.Add(external.Groups[3].Value))
                 throw new InvalidDataException("Malformed or duplicate external resource identity.");
+            _ = new SourcePath(external.Groups[2].Value);
+            if (external.Groups[1].Value == "Script" || external.Groups[2].Value.EndsWith(".cs", StringComparison.Ordinal))
+                throw new InvalidDataException("Admitted artwork cannot declare scripts.");
         }
-        if (!declarations.TryGetValue(reference.Groups[1].Value, out var selected))
-            throw new InvalidDataException("Admitted resource binding references an unknown external identity.");
-        if (selected.Type != "Script" || !selected.Path.Value.EndsWith(".cs", StringComparison.Ordinal))
-            throw new InvalidDataException("Admitted resource binding has the wrong type.");
-        return selected.Path;
     }
 
     private static readonly FrozenSet<RequirementId> WorkflowGaps=new HashSet<RequirementId>

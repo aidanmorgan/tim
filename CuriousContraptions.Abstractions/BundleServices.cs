@@ -39,6 +39,8 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDec
 {
     [System.Text.Json.Serialization.JsonRequired]
     public IReadOnlyList<ClippedExtrusionDescriptor> Extrusions { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<PrismaticRetentionDescriptor> Retentions { get; init; } = [];
 }
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyGraphDescriptor? SupplyGraph);

@@ -169,7 +169,7 @@ public sealed class GuideResponseTests
         var second = scene.Revolute(carriage, b, new(new(-.6f, 0, 0), Quaternion.Identity), ConstraintFrame.Identity,
             -MathF.PI, MathF.PI, 0f, travel: RevoluteTravel.Continuous);
         scene.RevoluteDrive(first, 4f, 2f);
-        if (connected) scene.Transmission(first, second, -1f);
+        if (connected) scene.Transmission(new(first), new(second), -1f);
         var final = scene.Admit().Step(240, supplied: true);
         // Existing 2% shaft-speed allowance distinguishes a transmitted reverse drive from the disconnected rotor.
         Assert.InRange(final[a].Angular.Z, 3.92f, 4.08f);

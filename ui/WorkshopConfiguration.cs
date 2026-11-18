@@ -269,6 +269,7 @@ public partial class Workshop
         CuriousContraptions.Abstractions.ParameterUnit.NewtonMetre => "N·m",
         CuriousContraptions.Abstractions.ParameterUnit.Newton => "N",
         CuriousContraptions.Abstractions.ParameterUnit.MetrePerRadian => "m/rad",
+        CuriousContraptions.Abstractions.ParameterUnit.RadianPerMetre => "rad/m",
         _ => throw new System.Diagnostics.UnreachableException("The admitted schema contains an undefined parameter unit.")
     };
 

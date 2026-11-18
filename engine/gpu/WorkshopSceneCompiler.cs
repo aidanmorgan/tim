@@ -74,7 +74,8 @@ public static class WorkshopSceneCompiler
                     bindings[i].SignalNode is { } selected ? nodes.Single(node => node.Id == construction.Instances.Identities[owner.Id].Signals[selected].Node) : default, capacity,
                     bindings[i].Actuator is { } actuator ? ResolveActuator(construction.Instances.Identities[owner.Id], actuator) : null,
                     bindings[i].GuidePort is { } guide ? construction.Instances.Identities[owner.Id].Guides[guide] : default, source, supplyNode,
-                    bindings[i].Transmission is { } transId ? identities.Transmissions[transId] : default));
+                    bindings[i].Transmission is { } transId ? identities.Transmissions[transId] : default,
+                    bindings[i].Retention is { } retainedId ? identities.Retentions[retainedId] : default));
             }
         }
         return core.CreateScene(identity, construction.Revision, construction.Settings, physics, activation, tracks,

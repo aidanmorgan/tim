@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Abstractions.Electrical;
 using Godot;
@@ -371,7 +372,7 @@ public sealed class ElectricalOrPresentationTests(NativeSceneFixture godot)
     {
         var construction=ElectricalOrTests.BatteryMachine();
         var rows=ElectricalOrTests.Rows;
-        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,rows.Select(row=>(row.Controls,2)).ToArray());
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,rows.Select(row=>(row.Controls,24)).ToArray());
         var registry=new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);registry.Load();
         var part=registry.Create(ElectricalOrTests.Kind);
         try
@@ -395,22 +396,26 @@ public sealed class ElectricalOrPresentationTests(NativeSceneFixture godot)
             Color Colour(string node)=>Assert.IsType<StandardMaterial3D>(part.GetNode<MeshInstance3D>("Visual/"+node).MaterialOverride).AlbedoColor;
             var slate=new Color("#556573");var gold=new Color("#f7cb52");
             Color Lit(bool on)=>on?gold:slate;
-            WorkshopDeclaredPresentation? evaluator=null;var time=0d;var publication=0UL;
+            WorkshopDeclaredPresentation? evaluator=null;var publication=0UL;
             for(var i=0;i<rows.Length;i++)
             {
-                var read=phases[i][^1];
-                var response=BothGatePresentationTests.Response(read,++publication);
-                if(evaluator is null){evaluator=new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction),response);time=read.Capture!.Value.Time.Value/1_000_000_000d;}
-                else evaluator.Accept(response);
-                time+=.2;
-                foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
+                // Consume real committed boundaries through the declared 0.1s lamp transition.
+                foreach (var read in phases[i])
+                {
+                    var response=BothGatePresentationTests.Response(read,++publication);
+                    if(evaluator is null) evaluator=new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction),response);
+                    else evaluator.Accept(response);
+                    foreach(var sample in evaluator.Advance(new PhysicalTime(read.Tick.Value * construction.Settings.PhysicalStepsPerCommit)))
+                        if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
+                }
                 Assert.Equal(Lit((rows[i].Inputs & ElectricalInputState.FirstOnly)!=0),Colour("FirstLamp"));
                 Assert.Equal(Lit((rows[i].Inputs & ElectricalInputState.SecondOnly)!=0),Colour("SecondLamp"));
                 Assert.Equal(Lit(rows[i].Active),Colour("OutputLamp"));
             }
             var (built,_,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,2);
             evaluator=new WorkshopDeclaredPresentation(new CuriousContraptions.Presentation.AnimationServices(), CompiledSceneFixture.Compile(construction),BothGatePresentationTests.Response(reset,1));
-            foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time+1))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
+            // One second past the reset read, on the presentation's own physical clock.
+            foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(reset.Tick.Value/120d+1))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
             Assert.Equal(built.Presentation.Actuators.ToArray(), reset.Presentation.Actuators.ToArray());
         Assert.Equal(built.Presentation.Loads.ToArray(), reset.Presentation.Loads.ToArray());
         Assert.Equal(built.Presentation.Logic.ToArray(), reset.Presentation.Logic.ToArray());

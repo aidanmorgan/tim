@@ -241,7 +241,7 @@ public sealed class VisibleSolidColliderTests
     /// mesh that is not a box, a full sphere or a straight cylinder has no primitive shape (null).</summary>
     private static Dictionary<string, Solid?> Art(BundleEntry entry, string[] movingRoots, IReadOnlyDictionary<string, float> parameters)
     {
-        var root = ResourceLoader.Load<PackedScene>(entry.Metadata.ScenePath).Instantiate<Node3D>();
+        var root = WorkshopResources.LoadScene(entry.Metadata.ScenePath).Instantiate<Node3D>();
         try
         {
             var result = new Dictionary<string, Solid?>(StringComparer.Ordinal);

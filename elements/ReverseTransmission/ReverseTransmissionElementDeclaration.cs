@@ -58,5 +58,5 @@ public sealed class ReverseTransmissionElementDeclaration : IHingeElement, IMech
                 new(MathF.Sqrt(.5f), 0f, 0f, MathF.Sqrt(.5f)), 0f, new(0f, -9.81f, 0f)), []), null);
     }
     public IReadOnlyList<MechanicalTransmissionDescriptor> Transmissions =>
-        [new(new(1), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Revolute, 1), MechanicalValue.Fixed(-1f))];
+        [new(new(1), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Revolute, 1), MechanicalValue.Fixed(-1f), TransmissionConstraintKind.Bilateral)];
 }

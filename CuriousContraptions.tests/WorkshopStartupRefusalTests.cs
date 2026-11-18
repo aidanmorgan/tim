@@ -34,7 +34,7 @@ public sealed class WorkshopStartupRefusalTests(NativeSceneFixture godot)
     [Fact]
     public async Task DefaultObservationExplicitlyRefusesTheNativePlatform()
     {
-        var scene = GD.Load<PackedScene>(NativeTestBoundary.WorkshopResource).Instantiate<Workshop>();
+        var scene = new Workshop { Name = "Workshop" };
         godot.Tree.Root.AddChild(scene);
         try
         {

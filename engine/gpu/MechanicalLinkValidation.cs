@@ -16,7 +16,7 @@ public static class MechanicalLinkValidation
             if (link.Target.Value < MechanicalLinkGeometry.TargetBase || !targets.Add(link.Target))
                 throw new ArgumentException("Invalid mechanical presentation target.");
             Rim(link.Source, physics, membership); Rim(link.TargetRim, physics, membership);
-            if (!physics.Transmissions.ToArray().Any(row => row.DrivingJoint == link.Source.Joint && row.DrivenJoint == link.TargetRim.Joint))
+            if (!physics.Transmissions.ToArray().Any(row => row.Driving == new ConstraintCoordinateReference(link.Source.Joint) && row.Driven == new ConstraintCoordinateReference(link.TargetRim.Joint)))
                 throw new ArgumentException("Mechanical presentation has no declared physical relation.");
         }
     }

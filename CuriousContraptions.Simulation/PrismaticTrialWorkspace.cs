@@ -10,7 +10,7 @@ internal sealed class PrismaticTrialWorkspace
 {
     private BodyState[] _bodies = new BodyState[16];
     private float[] _jointImpulses = new float[32], _hingeImpulses = new float[32];
-    private float[] _transmissionImpulses = new float[4], _tensileImpulses = new float[4];
+    private float[] _transmissionImpulses = new float[4], _couplingWindowImpulses = new float[4], _tensileImpulses = new float[4];
     private int[] _parents = new int[16];
     private bool[] _affected = new bool[16];
 
@@ -28,6 +28,7 @@ internal sealed class PrismaticTrialWorkspace
         Reserve(ref _jointImpulses, checked(joints.Count * PrismaticRows.Count));
         Reserve(ref _hingeImpulses, checked(hinges.Count * RevoluteRows.Count));
         Reserve(ref _transmissionImpulses, transmissions.Count);
+        Reserve(ref _couplingWindowImpulses, transmissions.Count);
         Reserve(ref _tensileImpulses, ropes.Count);
         Reserve(ref _parents, bodySlots);
         Reserve(ref _affected, bodySlots);
@@ -54,8 +55,9 @@ internal sealed class PrismaticTrialWorkspace
         {
             var transmission = transmissions[i];
             _transmissionImpulses[i] = transmission.Impulse;
-            var a = DynamicEnd(transmission.DrivingJoint.A, transmission.DrivingJoint.B);
-            var b = DynamicEnd(transmission.DrivenJoint.A, transmission.DrivenJoint.B);
+            _couplingWindowImpulses[i] = transmission.WindowImpulse;
+            var a = DynamicEnd(transmission.Driving.A, transmission.Driving.B);
+            var b = DynamicEnd(transmission.Driven.A, transmission.Driven.B);
             Join(a, b);
         }
         for (var i = 0; i < ropes.Count; i++)
@@ -110,16 +112,22 @@ internal sealed class PrismaticTrialWorkspace
         }
         for (var i = 0; i < hinges.Count; i++)
             Array.Copy(_hingeImpulses, i * RevoluteRows.Count, hinges[i].Impulses, 0, RevoluteRows.Count);
-        for (var i = 0; i < transmissions.Count; i++) transmissions[i].Impulse = _transmissionImpulses[i];
+        for (var i = 0; i < transmissions.Count; i++)
+        {
+            transmissions[i].Impulse = _transmissionImpulses[i];
+            transmissions[i].WindowImpulse = _couplingWindowImpulses[i];
+        }
         for (var i = 0; i < ropes.Count; i++) ropes[i].Impulse = _tensileImpulses[i];
     }
 
     private readonly record struct BodyState(int CellX, int CellY, int CellZ, Vector3 Local, Vector3 Position,
-        Quaternion Rotation, Vector3 Velocity, Vector3 Spin, Quaternion RelativeRotation)
+        Quaternion Rotation, Vector3 Velocity, Vector3 Spin, Quaternion RelativeRotation, float ContactWork,
+        Vector3 WindowV, Vector3 WindowW, Vector3 WindowContactTranslationalImpulse, Vector3 WindowContactAngularImpulse)
     {
         public static BodyState Capture(SimBody body) => new(body.CellX, body.CellY, body.CellZ,
             new(body.LocalX, body.LocalY, body.LocalZ), body.Position, body.Rotation, body.LinearVelocity, body.AngularVelocity,
-            body.TickRelativeRotation);
+            body.TickRelativeRotation, body.ContactWork, body.WindowV, body.WindowW, body.WindowContactTranslationalImpulse,
+            body.WindowContactAngularImpulse);
         public void Restore(SimBody body)
         {
             body.CellX = CellX; body.CellY = CellY; body.CellZ = CellZ;
@@ -129,6 +137,10 @@ internal sealed class PrismaticTrialWorkspace
             body.Vx = Velocity.X; body.Vy = Velocity.Y; body.Vz = Velocity.Z;
             body.Wx = Spin.X; body.Wy = Spin.Y; body.Wz = Spin.Z;
             body.TickRelativeRotation = RelativeRotation;
+            body.ContactWork = ContactWork;
+            // The open accepted-work window as it stood before the trial: the failed trial's credit and new window are discarded.
+            body.WindowV = WindowV; body.WindowW = WindowW;
+            body.WindowContactTranslationalImpulse = WindowContactTranslationalImpulse; body.WindowContactAngularImpulse = WindowContactAngularImpulse;
             WorkshopCollisionKernels.UpdateDynamicFrame(body);
         }
     }

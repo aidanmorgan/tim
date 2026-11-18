@@ -29,6 +29,8 @@ public static class MechanicalValueDomain
         minimum = maximum = 0f;
         var a = product.Left;
         var b = product.Right;
+        if (a.Source is not (MechanicalValueSource.Constant or MechanicalValueSource.Parameter) ||
+            b.Source is not (MechanicalValueSource.Constant or MechanicalValueSource.Parameter)) return false;
         if (!ScalarRange(a.Source, a.Constant, a.Parameter, parameters, a.Unit, out var amin, out var amax) ||
             !ScalarRange(b.Source, b.Constant, b.Parameter, parameters, b.Unit, out var bmin, out var bmax) ||
             amin < 0f || bmin < 0f) return false;
@@ -46,14 +48,14 @@ public static class MechanicalValueDomain
             minimum = maximum = constant;
             return true;
         }
-        if (source != MechanicalValueSource.Parameter || constant != 0f || key is null) return false;
+        if (source is not (MechanicalValueSource.Parameter or MechanicalValueSource.NegatedParameter) || constant != 0f || key is null) return false;
         var matches = parameters.Where(p => p.Key == key).ToArray();
         if (matches.Length != 1) return false;
         var parameter = matches[0];
         if (parameter.Kind != ParameterKind.Real || parameter.Unit != unit || !float.IsFinite(parameter.Minimum) ||
             !float.IsFinite(parameter.Maximum) || parameter.Minimum > parameter.Maximum) return false;
-        minimum = parameter.Minimum;
-        maximum = parameter.Maximum;
+        minimum = source == MechanicalValueSource.NegatedParameter ? -parameter.Maximum : parameter.Minimum;
+        maximum = source == MechanicalValueSource.NegatedParameter ? -parameter.Minimum : parameter.Maximum;
         return true;
     }
 
@@ -65,7 +67,7 @@ public static class MechanicalValueDomain
         foreach (var value in fields)
             if (value.Source == MechanicalValueSource.Product ||
                 !TryRange(value, parameters, ParameterUnit.Metre, out _, out _)) return false;
-        var keys = fields.Where(v => v.Source == MechanicalValueSource.Parameter).Select(v => v.Parameter!).Distinct().ToArray();
+        var keys = fields.Where(v => v.Source is MechanicalValueSource.Parameter or MechanicalValueSource.NegatedParameter).Select(v => v.Parameter!).Distinct().ToArray();
         var values = new Dictionary<string, float>(StringComparer.Ordinal);
         return Visit(0);
 

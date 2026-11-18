@@ -1,4 +1,5 @@
 using System;
+using CuriousContraptions.Abstractions;
 using System.Collections.Generic;
 using System.Numerics;
 using CuriousContraptions.Abstractions.Mechanical;
@@ -103,11 +104,18 @@ public static partial class PhysicsGpuAbi
     public const int CompliantSurfaceRestHeightOffset = 24;
     public const int CompliantSurfaceMaxStrokeOffset = 28;
 
-    // Mechanical transmission row (MechanicalTransmissionBytes = 64): identity U64 at 0, owner body slot (or NoBody when unowned),
-    // driving and driven revolute slots, f32 ratio and f32 close_seconds (+0f when untimed) in MechanicalTransmissionDeclarationBytes;
-    // then U32 supplied, f32 closure, U32 phase, transition origin ordinal/closure, f32 accumulated angular impulse at52,
-    // and zero padding from56. Impulse is N*m*s against the normalized merged transmission Jacobian.
-    public const int MechanicalTransmissionBytes = 64;
+    // Mechanical transmission row (MechanicalTransmissionBytes = 208), one merged linear/angular relation between two typed
+    // coordinates: identity U64 at 0, owner body slot (or NoBody when unowned), driving and driven coordinate slots (prismatic or
+    // revolute table, by the kinds at 56/60), f32 ratio and f32 close_seconds (+0f when untimed) in
+    // MechanicalTransmissionDeclarationBytes; then U32 supplied, f32 closure, U32 phase, transition origin ordinal/closure, f32
+    // accumulated reaction impulse at 52 conjugate to the driven coordinate (N*s for a prismatic, N*m*s for a revolute driven
+    // coordinate) against the merged Jacobian; U32 driving kind, driven kind and constraint kind at 56/60/64; four reserved zero
+    // bytes at 68; the retention block at 72 (U64 id, f32 initial coordinate, U32 mode and phase, f32 attained bound, potential,
+    // accepted/released elastic energy, contact and gravity work, U32 request result); f32 signed interface work and positive
+    // transfer at 120/124; f32 compression at 128; then the open accepted-work window carried across the tick commit: f32 relation
+    // impulse at 132, the driven coordinate's body A and body B window-start linear/angular velocities at 136/148/160/172 (zero for
+    // a static body), and the retained moving body's window contact linear/angular impulse at 184/196 (zero when unretained).
+    public const int MechanicalTransmissionBytes = 208;
     public const int MechanicalTransmissionOwnerOffset = 8;
     public const int MechanicalTransmissionDrivingOffset = 12;
     public const int MechanicalTransmissionDrivenOffset = 16;
@@ -120,7 +128,31 @@ public static partial class PhysicsGpuAbi
     public const int MechanicalTransmissionOriginOrdinalOffset = 40;
     public const int MechanicalTransmissionOriginClosureOffset = 48;
     public const int MechanicalTransmissionImpulseOffset = 52;
-    public const int MechanicalTransmissionPaddingOffset = 56;
+    public const int MechanicalTransmissionDrivingKindOffset = 56;
+    public const int MechanicalTransmissionDrivenKindOffset = 60;
+    public const int MechanicalTransmissionKindOffset = 64;
+    public const int MechanicalTransmissionReservedOffset = 68;
+    public const int MechanicalTransmissionReservedBytes = 4;
+    public const int MechanicalTransmissionRetentionOffset = 72;
+    public const int MechanicalTransmissionRetentionInitialOffset = 80;
+    public const int MechanicalTransmissionRetentionModeOffset = 84;
+    public const int MechanicalTransmissionRetentionPhaseOffset = 88;
+    public const int MechanicalTransmissionRetentionBoundOffset = 92;
+    public const int MechanicalTransmissionPotentialOffset = 96;
+    public const int MechanicalTransmissionAcceptedOffset = 100;
+    public const int MechanicalTransmissionReleasedOffset = 104;
+    public const int MechanicalTransmissionContactWorkOffset = 108;
+    public const int MechanicalTransmissionGravityWorkOffset = 112;
+    public const int MechanicalTransmissionRequestResultOffset = 116;
+    public const int MechanicalTransmissionWorkOffset = 120;
+    public const int MechanicalTransmissionPositiveWorkOffset = 124;
+    public const int MechanicalTransmissionWindowImpulseOffset = 132;
+    public const int MechanicalTransmissionWindowDrivenAVelocityOffset = 136;
+    public const int MechanicalTransmissionWindowDrivenAAngularOffset = 148;
+    public const int MechanicalTransmissionWindowDrivenBVelocityOffset = 160;
+    public const int MechanicalTransmissionWindowDrivenBAngularOffset = 172;
+    public const int MechanicalTransmissionWindowContactTranslationalImpulseOffset = 184;
+    public const int MechanicalTransmissionWindowContactAngularOffset = 196;
     public const int CompliantSurfaceTensionOffset = 32;
     public const int CompliantSurfaceDampingRatioOffset = 36;
     public const int CompliantSurfaceDeclarationBytes = 40;
@@ -490,8 +522,11 @@ public static partial class PhysicsGpuAbi
             U64(record, RecordIdentityOffset, value.Id.Value);
             U32(record, MechanicalTransmissionOwnerOffset,
                 value.Owner == default ? NoBody : (uint)scene.Layout.GetBodySlot(value.Owner));
-            U32(record, MechanicalTransmissionDrivingOffset, (uint)scene.Layout.GetRevoluteSlot(value.DrivingJoint.Value));
-            U32(record, MechanicalTransmissionDrivenOffset, (uint)scene.Layout.GetRevoluteSlot(value.DrivenJoint.Value));
+            U32(record, MechanicalTransmissionDrivingOffset, CoordinateSlot(scene.Layout, value.Driving));
+            U32(record, MechanicalTransmissionDrivenOffset, CoordinateSlot(scene.Layout, value.Driven));
+            U32(record, MechanicalTransmissionDrivingKindOffset, (uint)value.Driving.Kind);
+            U32(record, MechanicalTransmissionDrivenKindOffset, (uint)value.Driven.Kind);
+            U32(record, MechanicalTransmissionKindOffset, (uint)value.ConstraintKind);
             WriteEnergy(record, MechanicalTransmissionRatioOffset, value.Ratio);
             WriteEnergy(record, MechanicalTransmissionCloseSecondsOffset, value.CloseSeconds);
             U32(record, MechanicalTransmissionSuppliedOffset, 0u);
@@ -506,8 +541,41 @@ public static partial class PhysicsGpuAbi
                 U32(record, MechanicalTransmissionPhaseOffset, (uint)TransmissionEngagementPhase.Open);
             }
             F32(record, MechanicalTransmissionImpulseOffset, 0f);
-            record[MechanicalTransmissionPaddingOffset..].Clear();
+            WriteRetentionAdmission(record, scene, value);
+            WriteWorkWindowAdmission(record, scene, value);
         }
+    }
+
+    /// <summary>Admission opens an empty accepted-work window at the admitted velocities of the driven coordinate's bodies.</summary>
+    private static void WriteWorkWindowAdmission(Span<byte> record, IPhysicsSceneDeclaration scene, MechanicalTransmissionDeclaration relation)
+    {
+        GpuBodyId a, b;
+        if (relation.Driven.Kind == CoordinateKind.Prismatic)
+        {
+            var slider = scene.Prismatics[scene.Layout.GetPrismaticSlot(relation.Driven.Prismatic.Value)];
+            (a, b) = (slider.BodyA, slider.BodyB);
+        }
+        else
+        {
+            var hinge = scene.Revolutes[scene.Layout.GetRevoluteSlot(relation.Driven.Revolute.Value)];
+            (a, b) = (hinge.BodyA, hinge.BodyB);
+        }
+        F32(record, MechanicalTransmissionWindowImpulseOffset, 0f);
+        WriteWindowStart(record, MechanicalTransmissionWindowDrivenAVelocityOffset, scene, a);
+        WriteWindowStart(record, MechanicalTransmissionWindowDrivenBVelocityOffset, scene, b);
+        record.Slice(MechanicalTransmissionWindowContactTranslationalImpulseOffset, 24).Clear();
+    }
+
+    private static void WriteWindowStart(Span<byte> record, int offset, IPhysicsSceneDeclaration scene, GpuBodyId id)
+    {
+        foreach (var body in scene.Bodies)
+            if (body.Id == id && body.Motion == RigidMotionKind.Dynamic)
+            {
+                F32Vector(record, offset, body.Velocity.X, body.Velocity.Y, body.Velocity.Z);
+                F32Vector(record, offset + 12, body.AngularVelocity.X, body.AngularVelocity.Y, body.AngularVelocity.Z);
+                return;
+            }
+        record.Slice(offset, 24).Clear();
     }
 
     public static MechanicalTransmissionDeclaration ReadMechanicalTransmission(ReadOnlySpan<byte> data, int index)
@@ -519,26 +587,49 @@ public static partial class PhysicsGpuAbi
         var ownerSlot = R32(record, MechanicalTransmissionOwnerOffset);
         var drivingSlot = R32(record, MechanicalTransmissionDrivingOffset);
         var drivenSlot = R32(record, MechanicalTransmissionDrivenOffset);
-        if (drivingSlot >= (uint)layout.Revolutes || drivenSlot >= (uint)layout.Revolutes ||
-            drivingSlot == drivenSlot || !AllZero(record[MechanicalTransmissionPaddingOffset..]))
-            throw new ArgumentException("Invalid mechanical transmission record.");
-        var driving = ReadRevolute(data, (int)drivingSlot);
-        var driven = ReadRevolute(data, (int)drivenSlot);
+        var drivingKind = R32(record, MechanicalTransmissionDrivingKindOffset);
+        var drivenKind = R32(record, MechanicalTransmissionDrivenKindOffset);
+        var constraintKind = R32(record, MechanicalTransmissionKindOffset);
+        if ((drivingKind != (uint)CoordinateKind.Revolute && drivingKind != (uint)CoordinateKind.Prismatic) ||
+            (drivenKind != (uint)CoordinateKind.Revolute && drivenKind != (uint)CoordinateKind.Prismatic) ||
+            constraintKind > (uint)TransmissionConstraintKind.NonPositiveVelocity)
+            throw new ArgumentException("Undefined mechanical transmission ABI tag.");
+        var driving = ReadCoordinate(data, layout, (CoordinateKind)drivingKind, drivingSlot);
+        var driven = ReadCoordinate(data, layout, (CoordinateKind)drivenKind, drivenSlot);
         var owner = ReadTransmissionOwner(data, layout, ownerSlot);
         var closeSeconds = RF(record, MechanicalTransmissionCloseSecondsOffset);
         if ((closeSeconds == 0f && !PhysicsDeclarationBounds.Zero(closeSeconds)) ||
             (ownerSlot == NoBody && !PhysicsDeclarationBounds.Zero(closeSeconds)))
             throw new ArgumentException("Invalid mechanical transmission close duration.");
         var result = new MechanicalTransmissionDeclaration(
-            new(R64(record, RecordIdentityOffset)), driving.Id, driven.Id,
-            RF(record, MechanicalTransmissionRatioOffset), closeSeconds, owner);
+            new(R64(record, RecordIdentityOffset)), driving, driven,
+            RF(record, MechanicalTransmissionRatioOffset), (TransmissionConstraintKind)constraintKind, closeSeconds, owner,
+            R64(record, MechanicalTransmissionRetentionOffset) is var retention && retention != 0 ? new PrismaticRetentionId(retention) : null,
+            RF(record, MechanicalTransmissionRetentionInitialOffset));
         result.Validate();
-        ValidateMechanicalTransmissionState(record, result.CloseSeconds);
+        ValidateMechanicalTransmissionState(record, result.CloseSeconds, result.Retention.HasValue, result.ConstraintKind);
+        ValidateRetentionState(record, result, data);
         var ordinal = checked(R64(data, HeaderTickOffset) * ReadProfile(data).Substeps);
         if (R64(record, MechanicalTransmissionOriginOrdinalOffset) > ordinal)
             throw new ArgumentException("Transmission transition origin is in the future.");
         return result;
     }
+
+    private static uint CoordinateSlot(ICompiledMemoryLayout layout, ConstraintCoordinateReference coordinate) =>
+        checked((uint)(coordinate.Kind == CoordinateKind.Prismatic
+            ? layout.GetPrismaticSlot(coordinate.Prismatic.Value) : layout.GetRevoluteSlot(coordinate.Revolute.Value)));
+
+    private static ConstraintCoordinateReference ReadCoordinate(ReadOnlySpan<byte> data, PhysicsWorldLayout layout, CoordinateKind kind, uint slot) =>
+        kind switch
+        {
+            CoordinateKind.Prismatic => new(ReadPrismatic(data, CoordinateSlotIndex(slot, layout.Prismatics)).Id),
+            CoordinateKind.Revolute => new(ReadRevolute(data, CoordinateSlotIndex(slot, layout.Revolutes)).Id),
+            _ => throw new ArgumentException("Unsupported transmission coordinate kind.")
+        };
+
+    /// <summary>A full-width U32 coordinate slot inside its joint table, refused as a typed slot error before narrowing.</summary>
+    private static int CoordinateSlotIndex(uint slot, int count) => slot < (uint)count
+        ? (int)slot : throw new ArgumentException("Invalid mechanical transmission coordinate slot.");
 
     private static GpuBodyId ReadTransmissionOwner(ReadOnlySpan<byte> data, PhysicsWorldLayout layout, uint ownerSlot)
     {
@@ -549,7 +640,8 @@ public static partial class PhysicsGpuAbi
         return owner;
     }
 
-    private static void ValidateMechanicalTransmissionState(ReadOnlySpan<byte> record, float closeSeconds)
+    private static void ValidateMechanicalTransmissionState(ReadOnlySpan<byte> record, float closeSeconds, bool retained,
+        TransmissionConstraintKind constraintKind)
     {
         var originClosure = RF(record, MechanicalTransmissionOriginClosureOffset);
         if (!float.IsFinite(originClosure) || originClosure < 0f || originClosure > 1f)
@@ -561,13 +653,12 @@ public static partial class PhysicsGpuAbi
             (closure == 0f && !PhysicsDeclarationBounds.Zero(closure)))
             throw new ArgumentException("Invalid mechanical transmission committed state.");
         var impulse = RF(record, MechanicalTransmissionImpulseOffset);
-        if (!float.IsFinite(impulse) || (phase != TransmissionEngagementPhase.Engaged && impulse != 0f))
+        if (!float.IsFinite(impulse) || (phase != TransmissionEngagementPhase.Engaged && impulse != 0f) ||
+            (constraintKind == TransmissionConstraintKind.NonPositiveVelocity && impulse > 0f))
             throw new ArgumentException("Invalid mechanical transmission reaction impulse.");
         if (PhysicsDeclarationBounds.Zero(closeSeconds))
         {
-            if (supplied != 0 || closure != 1f || phase != TransmissionEngagementPhase.Engaged ||
-                R64(record, MechanicalTransmissionOriginOrdinalOffset) != 0 || !PhysicsDeclarationBounds.Zero(originClosure))
-                throw new ArgumentException("Untimed mechanical transmission state disagrees with admission.");
+            ValidateUntimedTransmissionState(record, retained, supplied, closure, phase, originClosure);
             return;
         }
         var expected = supplied == 1
@@ -579,11 +670,24 @@ public static partial class PhysicsGpuAbi
             throw new ArgumentException("Timed mechanical transmission phase disagrees with its supply or closure.");
     }
 
-    /// <summary>Committed angular reaction, N*m*s against the normalized transmission Jacobian.</summary>
+    private static void ValidateUntimedTransmissionState(ReadOnlySpan<byte> record, bool retained,
+        uint supplied, float closure, TransmissionEngagementPhase phase, float originClosure)
+    {
+        var releasing = retained && R32(record, MechanicalTransmissionRetentionModeOffset) == (uint)RetentionMode.Releasing;
+        if (supplied != 0 || closure != (releasing ? 0f : 1f) ||
+            phase != (releasing ? TransmissionEngagementPhase.Open : TransmissionEngagementPhase.Engaged) ||
+            R64(record, MechanicalTransmissionOriginOrdinalOffset) != 0 || !PhysicsDeclarationBounds.Zero(originClosure))
+            throw new ArgumentException("Untimed mechanical transmission state disagrees with admission.");
+    }
+
+    /// <summary>Validates transmission slot <paramref name="index"/> and reads its committed reaction impulse, signed interface work and
+    /// positive transfer.</summary>
     public static MechanicalTransmissionStateRead ReadMechanicalTransmissionState(ReadOnlySpan<byte> data, int index)
     {
         _ = ReadMechanicalTransmission(data, index);
-        return new(RF(data, Layout(data).MechanicalTransmissionOffset(index) + MechanicalTransmissionImpulseOffset));
+        var offset = Layout(data).MechanicalTransmissionOffset(index);
+        return new(RF(data, offset + MechanicalTransmissionImpulseOffset), RF(data, offset + MechanicalTransmissionWorkOffset),
+            RF(data, offset + MechanicalTransmissionPositiveWorkOffset));
     }
 
     public static MechanicalTransmissionRead[] ReadMechanicalTransmissionReads(ReadOnlySpan<byte> data)
@@ -613,8 +717,16 @@ public static partial class PhysicsGpuAbi
             _ = ReadMechanicalTransmission(candidate, i);
             var offset = layout.MechanicalTransmissionOffset(i);
             if (!candidate.Slice(offset, MechanicalTransmissionDeclarationBytes)
-                    .SequenceEqual(source.Slice(offset, MechanicalTransmissionDeclarationBytes)))
+                    .SequenceEqual(source.Slice(offset, MechanicalTransmissionDeclarationBytes)) ||
+                !candidate.Slice(offset + MechanicalTransmissionDrivingKindOffset, 12)
+                    .SequenceEqual(source.Slice(offset + MechanicalTransmissionDrivingKindOffset, 12)) ||
+                !candidate.Slice(offset + MechanicalTransmissionRetentionOffset, 12)
+                    .SequenceEqual(source.Slice(offset + MechanicalTransmissionRetentionOffset, 12)))
                 throw new ArgumentException("Mechanical transmission declaration changed.");
+            if (RF(candidate, offset + MechanicalTransmissionPositiveWorkOffset) < RF(source, offset + MechanicalTransmissionPositiveWorkOffset) ||
+                RF(candidate, offset + MechanicalTransmissionAcceptedOffset) < RF(source, offset + MechanicalTransmissionAcceptedOffset) ||
+                RF(candidate, offset + MechanicalTransmissionReleasedOffset) < RF(source, offset + MechanicalTransmissionReleasedOffset))
+                throw new ArgumentException("Mechanical transmission work or retention energy reversed.");
         }
     }
 }

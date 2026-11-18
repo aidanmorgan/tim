@@ -16,6 +16,10 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
     {
         /// <summary>A Replace event clip's cue times not yet reached by the presentation clock, oldest first.</summary>
         public List<PhysicalTime> Cues = new(8);
+        /// <summary>A timed Once endpoint transition queued until the presentation clock reaches its committed cue time.</summary>
+        public List<(PhysicalTime At, AnimationEndpoint Endpoint)> EndpointCues = new(4);
+        /// <summary>A follow target queued until the presentation clock reaches its committed cue time.</summary>
+        public List<(PhysicalTime At, AnimationValue Target)> FollowCues = new(4);
         public required GpuBodyId Owner;
         public required int Index;
         public required CompiledPresentationBinding Declaration;
@@ -33,7 +37,10 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         public float Value;
         public RopeGuideId Guide;
         public MechanicalTransmissionId Transmission;
+        public PrismaticRetentionId Retention;
         public bool Visible = true;
+        /// <summary>A staged read's scalar copy. The cue queues stay shared with the live track: staging only reserves capacity on
+        /// them (capacity is not observable state) and only the commit appends, so a refused read leaves every queue unchanged.</summary>
         public Track Copy() => (Track)MemberwiseClone();
     }
     private readonly List<MechanicalLinkGeometry> _geometry = new();
@@ -86,7 +93,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 CoordinateOwner = binding.Actuator is { } actuator ? actuator.Kind == SupplyConsumerKind.RevoluteDrive
                     ? construction.Physics.Revolutes.ToArray().Single(joint => joint.Id == actuator.RevoluteJoint).BodyA
                     : construction.Physics.Prismatics.ToArray().Single(joint => joint.Id == actuator.PrismaticJoint).BodyA : default,
-                SupplyNode = binding.SupplyNode, Transmission = binding.Transmission });
+                SupplyNode = binding.SupplyNode, Transmission = binding.Transmission, Retention = binding.Retention });
         }
         _tracks = tracks.ToArray();
         _batch = animation.CreateBatch();
@@ -119,6 +126,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                     new(new(new AnimationColourBlend(0)), new(new AnimationColourBlend(1)), new(d.Duration),
                     d.Curve switch
                     {
+                        PresentationCurve.Linear => AnimationCurve.Linear,
                         PresentationCurve.SmoothStep => AnimationCurve.SmoothStep,
                         PresentationCurve.CubicSmoothStep => AnimationCurve.CubicSmoothStep,
                         _ => throw new ArgumentException("Unsupported compiled endpoint curve.")
@@ -185,16 +193,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             if (track.Declaration.Curve == PresentationCurve.SineSquaredPulse)
                 _batch.ReserveImpulses(track.Handle!, counts[i]);
             else
-            {
-                var required = (long)track.Cues.Count + counts[i];
-                if (required > Array.MaxLength) throw new AnimationStorageException();
-                try
-                {
-                    if (required > track.Cues.Capacity)
-                        track.Cues.EnsureCapacity((int)Math.Min(Array.MaxLength, Math.Max(required, 2L * track.Cues.Capacity)));
-                }
-                catch (OutOfMemoryException) { throw new AnimationStorageException(); }
-            }
+                ReserveCues(track.Cues, counts[i]);
         }
         foreach (var record in delivery.Records)
         {
@@ -250,6 +249,9 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
 
     private Track[] StageRead(WorkshopRead read)
     {
+        // The read's committed cue time, checked here so CommitRead's identical conversion cannot overflow after staging; follow
+        // targets are validated at the very time they will be admitted.
+        var cueTime = PhysicalTime.Max(_time, new PhysicalTime(checked(read.Tick.Value * _substeps)));
         var staged = new Track[_tracks.Length];
         for (var i = 0; i < _tracks.Length; i++)
         {
@@ -277,14 +279,36 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             {
                 var d = staged[i].Declaration;
                 staged[i].FollowTarget = Value(d.Property, float.Lerp(d.From, d.To, staged[i].Input));
-                _batch.ValidateFollowValue(staged[i].Handle!, staged[i].FollowTarget, _time);
+                _batch.ValidateFollowValue(staged[i].Handle!, staged[i].FollowTarget, cueTime);
+                ReserveCues(_tracks[i].FollowCues, 1);
             }
+            else if (staged[i].Declaration.Curve != PresentationCurve.LinearDecay && staged[i].Handle is { } &&
+                staged[i].Input != _tracks[i].Input)
+                ReserveCues(_tracks[i].EndpointCues, 1);
         }
         return staged;
     }
 
+    /// <summary>Bounded cue storage: reserves room for <paramref name="added"/> more cues on the live track before any cue is
+    /// admitted, or refuses the whole delivery or read with <see cref="AnimationStorageException"/>.</summary>
+    private static void ReserveCues<T>(List<T> cues, int added)
+    {
+        var required = (long)cues.Count + added;
+        if (required > Array.MaxLength) throw new AnimationStorageException();
+        try
+        {
+            if (required > cues.Capacity)
+                cues.EnsureCapacity((int)Math.Min(Array.MaxLength, Math.Max(required, 2L * cues.Capacity)));
+        }
+        catch (OutOfMemoryException) { throw new AnimationStorageException(); }
+    }
+
     private void CommitRead(Track[] staged, WorkshopRead read)
     {
+        var readTime = new PhysicalTime(checked(read.Tick.Value * _substeps));
+        // One admission time for every committed level control (endpoint drive or follow target): the committed read time, never
+        // before the presentation clock. Reads never reverse and the clock never reverses, so queued cue times never decrease.
+        var cueTime = PhysicalTime.Max(_time, readTime);
         for (var i = 0; i < _tracks.Length; i++)
         {
             var track = _tracks[i]; var next = staged[i];
@@ -292,16 +316,18 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             var input = next.Input;
             if (d.Curve == PresentationCurve.ExponentialFollow)
             {
-                _batch.FollowValue(track.Handle!, next.FollowTarget, _time);
+                // Only a changed target is a new control; an unchanged read leaves the queue as it is.
+                var last = track.FollowCues.Count > 0 ? track.FollowCues[^1].Target : track.FollowTarget;
+                if (next.FollowTarget != last) track.FollowCues.Add((cueTime, next.FollowTarget));
+                track.FollowTarget = next.FollowTarget;
             }
             else if (d.Curve == PresentationCurve.LinearDecay)
             {
                 for (ulong occurrence = (ulong)track.Count + 1; occurrence <= next.Count; occurrence++)
-                    _batch.EnqueueImpulse(track.Handle!, new(occurrence), new(1),
-                        new PhysicalTime(checked(read.Tick.Value * _substeps)));
+                    _batch.EnqueueImpulse(track.Handle!, new(occurrence), new(1), readTime);
             }
-            else if (track.Handle is { } handle && input != track.Input)
-                _batch.DriveTo(handle, input >= 1 ? AnimationEndpoint.To : AnimationEndpoint.From, _time);
+            else if (track.Handle is { } && input != track.Input)
+                track.EndpointCues.Add((cueTime, input >= 1 ? AnimationEndpoint.To : AnimationEndpoint.From));
             track.Node = next.Node; track.Input = input; track.Count = next.Count;
         }
     }
@@ -333,6 +359,11 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 return QueryWheelAngle(track, read);
             case PresentationDriver.CommittedSurfaceDeflection:
                 return QuerySurfaceDeflection(track, read);
+            case PresentationDriver.CommittedRetentionReleased:
+                foreach (var retained in read.Presentation.Retentions)
+                    if (retained.Id == track.Retention && retained.Owner == track.Owner)
+                        return retained.Mode == CuriousContraptions.Abstractions.Mechanical.RetentionMode.Releasing ? 1f : 0f;
+                throw new ArgumentException("Missing retained-coordinate observation.");
             case PresentationDriver.CommittedTransmissionClosure:
                 return QueryTransmission(track, read).Closure;
             default: throw new ArgumentException("Unsupported committed presentation driver.");
@@ -528,13 +559,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         // A Replace cue the clock has reached restarts its clip at the cue's own time (already past when observed late, so the clip is
         // at the exact phase, or at To once expired); of several reached cues only the newest matters, since each restarts from From.
         foreach (var track in _tracks)
-        {
-            var reached = -1;
-            while (reached + 1 < track.Cues.Count && track.Cues[reached + 1] <= _time) reached++;
-            if (reached < 0) continue;
-            _batch.StartAtOccurrence(track.Handle!, track.Cues[reached]);
-            track.Cues.RemoveRange(0, reached + 1);
-        }
+            DrainCues(track);
         _batch.Advance(++_frame, default, _time);
         _samples.Clear();
         _geometry.Clear();
@@ -560,6 +585,31 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             _samples.Add(new(track.Target, track.Owner, track.Index, Value(d.Property, track.Value)));
         }
         return _samples;
+    }
+
+    private void DrainCues(Track track)
+    {
+        var reached = -1;
+        while (reached + 1 < track.Cues.Count && track.Cues[reached + 1] <= _time) reached++;
+        if (reached >= 0)
+        {
+            _batch.StartAtOccurrence(track.Handle!, track.Cues[reached]);
+            track.Cues.RemoveRange(0, reached + 1);
+        }
+        var reachedEndpoints = 0;
+        while (reachedEndpoints < track.EndpointCues.Count && track.EndpointCues[reachedEndpoints].At <= _time)
+        {
+            var cue = track.EndpointCues[reachedEndpoints++];
+            _batch.DriveTo(track.Handle!, cue.Endpoint, cue.At);
+        }
+        if (reachedEndpoints > 0) track.EndpointCues.RemoveRange(0, reachedEndpoints);
+        var reachedFollows = 0;
+        while (reachedFollows < track.FollowCues.Count && track.FollowCues[reachedFollows].At <= _time)
+        {
+            var cue = track.FollowCues[reachedFollows++];
+            _batch.FollowValue(track.Handle!, cue.Target, cue.At);
+        }
+        if (reachedFollows > 0) track.FollowCues.RemoveRange(0, reachedFollows);
     }
 
     public void SetVisible(AnimationTargetId target, AnimationProperty channel, bool visible)

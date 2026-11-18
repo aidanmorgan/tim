@@ -73,6 +73,24 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         }
     }
 
+    private static void ValidateRetentions(ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions,
+        PrismaticConstraintDeclaration[] prismatics, PrismaticDriveDeclaration[] prismaticDrives,
+        ulong nextIdentity, HashSet<ulong> ids)
+    {
+        var retainedCoordinates = new HashSet<PrismaticConstraintId>();
+        foreach (var transmission in transmissions)
+        {
+            if (transmission.Retention is not { } retention) continue;
+            Identity(retention.Value, nextIdentity, ids);
+            if (!retainedCoordinates.Add(transmission.Driven.Prismatic))
+                throw new ArgumentException("Duplicate retained coordinate.");
+            var slider = Array.Find(prismatics, joint => joint.Id == transmission.Driven.Prismatic);
+            PrismaticDriveDeclaration? drive = null;
+            foreach (var item in prismaticDrives) if (item.Joint == slider.Id) drive = item;
+            PhysicsGpuAbi.ValidateRetainedSlider(transmission, slider, drive);
+        }
+    }
+
     public PhysicsSceneDeclaration(PhysicsDocumentId document, ulong nextIdentity,
         ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders,
         ReadOnlySpan<ContactMaterialDeclaration> materials, ReadOnlySpan<ResidenceSensorDeclaration> sensors,
@@ -151,7 +169,8 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         foreach (var surface in drivenSurfaces) Identity(surface.Id.Value, nextIdentity, ids);
         _drivenSurfaces = drivenSurfaces.ToArray();
         Array.Sort(_drivenSurfaces, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
-        PhysicsDeclarationValidation.ValidateAll(transmissions, bodyMap, _revolutes);
+        PhysicsDeclarationValidation.ValidateAll(transmissions, bodyMap, _revolutes, _prismatics);
+        ValidateRetentions(transmissions, _prismatics, _prismaticDrives, nextIdentity, ids);
         _transmissions = transmissions.ToArray();
         Array.Sort(_transmissions, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);

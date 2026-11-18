@@ -163,12 +163,13 @@ public readonly record struct RevoluteHingeDescriptor(
 
 /// <summary>A mechanical element whose base body carries moving bodies on revolute hinges.</summary>
 /// <summary>A mechanical value is either fixed authoring data or a declared real parameter.</summary>
-public enum MechanicalValueSource : byte { Constant, Parameter, Product }
+public enum MechanicalValueSource : byte { Constant, Parameter, Product, NegatedParameter }
 
 public readonly record struct MechanicalValue(MechanicalValueSource Source, float Constant, string? Parameter, MechanicalProduct? Product = null)
 {
     public static MechanicalValue Fixed(float value) => new(MechanicalValueSource.Constant, value, null);
     public static MechanicalValue FromParameter(string key) => new(MechanicalValueSource.Parameter, 0f, key);
+    public static MechanicalValue NegatedParameter(string key) => new(MechanicalValueSource.NegatedParameter, 0f, key);
     public static MechanicalValue Multiply(MechanicalOperand left, MechanicalOperand right) => new(MechanicalValueSource.Product, 0f, null, new(left, right));
 
     public float Evaluate(IReadOnlyDictionary<string, float> parameters) => Source switch
@@ -176,6 +177,8 @@ public readonly record struct MechanicalValue(MechanicalValueSource Source, floa
         MechanicalValueSource.Constant when Product is null && Parameter is null && float.IsFinite(Constant) => Constant,
         MechanicalValueSource.Parameter when Product is null && Constant == 0f && Parameter is { } key &&
             parameters.TryGetValue(key, out var value) && float.IsFinite(value) => value,
+        MechanicalValueSource.NegatedParameter when Product is null && Constant == 0f && Parameter is { } negativeKey &&
+            parameters.TryGetValue(negativeKey, out var negativeValue) && float.IsFinite(negativeValue) => -negativeValue,
         MechanicalValueSource.Product when Constant == 0f && Parameter is null && Product is { } product => product.Evaluate(parameters),
         _ => throw new ArgumentException("Invalid or unresolved mechanical value.")
     };
@@ -251,12 +254,15 @@ public enum TransmissionEngagementPhase : uint
     Opening = 3
 }
 
-/// <summary>An internal mechanical coupling between two declared revolute coordinates, optionally timed by an electrical supply.</summary>
+public enum TransmissionConstraintKind : byte { Bilateral, NonPositiveVelocity }
+
+/// <summary>A generalized-coordinate coupling with a declared impulse domain.</summary>
 public readonly record struct MechanicalTransmissionDescriptor(
     LocalMechanicalTransmissionId Id,
     CoordinateReference Driving,
     CoordinateReference Driven,
     MechanicalValue Ratio,
+    [property: System.Text.Json.Serialization.JsonRequired] TransmissionConstraintKind ConstraintKind,
     MechanicalValue? CloseSeconds = null);
 
 

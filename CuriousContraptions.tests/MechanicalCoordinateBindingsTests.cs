@@ -175,8 +175,8 @@ public sealed class MechanicalCoordinateBindingsTests
         construction.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
         var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var transmission = Assert.Single(scene.Transmissions.ToArray());
-        Assert.Equal(construction.Instances.Identities[driverInstance.Id].Hinges[1].Joint, transmission.DrivingJoint);
-        Assert.Equal(construction.Instances.Identities[drivenInstance.Id].Hinges[0].Joint, transmission.DrivenJoint);
+        Assert.Equal(construction.Instances.Identities[driverInstance.Id].Hinges[1].Joint, transmission.Driving.Revolute);
+        Assert.Equal(construction.Instances.Identities[drivenInstance.Id].Hinges[0].Joint, transmission.Driven.Revolute);
         // Canonical authored scales define the signed ratio exactly: -2 / 4.
         Assert.Equal(-0.5f, transmission.Ratio);
     }
@@ -216,16 +216,16 @@ public sealed class MechanicalCoordinateBindingsTests
         var transmission = Assert.Single(scene.Transmissions.ToArray());
         Assert.Equal(new MechanicalTransmissionId(1), transmission.Id);
 
-        // Crucial verification: DrivingJoint is the second hinge (index 1), NOT the first hinge (index 0),
+        // Crucial verification: the driving coordinate is the second hinge (index 1), NOT the first hinge (index 0),
         // and NOT offset by slider counts or confused by root locator Body = default!
         var identities = construction.Instances.Identities;
-        var expectedDrivingJoint = identities[driverInstance.Id].Hinges[1].Joint;
+        var expectedDrivingCoordinate = identities[driverInstance.Id].Hinges[1].Joint;
         var firstHingeJoint = identities[driverInstance.Id].Hinges[0].Joint;
         var expectedDrivenJoint = identities[drivenInstance.Id].Hinges[0].Joint;
 
-        Assert.Equal(expectedDrivingJoint, transmission.DrivingJoint);
-        Assert.NotEqual(firstHingeJoint, transmission.DrivingJoint);
-        Assert.Equal(expectedDrivenJoint, transmission.DrivenJoint);
+        Assert.Equal(expectedDrivingCoordinate, transmission.Driving.Revolute);
+        Assert.NotEqual(firstHingeJoint, transmission.Driving.Revolute);
+        Assert.Equal(expectedDrivenJoint, transmission.Driven.Revolute);
 
         // Equal endpoint travel: source scale 2 / target scale 4 = one half.
         Assert.Equal(0.5f, transmission.Ratio);
@@ -291,7 +291,7 @@ public sealed class MechanicalCoordinateBindingsTests
         var identities = construction.Instances.Identities;
 
         // Even with two sliders, Coordinate.Index = 1 binds strictly to Hinges[1].Joint!
-        Assert.Equal(identities[driverInstance.Id].Hinges[1].Joint, transmission.DrivingJoint);
+        Assert.Equal(identities[driverInstance.Id].Hinges[1].Joint, transmission.Driving.Revolute);
     }
 
     [Fact]
@@ -496,7 +496,7 @@ public sealed class MechanicalCoordinateBindingsTests
     }
 
     [Fact]
-    public async Task PositiveTransmission_DrivingJointTransmitsProportionalAngularMotion()
+    public async Task PositiveTransmission_DrivingCoordinateTransmitsProportionalAngularMotionToDrivenCoordinate()
     {
         await using var rig = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
         var motorEntry = TestBundle.Entry(new PartId("motor"));
@@ -731,8 +731,8 @@ public sealed class MechanicalCoordinateBindingsTests
         var wireTrans = Assert.Single(decodedScene.Physics.Transmissions.ToArray());
         var originalTrans = Assert.Single(compiled.Physics.Transmissions.ToArray());
         Assert.Equal(originalTrans.Id, wireTrans.Id);
-        Assert.Equal(originalTrans.DrivingJoint, wireTrans.DrivingJoint);
-        Assert.Equal(originalTrans.DrivenJoint, wireTrans.DrivenJoint);
+        Assert.Equal(originalTrans.Driving.Revolute, wireTrans.Driving.Revolute);
+        Assert.Equal(originalTrans.Driven.Revolute, wireTrans.Driven.Revolute);
         Assert.Equal(originalTrans.Ratio, wireTrans.Ratio);
     }
 
@@ -908,7 +908,7 @@ public sealed class MechanicalCoordinateBindingsTests
             -MathF.PI, MathF.PI, 0f, travel: RevoluteTravel.Continuous);
         var b = scene.Revolute(carrier, target, new(new(0, 0, -.5f), Quaternion.Identity), new(new(0, 0, .5f), Quaternion.Identity),
             -MathF.PI, MathF.PI, 0f, travel: RevoluteTravel.Continuous);
-        scene.Transmission(a, b, ratio);
+        scene.Transmission(new(a), new(b), ratio);
         var state = scene.Admit().Step(120);
         var wc = state[carrier].Angular.Z;
         var ws = state[source].Angular.Z;
@@ -938,7 +938,7 @@ public sealed class MechanicalCoordinateBindingsTests
         var frame = new ConstraintFrame(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 2f));
         var a = scene.Revolute(sourceAnchor, source, ConstraintFrame.Identity, ConstraintFrame.Identity, -MathF.PI, MathF.PI, 0f, travel: RevoluteTravel.Continuous);
         var b = scene.Revolute(targetAnchor, target, frame, frame, -MathF.PI, MathF.PI, 0f, travel: RevoluteTravel.Continuous);
-        if (connected) scene.Transmission(a, b, ratio);
+        if (connected) scene.Transmission(new(a), new(b), ratio);
         var state = scene.Admit().Step(120);
         var expectedSource = connected ? 6f / (1f + ratio * ratio) : 6f;
         var expectedTarget = connected ? ratio * expectedSource : 0f;
@@ -964,9 +964,9 @@ public sealed class MechanicalCoordinateBindingsTests
             joints[i] = scene.Revolute(anchor, rotors[i], ConstraintFrame.Identity, ConstraintFrame.Identity,
                 -MathF.PI, MathF.PI, 0f, travel: RevoluteTravel.Continuous);
         }
-        scene.Transmission(joints[0], joints[1], 1f);
-        scene.Transmission(joints[1], joints[2], 1f);
-        if (close) scene.Transmission(joints[2], joints[0], closingRatio);
+        scene.Transmission(new(joints[0]), new(joints[1]), 1f);
+        scene.Transmission(new(joints[1]), new(joints[2]), 1f);
+        if (close) scene.Transmission(new(joints[2]), new(joints[0]), closingRatio);
         var world = scene.Admit();
         var state = world.Step(120);
         // A redundant unit loop shares the initial momentum; a non-unit closed relation can only rest.
@@ -976,7 +976,7 @@ public sealed class MechanicalCoordinateBindingsTests
         Assert.True(rotors.Sum(rotor => state[rotor].Angular.LengthSquared()) <= 37f, "Passive closed relations cannot manufacture rotational energy.");
     }
 
-    public enum TransmissionWireDefect { ZeroId, DuplicateId, MissingJoint, SameJoint, DuplicateSource, DuplicateTarget, ZeroRatio, NaNRatio, InfiniteRatio }
+    public enum TransmissionWireDefect { ZeroId, DuplicateId, MissingJoint, SameJoint, DuplicateSource, DuplicateTarget, ZeroRatio, NaNRatio, InfiniteRatio, InvalidDrivingKind }
 
     [Theory]
     [InlineData(TransmissionWireDefect.ZeroId)]
@@ -988,6 +988,7 @@ public sealed class MechanicalCoordinateBindingsTests
     [InlineData(TransmissionWireDefect.ZeroRatio)]
     [InlineData(TransmissionWireDefect.NaNRatio)]
     [InlineData(TransmissionWireDefect.InfiniteRatio)]
+    [InlineData(TransmissionWireDefect.InvalidDrivingKind)]
     public async Task MalformedTransmissionWireRefusesWithoutReplacingTheWorld(TransmissionWireDefect defect)
     {
         await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
@@ -1028,7 +1029,7 @@ public sealed class MechanicalCoordinateBindingsTests
             ulong Read(Google.FlatBuffers.Table row, int field) => bb.GetUlong(CompiledSceneBoundaryTests.Slot(row, field));
             void Identity(Google.FlatBuffers.Table row, int field, ulong value) =>
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(buffer.AsSpan(CompiledSceneBoundaryTests.Slot(row, field)), value);
-            void Ratio(float value) => System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(buffer.AsSpan(CompiledSceneBoundaryTests.Slot(first, 3)), value);
+            void Ratio(float value) => System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(buffer.AsSpan(CompiledSceneBoundaryTests.Slot(first, 6)), value);
             switch (defect)
             {
                 case TransmissionWireDefect.ZeroId: Identity(first, 0, 0); break;
@@ -1040,6 +1041,7 @@ public sealed class MechanicalCoordinateBindingsTests
                 case TransmissionWireDefect.ZeroRatio: Ratio(0f); break;
                 case TransmissionWireDefect.NaNRatio: Ratio(float.NaN); break;
                 case TransmissionWireDefect.InfiniteRatio: Ratio(float.PositiveInfinity); break;
+                case TransmissionWireDefect.InvalidDrivingKind: buffer[CompiledSceneBoundaryTests.Slot(first, 3)] = 0; break;
                 default: throw new ArgumentOutOfRangeException(nameof(defect));
             }
         }

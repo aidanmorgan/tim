@@ -74,6 +74,21 @@ internal readonly ref struct ImpulseJacobian
         }
     }
 
+    /// <summary>Applies a contact impulse and adds it to each dynamic body's open accepted-work window (linear impulse and angular
+    /// impulse about the centre of mass). Work is credited once, when the window closes, against the window's start and end rates.</summary>
+    public void ApplyContact(float impulse)
+    {
+        if (impulse == 0f) return;
+        Apply(impulse);
+        for (var i = 0; i < Count; i++)
+        {
+            Get(i, out var body, out var linear, out var angular);
+            if (body.Motion != RigidMotionKind.Dynamic) continue;
+            body.WindowContactTranslationalImpulse += linear * impulse;
+            body.WindowContactAngularImpulse += angular * impulse;
+        }
+    }
+
     private static bool FirstComponent(in ImpulseJacobian row, int index, GuideComponent component)
     {
         for (var i = 0; i < index; i++)

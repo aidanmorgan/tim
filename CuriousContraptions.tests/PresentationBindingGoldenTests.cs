@@ -123,7 +123,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
         }
         var definition = registry.Definitions[new PartId("clock")];
         var missing = entry with { Presentation = entry.Presentation with { Bindings = [pulse with { Node = "Visual/Missing" }] } };
-        var candidate = definition.Scene!.Instantiate<MachinePart>();
+        var candidate = MachinePart.InstantiateArtwork(definition.Scene!);
         try
         {
             var changed = new PartDefinition(RuntimeTestServices.Bundle, definition.PartId, definition.Title, definition.Description, definition.Category,

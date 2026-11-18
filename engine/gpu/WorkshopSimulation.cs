@@ -54,21 +54,21 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
     private ulong _epoch = 1;
     private int _pending;
     // Read-validation declarations belong to the committed compiled installation, including cadence-derived timer durations.
-    private (CompiledSceneId Scene, HashSet<ActivationNodeId> Nodes, Dictionary<ActivationNodeId, ActivationNodeDeclaration> Timers) _bistable;
-    private HashSet<ActivationNodeId> BistableNodes()
+    private (CompiledSceneId Scene, HashSet<ActivationNodeId> Nodes, Dictionary<ActivationNodeId, ActivationNodeDeclaration> Timers) _activationDeclarations;
+    private HashSet<ActivationNodeId> MutableActivationNodes()
     {
-        if (_bistable.Nodes is null || _bistable.Scene != Scene.Identity)
+        if (_activationDeclarations.Nodes is null || _activationDeclarations.Scene != Scene.Identity)
         {
             var nodes = new HashSet<ActivationNodeId>(16);
             var timers = new Dictionary<ActivationNodeId, ActivationNodeDeclaration>(16);
             foreach (var node in Scene.Activation.Nodes)
             {
-                if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource) nodes.Add(node.Id);
+                if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource or ActivationNodeKind.PhysicalRequest) nodes.Add(node.Id);
                 if (node.Kind == ActivationNodeKind.Timer) timers.Add(node.Id, node);
             }
-            _bistable = (Scene.Identity, nodes, timers);
+            _activationDeclarations = (Scene.Identity, nodes, timers);
         }
-        return _bistable.Nodes;
+        return _activationDeclarations.Nodes;
     }
     private bool _disposed;
     public SimulationEpoch Epoch => new(_epoch);
@@ -564,13 +564,13 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
 
     private void ValidateActivationAdvance(WorkshopRead source, WorkshopRead read)
     {
-        var bistable = BistableNodes();
+        var mutable = MutableActivationNodes();
         for (var i = 0; i < read.Activations.Count; i++)
         {
             var before = source.Activations[i]; var after = read.Activations[i]; after.Validate();
-            // Bistable nodes may flip between Clear (Off) and Latched (On); every other latched value is immutable within a world.
+            // Declared levels can change and occurrence sinks clear after consumption; other latched sources are immutable.
             if (after.Node != before.Node || after.Owner != before.Owner ||
-                (!bistable.Contains(after.Node) && before.Phase == ActivationPhase.Latched && after != before))
+                (!mutable.Contains(after.Node) && before.Phase == ActivationPhase.Latched && after != before))
                 throw new ArgumentException("Committed activation identity or latch changed.");
         }
     }
@@ -580,7 +580,7 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
         for (var i = 0; i < read.Timers.Count; i++)
         {
             var before = source.Timers[i]; var after = read.Timers[i]; after.Validate();
-            if (!_bistable.Timers.TryGetValue(before.Node, out var declaration) || before.Node != after.Node)
+            if (!_activationDeclarations.Timers.TryGetValue(before.Node, out var declaration) || before.Node != after.Node)
                 throw new ArgumentException("Committed timer identity changed.");
             if (declaration.Completion == CuriousContraptions.Abstractions.Signal.TimerCompletionPolicy.Rearm)
             {

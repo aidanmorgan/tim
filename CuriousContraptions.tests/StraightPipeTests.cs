@@ -56,7 +56,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void PipeScene_ExtractsItsShellTubeTwoCollarToriAndTwoMouthPortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/Pipe/pipe.tscn");
+        var packedScene = WorkshopResources.LoadScene("res://elements/Pipe/pipe.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

@@ -31,7 +31,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
 
     private Workshop Scene()
     {
-        var scene = GD.Load<PackedScene>("res://scenes/workshop.tscn").Instantiate<Workshop>();
+        var scene = new Workshop { Name = "Workshop" };
         scene.StartObservation = _ => Task.CompletedTask; // Explicit native stand-in for browser registration.
         _client = new HintReadClient();
         scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(_client);

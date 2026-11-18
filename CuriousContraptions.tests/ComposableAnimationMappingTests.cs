@@ -84,6 +84,7 @@ public sealed class ComposableAnimationMappingTests(NativeSceneFixture godot)
             Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.SmoothStep, 0.2f, PresentationOverlap.Replace));
             Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.CubicSmoothStep, 0.2f, PresentationOverlap.Replace));
             Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.Linear, 0.2f, PresentationOverlap.Replace));
+            Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.Linear, -0.2f, PresentationOverlap.Replace));
             Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.ExponentialFollow, 0.2f, PresentationOverlap.Replace));
             Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.LinearDecay, 0.2f, PresentationOverlap.Maximum));
             Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.SineSquaredPulse, 0.2f, PresentationOverlap.SaturatingSum));
@@ -110,7 +111,8 @@ public sealed class ComposableAnimationMappingTests(NativeSceneFixture godot)
             Assert.True(PresentationDriverRules.Supports(driver, PresentationCurve.CubicSmoothStep, 0.2f, PresentationOverlap.Replace));
 
             Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.ExponentialFollow, 0f, PresentationOverlap.Replace));
-            Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.Linear, 0.2f, PresentationOverlap.Replace));
+            Assert.True(PresentationDriverRules.Supports(driver, PresentationCurve.Linear, 0.2f, PresentationOverlap.Replace));
+            Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.Linear, -0.2f, PresentationOverlap.Replace));
             Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.SmoothStep, 0f, PresentationOverlap.Replace));
             Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.CubicSmoothStep, 0f, PresentationOverlap.Replace));
             Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.LinearDecay, 0.2f, PresentationOverlap.Maximum));
@@ -292,8 +294,10 @@ public sealed class ComposableAnimationMappingTests(NativeSceneFixture godot)
     public void BundleValidator_RejectsDriverCurveMismatch()
     {
         var template = TestBundle.Entry(new("battery"));
-        // Linear with duration > 0 is forbidden
-        var badCurve = template.Presentation.Bindings[0] with { Curve = PresentationCurve.Linear, Duration = 0.5f };
+        // Timed Linear is admitted for bounded-speed level following; negative duration is refused.
+        var timedCurve = template.Presentation.Bindings[0] with { Curve = PresentationCurve.Linear, Duration = 0.5f };
+        Assert.Empty(BundleValidator.Validate([new("test_battery_timed", template with { Presentation = template.Presentation with { Bindings = [timedCurve] } })]));
+        var badCurve = timedCurve with { Duration = -0.5f };
         var badEntry = template with { Presentation = template.Presentation with { Bindings = [badCurve] } };
         Assert.Contains(BundleValidator.Validate([new("test_battery_bad", badEntry)]), e => e.Detail.Contains("Presentation.DriverCurve"));
 

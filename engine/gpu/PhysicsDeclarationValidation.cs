@@ -42,22 +42,24 @@ public static class PhysicsDeclarationValidation
 
     public static void ValidateAll(ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions,
         IReadOnlyDictionary<GpuBodyId, RigidBodyDeclaration> bodies,
-        ReadOnlySpan<RevoluteConstraintDeclaration> joints)
+        ReadOnlySpan<RevoluteConstraintDeclaration> joints,
+        ReadOnlySpan<PrismaticConstraintDeclaration> sliders)
     {
-        var jointIds = new HashSet<RevoluteConstraintId>();
-        foreach (var joint in joints) jointIds.Add(joint.Id);
+        var jointIds = new HashSet<ConstraintCoordinateReference>();
+        foreach (var joint in joints) jointIds.Add(new(joint.Id));
+        foreach (var slider in sliders) jointIds.Add(new(slider.Id));
         var ids = new HashSet<MechanicalTransmissionId>();
-        var outputs = new HashSet<RevoluteConstraintId>();
-        var inputs = new HashSet<RevoluteConstraintId>();
+        var outputs = new HashSet<ConstraintCoordinateReference>();
+        var inputs = new HashSet<ConstraintCoordinateReference>();
         foreach (var transmission in transmissions)
         {
             transmission.Validate();
             if (!ids.Add(transmission.Id))
                 throw new ArgumentException("Duplicate mechanical transmission identity.");
-            if (!outputs.Add(transmission.DrivingJoint) || !inputs.Add(transmission.DrivenJoint))
+            if (!outputs.Add(transmission.Driving) || !inputs.Add(transmission.Driven))
                 throw new ArgumentException("Mechanical coordinates support one connection per role.");
-            if (!jointIds.Contains(transmission.DrivingJoint) || !jointIds.Contains(transmission.DrivenJoint))
-                throw new ArgumentException("A mechanical transmission requires admitted revolute joints.");
+            if (!jointIds.Contains(transmission.Driving) || !jointIds.Contains(transmission.Driven))
+                throw new ArgumentException("A mechanical transmission requires admitted coordinates.");
             if (transmission.Owner != default &&
                 !bodies.ContainsKey(transmission.Owner))
                 throw new ArgumentException("Mechanical transmission provenance body must be admitted.");

@@ -24,7 +24,7 @@ public static class RunControlBindings
     }
 
     private static bool Matches(MechanicalValue value, string key) =>
-        (value.Source == MechanicalValueSource.Parameter && value.Parameter == key) ||
+        (value.Source is MechanicalValueSource.Parameter or MechanicalValueSource.NegatedParameter && value.Parameter == key) ||
         (value.Product is { } product &&
             ((product.Left.Source == MechanicalValueSource.Parameter && product.Left.Parameter == key) ||
              (product.Right.Source == MechanicalValueSource.Parameter && product.Right.Parameter == key)));
@@ -89,7 +89,8 @@ public static class RunControlBindings
         Matches(hinge.Damping, key) ||
         Matches(hinge.FrictionTorque, key) ||
         Matches(hinge.InitialAngle, key) ||
-        (hinge.Drive is { } drive && Matches(drive.MaxTorque, key));
+        (hinge.Drive is { } drive && (Matches(drive.MaxTorque, key) ||
+            (drive.TargetSpeed.Source != MechanicalValueSource.Parameter && Matches(drive.TargetSpeed, key))));
 
     private static bool IsBoundToSlider(PrismaticSliderDescriptor slider, string key)
     {

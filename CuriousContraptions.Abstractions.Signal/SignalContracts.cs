@@ -17,7 +17,7 @@ public static class SignalTerminals
     public static PortSignalKind? Kind(SignalNodeDescriptor node, SignalTerminal terminal) => terminal switch
     {
         SignalTerminal.Set or SignalTerminal.Reset when node is SignalMemoryDescriptor => PortSignalKind.Pulse,
-        SignalTerminal.Input when node is SignalTimerDescriptor or SignalPulseCountDescriptor => PortSignalKind.Pulse,
+        SignalTerminal.Input when node is SignalTimerDescriptor or SignalPulseCountDescriptor or SignalPhysicalRequestDescriptor => PortSignalKind.Pulse,
         SignalTerminal.Input when node is SignalIndicatorDescriptor => PortSignalKind.Level,
         SignalTerminal.Output when node is SignalMemoryDescriptor or SignalContactLoadDescriptor => PortSignalKind.Level,
         SignalTerminal.Output when node is SignalContactDescriptor or SignalOrientationDescriptor or

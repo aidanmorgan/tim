@@ -23,7 +23,8 @@ public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArr
     CompiledCaptureIdentities Capture, ImmutableArray<CompiledHingeIdentities> Hinges,
     CompliantSurfaceId CompliantSurface, ImmutableArray<DrivenSurfaceId> DrivenSurfaces,
     ImmutableDictionary<PortId, RopeGuideId> Guides,
-    ImmutableDictionary<LocalMechanicalTransmissionId, MechanicalTransmissionId> Transmissions);
+    ImmutableDictionary<LocalMechanicalTransmissionId, MechanicalTransmissionId> Transmissions,
+    ImmutableDictionary<LocalPrismaticRetentionId, PrismaticRetentionId> Retentions);
 
 /// <summary>One immutable scene-sized allocation shared by every consumer of an authored instance collection.</summary>
 public sealed class CompiledIdentityMap
@@ -150,8 +151,11 @@ public sealed class CompiledIdentityMap
         var transmissions = ImmutableDictionary.CreateBuilder<LocalMechanicalTransmissionId, MechanicalTransmissionId>();
         foreach (var transmission in entry.Mechanical?.Transmissions ?? [])
             transmissions.Add(transmission.Id, new(Allocate()));
+        var retentions = ImmutableDictionary.CreateBuilder<LocalPrismaticRetentionId, PrismaticRetentionId>();
+        foreach (var retention in entry.Mechanical?.Retentions ?? [])
+            retentions.Add(retention.Id, new(Allocate()));
         return new(material, colliders, sliders, signals, supply, work,
-            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable(), transmissions.ToImmutable());
+            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable(), transmissions.ToImmutable(), retentions.ToImmutable());
     }
 
     private static ImmutableDictionary<LocalSupplyNodeId, CompiledSupplyIdentities> AllocateSupply(

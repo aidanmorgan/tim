@@ -76,7 +76,7 @@ public sealed class EventRecordProducer
         ActivationNodeKind.Counter => SimulationEventKind.ThresholdReached,
         ActivationNodeKind.StateLatch => SimulationEventKind.MemoryChanged,
         ActivationNodeKind.ContactLoadSource => SimulationEventKind.ContactLoad,
-        ActivationNodeKind.PassageSource or ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator => SimulationEventKind.None,
+        ActivationNodeKind.PassageSource or ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator or ActivationNodeKind.PhysicalRequest => SimulationEventKind.None,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined activation node kind.")
     };
 

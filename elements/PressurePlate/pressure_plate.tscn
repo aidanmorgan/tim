@@ -1,6 +1,5 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=13 format=3]
 
-[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_Base"]
 albedo_color = Color(0.1608, 0.2235, 0.3294, 1)
@@ -47,7 +46,6 @@ size = Vector3(1.7999999523162842, 0.10000000149011612, 1.7999999523162842)
 radius = 0.075
 
 [node name="pressure_plate" type="Node3D"]
-script = ExtResource("1")
 
 [node name="Visual" type="Node3D" parent="."]
 
