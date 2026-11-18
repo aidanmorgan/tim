@@ -35,8 +35,8 @@ public sealed class DelayBoxElementDeclaration : ISignalElement, ISceneGeometryE
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Pulse, new Vector3(-.72f, 0f, 0f), -Vector3.UnitX),
-        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, new Vector3(.72f, 0f, 0f), Vector3.UnitX)
+        new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, new("ActivationIn", SocketGlyph.Text), PortSignalKind.Pulse, new Vector3(-.72f, 0f, 0f), -Vector3.UnitX),
+        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, new Vector3(.72f, 0f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The foot of the housing.</summary>

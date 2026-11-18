@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.Intrinsics;
 using CuriousContraptions.Gpu;
+using CuriousContraptions.Abstractions.Mechanical;
 using static CuriousContraptions.Simulation.ConstraintBodyImpulse;
 
 namespace CuriousContraptions.Simulation;
@@ -49,6 +50,11 @@ internal sealed class SimJoint
     public bool SupplyClosed;
     public PrismaticDriveKind DriveKind;
     public PrismaticDriveDeclaration Drive;
+    public PrismaticCommand Command;
+    public PrismaticDrivePhase Phase;
+    public bool Holding, MotorActive;
+    public float CommandSpeed, HoldCoordinate, MotorImpulse, StartCoordinate, StepWork, Work, TickWork;
+    public float EffortMultiplier = 1f;
     /// <summary>Whether the moving body took a positive normal contact impulse from a body other than the base this tick.</summary>
     public bool MovingContact;
     public float[] Impulses = new float[8];
@@ -72,9 +78,12 @@ internal static class PrismaticConstraintSolver
         for (var i = 0; i < 8; i++)
         {
             var row = prepared[i];
-            var gamma = i == (int)PrismaticRowKind.Spring ? joint.Soft.Gamma : 0f;
-            var bias = i == (int)PrismaticRowKind.Spring ? joint.Soft.BiasRate : (IsStop(i) && row.Error >= 0f ? 1f : 0.2f) / h;
-            var minimum = IsStop(i) ? 0f : -3.4028234663852886e38f;
+            if (i == (int)PrismaticRowKind.Spring && joint.Holding)
+                row = row with { Error = row.Error - joint.HoldCoordinate };
+            var gamma = i == (int)PrismaticRowKind.Spring && !joint.Holding ? joint.Soft.Gamma : 0f;
+            var bias = i == (int)PrismaticRowKind.Spring && !joint.Holding ? joint.Soft.BiasRate : (IsStop(i) && row.Error >= 0f ? 1f : 0.2f) / h;
+            var freeAxial = i == (int)PrismaticRowKind.Spring && !joint.Holding && joint.Soft == default;
+            var minimum = IsStop(i) || freeAxial ? 0f : -3.4028234663852886e38f;
 
             joint.Rows[i] = new ConstraintRowData
             {
@@ -86,15 +95,54 @@ internal static class PrismaticConstraintSolver
                 Gamma = gamma,
                 Bias = bias,
                 Minimum = minimum,
-                Maximum = 3.4028234663852886e38f
+                Maximum = freeAxial ? 0f : 3.4028234663852886e38f
             };
         }
     }
 
     public static void ApplyConstraintImpulse(SimJoint joint, in ConstraintRowData row, float impulse)
     {
-        ApplyBodyImpulse(joint.A, row.La, row.Aa, impulse);
-        ApplyBodyImpulse(joint.B, row.Lb, row.Ab, impulse);
+        new ImpulseJacobian(joint.A, row.La, row.Aa, joint.B, row.Lb, row.Ab).Apply(impulse);
+    }
+
+    private static int SelectIndependentGroup(List<SimJoint> joints, Span<int> remaining, ref int remainingCount,
+        Span<int> groupIndices, int rowIndex)
+    {
+        var groupCount = 0;
+
+        for (var i = 0; i < remainingCount && groupCount < 4;)
+        {
+            var jointIdx = remaining[i];
+            var joint = joints[jointIdx];
+            if (joint.Holding && rowIndex == (int)PrismaticRowKind.Spring)
+            {
+                remaining[i] = remaining[--remainingCount];
+                continue;
+            }
+
+            var conflict = false;
+            for (var g = 0; g < groupCount; g++)
+            {
+                var gj = joints[groupIndices[g]];
+                if (Coupled(gj.A, gj.B, joint.A, joint.B))
+                {
+                    conflict = true;
+                    break;
+                }
+            }
+
+            if (conflict)
+            {
+                i++;
+                continue;
+            }
+
+            groupIndices[groupCount++] = jointIdx;
+            remaining[i] = remaining[remainingCount - 1];
+            remainingCount--;
+        }
+
+        return groupCount;
     }
 
     public static void SweepConstraints(List<SimJoint> joints, bool useBias)
@@ -115,66 +163,14 @@ internal static class PrismaticConstraintSolver
         Span<int> remaining = stackalloc int[count];
         Span<int> groupIndices = stackalloc int[4];
 
-        for (var rowIndex = 0; rowIndex < 8; rowIndex++)
+        for (var rowIndex = 5; rowIndex < 8; rowIndex++)
         {
-            if (count == 1)
-            {
-                var joint = joints[0];
-                ref readonly var row = ref joint.Rows[rowIndex];
-                var invMass = ConstraintMass(joint.A, row.La, row.Aa) + ConstraintMass(joint.B, row.Lb, row.Ab);
-                var vel = ConstraintVelocity(joint.A, row.La, row.Aa) + ConstraintVelocity(joint.B, row.Lb, row.Ab);
-                var bias = useBias || rowIndex == (int)PrismaticRowKind.Spring || (IsStop(rowIndex) && row.Error > 0f) ? row.Bias : 0f;
-
-                var vInvMass = Vector128.Create(invMass, 0f, 0f, 0f);
-                var vVel = Vector128.Create(vel, 0f, 0f, 0f);
-                var vTarget = Vector128.Create(row.VelocityTarget, 0f, 0f, 0f);
-                var vError = Vector128.Create(row.Error, 0f, 0f, 0f);
-                var vGamma = Vector128.Create(row.Gamma, 0f, 0f, 0f);
-                var vBias = Vector128.Create(bias, 0f, 0f, 0f);
-                var vAccum = Vector128.Create(joint.Impulses[rowIndex], 0f, 0f, 0f);
-                var vMin = Vector128.Create(row.Minimum, 0f, 0f, 0f);
-                var vMax = Vector128.Create(row.Maximum, 0f, 0f, 0f);
-
-                var result = SoftConstraint.Solve4(vInvMass, vVel, vTarget, vError, vGamma, vBias, vAccum, vMin, vMax);
-                joint.Impulses[rowIndex] = result.Accumulated.GetElement(0);
-                ApplyConstraintImpulse(joint, joint.Rows[rowIndex], result.Delta.GetElement(0));
-                continue;
-            }
-
             for (var i = 0; i < count; i++) remaining[i] = i;
             var remainingCount = count;
 
             while (remainingCount > 0)
             {
-                var groupCount = 0;
-
-                for (var i = 0; i < remainingCount && groupCount < 4;)
-                {
-                    var jointIdx = remaining[i];
-                    var joint = joints[jointIdx];
-
-                    var conflict = false;
-                    for (var g = 0; g < groupCount; g++)
-                    {
-                        var gj = joints[groupIndices[g]];
-                        if (gj.A.BodySlot == joint.A.BodySlot || gj.A.BodySlot == joint.B.BodySlot ||
-                            gj.B.BodySlot == joint.A.BodySlot || gj.B.BodySlot == joint.B.BodySlot)
-                        {
-                            conflict = true;
-                            break;
-                        }
-                    }
-
-                    if (conflict)
-                    {
-                        i++;
-                        continue;
-                    }
-
-                    groupIndices[groupCount++] = jointIdx;
-                    remaining[i] = remaining[remainingCount - 1];
-                    remainingCount--;
-                }
+                var groupCount = SelectIndependentGroup(joints, remaining, ref remainingCount, groupIndices, rowIndex);
 
                 for (var lane = 0; lane < 4; lane++)
                 {
@@ -182,7 +178,7 @@ internal static class PrismaticConstraintSolver
                     {
                         var joint = joints[groupIndices[lane]];
                         ref readonly var row = ref joint.Rows[rowIndex];
-                        invMasses[lane] = ConstraintMass(joint.A, row.La, row.Aa) + ConstraintMass(joint.B, row.Lb, row.Ab);
+                        invMasses[lane] = ConstraintMass(joint.A, row.La, row.Aa, joint.B, row.Lb, row.Ab);
                         vels[lane] = ConstraintVelocity(joint.A, row.La, row.Aa) + ConstraintVelocity(joint.B, row.Lb, row.Ab);
                         errors[lane] = row.Error;
                         gammas[lane] = row.Gamma;
@@ -228,47 +224,4 @@ internal static class PrismaticConstraintSolver
         }
     }
 
-    /// <summary>Applies the declared drive of every prismatic that has one and whose compiled supply route is closed this tick, one
-    /// substep of <paramref name="dt"/>. The coordinate, axis and speed are the joint's own axial row, prepared from the current
-    /// frames; the force acts along that row on both bodies. No joint is recognised by its geometry or its owner.</summary>
-    public static void ApplySuppliedDrives(List<SimJoint> joints, float dt)
-    {
-        Span<PrismaticRow> rows = stackalloc PrismaticRow[PrismaticRows.Count];
-        foreach (var joint in joints)
-        {
-            if (joint.DriveKind != PrismaticDriveKind.Supplied || !joint.SupplyClosed) continue;
-            var moving = joint.B;
-            PrismaticRows.Prepare(new ConstraintBodyFrame(joint.A.Position, joint.A.Rotation, joint.A.CentreOfMass),
-                new ConstraintBodyFrame(moving.Position, moving.Rotation, moving.CentreOfMass),
-                new ConstraintFrame(joint.Pa, joint.Qa), new ConstraintFrame(joint.Pb, joint.Qb), joint.Lower, joint.Upper, rows);
-            var axial = rows[(int)PrismaticRowKind.Spring];
-            var speed = ConstraintVelocity(joint.A, axial.LinearA, axial.AngularA) + ConstraintVelocity(moving, axial.LinearB, axial.AngularB);
-            var gravity = Vector3.Dot(new Vector3(moving.Gx, moving.Gy, moving.Gz), axial.LinearB);
-            var force = SuppliedDriveForce(joint.Drive, axial.Error, speed, moving.Mass, joint.Stiffness, gravity, dt);
-            ApplyConstraintImpulse(joint, new ConstraintRowData { La = axial.LinearA, Lb = axial.LinearB, Aa = axial.AngularA, Ab = axial.AngularB,
-                    Maximum = 3.4028234663852886e38f },
-                force * dt);
-        }
-    }
-
-    /// <summary>The supplied drive law on one substep: the stopping-profile speed toward the target, reached by at most
-    /// StoppingAcceleration·dt per substep, holding against the joint's spring (stiffness·coordinate) and the moving body's gravity
-    /// along the axis; the force is clamped to ±MaxEffort, then to |F·v| ≤ MaxPower at the current axial speed. The commanded speed
-    /// never exceeds |d|/dt, the speed that closes the remaining distance in one substep: the profile √(2·a·|d|) is infinitely steep
-    /// at the target, so without that bound each substep overshoots and the hold chatters.</summary>
-    internal static float SuppliedDriveForce(in PrismaticDriveDeclaration drive, float coordinate, float speed, float mass,
-        float stiffness, float gravityAlongAxis, float dt)
-    {
-        var d = drive.Target - coordinate;
-        var targetSpeed = MathF.Sign(d) * MathF.Min(MathF.Min(drive.MaxSpeed, MathF.Sqrt(2f * drive.StoppingAcceleration * MathF.Abs(d))),
-            MathF.Abs(d) / dt);
-        var maxDeltaV = drive.StoppingAcceleration * dt;
-        var deltaV = Math.Clamp(targetSpeed - speed, -maxDeltaV, maxDeltaV);
-        var acceleration = mass * (deltaV / dt);
-        var holding = stiffness * coordinate;
-        var gravityLoad = -mass * gravityAlongAxis;
-        var force = Math.Clamp(acceleration + holding + gravityLoad, -drive.MaxEffort, drive.MaxEffort);
-        var power = MathF.Abs(force * speed);
-        return power > drive.MaxPower ? MathF.CopySign(drive.MaxPower / MathF.Abs(speed), force) : force;
-    }
 }

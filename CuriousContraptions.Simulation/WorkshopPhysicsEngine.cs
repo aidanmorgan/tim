@@ -9,7 +9,7 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Simulation;
 
-internal sealed class WorkshopPhysicsEngine
+internal sealed partial class WorkshopPhysicsEngine
 {
     private readonly DrivenSurfaceDeclaration[] _declaredSurfaces;
     private readonly List<SimDrivenSurface> _surfaces = [];
@@ -91,6 +91,8 @@ internal sealed class WorkshopPhysicsEngine
         _loadCounted = new GpuBodyId[64]; _loadDeclarations = new ContactLoadSensorDeclaration[4]; _loadFrames = new int[4]; _loadMass = new float[4];
         _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4]; _drivenSlots = new bool[4]; _timedTransmissions = new bool[4];
         _restitutionStamp = 0;
+        _motorTrial = new();
+        _guides = new();
         _probeContacts.Clear(); _probeCollider = new();
         _transmissions.Clear(); _surfaces.Clear(); _surfacesResolved = false; _transmissionsResolved = false;
         _tensile.Clear(); _tensilePool.Clear();
@@ -289,6 +291,7 @@ internal sealed class WorkshopPhysicsEngine
         for (var t = 0; t < layout.MechanicalTransmissions; t++)
             timed[t] = ReadF32(span, layout.MechanicalTransmissionOffset(t) + PhysicsGpuAbi.MechanicalTransmissionCloseSecondsOffset) > 0f;
         inputs.Validate(supplyCount, driven, revoluteDrives, timed);
+        ValidatePrismaticCommands(span, layout, inputs);
         if (inputs.StorageRoutes is null || inputs.StorageRoutes.Length != layout.ElectricalBindings)
             throw new ArgumentException("Physics storage eligibility differs from admitted routes.");
         // engine-revolute-drive-target: each driven revolute commits this tick's target before its substeps. The world's revolutes and
@@ -331,10 +334,10 @@ internal sealed class WorkshopPhysicsEngine
         ReadColliders(span, layout, colliderCount);
         ReadTensileRoutes(span, layout);
         ReadPrismatics(span, layout, inputs);
+        BindExtrusions(span, layout);
         ReadRevolutes(span, layout, inputs, revoluteJointMap);
         var dt = WorkshopConstraintSolver.SubstepSeconds;
         ReadTransmissions(span, layout, inputs, checked(currentTick * (ulong)steps), checked((currentTick + 1) * (ulong)steps));
-        PrepareBroadphase(dt, steps);
         // Story 9R.4: every compiled contact-load row, read once per tick. A row's tick measurement is the maximum qualifying mass
         // of its substeps (D2), written over the copied source state so a removed body reads Empty on the very next tick.
         var loadRows = layout.ContactLoads;
@@ -420,6 +423,7 @@ internal sealed class WorkshopPhysicsEngine
 
             while (_bodyPool.Count <= slot) _bodyPool.Add(new SimBody());
             var b = _bodyPool[slot];
+            b.Guide = null;
             b.BodySlot = slot;
             b.BodyOffset = bodyOffset;
             b.BodyIdLow = bodyIdLow;
@@ -519,6 +523,7 @@ internal sealed class WorkshopPhysicsEngine
             collider.Id = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(colliderOffset + PhysicsGpuAbi.RecordIdentityOffset, 8));
             collider.BodySlot = bodySlot;
             collider.Body = body;
+            collider.Extrusion = null;
             collider.MaterialSlot = materialSlot;
             collider.Shape = shapeKind;
             collider.Tx = tx; collider.Ty = ty; collider.Tz = tz;
@@ -620,7 +625,9 @@ internal sealed class WorkshopPhysicsEngine
             var upper = ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticUpperOffset);
             var stiffness = ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticStiffnessOffset);
             var damping = ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticDampingOffset);
-            var soft = SoftConstraintCoefficients.FromSpring(stiffness, damping, 1f / WorkshopCadenceSettings.PhysicalFrequency);
+            var soft = stiffness > 0f
+                ? SoftConstraintCoefficients.FromSpring(stiffness, damping, WorkshopConstraintSolver.SubstepSeconds)
+                : damping > 0f ? SoftConstraintCoefficients.FromDamper(damping, WorkshopConstraintSolver.SubstepSeconds) : default;
             var collision = ReadU32(span, prismaticOffset + PhysicsGpuAbi.PrismaticCollisionOffset);
 
             while (_jointPool.Count <= index) _jointPool.Add(new SimJoint());
@@ -640,7 +647,20 @@ internal sealed class WorkshopPhysicsEngine
                 ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticDriveMaxSpeedOffset),
                 ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticDriveStoppingAccelerationOffset),
                 ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticDriveMaxEffortOffset),
-                ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticDriveMaxPowerOffset));
+                ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticDriveMaxPowerOffset),
+                (PrismaticTargetSelection)ReadU32(span, prismaticOffset + PhysicsGpuAbi.PrismaticSelectionOffset),
+                (PrismaticInactiveResponse)ReadU32(span, prismaticOffset + PhysicsGpuAbi.PrismaticInactiveOffset),
+                new(BinaryPrimitives.ReadUInt64LittleEndian(span[(prismaticOffset + PhysicsGpuAbi.PrismaticPositiveOffset)..])),
+                new(BinaryPrimitives.ReadUInt64LittleEndian(span[(prismaticOffset + PhysicsGpuAbi.PrismaticNegativeOffset)..])));
+            joint.Command = PrismaticCommand.Hold;
+            foreach (var command in inputs.PrismaticCommands)
+                if (command.Joint == joint.Drive.Joint) joint.Command = command.Command;
+            joint.CommandSpeed = ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticCommandSpeedOffset);
+            joint.HoldCoordinate = ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticHoldCoordinateOffset);
+            joint.Holding = ReadU32(span, prismaticOffset + PhysicsGpuAbi.PrismaticHoldingOffset) != 0;
+            joint.Work = ReadF32(span, prismaticOffset + PhysicsGpuAbi.PrismaticWorkOffset);
+            joint.TickWork = 0f;
+            joint.Phase = (PrismaticDrivePhase)ReadU32(span, prismaticOffset + PhysicsGpuAbi.PrismaticPhaseOffset);
             joint.MovingContact = false;
 
             for (var imp = 0; imp < PhysicsGpuAbi.PrismaticRowCount; imp++)
@@ -774,20 +794,22 @@ internal sealed class WorkshopPhysicsEngine
         }
     }
 
-    private void PrepareBroadphase(float dt, int steps)
+    private void PrepareBroadphase(float dt)
     {
         _bvh.Clear();
-        var tickTime = dt * steps;
+        var tickTime = dt;
         const float velocitySlop = 0.05f;
 
         foreach (var c in _colliders)
         {
             var b = c.Body;
             var isDyn = b.Motion == RigidMotionKind.Dynamic;
-            var spin = isDyn ? MathF.Sqrt(b.Wx * b.Wx + b.Wy * b.Wy + b.Wz * b.Wz) * WorkshopCollisionKernels.SweepReach(c) * tickTime : 0f;
-            var fatX = isDyn ? (MathF.Abs(b.Vx) + MathF.Abs(b.Gx) * tickTime) * tickTime + spin + velocitySlop : velocitySlop;
-            var fatY = isDyn ? (MathF.Abs(b.Vy) + MathF.Abs(b.Gy) * tickTime) * tickTime + spin + velocitySlop : velocitySlop;
-            var fatZ = isDyn ? (MathF.Abs(b.Vz) + MathF.Abs(b.Gz) * tickTime) * tickTime + spin + velocitySlop : velocitySlop;
+            // Integration clamps translation and rotation. Their full reachable envelope includes contact/drive changes
+            // during a trial, so a lower-effort replay cannot introduce an uncaptured dynamic coupling.
+            var spin = isDyn ? WorkshopConstraintSolver.MaxAngularSpeed * WorkshopCollisionKernels.SweepReach(c) * tickTime : 0f;
+            var fatX = isDyn ? WorkshopConstraintSolver.MaxLinearSpeed * tickTime + spin + velocitySlop : velocitySlop;
+            var fatY = fatX;
+            var fatZ = fatX;
 
             Vector3 min, max;
             if (c.Shape == ShapeKind.Plane)
@@ -965,10 +987,10 @@ internal sealed class WorkshopPhysicsEngine
                 b.W0 = b.AngularVelocity;
             }
 
+            GuideWorkspace.Detach(_dynamicBodies);
             TransferSupply(span, layout, inputs, sourceOrdinal, s);
             ApplyGuides(span, layout, dt);
-            // Each declared drive follows its own compiled route (SimJoint.SupplyClosed), closed from committed state, never a timer.
-            PrismaticConstraintSolver.ApplySuppliedDrives(_joints, dt);
+            foreach (var joint in _joints) PrismaticMotorSolver.BeginSubstep(joint, dt);
             // Compliant membranes are external forces like gravity, inside the restitution pass's pre-solve energy bound.
             ApplyCompliantMembranes(span, layout, dt);
 
@@ -984,21 +1006,7 @@ internal sealed class WorkshopPhysicsEngine
                 b.PreSolveKinetic = WorkshopConstraintSolver.Kinetic(b, b.LinearVelocity, b.AngularVelocity);
             }
 
-            foreach (var c in _colliders)
-                if (c.Body.Motion == RigidMotionKind.Dynamic) WorkshopCollisionKernels.RefreshCollider(c);
-
-            PrepareContacts(dt);
-            WarmStartConstraints(dt);
-            for (var iteration = 0; iteration < WorkshopConstraintSolver.SolverIterations; iteration++)
-            {
-                PrismaticConstraintSolver.SweepConstraints(_joints, true);
-                RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, true);
-                foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Solve(transmission);
-                foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, true);
-                WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Solve, softCoeffs, dt);
-            }
-
-            IntegrateBodies(dt);
+            SolveBoundedSubstep(dt, softCoeffs);
             PrepareRelaxation(dt);
             for (var iteration = 0; iteration < WorkshopConstraintSolver.RelaxIterations; iteration++)
             {
@@ -1009,8 +1017,9 @@ internal sealed class WorkshopPhysicsEngine
                 WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Relax, softCoeffs, dt);
             }
 
-            CommitConstraints(span, dt);
             WorkshopConstraintSolver.RestitutionPass(_manifolds, _restitutionBodies, ++_restitutionStamp);
+            _guides.FlushReactions();
+            CommitConstraints(span, dt);
             // Loads are read after the restitution pass: a point that carried normal impulse presses its face even from the gap.
             if (loadRows > 0) MeasureContactLoads(loadDeclarations[..loadRows], loadFrames[..loadRows], loadMass[..loadRows]);
             foreach (var b in _dynamicBodies) WorkshopConstraintSolver.SettleVelocity(b);
@@ -1158,6 +1167,7 @@ internal sealed class WorkshopPhysicsEngine
             var colB = pair.ColB;
             if (colA.Index > colB.Index) (colA, colB) = (colB, colA);
 
+            // Candidate reach bounds trial coupling; contact features use actual motion.
             var bA = colA.Body;
             var bB = colB.Body;
             var relSpeed = (bA.LinearVelocity - bB.LinearVelocity).Length() +
@@ -1168,14 +1178,7 @@ internal sealed class WorkshopPhysicsEngine
             var margin = WorkshopConstraintSolver.SpeculativeSlop + relSpeed * dt;
             WorkshopCollisionKernels.GenerateManifold(colA, colB, margin, _contacts);
             WorkshopCollisionKernels.AdvanceSpeculativeSphereContact(colA, colB, margin, dt, _contacts, first, _probeCollider, _probeContacts);
-            if (_contacts.Count > first)
-            {
-                while (_manifoldPool.Count <= _manifolds.Count) _manifoldPool.Add(new ContactManifold());
-                var manifold = _manifoldPool[_manifolds.Count];
-                manifold.Points.Clear();
-                for (var i = first; i < _contacts.Count; i++) manifold.Points.Add(_contacts[i]);
-                _manifolds.Add(manifold);
-            }
+            AddOwnedManifolds(first);
         }
 
         WorkshopCollisionKernels.RemoveInternalFeatures(_manifolds, _contacts);
@@ -1199,10 +1202,10 @@ internal sealed class WorkshopPhysicsEngine
     {
         foreach (var joint in _joints)
         {
-            PrismaticConstraintSolver.PrepareJointRows(joint, dt);
             // Warm start: each stored impulse is first clamped to its row's current bounds.
-            for (var row = 0; row < 8; row++)
+            for (var row = 5; row < 8; row++)
             {
+                if (joint.Holding && row == (int)PrismaticRowKind.Spring) continue;
                 joint.Impulses[row] = joint.Rows[row].Bounded(joint.Impulses[row]);
                 PrismaticConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
             }
@@ -1289,6 +1292,7 @@ internal sealed class WorkshopPhysicsEngine
 
     private void PrepareRelaxation(float dt)
     {
+        RefreshExtrusionContacts();
         foreach (var route in _tensile)
         {
             if (route.Active)
@@ -1310,6 +1314,9 @@ internal sealed class WorkshopPhysicsEngine
             PrismaticConstraintSolver.PrepareJointRows(joint, dt);
             joint.Rows[(int)PrismaticRowKind.Spring].Error = softRowError;
         }
+        _guides.Prepare(_dynamicBodies, _joints, false, false);
+        foreach (var manifold in _manifolds)
+            for (var block = 0; block < manifold.NormalBlockCount; block++) manifold.NormalBlocks[block].MassValid = false;
         foreach (var joint in _revoluteJoints)
         {
             var axialError = joint.Rows[(int)RevoluteRowKind.Axial].Error;
@@ -1337,6 +1344,14 @@ internal sealed class WorkshopPhysicsEngine
         {
             for (var row = 0; row < PhysicsGpuAbi.PrismaticRowCount; row++)
                 WriteF32(span, joint.Offset + PhysicsGpuAbi.PrismaticImpulseOffset + row * 4, joint.Impulses[row]);
+            PrismaticMotorSolver.Observe(joint, _contacts);
+            WriteF32(span, joint.Offset + PhysicsGpuAbi.PrismaticMotorImpulseOffset, joint.MotorImpulse);
+            WriteF32(span, joint.Offset + PhysicsGpuAbi.PrismaticCommandSpeedOffset, joint.CommandSpeed);
+            WriteF32(span, joint.Offset + PhysicsGpuAbi.PrismaticHoldCoordinateOffset, joint.HoldCoordinate);
+            WriteF32(span, joint.Offset + PhysicsGpuAbi.PrismaticWorkOffset, joint.Work);
+            WriteF32(span, joint.Offset + PhysicsGpuAbi.PrismaticTickWorkOffset, joint.TickWork);
+            WriteU32(span, joint.Offset + PhysicsGpuAbi.PrismaticHoldingOffset, joint.Holding ? 1u : 0u);
+            WriteU32(span, joint.Offset + PhysicsGpuAbi.PrismaticPhaseOffset, (uint)joint.Phase);
             // The committed moving-contact lane: a positive normal impulse on the moving body from anything but its base.
             foreach (var c in _contacts)
                 if (c.LambdaN > 0f && ((c.A == joint.B && c.B != joint.A) || (c.B == joint.B && c.A != joint.A)))

@@ -823,12 +823,55 @@ upper():number {
   return this.bb!.readFloat32(this.bb_pos + 36);
 }
 
-static sizeOf():number {
-  return 40;
+motorPresent():boolean {
+  return !!this.bb!.readInt8(this.bb_pos + 40);
 }
 
-static createActuatorDriveRecord(builder:flatbuffers.Builder, joint: bigint, owner: bigint, kind: number, supply_closed: boolean, moving_contact: boolean, coordinate: number, speed: number, lower: number, upper: number):flatbuffers.Offset {
-  builder.prep(8, 40);
+motorPhase():number {
+  return this.bb!.readUint8(this.bb_pos + 41);
+}
+
+commandSpeed():number {
+  return this.bb!.readFloat32(this.bb_pos + 44);
+}
+
+holding():boolean {
+  return !!this.bb!.readInt8(this.bb_pos + 48);
+}
+
+holdCoordinate():number {
+  return this.bb!.readFloat32(this.bb_pos + 52);
+}
+
+motorImpulse():number {
+  return this.bb!.readFloat32(this.bb_pos + 56);
+}
+
+motorWork():number {
+  return this.bb!.readFloat32(this.bb_pos + 60);
+}
+
+motorTickWork():number {
+  return this.bb!.readFloat32(this.bb_pos + 64);
+}
+
+static sizeOf():number {
+  return 72;
+}
+
+static createActuatorDriveRecord(builder:flatbuffers.Builder, joint: bigint, owner: bigint, kind: number, supply_closed: boolean, moving_contact: boolean, coordinate: number, speed: number, lower: number, upper: number, motor_present: boolean, motor_phase: number, command_speed: number, holding: boolean, hold_coordinate: number, motor_impulse: number, motor_work: number, motor_tick_work: number):flatbuffers.Offset {
+  builder.prep(8, 72);
+  builder.pad(4);
+  builder.writeFloat32(motor_tick_work);
+  builder.writeFloat32(motor_work);
+  builder.writeFloat32(motor_impulse);
+  builder.writeFloat32(hold_coordinate);
+  builder.pad(3);
+  builder.writeInt8(Number(Boolean(holding)));
+  builder.writeFloat32(command_speed);
+  builder.pad(2);
+  builder.writeInt8(motor_phase);
+  builder.writeInt8(Number(Boolean(motor_present)));
   builder.writeFloat32(upper);
   builder.writeFloat32(lower);
   builder.writeFloat32(speed);
@@ -1374,7 +1417,7 @@ memory(obj?:MemoryObservationRecord):MemoryObservationRecord|null {
 
 actuatorDrives(index: number, obj?:ActuatorDriveRecord):ActuatorDriveRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 50);
-  return offset ? (obj || new ActuatorDriveRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
+  return offset ? (obj || new ActuatorDriveRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 72, this.bb!) : null;
 }
 
 actuatorDrivesLength():number {
@@ -1610,7 +1653,7 @@ static addActuatorDrives(builder:flatbuffers.Builder, actuatorDrivesOffset:flatb
 }
 
 static startActuatorDrivesVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(40, numElems, 8);
+  builder.startVector(72, numElems, 8);
 }
 
 static addContactLoads(builder:flatbuffers.Builder, contactLoadsOffset:flatbuffers.Offset) {
@@ -4547,8 +4590,13 @@ halfExtents(obj?:CapabilityMetreVectorRecord):CapabilityMetreVectorRecord|null {
   return offset ? (obj || new CapabilityMetreVectorRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
+extrusion(obj?:ClippedExtrusionRecord):ClippedExtrusionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? (obj || new ClippedExtrusionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
 static startCapabilityColliderDeclarationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(7);
+  builder.startObject(8);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -4579,6 +4627,10 @@ static addHalfExtents(builder:flatbuffers.Builder, halfExtentsOffset:flatbuffers
   builder.addFieldOffset(6, halfExtentsOffset, 0);
 }
 
+static addExtrusion(builder:flatbuffers.Builder, extrusionOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(7, extrusionOffset, 0);
+}
+
 static endCapabilityColliderDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 12) // pose
@@ -4586,6 +4638,111 @@ static endCapabilityColliderDeclarationRecord(builder:flatbuffers.Builder):flatb
   return offset;
 }
 
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class ClippedExtrusionRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ClippedExtrusionRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsClippedExtrusionRecord(bb:flatbuffers.ByteBuffer, obj?:ClippedExtrusionRecord):ClippedExtrusionRecord {
+  return (obj || new ClippedExtrusionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsClippedExtrusionRecord(bb:flatbuffers.ByteBuffer, obj?:ClippedExtrusionRecord):ClippedExtrusionRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new ClippedExtrusionRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+coordinate():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+materialBody():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+clippingBody():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+cut():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+distalOffset():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+halfX():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+halfZ():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startClippedExtrusionRecord(builder:flatbuffers.Builder) {
+  builder.startObject(7);
+}
+
+static addCoordinate(builder:flatbuffers.Builder, coordinate:bigint) {
+  builder.addFieldInt64(0, coordinate, BigInt('0'));
+}
+
+static addMaterialBody(builder:flatbuffers.Builder, materialBody:bigint) {
+  builder.addFieldInt64(1, materialBody, BigInt('0'));
+}
+
+static addClippingBody(builder:flatbuffers.Builder, clippingBody:bigint) {
+  builder.addFieldInt64(2, clippingBody, BigInt('0'));
+}
+
+static addCut(builder:flatbuffers.Builder, cut:number) {
+  builder.addFieldFloat32(3, cut, 0.0);
+}
+
+static addDistalOffset(builder:flatbuffers.Builder, distalOffset:number) {
+  builder.addFieldFloat32(4, distalOffset, 0.0);
+}
+
+static addHalfX(builder:flatbuffers.Builder, halfX:number) {
+  builder.addFieldFloat32(5, halfX, 0.0);
+}
+
+static addHalfZ(builder:flatbuffers.Builder, halfZ:number) {
+  builder.addFieldFloat32(6, halfZ, 0.0);
+}
+
+static endClippedExtrusionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createClippedExtrusionRecord(builder:flatbuffers.Builder, coordinate:bigint, materialBody:bigint, clippingBody:bigint, cut:number, distalOffset:number, halfX:number, halfZ:number):flatbuffers.Offset {
+  ClippedExtrusionRecord.startClippedExtrusionRecord(builder);
+  ClippedExtrusionRecord.addCoordinate(builder, coordinate);
+  ClippedExtrusionRecord.addMaterialBody(builder, materialBody);
+  ClippedExtrusionRecord.addClippingBody(builder, clippingBody);
+  ClippedExtrusionRecord.addCut(builder, cut);
+  ClippedExtrusionRecord.addDistalOffset(builder, distalOffset);
+  ClippedExtrusionRecord.addHalfX(builder, halfX);
+  ClippedExtrusionRecord.addHalfZ(builder, halfZ);
+  return ClippedExtrusionRecord.endClippedExtrusionRecord(builder);
+}
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
@@ -5977,8 +6134,18 @@ operation():number|null {
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : null;
 }
 
+coordinateJoint():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+coordinateEndpoint():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : null;
+}
+
 static startCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(7);
+  builder.startObject(9);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -6033,12 +6200,20 @@ static addOperation(builder:flatbuffers.Builder, operation:number) {
   builder.addFieldInt32(6, operation, null);
 }
 
+static addCoordinateJoint(builder:flatbuffers.Builder, coordinateJoint:bigint) {
+  builder.addFieldInt64(7, coordinateJoint, BigInt('0'));
+}
+
+static addCoordinateEndpoint(builder:flatbuffers.Builder, coordinateEndpoint:number) {
+  builder.addFieldInt8(8, coordinateEndpoint, null);
+}
+
 static endCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, storagesOffset:flatbuffers.Offset, owner:bigint, kind:number, source:bigint, consumersOffset:flatbuffers.Offset, operation:number|null):flatbuffers.Offset {
+static createCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, storagesOffset:flatbuffers.Offset, owner:bigint, kind:number, source:bigint, consumersOffset:flatbuffers.Offset, operation:number|null, coordinateJoint:bigint, coordinateEndpoint:number|null):flatbuffers.Offset {
   CapabilitySupplyNodeDeclarationRecord.startCapabilitySupplyNodeDeclarationRecord(builder);
   CapabilitySupplyNodeDeclarationRecord.addId(builder, id);
   CapabilitySupplyNodeDeclarationRecord.addStorages(builder, storagesOffset);
@@ -6048,6 +6223,9 @@ static createCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder, 
   CapabilitySupplyNodeDeclarationRecord.addConsumers(builder, consumersOffset);
   if (operation !== null)
     CapabilitySupplyNodeDeclarationRecord.addOperation(builder, operation);
+  CapabilitySupplyNodeDeclarationRecord.addCoordinateJoint(builder, coordinateJoint);
+  if (coordinateEndpoint !== null)
+    CapabilitySupplyNodeDeclarationRecord.addCoordinateEndpoint(builder, coordinateEndpoint);
   return CapabilitySupplyNodeDeclarationRecord.endCapabilitySupplyNodeDeclarationRecord(builder);
 }
 }
@@ -6324,8 +6502,28 @@ maxPower():number {
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
+selection():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+inactive():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+positive():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+negative():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
 static startCapabilityPrismaticDriveDeclarationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(6);
+  builder.startObject(10);
 }
 
 static addJoint(builder:flatbuffers.Builder, joint:bigint) {
@@ -6352,12 +6550,28 @@ static addMaxPower(builder:flatbuffers.Builder, maxPower:number) {
   builder.addFieldFloat32(5, maxPower, 0.0);
 }
 
+static addSelection(builder:flatbuffers.Builder, selection:number) {
+  builder.addFieldInt8(6, selection, 0);
+}
+
+static addInactive(builder:flatbuffers.Builder, inactive:number) {
+  builder.addFieldInt8(7, inactive, 0);
+}
+
+static addPositive(builder:flatbuffers.Builder, positive:bigint) {
+  builder.addFieldInt64(8, positive, BigInt('0'));
+}
+
+static addNegative(builder:flatbuffers.Builder, negative:bigint) {
+  builder.addFieldInt64(9, negative, BigInt('0'));
+}
+
 static endCapabilityPrismaticDriveDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createCapabilityPrismaticDriveDeclarationRecord(builder:flatbuffers.Builder, joint:bigint, target:number, maxSpeed:number, stoppingAcceleration:number, maxEffort:number, maxPower:number):flatbuffers.Offset {
+static createCapabilityPrismaticDriveDeclarationRecord(builder:flatbuffers.Builder, joint:bigint, target:number, maxSpeed:number, stoppingAcceleration:number, maxEffort:number, maxPower:number, selection:number, inactive:number, positive:bigint, negative:bigint):flatbuffers.Offset {
   CapabilityPrismaticDriveDeclarationRecord.startCapabilityPrismaticDriveDeclarationRecord(builder);
   CapabilityPrismaticDriveDeclarationRecord.addJoint(builder, joint);
   CapabilityPrismaticDriveDeclarationRecord.addTarget(builder, target);
@@ -6365,6 +6579,10 @@ static createCapabilityPrismaticDriveDeclarationRecord(builder:flatbuffers.Build
   CapabilityPrismaticDriveDeclarationRecord.addStoppingAcceleration(builder, stoppingAcceleration);
   CapabilityPrismaticDriveDeclarationRecord.addMaxEffort(builder, maxEffort);
   CapabilityPrismaticDriveDeclarationRecord.addMaxPower(builder, maxPower);
+  CapabilityPrismaticDriveDeclarationRecord.addSelection(builder, selection);
+  CapabilityPrismaticDriveDeclarationRecord.addInactive(builder, inactive);
+  CapabilityPrismaticDriveDeclarationRecord.addPositive(builder, positive);
+  CapabilityPrismaticDriveDeclarationRecord.addNegative(builder, negative);
   return CapabilityPrismaticDriveDeclarationRecord.endCapabilityPrismaticDriveDeclarationRecord(builder);
 }
 }
@@ -6905,6 +7123,58 @@ static createFourStateValuesRecord(builder:flatbuffers.Builder, state0: number, 
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
+export class PrismaticPhaseValuesRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):PrismaticPhaseValuesRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+holding():number {
+  return this.bb!.readFloat32(this.bb_pos);
+}
+
+positive():number {
+  return this.bb!.readFloat32(this.bb_pos + 4);
+}
+
+negative():number {
+  return this.bb!.readFloat32(this.bb_pos + 8);
+}
+
+blocked():number {
+  return this.bb!.readFloat32(this.bb_pos + 12);
+}
+
+conflict():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+unpowered():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+static sizeOf():number {
+  return 24;
+}
+
+static createPrismaticPhaseValuesRecord(builder:flatbuffers.Builder, holding: number, positive: number, negative: number, blocked: number, conflict: number, unpowered: number):flatbuffers.Offset {
+  builder.prep(4, 24);
+  builder.writeFloat32(unpowered);
+  builder.writeFloat32(conflict);
+  builder.writeFloat32(blocked);
+  builder.writeFloat32(negative);
+  builder.writeFloat32(positive);
+  builder.writeFloat32(holding);
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
 export class CapabilityPresentationBindingRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -6923,143 +7193,152 @@ static getSizePrefixedRootAsCapabilityPresentationBindingRecord(bb:flatbuffers.B
   return (obj || new CapabilityPresentationBindingRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-fourStateValues(obj?:FourStateValuesRecord):FourStateValuesRecord|null {
+prismaticValues(obj?:PrismaticPhaseValuesRecord):PrismaticPhaseValuesRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? (obj || new PrismaticPhaseValuesRecord()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+fourStateValues(obj?:FourStateValuesRecord):FourStateValuesRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? (obj || new FourStateValuesRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 stateValues(obj?:ActuatorStateValuesRecord):ActuatorStateValuesRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? (obj || new ActuatorStateValuesRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 mapping():number {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
-property():number {
   const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
-driver():number {
+property():number {
   const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
-from():number {
+driver():number {
   const offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
-to():number {
+from():number {
   const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-curve():number {
+to():number {
   const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+curve():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 duration():number {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 overlap():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 threshold():number {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-response():number {
   const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-socket():number|null {
+response():number {
   const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+socket():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : null;
 }
 
 event():number {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
-eventMagnitude():number {
   const offset = this.bb!.__offset(this.bb_pos, 32);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
+eventMagnitude():number {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
 static startCapabilityPresentationBindingRecord(builder:flatbuffers.Builder) {
-  builder.startObject(15);
+  builder.startObject(16);
+}
+
+static addPrismaticValues(builder:flatbuffers.Builder, prismaticValuesOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(0, prismaticValuesOffset, 0);
 }
 
 static addFourStateValues(builder:flatbuffers.Builder, fourStateValuesOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(0, fourStateValuesOffset, 0);
+  builder.addFieldStruct(1, fourStateValuesOffset, 0);
 }
 
 static addStateValues(builder:flatbuffers.Builder, stateValuesOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(1, stateValuesOffset, 0);
+  builder.addFieldStruct(2, stateValuesOffset, 0);
 }
 
 static addMapping(builder:flatbuffers.Builder, mapping:number) {
-  builder.addFieldInt32(2, mapping, 0);
+  builder.addFieldInt32(3, mapping, 0);
 }
 
 static addProperty(builder:flatbuffers.Builder, property:number) {
-  builder.addFieldInt32(3, property, 0);
+  builder.addFieldInt32(4, property, 0);
 }
 
 static addDriver(builder:flatbuffers.Builder, driver:number) {
-  builder.addFieldInt32(4, driver, 0);
+  builder.addFieldInt32(5, driver, 0);
 }
 
 static addFrom(builder:flatbuffers.Builder, from:number) {
-  builder.addFieldFloat32(5, from, 0.0);
+  builder.addFieldFloat32(6, from, 0.0);
 }
 
 static addTo(builder:flatbuffers.Builder, to:number) {
-  builder.addFieldFloat32(6, to, 0.0);
+  builder.addFieldFloat32(7, to, 0.0);
 }
 
 static addCurve(builder:flatbuffers.Builder, curve:number) {
-  builder.addFieldInt32(7, curve, 0);
+  builder.addFieldInt32(8, curve, 0);
 }
 
 static addDuration(builder:flatbuffers.Builder, duration:number) {
-  builder.addFieldFloat32(8, duration, 0.0);
+  builder.addFieldFloat32(9, duration, 0.0);
 }
 
 static addOverlap(builder:flatbuffers.Builder, overlap:number) {
-  builder.addFieldInt32(9, overlap, 0);
+  builder.addFieldInt32(10, overlap, 0);
 }
 
 static addThreshold(builder:flatbuffers.Builder, threshold:number) {
-  builder.addFieldFloat32(10, threshold, 0.0);
+  builder.addFieldFloat32(11, threshold, 0.0);
 }
 
 static addResponse(builder:flatbuffers.Builder, response:number) {
-  builder.addFieldFloat32(11, response, 0.0);
+  builder.addFieldFloat32(12, response, 0.0);
 }
 
 static addSocket(builder:flatbuffers.Builder, socket:number) {
-  builder.addFieldInt32(12, socket, null);
+  builder.addFieldInt32(13, socket, null);
 }
 
 static addEvent(builder:flatbuffers.Builder, event:number) {
-  builder.addFieldInt32(13, event, 0);
+  builder.addFieldInt32(14, event, 0);
 }
 
 static addEventMagnitude(builder:flatbuffers.Builder, eventMagnitude:number) {
-  builder.addFieldInt32(14, eventMagnitude, 0);
+  builder.addFieldInt32(15, eventMagnitude, 0);
 }
 
 static endCapabilityPresentationBindingRecord(builder:flatbuffers.Builder):flatbuffers.Offset {

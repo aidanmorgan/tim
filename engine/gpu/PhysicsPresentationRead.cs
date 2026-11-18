@@ -39,7 +39,8 @@ public static partial class PhysicsGpuAbi
                 Vector3.Dot(axial.AngularA, PresentationVector(a, BodyAngularVelocityOffset)) +
                 Vector3.Dot(axial.AngularB, PresentationVector(b, BodyAngularVelocityOffset));
             actuators[i] = new(SupplyConsumer.Prismatic(joint.Id), joint.BodyA, !admission && inputs.SupplyClosed[i],
-                ReadPrismaticMovingContact(bytes, i), axial.Error, speed, joint.Lower, joint.Upper);
+                ReadPrismaticMovingContact(bytes, i), axial.Error, speed, joint.Lower, joint.Upper,
+                ReadPrismaticDrive(bytes, i).HasValue ? ReadPrismaticMotor(bytes, i) : null);
         }
         Span<RevoluteRow> hinge = stackalloc RevoluteRow[RevoluteRows.Count];
         for (var i = 0; i < layout.Revolutes; i++)

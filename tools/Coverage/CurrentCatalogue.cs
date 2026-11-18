@@ -84,8 +84,8 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
             if (markers.Count != 1 || sentence.Count != 1)
                 throw new InvalidDataException("Mode sentence is missing, duplicated or malformed.");
             var modes = sentence[0].Groups[1].Value.Split(", ", StringSplitOptions.None).Select(ParseMode).ToArray();
-            if (modes.Distinct().Count() != modes.Length || !modes.Contains(new(ModeDimension.Configuration, ModeChoice.Fixed)))
-                throw new InvalidDataException("Missing fixed placeholder or duplicate planned mode.");
+            if (modes.Distinct().Count() != modes.Length || modes.Count(mode => mode.Dimension == ModeDimension.Configuration) != 1)
+                throw new InvalidDataException("Missing or ambiguous configuration mode, or duplicate planned mode.");
             var source = declaration(id);
             if (!source.Text.StartsWith("# " + id.Value + " ·", StringComparison.Ordinal))
                 throw new InvalidDataException("Declaration identity differs from catalogue.");
@@ -166,7 +166,7 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
             throw new InvalidDataException("Unknown planned mode discriminant.");
         var valid = dimension switch
         {
-            ModeDimension.Configuration => choice == ModeChoice.Fixed,
+            ModeDimension.Configuration => choice is ModeChoice.Fixed or ModeChoice.Adjustable,
             ModeDimension.Logic => choice is ModeChoice.And or ModeChoice.Or or ModeChoice.Xor or ModeChoice.Nor or ModeChoice.Nand,
             ModeDimension.OpticalChannel => choice is ModeChoice.Broadband or ModeChoice.Red or ModeChoice.Green or ModeChoice.Blue or ModeChoice.Yellow or ModeChoice.Cyan or ModeChoice.Magenta or ModeChoice.White,
             ModeDimension.AcousticTone => choice is ModeChoice.Low or ModeChoice.Mid or ModeChoice.High,

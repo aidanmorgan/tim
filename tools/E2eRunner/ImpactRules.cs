@@ -26,6 +26,7 @@ internal static class ImpactRules
         ["StateLatch"] = new PartId("latch"), ["SystemClock"] = new PartId("clock"), ["Wall"] = new PartId("wall"), ["Weight"] = new("weight"), ["RopeAnchor"] = new("rope_anchor"),
         ["Trampoline"] = new("trampoline"), ["Motor"] = new("motor"),
         ["Conveyor"] = new("conveyor"),
+        ["LinearPusher"] = new("linear_pusher"),
         ["Clutch"] = new("clutch"),
         ["ReverseTransmission"] = new("reverse_transmission"),
     };

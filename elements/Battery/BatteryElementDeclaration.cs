@@ -53,7 +53,7 @@ public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryEl
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new Vector3(0f, .62f, 0f), Vector3.UnitY)
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new Vector3(0f, .62f, 0f), Vector3.UnitY)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];

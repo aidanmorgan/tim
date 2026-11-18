@@ -35,7 +35,11 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDec
     IReadOnlyList<RevoluteHingeDescriptor> Hinges, CompliantSurfaceDescriptor? CompliantSurface,
     IReadOnlyList<DrivenSurfaceDescriptor> DrivenSurfaces,
     IReadOnlyList<MechanicalTransmissionDescriptor> Transmissions,
-    ResidenceSensorDescriptor? Residence = null, PlanarGuideDescriptor? PlanarGuide = null, ContactWorkDescriptor? ContactWork = null);
+    ResidenceSensorDescriptor? Residence = null, PlanarGuideDescriptor? PlanarGuide = null, ContactWorkDescriptor? ContactWork = null)
+{
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<ClippedExtrusionDescriptor> Extrusions { get; init; } = [];
+}
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyGraphDescriptor? SupplyGraph);
 

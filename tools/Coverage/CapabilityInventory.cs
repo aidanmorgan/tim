@@ -28,7 +28,7 @@ public enum CapabilityAvailability { Partial, Missing }
 public enum MeasurementUnit { Dimensionless, Metre, Second, Kilogram, Radian, Newton, NewtonMetre,
     Joule, Watt, Pascal, CubicMetre, Kelvin, Coulomb, Volt, Ampere, Mole, GameExposure, ParticleCount, Hertz, Byte }
 public enum ModeDimension { Configuration, Logic, OpticalChannel, AcousticTone, TubeAngle, Lifecycle }
-public enum ModeChoice { Fixed, And, Or, Xor, Nor, Nand, Broadband, Red, Green, Blue, Yellow, Cyan,
+public enum ModeChoice { Fixed, Adjustable, And, Or, Xor, Nor, Nand, Broadband, Red, Green, Blue, Yellow, Cyan,
     Magenta, White, Low, Mid, High, Degrees45, Degrees90, Run, Pause, Step, Reset, Save, Load }
 
 public readonly record struct WorkOrderId
@@ -310,7 +310,7 @@ public static class CapabilityAudit
     }
     public static bool ValidMode(ModeDimension dimension,ModeChoice choice)=>dimension switch
     {
-        ModeDimension.Configuration=>choice==ModeChoice.Fixed,
+        ModeDimension.Configuration=>choice is ModeChoice.Fixed or ModeChoice.Adjustable,
         ModeDimension.Logic=>choice is ModeChoice.And or ModeChoice.Or or ModeChoice.Xor or ModeChoice.Nor or ModeChoice.Nand,
         ModeDimension.OpticalChannel=>choice is ModeChoice.Broadband or ModeChoice.Red or ModeChoice.Green or ModeChoice.Blue or ModeChoice.Yellow or ModeChoice.Cyan or ModeChoice.Magenta or ModeChoice.White,
         ModeDimension.AcousticTone=>choice is ModeChoice.Low or ModeChoice.Mid or ModeChoice.High,

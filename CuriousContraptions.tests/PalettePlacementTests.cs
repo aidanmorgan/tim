@@ -1,4 +1,5 @@
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Presentation;
 using Godot;
@@ -452,6 +453,115 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Empty(godot.Errors.Drain());
         }
         finally {Release(scene);}
+    }
+
+    [Fact]
+    public void PusherEditorRefusesInvalidValuesAtomicallyAndAcceptsEveryEndpoint()
+    {
+        var (scene, client) = BenchScene(new PartId("linear_pusher"), PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Choices(scene);
+            void Press(string label) => Assert.Single(Descendants<Button>(choices), b => b.Text == label).EmitSignal(Button.SignalName.Pressed);
+            void Edit(string key, string text)
+            {
+                Press("Configure");
+                Assert.Equal(4, Descendants<LineEdit>(choices).Count());
+                Assert.Single(Descendants<LineEdit>(choices), field => field.Name == key).Text = text;
+                Press("Apply parameters");
+            }
+            foreach (var (key, text) in new[] { ("stroke", "0"), ("stroke", "4"), ("speed", "NaN"), ("speed", "5"),
+                ("acceleration", "0"), ("acceleration", "31"), ("force", "0"), ("force", "Infinity") })
+            {
+                var before = scene.World.Construction; var commands = client.EditCount;
+                Edit(key, text);
+                Assert.Equal(before, scene.World.Construction);
+                Assert.Equal(commands, client.EditCount);
+                Press("Cancel");
+            }
+            var undo = scene.World.Construction;
+            foreach (var (key, text, value) in new[] { ("stroke", "0.25", .25f), ("stroke", "3", 3f), ("speed", "0.25", .25f),
+                ("speed", "4", 4f), ("acceleration", "1", 1f), ("acceleration", "30", 30f), ("force", "1", 1f), ("force", "100", 100f) })
+            {
+                Edit(key, text);
+                Assert.Equal(value, Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances)).Parameters[new(key)]);
+                AssertParameterUndo(scene, ref undo);
+            }
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task DirectionalSocketChoicesDeclareDistinctArtworkAndConnectTheirExactPorts(bool unfamiliar)
+    {
+        var (scene, client) = BenchScene(new PartId("linear_pusher"), PlacementAnswer.Applied);
+        var source = TestBundle.Entry(new("linear_pusher"));
+        var names = new Dictionary<PortId, PortId>
+        {
+            [new("ExtendIn")] = new("alpha"), [new("RetractIn")] = new("beta"),
+            [new("ExtendedOut")] = new("omega"), [new("RetractedOut")] = new("sigma"), [PortId.PowerIn] = new("feed")
+        };
+        var kind = unfamiliar ? new PartId("unfamiliar_socket_choices") : new PartId("linear_pusher");
+        var entry = unfamiliar ? source with
+        {
+            Metadata = source.Metadata with { Id = kind.Value, PaletteOrder = 1001 },
+            Ports = source.Ports.Select(port => port with { Id = names[port.Id] }).Reverse().ToArray(),
+            Electrical = source.Electrical! with { SupplyGraph = source.Electrical.SupplyGraph! with
+                { Ports = source.Electrical.SupplyGraph.Ports.Select(binding => binding with { Port = names[binding.Port] }).ToArray() } }
+        } : source;
+        using var declared = DeclaredPhysics.Scoped([entry]);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend(unfamiliar ? [(kind, entry.Ports)] : []));
+        try
+        {
+            if (unfamiliar) scene.World.Registry.Load(BundleSchema.WriteEntries([.. TestBundle.Entries, entry]));
+            var machine = LinearPusherTests.Machine(true, false, false) with { Connections = WorkshopConnections.Empty };
+            var original = Assert.IsType<WorkshopGenericInstance>(machine.Instances[0]);
+            machine = machine with { Instances = new(machine.Instances.Select(part => part.Id == original.Id ? original with { PartId = kind } : part).ToArray()) };
+            await scene.World.ReplaceConstruction(machine);
+            var pusher = scene.World.Parts.Single(part => part.AuthoredId.Value == 1);
+            var battery = scene.World.Parts.Single(part => part.AuthoredId.Value == 2);
+            var gate = scene.World.Parts.Single(part => part.AuthoredId.Value == 5);
+            IEnumerable<Button> Buttons() => Choices(scene).GetChildren().OfType<Button>();
+            Button Choice(string label) => Assert.Single(Buttons(), button => button.TooltipText == label);
+            void ChooseInput()
+            {
+                Assert.Empty(Select(scene, battery));
+                Choice("Supply").EmitSignal(Button.SignalName.Pressed);
+                Assert.Empty(Target(scene, pusher));
+            }
+            ChooseInput();
+            Assert.Equal(3, Buttons().Count());
+            Assert.All(Buttons(), button => { Assert.NotNull(button.Icon); Assert.Equal(button.TooltipText, button.AccessibilityName); });
+            Assert.NotSame(Choice("Extend").Icon, Choice("Retract").Icon);
+            var edits = client.EditCount;
+            Assert.Empty(Cancel(scene));
+            Assert.Equal(edits, client.EditCount);
+            foreach (var (label, id) in new[] { ("Extend", "ExtendIn"), ("Retract", "RetractIn"), ("PowerIn", "PowerIn") })
+            {
+                ChooseInput(); Choice(label).EmitSignal(Button.SignalName.Pressed);
+                Assert.Equal(unfamiliar ? names[new(id)] : new PortId(id), Assert.Single(scene.World.Construction.Connections).Input);
+                Assert.Empty(Undo(scene));
+                Assert.Empty(scene.World.Construction.Connections);
+            }
+            foreach (var (label, id) in new[] { ("Extended", "ExtendedOut"), ("Retracted", "RetractedOut") })
+            {
+                Assert.Empty(Select(scene, pusher));
+                Assert.NotNull(Choice(label).Icon);
+                Assert.Equal(label, Choice(label).AccessibilityName);
+                Assert.NotSame(Choice("Extended").Icon, Choice("Retracted").Icon);
+                Choice(label).EmitSignal(Button.SignalName.Pressed);
+                Assert.Empty(Target(scene, gate)); Choice("PowerIn").EmitSignal(Button.SignalName.Pressed);
+                Assert.Equal(unfamiliar ? names[new(id)] : new PortId(id), Assert.Single(scene.World.Construction.Connections).Output);
+                Assert.Empty(Undo(scene));
+                Assert.Empty(scene.World.Construction.Connections);
+            }
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
     }
 
     [Fact]
@@ -1912,8 +2022,8 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     }
 
     // Spec 6.5 / 9R.8 decision: the distinct charged Spring Forward construction solves with its preload set through the generic editor.
-    // The matched zero-preload board at the charged pose (Precise) is edited to 0.2 m by the Workshop's own handler, through the lesson's
-    // placement configuration; the edited construction solves in the real simulation and the unedited one does not.
+    // The editor changes preload, then a real move gesture aligns the initial plate with the matched zero control.
+    // Both start with the same payload clearance; only the charged construction supplies stored spring energy.
     [Fact]
     public async Task TheChargedSpringForwardRouteSolvesWithItsPreloadSetThroughTheGenericEditor()
     {
@@ -1930,12 +2040,38 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
 
             Assert.Equal(board with { Parameters = values }, edited.Instances.Single(instance => instance.Id == board.Id)); // only the preload
             Assert.Equal(zero.Instances.Where(instance => instance.Id != board.Id), edited.Instances.Where(instance => instance.Id != board.Id));
-            // A fresh simulation admits its first construction at revision 2 (the Workshop advanced its own to 3); the content is as edited.
+            var camera = Assert.Single(Descendants<Camera3D>(scene));
+            var gizmo = Assert.Single(Descendants<RotationGizmo>(scene));
+            foreach (var axis in new[] { 0, 1 })
+            {
+                var part = scene.World.Parts.Single(part => part.AuthoredId == board.Id);
+                Assert.Empty(Select(scene, part));
+                gizmo.SetMoveMode(true);
+                gizmo.Follow(part, true, camera);
+                var handle = camera.UnprojectPosition(gizmo.HandlePosition(axis));
+                Assert.Empty(Click(scene, handle));
+                Assert.True(gizmo.Dragging);
+                Assert.Equal(axis, gizmo.ActiveAxis);
+                var direction = axis == 0 ? Vector3.Right : Vector3.Up;
+                var along = camera.UnprojectPosition(part.GlobalPosition + direction) - camera.UnprojectPosition(part.GlobalPosition);
+                Assert.True(gizmo.Drag(camera, handle + along * (.2f / MathF.Sqrt(2)), snap: false));
+                Assert.Empty(EndGesture(scene, false));
+            }
+            edited = scene.World.Construction;
+            Assert.Equal(values, ((WorkshopGenericInstance)edited.Instances.Single(instance => instance.Id == board.Id)).Parameters);
+            Assert.Equal(zero.Puzzle, edited.Puzzle);
+            Assert.Equal(zero.Instances.Where(instance => instance.Id != board.Id), edited.Instances.Where(instance => instance.Id != board.Id));
+            // The fresh native simulation starts at revision2; preserve the final authored editor/gesture construction.
             var charged = edited with { Revision = zero.Revision };
             Assert.Empty(godot.Errors.Drain());
-            var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(charged, 1200);
+            var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(charged, 1200);
+            var chargedRelative = LaunchLessonSolveTests.AssertSpringLoading(charged, built);
+            NoFixedCapacityTests.AssertSameState(built, reset, "editor-charged Reset");
             Assert.True(LaunchLessonSolveTests.Solved(charged, run), "the editor-charged board solves Spring Forward");
-            var (_, control, _) = await WorkshopIntegrationHarness.ObserveReset(zero, 1200);
+            var (zeroBuilt, control, _) = await WorkshopIntegrationHarness.ObserveReset(zero, 1200);
+            var zeroRelative = LaunchLessonSolveTests.AssertSpringLoading(zero, zeroBuilt);
+            Assert.InRange(System.Numerics.Vector3.Distance(chargedRelative, zeroRelative),
+                0f, LaunchLessonSolveTests.SpringPlacementAllowance);
             Assert.False(LaunchLessonSolveTests.Solved(zero, control), "the same board at zero preload does not");
         }
         finally { Release(scene); }

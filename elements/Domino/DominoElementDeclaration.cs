@@ -26,7 +26,7 @@ public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElemen
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, new Vector3(0f, .55f, 0f), Vector3.UnitY)
+        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, new Vector3(0f, .55f, 0f), Vector3.UnitY)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];

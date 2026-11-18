@@ -32,11 +32,11 @@ public sealed class StateLatchElementDeclaration : ISignalElement, ISupplyElemen
     /// <summary>The level output is high while memory is On (owner decision 18 Oct 2026) and is listed before Supply.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.SetIn, SimulationDomain.Signal, PortDirection.Input, PortRole.SetIn, PortSignalKind.Pulse, new Vector3(-.45f, .72f, 0f), Vector3.UnitY),
-        new(PortId.ResetIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ResetIn, PortSignalKind.Pulse, new Vector3(.45f, .72f, 0f), Vector3.UnitY),
-        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
-        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Level, new Vector3(0f, -.56f, .38f), Vector3.UnitZ),
-        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
+        new(PortId.SetIn, SimulationDomain.Signal, PortDirection.Input, PortRole.SetIn, new("SetIn", SocketGlyph.Set), PortSignalKind.Pulse, new Vector3(-.45f, .72f, 0f), Vector3.UnitY),
+        new(PortId.ResetIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ResetIn, new("ResetIn", SocketGlyph.Reset), PortSignalKind.Pulse, new Vector3(.45f, .72f, 0f), Vector3.UnitY),
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
+        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Level, new Vector3(0f, -.56f, .38f), Vector3.UnitZ),
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The housing and its foot.</summary>
@@ -64,7 +64,7 @@ public sealed class StateLatchElementDeclaration : ISignalElement, ISupplyElemen
     ];
 
     public SupplyGraphDescriptor SupplyGraph => new(
-        [new SupplyContactDescriptor(new("contact"), new(new("signal"), SignalContactState.Latched))], [],
+        [new SupplyContactDescriptor(new("contact"), new SignalStateContactControl(new("signal"), SignalContactState.Latched))], [],
         [
             new(PortId.PowerIn, new(new("contact"), SupplyTerminal.PowerIn)),
             new(PortId.Supply, new(new("contact"), SupplyTerminal.Output))

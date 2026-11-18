@@ -200,6 +200,14 @@ struct ActuatorDriveRecord {
     speed: float;
     lower: float;
     upper: float;
+    motor_present: bool;
+    motor_phase: ubyte;
+    command_speed: float;
+    holding: bool;
+    hold_coordinate: float;
+    motor_impulse: float;
+    motor_work: float;
+    motor_tick_work: float;
 }
 
 struct ContactLoadRecord {
@@ -447,6 +455,17 @@ table CapabilityColliderDeclarationRecord {
     pose: CapabilityRigidLocalPoseRecord (required);
     radius: float;
     half_extents: CapabilityMetreVectorRecord (required);
+    extrusion: ClippedExtrusionRecord;
+}
+
+table ClippedExtrusionRecord {
+    coordinate: ulong;
+    material_body: ulong;
+    clipping_body: ulong;
+    cut: float;
+    distal_offset: float;
+    half_x: float;
+    half_z: float;
 }
 
 table CapabilityRigidLocalPoseRecord {
@@ -589,6 +608,8 @@ table CapabilitySupplyNodeDeclarationRecord {
     source: ulong;
     consumers: [CapabilitySupplyConsumerRecord];
     operation: uint = null;
+    coordinate_joint: ulong;
+    coordinate_endpoint: ubyte = null;
 }
 
 table CapabilitySupplyEdgeRecord {
@@ -619,6 +640,10 @@ table CapabilityPrismaticDriveDeclarationRecord {
     stopping_acceleration: float;
     max_effort: float;
     max_power: float;
+    selection: ubyte;
+    inactive: ubyte;
+    positive: ulong;
+    negative: ulong;
 }
 
 table CapabilityRevoluteDriveDeclarationRecord {
@@ -681,7 +706,17 @@ struct FourStateValuesRecord {
     state3: float;
 }
 
+struct PrismaticPhaseValuesRecord {
+    holding: float;
+    positive: float;
+    negative: float;
+    blocked: float;
+    conflict: float;
+    unpowered: float;
+}
+
 table CapabilityPresentationBindingRecord {
+    prismatic_values: PrismaticPhaseValuesRecord;
     four_state_values: FourStateValuesRecord;
     state_values: ActuatorStateValuesRecord;
     mapping: uint;

@@ -44,9 +44,9 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
     /// <summary>Story 9R.5 D3/D4: the level ActivationOut on the +Z edge, level with the supply sockets, precedes Supply.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(-1.18f, -.08f, 0f), -Vector3.UnitX),
-        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Level, new Vector3(0f, -.08f, 1.18f), Vector3.UnitZ),
-        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new Vector3(1.18f, -.08f, 0f), Vector3.UnitX)
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new Vector3(-1.18f, -.08f, 0f), -Vector3.UnitX),
+        new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Level, new Vector3(0f, -.08f, 1.18f), Vector3.UnitZ),
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new Vector3(1.18f, -.08f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The base slab and the top face that carries the contact load.</summary>
@@ -76,7 +76,7 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
     public SupplyGraphDescriptor SupplyGraph => new(
-        [new SupplyContactDescriptor(new("contact"), new(new("signal"), SignalContactState.Latched))], [],
+        [new SupplyContactDescriptor(new("contact"), new SignalStateContactControl(new("signal"), SignalContactState.Latched))], [],
         [
             new(PortId.PowerIn, new(new("contact"), SupplyTerminal.PowerIn)),
             new(PortId.Supply, new(new("contact"), SupplyTerminal.Output))

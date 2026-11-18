@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Gpu;
 
@@ -25,8 +26,11 @@ public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 /// record, then every revolute record) whether its compiled supply route is closed this tick, and per compiled revolute drive (in
 /// drive-table order) its target speed, which the step commits before its substeps. Data flows one way: committed discrete state →
 /// next physics step.</summary>
+public readonly record struct PrismaticCommandInput(PrismaticConstraintId Joint, PrismaticCommand Command);
+
 public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] SupplyClosed, ElectricalLogicRead[]? Logic = null)
 {
+    public PrismaticCommandInput[] PrismaticCommands { get; init; } = [];
     public bool[] StorageRoutes { get; init; } = [];
     public RopeSpanId[] Cuts { get; init; } = [];
     public RopeGuideDeclaration[] Guides { get; init; } = [];

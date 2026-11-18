@@ -63,7 +63,7 @@ internal static class TensileConstraintSolver
             Ab = Vector3.Cross(b - route.B.CentreOfMass, axisB),
             Error = route.Maximum - length, Minimum = 0f, Maximum = float.MaxValue
         };
-        var inverseMass = ConstraintMass(route.A, row.La, row.Aa) + ConstraintMass(route.B, row.Lb, row.Ab);
+        var inverseMass = ConstraintMass(route.A, row.La, row.Aa, route.B, row.Lb, row.Ab);
         if (!(inverseMass > 0f)) { route.Active = false; route.Impulse = 0f; return; }
         const float omega = 2f * MathF.PI * 60f;
         var soft = SoftConstraintCoefficients.FromSpring(omega * omega / inverseMass, 20f * omega / inverseMass, step);
@@ -85,7 +85,7 @@ internal static class TensileConstraintSolver
     {
         if (!route.Active) return;
         ref readonly var row = ref route.Row;
-        var k = ConstraintMass(route.A, row.La, row.Aa) + ConstraintMass(route.B, row.Lb, row.Ab);
+        var k = ConstraintMass(route.A, row.La, row.Aa, route.B, row.Lb, row.Ab);
         var velocity = ConstraintVelocity(route.A, row.La, row.Aa) + ConstraintVelocity(route.B, row.Lb, row.Ab);
         var result = SoftConstraint.Solve4(Vector128.Create(k), Vector128.Create(velocity), Vector128.Create(row.VelocityTarget),
             Vector128.Create(row.Error), Vector128.Create(solvePass ? row.Gamma : 0f), Vector128.Create(solvePass ? row.Bias : 0f),

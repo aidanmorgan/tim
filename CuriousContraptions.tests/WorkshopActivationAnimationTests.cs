@@ -375,6 +375,32 @@ public sealed class WorkshopActivationAnimationTests
         }
     }
 
+    [Fact]
+    public async Task RejectedConstructionKeepsItsFaultAndDisposeAcknowledgesTheReceivedSequence()
+    {
+        using var transport = new NativeClient();
+        var current = transport.Committed;
+        var rejected = new WorkshopCommand(new(2), WorkshopCommandKind.Construct, current.Epoch, current.Revision,
+            transport.InstalledScene, Session: Session, Cadence: new(1), Projection: new(1));
+        var bytes = WorkshopWireFlatBuffers.EncodeCommand(rejected);
+        bytes[8] = 0; // Unsupported frame identifier: refusal happens before nested command admission.
+        static byte[] Sequence(ulong value)
+        {
+            var result = new byte[sizeof(ulong)];
+            BinaryPrimitives.WriteUInt64LittleEndian(result, value);
+            return result;
+        }
+        var refusal = await Assert.ThrowsAsync<WireFaultException>(() => transport.Send(0, bytes, Sequence(2)));
+        Assert.Equal(WireFaultReason.UnknownIdentifier, refusal.Reason);
+        var dispose = new WorkshopCommand(new(3), WorkshopCommandKind.Dispose, current.Epoch, current.Revision, null, Session: Session, Cadence: new(1), Projection: new(1));
+        await transport.Send(0, WorkshopWireFlatBuffers.EncodeCommand(dispose), Sequence(3));
+        var response = WorkshopWireFlatBuffers.DecodeResponse(transport.Acknowledgement(0, Sequence(3)));
+        Assert.Equal(dispose.Sequence, response.Sequence);
+        Assert.Equal(WorkshopCommandOutcome.Applied, response.Result.Outcome);
+        Assert.Throws<KeyNotFoundException>(() => transport.Acknowledgement(0, Sequence(2)));
+        Assert.Equal(WireFaultReason.UnknownIdentifier, refusal.Reason);
+    }
+
     // A deterministic browser/worker boundary around the shared native integration harness.
     // The production client owns startup, clocks, schedule admission, animation leases and disposal.
     internal sealed class NativeClient : IWorkshopBrowserTransport, IDisposable
@@ -553,7 +579,8 @@ public sealed class WorkshopActivationAnimationTests
             if (command.Kind == WorkshopCommandKind.Dispose)
             {
                 await _world.DisposeAsync();
-                _acknowledgement = WorkshopWireFlatBuffers.EncodeResponse(_world.Latest);
+                // This adapter owns a nested harness sequence; acknowledge the received outer disposal command.
+                _acknowledgement = WorkshopWireFlatBuffers.EncodeResponse(_world.Latest with { Sequence = command.Sequence });
                 return;
             }
             _acknowledgement = WorkshopWireFlatBuffers.EncodeResponse(command.Kind == WorkshopCommandKind.Initialize

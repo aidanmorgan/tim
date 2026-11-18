@@ -65,8 +65,8 @@ public sealed class SpringboardElementDeclaration : ISliderElement, ISceneGeomet
         new(
             BaseFrame: new(new Vector3(0f, 0.14f, 0f), Quaternion.Identity),
             MovingFrame: new(Vector3.Zero, Quaternion.Identity),
-            LowerLimit: -0.25f,
-            UpperLimit: 0f,
+            LowerLimit: MechanicalValue.Fixed(-0.25f),
+            UpperLimit: MechanicalValue.Fixed(0f),
             Stiffness: MechanicalValue.FromParameter("stiffness"),
             Damping: MechanicalValue.FromParameter("damping"),
             Compression: MechanicalValue.FromParameter("initial_compression"),

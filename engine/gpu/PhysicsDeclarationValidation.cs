@@ -12,10 +12,14 @@ public static class PhysicsDeclarationValidation
         var (Id, BodyA, BodyB, FrameA, FrameB, Lower, Upper, Stiffness, Damping, Collision) = declaration;
         if (Id.Value == 0 || BodyA.Value == 0 || BodyB.Value == 0 || BodyA == BodyB ||
             !Enum.IsDefined(Collision) || !float.IsFinite(Lower) || !float.IsFinite(Upper) ||
-            Lower < -16 || Upper > 16 || Lower >= Upper || Lower > 0 || Upper < 0)
+            Lower < -16 || Upper > 16 || Lower >= Upper || Lower > 0 || Upper < 0 ||
+            !float.IsFinite(Stiffness) || Stiffness < 0f || !float.IsFinite(Damping) || Damping < 0f)
             throw new ArgumentException("Invalid prismatic declaration.");
         FrameA.Validate(); FrameB.Validate();
-        _ = SoftConstraintCoefficients.FromSpring(Stiffness, Damping, 1f / WorkshopCadenceSettings.PhysicalFrequency);
+        if (Stiffness > 0f)
+            _ = SoftConstraintCoefficients.FromSpring(Stiffness, Damping, 1f / WorkshopCadenceSettings.PhysicalFrequency);
+        else if (Damping > 0f)
+            _ = SoftConstraintCoefficients.FromDamper(Damping, 1f / WorkshopCadenceSettings.PhysicalFrequency);
     }
 
     public static void Validate(this RevoluteConstraintDeclaration declaration)

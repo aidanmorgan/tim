@@ -49,7 +49,7 @@ public readonly record struct ElectricalLogicRead(SupplyNodeId Node, GpuBodyId O
 /// relative spin about the hinge axis (rad/s), and it reports no moving contact.</summary>
 public readonly record struct ActuatorDriveRead(
     SupplyConsumer Drive, GpuBodyId Owner, bool SupplyClosed, bool MovingContact, float Coordinate, float Speed, float Lower,
-    float Upper)
+    float Upper, PrismaticMotorRead? Motor = null)
 {
     /// <summary>The slot order: prismatic slots before revolute slots, each by joint identity.</summary>
     public (SupplyConsumerKind Kind, ulong Joint) Slot => (Drive.Kind, Drive.Kind switch
@@ -63,9 +63,10 @@ public readonly record struct ActuatorDriveRead(
     {
         if (Drive.Kind is not (SupplyConsumerKind.PrismaticDrive or SupplyConsumerKind.RevoluteDrive) ||
             Slot.Joint == 0 || Owner.Value == 0 ||
-            (Drive.Kind == SupplyConsumerKind.RevoluteDrive && MovingContact) || !float.IsFinite(Coordinate) || !float.IsFinite(Speed) ||
+            (Drive.Kind == SupplyConsumerKind.RevoluteDrive && (MovingContact || Motor.HasValue)) || !float.IsFinite(Coordinate) || !float.IsFinite(Speed) ||
             !float.IsFinite(Lower) || !float.IsFinite(Upper) || Lower > Upper)
             throw new ArgumentException("Invalid committed actuator observation.");
+        Motor?.Validate();
     }
 }
 

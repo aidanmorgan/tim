@@ -73,7 +73,9 @@ public static class WorkshopSupplyCompiler
         return node switch
         {
             SupplySourceDescriptor => new(ids.Node, owner, SupplyNodeKind.Source, ids.Source),
-            SupplyContactDescriptor => new(ids.Node, owner, SupplyNodeKind.Contact),
+            SupplyContactDescriptor { Control: PrismaticContactControl endpoint } => new(ids.Node, owner, SupplyNodeKind.Contact,
+                CoordinateContact: new(identities.Sliders[endpoint.Coordinate.Index].Joint, endpoint.Endpoint)),
+            SupplyContactDescriptor { Control: SignalStateContactControl } => new(ids.Node, owner, SupplyNodeKind.Contact),
             SupplyLogicDescriptor logic => new(ids.Node, owner, SupplyNodeKind.LogicGate, Operation: logic.Operation),
             SupplyConsumerDescriptor consumer => Consumer(owner, ids.Node, identities, consumer),
             _ => throw new ArgumentException("Unknown supply capability.")

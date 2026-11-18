@@ -25,10 +25,11 @@ public static class WorkshopActivationCompiler
             construction.Settings.Physical, new(1)).Substeps, passages.ToArray(),
             construction.Instances.SelectMany(instance =>
                 (DeclaredPhysics.Of(instance.PartId).Electrical?.SupplyGraph?.Nodes ?? []).OfType<SupplyContactDescriptor>()
+                    .Where(contact => contact.Control is SignalStateContactControl)
                     .Select(contact => new CompiledSignalContact(
                         construction.Instances.Identities[instance.Id].Supply[contact.Id].Node, instance.Id,
-                        construction.Instances.Identities[instance.Id].Signals[contact.Control.Node].Node,
-                        contact.Control.State))).ToArray());
+                        construction.Instances.Identities[instance.Id].Signals[((SignalStateContactControl)contact.Control).Node].Node,
+                        ((SignalStateContactControl)contact.Control).State))).ToArray());
     }
 
     public static ActivationEdge[] Edges(WorkshopSignalGraph graph) =>

@@ -16,7 +16,7 @@ internal static class SignalBundleValidation
         var signal = entry.Signal;
         if (signal is null)
         {
-            if (entry.Ports.Any(port => port.Domain == SimulationDomain.Signal) || entry.Electrical?.SupplyGraph?.Nodes.Any(node => node is SupplyContactDescriptor) == true) Refuse("Missing");
+            if (entry.Ports.Any(port => port.Domain == SimulationDomain.Signal) || entry.Electrical?.SupplyGraph?.Nodes.Any(node => node is SupplyContactDescriptor { Control: SignalStateContactControl }) == true) Refuse("Missing");
             if (entry.Events.Any(occurrence => occurrence.SignalNode is not null || SimulationEvents.SignalSource(occurrence.Kind)))
                 Refuse("Event.Source");
             return errors;
@@ -101,7 +101,7 @@ internal static class SignalBundleValidation
     {
         foreach (var contact in (entry.Electrical?.SupplyGraph?.Nodes ?? []).OfType<SupplyContactDescriptor>())
         {
-            var control = contact.Control;
+            if (contact.Control is not SignalStateContactControl control) continue;
             if (!nodes.TryGetValue(control.Node, out var controlled) || !Enum.IsDefined(control.State) ||
                 (control.State == SignalContactState.TimerCounting ? controlled is not SignalTimerDescriptor :
                     controlled is SignalTimerDescriptor or SignalIndicatorDescriptor or SignalOscillatorDescriptor))

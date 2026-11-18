@@ -80,8 +80,8 @@ public sealed class ComposableSupplyRoutingTests
                 supplyGraph),
             Ports =
             [
-                new PortDescriptor(new PortId("supply_low"), SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new Vector3(0.5f, 0f, 0f), Vector3.UnitX),
-                new PortDescriptor(new PortId("supply_high"), SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new Vector3(-0.5f, 0f, 0f), -Vector3.UnitX)
+                new PortDescriptor(new PortId("supply_low"), SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new Vector3(0.5f, 0f, 0f), Vector3.UnitX),
+                new PortDescriptor(new PortId("supply_high"), SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new Vector3(-0.5f, 0f, 0f), -Vector3.UnitX)
             ],
             Presentation = new ElementPresentation(1f, PresentationAxes.None, [], [], [], [])
         };
@@ -480,7 +480,7 @@ public sealed class ComposableSupplyRoutingTests
         var nodes = new SupplyNodeDescriptor[]
         {
             new SupplySourceDescriptor(new("src"), new(new("cap"), new("pwr"), new("init"), new("enable"))),
-            new SupplyContactDescriptor(new("contact"), new(new("signal"), SignalContactState.Latched)),
+            new SupplyContactDescriptor(new("contact"), new SignalStateContactControl(new("signal"), SignalContactState.Latched)),
             new SupplyConsumerDescriptor(new("consumer"), [new SupplyContactWorkTarget(new("work"))])
         };
         var edges = new SupplyConnection[]

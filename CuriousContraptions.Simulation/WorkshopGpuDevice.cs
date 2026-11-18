@@ -132,37 +132,9 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             network, supply, PhysicsTickInputs.Admission, controls: controls);
     }
 
-    private async ValueTask<WorkshopGpuCandidate> Stage(ReadOnlyMemory<byte> input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, IActivationProgram network,
-        CompiledSupply supply, PhysicsTickInputs inputs, IPhysicsSceneDeclaration? scene = null, WorkshopTickControls? controls = null)
+    private PhysicsCandidateRead ValidatePhysicalCandidate(ReadOnlyMemory<byte> bytes, ReadOnlyMemory<byte> input,
+        WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick)
     {
-        profile.Validate();
-        await _gate.WaitAsync();
-        try
-        {
-            ObjectDisposedException.ThrowIf(_disposed, this);
-            if (_active.Value != 0 || sequence.Value == 0) throw new InvalidOperationException("Invalid GPU candidate ownership.");
-            _active = sequence;
-            IActivationSchedule? scheduled = null;
-            if (operation == WorkshopGpuOperation.Advance)
-            {
-                if (controls is null) throw new ArgumentException("Advance requires tick controls.");
-                scheduled = network.AdvanceScheduled(new(_committedActivations, _committedTimers, _committedMemory), expectedTick);
-                var checkpoint = scheduled.State;
-                inputs = TickControlComposition.Compose(supply.Graph, controls,
-                    owner => network.ContactClosed(checkpoint.Activations, checkpoint.Timers, owner),
-                    PhysicsGpuAbi.ReadElectrical(_committedWorld.Span));
-            }
-            if(operation==WorkshopGpuOperation.Admit)
-            {
-                _triggerScratch = new ContactTriggerRead[4]; _orientationScratch = new OrientationSensorRead[4]; _loadScratch = new ContactLoadSensorRead[4];
-                inputs = new([], [], supply.Graph.NeutralReads()) { Cuts = inputs.Cuts, Guides = inputs.Guides, AdmissionDrivenSurfaces = inputs.AdmissionDrivenSurfaces };
-            }
-            await EnsureInitialized();
-            await transport.Stage(input, operation, inputs);
-            ObjectDisposedException.ThrowIf(_disposed, this);
-            var candidate=transport.Read();
-            var bytes=candidate.World;
-            _candidateInteractions=candidate.Interactions;
             if (bytes.Length < PhysicsGpuAbi.HeaderBytes || bytes.Length != PhysicsGpuAbi.ByteLength(bytes.Span))
                 throw new ArgumentException("Invalid GPU candidate length.");
             var failure = PhysicsGpuAbi.ReadFailure(bytes.Span);
@@ -179,6 +151,45 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 operation==WorkshopGpuOperation.Admit ? PhysicsInteractionSnapshot.Empty : _committedInteractions);
             if (PhysicsGpuAbi.ReadProfile(bytes.Span) != profile)
                 throw new ArgumentException("GPU candidate changed the admitted cadence identity.");
+        return validated;
+    }
+
+    private async ValueTask<WorkshopGpuCandidate> Stage(ReadOnlyMemory<byte> input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, IActivationProgram network,
+        CompiledSupply supply, PhysicsTickInputs inputs, IPhysicsSceneDeclaration? scene = null, WorkshopTickControls? controls = null)
+    {
+        profile.Validate();
+        await _gate.WaitAsync();
+        try
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            if (_active.Value != 0 || sequence.Value == 0) throw new InvalidOperationException("Invalid GPU candidate ownership.");
+            _active = sequence;
+            IActivationSchedule? scheduled = null;
+            Func<SupplyNodeId, bool>? contactClosed = null;
+            if (operation == WorkshopGpuOperation.Advance)
+            {
+                if (controls is null) throw new ArgumentException("Advance requires tick controls.");
+                scheduled = network.AdvanceScheduled(new(_committedActivations, _committedTimers, _committedMemory), expectedTick);
+                var checkpoint = scheduled.State;
+                var endpoints = FreezeEndpointContacts(supply.Graph, _committedWorld.Span);
+                contactClosed = id => endpoints.TryGetValue(id, out var closed) ? closed :
+                    network.ContactClosed(checkpoint.Activations, checkpoint.Timers, id);
+                inputs = TickControlComposition.Compose(supply.Graph, controls,
+                    contactClosed,
+                    PhysicsGpuAbi.ReadElectrical(_committedWorld.Span));
+            }
+            if(operation==WorkshopGpuOperation.Admit)
+            {
+                _triggerScratch = new ContactTriggerRead[4]; _orientationScratch = new OrientationSensorRead[4]; _loadScratch = new ContactLoadSensorRead[4];
+                inputs = new([], [], supply.Graph.NeutralReads()) { Cuts = inputs.Cuts, Guides = inputs.Guides, AdmissionDrivenSurfaces = inputs.AdmissionDrivenSurfaces };
+            }
+            await EnsureInitialized();
+            await transport.Stage(input, operation, inputs);
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            var candidate=transport.Read();
+            var bytes=candidate.World;
+            _candidateInteractions=candidate.Interactions;
+            var validated = ValidatePhysicalCandidate(bytes, input, operation, profile, expectedTick);
             var bodies = validated.Bodies;
             var layout=PhysicsGpuAbi.Layout(bytes.Span);
             _candidateCaptures=PhysicsGpuAbi.ReadCaptures(_candidateInteractions);
@@ -204,7 +215,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             var loadCount = PhysicsGpuAbi.ReadContactLoadCount(bytes.Span);
             Span<ContactLoadSensorRead> loads = Scratch(ref _loadScratch, loadCount);
             for (var i = 0; i < loadCount; i++) loads[i] = PhysicsGpuAbi.ReadContactLoadSensor(bytes.Span, i);
-            var effectiveSupply = ResolveEffectiveSupply(operation, supply, controls, scheduled, network, electrical);
+            var effectiveSupply = ResolveEffectiveSupply(operation, supply, controls, contactClosed, electrical);
             var logical = operation == WorkshopGpuOperation.Admit ? new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory()) :
                 network.ConsumeScheduled(scheduled ?? throw new InvalidOperationException("Scheduled checkpoint missing."),
                     triggers[..triggerCount], expectedTick, orientations[..orientationCount], _candidatePassageTracker.Fired, effectiveSupply, loads[..loadCount]);
@@ -258,13 +269,32 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         }
     }
     private static SupplyOutputRead ResolveEffectiveSupply(WorkshopGpuOperation operation, CompiledSupply supply,
-        WorkshopTickControls? controls, IActivationSchedule? scheduled, IActivationProgram network, PhysicsElectricalRead electrical)
+        WorkshopTickControls? controls, Func<SupplyNodeId, bool>? contactClosed, PhysicsElectricalRead electrical)
     {
         if (operation == WorkshopGpuOperation.Admit) return default;
         if (controls is null) throw new InvalidOperationException("Tick controls missing.");
-        if (scheduled is null) throw new InvalidOperationException("Scheduled checkpoint missing.");
-        return supply.Graph.Resolve(controls,
-            owner => network.ContactClosed(scheduled.State.Activations, scheduled.State.Timers, owner), electrical).Outputs;
+        if (contactClosed is null) throw new InvalidOperationException("Frozen contact predicates missing.");
+        return supply.Graph.Resolve(controls, contactClosed, electrical).Outputs;
+    }
+
+    private static Dictionary<SupplyNodeId, bool> FreezeEndpointContacts(ICompiledSupplyGraph graph, ReadOnlySpan<byte> world)
+    {
+        var contacts = new Dictionary<SupplyNodeId, bool>();
+        var declarations = graph.Nodes.ToArray().Where(node => node.CoordinateContact.HasValue).ToArray();
+        if (declarations.Length == 0) return contacts;
+        var actuators = PhysicsGpuAbi.ReadPresentation(world, PhysicsTickInputs.Admission, admission: true).Actuators.ToArray();
+        foreach (var node in declarations)
+        {
+            var endpoint = node.CoordinateContact!.Value;
+            var actuator = actuators.Single(read => read.Drive == SupplyConsumer.Prismatic(endpoint.Joint));
+            contacts.Add(node.Id, endpoint.Endpoint switch
+            {
+                CuriousContraptions.Abstractions.CoordinateEndpoint.Lower => actuator.Coordinate <= actuator.Lower + ActuatorObservations.StopSlop,
+                CuriousContraptions.Abstractions.CoordinateEndpoint.Upper => actuator.Coordinate >= actuator.Upper - ActuatorObservations.StopSlop,
+                _ => throw new ArgumentException("Undefined coordinate endpoint.")
+            });
+        }
+        return contacts;
     }
 
     public void Commit(CommandSequence sequence)

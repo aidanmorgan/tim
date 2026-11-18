@@ -71,7 +71,7 @@ public static partial class WorkshopWireFlatBuffers
             var binding = TableTarget(buffer, track, 5);
             if (binding == 0) continue;
             var vtable = binding - buffer.GetInt(binding);
-            if (buffer.GetUshort(vtable) > 4 + 15 * 2)
+            if (buffer.GetUshort(vtable) > 4 + 16 * 2)
                 throw new WireFaultException(WireFaultReason.OutOfRange, "Presentation binding contains undefined fields.");
         }
     }
@@ -367,7 +367,9 @@ public static partial class WorkshopWireFlatBuffers
             {
                 var a = read.Presentation.Actuators[i];
                 ActuatorDriveRecord.CreateActuatorDriveRecord(builder, a.Slot.Joint, a.Owner.Value, (uint)a.Drive.Kind, a.SupplyClosed,
-                    a.MovingContact, a.Coordinate, a.Speed, a.Lower, a.Upper);
+                    a.MovingContact, a.Coordinate, a.Speed, a.Lower, a.Upper, a.Motor.HasValue,
+                    (byte)(a.Motor?.Phase ?? default), a.Motor?.CommandSpeed ?? 0f, a.Motor?.Holding ?? false,
+                    a.Motor?.HoldCoordinate ?? 0f, a.Motor?.Impulse ?? 0f, a.Motor?.Work ?? 0f, a.Motor?.TickWork ?? 0f);
             }
             actuatorOffset = builder.EndVector();
         }
@@ -635,7 +637,9 @@ public static partial class WorkshopWireFlatBuffers
         {
             var a = fb.ActuatorDrives(i)!.Value;
             actuatorValues[i] = new(ActuatorConsumerOf(a.Kind, a.Joint), new(a.Owner), a.SupplyClosed, a.MovingContact, a.Coordinate, a.Speed,
-                a.Lower, a.Upper);
+                a.Lower, a.Upper, a.MotorPresent ? new PrismaticMotorRead(
+                    ObservationEnum<CuriousContraptions.Abstractions.Mechanical.PrismaticDrivePhase>(a.MotorPhase),
+                    a.CommandSpeed, a.Holding, a.HoldCoordinate, a.MotorImpulse, a.MotorWork, a.MotorTickWork) : null);
         }
         var loadValues = new ContactLoadSensorRead[fb.ContactLoadsLength];
         for (var i = 0; i < loadValues.Length; i++)

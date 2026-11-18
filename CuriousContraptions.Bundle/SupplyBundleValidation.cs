@@ -28,12 +28,29 @@ internal static class SupplyBundleValidation
         }
         foreach (var drive in Driven(entry))
             if (!targets.Contains(new SupplyDriveTarget(drive))) Refuse("Drive.MissingConsumer");
+        ValidateDriveCommands(entry, nodes, Refuse);
         foreach (var transmission in TimedTransmissions(entry))
             if (!targets.Contains(new SupplyTransmissionTarget(transmission))) Refuse("Transmission.MissingConsumer");
         ValidatePorts(entry, graph, nodes, Refuse);
         ValidateEdges(graph, nodes, Refuse);
         ValidatePresentation(entry, graph, nodes, Refuse);
         return errors;
+    }
+
+    private static void ValidateDriveCommands(BundleEntry entry, Dictionary<LocalSupplyNodeId, SupplyNodeDescriptor> nodes, Action<string> refuse)
+    {
+        foreach (var slider in entry.Mechanical?.Sliders ?? [])
+        {
+            if (slider.Drive is not { } drive) continue;
+            if (!Enum.IsDefined(drive.Selection) || !Enum.IsDefined(drive.Inactive)) { refuse("Drive.Control"); continue; }
+            if (drive.Selection == PrismaticTargetSelection.Fixed)
+            {
+                if (drive.Positive.HasValue || drive.Negative.HasValue) refuse("Drive.UnexpectedCommands");
+            }
+            else if (drive.Positive is not { } positive || drive.Negative is not { } negative ||
+                positive == negative || !nodes.ContainsKey(positive) || !nodes.ContainsKey(negative))
+                refuse("Drive.CommandReference");
+        }
     }
 
     private static void ValidateNode(BundleEntry entry, SupplyNodeDescriptor node, HashSet<SupplyTarget> targets, Action<string> refuse)
@@ -46,8 +63,9 @@ internal static class SupplyBundleValidation
             case SupplyLogicDescriptor logic:
                 if (!Enum.IsDefined(logic.Operation)) refuse("Logic.Operation");
                 break;
-            case SupplyContactDescriptor:
-                break; // Exact signal/control admission is owned by SignalBundleValidation.
+            case SupplyContactDescriptor contact:
+                ValidateContact(entry, contact.Control, refuse);
+                break;
             case SupplyConsumerDescriptor consumer:
                 if (consumer.Targets is null) { refuse("Consumer.Targets"); break; }
                 foreach (var target in consumer.Targets)
@@ -55,6 +73,15 @@ internal static class SupplyBundleValidation
                 break;
             default: refuse("Node.Kind"); break;
         }
+    }
+
+    private static void ValidateContact(BundleEntry entry, SupplyContactControl control, Action<string> refuse)
+    {
+        if (control is SignalStateContactControl) return;
+        if (control is not PrismaticContactControl endpoint || !Enum.IsDefined(endpoint.Endpoint) ||
+            endpoint.Coordinate.Kind != CoordinateKind.Prismatic || endpoint.Coordinate.Index < 0 ||
+            entry.Mechanical is not { } mechanical || endpoint.Coordinate.Index >= mechanical.Sliders.Count)
+            refuse("Contact.Control");
     }
 
     private static bool ValidTarget(BundleEntry entry, SupplyTarget target) => target switch

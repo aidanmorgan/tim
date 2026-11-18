@@ -80,21 +80,13 @@ internal static class WorkshopConstraintSolver
         }
     }
 
+    public static ImpulseJacobian ContactRow(ContactPoint c, Vector3 direction) =>
+        new(c.A, direction, Vector3.Cross(new(c.RAx, c.RAy, c.RAz), direction),
+            c.B, -direction, -Vector3.Cross(new(c.RBx, c.RBy, c.RBz), direction));
+
     public static float EffectiveMass(ContactPoint c, Vector3 d)
     {
-        var A = c.A;
-        var B = c.B;
-        var k = (A.Motion == RigidMotionKind.Dynamic ? A.InvMass : 0f) + (B.Motion == RigidMotionKind.Dynamic ? B.InvMass : 0f);
-        if (A.Motion == RigidMotionKind.Dynamic)
-        {
-            var r = Vector3.Cross(new Vector3(c.RAx, c.RAy, c.RAz), d);
-            k += WorkshopCollisionKernels.InverseInertiaCoupling(A, r, r);
-        }
-        if (B.Motion == RigidMotionKind.Dynamic)
-        {
-            var r = Vector3.Cross(new Vector3(c.RBx, c.RBy, c.RBz), d);
-            k += WorkshopCollisionKernels.InverseInertiaCoupling(B, r, r);
-        }
+        var k = ContactRow(c, d).Mass();
         return k > 0f ? 1f / k : 0f;
     }
 
@@ -126,7 +118,7 @@ internal static class WorkshopConstraintSolver
         c.Threshold = MathF.Max(c.ColA.BounceThreshold, c.ColB.BounceThreshold);
         c.Friction = MathF.Sqrt(c.ColA.Friction * c.ColB.Friction);
 
-        c.Key = new(c.ColA.Index, c.ColB.Index, c.Feature);
+        c.Key = new(c.ColA.Index, c.ColB.Index, c.Feature, c.A.BodySlot, c.B.BodySlot, c.FaceA, c.FaceB);
 
         c.LambdaN = cache.TryGetValue(c.Key, out var warm) ? warm : 0f;
 
@@ -137,10 +129,7 @@ internal static class WorkshopConstraintSolver
 
     public static void WarmStartContact(ContactPoint c)
     {
-        var n = new Vector3(c.Nx, c.Ny, c.Nz);
-        var p = c.LambdaN * n;
-        WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
-        WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
+        ContactRow(c, c.Normal).Apply(c.LambdaN);
     }
 
     public static Vector3 RelativeVelocity(ContactPoint c)
@@ -344,15 +333,7 @@ internal static class WorkshopConstraintSolver
 
     private static float AngularMass(ContactPoint c, Vector3 t)
     {
-        var k = 0f;
-        if (c.A.Motion == RigidMotionKind.Dynamic)
-        {
-            k += WorkshopCollisionKernels.InverseInertiaCoupling(c.A, t, t);
-        }
-        if (c.B.Motion == RigidMotionKind.Dynamic)
-        {
-            k += WorkshopCollisionKernels.InverseInertiaCoupling(c.B, t, t);
-        }
+        var k = new ImpulseJacobian(c.A, Vector3.Zero, t, c.B, Vector3.Zero, -t).Mass();
         return k > 0f ? 1f / k : 0f;
     }
 
@@ -386,18 +367,8 @@ internal static class WorkshopConstraintSolver
         m.LambdaR1 = n1;
         m.LambdaR2 = n2;
 
-        var t = d1 * m.Roll1 + d2 * m.Roll2;
-        ApplyAngularImpulse(c.A, t);
-        ApplyAngularImpulse(c.B, -t);
-    }
-
-    private static void ApplyAngularImpulse(SimBody b, Vector3 t)
-    {
-        if (b.Motion != RigidMotionKind.Dynamic) return;
-        var dw = WorkshopCollisionKernels.ApplyInvInertia(b, t);
-        b.Wx += dw.X;
-        b.Wy += dw.Y;
-        b.Wz += dw.Z;
+        new ImpulseJacobian(c.A, Vector3.Zero, m.Roll1, c.B, Vector3.Zero, -m.Roll1).Apply(d1);
+        new ImpulseJacobian(c.A, Vector3.Zero, m.Roll2, c.B, Vector3.Zero, -m.Roll2).Apply(d2);
     }
 
     /// <summary>The normal row's branch for a point at <paramref name="separation"/>, with s = separation + slop. Apart (separation
@@ -415,49 +386,8 @@ internal static class WorkshopConstraintSolver
         return (MathF.Max(soft.BiasRate * s, -MaxPushoutSpeed), soft.MassScale, soft.ImpulseScale);
     }
 
-    public static float CouplingMass(ContactPoint ci, ContactPoint cj)
-    {
-        var ni = new Vector3(ci.Nx, ci.Ny, ci.Nz);
-        var nj = new Vector3(cj.Nx, cj.Ny, cj.Nz);
-        // Contact normals are unit directions. The chord identity evaluates their
-        // dot product without self-dot roundoff for identical normals, keeping the
-        // block diagonal consistent with EffectiveMass while coupling nonparallel
-        // rows by the same rule: n_i dot n_j = 1 - .5f * Vector3.DistanceSquared(ni, nj);
-        var cosine = 1f - .5f * Vector3.DistanceSquared(ni, nj);
-        var invMass = 0f;
-        if (ci.A == cj.A) invMass += (ci.A.Motion == RigidMotionKind.Dynamic ? ci.A.InvMass : 0f);
-        if (ci.B == cj.B) invMass += (ci.B.Motion == RigidMotionKind.Dynamic ? ci.B.InvMass : 0f);
-        if (ci.A == cj.B) invMass -= (ci.A.Motion == RigidMotionKind.Dynamic ? ci.A.InvMass : 0f);
-        if (ci.B == cj.A) invMass -= (ci.B.Motion == RigidMotionKind.Dynamic ? ci.B.InvMass : 0f);
-
-        var k = invMass * cosine;
-
-        if (ci.A == cj.A && ci.A.Motion == RigidMotionKind.Dynamic)
-        {
-            var ri = Vector3.Cross(new Vector3(ci.RAx, ci.RAy, ci.RAz), ni);
-            var rj = Vector3.Cross(new Vector3(cj.RAx, cj.RAy, cj.RAz), nj);
-            k += WorkshopCollisionKernels.InverseInertiaCoupling(ci.A, ri, rj);
-        }
-        if (ci.B == cj.B && ci.B.Motion == RigidMotionKind.Dynamic)
-        {
-            var ri = Vector3.Cross(new Vector3(ci.RBx, ci.RBy, ci.RBz), ni);
-            var rj = Vector3.Cross(new Vector3(cj.RBx, cj.RBy, cj.RBz), nj);
-            k += WorkshopCollisionKernels.InverseInertiaCoupling(ci.B, ri, rj);
-        }
-        if (ci.A == cj.B && ci.A.Motion == RigidMotionKind.Dynamic)
-        {
-            var ri = Vector3.Cross(new Vector3(ci.RAx, ci.RAy, ci.RAz), ni);
-            var rj = Vector3.Cross(new Vector3(cj.RBx, cj.RBy, cj.RBz), nj);
-            k -= WorkshopCollisionKernels.InverseInertiaCoupling(ci.A, ri, rj);
-        }
-        if (ci.B == cj.A && ci.B.Motion == RigidMotionKind.Dynamic)
-        {
-            var ri = Vector3.Cross(new Vector3(ci.RBx, ci.RBy, ci.RBz), ni);
-            var rj = Vector3.Cross(new Vector3(cj.RAx, cj.RAy, cj.RAz), nj);
-            k -= WorkshopCollisionKernels.InverseInertiaCoupling(ci.B, ri, rj);
-        }
-        return k;
-    }
+    public static float CouplingMass(ContactPoint ci, ContactPoint cj) =>
+        ImpulseJacobian.Coupling(ContactRow(ci, ci.Normal), ContactRow(cj, cj.Normal));
 
     /// <summary>Equilibrated principal solve. The pivot cutoff is dimensionless, relative to the
     /// normalized matrix scale, and rejects structural dependence without adding stiffness.</summary>
@@ -585,9 +515,7 @@ internal static class WorkshopConstraintSolver
         var delta = total - c.LambdaN;
         c.LambdaN = total;
         if (total > c.MaxImpulse) c.MaxImpulse = total;
-        var p = delta * new Vector3(c.Nx, c.Ny, c.Nz);
-        WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
-        WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
+        ContactRow(c, c.Normal).Apply(delta);
     }
 
     public static void PrepareNormalBlocks(ContactManifold manifold, float h, HashSet<ContactFeatureSetKey> cache)
@@ -615,6 +543,7 @@ internal static class WorkshopConstraintSolver
                     manifold.NormalBlocks.Add(new NormalContactBlock());
                 var block = manifold.NormalBlocks[manifold.NormalBlockCount++];
                 block.Points.Clear();
+                block.MassValid = false;
                 var selected = manifold.SelectionScratch;
                 selected.Clear(); selected.AddRange(pending);
                 WorkshopCollisionKernels.ReduceSideManifold(selected, 0);
@@ -626,13 +555,21 @@ internal static class WorkshopConstraintSolver
         }
     }
 
-    public static void SolveNormalBlock(List<ContactPoint> group, ContactPass pass, in SoftCoefficients soft, float h)
+    public static void SolveNormalBlock(NormalContactBlock block, ContactPass pass, in SoftCoefficients soft, float h)
     {
+        var group = block.Points;
         var n = group.Count;
         Span<float> rhs = stackalloc float[n];
         Span<float> scale = stackalloc float[n];
         Span<float> retained = stackalloc float[n];
-        Span<float> matrix = stackalloc float[n * n];
+        if (block.Mass.Length < n * n) Array.Resize(ref block.Mass, n * n);
+        var matrix = block.Mass.AsSpan(0, n * n);
+        if (!block.MassValid)
+        {
+            for (var i = 0; i < n; i++)
+                for (var j = 0; j <= i; j++) matrix[i * n + j] = matrix[j * n + i] = CouplingMass(group[i], group[j]);
+            block.MassValid = true;
+        }
         Span<float> separation = stackalloc float[n];
         var softness = ManifoldSoftness.NoSoftPoint;
         for (var i = 0; i < n; i++)
@@ -649,7 +586,6 @@ internal static class WorkshopConstraintSolver
             scale[i] = massScale;
             retained[i] = (1f - impulseScale) / massScale * c.LambdaN;
             rhs[i] = -(vn + bias);
-            for (var j = 0; j < n; j++) matrix[i * n + j] = CouplingMass(c, group[j]);
         }
         for (var i = 0; i < n; i++)
             for (var j = 0; j < n; j++) rhs[i] += matrix[i * n + j] * retained[j];
@@ -669,7 +605,7 @@ internal static class WorkshopConstraintSolver
         {
             WorkshopFrictionSolver.Solve(m);
             for (var block = 0; block < m.NormalBlockCount; block++)
-                SolveNormalBlock(m.NormalBlocks[block].Points, pass, soft, h);
+                SolveNormalBlock(m.NormalBlocks[block], pass, soft, h);
             SolveRolling(m);
         }
     }
@@ -713,6 +649,13 @@ internal static class WorkshopConstraintSolver
         b.RelaxedV = b.LinearVelocity;
         b.RelaxedW = b.AngularVelocity;
         touched.Add(b);
+        if (b.Guide is { } guide)
+            foreach (var linked in guide.Bodies)
+            {
+                Join(linked, touched, stamp);
+                var first = Root(b); var second = Root(linked);
+                if (first != second) second.RestitutionRoot = first;
+            }
     }
 
     /// <summary>An active supporting contact carried normal impulse this substep and approached slower than the bounce

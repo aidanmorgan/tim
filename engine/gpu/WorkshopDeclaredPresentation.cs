@@ -464,11 +464,20 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         return d.Driver switch
         {
             PresentationDriver.CommittedActuatorState => d.StateValues!.Value.Map(QueryActuatorState(track, read)),
+            PresentationDriver.CommittedPrismaticPhase => d.PrismaticValues!.Value.Map(QueryPrismaticPhase(track, read)),
             PresentationDriver.CommittedContactLoadPhase => d.StateValues!.Value.Map(QueryContactLoadPhase(track, read)),
             PresentationDriver.CommittedTimerPhase => d.StateValues!.Value.Map(QueryTimerPhase(track, read)),
             PresentationDriver.CommittedTransmissionPhase => d.FourStateValues!.Value.Map(QueryTransmission(track, read).Phase),
             _ => throw new ArgumentException("Unsupported discrete state driver.")
         };
+    }
+
+    private static CuriousContraptions.Abstractions.Mechanical.PrismaticDrivePhase QueryPrismaticPhase(Track track, WorkshopRead read)
+    {
+        foreach (var actuator in read.Presentation.Actuators)
+            if (actuator.Owner == track.CoordinateOwner && actuator.Drive == track.Actuator && actuator.Motor is { } motor)
+                return motor.Phase;
+        throw new ArgumentException("Declared prismatic motor is absent from the committed read.");
     }
 
     private static float QueryWheelAngle(Track track, WorkshopRead read)

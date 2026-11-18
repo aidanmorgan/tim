@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Collections.Generic;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Electrical;
+using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Gpu;
 
@@ -33,6 +34,9 @@ public sealed class SupplyTopology : ISupplyTopology
             if ((node.Kind == SupplyNodeKind.LogicGate) != node.Operation.HasValue ||
                 node.Operation is { } operation && !Enum.IsDefined(operation))
                 throw new ArgumentException("A logic capability requires a defined operation.");
+            if (node.CoordinateContact is { } contact &&
+                (node.Kind != SupplyNodeKind.Contact || contact.Joint.Value == 0 || !Enum.IsDefined(contact.Endpoint)))
+                throw new ArgumentException("A coordinate contact requires a defined endpoint and exact joint.");
         }
         ValidateEdges(nodes, edges, slots);
     }
@@ -91,6 +95,7 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
     private readonly int[] _storageRoutes;
     private readonly int[][] _consumers;
     private readonly int[][] _transmissionConsumers;
+    private readonly (PrismaticConstraintId Joint, int Positive, int Negative)[] _commands;
     private readonly (int Source, SupplyTerminal Input)[][] _inputs;
     private readonly int[][] _components;
     private readonly bool[] _cyclic;
@@ -132,6 +137,15 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
                 prismatics, prismaticDrives, revolutes, revoluteDrives, transmissions);
         }
         // Every declared drive and timed transmission is consumed by exactly one consumer node (uniqueness checked above).
+        var commands = new List<(PrismaticConstraintId, int, int)>();
+        foreach (var drive in prismaticDrives)
+            if (drive.Selection == PrismaticTargetSelection.Directional)
+            {
+                if (!slots.TryGetValue(drive.Positive, out var positive) || !slots.TryGetValue(drive.Negative, out var negative))
+                    throw new ArgumentException("Directional drive names no admitted command node.");
+                commands.Add((drive.Joint, positive, negative));
+            }
+        _commands = commands.ToArray();
         foreach (var drive in prismaticDrives)
             if (!seenConsumers.Contains(SupplyConsumer.Prismatic(drive.Joint)))
                 throw new ArgumentException("A declared prismatic drive has no consumer node.");
@@ -184,6 +198,9 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
         }
         if (node.Kind is SupplyNodeKind.Contact or SupplyNodeKind.LogicGate)
         {
+            if (node.CoordinateContact is { } endpoint &&
+                !prismatics.ToArray().Any(joint => joint.Id == endpoint.Joint))
+                throw new ArgumentException("A coordinate contact names no admitted joint.");
             if (node.Source != default || !node.Consumers.IsDefaultOrEmpty || !node.Storages.IsDefaultOrEmpty)
                 throw new ArgumentException("Electrical contact cannot carry a source or drive consumers.");
             return (-1, [], []);
@@ -348,7 +365,8 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
         }
         return new(closed,_storageRoutes.Select(slot => powered[slot]).ToArray(),logic.OrderBy(row=>row.Node.Value).ToArray(),
             new SupplyOutputRead(_nodes.Select((node, i) => new SupplyOutput(node.Id, powered[i], Input(i, SupplyTerminal.PowerIn))).ToArray()),
-            closedTransmissions);
+            closedTransmissions, _commands.Select(command => new PrismaticCommandInput(command.Joint,
+                Command(powered[command.Positive], powered[command.Negative]))).ToArray());
         bool Input(int node, SupplyTerminal socket) => _inputs[node].Any(edge=>edge.Input==socket && powered[edge.Source]);
         bool Active(int i) => _nodes[i].Kind switch
         {
@@ -359,6 +377,15 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
             _ => throw new ArgumentException("Unsupported electrical node.")
         };
     }
+    private static PrismaticCommand Command(bool positive, bool negative) =>
+        (positive, negative) switch
+        {
+            (true, true) => PrismaticCommand.Conflict,
+            (true, false) => PrismaticCommand.Positive,
+            (false, true) => PrismaticCommand.Negative,
+            _ => PrismaticCommand.Hold
+        };
+
     public static bool Evaluate(LogicGateOperation operation, bool first, bool second) => operation switch
     {
         LogicGateOperation.And => first && second,
@@ -399,7 +426,8 @@ public static class TickControlComposition
             Cuts = controls.Cuts,
             Guides = controls.Guides,
             DriveTarget = controls.DriveTarget,
-            TransmissionClosed = resolved.Transmissions
+            TransmissionClosed = resolved.Transmissions,
+            PrismaticCommands = resolved.PrismaticCommands
         };
     }
 }

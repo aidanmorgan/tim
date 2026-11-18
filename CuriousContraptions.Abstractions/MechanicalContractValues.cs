@@ -81,12 +81,21 @@ public readonly record struct SliderBodyDescriptor(
 /// √(2·<see cref="StoppingAcceleration"/>·|d|), |d|/h) for a substep h, changing speed by at most <see cref="StoppingAcceleration"/> (m/s²), holding
 /// against the slider's own spring and the moving body's gravity, with its force bounded by <see cref="MaxEffort"/> (N) and its
 /// power by <see cref="MaxPower"/> (W).</summary>
+public enum PrismaticTargetSelection : byte { Fixed, Directional }
+public enum PrismaticInactiveResponse : byte { Free, SelfLock }
+public enum PrismaticCommand : byte { Hold, Positive, Negative, Conflict }
+public enum PrismaticDrivePhase : byte { Holding, Positive, Negative, Blocked, Conflict, Unpowered }
+
 public readonly record struct PrismaticDriveDescriptor(
     MechanicalValue Target,
     MechanicalValue MaxSpeed,
     MechanicalValue StoppingAcceleration,
     MechanicalValue MaxEffort,
-    MechanicalValue MaxPower);
+    MechanicalValue MaxPower,
+    PrismaticTargetSelection Selection = PrismaticTargetSelection.Fixed,
+    PrismaticInactiveResponse Inactive = PrismaticInactiveResponse.Free,
+    Electrical.LocalSupplyNodeId? Positive = null,
+    Electrical.LocalSupplyNodeId? Negative = null);
 
 /// <summary>One prismatic slider joining the element's base body to a moving body. At rest the two frames coincide; the moving body
 /// may travel from <see cref="LowerLimit"/> to <see cref="UpperLimit"/> along the base frame's local Y. The axial spring's stiffness
@@ -95,8 +104,8 @@ public readonly record struct PrismaticDriveDescriptor(
 public readonly record struct PrismaticSliderDescriptor(
     SliderFrame BaseFrame,
     SliderFrame MovingFrame,
-    float LowerLimit,
-    float UpperLimit,
+    MechanicalValue LowerLimit,
+    MechanicalValue UpperLimit,
     MechanicalValue Stiffness,
     MechanicalValue Damping,
     MechanicalValue Compression,
@@ -154,18 +163,20 @@ public readonly record struct RevoluteHingeDescriptor(
 
 /// <summary>A mechanical element whose base body carries moving bodies on revolute hinges.</summary>
 /// <summary>A mechanical value is either fixed authoring data or a declared real parameter.</summary>
-public enum MechanicalValueSource : byte { Constant, Parameter }
+public enum MechanicalValueSource : byte { Constant, Parameter, Product }
 
-public readonly record struct MechanicalValue(MechanicalValueSource Source, float Constant, string? Parameter)
+public readonly record struct MechanicalValue(MechanicalValueSource Source, float Constant, string? Parameter, MechanicalProduct? Product = null)
 {
     public static MechanicalValue Fixed(float value) => new(MechanicalValueSource.Constant, value, null);
     public static MechanicalValue FromParameter(string key) => new(MechanicalValueSource.Parameter, 0f, key);
+    public static MechanicalValue Multiply(MechanicalOperand left, MechanicalOperand right) => new(MechanicalValueSource.Product, 0f, null, new(left, right));
 
     public float Evaluate(IReadOnlyDictionary<string, float> parameters) => Source switch
     {
-        MechanicalValueSource.Constant when Parameter is null && float.IsFinite(Constant) => Constant,
-        MechanicalValueSource.Parameter when Constant == 0f && Parameter is { } key &&
+        MechanicalValueSource.Constant when Product is null && Parameter is null && float.IsFinite(Constant) => Constant,
+        MechanicalValueSource.Parameter when Product is null && Constant == 0f && Parameter is { } key &&
             parameters.TryGetValue(key, out var value) && float.IsFinite(value) => value,
+        MechanicalValueSource.Product when Constant == 0f && Parameter is null && Product is { } product => product.Evaluate(parameters),
         _ => throw new ArgumentException("Invalid or unresolved mechanical value.")
     };
 }

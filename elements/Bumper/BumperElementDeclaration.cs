@@ -40,7 +40,7 @@ public sealed class BumperElementDeclaration : IContactWorkElement, ISupplyEleme
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new Vector3(0f, 0f, .65f), Vector3.UnitZ)
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new Vector3(0f, 0f, .65f), Vector3.UnitZ)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];

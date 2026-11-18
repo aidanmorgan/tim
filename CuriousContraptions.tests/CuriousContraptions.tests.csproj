@@ -102,6 +102,15 @@
         <Compile Include="DeclaredContactLoadTests.cs" />
         <Compile Include="PlacementPoseTests.cs" />        <Compile Include="DeclaredIndicatorPassageTests.cs" />        <Compile Include="SourceStoreInstanceTests.cs" />
         <Compile Include="DeclaredPrismaticDriveTests.cs" />
+        <Compile Include="DirectionalPrismaticTests.cs" />
+        <Compile Include="DirectionalCompositionTests.cs" />
+        <Compile Include="ObservedWorldTransportTests.cs" />
+        <Compile Include="ClippedExtrusionTests.cs" />
+        <Compile Include="GuideResponseTests.cs" />
+        <Compile Include="LinearPusherTests.cs" />
+        <Compile Include="LinearPusherArtTests.cs" />
+        <Compile Include="LinearPusherIntegrationTests.cs" />
+        <Compile Include="PrismaticWorkBudgetTests.cs" />
         <Compile Include="CanonicalBodyTests.cs" />
         <Compile Include="RigidMassPropertiesTests.cs" />
         <Compile Include="MassFixtures.cs" />

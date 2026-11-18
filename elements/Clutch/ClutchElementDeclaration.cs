@@ -68,15 +68,15 @@ public sealed class ClutchElementDeclaration : IHingeElement, IMechanicalTransmi
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.DriveIn, SimulationDomain.Mechanical, PortDirection.Input, PortRole.DriveIn, null,
+        new(PortId.DriveIn, SimulationDomain.Mechanical, PortDirection.Input, PortRole.DriveIn, new("DriveIn", SocketGlyph.Text), null,
             new Vector3(-.65f, 0f, .55f), Vector3.UnitZ,
             Coordinate: new CoordinateReference(CoordinateKind.Revolute, 0), CoordinatePerRadian: 1f,
             MechanicalRim: new(new(0), new(-.65f, 0f, .495f), Quaternion.Identity, .28f, 1f)),
-        new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, null,
+        new(PortId.Drive, SimulationDomain.Mechanical, PortDirection.Output, PortRole.Drive, new("Drive", SocketGlyph.Text), null,
             new Vector3(.65f, 0f, .55f), Vector3.UnitZ,
             Coordinate: new CoordinateReference(CoordinateKind.Revolute, 1), CoordinatePerRadian: 1f,
             MechanicalRim: new(new(0), new(.65f, 0f, .495f), Quaternion.Identity, .28f, 1f)),
-        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null,
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null,
             new Vector3(0f, -.35f, .5f), Vector3.UnitZ)
     ];
 

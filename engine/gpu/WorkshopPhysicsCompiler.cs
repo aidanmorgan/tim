@@ -164,11 +164,14 @@ public static class WorkshopPhysicsCompiler
                 var joint = rows.Sliders[i].Joint;
                 prismatics.Add(new(joint, instance.Id, moving,
                     new(slider.BaseFrame.Position, slider.BaseFrame.Rotation), new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
-                    slider.LowerLimit, slider.UpperLimit, slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
+                    slider.LowerLimit.Evaluate(parameters), slider.UpperLimit.Evaluate(parameters), slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
                     slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
                 if (slider.Drive is not { } drive) continue;
                 drives.Add(new(joint, drive.Target.Evaluate(parameters), drive.MaxSpeed.Evaluate(parameters),
-                    drive.StoppingAcceleration.Evaluate(parameters), drive.MaxEffort.Evaluate(parameters), drive.MaxPower.Evaluate(parameters)));
+                    drive.StoppingAcceleration.Evaluate(parameters), drive.MaxEffort.Evaluate(parameters), drive.MaxPower.Evaluate(parameters),
+                    drive.Selection, drive.Inactive,
+                    drive.Positive is { } positive ? rows.Supply[positive].Node : default,
+                    drive.Negative is { } negative ? rows.Supply[negative].Node : default));
             }
         }
 
@@ -244,6 +247,7 @@ public static class WorkshopPhysicsCompiler
                 AddGeometry(instance.Id, rows.Material, rows.Colliders, shapes);
                 CompileSliders(instance, rows, parameters, values, sliders);
                 CompileHinges(instance, rows, parameters, values, hinges);
+                if (mechanical is not null) CompileExtrusions(instance.Id, rows, mechanical.Extrusions);
                 if (mechanical is not null) CompileDrivenSurfaces(instance.Id, rows, parameters, mechanical.DrivenSurfaces);
                 if (mechanical?.CompliantSurface is { } compliant)
                 {
@@ -275,6 +279,21 @@ public static class WorkshopPhysicsCompiler
                 drivenSurfaces.Add(new(rows.DrivenSurfaces[index], carrier, colliderRows[surface.Collider.Value],
                     surface.Face, rows.Hinges[surface.Source.Index].Joint, surface.LocalDirection,
                     surface.TravelPerRadian.Evaluate(parameters)));
+            }
+        }
+
+        private void CompileExtrusions(GpuBodyId owner, CompiledPartIdentities rows, IReadOnlyList<ClippedExtrusionDescriptor> extrusions)
+        {
+            foreach (var extrusion in extrusions)
+            {
+                var joint = rows.Sliders[extrusion.Coordinate.Index];
+                var colliderId = joint.Colliders[extrusion.Collider.Value];
+                var index = colliders.FindIndex(collider => collider.Id == colliderId);
+                colliders[index] = colliders[index] with
+                {
+                    Extrusion = new(joint.Joint, ResolvePortBody(owner, extrusion.MaterialBody),
+                        ResolvePortBody(owner, extrusion.ClippingBody), extrusion.Cut, extrusion.DistalOffset, extrusion.HalfExtents)
+                };
             }
         }
 
@@ -426,7 +445,8 @@ public static class WorkshopPhysicsCompiler
                         Vector3.Transform(Vector3.UnitZ, rotation), hollowCollider.Radius.Value,
                         hollowCollider.HalfExtents.X, hollowCollider.HalfExtents.Y, hollowCollider.HalfExtents.Z);
                     if (core.Geometry.HollowOverlaps(convex, solid, core.Geometry.PlacementSlop))
-                        throw new WorkshopEditRejectedException(WorkshopEditRejection.InitialOverlap, "A dynamic payload initially overlaps a hollow wall.");
+                        throw new WorkshopEditRejectedException(WorkshopEditRejection.InitialOverlap,
+                            $"A dynamic payload initially overlaps a hollow wall. Partner body {partner.Body.Value}, collider {partner.Id.Value}, {partner.Shape} at {partnerCentre}; hollow body {hollowCollider.Body.Value}, collider {hollowCollider.Id.Value}, {hollowCollider.Shape} at {centre}.");
                 }
             }
 

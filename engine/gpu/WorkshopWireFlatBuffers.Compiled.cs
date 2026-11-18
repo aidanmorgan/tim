@@ -248,6 +248,9 @@ public static partial class WorkshopWireFlatBuffers
     {
         var pose = EncodeCapabilityRigidLocalPoseRecord(b, value.Pose);
         var half_extents = EncodeCapabilityMetreVectorRecord(b, value.HalfExtents);
+        var extrusion = value.Extrusion is { } exposure ? W.ClippedExtrusionRecord.CreateClippedExtrusionRecord(b,
+            exposure.Coordinate.Value, exposure.MaterialBody.Value, exposure.ClippingBody.Value, exposure.Cut,
+            exposure.DistalOffset, exposure.HalfExtents.X, exposure.HalfExtents.Y) : default;
         W.CapabilityColliderDeclarationRecord.StartCapabilityColliderDeclarationRecord(b);
         W.CapabilityColliderDeclarationRecord.AddId(b, value.Id.Value);
         W.CapabilityColliderDeclarationRecord.AddBody(b, value.Body.Value);
@@ -256,6 +259,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityColliderDeclarationRecord.AddPose(b, pose);
         W.CapabilityColliderDeclarationRecord.AddRadius(b, value.Radius.Value);
         W.CapabilityColliderDeclarationRecord.AddHalfExtents(b, half_extents);
+        if (value.Extrusion.HasValue) W.CapabilityColliderDeclarationRecord.AddExtrusion(b, extrusion);
         return W.CapabilityColliderDeclarationRecord.EndCapabilityColliderDeclarationRecord(b);
     }
 
@@ -266,7 +270,10 @@ public static partial class WorkshopWireFlatBuffers
         ObservationEnum<CuriousContraptions.Gpu.ColliderShapeKind>(row.Shape),
         DecodeCapabilityRigidLocalPoseRecord(Required(row.Pose, "Pose")),
         new CuriousContraptions.Gpu.Metres(row.Radius),
-        DecodeCapabilityMetreVectorRecord(Required(row.HalfExtents, "HalfExtents")));
+        DecodeCapabilityMetreVectorRecord(Required(row.HalfExtents, "HalfExtents")),
+        row.Extrusion is { } extrusion ? new ClippedExtrusionDeclaration(new(extrusion.Coordinate),
+            new(extrusion.MaterialBody), new(extrusion.ClippingBody), extrusion.Cut, extrusion.DistalOffset,
+            new(extrusion.HalfX, extrusion.HalfZ)) : null);
 
     private static Offset<W.CapabilityRigidLocalPoseRecord> EncodeCapabilityRigidLocalPoseRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.RigidLocalPose value)
     {
@@ -584,6 +591,11 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilitySupplyNodeDeclarationRecord.AddSource(b, value.Source.Value);
         W.CapabilitySupplyNodeDeclarationRecord.AddConsumers(b, consumers);
         if (value.Operation is { } operation) W.CapabilitySupplyNodeDeclarationRecord.AddOperation(b, (uint)operation);
+        if (value.CoordinateContact is { } contact)
+        {
+            W.CapabilitySupplyNodeDeclarationRecord.AddCoordinateJoint(b, contact.Joint.Value);
+            W.CapabilitySupplyNodeDeclarationRecord.AddCoordinateEndpoint(b, (byte)contact.Endpoint);
+        }
         return W.CapabilitySupplyNodeDeclarationRecord.EndCapabilitySupplyNodeDeclarationRecord(b);
     }
 
@@ -593,7 +605,16 @@ public static partial class WorkshopWireFlatBuffers
         new CuriousContraptions.Gpu.ElectricalSourceId(row.Source),
         Enumerable.Range(0, row.ConsumersLength).Select(i => DecodeCapabilitySupplyConsumerRecord(Required(row.Consumers(i), "Consumers"))).ToImmutableArray(),
         row.Operation is { } operation ? ObservationEnum<CuriousContraptions.Abstractions.Electrical.LogicGateOperation>(operation) : null,
-        Enumerable.Range(0, row.StoragesLength).Select(i => new GpuContactWorkId(row.Storages(i))).ToImmutableArray());
+        Enumerable.Range(0, row.StoragesLength).Select(i => new GpuContactWorkId(row.Storages(i))).ToImmutableArray(),
+        DecodeCoordinateContact(row));
+
+    private static PrismaticEndpointContact? DecodeCoordinateContact(W.CapabilitySupplyNodeDeclarationRecord row)
+    {
+        if (row.CoordinateEndpoint is { } endpoint)
+            return new(new(row.CoordinateJoint), ObservationEnum<CoordinateEndpoint>(endpoint));
+        if (row.CoordinateJoint != 0) throw new ArgumentException("Coordinate contact endpoint is missing.");
+        return null;
+    }
 
     private static Offset<W.CapabilitySupplyConsumerRecord> EncodeCapabilitySupplyConsumerRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.SupplyConsumer value)
     {
@@ -687,6 +708,10 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityPrismaticDriveDeclarationRecord.AddStoppingAcceleration(b, value.StoppingAcceleration);
         W.CapabilityPrismaticDriveDeclarationRecord.AddMaxEffort(b, value.MaxEffort);
         W.CapabilityPrismaticDriveDeclarationRecord.AddMaxPower(b, value.MaxPower);
+        W.CapabilityPrismaticDriveDeclarationRecord.AddSelection(b, (byte)value.Selection);
+        W.CapabilityPrismaticDriveDeclarationRecord.AddInactive(b, (byte)value.Inactive);
+        W.CapabilityPrismaticDriveDeclarationRecord.AddPositive(b, value.Positive.Value);
+        W.CapabilityPrismaticDriveDeclarationRecord.AddNegative(b, value.Negative.Value);
         return W.CapabilityPrismaticDriveDeclarationRecord.EndCapabilityPrismaticDriveDeclarationRecord(b);
     }
 
@@ -696,7 +721,10 @@ public static partial class WorkshopWireFlatBuffers
         row.MaxSpeed,
         row.StoppingAcceleration,
         row.MaxEffort,
-        row.MaxPower);
+        row.MaxPower,
+        ObservationEnum<CuriousContraptions.Abstractions.Mechanical.PrismaticTargetSelection>(row.Selection),
+        ObservationEnum<CuriousContraptions.Abstractions.Mechanical.PrismaticInactiveResponse>(row.Inactive),
+        new(row.Positive), new(row.Negative));
 
     private static Offset<W.CapabilityRevoluteDriveDeclarationRecord> EncodeCapabilityRevoluteDriveDeclarationRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.RevoluteDriveDeclaration value)
     {
@@ -792,6 +820,10 @@ public static partial class WorkshopWireFlatBuffers
     private static Offset<W.CapabilityPresentationBindingRecord> EncodeCapabilityPresentationBindingRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.CompiledPresentationBinding value)
     {
         W.CapabilityPresentationBindingRecord.StartCapabilityPresentationBindingRecord(b);
+        if (value.PrismaticValues is { } phases)
+            W.CapabilityPresentationBindingRecord.AddPrismaticValues(b,
+                W.PrismaticPhaseValuesRecord.CreatePrismaticPhaseValuesRecord(b, phases.Holding, phases.Positive,
+                    phases.Negative, phases.Blocked, phases.Conflict, phases.Unpowered));
         if (value.FourStateValues is { } four)
             W.CapabilityPresentationBindingRecord.AddFourStateValues(b,
                 W.FourStateValuesRecord.CreateFourStateValuesRecord(b, four.State0, four.State1, four.State2, four.State3));
@@ -829,7 +861,9 @@ public static partial class WorkshopWireFlatBuffers
         ObservationEnum<CuriousContraptions.Abstractions.SimulationEventKind>(row.Event),
         ObservationEnum<CuriousContraptions.Abstractions.PresentationEventMagnitude>(row.EventMagnitude),
         row.StateValues is { } states ? new CuriousContraptions.Abstractions.PresentationStateValues(states.Unpowered, states.Powered, states.Blocked) : null,
-        row.FourStateValues is { } four ? new CuriousContraptions.Abstractions.PresentationFourStateValues(four.State0, four.State1, four.State2, four.State3) : null);
+        row.FourStateValues is { } four ? new CuriousContraptions.Abstractions.PresentationFourStateValues(four.State0, four.State1, four.State2, four.State3) : null,
+        row.PrismaticValues is { } phases ? new CuriousContraptions.Abstractions.PrismaticPhaseValues(phases.Holding,
+            phases.Positive, phases.Negative, phases.Blocked, phases.Conflict, phases.Unpowered) : null);
 
     private static Offset<W.CapabilityWorkshopCadenceSettingsRecord> EncodeCapabilityWorkshopCadenceSettingsRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.WorkshopCadenceSettings value)
     {

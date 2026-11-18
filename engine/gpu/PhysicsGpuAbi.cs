@@ -98,6 +98,14 @@ public static partial class PhysicsGpuAbi
             U32(record, ColliderMaterialOffset, MaterialSlot(scene, collider.Material)); U32(record, ColliderShapeOffset, (uint)collider.Shape);
             Pose(record, ColliderPoseOffset, collider.Pose); F32(record, ColliderRadiusOffset, collider.Radius.Value);
             F32Vector(record, ColliderHalfExtentsOffset, collider.HalfExtents.X, collider.HalfExtents.Y, collider.HalfExtents.Z);
+            if (collider.Extrusion is { } extrusion)
+            {
+                for (var joint = 0; joint < scene.Prismatics.Length; joint++)
+                    if (scene.Prismatics[joint].Id == extrusion.Coordinate)
+                        U32(record, ColliderExtrusionJointOffset, checked((uint)joint + 1));
+                F32(record, ColliderExtrusionCutOffset, extrusion.Cut);
+                F32(record, ColliderExtrusionDistalOffset, extrusion.DistalOffset);
+            }
         }
         for (var i = 0; i < scene.Materials.Length; i++)
         {
@@ -356,6 +364,21 @@ public static partial class PhysicsGpuAbi
                 throw new ArgumentException("Collider names a foreign sensing region.");
             if (!AllZero(collider[ColliderPaddingOffset..]))
                 throw new ArgumentException("Nonzero collider padding.");
+            var extrusionJoint = R32(collider, ColliderExtrusionJointOffset);
+            if (extrusionJoint > layout.Prismatics ||
+                (extrusionJoint == 0 && !AllZero(collider.Slice(ColliderExtrusionCutOffset, 8))))
+                throw new ArgumentException("Invalid collider extrusion coordinate.");
+            if (extrusionJoint != 0)
+            {
+                var joint = ReadPrismatic(candidate, (int)extrusionJoint - 1);
+                var extrusion = new ClippedExtrusionDeclaration(joint.Id, joint.BodyB, joint.BodyA,
+                    RF(collider, ColliderExtrusionCutOffset), RF(collider, ColliderExtrusionDistalOffset),
+                    new(RF(collider, ColliderHalfExtentsOffset), RF(collider, ColliderHalfExtentsOffset + 8)));
+                extrusion.Validate(joint);
+                if (R32(collider, ColliderShapeOffset) != (uint)ColliderShapeKind.Box ||
+                    R32(collider, ColliderBodyOffset) != R32(candidate, layout.PrismaticOffset((int)extrusionJoint - 1) + PrismaticBodyBOffset))
+                    throw new ArgumentException("Extrusion collider is not owned by its material endpoint.");
+            }
         }
         for (var i = 0; i < layout.Materials; i++)
             if (!AllZero(candidate.Slice(layout.MaterialOffset(i) + MaterialPaddingOffset, MaterialBytes - MaterialPaddingOffset)))

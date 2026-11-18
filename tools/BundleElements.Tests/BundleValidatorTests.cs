@@ -391,7 +391,7 @@ public sealed class BundleValidatorTests
         var entry = Bundle.BundleSchema.Entry(new Fixture
         {
             Parameters = [new("speed", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 64f, .8f, [], ParameterEditorPolicy.Clamp)],
-            Ports = [new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
+            Ports = [new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
         }) with { Domains = [SimulationDomain.Signal], Mechanical = null,
             Signal = new([new SignalContactDescriptor(new("signal"), new(0), new("speed"), new(TargetSelectorKind.AllDynamic))], [], [new(PortId.ActivationOut, new(new("signal"), SignalTerminal.Output))]) };
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
@@ -416,8 +416,8 @@ public sealed class BundleValidatorTests
         {
             Parameters = [new("seconds", ParameterUnit.Second, ParameterKind.Real, .1f, 12f, 1f, [])],
             Ports = [
-                new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX),
-                new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
+                new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, new("ActivationIn", SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX),
+                new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
         }) with
         {
             Domains = [SimulationDomain.Signal], Mechanical = null,
@@ -450,7 +450,7 @@ public sealed class BundleValidatorTests
         {
             Domains = [SimulationDomain.Electrical], Signal = null,
             Metadata = timer.Metadata with { Parameters = StoreParameters },
-            Ports = [new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, Vector3.Zero, Vector3.UnitX)],
+            Ports = [new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, Vector3.Zero, Vector3.UnitX)],
             Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
                 new SupplyGraphDescriptor([new SupplySourceDescriptor(new("source"), Store)], [], [new(PortId.Supply, new(new("source"), SupplyTerminal.Output))]))
         };
@@ -458,10 +458,10 @@ public sealed class BundleValidatorTests
         {
             Metadata=timer.Metadata,
             Ports=[
-                new(PortId.FirstIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.FirstIn,null,Vector3.Zero,Vector3.UnitX),
-                new(PortId.SecondIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.SecondIn,null,Vector3.Zero,Vector3.UnitX),
-                new(PortId.PowerIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.PowerIn,null,Vector3.Zero,Vector3.UnitX),
-                new(PortId.Supply,SimulationDomain.Electrical,PortDirection.Output,PortRole.Supply,null,Vector3.Zero,Vector3.UnitX)],
+                new(PortId.FirstIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.FirstIn, new("FirstIn", SocketGlyph.First),null,Vector3.Zero,Vector3.UnitX),
+                new(PortId.SecondIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.SecondIn, new("SecondIn", SocketGlyph.Second),null,Vector3.Zero,Vector3.UnitX),
+                new(PortId.PowerIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.PowerIn, new("PowerIn", SocketGlyph.Text),null,Vector3.Zero,Vector3.UnitX),
+                new(PortId.Supply,SimulationDomain.Electrical,PortDirection.Output,PortRole.Supply, new("Supply", SocketGlyph.Text),null,Vector3.Zero,Vector3.UnitX)],
             Electrical=new([new("logic",Abstractions.Electrical.ElectricalRole.LogicGate,12f,.1f,0f,100f)],
                 new SupplyGraphDescriptor(
                     [new SupplyLogicDescriptor(new("logic"), Abstractions.Electrical.LogicGateOperation.And)], [],
@@ -515,7 +515,7 @@ public sealed class BundleValidatorTests
         return entry with
         {
             Domains = [SimulationDomain.Mechanical, SimulationDomain.Electrical],
-            Ports = [new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, Vector3.Zero, Vector3.UnitX)],
+            Ports = [new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, Vector3.Zero, Vector3.UnitX)],
             Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
                 store is null ? null : new SupplyGraphDescriptor([new SupplySourceDescriptor(new("source"), store.Value)], [], [new(PortId.Supply, new(new("source"), SupplyTerminal.Output))]))
         };
@@ -696,7 +696,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void APortNormalMustBeAUnitDirection()
     {
-        PortDescriptor Port(Vector3 normal) => new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null,
+        PortDescriptor Port(Vector3 normal) => new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null,
             Vector3.Zero, normal);
         var entry = Bundle.BundleSchema.Entry(new Fixture { Ports = [Port(-Vector3.UnitY)] }) with
         {
@@ -820,8 +820,8 @@ public sealed class BundleValidatorTests
 
     [Fact]
     public void ASliderMustTravelThroughItsRestFrame() =>
-        Assert.Equal(["BUNDLE006 FixtureSlider.Sliders[0].LowerLimit: outside its declared range"],
-            Errors(("FixtureSlider", new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider() with { LowerLimit = .1f }] })));
+        Assert.Equal(["BUNDLE006 FixtureSlider.Sliders[0].Travel: outside its declared range"],
+            Errors(("FixtureSlider", new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider() with { LowerLimit = MechanicalValue.Fixed(.1f) }] })));
 
     [Fact]
     public void ASliderWithANonFiniteMovingMassIsRefused() =>
@@ -887,7 +887,7 @@ public sealed class BundleValidatorTests
             _ => throw new ArgumentOutOfRangeException(nameof(field))
         };
         var error = Assert.Single(DriveErrors(drive));
-        Assert.Contains($"FixtureDrive.Sliders[0].Drive.{field}", error, StringComparison.Ordinal);
+        Assert.Contains(field == "Target" ? "FixtureDrive.Sliders[0].Travel" : $"FixtureDrive.Sliders[0].Drive.{field}", error, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1009,7 +1009,7 @@ public sealed class BundleValidatorTests
         Assert.Contains(Check(With(lever, driven)), error => error.Code == Bundle.BundleErrorCode.OutOfRange && (error.Detail.EndsWith("SupplyGraph.Missing", StringComparison.Ordinal) || error.Detail.EndsWith("Drive.MissingConsumer", StringComparison.Ordinal)));
         var powered = lever with
         {
-            Ports = [.. lever.Ports, new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ)],
+            Ports = [.. lever.Ports, new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, Vector3.Zero, Vector3.UnitZ)],
             Electrical = new([new("consumer", Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
                 new SupplyGraphDescriptor(
                     [new SupplyConsumerDescriptor(new("consumer"), [new SupplyDriveTarget(new(CoordinateKind.Revolute, 0))])], [],
@@ -1063,7 +1063,7 @@ public sealed class BundleValidatorTests
         };
         var driven = lever with
         {
-            Ports = [.. lever.Ports, new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, Vector3.Zero, Vector3.UnitZ)],
+            Ports = [.. lever.Ports, new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, Vector3.Zero, Vector3.UnitZ)],
             Mechanical = lever.Mechanical with { Hinges = [hinge] },
             Electrical = new([new("consumer", Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
                 new SupplyGraphDescriptor(

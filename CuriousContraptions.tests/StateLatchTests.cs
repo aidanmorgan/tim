@@ -132,11 +132,11 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         var ports = DeclaredPorts.Current.Of(new PartId("latch")).ToArray();
         Assert.Equal(
-            [new WorkshopPort(PortId.SetIn, PortRole.SetIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, WorkshopSignalKind.Pulse, new(-.45f, .72f, 0f)),
-             new WorkshopPort(PortId.ResetIn, PortRole.ResetIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, WorkshopSignalKind.Pulse, new(.45f, .72f, 0f)),
-             new WorkshopPort(PortId.PowerIn, PortRole.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null, new(-.93f, 0f, 0f)),
-             new WorkshopPort(PortId.ActivationOut, PortRole.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level, new(0f, -.56f, .38f)),
-             new WorkshopPort(PortId.Supply, PortRole.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null, new(.93f, 0f, 0f))], ports);
+            [new WorkshopPort(PortId.SetIn, PortRole.SetIn, new("SetIn", SocketGlyph.Set), WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, WorkshopSignalKind.Pulse, new(-.45f, .72f, 0f)),
+             new WorkshopPort(PortId.ResetIn, PortRole.ResetIn, new("ResetIn", SocketGlyph.Reset), WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, WorkshopSignalKind.Pulse, new(.45f, .72f, 0f)),
+             new WorkshopPort(PortId.PowerIn, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null, new(-.93f, 0f, 0f)),
+             new WorkshopPort(PortId.ActivationOut, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level, new(0f, -.56f, .38f)),
+             new WorkshopPort(PortId.Supply, PortRole.Supply, new("Supply", SocketGlyph.Text), WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null, new(.93f, 0f, 0f))], ports);
         Assert.Equal(2u, (uint)PortRole.SetIn);
         Assert.Equal(3u, (uint)PortRole.ResetIn);
         Assert.Equal(new System.Numerics.Vector3(-0.45f, 0.72f, 0f), DeclaredPorts.Current.LocalPosition(new PartId("latch"), PortId.SetIn));

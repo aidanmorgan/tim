@@ -23,9 +23,9 @@ public sealed class HoldTimerElementDeclaration : ISignalElement, ISupplyElement
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, PortSignalKind.Pulse, new(0f,.65f,.2f), Vector3.UnitY),
-        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, null, new(-.78f,0f,0f), -Vector3.UnitX),
-        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, null, new(.78f,0f,0f), Vector3.UnitX)
+        new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, new("ActivationIn", SocketGlyph.Text), PortSignalKind.Pulse, new(0f,.65f,.2f), Vector3.UnitY),
+        new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new(-.78f,0f,0f), -Vector3.UnitX),
+        new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new(.78f,0f,0f), Vector3.UnitX)
     ];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(1f,.3f,0f,.1f))];
@@ -37,7 +37,7 @@ public sealed class HoldTimerElementDeclaration : ISignalElement, ISupplyElement
         new(PortId.ActivationIn, new(new("signal"), SignalTerminal.Input))
     ];
     public SupplyGraphDescriptor SupplyGraph => new(
-        [new SupplyContactDescriptor(new("contact"), new(new("signal"), SignalContactState.TimerCounting))], [],
+        [new SupplyContactDescriptor(new("contact"), new SignalStateContactControl(new("signal"), SignalContactState.TimerCounting))], [],
         [
             new(PortId.PowerIn, new(new("contact"), SupplyTerminal.PowerIn)),
             new(PortId.Supply, new(new("contact"), SupplyTerminal.Output))

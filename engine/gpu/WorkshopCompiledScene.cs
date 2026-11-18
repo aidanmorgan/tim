@@ -192,10 +192,12 @@ public sealed class WorkshopCompiledScene : ICompiledScene
     private bool InvalidPhysicalBinding(CompiledPresentationTrack track)
     {
         var angleDriver = track.Declaration.Driver == PresentationDriver.CommittedRevoluteAngle;
-        var actuatorDriver = angleDriver || track.Declaration.Driver is PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState;
+        var actuatorDriver = angleDriver || track.Declaration.Driver is PresentationDriver.CommittedActuatorDrive or
+            PresentationDriver.CommittedActuatorState or PresentationDriver.CommittedPrismaticPhase;
         if (actuatorDriver != track.Actuator.HasValue) return true;
         if (track.Actuator is { } actuator)
         {
+            if (track.Declaration.Driver == PresentationDriver.CommittedPrismaticPhase && actuator.Kind != SupplyConsumerKind.PrismaticDrive) return true;
             if (angleDriver)
             {
                 if (actuator.Kind != SupplyConsumerKind.RevoluteDrive || !Physics.Revolutes.ToArray().Any(joint =>
@@ -245,6 +247,8 @@ public sealed class WorkshopCompiledScene : ICompiledScene
     {
         return PresentationDriverRules.Discrete3State(d.Driver) != d.StateValues.HasValue ||
                 PresentationDriverRules.Discrete4State(d.Driver) != d.FourStateValues.HasValue ||
+                (d.Driver == PresentationDriver.CommittedPrismaticPhase) != d.PrismaticValues.HasValue ||
+                (d.PrismaticValues is { } phases && !phases.IsFinite()) ||
                 (d.StateValues is { } states && !states.IsFinite()) ||
                 (d.FourStateValues is { } four && !four.IsFinite()) ||
                 !float.IsFinite(d.From) || !float.IsFinite(d.To) || !float.IsFinite(d.Duration) || d.Duration < 0 ||
