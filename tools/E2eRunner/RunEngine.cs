@@ -12,6 +12,7 @@ internal sealed record RunOptions(string Root, string OutputDirectory, string Bu
 internal sealed class RunDependencies
 {
     public required Func<string> SuiteSources { get; init; }
+    public required Action VerifyArtifact { get; init; }
     public required Func<string, IBundleWatcher> Watch { get; init; }
     public required IPortSource Ports { get; init; }
     public required string TsxLoader { get; init; }
@@ -33,6 +34,7 @@ internal static class RunEngine
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(dependencies);
+        dependencies.VerifyArtifact();
         var started = DateTimeOffset.UtcNow;
         var runId = FormattableString.Invariant($"{started:yyyyMMddTHHmmssZ}-{Environment.ProcessId}");
         var evidenceRoot = Path.Combine(options.Root, ".anvil", "e2e-runs", runId);
@@ -116,6 +118,8 @@ internal static class RunEngine
         header["peakRssBytes"] = sampler.PeakRssBytes.ToString(CultureInfo.InvariantCulture);
 
         var identityDetails = new List<string>();
+        try { dependencies.VerifyArtifact(); }
+        catch (RunnerException error) { identityDetails.Add(error.Message); }
         if (identityChange is not null) identityDetails.Add(identityChange);
         if (endManifest.Identity != manifest.Identity) identityDetails.Add("the bundle re-hash differs from the start identity");
         if (servedEnd.Count > 0) identityDetails.Add("the end served check differs from the bundle");

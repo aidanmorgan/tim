@@ -22,7 +22,7 @@ internal sealed class FreePortSource : IPortSource
     }
 }
 
-/// <summary>The runner's own preview (spec D10): `dotnet run --project tools/Preview -- &lt;bundle&gt; &lt;port&gt;` on a free port, retried on
+/// <summary>The runner's matching prebuilt Preview output on a free port, retried on
 /// a new port up to three times when the port is lost to a race, and proven to be this process by the full served-identity check.
 /// Disposing kills its process tree.</summary>
 internal sealed class PreviewHost : IDisposable
@@ -75,7 +75,8 @@ internal sealed class PreviewHost : IDisposable
         };
         // Kestrel's per-request information logs would make preview.log grow with every file fetched; warnings and errors remain.
         start.Environment["Logging__LogLevel__Default"] = "Warning";
-        foreach (var argument in new[] { "run", "--project", Path.Combine(root, "tools", "Preview"), "--", bundleDirectory,
+        var executable = RequireExecutable(AppContext.BaseDirectory);
+        foreach (var argument in new[] { executable, bundleDirectory,
             port.ToString(System.Globalization.CultureInfo.InvariantCulture) }) start.ArgumentList.Add(argument);
         Process? process = new();
         try
@@ -129,6 +130,14 @@ internal sealed class PreviewHost : IDisposable
             }
         }
         catch (OperationCanceledException) { return false; }
+    }
+
+    internal static string RequireExecutable(string outputDirectory)
+    {
+        var executable = Path.Combine(outputDirectory, "Preview.dll");
+        foreach (var required in new[] { executable, Path.ChangeExtension(executable, ".runtimeconfig.json"), Path.ChangeExtension(executable, ".deps.json") })
+            if (!File.Exists(required)) throw new RunnerException(RunnerError.PreviewUnavailable, $"Missing matching Preview output: {required}. Build E2eRunner first.");
+        return executable;
     }
 
     private static void Stop(Process process)

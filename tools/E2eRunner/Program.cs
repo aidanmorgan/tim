@@ -1,14 +1,13 @@
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
 namespace CuriousContraptions.E2eRunner;
 
 /// <summary>The runner's verbs (the CLI boundary converts the first argument to one of these).</summary>
-internal enum Verb { Full = 1, Select, Run, Calibrate, DeferredFilter }
+internal enum Verb { Full = 1, Select, Run, Calibrate, DeferredFilter, RecordArtifact }
 
 /// <summary>The runner's options.</summary>
-internal enum Option { Out = 1, Workers, Durations, Diff, Changed }
+internal enum Option { Out = 1, Workers, Durations, Diff, Changed, Artifact, Revision, CiRun, CiAttempt }
 
 /// <summary>A parsed command line.</summary>
 internal sealed record CommandLine(Verb Verb, IReadOnlyDictionary<Option, string> Options)
@@ -16,33 +15,37 @@ internal sealed record CommandLine(Verb Verb, IReadOnlyDictionary<Option, string
     private static readonly Dictionary<string, Verb> Verbs = new(StringComparer.Ordinal)
     {
         ["full"] = Verb.Full, ["select"] = Verb.Select, ["run"] = Verb.Run, ["calibrate"] = Verb.Calibrate,
-        ["deferred-filter"] = Verb.DeferredFilter,
+        ["deferred-filter"] = Verb.DeferredFilter, ["record-artifact"] = Verb.RecordArtifact,
     };
     private static readonly Dictionary<string, Option> Names = new(StringComparer.Ordinal)
     {
         ["--out"] = Option.Out, ["--workers"] = Option.Workers, ["--durations"] = Option.Durations, ["--diff"] = Option.Diff,
-        ["--changed"] = Option.Changed,
+        ["--changed"] = Option.Changed, ["--artifact"] = Option.Artifact, ["--revision"] = Option.Revision,
+        ["--ci-run"] = Option.CiRun, ["--ci-attempt"] = Option.CiAttempt,
     };
     private static readonly Dictionary<Verb, Option[]> Allowed = new()
     {
-        [Verb.Full] = [Option.Out, Option.Workers, Option.Durations],
+        [Verb.Full] = [Option.Out, Option.Workers, Option.Durations, Option.Artifact],
         [Verb.Select] = [Option.Diff, Option.Changed],
-        [Verb.Run] = [Option.Diff, Option.Changed, Option.Out, Option.Workers, Option.Durations],
-        [Verb.Calibrate] = [Option.Out],
+        [Verb.Run] = [Option.Diff, Option.Changed, Option.Out, Option.Workers, Option.Durations, Option.Artifact],
+        [Verb.Calibrate] = [Option.Out, Option.Artifact],
         [Verb.DeferredFilter] = [],
+        [Verb.RecordArtifact] = [Option.Artifact, Option.Revision, Option.CiRun, Option.CiAttempt],
     };
     private static readonly Dictionary<Verb, Option[]> Required = new()
     {
-        [Verb.Full] = [Option.Out], [Verb.Select] = [], [Verb.Run] = [Option.Out], [Verb.Calibrate] = [Option.Out],
+        [Verb.Full] = [Option.Out, Option.Artifact], [Verb.Select] = [], [Verb.Run] = [Option.Out, Option.Artifact], [Verb.Calibrate] = [Option.Out, Option.Artifact],
         [Verb.DeferredFilter] = [],
+        [Verb.RecordArtifact] = [Option.Artifact, Option.Revision, Option.CiRun, Option.CiAttempt],
     };
 
     public const string Usage = """
         Usage: dotnet run --project tools/E2eRunner -- <verb> [options]
-          full --out D [--workers k] [--durations S]      publish, then every tools/e2e suite: SerialAlone suites alone, Parallel ones on N workers
+          full --artifact A --out D [--workers k] [--durations S]  reuse CI artifact; every tools/e2e suite: SerialAlone suites alone, Parallel ones on N workers
           select (--diff B | --changed F)                 print the Tier 2 selection with one reason per suite
-          run (--diff B | --changed F) --out D            publish, then run the Tier 2 selection (the full run when Mode: Full)
-          calibrate --out D                               publish, then measure N and print the MeasuredWorkers.cs value
+          run (--diff B | --changed F) --artifact A --out D  reuse CI artifact; run the Tier 2 selection (the full run when Mode: Full)
+          calibrate --artifact A --out D                    reuse CI artifact; measure N and print the MeasuredWorkers.cs value
+          record-artifact --artifact A --revision SHA --ci-run ID --ci-attempt N  stamp the CI-produced AppBundle
           deferred-filter                                 print the E2eRunner.Tests filter that excludes the BrowserDeferral list
         """;
 
@@ -97,12 +100,18 @@ internal static class Program
             foreach (var line in Select(root, command).Lines()) Console.WriteLine(line);
             return 0;
         }
+        if (command.Verb == Verb.RecordArtifact)
+        {
+            PublishedArtifact.Record(root, command.Options[Option.Artifact], command.Options[Option.Revision],
+                command.Options[Option.CiRun], command.Options[Option.CiAttempt]);
+            return 0;
+        }
+        var artifact = PublishedArtifact.Admit(root, command.Options[Option.Artifact]);
         RequireDeclaredSuites(root);
         var output = NewOutputDirectory(command.Options[Option.Out]);
         using var runner = RunnerLock.Acquire(RunnerLock.For(root));
         var toolchain = Toolchain.Resolve(Home);
-        var publish = await PublishAsync(root, output).ConfigureAwait(false);
-        if (command.Verb == Verb.Calibrate) return await CalibrateAsync(root, output, toolchain, publish).ConfigureAwait(false);
+        if (command.Verb == Verb.Calibrate) return await CalibrateAsync(root, output, toolchain, artifact).ConfigureAwait(false);
 
         var memory = MeasuredWorkers.MachineMemory();
         var workers = MeasuredWorkers.Resolve(MeasuredWorkers.Current, command.Workers, MeasuredWorkers.MachineCpus, memory);
@@ -117,9 +126,9 @@ internal static class Program
         }
         var durations = command.Options.TryGetValue(Option.Durations, out var durationsPath) ? RunSummary.Durations(durationsPath) : null;
         var summary = await RunEngine.RunAsync(
-            new RunOptions(root, output, BundleDirectory(root), command.Verb.ToString(), Files(suites), workers, durations, selectionLines,
-                Header(root, toolchain, workers, memory, publish)),
-            Dependencies(root, toolchain, MeasuredWorkers.Current is { } measured ? measured.IdleLoad + 2 : null), CancellationToken.None)
+            new RunOptions(root, output, artifact.BundleDirectory, command.Verb.ToString(), Files(suites), workers, durations, selectionLines,
+                Header(root, toolchain, workers, memory, artifact)),
+            Dependencies(root, toolchain, artifact, MeasuredWorkers.Current is { } measured ? measured.IdleLoad + 2 : null), CancellationToken.None)
             .ConfigureAwait(false);
         Console.WriteLine($"{summary.Verdict}: {Path.Combine(output, "summary.txt")}");
         return RunSummary.ExitCode(summary.Verdict);
@@ -130,30 +139,6 @@ internal static class Program
         var changes = command.Options.TryGetValue(Option.Diff, out var baseRef) ? ChangeSet.FromDiff(root, baseRef)
             : ChangeSet.FromList(root, command.Options[Option.Changed]);
         return Selector.Select(changes.Paths, new ImpactContext(root, changes.BaseReader(root)));
-    }
-
-    private static string BundleDirectory(string root) => Path.Combine(root, "CuriousContraptions.web", "AppBundle");
-
-    /// <summary>The runner publishes the production bundle itself (`dotnet publish CuriousContraptions.web`), so a run always tests the
-    /// bundle of the tree it records; the publish log is evidence, and a failed publish is a typed refusal.</summary>
-    private static async Task<string> PublishAsync(string root, string output)
-    {
-        var start = new ProcessStartInfo("dotnet")
-        {
-            UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, WorkingDirectory = root,
-        };
-        foreach (var argument in new[] { "publish", "CuriousContraptions.web", "-nologo" }) start.ArgumentList.Add(argument);
-        var clock = Stopwatch.StartNew();
-        using var process = new Process();
-        process.StartInfo = start;
-        process.Start();
-        var error = process.StandardError.ReadToEndAsync();
-        var log = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-        await process.WaitForExitAsync().ConfigureAwait(false);
-        await File.WriteAllTextAsync(Path.Combine(output, "publish.log"), log + await error.ConfigureAwait(false)).ConfigureAwait(false);
-        if (process.ExitCode != 0)
-            throw new RunnerException(RunnerError.PublishFailed, $"dotnet publish CuriousContraptions.web exited {process.ExitCode}; see {Path.Combine(output, "publish.log")}.");
-        return FormattableString.Invariant($"dotnet publish CuriousContraptions.web: exit 0 in {clock.Elapsed.TotalSeconds:F1} s (publish.log)");
     }
 
     private static List<ScheduledFile> Files(IEnumerable<SuiteDeclaration> suites) =>
@@ -181,13 +166,14 @@ internal static class Program
             throw new RunnerException(RunnerError.UndeclaredSuite, $"Declared suite file(s) missing: {string.Join(", ", missing)}.");
     }
 
-    private static Dictionary<string, string> Header(string root, Toolchain toolchain, int workers, long memory, string publish)
+    private static Dictionary<string, string> Header(string root, Toolchain toolchain, int workers, long memory, PublishedArtifact artifact)
     {
         var source = SourceIdentity.Capture(root);
         return new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["runnerSourceDigest"] = source.RunnerSourceDigest, ["sourceHead"] = source.Head, ["sourceStatusDigest"] = source.StatusDigest,
-            ["publish"] = publish,
+            ["artifactSource"] = artifact.Receipt.SourceRevision, ["artifactCiRun"] = artifact.Receipt.CiRun,
+            ["artifactCiAttempt"] = artifact.Receipt.CiAttempt, ["artifactDirectory"] = artifact.Directory,
             ["toolchain"] = $"tsx {toolchain.TsxVersion} ({toolchain.TsxLoader}); playwright {toolchain.PlaywrightVersion}; node {toolchain.NodeVersion}; {toolchain.ChromeVersion}",
             ["machine"] = FormattableString.Invariant($"{MeasuredWorkers.MachineCpus} logical CPUs, {memory} bytes"),
             ["measuredWorkers"] = MeasuredWorkers.Current is { } measured
@@ -196,9 +182,10 @@ internal static class Program
         };
     }
 
-    private static RunDependencies Dependencies(string root, Toolchain toolchain, double? threshold) => new()
+    private static RunDependencies Dependencies(string root, Toolchain toolchain, PublishedArtifact artifact, double? threshold) => new()
     {
         SuiteSources = () => SourceIdentity.SuiteSources(root),
+        VerifyArtifact = () => artifact.Verify(root),
         Watch = directory => new FileSystemBundleWatcher(directory),
         Ports = new FreePortSource(),
         TsxLoader = toolchain.TsxLoader,
@@ -213,20 +200,20 @@ internal static class Program
 
     /// <summary>D9: Phase S once alone (the serial baseline and the solo load), then the Parallel set at each candidate N, under the one
     /// runner lock, then the N rule and the MeasuredWorkers.cs value.</summary>
-    private static async Task<int> CalibrateAsync(string root, string output, Toolchain toolchain, string publish)
+    private static async Task<int> CalibrateAsync(string root, string output, Toolchain toolchain, PublishedArtifact artifact)
     {
         var memory = MeasuredWorkers.MachineMemory();
         var cpus = MeasuredWorkers.MachineCpus;
         var report = new StringBuilder();
         var idleAtStart = ProcessTable.LoadAverage();
-        var dependencies = Dependencies(root, toolchain, threshold: null);
-        var header = Header(root, toolchain, 1, memory, publish);
+        var dependencies = Dependencies(root, toolchain, artifact, threshold: null);
+        var header = Header(root, toolchain, 1, memory, artifact);
 
         async Task<RunSummary> Trial(string name, IEnumerable<SuiteDeclaration> suites, int workers, IReadOnlyDictionary<string, double>? durations)
         {
             var directory = Path.Combine(output, name);
             Directory.CreateDirectory(directory);
-            return await RunEngine.RunAsync(new RunOptions(root, directory, BundleDirectory(root), $"calibrate {name}", Files(suites), workers,
+            return await RunEngine.RunAsync(new RunOptions(root, directory, artifact.BundleDirectory, $"calibrate {name}", Files(suites), workers,
                 durations, [$"calibration {name}"], header), dependencies, CancellationToken.None).ConfigureAwait(false);
         }
 

@@ -20,6 +20,51 @@ namespace CuriousContraptions.Tests;
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class ComposableAnimationMappingTests(NativeSceneFixture godot)
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void CompiledSourceTracksKeepTheirOwnersCapacitiesAndSourceIdentities(bool reverse)
+    {
+        var first = PlacedParts.Battery(new(9), -3, 1, 0, capacity: 900f);
+        var second = PlacedParts.Battery(new(2), 3, 1, 0, capacity: 2700f);
+        var clock = PlacedParts.Clock(new(5), 0, 1, 0, 0, 0, 0, 1, .5f);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
+            reverse ? new(second, clock, first) : new(first, clock, second));
+        var compiled = CompiledSceneFixture.Compile(construction);
+        foreach (var (owner, capacity) in new[] { (first.Id, 900f), (second.Id, 2700f) })
+        {
+            var source = construction.Instances.Identities[owner].Supply[new("source")].Source;
+            var tracks = compiled.Presentation.Where(track => track.Owner == owner).ToArray();
+            // The Battery declaration has three supply-colour tracks and twelve charge-colour tracks.
+            Assert.Equal(15, tracks.Length);
+            Assert.Equal(3, tracks.Count(track => track.Declaration.Driver == PresentationDriver.CommittedSupply));
+            Assert.Equal(12, tracks.Count(track => track.Declaration.Driver == PresentationDriver.CommittedCharge));
+            foreach (var track in tracks)
+            {
+                Assert.Equal(owner, track.Owner);
+                Assert.Equal(source, track.Source);
+                Assert.Equal(capacity, track.SourceCapacity);
+            }
+        }
+        var nonSource = compiled.Presentation.Where(track => track.Owner == clock.Id).ToArray();
+        Assert.NotEmpty(nonSource);
+        foreach (var track in nonSource)
+        {
+            Assert.Equal(default, track.Source);
+            Assert.Equal(0f, track.SourceCapacity);
+        }
+    }
+
+    [Fact]
+    public void PresentationSourceReferencesMustNameAnAdmittedSourceNode()
+    {
+        var entry = TestBundle.Entry(new("battery"));
+        var binding = entry.Presentation.Bindings[0] with { SupplyNode = new("missing") };
+        var invalid = entry with { Presentation = entry.Presentation with { Bindings = [binding] } };
+        Assert.Contains(BundleValidator.Validate([new("battery", invalid)]),
+            error => error.Detail.Contains("Presentation.Source", StringComparison.Ordinal));
+    }
+
     [Fact]
     public void DriverRules_Supports_PhysicalContinuousDriversSupportLinearAndExponentialFollowOnly()
     {

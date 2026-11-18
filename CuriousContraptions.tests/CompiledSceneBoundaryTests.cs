@@ -141,6 +141,70 @@ public sealed class CompiledSceneBoundaryTests
     }
 
 
+
+    public enum SourceTrackDefect { UnknownSource, ForeignOwner, WrongCapacity }
+
+    [Theory]
+    [InlineData(SourceTrackDefect.UnknownSource)]
+    [InlineData(SourceTrackDefect.ForeignOwner)]
+    [InlineData(SourceTrackDefect.WrongCapacity)]
+    public async Task MalformedSourceTracksRefuseAtomicallyAtCompiledAndWireBoundaries(SourceTrackDefect defect)
+    {
+        // Equal capacities make the foreign-source case discriminate owner validation itself.
+        var first = PlacedParts.Battery(new(9), -3, 1, 0, capacity: 900f);
+        var second = PlacedParts.Battery(new(2), 3, 1, 0, capacity: 900f);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(first, second));
+        await using var world = await WorkshopIntegrationHarness.Building(construction);
+        var before = world.Committed;
+        var original = world.Simulation.Scene;
+        var tracks = original.Presentation.ToArray();
+        var index = Array.FindIndex(tracks, track => track.Owner == first.Id);
+        Assert.NotEqual(-1, index);
+        var source = construction.Instances.Identities[second.Id].Supply[new("source")].Source;
+        var invalid = defect switch
+        {
+            SourceTrackDefect.UnknownSource => tracks[index] with { Source = new(ulong.MaxValue) },
+            SourceTrackDefect.ForeignOwner => tracks[index] with { Source = source },
+            SourceTrackDefect.WrongCapacity => tracks[index] with { SourceCapacity = 1800f },
+            _ => throw new ArgumentOutOfRangeException(nameof(defect))
+        };
+        tracks[index] = invalid;
+        Assert.Throws<ArgumentException>(() => new WorkshopCompiledScene(original.Identity, original.Revision,
+            original.Settings, original.Physics, original.Activation, tracks, original.Owners, original.RunControls));
+
+        var request = WorkshopWireFlatBuffers.EncodeCommand(world.Command(WorkshopCommandKind.Construct, construction));
+        var response = WorkshopWireFlatBuffers.EncodeResponse(world.Latest with { Scene = original });
+        Assert.Equal(900f, WorkshopWireFlatBuffers.DecodeCommand(request).Scene!.Presentation[index].SourceCapacity);
+        Assert.Equal(900f, WorkshopWireFlatBuffers.DecodeResponse(response).Scene!.Presentation[index].SourceCapacity);
+        Poison(request, 11);
+        Poison(response, 27);
+        Assert.Equal(WireFaultReason.OutOfRange,
+            Assert.Throws<WireFaultException>(() => world.Router.Dispatch(request)).Reason);
+        Assert.Equal(WireFaultReason.OutOfRange,
+            Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(response)).Reason);
+        Assert.Same(original, world.Simulation.Scene);
+        Assert.Equal((before.Epoch, before.Tick, before.Revision), (world.Committed.Epoch, world.Committed.Tick, world.Committed.Revision));
+        NoFixedCapacityTests.AssertSameState(before, world.Committed, "malformed source track");
+        await world.Run();
+        await world.Advance(2);
+        Assert.Equal(2UL, world.Committed.Tick.Value);
+        await world.Reset();
+        NoFixedCapacityTests.AssertSameState(before, world.Committed, "Reset after malformed source track");
+
+        void Poison(byte[] bytes, int sceneField)
+        {
+            var buffer = new ByteBuffer(bytes);
+            var root = new Table(4 + buffer.GetInt(4), buffer);
+            var track = Rows(Child(root, sceneField), 29)[index];
+            if (defect == SourceTrackDefect.WrongCapacity)
+                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(track, 7)), invalid.SourceCapacity);
+            else BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(track, 0)), invalid.Source.Value);
+            var decoded = new CuriousContraptions.Wire.CompiledPresentationRecord().__assign(track.bb_pos, buffer);
+            Assert.Equal(invalid.Source.Value, decoded.Source);
+            Assert.Equal(invalid.SourceCapacity, decoded.SourceCapacity);
+        }
+    }
+
     public enum PresentationDefect { NonfiniteFrom, MissingSocket, UnsupportedCurve, IncompatibleDriver, InvalidElectricalSocket, MissingMapping, UnknownMapping, IncompatibleMapping }
 
     [Theory]

@@ -1,7 +1,7 @@
 {
-  "$comment": "Selects .NET 10 with feature-band roll-forward for the whole project. CI selects SDK 10.0.401 and pins its wasm-tools workload set in .github/workflows/pages.yml; this file does not pin a workload.",
+  "$comment": "Selects .NET 10 with feature-band roll-forward for the whole project. CI selects SDK 10.0.403 and pins its wasm-tools workload set in .github/workflows/pages.yml; this file does not pin a workload.",
   "sdk": {
-    "version": "10.0.100",
+    "version": "10.0.403",
     "rollForward": "latestFeature"
   }
 }

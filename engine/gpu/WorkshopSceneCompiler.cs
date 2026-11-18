@@ -65,7 +65,7 @@ public static class WorkshopSceneCompiler
             {
                 var identities = construction.Instances.Identities[owner.Id];
                 var source = bindings[i].SupplyNode is { } sourceNode ? identities.Supply[sourceNode].Source : default;
-                var capacity = source == default ? 0f : physics.Electrical.Sources.ToArray().Single(row => row.Id == source).Capacity.Value;
+                var capacity = source == default ? 0f : physics.Electrical.Sources[physics.Layout.GetElectricalSourceSlot(source)].Capacity.Value;
                 var supplyNode = bindings[i].Socket is { } socket
                     ? identities.Supply[WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(owner.PartId), socket).Node].Node : default;
                 tracks.Add(new(new AnimationTargetId(core.Presentation.TargetBase + (ulong)tracks.Count),

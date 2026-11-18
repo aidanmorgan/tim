@@ -7,7 +7,7 @@ namespace CuriousContraptions.E2eRunner;
 internal enum RunnerError
 {
     Usage = 1, UndeclaredSuite, InvalidChangedPath, GitFailed, ToolchainMissing, PreviewUnavailable, ServedIdentityMismatch,
-    OutputExists, Uncalibrated, RunnerBusy, NoPrimarySuite, PublishFailed, ProcessTimedOut,
+    OutputExists, Uncalibrated, RunnerBusy, NoPrimarySuite, InvalidArtifact, ProcessTimedOut,
 }
 
 /// <summary>A typed runner refusal.</summary>

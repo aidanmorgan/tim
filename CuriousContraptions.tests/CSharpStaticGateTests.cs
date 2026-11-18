@@ -561,23 +561,17 @@ public sealed class CSharpStaticGateTests
         ("xunit.analyzers", "xunit.analyzers.fixes.dll", XunitProjects),
     ];
 
-    /// <summary>The observed local wasm-tools workload resolves reference pack 10.0.12; CI resolves 10.0.13.
+    /// <summary>The supported local and CI wasm-tools workload resolves patched reference pack 10.0.14.
     /// Pin each external toolchain's six generators by exact NuGet path and SHA-256, only in the three browser compiles.
     /// No unknown version, altered bytes or unrelated project is admitted.</summary>
     private static readonly (string Path, string Sha256)[] RefPackAnalyzers =
     [
-        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/Microsoft.Interop.ComInterfaceGenerator.dll", "e8fc0b901cf3b754f348cdd0585dc3e661c964b1c1d340c88a7cb06121ff007b"),
-        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/Microsoft.Interop.JavaScript.JSImportGenerator.dll", "0e75fd9ff6e100b207163fa492d8b505521a2998d1292d11ea43e307606293b5"),
-        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/Microsoft.Interop.LibraryImportGenerator.dll", "de58417fe04b0bec752a775ebac17d9fa0dfd6027eabe9310dc5c9d93e6c7ed5"),
-        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/Microsoft.Interop.SourceGeneration.dll", "448cddcdccd7db7ba1e5de80234c137a6d1fcf0ed90687245109a6dc09dfe82b"),
-        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/System.Text.Json.SourceGeneration.dll", "bdef5ce75fa321acf8d2c2a5b2a9f9eb2a30ef4a28b1694fbca978176c8dd6c9"),
-        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/System.Text.RegularExpressions.Generator.dll", "54d379bd109821792120cedd832495d38bc0048f4dd5366fba860d5ecb3a21dd"),
-        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/Microsoft.Interop.ComInterfaceGenerator.dll", "5faa5fddcb1287bddac5271e4ceaf3545063956893c01f7a51d7fe831c0d1e25"),
-        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/Microsoft.Interop.JavaScript.JSImportGenerator.dll", "503ba2e22f97c77be9b0091cbbf7e068dcaff68e4916146d81adc398712fdd90"),
-        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/Microsoft.Interop.LibraryImportGenerator.dll", "b02424a730eaea2e1fd7556d193749e07d0085f25ded0e25bf10d27cfb354393"),
-        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/Microsoft.Interop.SourceGeneration.dll", "2418e5705646f1580dd2fe23d42b7560f82e3df72d53b346bbadf0b1f19459fe"),
-        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/System.Text.Json.SourceGeneration.dll", "ff23bc71c4143eddc782400a68789885a424ffb0bdcbcd7ccd8264cee730d3d1"),
-        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/System.Text.RegularExpressions.Generator.dll", "a65fc1b5eff815d2ba7e5541bcf64b15dd2199767335338523f17f9f8115087a"),
+        ("microsoft.netcore.app.ref/10.0.14/analyzers/dotnet/cs/Microsoft.Interop.ComInterfaceGenerator.dll", "5a8c98951c574a291d54d6c0973f4950e7256d5ce9203be77cbf1da87a28853d"),
+        ("microsoft.netcore.app.ref/10.0.14/analyzers/dotnet/cs/Microsoft.Interop.JavaScript.JSImportGenerator.dll", "ad9446e5a2926fd81b326f746b193c68725e3ad419f184d551bf50864e174e42"),
+        ("microsoft.netcore.app.ref/10.0.14/analyzers/dotnet/cs/Microsoft.Interop.LibraryImportGenerator.dll", "4b9a80ee25e00b5a8b2ef17054db035558abd3e2c3ee3e89672603e07274f589"),
+        ("microsoft.netcore.app.ref/10.0.14/analyzers/dotnet/cs/Microsoft.Interop.SourceGeneration.dll", "1584fd126577da58faf46232497d6cfe32e8db557252ba0eb7307530d8a59d80"),
+        ("microsoft.netcore.app.ref/10.0.14/analyzers/dotnet/cs/System.Text.Json.SourceGeneration.dll", "b43a11e2c5c5a8f09d53430387089c84a37442431ebbec5a63e381ce05ee7c27"),
+        ("microsoft.netcore.app.ref/10.0.14/analyzers/dotnet/cs/System.Text.RegularExpressions.Generator.dll", "fd3e72f57400296a842685b28f40b700a86b5fd98dde56b4a6cb2e351b3f3858"),
     ];
     private static readonly string[] RefPackCompiles =
     [
@@ -601,9 +595,11 @@ public sealed class CSharpStaticGateTests
             Assert.True(IsPinnedRefPackIdentity(entry.Path, RefPackCompiles[0], entry.Sha256));
             Assert.False(IsPinnedRefPackIdentity(entry.Path, RefPackCompiles[0], new string('0', 64)));
             Assert.False(IsPinnedRefPackIdentity(entry.Path, "CuriousContraptions.csproj", entry.Sha256));
-            var unknown = entry.Path.Replace("/10.0.12/", "/10.0.99/", StringComparison.Ordinal)
-                .Replace("/10.0.13/", "/10.0.99/", StringComparison.Ordinal);
+            var unknown = entry.Path.Replace("/10.0.14/", "/10.0.99/", StringComparison.Ordinal);
             Assert.False(IsPinnedRefPackIdentity(unknown, RefPackCompiles[0], entry.Sha256));
+            foreach (var retired in new[] { "10.0.12", "10.0.13" })
+                Assert.False(IsPinnedRefPackIdentity(entry.Path.Replace("/10.0.14/", "/" + retired + "/", StringComparison.Ordinal),
+                    RefPackCompiles[0], entry.Sha256));
         }
     }
 

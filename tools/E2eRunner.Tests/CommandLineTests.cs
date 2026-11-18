@@ -8,10 +8,10 @@ public sealed class CommandLineTests
     [Fact]
     public void VerbsAndOptionsParse()
     {
-        var full = CommandLine.Parse(["full", "--out", "D", "--workers", "4"]);
+        var full = CommandLine.Parse(["full", "--artifact", "A", "--out", "D", "--workers", "4"]);
         Assert.Equal((Verb.Full, "D", 4), (full.Verb, full.Options[Option.Out], full.Workers));
         Assert.Equal(Verb.Select, CommandLine.Parse(["select", "--diff", "main"]).Verb);
-        Assert.Equal(Verb.Calibrate, CommandLine.Parse(["calibrate", "--out", "D"]).Verb);
+        Assert.Equal(Verb.Calibrate, CommandLine.Parse(["calibrate", "--artifact", "A", "--out", "D"]).Verb);
         Assert.Equal(Verb.DeferredFilter, CommandLine.Parse(["deferred-filter"]).Verb);
     }
 
@@ -19,6 +19,10 @@ public sealed class CommandLineTests
     [InlineData("")]
     [InlineData("serial")]
     [InlineData("full")]
+    [InlineData("full --out D")]
+    [InlineData("run --out D --diff main")]
+    [InlineData("calibrate --out D")]
+    [InlineData("record-artifact --artifact A")]
     [InlineData("full --out")]
     [InlineData("full --out D --out E")]
     [InlineData("full --out D --diff main")]
@@ -26,8 +30,8 @@ public sealed class CommandLineTests
     [InlineData("select --diff main --changed list.txt")]
     [InlineData("run --diff main")]
     [InlineData("checkpoint --out D")]
-    [InlineData("full --out D --workers 9")]
-    [InlineData("full --out D --workers two")]
+    [InlineData("full --artifact A --out D --workers 9")]
+    [InlineData("full --artifact A --out D --workers two")]
     [InlineData("deferred-filter --out D")]
     public void InvalidCommandLinesAreUsageRefusals(string line)
     {

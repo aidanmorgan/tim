@@ -1,4 +1,8 @@
 <Project>
+    <PropertyGroup>
+        <!-- Exercise the same optimized managed code in native verification while retaining Debug symbols and diagnostics. -->
+        <Optimize>true</Optimize>
+    </PropertyGroup>
     <!-- The repository root is hermetic: no Directory.Build.props above it is imported. A file above the checkout
          (for example the enclosing checkout of a nested git worktree) could otherwise change or disable the C#
          static gate below. Nested props inside the repository still import this file. -->

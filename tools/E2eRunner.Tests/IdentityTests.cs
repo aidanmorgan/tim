@@ -109,6 +109,7 @@ public sealed class IdentityTests : IDisposable
         Directory.CreateDirectory(output);
         var dependencies = new RunDependencies
         {
+            VerifyArtifact = () => { }, // These fixtures inject bundle/source boundaries independently of CI provenance.
             SuiteSources = sources ?? (() => "fixed"),
             Watch = directory => watcher ?? new FileSystemBundleWatcher(directory),
             Ports = new FreePortSource(),

@@ -2184,41 +2184,58 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         var rng = new Random(seed);
         var centre = At(0, 1);
-        var failures = new List<string>();
+        var inputs = new (Quaternion A, Quaternion B, Vector3 Direction)[poses];
         for (var pose = 0; pose < poses; pose++)
         {
             var qa = RandomRotation(rng); var qb = RandomRotation(rng);
             var dir = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
-            var a = Collider(ShapeKind.Cylinder, centre, qa, .3f, .2f);
-            SimCollider B(Vector3 at) => cylinderPartner ? Collider(ShapeKind.Cylinder, at, qb, .2f, .35f, index: 1)
-                : Collider(ShapeKind.Box, at, qb, 0f, At(.25f, .1f, .15f), 1);
-            // Place by a rough projection distance (2000 alternating projections, an upper bound), then advance until the touch is
-            // certified apart: any certified t* bounds the depth.
-            static double Rough(SimCollider x, SimCollider y)
-            {
-                D3 px = Project(x, D3.Of(y.Position)), py = Project(y, px);
-                for (var i = 0; i < 2000; i++) { px = Project(x, py); py = Project(y, px); }
-                return (px - py).Length;
-            }
-            float lo = 0f, hi = 3f;
-            for (var step = 0; step < 24; step++)
-            {
-                var mid = .5f * (lo + hi);
-                if (Rough(a, B(centre + dir * mid)) > 1e-5) hi = mid; else lo = mid;
-            }
-            // 0.2 mm out, where the dual bounds converge quickly (the reviewer's C4 keeps the same 0.2 mm slack).
-            hi += 2e-4f;
-            while (CertifiedLower(a, B(centre + dir * hi)) <= 0) hi += 1e-4f;
-            var touch = hi;
-            foreach (var depth in new[] { .0003f, .002f, .005f })
-            {
-                var contacts = Contacts(a, B(centre + dir * (touch - depth)));
-                if (contacts.Count == 0) { failures.Add($"pose {pose} at {depth * 1000} mm: no contact"); continue; }
-                var excess = -contacts.Min(c => c.Gap) - depth;
-                if (excess > .0005) failures.Add($"pose {pose} at {depth * 1000} mm: kernel {excess * 1000:F2} mm deeper than the certified bound");
-            }
+            inputs[pose] = (qa, qb, dir);
         }
-        return failures;
+        var depths = new[] { .0003f, .002f, .005f };
+        var results = new List<string>[poses];
+        Parallel.For(0, poses, new ParallelOptions { MaxDegreeOfParallelism = 2 }, pose =>
+        {
+            var (qa, qb, dir) = inputs[pose];
+            var failures = new List<string>();
+            try
+            {
+                var a = Collider(ShapeKind.Cylinder, centre, qa, .3f, .2f);
+                SimCollider B(Vector3 at) => cylinderPartner ? Collider(ShapeKind.Cylinder, at, qb, .2f, .35f, index: 1)
+                    : Collider(ShapeKind.Box, at, qb, 0f, At(.25f, .1f, .15f), 1);
+                // Place by a rough projection distance (2000 alternating projections, an upper bound), then advance until the touch is
+                // certified apart: any certified t* bounds the depth.
+                static double Rough(SimCollider x, SimCollider y)
+                {
+                    D3 px = Project(x, D3.Of(y.Position)), py = Project(y, px);
+                    for (var i = 0; i < 2000; i++) { px = Project(x, py); py = Project(y, px); }
+                    return (px - py).Length;
+                }
+                float lo = 0f, hi = 3f;
+                for (var step = 0; step < 24; step++)
+                {
+                    var mid = .5f * (lo + hi);
+                    if (Rough(a, B(centre + dir * mid)) > 1e-5) hi = mid; else lo = mid;
+                }
+                // 0.2 mm out, where the dual bounds converge quickly (the reviewer's C4 keeps the same 0.2 mm slack).
+                hi += 2e-4f;
+                while (CertifiedLower(a, B(centre + dir * hi)) <= 0) hi += 1e-4f;
+                var touch = hi;
+                foreach (var depth in depths)
+                {
+                    var contacts = Contacts(a, B(centre + dir * (touch - depth)));
+                    if (contacts.Count == 0) { failures.Add($"seed {seed}, pose {pose}, qa {qa}, qb {qb}, direction {dir} at {depth * 1000} mm: no contact"); continue; }
+                    var excess = -contacts.Min(c => c.Gap) - depth;
+                    if (excess > .0005) failures.Add($"seed {seed}, pose {pose}, qa {qa}, qb {qb}, direction {dir} at {depth * 1000} mm: kernel {excess * 1000:F2} mm deeper than the certified bound");
+                }
+            }
+            catch (Exception error) when (error is ArgumentException or InvalidOperationException or ArithmeticException
+                or IndexOutOfRangeException or KeyNotFoundException or Xunit.Sdk.XunitException)
+            {
+                failures.Add($"seed {seed}, pose {pose}, qa {qa}, qb {qb}, direction {dir}: {error}");
+            }
+            results[pose] = failures;
+        });
+        return [.. results.SelectMany(failures => failures)];
     }
 
     [Theory]
@@ -2230,32 +2247,55 @@ public sealed class WorkshopPhysicsLawCylinderTests
         // reported gap may not jump by more than 0.5 mm between steps, nor read positive by more than 0.5 mm while overlapping.
         var rng = new Random(seed);
         var centre = At(0, 1);
-        var failures = new List<string>();
-        for (var pose = 0; pose < 60; pose++)
+        var inputs = new (Quaternion A, Quaternion B, Vector3 Direction)[60];
+        for (var pose = 0; pose < inputs.Length; pose++)
         {
             var qa = RandomRotation(rng); var qb = RandomRotation(rng);
             var a = Collider(ShapeKind.Cylinder, centre, qa, .3f, .2f);
             var angle = rng.NextDouble() * 2 * Math.PI;
             var rim = (rng.NextDouble() < .5 ? a.Hy : -a.Hy) * a.U1 + a.Radius * ((float)Math.Cos(angle) * a.U0 + (float)Math.Sin(angle) * a.U2);
             var dir = Vector3.Normalize(rim);
-            SimCollider B(Vector3 at) => cylinderPartner ? Collider(ShapeKind.Cylinder, at, qb, .2f, .35f, index: 1)
-                : Collider(ShapeKind.Box, at, qb, 0f, At(.25f, .1f, .15f), 1);
-            var touch = CertifiedTouch(a, B, centre, dir);
-            float? previous = null;
-            for (var k = 20; k >= -32; k--)
-            {
-                var s = k * .00005f;
-                var contacts = Contacts(a, B(centre + dir * (touch + s)));
-                if (contacts.Count == 0) { previous = null; continue; }
-                var gap = contacts.Min(c => c.Gap);
-                if (previous is { } p && MathF.Abs(gap - p) > .0005f)
-                    failures.Add($"pose {pose} at {s * 1000:F2} mm: gap jumps {p * 1000:F3} → {gap * 1000:F3} mm; qa {qa}, qb {qb}, dir {dir}, touch {touch}; " +
-                        string.Join("; ", contacts.Select(c => $"feature {c.Feature} p {c.Point} n {c.Normal} gap {c.Gap}")));
-                if (k < 0 && gap > .0005f) failures.Add($"pose {pose} at {s * 1000:F2} mm overlapping: gap {gap * 1000:F3} mm");
-                previous = gap;
-            }
+            inputs[pose] = (qa, qb, dir);
         }
-        Assert.True(failures.Count == 0, string.Join(Environment.NewLine, failures.Take(20)));
+        var results = new List<string>[inputs.Length];
+        Parallel.For(0, inputs.Length, new ParallelOptions { MaxDegreeOfParallelism = 2 }, pose =>
+        {
+            var (qa, qb, dir) = inputs[pose];
+            var failures = new List<string>();
+            try
+            {
+                var a = Collider(ShapeKind.Cylinder, centre, qa, .3f, .2f);
+                SimCollider B(Vector3 at) => cylinderPartner ? Collider(ShapeKind.Cylinder, at, qb, .2f, .35f, index: 1)
+                    : Collider(ShapeKind.Box, at, qb, 0f, At(.25f, .1f, .15f), 1);
+                var touch = CertifiedTouch(a, B, centre, dir);
+                float? previous = null;
+                for (var k = 20; k >= -32; k--)
+                {
+                    var s = k * .00005f;
+                    var contacts = Contacts(a, B(centre + dir * (touch + s)));
+                    if (contacts.Count == 0)
+                    {
+                        failures.Add($"seed {seed}, pose {pose}, qa {qa}, qb {qb}, direction {dir}, offset {s}: missing contact within the 5 mm margin");
+                        previous = null;
+                        continue;
+                    }
+                    var gap = contacts.Min(c => c.Gap);
+                    if (previous is { } p && MathF.Abs(gap - p) > .0005f)
+                        failures.Add($"seed {seed}, pose {pose}, qa {qa}, qb {qb}, direction {dir} at {s * 1000:F2} mm: gap jumps {p * 1000:F3} → {gap * 1000:F3} mm; qa {qa}, qb {qb}, dir {dir}, touch {touch}; " +
+                            string.Join("; ", contacts.Select(c => $"feature {c.Feature} p {c.Point} n {c.Normal} gap {c.Gap}")));
+                    if (k < 0 && gap > .0005f) failures.Add($"seed {seed}, pose {pose}, qa {qa}, qb {qb}, direction {dir} at {s * 1000:F2} mm overlapping: gap {gap * 1000:F3} mm");
+                    previous = gap;
+                }
+            }
+            catch (Exception error) when (error is ArgumentException or InvalidOperationException or ArithmeticException
+                or IndexOutOfRangeException or KeyNotFoundException or Xunit.Sdk.XunitException)
+            {
+                failures.Add($"seed {seed}, pose {pose}, qa {qa}, qb {qb}, direction {dir}: {error}");
+            }
+            results[pose] = failures;
+        });
+        var allFailures = results.SelectMany(failures => failures).ToArray();
+        Assert.True(allFailures.Length == 0, string.Join(Environment.NewLine, allFailures.Take(20)));
     }
 
     [Theory]
@@ -2450,8 +2490,9 @@ public sealed class WorkshopPhysicsLawCylinderTests
     }
 
     // ---- fresh-seed energy gate (coordinator direction, 23 Oct 2026) ----
-    // Fixed seeds chosen once and never tuned against; the reviewer keeps a separate held-back seed. The bound is exactly the box
-    // control's worst per-tick rise plus m·g·ContactSlop (≈ 1.96 mJ at 1 kg), per tick, unrelaxed.
+    // The documented local interface ceiling (gpu-f32-physics.md, Thermodynamic Energy) is 1.962 mJ/kg per committed tick.
+    // It is independent of solver settings and observed controls; this does not claim cumulative energy conservation.
+    private const double PassiveContactEnergyPerKilogram = .001962;
 
     public enum GateClass { CylinderOntoPlane, CylinderOntoBox, BoxOntoCylinder, CylinderOntoLyingCylinder, CylinderOntoStandingCylinder, SkewedRollOffEdge }
 
@@ -2463,7 +2504,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
 
     /// <summary>One random case of a class: random orientation, spin (±3 rad/s per axis), drop height (0.1–0.6 m) and lateral offset;
     /// the roll-off case rolls a lying cylinder at 0.3–2 m/s off a box edge skewed 0–20°. Returns the worst per-tick energy rise.</summary>
-    private static double GateCase(GateClass kind, Random rng, GateMaterials materials, bool boxControl = false)
+    private static (double Rise, string Geometry) GateCase(GateClass kind, Random rng, GateMaterials materials, bool boxControl = false, Action<string>? diagnostic = null)
     {
         var mover = materials switch
         {
@@ -2510,30 +2551,37 @@ public sealed class WorkshopPhysicsLawCylinderTests
             body = dynamicBox ? scene.Box(at, At(.25f, .1f, .15f), 1f, mover, q, angular: spin)
                 : scene.Cylinder(at, .2f, .15f, 1f, mover, q, angular: spin);
         }
-        var world = scene.Admit();
-        double worst = 0;
-        double? previous = null;
-        LawBody priorBody = default;
-        world.Step(3 * world.TicksPerSecond, (tick, state) =>
+        var geometry = $"q {q}, spin {spin}, height {height}, offset {offset}, skew {skew}, speed {speed}";
+        try
         {
-            var b = state[body];
-            var e = dynamicBox ? BoxEnergy(b, 1f, half) - G * BenchY : Energy(b, 1f, r, h);
-            if (previous is { } p)
+            var world = scene.Admit();
+            double worst = 0;
+            var priorBody = world.Initial(body);
+            var previous = dynamicBox ? BoxEnergy(priorBody, 1f, half) - G * BenchY : Energy(priorBody, 1f, r, h);
+            Assert.True(double.IsFinite(previous), $"Initial energy is not finite: {previous}");
+            world.Step(3 * world.TicksPerSecond, (tick, state) =>
             {
-                worst = Math.Max(worst, e - p);
-                if (!dynamicBox && kind == GateClass.CylinderOntoBox && materials == GateMaterials.Dead && e - p > SlopEnergy(1))
-                    TestContext.Current.TestOutputHelper?.WriteLine($"RIMENERGY tick {tick}: rise {e - p:R}, q {q}, spin {spin}, height {height}, offset {offset}; before {priorBody}; after {b}");
-            }
-            priorBody = b;
-            previous = e;
-        });
-        return worst;
+                var b = state[body];
+                var e = dynamicBox ? BoxEnergy(b, 1f, half) - G * BenchY : Energy(b, 1f, r, h);
+                Assert.True(double.IsFinite(e), $"tick {tick}: energy is not finite: {e}");
+                worst = Math.Max(worst, e - previous);
+                if (e - previous > PassiveContactEnergyPerKilogram)
+                    diagnostic?.Invoke($"ENERGY tick {tick}: rise {e - previous:R}; before {priorBody}; after {b}");
+                priorBody = b;
+                previous = e;
+            });
+            return (worst, geometry);
+        }
+        catch (Exception error)
+        {
+            throw new InvalidOperationException($"Gate geometry: {geometry}", error);
+        }
     }
 
     private static readonly LawMaterial Lively = new(.3f, .1f, .5f, .05f);
 
     /// <summary>Runs <paramref name="cases"/> per class on fixed seeds for each material set, and returns each class's failure count
-    /// against that material's box control + m·g·ContactSlop.</summary>
+    /// against the fixed local contact-energy interface ceiling; box controls must independently obey it.</summary>
     private static List<(string Class, double Bound, int Failed, double Worst)> Gate(int cases, params GateMaterials[] sets)
     {
         var results = new List<(string, double, int, double)>();
@@ -2542,24 +2590,55 @@ public sealed class WorkshopPhysicsLawCylinderTests
             var offset = 100 * (int)materials;
             var controlRng = new Random(GateSeed + offset);
             var control = 0.0;
+            var controlFailures = 0;
             for (var i = 0; i < cases; i++)
-                control = Math.Max(control, GateCase(GateClass.CylinderOntoBox, controlRng, materials, boxControl: true));
-            var bound = control + SlopEnergy(1f);
-            foreach (var kind in Enum.GetValues<GateClass>())
             {
+                var observation = GateCase(GateClass.CylinderOntoBox, controlRng, materials, boxControl: true);
+                control = Math.Max(control, observation.Rise);
+                if (observation.Rise <= PassiveContactEnergyPerKilogram) continue;
+                controlFailures++;
+                TestContext.Current.TestOutputHelper?.WriteLine($"BOX CONTROL seed {GateSeed + offset}, {materials}, case {i}: rise {observation.Rise:R}; {observation.Geometry}");
+            }
+            const double bound = PassiveContactEnergyPerKilogram;
+            results.Add(($"Box control ({materials})", bound, controlFailures, control));
+            var kinds = Enum.GetValues<GateClass>();
+            var streams = new (int Failed, double Worst, List<string> Diagnostics)[kinds.Length];
+            // The fixture stays exclusive. Each stream owns its RNG and every scene/world it creates.
+            Parallel.For(0, kinds.Length, new ParallelOptions { MaxDegreeOfParallelism = 2 }, index =>
+            {
+                var kind = kinds[index];
                 var rng = new Random(GateSeed + offset + 1 + (int)kind);
+                var diagnostics = new List<string>();
                 int failed = 0; double worst = 0;
                 for (var i = 0; i < cases; i++)
                 {
-                    var rise = GateCase(kind, rng, materials);
+                    (double Rise, string Geometry) observation;
+                    try
+                    {
+                        observation = GateCase(kind, rng, materials, diagnostic: message =>
+                            diagnostics.Add($"seed {GateSeed + offset + 1 + (int)kind}, {kind} {materials}, case {i}: {message}"));
+                    }
+                    catch (InvalidOperationException error)
+                    {
+                        failed++;
+                        diagnostics.Add($"seed {GateSeed + offset + 1 + (int)kind}, {kind} {materials}, case {i}: {error}");
+                        continue;
+                    }
+                    var rise = observation.Rise;
                     worst = Math.Max(worst, rise);
                     if (rise > bound)
                     {
                         failed++;
-                        TestContext.Current.TestOutputHelper?.WriteLine($"ENERGY CASE {kind} {materials} index {i}: {rise:R}, bound {bound:R}");
+                        diagnostics.Add($"ENERGY CASE seed {GateSeed + offset + 1 + (int)kind}, {kind} {materials} index {i}: {rise:R}, bound {bound:R}; {observation.Geometry}");
                     }
                 }
-                results.Add(($"{kind} ({materials})", bound, failed, worst));
+                streams[index] = (failed, worst, diagnostics);
+            });
+            for (var index = 0; index < kinds.Length; index++)
+            {
+                var stream = streams[index];
+                foreach (var line in stream.Diagnostics) TestContext.Current.TestOutputHelper?.WriteLine(line);
+                results.Add(($"{kinds[index]} ({materials})", bound, stream.Failed, stream.Worst));
             }
         }
         return results;
@@ -2575,12 +2654,17 @@ public sealed class WorkshopPhysicsLawCylinderTests
     }
 
     [Fact]
-    public void DeadCylinderBoxRimRegressionStaysWithinTheUnchangedControlBudget()
+    public void DeadCylinderBoxRimRegressionObeysThePassiveContactEnergyCeiling()
     {
         var controlRng = new Random(GateSeed);
         var control = 0.0;
         for (var i = 0; i < 200; i++)
-            control = Math.Max(control, GateCase(GateClass.CylinderOntoBox, controlRng, GateMaterials.Dead, boxControl: true));
+        {
+            var observation = GateCase(GateClass.CylinderOntoBox, controlRng, GateMaterials.Dead, boxControl: true);
+            control = Math.Max(control, observation.Rise);
+            if (observation.Rise > PassiveContactEnergyPerKilogram)
+                TestContext.Current.TestOutputHelper?.WriteLine($"BOX CONTROL seed {GateSeed}, case {i}: rise {observation.Rise:R}; {observation.Geometry}");
+        }
         // Explicit authored case179, independent of the seeded sweep's draw order.
         var scene = new LawScene();
         scene.StaticBox(At(0, BenchY + .3f), At(.3f, .3f, .5f), null, Dead);
@@ -2588,24 +2672,27 @@ public sealed class WorkshopPhysicsLawCylinderTests
             .2f, .15f, 1, Dead, new Quaternion(.36008772f, .65099156f, .010655787f, .66815656f),
             angular: new(-.4708124f, -2.6997364f, -1.1430255f));
         var world = scene.Admit();
-        double? previous = null;
+        var previous = Energy(world.Initial(id), 1, .2f, .15f);
+        Assert.True(double.IsFinite(previous));
         var rise = 0.0;
         world.Step(3 * world.TicksPerSecond, (_, state) =>
         {
             var energy = Energy(state[id], 1, .2f, .15f);
-            if (previous is { } before) rise = Math.Max(rise, energy - before);
+            Assert.True(double.IsFinite(energy));
+            rise = Math.Max(rise, energy - previous);
             previous = energy;
         });
-        Assert.True(rise <= control + SlopEnergy(1), $"case179 rise {rise:R}, bound {control + SlopEnergy(1):R}");
+        Assert.True(control <= PassiveContactEnergyPerKilogram, $"Box control rise {control:R}, bound {PassiveContactEnergyPerKilogram:R}");
+        Assert.True(rise <= PassiveContactEnergyPerKilogram, $"case179 rise {rise:R}, bound {PassiveContactEnergyPerKilogram:R}");
     }
 
     [Fact]
-    public void FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop() => AssertGate(200, GateMaterials.Dead, GateMaterials.Rolling);
+    public void FreshSeedDropsObeyThePassiveContactEnergyCeiling() => AssertGate(200, GateMaterials.Dead, GateMaterials.Rolling);
 
     /// <summary>The lively set (restitution 0.3), restored from Story 10.1 (evidence-10-1/lively-gate-source.txt) as the restitution
     /// slice's entry check: red before that slice (a deferred bounce returned on a stale approach gains energy), green after.</summary>
     [Fact]
-    public void FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop() => AssertGate(200, GateMaterials.Lively);
+    public void FreshSeedDropsWithRestitutionObeyThePassiveContactEnergyCeiling() => AssertGate(200, GateMaterials.Lively);
 
     [Theory]
     [InlineData(false, 402)]

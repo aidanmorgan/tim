@@ -22,12 +22,19 @@ public sealed class SchedulerTests : IDisposable
         var peak = 0;
         var intervals = new List<Interval>();
         var gate = new Lock();
+        var firstParallelBatch = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var enteredParallel = 0;
         async Task<IReadOnlyList<FileResult>> Execute(ScheduledFile file, RunPhase phase, int? worker, CancellationToken token)
         {
             var start = Interlocked.Increment(ref clock);
             var now = Interlocked.Increment(ref running);
             lock (gate) peak = Math.Max(peak, now);
-            await Task.Delay(10 + (file.Label.Length * 7 % 23), token);
+            if (phase == RunPhase.Parallel && Interlocked.Increment(ref enteredParallel) <= 3)
+            {
+                if (Volatile.Read(ref enteredParallel) == 3) firstParallelBatch.TrySetResult();
+                await firstParallelBatch.Task.WaitAsync(TimeSpan.FromSeconds(30), token);
+            }
+            await Task.Yield();
             Interlocked.Decrement(ref running);
             var end = Interlocked.Increment(ref clock);
             lock (gate) intervals.Add(new Interval(file.Label, phase, start, end));
@@ -36,7 +43,7 @@ public sealed class SchedulerTests : IDisposable
         await Scheduler.RunAsync(files, 3, null, Execute, TestContext.Current.CancellationToken);
 
         Assert.Equal(files.Count, intervals.Count);
-        Assert.InRange(peak, 1, 3);
+        Assert.Equal(3, peak);
         foreach (var serial in intervals.Where(interval => interval.Label.StartsWith("serial", StringComparison.Ordinal)))
         {
             Assert.Equal(RunPhase.SerialAlone, serial.Phase);

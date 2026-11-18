@@ -180,8 +180,12 @@ public sealed class WorkshopCompiledScene : ICompiledScene
     {
         var sourceDriver = track.Declaration.Driver is PresentationDriver.CommittedSupply or PresentationDriver.CommittedCharge;
         if (sourceDriver != (track.Source.Value != 0)) return true;
-        if (sourceDriver && !Physics.Electrical.Sources.ToArray().Any(source => source.Id == track.Source &&
-            source.Owner == track.Owner && source.Capacity.Value == track.SourceCapacity)) return true;
+        if (sourceDriver)
+        {
+            if (!Physics.Layout.ElectricalSourceSlots.TryGetValue(track.Source, out var slot)) return true;
+            var source = Physics.Electrical.Sources[slot];
+            if (source.Owner != track.Owner || source.Capacity.Value != track.SourceCapacity) return true;
+        }
         if (!sourceDriver && track.SourceCapacity != 0f) return true;
         var socketDriver = track.Declaration.Driver == PresentationDriver.CommittedElectricalSocket;
         return socketDriver != (track.SupplyNode.Value != 0) || socketDriver &&
