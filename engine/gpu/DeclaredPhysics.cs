@@ -77,6 +77,7 @@ public static class DeclaredPhysics
 
     public static ExtractedCollider Admit(CuriousContraptions.Abstractions.ColliderDescriptor descriptor)
     {
+        if (!Enum.IsDefined(descriptor.Participation)) throw new ArgumentException("Undefined collider participation.");
         var shape = descriptor.ShapeKind switch
         {
             CuriousContraptions.Abstractions.ColliderShapeKind.Box => ColliderShapeKind.Box,
@@ -103,7 +104,7 @@ public static class DeclaredPhysics
                 ColliderShapeKind.Cylinder => new(0f, h.Y, 0f),
                 ColliderShapeKind.Tube or ColliderShapeKind.Torus or ColliderShapeKind.Frustum => new(h.X, h.Y, h.Z),
                 _ => default
-            });
+            }) { Participation = descriptor.Participation };
     }
 
     public static bool Contains(PartId part) => _entries?.ContainsKey(part) == true;

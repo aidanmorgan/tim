@@ -42,7 +42,7 @@ public static partial class WorkshopWireFlatBuffers
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
-        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 33, _ => 0 };
+        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 37, _ => 0 };
         if (fieldCount != 0)
         {
             var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
@@ -71,7 +71,7 @@ public static partial class WorkshopWireFlatBuffers
             var binding = TableTarget(buffer, track, 5);
             if (binding == 0) continue;
             var vtable = binding - buffer.GetInt(binding);
-            if (buffer.GetUshort(vtable) > 4 + 16 * 2)
+            if (buffer.GetUshort(vtable) > 4 + 20 * 2)
                 throw new WireFaultException(WireFaultReason.OutOfRange, "Presentation binding contains undefined fields.");
         }
     }
@@ -296,6 +296,18 @@ public static partial class WorkshopWireFlatBuffers
         return bodiesOffset;
     }
 
+    private static VectorOffset EncodeEnergyStoreRead(FlatBufferBuilder builder, WorkshopRead read)
+    {
+        Wire.WorkshopResponse.StartEnergyStoresVector(builder, read.EnergyStores.Count);
+        for (var i = read.EnergyStores.Count - 1; i >= 0; i--)
+        {
+            var store = read.EnergyStores[i];
+            Wire.EnergyStoreReadRecord.CreateEnergyStoreReadRecord(builder, store.Id.Value, store.Owner.Value,
+                store.Energy.Value, store.Supplied.Value, store.Released.Value, store.Dissipated.Value);
+        }
+        return builder.EndVector();
+    }
+
     private static VectorOffset? EncodeContactWorksOffset(FlatBufferBuilder builder, WorkshopRead read)
     {
         VectorOffset? contactWorksOffset = null;
@@ -305,7 +317,7 @@ public static partial class WorkshopWireFlatBuffers
             for (var i = read.ContactWorks.Count - 1; i >= 0; i--)
             {
                 var w = read.ContactWorks[i];
-                ContactWorkStoreRecord.CreateContactWorkStoreRecord(builder, w.Id.Value, w.Owner.Value, w.OccurrenceCount, w.RemainingEnergy.Value, w.SuppliedEnergy.Value);
+                ContactWorkStoreRecord.CreateContactWorkStoreRecord(builder, w.Id.Value, w.Owner.Value, w.OccurrenceCount, w.Store.Value);
             }
             contactWorksOffset = builder.EndVector();
         }
@@ -482,6 +494,9 @@ public static partial class WorkshopWireFlatBuffers
         var driveTargetOffset = EncodeDriveTargetOffset(builder, read);
 
         var contactWorksOffset = EncodeContactWorksOffset(builder, read);
+        var energyStoresOffset = EncodeEnergyStoreRead(builder, read);
+        var chamberOffset = EncodeChamberRead(builder, read.ChamberRegions);
+        var finiteWorkOffset = EncodeFiniteWorkActuatorRead(builder, read.FiniteWorkActuators);
 
         var bodiesOffset = EncodeBodiesOffset(builder, read);
 
@@ -510,6 +525,7 @@ public static partial class WorkshopWireFlatBuffers
         Wire.WorkshopResponse.AddEpoch(builder, read.Epoch.Value);
         Wire.WorkshopResponse.AddTick(builder, read.Tick.Value);
         Wire.WorkshopResponse.AddRevision(builder, read.Revision.Value);
+        Wire.WorkshopResponse.AddPhysicalCommit(builder, Wire.PhysicalCommitRevisionRecord.CreatePhysicalCommitRevisionRecord(builder, read.PhysicalRevision.Value));
         Wire.WorkshopResponse.AddPublication(builder, response.Publication.Value);
         Wire.WorkshopResponse.AddMasterGeneration(builder, response.MasterGeneration.Value);
         Wire.WorkshopResponse.AddCadence(builder, response.Cadence.Value);
@@ -522,6 +538,9 @@ public static partial class WorkshopWireFlatBuffers
         if (activationsOffset.HasValue) Wire.WorkshopResponse.AddActivations(builder, activationsOffset.Value);
         if (timersOffset.HasValue) Wire.WorkshopResponse.AddTimers(builder, timersOffset.Value);
         if (contactWorksOffset.HasValue) Wire.WorkshopResponse.AddContactWorks(builder, contactWorksOffset.Value);
+        Wire.WorkshopResponse.AddEnergyStores(builder, energyStoresOffset);
+        Wire.WorkshopResponse.AddChamberRegions(builder, chamberOffset);
+        Wire.WorkshopResponse.AddFiniteWorkActuators(builder, finiteWorkOffset);
         if (electricalOffset.HasValue) Wire.WorkshopResponse.AddElectrical(builder, electricalOffset.Value);
         if (driveTargetOffset.HasValue) Wire.WorkshopResponse.AddDriveTargets(builder, driveTargetOffset.Value);
         if (transmissionOffset.HasValue) Wire.WorkshopResponse.AddTransmissions(builder, transmissionOffset.Value);
@@ -601,11 +620,17 @@ public static partial class WorkshopWireFlatBuffers
         var timerValues = DecodeTimersRead(fb);
 
         // The record's own vector lengths (Story 9R.5b: never narrowed; a byte cast here truncated past 255 occurrences).
+        var energyStores = new EnergyStoreRead[fb.EnergyStoresLength];
+        for (var i = 0; i < energyStores.Length; i++)
+        {
+            var value = fb.EnergyStores(i)!.Value;
+            energyStores[i] = new(new(value.Id), new(value.Owner), new(value.Energy), new(value.Supplied), new(value.Released), new(value.Dissipated));
+        }
         var stores = new ContactWorkRead[fb.ContactWorksLength];
         for (var i = 0; i < stores.Length; i++)
         {
             var s = fb.ContactWorks(i)!.Value;
-            stores[i] = new ContactWorkRead(new GpuContactWorkId(s.Id), new GpuBodyId(s.Owner), s.OccurrenceCount, new Joules(s.RemainingEnergy), new Joules(s.SuppliedEnergy));
+            stores[i] = new ContactWorkRead(new GpuContactWorkId(s.Id), new GpuBodyId(s.Owner), s.OccurrenceCount, new EnergyStoreId(s.Store));
         }
 
         var sources = new ElectricalSourceRead[fb.ElectricalLength];
@@ -657,11 +682,11 @@ public static partial class WorkshopWireFlatBuffers
             throw new WireFaultException(WireFaultReason.MissingField, $"The committed read at tick {tick.Value} has no motion.");
         var motion = motionBytes is null ? null : PhysicsMotionRead.Decode(motionBytes, bodies, tick);
 
-        var read = new WorkshopRead(epoch, tick, bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
+        var read = new WorkshopRead(epoch, tick, new(Required(fb.PhysicalCommit, "physical commit identity").Value), bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores),
             new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues),
             new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, guideValues, surfaceValues, transmissionValues, DecodeRetentions(fb)),
-            new PhysicsDriveTargetRead(driveTargets));
+            new PhysicsDriveTargetRead(driveTargets), new PhysicsEnergyStoreRead(energyStores), DecodeChamberRead(fb), DecodeFiniteWorkActuatorRead(fb));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);
 

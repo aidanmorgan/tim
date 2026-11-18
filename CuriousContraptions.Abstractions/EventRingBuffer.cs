@@ -23,6 +23,8 @@ public readonly record struct SimulationEventRecord(ulong Sequence, ulong Tick, 
         _ = SimulationEvents.Domain(Kind);
         if (Source.Value == 0 || !float.IsFinite(Phase) || !float.IsFinite(Magnitude) || Level > 1)
             throw new ArgumentException("Invalid event record.");
+        if (Kind == SimulationEventKind.FiniteWorkReleased && (Other == 0 || Magnitude <= 0f || Count == 0 || Level != 0))
+            throw new ArgumentException("Invalid finite-work release event.");
     }
 
     /// <summary>Encodes the record. Publishing never validates or faults: the producer validates every record while it stages the

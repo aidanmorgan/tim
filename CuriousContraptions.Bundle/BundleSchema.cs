@@ -28,10 +28,13 @@ public static class BundleSchema
                     mechanical is IDrivenSurfaceElement driven ? driven.DrivenSurfaces : [],
                     mechanical is IMechanicalTransmissionElement transmissions ? transmissions.Transmissions : [],
                     mechanical is IResidenceSensorElement sensor ? sensor.ResidenceSensor : null,
-                    mechanical is IPlanarGuideElement guide ? guide.PlanarGuide : null,
-                    mechanical is IContactWorkElement work ? work.ContactWork : null)
+                    mechanical is IPlanarGuideElement guide ? guide.PlanarGuide : null)
                 { Extrusions = mechanical is IClippedExtrusionElement extrusion ? extrusion.Extrusions : [],
-                    Retentions = mechanical is IPrismaticRetentionElement retention ? retention.Retentions : [] } : null,
+                    Retentions = mechanical is IPrismaticRetentionElement retention ? retention.Retentions : [],
+                    EnergyStores = mechanical is IEnergyStoreElement storage ? storage.EnergyStores : [],
+                    ContactWorks = mechanical is IContactWorkElement work ? work.ContactWorks : [],
+                    ChamberRegions = mechanical is IChamberRegionElement chamber ? chamber.ChamberRegions : [],
+                    FiniteWorkActuators = mechanical is IFiniteWorkActuatorElement actuator ? actuator.FiniteWorkActuators : [] } : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.SupplyGraph : null) : null,
             declaration is ISignalElement signal ? new SignalPayload(signal.SignalNodes, signal.SignalEdges, signal.SignalPorts) : null,
             declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
@@ -77,6 +80,7 @@ public static class BundleSchema
 /// (the guard in BundleRoundTripTests checks the list against the schema's type graph).</summary>
 [JsonSourceGenerationOptions(
     WriteIndented = true,
+    AllowDuplicateProperties = false,
     NewLine = "\n",
     UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
     RespectNullableAnnotations = true,
@@ -85,12 +89,12 @@ public static class BundleSchema
     [
         typeof(Vector2Converter), typeof(Vector3Converter), typeof(QuaternionConverter), typeof(ParameterIdConverter), typeof(PackageBodyIndexConverter),
         typeof(PortIdConverter), typeof(SignalNodeIdConverter), typeof(LocalSupplyNodeIdConverter), typeof(LocalContactWorkIdConverter),
-        typeof(LocalMechanicalTransmissionIdConverter), typeof(LocalPrismaticRetentionIdConverter),
+        typeof(LocalMechanicalTransmissionIdConverter), typeof(LocalPrismaticRetentionIdConverter), typeof(PhysicalRequestTargetConverter), typeof(AnimationPeakPhaseConverter),
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
-        typeof(ExactEnumConverter<CoordinateKind>),
+        typeof(ExactEnumConverter<CoordinateKind>), typeof(ExactEnumConverter<CuriousContraptions.Gpu.EnergyExpressionKind>), typeof(ExactEnumConverter<CuriousContraptions.Gpu.SensorParticipation>), typeof(ExactEnumConverter<CuriousContraptions.Gpu.PhysicalRequestTargetKind>),
         typeof(ExactEnumConverter<RopeAttachmentRole>),
-        typeof(ExactEnumConverter<PortRole>), typeof(ExactEnumConverter<SocketGlyph>), typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
+        typeof(ExactEnumConverter<PortRole>), typeof(ExactEnumConverter<SocketGlyph>), typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<CollisionParticipation>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
         typeof(ExactEnumConverter<BoxFace>), typeof(ExactEnumConverter<RevoluteTravel>), typeof(ExactEnumConverter<TargetSelectorKind>),
         typeof(ExactEnumConverter<SupplyTerminal>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTerminal>), typeof(ExactEnumConverter<SignalContactState>),typeof(ExactEnumConverter<TimerCompletionPolicy>),
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),
@@ -100,6 +104,8 @@ public static class BundleSchema
         typeof(ExactEnumConverter<PresentationAxes>), typeof(ExactEnumConverter<PresentationProperty>),
         typeof(ExactEnumConverter<PresentationDriver>), typeof(ExactEnumConverter<PresentationValueMapping>), typeof(ExactEnumConverter<PresentationCurve>),
         typeof(ExactEnumConverter<PresentationOverlap>),
+        typeof(ExactEnumConverter<CuriousContraptions.Presentation.AnimationImpulseVisibility>),
+        typeof(ExactEnumConverter<CuriousContraptions.Presentation.AnimationImpulseTiming>),
         typeof(ExactEnumConverter<PresentationEventMagnitude>)
     ])]
 [JsonSerializable(typeof(BundleDocument))]

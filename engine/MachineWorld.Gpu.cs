@@ -73,7 +73,7 @@ public partial class MachineWorld
             if (_workshopRemoved) { await client.DisposeAsync(); return; }
             _workshopClient = client;
             Construction = Construction with { Settings = client.Settings };
-            WorkshopRead = new(client.Epoch, new(0), default);
+            WorkshopRead = new(client.Epoch, new(0), new(0), default);
             WorkshopPhase = WorkshopPhase.Building;
         }
         catch (Exception error)
@@ -228,7 +228,8 @@ public partial class MachineWorld
             if (_workshopClient.TryRead(out var response))
             {
                 if (response.Read.Epoch != _workshopClient.Epoch || response.Read.Epoch.Value < WorkshopRead.Epoch.Value ||
-                    (response.Read.Epoch == WorkshopRead.Epoch && response.Read.Tick.Value < WorkshopRead.Tick.Value))
+                    (response.Read.Epoch == WorkshopRead.Epoch && (response.Read.Tick.Value < WorkshopRead.Tick.Value ||
+                        response.Read.PhysicalRevision.Value < WorkshopRead.PhysicalRevision.Value)))
                     throw new ArgumentException("Presentation read regressed its admitted generation.");
                 ValidateWorkshopRead(response.Read, Construction);
                 WorkshopPhase = response.Phase;
@@ -281,7 +282,7 @@ public partial class MachineWorld
             read.Tick.Value > construction.Settings.RunTickLimit)
             throw new ArgumentException("Read does not own the admitted construction.");
         var scene = WorkshopPhysicsCompiler.Compile(Core, Bundle, construction, new(1, 1));
-        Core.Presentation.ValidateBodies(read.Bodies, scene, read.Epoch, read.Tick);
+        Core.Presentation.ValidateBodies(read.Bodies, scene, read.Epoch, read.Tick, read.PhysicalRevision);
     }
 
     public void RestoreConstructionPresentation()

@@ -38,6 +38,11 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         public RopeGuideId Guide;
         public MechanicalTransmissionId Transmission;
         public PrismaticRetentionId Retention;
+        public FiniteWorkActuatorId FiniteWork;
+        public EnergyStoreId Store;
+        public GpuBodyId StoreOwner;
+        public float StoreCapacity;
+        public ChamberRegionId Region;
         public bool Visible = true;
         /// <summary>A staged read's scalar copy. The cue queues stay shared with the live track: staging only reserves capacity on
         /// them (capacity is not observable state) and only the commit appends, so a refused read leaves every queue unchanged.</summary>
@@ -93,7 +98,10 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 CoordinateOwner = binding.Actuator is { } actuator ? actuator.Kind == SupplyConsumerKind.RevoluteDrive
                     ? construction.Physics.Revolutes.ToArray().Single(joint => joint.Id == actuator.RevoluteJoint).BodyA
                     : construction.Physics.Prismatics.ToArray().Single(joint => joint.Id == actuator.PrismaticJoint).BodyA : default,
-                SupplyNode = binding.SupplyNode, Transmission = binding.Transmission, Retention = binding.Retention });
+                SupplyNode = binding.SupplyNode, Transmission = binding.Transmission, Retention = binding.Retention, FiniteWork = binding.FiniteWork, Store = binding.Store,
+                StoreOwner = binding.Store == default ? default : construction.Physics.EnergyStores.ToArray().Single(value => value.Id == binding.Store).Owner,
+                StoreCapacity = binding.Store == default ? 0f : construction.Physics.EnergyStores.ToArray().Single(value => value.Id == binding.Store).Capacity.Value,
+                Region = binding.FiniteWork == default ? default : construction.Physics.FiniteWorkActuators.ToArray().Single(value => value.Id == binding.FiniteWork).Region });
         }
         _tracks = tracks.ToArray();
         _batch = animation.CreateBatch();
@@ -108,18 +116,10 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 track.Handle = _batch.RegisterFollow(binding, new(Value(d.Property, d.From), Value(d.Property, d.To),
                     Value(d.Property, track.Value), new(d.Response), AnimationClock.Simulation));
             }
-            else if (d.Driver == PresentationDriver.Event && d.Curve == PresentationCurve.SineSquaredPulse)
-                // Each record adds one pulse at its own physical time; overlapping pulses combine (the bundle admits SaturatingSum).
+            else if (PresentationDriverRules.IsImpulseCurve(d.Curve))
                 track.Handle = _batch.RegisterImpulses(new(track.Target, AnimationProperty.ColourBlend),
-                    new(new(d.Duration), AnimationImpulseCurve.SineSquaredPulse, AnimationImpulseOverlap.SaturatingSum,
-                        AnimationImpulseVisibility.AdvanceWhileHidden, AnimationClock.Simulation,
-                        AnimationImpulseTiming.EventTime, AnimationImpulseDefinition.CanonicalPeak(AnimationImpulseCurve.SineSquaredPulse)),
-                    new(new AnimationColourBlend(0)), new(new AnimationColourBlend(1)));
-            else if (d.Curve == PresentationCurve.LinearDecay)
-                track.Handle = _batch.RegisterImpulses(new(track.Target, AnimationProperty.ColourBlend),
-                    new(new(d.Duration), AnimationImpulseCurve.LinearDecay, AnimationImpulseOverlap.Maximum,
-                        AnimationImpulseVisibility.DeferUntilVisible, AnimationClock.Simulation,
-                        AnimationImpulseTiming.EventTimeRetainFirstFrame, new(0)),
+                    new(new(d.Duration), PresentationDriverRules.ImpulseCurve(d.Curve), PresentationDriverRules.ImpulseOverlap(d.Overlap),
+                        d.ImpulseVisibility!.Value, AnimationClock.Simulation, d.ImpulseTiming!.Value, d.ImpulsePeak!.Value),
                     new(new AnimationColourBlend(0)), new(new AnimationColourBlend(1)));
             else if (d.Duration > 0)
                 track.Handle = _batch.Register(new(track.Target, AnimationProperty.ColourBlend),
@@ -157,6 +157,23 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
     /// It is the existing <see cref="AnimationImpulseTiming.EventTime"/> clock, so a cue starts at the event, never the tick boundary.</summary>
     public static PhysicalTime EventTime(SimulationEventRecord record) => new(record.Ordinal, record.Phase);
 
+    private void ValidateFiniteWorkEvent(SimulationEventRecord record)
+    {
+        foreach (var actuator in _construction.Physics.FiniteWorkActuators)
+        {
+            if (actuator.Id.Value != record.Source.Value) continue;
+            var storeFound = false;
+            for (var index = 0; index < _latest.Read.EnergyStores.Count; index++)
+                storeFound |= _latest.Read.EnergyStores[index].Id == actuator.Store;
+            if (!storeFound) throw new ArgumentException("Finite-work event store is absent from this installation.");
+            foreach (var track in _tracks)
+                if (track.FiniteWork == actuator.Id && track.Store != actuator.Store)
+                    throw new ArgumentException("Finite-work event binding names a foreign store.");
+            return;
+        }
+        throw new ArgumentException("Finite-work event source is absent from this installation.");
+    }
+
     /// <summary>Story 9A.23/9A.25b: one delivery of the Animation worker's event ring cursor, for the installed world. Each record starts
     /// exactly one cue on every event binding of its owner (record Source) that names its kind; any other record (a foreign owner, an
     /// undeclared kind, a level) cues nothing. Sequences only increase within an installation, so a record is never applied twice.</summary>
@@ -168,11 +185,13 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         var last = _lastSequence;
         var counts = delivery.Records.Length == 0 ? Array.Empty<int>() : new int[_tracks.Length];
         bool Matches(Track track, SimulationEventRecord record) => track.Declaration.Driver == PresentationDriver.Event &&
-            track.Declaration.Event == record.Kind && record.Source.Value == (SimulationEvents.SignalSource(record.Kind) ? track.Node.Id.Value : track.Owner.Value) &&
+            track.Declaration.Event == record.Kind && record.Source.Value == (record.Kind == SimulationEventKind.FiniteWorkReleased ? track.FiniteWork.Value :
+                SimulationEvents.SignalSource(record.Kind) ? track.Node.Id.Value : track.Owner.Value) &&
             (track.Declaration.EventMagnitude != PresentationEventMagnitude.Positive || record.Magnitude > 0f);
         foreach (var record in delivery.Records)
         {
             record.Validate();
+            if (record.Kind == SimulationEventKind.FiniteWorkReleased) ValidateFiniteWorkEvent(record);
             if (record.Sequence <= last) throw new ArgumentException("An event record was delivered twice.");
             last = record.Sequence;
             _ = EventTime(record);
@@ -181,7 +200,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 var track = _tracks[i];
                 if (!Matches(track, record)) continue;
                 counts[i] = checked(counts[i] + 1);
-                if (track.Declaration.Curve == PresentationCurve.SineSquaredPulse)
+                if (PresentationDriverRules.IsImpulseCurve(track.Declaration.Curve))
                     _batch.ValidateImpulseAdmission(track.Handle!, new(record.Sequence), new(1));
             }
         }
@@ -190,7 +209,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         {
             if (counts[i] == 0) continue;
             var track = _tracks[i];
-            if (track.Declaration.Curve == PresentationCurve.SineSquaredPulse)
+            if (PresentationDriverRules.IsImpulseCurve(track.Declaration.Curve))
                 _batch.ReserveImpulses(track.Handle!, counts[i]);
             else
                 ReserveCues(track.Cues, counts[i]);
@@ -201,7 +220,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             foreach (var track in _tracks)
             {
                 if (!Matches(track, record)) continue;
-                if (track.Declaration.Curve == PresentationCurve.SineSquaredPulse)
+                if (PresentationDriverRules.IsImpulseCurve(track.Declaration.Curve))
                     _batch.EnqueueImpulse(track.Handle!, new(record.Sequence), new(1), at);
                 else track.Cues.Add(at);
             }
@@ -214,7 +233,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         if (response.Session != _latest.Session || response.MasterGeneration != _latest.MasterGeneration ||
             response.Cadence != _latest.Cadence || response.Projection != _latest.Projection ||
             response.Read.Epoch != _latest.Read.Epoch || response.Read.Revision.Value < _latest.Read.Revision.Value ||
-            response.Read.Tick.Value < _latest.Read.Tick.Value ||
+            response.Read.Tick.Value < _latest.Read.Tick.Value || response.Read.PhysicalRevision.Value < _latest.Read.PhysicalRevision.Value ||
             response.Publication.Value <= _latest.Publication.Value)
             throw new ArgumentException("Stale or foreign committed presentation read.");
         WorkshopMessages.ValidatePresentationOwners(response.Read, _construction);
@@ -231,6 +250,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         if (!CanRetain(construction, endpoint) || endpoint.Session != _latest.Session ||
             endpoint.MasterGeneration != _latest.MasterGeneration || endpoint.Projection.Value <= _latest.Projection.Value ||
             endpoint.Cadence.Value < _latest.Cadence.Value || endpoint.Read.Tick.Value < _latest.Read.Tick.Value ||
+            endpoint.Read.PhysicalRevision.Value < _latest.Read.PhysicalRevision.Value ||
             endpoint.Read.Revision.Value < _latest.Read.Revision.Value || endpoint.Publication.Value != 0)
             throw new ArgumentException("Foreign or reversed presentation rebind.");
         WorkshopMessages.ValidatePresentationOwners(endpoint.Read, construction);
@@ -263,7 +283,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 ? MapDiscreteState(staged[i], read)
                 : PresentationDriverRules.Map(Query(staged[i], read), declaration.Mapping);
             if (!float.IsFinite(staged[i].Input)) throw new ArgumentException("Nonfinite presentation query.");
-            if (staged[i].Declaration.Curve == PresentationCurve.LinearDecay)
+            if (staged[i].Declaration.Driver == PresentationDriver.CommittedOscillatorPulse)
             {
                 var previous = _tracks[i];
                 if (staged[i].Count < previous.Count) throw new ArgumentException("Committed pulse count reversed.");
@@ -278,11 +298,11 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             if (staged[i].Declaration.Curve == PresentationCurve.ExponentialFollow)
             {
                 var d = staged[i].Declaration;
-                staged[i].FollowTarget = Value(d.Property, float.Lerp(d.From, d.To, staged[i].Input));
+                staged[i].FollowTarget = Value(d.Property, PresentationDriverRules.Output(staged[i].Input, d.Mapping, d.From, d.To));
                 _batch.ValidateFollowValue(staged[i].Handle!, staged[i].FollowTarget, cueTime);
                 ReserveCues(_tracks[i].FollowCues, 1);
             }
-            else if (staged[i].Declaration.Curve != PresentationCurve.LinearDecay && staged[i].Handle is { } &&
+            else if (staged[i].Declaration.Driver != PresentationDriver.CommittedOscillatorPulse && staged[i].Handle is { } &&
                 staged[i].Input != _tracks[i].Input)
                 ReserveCues(_tracks[i].EndpointCues, 1);
         }
@@ -321,7 +341,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 if (next.FollowTarget != last) track.FollowCues.Add((cueTime, next.FollowTarget));
                 track.FollowTarget = next.FollowTarget;
             }
-            else if (d.Curve == PresentationCurve.LinearDecay)
+            else if (d.Driver == PresentationDriver.CommittedOscillatorPulse)
             {
                 for (ulong occurrence = (ulong)track.Count + 1; occurrence <= next.Count; occurrence++)
                     _batch.EnqueueImpulse(track.Handle!, new(occurrence), new(1), readTime);
@@ -336,6 +356,8 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
     {
         switch (track.Declaration.Driver)
         {
+            case PresentationDriver.CommittedStoredFraction:
+                return StoredFraction(track, read);
             case PresentationDriver.CommittedActivation:
                 return QueryActivation(track, read);
             case PresentationDriver.CommittedCount:
@@ -489,11 +511,50 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         throw new ArgumentException("Declared presentation query is absent from the committed read.");
     }
 
+    private static float StoredFraction(Track track, WorkshopRead read)
+    {
+        var energy = QueryStore(track, read).Energy.Value;
+        return track.StoreCapacity == 0f ? 0f : energy / track.StoreCapacity;
+    }
+
+    private static EnergyStoreRead QueryStore(Track track, WorkshopRead read)
+    {
+        for (var index = 0; index < read.EnergyStores.Count; index++)
+            if (read.EnergyStores[index].Id == track.Store && read.EnergyStores[index].Owner == track.StoreOwner)
+                return read.EnergyStores[index];
+        throw new ArgumentException("Missing exact stored-energy observation.");
+    }
+
+    private static FiniteWorkObservationState QueryFiniteWorkState(Track track, WorkshopRead read)
+    {
+        ChamberRegionRead? region = null;
+        FiniteWorkActuatorRead? actuator = null;
+        for (var index = 0; index < read.ChamberRegions.Count; index++)
+            if (read.ChamberRegions[index].Id == track.Region) region = read.ChamberRegions[index];
+        for (var index = 0; index < read.FiniteWorkActuators.Count; index++)
+            if (read.FiniteWorkActuators[index].Id == track.FiniteWork) actuator = read.FiniteWorkActuators[index];
+        if (region is not { } chamber || actuator is not { } work || work.Store != track.Store || work.Region != track.Region)
+            throw new ArgumentException("Missing exact finite-work observation.");
+        var store = QueryStore(track, read);
+        return chamber.Phase switch
+        {
+            ChamberPhase.Empty => FiniteWorkObservationState.Empty,
+            ChamberPhase.Departing => FiniteWorkObservationState.Departing,
+            ChamberPhase.Loading => FiniteWorkObservationState.Loading,
+            ChamberPhase.Ambiguous or ChamberPhase.GeometryUnresolved => FiniteWorkObservationState.Unavailable,
+            ChamberPhase.Seated when work.Clearance is FiniteWorkClearance.Obstructed or FiniteWorkClearance.GeometryUnresolved => FiniteWorkObservationState.Unavailable,
+            ChamberPhase.Seated when work.Clearance == FiniteWorkClearance.Clear => store.Energy.Value < track.StoreCapacity
+                ? FiniteWorkObservationState.SeatedUncharged : FiniteWorkObservationState.SeatedCharged,
+            _ => throw new ArgumentException("Undefined chamber observation.")
+        };
+    }
+
     private static float MapDiscreteState(Track track, WorkshopRead read)
     {
         var d = track.Declaration;
         return d.Driver switch
         {
+            PresentationDriver.CommittedFiniteWorkState => d.FiniteWorkValues!.Value.Map(QueryFiniteWorkState(track, read)),
             PresentationDriver.CommittedActuatorState => d.StateValues!.Value.Map(QueryActuatorState(track, read)),
             PresentationDriver.CommittedPrismaticPhase => d.PrismaticValues!.Value.Map(QueryPrismaticPhase(track, read)),
             PresentationDriver.CommittedContactLoadPhase => d.StateValues!.Value.Map(QueryContactLoadPhase(track, read)),
@@ -574,14 +635,14 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 : track.Input;
             if (d.Driver == PresentationDriver.Event)
             {
-                // The one-shot blend arithmetic of the 9A.25a goldens (AnimationValue.Blend), bit for bit.
+                // Shared impulse output is cosmetic and cannot feed back into physical state.
                 var value = AnimationValue.Blend(Value(d.Property, d.From), Value(d.Property, d.To), new(amount));
                 track.Value = BitConverter.UInt32BitsToSingle(value.CanonicalBits);
                 _samples.Add(new(track.Target, track.Owner, track.Index, value));
                 continue;
             }
             if (d.Curve == PresentationCurve.ExponentialFollow) track.Value = amount;
-            else track.Value = float.Lerp(d.From, d.To, amount);
+            else track.Value = PresentationDriverRules.Output(amount, d.Mapping, d.From, d.To);
             _samples.Add(new(track.Target, track.Owner, track.Index, Value(d.Property, track.Value)));
         }
         return _samples;

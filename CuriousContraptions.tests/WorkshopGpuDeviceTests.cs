@@ -195,14 +195,14 @@ public sealed class WorkshopGpuDeviceTests
             device.Advance(admitted.Read, new(2), new WorkshopTickControls([])).AsTask());
         Assert.Equal(PhysicsFailure.RootBudget, failure.Failure);
         Assert.Equal(1, transport.Commits);
-        Assert.Equal(2, transport.Discards);
+        Assert.Equal(1, transport.Discards);
         transport.Record[4] = (byte)PhysicsCandidateStatus.Committed;
         transport.Record[8] = (byte)PhysicsFailure.None;
         var next = await device.Admit(CompiledSceneFixture.Compile(new(new(1), Settings, WorkshopInstances.Empty)), new(1), Profile, new(3));
         device.Commit(next.Sequence);
         device.Discard(next.Sequence);
         Assert.Equal(2, transport.Commits);
-        Assert.Equal(3, transport.Discards);
+        Assert.Equal(1, transport.Discards);
         await device.DisposeAsync();
     }
 
@@ -415,6 +415,8 @@ public sealed class WorkshopGpuDeviceTests
             {
                 var source = BinaryPrimitives.ReadUInt32LittleEndian(Record.AsSpan(88));
                 var steps = checked((uint)PhysicsGpuAbi.ReadProfile(Record).Substeps);
+                BinaryPrimitives.WriteUInt64LittleEndian(Record.AsSpan(PhysicsGpuAbi.HeaderPhysicalRevisionOffset),
+                    BinaryPrimitives.ReadUInt64LittleEndian(Record.AsSpan(PhysicsGpuAbi.HeaderPhysicalRevisionOffset)) + 1);
                 BinaryPrimitives.WriteUInt64LittleEndian(Record.AsSpan(40),
                     BinaryPrimitives.ReadUInt64LittleEndian(Record.AsSpan(40)) + 1);
                 BinaryPrimitives.WriteUInt32LittleEndian(Record.AsSpan(88), source + steps);

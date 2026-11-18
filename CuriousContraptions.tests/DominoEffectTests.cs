@@ -89,7 +89,7 @@ public sealed class DominoEffectTests
         var end = new ActivationNodeDeclaration(Lesson().Instances.Identities[new(2)].Signals[new("signal")].Node, new(2), ActivationNodeKind.OrientationSource, default, 0, new(7));
         var lamp = new ActivationNodeDeclaration(Lesson().Instances.Identities[new(3)].Signals[new("signal")].Node, new(3), ActivationNodeKind.StickyFirstInput, default);
         var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, end.Id, time, cause);
-        var read = new WorkshopRead(new(2), new(75), default, Activations: new([ActivationLatch.From(end, occurrence), ActivationLatch.From(lamp, occurrence)]));
+        var read = new WorkshopRead(new(2), new(75), new(75), default, Activations: new([ActivationLatch.From(end, occurrence), ActivationLatch.From(lamp, occurrence)]));
         Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2), Lesson().Instances.Identities));
         Assert.Equal(time, WorkshopGoalEvaluator.Occurrence(goal, read, new(2), Lesson().Instances.Identities));
         var dark = read with { Activations = new([ActivationLatch.From(end, occurrence), ActivationLatch.Clear(lamp)]) };

@@ -1,4 +1,6 @@
 using System.Buffers.Binary;
+using CuriousContraptions.Abstractions;
+using CuriousContraptions.Presentation;
 using CuriousContraptions.Gpu;
 using Google.FlatBuffers;
 
@@ -6,6 +8,133 @@ namespace CuriousContraptions.Tests;
 
 public sealed class CompiledSceneBoundaryTests
 {
+    public enum ImpulseField { Peak, Visibility, Timing }
+
+    [Theory]
+    [InlineData(ImpulseField.Peak)]
+    [InlineData(ImpulseField.Visibility)]
+    [InlineData(ImpulseField.Timing)]
+    public async Task ImpulseChoicesRejectMissingDuplicateAndInactiveAuthoringAndMissingWireLanes(ImpulseField field)
+    {
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new("bumper"), new(1), 0f, 3f, 0f, 0f, 0f, 0f, 1f)));
+        await using var h = await WorkshopIntegrationHarness.Building(construction);
+        var entry = DeclaredPhysics.Of(new("bumper"));
+        var original = entry.Presentation.Bindings[0];
+        entry = entry with { Presentation = entry.Presentation with { Bindings = [original] } };
+        Assert.Empty(CuriousContraptions.Bundle.BundleValidator.Validate([new("Bumper", entry)]));
+        var fieldName = field switch
+        {
+            ImpulseField.Peak => "ImpulsePeak", ImpulseField.Visibility => "ImpulseVisibility",
+            ImpulseField.Timing => "ImpulseTiming", _ => throw new ArgumentOutOfRangeException(nameof(field))
+        };
+        var json = CuriousContraptions.Bundle.BundleSchema.WriteEntries([entry]);
+        Assert.Single(CuriousContraptions.Bundle.BundleSchema.Read(json).Elements);
+        var tree = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var binding = tree["Elements"]![0]!["Presentation"]!["Bindings"]![0]!.AsObject();
+        var authoredValue = binding[fieldName]!.ToJsonString();
+        binding.Remove(fieldName);
+        var missing = CuriousContraptions.Bundle.BundleSchema.Read(tree.ToJsonString()).Elements[0];
+        Assert.NotEmpty(CuriousContraptions.Bundle.BundleValidator.Validate([new("Bumper", missing)]));
+        binding[fieldName] = 999;
+        Assert.Throws<System.Text.Json.JsonException>(() => CuriousContraptions.Bundle.BundleSchema.Read(tree.ToJsonString()));
+        binding[fieldName] = "UndefinedChoice";
+        Assert.Throws<System.Text.Json.JsonException>(() => CuriousContraptions.Bundle.BundleSchema.Read(tree.ToJsonString()));
+        var duplicate = json.Replace($"\"{fieldName}\":", $"\"{fieldName}\": {authoredValue}, \"{fieldName}\":", StringComparison.Ordinal);
+        Assert.Throws<System.Text.Json.JsonException>(() => CuriousContraptions.Bundle.BundleSchema.Read(duplicate));
+        var inactive = original with { Curve = PresentationCurve.SmoothStep, Overlap = PresentationOverlap.Replace,
+            ImpulsePeak = null, ImpulseVisibility = null, ImpulseTiming = null };
+        inactive = field switch
+        {
+            ImpulseField.Peak => inactive with { ImpulsePeak = original.ImpulsePeak },
+            ImpulseField.Visibility => inactive with { ImpulseVisibility = original.ImpulseVisibility },
+            ImpulseField.Timing => inactive with { ImpulseTiming = original.ImpulseTiming },
+            _ => throw new ArgumentOutOfRangeException(nameof(field))
+        };
+        Assert.NotEmpty(CuriousContraptions.Bundle.BundleValidator.Validate(
+            [new("Bumper", entry with { Presentation = entry.Presentation with { Bindings = [inactive] } })]));
+
+        var command = h.Command(WorkshopCommandKind.Construct, construction with { Revision = new(3) });
+        var compiled = command.Scene!;
+        var declarationValue = compiled.Presentation[0].Declaration;
+        var missingValue = field switch
+        {
+            ImpulseField.Peak => declarationValue with { ImpulsePeak = null },
+            ImpulseField.Visibility => declarationValue with { ImpulseVisibility = null },
+            ImpulseField.Timing => declarationValue with { ImpulseTiming = null },
+            _ => throw new ArgumentOutOfRangeException(nameof(field))
+        };
+        RefusesImpulseDeclaration(compiled, missingValue);
+        var inactiveValue = declarationValue with { Curve = PresentationCurve.SmoothStep, Overlap = PresentationOverlap.Replace,
+            ImpulsePeak = null, ImpulseVisibility = null, ImpulseTiming = null };
+        inactiveValue = field switch
+        {
+            ImpulseField.Peak => inactiveValue with { ImpulsePeak = declarationValue.ImpulsePeak },
+            ImpulseField.Visibility => inactiveValue with { ImpulseVisibility = declarationValue.ImpulseVisibility },
+            ImpulseField.Timing => inactiveValue with { ImpulseTiming = declarationValue.ImpulseTiming },
+            _ => throw new ArgumentOutOfRangeException(nameof(field))
+        };
+        RefusesImpulseDeclaration(compiled, inactiveValue);
+        var invalidValue = field switch
+        {
+            ImpulseField.Peak => declarationValue with { ImpulsePeak = new(.25f) },
+            ImpulseField.Visibility => declarationValue with { ImpulseVisibility = (AnimationImpulseVisibility)255 },
+            ImpulseField.Timing => declarationValue with { ImpulseTiming = (AnimationImpulseTiming)255 },
+            _ => throw new ArgumentOutOfRangeException(nameof(field))
+        };
+        RefusesImpulseDeclaration(compiled, invalidValue);
+        var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
+        Assert.NotNull(WorkshopWireFlatBuffers.DecodeCommand(bytes).Scene);
+        var buffer = new ByteBuffer(bytes);
+        var scene = Child(new Table(4 + buffer.GetInt(4), buffer), 11);
+        var declaration = Child(Rows(scene, 29)[0], 5);
+        var index = field switch { ImpulseField.Peak => 17, ImpulseField.Visibility => 18, ImpulseField.Timing => 19,
+            _ => throw new ArgumentOutOfRangeException(nameof(field)) };
+        Assert.NotEqual(0, declaration.__offset(4 + index * 2));
+        var vtable = declaration.bb_pos - buffer.GetInt(declaration.bb_pos);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + 4 + index * 2), 0);
+        Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
+        var inactiveBytes = WorkshopWireFlatBuffers.EncodeCommand(command);
+        var inactiveBuffer = new ByteBuffer(inactiveBytes);
+        var inactiveScene = Child(new Table(4 + inactiveBuffer.GetInt(4), inactiveBuffer), 11);
+        var inactiveDeclaration = Child(Rows(inactiveScene, 29)[0], 5);
+        BinaryPrimitives.WriteUInt32LittleEndian(inactiveBytes.AsSpan(Slot(inactiveDeclaration, 8)), (uint)PresentationCurve.SmoothStep);
+        BinaryPrimitives.WriteUInt32LittleEndian(inactiveBytes.AsSpan(Slot(inactiveDeclaration, 10)), (uint)PresentationOverlap.Replace);
+        Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(inactiveBytes));
+    }
+
+    [Theory]
+    [InlineData(ImpulseField.Visibility, 3u)]
+    [InlineData(ImpulseField.Visibility, 256u)]
+    [InlineData(ImpulseField.Visibility, uint.MaxValue)]
+    [InlineData(ImpulseField.Timing, 3u)]
+    [InlineData(ImpulseField.Timing, 256u)]
+    [InlineData(ImpulseField.Timing, uint.MaxValue)]
+    public async Task UndefinedImpulseChoicesRefuseBeforeNarrowing(ImpulseField field, uint encoded)
+    {
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new("bumper"), new(1), 0f, 3f, 0f, 0f, 0f, 0f, 1f)));
+        await using var h = await WorkshopIntegrationHarness.Building(construction);
+        var command = h.Command(WorkshopCommandKind.Construct, construction with { Revision = new(3) });
+        var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
+        Assert.NotNull(WorkshopWireFlatBuffers.DecodeCommand(bytes).Scene);
+        var buffer = new ByteBuffer(bytes);
+        var scene = Child(new Table(4 + buffer.GetInt(4), buffer), 11);
+        var declaration = Child(Rows(scene, 29)[0], 5);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(Slot(declaration,
+            field == ImpulseField.Visibility ? 18 : 19)), encoded);
+        Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
+    }
+
+
+    private static void RefusesImpulseDeclaration(ICompiledScene scene, CompiledPresentationBinding invalid)
+    {
+        var tracks = scene.Presentation.ToArray();
+        tracks[0] = tracks[0] with { Declaration = invalid };
+        Assert.Throws<ArgumentException>(() => RuntimeTestServices.Core.CreateScene(scene.Identity, scene.Revision,
+            scene.Settings, scene.Physics, scene.Activation, tracks, scene.Owners, scene.RunControls, scene.MechanicalLinks));
+    }
+
     public enum Defect { UnknownMotion, NarrowedMotion, NonfiniteMass, ForeignColliderBody, ForeignTrigger, WrongSubsteps }
 
     private static WorkshopConstruction Construction => new(new(2), WorkshopCadenceSettings.Default(), new(

@@ -53,8 +53,10 @@ public static class BundleValidator
             errors.AddRange(ClippedExtrusionValidation.Validate(entry));
             errors.AddRange(MechanicalTransmissionValidation.Validate(entry));
             errors.AddRange(PrismaticRetentionValidation.Validate(entry));
+            errors.AddRange(EnergyStoreValidation.Validate(entry));
+            errors.AddRange(ChamberActuatorValidation.Validate(entry));
             Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Signal, entry.Events, childBodies);
-            CheckEvents(entry.Events);
+            CheckEvents(entry.Events, entry.Mechanical);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
             if (entry.Electrical is { } electrical) Electrical(electrical);
             CheckRunControls(entry);
@@ -112,15 +114,18 @@ public static class BundleValidator
                 OutOfRange("Footprint.PhysicalOwnership");
         }
 
-        private void CheckEvents(IReadOnlyList<EventDescriptor> events)
+        private void CheckEvents(IReadOnlyList<EventDescriptor> events, MechanicalPayload? mechanical)
         {
             // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
-            var kinds = new HashSet<(SimulationEventKind, SignalNodeId?)>(4);
+            var kinds = new HashSet<(SimulationEventKind, SignalNodeId?, CuriousContraptions.Gpu.LocalFiniteWorkActuatorId?)>(4);
             for (var i = 0; i < events.Count; i++)
             {
                 if (events[i].Kind == SimulationEventKind.None) Undefined($"Events[{i}].Kind");
                 else Defined($"Events[{i}].Kind", events[i].Kind);
-                if (!kinds.Add((events[i].Kind, events[i].SignalNode))) OutOfRange($"Events[{i}].Kind");
+                if ((events[i].Kind == SimulationEventKind.FiniteWorkReleased) != events[i].FiniteWork.HasValue ||
+                    events[i].FiniteWork is { } selected && mechanical?.FiniteWorkActuators.Any(value => value.Id == selected) != true)
+                    OutOfRange($"Events[{i}].FiniteWork");
+                if (!kinds.Add((events[i].Kind, events[i].SignalNode, events[i].FiniteWork))) OutOfRange($"Events[{i}].Kind");
             }
         }
 
@@ -182,6 +187,9 @@ public static class BundleValidator
                 Finite("Presentation.Response", binding.Response);
                 if ((PresentationDriverRules.Discrete3State(binding.Driver)) != binding.StateValues.HasValue ||
                     PresentationDriverRules.Discrete4State(binding.Driver) != binding.FourStateValues.HasValue ||
+                    (binding.Driver == PresentationDriver.CommittedFiniteWorkState) != binding.FiniteWorkValues.HasValue ||
+                    (binding.FiniteWorkValues is { } workStates && !workStates.IsFinite()) ||
+                    (binding.Mapping == PresentationValueMapping.ClampToEndpoints && binding.From > binding.To) ||
                     (binding.Driver == PresentationDriver.CommittedPrismaticPhase) != binding.PrismaticValues.HasValue ||
                     (binding.PrismaticValues is { } phases && !phases.IsFinite()) ||
                     (binding.StateValues is { } stateValues && !stateValues.IsFinite()) ||
@@ -190,28 +198,26 @@ public static class BundleValidator
                 if (binding.Duration < 0 || binding.Duration > 30 || binding.Response < 0 ||
                     (binding.Curve == PresentationCurve.ExponentialFollow && binding.Response <= 0))
                     OutOfRange("Presentation.Timing");
+                if (!PresentationDriverRules.ValidImpulsePeak(binding.Curve, binding.ImpulsePeak))
+                    OutOfRange("Presentation.ImpulsePeak");
+                if (!PresentationDriverRules.ValidImpulseChoices(binding.Curve, binding.ImpulseVisibility, binding.ImpulseTiming))
+                    OutOfRange("Presentation.ImpulseChoices");
                 PresentationStateDomains(binding);
         }
 
         private void PresentationStateDomains(PresentationBinding binding)
         {
-                bool AdmitsValue(float input) => float.IsFinite(input) && (binding.Property switch
-                {
-                    PresentationProperty.Visible => input is 0f or 1f,
-                    PresentationProperty.UniformScale or PresentationProperty.ScaleX or PresentationProperty.ScaleY or PresentationProperty.ScaleZ => input > 0,
-                    PresentationProperty.AlbedoRed or PresentationProperty.AlbedoGreen or PresentationProperty.AlbedoBlue or
-                        PresentationProperty.EmissionRed or PresentationProperty.EmissionGreen or PresentationProperty.EmissionBlue => input is >= 0 and <= 1,
-                    _ => true
-                });
-                if (!AdmitsValue(binding.From) || !AdmitsValue(binding.To))
-                    OutOfRange("Presentation.Value");
-                if (binding.StateValues is { } values && (!AdmitsValue(values.State0) || !AdmitsValue(values.State1) || !AdmitsValue(values.State2)))
-                    OutOfRange("Presentation.StateValues");
-                if (binding.FourStateValues is { } four && (!AdmitsValue(four.State0) || !AdmitsValue(four.State1) || !AdmitsValue(four.State2) || !AdmitsValue(four.State3)))
-                    OutOfRange("Presentation.FourStateValues");
-                if (binding.PrismaticValues is { } p && (!AdmitsValue(p.Holding) || !AdmitsValue(p.Positive) ||
-                    !AdmitsValue(p.Negative) || !AdmitsValue(p.Blocked) || !AdmitsValue(p.Conflict) || !AdmitsValue(p.Unpowered)))
-                    OutOfRange("Presentation.PrismaticValues");
+            if (!PresentationDriverRules.AdmitsPropertyValue(binding.Property, binding.From) ||
+                !PresentationDriverRules.AdmitsPropertyValue(binding.Property, binding.To))
+                OutOfRange("Presentation.Value");
+            if (!PresentationDriverRules.AdmitsStateValues(binding.Property, binding.From, binding.To, binding.StateValues))
+                OutOfRange("Presentation.StateValues");
+            if (!PresentationDriverRules.AdmitsStateValues(binding.Property, binding.From, binding.To, binding.FourStateValues))
+                OutOfRange("Presentation.FourStateValues");
+            if (!PresentationDriverRules.AdmitsStateValues(binding.Property, binding.From, binding.To, binding.FiniteWorkValues))
+                OutOfRange("Presentation.FiniteWorkValues");
+            if (!PresentationDriverRules.AdmitsStateValues(binding.Property, binding.From, binding.To, binding.PrismaticValues))
+                OutOfRange("Presentation.PrismaticValues");
         }
 
         private void PresentationBindingSocket(PresentationBinding binding, ElectricalPayload? electrical, IReadOnlyList<PortDescriptor> ports)
@@ -241,11 +247,24 @@ public static class BundleValidator
                     OutOfRange("Presentation.CompliantSurface");
                 PresentationBindingActuator(binding, mechanical);
                 PresentationBindingRetention(binding, mechanical);
+                PresentationBindingFiniteWork(binding, mechanical);
                 var transmissionDriver = binding.Driver is PresentationDriver.CommittedTransmissionClosure or PresentationDriver.CommittedTransmissionPhase;
                 if (transmissionDriver != binding.Transmission.HasValue) OutOfRange("Presentation.Transmission");
                 if (binding.Transmission is { } transmissionId &&
                     (transmissionId.Value == 0 || mechanical?.Transmissions?.Any(item => item.Id == transmissionId) != true))
                     OutOfRange("Presentation.Transmission");
+        }
+
+        private void PresentationBindingFiniteWork(PresentationBinding binding, MechanicalPayload? mechanical)
+        {
+            var selected = binding.Driver == PresentationDriver.CommittedFiniteWorkState ||
+                binding.Driver == PresentationDriver.Event && binding.Event == SimulationEventKind.FiniteWorkReleased;
+            if (selected != binding.FiniteWork.HasValue || binding.FiniteWork is { } actuator &&
+                mechanical?.FiniteWorkActuators.Any(value => value.Id == actuator) != true)
+                OutOfRange("Presentation.FiniteWork");
+            if ((binding.Driver == PresentationDriver.CommittedStoredFraction) != binding.Store.HasValue ||
+                binding.Store is { } store && mechanical?.EnergyStores.Any(value => value.Id == store) != true)
+                OutOfRange("Presentation.Store");
         }
 
         private void PresentationBindingRetention(PresentationBinding binding, MechanicalPayload? mechanical)
@@ -288,7 +307,7 @@ public static class BundleValidator
                 if (binding.Event != SimulationEventKind.None)
                 {
                     Defined("Presentation.Event", binding.Event);
-                    if (!events.Any(declared => declared.Kind == binding.Event && declared.SignalNode == binding.SignalNode)) OutOfRange("Presentation.Event");
+                    if (!events.Any(declared => declared.Kind == binding.Event && declared.SignalNode == binding.SignalNode && declared.FiniteWork == binding.FiniteWork)) OutOfRange("Presentation.Event");
                 }
         }
 
@@ -519,6 +538,7 @@ public static class BundleValidator
         private void Collider(string path, ColliderDescriptor collider)
         {
             Defined(path + ".ShapeKind", collider.ShapeKind);
+            Defined(path + ".Participation", collider.Participation);
             Finite(path + ".HalfExtents", collider.HalfExtents);
             Finite(path + ".Radius", collider.Radius);
             // A solid kind keeps its radius in its half-extents; only the hollow kinds use the radius lane.
@@ -597,25 +617,22 @@ public static class BundleValidator
 
         private void MechanicalContactWork(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
         {
-            if (mechanical.ContactWork is { } work)
+            if (mechanical.ContactWorks is null) { OutOfRange("ContactWorks"); return; }
+            var ids = new HashSet<CuriousContraptions.Abstractions.Electrical.LocalContactWorkId>();
+            foreach (var work in mechanical.ContactWorks)
             {
-                if (work.Id == default) OutOfRange("ContactWork.Identity");
-                // The runtime store's domain (ContactWorkDeclaration): target speed 0–20 m/s, preload at most 200 J, threshold 0–64 m/s,
-                // cooldown 9–14400 physical steps, on one static owner body.
-                Real("ContactWork.StrengthParameter", work.StrengthParameter, parameters);
-                var strengths = parameters.Where(parameter => parameter.Key == work.StrengthParameter).ToArray();
-                var referenceMass = Finite("ContactWork.ReferenceMass", work.ReferenceMass) && work.ReferenceMass > 0f && work.ReferenceMass <= 100f;
-                if (!referenceMass) OutOfRange("ContactWork.ReferenceMass");
-                if (strengths.Length > 1 || (strengths.Length == 1 && (strengths[0].Unit != ParameterUnit.MetrePerSecond ||
-                    strengths[0].Minimum < 0f || strengths[0].Maximum > 20f ||
-                    (referenceMass && .5f * work.ReferenceMass * strengths[0].Maximum * strengths[0].Maximum > 200f))))
-                    OutOfRange("ContactWork.StrengthParameter");
-                if (Finite("ContactWork.Threshold", work.Threshold) && (work.Threshold < 0f || work.Threshold > 64f))
-                    OutOfRange("ContactWork.Threshold");
-                if (work.CooldownPhysicalSteps is < 9 or > 14400) OutOfRange("ContactWork.CooldownPhysicalSteps");
-                if (mechanical.KinematicMode != KinematicMode.Static || mechanical.Sliders.Count != 0)
-                    OutOfRange("ContactWork.Owner");
-                ValidateTargetSelector("ContactWork.Target", work.Target);
+                if (work.Id == default || !ids.Add(work.Id)) OutOfRange("ContactWorks.Identity");
+                if (!(mechanical.EnergyStores ?? []).Any(store => store.Id == work.Store))
+                    OutOfRange("ContactWorks.Store");
+                if (!MechanicalValueDomain.TryRange(work.TargetSpeed, parameters, ParameterUnit.MetrePerSecond,
+                    out var minimum, out var maximum) || minimum < 0f || maximum > CuriousContraptions.Gpu.LinearVelocity.MaximumSpeed)
+                    OutOfRange("ContactWorks.TargetSpeed");
+                if (Finite("ContactWorks.Threshold", work.Threshold) && (work.Threshold < 0f || work.Threshold > CuriousContraptions.Gpu.LinearVelocity.MaximumSpeed))
+                    OutOfRange("ContactWorks.Threshold");
+                if (!CuriousContraptions.Gpu.ContactWorkDeclaration.AdmitsCooldown(work.CooldownPhysicalSteps)) OutOfRange("ContactWorks.CooldownPhysicalSteps");
+                if (work.Owner.Value != 0 || mechanical.KinematicMode != KinematicMode.Static)
+                    OutOfRange("ContactWorks.Owner");
+                ValidateTargetSelector("ContactWorks.Target", work.Target);
             }
         }
 

@@ -8,29 +8,6 @@ namespace CuriousContraptions.Simulation;
 
 internal sealed partial class WorkshopPhysicsEngine
 {
-    /// <summary>Reusable duplicate-target check for one tick's retention requests.</summary>
-    private readonly System.Collections.Generic.HashSet<PrismaticRetentionId> _requestTargets = [];
-
-    private void ApplyRetentionRequests(PhysicsTickInputs inputs)
-    {
-        if (inputs.RetentionRequests is null) throw new ArgumentException("Missing retention request collection.");
-        if (inputs.RetentionRequests.Length == 0) return;
-        _requestTargets.Clear();
-        foreach (var request in inputs.RetentionRequests)
-        {
-            request.Occurrence.Validate();
-            if (!Enum.IsDefined(request.Operation) || !_requestTargets.Add(request.Target))
-                throw new ArgumentException("Invalid or duplicate retention request.");
-            SimPrismaticRetention? target = null;
-            foreach (var transmission in _transmissions)
-                if (transmission.Retention?.Id == request.Target) target = transmission.Retention;
-            if (target is null) throw new ArgumentException("Unknown retention request target.");
-        }
-        foreach (var request in inputs.RetentionRequests)
-            foreach (var transmission in _transmissions)
-                if (transmission.Retention?.Id == request.Target) transmission.Retention.Request();
-    }
-
     private void LoadRetention(Span<byte> span, SimMechanicalTransmission transmission)
     {
         var offset = transmission.Offset;

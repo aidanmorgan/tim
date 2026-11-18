@@ -943,7 +943,8 @@ public sealed class WorkshopSimulationTests
         var before = simulation.Committed; var commits = device.Commits;
         // The read carries the owner's stores alone (Story 9A.23 D9: the hit's occurrence row is the device's private ledger).
         WorkshopRead Paid(WorkshopRead read) => read with {
-            ContactWorks = new(new[] { read.ContactWorks[0] with { OccurrenceCount=1, RemainingEnergy=new(16) } }) };
+            ContactWorks = new(new[] { read.ContactWorks[0] with { OccurrenceCount=1 } }),
+            EnergyStores = new(new[] { read.EnergyStores[0] with { Energy=new(16), Released=new(16) } }) };
         installation.HoldNext = true;
         var rejected = simulation.StepOnce().AsTask(); device.CompleteAdvance(0,Paid);
         Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
@@ -952,14 +953,14 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
         var accepted = simulation.StepOnce().AsTask(); device.CompleteAdvance(1,Paid); await accepted;
         Assert.Equal(1u,simulation.Committed.ContactWorks[0].OccurrenceCount);
-        Assert.Equal(16,simulation.Committed.ContactWorks[0].RemainingEnergy.Value);
+        Assert.Equal(16,simulation.Committed.EnergyStores[0].Energy.Value);
         var spent = simulation.Committed;
         var pending = simulation.StepOnce().AsTask();
         var reset = simulation.Reset().AsTask(); device.CompleteAdmission(1); await reset;
         var restored = simulation.Committed;
         Assert.Equal(0u,restored.ContactWorks[0].OccurrenceCount);
-        Assert.Equal(32,restored.ContactWorks[0].RemainingEnergy.Value);
-        Assert.Equal(0,restored.ContactWorks[0].SuppliedEnergy.Value);
+        Assert.Equal(32,restored.EnergyStores[0].Energy.Value);
+        Assert.Equal(0,restored.EnergyStores[0].Supplied.Value);
         Assert.Equal(0ul,restored.Tick.Value); Assert.NotEqual(spent.Epoch,restored.Epoch);
         device.CompleteAdvance(2); Assert.Equal(WorkshopCommandOutcome.Superseded,(await pending).Outcome);
         Assert.Equal(restored,simulation.Committed);
@@ -997,6 +998,9 @@ public sealed class WorkshopSimulationTests
 
     private sealed class ControlledDevice : IWorkshopGpuDevice
     {
+        public ValueTask<WorkshopGpuCandidate> ApplyFiniteWork(WorkshopRead committed, CommandSequence sequence, OwnedFiniteWorkRequest request) =>
+            throw new InvalidOperationException("This orchestration fixture does not stage physical releases.");
+
         public readonly List<Admission> Admissions = [];
         private readonly List<(WorkshopRead Source, CommandSequence Sequence, TaskCompletionSource<WorkshopGpuCandidate> Completion)> _advances = [];
         public int Disposals { get; private set; }
@@ -1034,10 +1038,10 @@ public sealed class WorkshopSimulationTests
             var bytes = PhysicsGpuAbi.Admission(scene, epoch,
                 new(construction.Settings.Simulation, PhysicalStepProfile.Canonical480Hz, new(1)));
             var network = construction.Activation;
-            return new(epoch, new(0), PhysicsGpuAbi.ReadDynamicBodies(bytes),
+            return new(epoch, new(0), PhysicsGpuAbi.ReadPhysicalRevision(bytes), PhysicsGpuAbi.ReadDynamicBodies(bytes),
                 Activations: network.Clear(), Timers: network.ClearTimers(),
                 ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes, PhysicsInteractionSnapshot.Empty).Stores, Electrical: PhysicsGpuAbi.ReadElectrical(bytes),
-                DriveTargets: PhysicsGpuAbi.ReadDriveTargets(bytes));
+                DriveTargets: PhysicsGpuAbi.ReadDriveTargets(bytes), EnergyStores: new(PhysicsGpuAbi.ReadEnergyStores(bytes)));
         }
         public void FailAdvance(int index) => _advances[index].Completion.SetException(new InvalidOperationException("Injected old transport failure."));
         /// <summary>Answers Advance <paramref name="index"/> as the engine would: the next tick of the source, committing the drive
@@ -1051,6 +1055,7 @@ public sealed class WorkshopSimulationTests
             {
                 Revision = default,
                 Tick = new(tick),
+                PhysicalRevision = new(source.PhysicalRevision.Value + 1),
                 Bodies = new(Enumerable.Range(0, source.Bodies.Count).Select(i =>
                     source.Bodies[i] with { Body = source.Bodies[i].Body with { Tick = tick } }).ToArray()),
                 DriveTargets = new(Enumerable.Range(0, source.DriveTargets.Count).Select(i =>

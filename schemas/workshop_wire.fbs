@@ -114,8 +114,7 @@ struct ContactWorkStoreRecord {
     id: uint64;
     owner: uint64;
     occurrence_count: uint32;
-    remaining_energy: float;
-    supplied_energy: float;
+    store: ulong;
 }
 
 struct ActivationRecord {
@@ -276,6 +275,8 @@ struct CommandIdentityRecord {
     projection: uint64;
 }
 
+struct PhysicalCommitRevisionRecord { value: uint64; }
+
 table WorkshopResponse {
     sequence: uint64;
     kind: ResponseKind;
@@ -317,6 +318,10 @@ table WorkshopResponse {
     // Package-owned mechanical transmission states ordered by transmission identity.
     transmissions: [MechanicalTransmissionReadRecord];
     retentions: [PrismaticRetentionReadRecord];
+    energy_stores: [EnergyStoreReadRecord];
+    chamber_regions: [ChamberRegionReadRecord];
+    finite_work_actuators: [FiniteWorkActuatorReadRecord];
+    physical_commit: PhysicalCommitRevisionRecord (required);
 }
 
 table WorkshopCommand {
@@ -448,6 +453,8 @@ table CapabilityMetreVectorRecord {
     z: float;
 }
 
+struct CollisionParticipationRecord { value: uint; }
+
 table CapabilityColliderDeclarationRecord {
     id: ulong;
     body: ulong;
@@ -457,6 +464,7 @@ table CapabilityColliderDeclarationRecord {
     radius: float;
     half_extents: CapabilityMetreVectorRecord (required);
     extrusion: ClippedExtrusionRecord;
+    participation: CollisionParticipationRecord (required);
 }
 
 table ClippedExtrusionRecord {
@@ -518,12 +526,72 @@ table CapabilityContactTriggerDeclarationRecord {
     threshold: float;
 }
 
+struct ChamberRegionReadRecord {
+    id: ulong;
+    frame: ulong;
+    phase: ubyte;
+    occupancy: uint;
+    candidate: ulong;
+    departing: ulong;
+}
+
+struct FiniteWorkActuatorReadRecord {
+    id: ulong;
+    store: ulong;
+    region: ulong;
+    occurrence_count: uint;
+    result: ubyte;
+    payload: ulong;
+    debit: float;
+    clearance: ubyte;
+}
+
+table ChamberRegionDeclarationRecord {
+    id: ulong;
+    frame: ulong;
+    participation_collider: ulong;
+    targets: CapabilityBodyTargetSetRecord (required);
+    pose: CapabilityRigidLocalPoseRecord (required);
+    radius: float;
+    half_length: float;
+    minimum_width: float;
+    maximum_width: float;
+    containment_allowance: float;
+    maximum_relative_speed: float;
+    participation: ubyte;
+}
+
+struct FiniteWorkActuatorDeclarationRecord {
+    id: ulong;
+    store: ulong;
+    region: ulong;
+    target_speed: float;
+    exit_padding: float;
+}
+
+struct EnergyStoreReadRecord {
+    id: ulong;
+    owner: ulong;
+    energy: float;
+    supplied: float;
+    released: float;
+    dissipated: float;
+}
+
+struct EnergyStoreDeclarationRecord {
+    id: ulong;
+    owner: ulong;
+    capacity: float;
+    initial_energy: float;
+    maximum_charge_power: float;
+}
+
 table CapabilityContactWorkDeclarationRecord {
     id: ulong;
     owner: ulong;
     targets: CapabilityBodyTargetSetRecord (required);
     target_speed: float;
-    initial_energy: float;
+    store: ulong;
     threshold: float;
     cooldown_physical_steps: uint;
 }
@@ -653,6 +721,12 @@ table CapabilityRevoluteDriveDeclarationRecord {
     max_torque: float;
 }
 
+struct PhysicalRequestTargetRecord {
+    kind: uint;
+    retention: ulong;
+    actuator: ulong;
+}
+
 table CapabilityActivationNodeDeclarationRecord {
     id: ulong;
     owner: ulong;
@@ -669,7 +743,7 @@ table CapabilityActivationNodeDeclarationRecord {
     completion: uint;
     boundary: uint;
     elapsed_signal: uint;
-    retention: ulong;
+    request_target: PhysicalRequestTargetRecord (required);
     request_operation: ubyte = null;
 }
 
@@ -718,6 +792,15 @@ struct PrismaticPhaseValuesRecord {
     unpowered: float;
 }
 
+struct FiniteWorkStateValuesRecord {
+    empty: float;
+    loading: float;
+    seated_uncharged: float;
+    seated_charged: float;
+    departing: float;
+    unavailable: float;
+}
+
 table CapabilityPresentationBindingRecord {
     prismatic_values: PrismaticPhaseValuesRecord;
     four_state_values: FourStateValuesRecord;
@@ -735,6 +818,10 @@ table CapabilityPresentationBindingRecord {
     socket: uint = null;
     event: uint;
     event_magnitude: uint;
+    finite_work_values: FiniteWorkStateValuesRecord;
+    impulse_peak: float = null;
+    impulse_visibility: uint = null;
+    impulse_timing: uint = null;
 }
 
 table CapabilityWorkshopCadenceSettingsRecord {
@@ -763,6 +850,8 @@ table CompiledPresentationRecord {
     guide: ulong;
     transmission: ulong;
     retention: ulong;
+    finite_work: ulong;
+    store: ulong;
 }
 
 table RopeSpanReadRecord {
@@ -930,6 +1019,9 @@ table CompiledSceneRecord {
     transmissions: [MechanicalTransmissionRecord];
     driven_surfaces: [DrivenSurfaceRecord] (required);
     mechanical_links: [MechanicalLinkPresentationRecord] (required);
+    energy_stores: [EnergyStoreDeclarationRecord] (required);
+    chamber_regions: [ChamberRegionDeclarationRecord] (required);
+    finite_work_actuators: [FiniteWorkActuatorDeclarationRecord] (required);
 }
 
 root_type WorkshopResponse;

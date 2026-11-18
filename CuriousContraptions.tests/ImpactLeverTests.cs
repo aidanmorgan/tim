@@ -428,7 +428,7 @@ public sealed class ImpactLeverTests
             new(new(-1.8f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f)),
             new(new(-4.0f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f))
         };
-        var evaluated = RopeGeometry.EvaluateRoute(tieLever, tieWeight, guides);
+        var evaluated = RopeGeometry.EvaluateRoute(tieLever, tieWeight, guides, new RopeRouteWorkspace());
         var len = evaluated.TotalLength;
 
         var span0 = Vector3.Distance(tieLever, new Vector3(-1.8f, 6f, 0f));
@@ -530,7 +530,7 @@ public sealed class ImpactLeverTests
             new(new(1.8f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f)),
             new(new(4.0f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f))
         };
-        var evaluated = RopeGeometry.EvaluateRoute(tieLever, tieWeight, guides);
+        var evaluated = RopeGeometry.EvaluateRoute(tieLever, tieWeight, guides, new RopeRouteWorkspace());
         var len = evaluated.TotalLength;
 
         var span0 = Vector3.Distance(tieLever, new Vector3(1.8f, 6f, 0f));

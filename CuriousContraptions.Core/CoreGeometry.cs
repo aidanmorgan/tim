@@ -5,6 +5,8 @@ namespace CuriousContraptions.Runtime;
 
 public sealed class CoreGeometry : ICoreGeometry
 {
+    public Vector3 MaterialSupport(HollowPartner shape, Vector3 direction) => Gpu.MaterialSupport.Point(shape, direction);
+    public IMaterialQueryWorkspace CreateMaterialQueryWorkspace() => new MaterialQueryWorkspace();
     public float PlacementSlop => HollowContactQuery.PlacementSlop;
     private static HollowSolid Solid(HollowSolidDeclaration declaration) => new(declaration.Kind, declaration.Position,
         declaration.X, declaration.Y, declaration.Z, declaration.Radius, declaration.LaneX, declaration.LaneY, declaration.LaneZ);

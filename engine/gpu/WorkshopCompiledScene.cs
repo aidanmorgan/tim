@@ -79,6 +79,7 @@ public sealed class WorkshopCompiledScene : ICompiledScene
         _membership.ValidateOwners(owners);
         ValidateTransmissionOwnership(owners);
         ValidateSupplyOwnership();
+        ValidateDischargeOwnership();
         ValidateRunControls(owners);
         if (Activation.Substeps != Settings.PhysicalStepsPerCommit)
             throw new ArgumentException("Compiled activation cadence differs from physics.");
@@ -112,11 +113,27 @@ public sealed class WorkshopCompiledScene : ICompiledScene
                 node.PowerProvider.Value != 0 && !providers.Any(row => row.Id == node.PowerProvider && row.Kind is SupplyNodeKind.Source or SupplyNodeKind.Contact or SupplyNodeKind.LogicGate)))
             throw new ArgumentException("Compiled activation references a foreign capability.");
         foreach (var node in nodes)
-            if (node.Kind == ActivationNodeKind.PhysicalRequest && !Physics.Transmissions.ToArray().Any(relation =>
-                relation.Retention == node.Retention && relation.Owner == node.Owner))
-                throw new ArgumentException("Physical request names a foreign retention capability.");
+            if (node.Kind == ActivationNodeKind.PhysicalRequest && !OwnsPhysicalRequest(node))
+                throw new ArgumentException("Physical request names a foreign capability.");
         if (nodes.Any(node => !owners.Contains(node.Owner)))
             throw new ArgumentException("Activation owner is outside the installed scene.");
+    }
+
+    private bool OwnsPhysicalRequest(ActivationNodeDeclaration node)
+    {
+        if (node.RequestTarget.Kind == PhysicalRequestTargetKind.Retention)
+        {
+            foreach (var relation in Physics.Transmissions)
+                if (relation.Retention == node.RequestTarget.Retention && relation.Owner == node.Owner) return true;
+        }
+        else if (node.RequestTarget.Kind == PhysicalRequestTargetKind.FiniteWorkActuator)
+        {
+            foreach (var actuator in Physics.FiniteWorkActuators)
+                if (actuator.Id == node.RequestTarget.Actuator)
+                    foreach (var region in Physics.ChamberRegions)
+                        if (region.Id == actuator.Region && OwnsBody(node.Owner, region.Frame)) return true;
+        }
+        return false;
     }
 
     private bool OwnsBody(GpuBodyId owner, GpuBodyId body) => _membership.Owns(owner, body);
@@ -147,10 +164,25 @@ public sealed class WorkshopCompiledScene : ICompiledScene
         return false;
     }
 
+    private void ValidateDischargeOwnership()
+    {
+        var stores = Physics.EnergyStores.ToArray().ToDictionary(store => store.Id);
+        var regions = Physics.ChamberRegions.ToArray().ToDictionary(region => region.Id);
+        foreach (var work in Physics.ContactWorks)
+            if (_membership.Root(work.Owner) != _membership.Root(stores[work.Store].Owner))
+                throw new ArgumentException("Contact discharge names a foreign package store.");
+        foreach (var actuator in Physics.FiniteWorkActuators)
+            if (_membership.Root(regions[actuator.Region].Frame) != _membership.Root(stores[actuator.Store].Owner))
+                throw new ArgumentException("Finite-work actuator names a foreign package store.");
+    }
+
     private void ValidateSupplyOwnership()
     {
         foreach (var node in Physics.SupplyGraph.Nodes)
         {
+            foreach (var store in node.Storages.IsDefault ? [] : node.Storages)
+                if (!Physics.EnergyStores.ToArray().Any(value => value.Id == store && OwnsBody(node.Owner, value.Owner)))
+                    throw new ArgumentException("Supply consumer names a foreign package store.");
             if (node.Consumers.IsDefaultOrEmpty) continue;
             foreach (var consumer in node.Consumers)
             {
@@ -205,7 +237,22 @@ public sealed class WorkshopCompiledScene : ICompiledScene
                 node.Kind == SupplyNodeKind.LogicGate);
     }
 
-    private bool InvalidPhysicalBinding(CompiledPresentationTrack track)
+    private bool InvalidPhysicalBinding(CompiledPresentationTrack track) =>
+        InvalidFiniteWorkBinding(track) || InvalidActuatorBinding(track) || InvalidMechanicalObservationBinding(track);
+
+    private bool InvalidFiniteWorkBinding(CompiledPresentationTrack track)
+    {
+        var selectedWork = track.Declaration.Driver == PresentationDriver.CommittedFiniteWorkState ||
+            track.Declaration.Driver == PresentationDriver.Event && track.Declaration.Event == SimulationEventKind.FiniteWorkReleased;
+        var selectedStore = selectedWork || track.Declaration.Driver == PresentationDriver.CommittedStoredFraction;
+        if (selectedWork != (track.FiniteWork.Value != 0) || selectedStore != (track.Store.Value != 0)) return true;
+        if (selectedStore && !Physics.EnergyStores.ToArray().Any(store => store.Id == track.Store && OwnsBody(track.Owner, store.Owner))) return true;
+        if (selectedWork && !Physics.FiniteWorkActuators.ToArray().Any(value => value.Id == track.FiniteWork && value.Store == track.Store &&
+            Physics.EnergyStores.ToArray().Any(store => store.Id == value.Store && OwnsBody(track.Owner, store.Owner)))) return true;
+        return false;
+    }
+
+    private bool InvalidActuatorBinding(CompiledPresentationTrack track)
     {
         var angleDriver = track.Declaration.Driver == PresentationDriver.CommittedRevoluteAngle;
         var actuatorDriver = angleDriver || track.Declaration.Driver is PresentationDriver.CommittedActuatorDrive or
@@ -222,6 +269,11 @@ public sealed class WorkshopCompiledScene : ICompiledScene
             else if (!Physics.SupplyGraph.Nodes.ToArray().Any(node =>
                 node.Owner == track.Owner && !node.Consumers.IsDefault && node.Consumers.Contains(actuator))) return true;
         }
+        return false;
+    }
+
+    private bool InvalidMechanicalObservationBinding(CompiledPresentationTrack track)
+    {
         var guideDriver = track.Declaration.Driver == PresentationDriver.CommittedWheelAngle;
         if (guideDriver != (track.Guide.Value != 0) || (guideDriver &&
             !Physics.RopeGuides.ToArray().Any(guide => guide.Id == track.Guide && OwnsBody(track.Owner, guide.Body))))
@@ -264,8 +316,13 @@ public sealed class WorkshopCompiledScene : ICompiledScene
 
     private static bool InvalidBindingValues(CompiledPresentationBinding d)
     {
-        return PresentationDriverRules.Discrete3State(d.Driver) != d.StateValues.HasValue ||
+        return !PresentationDriverRules.ValidPropertyValues(d) || PresentationDriverRules.Discrete3State(d.Driver) != d.StateValues.HasValue ||
                 PresentationDriverRules.Discrete4State(d.Driver) != d.FourStateValues.HasValue ||
+                (d.Driver == PresentationDriver.CommittedFiniteWorkState) != d.FiniteWorkValues.HasValue ||
+                (d.FiniteWorkValues is { } work && !work.IsFinite()) ||
+                !PresentationDriverRules.ValidImpulsePeak(d.Curve, d.ImpulsePeak) ||
+                    !PresentationDriverRules.ValidImpulseChoices(d.Curve, d.ImpulseVisibility, d.ImpulseTiming) ||
+                (d.Mapping == PresentationValueMapping.ClampToEndpoints && d.From > d.To) ||
                 (d.Driver == PresentationDriver.CommittedPrismaticPhase) != d.PrismaticValues.HasValue ||
                 (d.PrismaticValues is { } phases && !phases.IsFinite()) ||
                 (d.StateValues is { } states && !states.IsFinite()) ||

@@ -7,7 +7,6 @@ public static class WorkshopReadDiagnostics
     /// one-shot occurrence (Impact, ElectricalPowered) reaches its consumers through the event ring.</summary>
     public static bool CarriesBalanceTransfer(this WorkshopRead read)
     {
-        for (var i = 0; i < read.ContactWorks.Count; i++) if (read.ContactWorks[i].SuppliedEnergy.Value > 0) return true;
         for (var i = 0; i < read.Electrical.Count; i++) if (read.Electrical[i].Debit.Value > 0) return true;
         return false;
     }

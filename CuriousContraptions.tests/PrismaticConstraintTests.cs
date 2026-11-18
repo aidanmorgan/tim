@@ -145,6 +145,7 @@ public sealed class PrismaticConstraintTests
     {
         var bytes = source.ToArray();
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderTickOffset), 1);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderPhysicalRevisionOffset), 1);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderSourceOrdinalOffset), 4);
         var layout = PhysicsGpuAbi.Layout(bytes);
         var motion = bytes.AsSpan(layout.MotionOffset, layout.MotionBytes);

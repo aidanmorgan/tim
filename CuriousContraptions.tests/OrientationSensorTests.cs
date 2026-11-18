@@ -37,6 +37,7 @@ public sealed class OrientationSensorTests
         var bytes = (byte[])source.Clone(); var span = bytes.AsSpan();
         const uint steps = 4; var ordinal = tick * steps;
         BinaryPrimitives.WriteUInt64LittleEndian(span[PhysicsGpuAbi.HeaderTickOffset..], tick);
+        BinaryPrimitives.WriteUInt64LittleEndian(span[PhysicsGpuAbi.HeaderPhysicalRevisionOffset..], checked(PhysicsGpuAbi.ReadPhysicalRevision(source).Value + 1));
         BinaryPrimitives.WriteUInt32LittleEndian(span[PhysicsGpuAbi.HeaderSourceOrdinalOffset..], ordinal);
         var layout = PhysicsGpuAbi.Layout(span);
         var motion = span.Slice(layout.MotionOffset, layout.MotionBytes); motion.Clear();

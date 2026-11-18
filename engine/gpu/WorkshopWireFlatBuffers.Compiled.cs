@@ -279,6 +279,8 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityColliderDeclarationRecord.AddRadius(b, value.Radius.Value);
         W.CapabilityColliderDeclarationRecord.AddHalfExtents(b, half_extents);
         if (value.Extrusion.HasValue) W.CapabilityColliderDeclarationRecord.AddExtrusion(b, extrusion);
+        W.CapabilityColliderDeclarationRecord.AddParticipation(b,
+            W.CollisionParticipationRecord.CreateCollisionParticipationRecord(b, (uint)value.Participation));
         return W.CapabilityColliderDeclarationRecord.EndCapabilityColliderDeclarationRecord(b);
     }
 
@@ -292,7 +294,8 @@ public static partial class WorkshopWireFlatBuffers
         DecodeCapabilityMetreVectorRecord(Required(row.HalfExtents, "HalfExtents")),
         row.Extrusion is { } extrusion ? new ClippedExtrusionDeclaration(new(extrusion.Coordinate),
             new(extrusion.MaterialBody), new(extrusion.ClippingBody), extrusion.Cut, extrusion.DistalOffset,
-            new(extrusion.HalfX, extrusion.HalfZ)) : null);
+            new(extrusion.HalfX, extrusion.HalfZ)) : null)
+        { Participation = ObservationEnum<CuriousContraptions.Abstractions.CollisionParticipation>(Required(row.Participation, "Participation").Value) };
 
     private static Offset<W.CapabilityRigidLocalPoseRecord> EncodeCapabilityRigidLocalPoseRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.RigidLocalPose value)
     {
@@ -415,6 +418,18 @@ public static partial class WorkshopWireFlatBuffers
         DecodeCapabilityBodyTargetSetRecord(Required(row.Targets, "Targets")),
         new CuriousContraptions.Gpu.ContactSpeed(row.Threshold));
 
+    private static VectorOffset EncodeEnergyStores(FlatBufferBuilder builder, ReadOnlySpan<EnergyStoreDeclaration> stores)
+    {
+        W.CompiledSceneRecord.StartEnergyStoresVector(builder, stores.Length);
+        for (var i = stores.Length - 1; i >= 0; i--)
+        {
+            var store = stores[i];
+            W.EnergyStoreDeclarationRecord.CreateEnergyStoreDeclarationRecord(builder, store.Id.Value, store.Owner.Value,
+                store.Capacity.Value, store.InitialEnergy.Value, store.MaximumChargePower.Value);
+        }
+        return builder.EndVector();
+    }
+
     private static Offset<W.CapabilityContactWorkDeclarationRecord> EncodeCapabilityContactWorkDeclarationRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.ContactWorkDeclaration value)
     {
         var targets = EncodeCapabilityBodyTargetSetRecord(b, value.Targets);
@@ -423,7 +438,7 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityContactWorkDeclarationRecord.AddOwner(b, value.Owner.Value);
         W.CapabilityContactWorkDeclarationRecord.AddTargets(b, targets);
         W.CapabilityContactWorkDeclarationRecord.AddTargetSpeed(b, value.TargetSpeed.Value);
-        W.CapabilityContactWorkDeclarationRecord.AddInitialEnergy(b, value.InitialEnergy.Value);
+        W.CapabilityContactWorkDeclarationRecord.AddStore(b, value.Store.Value);
         W.CapabilityContactWorkDeclarationRecord.AddThreshold(b, value.Threshold.Value);
         W.CapabilityContactWorkDeclarationRecord.AddCooldownPhysicalSteps(b, value.CooldownPhysicalSteps);
         return W.CapabilityContactWorkDeclarationRecord.EndCapabilityContactWorkDeclarationRecord(b);
@@ -434,7 +449,7 @@ public static partial class WorkshopWireFlatBuffers
         new CuriousContraptions.Gpu.GpuBodyId(row.Owner),
         DecodeCapabilityBodyTargetSetRecord(Required(row.Targets, "Targets")),
         new CuriousContraptions.Gpu.ContactSpeed(row.TargetSpeed),
-        new CuriousContraptions.Gpu.Joules(row.InitialEnergy),
+        new CuriousContraptions.Gpu.EnergyStoreId(row.Store),
         new CuriousContraptions.Gpu.ContactSpeed(row.Threshold),
         row.CooldownPhysicalSteps);
 
@@ -486,7 +501,7 @@ public static partial class WorkshopWireFlatBuffers
 
     private static CuriousContraptions.Gpu.ElectricalStorageBinding DecodeCapabilityElectricalStorageBindingRecord(W.CapabilityElectricalStorageBindingRecord row) => new(
         new CuriousContraptions.Gpu.ElectricalSourceId(row.Source),
-        new CuriousContraptions.Gpu.GpuContactWorkId(row.Storage), new SupplyNodeId(row.Route));
+        new CuriousContraptions.Gpu.EnergyStoreId(row.Storage), new SupplyNodeId(row.Route));
 
     private static Offset<W.CapabilityPrismaticConstraintDeclarationRecord> EncodeCapabilityPrismaticConstraintDeclarationRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.PrismaticConstraintDeclaration value)
     {
@@ -624,7 +639,7 @@ public static partial class WorkshopWireFlatBuffers
         new CuriousContraptions.Gpu.ElectricalSourceId(row.Source),
         Enumerable.Range(0, row.ConsumersLength).Select(i => DecodeCapabilitySupplyConsumerRecord(Required(row.Consumers(i), "Consumers"))).ToImmutableArray(),
         row.Operation is { } operation ? ObservationEnum<CuriousContraptions.Abstractions.Electrical.LogicGateOperation>(operation) : null,
-        Enumerable.Range(0, row.StoragesLength).Select(i => new GpuContactWorkId(row.Storages(i))).ToImmutableArray(),
+        Enumerable.Range(0, row.StoragesLength).Select(i => new EnergyStoreId(row.Storages(i))).ToImmutableArray(),
         DecodeCoordinateContact(row));
 
     private static PrismaticEndpointContact? DecodeCoordinateContact(W.CapabilitySupplyNodeDeclarationRecord row)
@@ -777,7 +792,9 @@ public static partial class WorkshopWireFlatBuffers
         W.CapabilityActivationNodeDeclarationRecord.AddCompletion(b, (uint)value.Completion);
         W.CapabilityActivationNodeDeclarationRecord.AddBoundary(b, (uint)value.Boundary);
         W.CapabilityActivationNodeDeclarationRecord.AddElapsedSignal(b, (uint)value.ElapsedSignal);
-        W.CapabilityActivationNodeDeclarationRecord.AddRetention(b, value.Retention.Value);
+        W.CapabilityActivationNodeDeclarationRecord.AddRequestTarget(b,
+            W.PhysicalRequestTargetRecord.CreatePhysicalRequestTargetRecord(b, (uint)value.RequestTarget.Kind,
+                value.RequestTarget.Retention.Value, value.RequestTarget.Actuator.Value));
         if (value.RequestOperation is { } operation) W.CapabilityActivationNodeDeclarationRecord.AddRequestOperation(b, (byte)operation);
         return W.CapabilityActivationNodeDeclarationRecord.EndCapabilityActivationNodeDeclarationRecord(b);
     }
@@ -798,7 +815,10 @@ public static partial class WorkshopWireFlatBuffers
         ObservationEnum<CuriousContraptions.Abstractions.Signal.TimerCompletionPolicy>(row.Completion),
         ObservationEnum<CuriousContraptions.Abstractions.Signal.TimerBoundary>(row.Boundary),
         ObservationEnum<CuriousContraptions.Abstractions.Signal.TimerElapsedSignal>(row.ElapsedSignal),
-        new(row.Retention), row.RequestOperation is { } operation ? ObservationEnum<PhysicalRequestOperation>(operation) : null);
+        DecodePhysicalRequestTarget(Required(row.RequestTarget, "RequestTarget")), row.RequestOperation is { } operation ? ObservationEnum<PhysicalRequestOperation>(operation) : null);
+
+    private static PhysicalRequestTarget DecodePhysicalRequestTarget(W.PhysicalRequestTargetRecord value) =>
+        new(ObservationEnum<PhysicalRequestTargetKind>(value.Kind), new(value.Retention), new(value.Actuator));
 
     private static Offset<W.CapabilityActivationEdgeRecord> EncodeCapabilityActivationEdgeRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.ActivationEdge value)
     {
@@ -842,6 +862,13 @@ public static partial class WorkshopWireFlatBuffers
     private static Offset<W.CapabilityPresentationBindingRecord> EncodeCapabilityPresentationBindingRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.CompiledPresentationBinding value)
     {
         W.CapabilityPresentationBindingRecord.StartCapabilityPresentationBindingRecord(b);
+        if (value.FiniteWorkValues is { } work)
+            W.CapabilityPresentationBindingRecord.AddFiniteWorkValues(b,
+                W.FiniteWorkStateValuesRecord.CreateFiniteWorkStateValuesRecord(b, work.Empty, work.Loading,
+                    work.SeatedUncharged, work.SeatedCharged, work.Departing, work.Unavailable));
+        if (value.ImpulseVisibility is { } visibility) W.CapabilityPresentationBindingRecord.AddImpulseVisibility(b, (uint)visibility);
+        if (value.ImpulseTiming is { } timing) W.CapabilityPresentationBindingRecord.AddImpulseTiming(b, (uint)timing);
+        if (value.ImpulsePeak is { } peak) W.CapabilityPresentationBindingRecord.AddImpulsePeak(b, peak.Value);
         if (value.PrismaticValues is { } phases)
             W.CapabilityPresentationBindingRecord.AddPrismaticValues(b,
                 W.PrismaticPhaseValuesRecord.CreatePrismaticPhaseValuesRecord(b, phases.Holding, phases.Positive,
@@ -885,7 +912,12 @@ public static partial class WorkshopWireFlatBuffers
         row.StateValues is { } states ? new CuriousContraptions.Abstractions.PresentationStateValues(states.Unpowered, states.Powered, states.Blocked) : null,
         row.FourStateValues is { } four ? new CuriousContraptions.Abstractions.PresentationFourStateValues(four.State0, four.State1, four.State2, four.State3) : null,
         row.PrismaticValues is { } phases ? new CuriousContraptions.Abstractions.PrismaticPhaseValues(phases.Holding,
-            phases.Positive, phases.Negative, phases.Blocked, phases.Conflict, phases.Unpowered) : null);
+            phases.Positive, phases.Negative, phases.Blocked, phases.Conflict, phases.Unpowered) : null,
+        row.FiniteWorkValues is { } work ? new CuriousContraptions.Abstractions.PresentationFiniteWorkValues(work.Empty,
+            work.Loading, work.SeatedUncharged, work.SeatedCharged, work.Departing, work.Unavailable) : null,
+        row.ImpulsePeak is { } peak ? new CuriousContraptions.Presentation.AnimationPeakPhase(peak) : null,
+        row.ImpulseVisibility is { } visibility ? ObservationEnum<CuriousContraptions.Presentation.AnimationImpulseVisibility>(visibility) : null,
+        row.ImpulseTiming is { } timing ? ObservationEnum<CuriousContraptions.Presentation.AnimationImpulseTiming>(timing) : null);
 
     private static Offset<W.CapabilityWorkshopCadenceSettingsRecord> EncodeCapabilityWorkshopCadenceSettingsRecord(FlatBufferBuilder b, CuriousContraptions.Gpu.WorkshopCadenceSettings value)
     {
@@ -928,6 +960,9 @@ public static partial class WorkshopWireFlatBuffers
         var sensors = W.CompiledSceneRecord.CreateSensorsVector(b, scene.Physics.Sensors.ToArray().Select(value => EncodeCapabilityResidenceSensorDeclarationRecord(b, value)).ToArray());
         var guides = W.CompiledSceneRecord.CreateGuidesVector(b, scene.Physics.Guides.ToArray().Select(value => EncodeCapabilityPlanarGuideDeclarationRecord(b, value)).ToArray());
         var triggers = W.CompiledSceneRecord.CreateTriggersVector(b, scene.Physics.Triggers.ToArray().Select(value => EncodeCapabilityContactTriggerDeclarationRecord(b, value)).ToArray());
+        var energyStores = EncodeEnergyStores(b, scene.Physics.EnergyStores);
+        var chamberRegions = EncodeChamberDeclarations(b, scene.Physics.ChamberRegions);
+        var finiteWorkActuators = EncodeFiniteWorkActuatorDeclarations(b, scene.Physics.FiniteWorkActuators);
         var contact_works = W.CompiledSceneRecord.CreateContactWorksVector(b, scene.Physics.ContactWorks.ToArray().Select(value => EncodeCapabilityContactWorkDeclarationRecord(b, value)).ToArray());
         var orientation_sensors = W.CompiledSceneRecord.CreateOrientationSensorsVector(b, scene.Physics.OrientationSensors.ToArray().Select(value => EncodeCapabilityOrientationSensorDeclarationRecord(b, value)).ToArray());
         var electrical_sources = W.CompiledSceneRecord.CreateElectricalSourcesVector(b, scene.Physics.Electrical.Sources.ToArray().Select(value => EncodeCapabilityElectricalSourceDeclarationRecord(b, value)).ToArray());
@@ -984,6 +1019,8 @@ public static partial class WorkshopWireFlatBuffers
             W.CompiledPresentationRecord.AddSupplyNode(b, track.SupplyNode.Value);
             W.CompiledPresentationRecord.AddTransmission(b, track.Transmission.Value);
             W.CompiledPresentationRecord.AddRetention(b, track.Retention.Value);
+            W.CompiledPresentationRecord.AddFiniteWork(b, track.FiniteWork.Value);
+            W.CompiledPresentationRecord.AddStore(b, track.Store.Value);
             return W.CompiledPresentationRecord.EndCompiledPresentationRecord(b);
         }).ToArray());
         W.CompiledSceneRecord.StartCompiledSceneRecord(b);
@@ -1000,6 +1037,9 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddGuides(b, guides);
         W.CompiledSceneRecord.AddTriggers(b, triggers);
         W.CompiledSceneRecord.AddContactWorks(b, contact_works);
+        W.CompiledSceneRecord.AddEnergyStores(b, energyStores);
+        W.CompiledSceneRecord.AddChamberRegions(b, chamberRegions);
+        W.CompiledSceneRecord.AddFiniteWorkActuators(b, finiteWorkActuators);
         W.CompiledSceneRecord.AddOrientationSensors(b, orientation_sensors);
         W.CompiledSceneRecord.AddElectricalSources(b, electrical_sources);
         W.CompiledSceneRecord.AddElectricalBindings(b, electrical_bindings);
@@ -1057,6 +1097,12 @@ public static partial class WorkshopWireFlatBuffers
             var guides = Enumerable.Range(0, row.GuidesLength).Select(i => DecodeCapabilityPlanarGuideDeclarationRecord(Required(row.Guides(i), "Guides"))).ToArray();
             var triggers = Enumerable.Range(0, row.TriggersLength).Select(i => DecodeCapabilityContactTriggerDeclarationRecord(Required(row.Triggers(i), "Triggers"))).ToArray();
             var contact_works = Enumerable.Range(0, row.ContactWorksLength).Select(i => DecodeCapabilityContactWorkDeclarationRecord(Required(row.ContactWorks(i), "ContactWorks"))).ToArray();
+            var energyStores = Enumerable.Range(0, row.EnergyStoresLength).Select(i =>
+            {
+                var store = row.EnergyStores(i)!.Value;
+                return new EnergyStoreDeclaration(new(store.Id), new(store.Owner), new(store.Capacity),
+                    new(store.InitialEnergy), new(store.MaximumChargePower));
+            }).ToArray();
             var orientation_sensors = Enumerable.Range(0, row.OrientationSensorsLength).Select(i => DecodeCapabilityOrientationSensorDeclarationRecord(Required(row.OrientationSensors(i), "OrientationSensors"))).ToArray();
             var electrical_sources = Enumerable.Range(0, row.ElectricalSourcesLength).Select(i => DecodeCapabilityElectricalSourceDeclarationRecord(Required(row.ElectricalSources(i), "ElectricalSources"))).ToArray();
             var electrical_bindings = Enumerable.Range(0, row.ElectricalBindingsLength).Select(i => DecodeCapabilityElectricalStorageBindingRecord(Required(row.ElectricalBindings(i), "ElectricalBindings"))).ToArray();
@@ -1082,7 +1128,8 @@ public static partial class WorkshopWireFlatBuffers
                 bodies, colliders, materials, sensors, guides, triggers, contact_works, orientation_sensors,
                 electrical_sources, electrical_bindings, prismatics, supply_nodes, supply_edges, contact_load_sensors, prismatic_drives, tensile,
                 revolutes: revolutes, compliantSurfaces: compliant_surfaces, revoluteDrives: revolute_drives,
-                ropeGuides: rope_guides, transmissions: transmissions, drivenSurfaces: drivenSurfaces);
+                ropeGuides: rope_guides, transmissions: transmissions, drivenSurfaces: drivenSurfaces, energyStores: energyStores,
+                chamberRegions: DecodeChamberDeclarations(row), finiteWorkActuators: DecodeFiniteWorkActuatorDeclarations(row));
             var activation = new ActivationNetwork(activation_nodes, activation_edges, row.ActivationSubsteps, passage_sensors,
                 Enumerable.Range(0, row.SignalContactsLength).Select(i =>
                 {
@@ -1096,7 +1143,8 @@ public static partial class WorkshopWireFlatBuffers
                     DecodeCapabilityPresentationBindingRecord(Required(track.Declaration, "declaration")),
                     track.Activation is { } node ? DecodeCapabilityActivationNodeDeclarationRecord(node) : default, track.SourceCapacity,
                     track.Actuator is { } drive ? ActuatorConsumerOf(drive.Kind, drive.Joint) : null, new(track.Guide),
-                    new(track.Source), new(track.SupplyNode), new MechanicalTransmissionId(track.Transmission), new PrismaticRetentionId(track.Retention));
+                    new(track.Source), new(track.SupplyNode), new MechanicalTransmissionId(track.Transmission), new PrismaticRetentionId(track.Retention),
+                    new FiniteWorkActuatorId(track.FiniteWork), new EnergyStoreId(track.Store));
             });
             return new(new(row.Identity), new(row.Revision), DecodeCapabilityWorkshopCadenceSettingsRecord(Required(row.Settings, "settings")),
                 physics, activation, presentation,

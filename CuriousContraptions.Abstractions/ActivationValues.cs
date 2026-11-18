@@ -27,7 +27,7 @@ public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, Gpu
     GpuContactLoadSensorId ContactLoad = default, uint ReleaseHoldTicks = 0,
     TimerCompletionPolicy Completion = TimerCompletionPolicy.Latch, TimerBoundary Boundary = TimerBoundary.BeforePhysics,
     TimerElapsedSignal ElapsedSignal = TimerElapsedSignal.Activation,
-    PrismaticRetentionId Retention = default, PhysicalRequestOperation? RequestOperation = null);
+    PhysicalRequestTarget RequestTarget = default, PhysicalRequestOperation? RequestOperation = null);
 /// <summary>One routed signal; Input names the target socket (ActivationIn, or SetIn/ResetIn on a State Latch).</summary>
 public readonly record struct CompiledSignalContact(SupplyNodeId Contact, GpuBodyId Owner, ActivationNodeId Node, SignalContactState State);
 public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target, PortRole Input);

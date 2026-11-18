@@ -461,7 +461,7 @@ public sealed class WorkshopWireTests
     {
         // The worker clamps |omega| below 128 rad/s; the piece decode must admit 100 rad/s and reject (100,100,0) ≈ 141 rad/s.
         var body = new CanonicalBody(new(1), 1, 1, new(0, 9, 0), default, default);
-        var read = new WorkshopRead(new(1), new(1), new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, new(100f, 0f, 0f), default) }));
+        var read = new WorkshopRead(new(1), new(1), new(1), new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, new(100f, 0f, 0f), default) }));
         var described = Described(read);
         Assert.Equal((int)Profile.Substeps, described.Motion!.Count);
         var bytes = described.Motion.Bytes.ToArray();
@@ -480,7 +480,7 @@ public sealed class WorkshopWireTests
     public void MotionPieceVelocityIsF32AtItsEnvelope(int offset, float value, bool accepted)
     {
         var body = new CanonicalBody(new(1), 1, 1, new(0, 9, 0), default, default);
-        var read = new WorkshopRead(new(1), new(1), new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, default, default) }));
+        var read = new WorkshopRead(new(1), new(1), new(1), new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, default, default) }));
         var bytes = Described(read).Motion!.Bytes.ToArray();
         for (var i = 0; i < Profile.Substeps; i++)
             BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes + offset), value);
@@ -495,7 +495,7 @@ public sealed class WorkshopWireTests
         var core = RuntimeTestServices.Core;
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
-            Stamped(new(new(1), default, default, new(1))), Session, default, new(1), new(1), new(1));
+            Stamped(new(new(1), default, new(0), default, new(1))), Session, default, new(1), new(1), new(1));
         var cursor = core.CreateClientCursor(Session);
         var otherCursor = core.CreateClientCursor(Session);
         var prepared = cursor.PrepareInstallation(response);
@@ -607,7 +607,7 @@ public sealed class WorkshopWireTests
             Assert.True(clock.TryMap(capture, new(browserTime), out var mapped));
             var response = new WorkshopResponse(new(0), WorkshopResponseKind.Read,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
-                Described(new(new(1), new(tick), Bodies(new CanonicalBody(new(1), 1, tick, new(0, 10 - (int)tick, 0), default, default)),
+                Described(new(new(1), new(tick), new(tick), Bodies(new CanonicalBody(new(1), 1, tick, new(0, 10 - (int)tick, 0), default, default)),
                     new(tick + 1), capture)), peer.Session, new(tick + 1), new(1), new(1), new(1));
             if (boundary == PresentationBoundary.Run)
             {
@@ -654,7 +654,7 @@ public sealed class WorkshopWireTests
             long captured, WorkshopSimulationPhase phase, ulong publication = 0) =>
             new(new(sequence), kind, new(phase == WorkshopSimulationPhase.Faulted ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
                 phase == WorkshopSimulationPhase.Faulted ? WorkshopRejection.Capacity : WorkshopRejection.None), phase,
-                Described(new(new(1), new(tick), Bodies(new CanonicalBody(new(1), 1, tick, new(0, 10 - (int)tick, 0), default, default)),
+                Described(new(new(1), new(tick), new(tick), Bodies(new CanonicalBody(new(1), 1, tick, new(0, 10 - (int)tick, 0), default, default)),
                     new(revision), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(captured), new(0)))),
                 peer.Session, new(publication), new(1), new(1), new(phase == WorkshopSimulationPhase.Building ? 1UL : 2UL));
         void Admit(WorkshopResponse response, PresentationBoundary boundary)
@@ -730,12 +730,12 @@ public sealed class WorkshopWireTests
         // This is an admitted-world check; the shared codec fixture deliberately uses a wider ID domain.
         var current = Construction with { Instances = new(OnlyBall(Construction) with { Id = new(1) }) };
         var ball = OnlyBall(current);
-        var read = Stamped(new(new(1), new(0), Bodies(new CanonicalBody(ball.Id, 1, 0, ball.Cell, ball.Local, default))));
+        var read = Stamped(new(new(1), new(0), new(0), Bodies(new CanonicalBody(ball.Id, 1, 0, ball.Cell, ball.Local, default))));
         var proposed = current.WithInstance(RuntimeTestServices.Bundle, ball with { Cell = new(32, 64, 0) }) with { Revision = new(3) };
         var currentScene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, current, new(Session.Low, Session.High));
         var proposedScene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, proposed, new(Session.Low, Session.High));
-        read.Bodies.ValidateScene(currentScene, read.Epoch, read.Tick);
-        Assert.Throws<ArgumentException>(() => read.Bodies.ValidateScene(proposedScene, read.Epoch, read.Tick));
+        read.Bodies.ValidateScene(currentScene, read.Epoch, read.Tick, read.PhysicalRevision);
+        Assert.Throws<ArgumentException>(() => read.Bodies.ValidateScene(proposedScene, read.Epoch, read.Tick, read.PhysicalRevision));
         Assert.Equal(ball.Cell, read.Bodies[0].Body.Cell);
     }
 
@@ -758,6 +758,8 @@ public sealed class WorkshopWireTests
         CuriousContraptions.Wire.WorkshopResponse.AddReason(builder, reason);
         CuriousContraptions.Wire.WorkshopResponse.AddPhase(builder, CuriousContraptions.Wire.SimulationPhase.Faulted);
         CuriousContraptions.Wire.WorkshopResponse.AddSession(builder, session);
+        CuriousContraptions.Wire.WorkshopResponse.AddPhysicalCommit(builder,
+            CuriousContraptions.Wire.PhysicalCommitRevisionRecord.CreatePhysicalCommitRevisionRecord(builder, 0));
         builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, WorkshopWireFlatBuffers.ResponseIdentifier);
         var binary = builder.SizedByteArray();
         Assert.Equal(admitted, Record.Exception(() => WorkshopWireFlatBuffers.DecodeResponse(binary)) is null);
@@ -773,11 +775,11 @@ public sealed class WorkshopWireTests
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Run, new(1), default, null, Session: Session, Cadence: new(1), Projection: new(1));
         var dispatched = cursor.ReadOrder;
         var ack = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(1), new(0), default, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(1), new(0), new(0), default, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
         var later = new WorkshopResponse(default, WorkshopResponseKind.Read,
             new(sameRevisionFault ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
                 sameRevisionFault ? WorkshopRejection.Capacity : WorkshopRejection.None),
-            sameRevisionFault ? WorkshopSimulationPhase.Faulted : WorkshopSimulationPhase.Running, Stamped(new(new(1), new(sameRevisionFault ? 0UL : 1UL), default, new(sameRevisionFault ? 1UL : 2UL))), Session, new(1), new(1), new(1), new(1));
+            sameRevisionFault ? WorkshopSimulationPhase.Faulted : WorkshopSimulationPhase.Running, Stamped(new(new(1), new(sameRevisionFault ? 0UL : 1UL), new(sameRevisionFault ? 0UL : 1UL), default, new(sameRevisionFault ? 1UL : 2UL))), Session, new(1), new(1), new(1), new(1));
         Assert.True(AdmitRead(cursor, later));
         var delivery = AdmitAcknowledgement(cursor, command, ack, dispatched, false);
         Assert.False(delivery.Applicable);
@@ -790,7 +792,7 @@ public sealed class WorkshopWireTests
     {
         var cursor = new WorkshopClientCursor(Session);
         var future = new WorkshopResponse(default, WorkshopResponseKind.Read,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(2), default, default, new(1))), Session, new(1), new(1), new(1), new(1));
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(2), default, new(0), default, new(1))), Session, new(1), new(1), new(1), new(1));
         Assert.Throws<ArgumentException>(() => AdmitRead(cursor, future));
         Assert.Equal(new SimulationEpoch(1), cursor.Epoch);
         Assert.Equal(default, cursor.Revision);
@@ -816,7 +818,7 @@ public sealed class WorkshopWireTests
     {
         var cursor = new WorkshopClientCursor(Session);
         var read = new WorkshopResponse(default, WorkshopResponseKind.Read,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(1), new(7), default, new(8))), Session, new(1), new(1), new(1), new(1));
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(1), new(7), new(7), default, new(8))), Session, new(1), new(1), new(1), new(1));
         Assert.True(AdmitRead(cursor, read));
         var command = new WorkshopCommand(new(2), WorkshopCommandKind.Run, new(1), new(8), null, Session: Session, Cadence: new(1), Projection: new(1));
         var ack = read with { Sequence = new(2), Kind = WorkshopResponseKind.Acknowledgement, Publication = default,
@@ -824,6 +826,30 @@ public sealed class WorkshopWireTests
         Assert.False(AdmitAcknowledgement(cursor, command, ack, cursor.ReadOrder, false).Applicable);
         Assert.Equal(new AuthorityRevision(8), cursor.Revision);
         Assert.False(AdmitRead(cursor, read with { Read = read.Read with { Tick = new(6), Revision = new(9) } }));
+    }
+
+    [Fact]
+    public void SameTickPhysicalCommitCannotRollBackThroughAnyCursorEntry()
+    {
+        var cursor = new WorkshopClientCursor(Session);
+        var current = new WorkshopResponse(default, WorkshopResponseKind.Read,
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
+            Stamped(new(new(1), new(0), new(2), default, new(3))), Session, new(1), new(1), new(1), new(1));
+        current = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(current));
+        Assert.Equal(new PhysicalCommitRevision(2), current.Read.PhysicalRevision);
+        Assert.True(AdmitRead(cursor, current));
+        var stale = current with { Publication = new(2), Read = current.Read with { PhysicalRevision = new(1), Revision = new(4) } };
+        Assert.False(AdmitRead(cursor, stale));
+        var command = new WorkshopCommand(new(2), WorkshopCommandKind.Run, new(1), new(3), null,
+            Session: Session, Cadence: new(1), Projection: new(1));
+        var acknowledgement = stale with { Sequence = new(2), Kind = WorkshopResponseKind.Acknowledgement, Publication = default };
+        Assert.False(AdmitAcknowledgement(cursor, command, acknowledgement, cursor.ReadOrder, false).Applicable);
+        Assert.Throws<ArgumentException>(() => cursor.PrepareInstallation(stale));
+        Assert.Equal(new AuthorityRevision(3), cursor.Revision);
+        var newer = current with { Publication = new(2), Read = current.Read with { PhysicalRevision = new(3), Revision = new(4) } };
+        Assert.True(AdmitRead(cursor, newer));
+        cursor.Commit(cursor.PrepareInstallation(newer with { Read = newer.Read with { Epoch = new(2), PhysicalRevision = new(0), Revision = new(5) } }));
+        Assert.Equal(new SimulationEpoch(2), cursor.Epoch);
     }
 
     [Fact]
@@ -839,7 +865,7 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(reset with { Revision = new(1) }));
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(exact with { Revision = default, RevisionKind = ExpectedRevisionKind.Any }));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(3), new(0), default, new(ulong.MaxValue))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(3), new(0), new(0), default, new(ulong.MaxValue))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
         var bytes = WorkshopWireFlatBuffers.EncodeResponse(response);
         var sourceResponse = response with { Read = response.Read with { Electrical = new PhysicsElectricalRead([new(new(10), new(1), new(3600.0002f), new(0f), ElectricalEnable.Enabled)]) } };
         var sourceBytes = WorkshopWireFlatBuffers.EncodeResponse(sourceResponse);
@@ -939,7 +965,7 @@ public sealed class WorkshopWireTests
         Assert.True(PhysicsGpuAbi.ReadDynamicBodies(admitted).TryGet(OnlyBall(Construction).Id, out var body));
         Assert.Equal(OnlyBall(Construction).Cell, body.Body.Cell);
         Assert.Equal(OnlyBall(Construction).Local, body.Body.Local);
-        var physical = Stamped(new(new(1), new(0), PhysicsGpuAbi.ReadDynamicBodies(admitted)));
+        var physical = Stamped(new(new(1), new(0), new(0), PhysicsGpuAbi.ReadDynamicBodies(admitted)));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
             physical, Session, default, new(1), new(1), new(1));
@@ -1192,9 +1218,10 @@ public sealed class WorkshopWireTests
     {
         var bytes = GenericAdmission();
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderTickOffset), tick);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderPhysicalRevisionOffset), tick);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderSourceOrdinalOffset), checked((uint)(tick * Profile.Substeps)));
         var body = NamedBody(bytes, new(1));
-        var read = Described(new(new(2), new(tick), new(new[] { body })));
+        var read = Described(new(new(2), new(tick), new(tick), new(new[] { body })));
         var motion = PhysicsGpuAbi.Layout(bytes).MotionOffset;
         read.Motion!.Bytes.CopyTo(bytes.AsSpan(motion));
         for (var i = 0; i < Profile.Substeps; i++)
@@ -1217,7 +1244,8 @@ public sealed class WorkshopWireTests
     [InlineData(16UL, 3u, 0, false)]
     public void GenericMotionAnchorKeepsCanonicalPhaseAndBoundedAge(ulong tick, uint origin, int phase, bool accepted)
     {
-        var source = GenericAdmission(); var candidate = GenericEndpoint(tick, origin, (float)phase);
+        var source = GenericEndpoint(tick - 1, checked((uint)((tick - 2) * Profile.Substeps)), 0f);
+        var candidate = GenericEndpoint(tick, origin, (float)phase);
         if (accepted) PhysicsGpuAbi.ValidateCandidate(candidate, source, new(tick), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         else Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(tick), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
     }
@@ -1387,7 +1415,7 @@ public sealed class WorkshopWireTests
     public void UnknownFullWidthCaptureDiscriminantRejects(uint phase)
     {
         const ulong sensor = 0x0123456789ABCDEFUL; // a distinctive identity to find the capture row on the wire
-        var read = Stamped(new(new(2), new(0), Bodies(new(new(1), 2, 0, default, default, default)), Captures: new([CaptureLatch.Clear(new(sensor), new(1))])));
+        var read = Stamped(new(new(2), new(0), new(0), Bodies(new(new(1), 2, 0, default, default, default)), Captures: new([CaptureLatch.Clear(new(sensor), new(1))])));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
             read, Session, default, new(1), new(1), new(1));
@@ -1402,7 +1430,7 @@ public sealed class WorkshopWireTests
     public void ResponseEncoderRejectsAnInvalidBody()
     {
         var body = new CanonicalBody(new(1), 2, 0, default, default, default);
-        var read = Stamped(new(new(2), new(0), Bodies(body)));
+        var read = Stamped(new(new(2), new(0), new(0), Bodies(body)));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
             read, Session, default, new(1), new(1), new(1));

@@ -387,7 +387,7 @@ public sealed class WorkshopWireFlatBuffersTests
         var captures = new PhysicsCaptureRead(new[] { capture });
 
         // The read carries the owners' stores only (Story 9A.23 D9: the occurrence rows are device-private).
-        var work = new ContactWorkRead(new(40), new(1), 1, new(16f), new(4f));
+        var work = new ContactWorkRead(new(40), new(1), 1, new(41));
         var contactWorks = new PhysicsContactWorkRead(new[] { work });
 
         var elec = new ElectricalSourceRead(new(50), new(1), new Joules(100f), new Joules(5f), ElectricalEnable.Enabled);
@@ -397,9 +397,10 @@ public sealed class WorkshopWireFlatBuffersTests
         var activation = ActivationLatch.From(new(new(2), new(2), ActivationNodeKind.ContactSource, new(2)), occurrence);
         var timer = ActivationTimerState.Ready(new(4)).Trigger(new(new(4), 12), occurrence, 4);
 
-        var read = new WorkshopRead(new(1), new(1), bodies, new(1), stamp, captures,
+        var read = new WorkshopRead(new(1), new(1), new(1), bodies, new(1), stamp, captures,
             PhysicsMotionRead.Decode(WireFaultTests.MotionBytes(canonical), bodies, new(1)),
             ContactWorks: contactWorks, Electrical: electrical,
+            EnergyStores: new([new(new(41), new(1), new(16f), new(4f), new(12f), default)]),
             Activations: new([activation]), Timers: new([timer]));
 
         var response = new WorkshopResponse(default, WorkshopResponseKind.Read,

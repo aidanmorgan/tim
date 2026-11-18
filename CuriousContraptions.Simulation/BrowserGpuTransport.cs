@@ -39,6 +39,7 @@ internal sealed class BrowserGpuTransport(IEventRingPublication events) : IWorks
         if (!_initialized) throw new InvalidOperationException("GPU transport is not initialized.");
         if (_readyCandidate) throw new InvalidOperationException("Previous candidate has not been read or committed.");
 
+        inputs.ValidateOperation(operation);
         _candidateAdmission = operation == WorkshopGpuOperation.Admit;
         if (operation == WorkshopGpuOperation.Admit)
         {
@@ -56,9 +57,12 @@ internal sealed class BrowserGpuTransport(IEventRingPublication events) : IWorks
         }
         else if (operation == WorkshopGpuOperation.Advance)
         {
-            if (inputs.AdmissionDrivenSurfaces.Length != 0)
-                throw new ArgumentException("Transmission topology is installed only during admission.");
             _candidateInteractions=_engine!.Advance(_currentBuffer.AsMemory(0, _currentLength), Candidate(_currentLength, false), inputs, _currentInteractions);
+        }
+        else if (operation == WorkshopGpuOperation.ApplyFiniteWork)
+        {
+            _candidateInteractions = _engine!.ApplyFiniteWork(_currentBuffer.AsMemory(0, _currentLength),
+                Candidate(_currentLength, false), inputs, _currentInteractions);
         }
         else
         {

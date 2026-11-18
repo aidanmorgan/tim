@@ -41,7 +41,7 @@ public readonly record struct PrismaticEndpointContact(PrismaticConstraintId Joi
 
 public readonly record struct SupplyNodeDeclaration(SupplyNodeId Id, GpuBodyId Owner, SupplyNodeKind Kind,
     ElectricalSourceId Source = default, ImmutableArray<SupplyConsumer> Consumers = default, LogicGateOperation? Operation = null,
-    ImmutableArray<GpuContactWorkId> Storages = default, PrismaticEndpointContact? CoordinateContact = null);
+    ImmutableArray<EnergyStoreId> Storages = default, PrismaticEndpointContact? CoordinateContact = null);
 public readonly record struct SupplyEdge(SupplyNodeId Source, SupplyNodeId Target, SupplyTerminal Input);
 public readonly record struct SupplyOutput(SupplyNodeId Provider, bool Powered, bool Supplied);
 

@@ -19,8 +19,7 @@ public static partial class PhysicsGpuAbi
             BinaryPrimitives.WriteSingleLittleEndian(record[ContactWorkTargetSpeedOffset..], work.TargetSpeed.Value);
             BinaryPrimitives.WriteSingleLittleEndian(record[ContactWorkAdmissionSpeedOffset..], work.Threshold.Value);
             U32(record, ContactWorkCooldownOffset, work.CooldownPhysicalSteps);
-            BinaryPrimitives.WriteSingleLittleEndian(record[ContactWorkPreloadOffset..], work.InitialEnergy.Value);
-            BinaryPrimitives.WriteSingleLittleEndian(record[ContactWorkAvailableOffset..], work.InitialEnergy.Value);
+            U32(record, ContactWorkStoreOffset, (uint)scene.Layout.GetEnergyStoreSlot(work.Store));
         }
     }
 
@@ -61,23 +60,21 @@ public static partial class PhysicsGpuAbi
         for (var i=0; i<stores.Length; i++)
         {
             var record=data.Slice(layout.ContactWorkOffset(i),ContactWorkBytes);
-            var owner=R32(record,ContactWorkOwnerOffset); var policy=(BodyTargetKind)R32(record,ContactWorkTargetKindOffset);
+            var owner=R32(record,ContactWorkOwnerOffset);
+            var rawPolicy = R32(record,ContactWorkTargetKindOffset);
+            if (rawPolicy > byte.MaxValue) throw new ArgumentException("Contact-work target policy exceeds its enum domain.");
+            var policy=(BodyTargetKind)rawPolicy;
             var target=R32(record,ContactWorkNamedTargetOffset);
             if (owner>=R32(data,HeaderBodyCountOffset) || BodyMotion(data,owner)!=RigidMotionKind.Static ||
                 !Enum.IsDefined(policy) || (policy!=BodyTargetKind.NamedBody ? target!=NoBody :
                     target>=R32(data,HeaderBodyCountOffset) || BodyMotion(data,target)!=RigidMotionKind.Dynamic) ||
-                R32(record,ContactWorkCooldownOffset) is <9 or >14400 ||
-                !AllZero(record[ContactWorkReservedOffset..ContactWorkAvailableOffset]) || !AllZero(record[ContactWorkPaddingOffset..]))
+                !ContactWorkDeclaration.AdmitsCooldown(R32(record,ContactWorkCooldownOffset)) ||
+                R32(record,ContactWorkStoreOffset) >= layout.EnergyStores || !AllZero(record[ContactWorkPaddingOffset..]))
                 throw new ArgumentException("Invalid contact-work declaration or padding.");
-            new ContactSpeed(RF(record,ContactWorkTargetSpeedOffset)).Validate(20f);
-            new Joules(RF(record,ContactWorkPreloadOffset)).Validate();
-            new ContactSpeed(RF(record,ContactWorkAdmissionSpeedOffset)).Validate(64f);
-            new Joules(RF(record,ContactWorkAvailableOffset)).Validate();
-            if (RF(record,ContactWorkAvailableOffset) > RF(record,ContactWorkPreloadOffset)) throw new ArgumentException("Work store exceeds preload.");
+            new ContactSpeed(RF(record,ContactWorkTargetSpeedOffset)).Validate(LinearVelocity.MaximumSpeed);
+            new ContactSpeed(RF(record,ContactWorkAdmissionSpeedOffset)).Validate(LinearVelocity.MaximumSpeed);
             stores[i]=new(new(R64(record,RecordIdentityOffset)),new(R64(data,layout.BodyOffset((int)owner))),R32(record,ContactWorkOccurrenceCountOffset),
-                new(RF(record,ContactWorkAvailableOffset)),new(RF(record,ContactWorkSuppliedOffset)));
-            if (stores[i].OccurrenceCount==0 && R32(record,ContactWorkPreloadOffset)!=R32(record,ContactWorkAvailableOffset))
-                throw new ArgumentException("Unused work owner spent its reservoir.");
+                new(R64(data, layout.EnergyStoreOffset((int)R32(record, ContactWorkStoreOffset)))));
         }
     }
 
@@ -91,12 +88,14 @@ public static partial class PhysicsGpuAbi
     {
         var before=ReadContactWorks(source,sourceInteractions); var after=ReadContactWorks(candidate,candidateInteractions);
         after.ValidateAdvance(before);
+        after.ValidateReleasedWork(before, new PhysicsEnergyStoreRead(ReadEnergyStores(candidate)),
+            new PhysicsEnergyStoreRead(ReadEnergyStores(source)),
+            new PhysicsFiniteWorkActuatorRead(ReadFiniteWorkActuators(candidate)), new PhysicsFiniteWorkActuatorRead(ReadFiniteWorkActuators(source)));
         var layout=Layout(source);
         for (var i=0; i<before.Count; i++)
         {
             var offset=layout.ContactWorkOffset(i);
-            if (!source.Slice(offset,ContactWorkDeclarationBytes).SequenceEqual(candidate.Slice(offset,ContactWorkDeclarationBytes)) ||
-                R32(source,offset+ContactWorkPreloadOffset)!=R32(candidate,offset+ContactWorkPreloadOffset))
+            if (!source.Slice(offset,ContactWorkDeclarationBytes).SequenceEqual(candidate.Slice(offset,ContactWorkDeclarationBytes)))
                 throw new ArgumentException("Contact-work declaration changed.");
         }
         for (var i=0; i<after.OccurrenceCount; i++)

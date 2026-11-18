@@ -391,23 +391,18 @@ occurrenceCount():number {
   return this.bb!.readUint32(this.bb_pos + 16);
 }
 
-remainingEnergy():number {
-  return this.bb!.readFloat32(this.bb_pos + 20);
-}
-
-suppliedEnergy():number {
-  return this.bb!.readFloat32(this.bb_pos + 24);
+store():bigint {
+  return this.bb!.readUint64(this.bb_pos + 24);
 }
 
 static sizeOf():number {
   return 32;
 }
 
-static createContactWorkStoreRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, occurrence_count: number, remaining_energy: number, supplied_energy: number):flatbuffers.Offset {
+static createContactWorkStoreRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, occurrence_count: number, store: bigint):flatbuffers.Offset {
   builder.prep(8, 32);
+  builder.writeInt64(BigInt(store ?? 0));
   builder.pad(4);
-  builder.writeFloat32(supplied_energy);
-  builder.writeFloat32(remaining_energy);
   builder.writeInt32(occurrence_count);
   builder.writeInt64(BigInt(owner ?? 0));
   builder.writeInt64(BigInt(id ?? 0));
@@ -1227,6 +1222,33 @@ static createCommandIdentityRecord(builder:flatbuffers.Builder, sequence: bigint
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
+export class PhysicalCommitRevisionRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):PhysicalCommitRevisionRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+value():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+static sizeOf():number {
+  return 8;
+}
+
+static createPhysicalCommitRevisionRecord(builder:flatbuffers.Builder, value: bigint):flatbuffers.Offset {
+  builder.prep(8, 8);
+  builder.writeInt64(BigInt(value ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
 export class WorkshopResponse {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -1510,8 +1532,43 @@ retentionsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+energyStores(index: number, obj?:EnergyStoreReadRecord):EnergyStoreReadRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 70);
+  return offset ? (obj || new EnergyStoreReadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+}
+
+energyStoresLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 70);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+chamberRegions(index: number, obj?:ChamberRegionReadRecord):ChamberRegionReadRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 72);
+  return offset ? (obj || new ChamberRegionReadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
+}
+
+chamberRegionsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 72);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+finiteWorkActuators(index: number, obj?:FiniteWorkActuatorReadRecord):FiniteWorkActuatorReadRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 74);
+  return offset ? (obj || new FiniteWorkActuatorReadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 48, this.bb!) : null;
+}
+
+finiteWorkActuatorsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 74);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+physicalCommit(obj?:PhysicalCommitRevisionRecord):PhysicalCommitRevisionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 76);
+  return offset ? (obj || new PhysicalCommitRevisionRecord()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(33);
+  builder.startObject(37);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1774,8 +1831,37 @@ static startRetentionsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
+static addEnergyStores(builder:flatbuffers.Builder, energyStoresOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(33, energyStoresOffset, 0);
+}
+
+static startEnergyStoresVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(32, numElems, 8);
+}
+
+static addChamberRegions(builder:flatbuffers.Builder, chamberRegionsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(34, chamberRegionsOffset, 0);
+}
+
+static startChamberRegionsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(40, numElems, 8);
+}
+
+static addFiniteWorkActuators(builder:flatbuffers.Builder, finiteWorkActuatorsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(35, finiteWorkActuatorsOffset, 0);
+}
+
+static startFiniteWorkActuatorsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(48, numElems, 8);
+}
+
+static addPhysicalCommit(builder:flatbuffers.Builder, physicalCommitOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(36, physicalCommitOffset, 0);
+}
+
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
+  builder.requiredField(offset, 76) // physical_commit
   return offset;
 }
 
@@ -4563,6 +4649,33 @@ static createCapabilityMetreVectorRecord(builder:flatbuffers.Builder, x:number, 
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
+export class CollisionParticipationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CollisionParticipationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+value():number {
+  return this.bb!.readUint32(this.bb_pos);
+}
+
+static sizeOf():number {
+  return 4;
+}
+
+static createCollisionParticipationRecord(builder:flatbuffers.Builder, value: number):flatbuffers.Offset {
+  builder.prep(4, 4);
+  builder.writeInt32(value);
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
 export class CapabilityColliderDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -4621,8 +4734,13 @@ extrusion(obj?:ClippedExtrusionRecord):ClippedExtrusionRecord|null {
   return offset ? (obj || new ClippedExtrusionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
+participation(obj?:CollisionParticipationRecord):CollisionParticipationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? (obj || new CollisionParticipationRecord()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
 static startCapabilityColliderDeclarationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(8);
+  builder.startObject(9);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -4657,10 +4775,15 @@ static addExtrusion(builder:flatbuffers.Builder, extrusionOffset:flatbuffers.Off
   builder.addFieldOffset(7, extrusionOffset, 0);
 }
 
+static addParticipation(builder:flatbuffers.Builder, participationOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(8, participationOffset, 0);
+}
+
 static endCapabilityColliderDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 12) // pose
   builder.requiredField(offset, 16) // half_extents
+  builder.requiredField(offset, 20) // participation
   return offset;
 }
 
@@ -5264,6 +5387,414 @@ static endCapabilityContactTriggerDeclarationRecord(builder:flatbuffers.Builder)
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
+export class ChamberRegionReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ChamberRegionReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+frame():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+phase():number {
+  return this.bb!.readUint8(this.bb_pos + 16);
+}
+
+occupancy():number {
+  return this.bb!.readUint32(this.bb_pos + 20);
+}
+
+candidate():bigint {
+  return this.bb!.readUint64(this.bb_pos + 24);
+}
+
+departing():bigint {
+  return this.bb!.readUint64(this.bb_pos + 32);
+}
+
+static sizeOf():number {
+  return 40;
+}
+
+static createChamberRegionReadRecord(builder:flatbuffers.Builder, id: bigint, frame: bigint, phase: number, occupancy: number, candidate: bigint, departing: bigint):flatbuffers.Offset {
+  builder.prep(8, 40);
+  builder.writeInt64(BigInt(departing ?? 0));
+  builder.writeInt64(BigInt(candidate ?? 0));
+  builder.writeInt32(occupancy);
+  builder.pad(3);
+  builder.writeInt8(phase);
+  builder.writeInt64(BigInt(frame ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+
+export class FiniteWorkActuatorReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):FiniteWorkActuatorReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+store():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+region():bigint {
+  return this.bb!.readUint64(this.bb_pos + 16);
+}
+
+occurrenceCount():number {
+  return this.bb!.readUint32(this.bb_pos + 24);
+}
+
+result():number {
+  return this.bb!.readUint8(this.bb_pos + 28);
+}
+
+payload():bigint {
+  return this.bb!.readUint64(this.bb_pos + 32);
+}
+
+debit():number {
+  return this.bb!.readFloat32(this.bb_pos + 40);
+}
+
+clearance():number {
+  return this.bb!.readUint8(this.bb_pos + 44);
+}
+
+static sizeOf():number {
+  return 48;
+}
+
+static createFiniteWorkActuatorReadRecord(builder:flatbuffers.Builder, id: bigint, store: bigint, region: bigint, occurrence_count: number, result: number, payload: bigint, debit: number, clearance: number):flatbuffers.Offset {
+  builder.prep(8, 48);
+  builder.pad(3);
+  builder.writeInt8(clearance);
+  builder.writeFloat32(debit);
+  builder.writeInt64(BigInt(payload ?? 0));
+  builder.pad(3);
+  builder.writeInt8(result);
+  builder.writeInt32(occurrence_count);
+  builder.writeInt64(BigInt(region ?? 0));
+  builder.writeInt64(BigInt(store ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class ChamberRegionDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ChamberRegionDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsChamberRegionDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:ChamberRegionDeclarationRecord):ChamberRegionDeclarationRecord {
+  return (obj || new ChamberRegionDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsChamberRegionDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:ChamberRegionDeclarationRecord):ChamberRegionDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new ChamberRegionDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+frame():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+participationCollider():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+targets(obj?:CapabilityBodyTargetSetRecord):CapabilityBodyTargetSetRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new CapabilityBodyTargetSetRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+pose(obj?:CapabilityRigidLocalPoseRecord):CapabilityRigidLocalPoseRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new CapabilityRigidLocalPoseRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+radius():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+halfLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+minimumWidth():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maximumWidth():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+containmentAllowance():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maximumRelativeSpeed():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+participation():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+static startChamberRegionDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(12);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addFrame(builder:flatbuffers.Builder, frame:bigint) {
+  builder.addFieldInt64(1, frame, BigInt('0'));
+}
+
+static addParticipationCollider(builder:flatbuffers.Builder, participationCollider:bigint) {
+  builder.addFieldInt64(2, participationCollider, BigInt('0'));
+}
+
+static addTargets(builder:flatbuffers.Builder, targetsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, targetsOffset, 0);
+}
+
+static addPose(builder:flatbuffers.Builder, poseOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, poseOffset, 0);
+}
+
+static addRadius(builder:flatbuffers.Builder, radius:number) {
+  builder.addFieldFloat32(5, radius, 0.0);
+}
+
+static addHalfLength(builder:flatbuffers.Builder, halfLength:number) {
+  builder.addFieldFloat32(6, halfLength, 0.0);
+}
+
+static addMinimumWidth(builder:flatbuffers.Builder, minimumWidth:number) {
+  builder.addFieldFloat32(7, minimumWidth, 0.0);
+}
+
+static addMaximumWidth(builder:flatbuffers.Builder, maximumWidth:number) {
+  builder.addFieldFloat32(8, maximumWidth, 0.0);
+}
+
+static addContainmentAllowance(builder:flatbuffers.Builder, containmentAllowance:number) {
+  builder.addFieldFloat32(9, containmentAllowance, 0.0);
+}
+
+static addMaximumRelativeSpeed(builder:flatbuffers.Builder, maximumRelativeSpeed:number) {
+  builder.addFieldFloat32(10, maximumRelativeSpeed, 0.0);
+}
+
+static addParticipation(builder:flatbuffers.Builder, participation:number) {
+  builder.addFieldInt8(11, participation, 0);
+}
+
+static endChamberRegionDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 10) // targets
+  builder.requiredField(offset, 12) // pose
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class FiniteWorkActuatorDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):FiniteWorkActuatorDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+store():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+region():bigint {
+  return this.bb!.readUint64(this.bb_pos + 16);
+}
+
+targetSpeed():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+exitPadding():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createFiniteWorkActuatorDeclarationRecord(builder:flatbuffers.Builder, id: bigint, store: bigint, region: bigint, target_speed: number, exit_padding: number):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.writeFloat32(exit_padding);
+  builder.writeFloat32(target_speed);
+  builder.writeInt64(BigInt(region ?? 0));
+  builder.writeInt64(BigInt(store ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class EnergyStoreReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):EnergyStoreReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+owner():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+energy():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+supplied():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+released():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+dissipated():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createEnergyStoreReadRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, energy: number, supplied: number, released: number, dissipated: number):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.writeFloat32(dissipated);
+  builder.writeFloat32(released);
+  builder.writeFloat32(supplied);
+  builder.writeFloat32(energy);
+  builder.writeInt64(BigInt(owner ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class EnergyStoreDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):EnergyStoreDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+owner():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+capacity():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+initialEnergy():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+maximumChargePower():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createEnergyStoreDeclarationRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, capacity: number, initial_energy: number, maximum_charge_power: number):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.pad(4);
+  builder.writeFloat32(maximum_charge_power);
+  builder.writeFloat32(initial_energy);
+  builder.writeFloat32(capacity);
+  builder.writeInt64(BigInt(owner ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
 export class CapabilityContactWorkDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -5302,9 +5833,9 @@ targetSpeed():number {
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-initialEnergy():number {
+store():bigint {
   const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 threshold():number {
@@ -5337,8 +5868,8 @@ static addTargetSpeed(builder:flatbuffers.Builder, targetSpeed:number) {
   builder.addFieldFloat32(3, targetSpeed, 0.0);
 }
 
-static addInitialEnergy(builder:flatbuffers.Builder, initialEnergy:number) {
-  builder.addFieldFloat32(4, initialEnergy, 0.0);
+static addStore(builder:flatbuffers.Builder, store:bigint) {
+  builder.addFieldInt64(4, store, BigInt('0'));
 }
 
 static addThreshold(builder:flatbuffers.Builder, threshold:number) {
@@ -6680,6 +7211,44 @@ static createCapabilityRevoluteDriveDeclarationRecord(builder:flatbuffers.Builde
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
+export class PhysicalRequestTargetRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):PhysicalRequestTargetRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+kind():number {
+  return this.bb!.readUint32(this.bb_pos);
+}
+
+retention():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+actuator():bigint {
+  return this.bb!.readUint64(this.bb_pos + 16);
+}
+
+static sizeOf():number {
+  return 24;
+}
+
+static createPhysicalRequestTargetRecord(builder:flatbuffers.Builder, kind: number, retention: bigint, actuator: bigint):flatbuffers.Offset {
+  builder.prep(8, 24);
+  builder.writeInt64(BigInt(actuator ?? 0));
+  builder.writeInt64(BigInt(retention ?? 0));
+  builder.pad(4);
+  builder.writeInt32(kind);
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
 export class CapabilityActivationNodeDeclarationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -6773,9 +7342,9 @@ elapsedSignal():number {
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
-retention():bigint {
+requestTarget(obj?:PhysicalRequestTargetRecord):PhysicalRequestTargetRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 34);
-  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+  return offset ? (obj || new PhysicalRequestTargetRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 requestOperation():number|null {
@@ -6847,8 +7416,8 @@ static addElapsedSignal(builder:flatbuffers.Builder, elapsedSignal:number) {
   builder.addFieldInt32(14, elapsedSignal, 0);
 }
 
-static addRetention(builder:flatbuffers.Builder, retention:bigint) {
-  builder.addFieldInt64(15, retention, BigInt('0'));
+static addRequestTarget(builder:flatbuffers.Builder, requestTargetOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(15, requestTargetOffset, 0);
 }
 
 static addRequestOperation(builder:flatbuffers.Builder, requestOperation:number) {
@@ -6857,31 +7426,10 @@ static addRequestOperation(builder:flatbuffers.Builder, requestOperation:number)
 
 static endCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
+  builder.requiredField(offset, 34) // request_target
   return offset;
 }
 
-static createCapabilityActivationNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, kind:number, trigger:bigint, durationTicks:number, sensor:bigint, passage:bigint, targetCount:number, intervalTicks:number, powerProvider:bigint, contactLoad:bigint, releaseHoldTicks:number, completion:number, boundary:number, elapsedSignal:number, retention:bigint, requestOperation:number|null):flatbuffers.Offset {
-  CapabilityActivationNodeDeclarationRecord.startCapabilityActivationNodeDeclarationRecord(builder);
-  CapabilityActivationNodeDeclarationRecord.addId(builder, id);
-  CapabilityActivationNodeDeclarationRecord.addOwner(builder, owner);
-  CapabilityActivationNodeDeclarationRecord.addKind(builder, kind);
-  CapabilityActivationNodeDeclarationRecord.addTrigger(builder, trigger);
-  CapabilityActivationNodeDeclarationRecord.addDurationTicks(builder, durationTicks);
-  CapabilityActivationNodeDeclarationRecord.addSensor(builder, sensor);
-  CapabilityActivationNodeDeclarationRecord.addPassage(builder, passage);
-  CapabilityActivationNodeDeclarationRecord.addTargetCount(builder, targetCount);
-  CapabilityActivationNodeDeclarationRecord.addIntervalTicks(builder, intervalTicks);
-  CapabilityActivationNodeDeclarationRecord.addPowerProvider(builder, powerProvider);
-  CapabilityActivationNodeDeclarationRecord.addContactLoad(builder, contactLoad);
-  CapabilityActivationNodeDeclarationRecord.addReleaseHoldTicks(builder, releaseHoldTicks);
-  CapabilityActivationNodeDeclarationRecord.addCompletion(builder, completion);
-  CapabilityActivationNodeDeclarationRecord.addBoundary(builder, boundary);
-  CapabilityActivationNodeDeclarationRecord.addElapsedSignal(builder, elapsedSignal);
-  CapabilityActivationNodeDeclarationRecord.addRetention(builder, retention);
-  if (requestOperation !== null)
-    CapabilityActivationNodeDeclarationRecord.addRequestOperation(builder, requestOperation);
-  return CapabilityActivationNodeDeclarationRecord.endCapabilityActivationNodeDeclarationRecord(builder);
-}
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
@@ -7222,6 +7770,63 @@ static createPrismaticPhaseValuesRecord(builder:flatbuffers.Builder, holding: nu
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
+export class FiniteWorkStateValuesRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):FiniteWorkStateValuesRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+empty():number {
+  return this.bb!.readFloat32(this.bb_pos);
+}
+
+loading():number {
+  return this.bb!.readFloat32(this.bb_pos + 4);
+}
+
+seatedUncharged():number {
+  return this.bb!.readFloat32(this.bb_pos + 8);
+}
+
+seatedCharged():number {
+  return this.bb!.readFloat32(this.bb_pos + 12);
+}
+
+departing():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+unavailable():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+static sizeOf():number {
+  return 24;
+}
+
+static createFiniteWorkStateValuesRecord(builder:flatbuffers.Builder, empty: number, loading: number, seated_uncharged: number, seated_charged: number, departing: number, unavailable: number):flatbuffers.Offset {
+  builder.prep(4, 24);
+  builder.writeFloat32(unavailable);
+  builder.writeFloat32(departing);
+  builder.writeFloat32(seated_charged);
+  builder.writeFloat32(seated_uncharged);
+  builder.writeFloat32(loading);
+  builder.writeFloat32(empty);
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+
+
+
 export class CapabilityPresentationBindingRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -7320,8 +7925,28 @@ eventMagnitude():number {
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
+finiteWorkValues(obj?:FiniteWorkStateValuesRecord):FiniteWorkStateValuesRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? (obj || new FiniteWorkStateValuesRecord()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+impulsePeak():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : null;
+}
+
+impulseVisibility():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 40);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : null;
+}
+
+impulseTiming():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 42);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : null;
+}
+
 static startCapabilityPresentationBindingRecord(builder:flatbuffers.Builder) {
-  builder.startObject(16);
+  builder.startObject(20);
 }
 
 static addPrismaticValues(builder:flatbuffers.Builder, prismaticValuesOffset:flatbuffers.Offset) {
@@ -7386,6 +8011,22 @@ static addEvent(builder:flatbuffers.Builder, event:number) {
 
 static addEventMagnitude(builder:flatbuffers.Builder, eventMagnitude:number) {
   builder.addFieldInt32(15, eventMagnitude, 0);
+}
+
+static addFiniteWorkValues(builder:flatbuffers.Builder, finiteWorkValuesOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(16, finiteWorkValuesOffset, 0);
+}
+
+static addImpulsePeak(builder:flatbuffers.Builder, impulsePeak:number) {
+  builder.addFieldFloat32(17, impulsePeak, null);
+}
+
+static addImpulseVisibility(builder:flatbuffers.Builder, impulseVisibility:number) {
+  builder.addFieldInt32(18, impulseVisibility, null);
+}
+
+static addImpulseTiming(builder:flatbuffers.Builder, impulseTiming:number) {
+  builder.addFieldInt32(19, impulseTiming, null);
 }
 
 static endCapabilityPresentationBindingRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -7607,8 +8248,18 @@ retention():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
+finiteWork():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+store():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
 static startCompiledPresentationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(12);
+  builder.startObject(14);
 }
 
 static addSource(builder:flatbuffers.Builder, source:bigint) {
@@ -7657,6 +8308,14 @@ static addTransmission(builder:flatbuffers.Builder, transmission:bigint) {
 
 static addRetention(builder:flatbuffers.Builder, retention:bigint) {
   builder.addFieldInt64(11, retention, BigInt('0'));
+}
+
+static addFiniteWork(builder:flatbuffers.Builder, finiteWork:bigint) {
+  builder.addFieldInt64(12, finiteWork, BigInt('0'));
+}
+
+static addStore(builder:flatbuffers.Builder, store:bigint) {
+  builder.addFieldInt64(13, store, BigInt('0'));
 }
 
 static endCompiledPresentationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -9259,8 +9918,38 @@ mechanicalLinksLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+energyStores(index: number, obj?:EnergyStoreDeclarationRecord):EnergyStoreDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 78);
+  return offset ? (obj || new EnergyStoreDeclarationRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+}
+
+energyStoresLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 78);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+chamberRegions(index: number, obj?:ChamberRegionDeclarationRecord):ChamberRegionDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 80);
+  return offset ? (obj || new ChamberRegionDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+chamberRegionsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 80);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+finiteWorkActuators(index: number, obj?:FiniteWorkActuatorDeclarationRecord):FiniteWorkActuatorDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 82);
+  return offset ? (obj || new FiniteWorkActuatorDeclarationRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+}
+
+finiteWorkActuatorsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 82);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(37);
+  builder.startObject(40);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -9755,11 +10444,46 @@ static startMechanicalLinksVector(builder:flatbuffers.Builder, numElems:number) 
   builder.startVector(4, numElems, 4);
 }
 
+static addEnergyStores(builder:flatbuffers.Builder, energyStoresOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(37, energyStoresOffset, 0);
+}
+
+static startEnergyStoresVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(32, numElems, 8);
+}
+
+static addChamberRegions(builder:flatbuffers.Builder, chamberRegionsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(38, chamberRegionsOffset, 0);
+}
+
+static createChamberRegionsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startChamberRegionsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addFiniteWorkActuators(builder:flatbuffers.Builder, finiteWorkActuatorsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(39, finiteWorkActuatorsOffset, 0);
+}
+
+static startFiniteWorkActuatorsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(32, numElems, 8);
+}
+
 static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 8) // settings
   builder.requiredField(offset, 74) // driven_surfaces
   builder.requiredField(offset, 76) // mechanical_links
+  builder.requiredField(offset, 78) // energy_stores
+  builder.requiredField(offset, 80) // chamber_regions
+  builder.requiredField(offset, 82) // finite_work_actuators
   return offset;
 }
 
@@ -10494,21 +11218,29 @@ export function decodeWorkshopResponse(data: Buffer | Uint8Array): WorkshopRespo
     return WorkshopResponse.getRootAsWorkshopResponse(openFrame(data, RESPONSE_IDENTIFIER));
 }
 
-/** Story 9A.23 D9: a read carries each contact-work owner's stores only; the per-target occurrence rows are device-private and each hit
- * reaches consumers as its event ring Impact record. From the stores alone, every read of a run (in order) whose owner `slot` counted
- * more hits than the previous read of the same epoch is one hit batch, and what it paid is the reservoir it lost beyond any recharge
- * credited with it (0 for a passive hit). The first read of an epoch is compared with the admitted store (no hit, `preload` joules).
- * Hits within one read (several targets in one tick) form one batch. */
-export function contactHits(responses: readonly WorkshopResponse[], preload: number, slot = 0): { response: WorkshopResponse; count: number; debit: number }[] {
+/** Resolve an exact compiled reservoir identity; array order is not its identity. */
+export function energyStore(response: WorkshopResponse, id: bigint): EnergyStoreReadRecord {
+    for (let i = 0; i < response.energyStoresLength(); i++) {
+        const store = response.energyStores(i)!;
+        if (store.id() === id) return store;
+    }
+    throw new Error('Missing committed energy store ' + id);
+}
+
+/** Contact-only reservoir fixtures expose counted hit batches and cumulative released work.
+ * Each epoch starts with zero released work; recharge does not inflate a hit's debit. */
+export function contactHits(responses: readonly WorkshopResponse[], slot = 0): { response: WorkshopResponse; count: number; debit: number }[] {
     const hits: { response: WorkshopResponse; count: number; debit: number }[] = [];
     let previous: WorkshopResponse | undefined;
     for (const response of responses) {
         const after = response.contactWorks(slot);
-        const before = previous && previous.epoch() === response.epoch() ? previous.contactWorks(slot) : null;
-        const [count, remaining] = before ? [before.occurrenceCount(), before.remainingEnergy()] : [0, preload];
-        if (after && after.occurrenceCount() > count)
-            hits.push({ response, count: after.occurrenceCount(),
-                debit: Math.max(0, remaining + after.suppliedEnergy() - after.remainingEnergy()) });
+        const sameEpoch = previous && previous.epoch() === response.epoch();
+        const before = sameEpoch ? previous!.contactWorks(slot) : null;
+        if (after && after.occurrenceCount() > (before?.occurrenceCount() ?? 0)) {
+            const released = energyStore(response, after.store()).released();
+            const prior = sameEpoch && before ? energyStore(previous!, before.store()).released() : 0;
+            hits.push({ response, count: after.occurrenceCount(), debit: released - prior });
+        }
         previous = response;
     }
     return hits;
@@ -10603,6 +11335,7 @@ export interface MockResponseParams {
     phase?: SimulationPhase;
     epoch?: bigint;
     tick?: bigint;
+    physicalRevision: bigint;
     revision?: bigint;
     publication?: bigint;
     masterGeneration?: bigint;
@@ -10610,7 +11343,8 @@ export interface MockResponseParams {
     projection?: bigint;
     session?: Uint8Array | number[];
     electrical?: { id?: bigint; owner?: bigint; remaining?: number; debit?: number; enabled?: number; available?: boolean }[];
-    contactWorks?: { id?: bigint; owner?: bigint; occurrenceCount?: number; remainingEnergy?: number; suppliedEnergy?: number }[];
+    contactWorks?: { id?: bigint; owner?: bigint; occurrenceCount?: number; store?: bigint }[];
+    energyStores?: { id?: bigint; owner?: bigint; energy?: number; supplied?: number; released?: number; dissipated?: number }[];
     bodies?: {
         id?: bigint;
         cell?: { x?: number; y?: number; z?: number };
@@ -10667,11 +11401,20 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
                 w.id ?? 1n,
                 w.owner ?? 1n,
                 w.occurrenceCount ?? 0,
-                w.remainingEnergy ?? 0,
-                w.suppliedEnergy ?? 0
+                w.store ?? 1n
             );
         }
         contactWorksOffset = builder.endVector();
+    }
+    let energyStoresOffset: flatbuffers.Offset | null = null;
+    if (params.energyStores && params.energyStores.length > 0) {
+        WorkshopResponse.startEnergyStoresVector(builder, params.energyStores.length);
+        for (let i = params.energyStores.length - 1; i >= 0; i--) {
+            const store = params.energyStores[i]!;
+            EnergyStoreReadRecord.createEnergyStoreReadRecord(builder, store.id ?? 1n, store.owner ?? 1n,
+                store.energy ?? 0, store.supplied ?? 0, store.released ?? 0, store.dissipated ?? 0);
+        }
+        energyStoresOffset = builder.endVector();
     }
     let bodiesOffset: flatbuffers.Offset | null = null;
     if (params.bodies && params.bodies.length > 0) {
@@ -10739,7 +11482,9 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
     if (capturesOffset !== null) WorkshopResponse.addCaptures(builder, capturesOffset);
     if (electricalOffset !== null) WorkshopResponse.addElectrical(builder, electricalOffset);
     if (contactWorksOffset !== null) WorkshopResponse.addContactWorks(builder, contactWorksOffset);
+    if (energyStoresOffset !== null) WorkshopResponse.addEnergyStores(builder, energyStoresOffset);
     if (memoryOffset !== null) WorkshopResponse.addActivationMemory(builder, memoryOffset);
+    WorkshopResponse.addPhysicalCommit(builder, PhysicalCommitRevisionRecord.createPhysicalCommitRevisionRecord(builder, params.physicalRevision));
     const end = WorkshopResponse.endWorkshopResponse(builder);
     builder.finishSizePrefixed(end, RESPONSE_IDENTIFIER);
     return Buffer.from(builder.asUint8Array());

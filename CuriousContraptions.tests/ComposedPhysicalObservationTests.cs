@@ -153,7 +153,7 @@ public sealed class ComposedPhysicalObservationTests
             var start = new Vector3(i == 0 ? -3 : 3, 3, 0) + DeclaredPorts.Current.LocalPosition(weights[i], PortId.Tie);
             var end = new Vector3(i == 0 ? -1 : 1, 3, 0) + DeclaredPorts.Current.LocalPosition(partners[i], PortId.Tie);
             var length = RopeGeometry.EvaluateRoute(start, end,
-                [new(new(0, 6, -.12f), Quaternion.Identity, port.GuideRadius, port.GuideOffset)]).TotalLength;
+                [new(new(0, 6, -.12f), Quaternion.Identity, port.GuideRadius, port.GuideOffset)], new RopeRouteWorkspace()).TotalLength;
             links.Add(new(weights[i].Id, PortId.Tie, owner.Id, names[i], WorkshopConnectionDomain.Rope, length / 2));
             links.Add(new(owner.Id, names[i], partners[i].Id, PortId.Tie, WorkshopConnectionDomain.Rope, length / 2));
         }

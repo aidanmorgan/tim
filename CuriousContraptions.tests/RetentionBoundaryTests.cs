@@ -336,7 +336,7 @@ public sealed class RetentionBoundaryTests
                 case SceneRetentionDefect.ForeignPhysicalRequest:
                 {
                     var idx = Array.FindIndex(nodes, n => n.Owner == first.Id && n.Kind == ActivationNodeKind.PhysicalRequest);
-                    nodes[idx] = nodes[idx] with { Retention = secondRetention };
+                    nodes[idx] = nodes[idx] with { RequestTarget = PhysicalRequestTarget.ForRetention(secondRetention) };
                     var activation = new ActivationNetwork(nodes, original.Activation.Edges, original.Activation.Substeps,
                         original.Activation.PassageSensors, original.Activation.Contacts.ToArray());
                     _ = new WorkshopCompiledScene(original.Identity, original.Revision, original.Settings, physics, activation, tracks, original.Owners, original.RunControls, original.MechanicalLinks);

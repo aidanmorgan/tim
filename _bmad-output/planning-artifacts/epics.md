@@ -4059,9 +4059,9 @@ So that high-energy mechanical impulses can launch balls across wide gaps.
 **Acceptance Criteria:**
 - **Given** a loaded Toy Cannon triggered by an activation wire,
 - **When** triggered,
-- **Then** the loaded ball launches with high muzzle velocity ($12\text{ m/s}$) along barrel trajectory.
+- **Then** the same loaded ball launches along the physical barrel axis from finite stored work, with a 12 m/s release cap. Owner decision, 18 November 2026: defaults remain 45 J capacity and 30 W charging, so a stationary free 1 kg payload is energy-limited to approximately 9.49 m/s; 12 m/s is not a guaranteed default speed.
 - **And** uncharged or unloaded cannons fire nothing.
-- **And** `tools/e2e/cat-071-016.test.ts` passes 100% in Chrome serially.
+- **And** the separate 11.4a/11.4b slices pass their production native unit/integration and independent review gates. Actual Chrome construction, configuration, intended/control behavior and lifecycle proof remains pending at the post-catalogue browser gate under current owner policy.
 
 ---
 

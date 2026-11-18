@@ -708,10 +708,10 @@ public sealed class EventRingConsumerTests
             var changed = entry with { Presentation = entry.Presentation with { Bindings = [binding, .. entry.Presentation.Bindings.Skip(1)] } };
             Assert.NotEmpty(BundleValidator.Validate([new NamedEntry("impact_switch", changed)]));
         }
-        // Every shipped event binding names a kind its own package declares, and the four packages are the bundle's only cues.
+        // Every shipped event binding names a kind its own package declares, and these packages are the bundle's only cues.
         var cued = TestBundle.Entries.Where(e => e.Presentation.Bindings.Any(binding => binding.Driver == PresentationDriver.Event))
             .Select(e => e.Metadata.Id).Order().ToArray();
-        Assert.Equal(["ball_detector", "basket", "bumper", "switch"], cued);
+        Assert.Equal(["ball_detector", "basket", "bumper", "cannon", "switch"], cued);
         Assert.All(TestBundle.Entries, e => Assert.All(e.Presentation.Bindings.Where(binding => binding.Driver == PresentationDriver.Event),
             binding => Assert.Contains(e.Events, declared => declared.Kind == binding.Event)));
     }

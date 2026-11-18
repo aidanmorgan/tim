@@ -94,6 +94,7 @@ public static partial class PhysicsGpuAbi
         var routeGroups = rawSpans.Select((raw, index) => (raw, index))
             .GroupBy(x => x.raw.Span.Route);
 
+        var geometry = new RopeRouteWorkspace();
         foreach (var group in routeGroups)
         {
             var ordered = group.OrderBy(x => x.raw.Span.Order).ToArray();
@@ -117,7 +118,7 @@ public static partial class PhysicsGpuAbi
 
             var terminalA = ordered[0].raw.From;
             var terminalB = ordered[^1].raw.To;
-            var evaluated = RopeGeometry.EvaluateRoute(terminalA, terminalB, routeGuides);
+            var evaluated = RopeGeometry.EvaluateRoute(terminalA, terminalB, routeGuides, geometry);
             var totalLength = evaluated.TotalLength;
             var totalMax = ordered.Sum(x => x.raw.Span.MaximumLength);
             var isCutOrIncomplete = ordered.Any(x => x.raw.Integrity == RopeIntegrity.Cut || !x.raw.Span.Complete);

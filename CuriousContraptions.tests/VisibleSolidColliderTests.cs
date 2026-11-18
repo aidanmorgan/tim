@@ -594,7 +594,7 @@ public sealed class VisibleSolidColliderTests
             BallAt(new(1.05f, (float)Y + 1.2f, 0))]));
         await ring.Advance(60);
         Assert.True(Position(ring.Reads[^1]).Y < Y, "the ball passes the bumper");
-        Assert.All(ring.Reads, read => Assert.Equal(32f, read.ContactWorks[0].RemainingEnergy.Value));
+        Assert.All(ring.Reads, read => Assert.Equal(32f, read.EnergyStores[0].Energy.Value));
         Assert.DoesNotContain(ring.Records, record => record.Kind == SimulationEventKind.Impact && record.Source.Value == Element.Value);
     }
 

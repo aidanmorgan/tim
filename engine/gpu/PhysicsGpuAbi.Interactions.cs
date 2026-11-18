@@ -57,7 +57,7 @@ public static partial class PhysicsGpuAbi
     }
 
     private static void ValidateCaptureCandidate(ReadOnlySpan<byte> candidate,ReadOnlySpan<byte> source,
-        PhysicsInteractionSnapshot after,PhysicsInteractionSnapshot before)
+        PhysicsInteractionSnapshot after,PhysicsInteractionSnapshot before, bool instantaneous)
     {
         ValidateCaptureState(source,before); ValidateCaptureState(candidate,after);
         var layout=Layout(source);
@@ -75,6 +75,12 @@ public static partial class PhysicsGpuAbi
             ValidateTargetPolicy(source,(BodyTargetKind)R32(source,offset+GuideTargetKindOffset),R32(source,offset+GuideTargetOffset));
             if(!AllZero(candidate.Slice(offset+GuidePaddingOffset,GuideBytes-GuidePaddingOffset)))
                 throw new ArgumentException("Nonzero guide padding.");
+        }
+        if (instantaneous)
+        {
+            if (R32(candidate, HeaderCapturedCountOffset) != R32(source, HeaderCapturedCountOffset))
+                throw new ArgumentException("An instantaneous transaction changed capture count.");
+            return; // Semantic state and unchanged actual interactions were validated above and by ValidateNoTimeState.
         }
         var captured = ValidateResidenceAdvance(source, layout, after, before);
         foreach(var pair in before.Captures)

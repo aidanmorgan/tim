@@ -905,7 +905,7 @@ public sealed class WeightTests(ITestOutputHelper output)
             new(new(-2f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f)),
             new(new(2f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f))
         };
-        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides);
+        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides, new RopeRouteWorkspace());
         var len = evaluated.TotalLength;
         var span1 = 4.0f;
         var remaining = MathF.Max(0.1f, len - span1);

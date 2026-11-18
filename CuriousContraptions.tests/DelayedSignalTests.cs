@@ -106,7 +106,7 @@ public sealed class DelayedSignalTests
         var targetNode = new ActivationNodeDeclaration(Lesson(1f).Instances.Identities[new(3)].Signals[new("signal")].Node,new(3),ActivationNodeKind.StickyFirstInput,default);
         var trigger = ActivationLatch.From(sourceNode,new(ActivationOccurrenceKind.Contact,sourceNode.Id,source,cause));
         var delayed = ActivationLatch.From(targetNode,new(ActivationOccurrenceKind.TimerElapsed,new(4),new(584,0f),cause));
-        var read = new WorkshopRead(new(2),new(146),default,Activations:new([trigger,delayed]));
+        var read = new WorkshopRead(new(2),new(146), new(146),default,Activations:new([trigger,delayed]));
         Assert.Equal(WorkshopGoalPhase.Solved,WorkshopGoalEvaluator.Evaluate(goal,read,new(2), Lesson(1f).Instances.Identities));
         Assert.Equal(new ActivationTime(584,0f),WorkshopGoalEvaluator.Occurrence(goal,read,new(2), Lesson(1f).Instances.Identities));
         Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read,new(3), Lesson(1f).Instances.Identities));
@@ -114,7 +114,7 @@ public sealed class DelayedSignalTests
         Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read with { Activations=new([trigger,early]) },new(2), Lesson(1f).Instances.Identities));
         Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read with { Activations=new([ActivationLatch.Clear(sourceNode),delayed]) },new(2), Lesson(1f).Instances.Identities));
         Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read with { Activations=new([trigger,delayed with { Owner=new(99) }]) },new(2), Lesson(1f).Instances.Identities));
-        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,new(new(3),new(0),default),new(3), Lesson(1f).Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,new(new(3),new(0),new(0),default),new(3), Lesson(1f).Instances.Identities));
     }
 
     [Fact]

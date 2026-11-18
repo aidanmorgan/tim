@@ -36,8 +36,7 @@ public readonly struct PhysicsContactWorkRead
         for (var i=0; i<Count; i++)
             if (_values![i].Id != other._values![i].Id || _values![i].Owner != other._values![i].Owner ||
                 _values![i].OccurrenceCount != other._values![i].OccurrenceCount ||
-                !_values![i].RemainingEnergy.HasSameBits(other._values![i].RemainingEnergy) ||
-                !_values![i].SuppliedEnergy.HasSameBits(other._values![i].SuppliedEnergy)) return false;
+                _values![i].Store != other._values![i].Store) return false;
         return true;
     }
 

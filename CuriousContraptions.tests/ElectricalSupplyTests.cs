@@ -105,7 +105,7 @@ public sealed class ElectricalSupplyTests
         Assert.Equal(transfer.Debit, after[0]);
         Assert.InRange(transfer.Debit, 0f, power / 120f);
         new ElectricalSourceRead(new(1), new(2), new(transfer.Remaining), new(transfer.Debit), ElectricalEnable.Enabled).Validate();
-        new ContactWorkRead(new(3), new(4), 0, new(after[0]), new(after[0])).Validate();
+        new EnergyStoreRead(new(3), new(4), new(after[0]), new(after[0]), default, default).Validate();
         if (power == 1200f) Assert.Equal(10f, transfer.Debit);
     }
 
@@ -143,14 +143,27 @@ public sealed class ElectricalSupplyTests
         Assert.Equal(.125f, after[0]);
     }
 
-    [Fact]
-    public void UnrepresentableSourceDebitDoesNotCreditSmallDemand()
+    [Theory]
+    [InlineData(44.9999f, 45f, 120f, true)]
+    [InlineData(0f, .000001f, 120f, true)]
+    [InlineData(44.9999f, 45f, .001f, false)]
+    public void SmallTerminalDemandRequiresAnAffordableRealSourceDebit(float balance, float limit, float power, bool affordable)
     {
-        float[] before = [0f], capacity = [.000001f], after = [-1f];
-        var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 3600f, 120f, before, capacity, after);
-        Assert.Equal(3600f, result.Remaining);
-        Assert.Equal(0f, result.Debit);
-        Assert.Equal(0f, after[0]);
+        float[] before = [balance], capacity = [limit], after = [-1f];
+        var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 3600f, power, before, capacity, after);
+        if (affordable)
+        {
+            Assert.Equal(limit, after[0]); // a fully funded device must eventually become ready again
+            Assert.True(result.Debit > 0f);
+            Assert.True(result.Debit >= after[0] - before[0]); // no free recipient work
+        }
+        else
+        {
+            Assert.Equal(before[0], after[0]);
+            Assert.Equal(0f, result.Debit);
+        }
+        Assert.Equal(3600f - result.Remaining, result.Debit);
+        Assert.InRange(result.Debit, 0f, power * ElectricalSupply.PhaseSeconds);
     }
 
     [Fact]
@@ -250,12 +263,13 @@ public sealed class ElectricalSupplyTests
     }
 
     [Fact]
-    public void SourceDeclarationAdmitsApprovedF32DefaultsAndPreservesContactBound()
+    public void SourceDeclarationAdmitsFiniteEnergyIndependentlyOfProductCapacity()
     {
         var source = new ElectricalSourceDeclaration(new(10), new(1), new(3600f), new(120f), 1f, ElectricalEnable.Enabled);
         source.Validate();
         Assert.Equal(3600f, source.InitialEnergy.Value);
-        Assert.Throws<ArgumentException>(() => new Joules(201f).Validate());
+        new Joules(201f).Validate();
+        Assert.Throws<ArgumentException>(() => new Joules(float.PositiveInfinity).Validate());
         new Joules(14400f).Validate(float.MaxValue);
         Assert.Throws<ArgumentException>(() => (source with { InitialFraction = float.NaN }).Validate());
         Assert.Throws<ArgumentException>(() => (source with { Capacity = new(0f) }).Validate());
@@ -274,17 +288,17 @@ public sealed class ElectricalSupplyTests
             new(new(10), new(1), new(3600f), new(120f), 1f, ElectricalEnable.Enabled),
             new(new(11), new(2), new(60f), new(10f), 0f, ElectricalEnable.Disabled)
         ];
-        ContactWorkDeclaration[] stores =
+        EnergyStoreDeclaration[] stores =
         [
-            new(new(20), new(3), new(BodyTargetKind.AllDynamic, default), new(8f), new(32f), new(.05f), 72),
-            new(new(21), new(4), new(BodyTargetKind.AllDynamic, default), new(8f), new(32f), new(.05f), 72)
+            new(new(20), new(3), new(32f), new(32f), new(float.MaxValue)),
+            new(new(21), new(4), new(32f), new(32f), new(float.MaxValue))
         ];
         ElectricalStorageBinding[] routes = [new(new(10), new(20), new(1)), new(new(10), new(21), new(2))];
         var plan = new ElectricalSupplyPlan(sources, routes, bodies, stores);
         Assert.Equal(2, plan.Bindings.Length);
         routes[1] = new(new(11), new(20), new(3));
         Assert.Throws<ArgumentException>(() => new ElectricalSupplyPlan(sources, routes, bodies, stores));
-        Assert.Equal(new GpuContactWorkId(21), plan.Bindings[1].Storage);
+        Assert.Equal(new EnergyStoreId(21), plan.Bindings[1].Storage);
         routes[1] = new(new(99), new(21), new(4));
         Assert.Throws<ArgumentException>(() => new ElectricalSupplyPlan(sources, routes, bodies, stores));
         routes[1] = new(new(10), new(99), new(5));

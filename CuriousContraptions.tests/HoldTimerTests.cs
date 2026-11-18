@@ -371,6 +371,9 @@ public sealed class HoldTimerTests
     // The real device produces every candidate; only its outward transport result is forged for admission controls.
     private sealed class CandidateTransport : IWorkshopGpuDevice
     {
+        public ValueTask<WorkshopGpuCandidate> ApplyFiniteWork(WorkshopRead committed, CommandSequence sequence, OwnedFiniteWorkRequest request) =>
+            _device.ApplyFiniteWork(committed, sequence, request);
+
         private readonly WorkshopGpuDevice _device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(
             new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         public Func<WorkshopRead, WorkshopRead>? Transform { get; set; }

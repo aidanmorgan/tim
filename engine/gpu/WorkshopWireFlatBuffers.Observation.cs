@@ -261,7 +261,7 @@ public static partial class WorkshopWireFlatBuffers
         for (var i = 0; i < samples.Length; i++)
         {
             var sample = d.Samples[i];
-            var encoded = WorkshopTraceRecord.Encode(new(sample.Epoch, sample.Tick, sample.Bodies, Captures: sample.Captures), d.Profile);
+            var encoded = WorkshopTraceRecord.Encode(sample, d.Profile);
             samples[i] = W.TraceSampleObservation.CreateTraceSampleObservation(b, W.TraceSampleObservation.CreateRecordVector(b, encoded));
         }
         var sampleVector = W.CaptureObservation.CreateSamplesVector(b, samples);

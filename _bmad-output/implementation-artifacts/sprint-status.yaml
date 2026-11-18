@@ -541,8 +541,8 @@ development_status:
   11-1b-conveyor: done # native complete & reviewed; Chrome/CI deferred per Oct 24/29 rules
   11-2a-clutch: done
   11-2b-reverse-transmission: done # native/full-local/review Pass; normal commit/publication checks follow; browser pending
-  11-4a-wound-spring: backlog
-  11-4b-cannon: backlog
+  11-4a-wound-spring: done
+  11-4b-cannon: done
   12-1a-tennis-ball: backlog
   12-1b-balloon: backlog
   13-1a-torch: backlog

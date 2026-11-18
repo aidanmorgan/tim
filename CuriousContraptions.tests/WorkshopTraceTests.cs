@@ -18,7 +18,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Construction, new(101, 207)), new(9), Profile);
         var physical = PhysicsGpuAbi.ReadDynamicBodies(state)[0];
         var rotation = CanonicalRotation.Normalize(0, 0, -.30151367f, MathF.Sqrt(1 - .30151367f * .30151367f));
-        var record = WorkshopTraceRecord.Encode(new(new(9), new(0), new([physical with { Rotation = rotation }])), Profile);
+        var record = WorkshopTraceRecord.Encode(new(new(9), new(0), new([physical with { Rotation = rotation }]), default), Profile);
         var values = new[] { rotation.X, rotation.Y, rotation.Z, rotation.W };
         for (var index = 0; index < values.Length; index++)
             Assert.Equal(values[index], BinaryPrimitives.ReadSingleLittleEndian(record.AsSpan(WorkshopTraceRecord.HeaderBytes + 32 + index * 4)));
@@ -86,7 +86,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     {
         var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(101,207)), epoch, profile);
         var physical = PhysicsGpuAbi.ReadDynamicBodies(state);
-        return WorkshopTraceRecord.Encode(new(epoch, new(0), physical), profile);
+        return WorkshopTraceRecord.Encode(new(epoch, new(0), physical, default), profile);
     }
 
     private static void Begin(WorkshopTrace trace, RuntimeSessionId session, WorkshopConstruction construction,
@@ -343,7 +343,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var bodies = new PhysicsBodyReadSet(Enumerable.Range(1, 16).Select(id =>
             new PhysicsBodyRead(new(new((ulong)id), 9, 0, default, default, default),
                 CanonicalRotation.Identity, default, default)).ToArray());
-        var record = WorkshopTraceRecord.Encode(new(new(9), new(0), bodies), Profile);
+        var record = WorkshopTraceRecord.Encode(new(new(9), new(0), bodies, default), Profile);
         Begin(trace, Session, Construction, new(9), new(3), record);
         for (ulong tick = 1; tick <= Profile.RunTickLimit; tick++)
         {

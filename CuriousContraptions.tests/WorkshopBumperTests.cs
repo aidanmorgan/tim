@@ -141,7 +141,7 @@ public sealed class WorkshopBumperTests
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(RuntimeTestServices.Bundle, bumper with { Id = new(4) }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle));
         var unpaid = placed.WithInstance(RuntimeTestServices.Bundle, bumper with { Parameters = new([new(new("strength"), 0f)]) }); unpaid.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
-        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, unpaid, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, unpaid, new(1, 2)).EnergyStores.ToArray()).InitialEnergy.Value);
         foreach (var precision in new float[] { 0f, .45f, 1f })
         {
             var next = PuzzleCatalogue.WithPrecision(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, placed, new(precision)); next.Validate(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle);
@@ -338,15 +338,16 @@ public sealed class WorkshopBumperTests
         var owner = scene.World.ContactWorkOffset(0);
         var collider = Array.FindIndex(scene.Colliders.ToArray(), value => value.Body == new GpuBodyId(2));
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(88), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(owner + 32), 1);
-        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(owner + 48), 20f);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(owner + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset), 1);
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(scene.World.EnergyStoreOffset(0) + PhysicsGpuAbi.EnergyStoreBalanceOffset), 20f);
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(scene.World.EnergyStoreOffset(0) + PhysicsGpuAbi.EnergyStoreReleasedOffset), 12f);
         var occurrence = new ContactWorkOccurrence(new(0), new(checked((uint)collider)), new(1), 1, 1, 0,
             new(4.000001f), new(12f), ContactWorkEffect.Paid);
         var interactions = new PhysicsInteractionSnapshot(PhysicsInteractionSnapshot.Empty.Captures,
             PhysicsInteractionSnapshot.Empty.Works.Add(new(scene.ContactWorks[0].Id, new(1)), occurrence));
         var paid = PhysicsGpuAbi.ReadContactWorks(bytes, interactions);
         paid.ValidateAdvance(before);
-        Assert.Equal(20f, paid[0].RemainingEnergy.Value);
+        Assert.Equal(20f, PhysicsGpuAbi.ReadEnergyStores(bytes)[0].Energy.Value);
         Assert.Equal(12f, paid.Occurrence(0).Debit.Value);
         Assert.Equal(4.000001f, paid.Occurrence(0).ApproachSpeed.Value);
         Assert.Equal(ContactWorkEffect.Paid, paid.Occurrence(0).Effect);
@@ -447,7 +448,7 @@ public sealed class WorkshopBumperTests
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllDynamic, default), work.Targets);
         Assert.True(work.Targets.Contains(new(1), scene.Bodies.ToArray().Single(body => body.Id == new GpuBodyId(1)).Payload));
         Assert.Equal(new ContactSpeed(8f), work.TargetSpeed);
-        Assert.Equal(new Joules(32), work.InitialEnergy);
+        Assert.Equal(new Joules(32), Assert.Single(scene.EnergyStores.ToArray()).InitialEnergy);
         Assert.Equal(new ContactSpeed(.05f), work.Threshold);
         Assert.Equal(72u, work.CooldownPhysicalSteps);
     }
@@ -465,7 +466,7 @@ public sealed class WorkshopBumperTests
             var bumper = Assert.IsType<WorkshopGenericInstance>(save.Construction.Instances[1]);
             Assert.Equal((float)strength, Assert.Single(bumper.Parameters).Value);
             Assert.Equal(.5f * (float)strength * (float)strength,
-                Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, save.Construction, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+                Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, save.Construction, new(1, 2)).EnergyStores.ToArray()).InitialEnergy.Value);
         }
         foreach (var parameters in new (string, float)[][]
         {
@@ -487,12 +488,14 @@ public sealed class WorkshopBumperTests
         foreach (var invalid in new[] {
             work with { Owner = new(1) }, work with { Targets = new(BodyTargetKind.NamedBody, work.Owner) },
             work with { Owner = new(99) }, work with { CooldownPhysicalSteps = 0 },
-            work with { InitialEnergy = new(201) } })
+            work with { Store = new(999) } })
             Assert.Throws<ArgumentException>(() => new PhysicsSceneDeclaration(scene.Document, scene.NextIdentity,
-                scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, scene.Guides, scene.Triggers, [invalid]));
-        Assert.Throws<ArgumentException>(() => new PhysicsSceneDeclaration(scene.Document, scene.NextIdentity + 1,
+                scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, scene.Guides, scene.Triggers, [invalid], energyStores: scene.EnergyStores));
+        var composed = new PhysicsSceneDeclaration(scene.Document, scene.NextIdentity + 1,
             scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, scene.Guides, scene.Triggers,
-            [work, work with { Id = new(scene.NextIdentity) }]));
+            [work, work with { Id = new(scene.NextIdentity) }], energyStores: scene.EnergyStores);
+        Assert.Equal(2, composed.ContactWorks.Length);
+        Assert.Equal(work.Store, composed.ContactWorks[1].Store);
     }
 
     [Fact]

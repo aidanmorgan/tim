@@ -25,6 +25,12 @@ public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
     private readonly Dictionary<GpuContactTriggerId, int> _triggerOffsets = new(4);
     private readonly Dictionary<GpuContactWorkId, int> _contactWorkSlots = new(4);
     private readonly Dictionary<GpuContactWorkId, int> _contactWorkOffsets = new(4);
+    private readonly Dictionary<ChamberRegionId, int> _chamberRegionSlots = new();
+    private readonly Dictionary<ChamberRegionId, int> _chamberRegionOffsets = new();
+    private readonly Dictionary<FiniteWorkActuatorId, int> _finiteWorkActuatorSlots = new();
+    private readonly Dictionary<FiniteWorkActuatorId, int> _finiteWorkActuatorOffsets = new();
+    private readonly Dictionary<EnergyStoreId, int> _energyStoreSlots = new(4);
+    private readonly Dictionary<EnergyStoreId, int> _energyStoreOffsets = new(4);
     private readonly Dictionary<GpuOrientationSensorId, int> _orientationSensorSlots = new(4);
     private readonly Dictionary<GpuOrientationSensorId, int> _orientationSensorOffsets = new(4);
     private readonly Dictionary<ElectricalSourceId, int> _electricalSourceSlots = new(4);
@@ -52,6 +58,8 @@ public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
     public IReadOnlyDictionary<GpuContactTriggerId, int> TriggerOffsets => _triggerOffsets;
     public IReadOnlyDictionary<GpuContactWorkId, int> ContactWorkSlots => _contactWorkSlots;
     public IReadOnlyDictionary<GpuContactWorkId, int> ContactWorkOffsets => _contactWorkOffsets;
+    public IReadOnlyDictionary<EnergyStoreId, int> EnergyStoreSlots => _energyStoreSlots;
+    public IReadOnlyDictionary<EnergyStoreId, int> EnergyStoreOffsets => _energyStoreOffsets;
     public IReadOnlyDictionary<GpuOrientationSensorId, int> OrientationSensorSlots => _orientationSensorSlots;
     public IReadOnlyDictionary<GpuOrientationSensorId, int> OrientationSensorOffsets => _orientationSensorOffsets;
     public IReadOnlyDictionary<ElectricalSourceId, int> ElectricalSourceSlots => _electricalSourceSlots;
@@ -79,6 +87,12 @@ public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
     public int GetTriggerOffset(GpuContactTriggerId id) => _triggerOffsets[id];
     public int GetContactWorkSlot(GpuContactWorkId id) => _contactWorkSlots[id];
     public int GetContactWorkOffset(GpuContactWorkId id) => _contactWorkOffsets[id];
+    public int GetChamberRegionSlot(ChamberRegionId id) => _chamberRegionSlots[id];
+    public int GetChamberRegionOffset(ChamberRegionId id) => _chamberRegionOffsets[id];
+    public int GetFiniteWorkActuatorSlot(FiniteWorkActuatorId id) => _finiteWorkActuatorSlots[id];
+    public int GetFiniteWorkActuatorOffset(FiniteWorkActuatorId id) => _finiteWorkActuatorOffsets[id];
+    public int GetEnergyStoreSlot(EnergyStoreId id) => _energyStoreSlots[id];
+    public int GetEnergyStoreOffset(EnergyStoreId id) => _energyStoreOffsets[id];
     public int GetOrientationSensorSlot(GpuOrientationSensorId id) => _orientationSensorSlots[id];
     public int GetOrientationSensorOffset(GpuOrientationSensorId id) => _orientationSensorOffsets[id];
     public int GetElectricalSourceSlot(ElectricalSourceId id) => _electricalSourceSlots[id];
@@ -106,9 +120,27 @@ public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
         ReadOnlySpan<PrismaticConstraintDeclaration> prismatics,
         ReadOnlySpan<RevoluteConstraintDeclaration> revolutes,
         ReadOnlySpan<CompliantSurfaceDeclaration> compliantSurfaces,
-        ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default)
+        ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default,
+        ReadOnlySpan<EnergyStoreDeclaration> energyStores = default,
+        ReadOnlySpan<ChamberRegionDeclaration> chamberRegions = default,
+        ReadOnlySpan<FiniteWorkActuatorDeclaration> finiteWorkActuators = default)
     {
         var layout = new CompiledMemoryLayout();
+        for (var i = 0; i < chamberRegions.Length; i++)
+        {
+            layout._chamberRegionSlots.Add(chamberRegions[i].Id, i);
+            layout._chamberRegionOffsets.Add(chamberRegions[i].Id, world.ChamberRegionOffset(i));
+        }
+        for (var i = 0; i < finiteWorkActuators.Length; i++)
+        {
+            layout._finiteWorkActuatorSlots.Add(finiteWorkActuators[i].Id, i);
+            layout._finiteWorkActuatorOffsets.Add(finiteWorkActuators[i].Id, world.FiniteWorkActuatorOffset(i));
+        }
+        for (var i = 0; i < energyStores.Length; i++)
+        {
+            layout._energyStoreSlots.Add(energyStores[i].Id, i);
+            layout._energyStoreOffsets.Add(energyStores[i].Id, world.EnergyStoreOffset(i));
+        }
         for (var i = 0; i < bodies.Length; i++)
         {
             var id = bodies[i].Id;

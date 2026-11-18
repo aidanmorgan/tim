@@ -30,6 +30,7 @@ internal sealed class FrictionJacobian
     private readonly GuideComponent?[] _guides = new GuideComponent?[6];
     private readonly int[] _generations = new int[6];
     private int _count;
+    public System.ReadOnlySpan<SimBody> Bodies => _bodies.AsSpan(0, _count);
 
     public bool FramesUnchanged()
     {

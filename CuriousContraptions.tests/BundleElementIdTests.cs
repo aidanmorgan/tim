@@ -87,7 +87,8 @@ public sealed class BundleElementIdTests
     [Fact]
     public void EveryLoadedElementIsKnownToTheWorkerDecode()
     {
-        Assert.Equal(39, SaveFixture.Elements.Count);
+        Assert.Equal(40, SaveFixture.Elements.Count);
+        Assert.Contains(new PartId("cannon"), SaveFixture.Elements);
         Assert.Contains(new PartId("wound_spring"), SaveFixture.Elements);
         Assert.Contains(new PartId("linear_pusher"), SaveFixture.Elements);
         Assert.Contains(new PartId("reverse_transmission"), SaveFixture.Elements);

@@ -142,7 +142,7 @@ public sealed class WorkbenchCapacityTests
         "pipe_bend_45" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_45"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
         "pipe_bend_90" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_90"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
         "funnel" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "linear_pusher" or "wound_spring" => WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, id, (float)x, 3f, (float)z, 0, 0, 0, 1),
+        "linear_pusher" or "wound_spring" or "cannon" => WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, id, (float)x, 3f, (float)z, 0, 0, 0, 1),
         "powered_gate" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), id, (float)(x), 0, (float)(z), 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(id, (float)(x), 1, (float)(z), .5f),
         "counter" => PlacedParts.Counter(id, (float)(x), 1, (float)(z), 0, 0, 0, 1, 3),
@@ -265,12 +265,12 @@ public sealed class WorkbenchCapacityTests
     public void AWorkOccurrenceSlotPastSixteenBitsIsHeldByTheDeviceLedger()
     {
         var occurrence = new ContactWorkOccurrence(new(0), new(70_000), new(5), 1, 4, 0f, new(3f), new(1.5f), ContactWorkEffect.Paid);
-        var ledger = new ContactWorkLedger([new(new(9), new(8), 1, new(30f))], [occurrence]);
+        var ledger = new ContactWorkLedger([new(new(9), new(8), 1, new(30))], [occurrence]);
         Assert.Equal(70_000u, ledger.Occurrence(0).Collider.Value);
         Assert.Equal(occurrence, ledger.Occurrence(0));
         var bodies = new PhysicsBodyReadSet([new PhysicsBodyRead(new CanonicalBody(new(5), 1, 0, default, default, default),
             CanonicalRotation.Identity, default, default)]);
-        var read = new WorkshopRead(new(1), new(0), bodies, new(2),
+        var read = new WorkshopRead(new(1), new(0), new(0), bodies, new(2),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100000000), new(100000)), ContactWorks: ledger.Stores);
         var response = new WorkshopResponse(new(4), WorkshopResponseKind.Acknowledgement, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
             WorkshopSimulationPhase.Building, read, new(1, 2), default, new(1), new(1), new(1), new(0));
@@ -278,7 +278,7 @@ public sealed class WorkbenchCapacityTests
             WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)) })
         {
             Assert.Equal(1, decoded.Read.ContactWorks.Count);
-            Assert.Equal(new ContactWorkRead(new(9), new(8), 1, new(30f)), decoded.Read.ContactWorks[0]);
+            Assert.Equal(new ContactWorkRead(new(9), new(8), 1, new(30)), decoded.Read.ContactWorks[0]);
         }
     }
 
@@ -286,7 +286,7 @@ public sealed class WorkbenchCapacityTests
     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
     {
         PartId[] rows = [new PartId("ball"), new PartId("basket"), new PartId("switch"), new PartId("lamp"),
-            new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"), new("weight"), new("rope_anchor"), new("pulley"), new("impact_lever"), new("trampoline"), new("motor"), new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring")];
+            new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"), new("weight"), new("rope_anchor"), new("pulley"), new("impact_lever"), new("trampoline"), new("motor"), new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring"), new("cannon")];
         Assert.Equal(rows, FreePalette.Keys.ToArray());
         Assert.All(FreePalette.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         Assert.Equal(rows.Length, FreePalette.Count);

@@ -31,6 +31,9 @@ public interface IPhysicsSceneDeclaration
     ReadOnlySpan<PlanarGuideDeclaration> Guides { get; }
     ReadOnlySpan<ContactTriggerDeclaration> Triggers { get; }
     ReadOnlySpan<ContactWorkDeclaration> ContactWorks { get; }
+    ReadOnlySpan<EnergyStoreDeclaration> EnergyStores { get; }
+    ReadOnlySpan<ChamberRegionDeclaration> ChamberRegions { get; }
+    ReadOnlySpan<FiniteWorkActuatorDeclaration> FiniteWorkActuators { get; }
     ReadOnlySpan<OrientationSensorDeclaration> OrientationSensors { get; }
 }
 
@@ -50,6 +53,8 @@ public interface ICompiledMemoryLayout
     IReadOnlyDictionary<GpuContactTriggerId, int> TriggerOffsets { get; }
     IReadOnlyDictionary<GpuContactWorkId, int> ContactWorkSlots { get; }
     IReadOnlyDictionary<GpuContactWorkId, int> ContactWorkOffsets { get; }
+    IReadOnlyDictionary<EnergyStoreId, int> EnergyStoreSlots { get; }
+    IReadOnlyDictionary<EnergyStoreId, int> EnergyStoreOffsets { get; }
     IReadOnlyDictionary<GpuOrientationSensorId, int> OrientationSensorSlots { get; }
     IReadOnlyDictionary<GpuOrientationSensorId, int> OrientationSensorOffsets { get; }
     IReadOnlyDictionary<ElectricalSourceId, int> ElectricalSourceSlots { get; }
@@ -76,6 +81,12 @@ public interface ICompiledMemoryLayout
     int GetTriggerOffset(GpuContactTriggerId id);
     int GetContactWorkSlot(GpuContactWorkId id);
     int GetContactWorkOffset(GpuContactWorkId id);
+    int GetEnergyStoreSlot(EnergyStoreId id);
+    int GetChamberRegionSlot(ChamberRegionId id);
+    int GetChamberRegionOffset(ChamberRegionId id);
+    int GetFiniteWorkActuatorSlot(FiniteWorkActuatorId id);
+    int GetFiniteWorkActuatorOffset(FiniteWorkActuatorId id);
+    int GetEnergyStoreOffset(EnergyStoreId id);
     int GetOrientationSensorSlot(GpuOrientationSensorId id);
     int GetOrientationSensorOffset(GpuOrientationSensorId id);
     int GetElectricalSourceSlot(ElectricalSourceId id);
@@ -100,6 +111,9 @@ public interface IPhysicsWorldLayout
     int Guides { get; }
     int Triggers { get; }
     int ContactWorks { get; }
+    int EnergyStores { get; }
+    int ChamberRegions { get; }
+    int FiniteWorkActuators { get; }
     int OrientationSensors { get; }
     int ElectricalSources { get; }
     int ElectricalBindings { get; }
@@ -114,6 +128,9 @@ public interface IPhysicsWorldLayout
     int GuidesOffset { get; }
     int TriggersOffset { get; }
     int ContactWorksOffset { get; }
+    int EnergyStoresOffset { get; }
+    int ChamberRegionsOffset { get; }
+    int FiniteWorkActuatorsOffset { get; }
     int OrientationSensorsOffset { get; }
     int MotionOffset { get; }
     int MotionBytes { get; }
@@ -134,6 +151,9 @@ public interface IPhysicsWorldLayout
     int GuideOffset(int slot);
     int TriggerOffset(int slot);
     int ContactWorkOffset(int slot);
+    int EnergyStoreOffset(int slot);
+    int ChamberRegionOffset(int slot);
+    int FiniteWorkActuatorOffset(int slot);
     int OrientationSensorOffset(int slot);
     int ElectricalSourceOffset(int slot);
     int ElectricalBindingOffset(int slot);

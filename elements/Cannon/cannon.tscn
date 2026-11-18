@@ -1,0 +1,172 @@
+[gd_scene load_steps=20 format=3]
+
+[ext_resource type="ArrayMesh" path="res://elements/Cannon/jacket.obj" id="JacketArt"]
+[ext_resource type="ArrayMesh" path="res://elements/Cannon/collar.obj" id="CollarArt"]
+[ext_resource type="ArrayMesh" path="res://elements/Cannon/sleeve.obj" id="SleeveArt"]
+
+[sub_resource type="StandardMaterial3D" id="Navy"]
+albedo_color = Color(0.161, 0.224, 0.329, 1)
+
+[sub_resource type="StandardMaterial3D" id="Cream"]
+albedo_color = Color(1, 0.973, 0.914, 1)
+
+[sub_resource type="StandardMaterial3D" id="Cyan"]
+albedo_color = Color(0.4, 0.72, 0.79, 0.22)
+transparency = 1
+cull_mode = 0
+
+[sub_resource type="StandardMaterial3D" id="Slate"]
+albedo_color = Color(0.333, 0.396, 0.451, 1)
+
+[sub_resource type="StandardMaterial3D" id="Gold"]
+albedo_color = Color(0.969, 0.796, 0.322, 1)
+
+[sub_resource type="StandardMaterial3D" id="BarGold"]
+albedo_color = Color(0.91, 0.718, 0.392, 1)
+
+[sub_resource type="CylinderMesh" id="Jacket"]
+material = SubResource("Cyan")
+top_radius = 0.58
+bottom_radius = 0.58
+height = 1.1
+cap_top = false
+cap_bottom = false
+radial_segments = 64
+
+[sub_resource type="CylinderMesh" id="Collar"]
+material = SubResource("Cream")
+top_radius = 0.65
+bottom_radius = 0.65
+height = 0.1
+cap_top = false
+cap_bottom = false
+radial_segments = 64
+
+[sub_resource type="CylinderMesh" id="Sleeve"]
+material = SubResource("Slate")
+top_radius = 0.565
+bottom_radius = 0.565
+height = 0.14
+cap_top = false
+cap_bottom = false
+radial_segments = 64
+
+[sub_resource type="BoxMesh" id="Breech"]
+material = SubResource("Cream")
+size = Vector3(0.2, 1.16, 1.16)
+
+[sub_resource type="BoxMesh" id="Foot"]
+material = SubResource("Navy")
+size = Vector3(1.7, 0.2, 1.4)
+
+[sub_resource type="BoxMesh" id="Track"]
+material = SubResource("Navy")
+size = Vector3(0.8, 0.11, 0.07)
+
+[sub_resource type="BoxMesh" id="Bar"]
+material = SubResource("BarGold")
+size = Vector3(0.8, 0.07, 0.075)
+
+[sub_resource type="BoxMesh" id="Flag"]
+material = SubResource("Gold")
+size = Vector3(0.28, 0.14, 0.04)
+
+[sub_resource type="SphereMesh" id="Indicator"]
+material = SubResource("Slate")
+radius = 0.07
+height = 0.14
+
+[sub_resource type="SphereMesh" id="Socket"]
+material = SubResource("BarGold")
+radius = 0.07
+height = 0.14
+
+[node name="Cannon" type="Node3D"]
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Jacket" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+mesh = ExtResource("JacketArt")
+material_override = SubResource("Cyan")
+
+[node name="RearCollar" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -0.5, 0, 0)
+mesh = ExtResource("CollarArt")
+material_override = SubResource("Cream")
+
+[node name="MuzzleCollar" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.5, 0, 0)
+mesh = ExtResource("CollarArt")
+material_override = SubResource("Cream")
+
+[node name="Sleeve" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -0.22, 0, 0)
+mesh = ExtResource("SleeveArt")
+material_override = SubResource("Slate")
+
+[node name="Breech" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.65, 0, 0)
+mesh = SubResource("Breech")
+
+[node name="Foot" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
+mesh = SubResource("Foot")
+
+[node name="ChargeTrack" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.55, 0.62)
+mesh = SubResource("Track")
+
+[node name="ChargeBar" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.001, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.55, 0.66)
+mesh = SubResource("Bar")
+
+[node name="ReadyFlag" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.3420201433256688, -0.9396926207859083, 0, 0.9396926207859083, 0.3420201433256688, 0, 0, 0, 1, -0.55, 0.75, 0)
+mesh = SubResource("Flag")
+
+[node name="Indicator" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.66, 0.65, 0.4)
+mesh = SubResource("Indicator")
+
+[node name="col_Jacket" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("Jacket")
+visible = false
+metadata/wall_thickness = 0.1
+
+[node name="col_RearCollar" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -0.5, 0, 0)
+mesh = SubResource("Collar")
+visible = false
+metadata/wall_thickness = 0.17
+
+[node name="col_MuzzleCollar" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.5, 0, 0)
+mesh = SubResource("Collar")
+visible = false
+metadata/wall_thickness = 0.17
+
+[node name="col_Breech" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.65, 0, 0)
+mesh = SubResource("Breech")
+visible = false
+
+[node name="col_Foot" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
+mesh = SubResource("Foot")
+visible = false
+
+[node name="Loc_Port_PowerIn" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, -0.55, 0.55)
+
+[node name="PowerIn" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, -0.55, 0.55)
+mesh = SubResource("Socket")
+
+[node name="Loc_Port_ActivationIn" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, -0.55, 0.55)
+
+[node name="ActivationIn" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, -0.55, 0.55)
+mesh = SubResource("Socket")

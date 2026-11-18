@@ -64,7 +64,7 @@ public sealed class WoundSpringElementDeclaration : ISliderElement, IHingeElemen
             new("ActivationIn", SocketGlyph.Text), PortSignalKind.Pulse, new(.62f, -.55f, .55f), Vector3.UnitZ)
     ];
     public IReadOnlyList<SignalNodeDescriptor> SignalNodes =>
-        [new SignalPhysicalRequestDescriptor(new("release"), new(1), PhysicalRequestOperation.Release)];
+        [new SignalPhysicalRequestDescriptor(new("release"), CuriousContraptions.Gpu.LocalPhysicalRequestTarget.ForRetention(new(1)), PhysicalRequestOperation.Release)];
     public IReadOnlyList<SignalEdge> SignalEdges => [];
     public IReadOnlyList<SignalPortBinding> SignalPorts => [new(PortId.ActivationIn, new(new("release"), SignalTerminal.Input))];
     public ElementPresentation Presentation => new(1.25f, PresentationAxes.None,

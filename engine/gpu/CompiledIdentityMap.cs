@@ -19,12 +19,15 @@ public readonly record struct CompiledSignalIdentities(ActivationNodeId Node, Gp
 public readonly record struct CompiledSupplyIdentities(SupplyNodeId Node, ElectricalSourceId Source);
 public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArray<GpuColliderId> Colliders,
     ImmutableArray<CompiledSliderIdentities> Sliders, ImmutableDictionary<SignalNodeId, CompiledSignalIdentities> Signals,
-    ImmutableDictionary<LocalSupplyNodeId, CompiledSupplyIdentities> Supply, GpuContactWorkId Work,
+    ImmutableDictionary<LocalSupplyNodeId, CompiledSupplyIdentities> Supply, ImmutableDictionary<LocalContactWorkId, GpuContactWorkId> Works,
     CompiledCaptureIdentities Capture, ImmutableArray<CompiledHingeIdentities> Hinges,
     CompliantSurfaceId CompliantSurface, ImmutableArray<DrivenSurfaceId> DrivenSurfaces,
     ImmutableDictionary<PortId, RopeGuideId> Guides,
     ImmutableDictionary<LocalMechanicalTransmissionId, MechanicalTransmissionId> Transmissions,
-    ImmutableDictionary<LocalPrismaticRetentionId, PrismaticRetentionId> Retentions);
+    ImmutableDictionary<LocalPrismaticRetentionId, PrismaticRetentionId> Retentions,
+    ImmutableDictionary<LocalEnergyStoreId, EnergyStoreId> EnergyStores,
+    ImmutableDictionary<LocalChamberRegionId, ChamberRegionId> ChamberRegions,
+    ImmutableDictionary<LocalFiniteWorkActuatorId, FiniteWorkActuatorId> FiniteWorkActuators);
 
 /// <summary>One immutable scene-sized allocation shared by every consumer of an authored instance collection.</summary>
 public sealed class CompiledIdentityMap
@@ -49,6 +52,17 @@ public sealed class CompiledIdentityMap
         index -= rows.Sliders.Length;
         if (index >= 0 && index < rows.Hinges.Length) return rows.Hinges[index].Body;
         throw new ArgumentException("Absent package body.");
+    }
+    public GpuColliderId Collider(GpuBodyId owner, PackageBodyIndex body, BodyColliderIndex collider)
+    {
+        var rows = this[owner];
+        var index = body.Value - 1;
+        var colliders = body.Value == 0 ? rows.Colliders :
+            index >= 0 && index < rows.Sliders.Length ? rows.Sliders[index].Colliders :
+            index >= rows.Sliders.Length && index - rows.Sliders.Length < rows.Hinges.Length ? rows.Hinges[index - rows.Sliders.Length].Colliders :
+            throw new ArgumentException("Absent package body.");
+        return collider.Value >= 0 && collider.Value < colliders.Length ? colliders[collider.Value] :
+            throw new ArgumentException("Absent package collider.");
     }
     public bool IsChild(GpuBodyId owner, GpuBodyId child) => _owners.TryGetValue(child, out var actual) && actual == owner;
     public bool TryCapture(GpuBodyId owner, GpuBodyId target, out CompiledCaptureIdentities capture)
@@ -138,7 +152,8 @@ public sealed class CompiledIdentityMap
 
         var signals = AllocateSignals(entry, Allocate);
         var supply = AllocateSupply(entry, Allocate);
-        var work = entry.Mechanical?.ContactWork is not null ? new GpuContactWorkId(Allocate()) : default;
+        var work = ImmutableDictionary.CreateBuilder<LocalContactWorkId, GpuContactWorkId>();
+        foreach (var declaredWork in entry.Mechanical?.ContactWorks ?? []) work.Add(declaredWork.Id, new(Allocate()));
         var capture = new CompiledCaptureIdentities(
             entry.Mechanical?.Residence is not null ? new(Allocate()) : default,
             entry.Mechanical?.PlanarGuide is not null ? new(Allocate()) : default);
@@ -148,14 +163,32 @@ public sealed class CompiledIdentityMap
         var guides = ImmutableDictionary.CreateBuilder<PortId, RopeGuideId>();
         foreach (var port in entry.Ports.Where(port => port.AttachmentRole == RopeAttachmentRole.Guide).OrderBy(port => port.Id))
             guides.Add(port.Id, new(nextGuide++));
+        var capabilities = AllocateMechanicalCapabilities(entry, Allocate);
+        return new(material, colliders, sliders, signals, supply, work.ToImmutable(),
+            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable(), capabilities.Transmissions, capabilities.Retentions, capabilities.Stores, capabilities.Regions, capabilities.Actuators);
+    }
+
+    private static (
+        ImmutableDictionary<LocalMechanicalTransmissionId, MechanicalTransmissionId> Transmissions,
+        ImmutableDictionary<LocalPrismaticRetentionId, PrismaticRetentionId> Retentions,
+        ImmutableDictionary<LocalEnergyStoreId, EnergyStoreId> Stores,
+        ImmutableDictionary<LocalChamberRegionId, ChamberRegionId> Regions,
+        ImmutableDictionary<LocalFiniteWorkActuatorId, FiniteWorkActuatorId> Actuators)
+        AllocateMechanicalCapabilities(CuriousContraptions.Bundle.BundleEntry entry, Func<ulong> Allocate)
+    {
         var transmissions = ImmutableDictionary.CreateBuilder<LocalMechanicalTransmissionId, MechanicalTransmissionId>();
         foreach (var transmission in entry.Mechanical?.Transmissions ?? [])
             transmissions.Add(transmission.Id, new(Allocate()));
         var retentions = ImmutableDictionary.CreateBuilder<LocalPrismaticRetentionId, PrismaticRetentionId>();
         foreach (var retention in entry.Mechanical?.Retentions ?? [])
             retentions.Add(retention.Id, new(Allocate()));
-        return new(material, colliders, sliders, signals, supply, work,
-            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable(), transmissions.ToImmutable(), retentions.ToImmutable());
+        var stores = ImmutableDictionary.CreateBuilder<LocalEnergyStoreId, EnergyStoreId>();
+        foreach (var store in entry.Mechanical?.EnergyStores ?? []) stores.Add(store.Id, new(Allocate()));
+        var regions = ImmutableDictionary.CreateBuilder<LocalChamberRegionId, ChamberRegionId>();
+        foreach (var region in entry.Mechanical?.ChamberRegions ?? []) regions.Add(region.Id, new(Allocate()));
+        var actuators = ImmutableDictionary.CreateBuilder<LocalFiniteWorkActuatorId, FiniteWorkActuatorId>();
+        foreach (var actuator in entry.Mechanical?.FiniteWorkActuators ?? []) actuators.Add(actuator.Id, new(Allocate()));
+        return (transmissions.ToImmutable(), retentions.ToImmutable(), stores.ToImmutable(), regions.ToImmutable(), actuators.ToImmutable());
     }
 
     private static ImmutableDictionary<LocalSupplyNodeId, CompiledSupplyIdentities> AllocateSupply(

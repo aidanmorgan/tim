@@ -135,6 +135,8 @@ public sealed class BundlePortsTests
             Mechanical(PortId.Drive, Out, .36f, 0f, .4f, new(CoordinateKind.Revolute, 1), -1f,
             new(new(0), new(.36f, 0f, .39f), Quaternion.Identity, .32f, 1f))], new(3, 2, 0, 2)),
         ["bumper"] = ([Electrical(PortId.PowerIn, In, 0f, 0f, .65f)], new(1, 0, 0, 0)),
+        ["cannon"] = ([Electrical(PortId.PowerIn, In, -.45f, -.55f, .55f),
+            Activation(PortId.ActivationIn, In, Pulse, .15f, -.55f, .55f)], new(1, 0, 0, 0)),
         ["clock"] = ([Electrical(PortId.PowerIn, In, -.78f, 0f, 0f), Activation(PortId.ActivationOut, Out, Pulse, .78f, 0f, 0f)],
             new(1, 0, 0, 0)),
         ["counter"] = ([Activation(PortId.ActivationIn, In, Pulse, 0f, .72f, .1f), Activation(PortId.ActivationOut, Out, Pulse, 0f, -.72f, .1f),

@@ -35,10 +35,18 @@ public static class ElectricalSupply
         if (enabled == ElectricalEnable.Disabled || sourceBalance == 0 || totalDemand <= 0)
             return new(sourceBalance, 0f);
 
-        var requested = MathF.Min(sourceBalance, MathF.Min(maximumPower * PhaseSeconds, totalDemand));
+        var budget = MathF.Min(sourceBalance, maximumPower * PhaseSeconds);
+        var requested = MathF.Min(budget, totalDemand);
         var reservedRemaining = sourceBalance - requested;
         var reserved = sourceBalance - reservedRemaining;
-        if (reserved > requested)
+        // A small terminal demand still needs a payable source debit. Round its reservation
+        // up when the phase budget can fund it; never strand a recipient below full capacity.
+        if (reserved < requested)
+        {
+            reservedRemaining = MathF.Max(0f, MathF.BitDecrement(reservedRemaining));
+            reserved = sourceBalance - reservedRemaining;
+        }
+        if (reserved > budget)
         {
             reservedRemaining = MathF.Min(sourceBalance, MathF.BitIncrement(reservedRemaining));
             reserved = sourceBalance - reservedRemaining;

@@ -4,7 +4,7 @@ namespace CuriousContraptions.Gpu;
 
 public static class PhysicsReadValidation
 {
-    public static void ValidateScene(this PhysicsBodyReadSet bodies, IPhysicsSceneDeclaration scene, SimulationEpoch epoch, SimulationTick tick)
+    public static void ValidateScene(this PhysicsBodyReadSet bodies, IPhysicsSceneDeclaration scene, SimulationEpoch epoch, SimulationTick tick, PhysicalCommitRevision revision)
     {
         bodies.ValidateTime(epoch, tick);
         var index = 0;
@@ -16,7 +16,7 @@ public static class PhysicsReadValidation
             var value = bodies[index++]; value.Validate();
             if (!F32Bits.Equal(value.LocalCentreOfMass, declared.MassProperties.LocalCentreOfMass))
                 throw new ArgumentException("Committed centre of mass differs from declaration.");
-            if (tick.Value == 0 && (value.Body.Cell != declared.Cell ||
+            if (revision.IsAdmission && (value.Body.Cell != declared.Cell ||
                 !F32Bits.Equal(value.Body.Local, declared.Local) ||
                 !value.Body.Velocity.HasSameBits(declared.Velocity) ||
                 !F32Bits.Equal(value.Rotation.X, declared.Rotation.X) ||
@@ -44,13 +44,35 @@ public static class PhysicsReadValidation
     // Boundary validation only: two ULPs cover a rounded sum/subtraction; ordinary residuals do not fault valid ticks.
     public static float Residual(float balance) => 2f * MathF.Max(float.Epsilon, MathF.BitIncrement(balance) - balance);
 
+    public static void ValidateAdvance(this PhysicsEnergyStoreRead current, PhysicsEnergyStoreRead previous)
+    {
+        if (current.Count != previous.Count) throw new ArgumentException("Energy store population changed.");
+        for (var i = 0; i < current.Count; i++)
+        {
+            var a = previous[i]; var b = current[i];
+            if (a.Id != b.Id || a.Owner != b.Owner || b.Supplied.Value < a.Supplied.Value ||
+                b.Released.Value < a.Released.Value || b.Dissipated.Value < a.Dissipated.Value)
+                throw new ArgumentException("Energy store identity or cumulative accounting changed illegally.");
+            var supplied = b.Supplied.Value - a.Supplied.Value;
+            var released = b.Released.Value - a.Released.Value;
+            var dissipated = b.Dissipated.Value - a.Dissipated.Value;
+            var expected = a.Energy.Value + supplied - released - dissipated;
+            var allowance = Residual(a.Energy.Value) + Residual(b.Energy.Value) +
+                Residual(a.Supplied.Value) + Residual(b.Supplied.Value) +
+                Residual(a.Released.Value) + Residual(b.Released.Value) +
+                Residual(a.Dissipated.Value) + Residual(b.Dissipated.Value);
+            if (!float.IsFinite(expected) || MathF.Abs(expected - b.Energy.Value) > allowance)
+                throw new ArgumentException("Energy store balance does not account for accepted work.");
+        }
+    }
+
     public static void ValidateAdvance(this PhysicsContactWorkRead current, PhysicsContactWorkRead previous)
     {
         if (current.Count != previous.Count) throw new ArgumentException("Work population changed within an epoch.");
         for (var owner=0; owner<current.Count; owner++)
         {
             var before=previous[owner]; var after=current[owner];
-            if (before.Id != after.Id || before.Owner != after.Owner || after.OccurrenceCount < before.OccurrenceCount)
+            if (before.Id != after.Id || before.Owner != after.Owner || before.Store != after.Store || after.OccurrenceCount < before.OccurrenceCount)
                 throw new ArgumentException("Work owner state reversed or changed identity.");
         }
     }
@@ -62,7 +84,7 @@ public static class PhysicsReadValidation
         {
             var declared=scene.ContactWorks[i];
             if (current[i].Id != declared.Id || current[i].Owner != declared.Owner ||
-                current[i].RemainingEnergy.Value > declared.InitialEnergy.Value)
+                current[i].Store != declared.Store)
                 throw new ArgumentException("Work owner or reservoir differs from declaration.");
         }
     }

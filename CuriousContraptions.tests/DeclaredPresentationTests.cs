@@ -1,4 +1,5 @@
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Bundle;
 using CuriousContraptions.Simulation;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Presentation;
@@ -9,6 +10,91 @@ namespace CuriousContraptions.Tests;
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
 {
+
+    public static IEnumerable<object[]> DeclaredImpulseModes()
+    {
+        foreach (var curve in new[] { PresentationCurve.SmoothRiseFall, PresentationCurve.SineSquaredPulse, PresentationCurve.LinearDecay })
+        foreach (var overlap in new[] { PresentationOverlap.Maximum, PresentationOverlap.SaturatingSum, PresentationOverlap.HyperbolicTangentSum })
+        foreach (var visibility in Enum.GetValues<AnimationImpulseVisibility>())
+        foreach (var timing in Enum.GetValues<AnimationImpulseTiming>())
+            yield return [curve, overlap, visibility, timing];
+    }
+
+    [Theory]
+    [MemberData(nameof(DeclaredImpulseModes))]
+    public async Task DeclaredImpulseChoicesSurviveBundleCompilerWireAndActualEvaluation(PresentationCurve curve,
+        PresentationOverlap overlap, AnimationImpulseVisibility visibility, AnimationImpulseTiming timing)
+    {
+        await using var h = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        var original = DeclaredPhysics.Of(new PartId("bumper"));
+        var binding = original.Presentation.Bindings[0] with
+        {
+            Property = PresentationProperty.LocalX, From = 0f, To = 1f, Curve = curve, Duration = 1f,
+            Overlap = overlap, ImpulsePeak = new(curve == PresentationCurve.LinearDecay ? 0f : .5f),
+            ImpulseVisibility = visibility, ImpulseTiming = timing
+        };
+        var entry = original with { Presentation = original.Presentation with { Bindings = [binding] } };
+        Assert.Empty(BundleValidator.Validate([new("Bumper", entry)]));
+        // Canonical bundle JSON is the same authoring boundary used by the installed catalogue.
+        var json = BundleSchema.WriteEntries([entry]);
+        entry = Assert.Single(BundleSchema.Read(json).Elements);
+        using var declared = DeclaredPhysics.Scoped([entry]);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
+            new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new("bumper"), new(1), 0f, 3f, 0f, 0f, 0f, 0f, 1f)));
+        await h.Require(WorkshopCommandKind.Construct, construction);
+        await h.Run();
+        var scene = CompiledSceneFixture.Compile(construction);
+        var compiled = Assert.Single(scene.Presentation.ToArray()).Declaration;
+        Assert.Equal(visibility, compiled.ImpulseVisibility);
+        Assert.Equal(timing, compiled.ImpulseTiming);
+        Assert.Equal(overlap, compiled.Overlap);
+        Assert.Equal(binding.ImpulsePeak, compiled.ImpulsePeak);
+        var projection = new WorkshopWorldProjection(h.Committed.Epoch, new(1), new(0), new(0), WorldPlayback.Running);
+        var delivery = new EventRingDelivery(h.Committed.Epoch.Value, 0,
+            [new(1, 0, SimulationEventKind.Impact, new(1), 0, 0, 0f, 1f, 1, 0),
+             new(2, 0, SimulationEventKind.Impact, new(1), 0, 0, 0f, 1f, 1, 0)]);
+        var visible = new WorkshopDeclaredPresentation(RuntimeTestServices.Animation, scene, Response(h.Committed, 1));
+        visible.AcceptEvents(delivery, projection);
+        float Sample(WorkshopDeclaredPresentation evaluator, double seconds) =>
+            BitConverter.UInt32BitsToSingle(Assert.Single(evaluator.Advance(AnimationTestTime.Seconds(seconds))).Value.CanonicalBits);
+        _ = Sample(visible, 0);
+        var envelope = curve == PresentationCurve.LinearDecay ? .75f : .5f;
+        float Combined(float value) => overlap switch
+        {
+            PresentationOverlap.Maximum => value,
+            PresentationOverlap.SaturatingSum => MathF.Min(1f, 2f * value),
+            PresentationOverlap.HyperbolicTangentSum => MathF.Tanh(2f * value),
+            _ => throw new ArgumentOutOfRangeException(nameof(overlap))
+        };
+        // A declared normalized mathematical envelope; 1e-5 bounds its sampled scalar evaluation,
+        // not a physics trajectory or a universal gameplay tolerance.
+        Assert.InRange(Sample(visible, .25) - Combined(envelope), -1e-5f, 1e-5f);
+        Assert.Equal(0f, Sample(visible, 1.5));
+
+        var hidden = new WorkshopDeclaredPresentation(RuntimeTestServices.Animation, scene, Response(h.Committed, 1));
+        var target = scene.Presentation[0].Target;
+        hidden.SetVisible(target, AnimationProperty.LocalTranslation, false);
+        hidden.AcceptEvents(delivery, projection);
+        Assert.Empty(hidden.Advance(AnimationTestTime.Seconds(2)));
+        hidden.SetVisible(target, AnimationProperty.LocalTranslation, true);
+        var revealed = Sample(hidden, 2.25);
+        var expected = timing switch
+        {
+            AnimationImpulseTiming.EventTime => 0f,
+            AnimationImpulseTiming.FirstPresentation => visibility == AnimationImpulseVisibility.DeferUntilVisible
+                ? curve == PresentationCurve.LinearDecay ? Combined(1f) : 0f : Combined(envelope),
+            AnimationImpulseTiming.EventTimeRetainFirstFrame => visibility == AnimationImpulseVisibility.DeferUntilVisible ? Combined(1f) : 0f,
+            _ => throw new ArgumentOutOfRangeException(nameof(timing))
+        };
+        Assert.InRange(revealed - expected, -1e-5f, 1e-5f);
+        var following = timing == AnimationImpulseTiming.FirstPresentation
+            ? Combined(visibility == AnimationImpulseVisibility.DeferUntilVisible ? envelope :
+                curve == PresentationCurve.LinearDecay ? .5f : 1f)
+            : 0f;
+        Assert.InRange(Sample(hidden, 2.5) - following, -1e-5f, 1e-5f);
+        Assert.Equal(0f, Sample(hidden, 4));
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

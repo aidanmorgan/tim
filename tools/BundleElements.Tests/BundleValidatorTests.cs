@@ -74,46 +74,42 @@ public sealed class BundleValidatorTests
         })]));
     }
 
-    // The finite contact-work store (C-Bumper+Spring): one Real m/s strength parameter whose range keeps the reference-mass preload at
-    // or below 200 J, a positive reference mass, a 0–64 m/s threshold, a 9–14400-step cooldown and a static, slider-free owner.
+    // Discharge owns qualification and speed; an independently identified store owns its capacity and charge.
     [Fact]
-    public void ContactWorkCapabilityRequiresOneTypedStrengthWithinTheTwoHundredJouleStore()
+    public void ContactDischargeRequiresExactStoreAndTypedSpeed()
     {
         var strength = new ParameterDescriptor("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 20f, 8f, [], ParameterEditorPolicy.Clamp);
         var entry = Bundle.BundleSchema.Entry(new Fixture { Parameters = [strength] });
-        var work = new Abstractions.Mechanical.ContactWorkDescriptor(new("work"), "strength", 1f, .05f, 72);
-        Bundle.BundleEntry With(Abstractions.Mechanical.ContactWorkDescriptor value, params ParameterDescriptor[] parameters) =>
-            entry with { Metadata = entry.Metadata with { Parameters = parameters }, Mechanical = entry.Mechanical! with { ContactWork = value } };
+        var work = new ContactWorkDescriptor(new("work"), new(0), new(1), MechanicalValue.FromParameter("strength"), .05f, 72);
+        var energy = CuriousContraptions.Gpu.EnergyExpression.Direct(MechanicalValue.Fixed(400f));
+        var store = new CuriousContraptions.Gpu.EnergyStoreDescriptor(new(1), new(0), energy, energy, MechanicalValue.Fixed(100f));
+        Bundle.BundleEntry With(ContactWorkDescriptor value, params ParameterDescriptor[] parameters) =>
+            entry with { Metadata = entry.Metadata with { Parameters = parameters },
+                Mechanical = entry.Mechanical! with { ContactWorks = [value], EnergyStores = [store] } };
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
         Assert.Empty(Check(With(work, strength)));
-        // Boundaries: exactly 200 J (1 kg at 20 m/s; 4 kg at 10 m/s), the 9- and 14400-step cooldowns and the 0/64 m/s thresholds.
-        Assert.Empty(Check(With(work with { ReferenceMass = 4f }, strength with { Maximum = 10f, Default = 8f })));
+        Assert.Empty(Check(With(work, strength with { Maximum = 64f })));
         foreach (var edge in new[] { work with { CooldownPhysicalSteps = 9 }, work with { CooldownPhysicalSteps = 14400 },
                      work with { Threshold = 0f }, work with { Threshold = 64f } })
             Assert.Empty(Check(With(edge, strength)));
         foreach (var (name, candidate) in new[]
         {
             ("missing parameter", With(work)),
-            ("unknown key", With(work with { StrengthParameter = "unknown" }, strength)),
-            ("duplicate key", With(work, strength, strength)),
+            ("unknown key", With(work with { TargetSpeed = MechanicalValue.FromParameter("unknown") }, strength)),
             ("wrong unit", With(work, strength with { Unit = ParameterUnit.Metre })),
-            ("not Real", With(work, strength with { Kind = ParameterKind.Choice, Options = ["A", "B"], Minimum = 0f, Maximum = 1f, Default = 0f })),
             ("negative minimum", With(work, strength with { Minimum = -1f })),
-            ("maximum above 20 m/s", With(work, strength with { Maximum = 21f })),
-            ("over 200 J", With(work with { ReferenceMass = 2f }, strength)),
-            ("zero reference mass", With(work with { ReferenceMass = 0f }, strength)),
-            ("nonfinite reference mass", With(work with { ReferenceMass = float.NaN }, strength)),
-            ("reference mass above 100 kg", With(work with { ReferenceMass = 101f }, strength)),
+            ("maximum above admitted speed", With(work, strength with { Maximum = 65f })),
+            ("absent store", With(work with { Store = new(2) }, strength)),
+            ("absent owner", With(work with { Owner = new(1) }, strength)),
             ("negative threshold", With(work with { Threshold = -.01f }, strength)),
-            ("threshold above 64 m/s", With(work with { Threshold = 64.5f }, strength)),
+            ("threshold above admitted speed", With(work with { Threshold = 64.5f }, strength)),
             ("nonfinite threshold", With(work with { Threshold = float.PositiveInfinity }, strength)),
             ("short cooldown", With(work with { CooldownPhysicalSteps = 8 }, strength)),
             ("long cooldown", With(work with { CooldownPhysicalSteps = 14401 }, strength)),
-            ("dynamic owner", With(work, strength) with { Mechanical = entry.Mechanical! with
-                { ContactWork = work, KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic } }),
-            ("slider owner", With(work, [.. Fixture.SpringParameters, strength]) with { Mechanical = entry.Mechanical! with
-                { ContactWork = work, Sliders = [Fixture.Slider()] } })
-        }) Assert.True(Check(candidate).Any(error => error.Detail.Contains(".ContactWork.", StringComparison.Ordinal)), name);
+            ("duplicate identity", With(work, strength) with { Mechanical = With(work, strength).Mechanical! with { ContactWorks = [work, work] } }),
+            ("dynamic owner", With(work, strength) with { Mechanical = With(work, strength).Mechanical! with
+                { KinematicMode = KinematicMode.Dynamic } })
+        }) Assert.True(Check(candidate).Any(error => error.Detail.Contains(".ContactWorks.", StringComparison.Ordinal)), name);
     }
 
     // Story 10.5: a compliant surface admits exactly the runtime declaration's domain (CompliantSurfaceDeclaration.Validate): half
@@ -785,8 +781,10 @@ public sealed class BundleValidatorTests
         Assert.Empty(Errors(("FixtureEvents", new Fixture { Events = [new(SimulationEventKind.Impact), new(SimulationEventKind.Captured)] })));
         Assert.Equal(["BUNDLE003 FixtureEvents.Events[0].Kind: undefined enum value"],
             Errors(("FixtureEvents", new Fixture { Events = [new(SimulationEventKind.None)] })));
+        var undefined = (SimulationEventKind)uint.MaxValue;
+        Assert.False(Enum.IsDefined(undefined));
         Assert.Equal(["BUNDLE003 FixtureEvents.Events[0].Kind: undefined enum value"],
-            Errors(("FixtureEvents", new Fixture { Events = [new((SimulationEventKind)9)] })));
+            Errors(("FixtureEvents", new Fixture { Events = [new(undefined)] })));
         Assert.Equal(["BUNDLE006 FixtureEvents.Events[1].Kind: outside its declared range"],
             Errors(("FixtureEvents", new Fixture { Events = [new(SimulationEventKind.Impact), new(SimulationEventKind.Impact)] })));
     }

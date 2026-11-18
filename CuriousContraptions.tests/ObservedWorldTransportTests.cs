@@ -48,6 +48,36 @@ public sealed class ObservedWorldTransportTests
 {
     private static ulong Tick(ReadOnlyMemory<byte> world) => BinaryPrimitives.ReadUInt64LittleEndian(world.Span[PhysicsGpuAbi.HeaderTickOffset..]);
     [Fact]
+    public async Task InactiveOwnedRequestLaneRefusesWithoutPreparingOrAdvancing()
+    {
+        var transport = new ObservedWorldTransport(new BrowserGpuTransport(new EventRingPublication()));
+        try
+        {
+            await transport.Initialize();
+            var source = new LawScene(false);
+            source.Box(new(0f, 5f, 0f), new(.1f), 1f, LawMaterial.Domino);
+            var admitted = source.Admit().Admitted;
+            var inactive = PhysicsTickInputs.Admission with { OwnedFiniteWork = new(new(1), new(99), new(1)) };
+            await Assert.ThrowsAsync<ArgumentException>(() => transport.Stage(admitted, WorkshopGpuOperation.Admit, inactive));
+            Assert.True(transport.TransportCommitted.IsEmpty);
+            await transport.Stage(admitted, WorkshopGpuOperation.Admit, PhysicsTickInputs.Admission);
+            transport.Read();
+            transport.PrepareEvents(EventRingBuffer.Batch(new(32, EventRingBuffer.SlotBytes, 1, 0), []));
+            transport.Commit();
+            await Assert.ThrowsAsync<ArgumentException>(() => transport.Stage(ReadOnlyMemory<byte>.Empty, WorkshopGpuOperation.Advance, inactive));
+            await Assert.ThrowsAsync<ArgumentException>(() => transport.Stage(ReadOnlyMemory<byte>.Empty, WorkshopGpuOperation.ApplyFiniteWork, PhysicsTickInputs.Admission));
+            Assert.Equal(0UL, Tick(transport.TransportCommitted));
+            Assert.Equal(new PhysicalCommitRevision(0), PhysicsGpuAbi.ReadPhysicalRevision(transport.TransportCommitted.Span));
+            await transport.Stage(ReadOnlyMemory<byte>.Empty, WorkshopGpuOperation.Advance, PhysicsTickInputs.Admission);
+            var candidate = transport.Read();
+            Assert.Equal(1UL, Tick(candidate.World));
+            transport.Discard();
+            Assert.Equal(0UL, Tick(transport.TransportCommitted));
+        }
+        finally { transport.Dispose(); }
+    }
+
+    [Fact]
     public async Task PendingWorldsStayInvisibleAndAcceptedCopiesSurviveDiscardAndBackingReuse()
     {
         var transport = new ObservedWorldTransport(new BrowserGpuTransport(new EventRingPublication()));

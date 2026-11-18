@@ -42,11 +42,11 @@ public sealed record SupplyLogicDescriptor(LocalSupplyNodeId Id, LogicGateOperat
 public sealed record SupplyConsumerDescriptor(LocalSupplyNodeId Id, IReadOnlyList<SupplyTarget> Targets) : SupplyNodeDescriptor(Id);
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "Target")]
-[JsonDerivedType(typeof(SupplyContactWorkTarget), "ContactWork")]
+[JsonDerivedType(typeof(SupplyEnergyStoreTarget), "EnergyStore")]
 [JsonDerivedType(typeof(SupplyDriveTarget), "Drive")]
 [JsonDerivedType(typeof(SupplyTransmissionTarget), "Transmission")]
 public abstract record SupplyTarget;
-public sealed record SupplyContactWorkTarget(LocalContactWorkId Store) : SupplyTarget;
+public sealed record SupplyEnergyStoreTarget(CuriousContraptions.Gpu.LocalEnergyStoreId Store) : SupplyTarget;
 public sealed record SupplyDriveTarget(CoordinateReference Coordinate) : SupplyTarget;
 public sealed record SupplyTransmissionTarget(CuriousContraptions.Abstractions.Mechanical.LocalMechanicalTransmissionId Transmission) : SupplyTarget;
 

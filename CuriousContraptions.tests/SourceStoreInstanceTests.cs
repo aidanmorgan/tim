@@ -113,7 +113,7 @@ public sealed class SourceStoreInstanceTests
             Assert.Equal(previousBalance - source.Remaining.Value, source.Debit.Value);
             previousBalance = source.Remaining.Value;
         }
-        if (charge == 0f) Assert.All(reads, read => Assert.Equal((0f, 0f), (SourceRead(read).Debit.Value, read.ContactWorks[0].SuppliedEnergy.Value)));
+        if (charge == 0f) Assert.All(reads, read => Assert.Equal((0f, 0f), (SourceRead(read).Debit.Value, read.EnergyStores[0].Supplied.Value)));
         else Assert.Contains(reads, read => SourceRead(read).Debit.Value > 0f);
         // The 60 J store at 480 W runs dry while the Bumper still wants work (its last positive balance is paid on the tick it empties),
         // and from then on pays nothing; each preceding debit is accounted for by its committed balance transition.

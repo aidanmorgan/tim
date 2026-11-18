@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter, contactHits, type WorkshopResponse } from './workshop-wire.ts';
+import { decodeWorkshopResponse, energyStore, decodeSavedConstruction, authoredState, parameter, contactHits, type WorkshopResponse } from './workshop-wire.ts';
 
 type Scenario='paid'|'unpaid'|'miss';
 async function press(driver:WorkshopDriver,x:number,y:number){
@@ -66,11 +66,11 @@ for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+sc
         const rings=await driver.readAnimationSamplesForTarget(String((2n<<32n)+owner));
         // Story 9A.23 D9: hits and their debits from the owner's stores (the occurrence rows are device-private).
         const preload=scenario==='unpaid'?0:32;
-        const powered=contactHits(events,preload).filter(hit=>hit.debit>0);
-        const lastHit=contactHits(reads,preload).at(-1);
+        const powered=contactHits(events).filter(hit=>hit.debit>0);
+        const lastHit=contactHits(reads).at(-1);
         if(scenario==='paid'){
             assert.equal(await driver.readCaptured(),1);
-            assert.ok(powered.length>0 && after.contactWorks(0)!.remainingEnergy()<32);
+            assert.ok(powered.length>0 && energyStore(after, after.contactWorks(0)!.store()).energy()<32);
             assert.ok(samples.some(body=>body.vx>2 && body.vy>2),'Radial powered rebound observed');
             assert.ok(rings.some(value=>value.value>.5));assert.equal(rings.at(-1)?.value,0);
         }else{
@@ -84,9 +84,9 @@ for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+sc
         }
         const solved=await driver.readCaptured();
         await driver.reset();const reset=reads.at(-1)!;
-        assert.equal(reset.contactWorks(0)!.remainingEnergy(),scenario==='unpaid'?0:32);assert.equal(reset.contactWorks(0)!.occurrenceCount(),0);
+        assert.equal(energyStore(reset, reset.contactWorks(0)!.store()).energy(),scenario==='unpaid'?0:32);assert.equal(reset.contactWorks(0)!.occurrenceCount(),0);
         await driver.save();assert.deepEqual(authoredState(await saved(driver)),authoredState(initialBytes));assert.deepEqual(errors,[]);
-        console.log(JSON.stringify({scenario,solved,debit:lastHit?.debit??0,remaining:after.contactWorksLength()>0?after.contactWorks(0)!.remainingEnergy():0,samples}));
+        console.log(JSON.stringify({scenario,solved,debit:lastHit?.debit??0,remaining:after.contactWorksLength()>0?energyStore(after, after.contactWorks(0)!.store()).energy():0,samples}));
     }catch(error){console.error(JSON.stringify({scenario,errors}));await driver.page.screenshot({path:'/tmp/sidekick-'+scenario+'-failure.png'});throw error;}
     finally{await driver.close();}
 });

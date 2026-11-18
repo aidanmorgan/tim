@@ -11,6 +11,7 @@ internal sealed class PrismaticTrialWorkspace
     private BodyState[] _bodies = new BodyState[16];
     private float[] _jointImpulses = new float[32], _hingeImpulses = new float[32];
     private float[] _transmissionImpulses = new float[4], _couplingWindowImpulses = new float[4], _tensileImpulses = new float[4];
+    private float[] _stepWork = new float[4], _stepPositive = new float[4];
     private int[] _parents = new int[16];
     private bool[] _affected = new bool[16];
 
@@ -29,6 +30,7 @@ internal sealed class PrismaticTrialWorkspace
         Reserve(ref _hingeImpulses, checked(hinges.Count * RevoluteRows.Count));
         Reserve(ref _transmissionImpulses, transmissions.Count);
         Reserve(ref _couplingWindowImpulses, transmissions.Count);
+        Reserve(ref _stepWork, transmissions.Count); Reserve(ref _stepPositive, transmissions.Count);
         Reserve(ref _tensileImpulses, ropes.Count);
         Reserve(ref _parents, bodySlots);
         Reserve(ref _affected, bodySlots);
@@ -56,6 +58,7 @@ internal sealed class PrismaticTrialWorkspace
             var transmission = transmissions[i];
             _transmissionImpulses[i] = transmission.Impulse;
             _couplingWindowImpulses[i] = transmission.WindowImpulse;
+            _stepWork[i] = transmission.StepWork; _stepPositive[i] = transmission.StepPositive;
             var a = DynamicEnd(transmission.Driving.A, transmission.Driving.B);
             var b = DynamicEnd(transmission.Driven.A, transmission.Driven.B);
             Join(a, b);
@@ -102,22 +105,47 @@ internal sealed class PrismaticTrialWorkspace
         List<SimMechanicalTransmission> transmissions, List<SimTensileRoute> ropes, float multiplier)
     {
         for (var i = 0; i < bodies.Count; i++) _bodies[i].Restore(bodies[i]);
-        for (var i = 0; i < joints.Count; i++)
+        RestoreConstraintImpulses(joints, hinges, transmissions, ropes);
+        foreach (var joint in joints)
         {
-            var joint = joints[i];
-            Array.Copy(_jointImpulses, i * PrismaticRows.Count, joint.Impulses, 0, PrismaticRows.Count);
             joint.MotorImpulse = 0f;
             joint.StepWork = 0f;
             joint.EffortMultiplier = _affected[Root(DynamicEnd(joint.A, joint.B).BodySlot)] ? multiplier : 1f;
         }
-        for (var i = 0; i < hinges.Count; i++)
-            Array.Copy(_hingeImpulses, i * RevoluteRows.Count, hinges[i].Impulses, 0, RevoluteRows.Count);
         for (var i = 0; i < transmissions.Count; i++)
         {
-            transmissions[i].Impulse = _transmissionImpulses[i];
             transmissions[i].WindowImpulse = _couplingWindowImpulses[i];
+            transmissions[i].StepWork = _stepWork[i];
+            transmissions[i].StepPositive = _stepPositive[i];
         }
+    }
+
+    /// <summary>Restore warm-start memory without undoing accepted velocities or paid channel work.
+    /// An instantaneous response must not be applied again as the next substep's warm start.</summary>
+    public void RestoreConstraintImpulses(List<SimJoint> joints, List<SimRevoluteJoint> hinges,
+        List<SimMechanicalTransmission> transmissions, List<SimTensileRoute> ropes)
+    {
+        for (var i = 0; i < joints.Count; i++)
+            Array.Copy(_jointImpulses, i * PrismaticRows.Count, joints[i].Impulses, 0, PrismaticRows.Count);
+        for (var i = 0; i < hinges.Count; i++)
+            Array.Copy(_hingeImpulses, i * RevoluteRows.Count, hinges[i].Impulses, 0, RevoluteRows.Count);
+        for (var i = 0; i < transmissions.Count; i++) transmissions[i].Impulse = _transmissionImpulses[i];
         for (var i = 0; i < ropes.Count; i++) ropes[i].Impulse = _tensileImpulses[i];
+    }
+
+    public void RestoreOutside(HashSet<SimBody> component, List<SimBody> bodies, List<SimMechanicalTransmission> transmissions)
+    {
+        for (var i = 0; i < bodies.Count; i++)
+            if (!component.Contains(bodies[i])) _bodies[i].Restore(bodies[i]);
+        for (var i = 0; i < transmissions.Count; i++)
+        {
+            var value = transmissions[i];
+            if (component.Contains(value.Driving.A) || component.Contains(value.Driving.B) ||
+                component.Contains(value.Driven.A) || component.Contains(value.Driven.B)) continue;
+            value.WindowImpulse = _couplingWindowImpulses[i];
+            value.StepWork = _stepWork[i];
+            value.StepPositive = _stepPositive[i];
+        }
     }
 
     private readonly record struct BodyState(int CellX, int CellY, int CellZ, Vector3 Local, Vector3 Position,

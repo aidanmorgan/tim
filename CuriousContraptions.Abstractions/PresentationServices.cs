@@ -48,7 +48,7 @@ public interface IWorkshopDeclaredPresentation
 public interface IPresentationServices
 {
     bool IsBlocked(ActuatorDriveRead drive);
-    void ValidateBodies(PhysicsBodyReadSet bodies, IPhysicsSceneDeclaration scene, SimulationEpoch epoch, SimulationTick tick);
+    void ValidateBodies(PhysicsBodyReadSet bodies, IPhysicsSceneDeclaration scene, SimulationEpoch epoch, SimulationTick tick, PhysicalCommitRevision revision);
     ulong TargetBase { get; }
     IWorkshopDeclaredPresentation Create(IAnimationServices animation, ICompiledScene construction, WorkshopResponse endpoint);
     IReadOnlyList<(AnimationTargetId Target, GpuBodyId Owner, int Binding)> Targets(ICompiledScene construction);

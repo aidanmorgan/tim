@@ -44,6 +44,7 @@ internal sealed partial class WorkshopPhysicsEngine
     private bool[] _timedTransmissions = new bool[4];
     private readonly List<SimTensileRoute> _tensile = new(4);
     private readonly List<SimTensileRoute> _tensilePool = new(4);
+    private readonly Dictionary<RopeRouteId, List<(int Index, TensileSpanDeclaration Declared, int Offset)>> _tensileRouteSpans = new(4);
     private List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
     private List<ContactPoint> _contacts = new(64);
     // Scratch for the speculative sphere-contact touch probe (WorkshopCollisionKernels.AdvanceSpeculativeSphereContact).
@@ -93,10 +94,14 @@ internal sealed partial class WorkshopPhysicsEngine
         _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4]; _drivenSlots = new bool[4]; _timedTransmissions = new bool[4];
         _restitutionStamp = 0;
         _motorTrial = new();
+        _impulseTrial = new();
+        _impulseComponent = new(16);
+        _materialQueries = new MaterialQueryWorkspace();
+        _requestTargets = new(4);
         _guides = new();
         _probeContacts.Clear(); _probeCollider = new();
         _transmissions.Clear(); _couplingPool.Clear(); _surfaces.Clear(); _surfacesResolved = false;
-        _tensile.Clear(); _tensilePool.Clear();
+        _tensile.Clear(); _tensilePool.Clear(); _tensileRouteSpans.Clear();
         _bvh.Reset();
     }
 
@@ -183,8 +188,9 @@ internal sealed partial class WorkshopPhysicsEngine
                     var speed = Vector3.Dot(relVel, contact.Normal);
 
                     var targetImp = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkTargetSpeedOffset, 4));
-                    var avail = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkAvailableOffset, 4));
-                    var capacity = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkPreloadOffset, 4));
+                    var storeOffset = layout.EnergyStoreOffset((int)ReadU32(span, wOffset + PhysicsGpuAbi.ContactWorkStoreOffset));
+                    var avail = ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreBalanceOffset);
+                    var capacity = ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreCapacityOffset);
                     var normVec = Vector128.Create(normalTowardDyn.X, normalTowardDyn.Y, normalTowardDyn.Z, 0f);
                     var response = ContactWorkImpulse.FromStore(speed, targetImp, invEffectiveMass, avail, capacity, normVec);
                     // A validated world never holds one; it is a broken ledger, reported rather than paid as empty (blind hunter 14).
@@ -192,7 +198,9 @@ internal sealed partial class WorkshopPhysicsEngine
                         throw new InvalidOperationException(
                             $"Contact work {w} holds an impossible store: {avail:R} J available of a {capacity:R} J preload.");
 
-                    BinaryPrimitives.WriteSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkAvailableOffset, 4), response.Remaining);
+                    WriteF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreBalanceOffset, response.Remaining);
+                    WriteF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreReleasedOffset,
+                        ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreReleasedOffset) + response.Debit);
                     workStates[key]=new(new((uint)w),new((uint)colStatic.Index),key.Target,newCount,curOrd,0,
                         new(approach),new(response.Debit),response.Debit>0 ? ContactWorkEffect.Paid : ContactWorkEffect.Passive);
 
@@ -235,6 +243,7 @@ internal sealed partial class WorkshopPhysicsEngine
     {
         ArgumentNullException.ThrowIfNull(inputs);
         ArgumentNullException.ThrowIfNull(committedInteractions);
+        inputs.ValidateOperation(WorkshopGpuOperation.Advance);
         var captureStates=committedInteractions.Captures.ToBuilder();
         var workStates=committedInteractions.Works.ToBuilder();
         _ = PhysicsGpuAbi.ReadFailure(source.Span);
@@ -271,12 +280,14 @@ internal sealed partial class WorkshopPhysicsEngine
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderStatusOffset, 4), 0);
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderFailureOffset, 4), 0);
 
+        var physicalRevision = PhysicsGpuAbi.ReadPhysicalRevision(span);
+        if (!physicalRevision.TryAdvance(out var nextPhysicalRevision))
+            throw new ArgumentException("Physical commit identity exhausted.");
+        BinaryPrimitives.WriteUInt64LittleEndian(span[PhysicsGpuAbi.HeaderPhysicalRevisionOffset..], nextPhysicalRevision.Value);
         var currentTick = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(PhysicsGpuAbi.HeaderTickOffset, 8));
         BinaryPrimitives.WriteUInt64LittleEndian(span.Slice(PhysicsGpuAbi.HeaderTickOffset, 8), currentTick + 1);
 
         var sourceOrdinal = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderSourceOrdinalOffset, 4));
-        for (var work = 0; work < layout.ContactWorks; work++)
-            BinaryPrimitives.WriteSingleLittleEndian(span.Slice(layout.ContactWorkOffset(work) + PhysicsGpuAbi.ContactWorkSuppliedOffset, 4), 0f);
 
         var supplyCount = layout.ElectricalSources;
         Span<bool> driven = Scratch(ref _drivenSlots, layout.Prismatics + layout.Revolutes);
@@ -338,8 +349,9 @@ internal sealed partial class WorkshopPhysicsEngine
         BindExtrusions(span, layout);
         ReadRevolutes(span, layout, inputs, revoluteJointMap);
         var dt = WorkshopConstraintSolver.SubstepSeconds;
-        ReadTransmissions(span, layout, inputs, checked(currentTick * (ulong)steps), checked((currentTick + 1) * (ulong)steps));
-        ApplyRetentionRequests(inputs);
+        AdvanceTransmissionClosures(span, layout, inputs, checked(currentTick * (ulong)steps), checked((currentTick + 1) * (ulong)steps));
+        ReadTransmissions(span, layout);
+        PreparePhysicalRequests(inputs, span, layout);
         // Story 9R.4: every compiled contact-load row, read once per tick. A row's tick measurement is the maximum qualifying mass
         // of its substeps (D2), written over the copied source state so a removed body reads Empty on the very next tick.
         var loadRows = layout.ContactLoads;
@@ -362,6 +374,8 @@ internal sealed partial class WorkshopPhysicsEngine
             BinaryPrimitives.WriteSingleLittleEndian(record[PhysicsGpuAbi.ContactLoadMassOffset..], loadMass[row]);
         }
 
+        EvaluateChambers(span, layout);
+        EvaluateClearances(span, layout);
         CommitResidence(span, layout, committedInteractions, captureStates, sourceOrdinal, nextOrdinal, dt);
         foreach (var b in _dynamicBodies)
         {
@@ -495,6 +509,7 @@ internal sealed partial class WorkshopPhysicsEngine
     private void ReadColliders(ReadOnlySpan<byte> span, PhysicsWorldLayout layout, uint colliderCount)
     {
         _colliders.Clear();
+        foreach (var body in _allBodies.Values) body.HasParticipatingMaterial = false;
         for (var c = 0; c < colliderCount; c++)
         {
             var colliderOffset = layout.ColliderOffset(c);
@@ -526,6 +541,8 @@ internal sealed partial class WorkshopPhysicsEngine
             collider.Id = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(colliderOffset + PhysicsGpuAbi.RecordIdentityOffset, 8));
             collider.BodySlot = bodySlot;
             collider.Body = body;
+            collider.Participation = (CollisionParticipation)ReadU32(span, colliderOffset + PhysicsGpuAbi.ColliderParticipationOffset);
+            body.HasParticipatingMaterial |= collider.Participation == CollisionParticipation.Enabled;
             collider.Extrusion = null;
             collider.MaterialSlot = materialSlot;
             collider.Shape = shapeKind;
@@ -551,19 +568,21 @@ internal sealed partial class WorkshopPhysicsEngine
         _joints.Clear();
         _revoluteJoints.Clear();
         _tensile.Clear();
-        var routeSpans = new Dictionary<RopeRouteId, List<(int Index, TensileSpanDeclaration Declared, int Offset)>>();
+        var routeSpans = _tensileRouteSpans;
+        foreach (var prior in routeSpans.Values) prior.Clear();
         for (var index = 0; index < layout.TensileSpans; index++)
         {
             var declared = PhysicsGpuAbi.ReadTensileSpan(span, index);
             var offset = layout.TensileSpanOffset(index);
             if (!routeSpans.TryGetValue(declared.Route, out var list))
-                routeSpans.Add(declared.Route, list = []);
+                routeSpans.Add(declared.Route, list = new(4));
             list.Add((index, declared, offset));
         }
 
         var routeIndex = 0;
         foreach (var (_, list) in routeSpans)
         {
+            if (list.Count == 0) continue;
             list.Sort((x, y) => x.Declared.Order.CompareTo(y.Declared.Order));
             while (_tensilePool.Count <= routeIndex) _tensilePool.Add(new());
             var route = _tensilePool[routeIndex++];
@@ -576,30 +595,22 @@ internal sealed partial class WorkshopPhysicsEngine
             route.LocalA = span0.Declared.LocalA;
             route.LocalB = lastSpan.Declared.LocalB;
 
-            if (list.Count > 1)
+            route.Guides.Clear();
+            for (var i = 0; i < list.Count - 1; i++)
             {
-                var guides = new SimTensileGuide[list.Count - 1];
-                for (var i = 0; i < list.Count - 1; i++)
-                {
-                    var body = _allBodies[(int)ReadU32(span, list[i].Offset + PhysicsGpuAbi.TensileBodyBOffset)];
-                    guides[i] = new(body, list[i].Declared.GuideRadius, list[i].Declared.GuideOffset);
-                }
-                route.Guides = guides;
-            }
-            else
-            {
-                route.Guides = [];
+                var body = _allBodies[(int)ReadU32(span, list[i].Offset + PhysicsGpuAbi.TensileBodyBOffset)];
+                route.Guides.Add(new(body, list[i].Declared.GuideRadius, list[i].Declared.GuideOffset));
             }
 
             route.Maximum = 0f;
             route.Complete = true;
             route.Cut = false;
-            route.Offsets = new int[list.Count];
+            route.Offsets.Clear();
 
             for (var i = 0; i < list.Count; i++)
             {
                 var item = list[i];
-                route.Offsets[i] = item.Offset;
+                route.Offsets.Add(item.Offset);
                 route.Maximum += item.Declared.MaximumLength;
                 if (!item.Declared.Complete) route.Complete = false;
                 if (ReadU32(span, item.Offset + PhysicsGpuAbi.TensileIntegrityOffset) == (uint)RopeIntegrity.Cut)
@@ -755,7 +766,7 @@ internal sealed partial class WorkshopPhysicsEngine
         }
     }
 
-    private void ReadTransmissions(Span<byte> span, PhysicsWorldLayout layout, PhysicsTickInputs inputs, ulong previousOrdinal, ulong currentOrdinal)
+    private void ReadTransmissions(Span<byte> span, PhysicsWorldLayout layout)
     {
         _transmissions.Clear();
         OpenWorkWindow();
@@ -777,12 +788,21 @@ internal sealed partial class WorkshopPhysicsEngine
             LoadRetention(span, transmission);
             LoadWorkWindow(span, transmission);
             _transmissions.Add(transmission);
+            transmission.Engaged = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionCloseSecondsOffset) == 0f
+                ? transmission.Retention?.Mode != RetentionMode.Releasing
+                : (TransmissionEngagementPhase)ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionPhaseOffset) == TransmissionEngagementPhase.Engaged;
+            if (!transmission.Engaged) transmission.Impulse = 0f;
+        }
+    }
+
+    private static void AdvanceTransmissionClosures(Span<byte> span, PhysicsWorldLayout layout, PhysicsTickInputs inputs,
+        ulong previousOrdinal, ulong currentOrdinal)
+    {
+        for (var index = 0; index < layout.MechanicalTransmissions; index++)
+        {
+            var offset = layout.MechanicalTransmissionOffset(index);
             var closeSeconds = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionCloseSecondsOffset);
-            if (closeSeconds == 0f)
-            {
-                transmission.Engaged = transmission.Retention?.Mode != RetentionMode.Releasing;
-                continue;
-            }
+            if (closeSeconds == 0f) continue;
             var supplied = inputs.TransmissionClosed[index];
             var closure = ReadF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionClosureOffset);
             if (supplied != (ReadU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionSuppliedOffset) == 1))
@@ -801,8 +821,6 @@ internal sealed partial class WorkshopPhysicsEngine
             WriteU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionSuppliedOffset, supplied ? 1u : 0u);
             WriteF32(span, offset + PhysicsGpuAbi.MechanicalTransmissionClosureOffset, closure == 0f ? 0f : closure);
             WriteU32(span, offset + PhysicsGpuAbi.MechanicalTransmissionPhaseOffset, (uint)phase);
-            transmission.Engaged = phase == TransmissionEngagementPhase.Engaged;
-            if (!transmission.Engaged) transmission.Impulse = 0f;
         }
     }
 
@@ -814,6 +832,7 @@ internal sealed partial class WorkshopPhysicsEngine
 
         foreach (var c in _colliders)
         {
+            if (c.Participation == CollisionParticipation.Disabled) continue;
             var b = c.Body;
             var isDyn = b.Motion == RigidMotionKind.Dynamic;
             // Integration clamps translation and rotation. Their full reachable envelope includes contact/drive changes
@@ -914,7 +933,7 @@ internal sealed partial class WorkshopPhysicsEngine
             var worldPos = frameBody != null ? frameBody.Position + WorkshopCollisionKernels.RotateVector(frameBody.Rotation, sensorPos) : Vector3.Zero;
             foreach (var targetBody in _dynamicBodies)
             {
-            if (!PhysicsGpuAbi.MatchesTarget(span, kind, named, (uint)targetBody.BodySlot)) continue;
+            if (!targetBody.HasParticipatingMaterial || !PhysicsGpuAbi.MatchesTarget(span, kind, named, (uint)targetBody.BodySlot)) continue;
             var targetId = new GpuBodyId((ulong)targetBody.BodyIdHigh << 32 | targetBody.BodyIdLow);
             var key = new CapturePairKey(sensorId, targetId);
             var previous = committedInteractions.Residence(key);
@@ -992,18 +1011,24 @@ internal sealed partial class WorkshopPhysicsEngine
         var motionOffset = layout.MotionOffset;
         for (var s = 0; s < steps; s++)
         {
-            // Box2D v3 prepares contacts before integrating velocities: the restitution approach is the substep-start velocity.
-            foreach (var b in _dynamicBodies)
-            {
-                b.V0 = b.LinearVelocity;
-                b.W0 = b.AngularVelocity;
-            }
-
             GuideWorkspace.Detach(_dynamicBodies);
+            foreach (var joint in _joints) PrismaticMotorSolver.BeginSubstep(joint, dt);
+            foreach (var transmission in _transmissions)
+            {
+                transmission.StepWork = 0f;
+                transmission.StepPositive = 0f;
+                transmission.Retention?.BeginSubstep();
+            }
+            EvaluateChambers(span, layout);
+            if (s == 0) ApplyFiniteWorkRequests(span, layout, inputs);
+            // The ordinary substep starts after any accepted instantaneous velocity change.
+            foreach (var body in _dynamicBodies)
+            {
+                body.V0 = body.LinearVelocity;
+                body.W0 = body.AngularVelocity;
+            }
             TransferSupply(span, layout, inputs, sourceOrdinal, s);
             ApplyGuides(span, layout, dt);
-            foreach (var joint in _joints) PrismaticMotorSolver.BeginSubstep(joint, dt);
-            foreach (var transmission in _transmissions) transmission.Retention?.BeginSubstep();
             // Compliant membranes are external forces like gravity, inside the restitution pass's pre-solve energy bound.
             // The open accepted-work window runs from the previous position integration to the next (SolveIntegratedTrial).
             ApplyCompliantMembranes(span, layout, dt);
@@ -1069,11 +1094,13 @@ internal sealed partial class WorkshopPhysicsEngine
                     var bindingOffset = layout.ElectricalBindingOffset(route);
                     if (!inputs.StorageRoutes[route] || ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingSourceOffset) != supply) continue;
                     var targetStore = (int)ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingStorageOffset);
-                    var storeOffset = layout.ContactWorkOffset(targetStore);
+                    var storeOffset = layout.EnergyStoreOffset(targetStore);
                     _storeIndices.Add(storeOffset);
-                    _balances.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.ContactWorkAvailableOffset));
-                    _capacities.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.ContactWorkPreloadOffset));
-                    _credits.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.ContactWorkSuppliedOffset));
+                    _balances.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreBalanceOffset));
+                    _capacities.Add(MathF.Min(ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreCapacityOffset),
+                        ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreBalanceOffset) +
+                        ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStorePowerOffset) * ElectricalSupply.PhaseSeconds));
+                    _credits.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreSuppliedOffset));
                 }
 
                 var count = _storeIndices.Count;
@@ -1096,8 +1123,8 @@ internal sealed partial class WorkshopPhysicsEngine
                 WriteF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceDebitOffset, deb + transfer.Debit);
                 for (var load = 0; load < count; load++)
                 {
-                    WriteF32(span, _storeIndices[load] + PhysicsGpuAbi.ContactWorkAvailableOffset, elecAfter[load]);
-                    WriteF32(span, _storeIndices[load] + PhysicsGpuAbi.ContactWorkSuppliedOffset, _credits[load] + (elecAfter[load] - elecBefore[load]));
+                    WriteF32(span, _storeIndices[load] + PhysicsGpuAbi.EnergyStoreBalanceOffset, elecAfter[load]);
+                    WriteF32(span, _storeIndices[load] + PhysicsGpuAbi.EnergyStoreSuppliedOffset, _credits[load] + (elecAfter[load] - elecBefore[load]));
                 }
             }
         }
@@ -1109,6 +1136,7 @@ internal sealed partial class WorkshopPhysicsEngine
         var guideCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderGuideCountOffset, 4));
         foreach(var targetBody in _dynamicBodies)
         {
+            if (!targetBody.HasParticipatingMaterial) continue;
             var bestDistance=float.PositiveInfinity;
             var bestOwner=ulong.MaxValue; var bestGuide=ulong.MaxValue;
             var bestAcceleration=Vector3.Zero;
@@ -1138,7 +1166,7 @@ internal sealed partial class WorkshopPhysicsEngine
             var lowest = float.PositiveInfinity;
             foreach (var child in _colliders)
             {
-                if (child.Body != targetBody) continue;
+                if (child.Body != targetBody || child.Participation == CollisionParticipation.Disabled) continue;
                 WorkshopCollisionKernels.RefreshCollider(child);
                 var point = WorkshopCollisionKernels.SupportPoint(child, -up);
                 lowest = MathF.Min(lowest, Vector3.Dot(point - worldPos, up));
@@ -1617,7 +1645,7 @@ internal sealed partial class WorkshopPhysicsEngine
             var reach = float.NegativeInfinity;
             foreach (var child in _colliders)
             {
-                if (child.Body != body) continue;
+                if (child.Body != body || child.Participation == CollisionParticipation.Disabled) continue;
                 WorkshopCollisionKernels.RefreshCollider(child);
                 var point = WorkshopCollisionKernels.SupportPoint(child, direction);
                 var along = Vector3.Dot(point, direction);

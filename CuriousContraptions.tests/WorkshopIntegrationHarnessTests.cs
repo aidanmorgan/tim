@@ -317,6 +317,60 @@ public sealed class WorkshopIntegrationHarnessTests
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
 {
+
+    [Fact]
+    public async Task RejectedCannonConfigurationPreservesInstallationConsumersAndUndo()
+    {
+        var scene = Scene();
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness));
+        godot.Tree.Root.AddChild(scene);
+        try
+        {
+            await scene.Startup;
+            async Task Place(PartId id, Vector3 at)
+            {
+                var placement = RuntimeTestServices.Placement.Compose(scene.World.Registry.Definitions, scene.World.Construction.Instances,
+                    new(id, default, false), at, Quaternion.Identity);
+                await scene.PlaceAsync(id, placement);
+            }
+            await Place(new("cannon"), new(0, 3, 0));
+            await Place(new("battery"), new(-4, 3, 0));
+            var cannon = Assert.IsType<WorkshopGenericInstance>(scene.World.Construction.Instances[0]);
+            var battery = scene.World.Construction.Instances[1];
+            await scene.ChangeConnectionAsync(new(battery.Id, PortId.Supply, cannon.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical), true);
+            var parameters = cannon.Parameters.ToDictionary();
+            parameters[new("capacity")] = 60f;
+            await scene.ApplyDeclaredParametersAsync(cannon.Id, new(parameters));
+            var before = scene.World.Construction;
+            var installed = harness.Simulation.Scene;
+            var read = harness.Committed;
+            var consumer = harness.Presentation;
+            parameters[new("capacity")] = float.NaN;
+            await scene.ApplyDeclaredParametersAsync(cannon.Id, new(parameters));
+            Assert.True(HasLabel(scene, "Invalid declared parameter value."));
+            Assert.Equal(before.Revision, scene.World.Construction.Revision);
+            Assert.Equal(before.Instances, scene.World.Construction.Instances);
+            Assert.Equal(before.Connections, scene.World.Construction.Connections);
+            Assert.Same(installed, harness.Simulation.Scene);
+            Assert.Same(consumer, harness.Presentation);
+            Assert.Equal(read.Revision, harness.Committed.Revision);
+            Assert.Equal(read.Epoch, harness.Committed.Epoch);
+            Assert.Equal(read.EnergyStores[0], harness.Committed.EnergyStores[0]);
+            Assert.Equal(read.FiniteWorkActuators[0], harness.Committed.FiniteWorkActuators[0]);
+            await scene.UndoAsync();
+            Assert.Equal(45f, Assert.IsType<WorkshopGenericInstance>(scene.World.Construction.Instances[0]).Parameters[new("capacity")]);
+            Assert.Single(scene.World.Construction.Connections);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await scene.World.RunWorkshop()).Result.Outcome);
+            await harness.Advance(180);
+            Assert.Equal(45f, harness.Committed.EnergyStores[0].Energy.Value);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await scene.World.ResetWorkshop()).Result.Outcome);
+            Assert.Equal(0f, harness.Committed.EnergyStores[0].Energy.Value);
+        }
+        finally { scene.Free(); godot.Engine.Iteration(); }
+    }
+
+
     private static IEnumerable<Node> Descendants(Node node)
     {
         foreach (var child in node.GetChildren()) { yield return child; foreach (var descendant in Descendants(child)) yield return descendant; }
@@ -637,7 +691,7 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             string[] expected =
             [
                 "Motion", "ball", "bumper", "domino", "bowling", "spring", "pipe", "pipe_bend_45",
-                "pipe_bend_90", "funnel", "powered_gate", "weight", "rope_anchor", "pulley", "impact_lever", "trampoline", "conveyor", "reverse_transmission", "wound_spring",
+                "pipe_bend_90", "funnel", "powered_gate", "weight", "rope_anchor", "pulley", "impact_lever", "trampoline", "conveyor", "reverse_transmission", "wound_spring", "cannon",
                 "Goals", "basket", "lamp", "Power", "switch", "battery", "motor", "clutch", "linear_pusher",
                 "Control", "delay", "ball_detector", "pressure_plate", "counter", "clock", "latch",
                 "hold_timer", "both_gate", "electrical_nand", "electrical_nor", "electrical_or", "electrical_xor",

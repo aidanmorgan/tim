@@ -254,7 +254,7 @@ public sealed class WorkshopPhysicsEngineTests
         var exhausted = false;
         for (var tick = 0; tick < reads.Count; tick++)
         {
-            var store = reads[tick].ContactWorks[0].RemainingEnergy.Value;
+            var store = reads[tick].EnergyStores[0].Energy.Value;
             if (exhausted) Assert.Equal(0f, store);
             exhausted |= store == 0f;
             for (var i = 0; i < ledgers[tick].OccurrenceCount; i++)
@@ -282,7 +282,7 @@ public sealed class WorkshopPhysicsEngineTests
         var first = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
         var debit = ledgers[first].Occurrence(0).Debit.Value;
         Assert.InRange(debit, 1f, 31f);
-        Assert.Equal(32f, reads[first].ContactWorks[0].RemainingEnergy.Value + debit);
+        Assert.Equal(32f, reads[first].EnergyStores[0].Energy.Value + debit);
     }
 
     private static byte[] BasketballOverBumperWithStore(float available)
@@ -290,9 +290,9 @@ public sealed class WorkshopPhysicsEngineTests
         var admitted = AdmitMoving(Free(
             WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4.5f, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), new(2), 0, 3, 0, 0, 0, 0, 1)), 1, 0f);
-        var store = PhysicsGpuAbi.Layout(admitted).ContactWorkOffset(0);
-        Assert.Equal(32f, BinaryPrimitives.ReadSingleLittleEndian(admitted.AsSpan(store + PhysicsGpuAbi.ContactWorkPreloadOffset)));
-        BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(store + PhysicsGpuAbi.ContactWorkAvailableOffset), available);
+        var store = PhysicsGpuAbi.Layout(admitted).EnergyStoreOffset(0);
+        Assert.Equal(32f, BinaryPrimitives.ReadSingleLittleEndian(admitted.AsSpan(store + PhysicsGpuAbi.EnergyStoreCapacityOffset)));
+        BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(store + PhysicsGpuAbi.EnergyStoreBalanceOffset), available);
         return admitted;
     }
 
@@ -320,7 +320,7 @@ public sealed class WorkshopPhysicsEngineTests
                 debits.Add((occurrence.Debit.Value, occurrence.Effect));
             }
             occurrences = count;
-            available.Add(BinaryPrimitives.ReadSingleLittleEndian(world.AsSpan(store + PhysicsGpuAbi.ContactWorkAvailableOffset)));
+            available.Add(BinaryPrimitives.ReadSingleLittleEndian(world.AsSpan(PhysicsGpuAbi.Layout(world).EnergyStoreOffset(0) + PhysicsGpuAbi.EnergyStoreBalanceOffset)));
         });
         Assert.NotEmpty(debits); // the ball reached the Bumper with a qualifying approach
         if (pays)
@@ -358,7 +358,7 @@ public sealed class WorkshopPhysicsEngineTests
             .Where(occurrence => occurrence.Sequence != 0).ToArray();
         Assert.NotEmpty(occurrences); // the ball struck the Bumper with a qualifying approach
         Assert.All(occurrences, occurrence => Assert.Equal((0f, ContactWorkEffect.Passive), (occurrence.Debit.Value, occurrence.Effect)));
-        Assert.All(reads, read => Assert.Equal(0f, read.ContactWorks[0].RemainingEnergy.Value));
+        Assert.All(reads, read => Assert.Equal(0f, read.EnergyStores[0].Energy.Value));
     }
 
     // Former harness fact (rigid-body): a dropped sphere bounces dissipatively and comes to rest at its radius on the bench, with
@@ -651,7 +651,7 @@ public sealed class WorkshopPhysicsEngineTests
             new WorkshopConnection(battery.Id, PortId.Supply, bumper.Id, PortId.PowerIn, WorkshopConnectionDomain.Electrical)));
         var admitted = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2)), new(1),
             new(cadence, PhysicalStepProfile.Canonical480Hz, new(1)));
-        BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(PhysicsGpuAbi.Layout(admitted).ContactWorkOffset(0) + PhysicsGpuAbi.ContactWorkAvailableOffset), 0f);
+        BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(PhysicsGpuAbi.Layout(admitted).EnergyStoreOffset(0) + PhysicsGpuAbi.EnergyStoreBalanceOffset), 0f);
         var rate = Rate(cadence);
         var debits = new List<double>();
         StepWorld(admitted, rate, (tick, world, interactions) =>

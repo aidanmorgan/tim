@@ -617,7 +617,7 @@ public sealed class WorkshopSaveTests
         Assert.True(construction.Instances.Identities.TryCapture(goal.Target, goal.Body, out var capture));
         var body = new CanonicalBody(ball.Id, 2, 1, ball.Cell, ball.Local, default);
         var bodies = new PhysicsBodyReadSet(new[] { new PhysicsBodyRead(body, ball.Rotation, default, default) });
-        var read = new WorkshopRead(new(2), new(1), bodies, Captures: new([new(capture.Sensor, ball.Id, CaptureLatchPhase.Latched, 4, 0f)]));
+        var read = new WorkshopRead(new(2), new(1), new(1), bodies, Captures: new([new(capture.Sensor, ball.Id, CaptureLatchPhase.Latched, 4, 0f)]));
         Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2), construction.Instances.Identities));
         Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2), construction.Instances.Identities));
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read, new(3), construction.Instances.Identities));

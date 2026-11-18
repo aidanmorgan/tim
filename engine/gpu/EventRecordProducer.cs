@@ -9,7 +9,7 @@ namespace CuriousContraptions.Gpu;
 /// occurrence rows never leave the device, Story 9A.23 D9), the supply sources and the passage tracker (its per-body pass counts and the
 /// passes of the step that produced it).</summary>
 public readonly record struct EventSourceRows(PhysicsCaptureRead Captures, ContactWorkLedger ContactWorks,
-    PhysicsElectricalRead Electrical, PassageSensorTracker Passages);
+    PhysicsElectricalRead Electrical, PassageSensorTracker Passages, PhysicsFiniteWorkActuatorRead FiniteWork = default);
 
 /// <summary>The event ring producer of one admitted world (Story 9A.22). Every one-shot transition of a committed tick becomes exactly
 /// one record from exactly one source row:
@@ -87,6 +87,7 @@ public sealed class EventRecordProducer
     {
         var records = new List<SimulationEventRecord>(32);
         var boundary = ActivationTime.Boundary(tick, _substeps);
+        AppendFiniteWork(records, tick, checked((uint)((tick.Value - 1) * _substeps)), committed.FiniteWork, candidate.FiniteWork);
         void Add(SimulationEventKind kind, GpuEventSourceId source, GpuBodyId other, ActivationTime time, float magnitude, uint count, uint level) =>
             records.Add(new(0, tick.Value, kind, source, other.Value, time.Ordinal, time.Phase, magnitude, count, level));
 
@@ -149,6 +150,36 @@ public sealed class EventRecordProducer
         return records.ToArray();
     }
 
+    public static SimulationEventRecord[] StageFiniteWork(SimulationTick tick, uint ordinal,
+        PhysicsFiniteWorkActuatorRead before, PhysicsFiniteWorkActuatorRead after)
+    {
+        var records = new List<SimulationEventRecord>();
+        AppendFiniteWork(records, tick, ordinal, before, after);
+        records.Sort(CompareRecords);
+        return records.ToArray();
+    }
+
+    private static void AppendFiniteWork(List<SimulationEventRecord> records, SimulationTick tick, uint ordinal,
+        PhysicsFiniteWorkActuatorRead before, PhysicsFiniteWorkActuatorRead after)
+    {
+        if (before.Count != after.Count) throw new ArgumentException("Finite-work event population changed.");
+        for (var index = 0; index < after.Count; index++)
+        {
+            var prior = before[index]; var current = after[index];
+            if (prior.Id != current.Id || prior.Store != current.Store || prior.Region != current.Region ||
+                current.OccurrenceCount < prior.OccurrenceCount || (ulong)current.OccurrenceCount > (ulong)prior.OccurrenceCount + 1)
+                throw new ArgumentException("Finite-work event ownership or occurrence changed.");
+            if (current.OccurrenceCount == prior.OccurrenceCount) continue;
+            current.Validate();
+            if (current.LastResult != FiniteWorkRequestResult.Fired)
+                throw new ArgumentException("Finite-work occurrence has no accepted release.");
+            var record = new SimulationEventRecord(0, tick.Value, SimulationEventKind.FiniteWorkReleased,
+                new(current.Id.Value), current.LastPayload.Value, ordinal, 0f, current.LastDebit.Value, current.OccurrenceCount, 0);
+            record.Validate();
+            records.Add(record);
+        }
+    }
+
     private static int CompareRecords(SimulationEventRecord a, SimulationEventRecord b) =>
             a.Ordinal != b.Ordinal ? a.Ordinal.CompareTo(b.Ordinal) : a.Phase != b.Phase ? a.Phase.CompareTo(b.Phase) :
             a.Kind != b.Kind ? a.Kind.CompareTo(b.Kind) : a.Source != b.Source ? a.Source.Value.CompareTo(b.Source.Value) : a.Other.CompareTo(b.Other);
@@ -164,19 +195,21 @@ public sealed class EventRecordProducer
 /// retention metadata and publication buffers are prepared before commit; Commit only publishes references.</summary>
 public sealed class EventRingOutbox
 {
-    private sealed record State(SimulationEpoch Epoch, uint Ordinal, uint Capacity, ulong Sequence,
+    private sealed record State(SimulationEpoch Epoch, PhysicalCommitRevision PhysicalRevision, uint Ordinal, uint Capacity, ulong Sequence,
         System.Collections.Immutable.ImmutableSortedDictionary<ActivationTime, int> History,
         int Retained, SimulationEventRecord[] Pending, byte[] Batch);
-    private static readonly State Empty = new(default, 0, EventRingBuffer.DefaultCapacity, 0,
+    private static readonly State Empty = new(default, default, 0, EventRingBuffer.DefaultCapacity, 0,
         System.Collections.Immutable.ImmutableSortedDictionary<ActivationTime, int>.Empty, 0, [], []);
     private State _committed = Empty;
     private State? _candidate;
     private bool _drained = true;
     public SimulationEpoch Epoch => _committed.Epoch;
+    public PhysicalCommitRevision PhysicalRevision => _committed.PhysicalRevision;
     public uint Capacity => _committed.Capacity;
     public ulong WriteSequence => _committed.Sequence;
     public IReadOnlyList<SimulationEventRecord> Pending => _drained ? Array.Empty<SimulationEventRecord>() : _committed.Pending;
     public int RetainedCount => _committed.Retained;
+    public bool HasCandidate => _candidate is not null;
     public byte[] PreparedBatch => (_candidate ?? throw new InvalidOperationException("No event candidate.")).Batch;
 
     public void PrepareAdmission(SimulationEpoch epoch)
@@ -192,14 +225,14 @@ public sealed class EventRingOutbox
         catch (OverflowException) { throw new EventPreparationException(EventPublicationPreparation.StorageUnavailable); }
     }
 
-    public void PrepareAdvance(uint ordinal, ReadOnlySpan<SimulationEventRecord> records)
+    public void PreparePhysicalCommit(PhysicalCommitRevision revision, uint ordinal, ReadOnlySpan<SimulationEventRecord> records)
     {
         try
         {
             if (_candidate is not null) throw new InvalidOperationException("An event candidate is already prepared.");
             var prior = _committed;
-            if (prior.Epoch.Value == 0 || ordinal <= prior.Ordinal)
-                throw new ArgumentException("Event time must advance within the committed epoch.");
+            if (prior.Epoch.Value == 0 || !prior.PhysicalRevision.TryAdvance(out var expected) || revision != expected || ordinal < prior.Ordinal)
+                throw new ArgumentException("Event publication must own the next physical commit without reversing time.");
             // The supported physical profile is 480 Hz: 0.5 seconds is 240 physical steps,
             // independent of whether the current committed tick contains two, four or eight.
             var cutoff = new ActivationTime(ordinal > 240 ? ordinal - 240 : 0, 0);
@@ -238,7 +271,7 @@ public sealed class EventRingOutbox
             var required = checked((ulong)retained + (ulong)unpublishedExpired);
             var capacity = EventRingBuffer.Capacity(prior.Capacity, required);
             var batch = EventRingBuffer.Batch(new(capacity, EventRingBuffer.SlotBytes, prior.Epoch.Value, sequence), pending);
-            _candidate = new(prior.Epoch, ordinal, capacity, sequence, history, retained, pending, batch);
+            _candidate = new(prior.Epoch, revision, ordinal, capacity, sequence, history, retained, pending, batch);
         }
         catch (OutOfMemoryException) { throw new EventPreparationException(EventPublicationPreparation.StorageUnavailable); }
         catch (OverflowException) { throw new EventPreparationException(EventPublicationPreparation.StorageUnavailable); }
@@ -256,7 +289,7 @@ public sealed class EventRingOutbox
     /// <summary>Takes the already allocated committed publication. Repeated drains return no publication.</summary>
     public byte[] Drain()
     {
-        if (_drained) return [];
+        if (_drained || HasCandidate) return [];
         _drained = true;
         return _committed.Batch;
     }

@@ -467,17 +467,18 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
         if (read.Activations.Count != initial.Count) throw new ArgumentException("Admission activation population changed.");
         for (var i = 0; i < initial.Count; i++)
             if (read.Activations[i] != initial[i]) throw new ArgumentException("Admission retained activation state.");
-        if (read.Epoch != epoch || read.Tick.Value != 0)
+        if (read.Epoch != epoch || read.Tick.Value != 0 || !read.PhysicalRevision.IsAdmission)
             throw new ArgumentException("GPU admission read does not match the construction transaction.");
         if(read.Captures.Count!=0) throw new ArgumentException("Fresh admission contains interaction state.");
-        read.Bodies.ValidateScene(physics, epoch, read.Tick);
+        read.Bodies.ValidateScene(physics, epoch, read.Tick, read.PhysicalRevision);
     }
 
     private void ValidateAdvancedRead(WorkshopRead source, WorkshopRead read)
     {
         WorkshopMessages.ValidatePresentationOwners(read,Scene);
         ValidateRopeAdvance(source, read);
-        if (source.Tick.Value == ulong.MaxValue || read.Epoch != source.Epoch ||
+        if (!source.PhysicalRevision.TryAdvance(out var nextPhysicalRevision) || read.PhysicalRevision != nextPhysicalRevision ||
+            source.Tick.Value == ulong.MaxValue || read.Epoch != source.Epoch ||
             read.Tick.Value != source.Tick.Value + 1 || read.Bodies.Count != source.Bodies.Count)
             throw new ArgumentException("GPU tick read does not match the active transaction.");
         if (read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count || read.ContactWorks.Count != source.ContactWorks.Count ||
@@ -488,6 +489,8 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
                 throw new ArgumentException("Committed counter or clock memory identity changed.");
         read.ContactWorks.ValidateAdvance(source.ContactWorks);
         read.Electrical.ValidateAdvance(source.Electrical);
+        read.EnergyStores.ValidateAdvance(source.EnergyStores);
+        ChamberReadValidation.ValidateAdvance(read, source);
         ValidateAppliedControls(source, read);
         read.Bodies.ValidateTime(read.Epoch, read.Tick);
         read.Captures.ValidateAdvance(source.Captures);
@@ -508,8 +511,8 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
         for (var i = 0; i < read.ContactWorks.Count; i++)
         {
             var work = physics.ContactWorks[i];
-            var expected = new ContactWorkRead(work.Id, work.Owner, 0, work.InitialEnergy);
-            if (read.ContactWorks[i] != expected || !read.ContactWorks[i].RemainingEnergy.HasSameBits(expected.RemainingEnergy)) throw new ArgumentException("Admission retained spent contact work.");
+            var expected = new ContactWorkRead(work.Id, work.Owner, 0, work.Store);
+            if (read.ContactWorks[i] != expected) throw new ArgumentException("Admission retained spent contact work.");
         }
         if (read.Electrical.Count != physics.Electrical.Sources.Length)
             throw new ArgumentException("Admission source population changed.");

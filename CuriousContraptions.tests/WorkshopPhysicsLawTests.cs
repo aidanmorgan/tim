@@ -68,6 +68,7 @@ internal sealed class LawScene
     private readonly List<ContactMaterialDeclaration> _materials = [];
     private readonly List<OrientationSensorDeclaration> _orientationSensors = [];
     private readonly List<ContactWorkDeclaration> _contactWorks = [];
+    private readonly List<EnergyStoreDeclaration> _energyStores = [];
     private readonly List<PrismaticConstraintDeclaration> _prismatics = [];
     private readonly Dictionary<GpuBodyId, GpuColliderId> _colliderOf = [];
     private ulong _next = 1;
@@ -207,8 +208,39 @@ internal sealed class LawScene
         uint cooldown)
     {
         var id = new GpuContactWorkId(_next++);
-        _contactWorks.Add(new(id, owner, targets, new(targetSpeed), new(preload), new(threshold), cooldown));
+        var store = new EnergyStoreId(_next++);
+        _energyStores.Add(new(store, owner, new(preload), new(preload), new(float.MaxValue)));
+        _contactWorks.Add(new(id, owner, targets, new(targetSpeed), store, new(threshold), cooldown));
         return id;
+    }
+
+    private readonly List<ResidenceSensorDeclaration> _residence = [];
+    public GpuSensorId Residence(GpuBodyId frame, GpuBodyId target, Vector3 offset)
+    {
+        var id = new GpuSensorId(_next++);
+        _residence.Add(new(id, frame, new(BodyTargetKind.NamedBody, target),
+            new(new(offset.X, offset.Y, offset.Z), CanonicalRotation.Identity),
+            new(-1, -1, -1), new(1, 1, 1), new(2f), new(.02f), SensorParticipation.Enabled));
+        return id;
+    }
+
+    private readonly List<ChamberRegionDeclaration> _chambers = [];
+    private readonly List<FiniteWorkActuatorDeclaration> _actuators = [];
+
+    public FiniteWorkActuatorId FiniteWork(GpuBodyId frame, GpuBodyId payload, float capacity, float initial,
+        Vector3? regionCentre = null, BodyTargetSet? targets = null, Quaternion? regionRotation = null,
+        float regionRadius = .48f, float maximumWidth = .84f, float containmentAllowance = .001f, float maximumRelativeSpeed = 1f)
+    {
+        var rotation = regionRotation ?? Quaternion.Identity;
+        var store = new EnergyStoreId(_next++);
+        var region = new ChamberRegionId(_next++);
+        var actuator = new FiniteWorkActuatorId(_next++);
+        _energyStores.Add(new(store, frame, new(capacity), new(initial), new(30f)));
+        _chambers.Add(new(region, frame, _colliderOf[frame], targets ?? new(BodyTargetKind.NamedBody, payload),
+            new(new((regionCentre ?? Vector3.Zero).X, (regionCentre ?? Vector3.Zero).Y, (regionCentre ?? Vector3.Zero).Z), CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W)),
+            regionRadius, .55f, .6f, maximumWidth, containmentAllowance, maximumRelativeSpeed, SensorParticipation.Enabled));
+        _actuators.Add(new(actuator, store, region, new(12f), .02f));
+        return actuator;
     }
 
     public PrismaticConstraintId Prismatic(GpuBodyId a, GpuBodyId b, ConstraintFrame frameA, ConstraintFrame frameB, float lower,
@@ -245,6 +277,9 @@ internal sealed class LawScene
         return id;
     }
     private readonly List<RevoluteConstraintDeclaration> _revolutes = [];
+    private readonly List<DrivenSurfaceDeclaration> _drivenSurfaces = [];
+    public void DrivenSurface(GpuBodyId carrier, RevoluteConstraintId source, Vector3 direction, float travel) =>
+        _drivenSurfaces.Add(new(new(_next++), carrier, _colliderOf[carrier], BoxFace.PositiveX, source, direction, travel));
 
     /// <summary>Declares a supplied velocity drive on <paramref name="joint"/> (engine-revolute-drive).</summary>
     public void RevoluteDrive(RevoluteConstraintId joint, float targetSpeed, float maxTorque) =>
@@ -284,6 +319,16 @@ internal sealed class LawScene
         }
     }
     private readonly List<ElectricalSourceDeclaration> _sources = [];
+    public void StoreConsumer(GpuBodyId owner, ElectricalSourceDeclaration source, EnergyStoreId store)
+    {
+        var consumer = new SupplyNodeId(_next++);
+        _supplyNodes.Add(new(consumer, owner, SupplyNodeKind.Consumer, Storages: [store]));
+        _storageBindings.Add(new(source.Id, store, consumer));
+        var provider = _supplyNodes.Single(node => node.Source == source.Id).Id;
+        _supplyEdges.Add(new(provider, consumer, CuriousContraptions.Abstractions.Electrical.SupplyTerminal.PowerIn));
+    }
+
+    private readonly List<ElectricalStorageBinding> _storageBindings = [];
     private readonly List<SupplyNodeDeclaration> _supplyNodes = [];
     private readonly List<SupplyEdge> _supplyEdges = [];
 
@@ -299,6 +344,10 @@ internal sealed class LawScene
     /// <summary>Admits the scene. Every declared drive must be consumed by exactly one consumer node; unless
     /// <paramref name="consumeUnnamedDrives"/> is false, each drive no explicit <see cref="Consumer"/> names gets one, without a route,
     /// on its joint's base (engine-direct tests then close its slot through <see cref="LawWorld.Step"/>'s supplied flag).</summary>
+    private readonly List<TensileSpanDeclaration> _tensileSpans = [];
+    public void Tensile(GpuBodyId a, GpuBodyId b, float maximum) =>
+        _tensileSpans.Add(new(new(_next++), new(_next++), 0, a, Vector3.Zero, b, Vector3.Zero, maximum, true));
+
     public LawWorld Admit(SimulationCadence cadence = SimulationCadence.Hz120, bool consumeUnnamedDrives = true)
     {
         var nodes = new List<SupplyNodeDeclaration>(_supplyNodes);
@@ -318,10 +367,10 @@ internal sealed class LawScene
                 else nodes[index] = nodes[index] with { Consumers = nodes[index].Consumers.AddRange(owner) };
             }
         }
-        var scene = new PhysicsSceneDeclaration(new(1, 2), _next, [.. _bodies], [.. _colliders], [.. _materials], [], [],
-            contactWorks: [.. _contactWorks], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics],
-            prismaticDrives: [.. _drives], revolutes: [.. _revolutes], compliantSurfaces: [.. _compliantSurfaces],
-            electricalSources: [.. _sources], supplyNodes: [.. nodes], supplyEdges: [.. _supplyEdges], revoluteDrives: [.. _revoluteDrives], transmissions: [.. _transmissions]);
+        var scene = new PhysicsSceneDeclaration(new(1, 2), _next, [.. _bodies], [.. _colliders], [.. _materials], [.. _residence], [],
+            contactWorks: [.. _contactWorks], energyStores: [.. _energyStores], chamberRegions: [.. _chambers], finiteWorkActuators: [.. _actuators], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics],
+            prismaticDrives: [.. _drives], tensileSpans: [.. _tensileSpans], revolutes: [.. _revolutes], compliantSurfaces: [.. _compliantSurfaces],
+            electricalSources: [.. _sources], electricalBindings: [.. _storageBindings], supplyNodes: [.. nodes], supplyEdges: [.. _supplyEdges], revoluteDrives: [.. _revoluteDrives], transmissions: [.. _transmissions], drivenSurfaces: [.. _drivenSurfaces]);
         return new(scene, PhysicsGpuAbi.Admission(scene, new(1), new(cadence, PhysicalStepProfile.Canonical480Hz, new(1))), cadence);
     }
 }
@@ -768,11 +817,13 @@ public sealed class WorkshopPhysicsLawTests
         "ElectricalBindingSourceOffset", "ElectricalBindingStorageOffset",
         // Core route identity/integrity apply to any declared tensile route. Contact anchor is a geometric support point,
         // not the RopeAnchor package: SupportDisplacement and AnchorDisplacement use only SimBody/collider geometry.
-        "RopeRouteId", "RopeIntegrity", "RopeGeometry", "AnchorDisplacement", "anchor",
+        "RopeRouteId", "RopeIntegrity", "RopeGeometry", "RopeRouteWorkspace", "AnchorDisplacement", "anchor",
         // Exact vocabulary of the declared joint-ratio law and its ABI, not ReverseTransmission or a product recipe.
         // Keep the catalogue word "transmission" scanned in every other identifier.
         "SimMechanicalTransmission", "MechanicalTransmissionSolver", "transmission",
-        "TransmissionClosed", "TransmissionEngagementPhase",
+        "TransmissionClosed", "TransmissionEngagementPhase", "AdvanceTransmissionClosures",
+        // Declared relation retention and its accepted-work window; no package identity is inspected.
+        "Transmission", "MechanicalTransmissionRetentionOffset", "MechanicalTransmissionRetentionModeOffset", "MechanicalTransmissionRetentionPhaseOffset", "MechanicalTransmissionRetentionBoundOffset", "MechanicalTransmissionPotentialOffset", "MechanicalTransmissionAcceptedOffset", "MechanicalTransmissionReleasedOffset", "MechanicalTransmissionContactWorkOffset", "MechanicalTransmissionGravityWorkOffset", "MechanicalTransmissionRequestResultOffset", "MechanicalTransmissionWindowImpulseOffset", "MechanicalTransmissionWindowDrivenAVelocityOffset", "MechanicalTransmissionWindowDrivenBVelocityOffset", "MechanicalTransmissionWindowContactTranslationalImpulseOffset", "MechanicalTransmissionWindowContactAngularOffset", "MechanicalTransmissionCompressionOffset",
         "MechanicalTransmissionOffset", "MechanicalTransmissionDrivingOffset", "MechanicalTransmissionDrivenOffset",
         "MechanicalTransmissionRatioOffset", "MechanicalTransmissionImpulseOffset", "MechanicalTransmissionCloseSecondsOffset",
         "MechanicalTransmissionClosureOffset", "MechanicalTransmissionSuppliedOffset", "MechanicalTransmissionPhaseOffset",
@@ -838,7 +889,9 @@ public sealed class WorkshopPhysicsLawTests
         "WorkshopConstraintSolver.cs", "PrismaticConstraintSolver.cs", "WorkshopDynamicBvh.cs",
         "TensileConstraintSolver.cs", "ConstraintBodyImpulse.cs", "MechanicalTransmissionSolver.cs",
         "GuideComponent.cs", "GuidePreparedRow.cs", "GuideQr.cs", "GuideWorkspace.cs", "ImpulseJacobian.cs",
-        "PrismaticMotorSolver.cs", "PrismaticTrialWorkspace.cs", "WorkshopPhysicsEngine.Extrusions.cs", "WorkshopPhysicsEngine.Motors.cs"];
+        "PrismaticMotorSolver.cs", "PrismaticTrialWorkspace.cs", "WorkshopPhysicsEngine.Extrusions.cs", "WorkshopPhysicsEngine.Motors.cs",
+        "WorkshopPhysicsEngine.Retention.cs", "WorkshopPhysicsEngine.Chambers.cs", "WorkshopPhysicsEngine.FiniteWork.cs",
+        "WorkshopPhysicsEngine.FiniteWorkComponent.cs", "WorkshopPhysicsEngine.Requests.cs"];
 
     [Fact]
     public void TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations()
@@ -928,7 +981,7 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("ReverseTransmission", true)]
     [InlineData("reverseTransmissionForce", true)]
     [InlineData("transmissionBoost", true)]
-    [InlineData("Transmission", true)]
+    [InlineData("Transmission", false)]
     [InlineData("MechanicalTransmissionProductForce", true)]
     [InlineData("LinearPusher", true)]
     [InlineData("pusherDrive", true)]
@@ -1437,17 +1490,17 @@ public sealed class WorkshopPhysicsLawTests
         var end = world.Step(1, (_, state) =>
         {
             var body = state[box];
-            var work = PhysicsGpuAbi.ReadContactWorks(state.World, state.Interactions)[0];
+            var work = PhysicsGpuAbi.ReadEnergyStores(state.World)[0];
             Assert.True(body.Finite);
-            Assert.InRange(work.RemainingEnergy.Value, 0f, preload);
-            var debit = preload - work.RemainingEnergy.Value;
+            Assert.InRange(work.Energy.Value, 0f, preload);
+            var debit = preload - work.Energy.Value;
             Assert.True(Energy(body) <= initialEnergy + debit + allowance,
                 $"kinetic {Energy(body):R} J, initial {initialEnergy:R}, debit {debit:R}, allowance {allowance:R}");
         });
         var paid = PhysicsGpuAbi.ReadContactWorks(end.World, end.Interactions)[0];
         Assert.True(paid.OccurrenceCount > 0, "The rotating box must actually reach the paid surface.");
-        if (preload > 0f) Assert.True(paid.RemainingEnergy.Value < preload, "Powered control must receive real work.");
-        else Assert.Equal(0f, paid.RemainingEnergy.Value);
+        if (preload > 0f) Assert.True(PhysicsGpuAbi.ReadEnergyStores(end.World)[0].Energy.Value < preload, "Powered control must receive real work.");
+        else Assert.Equal(0f, PhysicsGpuAbi.ReadEnergyStores(end.World)[0].Energy.Value);
         Assert.True(Quaternion.Dot(initial.Rotation, end[box].Rotation) < .99999f, "The current inertia frame must change during the tick.");
     }
 

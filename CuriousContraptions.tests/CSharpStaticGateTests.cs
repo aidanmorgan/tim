@@ -692,6 +692,7 @@ public sealed class CSharpStaticGateTests
         "elements/ReverseTransmission/ReverseTransmission.csproj",
         "elements/LinearPusher/LinearPusher.csproj",
         "elements/WoundSpring/WoundSpring.csproj",
+        "elements/Cannon/Cannon.csproj",
     ];
     private static readonly string[] RequiredAnalyzers =
     [

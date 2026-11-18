@@ -82,7 +82,7 @@ public sealed class PrismaticRetentionTests(ITestOutputHelper output)
         {
             engine.Advance(source, candidate, inputs with
             {
-                RetentionRequests = tick == 0 ? [new(retained.Id, PhysicalRequestOperation.Release, occurrence)] : []
+                PhysicalRequests = tick == 0 ? [new(PhysicalRequestTarget.ForRetention(retained.Id), PhysicalRequestOperation.Release, occurrence)] : []
             }, PhysicsInteractionSnapshot.Empty);
             (source, candidate) = (candidate, source);
         }
@@ -217,7 +217,7 @@ public sealed class PrismaticRetentionTests(ITestOutputHelper output)
         {
             engine.Advance(source, candidate, inputs with
             {
-                RetentionRequests = tick == 0 ? [new(firstId, PhysicalRequestOperation.Release, occurrence)] : []
+                PhysicalRequests = tick == 0 ? [new(PhysicalRequestTarget.ForRetention(firstId), PhysicalRequestOperation.Release, occurrence)] : []
             }, PhysicsInteractionSnapshot.Empty);
             (source, candidate) = (candidate, source);
         }
@@ -263,7 +263,7 @@ public sealed class PrismaticRetentionTests(ITestOutputHelper output)
             var inputs = new PhysicsTickInputs([], [false, tick >= 120, !release])
             {
                 DriveTarget = [-2f], TransmissionClosed = [false],
-                RetentionRequests = tick <= 1 && release ? [new(retention, PhysicalRequestOperation.Release, occurrence)] : []
+                PhysicalRequests = tick <= 1 && release ? [new(PhysicalRequestTarget.ForRetention(retention), PhysicalRequestOperation.Release, occurrence)] : []
             };
             engine.Advance(source, candidate, inputs, PhysicsInteractionSnapshot.Empty);
             (source, candidate) = (candidate, source);
@@ -308,9 +308,9 @@ public sealed class PrismaticRetentionTests(ITestOutputHelper output)
             { DriveTarget = [-2f], TransmissionClosed = [false] };
         // The engine reads its source read-only; an unknown target is a typed refusal, so no candidate reaches a commit.
         Assert.Throws<ArgumentException>(() => engine.Advance(source, candidate, inputs with
-            { RetentionRequests = [new(new(999), PhysicalRequestOperation.Release, occurrence)] }, PhysicsInteractionSnapshot.Empty));
+            { PhysicalRequests = [new(PhysicalRequestTarget.ForRetention(new(999)), PhysicalRequestOperation.Release, occurrence)] }, PhysicsInteractionSnapshot.Empty));
         engine.Advance(source, candidate, inputs with
-            { RetentionRequests = [new(id, PhysicalRequestOperation.Release, occurrence)] }, PhysicsInteractionSnapshot.Empty);
+            { PhysicalRequests = [new(PhysicalRequestTarget.ForRetention(id), PhysicalRequestOperation.Release, occurrence)] }, PhysicsInteractionSnapshot.Empty);
         var empty = Assert.Single(PhysicsGpuAbi.ReadRetentions(candidate));
         Assert.Equal(RetentionRequestResult.Empty, empty.RequestResult);
         Assert.Equal(0f, empty.Potential);
@@ -785,7 +785,7 @@ public sealed class PrismaticRetentionTests(ITestOutputHelper output)
             var inputs = new PhysicsTickInputs([], [false, false])
             {
                 DriveTarget = [], TransmissionClosed = [false],
-                RetentionRequests = tick == 0 ? [new(retention, PhysicalRequestOperation.Release, occurrence)] : []
+                PhysicalRequests = tick == 0 ? [new(PhysicalRequestTarget.ForRetention(retention), PhysicalRequestOperation.Release, occurrence)] : []
             };
             engine.Advance(source, candidate, inputs, PhysicsInteractionSnapshot.Empty);
             (source, candidate) = (candidate, source);

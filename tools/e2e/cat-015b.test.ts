@@ -3,7 +3,7 @@ import {test} from 'node:test';
 import {mkdirSync} from 'node:fs';
 import {resolve,sep,join} from 'node:path';
 import {WorkshopDriver} from './workshop-driver.ts';
-import {decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter, contactHits, type BodyRead, type WorkshopResponse, type SavedConstruction} from './workshop-wire.ts';
+import {decodeWorkshopResponse, energyStore, decodeSavedConstruction, authoredState, parameter, contactHits, type BodyRead, type WorkshopResponse, type SavedConstruction} from './workshop-wire.ts';
 
 // Closed numeric sets; external level names are converted only at the driver boundary.
 enum Lesson { Depth=5, Wall=6 }
@@ -125,15 +125,15 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
         while(Date.now()-start<5200){const b=(await d.readLatestPose())?.bodies[0];if(b)samples.push(b);await d.page.waitForTimeout(40);}
         await d.pauseSimulation();const after=reads.at(-1)!;const solved=await d.readCaptured();
         // Story 9A.23 D9: the paid reads from the owner's stores (the occurrence rows are device-private).
-        const paid=contactHits(events,32).filter(hit=>hit.debit>0).map(hit=>hit.response);
+        const paid=contactHits(events).filter(hit=>hit.debit>0).map(hit=>hit.response);
         const owner=initial.construction()!.instances(2)!.id();
         const rings=await d.readAnimationSamplesForTarget(String((2n<<32n)+owner));
         assert.equal(solved,route===Route.Paid?1:0);
         if(lesson===Lesson.Depth&&route===Route.Miss){
-            assert.equal(paid.length,0);assert.equal(after.contactWorks(0)!.remainingEnergy(),32);
+            assert.equal(paid.length,0);assert.equal(energyStore(after, after.contactWorks(0)!.store()).energy(),32);
             assert.equal(after.contactWorks(0)!.occurrenceCount(),0);assert.ok(rings.every(r=>r.value===0));
         }else{
-            assert.ok(paid.length>0);assert.ok(after.contactWorks(0)!.remainingEnergy()<32);
+            assert.ok(paid.length>0);assert.ok(energyStore(after, after.contactWorks(0)!.store()).energy()<32);
             const firstPaid=paid[0];
             const spin=Math.hypot(firstPaid.bodies(0)!.angularVelocity()!.x(),firstPaid.bodies(0)!.angularVelocity()!.y(),firstPaid.bodies(0)!.angularVelocity()!.z());
             assert.ok(spin>1,'Actual paid WASM contact retains friction-generated angular motion');
@@ -148,7 +148,7 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
         }
         await d.page.screenshot({path:join(evidence,lesson+'-'+route+'-outcome.png')});
         await d.reset();const reset=reads.at(-1)!;
-        assert.equal(reset.contactWorks(0)!.remainingEnergy(),32);assert.equal(reset.contactWorks(0)!.occurrenceCount(),0);
+        assert.equal(energyStore(reset, reset.contactWorks(0)!.store()).energy(),32);assert.equal(reset.contactWorks(0)!.occurrenceCount(),0);
         assert.equal(reset.bodiesLength(),initialRead.bodiesLength());
         for(let i=0;i<reset.bodiesLength();i++)assert.deepEqual(bodyState(reset.bodies(i)!),bodyState(initialRead.bodies(i)!),'Every committed live body pose and velocity is restored exactly');
         assert.equal(reset.captures(0)!.phase(),CapturePhase.Clear);
@@ -161,7 +161,7 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
         await d.run();await d.page.waitForTimeout(5200);await d.pauseSimulation();
         assert.equal((await d.readCaptured())-solvedBeforeReplay,route===Route.Paid?1:0,'Repeat Run reproduces intended outcome');
         await d.reset();await d.save();assert.deepEqual(authoredState(await saved(d)),authoredState(initialBytes));assert.deepEqual(errors,[]);
-        console.log(JSON.stringify({lesson,route,solved,paid:paid.length,remaining:after.contactWorksLength()>0?after.contactWorks(0)!.remainingEnergy():0,
+        console.log(JSON.stringify({lesson,route,solved,paid:paid.length,remaining:after.contactWorksLength()>0?energyStore(after, after.contactWorks(0)!.store()).energy():0,
             bumper:[0,1,2].map(a=>position(initial,2,a)),samples}));
     }catch(e){console.error(JSON.stringify({lesson,route,errors}));
         await d.page.screenshot({path:join(evidence,lesson+'-'+route+'-failure.png')});throw e;}

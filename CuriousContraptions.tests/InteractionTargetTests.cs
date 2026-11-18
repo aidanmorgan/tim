@@ -165,7 +165,7 @@ public sealed class InteractionTargetTests
         var nonTargetStore = nonTargetLayout.ContactWorkOffset(0);
         WorkshopPhysicsEngineTests.StepWorld(nonTargetWorld, 2 * TicksPerSecond, (tick, world, interactions) =>
         {
-            var available = BinaryPrimitives.ReadSingleLittleEndian(world.AsSpan(nonTargetStore + PhysicsGpuAbi.ContactWorkAvailableOffset));
+            var available = BinaryPrimitives.ReadSingleLittleEndian(world.AsSpan(nonTargetLayout.EnergyStoreOffset(0) + PhysicsGpuAbi.EnergyStoreBalanceOffset));
             Assert.Equal(32f, available);
             var count = BinaryPrimitives.ReadUInt32LittleEndian(world.AsSpan(nonTargetStore + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset));
             Assert.Equal(0u, count);
@@ -185,7 +185,7 @@ public sealed class InteractionTargetTests
             if (count > 0) targetPaid = true;
         });
         Assert.True(targetPaid, "the target ball reaches the Bumper and triggers paid work");
-        var finalAvailable = BinaryPrimitives.ReadSingleLittleEndian(targetWorld.AsSpan(targetStore + PhysicsGpuAbi.ContactWorkAvailableOffset));
+        var finalAvailable = BinaryPrimitives.ReadSingleLittleEndian(targetWorld.AsSpan(targetLayout.EnergyStoreOffset(0) + PhysicsGpuAbi.EnergyStoreBalanceOffset));
         Assert.True(finalAvailable < 32f);
     }
 
@@ -247,7 +247,7 @@ public sealed class InteractionTargetTests
         var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(construction, 60);
         Assert.All(reads, read =>
         {
-            Assert.Equal(32f, read.ContactWorks[0].RemainingEnergy.Value);
+            Assert.Equal(32f, read.EnergyStores[0].Energy.Value);
             for (var i = 0; i < read.Activations.Count; i++)
                 Assert.Equal(ActivationPhase.Clear, read.Activations[i].Phase);
         });

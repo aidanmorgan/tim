@@ -3,7 +3,7 @@
 export enum ObservationRefusal { None, Retired, ForeignSession, UnknownQuery, NotCommitted, ClosedCursor, InvalidCursor }
 export enum ObservationQuery { Committed }
 // Numeric interop identifiers match the canonical managed enums; C# validates them before projection.
-export enum ActivationNodeKind { ContactSource = 1, StickyFirstInput = 2, Timer = 3, OrientationSource = 4, PassageSource = 5, Counter = 6, Oscillator = 7, StateLatch = 8, LevelIndicator = 9, ContactLoadSource = 10 }
+export enum ActivationNodeKind { ContactSource = 1, StickyFirstInput = 2, Timer = 3, OrientationSource = 4, PassageSource = 5, Counter = 6, Oscillator = 7, StateLatch = 8, LevelIndicator = 9, ContactLoadSource = 10, PhysicalRequest = 11 }
 export enum ActivationOccurrenceKind { Contact = 1, TimerElapsed = 2, Orientation = 3, Passage = 4, ThresholdReached = 5, OscillatorTick = 6, ContactLoad = 7 }
 export enum ActivationPhase { Clear, Latched }
 export enum ActivationTimerPhase { Ready, Counting, Finished }
@@ -28,7 +28,7 @@ export enum PresentationCadence { AdmittedDisplay = 0, Hz30 = 1, Hz60 = 2, Hz90 
 export enum PresentationQuality { AwaitingHistory, Interpolated, ClockInvalid, Stale, Terminal, Faulted, Retired }
 export enum SimulationCadence { Hz60 = 1, Hz120 = 2, Hz240 = 3 }
 export enum SimulationDomain { None = 0, Mechanical = 1 << 0, Electrical = 1 << 1, Signal = 1 << 2, Fluid = 1 << 3, Audio = 1 << 4 }
-export enum SimulationEventKind { None = 0, Impact = 1, Passage = 2, ThresholdReached = 3, MemoryChanged = 4, ContactLoad = 5, Captured = 6, ElectricalPowered = 7, TriggerActivated = 8 }
+export enum SimulationEventKind { None = 0, Impact = 1, Passage = 2, ThresholdReached = 3, MemoryChanged = 4, ContactLoad = 5, Captured = 6, ElectricalPowered = 7, TriggerActivated = 8, FiniteWorkReleased = 9 }
 export enum TraceEnd { Complete = 0, Reset = 1, Disposed = 2, Fault = 4, InvalidRecord = 5, Overflow = 6 }
 export enum TransmissionEngagementPhase { Open = 0, Closing = 1, Engaged = 2, Opening = 3 }
 export enum TraceTimingStatus { Complete, Incomplete }

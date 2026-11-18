@@ -377,7 +377,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         ];
         var bodies = new PhysicsBodyReadSet([new PhysicsBodyRead(new CanonicalBody(new(1), 1, 0, default, default, default),
             CanonicalRotation.Identity, default, default)]);
-        var read = new WorkshopRead(new(1), new(0), bodies, new(2),
+        var read = new WorkshopRead(new(1), new(0), new(0), bodies, new(2),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100000000), new(100000)), Memory: new(rows));
         var response = new WorkshopResponse(new(4), WorkshopResponseKind.Acknowledgement, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
             WorkshopSimulationPhase.Building, read, new(1, 2), default, new(1), new(1), new(1), new(0));

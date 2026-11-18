@@ -110,7 +110,7 @@ public sealed class ComposableSupplyRoutingTests
 
         var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var storageBinding = Assert.Single(scene.Electrical.Bindings.ToArray());
-        Assert.Equal(construction.Instances.Identities[bumper.Id].Work, storageBinding.Storage);
+        Assert.Equal(construction.Instances.Identities[bumper.Id].EnergyStores[new(1)], storageBinding.Storage);
 
         var reads = await WorkshopIntegrationHarness.Observe(construction, 180);
         var hit = reads.FindIndex(read => Enumerable.Range(0, read.Activations.Count).Select(i => read.Activations[i]).Any(act => act.Owner == sw.Id && act.Phase == ActivationPhase.Latched));
@@ -120,8 +120,8 @@ public sealed class ComposableSupplyRoutingTests
         var actuator = Assert.Single(later.Presentation.Actuators.ToArray(), a => a.Owner == gate.Id);
         Assert.True(actuator.SupplyClosed, "Gate drive must be powered when switch is closed");
 
-        var bumperStore = later.ContactWorks[0];
-        Assert.True(bumperStore.RemainingEnergy.Value > 0f || bumperStore.SuppliedEnergy.Value > 0f, "Bumper store was recharged");
+        var bumperStore = later.EnergyStores[0];
+        Assert.True(bumperStore.Energy.Value > 0f || bumperStore.Supplied.Value > 0f, "Bumper store was recharged");
     }
 
     [Fact]
@@ -149,8 +149,8 @@ public sealed class ComposableSupplyRoutingTests
         var actuator = Assert.Single(later.Presentation.Actuators.ToArray(), a => a.Owner == gate.Id);
         Assert.False(actuator.SupplyClosed, "Gate drive must be unpowered when route is open");
 
-        var bumperStore = later.ContactWorks[0];
-        Assert.Equal(0f, bumperStore.SuppliedEnergy.Value);
+        var bumperStore = later.EnergyStores[0];
+        Assert.Equal(0f, bumperStore.Supplied.Value);
     }
 
     [Fact]
@@ -173,8 +173,8 @@ public sealed class ComposableSupplyRoutingTests
 
         Assert.Equal(directScene.Electrical.Sources[0].Id, directBinding.Source);
         Assert.Equal(composedScene.Electrical.Sources[0].Id, composedBinding.Source);
-        Assert.Equal(directScene.ContactWorks[0].Id, directBinding.Storage);
-        Assert.Equal(composedScene.ContactWorks[0].Id, composedBinding.Storage);
+        Assert.Equal(directScene.EnergyStores[0].Id, directBinding.Storage);
+        Assert.Equal(composedScene.EnergyStores[0].Id, composedBinding.Storage);
 
         float[] balances = [10f];
         float[] capacities = [32f];
@@ -245,7 +245,7 @@ public sealed class ComposableSupplyRoutingTests
 
         var binding = Assert.Single(scene.Electrical.Bindings.ToArray());
         Assert.Equal(scene.Electrical.Sources[0].Id, binding.Source);
-        Assert.Equal(scene.ContactWorks[0].Id, binding.Storage);
+        Assert.Equal(scene.EnergyStores[0].Id, binding.Storage);
 
         Span<float> balances = [10f];
         Span<float> capacities = [32f];
@@ -374,7 +374,7 @@ public sealed class ComposableSupplyRoutingTests
         {
             Nodes = [
                 new SupplySourceDescriptor(new("src"), new(new("capacity"), new("power_limit"), new("initial_charge"), new("enabled"))),
-                new SupplyConsumerDescriptor(new("cons"), [new SupplyContactWorkTarget(new("non_existent_work"))])
+                new SupplyConsumerDescriptor(new("cons"), [new SupplyEnergyStoreTarget(new(99))])
             ]
         };
         badEntry = battery with { Electrical = battery.Electrical with { SupplyGraph = badConsumerTarget } };
@@ -407,9 +407,9 @@ public sealed class ComposableSupplyRoutingTests
         Assert.Equal(0, scene.Electrical.Bindings.Length);
 
         var reads = await WorkshopIntegrationHarness.Observe(construction, 120);
-        var later = reads[^1].ContactWorks[0];
+        var later = reads[^1].EnergyStores[0];
 
-        Assert.Equal(0f, later.SuppliedEnergy.Value);
+        Assert.Equal(0f, later.Supplied.Value);
     }
 
     [Fact]
@@ -481,7 +481,7 @@ public sealed class ComposableSupplyRoutingTests
         {
             new SupplySourceDescriptor(new("src"), new(new("cap"), new("pwr"), new("init"), new("enable"))),
             new SupplyContactDescriptor(new("contact"), new SignalStateContactControl(new("signal"), SignalContactState.Latched)),
-            new SupplyConsumerDescriptor(new("consumer"), [new SupplyContactWorkTarget(new("work"))])
+            new SupplyConsumerDescriptor(new("consumer"), [new SupplyEnergyStoreTarget(new(1))])
         };
         var edges = new SupplyConnection[]
         {
@@ -546,7 +546,7 @@ public sealed class ComposableSupplyRoutingTests
 
         var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var binding = Assert.Single(scene.Electrical.Bindings.ToArray());
-        Assert.Equal(identities.Work, binding.Storage);
+        Assert.Equal(identities.EnergyStores[new(1)], binding.Storage);
         Assert.Equal(srcId, binding.Source);
     }
 
@@ -580,8 +580,8 @@ public sealed class ComposableSupplyRoutingTests
         Assert.True(hit > 0, "Contact was triggered by the falling ball");
 
         var later = harness.Committed;
-        var store = later.ContactWorks[0];
-        Assert.True(store.RemainingEnergy.Value > 0f || store.SuppliedEnergy.Value > 0f, "Store was recharged across internal supply edges");
+        var store = later.EnergyStores[0];
+        Assert.True(store.Energy.Value > 0f || store.Supplied.Value > 0f, "Store was recharged across internal supply edges");
     }
 
     [Fact]

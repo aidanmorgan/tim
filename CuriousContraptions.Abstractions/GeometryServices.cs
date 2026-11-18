@@ -9,6 +9,9 @@ public enum HollowSurface : byte { Start = 0, Outer = 1, End = 2, Bore = 3 }
 /// <summary>A posed finite or plane partner for the shared hollow contact query.</summary>
 public readonly record struct HollowPartner(ColliderShapeKind Shape, Vector3 Position, Vector3 U0, Vector3 U1, Vector3 U2,
     float Radius, float Hx, float Hy, float Hz);
+public enum MaterialQueryResult : byte { Clear, Intersecting, Unresolved }
+public enum MaterialContainmentResult : byte { Outside, Inside, Unresolved }
+
 public enum HollowContactSupport : byte { Material, Axis, DistanceOnly }
 public readonly record struct HollowContact(Vector3 Normal, Vector3 Point, float Gap, int Feature, HollowContactSupport Support);
 
@@ -32,7 +35,7 @@ public readonly record struct EvaluatedRopeRoute(
     Vector3 TangentB,
     Vector3 UnitA,
     Vector3 UnitB,
-    RouteGuideArc[] Arcs,
+    ReadOnlyMemory<RouteGuideArc> Arcs,
     float TotalLength);
 
 public readonly record struct HollowSolidDeclaration(ColliderShapeKind Kind, Vector3 Position, Vector3 X, Vector3 Y, Vector3 Z,
@@ -41,10 +44,19 @@ public readonly record struct HollowSolidDeclaration(ColliderShapeKind Kind, Vec
 public interface ICoreGeometry
 {
     float PlacementSlop { get; }
+    Vector3 MaterialSupport(HollowPartner shape, Vector3 direction);
+    IMaterialQueryWorkspace CreateMaterialQueryWorkspace();
     bool IsHollow(ColliderShapeKind kind);
     float HollowReach(HollowSolidDeclaration declaration);
     Vector3 HollowSupportNear(HollowSolidDeclaration declaration, Vector3 direction, Vector3 near);
     bool HollowOverlaps(HollowPartner partner, HollowSolidDeclaration declaration, float slop);
     float SurfaceDistance(HollowPartner partner, Vector3 point, out Vector3 surface, out Vector3 outward);
     Vector3[] EvaluateRope(Vector3 from, Vector3 destination, float maximum, RopeState state);
+}
+
+/// <summary>One execution owner holds reusable query scratch. Separate owners use separate workspaces.</summary>
+public interface IMaterialQueryWorkspace
+{
+    MaterialContainmentResult ContainsMaterial(HollowPartner region, HollowPartner shape, float allowance);
+    MaterialQueryResult SweepMaterial(HollowPartner moving, HollowPartner obstacle, Vector3 translation);
 }

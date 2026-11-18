@@ -14,7 +14,7 @@ namespace CuriousContraptions.Gpu;
 public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int Materials, int Sensors, int Dynamic, int Guides,
     int Triggers, int ContactWorks, int OrientationSensors, int ElectricalSources, int ElectricalBindings,
     int Prismatics, int ContactLoads, int TensileSpans, int Revolutes, int CompliantSurfaces,
-    int MechanicalTransmissions = 0) : IPhysicsWorldLayout
+    int MechanicalTransmissions = 0, int EnergyStores = 0, int ChamberRegions = 0, int FiniteWorkActuators = 0) : IPhysicsWorldLayout
 {
     /// <summary>The body table directly follows the header in every world.</summary>
     public static int BodiesOffset => PhysicsGpuAbi.HeaderBytes;
@@ -37,7 +37,10 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     /// <summary>The committed engagement table: one row per (compliant surface, dynamic body), derived from those two populations.</summary>
     public int CompliantEngagementsOffset => After(CompliantSurfacesOffset, CompliantSurfaces, PhysicsGpuAbi.CompliantSurfaceBytes);
     public int MechanicalTransmissionsOffset => After(CompliantEngagementsOffset, (long)CompliantSurfaces * Dynamic, PhysicsGpuAbi.CompliantEngagementBytes);
-    public int CollidersOffset => After(MechanicalTransmissionsOffset, MechanicalTransmissions, PhysicsGpuAbi.MechanicalTransmissionBytes);
+    public int EnergyStoresOffset => After(MechanicalTransmissionsOffset, MechanicalTransmissions, PhysicsGpuAbi.MechanicalTransmissionBytes);
+    public int ChamberRegionsOffset => After(EnergyStoresOffset, EnergyStores, PhysicsGpuAbi.EnergyStoreBytes);
+    public int FiniteWorkActuatorsOffset => After(ChamberRegionsOffset, ChamberRegions, PhysicsGpuAbi.ChamberRegionBytes);
+    public int CollidersOffset => After(FiniteWorkActuatorsOffset, FiniteWorkActuators, PhysicsGpuAbi.FiniteWorkActuatorBytes);
     /// <summary>The exact world length.</summary>
     public int ByteLength => After(CollidersOffset, Colliders, PhysicsGpuAbi.ColliderBytes);
 
@@ -47,6 +50,9 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     public int GuideOffset(int slot) => Row(GuidesOffset, slot, Guides, PhysicsGpuAbi.GuideBytes);
     public int TriggerOffset(int slot) => Row(TriggersOffset, slot, Triggers, PhysicsGpuAbi.TriggerBytes);
     public int ContactWorkOffset(int slot) => Row(ContactWorksOffset, slot, ContactWorks, PhysicsGpuAbi.ContactWorkBytes);
+    public int ChamberRegionOffset(int slot) => Row(ChamberRegionsOffset, slot, ChamberRegions, PhysicsGpuAbi.ChamberRegionBytes);
+    public int FiniteWorkActuatorOffset(int slot) => Row(FiniteWorkActuatorsOffset, slot, FiniteWorkActuators, PhysicsGpuAbi.FiniteWorkActuatorBytes);
+    public int EnergyStoreOffset(int slot) => Row(EnergyStoresOffset, slot, EnergyStores, PhysicsGpuAbi.EnergyStoreBytes);
     public int OrientationSensorOffset(int slot) => Row(OrientationSensorsOffset, slot, OrientationSensors, PhysicsGpuAbi.OrientationSensorBytes);
     public int ElectricalSourceOffset(int slot) => Row(ElectricalSourcesOffset, slot, ElectricalSources, PhysicsGpuAbi.ElectricalSourceBytes);
     public int ElectricalBindingOffset(int slot) => Row(ElectricalBindingsOffset, slot, ElectricalBindings, PhysicsGpuAbi.ElectricalBindingBytes);
@@ -79,7 +85,9 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
             Count(header, PhysicsGpuAbi.HeaderTensileSpanCountOffset),
             Count(header, PhysicsGpuAbi.HeaderRevoluteCountOffset),
             Count(header, PhysicsGpuAbi.HeaderCompliantSurfaceCountOffset),
-            Count(header, PhysicsGpuAbi.HeaderMechanicalTransmissionCountOffset));
+            Count(header, PhysicsGpuAbi.HeaderMechanicalTransmissionCountOffset),
+            Count(header, PhysicsGpuAbi.HeaderEnergyStoreCountOffset),
+            Count(header, PhysicsGpuAbi.HeaderChamberRegionCountOffset), Count(header, PhysicsGpuAbi.HeaderFiniteWorkActuatorCountOffset));
         _ = layout.ByteLength;
         return layout;
     }
@@ -99,6 +107,9 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
         Write(header, PhysicsGpuAbi.HeaderRevoluteCountOffset, Revolutes);
         Write(header, PhysicsGpuAbi.HeaderCompliantSurfaceCountOffset, CompliantSurfaces);
         Write(header, PhysicsGpuAbi.HeaderMechanicalTransmissionCountOffset, MechanicalTransmissions);
+        Write(header, PhysicsGpuAbi.HeaderEnergyStoreCountOffset, EnergyStores);
+        Write(header, PhysicsGpuAbi.HeaderChamberRegionCountOffset, ChamberRegions);
+        Write(header, PhysicsGpuAbi.HeaderFiniteWorkActuatorCountOffset, FiniteWorkActuators);
     }
 
     private static int Count(ReadOnlySpan<byte> header, int offset)

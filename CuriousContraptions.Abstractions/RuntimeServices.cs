@@ -26,6 +26,8 @@ public interface IWorkshopGpuDevice : IAsyncDisposable
     /// and per-drive target speeds); the device adds committed switch state for its compiled switched supplies. Physics never reads
     /// authoring state.</summary>
     ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls);
+    /// <summary>Stages one owned finite-work release at the committed pose and time. A candidate in flight refuses Busy immediately.</summary>
+    ValueTask<WorkshopGpuCandidate> ApplyFiniteWork(WorkshopRead committed, CommandSequence sequence, OwnedFiniteWorkRequest request);
     // Swap candidate buffers only after host validation. Discard is idempotent, nonthrowing, and
     // sequence-specific; a superseded request cannot free a newer candidate or committed buffers.
     void Commit(CommandSequence sequence);
@@ -143,7 +145,10 @@ public interface ICoreServices
         ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives = default,
         ReadOnlySpan<RopeGuideDeclaration> ropeGuides = default,
         ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default,
-        ReadOnlySpan<DrivenSurfaceDeclaration> drivenSurfaces = default);
+        ReadOnlySpan<DrivenSurfaceDeclaration> drivenSurfaces = default,
+        ReadOnlySpan<EnergyStoreDeclaration> energyStores = default,
+        ReadOnlySpan<ChamberRegionDeclaration> chamberRegions = default,
+        ReadOnlySpan<FiniteWorkActuatorDeclaration> finiteWorkActuators = default);
     IActivationProgram CreateActivation(ReadOnlySpan<ActivationNodeDeclaration> nodes, ReadOnlySpan<ActivationEdge> edges,
         uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default,
         ReadOnlySpan<CompiledSignalContact> contacts = default);

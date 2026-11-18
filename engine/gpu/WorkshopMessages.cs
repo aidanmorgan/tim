@@ -17,7 +17,10 @@ public static class WorkshopMessages
     /// <summary>A committed read past admission carries its committed motion; admission (tick 0) has no preceding interval.</summary>
     internal static void ValidatePhysicalRead(WorkshopRead read)
     {
+        if (read.PhysicalRevision.Value < read.Tick.Value || (read.Epoch.Value == 0 && !read.PhysicalRevision.IsAdmission))
+            throw new ArgumentException("Invalid installed physical commit identity.");
         read.Bodies.ValidateTime(read.Epoch, read.Tick);
+        ChamberReadValidation.ValidateBodies(read);
         for (var i = 0; i < read.Bodies.Count; i++) read.Bodies[i].Validate();
         if (read.Motion is { } motion) motion.ValidateBinding(read.Bodies, read.Tick);
         else if (read.Tick.Value != 0) throw new ArgumentException("Committed motion description is required.");
@@ -42,6 +45,8 @@ public static class WorkshopMessages
     {
         construction.Activation.ValidateOrigins(read.Activations, read.Timers, read.Tick, construction.Physics);
         construction.Activation.ValidateCommittedMemory(read.Memory, read.Tick, construction.Physics);
+        ValidateEnergyStoreOwners(read, construction);
+        ChamberReadValidation.ValidateOwners(read, construction);
         ValidateRopeOwners(read, construction);
         for(var i=0;i<read.Captures.Count;i++)
             if(!construction.OwnsCapture(new(read.Captures[i].Sensor,read.Captures[i].Target)))
@@ -54,6 +59,22 @@ public static class WorkshopMessages
         ValidateTransmissionOwners(read, construction);
         ValidateRetentionOwners(read, construction);
 
+    }
+
+    private static void ValidateEnergyStoreOwners(WorkshopRead read, ICompiledScene construction)
+    {
+        var declared = construction.Physics.EnergyStores;
+        var expected = read.Epoch.Value == 0 ? 0 : declared.Length;
+        if (read.EnergyStores.Count != expected) throw new ArgumentException("Energy store population differs from installation.");
+        for (var i = 0; i < expected; i++)
+        {
+            var value = read.EnergyStores[i];
+            if (value.Id != declared[i].Id || value.Owner != declared[i].Owner || value.Energy.Value > declared[i].Capacity.Value)
+                throw new ArgumentException("Energy store identity or capacity differs from installation.");
+            if (read.PhysicalRevision.IsAdmission && (value.Energy != declared[i].InitialEnergy || value.Supplied.Value != 0f ||
+                value.Released.Value != 0f || value.Dissipated.Value != 0f))
+                throw new ArgumentException("Admission changed authored energy store state.");
+        }
     }
 
     private static void ValidateRopeOwners(WorkshopRead read, ICompiledScene construction)
@@ -150,7 +171,7 @@ public static class WorkshopMessages
             var row = observed[i];
             if (row.Id != owned[i].Retention || row.Owner != owned[i].Owner || row.Coordinate != owned[i].Driven.Prismatic)
                 throw new ArgumentException("Retention observation names a foreign coordinate or owner.");
-            if (read.Tick.Value == 0 && (row.Mode != CuriousContraptions.Abstractions.Mechanical.RetentionMode.Retained ||
+            if (read.PhysicalRevision.IsAdmission && (row.Mode != CuriousContraptions.Abstractions.Mechanical.RetentionMode.Retained ||
                 row.Compression != -owned[i].InitialRetentionCoordinate || row.AcceptedElasticEnergy != 0f ||
                 row.ReleasedElasticEnergy != 0f || row.WindingWork != 0f || row.PositiveWindingTransfer != 0f ||
                 row.ContactWork != 0f || row.GravityWork != 0f || row.RequestResult.HasValue))
@@ -168,7 +189,7 @@ public static class WorkshopMessages
         {
             if (observed[i].Transmission != owned[i].Id || observed[i].Owner != owned[i].Owner)
                 throw new ArgumentException("Mechanical transmission observation names a foreign owner.");
-            if (read.Tick.Value == 0)
+            if (read.PhysicalRevision.IsAdmission)
             {
                 var untimed = owned[i].CloseSeconds == 0f;
                 if (observed[i].Phase != (untimed ? CuriousContraptions.Abstractions.Mechanical.TransmissionEngagementPhase.Engaged : CuriousContraptions.Abstractions.Mechanical.TransmissionEngagementPhase.Open) ||
@@ -198,7 +219,7 @@ public static class WorkshopMessages
             if (capture.Domain != WorkshopClockDomain.SimulationMonotonic || read.Epoch.Value == 0)
                 throw new ArgumentException("Physical read requires its simulation native clock.");
         }
-        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0 || read.Presentation.Ropes.Length != 0 || read.Presentation.Transmissions.Length != 0 || read.Presentation.Retentions.Length != 0)
+        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || !read.PhysicalRevision.IsAdmission || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.EnergyStores.Count != 0 || read.ChamberRegions.Count != 0 || read.FiniteWorkActuators.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0 || read.Presentation.Ropes.Length != 0 || read.Presentation.Transmissions.Length != 0 || read.Presentation.Retentions.Length != 0)
             throw new ArgumentException("An installed physical read requires its original capture.");
     }
 }

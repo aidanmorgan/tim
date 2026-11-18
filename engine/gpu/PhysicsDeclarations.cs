@@ -38,6 +38,9 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
     private readonly PlanarGuideDeclaration[] _guides;
     private readonly ContactTriggerDeclaration[] _triggers;
     private readonly ContactWorkDeclaration[] _contactWorks;
+    private readonly EnergyStoreDeclaration[] _energyStores;
+    private readonly ChamberRegionDeclaration[] _chamberRegions;
+    private readonly FiniteWorkActuatorDeclaration[] _finiteWorkActuators;
     private readonly OrientationSensorDeclaration[] _orientationSensors;
     public ElectricalSupplyPlan Electrical { get; }
     public CompiledMemoryLayout Layout { get; }
@@ -52,6 +55,9 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
     public ReadOnlySpan<PlanarGuideDeclaration> Guides => _guides;
     public ReadOnlySpan<ContactTriggerDeclaration> Triggers => _triggers;
     public ReadOnlySpan<ContactWorkDeclaration> ContactWorks => _contactWorks;
+    public ReadOnlySpan<EnergyStoreDeclaration> EnergyStores => _energyStores;
+    public ReadOnlySpan<ChamberRegionDeclaration> ChamberRegions => _chamberRegions;
+    public ReadOnlySpan<FiniteWorkActuatorDeclaration> FiniteWorkActuators => _finiteWorkActuators;
     public ReadOnlySpan<OrientationSensorDeclaration> OrientationSensors => _orientationSensors;
 
 
@@ -108,14 +114,20 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives = default,
         ReadOnlySpan<RopeGuideDeclaration> ropeGuides = default,
         ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default,
-        ReadOnlySpan<DrivenSurfaceDeclaration> drivenSurfaces = default)
+        ReadOnlySpan<DrivenSurfaceDeclaration> drivenSurfaces = default,
+        ReadOnlySpan<EnergyStoreDeclaration> energyStores = default,
+        ReadOnlySpan<ChamberRegionDeclaration> chamberRegions = default,
+        ReadOnlySpan<FiniteWorkActuatorDeclaration> finiteWorkActuators = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
         var ids = new HashSet<ulong>(64);
         var (bodyMap, dynamicCount, dynamicColliders) = ValidateGeometry(bodies, colliders, materials, nextIdentity, ids);
+        _energyStores = ValidateEnergyStores(energyStores, bodyMap, nextIdentity, ids);
+        (_chamberRegions, _finiteWorkActuators) = ChamberSceneValidation.Validate(chamberRegions, finiteWorkActuators,
+            bodies, colliders, _energyStores, nextIdentity, ids);
         ValidateSpatialPolicies(sensors, guides, bodyMap, nextIdentity, ids);
-        ValidateContactPolicies(triggers, contactWorks, colliders, bodyMap, nextIdentity, ids);
+        ValidateContactPolicies(triggers, contactWorks, energyStores, colliders, bodyMap, nextIdentity, ids);
         ValidateObservations(orientationSensors, contactLoadSensors, colliders, dynamicColliders, bodyMap, nextIdentity, ids);
         ValidateJoints(prismatics, revolutes, bodyMap, nextIdentity, ids);
         ValidateExtrusions(colliders, prismatics);
@@ -175,8 +187,8 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         Array.Sort(_transmissions, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);
         foreach (var node in supplyNodes) Identity(node.Id.Value, nextIdentity, ids);
-        Electrical = new(electricalSources, electricalBindings, bodies, contactWorks);
-        SupplyGraph = new(supplyNodes, supplyEdges, Electrical.Sources, _prismatics, _prismaticDrives, _revolutes, _revoluteDrives, Electrical.Bindings, contactWorks, _transmissions);
+        Electrical = new(electricalSources, electricalBindings, bodies, _energyStores);
+        SupplyGraph = new(supplyNodes, supplyEdges, Electrical.Sources, _prismatics, _prismaticDrives, _revolutes, _revoluteDrives, Electrical.Bindings, _energyStores, _transmissions);
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();
@@ -194,10 +206,24 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         World = new(_bodies.Length, _colliders.Length, _materials.Length, _sensors.Length, dynamicCount, _guides.Length,
             _triggers.Length, _contactWorks.Length, _orientationSensors.Length, Electrical.Sources.Length,
             Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length, _tensileSpans.Length, _revolutes.Length,
-            _compliantSurfaces.Length, _transmissions.Length);
+            _compliantSurfaces.Length, _transmissions.Length, _energyStores.Length, _chamberRegions.Length, _finiteWorkActuators.Length);
         _worldView = World;
         _ = World.ByteLength;
-        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes, _compliantSurfaces, _transmissions);
+        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes, _compliantSurfaces, _transmissions, _energyStores, _chamberRegions, _finiteWorkActuators);
+    }
+
+    private static EnergyStoreDeclaration[] ValidateEnergyStores(ReadOnlySpan<EnergyStoreDeclaration> stores,
+        Dictionary<GpuBodyId, RigidBodyDeclaration> bodies, ulong nextIdentity, HashSet<ulong> ids)
+    {
+        foreach (var store in stores)
+        {
+            store.Validate();
+            Identity(store.Id.Value, nextIdentity, ids);
+            if (!bodies.ContainsKey(store.Owner)) throw new ArgumentException("Energy store owner is absent.");
+        }
+        var result = stores.ToArray();
+        Array.Sort(result, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        return result;
     }
 
     private static (Dictionary<GpuBodyId, RigidBodyDeclaration> Bodies, int DynamicCount, HashSet<GpuBodyId> DynamicColliders) ValidateGeometry(ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders, ReadOnlySpan<ContactMaterialDeclaration> materials, ulong nextIdentity, HashSet<ulong> ids)
@@ -256,7 +282,7 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         }
     }
 
-    private static void ValidateContactPolicies(ReadOnlySpan<ContactTriggerDeclaration> triggers, ReadOnlySpan<ContactWorkDeclaration> contactWorks, ReadOnlySpan<ColliderDeclaration> colliders, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap, ulong nextIdentity, HashSet<ulong> ids)
+    private static void ValidateContactPolicies(ReadOnlySpan<ContactTriggerDeclaration> triggers, ReadOnlySpan<ContactWorkDeclaration> contactWorks, ReadOnlySpan<EnergyStoreDeclaration> stores, ReadOnlySpan<ColliderDeclaration> colliders, Dictionary<GpuBodyId, RigidBodyDeclaration> bodyMap, ulong nextIdentity, HashSet<ulong> ids)
     {
         foreach (var trigger in triggers)
         {
@@ -269,15 +295,14 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
             foreach (var collider in colliders) if (collider.Body == trigger.Owner) colliderFound = true;
             if (!colliderFound) throw new ArgumentException("Contact trigger owner has no physical collider.");
         }
-        var workOwners = new HashSet<GpuBodyId>(4);
         foreach (var work in contactWorks)
         {
             work.Validate(); Identity(work.Id.Value, nextIdentity, ids);
             if (!bodyMap.TryGetValue(work.Owner, out var owner) || owner.Motion != RigidMotionKind.Static ||
                 (work.Targets.Kind == BodyTargetKind.NamedBody &&
                     (!bodyMap.TryGetValue(work.Targets.Body, out var target) || target.Motion != RigidMotionKind.Dynamic)) ||
-                !workOwners.Add(work.Owner))
-                throw new ArgumentException("Contact work requires one reservoir per static owner and a dynamic target.");
+                !stores.ToArray().Any(store => store.Id == work.Store))
+                throw new ArgumentException("Contact work requires a static owner, exact reservoir and a dynamic target.");
             var colliderFound = false;
             foreach (var collider in colliders) if (collider.Body == work.Owner) colliderFound = true;
             if (!colliderFound) throw new ArgumentException("Contact work owner has no physical collider.");

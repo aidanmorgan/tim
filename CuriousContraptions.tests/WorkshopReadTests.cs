@@ -11,13 +11,12 @@ public sealed class WorkshopReadTests
     [Fact]
     public void OnlyACommitThatMovesEnergyCarriesABalanceTransfer()
     {
-        var baseline = new WorkshopRead(new(1), new(1), default, new(1),
-            ContactWorks: new([new(new(2), new(3), 0, new(20f))]),
+        var baseline = new WorkshopRead(new(1), new(1), new(1), default, new(1),
+            ContactWorks: new([new(new(2), new(3), 0, new(6))]),
             Electrical: new([new(new(4), new(5), new(100f), default, ElectricalEnable.Enabled)]));
         Assert.False(baseline.CarriesBalanceTransfer());
-        Assert.True((baseline with { ContactWorks = new([new(new(2), new(3), 0, new(21f), new(1f))]) }).CarriesBalanceTransfer());
         Assert.True((baseline with { Electrical = new([new(new(4), new(5), new(99f), new(1f), ElectricalEnable.Enabled)]) }).CarriesBalanceTransfer());
-        Assert.False((baseline with { ContactWorks = new([new(new(2), new(3), 1, new(20f))]) }).CarriesBalanceTransfer()); // a passive hit
+        Assert.False((baseline with { ContactWorks = new([new(new(2), new(3), 1, new(6))]) }).CarriesBalanceTransfer()); // a passive hit
         Assert.False((baseline with { Electrical = new([new(new(4), new(5), new(100f), default, ElectricalEnable.Disabled)]) }).CarriesBalanceTransfer());
     }
 
@@ -29,7 +28,7 @@ public sealed class WorkshopReadTests
     {
         var body = bodyPresent ? new CanonicalBody(new(1), 2, 0, default, default, default) : (CanonicalBody?)null;
         var bodies = body.HasValue ? Bodies(body.Value) : default;
-        var read = new WorkshopRead(new(2), new(0), bodies, new(4),
+        var read = new WorkshopRead(new(2), new(0), new(0), bodies, new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
             Captures: captured ? new PhysicsCaptureRead([CaptureLatch.Clear(new(9), new(1))]) : default,
             Motion: PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength(bodies.Count)], bodies, new(0)));
@@ -59,7 +58,7 @@ public sealed class WorkshopReadTests
         var body = new CanonicalBody(new(1), 2, 1, default, default, default);
         var motion = MotionBytes(body);
         var piece = PhysicsMotionRead.HeaderBytes;
-        var read = new WorkshopRead(new(2), new(1), Bodies(body), new(4),
+        var read = new WorkshopRead(new(2), new(1), new(1), Bodies(body), new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
             Captures: new([new(new(9), new(1), CaptureLatchPhase.Latched, 1, 0f)]),
             Motion: PhysicsMotionRead.Decode(motion, Bodies(body), new(1)));
@@ -95,7 +94,7 @@ public sealed class WorkshopReadTests
         var body = new CanonicalBody(new(1), 2, 1, default, default, default);
         var bodies = Bodies(body);
         var bytes = MotionBytes(body);
-        var first = new WorkshopRead(new(2), new(1), bodies,
+        var first = new WorkshopRead(new(2), new(1), new(1), bodies,
             Motion: PhysicsMotionRead.Decode(bytes, bodies, new(1)));
         var same = first with { Motion = PhysicsMotionRead.Decode(bytes, bodies, new(1)) };
         var absent = first with { Motion = null };
@@ -231,7 +230,7 @@ public sealed class WorkshopReadTests
         {
             MotionBindingMismatch.BodyIdentity => read with { Bodies = Bodies(body with { Id = new(2) }) },
             MotionBindingMismatch.BodyPresence => read with { Bodies = default },
-            MotionBindingMismatch.Tick => read with { Tick = new(2), Bodies = Bodies(body with { Tick = 2 }) },
+            MotionBindingMismatch.Tick => read with { Tick = new(2), PhysicalRevision = new(2), Bodies = Bodies(body with { Tick = 2 }) },
             _ => throw new ArgumentOutOfRangeException(nameof(mismatch))
         };
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeResponse(Response(read)));
@@ -247,7 +246,7 @@ public sealed class WorkshopReadTests
         Assert.Throws<ArgumentException>(() => motion.ValidateBinding(Bodies(body with { Id = new(2) }), new(0)));
         Assert.Throws<ArgumentException>(() => motion.ValidateBinding(default, new(1)));
         motion = PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength(0)], default, new(0));
-        var read = new WorkshopRead(new(2), new(0), default, new(4),
+        var read = new WorkshopRead(new(2), new(0), new(0), default, new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
             Motion: motion);
         var encoded = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
@@ -279,13 +278,13 @@ public sealed class WorkshopReadTests
         var owned = new ColliderSlot(checked((ushort)Array.FindIndex(colliders, c => c.Body == declaration.Owner)));
         var foreign = new ColliderSlot(checked((ushort)Array.FindIndex(colliders, c => c.Body == new GpuBodyId(1))));
         var body = new CanonicalBody(new(1),2,1,default,default,default);
-        var store = new ContactWorkRead(declaration.Id,declaration.Owner,1,new(20));
+        var store = new ContactWorkRead(declaration.Id,declaration.Owner,1,declaration.Store);
         var hit = new ContactWorkOccurrence(new(0),owned,new(1),1,1,0f,
             declaration.Threshold,new(effect == ContactWorkEffect.Paid ? 12 : 0),effect);
         ContactWorkLedger Ledger(ContactWorkOccurrence occurrence) => new([store], [occurrence]);
         Ledger(hit).ValidateScene(scene, Bodies(body));
         var initial = new ContactWorkLedger(
-            new[] { new ContactWorkRead(declaration.Id,declaration.Owner,0,declaration.InitialEnergy) },
+            new[] { new ContactWorkRead(declaration.Id,declaration.Owner,0,declaration.Store) },
             Array.Empty<ContactWorkOccurrence>());
         initial.ValidateScene(scene, Bodies(body));
         initial.ValidateAdmission();
@@ -308,29 +307,33 @@ public sealed class WorkshopReadTests
     public void TheDeviceLedgerAccountsForEveryHitAndRefusesAMalformedAdvance()
     {
         var target = new GpuBodyId(1);
-        ContactWorkLedger Ledger(uint count, float remaining, ContactWorkOccurrence row, float supplied = 0f) =>
-            new([new ContactWorkRead(new(9), new(8), count, new(remaining), new(supplied))], [row]);
+        ContactWorkLedger Ledger(uint count, ContactWorkOccurrence row) =>
+            new([new ContactWorkRead(new(9), new(8), count, new(6))], [row]);
+        static PhysicsEnergyStoreRead Stores(float remaining, float released, float supplied = 0f) =>
+            new([new(new(6), new(8), new(remaining), new(supplied), new(released), default)]);
         var clear = new ContactWorkOccurrence(new(0), default, target, 0, 0, 0f, default, default, ContactWorkEffect.Passive);
         var hit = new ContactWorkOccurrence(new(0), new(3), target, 1, 16, 0f, new(4f), new(12f), ContactWorkEffect.Paid);
-        var before = Ledger(0, 32f, clear);
-        var after = Ledger(1, 20f, hit);
+        var before = Ledger(0, clear);
+        var after = Ledger(1, hit);
         after.ValidateAdvance(before);
-        Ledger(1, 20.5f, hit, supplied: .5f).ValidateAdvance(before); // a recharge in the same commit is its own transfer
-        Ledger(1, 20f, hit).ValidateAdvance(after);                     // a repeated commit with no new hit
+        after.ValidateReleasedWork(before, Stores(20f, 12f), Stores(32f, 0f), default, default);
+        Stores(20f, 12f).ValidateAdvance(Stores(32f, 0f));
+        Stores(20.5f, 12f, .5f).ValidateAdvance(Stores(32f, 0f));
+        Ledger(1, hit).ValidateAdvance(after);
+        Assert.Throws<ArgumentException>(() => Stores(21f, 12f).ValidateAdvance(Stores(32f, 0f)));
+        Assert.Throws<ArgumentException>(() => Stores(31f, 0f).ValidateAdvance(Stores(32f, 0f)));
+        Assert.Throws<ArgumentException>(() => after.ValidateReleasedWork(before, Stores(21f, 11f), Stores(32f, 0f), default, default));
         foreach (var (name, invalid, previous) in new (string, ContactWorkLedger, ContactWorkLedger)[] {
-            ("the store moved by other than the debit", Ledger(1, 21f, hit), before),
-            ("a counted hit has no row", Ledger(2, 20f, hit), before),
-            ("a hit reversed in time", Ledger(2, 8f, hit with { Sequence = 2, EventOrdinal = 10 }), after),
-            ("an unchanged row mutated", Ledger(1, 20f, hit with { Debit = new(11f) }), after),
-            ("the store moved with no hit", Ledger(0, 31f, clear), before) })
+            ("a counted hit has no row", Ledger(2, hit), before),
+            ("a hit reversed in time", Ledger(2, hit with { Sequence = 2, EventOrdinal = 10 }), after),
+            ("an unchanged row mutated", Ledger(1, hit with { Debit = new(11f) }), after) })
             Assert.True(Assert.Throws<ArgumentException>(() => invalid.ValidateAdvance(previous)) is not null, name);
-        // A paid row without a debit, or a passive row with one, is refused where the ledger is read.
-        Assert.Throws<ArgumentException>(() => Ledger(1, 32f, hit with { Debit = default }));
-        Assert.Throws<ArgumentException>(() => Ledger(1, 20f, hit with { Effect = ContactWorkEffect.Passive }));
+        Assert.Throws<ArgumentException>(() => Ledger(1, hit with { Debit = default }));
+        Assert.Throws<ArgumentException>(() => Ledger(1, hit with { Effect = ContactWorkEffect.Passive }));
     }
 
     private static WorkshopRead MotionRead(CanonicalBody body, PhysicsMotionRead motion) =>
-        new(new(2), new(1), Bodies(body), new(4),
+        new(new(2), new(1), new(1), Bodies(body), new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
             Motion: motion);
 

@@ -309,7 +309,9 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         var result = new List<WorkshopRead>(ticks);
         for (var i = 0; i < ticks; i++)
         {
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await AdvanceOne()).Outcome);
+            var advance = await AdvanceOne();
+            Assert.True(advance.Outcome == WorkshopCommandOutcome.Applied,
+                $"Advance refused: {advance.Reason}; {string.Join("\n", Simulation.Diagnostics.Snapshot().Select(row => row.ToString()))}");
             Record(); result.Add(Committed);
         }
         return result;

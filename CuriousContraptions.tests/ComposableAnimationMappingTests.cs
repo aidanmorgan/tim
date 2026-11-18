@@ -150,7 +150,7 @@ public sealed class ComposableAnimationMappingTests(NativeSceneFixture godot)
 
         Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.Linear, 0f, PresentationOverlap.Replace));
         Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.ExponentialFollow, 0f, PresentationOverlap.Replace));
-        Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.LinearDecay, 0.2f, PresentationOverlap.Maximum));
+        Assert.True(PresentationDriverRules.Supports(driver, PresentationCurve.LinearDecay, 0.2f, PresentationOverlap.Maximum));
         Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.SineSquaredPulse, 0.2f, PresentationOverlap.Replace));
         Assert.False(PresentationDriverRules.Supports(driver, PresentationCurve.SmoothStep, 0f, PresentationOverlap.Replace));
     }
@@ -175,17 +175,18 @@ public sealed class ComposableAnimationMappingTests(NativeSceneFixture godot)
         {
             var expectedIdentity = driver is not (PresentationDriver.CommittedActuatorState or
                                                  PresentationDriver.CommittedContactLoadPhase or
-                                                 PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedTransmissionPhase or PresentationDriver.CommittedPrismaticPhase);
+                                                 PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedTransmissionPhase or PresentationDriver.CommittedPrismaticPhase or PresentationDriver.CommittedFiniteWorkState);
             Assert.Equal(expectedIdentity, PresentationDriverRules.SupportsMapping(driver, PresentationValueMapping.Identity));
 
             var expectedSine = driver is PresentationDriver.CommittedOscillatorPhase or
                                         PresentationDriver.CommittedTimerProgress or
-                                        PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTransmissionClosure;
+                                        PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTransmissionClosure or PresentationDriver.CommittedStoredFraction;
             Assert.Equal(expectedSine, PresentationDriverRules.SupportsMapping(driver, PresentationValueMapping.SineCyclesToUnit));
+            Assert.Equal(expectedSine, PresentationDriverRules.SupportsMapping(driver, PresentationValueMapping.ClampToEndpoints));
 
             var expectedState = driver is PresentationDriver.CommittedActuatorState or
                                          PresentationDriver.CommittedContactLoadPhase or
-                                         PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedTransmissionPhase or PresentationDriver.CommittedPrismaticPhase;
+                                         PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedTransmissionPhase or PresentationDriver.CommittedPrismaticPhase or PresentationDriver.CommittedFiniteWorkState;
             Assert.Equal(expectedState, PresentationDriverRules.SupportsMapping(driver, PresentationValueMapping.StateValues));
 
             Assert.False(PresentationDriverRules.SupportsMapping(driver, (PresentationValueMapping)99));

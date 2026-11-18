@@ -28,11 +28,13 @@ public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 /// next physics step.</summary>
 public readonly record struct PrismaticCommandInput(PrismaticConstraintId Joint, PrismaticCommand Command);
 
-public readonly record struct RetentionRequestInput(PrismaticRetentionId Target, PhysicalRequestOperation Operation, ActivationOccurrence Occurrence);
+public readonly record struct PhysicalRequestInput(PhysicalRequestTarget Target, PhysicalRequestOperation Operation, ActivationOccurrence Occurrence);
 
 public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] SupplyClosed, ElectricalLogicRead[]? Logic = null)
 {
-    public RetentionRequestInput[] RetentionRequests { get; init; } = [];
+    /// <summary>Present only for the owned no-time transaction; timed requests use PhysicalRequests.</summary>
+    public OwnedFiniteWorkRequest? OwnedFiniteWork { get; init; }
+    public PhysicalRequestInput[] PhysicalRequests { get; init; } = [];
     public PrismaticCommandInput[] PrismaticCommands { get; init; } = [];
     public bool[] StorageRoutes { get; init; } = [];
     public RopeSpanId[] Cuts { get; init; } = [];
@@ -43,6 +45,16 @@ public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] S
     /// <summary>Per mechanical transmission row whether its compiled supply route is closed this tick (always false for untimed rows).</summary>
     public bool[] TransmissionClosed { get; init; } = [];
     public static PhysicsTickInputs Admission { get; } = new([], []);
+
+    public void ValidateOperation(WorkshopGpuOperation operation)
+    {
+        if (!Enum.IsDefined(operation) || OwnedFiniteWork.HasValue != (operation == WorkshopGpuOperation.ApplyFiniteWork))
+            throw new ArgumentException("Physical inputs do not match their transaction operation.");
+        if (operation != WorkshopGpuOperation.Admit && AdmissionDrivenSurfaces.Length != 0)
+            throw new ArgumentException("Transmission topology is installed only during admission.");
+        if (operation == WorkshopGpuOperation.ApplyFiniteWork && (PhysicalRequests.Length != 0 || Cuts.Length != 0))
+            throw new ArgumentException("No-time transaction carries timed inputs.");
+    }
 
     /// <summary>Refuses inputs that differ from the admitted tables: one defined enable per source, one supply flag per drive slot
     /// (<paramref name="driven"/>: whether each slot declares a drive), closed only on a slot that declares one, one admitted target

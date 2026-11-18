@@ -1,7 +1,7 @@
 namespace CuriousContraptions.Gpu;
 
 /// <summary>
-/// The 160-byte world header (Story 9.4b, Murdoch-2 R2-F4; Story 9R.5b adds the prismatic and contact-load counts). Every reader and writer of the physical world names these
+/// The 176-byte world header (Story 9.4b, Murdoch-2 R2-F4; Story 9R.5b adds the prismatic and contact-load counts). Every reader and writer of the physical world names these
 /// offsets; <c>WorkshopAbiLiteralScanTests</c> fails on a literal header offset in production code.
 /// </summary>
 public static partial class PhysicsGpuAbi
@@ -46,19 +46,22 @@ public static partial class PhysicsGpuAbi
     public const int HeaderCompliantSurfaceCountOffset = 136;
     /// <summary>Header word holding the mechanical transmission row count.</summary>
     public const int HeaderMechanicalTransmissionCountOffset = 140;
-    /// <summary>Header padding words (zero tail to 160 bytes).</summary>
-    public const int HeaderPaddingOffset = 144;
+    /// <summary>Counts for independent finite-work capabilities.</summary>
+    public const int HeaderEnergyStoreCountOffset = 144;
+    public const int HeaderChamberRegionCountOffset = 148;
+    public const int HeaderFiniteWorkActuatorCountOffset = 152;
+    public const int HeaderCountPaddingOffset = 156;
+    public const int HeaderPhysicalRevisionOffset = 160;
+    public const int HeaderPaddingOffset = 168;
 
     // Contact-work record (ContactWorkBytes): identity U64 at 0, owner body slot U32, target kind, the f32 target and
-    // admission speeds, cooldown, named target slot, occurrence count, preload, padding 40..47, available work, the work
-    // supplied this tick, padding from 56. Its first ContactWorkDeclarationBytes never change after admission.
+    // admission speeds, cooldown, named target slot, exact reservoir slot, occurrence count, then padding.
+    // Its first ContactWorkDeclarationBytes never change after admission.
     public const int ContactWorkOwnerOffset = 8;
     public const int ContactWorkTargetKindOffset = 12;
     public const int ContactWorkNamedTargetOffset = 28;
-    public const int ContactWorkDeclarationBytes = 32;
-    public const int ContactWorkReservedOffset = 40;
-    public const int ContactWorkSuppliedOffset = 52;
-    public const int ContactWorkPaddingOffset = 56;
+    public const int ContactWorkDeclarationBytes = 36;
+    public const int ContactWorkPaddingOffset = 40;
     /// <summary>The body record's motion kind U32 (static or dynamic).</summary>
     public const int BodyMotionOffset = 8;
     /// <summary>The collider record's owning body slot U32.</summary>
@@ -110,7 +113,8 @@ public static partial class PhysicsGpuAbi
     public const int ColliderExtrusionJointOffset = 68;
     public const int ColliderExtrusionCutOffset = 72;
     public const int ColliderExtrusionDistalOffset = 76;
-    public const int ColliderPaddingOffset = 80;
+    public const int ColliderParticipationOffset = 80;
+    public const int ColliderPaddingOffset = 84;
 
     // Material record (MaterialBytes): f32 restitution, bounce threshold, friction and rolling resistance.
     public const int MaterialRestitutionOffset = 8;

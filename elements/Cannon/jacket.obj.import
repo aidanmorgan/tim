@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://mosvtftkvw0f"
+path="res://.godot/imported/jacket.obj-c80c4651d4140255b89926de5c549f5f.mesh"
+
+[deps]
+
+files=["res://.godot/imported/jacket.obj-c80c4651d4140255b89926de5c549f5f.mesh"]
+
+source_file="res://elements/Cannon/jacket.obj"
+dest_files=["res://.godot/imported/jacket.obj-c80c4651d4140255b89926de5c549f5f.mesh", "res://.godot/imported/jacket.obj-c80c4651d4140255b89926de5c549f5f.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

@@ -193,6 +193,8 @@ public readonly record struct ColliderDeclaration(
     GpuColliderId Id, GpuBodyId Body, GpuMaterialId Material, ColliderShapeKind Shape,
     RigidLocalPose Pose, Metres Radius, MetreVector HalfExtents, ClippedExtrusionDeclaration? Extrusion = null)
 {
+    public CuriousContraptions.Abstractions.CollisionParticipation Participation { get; init; } = CuriousContraptions.Abstractions.CollisionParticipation.Enabled;
+
     /// <summary>The full turn of a whole torus: 2π in f32.</summary>
     public const float FullSweep = MathF.Tau;
     /// <summary>The thinnest admitted hollow wall (m).</summary>
@@ -200,7 +202,7 @@ public readonly record struct ColliderDeclaration(
 
     public void Validate()
     {
-        if (Id.Value == 0 || Body.Value == 0 || Material.Value == 0 || !Enum.IsDefined(Shape))
+        if (Id.Value == 0 || Body.Value == 0 || Material.Value == 0 || !Enum.IsDefined(Shape) || !Enum.IsDefined(Participation))
             throw new ArgumentException("Invalid collider identity or shape.");
         Pose.Validate();
         if (Extrusion is { } extrusion)

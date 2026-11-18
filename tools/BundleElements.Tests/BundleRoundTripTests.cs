@@ -74,6 +74,41 @@ public sealed class BundleRoundTripTests
         Assert.Throws<JsonException>(() => BundleSchema.WriteEntries([BundleSchema.Read(json).Elements[0] with { Mechanical = BundleSchema.Read(json).Elements[0].Mechanical! with { Retentions = [new(new(0), new(CoordinateKind.Prismatic, 0), new(1))] } }]));
     }
 
+
+    [Theory]
+    [InlineData("WoundSpring", CuriousContraptions.Gpu.PhysicalRequestTargetKind.Retention)]
+    [InlineData("Cannon", CuriousContraptions.Gpu.PhysicalRequestTargetKind.FiniteWorkActuator)]
+    public void PhysicalRequestUnionOwnsRequiredZeroInactiveLanes(string package, CuriousContraptions.Gpu.PhysicalRequestTargetKind expected)
+    {
+        var json = BundleSchema.Write([Declaration(package)]);
+        var target = Assert.IsType<SignalPhysicalRequestDescriptor>(Assert.Single(BundleSchema.Read(json).Elements[0].Signal!.Nodes)).Target;
+        Assert.Equal(expected, target.Kind);
+        Assert.True(target.IsValid);
+        using var document = JsonDocument.Parse(json);
+        var row = document.RootElement.GetProperty("Elements")[0].GetProperty("Signal").GetProperty("Nodes")[0].GetProperty("Target");
+        Assert.Equal(JsonValueKind.Number, row.GetProperty("Retention").ValueKind);
+        Assert.Equal(JsonValueKind.Number, row.GetProperty("Actuator").ValueKind);
+        Assert.Equal(expected == CuriousContraptions.Gpu.PhysicalRequestTargetKind.Retention ? 1u : 0u, row.GetProperty("Retention").GetUInt32());
+        Assert.Equal(expected == CuriousContraptions.Gpu.PhysicalRequestTargetKind.FiniteWorkActuator ? 1u : 0u, row.GetProperty("Actuator").GetUInt32());
+        var kind = JsonSerializer.Serialize(row.GetProperty("Kind").GetString());
+        var retention = row.GetProperty("Retention").GetUInt32();
+        var actuator = row.GetProperty("Actuator").GetUInt32();
+        var prefix = $"{{\"Kind\":{kind},\"Retention\":{retention},\"Actuator\":{actuator}";
+        string[] refused =
+        [
+            $"{{\"Retention\":{retention},\"Actuator\":{actuator}}}",
+            $"{{\"Kind\":{kind},\"Actuator\":{actuator}}}",
+            $"{{\"Kind\":{kind},\"Retention\":{retention}}}",
+            prefix + ",\"Extra\":0}",
+            prefix + ",\"Retention\":0}",
+            $"{{\"Kind\":{kind},\"Retention\":1,\"Actuator\":1}}",
+            "{\"Kind\":0,\"Retention\":1,\"Actuator\":0}",
+            "{\"Kind\":\"Unknown\",\"Retention\":1,\"Actuator\":0}"
+        ];
+        foreach (var invalid in refused)
+            Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace(row.GetRawText(), invalid, StringComparison.Ordinal)));
+    }
+
     // Guard: every enum the bundle schema's type graph reaches (from BundleDocument through public properties, collection elements and
     // nullable values) has an exact-name converter in the source-generated context, so no enum is written as a number.
     [Fact]
@@ -215,6 +250,32 @@ public sealed class BundleRoundTripTests
         Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace(original, replacement, StringComparison.Ordinal)));
     }
 
+
+    [Fact]
+    public void ImpulsePeakRoundTripsExplicitlyAndRefusesMalformedOrInactiveLanes()
+    {
+        var json = BundleSchema.Write([Declaration("Cannon")]);
+        var entry = Assert.Single(BundleSchema.Read(json).Elements);
+        var pulse = Assert.Single(entry.Presentation.Bindings, binding => binding.Curve == PresentationCurve.SmoothRiseFall);
+        Assert.Equal(.08f / .53f, pulse.ImpulsePeak!.Value.Value);
+        entry = SceneGeometryExtractor.Bake(File.ReadAllText(Path.Combine(TestRepository.Root, "elements/Cannon/cannon.tscn")),
+            entry, Assert.IsAssignableFrom<ISceneGeometryElement>(Declaration("Cannon")).SceneBodies);
+        Assert.Empty(BundleValidator.Validate([new("Cannon", entry)]));
+        using var document = JsonDocument.Parse(json);
+        var encoded = document.RootElement.GetProperty("Elements")[0].GetProperty("Presentation").GetProperty("Bindings")
+            .EnumerateArray().Single(binding => binding.GetProperty("Curve").GetString() == "SmoothRiseFall")
+            .GetProperty("ImpulsePeak").GetRawText();
+        foreach (var malformed in new[] { "{}", "{\"Value\":0.2,\"Value\":0.3}", "{\"Other\":0.2}",
+            "{\"Value\":-0.1}", "{\"Value\":1.1}", "{\"Value\":\"0.2\"}", "{\"Value\":0.2,\"Other\":0}" })
+            Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace(encoded, malformed, StringComparison.Ordinal)));
+        foreach (var invalid in new[] { pulse with { ImpulsePeak = null }, pulse with { Curve = PresentationCurve.SineSquaredPulse,
+            Overlap = PresentationOverlap.SaturatingSum }, pulse with { ImpulsePeak = new(0f) } })
+        {
+            var changed = entry with { Presentation = entry.Presentation with { Bindings = [invalid] } };
+            Assert.NotEmpty(BundleValidator.Validate([new("Cannon", changed)]));
+        }
+    }
+
     private static void AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry)
     {
         AssertSame(declaration.Metadata, entry.Metadata, "Metadata");
@@ -223,6 +284,7 @@ public sealed class BundleRoundTripTests
         AssertSame(declaration.Ports, entry.Ports, "Ports");
         AssertSame(declaration.Colliders, entry.Colliders, "Colliders");
         AssertSame(declaration.Events, entry.Events, "Events");
+        AssertSame(declaration.Presentation, entry.Presentation, "Presentation");
         Assert.Equal(declaration is IMechanicalElement, entry.Mechanical is not null);
         if (declaration is IMechanicalElement mechanical)
         {
@@ -233,8 +295,10 @@ public sealed class BundleRoundTripTests
             AssertSame(mechanical is IHingeElement hinge ? hinge.Hinges : [], entry.Mechanical.Hinges, "Hinges");
             AssertSame(mechanical is IMechanicalTransmissionElement transmissions ? transmissions.Transmissions : [], entry.Mechanical.Transmissions, "Transmissions");
             AssertSame(mechanical is IPrismaticRetentionElement retentions ? retentions.Retentions : [], entry.Mechanical.Retentions, "Retentions");
-            Assert.Equal(mechanical is IContactWorkElement, entry.Mechanical.ContactWork is not null);
-            if (mechanical is IContactWorkElement work) AssertSame(work.ContactWork, entry.Mechanical.ContactWork!.Value, "ContactWork");
+            AssertSame(mechanical is IContactWorkElement work ? work.ContactWorks : [], entry.Mechanical.ContactWorks, "ContactWorks");
+            AssertSame(mechanical is IEnergyStoreElement stores ? stores.EnergyStores : [], entry.Mechanical.EnergyStores, "EnergyStores");
+            AssertSame(mechanical is IChamberRegionElement chamber ? chamber.ChamberRegions : [], entry.Mechanical.ChamberRegions, "ChamberRegions");
+            AssertSame(mechanical is IFiniteWorkActuatorElement actuator ? actuator.FiniteWorkActuators : [], entry.Mechanical.FiniteWorkActuators, "FiniteWorkActuators");
             Assert.Equal(mechanical is ICompliantSurfaceElement, entry.Mechanical.CompliantSurface is not null);
             if (mechanical is ICompliantSurfaceElement compliant) AssertSame(compliant.CompliantSurface, entry.Mechanical.CompliantSurface!.Value, "CompliantSurface");
             Assert.Equal(mechanical.Payload, entry.Mechanical.Payload);

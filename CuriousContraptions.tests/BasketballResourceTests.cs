@@ -31,7 +31,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
-        Assert.Equal(new[] { new PartId("ball"), new PartId("basket"), new PartId("ramp"), new PartId("switch"), new PartId("lamp"), new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or"), new PartId("electrical_xor"), new PartId("weight"), new PartId("rope_anchor"), new PartId("pulley"), new PartId("impact_lever"), new PartId("trampoline"), new PartId("motor"), new PartId("conveyor"), new PartId("clutch"), new PartId("reverse_transmission"), new PartId("linear_pusher"), new PartId("wound_spring") }.OrderBy(id => id),
+        Assert.Equal(new[] { new PartId("ball"), new PartId("basket"), new PartId("ramp"), new PartId("switch"), new PartId("lamp"), new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or"), new PartId("electrical_xor"), new PartId("weight"), new PartId("rope_anchor"), new PartId("pulley"), new PartId("impact_lever"), new PartId("trampoline"), new PartId("motor"), new PartId("conveyor"), new PartId("clutch"), new PartId("reverse_transmission"), new PartId("linear_pusher"), new PartId("wound_spring"), new PartId("cannon") }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
         // Each package's declared f32 material compiles exactly (the generic dynamic-body compile): Basketball 0.34 m, 1 kg,
         // restitution 0.55, rolling 0.035; Bowling 0.28 m, 4 kg, restitution 0.14, rolling 0.03 (CAT-014, owner 9 Oct 2026).
@@ -247,13 +247,13 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             client.NextRead = new(default, WorkshopResponseKind.Read,
                 new(phase == WorkshopSimulationPhase.Faulted ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
                     phase == WorkshopSimulationPhase.Faulted ? WorkshopRejection.Capacity : WorkshopRejection.None),
-                phase, new(new(1), new(tick), default, new(tick + 1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(110_000_000), new(100_000))));
+                phase, new(new(1), new(tick), new(tick), default, new(tick + 1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(110_000_000), new(100_000))));
             client.AdmitPendingRead(); // Actual callback admission may precede the next scene frame.
             if (sceneBeforeAck) world._Process(0);
             Assert.Equal(sceneBeforeAck ? phase : WorkshopSimulationPhase.Starting, world.WorkshopPhase);
             var original = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
-                new(new(1), default, default, new(1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000))), new(11, 23), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+                new(new(1), default, new(0), default, new(1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000))), new(11, 23), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
             client.RunAck.SetResult(original);
             var completion = await run;
             Assert.Equal(original, client.LastDelivery.Response);
@@ -286,7 +286,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             world._ExitTree();
             var original = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
-                new(new(1), default, default, new(1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000))), new(11, 23), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+                new(new(1), default, new(0), default, new(1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000))), new(11, 23), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
             client.RunAck.SetResult(original);
             var completion = await run;
             Assert.False(completion.Applicable);
@@ -439,7 +439,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             else if (kind == WorkshopCommandKind.Reset)
                 response = new(command.Sequence, WorkshopResponseKind.Acknowledgement,
                     new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
-                    new(new(Epoch.Value + 1), default, default, new(Revision.Value + 1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000))));
+                    new(new(Epoch.Value + 1), default, new(0), default, new(Revision.Value + 1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000))));
             else throw new ArgumentException("Unexpected test transport command.");
             response = response with { Session = Session, Cadence = new(1), MasterGeneration = new(1), Projection = new(response.Read.Epoch.Value), SourcePulse = new(response.Read.Tick.Value) };
             var prepared = _cursor.PrepareAcknowledgement(command, response, dispatched, _disposed);

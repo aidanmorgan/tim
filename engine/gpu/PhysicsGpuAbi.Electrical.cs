@@ -48,7 +48,7 @@ public static partial class PhysicsGpuAbi
             var binding = scene.Electrical.Bindings[i];
             var record = data.Slice(scene.World.ElectricalBindingOffset(i), ElectricalBindingBytes);
             U32(record, ElectricalBindingSourceOffset, (uint)scene.Layout.GetElectricalSourceSlot(binding.Source));
-            U32(record, ElectricalBindingStorageOffset, (uint)scene.Layout.GetContactWorkSlot(binding.Storage));
+            U32(record, ElectricalBindingStorageOffset, (uint)scene.Layout.GetEnergyStoreSlot(binding.Storage));
         }
     }
 
@@ -78,12 +78,12 @@ public static partial class PhysicsGpuAbi
                 new(RF(record, ElectricalSourceRemainingOffset)), new(RF(record, ElectricalSourceDebitOffset)),
                 (ElectricalEnable)R32(record, ElectricalSourceEnableOffset));
         }
-        var seen = new bool[layout.ContactWorks];
+        var seen = new bool[layout.EnergyStores];
         for (var i = 0; i < layout.ElectricalBindings; i++)
         {
             var record = data.Slice(layout.ElectricalBindingOffset(i), ElectricalBindingBytes);
             var source = R32(record, ElectricalBindingSourceOffset); var storage = R32(record, ElectricalBindingStorageOffset);
-            if (source >= count || storage >= (uint)layout.ContactWorks || seen[(int)storage] ||
+            if (source >= count || storage >= (uint)layout.EnergyStores || seen[(int)storage] ||
                 !AllZero(record[ElectricalBindingPaddingOffset..]))
                 throw new ArgumentException("Invalid or ambiguous electrical storage route.");
             seen[(int)storage] = true;
@@ -91,16 +91,22 @@ public static partial class PhysicsGpuAbi
         return PhysicsElectricalRead.FromImmutable(System.Runtime.InteropServices.ImmutableCollectionsMarshal.AsImmutableArray(values));
     }
 
-    private static void ValidateElectricalCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> previous, PhysicsInteractionSnapshot interactions)
+    private static void ValidateElectricalCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> previous, bool instantaneous)
     {
         var before = ReadElectrical(previous); var after = ReadElectrical(candidate);
+        if (instantaneous)
+        {
+            if (!after.HasSameBits(before)) throw new ArgumentException("A no-time transaction changed electrical state.");
+            return; // Supply rows/routes and cumulative store credits remain unchanged under ValidateNoTimeState.
+        }
         after.ValidateAdvance(before);
         var layout = Layout(previous);
         if (!candidate[layout.ElectricalBindingsOffset..layout.PrismaticsOffset].SequenceEqual(previous[layout.ElectricalBindingsOffset..layout.PrismaticsOffset]))
             throw new ArgumentException("Electrical routes changed during a Run.");
         var phaseCount = (R32(candidate,HeaderSourceOrdinalOffset) + 3) / 4 - (R32(previous,HeaderSourceOrdinalOffset) + 3) / 4;
-        var works = ReadContactWorks(candidate,interactions);
-        var supplied = new bool[works.Count];
+        var stores = ReadEnergyStores(candidate);
+        var previousStores = ReadEnergyStores(previous);
+        var supplied = new bool[stores.Length];
         for (var i = 0; i < after.Count; i++)
         {
             var offset = layout.ElectricalSourceOffset(i);
@@ -115,15 +121,16 @@ public static partial class PhysicsGpuAbi
                 var binding = layout.ElectricalBindingOffset(route);
                 if (R32(candidate, binding + ElectricalBindingSourceOffset) != i) continue;
                 var slot = (int)R32(candidate, binding + ElectricalBindingStorageOffset);
-                supplied[slot] = true; credit += works[slot].SuppliedEnergy.Value;
+                supplied[slot] = true; credit += stores[slot].Supplied.Value - previousStores[slot].Supplied.Value;
                 tolerance += PhysicsReadValidation.Residual(credit);
-                tolerance += PhysicsReadValidation.Residual(works[slot].RemainingEnergy.Value);
+                tolerance += PhysicsReadValidation.Residual(stores[slot].Energy.Value) +
+                    PhysicsReadValidation.Residual(stores[slot].Supplied.Value) + PhysicsReadValidation.Residual(previousStores[slot].Supplied.Value);
             }
             if ((after[i].Debit.Value == 0 && credit != 0) || MathF.Abs(after[i].Debit.Value - credit) > tolerance)
                 throw new ArgumentException("Electrical debit does not fund its connected storage credits.");
         }
-        for (var i = 0; i < works.Count; i++)
-            if (!supplied[i] && works[i].SuppliedEnergy.Value != 0)
+        for (var i = 0; i < stores.Length; i++)
+            if (!supplied[i] && stores[i].Supplied != previousStores[i].Supplied)
                 throw new ArgumentException("Unconnected storage received electrical work.");
     }
 }

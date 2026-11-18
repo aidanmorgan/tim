@@ -14,7 +14,7 @@ public sealed class ElectricalSupplyPlan : IElectricalSupplyPlan
 
     public ElectricalSupplyPlan(ReadOnlySpan<ElectricalSourceDeclaration> sources,
         ReadOnlySpan<ElectricalStorageBinding> bindings, ReadOnlySpan<RigidBodyDeclaration> bodies,
-        ReadOnlySpan<ContactWorkDeclaration> storages)
+        ReadOnlySpan<EnergyStoreDeclaration> storages)
     {
         for (var i = 0; i < sources.Length; i++)
         {
@@ -45,7 +45,7 @@ public sealed class ElectricalSupplyPlan : IElectricalSupplyPlan
     }
 
     private static void ValidateCapacityAggregates(ReadOnlySpan<ElectricalSourceDeclaration> sources,
-        ReadOnlySpan<ElectricalStorageBinding> bindings, ReadOnlySpan<ContactWorkDeclaration> storages)
+        ReadOnlySpan<ElectricalStorageBinding> bindings, ReadOnlySpan<EnergyStoreDeclaration> storages)
     {
         var capacities = new System.Collections.Generic.List<float>();
         foreach (var source in sources)
@@ -54,7 +54,7 @@ public sealed class ElectricalSupplyPlan : IElectricalSupplyPlan
             foreach (var binding in bindings)
                 if (binding.Source == source.Id)
                     foreach (var storage in storages)
-                        if (storage.Id == binding.Storage) capacities.Add(storage.InitialEnergy.Value);
+                        if (storage.Id == binding.Storage) capacities.Add(storage.Capacity.Value);
             ElectricalSupply.ValidateCapacityAggregate(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(capacities));
         }
     }

@@ -108,7 +108,7 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
         ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> prismatics,
         ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives, ReadOnlySpan<RevoluteConstraintDeclaration> revolutes,
         ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives, ReadOnlySpan<ElectricalStorageBinding> bindings,
-        ReadOnlySpan<ContactWorkDeclaration> storages, ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default)
+        ReadOnlySpan<EnergyStoreDeclaration> storages, ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default)
     {
         try
         {
@@ -209,16 +209,16 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
         return (-1, drives, timed);
     }
     private static int[] AdmitStorageTargets(ReadOnlySpan<SupplyNodeDeclaration> nodes,
-        ReadOnlySpan<ElectricalStorageBinding> bindings, ReadOnlySpan<ContactWorkDeclaration> storages,
+        ReadOnlySpan<ElectricalStorageBinding> bindings, ReadOnlySpan<EnergyStoreDeclaration> storages,
         Dictionary<SupplyNodeId, int> slots)
     {
-        var targets = new Dictionary<GpuContactWorkId, SupplyNodeId>();
+        var targets = new Dictionary<EnergyStoreId, SupplyNodeId>();
         foreach (var node in nodes)
             foreach (var storage in node.Storages.IsDefault ? [] : node.Storages)
             {
                 var found = false;
                 foreach (var declaration in storages)
-                    if (declaration.Id == storage && declaration.Owner == node.Owner) found = true;
+                    if (declaration.Id == storage) found = true;
                 if (node.Kind != SupplyNodeKind.Consumer || !found || !targets.TryAdd(storage, node.Id))
                     throw new ArgumentException("A storage consumer requires a unique owned store.");
             }

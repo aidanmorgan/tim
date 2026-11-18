@@ -29,8 +29,8 @@ public sealed class RetentionCompositionTests
             new(new(21), new(CoordinateKind.Revolute, 1), new(CoordinateKind.Prismatic, 1), MechanicalValue.Fixed(.1f), TransmissionConstraintKind.NonPositiveVelocity)];
         PrismaticRetentionDescriptor[] retentions = [new(new(31), new(CoordinateKind.Prismatic, 0), new(13)),
             new(new(7), new(CoordinateKind.Prismatic, 1), new(21))];
-        SignalNodeDescriptor[] signals = [new SignalPhysicalRequestDescriptor(new("z_request"), new(31), PhysicalRequestOperation.Release),
-            new SignalPhysicalRequestDescriptor(new("a_request"), new(7), PhysicalRequestOperation.Release)];
+        SignalNodeDescriptor[] signals = [new SignalPhysicalRequestDescriptor(new("z_request"), LocalPhysicalRequestTarget.ForRetention(new(31)), PhysicalRequestOperation.Release),
+            new SignalPhysicalRequestDescriptor(new("a_request"), LocalPhysicalRequestTarget.ForRetention(new(7)), PhysicalRequestOperation.Release)];
         var input = source.Ports.Single(p => p.Id == PortId.ActivationIn);
         var binding = source.Presentation.Bindings[0];
         return source with {
@@ -59,7 +59,7 @@ public sealed class RetentionCompositionTests
         Assert.Empty(BundleValidator.Validate([new("dual", entry)]));
         var malformed = entry with { Signal = entry.Signal! with { Nodes =
             entry.Signal.Nodes.Select(node => node.Id == new SignalNodeId("z_request")
-                ? (SignalNodeDescriptor)new SignalPhysicalRequestDescriptor(node.Id, new(99), PhysicalRequestOperation.Release) : node).ToArray() } };
+                ? (SignalNodeDescriptor)new SignalPhysicalRequestDescriptor(node.Id, LocalPhysicalRequestTarget.ForRetention(new(99)), PhysicalRequestOperation.Release) : node).ToArray() } };
         Assert.Contains(BundleValidator.Validate([new("foreign", malformed)]), e => e.Code == BundleErrorCode.OutOfRange && e.Detail.EndsWith(".Signal.PhysicalRequest", StringComparison.Ordinal));
         var decoded = Assert.Single(BundleSchema.Read(BundleSchema.WriteEntries([entry])).Elements);
         using var declarations = DeclaredPhysics.Scoped([decoded]);

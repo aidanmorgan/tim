@@ -60,7 +60,12 @@ public static class WorkshopActivationCompiler
             SignalPulseCountDescriptor count => new(node.Id, node.Owner, ActivationNodeKind.Counter, default,
                 TargetCount: CounterTarget(owner.Parameters[count.TargetParameter])),
             SignalPhysicalRequestDescriptor request => new(node.Id, node.Owner, ActivationNodeKind.PhysicalRequest, default,
-                Retention: construction.Instances.Identities[node.Owner].Retentions[request.Target], RequestOperation: request.Request),
+                RequestTarget: request.Target.Kind switch
+                {
+                    PhysicalRequestTargetKind.Retention => PhysicalRequestTarget.ForRetention(construction.Instances.Identities[node.Owner].Retentions[request.Target.Retention]),
+                    PhysicalRequestTargetKind.FiniteWorkActuator => PhysicalRequestTarget.ForActuator(construction.Instances.Identities[node.Owner].FiniteWorkActuators[request.Target.Actuator]),
+                    _ => throw new ArgumentException("Unsupported physical request target.")
+                }, RequestOperation: request.Request),
             SignalMemoryDescriptor => new(node.Id, node.Owner, ActivationNodeKind.StateLatch, default),
             SignalIndicatorDescriptor => new(node.Id, node.Owner, IndicatorKind(node.Id, graph), default),
             SignalOscillatorDescriptor oscillator => new(node.Id, node.Owner, ActivationNodeKind.Oscillator, default,

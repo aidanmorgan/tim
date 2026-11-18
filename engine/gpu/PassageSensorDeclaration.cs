@@ -1,4 +1,5 @@
 using System;
+using CuriousContraptions.Abstractions;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -55,7 +56,7 @@ public sealed class PassageSensorTracker
             var colliderId = default(GpuColliderId);
             foreach (var collider in scene.Colliders)
             {
-                if (collider.Body != body.Body.Id) continue;
+                if (collider.Body != body.Body.Id || collider.Participation == CollisionParticipation.Disabled) continue;
                 if (colliderId.Value == 0 || collider.Id.Value < colliderId.Value) colliderId = collider.Id;
                 var reach = collider.Shape switch
                 {
@@ -72,7 +73,8 @@ public sealed class PassageSensorTracker
                 var offset = collider.Pose.Translation;
                 radius = MathF.Max(radius, reach + new Vector3(offset.X, offset.Y, offset.Z).Length());
             }
-            if (colliderId.Value == 0 || !(radius > 0f))
+            if (colliderId.Value == 0) continue;
+            if (!(radius > 0f))
                 throw new ArgumentException("Passage participant has no owned geometry.", nameof(scene));
 
             participants.Add(new(body.Body.Id,colliderId,radius,RenderPosition(body.Body.Cell,body.Body.Local)));

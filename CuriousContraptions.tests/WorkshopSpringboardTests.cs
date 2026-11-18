@@ -184,12 +184,12 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var read = PhysicsGpuAbi.ReadDynamicBodies(bytes);
         Assert.Equal(2, read.Count);
-        read.ValidateScene(scene, new(1), new(0));
+        read.ValidateScene(scene, new(1), new(0), new(0));
         var missing = new PhysicsBodyReadSet([read[0]]);
-        Assert.Throws<ArgumentException>(() => missing.ValidateScene(scene, new(1), new(0)));
+        Assert.Throws<ArgumentException>(() => missing.ValidateScene(scene, new(1), new(0), new(0)));
         Assert.Throws<ArgumentException>(() => new PhysicsBodyReadSet([read[0], read[0]]));
         var foreign = read[1] with { Body = read[1].Body with { Id = new(999) } };
-        Assert.Throws<ArgumentException>(() => new PhysicsBodyReadSet([read[0], foreign]).ValidateScene(scene, new(1), new(0)));
+        Assert.Throws<ArgumentException>(() => new PhysicsBodyReadSet([read[0], foreign]).ValidateScene(scene, new(1), new(0), new(0)));
     }
 
     [Theory]

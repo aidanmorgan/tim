@@ -32,9 +32,24 @@ public interface IPlanarGuideElement : IMechanicalElement
     PlanarGuideDescriptor PlanarGuide { get; }
 }
 
+public interface IEnergyStoreElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.EnergyStoreDescriptor> EnergyStores { get; }
+}
+
+public interface IChamberRegionElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.ChamberRegionDescriptor> ChamberRegions { get; }
+}
+
+public interface IFiniteWorkActuatorElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.FiniteWorkActuatorDescriptor> FiniteWorkActuators { get; }
+}
+
 public interface IContactWorkElement : IMechanicalElement
 {
-    ContactWorkDescriptor ContactWork { get; }
+    IReadOnlyList<ContactWorkDescriptor> ContactWorks { get; }
 }
 
 public interface ICompliantSurfaceElement : IMechanicalElement

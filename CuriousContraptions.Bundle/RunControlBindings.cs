@@ -126,7 +126,9 @@ public static class RunControlBindings
              Matches(guide.MaximumAcceleration, key)))
             return true;
 
-        if (mechanical.ContactWork is { } work && work.StrengthParameter == key)
+        if (mechanical.ContactWorks.Any(work => Matches(work.TargetSpeed, key)) || mechanical.EnergyStores.Any(store =>
+            Matches(store.Capacity.Value, key) || Matches(store.Capacity.Speed, key) ||
+            Matches(store.InitialEnergy.Value, key) || Matches(store.InitialEnergy.Speed, key) || Matches(store.MaximumChargePower, key)))
             return true;
 
         if (mechanical.CompliantSurface is { } surface &&

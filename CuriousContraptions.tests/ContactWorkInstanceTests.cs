@@ -51,9 +51,9 @@ public sealed class ContactWorkInstanceTests
         var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Drop(new PartId("ball"), 4.5, strength), new(1, 2));
         var work = Assert.Single(scene.ContactWorks.ToArray());
         var half = .5f * 1f;
-        Assert.Equal(half * strength * strength, work.InitialEnergy.Value);
+        Assert.Equal(half * strength * strength, Assert.Single(scene.EnergyStores.ToArray()).InitialEnergy.Value);
         Assert.Equal(strength, work.TargetSpeed.Value);
-        Assert.Equal((Drop(new PartId("ball"), 4.5, strength).Instances.Identities[Owner].Work, Owner, new BodyTargetSet(BodyTargetKind.AllDynamic, default)),
+        Assert.Equal((Drop(new PartId("ball"), 4.5, strength).Instances.Identities[Owner].Works[new("work")], Owner, new BodyTargetSet(BodyTargetKind.AllDynamic, default)),
             (work.Id, work.Owner, work.Targets));
         Assert.Equal((.05f, 72u), (work.Threshold.Value, work.CooldownPhysicalSteps));
     }
@@ -63,12 +63,13 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public void TheCompiledStoreTakesEveryValueFromTheDeclaredCapability()
     {
-        var descriptor = new CuriousContraptions.Abstractions.Mechanical.ContactWorkDescriptor(new("work"), "speed", 2f, .5f, 100);
+        var descriptor = new CuriousContraptions.Abstractions.Mechanical.ContactWorkDescriptor(new("work"), new(0), new(2),
+            CuriousContraptions.Abstractions.Mechanical.MechanicalValue.FromParameter("speed"), .5f, 100);
         var targets = new BodyTargetSet(BodyTargetKind.NamedBody, new(9));
-        var work = WorkshopPhysicsCompiler.ContactWorkFor(new(10), new(7), targets, descriptor, new([new(new("speed"), 3f)]));
-        Assert.Equal((new GpuContactWorkId(10), new GpuBodyId(7), targets, 3f, 9f, .5f, 100u),
-            (work.Id, work.Owner, work.Targets, work.TargetSpeed.Value, work.InitialEnergy.Value, work.Threshold.Value, work.CooldownPhysicalSteps));
-        Assert.ThrowsAny<KeyNotFoundException>(() => WorkshopPhysicsCompiler.ContactWorkFor(new(10), new(7), targets, descriptor,
+        var work = WorkshopPhysicsCompiler.ContactWorkFor(new(10), new(7), new(12), targets, descriptor, new([new(new("speed"), 3f)]));
+        Assert.Equal((new GpuContactWorkId(10), new GpuBodyId(7), targets, 3f, new EnergyStoreId(12), .5f, 100u),
+            (work.Id, work.Owner, work.Targets, work.TargetSpeed.Value, work.Store, work.Threshold.Value, work.CooldownPhysicalSteps));
+        Assert.Throws<ArgumentException>(() => WorkshopPhysicsCompiler.ContactWorkFor(new(10), new(7), new(12), targets, descriptor,
             new([new(new("strength"), 3f)])));
     }
 
@@ -92,7 +93,7 @@ public sealed class ContactWorkInstanceTests
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 2 * TicksPerSecond);
         // A paid hit during the run: the store counted it and spent energy (its occurrence row is device-private, Story 9A.23 D9).
         Assert.Contains(run, read => read.ContactWorks[0].OccurrenceCount > 0 &&
-            read.ContactWorks[0].RemainingEnergy.Value < built.ContactWorks[0].RemainingEnergy.Value);
+            read.EnergyStores[0].Energy.Value < built.EnergyStores[0].Energy.Value);
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
         Assert.Equal(built.ContactWorks[0], reset.ContactWorks[0]);
         var saved = new WorkshopSavedConstruction(bench, new(3));
@@ -101,14 +102,14 @@ public sealed class ContactWorkInstanceTests
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, 2 * TicksPerSecond);
         Assert.Contains(replay, read => read.ContactWorks[0].Owner == Owner && read.ContactWorks[0].OccurrenceCount > 0 &&
-            read.ContactWorks[0].RemainingEnergy.Value < built.ContactWorks[0].RemainingEnergy.Value);
+            read.EnergyStores[0].Energy.Value < built.EnergyStores[0].Energy.Value);
     }
 
     [Fact]
     public void StrengthEndpointsHoldAnEmptyAndATwoHundredJouleStore()
     {
-        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Drop(new PartId("ball"), 4.5, 0f), new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
-        Assert.Equal(200f, Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Drop(new PartId("ball"), 4.5, 20f), new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Drop(new PartId("ball"), 4.5, 0f), new(1, 2)).EnergyStores.ToArray()).InitialEnergy.Value);
+        Assert.Equal(200f, Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Drop(new PartId("ball"), 4.5, 20f), new(1, 2)).EnergyStores.ToArray()).InitialEnergy.Value);
     }
 
     // ---------- real simulation ----------
@@ -118,12 +119,12 @@ public sealed class ContactWorkInstanceTests
     public async Task StrengthEightLaunchesTheBallPaidAtTheTargetSpeedAndTheLedgerCloses()
     {
         var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(new PartId("ball"), 4.5, 8f), 2 * TicksPerSecond);
-        Assert.Equal(32f, reads[0].ContactWorks[0].RemainingEnergy.Value);
+        Assert.Equal(32f, reads[0].EnergyStores[0].Energy.Value);
         var index = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
         Assert.True(index > 0, "the ball reaches the Bumper");
         var first = ledgers[index].Occurrence(0);
         Assert.Equal(ContactWorkEffect.Paid, first.Effect);
-        Assert.Equal(32f, reads[index].ContactWorks[0].RemainingEnergy.Value + first.Debit.Value);
+        Assert.Equal(32f, reads[index].EnergyStores[0].Energy.Value + first.Debit.Value);
         // The read closes the tick after the event: gravity acts for at most one tick (≤ 9.81/120 m/s) after the 8 m/s launch. The
         // zero-gravity > 7.99 m/s radial launch itself is CAT-015 fact 1 (WorkshopPhysicsLawSensorWorkTests).
         var launch = Speed(Body(reads[index], Ball));
@@ -144,7 +145,7 @@ public sealed class ContactWorkInstanceTests
         Assert.True(Speed(Body(reads[paidAt], Ball)) < 7.99f, "the heavy ball cannot reach the target");
         var laterAt = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 2);
         Assert.Contains(reads.Skip(laterAt).Take(TicksPerSecond / 4), read => Body(read, Ball).Body.Velocity.Y > 0f);
-        Assert.Equal(0f, reads[^1].ContactWorks[0].RemainingEnergy.Value);
+        Assert.Equal(0f, reads[^1].EnergyStores[0].Energy.Value);
     }
 
     [Fact]
@@ -154,7 +155,7 @@ public sealed class ContactWorkInstanceTests
         var occurrences = Occurrences(ledgers).ToArray();
         Assert.NotEmpty(occurrences);
         Assert.All(occurrences, occurrence => Assert.Equal((0f, ContactWorkEffect.Passive), (occurrence.Debit.Value, occurrence.Effect)));
-        Assert.All(reads, read => Assert.Equal(0f, read.ContactWorks[0].RemainingEnergy.Value));
+        Assert.All(reads, read => Assert.Equal(0f, read.EnergyStores[0].Energy.Value));
     }
 
     // Another depth plane: the ball falls past the Bumper 2 m behind it and never qualifies; the store stays whole.
@@ -163,7 +164,7 @@ public sealed class ContactWorkInstanceTests
     {
         var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(new PartId("ball"), 4.5, 8f, z: 2), 2 * TicksPerSecond);
         Assert.Empty(Occurrences(ledgers));
-        Assert.All(reads, read => Assert.Equal(32f, read.ContactWorks[0].RemainingEnergy.Value));
+        Assert.All(reads, read => Assert.Equal(32f, read.EnergyStores[0].Energy.Value));
     }
 
     [Theory]
@@ -191,7 +192,7 @@ public sealed class ContactWorkInstanceTests
         for (var i = 1; i < hits.Length; i++)
             Assert.True(hits[i].EventOrdinal >= hits[i - 1].EventOrdinal + 72,
                 "contacts on one bumper share the 72-step target cooldown");
-        Assert.All(ring.Reads, read => Assert.InRange(read.ContactWorks[0].RemainingEnergy.Value, 0f, .5f * strength * strength));
+        Assert.All(ring.Reads, read => Assert.InRange(read.EnergyStores[0].Energy.Value, 0f, .5f * strength * strength));
         if (strength == 0)
         {
             Assert.Empty(paid);
@@ -205,7 +206,7 @@ public sealed class ContactWorkInstanceTests
                 Assert.Equal(32f, paid[0].Debit.Value);
                 Assert.Single(paid);
                 Assert.Contains(hits, hit => hit.Effect == ContactWorkEffect.Passive);
-                Assert.Equal(0f, ring.Reads[^1].ContactWorks[0].RemainingEnergy.Value);
+                Assert.Equal(0f, ring.Reads[^1].EnergyStores[0].Energy.Value);
             }
         }
     }
@@ -224,11 +225,34 @@ public sealed class ContactWorkInstanceTests
         var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2));
         Assert.Equal(wired ? 1 : 0, scene.Electrical.Bindings.Length);
         var reads = await WorkshopIntegrationHarness.Observe(bench, 4 * TicksPerSecond);
-        var emptied = reads.FindIndex(read => read.ContactWorks[0].RemainingEnergy.Value == 0f);
+        var emptied = reads.FindIndex(read => read.EnergyStores[0].Energy.Value == 0f);
         Assert.True(emptied > 0, "the heavy ball empties the store");
-        var later = reads[^1].ContactWorks[0];
-        if (wired) Assert.True(later.RemainingEnergy.Value > 0f || later.SuppliedEnergy.Value > 0f, $"recharged store {later.RemainingEnergy.Value} J");
-        else Assert.Equal((0f, 0f), (later.RemainingEnergy.Value, later.SuppliedEnergy.Value));
+        var later = reads[^1].EnergyStores[0];
+        if (wired) Assert.True(later.Energy.Value > 0f || later.Supplied.Value > 0f, $"recharged store {later.Energy.Value} J");
+        else Assert.Equal((0f, 0f), (later.Energy.Value, later.Supplied.Value));
+    }
+
+    [Fact]
+    public async Task SuppliedContactStoreRetainsSourceLimitedChargingAboveFiftyWatts()
+    {
+        var bench = Drop(new PartId("bowling"), 6f, 8f);
+        bench = bench with
+        {
+            Instances = bench.Instances.With(PlacedParts.Battery(Source, 3, 1, 0, powerLimit: 120f)),
+            Connections = new(new WorkshopConnection(Source, PortId.Supply, Owner, PortId.PowerIn, WorkshopConnectionDomain.Electrical))
+        };
+        await using var harness = await WorkshopIntegrationHarness.Running(bench);
+        for (var tick = 0; tick < 10 * TicksPerSecond && harness.Committed.ContactWorks[0].OccurrenceCount == 0; tick++)
+            await harness.Advance(1);
+        Assert.True(harness.Committed.ContactWorks[0].OccurrenceCount > 0, "The heavy load must empty the reservoir.");
+        var before = harness.Committed.EnergyStores[0];
+        Assert.Equal(0f, before.Energy.Value);
+        await harness.Advance(1);
+        var after = harness.Committed.EnergyStores[0];
+        // 120 W over the intentional 1/120 s supply interval delivers 1 J. A 0.001 J arithmetic
+        // allowance cannot hide the former metadata-only 50 W limit (which would deliver about 0.417 J).
+        Assert.InRange(after.Supplied.Value - before.Supplied.Value, .999f, 1.001f);
+        Assert.InRange(after.Energy.Value + after.Released.Value - before.Released.Value, .999f, 1.001f);
     }
 
     // CAT-024 / Story 9A.46i: routing a store through a switch is admitted and binds storage to the upstream source through the switch.
@@ -244,9 +268,9 @@ public sealed class ContactWorkInstanceTests
         Assert.Equal(1, scene.Electrical.Bindings.Length);
         var binding = scene.Electrical.Bindings[0];
         var sourceId = bench.Instances.Identities[Source].Supply.Values.First().Source;
-        var workId = bench.Instances.Identities[Owner].Work;
+        var storeId = bench.Instances.Identities[Owner].EnergyStores[new(1)];
         Assert.Equal(sourceId, binding.Source);
-        Assert.Equal(workId, binding.Storage);
+        Assert.Equal(storeId, binding.Storage);
     }
 
     [Fact]
@@ -296,8 +320,8 @@ public sealed class ContactWorkInstanceTests
         foreach (var i in ringContactsDuringCooldown)
         {
             Assert.Equal(1u, ring.Reads[i].ContactWorks[0].OccurrenceCount);
-            Assert.Equal(2f, ring.Reads[i - 1].ContactWorks[0].RemainingEnergy.Value);
-            Assert.Equal(2f, ring.Reads[i].ContactWorks[0].RemainingEnergy.Value);
+            Assert.Equal(2f, ring.Reads[i - 1].EnergyStores[0].Energy.Value);
+            Assert.Equal(2f, ring.Reads[i].EnergyStores[0].Energy.Value);
             Assert.Equal(first, Assert.Single(Occurrences(ring.Ledgers.Take(i + 1))));
         }
 

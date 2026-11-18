@@ -14,7 +14,7 @@ public static class WorkshopSceneCompiler
         new(binding.Property, binding.Driver, binding.Mapping, binding.From, binding.To, binding.Curve, binding.Duration,
             binding.Overlap, binding.Threshold, binding.Response,
             binding.Socket.HasValue ? WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(partId), binding.Socket.Value).Terminal : null,
-            binding.Event, binding.EventMagnitude, binding.StateValues, binding.FourStateValues, binding.PrismaticValues);
+            binding.Event, binding.EventMagnitude, binding.StateValues, binding.FourStateValues, binding.PrismaticValues, binding.FiniteWorkValues, binding.ImpulsePeak, binding.ImpulseVisibility, binding.ImpulseTiming);
 
     private static SupplyConsumer ResolveActuator(CompiledPartIdentities ids, CoordinateReference coordinate) => coordinate.Kind switch
     {
@@ -41,27 +41,7 @@ public static class WorkshopSceneCompiler
         {
             var bindings = DeclaredPhysics.Of(instance.PartId).Presentation.Bindings;
             var owner = (WorkshopGenericInstance)instance;
-            // Each declared run-time control of an unlocked part compiles one row; a locked part offers none. A scalar lane's row carries
-            // its declared parameter's bounds; an enable lane's carries none.
-            if (!owner.Locked)
-                foreach (var control in DeclaredPhysics.RunControls(bundle, owner.PartId))
-                {
-                    var declared = DeclaredPhysics.Of(owner.PartId).Metadata.Parameters.Single(parameter => parameter.Key == control.Parameter.Value);
-                    var scalar = core.RunControls.ValueKind(control.Lane) == RunControlValueKind.Scalar;
-                    var source = control.SourceNode is { } selectedSource
-                        ? construction.Instances.Identities[owner.Id].Supply[selectedSource].Source : default;
-                    var joint = default(RevoluteConstraintId);
-                    if (control.Lane == RunControlLane.RevoluteDriveTarget)
-                    {
-                        if (control.Coordinate is not { Kind: CoordinateKind.Revolute } coord)
-                            throw new ArgumentException("A revolute drive target run control requires a revolute coordinate reference.");
-                        if (coord.Index < 0 || coord.Index >= construction.Instances.Identities[owner.Id].Hinges.Length)
-                            throw new ArgumentException("Out-of-range revolute drive target coordinate.");
-                        joint = construction.Instances.Identities[owner.Id].Hinges[coord.Index].Joint;
-                    }
-                    runControls.Add(new(new RunControlId(checked((ulong)runControls.Count + 1)), owner.Id, control.Lane,
-                        core.RunControls.Slot(physics, control.Lane, owner.Id, source, joint), scalar ? declared.Minimum : 0f, scalar ? declared.Maximum : 0f, source));
-                }
+            CompileRunControls(core, bundle, construction, physics, owner, runControls);
             for (var i = 0; i < bindings.Count; i++)
             {
                 var identities = construction.Instances.Identities[owner.Id];
@@ -69,16 +49,46 @@ public static class WorkshopSceneCompiler
                 var capacity = source == default ? 0f : physics.Electrical.Sources[physics.Layout.GetElectricalSourceSlot(source)].Capacity.Value;
                 var supplyNode = bindings[i].Socket is { } socket
                     ? identities.Supply[WorkshopSupplyCompiler.Endpoint(DeclaredPhysics.Of(owner.PartId), socket).Node].Node : default;
+                var finiteWork = bindings[i].FiniteWork is { } selectedWork ? identities.FiniteWorkActuators[selectedWork] : default;
+                var store = bindings[i].Store is { } selectedStore ? identities.EnergyStores[selectedStore] :
+                    finiteWork == default ? default : physics.FiniteWorkActuators.ToArray().Single(value => value.Id == finiteWork).Store;
                 tracks.Add(new(new AnimationTargetId(core.Presentation.TargetBase + (ulong)tracks.Count),
                     owner.Id, i, CompileBinding(bindings[i], owner.PartId),
                     bindings[i].SignalNode is { } selected ? nodes.Single(node => node.Id == construction.Instances.Identities[owner.Id].Signals[selected].Node) : default, capacity,
                     bindings[i].Actuator is { } actuator ? ResolveActuator(construction.Instances.Identities[owner.Id], actuator) : null,
                     bindings[i].GuidePort is { } guide ? construction.Instances.Identities[owner.Id].Guides[guide] : default, source, supplyNode,
                     bindings[i].Transmission is { } transId ? identities.Transmissions[transId] : default,
-                    bindings[i].Retention is { } retainedId ? identities.Retentions[retainedId] : default));
+                    bindings[i].Retention is { } retainedId ? identities.Retentions[retainedId] : default, finiteWork, store));
             }
         }
         return core.CreateScene(identity, construction.Revision, construction.Settings, physics, activation, tracks,
             construction.Instances.Select(instance => instance.Id), runControls, MechanicalLinkCompiler.Compile(construction, physics));
     }
+
+    private static void CompileRunControls(ICoreServices core, IBundleServices bundle, WorkshopConstruction construction,
+        IPhysicsSceneDeclaration physics, WorkshopGenericInstance owner, List<RunControlRow> runControls)
+    {
+        // Each declared run-time control of an unlocked part compiles one row; a locked part offers none. A scalar lane's row carries
+        // its declared parameter's bounds; an enable lane's carries none.
+        if (!owner.Locked)
+            foreach (var control in DeclaredPhysics.RunControls(bundle, owner.PartId))
+            {
+                var declared = DeclaredPhysics.Of(owner.PartId).Metadata.Parameters.Single(parameter => parameter.Key == control.Parameter.Value);
+                var scalar = core.RunControls.ValueKind(control.Lane) == RunControlValueKind.Scalar;
+                var source = control.SourceNode is { } selectedSource
+                    ? construction.Instances.Identities[owner.Id].Supply[selectedSource].Source : default;
+                var joint = default(RevoluteConstraintId);
+                if (control.Lane == RunControlLane.RevoluteDriveTarget)
+                {
+                    if (control.Coordinate is not { Kind: CoordinateKind.Revolute } coord)
+                        throw new ArgumentException("A revolute drive target run control requires a revolute coordinate reference.");
+                    if (coord.Index < 0 || coord.Index >= construction.Instances.Identities[owner.Id].Hinges.Length)
+                        throw new ArgumentException("Out-of-range revolute drive target coordinate.");
+                    joint = construction.Instances.Identities[owner.Id].Hinges[coord.Index].Joint;
+                }
+                runControls.Add(new(new RunControlId(checked((ulong)runControls.Count + 1)), owner.Id, control.Lane,
+                    core.RunControls.Slot(physics, control.Lane, owner.Id, source, joint), scalar ? declared.Minimum : 0f, scalar ? declared.Maximum : 0f, source));
+            }
+    }
+
 }

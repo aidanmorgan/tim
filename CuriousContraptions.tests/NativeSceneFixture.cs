@@ -165,6 +165,7 @@ public sealed class NativeSceneFixture : FixtureBase, IAsyncLifetime
         try
         {
             await scene.Startup;
+            Assert.Empty(scene.Diagnostics.Snapshot().OfType<WorkshopFaultDiagnostic>());
             Assert.NotEmpty(PuzzleCatalogue.Playable);
             var first = PuzzleCatalogue.Playable[0];
             var picker = Assert.IsType<OptionButton>(scene.FindChild(WorkshopUiControlBoundary.NodeName(WorkshopUiControl.LevelPicker), true, false));

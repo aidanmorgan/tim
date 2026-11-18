@@ -213,12 +213,10 @@ public readonly record struct PlanarGuideDescriptor(
     public Quaternion Rotation { get; init; } = Rotation == default ? Quaternion.Identity : Rotation;
 }
 
-/// <summary>A finite contact-work store on the element's static body. Its target speed is the named Real m/s parameter; its preload is
-/// the kinetic energy (½·ReferenceMass)·s·s of the reference mass at that speed, so the parameter range bounds the store. A contact
-/// approaching faster than <see cref="Threshold"/> qualifies once per target every <see cref="CooldownPhysicalSteps"/> physical
-/// steps.</summary>
+/// <summary>A contact-triggered discharge referencing an independently declared reservoir and exact physical body.</summary>
 public readonly record struct ContactWorkDescriptor(
-    CuriousContraptions.Abstractions.Electrical.LocalContactWorkId Id, string StrengthParameter, float ReferenceMass, float Threshold, uint CooldownPhysicalSteps,
+    CuriousContraptions.Abstractions.Electrical.LocalContactWorkId Id, PackageBodyIndex Owner,
+    CuriousContraptions.Gpu.LocalEnergyStoreId Store, MechanicalValue TargetSpeed, float Threshold, uint CooldownPhysicalSteps,
     TargetSelector Target = default);
 
 /// <summary>A rectangular compliant membrane on the element's static frame body. <see cref="HalfExtents"/> (m) are the footprint's half

@@ -6,7 +6,7 @@ namespace CuriousContraptions.Gpu;
 
 public readonly record struct Joules(float Value)
 {
-    public void Validate(float maximum = 200f)
+    public void Validate(float maximum = float.MaxValue)
     {
         if (!float.IsFinite(maximum) || maximum < 0 || !float.IsFinite(Value) || Value < 0 || Value > maximum)
             throw new ArgumentException("Work exceeds its admitted domain.");
@@ -46,33 +46,45 @@ public readonly record struct BodyTargetSet(BodyTargetKind Kind, GpuBodyId Body)
 }
 public enum ContactWorkEffect : byte { Passive = 0, Paid = 1 }
 
-/// <summary>One finite reservoir shared by all declared dynamic targets.</summary>
+/// <summary>One contact-triggered discharge; its finite reservoir is independently identified.</summary>
 public readonly record struct ContactWorkDeclaration(GpuContactWorkId Id, GpuBodyId Owner,
-    BodyTargetSet Targets, ContactSpeed TargetSpeed, Joules InitialEnergy, ContactSpeed Threshold,
+    BodyTargetSet Targets, ContactSpeed TargetSpeed, EnergyStoreId Store, ContactSpeed Threshold,
     uint CooldownPhysicalSteps)
 {
+    // A read retains one occurrence per pair/commit. The slowest admitted commit contains eight
+    // physical steps, so its cooldown must extend beyond that interval. The upper bound is the
+    // existing finite run horizon, not a product-specific Bumper setting.
+    public static uint MinimumCooldownPhysicalSteps { get; } = MaximumStepsPerCommit() + 1;
+    public const uint MaximumCooldownPhysicalSteps = (uint)WorkshopCadenceSettings.PhysicalOrdinalLimit;
+    public static bool AdmitsCooldown(uint steps) => steps >= MinimumCooldownPhysicalSteps && steps <= MaximumCooldownPhysicalSteps;
+
+    private static uint MaximumStepsPerCommit()
+    {
+        uint maximum = 0;
+        foreach (var cadence in Enum.GetValues<SimulationCadence>())
+            maximum = Math.Max(maximum, (WorkshopCadenceSettings.Default() with { Simulation = cadence }).PhysicalStepsPerCommit);
+        return maximum;
+    }
+
     public void Validate()
     {
         Targets.Validate();
-        if (Id.Value == 0 || Owner.Value == 0 || Targets.Body == Owner ||
-            CooldownPhysicalSteps is < 9 or > 14400)
+        if (Id.Value == 0 || Owner.Value == 0 || Store.Value == 0 || Targets.Body == Owner ||
+            !AdmitsCooldown(CooldownPhysicalSteps))
             throw new ArgumentException("Invalid contact-work identity or cooldown.");
-        TargetSpeed.Validate(20f);
-        InitialEnergy.Validate();
-        Threshold.Validate(64f);
+        TargetSpeed.Validate(LinearVelocity.MaximumSpeed);
+        Threshold.Validate(LinearVelocity.MaximumSpeed);
     }
 }
 
 /// <summary>Owner state; energy is never duplicated for individual targets.</summary>
 public readonly record struct ContactWorkRead(GpuContactWorkId Id, GpuBodyId Owner,
-    uint OccurrenceCount, Joules RemainingEnergy, Joules SuppliedEnergy = default)
+    uint OccurrenceCount, EnergyStoreId Store)
 {
     public void Validate()
     {
-        if (Id.Value == 0 || Owner.Value == 0)
+        if (Id.Value == 0 || Owner.Value == 0 || Store.Value == 0)
             throw new ArgumentException("Invalid contact-work observation identity.");
-        RemainingEnergy.Validate();
-        SuppliedEnergy.Validate(float.MaxValue);
     }
 }
 
@@ -96,7 +108,7 @@ public readonly record struct ContactWorkOccurrence(ContactWorkSlot Work, Collid
                 Effect != ContactWorkEffect.Passive)
                 throw new ArgumentException("Unused contact target retained an occurrence.");
         }
-        else if (EventOrdinal > 14400 || !PhysicalPhase.IsAdmitted(EventOrdinal, EventPhase) ||
+        else if (EventOrdinal > WorkshopCadenceSettings.PhysicalOrdinalLimit || !PhysicalPhase.IsAdmitted(EventOrdinal, EventPhase) ||
             (Effect == ContactWorkEffect.Passive ? !Debit.HasSameBits(default) : Debit.Value <= 0f))
             throw new ArgumentException("Invalid contact-work event time or effect accounting.");
     }

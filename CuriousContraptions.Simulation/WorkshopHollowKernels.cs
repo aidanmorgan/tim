@@ -156,15 +156,16 @@ internal static partial class WorkshopCollisionKernels
         foreach (var manifold in manifolds) contacts.AddRange(manifold.Points);
     }
 
-    private static HollowPartner Partner(SimCollider collider) => new(collider.Shape switch
+    internal static HollowPartner Partner(SimCollider collider) => new(collider.Shape switch
     {
+        ShapeKind.Plane => ColliderShapeKind.Plane,
         ShapeKind.Sphere => ColliderShapeKind.Sphere,
         ShapeKind.Box => ColliderShapeKind.Box,
         ShapeKind.Cylinder => ColliderShapeKind.Cylinder,
         ShapeKind.Tube => ColliderShapeKind.Tube,
         ShapeKind.Frustum => ColliderShapeKind.Frustum,
         ShapeKind.Torus => ColliderShapeKind.Torus,
-        _ => throw new ArgumentException("A rigid union requires finite collider surfaces.")
+        _ => throw new ArgumentException("A material query requires an admitted collider surface.")
     }, collider.Position, collider.U0, collider.U1, collider.U2, collider.Radius, collider.Hx, collider.Hy, collider.Hz);
 
 }

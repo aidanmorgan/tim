@@ -1,6 +1,9 @@
 using System.Numerics;
+using System.Text.Json.Serialization;
 
 namespace CuriousContraptions.Abstractions;
+
+public enum CollisionParticipation : byte { Enabled, Disabled }
 
 public enum ColliderShapeKind : byte
 {
@@ -42,6 +45,9 @@ public readonly record struct ColliderDescriptor(
     MaterialProperties Material,
     float Radius)
 {
+    [JsonRequired]
+    public CollisionParticipation Participation { get; init; } = CollisionParticipation.Enabled;
+
     /// <summary>Whether the kind is one of the true hollow kinds (Tube, Torus, Frustum).</summary>
     public static bool Hollow(ColliderShapeKind kind) => kind is ColliderShapeKind.Tube or ColliderShapeKind.Torus or ColliderShapeKind.Frustum;
 }

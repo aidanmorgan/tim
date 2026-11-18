@@ -605,6 +605,38 @@ public sealed class EventRingProducerTests
     }
 
     [Fact]
+    public void SameTimeCommitsRetainPendingEventsAndDiscardDoesNotConsumeIdentity()
+    {
+        var outbox = new EventRingOutbox();
+        outbox.PrepareAdmission(new(1)); outbox.Commit(); outbox.Drain();
+        var first = new SimulationEventRecord(0, 0, SimulationEventKind.Impact, new(11), 21, 0, 0f, 3f, 1, 0);
+        var second = first with { Source = new(12), Other = 22, Magnitude = 4f };
+        outbox.PreparePhysicalCommit(new(1), 0, [first]); outbox.Commit();
+        outbox.PreparePhysicalCommit(new(2), 0, [second]);
+        Assert.Empty(outbox.Drain());
+        outbox.Discard();
+        Assert.Equal(new PhysicalCommitRevision(1), outbox.PhysicalRevision);
+        Assert.Equal(1UL, outbox.WriteSequence);
+        Assert.Single(outbox.Pending);
+        Assert.Throws<ArgumentException>(() => outbox.PreparePhysicalCommit(new(1), 0, [second]));
+        Assert.Throws<ArgumentException>(() => outbox.PreparePhysicalCommit(new(3), 0, [second]));
+        outbox.PreparePhysicalCommit(new(2), 0, [second]);
+        Assert.Empty(outbox.Drain());
+        outbox.Commit();
+        var published = Decode(outbox.Drain());
+        Assert.Equal(new[] { first with { Sequence = 1 }, second with { Sequence = 2 } }, published);
+        Assert.Equal(2, outbox.RetainedCount);
+        Assert.Empty(outbox.Drain());
+        outbox.PreparePhysicalCommit(new(3), 4, []); outbox.Commit(); outbox.Drain();
+        Assert.Equal(2, outbox.RetainedCount);
+        Assert.Throws<ArgumentException>(() => outbox.PreparePhysicalCommit(new(4), 0, []));
+        outbox.PrepareAdmission(new(2)); outbox.Commit();
+        Assert.Equal(new PhysicalCommitRevision(0), outbox.PhysicalRevision);
+        Assert.Equal(0UL, outbox.WriteSequence);
+        Assert.Empty(outbox.Pending);
+    }
+
+    [Fact]
     public void PreparedGrowthDiscardAndSameEpochPublicationPreserveIndependentCursors()
     {
         var outbox = new EventRingOutbox();
@@ -613,12 +645,12 @@ public sealed class EventRingProducerTests
         outbox.Commit(); host.Commit(); host.Publish(); outbox.Drain();
         var original = host.Memory!;
         var first = Enumerable.Range(1, 25).Select(i => new SimulationEventRecord(0, 2, SimulationEventKind.Impact, new(1), 2, (uint)i, 0, 1, (uint)i, 0)).ToArray();
-        outbox.PrepareAdvance(32, first); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
+        outbox.PreparePhysicalCommit(new(outbox.PhysicalRevision.Value + 1), 32, first); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
         Assert.Same(original, host.Memory);
         Assert.Equal(0UL, original.LoadWriteSequence());
         outbox.Discard(); host.Discard();
         Assert.Equal((32u, 0UL), (outbox.Capacity, outbox.WriteSequence));
-        outbox.PrepareAdvance(32, first); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
+        outbox.PreparePhysicalCommit(new(outbox.PhysicalRevision.Value + 1), 32, first); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
         outbox.Commit(); host.Commit();
         Assert.Same(original, host.Memory);
         host.Publish(); outbox.Drain();
@@ -629,7 +661,7 @@ public sealed class EventRingProducerTests
         Assert.Equal(Enumerable.Range(1, 25).Select(i => (ulong)i), firstSeen);
         var previous = host.Memory;
         var second = Enumerable.Range(33, 24).Select(i => new SimulationEventRecord(0, 3, SimulationEventKind.Impact, new(1), 2, (uint)i, 0, 1, (uint)i, 0)).ToArray();
-        outbox.PrepareAdvance(56, second); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
+        outbox.PreparePhysicalCommit(new(outbox.PhysicalRevision.Value + 1), 56, second); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
         Assert.Equal(25UL, previous.LoadWriteSequence());
         outbox.Commit(); host.Commit(); host.Publish(); outbox.Drain();
         Assert.Equal(128u, host.Memory!.Capacity);
@@ -663,20 +695,20 @@ public sealed class EventRingProducerTests
         var outbox = new EventRingOutbox();
         outbox.PrepareAdmission(new(1)); outbox.Commit(); outbox.Drain();
         var atWatermark = Enumerable.Range(1, 24).Select(i => new SimulationEventRecord(0, 1, SimulationEventKind.Impact, new(1), (ulong)i, 8, 0, 1, (uint)i, 0)).ToArray();
-        outbox.PrepareAdvance(8, atWatermark); outbox.Commit(); outbox.Drain();
+        outbox.PreparePhysicalCommit(new(outbox.PhysicalRevision.Value + 1), 8, atWatermark); outbox.Commit(); outbox.Drain();
         Assert.Equal(32u, outbox.Capacity);
         for (uint ordinal = 8 + substeps; ordinal <= 248; ordinal += substeps)
-        { outbox.PrepareAdvance(ordinal, []); outbox.Commit(); outbox.Drain(); }
+        { outbox.PreparePhysicalCommit(new(outbox.PhysicalRevision.Value + 1), ordinal, []); outbox.Commit(); outbox.Drain(); }
         Assert.Equal(24, outbox.RetainedCount); // inclusive physical half-second boundary
-        outbox.PrepareAdvance(248 + substeps, []); outbox.Commit(); outbox.Drain();
+        outbox.PreparePhysicalCommit(new(outbox.PhysicalRevision.Value + 1), 248 + substeps, []); outbox.Commit(); outbox.Drain();
         Assert.Equal(0, outbox.RetainedCount);
-        outbox.PrepareAdvance(1000, []); outbox.Commit(); outbox.Drain();
+        outbox.PreparePhysicalCommit(new(outbox.PhysicalRevision.Value + 1), 1000, []); outbox.Commit(); outbox.Drain();
         Assert.Equal(32u, outbox.Capacity);
         var afterIdle = atWatermark.Select(record => record with { Ordinal = 1001 }).ToArray();
-        outbox.PrepareAdvance(1002, afterIdle); outbox.Commit();
+        outbox.PreparePhysicalCommit(new(outbox.PhysicalRevision.Value + 1), 1002, afterIdle); outbox.Commit();
         Assert.Equal(32u, outbox.Capacity); Assert.Equal(24, outbox.RetainedCount);
         Assert.Equal(Enumerable.Range(25, 24).Select(i => (ulong)i), Decode(outbox.Drain()).Select(record => record.Sequence));
-        outbox.PrepareAdvance(1004, [new(0, 2, SimulationEventKind.Impact, new(1), 25, 1003, 0, 1, 25, 0)]);
+        outbox.PreparePhysicalCommit(new(outbox.PhysicalRevision.Value + 1), 1004, [new(0, 2, SimulationEventKind.Impact, new(1), 25, 1003, 0, 1, 25, 0)]);
         outbox.Commit();
         Assert.Equal(64u, outbox.Capacity); Assert.Equal(25, outbox.RetainedCount);
         Assert.Equal(49UL, Assert.Single(Decode(outbox.Drain())).Sequence);
@@ -715,7 +747,7 @@ public sealed class EventRingProducerTests
         var outbox = new EventRingOutbox();
         outbox.PrepareAdmission(new(99)); outbox.Commit(); outbox.Drain();
         var selected = Enumerable.Range(1, 25).Select(i => new SimulationEventRecord(0, 8, SimulationEventKind.Impact, new(1), (ulong)i + 1, (uint)i, 0, 1, (uint)i, 0)).ToArray();
-        outbox.PrepareAdvance(selected.Max(record => record.Ordinal) + 1, selected); outbox.Commit();
+        outbox.PreparePhysicalCommit(new(outbox.PhysicalRevision.Value + 1), selected.Max(record => record.Ordinal) + 1, selected); outbox.Commit();
         var batches = ring.Publications.Append(outbox.Drain()).ToList();
         EventRingMemory? reference = null;
         var fresh = 0;
@@ -758,6 +790,8 @@ public sealed class EventRingProducerTests
             var network = WorkshopActivationCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(parts, links));
             SimulationEventKind[] Produced(GpuBodyId owner) =>
                 scene.ContactWorks.ToArray().Where(row => row.Owner == owner).Select(_ => SimulationEventKind.Impact)
+                    .Concat(scene.FiniteWorkActuators.ToArray().Where(row => scene.ChamberRegions.ToArray().Any(region => region.Id == row.Region && region.Frame == owner))
+                        .Select(_ => SimulationEventKind.FiniteWorkReleased))
                     .Concat(scene.Sensors.ToArray().Where(row => row.Frame == owner).Select(_ => SimulationEventKind.Captured))
                     .Concat(scene.Electrical.Sources.ToArray().Where(row => row.Owner == owner).Select(_ => SimulationEventKind.ElectricalPowered))
                     .Concat(network.PassageSensors.ToArray().Where(row => row.Frame == owner).Select(_ => SimulationEventKind.Passage))

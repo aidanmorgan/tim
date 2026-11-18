@@ -4,13 +4,13 @@ using System.Linq;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Consumes only committed occurrence sinks, once, at the next physical boundary.</summary>
-public static class RetentionRequestComposition
+public static class PhysicalRequestComposition
 {
-    public static RetentionRequestInput[] Compose(IActivationProgram network, PhysicsActivationRead committed)
+    public static PhysicalRequestInput[] Compose(IActivationProgram network, PhysicsActivationRead committed)
     {
         // A tick without a latched request allocates nothing.
         if (!AnyLatchedRequest(network, committed)) return [];
-        var requests = new Dictionary<PrismaticRetentionId, RetentionRequestInput>();
+        var requests = new Dictionary<PhysicalRequestTarget, PhysicalRequestInput>();
         foreach (var node in network.Nodes)
         {
             if (node.Kind != ActivationNodeKind.PhysicalRequest) continue;
@@ -18,12 +18,12 @@ public static class RetentionRequestComposition
             {
                 var latch = committed[i];
                 if (latch.Node != node.Id || latch.Phase != ActivationPhase.Latched) continue;
-                var request = new RetentionRequestInput(node.Retention, node.RequestOperation!.Value, latch.Occurrence);
-                if (!requests.TryGetValue(node.Retention, out var prior) || Earlier(request.Occurrence, prior.Occurrence))
-                    requests[node.Retention] = request;
+                var request = new PhysicalRequestInput(node.RequestTarget, node.RequestOperation!.Value, latch.Occurrence);
+                if (!requests.TryGetValue(node.RequestTarget, out var prior) || Earlier(request.Occurrence, prior.Occurrence))
+                    requests[node.RequestTarget] = request;
             }
         }
-        return requests.Values.OrderBy(request => request.Target.Value).ToArray();
+        return requests.Values.OrderBy(request => request.Target.Kind).ThenBy(request => request.Target.Retention.Value).ThenBy(request => request.Target.Actuator.Value).ToArray();
     }
 
     private static bool AnyLatchedRequest(IActivationProgram network, PhysicsActivationRead committed)

@@ -8,14 +8,14 @@ namespace CuriousContraptions.Gpu;
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
-public readonly record struct PhysicsCandidateRead(PhysicsBodyReadSet Bodies, PhysicsMotionRead Motion);
+public readonly record struct PhysicsCandidateRead(PhysicsBodyReadSet Bodies, PhysicsMotionRead Motion, PhysicalCommitRevision PhysicalRevision);
 
 /// <summary>One bounded generic scene/state ABI. Every record field is a named offset (PhysicsGpuAbi.Header.cs and below), and
 /// every game value is one IEEE-754 f32 (Story 9A.44).</summary>
 public static partial class PhysicsGpuAbi
 {
-    /// <summary>The world header (160 bytes, every table population among its counts).</summary>
-    public const int HeaderBytes = 160;
+    /// <summary>The world header (176 bytes, every table population among its counts).</summary>
+    public const int HeaderBytes = 176;
     public const int BodyBytes = 160;
     // Body: f32 pose32/48, velocities64/76; immutable mass/material lanes start88.
     public const int BodyVelocityOffset = 64;
@@ -32,14 +32,13 @@ public static partial class PhysicsGpuAbi
     /// <summary>Three principal moments, each one f32 in kg m².</summary>
     public const int BodyPrincipalInertiaOffset = 136;
     public const int PrincipalInertiaBytes = 4;
-    /// <summary>Contact-work record: declared preload (the store's capacity) and the f32 work still available.</summary>
-    public const int ContactWorkPreloadOffset = 36;
-    public const int ContactWorkAvailableOffset = 48;
+    /// <summary>Exact reservoir slot for this discharge mechanism.</summary>
+    public const int ContactWorkStoreOffset = 32;
     /// <summary>Contact-work record: the f32 target launch speed and the minimum f32 approach speed that admits a payout.</summary>
     public const int ContactWorkTargetSpeedOffset = 16;
     public const int ContactWorkAdmissionSpeedOffset = 20;
     public const int ContactWorkCooldownOffset = 24;
-    public const int ContactWorkOccurrenceCountOffset = 32;
+    public const int ContactWorkOccurrenceCountOffset = 36;
     public const int ColliderBytes = 96;
     public const int MaterialBytes = 32;
     public const int SensorBytes = 96;
@@ -96,6 +95,7 @@ public static partial class PhysicsGpuAbi
             var collider = scene.Colliders[i]; var record = data.Slice(scene.Layout.GetColliderOffset(collider.Id), ColliderBytes);
             U64(record, RecordIdentityOffset, collider.Id.Value); U32(record, ColliderBodyOffset, BodySlot(scene, collider.Body));
             U32(record, ColliderMaterialOffset, MaterialSlot(scene, collider.Material)); U32(record, ColliderShapeOffset, (uint)collider.Shape);
+            U32(record, ColliderParticipationOffset, (uint)collider.Participation);
             Pose(record, ColliderPoseOffset, collider.Pose); F32(record, ColliderRadiusOffset, collider.Radius.Value);
             F32Vector(record, ColliderHalfExtentsOffset, collider.HalfExtents.X, collider.HalfExtents.Y, collider.HalfExtents.Z);
             if (collider.Extrusion is { } extrusion)
@@ -144,6 +144,8 @@ public static partial class PhysicsGpuAbi
             U32(record, TriggerNamedTargetOffset, trigger.Targets.Kind == BodyTargetKind.NamedBody ? BodySlot(scene, trigger.Targets.Body) : NoBody);
         }
         AdmitContactWorks(data, scene);
+        AdmitEnergyStores(data, scene);
+        AdmitChambers(data, scene);
         for (var i = 0; i < scene.OrientationSensors.Length; i++)
         {
             var sensor = scene.OrientationSensors[i];
@@ -276,12 +278,35 @@ public static partial class PhysicsGpuAbi
             new(R64(data, layout.ColliderOffset(checked((int)colliderSlot)))), phase, ordinal, eventPhase);
     }
 
+    public static PhysicalCommitRevision ReadPhysicalRevision(ReadOnlySpan<byte> data)
+    {
+        Header(data);
+        return new(R64(data, HeaderPhysicalRevisionOffset));
+    }
+
+    private static void ValidateCommitProgression(ReadOnlySpan<byte> source, SimulationTick expectedTick,
+        PhysicalCommitRevision revision, ulong priorTick)
+    {
+        var priorRevision = ReadPhysicalRevision(source);
+        if (revision.IsAdmission)
+        {
+            if (!priorRevision.IsAdmission || expectedTick.Value != 0 || priorTick != 0)
+                throw new ArgumentException("Admission identity cannot replace an installed physical commit.");
+        }
+        else if (!priorRevision.TryAdvance(out var nextRevision) || revision != nextRevision ||
+            (expectedTick.Value != priorTick && (priorTick == ulong.MaxValue || expectedTick.Value != priorTick + 1)))
+            throw new ArgumentException("Physical commit identity or tick progression changed illegally.");
+    }
+
     /// <summary>Required before committing a GPU result; selected reads alone do not qualify a candidate.</summary>
     public static PhysicsCandidateRead ValidateCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, SimulationTick expectedTick, PhysicsInteractionSnapshot candidateInteractions, PhysicsInteractionSnapshot sourceInteractions)
     {
         if (ReadFailure(candidate) != PhysicsFailure.None || ReadFailure(source) != PhysicsFailure.None)
             throw new ArgumentException("Only a successful candidate can commit.");
         var profile = ReadProfile(source);
+        var revision = ReadPhysicalRevision(candidate);
+        var priorTick = R64(source, HeaderTickOffset);
+        ValidateCommitProgression(source, expectedTick, revision, priorTick);
         // The header's identity, scene counts and profile are fixed; status, failure, tick, ordinal and capture change.
         // Both worlds passed Header() against their own length, so equal collider counts (compared below) mean equal lengths.
         if (expectedTick.Value > profile.RunTickLimit || R64(candidate, HeaderTickOffset) != expectedTick.Value ||
@@ -290,32 +315,68 @@ public static partial class PhysicsGpuAbi
             !candidate[..HeaderStatusOffset].SequenceEqual(source[..HeaderStatusOffset]) ||
             !candidate[HeaderBodyCountOffset..HeaderTickOffset].SequenceEqual(source[HeaderBodyCountOffset..HeaderTickOffset]) ||
             !candidate[HeaderCadenceOffset..HeaderSourceOrdinalOffset].SequenceEqual(source[HeaderCadenceOffset..HeaderSourceOrdinalOffset]) ||
-            !candidate[HeaderGuideCountOffset..HeaderBytes].SequenceEqual(source[HeaderGuideCountOffset..HeaderBytes]))
+            !candidate[HeaderGuideCountOffset..HeaderPhysicalRevisionOffset].SequenceEqual(source[HeaderGuideCountOffset..HeaderPhysicalRevisionOffset]))
             throw new ArgumentException("Candidate identity, scene counts or physical profile changed.");
         // Equal header populations: one layout addresses both worlds, and every table is exactly its population (Story 9R.5b).
         var layout = Layout(source);
+        var instantaneous = !revision.IsAdmission && expectedTick.Value == priorTick;
         ValidateBodyDeclarations(candidate, source, layout);
+        if (instantaneous)
+            for (var i = 0; i < layout.Bodies; i++)
+            {
+                var offset = layout.BodyOffset(i);
+                if (!candidate.Slice(offset + BodyCellOffset, BodyVelocityOffset - BodyCellOffset).SequenceEqual(
+                    source.Slice(offset + BodyCellOffset, BodyVelocityOffset - BodyCellOffset)))
+                    throw new ArgumentException("An instantaneous transaction changed a body pose.");
+            }
+        if (instantaneous) ValidateNoTimeState(candidate, source, layout, candidateInteractions, sourceInteractions);
         ValidateFixedRowPadding(candidate, layout);
         var bodies = ReadDynamicBodies(candidate);
-        ValidateCaptureCandidate(candidate,source,candidateInteractions,sourceInteractions);
+        ValidateCaptureCandidate(candidate,source,candidateInteractions,sourceInteractions, instantaneous);
         if (!candidate[layout.GuidesOffset..layout.TriggersOffset].SequenceEqual(source[layout.GuidesOffset..layout.TriggersOffset]))
             throw new ArgumentException("Guide declaration changed.");
-        ValidateTriggerCandidate(candidate, source, expectedTick, layout);
+        ValidateTriggerCandidate(candidate, source, expectedTick, layout, instantaneous);
         ValidateContactWorkCandidate(candidate, source, expectedTick, candidateInteractions, sourceInteractions);
+        ValidateEnergyStoreCandidate(candidate, source);
+        ValidateChamberCandidate(candidate, source);
         ValidateOrientationCandidate(candidate, source, expectedTick, layout);
         if (expectedTick.Value != 0 && (R32(candidate, layout.MotionOffset + PhysicsMotionRead.SubstepsOffset) != profile.Substeps ||
             R32(candidate, layout.MotionOffset + PhysicsMotionRead.LastOrdinalOffset) != R32(candidate, HeaderSourceOrdinalOffset)))
             throw new ArgumentException("Motion profile differs from its committed world.");
-        ValidateElectricalCandidate(candidate, source, candidateInteractions);
+        ValidateElectricalCandidate(candidate, source, instantaneous);
         ValidatePrismaticCandidate(candidate, source);
         ValidateTensileCandidate(candidate, source);
         ValidateRevoluteCandidate(candidate, source);
         ValidateContactLoadCandidate(candidate, source);
         ValidateCompliantSurfaceCandidate(candidate, source);
         ValidateMechanicalTransmissionCandidate(candidate, source);
-        return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(layout.MotionOffset, layout.MotionBytes), bodies, expectedTick));
+        return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(layout.MotionOffset, layout.MotionBytes), bodies, expectedTick), revision);
     }
 
+
+    private static void ValidateNoTimeState(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source,
+        PhysicsWorldLayout layout, PhysicsInteractionSnapshot after, PhysicsInteractionSnapshot before)
+    {
+        // Completed observations and finite-duration controls are retained; a no-time transaction
+        // may only change the selected release, paid stores and mechanically coupled response.
+        if (!candidate[layout.SensorsOffset..layout.PrismaticsOffset].SequenceEqual(source[layout.SensorsOffset..layout.PrismaticsOffset]) ||
+            !candidate[layout.PrismaticsOffset..layout.MechanicalTransmissionsOffset].SequenceEqual(source[layout.PrismaticsOffset..layout.MechanicalTransmissionsOffset]) ||
+            after.Captures.Count != before.Captures.Count || after.Works.Count != before.Works.Count)
+            throw new ArgumentException("An instantaneous transaction changed timed observation or control state.");
+        foreach (var pair in before.Captures)
+            if (!after.Captures.TryGetValue(pair.Key, out var value) || value != pair.Value)
+                throw new ArgumentException("An instantaneous transaction changed residence state.");
+        foreach (var pair in before.Works)
+            if (!after.Works.TryGetValue(pair.Key, out var value) || value != pair.Value)
+                throw new ArgumentException("An instantaneous transaction changed contact occurrences.");
+        for (var index = 0; index < layout.EnergyStores; index++)
+        {
+            var offset = layout.EnergyStoreOffset(index);
+            if (RF(candidate, offset + EnergyStoreSuppliedOffset) != RF(source, offset + EnergyStoreSuppliedOffset) ||
+                RF(candidate, offset + EnergyStoreDissipatedOffset) != RF(source, offset + EnergyStoreDissipatedOffset))
+                throw new ArgumentException("An instantaneous transaction charged or dissipated storage.");
+        }
+    }
 
     private static void ValidateBodyDeclarations(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, PhysicsWorldLayout layout)
     {
@@ -362,7 +423,7 @@ public static partial class PhysicsGpuAbi
             if (sensingRow > layout.ContactLoads || (sensingRow != 0 &&
                 R32(candidate, layout.ContactLoadOffset((int)sensingRow - 1) + ContactLoadFrameOffset) != R32(collider, ColliderBodyOffset)))
                 throw new ArgumentException("Collider names a foreign sensing region.");
-            if (!AllZero(collider[ColliderPaddingOffset..]))
+            if (R32(collider, ColliderParticipationOffset) > (uint)CollisionParticipation.Disabled || !AllZero(collider[ColliderPaddingOffset..]))
                 throw new ArgumentException("Nonzero collider padding.");
             var extrusionJoint = R32(collider, ColliderExtrusionJointOffset);
             if (extrusionJoint > layout.Prismatics ||
@@ -388,7 +449,7 @@ public static partial class PhysicsGpuAbi
                 throw new ArgumentException("Nonzero sensor padding.");
     }
 
-    private static void ValidateTriggerCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, SimulationTick expectedTick, PhysicsWorldLayout layout)
+    private static void ValidateTriggerCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, SimulationTick expectedTick, PhysicsWorldLayout layout, bool instantaneous)
     {
         for (var i = 0; i < layout.Triggers; i++)
         {
@@ -396,7 +457,7 @@ public static partial class PhysicsGpuAbi
             if (!candidate.Slice(offset, TriggerCountOffset).SequenceEqual(source.Slice(offset, TriggerCountOffset)))
                 throw new ArgumentException("Contact trigger declaration changed.");
             var trigger = ReadTrigger(candidate, i);
-            if (trigger.OccurrenceCount != 0 && (expectedTick.Value == 0 ||
+            if (!instantaneous && trigger.OccurrenceCount != 0 && (expectedTick.Value == 0 ||
                 Before(trigger.EventOrdinal, trigger.EventPhase, R32(source, HeaderSourceOrdinalOffset), 0f)))
                 throw new ArgumentException("Impact event does not belong to this candidate interval.");
         }
@@ -466,6 +527,8 @@ public static partial class PhysicsGpuAbi
             (R64(data, HeaderDocumentLowOffset) == 0 && R64(data, HeaderDocumentHighOffset) == 0) || R64(data, HeaderNextIdentityOffset) == 0 ||
             // No capacity bounds a population (Story 9R.5b); only the populations' own relations do.
             R32(data, HeaderDynamicCountOffset) > R32(data, HeaderBodyCountOffset) ||
+            R64(data, HeaderPhysicalRevisionOffset) < R64(data, HeaderTickOffset) ||
+            !AllZero(data[HeaderCountPaddingOffset..HeaderPhysicalRevisionOffset]) ||
             !AllZero(data[HeaderPaddingOffset..HeaderBytes]))
             throw new ArgumentException("Unsupported generic physics record.");
     }

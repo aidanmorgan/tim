@@ -176,11 +176,20 @@ internal static class WorkshopObservationProjection
             row.SetProperty("id", Exact(source.Id.Value));
             row.SetProperty("owner", Exact(source.Owner.Value));
             row.SetProperty("count", source.OccurrenceCount);
-            row.SetProperty("remaining", source.RemainingEnergy.Value);
-            row.SetProperty("supplied", source.SuppliedEnergy.Value);
+            row.SetProperty("store", Exact(source.Store.Value));
             contactWorks.Push(row);
         }
         value.SetProperty("contactWorks", contactWorks);
+        using var stores = T.Array();
+        for (var i = 0; i < read.EnergyStores.Count; i++)
+        {
+            var source = read.EnergyStores[i]; using var row = T.Object();
+            row.SetProperty("id", Exact(source.Id.Value)); row.SetProperty("owner", Exact(source.Owner.Value));
+            row.SetProperty("energy", source.Energy.Value); row.SetProperty("supplied", source.Supplied.Value);
+            row.SetProperty("released", source.Released.Value); row.SetProperty("dissipated", source.Dissipated.Value);
+            stores.Push(row);
+        }
+        value.SetProperty("energyStores", stores);
         using var memory = T.Array();
         for (var i = 0; i < read.Memory.Count; i++)
         {

@@ -1,4 +1,5 @@
 using System;
+using CuriousContraptions.Abstractions;
 using System.Collections.Generic;
 using System.Numerics;
 using CuriousContraptions.Gpu;
@@ -28,6 +29,7 @@ internal enum ContactSupport : byte
 internal sealed class SimBody
 {
     public GuideComponent? Guide;
+    public bool HasParticipatingMaterial;
     public int BodySlot;
     public int BodyOffset;
     public uint BodyIdLow;
@@ -93,6 +95,7 @@ internal sealed class SimCollider
     public int BodySlot;
     public SimBody Body = null!;
     public int MaterialSlot;
+    public CollisionParticipation Participation;
     public SimJoint? Extrusion;
     public float Cut, DistalOffset;
     public ShapeKind Shape;

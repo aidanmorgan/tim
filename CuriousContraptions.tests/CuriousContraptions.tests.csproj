@@ -164,6 +164,16 @@
         <Compile Include="LaunchLessonSolveTests.cs" />
         <Compile Include="CatalogueIntegrationTests.cs" />
         <Compile Include="ContactWorkInstanceTests.cs" />
+        <Compile Include="EnergyStoreContractTests.cs" />
+        <Compile Include="MaterialSweepTests.cs" />
+        <Compile Include="ChamberContractTests.cs" />
+        <Compile Include="ColliderParticipationTests.cs" />
+        <Compile Include="ChamberOccupancyTests.cs" />
+        <Compile Include="FiniteWorkResponseTests.cs" />
+    <Compile Include="FiniteWorkGeometryIntegrationTests.cs" />
+    <Compile Include="CannonIntegrationTests.cs" />
+    <Compile Include="CannonArtTests.cs" />
+    <Compile Include="OwnedFiniteWorkTransactionTests.cs" />
         <Compile Include="SliderInstanceTests.cs" />
         <Compile Include="OldLayoutSaves.cs" />
         <Compile Include="PreConversionLaunchSaveTests.cs" />

@@ -86,7 +86,7 @@ public static class WorkshopSupplyCompiler
         SupplyConsumerDescriptor consumer)
     {
         var drives = ImmutableArray.CreateBuilder<SupplyConsumer>();
-        var stores = ImmutableArray.CreateBuilder<GpuContactWorkId>();
+        var stores = ImmutableArray.CreateBuilder<EnergyStoreId>();
         foreach (var target in consumer.Targets)
             switch (target)
             {
@@ -96,8 +96,8 @@ public static class WorkshopSupplyCompiler
                 case SupplyDriveTarget { Coordinate.Kind: CoordinateKind.Revolute } drive:
                     drives.Add(SupplyConsumer.Revolute(identities.Hinges[drive.Coordinate.Index].Joint));
                     break;
-                case SupplyContactWorkTarget:
-                    stores.Add(identities.Work);
+                case SupplyEnergyStoreTarget store:
+                    stores.Add(identities.EnergyStores[store.Store]);
                     break;
                 case SupplyTransmissionTarget transmission:
                     drives.Add(SupplyConsumer.Transmission(identities.Transmissions[transmission.Transmission]));

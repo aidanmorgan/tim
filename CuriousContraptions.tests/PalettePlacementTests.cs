@@ -1619,7 +1619,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 AssertParameterUndo(scene, ref undo);
                 // The store the shared compiler builds is the edited strength's (½·1 kg)·s·s.
                 Assert.Equal(.5f * expected * expected,
-                    Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, scene.World.Construction, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+                    Assert.Single(WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, scene.World.Construction, new(1, 2)).EnergyStores.ToArray()).InitialEnergy.Value);
             }
             var accepted = scene.World.Construction;
             var commands = client.EditCount;
@@ -2280,7 +2280,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 new(authored.Settings.Simulation,authored.Settings.Physical,new(1))) : null;
             var bodies=admission is null ? default : PhysicsGpuAbi.ReadDynamicBodies(admission);
             var response = new WorkshopResponse(new((ulong)Commands.Count), WorkshopResponseKind.Acknowledgement, result,
-                Phase, new WorkshopRead(Epoch, new(0), bodies, Revision,
+                Phase, new WorkshopRead(Epoch, new(0), new(0), bodies, Revision,
                     new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000)),
                     Electrical: admission is null ? default : PhysicsGpuAbi.ReadElectrical(admission),
                     DriveTargets: admission is null ? default : PhysicsGpuAbi.ReadDriveTargets(admission)),

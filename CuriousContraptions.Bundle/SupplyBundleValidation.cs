@@ -86,7 +86,7 @@ internal static class SupplyBundleValidation
 
     private static bool ValidTarget(BundleEntry entry, SupplyTarget target) => target switch
     {
-        SupplyContactWorkTarget work => work.Store != default && entry.Mechanical?.ContactWork?.Id == work.Store,
+        SupplyEnergyStoreTarget store => store.Store != default && (entry.Mechanical?.EnergyStores ?? []).Any(value => value.Id == store.Store),
         SupplyDriveTarget drive => Driven(entry).Contains(drive.Coordinate),
         SupplyTransmissionTarget transmission => transmission.Transmission.Value != 0 &&
             TimedTransmissions(entry).Contains(transmission.Transmission),

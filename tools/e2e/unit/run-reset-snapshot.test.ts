@@ -24,14 +24,15 @@ const BALL = 1n, RECEIVER = 2n;
 
 function response(overrides: Partial<MockResponseParams> = {}): Uint8Array {
     return new Uint8Array(encodeWorkshopResponse({
-        sequence: 7n, kind: 0, outcome: 0, reason: 0, phase: 2, epoch: 3n, tick: 0n, revision: 11n,
+        sequence: 7n, kind: 0, outcome: 0, reason: 0, phase: 2, epoch: 3n, tick: 0n, physicalRevision: 0n, revision: 11n,
         publication: 0n, masterGeneration: 1n, cadence: 1n, projection: 2n, session: [1, 2, 3, 4],
         bodies: [
             { id: BALL, cell: { x: 0, y: 1, z: 0 }, local: { x: 0.25, y: 3, z: 0 }, rotation: { w: 1 }, velocity: { x: 0, y: 0, z: 0 } },
             { id: RECEIVER, cell: { x: -2, y: 0, z: 0 }, local: { x: 0, y: 0.6, z: 0 }, rotation: { w: 1 } },
         ],
         captures: [{ sensor: 9n, target: BALL, phase: 0, eventOrdinal: 0, eventPhase: 0 }],
-        contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 0, remainingEnergy: 32 }],
+        contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 0, store: 1n }],
+        energyStores: [{ id: 1n, owner: RECEIVER, energy: 32 }],
         ...overrides,
     }));
 }
@@ -257,7 +258,7 @@ describe('Run/Reset snapshot: bit-exact comparison', () => {
         const s0 = snapshotFrom(response(), saved(), BENCH);
         // The stores' own count is compared too (a nested field of a compared vector).
         assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(response({
-            contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 1, remainingEnergy: 32 }] }), saved(), BENCH))),
+            contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 1, store: 1n }] }), saved(), BENCH))),
         /read\.contact_works\[id=1\]\.occurrence_count 0≠1/);
         assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(response(), saved({ revision: 6n }), BENCH))),
             /saved\.construction\.revision 5≠6/);

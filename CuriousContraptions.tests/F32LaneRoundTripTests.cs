@@ -220,8 +220,10 @@ public sealed class F32LaneRoundTripTests
         var (sensors, guides, triggers, orientations) = (scene.Sensors.ToArray(), scene.Guides.ToArray(), scene.Triggers.ToArray(),
             scene.OrientationSensors.ToArray());
         PhysicsSceneDeclaration Rebuilt() => new(scene.Document, scene.NextIdentity, bodies, colliders, materials, sensors, guides,
-            triggers, scene.ContactWorks, orientations, prismatics: scene.Prismatics);
-        Assert.Equal(PhysicsGpuAbi.Admission(scene, new(1), Profile), PhysicsGpuAbi.Admission(Rebuilt(), new(1), Profile)); // control
+            triggers, scene.ContactWorks, orientations, prismatics: scene.Prismatics, energyStores: scene.EnergyStores);
+        var control = PhysicsGpuAbi.Admission(Rebuilt(), new(1), Profile);
+        Assert.Equal(scene.Bodies.ToArray().Count(body => body.Motion == RigidMotionKind.Dynamic), PhysicsGpuAbi.ReadDynamicBodies(control).Count);
+        Assert.Equal(scene.EnergyStores.ToArray().Select(store => store.Id), PhysicsGpuAbi.ReadEnergyStores(control).Select(store => store.Id)); // valid declared control
         var ball = Array.FindIndex(bodies, body => body.Id == Ball);
         var sphere = Array.FindIndex(colliders, collider => collider.Body == Ball);
         var surface = Array.FindIndex(materials, material => material.Id == colliders[sphere].Material);

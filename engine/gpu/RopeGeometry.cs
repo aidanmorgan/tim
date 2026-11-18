@@ -3,6 +3,35 @@ using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
 
+/// <summary>Caller-owned demand-grown route scratch. A result's arcs remain valid until this workspace is reused.</summary>
+public sealed class RopeRouteWorkspace
+{
+    internal Vector3[] Centers = [], AxisX = [], AxisY = [], AxisZ = [], Entries = [], Exits = [];
+    internal float[] StartAngles = [], Sweeps = [];
+    internal RouteGuideArc[] Arcs = [];
+    private RouteGuideFrame[] _guideFrames = [];
+
+    public Span<RouteGuideFrame> PrepareGuides(int count)
+    {
+        Ensure(count);
+        return _guideFrames.AsSpan(0, count);
+    }
+
+    internal void Ensure(int count)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        if (count > Array.MaxLength) throw new WorkshopStorageException("Rope route scratch is not representable.");
+        if (Centers.Length >= count) return;
+        var capacity = (int)Math.Min(Array.MaxLength, Math.Max(4L, Math.Max(2L * Centers.Length, (4L * count + 2) / 3)));
+        Array.Resize(ref Centers, capacity); Array.Resize(ref AxisX, capacity);
+        Array.Resize(ref AxisY, capacity); Array.Resize(ref AxisZ, capacity);
+        Array.Resize(ref Entries, capacity); Array.Resize(ref Exits, capacity);
+        Array.Resize(ref StartAngles, capacity); Array.Resize(ref Sweeps, capacity);
+        Array.Resize(ref Arcs, capacity);
+        Array.Resize(ref _guideFrames, capacity);
+    }
+}
+
 /// <summary>Pure cosmetic and kinematic polyline evaluation.</summary>
 public static class RopeGeometry
 {
@@ -54,26 +83,29 @@ public static class RopeGeometry
     public static EvaluatedRopeRoute EvaluateRoute(
         Vector3 terminalA,
         Vector3 terminalB,
-        ReadOnlySpan<RouteGuideFrame> guides)
+        ReadOnlySpan<RouteGuideFrame> guides,
+        RopeRouteWorkspace workspace)
     {
+        ArgumentNullException.ThrowIfNull(workspace);
         if (guides.Length == 0)
         {
             var delta = terminalB - terminalA;
             var dist = delta.Length();
             var dir = dist > 1e-6f ? delta / dist : Vector3.UnitY;
-            return new(terminalB, terminalA, dir, -dir, [], dist);
+            return new(terminalB, terminalA, dir, -dir, ReadOnlyMemory<RouteGuideArc>.Empty, dist);
         }
 
         var k = guides.Length;
-        var centers = new Vector3[k];
-        var axisX = new Vector3[k];
-        var axisY = new Vector3[k];
-        var axisZ = new Vector3[k];
-        var entries = new Vector3[k];
-        var exits = new Vector3[k];
-        var startAngles = new float[k];
-        var sweeps = new float[k];
-        var arcs = new RouteGuideArc[k];
+        workspace.Ensure(k);
+        var centers = workspace.Centers;
+        var axisX = workspace.AxisX;
+        var axisY = workspace.AxisY;
+        var axisZ = workspace.AxisZ;
+        var entries = workspace.Entries;
+        var exits = workspace.Exits;
+        var startAngles = workspace.StartAngles;
+        var sweeps = workspace.Sweeps;
+        var arcs = workspace.Arcs;
 
         for (var i = 0; i < k; i++)
         {
@@ -132,7 +164,7 @@ public static class RopeGeometry
         var uA = legA > 1e-6f ? (entries[0] - terminalA) / legA : Vector3.UnitY;
         var uB = legB > 1e-6f ? (exits[k - 1] - terminalB) / legB : Vector3.UnitY;
 
-        return new(entries[0], exits[k - 1], uA, uB, arcs, totalLength);
+        return new(entries[0], exits[k - 1], uA, uB, arcs.AsMemory(0, k), totalLength);
     }
 
     private static (float EntryAngle, float ExitAngle, float Sweep) TangentAngles(

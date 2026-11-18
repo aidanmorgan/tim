@@ -123,16 +123,17 @@ public sealed record AnimationImpulseDefinition
         if(!Enum.IsDefined(timing))throw new ArgumentOutOfRangeException(nameof(timing));
         if(!Enum.IsDefined(clock))throw new ArgumentOutOfRangeException(nameof(clock));
         AnimationNumbers.Unit(peakPhase.Value);
-        if(curve switch
-        {
-            AnimationImpulseCurve.LinearDecay or AnimationImpulseCurve.SmoothDecay=>peakPhase.Value!=(float)0,
-            AnimationImpulseCurve.SineSquaredPulse=>peakPhase.Value!=(float).5f,
-            AnimationImpulseCurve.SmoothRiseFall=>peakPhase.Value<1e-6f||peakPhase.Value>1-1e-6f,
-            _=>true
-        })throw new ArgumentOutOfRangeException(nameof(peakPhase));
+        if (!SupportsPeak(curve, peakPhase)) throw new ArgumentOutOfRangeException(nameof(peakPhase));
         PeakPhase=peakPhase;
         Duration=duration;Curve=curve;Overlap=overlap;Visibility=visibility;Clock=clock;Timing=timing;
     }
+    public static bool SupportsPeak(AnimationImpulseCurve curve, AnimationPeakPhase peak) => float.IsFinite(peak.Value) && (curve switch
+    {
+        AnimationImpulseCurve.LinearDecay or AnimationImpulseCurve.SmoothDecay => peak.Value == 0f,
+        AnimationImpulseCurve.SineSquaredPulse => peak.Value == .5f,
+        AnimationImpulseCurve.SmoothRiseFall => peak.Value >= 1e-6f && peak.Value <= 1f - 1e-6f,
+        _ => false
+    });
     /// <summary>The one peak phase each curve admits; declarations and the worker share this table.</summary>
     public static AnimationPeakPhase CanonicalPeak(AnimationImpulseCurve curve)=>curve switch
     {

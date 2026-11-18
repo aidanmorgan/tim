@@ -1,23 +1,25 @@
+using CuriousContraptions.Presentation;
 using System.Collections.Generic;
 using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Electrical;
 using CuriousContraptions.Abstractions.Mechanical;
+using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Elements.Bumper;
 
 /// <summary>The Pinball Bumper (CAT-015): a static compound head, upper ring and cap whose finite contact-work store kicks a qualifying ball radially. Its one
 /// typed parameter, strength, is the store's target speed; the preload is a 1 kg reference mass at that speed (32 J at the default
 /// 8 m/s, 200 J at 20 m/s). The editor clamps a finite strength into 0–20 m/s.</summary>
-public sealed class BumperElementDeclaration : IContactWorkElement, ISupplyElement, ISceneGeometryElement
+public sealed class BumperElementDeclaration : IContactWorkElement, IEnergyStoreElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.8f, PresentationAxes.None,
         [
-            new("Visual/BumperHead", PresentationProperty.UniformScale, PresentationDriver.Event, PresentationValueMapping.Identity, 1f, .88f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive),
-            new("Visual/ImpactRing", PresentationProperty.UniformScale, PresentationDriver.Event, PresentationValueMapping.Identity, 1f, 1.24f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive),
-            new("Visual/ImpactRing", PresentationProperty.AlbedoRed, PresentationDriver.Event, PresentationValueMapping.Identity, 1f, 247f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive),
-            new("Visual/ImpactRing", PresentationProperty.AlbedoGreen, PresentationDriver.Event, PresentationValueMapping.Identity, 240f / 255f, 203f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive),
-            new("Visual/ImpactRing", PresentationProperty.AlbedoBlue, PresentationDriver.Event, PresentationValueMapping.Identity, 194f / 255f, 82f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive)
+            new("Visual/BumperHead", PresentationProperty.UniformScale, PresentationDriver.Event, PresentationValueMapping.Identity, 1f, .88f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive, ImpulsePeak: new(.5f), ImpulseVisibility: AnimationImpulseVisibility.AdvanceWhileHidden, ImpulseTiming: AnimationImpulseTiming.EventTime),
+            new("Visual/ImpactRing", PresentationProperty.UniformScale, PresentationDriver.Event, PresentationValueMapping.Identity, 1f, 1.24f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive, ImpulsePeak: new(.5f), ImpulseVisibility: AnimationImpulseVisibility.AdvanceWhileHidden, ImpulseTiming: AnimationImpulseTiming.EventTime),
+            new("Visual/ImpactRing", PresentationProperty.AlbedoRed, PresentationDriver.Event, PresentationValueMapping.Identity, 1f, 247f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive, ImpulsePeak: new(.5f), ImpulseVisibility: AnimationImpulseVisibility.AdvanceWhileHidden, ImpulseTiming: AnimationImpulseTiming.EventTime),
+            new("Visual/ImpactRing", PresentationProperty.AlbedoGreen, PresentationDriver.Event, PresentationValueMapping.Identity, 240f / 255f, 203f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive, ImpulsePeak: new(.5f), ImpulseVisibility: AnimationImpulseVisibility.AdvanceWhileHidden, ImpulseTiming: AnimationImpulseTiming.EventTime),
+            new("Visual/ImpactRing", PresentationProperty.AlbedoBlue, PresentationDriver.Event, PresentationValueMapping.Identity, 194f / 255f, 82f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive, ImpulsePeak: new(.5f), ImpulseVisibility: AnimationImpulseVisibility.AdvanceWhileHidden, ImpulseTiming: AnimationImpulseTiming.EventTime)
         ], [], [], []);
 
     public ElementMetadata Metadata => new(
@@ -34,7 +36,13 @@ public sealed class BumperElementDeclaration : IContactWorkElement, ISupplyEleme
             new("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 20f, Default: 8f, Options: [], EditorPolicy: ParameterEditorPolicy.Clamp)
         ]);
 
-    public ContactWorkDescriptor ContactWork => new(new("work"), "strength", ReferenceMass: 1f, Threshold: .05f, CooldownPhysicalSteps: 72);
+    public IReadOnlyList<ContactWorkDescriptor> ContactWorks =>
+        [new(new("work"), new(0), new(1), MechanicalValue.FromParameter("strength"), .05f, 72)];
+
+    public IReadOnlyList<EnergyStoreDescriptor> EnergyStores =>
+        [new(new(1), new(0), Preload, Preload, MechanicalValue.Fixed(float.MaxValue))];
+
+    private static EnergyExpression Preload => EnergyExpression.Kinetic(MechanicalValue.Fixed(1f), MechanicalValue.FromParameter("strength"));
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0, RevoluteConstraints: 0);
 
@@ -69,7 +77,7 @@ public sealed class BumperElementDeclaration : IContactWorkElement, ISupplyEleme
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
     public SupplyGraphDescriptor SupplyGraph => new(
-        [new SupplyConsumerDescriptor(new("consumer"), [new SupplyContactWorkTarget(new("work"))])], [],
+        [new SupplyConsumerDescriptor(new("consumer"), [new SupplyEnergyStoreTarget(new(1))])], [],
         [new(PortId.PowerIn, new(new("consumer"), SupplyTerminal.PowerIn))]);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>

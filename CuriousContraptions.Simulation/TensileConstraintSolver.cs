@@ -1,36 +1,26 @@
 using System;
 using System.Numerics;
+using System.Collections.Generic;
 using System.Runtime.Intrinsics;
 using CuriousContraptions.Gpu;
 using static CuriousContraptions.Simulation.ConstraintBodyImpulse;
 
 namespace CuriousContraptions.Simulation;
 
-internal sealed class SimTensileGuide
-{
-    public SimBody Body;
-    public float Radius;
-    public Vector3 Offset;
-
-    public SimTensileGuide(SimBody body, float radius, Vector3 offset)
-    {
-        Body = body;
-        Radius = radius;
-        Offset = offset;
-    }
-}
+internal readonly record struct SimTensileGuide(SimBody Body, float Radius, Vector3 Offset);
 
 internal sealed class SimTensileRoute
 {
     public SimBody A = null!;
     public SimBody B = null!;
     public Vector3 LocalA, LocalB;
-    public SimTensileGuide[] Guides = [];
+    public List<SimTensileGuide> Guides { get; } = new(4);
     public float Maximum, Impulse, Travel;
     public bool Complete, Cut, Active;
     public ConstraintRowData Row;
-    public int[] Offsets = [];
+    public List<int> Offsets { get; } = new(4);
     public Vector3 UnitA, UnitB;
+    public RopeRouteWorkspace Geometry { get; } = new();
 }
 
 /// <summary>The generic projected length row, using the shared implicit soft law.</summary>
@@ -41,12 +31,12 @@ internal static class TensileConstraintSolver
         var a = route.A.Position + Vector3.Transform(route.LocalA, route.A.Rotation);
         var b = route.B.Position + Vector3.Transform(route.LocalB, route.B.Rotation);
 
-        var guides = new RouteGuideFrame[route.Guides.Length];
-        for (var i = 0; i < route.Guides.Length; i++)
+        var guides = route.Geometry.PrepareGuides(route.Guides.Count);
+        for (var i = 0; i < route.Guides.Count; i++)
             guides[i] = new(route.Guides[i].Body.Position, route.Guides[i].Body.Rotation,
                             route.Guides[i].Radius, route.Guides[i].Offset);
 
-        var evaluated = RopeGeometry.EvaluateRoute(a, b, guides);
+        var evaluated = RopeGeometry.EvaluateRoute(a, b, guides, route.Geometry);
         var length = evaluated.TotalLength;
         var axisA = evaluated.UnitA;
         var axisB = evaluated.UnitB;

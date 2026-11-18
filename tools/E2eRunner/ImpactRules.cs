@@ -28,6 +28,7 @@ internal static class ImpactRules
         ["Conveyor"] = new("conveyor"),
         ["LinearPusher"] = new("linear_pusher"),
         ["WoundSpring"] = new("wound_spring"),
+        ["Cannon"] = new("cannon"),
         ["Clutch"] = new("clutch"),
         ["ReverseTransmission"] = new("reverse_transmission"),
     };

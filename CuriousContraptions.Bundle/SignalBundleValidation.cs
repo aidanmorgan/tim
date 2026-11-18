@@ -137,8 +137,12 @@ internal static class SignalBundleValidation
                 if (!Parameter(entry, load.MinimumMassParameter, ParameterKind.Real, ParameterUnit.Kilogram, float.Epsilon)) refuse("Load.Parameter");
                 break;
             case SignalPhysicalRequestDescriptor request:
-                if (!Enum.IsDefined(request.Request) || request.Target.Value == 0 ||
-                    entry.Mechanical?.Retentions?.Any(retention => retention.Id == request.Target) != true) refuse("PhysicalRequest");
+                if (!Enum.IsDefined(request.Request) || !request.Target.IsValid || !(request.Target.Kind switch
+                {
+                    CuriousContraptions.Gpu.PhysicalRequestTargetKind.Retention => entry.Mechanical?.Retentions?.Any(retention => retention.Id == request.Target.Retention) == true,
+                    CuriousContraptions.Gpu.PhysicalRequestTargetKind.FiniteWorkActuator => entry.Mechanical?.FiniteWorkActuators?.Any(actuator => actuator.Id == request.Target.Actuator) == true,
+                    _ => false
+                })) refuse("PhysicalRequest");
                 break;
             case SignalMemoryDescriptor or SignalIndicatorDescriptor:
                 break;

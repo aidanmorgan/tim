@@ -10,6 +10,7 @@ public sealed class WorkshopClientCursor : IWorkshopClientCursor
     public AuthorityRevision Revision { get; private set; }
     public ulong ReadOrder { get; private set; }
     private SimulationTick _tick;
+    private PhysicalCommitRevision _physicalRevision;
     private PublicationSequence _publication;
     public WorkshopSimulationPhase Phase { get; private set; }
     private ulong _version;
@@ -26,7 +27,7 @@ public sealed class WorkshopClientCursor : IWorkshopClientCursor
         if (response.Read.Epoch.Value > Epoch.Value) throw new ArgumentException("An unsolicited read cannot install a generation.");
         var applicable = response.Publication.Value > _publication.Value &&
             response.Read.Epoch == Epoch && response.Read.Revision.Value >= Revision.Value &&
-            response.Read.Tick.Value >= _tick.Value;
+            response.Read.Tick.Value >= _tick.Value && response.Read.PhysicalRevision.Value >= _physicalRevision.Value;
         if (applicable && (ReadOrder == ulong.MaxValue || _version == ulong.MaxValue))
             throw new InvalidOperationException("Presentation read order exhausted.");
         return new Prepared(this, _version, response, applicable, applicable ? ReadOrder + 1 : ReadOrder,
@@ -46,7 +47,7 @@ public sealed class WorkshopClientCursor : IWorkshopClientCursor
             command.Epoch != Epoch || Epoch.Value == ulong.MaxValue ||
             response.Read.Epoch.Value != Epoch.Value + 1))
             throw new ArgumentException("Acknowledgement cannot install this generation.");
-        if ((!nextEpoch && response.Read.Tick.Value < _tick.Value) ||
+        if ((!nextEpoch && (response.Read.Tick.Value < _tick.Value || response.Read.PhysicalRevision.Value < _physicalRevision.Value)) ||
             response.Read.Revision.Value < Revision.Value ||
             (!nextEpoch && response.Read.Revision == Revision && dispatchedReadOrder != ReadOrder))
             applicable = false;
@@ -57,7 +58,8 @@ public sealed class WorkshopClientCursor : IWorkshopClientCursor
     public ICursorPreparation PrepareInstallation(WorkshopResponse response)
     {
         if (response.Session != _session || response.Read.Epoch.Value < Epoch.Value ||
-            response.Read.Revision.Value < Revision.Value || _version == ulong.MaxValue)
+            response.Read.Revision.Value < Revision.Value ||
+            (response.Read.Epoch == Epoch && response.Read.PhysicalRevision.Value < _physicalRevision.Value) || _version == ulong.MaxValue)
             throw new ArgumentException("Invalid schedule endpoint cursor.");
         return new Prepared(this, _version, response, true, ReadOrder, _publication);
     }
@@ -71,6 +73,7 @@ public sealed class WorkshopClientCursor : IWorkshopClientCursor
         Epoch = prepared.Response.Read.Epoch;
         Revision = prepared.Response.Read.Revision;
         _tick = prepared.Response.Read.Tick;
+        _physicalRevision = prepared.Response.Read.PhysicalRevision;
         ReadOrder = prepared.ReadOrder;
         _publication = prepared.Publication;
         _version++;

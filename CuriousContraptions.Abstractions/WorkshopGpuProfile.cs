@@ -2,7 +2,7 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopGpuOperation { Admit, Advance }
+public enum WorkshopGpuOperation { Admit, Advance, ApplyFiniteWork }
 public readonly record struct WorkshopGpuProfile(
     SimulationCadence Cadence, PhysicalStepProfile Physical, CadenceRevision Revision)
 {

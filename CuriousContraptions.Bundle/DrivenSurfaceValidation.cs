@@ -20,7 +20,7 @@ internal static class DrivenSurfaceValidation
             if (!Enum.IsDefined(surface.Face) || surface.Source.Kind != CoordinateKind.Revolute ||
                 surface.Source.Index < 0 || surface.Source.Index >= mechanical.Hinges.Count)
                 yield return new(BundleErrorCode.OutOfRange, path + ".SourceOrFace");
-            var colliders = Colliders(entry, surface.Carrier);
+            var colliders = PackageBodyGeometry.Colliders(entry, surface.Carrier);
             if (colliders is null || surface.Collider.Value < 0 || surface.Collider.Value >= colliders.Count)
             {
                 yield return new(BundleErrorCode.UnresolvedReference, path + ".Collider");
@@ -33,17 +33,6 @@ internal static class DrivenSurfaceValidation
             if (!ValidTravel(surface.TravelPerRadian, entry.Metadata.Parameters))
                 yield return new(BundleErrorCode.OutOfRange, path + ".TravelPerRadian");
         }
-    }
-
-    private static IReadOnlyList<ColliderDescriptor>? Colliders(BundleEntry entry, PackageBodyIndex body)
-    {
-        if (body.Value == 0) return entry.Colliders;
-        var mechanical = entry.Mechanical!;
-        var index = body.Value - 1;
-        if (index < 0) return null;
-        if (index < mechanical.Sliders.Count) return mechanical.Sliders[index].MovingBody.Colliders;
-        index -= mechanical.Sliders.Count;
-        return index < mechanical.Hinges.Count ? mechanical.Hinges[index].MovingBody.Colliders : null;
     }
 
     private static bool ValidDirection(DrivenSurfaceDescriptor surface, Quaternion rotation)

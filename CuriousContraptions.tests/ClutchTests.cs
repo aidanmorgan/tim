@@ -1341,7 +1341,7 @@ public sealed partial class ClutchTests
         var motion = PhysicsMotionRead.Decode(WireFaultTests.MotionBytes(canonical), bodies, new(1));
         var read = new WorkshopRead(
             new SimulationEpoch(1),
-            new SimulationTick(1),
+            new SimulationTick(1), new PhysicalCommitRevision(1),
             bodies,
             new(1),
             stamp,

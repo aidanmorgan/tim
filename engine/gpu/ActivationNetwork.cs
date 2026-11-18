@@ -149,8 +149,8 @@ public sealed class ActivationNetwork : IActivationProgram
 
     private static bool InvalidNodeState(ActivationNodeDeclaration node) =>
         (node.Kind == ActivationNodeKind.PhysicalRequest
-            ? node.Retention.Value == 0 || node.RequestOperation is not { } request || !Enum.IsDefined(request)
-            : node.Retention.Value != 0 || node.RequestOperation.HasValue) ||
+            ? !node.RequestTarget.IsValid || node.RequestOperation is not { } request || !Enum.IsDefined(request)
+            : node.RequestTarget != default || node.RequestOperation.HasValue) ||
         (node.Kind == ActivationNodeKind.ContactLoadSource ? node.ReleaseHoldTicks == 0 : node.ReleaseHoldTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Timer ? node.DurationTicks == 0 : node.DurationTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Counter ? node.TargetCount < 1 : node.TargetCount != 0) ||

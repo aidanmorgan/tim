@@ -15,6 +15,18 @@ public readonly record struct AuthorityRevision(ulong Value)
         return true;
     }
 }
+/// <summary>Installed physical commits, independent of elapsed ticks and authoring/playback authority.</summary>
+public readonly record struct PhysicalCommitRevision(ulong Value)
+{
+    public bool IsAdmission => Value == 0;
+    public bool TryAdvance(out PhysicalCommitRevision next)
+    {
+        next = this;
+        if (Value == ulong.MaxValue) return false;
+        next = new(Value + 1);
+        return true;
+    }
+}
 public readonly record struct SimulationEpoch(ulong Value);
 public readonly record struct SimulationTick(ulong Value);
 public readonly record struct CommandSequence(ulong Value);

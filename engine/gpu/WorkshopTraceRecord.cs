@@ -22,7 +22,7 @@ public static class WorkshopTraceRecord
         return checked(HeaderBytes + bodies * PhysicsBodyWire.ByteLength + captures * CaptureBytes);
     }
 
-    public static byte[] Encode(WorkshopRead read, WorkshopGpuProfile profile)
+    public static byte[] Encode(WorkshopTraceSample read, WorkshopGpuProfile profile)
     {
         profile.Validate();
         if (read.Epoch.Value == 0 || read.Tick.Value > profile.RunTickLimit)

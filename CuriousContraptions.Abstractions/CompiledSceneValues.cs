@@ -14,8 +14,10 @@ public readonly record struct CompiledPresentationBinding(PresentationProperty P
     float From, float To, PresentationCurve Curve, float Duration, PresentationOverlap Overlap, float Threshold,
     float Response, CuriousContraptions.Abstractions.Electrical.SupplyTerminal? Socket,
     SimulationEventKind Event, PresentationEventMagnitude EventMagnitude, PresentationStateValues? StateValues = null,
-    PresentationFourStateValues? FourStateValues = null, PrismaticPhaseValues? PrismaticValues = null);
+    PresentationFourStateValues? FourStateValues = null, PrismaticPhaseValues? PrismaticValues = null,
+    PresentationFiniteWorkValues? FiniteWorkValues = null, AnimationPeakPhase? ImpulsePeak = null,
+    AnimationImpulseVisibility? ImpulseVisibility = null, AnimationImpulseTiming? ImpulseTiming = null);
 public readonly record struct CompiledPresentationTrack(AnimationTargetId Target, GpuBodyId Owner, int Binding,
     CompiledPresentationBinding Declaration, ActivationNodeDeclaration Activation, float SourceCapacity,
     SupplyConsumer? Actuator = null, RopeGuideId Guide = default, ElectricalSourceId Source = default,
-    SupplyNodeId SupplyNode = default, MechanicalTransmissionId Transmission = default, PrismaticRetentionId Retention = default);
+    SupplyNodeId SupplyNode = default, MechanicalTransmissionId Transmission = default, PrismaticRetentionId Retention = default, FiniteWorkActuatorId FiniteWork = default, EnergyStoreId Store = default);

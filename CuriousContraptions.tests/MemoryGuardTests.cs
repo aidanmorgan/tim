@@ -293,6 +293,9 @@ public sealed class MemoryGuardTests
     /// <summary>The production device with one armed read change on the next Advance (the change is applied to the real candidate).</summary>
     private sealed class FlipDevice : IWorkshopGpuDevice
     {
+        public ValueTask<WorkshopGpuCandidate> ApplyFiniteWork(WorkshopRead committed, CommandSequence sequence, OwnedFiniteWorkRequest request) =>
+            _inner.ApplyFiniteWork(committed, sequence, request);
+
         private readonly WorkshopGpuDevice _inner = new(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         public Func<WorkshopRead, WorkshopRead>? Next { get; set; }
         public ValueTask<WorkshopGpuCandidate> Admit(ICompiledScene construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence) =>

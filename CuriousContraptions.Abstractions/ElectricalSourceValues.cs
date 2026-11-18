@@ -31,6 +31,6 @@ public readonly record struct ElectricalSourceDeclaration(ElectricalSourceId Id,
     }
 }
 
-public readonly record struct ElectricalStorageBinding(ElectricalSourceId Source, GpuContactWorkId Storage, SupplyNodeId Route);
+public readonly record struct ElectricalStorageBinding(ElectricalSourceId Source, EnergyStoreId Storage, SupplyNodeId Route);
 
 public enum ElectricalEnable : byte { Disabled = 0, Enabled = 1 }

@@ -52,8 +52,11 @@ public sealed class CoreServices : ICoreServices
         ReadOnlySpan<RevoluteDriveDeclaration> revoluteDrives = default,
         ReadOnlySpan<RopeGuideDeclaration> ropeGuides = default,
         ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default,
-        ReadOnlySpan<DrivenSurfaceDeclaration> drivenSurfaces = default) =>
-        new PhysicsSceneDeclaration(document, nextIdentity, bodies, colliders, materials, sensors, guides, triggers, contactWorks, orientationSensors, electricalSources, electricalBindings, prismatics, supplyNodes, supplyEdges, contactLoadSensors, prismaticDrives, tensileSpans, revolutes, compliantSurfaces, revoluteDrives, ropeGuides, transmissions, drivenSurfaces);
+        ReadOnlySpan<DrivenSurfaceDeclaration> drivenSurfaces = default,
+        ReadOnlySpan<EnergyStoreDeclaration> energyStores = default,
+        ReadOnlySpan<ChamberRegionDeclaration> chamberRegions = default,
+        ReadOnlySpan<FiniteWorkActuatorDeclaration> finiteWorkActuators = default) =>
+        new PhysicsSceneDeclaration(document, nextIdentity, bodies, colliders, materials, sensors, guides, triggers, contactWorks, orientationSensors, electricalSources, electricalBindings, prismatics, supplyNodes, supplyEdges, contactLoadSensors, prismaticDrives, tensileSpans, revolutes, compliantSurfaces, revoluteDrives, ropeGuides, transmissions, drivenSurfaces, energyStores, chamberRegions, finiteWorkActuators);
     public IActivationProgram CreateActivation(ReadOnlySpan<ActivationNodeDeclaration> nodes, ReadOnlySpan<ActivationEdge> edges,
         uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default,
         ReadOnlySpan<CompiledSignalContact> contacts = default) =>

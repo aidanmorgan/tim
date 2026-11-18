@@ -566,6 +566,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("stroke", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .8f, Generic(new PartId("wound_spring"), "stroke"), []),
                 ("winding_lead", ParameterUnit.MetrePerRadian, ParameterKind.Real, Lane.Single, .1f, Generic(new PartId("wound_spring"), "winding_lead"), [])
             ],
+            "cannon" =>
+            [
+                ("capacity", ParameterUnit.Joule, ParameterKind.Real, Lane.Single, 45f, Generic(new PartId("cannon"), "capacity"), []),
+                ("charge_power", ParameterUnit.Watt, ParameterKind.Real, Lane.Single, 30f, Generic(new PartId("cannon"), "charge_power"), [])
+            ],
             "linear_pusher" =>
             [
                 ("stroke", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 2.4f, Generic(new PartId("linear_pusher"), "stroke"), []),
@@ -590,7 +595,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" or "cannon" =>
             WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),

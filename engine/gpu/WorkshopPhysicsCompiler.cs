@@ -65,6 +65,9 @@ public static class WorkshopPhysicsCompiler
         private readonly List<PlanarGuideDeclaration> guides = new(4);
         private readonly List<ContactTriggerDeclaration> triggers = new(4);
         private readonly List<ContactWorkDeclaration> contactWorks = new(4);
+        private readonly List<EnergyStoreDeclaration> energyStores = new(4);
+        private readonly List<ChamberRegionDeclaration> chamberRegions = new();
+        private readonly List<FiniteWorkActuatorDeclaration> finiteWorkActuators = new();
         private readonly List<PrismaticConstraintDeclaration> prismatics = new(4);
         private readonly List<PrismaticDriveDeclaration> drives = new(4);
         private readonly List<RevoluteConstraintDeclaration> revolutes = new(4);
@@ -107,7 +110,8 @@ public static class WorkshopPhysicsCompiler
                 supplyNodes, topology.Edges.ToArray(), contactLoads.ToArray(), drives.ToArray(), tensile.ToArray(), revolutes.ToArray(),
                 compliantSurfaces.ToArray(), revoluteDrives.ToArray(),
                 ropeGuides: ropeGuides.ToArray(),
-                transmissions: transmissions.ToArray(), drivenSurfaces: drivenSurfaces.ToArray());
+                transmissions: transmissions.ToArray(), drivenSurfaces: drivenSurfaces.ToArray(), energyStores: energyStores.ToArray(),
+                chamberRegions: chamberRegions.ToArray(), finiteWorkActuators: finiteWorkActuators.ToArray());
         }
 
         private void AddGeometry(GpuBodyId owner, GpuMaterialId material, IReadOnlyList<GpuColliderId> colliderIdentities,
@@ -122,7 +126,7 @@ public static class WorkshopPhysicsCompiler
             {
                 var shape = DeclaredPhysics.Admit(shapes[i]);
                 colliders.Add(new(colliderIdentities[i], owner, material, shape.ShapeKind,
-                    shape.LocalPose, new(shape.Radius), shape.HalfExtents));
+                    shape.LocalPose, new(shape.Radius), shape.HalfExtents) { Participation = shape.Participation });
             }
         }
 
@@ -346,6 +350,8 @@ public static class WorkshopPhysicsCompiler
             CompileElectricalSources();
             CompileContactTriggers();
             CompileContactWorks();
+            CompileEnergyStores();
+            CompileChambersAndActuators();
             CompileContactLoads();
         }
 
@@ -426,11 +432,46 @@ public static class WorkshopPhysicsCompiler
                         new(trigger.Parameters[contact.ThresholdParameter])));
         }
 
+        private void CompileEnergyStores()
+        {
+            foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+                foreach (var store in DeclaredPhysics.Of(owner.PartId).Mechanical?.EnergyStores ?? [])
+                {
+                    var parameters = owner.Parameters.ToBundleValues();
+                    energyStores.Add(new(identities[owner.Id].EnergyStores[store.Id], identities.Body(owner.Id, store.Owner),
+                        new(store.Capacity.Evaluate(parameters)), new(store.InitialEnergy.Evaluate(parameters)),
+                        new(store.MaximumChargePower.Evaluate(parameters))));
+                }
+        }
+
+        private void CompileChambersAndActuators()
+        {
+            foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+            {
+                var mechanical = DeclaredPhysics.Of(owner.PartId).Mechanical;
+                var rows = identities[owner.Id];
+                foreach (var region in mechanical?.ChamberRegions ?? [])
+                {
+                    var pose = new RigidLocalPose(new(region.Position.X, region.Position.Y, region.Position.Z),
+                        CanonicalRotation.Normalize(region.Rotation.X, region.Rotation.Y, region.Rotation.Z, region.Rotation.W));
+                    chamberRegions.Add(new(rows.ChamberRegions[region.Id], identities.Body(owner.Id, region.Frame),
+                        identities.Collider(owner.Id, region.Frame, region.ParticipationCollider),
+                        ResolveTarget(region.Target, construction.Puzzle, construction.Instances), pose,
+                        region.Radius, region.HalfLength, region.MinimumWidth, region.MaximumWidth, region.ContainmentAllowance,
+                        region.MaximumRelativeSpeed, region.Participation));
+                }
+                foreach (var actuator in mechanical?.FiniteWorkActuators ?? [])
+                    finiteWorkActuators.Add(new(rows.FiniteWorkActuators[actuator.Id], rows.EnergyStores[actuator.Store],
+                        rows.ChamberRegions[actuator.Region], new(actuator.TargetSpeed.Evaluate(owner.Parameters.ToBundleValues())),
+                        actuator.ExitPadding));
+            }
+        }
+
         private void CompileContactWorks()
         {
             foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
-                if (DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWork is { } work)
-                    contactWorks.Add(ContactWorkFor(identities[owner.Id].Work, owner.Id,
+                foreach (var work in DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWorks ?? [])
+                    contactWorks.Add(ContactWorkFor(identities[owner.Id].Works[work.Id], identities.Body(owner.Id, work.Owner), identities[owner.Id].EnergyStores[work.Store],
                         ResolveTarget(work.Target, construction.Puzzle, construction.Instances),
                         work, owner.Parameters));
         }
@@ -447,8 +488,8 @@ public static class WorkshopPhysicsCompiler
             // Only independently authored dynamic partners are checked. A constrained
             // child belongs to its parent's mechanism and retains its declared joint.
             var bodyById = bodies.ToDictionary(body => body.Id);
-            var hollowColliders = colliders.Where(c => core.Geometry.IsHollow(c.Shape)).ToArray();
-            foreach (var partner in colliders.Where(c => bodyById[c.Body].Motion == RigidMotionKind.Dynamic))
+            var hollowColliders = colliders.Where(c => c.Participation == CollisionParticipation.Enabled && core.Geometry.IsHollow(c.Shape)).ToArray();
+            foreach (var partner in colliders.Where(c => c.Participation == CollisionParticipation.Enabled && bodyById[c.Body].Motion == RigidMotionKind.Dynamic))
             {
                 var (partnerCentre, partnerTurn) = WorldPose(partner);
                 var convex = new HollowPartner(partner.Shape, partnerCentre,
@@ -563,13 +604,12 @@ public static class WorkshopPhysicsCompiler
                 _ => throw new ArgumentException("Undefined declared electrical enable state.")
             });
 
-    /// <summary>The finite store a declared contact-work capability compiles for one owner: its target speed is the strength
-    /// parameter, its preload the reference mass's kinetic energy at that speed, (½·m)·s·s in f32.</summary>
-    internal static ContactWorkDeclaration ContactWorkFor(GpuContactWorkId identity, GpuBodyId owner, BodyTargetSet targets,
+    /// <summary>Resolve contact discharge data against its exact independently compiled store.</summary>
+    internal static ContactWorkDeclaration ContactWorkFor(GpuContactWorkId identity, GpuBodyId owner, EnergyStoreId store, BodyTargetSet targets,
         ContactWorkDescriptor work, InstanceParameterCollection parameters)
     {
-        var strength = parameters[new ParameterId(work.StrengthParameter)];
-        return new(identity, owner, targets, new(strength), new(.5f * work.ReferenceMass * strength * strength),
+        var speed = work.TargetSpeed.Evaluate(parameters.ToBundleValues());
+        return new(identity, owner, targets, new(speed), store,
             new(work.Threshold), work.CooldownPhysicalSteps);
     }
 

@@ -32,6 +32,7 @@ public sealed class EventRingBufferTests
     // Every kind has exactly one engine-owned domain; None and an undefined kind are no record.
     [Theory]
     [InlineData(SimulationEventKind.Impact, SimulationDomain.Mechanical)]
+    [InlineData(SimulationEventKind.FiniteWorkReleased, SimulationDomain.Mechanical)]
     [InlineData(SimulationEventKind.Passage, SimulationDomain.Mechanical)]
     [InlineData(SimulationEventKind.ContactLoad, SimulationDomain.Mechanical)]
     [InlineData(SimulationEventKind.Captured, SimulationDomain.Mechanical)]
@@ -44,15 +45,15 @@ public sealed class EventRingBufferTests
     [Fact]
     public void TheClosedKindSetHasNoElementNamedOrUnproducedKind()
     {
-        Assert.Equal(["None", "Impact", "Passage", "ThresholdReached", "MemoryChanged", "ContactLoad", "Captured", "ElectricalPowered", "TriggerActivated"],
+        Assert.Equal(["None", "Impact", "Passage", "ThresholdReached", "MemoryChanged", "ContactLoad", "Captured", "ElectricalPowered", "TriggerActivated", "FiniteWorkReleased"],
             Enum.GetNames<SimulationEventKind>());
         Assert.Throws<ArgumentOutOfRangeException>(() => SimulationEvents.Domain(SimulationEventKind.None));
-        Assert.Throws<ArgumentOutOfRangeException>(() => SimulationEvents.Domain((SimulationEventKind)9));
+        Assert.Throws<ArgumentOutOfRangeException>(() => SimulationEvents.Domain((SimulationEventKind)10));
     }
 
     [Theory]
     [InlineData(16, 0u)]  // kind None
-    [InlineData(16, 9u)]  // undefined kind
+    [InlineData(16, 10u)]  // undefined kind
     [InlineData(20, 4u)]  // a domain other than the kind's
     [InlineData(56, 2u)]  // a level other than 0 or 1
     [InlineData(60, 1u)]  // the reserved word

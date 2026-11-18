@@ -289,7 +289,10 @@ public sealed class CatalogueIntegrationTests
         // stalled and back-driven cases are its controls.
         // LinearPusherTests and LinearPusherIntegrationTests execute head/shaft loads, rope restraint and the sensor-to-pipe control.
         PartId[] driveInteractions = [new("motor"), new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring")];
-        var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions)
+        // CannonIntegrationTests.GravityReturnsTheSameBallForAnotherPaidShot and
+        // ClockDelayLatchAndGateFeedADistinctSecondBall execute paid reload and supplied/unpowered controls.
+        PartId[] finiteWorkInteractions = [new("cannon")];
+        var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions).Concat(finiteWorkInteractions)
             .Order().ToArray();
         var actual = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),
             "elements/elements.bundle.json"))).Select(row => new PartId(row.Metadata.Id)).Order().ToArray();

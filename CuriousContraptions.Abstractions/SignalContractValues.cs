@@ -62,7 +62,7 @@ public sealed record SignalOscillatorDescriptor(SignalNodeId Id, ParameterId Int
     PortId SupplyInput) : SignalNodeDescriptor(Id);
 public sealed record SignalPulseCountDescriptor(SignalNodeId Id, ParameterId TargetParameter) : SignalNodeDescriptor(Id);
 public sealed record SignalMemoryDescriptor(SignalNodeId Id) : SignalNodeDescriptor(Id);
-public sealed record SignalPhysicalRequestDescriptor(SignalNodeId Id, LocalPrismaticRetentionId Target,
+public sealed record SignalPhysicalRequestDescriptor(SignalNodeId Id, CuriousContraptions.Gpu.LocalPhysicalRequestTarget Target,
     PhysicalRequestOperation Request) : SignalNodeDescriptor(Id);
 
 /// <summary>The terminal contract of the existing signal operations, independent of public port roles.</summary>

@@ -114,14 +114,15 @@ public sealed class WorkshopPoseHistory : IWorkshopPoseHistory
                 response.Read.Tick == previous.Response.Read.Tick)
             {
                 if (response.Read.Capture != previous.Response.Read.Capture ||
-                    !SameBody(response.Read, previous.Response.Read))
+                    !SameTimedEndpoint(response.Read, previous.Response.Read))
                     throw new ArgumentException("A terminal physical endpoint cannot be restamped or changed.");
                 if (_clockEpoch == clockEpoch) mapped = previous.Mapped;
             }
             if (!reseed)
             {
                 if (response.Read.Tick.Value < previous.Response.Read.Tick.Value ||
-                    response.Read.Revision.Value < previous.Response.Read.Revision.Value)
+                    response.Read.Revision.Value < previous.Response.Read.Revision.Value ||
+                    response.Read.PhysicalRevision.Value < previous.Response.Read.PhysicalRevision.Value)
                     throw new ArgumentException("Physical history cannot regress.");
                 if (response.Read.Bodies.Count != previous.Response.Read.Bodies.Count)
                     throw new ArgumentException("Body population change requires a committed discontinuity.");
@@ -131,7 +132,7 @@ public sealed class WorkshopPoseHistory : IWorkshopPoseHistory
                 if (response.Read.Tick == previous.Response.Read.Tick)
                 {
                     if (response.Read.Capture != previous.Response.Read.Capture ||
-                        !SameBody(response.Read, previous.Response.Read))
+                        !SameTimedEndpoint(response.Read, previous.Response.Read))
                         throw new ArgumentException("A repeated physical endpoint cannot be restamped or changed.");
                     replace = true;
                     mapped = previous.Mapped; // Preserve the original uncertainty, including no valid mapping.
@@ -303,7 +304,23 @@ public sealed class WorkshopPoseHistory : IWorkshopPoseHistory
                 return false;
         poses = new(values); return true;
     }
-    private static bool SameBody(WorkshopRead first, WorkshopRead second) => WorkshopRead.SamePhysicalContent(first, second);
+    private static bool SameTimedEndpoint(WorkshopRead current, WorkshopRead previous)
+    {
+        if (current.PhysicalRevision == previous.PhysicalRevision)
+            return WorkshopRead.SamePhysicalContent(current, previous);
+        if (current.PhysicalRevision.Value < previous.PhysicalRevision.Value || current.Bodies.Count != previous.Bodies.Count)
+            return false;
+        // A newer no-time transaction changes velocity/work, while the completed pose and motion interval stay fixed.
+        for (var i = 0; i < current.Bodies.Count; i++)
+        {
+            var a = current.Bodies[i]; var b = previous.Bodies[i];
+            if (a.Body.Id != b.Body.Id || a.Body.Cell != b.Body.Cell || a.Body.Local != b.Body.Local ||
+                a.Rotation != b.Rotation || a.LocalCentreOfMass != b.LocalCentreOfMass) return false;
+        }
+        return current.Motion is { } motion
+            ? previous.Motion is { } prior && motion.Bytes.SequenceEqual(prior.Bytes)
+            : previous.Motion is null;
+    }
 
     public void Retire()
     {

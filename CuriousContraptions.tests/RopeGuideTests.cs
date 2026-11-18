@@ -19,6 +19,56 @@ public sealed class RopeGuideTests
     }
 
     [Fact]
+    public void RouteWorkspaceReusesOnlyItsActivePrefixAndKeepsOtherOwnersIndependent()
+    {
+        var workspace = new RopeRouteWorkspace();
+        var separate = new RopeRouteWorkspace();
+        var from = new Vector3(-5f, 1f, 0f);
+        var to = new Vector3(5f, 1f, 0f);
+        var guides = Enumerable.Range(0, 8).Select(i =>
+            new RouteGuideFrame(new(i - 3.5f, 0f, 0f), Quaternion.Identity, .2f, Vector3.Zero)).ToArray();
+        var offset = new Vector3(0f, 0f, 5f);
+        var separateGuides = guides.Take(2).Select(guide => guide with { Position = guide.Position + offset }).ToArray();
+        var retained = RopeGeometry.EvaluateRoute(from + offset, to + offset, separateGuides, separate);
+        var retainedEntry = retained.Arcs.Span[0].Entry;
+        var retainedExit = retained.Arcs.Span[0].Exit;
+        var retainedArcLength = retained.Arcs.Span[0].Length;
+        var retainedLength = retained.TotalLength;
+        foreach (var count in new[] { 1, 8, 0, 2, 1 })
+        {
+            var inputs = workspace.PrepareGuides(count);
+            guides.AsSpan(0, count).CopyTo(inputs);
+            var result = RopeGeometry.EvaluateRoute(from, to, inputs, workspace);
+            var control = RopeGeometry.EvaluateRoute(from, to, guides.AsSpan(0, count), new RopeRouteWorkspace());
+            Assert.Equal(count, result.Arcs.Length);
+            Assert.Equal(control.TotalLength, result.TotalLength); // exact pure-function result under workspace reuse
+            Assert.Equal(control.UnitA, result.UnitA);
+            Assert.Equal(control.UnitB, result.UnitB);
+            for (var i = 0; i < count; i++)
+            {
+                Assert.Equal(control.Arcs.Span[i].Entry, result.Arcs.Span[i].Entry);
+                Assert.Equal(control.Arcs.Span[i].Exit, result.Arcs.Span[i].Exit);
+                Assert.Equal(control.Arcs.Span[i].Length, result.Arcs.Span[i].Length);
+            }
+            Assert.Equal(retainedEntry, retained.Arcs.Span[0].Entry);
+            Assert.Equal(retainedExit, retained.Arcs.Span[0].Exit);
+            Assert.Equal(retainedArcLength, retained.Arcs.Span[0].Length);
+            Assert.Equal(retainedLength, retained.TotalLength);
+        }
+        Assert.Throws<ArgumentException>(() => RopeGeometry.EvaluateRoute(from, to,
+            [new(Vector3.Zero, Quaternion.Identity, -1f, Vector3.Zero)], workspace));
+        var empty = RopeGeometry.EvaluateRoute(from, to, [], workspace);
+        Assert.Equal(0, empty.Arcs.Length);
+        Assert.Equal(10f, empty.TotalLength);
+        Assert.Equal(Vector3.UnitX, empty.UnitA);
+        Assert.Equal(-Vector3.UnitX, empty.UnitB);
+        var again = RopeGeometry.EvaluateRoute(from, to, guides.AsSpan(0, 2), workspace);
+        Assert.Equal(retained.TotalLength, again.TotalLength);
+        Assert.Equal(retainedEntry - offset, again.Arcs.Span[0].Entry);
+        Assert.Throws<ArgumentNullException>(() => RopeGeometry.EvaluateRoute(from, to, [], null!));
+    }
+
+    [Fact]
     public void EvaluateRouteSupportsMultipleGuidesWithDistinctRadiiAndOffsets()
     {
         // Unfamiliar Guide A (r=0.2, offset 0.05), Pulley (r=0.4, offset 0.12), Unfamiliar Guide B (r=0.6, offset 0.20)
@@ -31,26 +81,26 @@ public sealed class RopeGuideTests
             new(new(2f, 6f, 0f), Quaternion.Identity, 0.6f, new(0f, 0f, 0.20f))
         };
 
-        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides);
+        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides, new RopeRouteWorkspace());
 
         Assert.Equal(3, evaluated.Arcs.Length);
 
         // Arc lengths equal r * |sweep|
-        Assert.InRange(MathF.Abs(evaluated.Arcs[0].Length - 0.2f * MathF.Abs(evaluated.Arcs[0].Sweep)), 0f, 1e-3f);
-        Assert.InRange(MathF.Abs(evaluated.Arcs[1].Length - 0.4f * MathF.Abs(evaluated.Arcs[1].Sweep)), 0f, 1e-3f);
-        Assert.InRange(MathF.Abs(evaluated.Arcs[2].Length - 0.6f * MathF.Abs(evaluated.Arcs[2].Sweep)), 0f, 1e-3f);
+        Assert.InRange(MathF.Abs(evaluated.Arcs.Span[0].Length - 0.2f * MathF.Abs(evaluated.Arcs.Span[0].Sweep)), 0f, 1e-3f);
+        Assert.InRange(MathF.Abs(evaluated.Arcs.Span[1].Length - 0.4f * MathF.Abs(evaluated.Arcs.Span[1].Sweep)), 0f, 1e-3f);
+        Assert.InRange(MathF.Abs(evaluated.Arcs.Span[2].Length - 0.6f * MathF.Abs(evaluated.Arcs.Span[2].Sweep)), 0f, 1e-3f);
 
         // All arcs have positive deflection angles and lengths
-        Assert.True(MathF.Abs(evaluated.Arcs[0].Sweep) > 0f);
-        Assert.True(MathF.Abs(evaluated.Arcs[1].Sweep) > 0f);
-        Assert.True(MathF.Abs(evaluated.Arcs[2].Sweep) > 0f);
+        Assert.True(MathF.Abs(evaluated.Arcs.Span[0].Sweep) > 0f);
+        Assert.True(MathF.Abs(evaluated.Arcs.Span[1].Sweep) > 0f);
+        Assert.True(MathF.Abs(evaluated.Arcs.Span[2].Sweep) > 0f);
 
         // Sum of straight tangent segments and arcs equals TotalLength
-        var leg0 = Vector3.Distance(posA, evaluated.Arcs[0].Entry);
-        var leg1 = Vector3.Distance(evaluated.Arcs[0].Exit, evaluated.Arcs[1].Entry);
-        var leg2 = Vector3.Distance(evaluated.Arcs[1].Exit, evaluated.Arcs[2].Entry);
-        var leg3 = Vector3.Distance(evaluated.Arcs[2].Exit, posB);
-        var arcSum = evaluated.Arcs[0].Length + evaluated.Arcs[1].Length + evaluated.Arcs[2].Length;
+        var leg0 = Vector3.Distance(posA, evaluated.Arcs.Span[0].Entry);
+        var leg1 = Vector3.Distance(evaluated.Arcs.Span[0].Exit, evaluated.Arcs.Span[1].Entry);
+        var leg2 = Vector3.Distance(evaluated.Arcs.Span[1].Exit, evaluated.Arcs.Span[2].Entry);
+        var leg3 = Vector3.Distance(evaluated.Arcs.Span[2].Exit, posB);
+        var arcSum = evaluated.Arcs.Span[0].Length + evaluated.Arcs.Span[1].Length + evaluated.Arcs.Span[2].Length;
         var expectedTotal = leg0 + leg1 + leg2 + leg3 + arcSum;
         Assert.InRange(MathF.Abs(expectedTotal - evaluated.TotalLength), 0f, 1e-3f);
     }
@@ -74,7 +124,7 @@ public sealed class RopeGuideTests
             new(new(-2f, 6.4f, -.05f), Quaternion.Identity, 0.2f, new(0f, 0f, 0.05f)),
             new(new(2f, 6.0f, -.15f), Quaternion.Identity, 0.6f, new(0f, 0f, 0.15f))
         };
-        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides);
+        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides, new RopeRouteWorkspace());
         var totalLength = evaluated.TotalLength;
         var compiled = scene.Admit().Scene;
         var span0 = (totalLength - 4f) * .5f;
@@ -139,7 +189,7 @@ public sealed class RopeGuideTests
         var posA = new Vector3(-2f, 3.2f, 0f);
         var posB = new Vector3(2f, 3.2f, 0f);
         var guideFrame = new RouteGuideFrame(new(0f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f));
-        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, [guideFrame]);
+        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, [guideFrame], new RopeRouteWorkspace());
         var spanLen = evaluated.TotalLength * 0.5f;
 
         var spans = new TensileSpanDeclaration[]
@@ -197,8 +247,8 @@ public sealed class RopeGuideTests
         var posB = new Vector3(2f, 3f, 0f);
 
         // 0 guides evaluate to line segment length
-        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, []);
-        Assert.Empty(evaluated.Arcs);
+        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, [], new RopeRouteWorkspace());
+        Assert.Equal(0, evaluated.Arcs.Length);
         Assert.InRange(MathF.Abs(evaluated.TotalLength - Vector3.Distance(posA, posB)), 0f, 1e-5f);
 
         // In simulation, 1 direct span produces empty Guides read
@@ -219,21 +269,21 @@ public sealed class RopeGuideTests
         var posA = new Vector3(-0.5f, -3f, 0f);
         var posB = new Vector3(0.5f, -3f, 0f);
 
-        var wrap = RopeGeometry.EvaluateRoute(posA, posB, [guide]);
-        Assert.Single(wrap.Arcs);
-        Assert.InRange(MathF.Abs(wrap.Arcs[0].Sweep), MathF.PI - 0.05f, MathF.PI + 0.05f);
-        Assert.InRange(wrap.Arcs[0].Length, 0.5f * MathF.PI - 0.05f, 0.5f * MathF.PI + 0.05f);
+        var wrap = RopeGeometry.EvaluateRoute(posA, posB, [guide], new RopeRouteWorkspace());
+        Assert.Equal(1, wrap.Arcs.Length);
+        Assert.InRange(MathF.Abs(wrap.Arcs.Span[0].Sweep), MathF.PI - 0.05f, MathF.PI + 0.05f);
+        Assert.InRange(wrap.Arcs.Span[0].Length, 0.5f * MathF.PI - 0.05f, 0.5f * MathF.PI + 0.05f);
 
         // Small grazing deflection (deflection angle < 0.3 rad)
         var grazingGuide = new RouteGuideFrame(new(0f, 0.55f, 0f), Quaternion.Identity, 0.5f);
         var grazingA = new Vector3(-5f, 0.5f, 0f);
         var grazingB = new Vector3(5f, 0.5f, 0f);
 
-        var grazing = RopeGeometry.EvaluateRoute(grazingA, grazingB, [grazingGuide]);
-        Assert.Single(grazing.Arcs);
-        Assert.True(MathF.Abs(grazing.Arcs[0].Sweep) > 0f);
-        Assert.True(MathF.Abs(grazing.Arcs[0].Sweep) < 0.3f);
-        Assert.InRange(MathF.Abs(grazing.Arcs[0].Length - 0.5f * MathF.Abs(grazing.Arcs[0].Sweep)), 0f, 1e-4f);
+        var grazing = RopeGeometry.EvaluateRoute(grazingA, grazingB, [grazingGuide], new RopeRouteWorkspace());
+        Assert.Equal(1, grazing.Arcs.Length);
+        Assert.True(MathF.Abs(grazing.Arcs.Span[0].Sweep) > 0f);
+        Assert.True(MathF.Abs(grazing.Arcs.Span[0].Sweep) < 0.3f);
+        Assert.InRange(MathF.Abs(grazing.Arcs.Span[0].Length - 0.5f * MathF.Abs(grazing.Arcs.Span[0].Sweep)), 0f, 1e-4f);
     }
 
     [Fact]
@@ -319,7 +369,7 @@ public sealed class RopeGuideTests
             new(new(-2f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f)),
             new(new(2f, 6f, -.12f), Quaternion.Identity, 0.4f, new(0f, 0f, 0.12f))
         };
-        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides);
+        var evaluated = RopeGeometry.EvaluateRoute(posA, posB, guides, new RopeRouteWorkspace());
         var len = evaluated.TotalLength;
         var span1 = 4.0f;
         var remaining = MathF.Max(0.1f, len - span1);

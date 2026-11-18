@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using CuriousContraptions.Gpu;
+using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions.Abstractions;
 
@@ -28,10 +29,12 @@ public enum PresentationDriver : byte
     CommittedTransmissionPhase,
     CommittedRevoluteAngle,
     CommittedPrismaticPhase,
-    CommittedRetentionReleased
+    CommittedRetentionReleased,
+    CommittedStoredFraction,
+    CommittedFiniteWorkState
 }
 
-public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2, StateValues = 3 }
+public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2, StateValues = 3, ClampToEndpoints = 4 }
 
 public enum ActuatorObservationState : byte { Unpowered, Powered, Blocked }
 
@@ -79,8 +82,8 @@ public readonly record struct PresentationFourStateValues(float State0, float St
     };
 }
 
-public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep }
-public enum PresentationOverlap : byte { Replace, SaturatingSum, Maximum }
+public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep, SmoothRiseFall }
+public enum PresentationOverlap : byte { Replace, SaturatingSum, Maximum, HyperbolicTangentSum }
 
 /// <summary>Package body ordinal: zero is the authored root; subsequent ordinals name declared child bodies.</summary>
 public readonly record struct PackageBodyIndex(int Value);
@@ -99,7 +102,9 @@ public readonly record struct PresentationBinding(
     SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any, SignalNodeId? SignalNode = null,
     CoordinateReference? Actuator = null, PortId? GuidePort = null, PresentationStateValues? StateValues = null,
     Electrical.LocalSupplyNodeId? SupplyNode = null, Mechanical.LocalMechanicalTransmissionId? Transmission = null,
-    PresentationFourStateValues? FourStateValues = null, PrismaticPhaseValues? PrismaticValues = null, Mechanical.LocalPrismaticRetentionId? Retention = null);
+    PresentationFourStateValues? FourStateValues = null, PrismaticPhaseValues? PrismaticValues = null, Mechanical.LocalPrismaticRetentionId? Retention = null, LocalFiniteWorkActuatorId? FiniteWork = null,
+    LocalEnergyStoreId? Store = null, PresentationFiniteWorkValues? FiniteWorkValues = null, AnimationPeakPhase? ImpulsePeak = null,
+    AnimationImpulseVisibility? ImpulseVisibility = null, AnimationImpulseTiming? ImpulseTiming = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(
@@ -132,7 +137,7 @@ public static class PresentationDriverRules
 
     public static bool ContinuousNormalized(PresentationDriver driver) => driver is PresentationDriver.CommittedOscillatorPhase or
         PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerRemaining or
-        PresentationDriver.CommittedTransmissionClosure;
+        PresentationDriver.CommittedTransmissionClosure or PresentationDriver.CommittedStoredFraction;
 
     public static bool Discrete3State(PresentationDriver driver) => driver is
         PresentationDriver.CommittedActuatorState or
@@ -148,7 +153,7 @@ public static class PresentationDriverRules
         PresentationDriver.CommittedTransmissionClosure or
         PresentationDriver.CommittedTimerProgress or
         PresentationDriver.CommittedTimerRemaining or
-        PresentationDriver.CommittedOscillatorPhase;
+        PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedStoredFraction;
 
     public static bool LevelDriver(PresentationDriver driver) => driver is
         PresentationDriver.CommittedActivation or
@@ -162,26 +167,27 @@ public static class PresentationDriverRules
 
     public static bool SupportsMapping(PresentationDriver driver, PresentationValueMapping mapping) => mapping switch
     {
-        PresentationValueMapping.StateValues => Discrete3State(driver) || Discrete4State(driver) || driver == PresentationDriver.CommittedPrismaticPhase,
+        PresentationValueMapping.StateValues => Discrete3State(driver) || Discrete4State(driver) || driver is PresentationDriver.CommittedPrismaticPhase or PresentationDriver.CommittedFiniteWorkState,
         PresentationValueMapping.SineCyclesToUnit => ContinuousNormalized(driver),
-        PresentationValueMapping.Identity => !Discrete3State(driver) && !Discrete4State(driver) && driver != PresentationDriver.CommittedPrismaticPhase,
+        PresentationValueMapping.ClampToEndpoints => ContinuousNormalized(driver),
+        PresentationValueMapping.Identity => !Discrete3State(driver) && !Discrete4State(driver) && driver is not (PresentationDriver.CommittedPrismaticPhase or PresentationDriver.CommittedFiniteWorkState),
         _ => false
     };
 
     /// <summary>Construction/Reset projection: zero scalar input or the declared State0 state.</summary>
     public static float InitialValue(PresentationBinding binding) =>
-        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues, binding.PrismaticValues);
+        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues, binding.PrismaticValues, binding.FiniteWorkValues);
 
     public static float InitialValue(CompiledPresentationBinding binding) =>
-        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues, binding.PrismaticValues);
+        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues, binding.PrismaticValues, binding.FiniteWorkValues);
 
     public static float InitialValue(PresentationValueMapping mapping, float from, float to, PresentationStateValues? stateValues,
-        PresentationFourStateValues? fourStateValues, PrismaticPhaseValues? prismaticValues = null)
+        PresentationFourStateValues? fourStateValues, PrismaticPhaseValues? prismaticValues = null, PresentationFiniteWorkValues? finiteWorkValues = null)
     {
         var amount = mapping == PresentationValueMapping.StateValues
-            ? (prismaticValues?.Unpowered ?? fourStateValues?.State0 ?? stateValues!.Value.State0)
+            ? (finiteWorkValues?.Empty ?? prismaticValues?.Unpowered ?? fourStateValues?.State0 ?? stateValues!.Value.State0)
             : Map(0, mapping);
-        return float.Lerp(from, to, amount);
+        return Output(amount, mapping, from, to);
     }
 
     public static float Map(float input, PresentationValueMapping mapping)
@@ -189,11 +195,75 @@ public static class PresentationDriverRules
         if (!float.IsFinite(input)) throw new ArgumentException("Nonfinite presentation input.");
         return mapping switch
         {
-            PresentationValueMapping.Identity => input,
+            PresentationValueMapping.Identity or PresentationValueMapping.ClampToEndpoints => input,
             PresentationValueMapping.SineCyclesToUnit => .5f + .5f * MathF.Sin(MathF.Tau * input),
             _ => throw new ArgumentOutOfRangeException(nameof(mapping))
         };
     }
+
+    public static bool AdmitsPropertyValue(PresentationProperty property, float value) => float.IsFinite(value) && (property switch
+    {
+        PresentationProperty.Visible => value is 0f or 1f,
+        PresentationProperty.UniformScale or PresentationProperty.ScaleX or PresentationProperty.ScaleY or PresentationProperty.ScaleZ => value > 0f,
+        PresentationProperty.AlbedoRed or PresentationProperty.AlbedoGreen or PresentationProperty.AlbedoBlue or
+            PresentationProperty.EmissionRed or PresentationProperty.EmissionGreen or PresentationProperty.EmissionBlue => value is >= 0f and <= 1f,
+        _ => true
+    });
+
+    public static bool ValidPropertyValues(CompiledPresentationBinding d) =>
+        AdmitsPropertyValue(d.Property, d.From) && AdmitsPropertyValue(d.Property, d.To) &&
+        AdmitsStateValues(d.Property, d.From, d.To, d.StateValues) && AdmitsStateValues(d.Property, d.From, d.To, d.FourStateValues) &&
+        AdmitsStateValues(d.Property, d.From, d.To, d.PrismaticValues) && AdmitsStateValues(d.Property, d.From, d.To, d.FiniteWorkValues);
+
+    public static bool AdmitsStateValues(PresentationProperty property, float from, float to, PresentationStateValues? values) =>
+        values is not { } s || AdmitsPropertyValue(property, Output(s.State0, PresentationValueMapping.StateValues, from, to)) &&
+        AdmitsPropertyValue(property, Output(s.State1, PresentationValueMapping.StateValues, from, to)) && AdmitsPropertyValue(property, Output(s.State2, PresentationValueMapping.StateValues, from, to));
+
+    public static bool AdmitsStateValues(PresentationProperty property, float from, float to, PresentationFourStateValues? values) =>
+        values is not { } s || AdmitsPropertyValue(property, Output(s.State0, PresentationValueMapping.StateValues, from, to)) &&
+        AdmitsPropertyValue(property, Output(s.State1, PresentationValueMapping.StateValues, from, to)) && AdmitsPropertyValue(property, Output(s.State2, PresentationValueMapping.StateValues, from, to)) &&
+        AdmitsPropertyValue(property, Output(s.State3, PresentationValueMapping.StateValues, from, to));
+
+    public static bool AdmitsStateValues(PresentationProperty property, float from, float to, PrismaticPhaseValues? values) =>
+        values is not { } s || AdmitsPropertyValue(property, Output(s.Holding, PresentationValueMapping.StateValues, from, to)) &&
+        AdmitsPropertyValue(property, Output(s.Positive, PresentationValueMapping.StateValues, from, to)) && AdmitsPropertyValue(property, Output(s.Negative, PresentationValueMapping.StateValues, from, to)) &&
+        AdmitsPropertyValue(property, Output(s.Blocked, PresentationValueMapping.StateValues, from, to)) && AdmitsPropertyValue(property, Output(s.Conflict, PresentationValueMapping.StateValues, from, to)) &&
+        AdmitsPropertyValue(property, Output(s.Unpowered, PresentationValueMapping.StateValues, from, to));
+
+    public static bool AdmitsStateValues(PresentationProperty property, float from, float to, PresentationFiniteWorkValues? values) =>
+        values is not { } s || AdmitsPropertyValue(property, Output(s.Empty, PresentationValueMapping.StateValues, from, to)) &&
+        AdmitsPropertyValue(property, Output(s.Loading, PresentationValueMapping.StateValues, from, to)) && AdmitsPropertyValue(property, Output(s.SeatedUncharged, PresentationValueMapping.StateValues, from, to)) &&
+        AdmitsPropertyValue(property, Output(s.SeatedCharged, PresentationValueMapping.StateValues, from, to)) && AdmitsPropertyValue(property, Output(s.Departing, PresentationValueMapping.StateValues, from, to)) &&
+        AdmitsPropertyValue(property, Output(s.Unavailable, PresentationValueMapping.StateValues, from, to));
+
+    public static float Output(float input, PresentationValueMapping mapping, float from, float to) =>
+        mapping == PresentationValueMapping.ClampToEndpoints ? Math.Clamp(input, from, to) : float.Lerp(from, to, input);
+
+    public static bool IsImpulseCurve(PresentationCurve curve) => curve is
+        PresentationCurve.LinearDecay or PresentationCurve.SineSquaredPulse or PresentationCurve.SmoothRiseFall;
+
+    public static AnimationImpulseCurve ImpulseCurve(PresentationCurve curve) => curve switch
+    {
+        PresentationCurve.LinearDecay => AnimationImpulseCurve.LinearDecay,
+        PresentationCurve.SineSquaredPulse => AnimationImpulseCurve.SineSquaredPulse,
+        PresentationCurve.SmoothRiseFall => AnimationImpulseCurve.SmoothRiseFall,
+        _ => throw new ArgumentOutOfRangeException(nameof(curve))
+    };
+
+    public static AnimationImpulseOverlap ImpulseOverlap(PresentationOverlap overlap) => overlap switch
+    {
+        PresentationOverlap.Maximum => AnimationImpulseOverlap.Maximum,
+        PresentationOverlap.SaturatingSum => AnimationImpulseOverlap.SaturatingSum,
+        PresentationOverlap.HyperbolicTangentSum => AnimationImpulseOverlap.HyperbolicTangentSum,
+        _ => throw new ArgumentOutOfRangeException(nameof(overlap))
+    };
+
+    public static bool ValidImpulsePeak(PresentationCurve curve, AnimationPeakPhase? peak) =>
+        IsImpulseCurve(curve) ? peak is { } value && AnimationImpulseDefinition.SupportsPeak(ImpulseCurve(curve), value) : peak is null;
+
+    public static bool ValidImpulseChoices(PresentationCurve curve, AnimationImpulseVisibility? visibility, AnimationImpulseTiming? timing) =>
+        IsImpulseCurve(curve) ? visibility is { } v && Enum.IsDefined(v) && timing is { } t && Enum.IsDefined(t)
+            : visibility is null && timing is null;
 
     public static bool Supports(PresentationDriver driver, PresentationCurve curve, float duration, PresentationOverlap overlap)
     {
@@ -201,18 +271,18 @@ public static class PresentationDriverRules
         {
             return duration > 0 &&
                 ((curve is PresentationCurve.SmoothStep or PresentationCurve.CubicSmoothStep && overlap == PresentationOverlap.Replace) ||
-                 (curve == PresentationCurve.SineSquaredPulse && overlap == PresentationOverlap.SaturatingSum));
+                 (IsImpulseCurve(curve) && overlap is PresentationOverlap.Maximum or PresentationOverlap.SaturatingSum or PresentationOverlap.HyperbolicTangentSum));
         }
         if (driver == PresentationDriver.CommittedOscillatorPulse)
         {
-            return duration > 0 && curve == PresentationCurve.LinearDecay && overlap == PresentationOverlap.Maximum;
+            return duration > 0 && curve == PresentationCurve.LinearDecay && overlap is PresentationOverlap.Maximum or PresentationOverlap.SaturatingSum or PresentationOverlap.HyperbolicTangentSum;
         }
         if (overlap != PresentationOverlap.Replace) return false;
         if (ContinuousPhysical(driver))
         {
             return (curve is PresentationCurve.Linear or PresentationCurve.ExponentialFollow) && duration == 0;
         }
-        if (Discrete3State(driver) || Discrete4State(driver) || driver == PresentationDriver.CommittedPrismaticPhase)
+        if (Discrete3State(driver) || Discrete4State(driver) || driver is PresentationDriver.CommittedPrismaticPhase or PresentationDriver.CommittedFiniteWorkState)
         {
             return curve == PresentationCurve.Linear && duration == 0;
         }

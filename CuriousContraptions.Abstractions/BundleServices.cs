@@ -35,12 +35,20 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDec
     IReadOnlyList<RevoluteHingeDescriptor> Hinges, CompliantSurfaceDescriptor? CompliantSurface,
     IReadOnlyList<DrivenSurfaceDescriptor> DrivenSurfaces,
     IReadOnlyList<MechanicalTransmissionDescriptor> Transmissions,
-    ResidenceSensorDescriptor? Residence = null, PlanarGuideDescriptor? PlanarGuide = null, ContactWorkDescriptor? ContactWork = null)
+    ResidenceSensorDescriptor? Residence = null, PlanarGuideDescriptor? PlanarGuide = null)
 {
     [System.Text.Json.Serialization.JsonRequired]
     public IReadOnlyList<ClippedExtrusionDescriptor> Extrusions { get; init; } = [];
     [System.Text.Json.Serialization.JsonRequired]
     public IReadOnlyList<PrismaticRetentionDescriptor> Retentions { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<CuriousContraptions.Gpu.EnergyStoreDescriptor> EnergyStores { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<ContactWorkDescriptor> ContactWorks { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<CuriousContraptions.Gpu.ChamberRegionDescriptor> ChamberRegions { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<CuriousContraptions.Gpu.FiniteWorkActuatorDescriptor> FiniteWorkActuators { get; init; } = [];
 }
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyGraphDescriptor? SupplyGraph);

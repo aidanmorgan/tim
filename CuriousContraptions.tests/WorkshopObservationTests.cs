@@ -38,7 +38,7 @@ public sealed class WorkshopObservationTests
         var profile = new WorkshopGpuProfile(original.Settings.Simulation, original.Settings.Physical, first.Cadence);
         var trace = new WorkshopTrace();
         trace.Begin(port.Session, CompiledSceneFixture.Compile(original, scene), first.Read.Epoch, first.Projection, profile);
-        trace.Append(WorkshopTraceRecord.Encode(first.Read, profile)); trace.FinishCapture(TraceEnd.Reset);
+        trace.Append(WorkshopTraceRecord.Encode(new(first.Read.Epoch, first.Read.Tick, first.Read.Bodies, first.Read.Captures), profile)); trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         transport.DeliverObservation(WorkshopWireFlatBuffers.EncodeObservations(new(port.Session,
             WorkshopRuntimeRole.Simulation, trace.Diagnostics.Snapshot().ToImmutableArray())));
@@ -71,7 +71,7 @@ public sealed class WorkshopObservationTests
         var profile = new WorkshopGpuProfile(original.Settings.Simulation, original.Settings.Physical, before.Cadence);
         trace.Begin(foreignSession ? new(777, 888) : port.Session,
             CompiledSceneFixture.Compile(original, new(999)), before.Read.Epoch, before.Projection, profile);
-        trace.Append(WorkshopTraceRecord.Encode(before.Read, profile)); trace.FinishCapture(TraceEnd.Reset);
+        trace.Append(WorkshopTraceRecord.Encode(new(before.Read.Epoch, before.Read.Tick, before.Read.Bodies, before.Read.Captures), profile)); trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         transport.DeliverObservation(WorkshopWireFlatBuffers.EncodeObservations(new(port.Session,
             WorkshopRuntimeRole.Simulation, trace.Diagnostics.Snapshot().ToImmutableArray())));
@@ -320,7 +320,7 @@ public sealed class WorkshopObservationTests
         var trace = new WorkshopTrace();
         var profile = new WorkshopGpuProfile(construction.Settings.Simulation, construction.Settings.Physical, before.Cadence);
         trace.Begin(port.Session, CompiledSceneFixture.Compile(construction), before.Read.Epoch, before.Projection, profile);
-        trace.Append(WorkshopTraceRecord.Encode(before.Read, profile));
+        trace.Append(WorkshopTraceRecord.Encode(new(before.Read.Epoch, before.Read.Tick, before.Read.Bodies, before.Read.Captures), profile));
         trace.FinishCapture(TraceEnd.Reset); trace.Flush(WorkshopSimulationPhase.Building);
         var bytes = WorkshopWireFlatBuffers.EncodeObservations(new(port.Session, WorkshopRuntimeRole.Simulation, trace.Diagnostics.Snapshot().ToImmutableArray()));
         transport.DeliverObservation(bytes);
@@ -420,7 +420,7 @@ public sealed class WorkshopObservationTests
             var response = port.Query(port.Session, WorkshopObservationQuery.Committed).Value;
             if (!response.Read.CarriesBalanceTransfer()) continue;
             var source = response.Read.Electrical[0];
-            expected.Add((response.Read.Tick, source.Remaining.Value, source.Debit.Value, response.Read.ContactWorks[0].SuppliedEnergy.Value));
+            expected.Add((response.Read.Tick, source.Remaining.Value, source.Debit.Value, response.Read.EnergyStores[0].Supplied.Value));
         }
         Assert.NotEmpty(expected);
         await transport.Advance(2);
@@ -430,7 +430,7 @@ public sealed class WorkshopObservationTests
         for (var i = 0; i < actual.Length; i++)
         {
             var read = actual[i].Response.Read;
-            Assert.Equal(expected[i], (read.Tick, read.Electrical[0].Remaining.Value, read.Electrical[0].Debit.Value, read.ContactWorks[0].SuppliedEnergy.Value));
+            Assert.Equal(expected[i], (read.Tick, read.Electrical[0].Remaining.Value, read.Electrical[0].Debit.Value, read.EnergyStores[0].Supplied.Value));
         }
         Assert.True(port.Query(port.Session, WorkshopObservationQuery.Committed).Value.Read.Tick.Value > actual[^1].Response.Read.Tick.Value);
     }
@@ -511,7 +511,7 @@ public sealed class WorkshopObservationTests
         var trace = new WorkshopTrace(producer);
         var profile = new WorkshopGpuProfile(construction.Settings.Simulation, construction.Settings.Physical, before.Cadence);
         trace.Begin(port.Session, CompiledSceneFixture.Compile(construction), before.Read.Epoch, before.Projection, profile);
-        trace.Append(WorkshopTraceRecord.Encode(before.Read, profile)); trace.FinishCapture(TraceEnd.Reset);
+        trace.Append(WorkshopTraceRecord.Encode(new(before.Read.Epoch, before.Read.Tick, before.Read.Bodies, before.Read.Captures), profile)); trace.FinishCapture(TraceEnd.Reset);
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Contains("Capture", port.Terminal!.Value.Detail, StringComparison.Ordinal);
         Assert.Contains("System.IO.IOException: capture destination interrupted", port.Terminal.Value.Detail, StringComparison.Ordinal);

@@ -86,11 +86,6 @@ internal sealed partial class WorkshopPhysicsEngine
     private void SolveIntegratedTrial(float dt, SoftCoefficients soft)
     {
         // A replayed trial starts from the restored window and counters, so the failed trial's credit and new window never survive.
-        foreach (var transmission in _transmissions)
-        {
-            transmission.StepWork = 0f;
-            transmission.StepPositive = 0f;
-        }
         foreach (var joint in _joints) PrismaticConstraintSolver.PrepareJointRows(joint, dt);
         _guides.Prepare(_dynamicBodies, _joints, true, true);
         PrepareContacts(dt);

@@ -371,7 +371,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         private TaskCompletionSource<WorkshopDelivery>? _reset;
         public WorkshopResponse Response(WorkshopSimulationPhase phase) => new(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), phase,
-            new(Epoch, default, default, Revision, new(WorkshopClockDomain.SimulationMonotonic, new(1), new(0), new(0))),
+            new(Epoch, default, new(0), default, Revision, new(WorkshopClockDomain.SimulationMonotonic, new(1), new(0), new(0))),
             new(1, 1), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
         public void CompleteReset(bool applicable)
         {

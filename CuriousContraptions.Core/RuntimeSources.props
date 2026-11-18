@@ -34,7 +34,7 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/ImpulseJacobian.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/ActivationMemory.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/ActivationNetwork.cs" />
-    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/RetentionRequestComposition.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicalRequestComposition.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/ActivationTimers.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/AnimationControlDeferral.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/CaptureLatch.cs" />
@@ -47,6 +47,14 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/EventRecordProducer.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/HollowContactQuery.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/HollowGeometry.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/CylindricalContainmentQuery.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/ChamberSceneValidation.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/ChamberReadValidation.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.Chambers.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MaterialQueryWorkspace.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MaterialSurface.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MaterialSupport.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MaterialSweepQuery.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PassageSensorDeclaration.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsReadValidation.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsBodyWire.cs" />
@@ -56,6 +64,7 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.Retention.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.ContactLoad.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.ContactWork.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.EnergyStores.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.Electrical.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.Header.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.Geometry.cs" />
@@ -100,6 +109,7 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopUi.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopWireFlatBuffers.Compiled.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopWireFlatBuffers.Retention.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopWireFlatBuffers.Chambers.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopWireFlatBuffers.Observation.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopWireFlatBuffers.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/BrowserGpuTransport.cs" />
@@ -107,6 +117,10 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/PrismaticMotorSolver.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/PrismaticTrialWorkspace.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.Motors.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.Chambers.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.FiniteWork.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.FiniteWorkComponent.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.Requests.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.Retention.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.Extrusions.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopCollisionKernels.cs" />
