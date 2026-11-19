@@ -821,8 +821,14 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             {
                 var instance = world.CaptureInstance(id, new(body++), BenchPoint, Quaternion.Identity);
                 Assert.Equal(id, instance.PartId);
-                // A payload is placed as a zero-parameter generic instance; its material is its package's alone.
-                if (DeclaredPhysics.IsPayload(id)) Assert.Empty(Assert.IsType<WorkshopGenericInstance>(instance).Parameters);
+                // Payload configuration is captured from its declaration, including every adjustable material field.
+                if (DeclaredPhysics.IsPayload(id))
+                {
+                    var parameters = Assert.IsType<WorkshopGenericInstance>(instance).Parameters;
+                    var declared = TestBundle.Entry(id).Metadata.Parameters;
+                    Assert.Equal(declared.Count, parameters.Count);
+                    foreach (var parameter in declared) Assert.Equal(parameter.Default, parameters[new(parameter.Key)]);
+                }
                 new WorkshopInstances(instance).Validate(RuntimeTestServices.Bundle);
                 var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(instance));
                 var saved = new WorkshopSavedConstruction(construction, new(body));
@@ -848,7 +854,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         var world = DiscoveredWorld();
         try
         {
-            foreach (var part in new PartId[] { new("tennis"), new("balloon") })
+            foreach (var part in new PartId[] { new("unregistered_payload"), new("balloon") })
             {
                 var id = part;
                 // No declaration is shipped for this identity; unknown input is refused before placement.
@@ -864,7 +870,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
 
     [Theory]
     [InlineData("balloon")]
-    [InlineData("tennis")]
+    [InlineData("unregistered_payload")]
     [InlineData("no-such-part")]
     public void BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(string external)
     {
@@ -1267,7 +1273,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             var buttons = Descendants<Button>(scene).Where(button => button.HasMeta("part_kind")).ToArray();
-            foreach (var part in new PartId[] { new("tennis"), new("balloon") })
+            foreach (var part in new PartId[] { new("unregistered_payload"), new("balloon") })
                 Assert.DoesNotContain(buttons, button => button.GetMeta("part_kind").AsString() == part.Value);
             Assert.Empty(client.Commands);
             Assert.Empty(scene.World.Construction.Instances);

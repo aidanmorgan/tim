@@ -36,7 +36,9 @@ public static class RunControlBindings
         Matches(vector.X, key) || Matches(vector.Y, key) || Matches(vector.Z, key);
 
     private static bool Matches(MassFrameDeclaration frame, string key) =>
-        Matches(frame.Mass, key) || Matches(frame.CentreOfMass, key) || Matches(frame.PrincipalMoments, key);
+        Matches(frame.Mass, key) || Matches(frame.CentreOfMass, key) || Matches(frame.PrincipalMoments.Polynomial, key) ||
+        frame.PrincipalMoments.Mass.Parameter?.Value == key || frame.PrincipalMoments.Length.Parameter?.Value == key ||
+        Matches(frame.LinearDrag, key) || frame.Gravity.Parameter?.Value == key;
 
     /// <summary>Whether the parameter <paramref name="key"/> is bound to any property that is not a run-control lane.
     /// RunControl parameters must bind strictly to their run-control lane.</summary>
@@ -52,6 +54,7 @@ public static class RunControlBindings
     }
 
     private static bool IsBoundToDeclarations(BundleEntry entry, string key) =>
+        entry.MaterialBindings.Any(b => b.Parameter.Value == key) ||
         entry.ColliderBindings.Any(b => b.Parameter == key) ||
         entry.TubeMouthBindings.Any(b => b.Parameter == key) ||
         entry.Presentation.Parameters.Any(p => p.Parameter == key) ||

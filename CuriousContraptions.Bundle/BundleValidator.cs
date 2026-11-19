@@ -49,6 +49,8 @@ public static class BundleValidator
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
+            try { BundleMaterial.Validate(entry); }
+            catch (ArgumentException) { OutOfRange("MaterialBindings"); }
             errors.AddRange(DrivenSurfaceValidation.Validate(entry));
             errors.AddRange(ClippedExtrusionValidation.Validate(entry));
             errors.AddRange(MechanicalTransmissionValidation.Validate(entry));
@@ -665,87 +667,8 @@ public static class BundleValidator
 
         private void MassFrame(string path, MassFrameDeclaration frame, KinematicMode mode, IReadOnlyList<ParameterDescriptor> parameters)
         {
-            var scalars = new[] { frame.Mass, frame.CentreOfMass.X, frame.CentreOfMass.Y, frame.CentreOfMass.Z,
-                frame.PrincipalMoments.X, frame.PrincipalMoments.Y, frame.PrincipalMoments.Z };
-            foreach (var scalar in scalars)
-                if (scalar.Parameter is { } key && !parameters.Any(p => p.Key == key.Value && p.Kind == ParameterKind.Real))
-                    OutOfRange(path + ".Parameter");
-            try
-            {
-                var values = parameters.ToDictionary(p => new ParameterId(p.Key), p => p.Default);
-                frame.Evaluate(values).Validate(mode);
-                // Every constraint is a sum of univariate cubics. Group shared parameters before
-                // finding extrema, then sum independent domain minima/maxima (no Cartesian sampling).
-                (float Min, float Max) Bounds(params (MassScalar Value, float Sign)[] terms)
-                {
-                    float minimum = 0, maximum = 0;
-                    foreach (var group in terms.GroupBy(term => term.Value.Parameter))
-                    {
-                        var polynomial = new MassScalar(group.Key,
-                            group.Sum(t => t.Sign * t.Value.C0), group.Sum(t => t.Sign * t.Value.C1),
-                            group.Sum(t => t.Sign * t.Value.C2), group.Sum(t => t.Sign * t.Value.C3));
-                        var domain = group.Key is { } key ? parameters.Single(p => p.Key == key.Value) : default;
-                        float low = float.PositiveInfinity, high = float.NegativeInfinity;
-                        foreach (var x in MassExtrema(polynomial, domain.Minimum, domain.Maximum))
-                        {
-                            if (group.Key is { } parameter) values[parameter] = x;
-                            float value = 0;
-                            foreach (var term in group) value += term.Sign * term.Value.Evaluate(values);
-                            if (!float.IsFinite(value)) throw new ArgumentException("Mass-domain overflow.");
-                            low = MathF.Min(low, value); high = MathF.Max(high, value);
-                        }
-                        minimum += low; maximum += high;
-                    }
-                    if (!float.IsFinite(minimum) || !float.IsFinite(maximum)) throw new ArgumentException("Mass-domain overflow.");
-                    return (minimum, maximum);
-                }
-                void Range(MassScalar scalar, float minimum, float maximum, bool exclusiveMaximum = false)
-                {
-                    var bounds = Bounds((scalar, 1));
-                    if (bounds.Min < minimum || (exclusiveMaximum ? bounds.Max >= maximum : bounds.Max > maximum))
-                        throw new ArgumentException("Mass polynomial leaves its physical domain.");
-                }
-                if (mode == KinematicMode.Static)
-                {
-                    foreach (var scalar in scalars) Range(scalar, 0, 0);
-                }
-                else
-                {
-                    Range(frame.Mass, 1f / 1024, 1024);
-                    foreach (var scalar in new[] { frame.CentreOfMass.X, frame.CentreOfMass.Y, frame.CentreOfMass.Z }) Range(scalar, -16, 16);
-                    var moments = new[] { frame.PrincipalMoments.X, frame.PrincipalMoments.Y, frame.PrincipalMoments.Z };
-                    foreach (var scalar in moments) Range(scalar, 1f / 4294967296, 524288, true);
-                    for (var i = 0; i < 3; i++)
-                        if (Bounds((moments[(i + 1) % 3], 1), (moments[(i + 2) % 3], 1), (moments[i], -1)).Min < 0)
-                            throw new ArgumentException("Principal moments are nonphysical inside the parameter domain.");
-                }
-            }
+            try { MassFrameDomain.Validate(frame, mode, parameters); }
             catch (ArgumentException) { OutOfRange(path); }
-        }
-
-        // Degree <= 3 has at most two interior stationary points. Inspect their adjacent f32
-        // inputs too; admission still validates the actual evaluated frame at every supplied value.
-        private static List<float> MassExtrema(MassScalar polynomial, float minimum, float maximum)
-        {
-            var points = new List<float>(8) { minimum, maximum };
-            var scale = MathF.Max(MathF.Abs(polynomial.C1), MathF.Max(MathF.Abs(polynomial.C2), MathF.Abs(polynomial.C3)));
-            if (!float.IsFinite(scale)) throw new ArgumentException("Invalid mass coefficients.");
-            if (scale == 0) return points;
-            var a = 3 * (polynomial.C3 / scale); var b = 2 * (polynomial.C2 / scale); var c = polynomial.C1 / scale;
-            void Add(float x)
-            {
-                if (!float.IsFinite(x) || x < minimum || x > maximum) return;
-                points.Add(x);
-                if (float.BitDecrement(x) >= minimum) points.Add(float.BitDecrement(x));
-                if (float.BitIncrement(x) <= maximum) points.Add(float.BitIncrement(x));
-            }
-            if (a == 0) { if (b != 0) Add(-c / b); return points; }
-            var discriminant = b * b - 4 * a * c;
-            if (discriminant < 0) return points;
-            var q = -.5f * (b + MathF.CopySign(MathF.Sqrt(discriminant), b));
-            if (q == 0) Add(-b / (2 * a));
-            else { Add(q / a); Add(c / q); }
-            return points;
         }
 
         private void Volume(string path,Vector3 minimum,Vector3 maximum)

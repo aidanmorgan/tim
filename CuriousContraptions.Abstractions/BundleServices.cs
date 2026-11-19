@@ -27,7 +27,11 @@ public sealed record BundleEntry(
     IReadOnlyList<ColliderParameterBinding> ColliderBindings,
     IReadOnlyList<TubeMouthDescriptor> TubeMouths,
     IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings,
-    ElementPresentation Presentation);
+    ElementPresentation Presentation)
+{
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<MaterialParameterBinding> MaterialBindings { get; init; } = [];
+}
 
 /// <summary>Package-owned physical state and explicit payload participation.</summary>
 public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDeclaration MassFrame, PayloadPolicy Payload,
@@ -104,6 +108,7 @@ public interface IBundleServices
     IReadOnlyList<BundleError> Validate(IReadOnlyList<NamedEntry> entries);
     IReadOnlyDictionary<string, float> Parameters(BundleEntry entry, IReadOnlyDictionary<string, float>? supplied = null);
     IReadOnlyList<ColliderDescriptor> Colliders(BundleEntry entry, IReadOnlyDictionary<string, float>? supplied = null);
+    IReadOnlyList<ColliderDescriptor> BodyColliders(BundleEntry entry, PackageBodyIndex body, IReadOnlyDictionary<string, float>? supplied = null);
     IReadOnlyList<TubeMouthDescriptor> Mouths(BundleEntry entry, IReadOnlyDictionary<string, float>? supplied = null);
     IReadOnlyList<RunControlLane> Lanes(BundleEntry entry, string key);
     bool IsBoundToNonLane(BundleEntry entry, string key);

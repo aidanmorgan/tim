@@ -335,16 +335,16 @@ public sealed class BundleValidatorTests
         Assert.Contains(Check(With(new(new("mass"), .75f, -2, 1, 0), mass)), e => e.Detail.Contains(".MassFrame", StringComparison.Ordinal));
         Assert.Empty(Check(With(new(new("mass"), 1.25f, -2, 1, 0), mass)));
         // Each individual moment stays positive, but Ix+Iy-Iz has a negative interior minimum.
-        var coupled = entry.Mechanical!.MassFrame with { PrincipalMoments = new(
-            new(new("mass"), 1.25f, -1, .5f, 0), new(new("mass"), 1.25f, -1, .5f, 0), MassScalar.Constant(2)) };
+        var coupled = entry.Mechanical!.MassFrame with { PrincipalMoments = PrincipalMomentDeclaration.FromPolynomial(new(
+            new(new("mass"), 1.25f, -1, .5f, 0), new(new("mass"), 1.25f, -1, .5f, 0), MassScalar.Constant(2))) };
         Assert.Contains(Check(entry with { Mechanical = entry.Mechanical with { MassFrame = coupled } }),
             e => e.Detail.Contains(".MassFrame", StringComparison.Ordinal));
         Assert.Empty(Check(entry with { Mechanical = entry.Mechanical with { MassFrame = coupled with
-            { PrincipalMoments = coupled.PrincipalMoments with { Z = MassScalar.Constant(1) } } } }));
+            { PrincipalMoments = PrincipalMomentDeclaration.FromPolynomial(coupled.PrincipalMoments.Polynomial with { Z = MassScalar.Constant(1) }) } } }));
         // Different parameters must be considered together, not one at a time at the other's default.
         var second = mass with { Key = "second", Minimum = 1, Maximum = 2, Default = 2 };
         var first = mass with { Minimum = 1, Maximum = 2, Default = 2 };
-        var independent = coupled with { PrincipalMoments = new(bound, bound with { Parameter = new("second") }, MassScalar.Constant(2.5f)) };
+        var independent = coupled with { PrincipalMoments = PrincipalMomentDeclaration.FromPolynomial(new(bound, bound with { Parameter = new("second") }, MassScalar.Constant(2.5f))) };
         Assert.Contains(Check(entry with { Metadata = entry.Metadata with { Parameters = [first, second] },
             Mechanical = entry.Mechanical with { MassFrame = independent } }), e => e.Detail.Contains(".MassFrame", StringComparison.Ordinal));
 

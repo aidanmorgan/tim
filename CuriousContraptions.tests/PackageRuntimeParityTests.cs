@@ -133,14 +133,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         }
     }
 
-    /// <summary>Stories 9A.6, 9A.30 and 9A.31: the Basketball and Bowling ball packages are the only payload packages, and each placed
-    /// generic instance compiles exactly its package's declared material (radius, mass, bounce, drag, friction, bounce threshold, rolling
-    /// resistance) through the shared dynamic-body compile. Neither declares a fluid payload, so neither is buoyant.</summary>
+    /// <summary>Each admitted payload compiles its declared default material through the shared dynamic-body compiler.
+    /// Adjustable payloads retain their complete parameter schema; configured Tennis values have separate behavioral coverage.</summary>
     [Fact]
     public void EveryPayloadPackageCompilesItsDeclaredMaterial()
     {
         var balls = Packages().Where(package => DeclaredPhysics.IsPayload(new PartId(package.Declaration.Metadata.Id))).ToArray();
-        Assert.Equal(["ball", "bowling"], balls.Select(package => package.Declaration.Metadata.Id).Order(StringComparer.Ordinal));
+        Assert.Equal(["ball", "bowling", "tennis"], balls.Select(package => package.Declaration.Metadata.Id).Order(StringComparer.Ordinal));
         foreach (var package in balls)
         {
             var ball = (IMechanicalElement)package.Declaration;
@@ -148,13 +147,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             var collider = Assert.Single(TestBundle.Entry(id).Colliders, collider => collider.ShapeKind == AbstractShape.Sphere);
             Assert.Equal(AbstractShape.Sphere, collider.ShapeKind);
             Assert.Null(TestBundle.Entry(id).Fluid);
-            Assert.Empty(ball.Metadata.Parameters);
+            Assert.Equal(Parameters(id.Value).Select(p => p.Key), ball.Metadata.Parameters.Select(p => p.Key));
             var scene = Compile(Placed(id));
             var body = Assert.Single(scene.Bodies.ToArray(), row => row.Id == Owner);
             var sphere = Assert.Single(scene.Colliders.ToArray(), row => row.Body == Owner && row.Shape == RuntimeShape.Sphere);
             var material = Assert.Single(scene.Materials.ToArray(), row => row.Id == sphere.Material);
             Assert.True(Same(collider.HalfExtents.X, sphere.Radius.Value) && Same(MassFixtures.Evaluate(ball.MassFrame, ball.Metadata.Parameters).Mass, body.Mass.Value) &&
-                Same(collider.Material.Restitution, material.Restitution.Value) && Same(ball.MassFrame.LinearDrag, body.LinearDrag.Value) &&
+                Same(collider.Material.Restitution, material.Restitution.Value) && Same(MassFixtures.Evaluate(ball.MassFrame, ball.Metadata.Parameters).LinearDrag, body.LinearDrag.Value) &&
                 Same(collider.Material.Friction, material.Friction.Value) && Same(collider.Material.BounceThreshold, material.BounceThreshold.Value) &&
                 Same(collider.Material.RollingResistance, material.RollingResistance.Value), $"{package.Package}: the compiled material differs from the package.");
             Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
@@ -191,8 +190,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 Assert.True((slider.Damping.Evaluate(maxima)) == (joint.Damping), $"{where}.DampingParameter binds {joint.Damping}.");
                 Assert.Equal(slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled, joint.Collision);
                 var moving = scene.Bodies.ToArray().Single(body => body.Id == joint.BodyB);
-                AssertBody(where + ".MovingBody", KinematicMode.Dynamic, MassFixtures.Evaluate(slider.MovingBody.MassFrame, element.Metadata.Parameters).Mass, slider.MovingBody.MassFrame.LinearDrag,
-                    slider.MovingBody.MassFrame.Gravity, moving);
+                AssertBody(where + ".MovingBody", KinematicMode.Dynamic, MassFixtures.Evaluate(slider.MovingBody.MassFrame, element.Metadata.Parameters).Mass, MassFixtures.Evaluate(slider.MovingBody.MassFrame, element.Metadata.Parameters).LinearDrag,
+                    MassFixtures.Evaluate(slider.MovingBody.MassFrame, element.Metadata.Parameters).Gravity, moving);
                 // The moving body starts at the base frame, CompressionParameter below it along local Y (an unrotated placement).
                 var compression = slider.Compression.Evaluate(maxima);
                 var start = slider.BaseFrame.Position - slider.MovingFrame.Position - new System.Numerics.Vector3(0f, compression, 0f);
@@ -242,8 +241,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 else Assert.Empty(compiledDrive);
                 Assert.Equal(hinge.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled, joint.Collision);
                 var moving = scene.Bodies.ToArray().Single(body => body.Id == joint.BodyB);
-                AssertBody(where + ".MovingBody", KinematicMode.Dynamic, MassFixtures.Evaluate(hinge.MovingBody.MassFrame, element.Metadata.Parameters).Mass, hinge.MovingBody.MassFrame.LinearDrag,
-                    hinge.MovingBody.MassFrame.Gravity, moving);
+                AssertBody(where + ".MovingBody", KinematicMode.Dynamic, MassFixtures.Evaluate(hinge.MovingBody.MassFrame, element.Metadata.Parameters).Mass, MassFixtures.Evaluate(hinge.MovingBody.MassFrame, element.Metadata.Parameters).LinearDrag,
+                    MassFixtures.Evaluate(hinge.MovingBody.MassFrame, element.Metadata.Parameters).Gravity, moving);
                 var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == joint.BodyB).ToArray();
                 AssertColliders(where + ".MovingBody", hinge.MovingBody.Colliders, colliders.Select(collider => (collider.Shape, collider.Pose,
                     collider.Radius.Value, collider.HalfExtents)).ToArray());
@@ -566,6 +565,14 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("stroke", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .8f, Generic(new PartId("wound_spring"), "stroke"), []),
                 ("winding_lead", ParameterUnit.MetrePerRadian, ParameterKind.Real, Lane.Single, .1f, Generic(new PartId("wound_spring"), "winding_lead"), [])
             ],
+            "tennis" =>
+            [
+                ("mass", ParameterUnit.Kilogram, ParameterKind.Real, Lane.Single, .35f, Generic(new("tennis"), "mass"), []),
+                ("bounce", ParameterUnit.None, ParameterKind.Real, Lane.Single, .85f, Generic(new("tennis"), "bounce"), []),
+                ("radius", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .25f, Generic(new("tennis"), "radius"), []),
+                ("buoyancy", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Lane.Single, 0f, Generic(new("tennis"), "buoyancy"), []),
+                ("drag", ParameterUnit.InverseSecond, ParameterKind.Real, Lane.Single, .04f, Generic(new("tennis"), "drag"), [])
+            ],
             "cannon" =>
             [
                 ("capacity", ParameterUnit.Joule, ParameterKind.Real, Lane.Single, 45f, Generic(new PartId("cannon"), "capacity"), []),
@@ -595,7 +602,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" or "cannon" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" or "cannon" or "tennis" =>
             WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),

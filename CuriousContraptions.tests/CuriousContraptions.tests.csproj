@@ -159,6 +159,10 @@
         <Compile Include="WorkshopDominoTests.cs" />
         <Compile Include="DominoGuardTests.cs" />        <Compile Include="DeclaredOrientationTests.cs" />        <Compile Include="WorkshopBowlingTests.cs" />
         <Compile Include="PayloadInstanceTests.cs" />
+        <Compile Include="TennisBallTests.cs" />
+        <Compile Include="TennisInteractionTests.cs" />
+        <Compile Include="TennisArtTests.cs" />
+        <Compile Include="ParameterizedBodyIntegrationTests.cs" />
         <Compile Include="InteractionTargetTests.cs" />
         <Compile Include="PlacedParts.cs" />
         <Compile Include="LaunchLessonSolveTests.cs" />

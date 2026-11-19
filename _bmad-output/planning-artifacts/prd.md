@@ -87,7 +87,7 @@ Every puzzle element is implemented purely as declarative capability data withou
 | **CAT-001** | `ball` | **Basketball** | Standard dynamic sphere (mass 0.6 kg, radius 0.12 m, restitution 0.75, drag 0.1). Canonical bouncing payload. |
 | **CAT-004** | `basket` | **Receiver** | Bounded capture receptacle with physical walls, aperture sensor, and authored residence dwell timer (0.35 s). |
 | **CAT-014** | `bowling` | **Bowling Ball** | Heavy dynamic sphere (mass 7.2 kg, radius 0.11 m, restitution 0.15). Imparts massive momentum to topple heavy obstacles. |
-| **CAT-064** | `tennis` | **Tennis Ball** | Lightweight high-restitution sphere (mass 0.057 kg, radius 0.033 m, restitution 0.85). Highly susceptible to airflow and springs. |
+| **CAT-064** | `tennis` | **Tennis Ball** | Lightweight high-restitution sphere (gameplay mass 0.35 kg, radius 0.25 m, restitution 0.85; Story12.1a source resolution preserves the 0.5 kg one/two-ball load control). Configurable mass, bounce, radius, buoyancy and linear drag; pressure/airflow integration retains Story12.1b/S470 and12.2 ownership. |
 | **CAT-003** | `balloon` | **Floating Balloon** | Buoyant deformable sphere (net negative gravity $-1.2\text{ m/s}^2$, high aerodynamic drag). Rises until blocked or popped. |
 | **CAT-023** | `domino` | **Domino** | Dynamic rectangular polyhedral body (3x3 inertia tensor, 4-point contact manifold). Stands upright; cascades when struck. |
 | **CAT-054** | `ramp` | **Ramp** | Fixed or adjustable inclined plane with affine SAT contact manifold. Guides rolling balls down slopes. |

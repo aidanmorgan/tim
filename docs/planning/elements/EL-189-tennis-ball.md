@@ -1,8 +1,8 @@
-# EL-189 · Tennis ball — named-identity readiness spec
+# EL-189 · Tennis ball — current named-identity contract
 
-**Current delivery (24 October 2026):** [EL-189 delivery slice](../invest/named-elements.md#element-189). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Current delivery:** [EL-189 delivery slice](../invest/named-elements.md#element-189), Story 12.1a. [CAT-064](CAT-064-tennis.md) and the [approved native spec](../../../_bmad-output/implementation-artifacts/spec-12-1a-tennis-ball.md) record current declarations and source decisions. Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md). Browser qualification remains deferred until every named element passes.
 
-Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
+The [Story 7.0 readiness record](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md) and citations pinned to a6c914e are historical evidence. They do not add current acceptance or restore retired engine paths. Historical citations use `path@a6c914e:Lstart-Lend`.
 
 ## 1. Identity
 
@@ -14,41 +14,34 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | Roadmap story | [EL-189 delivery slice](../invest/named-elements.md#element-189); canonical proof owner and prerequisite decisions are recorded there. |
 | Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
-## 2. Declaration
+## 2. Current declaration
 
-No enumerated selector; one mode. The identity's point is that its bounce differs from the Bowling ball's "because of declared material, not IDs" ([element-189](../requirements.md#element-189)): it is a third zero-parameter payload package beside `elements/Ball` and `elements/BowlingBall` (C-Balls), compiled by the same shared dynamic-body path with no engine edit.
+Tennis is a configurable dynamic spherical capture payload. Its distinct response follows declared material, not identity-selected physics. It is the data-only elements/TennisBall package, admitted through the same shared compilation and simulation contracts as other bodies.
 
-- **Bodies and shapes.** One dynamic sphere declared by its package (sphere collider baked from its scene) and compiled by the shared instance loop of `WorkshopPhysicsCompiler.Compile`. Radius 0.25 m (`parts/catalog/tennis.tres@a6c914e:L14-L14`).
-- **Mass and material.** Declared in the package's mass properties and collider material (no engine arm):
+- **Bodies and shapes:** one dynamic sphere. Radius drives all three sphere half-extents and the complete Visual subtree scale radius/0.25; explicit principal moments are 0.4×mass×radius².
+- **Five BuildOnly controls:** all values are canonical f32 and persist in decoded save/load. Unknown, missing, nonfinite or out-of-domain values refuse atomically.
 
-  | Field | Value | Source |
-  | --- | --- | --- |
-  | Radius | 0.25 m | `parts/catalog/tennis.tres@a6c914e:L14-L14` |
-  | Mass | 0.35 kg | same |
-  | Bounce | 0.78 legacy; Story 12.1 says 0.85 | same; Open question 1 |
-  | Drag | 0.04 1/s | same |
-  | Buoyancy | 0 | same |
-  | Friction | 0.3 | legacy dynamic default (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`) |
-  | Bounce threshold | 0.1 m/s | same |
-  | Rolling resistance | **proposed** 0.04 | felt nap rolls a little less freely than the inflated Basketball (0.035) and the hard Bowling ball (0.03), within 0–0.1 (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`); [CAT-064](CAT-064-tennis.md) leaves it as an owner decision |
+| Field | Unit | Inclusive range | Default |
+|---|---|---|---|
+| mass | kg | 1/1024–1024 | 0.35 |
+| bounce | dimensionless | 0–1 | 0.85 |
+| radius | m | 1/16–16 | 0.25 |
+| buoyancy | m/s² | 0–16 | 0 |
+| drag | 1/s | 0–0.125 | 0.04 |
 
-  All values fit the admission bounds (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`).
-- **Constraints.** None.
-- **Typed ports.** None.
-- **Sensors and activation.** None owned; payload for Receiver, Switch and (Story 9.1) Pressure plate.
-- **Work and energy stores.** None.
-- **Parameters.** None exposed; fixed per kind (`engine/gpu/WorkshopConstruction.cs@a6c914e:L54-L62`).
-- **Cosmetic curves and UI bindings.** None.
-- **Art.** Shared ball art (`parts/BallPart.cs@a6c914e:L9-L17`); palette `#b8db59` (`DESIGN.md@a6c914e:L167-L167`).
-- **Catalogue and inventory.** Id `tennis`, title "Tennis ball", category Motion, "Light, small and bouncy. Responds strongly to moving air." (`parts/catalog/tennis.tres@a6c914e:L8-L14`); package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+The approved source resolution retains 0.35 kg/0.25 m from `parts/catalog/tennis.tres@a6c914e:L14-L14` to preserve one-versus-two-ball loading of a 0.5 kg Pressure plate. Current parent Story 12.1 restitution 0.85 supersedes historical 0.78. Friction 0.3 and bounce threshold 0.1 m/s retain the source defaults (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`). Rolling resistance is 0: the former proposed 0.04 is not current behavior. No unprescribed rolling-loss mechanism or promise of rolling arrest is added.
 
-## 3. Engine capabilities
+- **Constraints, ports and stores:** none. No owned sensor or activation row; the ball participates as a Receiver capture target and a physical Switch/Pressure plate load.
+- **Artwork and presentation:** distinct script-free native felt-yellow sphere, cream tilted ring seam and matching icon in elements/TennisBall. Palette color remains #b8db59 (`DESIGN.md@a6c914e:L167-L167`). Existing C# MachinePart ownership and shared parameter presentation preserve complete visual scaling; cosmetics never write physical state.
+- **Catalogue:** identity tennis, title Tennis ball, Motion category, package-owned metadata and bundle discovery into the Free palette. No element-specific engine arm or named PartId constant is required.
 
-Families ([element map row](../general-engine-element-map.md), [binding](../../coverage/engine/element-02.json)): ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction, StateTransaction.
+## 3. Shared capabilities and atmosphere ownership
 
-- **Exists now.** The whole dry-mode path the Basketball and Bowling ball use (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L622-L765`). Adding the kind is declaration data only: enum member, material arm, catalogue entry, palette row, workbench footprint (`engine/gpu/WorkbenchCapacity.cs@a6c914e:L34-L36`), ports (`engine/gpu/WorkshopConnections.cs@a6c914e:L24-L24`).
-- **Missing.** Airflow receiver (Story 12.2); pressure scaling (EL-125). Neither blocks the dry mode.
-- **Dependencies.** None for the dry mode; Fan (CAT-028) for airflow lessons.
+Families remain applicable by supported mode ([element map](../general-engine-element-map.md), [binding](../../coverage/engine/element-02.json)): ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction and StateTransaction. This slice uses existing rigid-body/contact/payload/lifecycle laws plus shared typed principal-moment, world-acceleration, damping, exact-body material and geometry/presentation bindings.
+
+Current atmosphere is explicitly uniform normalized p=1. World acceleration is (0,-9.81+buoyancy×1,0) and linear damping is drag×1. Every admitted nonzero buoyancy value executes. There is no admitted pressure input to ignore, and no claim that variable pressure or fluid simulation is implemented.
+
+Variable pressure/profiles, finite atmosphere and applicable gas/liquid coupling belong to 12.1b/S470 before their first consuming interaction, including 12.2. Fan 12.2 owns conserved airflow transfer, light/heavy trajectory comparisons, no-fan/missed/blocked-jet controls and the 22 source airflow lessons. Balloon is a separate element. The historical EL-125 pressure dependency does not turn p=1 into variable-pressure qualification.
 
 ## 4. Sources and legacy
 
@@ -56,26 +49,34 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | Catalogue parameters mass 0.35, bounce 0.78, radius 0.25, buoyancy 0, drag 0.04 as a string-keyed dictionary. | `parts/catalog/tennis.tres@a6c914e:L14-L14` | Carry forward values; the string-keyed dictionary does not carry forward. |
-| 2 | Isolated drop: rebound ratio bounce² ± 0.015 (0.61 for 0.78), timing √(2h/g) ± 0.02 s. | `CuriousContraptions.tests/PhysicsCalibrationTests.cs@a6c914e:L14-L81` | Carry forward. |
-| 3 | Dropped from y = 3 it bounces and settles within 2400 ticks without sinking. | `CuriousContraptions.tests/FloorTests.cs@a6c914e:L26-L51` | Carry forward. |
+| 1 | Catalogue parameters mass 0.35, bounce 0.78, radius 0.25, buoyancy 0, drag 0.04 as a string-keyed dictionary. | `parts/catalog/tennis.tres@a6c914e:L14-L14` | Historical defaults; current bounce is 0.85 and all five controls use the shared typed parameter contract. No legacy dictionary reader returns. |
+| 2 | Isolated drop: rebound ratio bounce² ± 0.015 (0.61 for 0.78), timing √(2h/g) ± 0.02 s. | `CuriousContraptions.tests/PhysicsCalibrationTests.cs@a6c914e:L14-L81` | Historical observation only; current causal bounce/rest and game-fidelity acceptance below governs. |
+| 3 | Dropped from y = 3 it bounces and settles within 2400 ticks without sinking. | `CuriousContraptions.tests/FloorTests.cs@a6c914e:L26-L51` | Historical observation only; current causal bounce/rest and game-fidelity acceptance below governs. |
 | 4 | Further facts (pressure plate, 22 airflow lessons). | [CAT-064 spec](CAT-064-tennis.md) | Held in the CAT spec. |
 
 Files consulted: `parts/catalog/tennis.tres`, `reference/cpu/MachinePart.cs`, `CuriousContraptions.tests/PhysicsCalibrationTests.cs`, `CuriousContraptions.tests/FloorTests.cs`.
 
-## 5. Acceptance outline
 
-Point of truth: [element-189](../requirements.md#element-189), [CAT-064](../requirements.md#current-cat-064).
+## 5. Current acceptance
 
-- **Chrome recipe.** Free Workshop: place a Tennis ball and a Bowling ball in two lanes at equal height with the palette and lift gizmo, as `tools/e2e/cat-014.test.ts@a6c914e:L105-L125` builds its lanes.
-- **Positive.** The Tennis ball rebounds to about bounce² of its fall height, far above the Bowling ball's.
-- **Negative or control.** Swapping only the catalogue kind (same pose) swaps the rebound; no identity check exists in the solver — the bounce follows the material record.
-- **Boundaries.** Rests within 1 mm of the bench; only its declared material admitted.
-- **Run/Reset.** Exact pose and zero velocity restored.
-- **Save/Load.** Kind survives save, reload and Load.
+Point of truth: [element-189](../requirements.md#element-189), [CAT-064](../requirements.md#current-cat-064) and the native spec.
+
+- **Native positive/control:** matched Tennis/Basketball/Bowling drops demonstrate material-dependent rebound and stable supported rest. Independent mass/radius configurations affect inertia and physical response; zero/nonzero drag and below/above-gravity buoyancy controls distinguish motion.
+- **Boundaries:** all five admitted parameter domains, malformed/missing/unknown values, physical/visual scale agreement and generic typed declaration refusals. Material is configurable within those domains, not fixed by kind.
+- **Lifecycle:** exact authored configuration/pose and zero velocity restore on Reset. Decoded save/load preserves all five fields and semantic rerun behavior. Rejected edits preserve revision, Undo and installed consumers.
+- **Integration:** Receiver capture/miss, Switch impact/miss and the retained 0.5 kg Pressure plate one/two-ball control are required now.
+- **Chrome recipe, deferred:** Free Workshop palette and lift-gizmo placement/configuration, matched ball lanes, Run/Reset and save/reload/Load remain post-catalogue obligations. The historical lane recipe is `tools/e2e/cat-014.test.ts@a6c914e:L105-L125`; it is not a browser gate for this slice.
 - **Integrations.** Contact/cargo connection audit [sequence-task-285](../requirements.md#sequence-task-285) (balls of every type); interaction rows IX-01 contact impulse ([interaction-01](../requirements.md#interaction-01)), IX-02 sliding friction ([interaction-02](../requirements.md#interaction-02)) and, for the Fan lessons of Story 12.2, IX-11 aerodynamic drag ([interaction-11](../requirements.md#interaction-11)). Campaign first use: the "Basketball, bowling, tennis …" row of the [campaign element coverage](../requirements.md#campaign-element-coverage) — first use 1–10; combination and spaced reuse 21–30, 41–50, 91–100, 136–150.
 
-## 6. Open questions
+Use independently justified quantity-specific tolerances, meaningful causal order and finite stall guards under the current game-fidelity policy. Historical exact arrival timing, replay identity and numerical wording in the harvest do not create current acceptance. No output hashes or bit-for-bit material-by-kind restrictions apply.
 
-1. Bounce 0.78 (legacy) versus 0.85 (Story 12.1). Unspecified — owner decision (shared with CAT-064).
-2. Rolling resistance: proposed 0.04 here; the CAT-064 spec records it as an owner decision.
+## 6. Historical implementation interpretation
+
+The following pinned references explain retired assumptions only; none instructs implementation to recreate an enum member, engine material arm, fixed-by-kind input or shared artwork:
+
+- Fixed material and prior range contracts: `engine/gpu/WorkshopConstruction.cs@a6c914e:L54-L62`; `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54` and `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`.
+- Shared legacy ball art: `parts/BallPart.cs@a6c914e:L9-L17`.
+- Historical catalogue presentation: `parts/catalog/tennis.tres@a6c914e:L8-L14`; `engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`.
+- Retired compilation/worker and admission locations: `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L622-L765`; `engine/gpu/WorkbenchCapacity.cs@a6c914e:L34-L36`; `engine/gpu/WorkshopConnections.cs@a6c914e:L24-L24`.
+
+Bounce, rolling resistance, configuration and art are resolved above and in CAT-064; no open default decision remains.

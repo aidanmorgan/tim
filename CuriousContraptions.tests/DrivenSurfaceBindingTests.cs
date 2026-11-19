@@ -25,7 +25,7 @@ public sealed class DrivenSurfaceBindingTests
             Drive = null, FrictionTorque = MechanicalValue.Fixed(0f),
             MovingBody = motor.Mechanical.Hinges[0].MovingBody with
             {
-                MassFrame = motor.Mechanical.Hinges[0].MovingBody.MassFrame with { Gravity = Vector3.Zero }
+                MassFrame = motor.Mechanical.Hinges[0].MovingBody.MassFrame with { Gravity = WorldAccelerationDeclaration.Constant(Vector3.Zero) }
             }
         };
         var driven = passive with
@@ -602,6 +602,7 @@ public sealed class DrivenSurfaceBindingTests
     [Theory]
     [InlineData(ParameterUnit.MetrePerRadian, "m/rad")]
     [InlineData(ParameterUnit.RadianPerMetre, "rad/m")]
+    [InlineData(ParameterUnit.InverseSecond, "s⁻¹")]
     [InlineData(ParameterUnit.RadianPerSecond, "rad/s")]
     [InlineData(ParameterUnit.NewtonMetre, "N·m")]
     public void ConfigurationFormatsTravelAndSourceQuantities(ParameterUnit unit, string expected) =>

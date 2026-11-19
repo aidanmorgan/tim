@@ -39,7 +39,8 @@ public static class BundleSchema
             declaration is ISignalElement signal ? new SignalPayload(signal.SignalNodes, signal.SignalEdges, signal.SignalPorts) : null,
             declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
             declaration is IParameterizedGeometryElement geometry ? geometry.ColliderBindings : [], [],
-            declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : [], declaration.Presentation);
+            declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : [], declaration.Presentation)
+            { MaterialBindings = declaration is IParameterizedMaterialElement material ? material.MaterialBindings : [] };
     }
 
     /// <summary>The bundle text for these declarations, ordered by ordinal element id.</summary>
@@ -100,7 +101,7 @@ public static class BundleSchema
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),
         typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>), typeof(ExactEnumConverter<TransmissionConstraintKind>), typeof(ExactEnumConverter<PhysicalRequestOperation>), typeof(ExactEnumConverter<CoordinateEndpoint>),
         typeof(ExactEnumConverter<PrismaticTargetSelection>), typeof(ExactEnumConverter<PrismaticInactiveResponse>),
-        typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>),
+        typeof(ExactEnumConverter<MaterialComponent>), typeof(ExactEnumConverter<PrincipalMomentOperation>), typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>),
         typeof(ExactEnumConverter<PresentationAxes>), typeof(ExactEnumConverter<PresentationProperty>),
         typeof(ExactEnumConverter<PresentationDriver>), typeof(ExactEnumConverter<PresentationValueMapping>), typeof(ExactEnumConverter<PresentationCurve>),
         typeof(ExactEnumConverter<PresentationOverlap>),

@@ -70,7 +70,7 @@ public sealed class PayloadInstanceTests
             var entry = DeclaredPhysics.Of(kind);
             var sphere = Assert.Single(entry.Colliders, collider => collider.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere);
             Assert.Equal((radius, mass, .04f, bounce, .3f, .1f, rolling), (sphere.HalfExtents.X, MassFixtures.Evaluate(entry.Mechanical!.MassFrame, entry.Metadata.Parameters).Mass,
-                entry.Mechanical.MassFrame.LinearDrag, sphere.Material.Restitution, sphere.Material.Friction,
+                MassFixtures.Evaluate(entry.Mechanical.MassFrame, entry.Metadata.Parameters).LinearDrag, sphere.Material.Restitution, sphere.Material.Friction,
                 sphere.Material.BounceThreshold, sphere.Material.RollingResistance));
         }
     }

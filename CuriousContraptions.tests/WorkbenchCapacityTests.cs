@@ -142,7 +142,7 @@ public sealed class WorkbenchCapacityTests
         "pipe_bend_45" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_45"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
         "pipe_bend_90" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_90"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
         "funnel" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "linear_pusher" or "wound_spring" or "cannon" => WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, id, (float)x, 3f, (float)z, 0, 0, 0, 1),
+        "linear_pusher" or "wound_spring" or "cannon" or "tennis" => WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, id, (float)x, 3f, (float)z, 0, 0, 0, 1),
         "powered_gate" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), id, (float)(x), 0, (float)(z), 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(id, (float)(x), 1, (float)(z), .5f),
         "counter" => PlacedParts.Counter(id, (float)(x), 1, (float)(z), 0, 0, 0, 1, 3),
@@ -181,8 +181,8 @@ public sealed class WorkbenchCapacityTests
     [Fact]
     public void TheUndeliveredPartsStayOffTheFreePalette()
     {
-        // Spec D2 (9R.2): Tennis and Balloon throw in CaptureInstance and Story 9R.0c removed them from the palette.
-        foreach (var undelivered in new PartId[] { new("tennis"), new("balloon") })
+        // Balloon remains undelivered; an unfamiliar identity likewise has no placement or palette admission.
+        foreach (var undelivered in new PartId[] { new("unregistered_payload"), new("balloon") })
         {
             Assert.False(FreePalette.ContainsKey(undelivered));
             Assert.Throws<ArgumentException>(() => Place(undelivered, new(1), 0, 0));
@@ -286,7 +286,7 @@ public sealed class WorkbenchCapacityTests
     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
     {
         PartId[] rows = [new PartId("ball"), new PartId("basket"), new PartId("switch"), new PartId("lamp"),
-            new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"), new("weight"), new("rope_anchor"), new("pulley"), new("impact_lever"), new("trampoline"), new("motor"), new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring"), new("cannon")];
+            new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"), new("weight"), new("rope_anchor"), new("pulley"), new("impact_lever"), new("trampoline"), new("motor"), new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring"), new("cannon"), new("tennis")];
         Assert.Equal(rows, FreePalette.Keys.ToArray());
         Assert.All(FreePalette.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         Assert.Equal(rows.Length, FreePalette.Count);

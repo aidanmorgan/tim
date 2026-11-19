@@ -87,7 +87,8 @@ public sealed class BundleElementIdTests
     [Fact]
     public void EveryLoadedElementIsKnownToTheWorkerDecode()
     {
-        Assert.Equal(40, SaveFixture.Elements.Count);
+        Assert.Equal(41, SaveFixture.Elements.Count);
+        Assert.Contains(new PartId("tennis"), SaveFixture.Elements);
         Assert.Contains(new PartId("cannon"), SaveFixture.Elements);
         Assert.Contains(new PartId("wound_spring"), SaveFixture.Elements);
         Assert.Contains(new PartId("linear_pusher"), SaveFixture.Elements);
@@ -114,7 +115,7 @@ public sealed class BundleElementIdTests
 
     [Theory]
     [InlineData("kite")]
-    [InlineData("tennis")]
+    [InlineData("unregistered_payload")]
     [InlineData("balloon")]
     public void ASaveNamingAnUnknownElementIsRefusedNamingIt(string element)
     {
@@ -134,7 +135,7 @@ public sealed class BundleElementIdTests
 
     [Theory]
     [InlineData("kite")]
-    [InlineData("tennis")]
+    [InlineData("unregistered_payload")]
     public void MainCompilationRefusesAnUnknownElementNamingIt(string element)
     {
         var fault = Assert.Throws<WorkshopEditRejectedException>(() =>

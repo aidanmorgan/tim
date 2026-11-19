@@ -255,6 +255,7 @@ public partial class Workshop
     internal static string ParameterUnits(CuriousContraptions.Abstractions.ParameterUnit unit) => unit switch
     {
         CuriousContraptions.Abstractions.ParameterUnit.None => "",
+        CuriousContraptions.Abstractions.ParameterUnit.InverseSecond => "s⁻¹",
         CuriousContraptions.Abstractions.ParameterUnit.Metre => "m",
         CuriousContraptions.Abstractions.ParameterUnit.Kilogram => "kg",
         CuriousContraptions.Abstractions.ParameterUnit.Second => "s",

@@ -21,7 +21,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"),
         new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"),
         new("weight"), new("rope_anchor"), new("pulley"), new("impact_lever"), new("trampoline"), new("motor"),
-        new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring"), new("cannon")
+        new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring"), new("cannon"), new("tennis")
     ];
 
     private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);
@@ -54,10 +54,10 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
             Assert.StartsWith("res://elements/", metadata.ScenePath, StringComparison.Ordinal);
             Assert.NotNull(definition.Scene);
             Assert.Equal(metadata.ScenePath, definition.ScenePath);
-            // The payload predicate is derived from each admitted declaration: exactly the two ball packages.
-            Assert.Equal(id == new PartId("ball") || id == new PartId("bowling"), DeclaredPhysics.IsPayload(id));
+            // The payload predicate is derived from each admitted declaration: the three admitted ball packages.
+            Assert.Equal(id == new PartId("ball") || id == new PartId("bowling") || id == new PartId("tennis"), DeclaredPhysics.IsPayload(id));
         }
-        foreach (var part in new PartId[] { new("tennis"), new("balloon") })
+        foreach (var part in new PartId[] { new("unregistered_payload"), new("balloon") })
         {
             Assert.False(registry.Definitions.ContainsKey(part), $"Undelivered part '{part}' must not be registered.");
             Assert.False(registry.Free.ContainsKey(part), $"Undelivered part '{part}' must not be offered.");
@@ -92,11 +92,11 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         var bundle = Bundle();
         Assert.Contains("\"Id\": \"bowling\"", bundle, StringComparison.Ordinal);
         var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
-        registry.Load(bundle.Replace("\"Id\": \"bowling\"", "\"Id\": \"tennis\"", StringComparison.Ordinal));
-        var tennis = new PartId("tennis");
-        Assert.True(registry.Definitions.ContainsKey(tennis));
-        Assert.True(registry.Free.ContainsKey(tennis));
-        Assert.Equal(PaletteRows.Select(id => id == new PartId("bowling") ? tennis : id), registry.Free.Keys);
+        registry.Load(bundle.Replace("\"Id\": \"bowling\"", "\"Id\": \"unfamiliar_payload\"", StringComparison.Ordinal));
+        var unfamiliar = new PartId("unfamiliar_payload");
+        Assert.True(registry.Definitions.ContainsKey(unfamiliar));
+        Assert.True(registry.Free.ContainsKey(unfamiliar));
+        Assert.Equal(PaletteRows.Select(id => id == new PartId("bowling") ? unfamiliar : id), registry.Free.Keys);
     }
 
     [Theory]
@@ -451,7 +451,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         var registry = Loaded();
         Assert.Equal(PaletteRows.ToHashSet(), registry.Elements.ToHashSet());
         Assert.Equal(registry.Definitions.Keys.ToHashSet(), registry.Elements.ToHashSet());
-        foreach (var part in new PartId[] { new("tennis"), new("balloon") }) Assert.DoesNotContain(part, registry.Elements);
+        foreach (var part in new PartId[] { new("unregistered_payload"), new("balloon") }) Assert.DoesNotContain(part, registry.Elements);
     }
 
     private static string Root => twodog.Engine.ResolveProjectDir();
@@ -494,7 +494,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         var constants = typeof(PartId).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
             .Where(field => field.FieldType == typeof(PartId)).Select(field => ((PartId)field.GetValue(null)!).Value).ToArray();
         Assert.Empty(constants);
-        foreach (var part in new PartId[] { new("tennis"), new("balloon") })
+        foreach (var part in new PartId[] { new("unregistered_payload"), new("balloon") })
         {
             var id = part;
             Assert.DoesNotContain(id.Value, constants);
@@ -528,7 +528,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         _ = godot;
         var source = File.ReadAllText(Path.Combine(Root, "ui", "WorkshopIcons.cs"));
         var ids = PartRegistry.Read(RuntimeTestServices.Bundle, Bundle()).Select(entry => entry.Metadata.Id)
-            .Concat(new PartId[] { new("tennis"), new("balloon") }.Select(part => part.Value)).ToArray();
+            .Concat(new PartId[] { new("unregistered_payload"), new("balloon") }.Select(part => part.Value)).ToArray();
         Assert.Equal(PaletteRows.Length + 2, ids.Length);
         foreach (var id in ids)
         {

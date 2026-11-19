@@ -164,7 +164,7 @@ public static class WorkshopPhysicsCompiler
                 bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
                     CanonicalRotation.Normalize(rB.X, rB.Y, rB.Z, rB.W), default, default, new(movingMass.Mass),
                     new(movingMass.Gravity.X, movingMass.Gravity.Y, movingMass.Gravity.Z), new(movingMass.LinearDrag), MassProperties(movingMass)));
-                AddGeometry(moving, rows.Sliders[i].Material, rows.Sliders[i].Colliders, body.Colliders);
+                AddGeometry(moving, rows.Sliders[i].Material, rows.Sliders[i].Colliders, bundle.BodyColliders(DeclaredPhysics.Of(instance.PartId), new(1 + i), parameters));
                 var joint = rows.Sliders[i].Joint;
                 prismatics.Add(new(joint, instance.Id, moving,
                     new(slider.BaseFrame.Position, slider.BaseFrame.Rotation), new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
@@ -204,7 +204,7 @@ public static class WorkshopPhysicsCompiler
                 bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
                     CanonicalRotation.Normalize(rB.X, rB.Y, rB.Z, rB.W), default, default, new(movingMass.Mass),
                     new(movingMass.Gravity.X, movingMass.Gravity.Y, movingMass.Gravity.Z), new(movingMass.LinearDrag), MassProperties(movingMass)));
-                AddGeometry(moving, rows.Hinges[i].Material, rows.Hinges[i].Colliders, body.Colliders);
+                AddGeometry(moving, rows.Hinges[i].Material, rows.Hinges[i].Colliders, bundle.BodyColliders(DeclaredPhysics.Of(instance.PartId), new(1 + rows.Sliders.Length + i), parameters));
                 var joint = rows.Hinges[i].Joint;
                 revolutes.Add(new(joint, support.Id, moving,
                     new(hinge.BaseFrame.Position, hinge.BaseFrame.Rotation), new(hinge.MovingFrame.Position, hinge.MovingFrame.Rotation),

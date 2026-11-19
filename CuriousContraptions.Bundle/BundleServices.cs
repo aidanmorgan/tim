@@ -12,6 +12,8 @@ public sealed class BundleServices : IBundleServices
     public IReadOnlyList<BundleError> Validate(IReadOnlyList<NamedEntry> entries) => BundleValidator.Validate(entries);
     public IReadOnlyDictionary<string, float> Parameters(BundleEntry entry, IReadOnlyDictionary<string, float>? supplied = null) => BundleGeometry.Parameters(entry, supplied);
     public IReadOnlyList<ColliderDescriptor> Colliders(BundleEntry entry, IReadOnlyDictionary<string, float>? supplied = null) => BundleGeometry.Colliders(entry, supplied);
+    public IReadOnlyList<ColliderDescriptor> BodyColliders(BundleEntry entry, PackageBodyIndex body, IReadOnlyDictionary<string, float>? supplied = null) =>
+        body.Value == 0 ? BundleGeometry.Colliders(entry, supplied) : BundleMaterial.Apply(entry, body, BundleMaterial.Shapes(entry, body), BundleGeometry.Parameters(entry, supplied));
     public IReadOnlyList<TubeMouthDescriptor> Mouths(BundleEntry entry, IReadOnlyDictionary<string, float>? supplied = null) => BundleGeometry.Mouths(entry, supplied);
     public IReadOnlyList<RunControlLane> Lanes(BundleEntry entry, string key) => RunControlBindings.Lanes(entry, key);
     public bool IsBoundToNonLane(BundleEntry entry, string key) => RunControlBindings.IsBoundToNonLane(entry, key);

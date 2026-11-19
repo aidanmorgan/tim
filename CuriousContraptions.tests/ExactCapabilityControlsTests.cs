@@ -37,7 +37,7 @@ public sealed class ExactCapabilityControlsTests
             FrictionTorque = MechanicalValue.Fixed(0.05f),
             MovingBody = baseHinge.MovingBody with
             {
-                MassFrame = baseHinge.MovingBody.MassFrame with { Gravity = Vector3.Zero }
+                MassFrame = baseHinge.MovingBody.MassFrame with { Gravity = WorldAccelerationDeclaration.Constant(Vector3.Zero) }
             }
         };
 
@@ -48,7 +48,7 @@ public sealed class ExactCapabilityControlsTests
             FrictionTorque = MechanicalValue.Fixed(0.05f),
             MovingBody = baseHinge.MovingBody with
             {
-                MassFrame = baseHinge.MovingBody.MassFrame with { Gravity = Vector3.Zero }
+                MassFrame = baseHinge.MovingBody.MassFrame with { Gravity = WorldAccelerationDeclaration.Constant(Vector3.Zero) }
             }
         };
 
@@ -738,7 +738,7 @@ public sealed class ExactCapabilityControlsTests
                         {
                             MassFrame = baseEntry.Mechanical.Sliders[0].MovingBody.MassFrame with
                             {
-                                PrincipalMoments = new(MassScalar.Constant(0.01f), MassScalar.Constant(0.01f), new(new ParameterId("mass_ctrl"), 0.01f, 0f, 0f, 0f))
+                                PrincipalMoments = PrincipalMomentDeclaration.FromPolynomial(new(MassScalar.Constant(0.01f), MassScalar.Constant(0.01f), new(new ParameterId("mass_ctrl"), 0.01f, 0f, 0f, 0f)))
                             }
                         }
                     }

@@ -29,6 +29,7 @@ internal static class ImpactRules
         ["LinearPusher"] = new("linear_pusher"),
         ["WoundSpring"] = new("wound_spring"),
         ["Cannon"] = new("cannon"),
+        ["TennisBall"] = new("tennis"),
         ["Clutch"] = new("clutch"),
         ["ReverseTransmission"] = new("reverse_transmission"),
     };

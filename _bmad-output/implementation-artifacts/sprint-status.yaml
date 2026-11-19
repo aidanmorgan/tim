@@ -389,7 +389,7 @@ development_status:
   9a-44-f32-lane-completion-half-purge: done # Part A (Half purge, raw_assistance slot deleted) published d87b6a1e, CI 40181624977 (3952 tests, 0 skipped), deploy 7311595713; Part B is 9a-44b; browser pending
   9a-44b-f32-double-game-values-and-tick-clock: done # published6e0e0ee1799d31211e1769b8883f6bedb3fae396; local4884/0/0, hooks126/0/0, CI40765810580 and terminal artifact/deployment Pass
   # 51 (element)
-  epic-12: backlog
+  epic-12: in-progress
   12-1-lightweight-tennis-ball-floating-balloon: backlog # split aggregate; use individual children
   # 52 (deletion)
   9a-24-typed-observation-port: done # Implementation/review and full local 5047/0/0 complete; hooks/exact-SHA approval/publication pending; browser consumers deferred
@@ -543,7 +543,7 @@ development_status:
   11-2b-reverse-transmission: done # native/full-local/review Pass; normal commit/publication checks follow; browser pending
   11-4a-wound-spring: done
   11-4b-cannon: done
-  12-1a-tennis-ball: backlog
+  12-1a-tennis-ball: done # Native implementation/review complete; full6844/0/0, hooks134/0/0, E9 PASS; publication and browser qualification pending
   12-1b-balloon: backlog
   13-1a-torch: backlog
   13-1e-amber-laser: backlog

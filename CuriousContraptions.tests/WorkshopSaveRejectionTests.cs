@@ -341,7 +341,7 @@ public sealed class WorkshopSaveRejectionTests
             "local remainder of one half" => One(ramp.With(Field.Local, (.5f, 0f, 0f))),
             "scaled rotation" => One(ramp.With(Field.Rotation, (0f, 0f, 0f, .5f))),
             "counter carrying an unknown parameter" => One(Counter().With(Field.Parameters, new KeyValuePair<string, float>[] { new("unknown", 3f) })),
-            "unknown element" => One(ramp.Clone().Also(i => i.Part = "tennis")),
+            "unknown element" => One(ramp.Clone().Also(i => i.Part = "unregistered_payload")),
             "no element" => One(ramp.Clone().Also(i => i.Part = "")),
             "duplicate instance" => new([ramp, ramp], []),
             "dangling connection" => new([battery], [new(2, 77, electrical, 0, 0)]),

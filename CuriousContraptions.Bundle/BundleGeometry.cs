@@ -45,7 +45,7 @@ public static class BundleGeometry
                 throw new ArgumentException("Evaluated collider has invalid geometry.");
             colliders[binding.Collider] = collider;
         }
-        return colliders;
+        return BundleMaterial.Apply(entry, new PackageBodyIndex(0), colliders, parameters);
     }
 
     /// <summary>Every dimension lane the kind uses is positive: all three half-extents of a solid kind; a tube's radius, inner radius

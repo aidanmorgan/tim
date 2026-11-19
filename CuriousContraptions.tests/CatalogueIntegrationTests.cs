@@ -292,7 +292,9 @@ public sealed class CatalogueIntegrationTests
         // CannonIntegrationTests.GravityReturnsTheSameBallForAnotherPaidShot and
         // ClockDelayLatchAndGateFeedADistinctSecondBall execute paid reload and supplied/unpowered controls.
         PartId[] finiteWorkInteractions = [new("cannon")];
-        var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions).Concat(finiteWorkInteractions)
+        // TennisInteractionTests executes capture/miss, impact/miss and one/two-ball plate loading.
+        PartId[] tennisInteractions = [new("tennis")];
+        var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions).Concat(finiteWorkInteractions).Concat(tennisInteractions)
             .Order().ToArray();
         var actual = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),
             "elements/elements.bundle.json"))).Select(row => new PartId(row.Metadata.Id)).Order().ToArray();
