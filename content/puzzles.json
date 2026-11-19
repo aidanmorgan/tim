@@ -36936,5 +36936,385 @@
       "status": "The springboard starts compressed. Place the receiver beneath the ball’s descent.",
       "precision_status": "Receiver assistance updated. Placement remains manual."
     }
+  },
+  {
+    "id": "burst_of_motion",
+    "availability": "Playable",
+    "title": "A change of lift",
+    "subtitle": "15 / Impact & gas",
+    "description": "Pop the rising balloon by placing the bowling ball above it.",
+    "hint": "A strong impact opens the envelope. Gas escapes and the balloon falls.",
+    "inventory": [
+      {
+        "part": "bowling",
+        "count": 1,
+        "assistance": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0.4,
+            0.02,
+            1.5,
+            0.35,
+            0,
+            0.8
+          ],
+          [
+            0.45,
+            0,
+            0,
+            0,
+            0,
+            0.4,
+            0.02,
+            1.5,
+            0.35,
+            0,
+            0.8
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0.4,
+            0.02,
+            1.5,
+            0.35,
+            0,
+            0.8
+          ]
+        ],
+        "goal_target": false,
+        "configuration": null
+      }
+    ],
+    "solution": [
+      {
+        "slot": "bowling_1",
+        "instance": {
+          "part": "bowling",
+          "cell": [
+            0,
+            104,
+            0
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ],
+            [
+              0.45,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      }
+    ],
+    "solution_connections": [],
+    "placements": [
+      {
+        "slot": "fixture_1",
+        "instance": {
+          "part": "balloon",
+          "cell": [
+            0,
+            48,
+            0
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": true,
+          "parameters": {
+            "mass": 0.5,
+            "radius": 0.36,
+            "bounce": 0.2,
+            "buoyancy": 11.5,
+            "drag": 0.4
+          },
+          "assistance": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ],
+            [
+              0.45,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
+      }
+    ],
+    "goal": {
+      "kind": "IntegrityBroken",
+      "owner": "fixture_1",
+      "observation": 1
+    },
+    "connections_allowed": false,
+    "profiles": {
+      "primary": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ],
+        [
+          0.45,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ],
+      "target": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ],
+        [
+          0.45,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ],
+      "placement": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ],
+        [
+          0.45,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ],
+      "secondary": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ],
+        [
+          0.45,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0.4,
+          0.02,
+          1.5,
+          0.35,
+          0,
+          0.8
+        ]
+      ]
+    },
+    "presentation": {
+      "order": 14,
+      "title": "A change of lift",
+      "task": "Pop the rising balloon by placing the bowling ball above it.",
+      "hint": "A strong impact opens the envelope. Gas escapes and the balloon falls.",
+      "status": "Place the bowling ball above the balloon, then Run.",
+      "precision_status": "Placement remains manual."
+    }
   }
 ]

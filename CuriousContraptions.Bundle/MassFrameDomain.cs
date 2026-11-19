@@ -1,3 +1,4 @@
+using CuriousContraptions.Gpu;
 using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
@@ -6,19 +7,44 @@ namespace CuriousContraptions.Bundle;
 
 internal static class MassFrameDomain
 {
-    public static void Validate(MassFrameDeclaration frame, KinematicMode mode, IReadOnlyList<ParameterDescriptor> parameters)
+    public static void Validate(MassFrameDeclaration frame, KinematicMode mode, IReadOnlyList<ParameterDescriptor> parameters,
+        PackageBodyIndex body, IReadOnlyList<GasStoreDescriptor> stores)
     {
         var values = parameters.ToDictionary(p => new ParameterId(p.Key), p => p.Default);
-        frame.Evaluate(values).Validate(mode);
+        frame.Evaluate(values, GasMassReferences.Resolve(body, stores, values)).Validate(mode);
         var domain = new MassPolynomialDomain(parameters);
         var isStatic = mode == KinematicMode.Static;
-        domain.Range(frame.Mass, isStatic ? 0f : 1f / 1024f, isStatic ? 0f : 1024f);
+        domain.Range(frame.Source.InitialMass, isStatic ? 0f : 1f / 1024f, isStatic ? 0f : 1024f);
         foreach (var scalar in new[] { frame.CentreOfMass.X, frame.CentreOfMass.Y, frame.CentreOfMass.Z })
             domain.Range(scalar, isStatic ? 0f : -16f, isStatic ? 0f : 16f);
         RequireParameter(frame.LinearDrag.Parameter, ParameterUnit.InverseSecond, parameters);
-        domain.Range(frame.LinearDrag, 0f, isStatic ? 0f : .125f);
+        domain.Range(frame.LinearDrag, 0f, isStatic ? 0f : float.MaxValue);
         Acceleration(frame.Gravity, isStatic, parameters, values);
-        Moments(frame.PrincipalMoments, isStatic, parameters, domain);
+        if (frame.Source.Kind == BodyMassSourceKind.Declared)
+            Moments(frame.Source.DeclaredMoments, isStatic, parameters, domain);
+        else
+        {
+            if (isStatic) throw new ArgumentException("Static bodies cannot own inventory mass.");
+            InventoryMoments(frame.Source, body, stores, domain);
+        }
+    }
+
+    private static void InventoryMoments(BodyMassSourceDeclaration source, PackageBodyIndex body,
+        IReadOnlyList<GasStoreDescriptor> stores, MassPolynomialDomain domain)
+    {
+        source.ValidateInventoryOperands();
+        var terms = new List<(MassScalar Value, float Sign)> { (source.InitialMass, 1f) };
+        foreach (var id in source.Stores)
+        {
+            var store = stores.Single(s => s.Id == id && s.Body == body);
+            var density = store.ReferencePressure / store.Material.R / store.ReferenceTemperature;
+            terms.Add((store.ReferenceVolume, -density));
+        }
+        var dry = domain.Bounds(terms.ToArray());
+        if (dry.Min < 1f / 1024f || dry.Max > 1024f)
+            throw new ArgumentException("Inventory mass leaves the body domain during depletion.");
+        CheckMoments(source.DryMomentPerMass * dry.Min);
+        CheckMoments(source.DryMomentPerMass * dry.Max);
     }
 
     private static ParameterDescriptor RequireParameter(ParameterId? key, ParameterUnit unit,

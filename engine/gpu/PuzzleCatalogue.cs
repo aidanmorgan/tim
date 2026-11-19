@@ -62,8 +62,9 @@ public static class PuzzleCatalogue
         instance = row.Configure(bundle, instance, construction.Puzzle.Precision);
         var result = construction with { Instances = construction.Instances.With(instance) };
         if (row.GoalTarget)
-            result = result with { Puzzle = result.Puzzle with { Goal = result.Puzzle.Goal with
-            { Target = instance.Id } } };
+            result = result with { Puzzle = result.Puzzle with { Goal = result.Puzzle.Goal.Kind == WorkshopGoalKind.IntegrityBroken
+                ? result.Puzzle.Goal with { Integrity = new(instance.Id, definition.Goal.Integrity) }
+                : result.Puzzle.Goal with { Target = instance.Id } } };
         return result;
     }
 
@@ -71,7 +72,7 @@ public static class PuzzleCatalogue
     {
         var definition = Definition(construction.Puzzle.Id);
         var sourceIndex = Array.FindIndex(definition.Placements.ToArray(), row => row.Slot == definition.Goal.Source);
-        var source = construction.Puzzle.Goal.Body.Value;
+        var source = FixtureAnchor(construction);
         var fixtures = definition.CreateInstances(bundle, new(checked(source - (ulong)sourceIndex)), precision);
         var result = construction with { Puzzle = construction.Puzzle with { Precision = precision } };
         foreach (var fixture in fixtures) result = result with { Instances = result.Instances.With(fixture) };
@@ -94,14 +95,14 @@ public static class PuzzleCatalogue
             (!definition.ConnectionsAllowed && construction.Connections.Count != 0))
             Reject(WorkshopEditRejection.PuzzleSettings, "Authored puzzle settings changed.");
         var sourceIndex = Array.FindIndex(definition.Placements.ToArray(), row => row.Slot == definition.Goal.Source);
-        var source = puzzle.Goal.Body;
+        var source = new GpuBodyId(FixtureAnchor(construction));
         if (source.Value <= (ulong)sourceIndex) Reject(WorkshopEditRejection.FixedPart, "Invalid authored owner range.");
         var first = new GpuBodyId(source.Value - (ulong)sourceIndex);
         var expected = definition.CreateInstances(bundle, first, puzzle.Precision);
         var ids = definition.Placements.Select((row, index) =>
             KeyValuePair.Create(row.Slot, expected[index].Id)).ToDictionary();
         if (!ids.ContainsKey(definition.Goal.Target))
-            ids.Add(definition.Goal.Target, puzzle.Goal.Target);
+            ids.Add(definition.Goal.Target, puzzle.Goal.Integrity?.Owner ?? puzzle.Goal.Target);
         if (definition.CreateGoal(ids) != puzzle.Goal)
             Reject(WorkshopEditRejection.PuzzleSettings, "Authored goal changed.");
         var expectedInteraction = definition.InteractionTarget is { } targetSlot && ids.TryGetValue(targetSlot, out var targetBody)
@@ -124,6 +125,11 @@ public static class PuzzleCatalogue
                 Reject(WorkshopEditRejection.PuzzleSettings, "Placed goal owner changed.");
         }
     }
+
+    private static ulong FixtureAnchor(WorkshopConstruction construction) =>
+        construction.Puzzle.Goal.Kind == WorkshopGoalKind.IntegrityBroken
+            ? construction.Instances.Where(instance => instance.Locked).Select(instance => instance.Id.Value).DefaultIfEmpty(0UL).Min()
+            : construction.Puzzle.Goal.Body.Value;
 
     private static void ValidateInventory(IBundleServices bundle, PuzzleDefinition definition, PuzzlePrecision precision, IWorkshopInstance[] placed)
     {

@@ -28,12 +28,15 @@ public enum SimulationEventKind : uint
     TriggerActivated = 8,
     /// <summary>One paid release. Source: exact actuator (whose immutable declaration identifies its store); Other: payload;
     /// Magnitude: actual debit (J); Count: actuator occurrence ordinal. Level is zero.</summary>
-    FiniteWorkReleased = 9
+    FiniteWorkReleased = 9,
+    /// <summary>First committed integrity break. Source: exact observation; Count: one; other payload lanes: zero.</summary>
+    IntegrityBroken = 10
 }
 
 /// <summary>One kind of event ring record an element's compiled rows produce. The layout is the kind's engine-owned layout.</summary>
 public readonly record struct EventDescriptor(SimulationEventKind Kind, SignalNodeId? SignalNode = null,
-    CuriousContraptions.Gpu.LocalFiniteWorkActuatorId? FiniteWork = null);
+    CuriousContraptions.Gpu.LocalFiniteWorkActuatorId? FiniteWork = null,
+    CuriousContraptions.Gpu.LocalIntegrityObservationId? Integrity = null);
 
 /// <summary>The engine-owned facts of each event kind: one exhaustive table.</summary>
 public static class SimulationEvents
@@ -44,7 +47,7 @@ public static class SimulationEvents
     /// <summary>The domain a kind's records carry, for consumer filtering. An undefined kind or None is refused.</summary>
     public static SimulationDomain Domain(SimulationEventKind kind) => kind switch
     {
-        SimulationEventKind.FiniteWorkReleased or SimulationEventKind.Impact or SimulationEventKind.Passage or SimulationEventKind.ContactLoad or SimulationEventKind.Captured =>
+        SimulationEventKind.IntegrityBroken or SimulationEventKind.FiniteWorkReleased or SimulationEventKind.Impact or SimulationEventKind.Passage or SimulationEventKind.ContactLoad or SimulationEventKind.Captured =>
             SimulationDomain.Mechanical,
         SimulationEventKind.ThresholdReached or SimulationEventKind.MemoryChanged or SimulationEventKind.TriggerActivated =>
             SimulationDomain.Signal,

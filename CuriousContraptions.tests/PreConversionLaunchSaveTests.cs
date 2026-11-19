@@ -46,17 +46,17 @@ public sealed class PreConversionLaunchSaveTests
     // rows on the 9-field table: every reason is unchanged.) C-Memory's 8-field table (no target_count; slot 7 is the parameters
     // offset): the old Domino's bounce float in slot 7 now reads as that offset and the verifier refuses the buffer; the old Counter is
     // a generic counter (its target still beyond the table) whose missing declared target is refused OutOfRange. Every other reason is
-    // unchanged.
+    // unchanged in that historical stage. Current saves additionally require atmosphere: structurally readable old records now refuse MissingField.
     [Theory]
-    [InlineData("bumper strength 8", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("bumper strength 0", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("spring default", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("spring charged", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("battery default", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("bumper strength 8", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("bumper strength 0", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("spring default", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("spring charged", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery default", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
     [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
-    [InlineData("counter", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("switch threshold", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("resized ramp", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("counter", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("switch threshold", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("resized ramp", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
     public void APreConversionRecordIsRefusedWithATypedReasonAtBothBoundaries(string name, WorkshopSaveRejection save,
         WireFaultReason command)
     {
@@ -76,21 +76,21 @@ public sealed class PreConversionLaunchSaveTests
     // count reads beyond its old slot, so it is missing. Every parameterised generic: its parameters lie beyond the table, so its
     // declared parameters are missing. (C-Clock re-ran these rows on the 9-field table: every reason is unchanged.)
     // C-Memory's 8-field table: the old Domino's bounce in slot 7 is now the parameters offset (VerifierRejected), and the old Counter
-    // is a generic counter missing its declared target (OutOfRange); every other reason is unchanged.
+    // is a generic counter missing its declared target. Current saves require atmosphere, so these structurally readable old records now refuse MissingField.
     [Theory]
-    [InlineData("battery_default", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("battery_disabled", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("battery_custom_120_30_half", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("battery_custom_disabled_zero", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_default", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_disabled", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_custom_120_30_half", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_custom_disabled_zero", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
     [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
-    [InlineData("counter", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("impact_switch", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("ramp", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("bumper", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("receiver", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("springboard", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("wall", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("hold_timer", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("counter", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("impact_switch", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("ramp", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("bumper", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("receiver", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("springboard", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("wall", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("hold_timer", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
     public void APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(string name,
         WorkshopSaveRejection save, WireFaultReason command)
     {

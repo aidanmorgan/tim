@@ -58,8 +58,8 @@ public class CurrentCatalogueTests
         Assert.Equal(72, plan.Elements.Length);
         Assert.Equal(104, plan.Elements.Sum(element => element.Modes.Length));
         Assert.Equal(72, plan.Elements.Sum(element => element.Modes.Count(mode => mode.Dimension == ModeDimension.Configuration)));
-        // 276 Planned parts plus 27 Playable placements (domino_effect's locked lamp is a current fixture).
-        Assert.Equal(303, plan.Fixtures.Length);
+        // 260 Planned parts plus 44 Playable placements, including the authored popped-goal Balloon.
+        Assert.Equal(304, plan.Fixtures.Length);
     }
 
     [Fact]
@@ -195,7 +195,8 @@ public class CurrentCatalogueTests
         // Every package in the generated bundle, including the Hold Timer (CAT-033) and the supplied gates: Both (CAT-013), Not both
         // (CAT-024), Neither (CAT-025), Either (CAT-026) and Exactly one (CAT-027), the Weight (CAT-067), the Pulley (CAT-053),
         // and the Impact Lever (CAT-034), the Trampoline (CAT-065) and the Electric motor (CAT-042).
-        Assert.Equal(41, plan.Admitted.Count);
+        Assert.Equal(42, plan.Admitted.Count);
+        Assert.Equal(new SourcePath("elements/Balloon/BalloonElementDeclaration.cs"), plan.Admitted[new("balloon")]);
         Assert.Equal(new SourcePath("elements/TennisBall/TennisBallElementDeclaration.cs"), plan.Admitted[new("tennis")]);
         Assert.Equal(new SourcePath("elements/Cannon/CannonElementDeclaration.cs"), plan.Admitted[new("cannon")]);
         Assert.Equal(new SourcePath("elements/WoundSpring/WoundSpringElementDeclaration.cs"), plan.Admitted[new("wound_spring")]);

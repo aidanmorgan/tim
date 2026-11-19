@@ -30,6 +30,7 @@ internal static class ImpactRules
         ["WoundSpring"] = new("wound_spring"),
         ["Cannon"] = new("cannon"),
         ["TennisBall"] = new("tennis"),
+        ["Balloon"] = new("balloon"),
         ["Clutch"] = new("clutch"),
         ["ReverseTransmission"] = new("reverse_transmission"),
     };
@@ -61,6 +62,7 @@ internal static class ImpactRules
         ["ui/WorkshopGuidance.cs"] = WorkshopArea.Guidance,
         ["ui/WorkshopConnections.cs"] = WorkshopArea.Connections,
         ["ui/WorkshopConfiguration.cs"] = WorkshopArea.Configuration,
+        ["ui/WorkshopAtmosphere.cs"] = WorkshopArea.Configuration,
         ["ui/WorkshopPuzzle.cs"] = WorkshopArea.LevelPicker,
         ["engine/WorkshopVisualBinding.cs"] = WorkshopArea.Presentation,
         ["ui/WorkshopAnimation.cs"] = WorkshopArea.Presentation,

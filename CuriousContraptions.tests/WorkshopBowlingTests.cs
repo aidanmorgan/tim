@@ -44,7 +44,8 @@ public sealed class WorkshopBowlingTests
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(4));
         Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
         Assert.Equal(new Kilograms(4f), body.Mass);
-        Assert.Equal(new InverseSeconds(.04f), body.LinearDrag);
+        Assert.Equal(new InverseSeconds(0f), body.LinearDrag);
+        Assert.Equal(.04f, Assert.Single(scene.AmbientLoads.ToArray(), load => load.Body == body.Id).LinearDrag);
         Assert.Equal(new AccelerationVector(0f, -9.81f, 0f), body.Gravity);
         var sphere = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
         Assert.Equal(ColliderShapeKind.Sphere, sphere.Shape);
@@ -102,13 +103,24 @@ public sealed class WorkshopBowlingTests
         var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, TwoLanes(), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var bodies = scene.Bodies.ToArray(); var colliders = scene.Colliders.ToArray(); var materials = scene.Materials.ToArray();
-        // The body record's drag lane carries the declared f32 linear drag; the material record's rolling lane the declared f32
+        // Body base drag is zero; exact-owner ambient rows carry Standard drag. The material record's rolling lane carries the declared f32
         // rolling-resistance coefficient (Basketball 0.035, Bowling 0.03; Domino tiles: zero).
         foreach (var (id, drag, rolling) in new[] { (3UL, .04f, .035f), (4UL, .04f, .03f), (1UL, 0f, 0f), (2UL, 0f, 0f) })
         {
             var slot = Array.FindIndex(bodies, b => b.Id == new GpuBodyId(id));
-            Assert.Equal(BitConverter.SingleToUInt32Bits(drag),
+            Assert.Equal(0u,
                 BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(scene.World.BodyOffset(slot) + PhysicsGpuAbi.BodyDragOffset)));
+            var ambient = scene.AmbientLoads.ToArray();
+            if (drag == 0f) Assert.DoesNotContain(ambient, load => load.Body == bodies[slot].Id);
+            else
+            {
+                var load = Assert.Single(ambient, load => load.Body == bodies[slot].Id);
+                Assert.Equal(drag, load.LinearDrag);
+                var offset = scene.World.AmbientLoadOffset(Array.IndexOf(ambient, load));
+                Assert.Equal((uint)slot, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset + PhysicsGpuAbi.AmbientBodyOffset)));
+                Assert.Equal(BitConverter.SingleToUInt32Bits(drag),
+                    BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset + PhysicsGpuAbi.AmbientDragOffset)));
+            }
             var owned = colliders.Where(c => c.Body == new GpuBodyId(id)).ToArray();
             Assert.NotEmpty(owned);
             foreach (var collider in owned)

@@ -8,6 +8,11 @@ namespace CuriousContraptions.Gpu;
 
 public interface IPhysicsSceneDeclaration
 {
+    ReadOnlySpan<GasStoreDeclaration> GasStores { get; }
+    ReadOnlySpan<GasShapeDeclaration> GasShapes { get; }
+    ReadOnlySpan<InventoryMassDeclaration> InventoryMasses { get; }
+    ReadOnlySpan<AmbientLoadDeclaration> AmbientLoads { get; }
+    ReadOnlySpan<ContactIntegrityDeclaration> IntegrityObservers { get; }
     ReadOnlySpan<TensileSpanDeclaration> TensileSpans { get; }
     ReadOnlySpan<ContactLoadSensorDeclaration> ContactLoadSensors { get; }
     ReadOnlySpan<PrismaticConstraintDeclaration> Prismatics { get; }
@@ -39,6 +44,10 @@ public interface IPhysicsSceneDeclaration
 
 public interface ICompiledMemoryLayout
 {
+    int GetGasStoreSlot(GasStoreId id);
+    int GetGasStoreOffset(GasStoreId id);
+    int GetIntegrityObserverSlot(IntegrityObservationId id);
+    int GetIntegrityObserverOffset(IntegrityObservationId id);
     IReadOnlyDictionary<GpuBodyId, int> BodySlots { get; }
     IReadOnlyDictionary<GpuBodyId, int> BodyOffsets { get; }
     IReadOnlyDictionary<GpuColliderId, int> ColliderSlots { get; }
@@ -103,6 +112,21 @@ public interface ICompiledMemoryLayout
 
 public interface IPhysicsWorldLayout
 {
+    int GasStores { get; }
+    int GasStoresOffset { get; }
+    int GasStoreOffset(int slot);
+    int GasShapes { get; }
+    int GasShapesOffset { get; }
+    int GasShapeOffset(int slot);
+    int InventoryMasses { get; }
+    int InventoryMassesOffset { get; }
+    int InventoryMassOffset(int slot);
+    int AmbientLoads { get; }
+    int AmbientLoadsOffset { get; }
+    int AmbientLoadOffset(int slot);
+    int IntegrityObservers { get; }
+    int IntegrityObserversOffset { get; }
+    int IntegrityObserverOffset(int slot);
     int Bodies { get; }
     int Colliders { get; }
     int Materials { get; }

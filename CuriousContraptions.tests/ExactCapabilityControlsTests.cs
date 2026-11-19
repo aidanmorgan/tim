@@ -682,14 +682,14 @@ public sealed class ExactCapabilityControlsTests
         var baseEntry = CreateDualActuatorEntry();
         var param = new ParameterDescriptor("mass_ctrl", ParameterUnit.RadianPerSecond, ParameterKind.Real, 0.1f, 10f, 1f, [], RunEdit: ParameterRunEdit.RunControl);
 
-        // Case 1: Bound to Mechanical.MassFrame.Mass
+        // Case 1: Bound to Mechanical.MassFrame.Source.InitialMass
         var massBound = baseEntry with
         {
             Metadata = baseEntry.Metadata with { Parameters = [param, baseEntry.Metadata.Parameters[1]] },
             Mechanical = baseEntry.Mechanical! with
             {
                 Hinges = [baseEntry.Mechanical.Hinges[0] with { Drive = new(MechanicalValue.FromParameter("mass_ctrl"), MechanicalValue.Fixed(10f)) }, baseEntry.Mechanical.Hinges[1]],
-                MassFrame = baseEntry.Mechanical.MassFrame with { Mass = new(new ParameterId("mass_ctrl"), 1f, 0f, 0f, 0f) }
+                MassFrame = baseEntry.Mechanical.MassFrame with { Source = baseEntry.Mechanical.MassFrame.Source with { InitialMass = new(new ParameterId("mass_ctrl"), 1f, 0f, 0f, 0f) } }
             }
         };
         Assert.True(RunControlBindings.IsBoundToNonLane(massBound, "mass_ctrl"));
@@ -738,7 +738,8 @@ public sealed class ExactCapabilityControlsTests
                         {
                             MassFrame = baseEntry.Mechanical.Sliders[0].MovingBody.MassFrame with
                             {
-                                PrincipalMoments = PrincipalMomentDeclaration.FromPolynomial(new(MassScalar.Constant(0.01f), MassScalar.Constant(0.01f), new(new ParameterId("mass_ctrl"), 0.01f, 0f, 0f, 0f)))
+                                Source = baseEntry.Mechanical.Sliders[0].MovingBody.MassFrame.Source with
+                                { DeclaredMoments = PrincipalMomentDeclaration.FromPolynomial(new(MassScalar.Constant(0.01f), MassScalar.Constant(0.01f), new(new ParameterId("mass_ctrl"), 0.01f, 0f, 0f, 0f))) }
                             }
                         }
                     }

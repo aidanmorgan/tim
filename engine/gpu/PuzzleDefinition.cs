@@ -22,7 +22,8 @@ internal sealed record AuthoredInventory(PartId Part, int Count, AssistanceProfi
         { Cell = instance.Cell, Local = instance.Local, Rotation = instance.Rotation, Locked = instance.Locked }).Create(bundle, instance.Id, precision) : instance;
 }
 internal readonly record struct AuthoredGoal(WorkshopGoalKind Kind, AuthoredSlot Source,
-    AuthoredSlot Target, float MinimumSeconds, SignalNodeId SourceNode, SignalNodeId TargetNode);
+    AuthoredSlot Target, float MinimumSeconds, SignalNodeId SourceNode, SignalNodeId TargetNode,
+    LocalIntegrityObservationId Integrity = default);
 internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
     ImmutableArray<AuthoredPlacement> Placements, ImmutableArray<AuthoredPlacement> Solution,
     ImmutableArray<AuthoredConnection> SolutionConnections, ImmutableArray<AuthoredInventory> Inventory,
@@ -46,6 +47,8 @@ internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
             throw PuzzleContentReader.Invalid(Entry.Id.Value, "goal", "missing or overlapping owner identities");
         var goal = Goal.Kind switch
         {
+            WorkshopGoalKind.IntegrityBroken => new WorkshopGoal(Goal.Kind, default, default,
+                Integrity: new(target, Goal.Integrity)),
             WorkshopGoalKind.Captured => new WorkshopGoal(Goal.Kind, source, target),
             WorkshopGoalKind.ActivatedAfter => new WorkshopGoal(Goal.Kind, source, target,
                 Goal.SourceNode, Goal.TargetNode, new(Goal.MinimumSeconds)),
@@ -166,6 +169,12 @@ internal static class PuzzleDefinitionReader
             if (!complete.Instances.Identities.TryCapture(complete.Puzzle.Goal.Target, complete.Puzzle.Goal.Body, out _))
                 throw PuzzleContentReader.Invalid(where, "goal", "owners do not declare capture of this payload");
         }
+        else if (goal.Kind == WorkshopGoalKind.IntegrityBroken)
+        {
+            if (complete.Puzzle.Goal.Integrity is not { } selector ||
+                !complete.Instances.Identities.TryIntegrity(selector, out _))
+                throw PuzzleContentReader.Invalid(where, "goal", "owner does not declare the selected integrity observation");
+        }
         else
         {
             // Validate node ownership through the production compiler without consulting the catalogue being loaded.
@@ -205,6 +214,8 @@ internal static class PuzzleDefinitionReader
     {
         var goalFields = PuzzleContentReader.Fields(declaration, where);
         var kind = AuthoredInstanceReader.Closed<WorkshopGoalKind>(PuzzleContentReader.Text(goalFields, "kind", where), where);
+        if (kind == WorkshopGoalKind.IntegrityBroken)
+            return ParseIntegrityGoal(goalFields, slots, placements, inventory, where);
         if (kind == WorkshopGoalKind.ActivatedAfter)
             AuthoredInstanceReader.Require(goalFields, where, "kind", "source", "target", "minimum_seconds", "source_node", "target_node");
         else AuthoredInstanceReader.Require(goalFields, where, "kind", "source", "target", "minimum_seconds");
@@ -224,6 +235,22 @@ internal static class PuzzleDefinitionReader
             throw PuzzleContentReader.Invalid(where, "goal", "invalid authored references or duration");
         ValidateGoalSignals(goal, placements, inventory, where);
         return goal;
+    }
+
+    private static AuthoredGoal ParseIntegrityGoal(Dictionary<string, JsonElement> fields, HashSet<AuthoredSlot> slots,
+        IReadOnlyList<AuthoredPlacement> placements, IReadOnlyList<AuthoredInventory> inventory, string where)
+    {
+        AuthoredInstanceReader.Require(fields, where, "kind", "owner", "observation");
+        var owner = new AuthoredSlot(PuzzleContentReader.Text(fields, "owner", where));
+        if (!fields["observation"].TryGetUInt32(out var observation) || observation == 0 ||
+            placements.Count == 0 || !slots.Contains(owner) && inventory.Count(row => row.GoalTarget) != 1)
+            throw PuzzleContentReader.Invalid(where, "goal", "invalid integrity owner or observation");
+        var fixedPart = placements.SingleOrDefault(row => row.Slot == owner);
+        var part = fixedPart is not null ? fixedPart.Instance.Part : inventory.Single(row => row.GoalTarget).Part;
+        if (DeclaredPhysics.Of(part).Mechanical?.IntegrityObservers.Any(row => row.Id.Value == observation) != true)
+            throw PuzzleContentReader.Invalid(where, "goal", "missing local integrity observation");
+        // The existing lesson model retains its first fixed fixture as the authored identity-range anchor.
+        return new(WorkshopGoalKind.IntegrityBroken, placements[0].Slot, owner, 0, default, default, new(observation));
     }
 
     private static ImmutableArray<AuthoredPlacement>.Builder ParseSolution(IBundleServices bundle, JsonElement rows, HashSet<AuthoredSlot> slots,

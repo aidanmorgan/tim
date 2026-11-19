@@ -854,7 +854,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         var world = DiscoveredWorld();
         try
         {
-            foreach (var part in new PartId[] { new("unregistered_payload"), new("balloon") })
+            foreach (var part in new PartId[] { new("unregistered_payload") })
             {
                 var id = part;
                 // No declaration is shipped for this identity; unknown input is refused before placement.
@@ -869,7 +869,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     }
 
     [Theory]
-    [InlineData("balloon")]
+    [InlineData("unregistered_shape")]
     [InlineData("unregistered_payload")]
     [InlineData("no-such-part")]
     public void BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(string external)
@@ -1273,7 +1273,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             var buttons = Descendants<Button>(scene).Where(button => button.HasMeta("part_kind")).ToArray();
-            foreach (var part in new PartId[] { new("unregistered_payload"), new("balloon") })
+            foreach (var part in new PartId[] { new("unregistered_payload"), new("unregistered_shape") })
                 Assert.DoesNotContain(buttons, button => button.GetMeta("part_kind").AsString() == part.Value);
             Assert.Empty(client.Commands);
             Assert.Empty(scene.World.Construction.Instances);
@@ -2224,6 +2224,64 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { Release(scene); }
     }
 
+
+    [Fact]
+    public void AtmospherePickerEditsOnlyBuildStateAndUndoRestoresTheExplicitPreset()
+    {
+        var (scene, client) = BenchScene(new("balloon"), PlacementAnswer.Applied);
+        try
+        {
+            var picker = Assert.Single(Descendants<OptionButton>(scene), node => node.Name == "Atmosphere");
+            Assert.Equal((int)AtmospherePreset.Standard, picker.GetSelectedId());
+            picker.EmitSignal(OptionButton.SignalName.ItemSelected, picker.GetItemIndex((int)AtmospherePreset.Vacuum));
+            Assert.Equal(AtmospherePreset.Vacuum, scene.World.Construction.Atmosphere);
+            Assert.Equal((int)AtmospherePreset.Vacuum, picker.GetSelectedId());
+            Assert.Empty(Undo(scene));
+            Assert.Equal(AtmospherePreset.Standard, scene.World.Construction.Atmosphere);
+            var count = client.EditCount;
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                Phase(scene, phase);
+                picker.EmitSignal(OptionButton.SignalName.ItemSelected, picker.GetItemIndex((int)AtmospherePreset.Vacuum));
+                Assert.Equal(count, client.EditCount);
+                Assert.Equal(AtmospherePreset.Standard, scene.World.Construction.Atmosphere);
+                Assert.True(picker.Disabled);
+            }
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void AtmospherePickerReportsRefusalsAndFaultsWithoutEscapingOrChangingInstalledState(bool fault)
+    {
+        var (scene, client) = BenchScene(new("balloon"), PlacementAnswer.Applied);
+        try
+        {
+            var before = scene.World.Construction;
+            client.NextFailure = fault ? new InvalidOperationException("atmosphere transport defect") :
+                new WorkshopEditRejectedException(WorkshopEditRejection.InitialOverlap, "Expanded envelope is obstructed.");
+            var picker = Assert.Single(Descendants<OptionButton>(scene), node => node.Name == "Atmosphere");
+            var recorder = new EscapeRecorder();
+            var previous = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(recorder);
+            try { picker.EmitSignal(OptionButton.SignalName.ItemSelected, picker.GetItemIndex((int)AtmospherePreset.Vacuum)); }
+            finally { SynchronizationContext.SetSynchronizationContext(previous); }
+            Assert.Empty(recorder.Escaped);
+            Assert.Equal(before, scene.World.Construction);
+            Assert.Equal((int)AtmospherePreset.Standard, picker.GetSelectedId());
+            var diagnostic = Assert.IsType<WorkshopFaultDiagnostic>(Assert.Single(scene.Diagnostics.Snapshot()));
+            Assert.Equal(fault ? WorkshopFaultKind.Fault : WorkshopFaultKind.Rejection, diagnostic.Kind);
+            Assert.Contains(fault ? "atmosphere transport defect" : "Expanded envelope is obstructed.", Status(scene), StringComparison.Ordinal);
+            var commands = client.EditCount;
+            Assert.Empty(Undo(scene));
+            Assert.Equal(commands, client.EditCount);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
     private enum PlacementAnswer { Pending, Applied, Rejected }
 
     /// <summary>Records each command and answers it as configured: never (pending), Applied with an empty body read (a static

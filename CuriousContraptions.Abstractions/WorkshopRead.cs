@@ -6,7 +6,8 @@ namespace CuriousContraptions.Gpu;
 public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, PhysicalCommitRevision PhysicalRevision, PhysicsBodyReadSet Bodies, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
     PhysicsCaptureRead Captures = default, IPhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default,
     PhysicsMemoryRead Memory = default, PhysicsPresentationRead Presentation = default, PhysicsDriveTargetRead DriveTargets = default, PhysicsEnergyStoreRead EnergyStores = default,
-    PhysicsChamberRead ChamberRegions = default, PhysicsFiniteWorkActuatorRead FiniteWorkActuators = default)
+    PhysicsChamberRead ChamberRegions = default, PhysicsFiniteWorkActuatorRead FiniteWorkActuators = default,
+    PhysicsGasRead GasStores = default, PhysicsIntegrityRead IntegrityObservers = default)
 {
     public bool HasSameContent(WorkshopRead other) => Epoch == other.Epoch && Tick == other.Tick &&
         Revision == other.Revision && PhysicalRevision == other.PhysicalRevision && Capture == other.Capture && SamePhysicalContent(this, other);
@@ -21,7 +22,8 @@ public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, Simula
             first.Timers.Count != second.Timers.Count || !first.ContactWorks.HasSameBits(second.ContactWorks) || !first.Electrical.HasSameBits(second.Electrical) ||
             !first.Memory.HasSameBits(second.Memory) || !first.Presentation.HasSameBits(second.Presentation) ||
             !first.DriveTargets.HasSameBits(second.DriveTargets) || !first.EnergyStores.HasSameBits(second.EnergyStores) ||
-            !first.ChamberRegions.HasSameBits(second.ChamberRegions) || !first.FiniteWorkActuators.HasSameBits(second.FiniteWorkActuators)) return false;
+            !first.ChamberRegions.HasSameBits(second.ChamberRegions) || !first.FiniteWorkActuators.HasSameBits(second.FiniteWorkActuators) ||
+            !first.GasStores.HasSameValues(second.GasStores) || !first.IntegrityObservers.HasSameValues(second.IntegrityObservers)) return false;
         if (!SameMotion(first.Motion, second.Motion)) return false;
         return SameCaptures(first.Captures, second.Captures) && SameActivations(first.Activations, second.Activations) &&
             SameTimers(first.Timers, second.Timers);

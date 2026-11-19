@@ -48,7 +48,7 @@ public readonly record struct RigidBodyMassProperties(
 
     private void ValidateDynamicProperties()
     {
-        if (Mass < 1f / 1024f || Mass > 1024f || LinearDrag < 0f || LinearDrag > .125f || Gravity.LengthSquared() > 256f)
+        if (Mass < 1f / 1024f || Mass > 1024f || LinearDrag < 0f || Gravity.LengthSquared() > 256f)
             throw new ArgumentException("Mass or forces outside the physical domain.");
         var p = PrincipalMoments;
         const float minimum = 1f / 4294967296f;

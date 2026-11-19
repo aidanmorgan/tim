@@ -94,9 +94,10 @@ public sealed class WeightElementDeclaration : IMechanicalElement, ISceneGeometr
 
     // Expand the documented cylinder law once in package data; collision geometry contributes no mass.
     public MassFrameDeclaration MassFrame => new(
-        new(MassParameter, 0f, 1f, 0f, 0f),
+        BodyMassSourceDeclaration.Declared(new(MassParameter, 0f, 1f, 0f, 0f),
+            PrincipalMomentDeclaration.FromPolynomial(new(TransverseMoment, AxialMoment, TransverseMoment))),
         new(MassScalar.Constant(0f), new(MassParameter, HalfHeightOffset, HalfHeightSlope, 0f, 0f), MassScalar.Constant(0f)),
-        PrincipalMomentDeclaration.FromPolynomial(new(TransverseMoment, AxialMoment, TransverseMoment)), Quaternion.Identity, MassScalar.Constant(0f), WorldAccelerationDeclaration.Constant(new(0f, -9.81f, 0f)));
+        Quaternion.Identity, MassScalar.Constant(0f), WorldAccelerationDeclaration.Constant(new(0f, -9.81f, 0f)));
 
     private static MassScalar AxialMoment => new(MassParameter, 0f,
         .5f * RadiusOffset * RadiusOffset, RadiusSlope * RadiusOffset, .5f * RadiusSlope * RadiusSlope);

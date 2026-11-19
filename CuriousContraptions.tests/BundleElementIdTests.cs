@@ -87,7 +87,8 @@ public sealed class BundleElementIdTests
     [Fact]
     public void EveryLoadedElementIsKnownToTheWorkerDecode()
     {
-        Assert.Equal(41, SaveFixture.Elements.Count);
+        Assert.Equal(42, SaveFixture.Elements.Count);
+        Assert.Contains(new PartId("balloon"), SaveFixture.Elements);
         Assert.Contains(new PartId("tennis"), SaveFixture.Elements);
         Assert.Contains(new PartId("cannon"), SaveFixture.Elements);
         Assert.Contains(new PartId("wound_spring"), SaveFixture.Elements);
@@ -116,7 +117,7 @@ public sealed class BundleElementIdTests
     [Theory]
     [InlineData("kite")]
     [InlineData("unregistered_payload")]
-    [InlineData("balloon")]
+    [InlineData("unregistered_shape")]
     public void ASaveNamingAnUnknownElementIsRefusedNamingIt(string element)
     {
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.UnknownElement,

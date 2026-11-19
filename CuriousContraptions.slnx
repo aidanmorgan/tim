@@ -20,6 +20,7 @@
     <Project Path="elements/Bumper/Bumper.csproj" />
     <Project Path="elements/Cannon/Cannon.csproj" />
     <Project Path="elements/TennisBall/TennisBall.csproj" />
+    <Project Path="elements/Balloon/Balloon.csproj" />
     <Project Path="elements/Counter/Counter.csproj" />
     <Project Path="elements/DelayBox/DelayBox.csproj" />
     <Project Path="elements/HoldTimer/HoldTimer.csproj" />

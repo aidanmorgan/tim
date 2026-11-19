@@ -36,8 +36,8 @@ public static class RunControlBindings
         Matches(vector.X, key) || Matches(vector.Y, key) || Matches(vector.Z, key);
 
     private static bool Matches(MassFrameDeclaration frame, string key) =>
-        Matches(frame.Mass, key) || Matches(frame.CentreOfMass, key) || Matches(frame.PrincipalMoments.Polynomial, key) ||
-        frame.PrincipalMoments.Mass.Parameter?.Value == key || frame.PrincipalMoments.Length.Parameter?.Value == key ||
+        Matches(frame.Source.InitialMass, key) || Matches(frame.CentreOfMass, key) || Matches(frame.Source.DeclaredMoments.Polynomial, key) ||
+        frame.Source.DeclaredMoments.Mass.Parameter?.Value == key || frame.Source.DeclaredMoments.Length.Parameter?.Value == key ||
         Matches(frame.LinearDrag, key) || frame.Gravity.Parameter?.Value == key;
 
     /// <summary>Whether the parameter <paramref name="key"/> is bound to any property that is not a run-control lane.
@@ -81,6 +81,9 @@ public static class RunControlBindings
     {
         if (mechanical is null) return false;
         if (Matches(mechanical.MassFrame, key)) return true;
+        if (mechanical.GasStores.Any(s => Matches(s.ReferenceVolume, key)) ||
+            mechanical.AmbientLoads.Any(load => Matches(load.LinearDrag, key) || load.Acceleration.Parameter?.Value == key))
+            return true;
         if (mechanical.Hinges.Any(hinge => IsBoundToHinge(hinge, key))) return true;
         if (mechanical.Sliders.Any(slider => IsBoundToSlider(slider, key))) return true;
         return IsBoundToMechanicalFeatures(mechanical, key);

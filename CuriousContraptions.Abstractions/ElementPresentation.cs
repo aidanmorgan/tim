@@ -31,7 +31,8 @@ public enum PresentationDriver : byte
     CommittedPrismaticPhase,
     CommittedRetentionReleased,
     CommittedStoredFraction,
-    CommittedFiniteWorkState
+    CommittedFiniteWorkState,
+    CommittedGasRadius
 }
 
 public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2, StateValues = 3, ClampToEndpoints = 4 }
@@ -104,7 +105,8 @@ public readonly record struct PresentationBinding(
     Electrical.LocalSupplyNodeId? SupplyNode = null, Mechanical.LocalMechanicalTransmissionId? Transmission = null,
     PresentationFourStateValues? FourStateValues = null, PrismaticPhaseValues? PrismaticValues = null, Mechanical.LocalPrismaticRetentionId? Retention = null, LocalFiniteWorkActuatorId? FiniteWork = null,
     LocalEnergyStoreId? Store = null, PresentationFiniteWorkValues? FiniteWorkValues = null, AnimationPeakPhase? ImpulsePeak = null,
-    AnimationImpulseVisibility? ImpulseVisibility = null, AnimationImpulseTiming? ImpulseTiming = null);
+    AnimationImpulseVisibility? ImpulseVisibility = null, AnimationImpulseTiming? ImpulseTiming = null,
+    LocalColliderReference? GasShape = null, LocalIntegrityObservationId? Integrity = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(
@@ -147,6 +149,7 @@ public static class PresentationDriverRules
     public static bool Discrete4State(PresentationDriver driver) => driver == PresentationDriver.CommittedTransmissionPhase;
 
     public static bool ContinuousPhysical(PresentationDriver driver) => driver is
+        PresentationDriver.CommittedGasRadius or
         PresentationDriver.CommittedWheelAngle or
         PresentationDriver.CommittedRevoluteAngle or
         PresentationDriver.CommittedSurfaceDeflection or
@@ -169,7 +172,7 @@ public static class PresentationDriverRules
     {
         PresentationValueMapping.StateValues => Discrete3State(driver) || Discrete4State(driver) || driver is PresentationDriver.CommittedPrismaticPhase or PresentationDriver.CommittedFiniteWorkState,
         PresentationValueMapping.SineCyclesToUnit => ContinuousNormalized(driver),
-        PresentationValueMapping.ClampToEndpoints => ContinuousNormalized(driver),
+        PresentationValueMapping.ClampToEndpoints => ContinuousNormalized(driver) || ContinuousPhysical(driver),
         PresentationValueMapping.Identity => !Discrete3State(driver) && !Discrete4State(driver) && driver is not (PresentationDriver.CommittedPrismaticPhase or PresentationDriver.CommittedFiniteWorkState),
         _ => false
     };

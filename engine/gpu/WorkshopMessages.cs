@@ -21,6 +21,7 @@ public static class WorkshopMessages
             throw new ArgumentException("Invalid installed physical commit identity.");
         read.Bodies.ValidateTime(read.Epoch, read.Tick);
         ChamberReadValidation.ValidateBodies(read);
+        GasReadValidation.ValidateBodies(read);
         for (var i = 0; i < read.Bodies.Count; i++) read.Bodies[i].Validate();
         if (read.Motion is { } motion) motion.ValidateBinding(read.Bodies, read.Tick);
         else if (read.Tick.Value != 0) throw new ArgumentException("Committed motion description is required.");
@@ -47,6 +48,7 @@ public static class WorkshopMessages
         construction.Activation.ValidateCommittedMemory(read.Memory, read.Tick, construction.Physics);
         ValidateEnergyStoreOwners(read, construction);
         ChamberReadValidation.ValidateOwners(read, construction);
+        GasReadValidation.ValidateOwners(read, construction);
         ValidateRopeOwners(read, construction);
         for(var i=0;i<read.Captures.Count;i++)
             if(!construction.OwnsCapture(new(read.Captures[i].Sensor,read.Captures[i].Target)))
@@ -211,6 +213,12 @@ public static class WorkshopMessages
             throw new ArgumentException("Physical response does not bind its installed master schedule.");
     }
 
+    private static bool HasPhysicalState(WorkshopRead read) =>
+        read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || !read.PhysicalRevision.IsAdmission || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.EnergyStores.Count != 0 || read.ChamberRegions.Count != 0 || read.FiniteWorkActuators.Count != 0 || read.GasStores.Count != 0 || read.IntegrityObservers.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0;
+
+    private static bool HasPresentationState(WorkshopRead read) =>
+        read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0 || read.Presentation.Ropes.Length != 0 || read.Presentation.Transmissions.Length != 0 || read.Presentation.Retentions.Length != 0;
+
     internal static void ValidateCapture(WorkshopRead read)
     {
         if (read.Capture is { } capture)
@@ -219,7 +227,7 @@ public static class WorkshopMessages
             if (capture.Domain != WorkshopClockDomain.SimulationMonotonic || read.Epoch.Value == 0)
                 throw new ArgumentException("Physical read requires its simulation native clock.");
         }
-        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || !read.PhysicalRevision.IsAdmission || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.EnergyStores.Count != 0 || read.ChamberRegions.Count != 0 || read.FiniteWorkActuators.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0 || read.Presentation.Ropes.Length != 0 || read.Presentation.Transmissions.Length != 0 || read.Presentation.Retentions.Length != 0)
+        else if (HasPhysicalState(read) || HasPresentationState(read))
             throw new ArgumentException("An installed physical read requires its original capture.");
     }
 }

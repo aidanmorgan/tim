@@ -30,6 +30,12 @@ internal sealed class ContactFeatureSetKey : IEquatable<ContactFeatureSetKey>
             return faceA != 0 ? faceA : Nullable.Compare(a.FaceB, b.FaceB);
         });
     }
+    public bool UsesCollider(int collider)
+    {
+        foreach (var feature in _features)
+            if (feature.A == collider || feature.B == collider) return true;
+        return false;
+    }
     public bool Equals(ContactFeatureSetKey? other) => other is not null &&
         _features.AsSpan().SequenceEqual(other._features);
     public override bool Equals(object? other) => other is ContactFeatureSetKey key && Equals(key);

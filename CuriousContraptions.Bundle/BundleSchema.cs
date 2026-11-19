@@ -20,8 +20,17 @@ public static class BundleSchema
         ArgumentNullException.ThrowIfNull(declaration);
         return new(declaration.Metadata, Domains(declaration.SupportedDomains), declaration.Footprint, declaration.Ports,
             declaration.Colliders, declaration.Events,
-            declaration is IMechanicalElement mechanical
-                ? new MechanicalPayload(mechanical.KinematicMode, mechanical.MassFrame, mechanical.Payload, mechanical.AnchorPoints,
+            declaration is IMechanicalElement mechanical ? Mechanical(mechanical) : null,
+            declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.SupplyGraph : null) : null,
+            declaration is ISignalElement signal ? new SignalPayload(signal.SignalNodes, signal.SignalEdges, signal.SignalPorts) : null,
+            declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
+            declaration is IParameterizedGeometryElement geometry ? geometry.ColliderBindings : [], [],
+            declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : [], declaration.Presentation)
+            { MaterialBindings = declaration is IParameterizedMaterialElement material ? material.MaterialBindings : [] };
+    }
+
+    private static MechanicalPayload Mechanical(IMechanicalElement mechanical) =>
+        new MechanicalPayload(mechanical.KinematicMode, mechanical.MassFrame, mechanical.Payload, mechanical.AnchorPoints,
                     mechanical is ISliderElement slider ? slider.Sliders : [],
                     mechanical is IHingeElement hinge ? hinge.Hinges : [],
                     mechanical is ICompliantSurfaceElement compliant ? compliant.CompliantSurface : null,
@@ -34,14 +43,11 @@ public static class BundleSchema
                     EnergyStores = mechanical is IEnergyStoreElement storage ? storage.EnergyStores : [],
                     ContactWorks = mechanical is IContactWorkElement work ? work.ContactWorks : [],
                     ChamberRegions = mechanical is IChamberRegionElement chamber ? chamber.ChamberRegions : [],
-                    FiniteWorkActuators = mechanical is IFiniteWorkActuatorElement actuator ? actuator.FiniteWorkActuators : [] } : null,
-            declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.SupplyGraph : null) : null,
-            declaration is ISignalElement signal ? new SignalPayload(signal.SignalNodes, signal.SignalEdges, signal.SignalPorts) : null,
-            declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
-            declaration is IParameterizedGeometryElement geometry ? geometry.ColliderBindings : [], [],
-            declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : [], declaration.Presentation)
-            { MaterialBindings = declaration is IParameterizedMaterialElement material ? material.MaterialBindings : [] };
-    }
+                    GasStores = mechanical is IGasStoreElement gas ? gas.GasStores : [],
+                    GasShapes = mechanical is IGasShapeElement shape ? shape.GasShapes : [],
+                    IntegrityObservers = mechanical is IContactIntegrityElement integrity ? integrity.IntegrityObservers : [],
+                    AmbientLoads = mechanical is IAmbientLoadElement ambient ? ambient.AmbientLoads : [],
+                    FiniteWorkActuators = mechanical is IFiniteWorkActuatorElement actuator ? actuator.FiniteWorkActuators : [] };
 
     /// <summary>The bundle text for these declarations, ordered by ordinal element id.</summary>
     public static string Write(IEnumerable<IPuzzleElementDeclaration> declarations)
@@ -90,7 +96,7 @@ public static class BundleSchema
     [
         typeof(Vector2Converter), typeof(Vector3Converter), typeof(QuaternionConverter), typeof(ParameterIdConverter), typeof(PackageBodyIndexConverter),
         typeof(PortIdConverter), typeof(SignalNodeIdConverter), typeof(LocalSupplyNodeIdConverter), typeof(LocalContactWorkIdConverter),
-        typeof(LocalMechanicalTransmissionIdConverter), typeof(LocalPrismaticRetentionIdConverter), typeof(PhysicalRequestTargetConverter), typeof(AnimationPeakPhaseConverter),
+        typeof(LocalGasStoreIdConverter), typeof(LocalMechanicalTransmissionIdConverter), typeof(LocalPrismaticRetentionIdConverter), typeof(PhysicalRequestTargetConverter), typeof(AnimationPeakPhaseConverter),
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<CoordinateKind>), typeof(ExactEnumConverter<CuriousContraptions.Gpu.EnergyExpressionKind>), typeof(ExactEnumConverter<CuriousContraptions.Gpu.SensorParticipation>), typeof(ExactEnumConverter<CuriousContraptions.Gpu.PhysicalRequestTargetKind>),
@@ -101,7 +107,7 @@ public static class BundleSchema
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),
         typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>), typeof(ExactEnumConverter<TransmissionConstraintKind>), typeof(ExactEnumConverter<PhysicalRequestOperation>), typeof(ExactEnumConverter<CoordinateEndpoint>),
         typeof(ExactEnumConverter<PrismaticTargetSelection>), typeof(ExactEnumConverter<PrismaticInactiveResponse>),
-        typeof(ExactEnumConverter<MaterialComponent>), typeof(ExactEnumConverter<PrincipalMomentOperation>), typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>),
+        typeof(ExactEnumConverter<MaterialComponent>), typeof(ExactEnumConverter<PrincipalMomentOperation>), typeof(ExactEnumConverter<BodyMassSourceKind>), typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>),
         typeof(ExactEnumConverter<PresentationAxes>), typeof(ExactEnumConverter<PresentationProperty>),
         typeof(ExactEnumConverter<PresentationDriver>), typeof(ExactEnumConverter<PresentationValueMapping>), typeof(ExactEnumConverter<PresentationCurve>),
         typeof(ExactEnumConverter<PresentationOverlap>),
@@ -292,5 +298,21 @@ internal static class Components
         }
         if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
             throw new JsonException($"Expected an array of {values.Length} numbers.");
+    }
+}
+
+internal sealed class LocalGasStoreIdConverter : JsonConverter<CuriousContraptions.Gpu.LocalGasStoreId>
+{
+    public override CuriousContraptions.Gpu.LocalGasStoreId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetUInt32(out var value) || value == 0)
+            throw new JsonException("A gas store id is a nonzero unsigned integer.");
+        return new(value);
+    }
+
+    public override void Write(Utf8JsonWriter writer, CuriousContraptions.Gpu.LocalGasStoreId value, JsonSerializerOptions options)
+    {
+        if (value.Value == 0) throw new JsonException("A gas store id is nonzero.");
+        writer.WriteNumberValue(value.Value);
     }
 }

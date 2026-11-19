@@ -28,10 +28,10 @@ public sealed class ParameterizedBodyIntegrationTests
                 new(0, GeometryComponent.HalfExtentZ, "size_input", 1, 0)],
             MaterialBindings = [],
             Presentation = original.Presentation with { Parameters = [] },
-            Mechanical = original.Mechanical! with { MassFrame = new(
-                new(new ParameterId("weight_input"), 0, 1, 0, 0), MassVector.Constant(Vector3.Zero),
+            Mechanical = original.Mechanical! with { AmbientLoads = [], MassFrame = new(
+                BodyMassSourceDeclaration.Declared(new(new ParameterId("weight_input"), 0, 1, 0, 0),
                 new(PrincipalMomentOperation.ScaledMassLengthSquared, default, new(new ParameterId("weight_input"), 0),
-                    new(new ParameterId("size_input"), 0), new(.2f, .3f, .4f)),
+                    new(new ParameterId("size_input"), 0), new(.2f, .3f, .4f))), MassVector.Constant(Vector3.Zero),
                 Quaternion.Identity, MassScalar.Constant(0),
                 new(new ParameterId("vector_input"), new(0, 16, 0), new(1, -1, 0))) }
         };

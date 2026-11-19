@@ -86,7 +86,7 @@ public sealed class DominoGuardTests
         // The lamp carries that one occurrence, and the ActivatedAfter goal is first met at that tick.
         Assert.Equal(latch.EventOrdinal, LatchOf(run[fired], Lamp).EventOrdinal);
         Assert.Equal(ActivationPhase.Latched, LatchOf(run[^1], Lamp).Phase);
-        Assert.Equal(fired, FirstTick(run, read => WorkshopGoalEvaluator.Occurrence(lesson.Puzzle.Goal, read.Captures, read.Activations, lesson.Instances.Identities) is not null));
+        Assert.Equal(fired, FirstTick(run, read => WorkshopGoalEvaluator.Occurrence(lesson.Puzzle.Goal, read.Captures, read.Activations, read.IntegrityObservers, lesson.Instances.Identities) is not null));
         Assert.True(LaunchLessonSolveTests.Solved(lesson, run));
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
     }

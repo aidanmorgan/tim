@@ -20,4 +20,5 @@ public readonly record struct CompiledPresentationBinding(PresentationProperty P
 public readonly record struct CompiledPresentationTrack(AnimationTargetId Target, GpuBodyId Owner, int Binding,
     CompiledPresentationBinding Declaration, ActivationNodeDeclaration Activation, float SourceCapacity,
     SupplyConsumer? Actuator = null, RopeGuideId Guide = default, ElectricalSourceId Source = default,
-    SupplyNodeId SupplyNode = default, MechanicalTransmissionId Transmission = default, PrismaticRetentionId Retention = default, FiniteWorkActuatorId FiniteWork = default, EnergyStoreId Store = default);
+    SupplyNodeId SupplyNode = default, MechanicalTransmissionId Transmission = default, PrismaticRetentionId Retention = default, FiniteWorkActuatorId FiniteWork = default, EnergyStoreId Store = default,
+    GpuColliderId GasShape = default, IntegrityObservationId Integrity = default);

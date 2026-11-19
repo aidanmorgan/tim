@@ -963,6 +963,11 @@ public static partial class WorkshopWireFlatBuffers
         var energyStores = EncodeEnergyStores(b, scene.Physics.EnergyStores);
         var chamberRegions = EncodeChamberDeclarations(b, scene.Physics.ChamberRegions);
         var finiteWorkActuators = EncodeFiniteWorkActuatorDeclarations(b, scene.Physics.FiniteWorkActuators);
+        var gasStores = EncodeGasStores(b, scene.Physics.GasStores);
+        var gasShapes = EncodeGasShapes(b, scene.Physics.GasShapes);
+        var inventoryMasses = EncodeInventoryMasses(b, scene.Physics.InventoryMasses);
+        var ambientLoads = EncodeAmbientLoads(b, scene.Physics.AmbientLoads);
+        var integrityObservers = EncodeIntegrityObservers(b, scene.Physics.IntegrityObservers);
         var contact_works = W.CompiledSceneRecord.CreateContactWorksVector(b, scene.Physics.ContactWorks.ToArray().Select(value => EncodeCapabilityContactWorkDeclarationRecord(b, value)).ToArray());
         var orientation_sensors = W.CompiledSceneRecord.CreateOrientationSensorsVector(b, scene.Physics.OrientationSensors.ToArray().Select(value => EncodeCapabilityOrientationSensorDeclarationRecord(b, value)).ToArray());
         var electrical_sources = W.CompiledSceneRecord.CreateElectricalSourcesVector(b, scene.Physics.Electrical.Sources.ToArray().Select(value => EncodeCapabilityElectricalSourceDeclarationRecord(b, value)).ToArray());
@@ -1020,6 +1025,8 @@ public static partial class WorkshopWireFlatBuffers
             W.CompiledPresentationRecord.AddTransmission(b, track.Transmission.Value);
             W.CompiledPresentationRecord.AddRetention(b, track.Retention.Value);
             W.CompiledPresentationRecord.AddFiniteWork(b, track.FiniteWork.Value);
+            W.CompiledPresentationRecord.AddGasShape(b, track.GasShape.Value);
+            W.CompiledPresentationRecord.AddIntegrity(b, track.Integrity.Value);
             W.CompiledPresentationRecord.AddStore(b, track.Store.Value);
             return W.CompiledPresentationRecord.EndCompiledPresentationRecord(b);
         }).ToArray());
@@ -1040,6 +1047,11 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddEnergyStores(b, energyStores);
         W.CompiledSceneRecord.AddChamberRegions(b, chamberRegions);
         W.CompiledSceneRecord.AddFiniteWorkActuators(b, finiteWorkActuators);
+        W.CompiledSceneRecord.AddGasStores(b, gasStores);
+        W.CompiledSceneRecord.AddGasShapes(b, gasShapes);
+        W.CompiledSceneRecord.AddInventoryMasses(b, inventoryMasses);
+        W.CompiledSceneRecord.AddAmbientLoads(b, ambientLoads);
+        W.CompiledSceneRecord.AddIntegrityObservers(b, integrityObservers);
         W.CompiledSceneRecord.AddOrientationSensors(b, orientation_sensors);
         W.CompiledSceneRecord.AddElectricalSources(b, electrical_sources);
         W.CompiledSceneRecord.AddElectricalBindings(b, electrical_bindings);
@@ -1129,7 +1141,8 @@ public static partial class WorkshopWireFlatBuffers
                 electrical_sources, electrical_bindings, prismatics, supply_nodes, supply_edges, contact_load_sensors, prismatic_drives, tensile,
                 revolutes: revolutes, compliantSurfaces: compliant_surfaces, revoluteDrives: revolute_drives,
                 ropeGuides: rope_guides, transmissions: transmissions, drivenSurfaces: drivenSurfaces, energyStores: energyStores,
-                chamberRegions: DecodeChamberDeclarations(row), finiteWorkActuators: DecodeFiniteWorkActuatorDeclarations(row));
+                chamberRegions: DecodeChamberDeclarations(row), finiteWorkActuators: DecodeFiniteWorkActuatorDeclarations(row),
+                gasStores: DecodeGasStores(row), gasShapes: DecodeGasShapes(row), inventoryMasses: DecodeInventoryMasses(row), ambientLoads: DecodeAmbientLoads(row), integrityObservers: DecodeIntegrityObservers(row));
             var activation = new ActivationNetwork(activation_nodes, activation_edges, row.ActivationSubsteps, passage_sensors,
                 Enumerable.Range(0, row.SignalContactsLength).Select(i =>
                 {
@@ -1144,7 +1157,8 @@ public static partial class WorkshopWireFlatBuffers
                     track.Activation is { } node ? DecodeCapabilityActivationNodeDeclarationRecord(node) : default, track.SourceCapacity,
                     track.Actuator is { } drive ? ActuatorConsumerOf(drive.Kind, drive.Joint) : null, new(track.Guide),
                     new(track.Source), new(track.SupplyNode), new MechanicalTransmissionId(track.Transmission), new PrismaticRetentionId(track.Retention),
-                    new FiniteWorkActuatorId(track.FiniteWork), new EnergyStoreId(track.Store));
+                    new FiniteWorkActuatorId(track.FiniteWork), new EnergyStoreId(track.Store),
+                    new GpuColliderId(track.GasShape), new IntegrityObservationId(track.Integrity));
             });
             return new(new(row.Identity), new(row.Revision), DecodeCapabilityWorkshopCadenceSettingsRecord(Required(row.Settings, "settings")),
                 physics, activation, presentation,

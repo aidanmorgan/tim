@@ -175,14 +175,14 @@ public sealed class DeclaredIndicatorPassageTests
 
     // 9A.32 removed four InstanceRecord fields and renumbered the later slots, so the wired save's counter target count (slot 12 at
     // 54ffd9f0) now lies beyond the table (10 fields at 9A.32, 8 since C-Memory). C-Memory made the counter a generic instance, so its
-    // record decodes as a counter without its declared target_count: the save is refused with the typed reason at both decode
-    // boundaries, never misread (it was a missing typed target count before C-Memory).
+    // record has no current atmosphere and is refused MissingField at the save boundary. Its isolated counter record still lacks
+    // the declared target_count and is independently refused by the current instance decoder.
     [Fact]
     public void TheWiredRecordPathSaveIsRefusedAfterTheSlotRenumbering()
     {
         var bytes = Convert.FromBase64String(WiredSave);
-        Assert.Equal("This save cannot be loaded: Invalid declared parameters.",
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes)).Message);
+        Assert.Equal("This save cannot be loaded: The save has no atmosphere selection.",
+            SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes)).Message);
         var counter = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(3)!.Value;
         Assert.Equal("counter", counter.PartId);
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(counter)).Reason);
@@ -190,7 +190,7 @@ public sealed class DeclaredIndicatorPassageTests
 
     [Theory]
     [MemberData(nameof(RecordPathSaves))]
-    public void ARecordPathSaveLoadsAsTheGenericInstancesAtBothBoundaries(string name, string base64)
+    public void HistoricalSaveIsRefusedAndCurrentGenericInstancesLoadAtBothBoundaries(string name, string base64)
     {
         var bytes = Convert.FromBase64String(base64);
         var expected = name switch
@@ -199,9 +199,12 @@ public sealed class DeclaredIndicatorPassageTests
             "detector" => Bench([PlacedParts.Detector(new(1), 2.5f, 1, -1.25f, 0, 0, (float)(-H), (float)(H), locked: true)]),
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
-        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes);
+        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(
+            RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
+        var current = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new(expected, new(9)));
+        var loaded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, current);
         Assert.Equal(new WorkshopSavedConstruction(expected, new(9)), loaded);
-        var records = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value;
+        var records = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, current).Construction!.Value;
         for (var i = 0; i < records.InstancesLength; i++)
             Assert.Equal(expected.Instances[i], WorkshopAuthoringFlatBuffers.MapInstance(records.Instances(i)!.Value));
     }

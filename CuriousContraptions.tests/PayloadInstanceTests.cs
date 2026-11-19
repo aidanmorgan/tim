@@ -56,7 +56,8 @@ public sealed class PayloadInstanceTests
             var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(id));
             Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
             Assert.Equal(new Kilograms((float)mass), body.Mass);
-            Assert.Equal(new InverseSeconds(.04f), body.LinearDrag);
+            Assert.Equal(new InverseSeconds(0f), body.LinearDrag);
+            Assert.Equal(.04f, Assert.Single(scene.AmbientLoads.ToArray(), load => load.Body == body.Id).LinearDrag);
             Assert.Equal(new AccelerationVector(0f, -9.81f, 0f), body.Gravity);
             var collider = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id && c.Shape == ColliderShapeKind.Sphere);
             Assert.Equal(ColliderShapeKind.Sphere, collider.Shape);
@@ -69,7 +70,9 @@ public sealed class PayloadInstanceTests
             // The package is the f32 authority the compiler narrows from.
             var entry = DeclaredPhysics.Of(kind);
             var sphere = Assert.Single(entry.Colliders, collider => collider.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere);
-            Assert.Equal((radius, mass, .04f, bounce, .3f, .1f, rolling), (sphere.HalfExtents.X, MassFixtures.Evaluate(entry.Mechanical!.MassFrame, entry.Metadata.Parameters).Mass,
+            Assert.Equal(.04f, Assert.Single(entry.Mechanical!.AmbientLoads, load => load.Body == new CuriousContraptions.Abstractions.PackageBodyIndex(0))
+                .LinearDrag.Evaluate(new Dictionary<CuriousContraptions.Abstractions.ParameterId, float>()));
+            Assert.Equal((radius, mass, 0f, bounce, .3f, .1f, rolling), (sphere.HalfExtents.X, MassFixtures.Evaluate(entry.Mechanical!.MassFrame, entry.Metadata.Parameters).Mass,
                 MassFixtures.Evaluate(entry.Mechanical.MassFrame, entry.Metadata.Parameters).LinearDrag, sphere.Material.Restitution, sphere.Material.Friction,
                 sphere.Material.BounceThreshold, sphere.Material.RollingResistance));
         }
@@ -290,6 +293,7 @@ public sealed class PayloadInstanceTests
         var instances = ConstructionRecord.CreateInstancesVector(builder, [instance]);
         var settings = WorkshopCadenceSettings.Default();
         ConstructionRecord.StartConstructionRecord(builder);
+        ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         ConstructionRecord.AddRevision(builder, 1);
         ConstructionRecord.AddSettings(builder, CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)settings.Simulation,
             (uint)settings.Physical, (uint)settings.Animation, (uint)settings.Presentation, settings.PresentationRate.Numerator,
@@ -341,7 +345,7 @@ public sealed class PayloadInstanceTests
 
     /// <summary>A stored save holding one current-layout generic record of <paramref name="part"/>, optionally carrying one typed record
     /// field set to a nonzero value and optional declared parameters.</summary>
-    internal static byte[] GenericSave(string part, IReadOnlyList<(string Key, float Value)>? parameters = null)
+    internal static byte[] GenericSave(string part, IReadOnlyList<(string Key, float Value)>? parameters = null, bool unknownField = false)
     {
         var builder = new FlatBufferBuilder(512);
         var name = builder.CreateString(part);
@@ -349,7 +353,12 @@ public sealed class PayloadInstanceTests
         if (parameters is not null)
             parameterVector = InstanceRecord.CreateParametersVector(builder, parameters.Select(p =>
                 ParameterRecord.CreateParameterRecord(builder, builder.CreateString(p.Key), p.Value)).ToArray());
-        InstanceRecord.StartInstanceRecord(builder);
+        if (unknownField)
+        {
+            builder.StartTable(8); // Current InstanceRecord owns slots 0-6; slot7 must be refused.
+            builder.AddFloat(7, 1f, 0f);
+        }
+        else InstanceRecord.StartInstanceRecord(builder);
         if (parameterVector is { } vector) InstanceRecord.AddParameters(builder, vector);
         InstanceRecord.AddId(builder, 1);
         InstanceRecord.AddPartId(builder, name);
@@ -360,6 +369,7 @@ public sealed class PayloadInstanceTests
         var instances = ConstructionRecord.CreateInstancesVector(builder, [instance]);
         var settings = WorkshopCadenceSettings.Default();
         ConstructionRecord.StartConstructionRecord(builder);
+        ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         ConstructionRecord.AddRevision(builder, 1);
         ConstructionRecord.AddSettings(builder, CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)settings.Simulation,
             (uint)settings.Physical, (uint)settings.Animation, (uint)settings.Presentation, settings.PresentationRate.Numerator,

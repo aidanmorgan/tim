@@ -25,6 +25,8 @@ public readonly record struct SimulationEventRecord(ulong Sequence, ulong Tick, 
             throw new ArgumentException("Invalid event record.");
         if (Kind == SimulationEventKind.FiniteWorkReleased && (Other == 0 || Magnitude <= 0f || Count == 0 || Level != 0))
             throw new ArgumentException("Invalid finite-work release event.");
+        if (Kind == SimulationEventKind.IntegrityBroken && (Other != 0 || Magnitude != 0 || Count != 1 || Level != 0 || Ordinal == 0 || Phase != 0))
+            throw new ArgumentException("Invalid integrity occurrence event.");
     }
 
     /// <summary>Encodes the record. Publishing never validates or faults: the producer validates every record while it stages the

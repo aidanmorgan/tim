@@ -17,6 +17,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
 {
     private static readonly GpuBodyId Owner = new(1);
 
+    private static RigidBodyMassProperties DeclaredMass(IMechanicalElement element)
+    {
+        var values = element.Metadata.Parameters.ToDictionary(p => new ParameterId(p.Key), p => p.Default);
+        var stores = element is IGasStoreElement gas ? gas.GasStores : [];
+        return element.MassFrame.Evaluate(values, GasMassReferences.Resolve(new(0), stores, values));
+    }
+
     private static IReadOnlyList<BundlePackage> Packages()
     {
         var discovered = PackageDiscovery.Discover(twodog.Engine.ResolveProjectDir());
@@ -127,7 +134,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         {
             if (package.Declaration is not IMechanicalElement mechanical) continue;
             var scene = Compile(Placed(new PartId(mechanical.Metadata.Id)));
-            var mass = MassFixtures.Evaluate(mechanical.MassFrame, mechanical.Metadata.Parameters);
+            var mass = DeclaredMass(mechanical);
             AssertBody(package.Package, mechanical.KinematicMode, mass.Mass, mass.LinearDrag, mass.Gravity,
                 scene.Bodies.ToArray().Single(body => body.Id == Owner));
         }
@@ -139,7 +146,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     public void EveryPayloadPackageCompilesItsDeclaredMaterial()
     {
         var balls = Packages().Where(package => DeclaredPhysics.IsPayload(new PartId(package.Declaration.Metadata.Id))).ToArray();
-        Assert.Equal(["ball", "bowling", "tennis"], balls.Select(package => package.Declaration.Metadata.Id).Order(StringComparer.Ordinal));
+        Assert.Equal(["ball", "balloon", "bowling", "tennis"], balls.Select(package => package.Declaration.Metadata.Id).Order(StringComparer.Ordinal));
         foreach (var package in balls)
         {
             var ball = (IMechanicalElement)package.Declaration;
@@ -152,8 +159,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             var body = Assert.Single(scene.Bodies.ToArray(), row => row.Id == Owner);
             var sphere = Assert.Single(scene.Colliders.ToArray(), row => row.Body == Owner && row.Shape == RuntimeShape.Sphere);
             var material = Assert.Single(scene.Materials.ToArray(), row => row.Id == sphere.Material);
-            Assert.True(Same(collider.HalfExtents.X, sphere.Radius.Value) && Same(MassFixtures.Evaluate(ball.MassFrame, ball.Metadata.Parameters).Mass, body.Mass.Value) &&
-                Same(collider.Material.Restitution, material.Restitution.Value) && Same(MassFixtures.Evaluate(ball.MassFrame, ball.Metadata.Parameters).LinearDrag, body.LinearDrag.Value) &&
+            Assert.True(Same(collider.HalfExtents.X, sphere.Radius.Value) && Same(DeclaredMass(ball).Mass, body.Mass.Value) &&
+                Same(collider.Material.Restitution, material.Restitution.Value) && Same(DeclaredMass(ball).LinearDrag, body.LinearDrag.Value) &&
                 Same(collider.Material.Friction, material.Friction.Value) && Same(collider.Material.BounceThreshold, material.BounceThreshold.Value) &&
                 Same(collider.Material.RollingResistance, material.RollingResistance.Value), $"{package.Package}: the compiled material differs from the package.");
             Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
@@ -281,6 +288,20 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 // Compare the physical tensor in body coordinates, not the chosen quaternion representation.
                 var frame = body.MassProperties.PrincipalFrame;
                 var pose = collider.Pose.Rotation;
+                if (body.Id == Owner && package.Declaration is IMechanicalElement mechanical &&
+                    mechanical.MassFrame.Source.Kind == BodyMassSourceKind.CenteredInventory)
+                {
+                    // Centered gas owns translational mass only. Its dry carrier uses the declared fixed principal coefficients.
+                    var parameters = mechanical.Metadata.Parameters.ToDictionary(p => new ParameterId(p.Key), p => p.Default);
+                    var gas = Assert.IsAssignableFrom<IGasStoreElement>(mechanical);
+                    var referenceMass = gas.GasStores.Sum(store => (double)store.ReferencePressure *
+                        store.ReferenceVolume.Evaluate(parameters) / store.Material.R / store.ReferenceTemperature);
+                    var dryMass = m - referenceMass;
+                    var coefficients = mechanical.MassFrame.Source.DryMomentPerMass;
+                    exact = (dryMass * coefficients.X, dryMass * coefficients.Y, dryMass * coefficients.Z);
+                    var declaredFrame = mechanical.MassFrame.PrincipalFrame;
+                    pose = new(declaredFrame.X, declaredFrame.Y, declaredFrame.Z, declaredFrame.W);
+                }
                 var offset = scene.Layout.GetBodyOffset(body.Id) + PhysicsGpuAbi.BodyPrincipalInertiaOffset;
                 double Moment(int axis) => System.Buffers.Binary.BinaryPrimitives.ReadSingleLittleEndian(
                     admitted.AsSpan(offset + axis * PhysicsGpuAbi.PrincipalInertiaBytes));
@@ -565,6 +586,14 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("stroke", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .8f, Generic(new PartId("wound_spring"), "stroke"), []),
                 ("winding_lead", ParameterUnit.MetrePerRadian, ParameterKind.Real, Lane.Single, .1f, Generic(new PartId("wound_spring"), "winding_lead"), [])
             ],
+            "balloon" =>
+            [
+                ("mass", ParameterUnit.Kilogram, ParameterKind.Real, Lane.Single, .5f, Generic(new("balloon"), "mass"), []),
+                ("bounce", ParameterUnit.None, ParameterKind.Real, Lane.Single, .2f, Generic(new("balloon"), "bounce"), []),
+                ("radius", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .36f, Generic(new("balloon"), "radius"), []),
+                ("buoyancy", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Lane.Single, 11.5f, Generic(new("balloon"), "buoyancy"), []),
+                ("drag", ParameterUnit.InverseSecond, ParameterKind.Real, Lane.Single, .4f, Generic(new("balloon"), "drag"), [])
+            ],
             "tennis" =>
             [
                 ("mass", ParameterUnit.Kilogram, ParameterKind.Real, Lane.Single, .35f, Generic(new("tennis"), "mass"), []),
@@ -602,7 +631,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" or "cannon" or "tennis" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" or "cannon" or "tennis" or "balloon" =>
             WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),

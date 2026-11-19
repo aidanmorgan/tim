@@ -68,6 +68,8 @@ public sealed class CSharpStaticGateTests
         ["ui/WorkshopGpu.cs:Workshop.CommitSelectedAsync"] = 1,
         ["ui/WorkshopGpu.cs:Workshop.SubmitConstruction"] = 1,
         ["ui/WorkshopGpu.cs:Workshop.HandlerFailed"] = 1,
+        ["ui/WorkshopAtmosphere.cs:Workshop.ApplyAtmosphere"] = 1,
+        ["ui/WorkshopAtmosphere.cs:Workshop.ApplyAtmosphereAsync"] = 1,
         ["ui/WorkshopPuzzle.cs:Workshop.SelectModeFromPicker"] = 1,
         ["ui/WorkshopPuzzle.cs:Workshop.SelectModeFromPickerAsync"] = 1,
         ["ui/WorkshopPuzzle.cs:Workshop.ChangePrecision"] = 1,
@@ -166,6 +168,8 @@ public sealed class CSharpStaticGateTests
         "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ChangeConnection(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)|M:CuriousContraptions.Workshop.ChangeConnectionAsync(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)",
         "[ui/WorkshopGpu.cs]",
         "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.Playback(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.PlaybackAsync(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.CommitSelected|M:CuriousContraptions.Workshop.CommitSelectedAsync|M:CuriousContraptions.Workshop.SubmitConstruction(CuriousContraptions.Gpu.WorkshopConstruction)|M:CuriousContraptions.Workshop.HandlerFailed(System.String,System.Exception)",
+        "[ui/WorkshopAtmosphere.cs]",
+        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyAtmosphere(CuriousContraptions.Gpu.AtmospherePreset)|M:CuriousContraptions.Workshop.ApplyAtmosphereAsync(CuriousContraptions.Gpu.AtmospherePreset)",
         "[ui/WorkshopPuzzle.cs]",
         "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.SelectModeFromPicker(System.Int32)|M:CuriousContraptions.Workshop.SelectModeFromPickerAsync(System.Int32)|M:CuriousContraptions.Workshop.ChangePrecision(System.Double)|M:CuriousContraptions.Workshop.ChangePrecisionAsync(System.Single)",
         "[CuriousContraptions.tests/PalettePlacementTests.cs]",
@@ -694,6 +698,7 @@ public sealed class CSharpStaticGateTests
         "elements/WoundSpring/WoundSpring.csproj",
         "elements/Cannon/Cannon.csproj",
         "elements/TennisBall/TennisBall.csproj",
+        "elements/Balloon/Balloon.csproj",
     ];
     private static readonly string[] RequiredAnalyzers =
     [

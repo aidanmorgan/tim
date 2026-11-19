@@ -89,6 +89,7 @@ public sealed class WorkshopSaveRejectionTests
         }
         var settings = WorkshopCadenceSettings.Default();
         ConstructionRecord.StartConstructionRecord(builder);
+        ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         ConstructionRecord.AddRevision(builder, save.Revision);
         if (save.Settings)
             ConstructionRecord.AddSettings(builder, CadenceSettingsRecord.CreateCadenceSettingsRecord(builder,

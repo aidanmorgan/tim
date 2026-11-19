@@ -22,7 +22,10 @@ public sealed class ColliderParticipationTests
         Assert.Empty(BundleValidator.Validate([new(entry.Metadata.Id, entry)]));
         var decoded = Assert.Single(BundleSchema.Read(BundleSchema.WriteEntries([entry])).Elements);
         Assert.All(decoded.Colliders, c => Assert.Equal(participation, c.Participation));
-        Assert.Equal(source.Mechanical!.MassFrame, decoded.Mechanical!.MassFrame);
+        var expectedFrame = source.Mechanical!.MassFrame;
+        var decodedFrame = decoded.Mechanical!.MassFrame;
+        Assert.Equal(expectedFrame.Source.Stores, decodedFrame.Source.Stores);
+        Assert.Equal(expectedFrame with { Source = expectedFrame.Source with { Stores = decodedFrame.Source.Stores } }, decodedFrame);
         using var physics = DeclaredPhysics.Scoped([decoded]);
         using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(new PartId(entry.Metadata.Id), entry.Ports)]));
         var instance = WorkshopInput.Generic(RuntimeTestServices.Bundle, new(entry.Metadata.Id), new(11), 0, 2, 0, 0, 0, 0, 1);

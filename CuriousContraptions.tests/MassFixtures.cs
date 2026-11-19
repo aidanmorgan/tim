@@ -49,5 +49,6 @@ internal static class MassFixtures
     }
 
     public static RigidBodyMassProperties Evaluate(MassFrameDeclaration frame, IReadOnlyList<ParameterDescriptor> parameters) =>
-        frame.Evaluate(parameters.ToDictionary(p => new ParameterId(p.Key), p => p.Default));
+        frame.Evaluate(parameters.ToDictionary(p => new ParameterId(p.Key), p => p.Default),
+            new(0, new Dictionary<LocalGasStoreId, ReferenceGasMass>()));
 }

@@ -46,15 +46,22 @@ public sealed class F32LaneRoundTripTests
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
         var layout = scene.Layout;
 
-        // Basketball: radius 0.34 m, 1 kg, drag 0.04 1/s, gravity −9.81 m/s², restitution 0.55, rolling 0.035 (its package).
+        // Basketball: radius 0.34 m, 1 kg, base drag zero and Standard ambient drag 0.04 1/s, gravity −9.81 m/s², restitution 0.55, rolling 0.035 (its package).
         var ball = scene.Bodies.ToArray().Single(body => body.Id == Ball);
         var sphere = scene.Colliders.ToArray().Single(collider => collider.Body == Ball && collider.Shape == CuriousContraptions.Gpu.ColliderShapeKind.Sphere);
         var surface = scene.Materials.ToArray().Single(material => material.Id == sphere.Material);
-        Assert.Equal((Bits(.34f), Bits(1f), Bits(.04f), Bits(-9.81f), Bits(.55f), Bits(.035f)),
+        Assert.Equal((Bits(.34f), Bits(1f), Bits(0f), Bits(-9.81f), Bits(.55f), Bits(.035f)),
             (Bits(sphere.Radius.Value), Bits(ball.Mass.Value), Bits(ball.LinearDrag.Value), Bits(ball.Gravity.Y), Bits(surface.Restitution.Value),
                 Bits(surface.RollingResistance.Value)));
+        var ambient = scene.AmbientLoads.ToArray();
+        var load = Assert.Single(ambient, row => row.Body == Ball);
+        Assert.Equal(Bits(.04f), Bits(load.LinearDrag));
+        var ambientOffset = scene.World.AmbientLoadOffset(Array.IndexOf(ambient, load));
+        Assert.Equal((uint)Array.FindIndex(scene.Bodies.ToArray(), row => row.Id == Ball),
+            Lane(admitted, ambientOffset + PhysicsGpuAbi.AmbientBodyOffset));
+        Assert.Equal(Bits(.04f), Lane(admitted, ambientOffset + PhysicsGpuAbi.AmbientDragOffset));
         var body = layout.GetBodyOffset(Ball);
-        Assert.Equal((Bits(1f), Bits(.04f), Bits(-9.81f)), (Lane(admitted, body + PhysicsGpuAbi.BodyMassOffset),
+        Assert.Equal((Bits(1f), Bits(0f), Bits(-9.81f)), (Lane(admitted, body + PhysicsGpuAbi.BodyMassOffset),
             Lane(admitted, body + PhysicsGpuAbi.BodyDragOffset), Lane(admitted, body + PhysicsGpuAbi.BodyGravityOffset + 4)));
         Assert.Equal(Bits(.34f), Lane(admitted, layout.GetColliderOffset(sphere.Id) + PhysicsGpuAbi.ColliderRadiusOffset));
         var material = layout.GetMaterialOffset(surface.Id);
@@ -84,7 +91,8 @@ public sealed class F32LaneRoundTripTests
         var candidate = new byte[admitted.Length];
         var interactions = new CuriousContraptions.Simulation.WorkshopPhysicsEngine().Advance(admitted, candidate, new(new ElectricalEnable[scene.World.ElectricalSources], new bool[scene.World.Prismatics]), PhysicsInteractionSnapshot.Empty);
         var read = PhysicsGpuAbi.ValidateCandidate(candidate, admitted, new(1), interactions, PhysicsInteractionSnapshot.Empty);
-        Assert.Equal((Bits(1f), Bits(.04f)), (Lane(candidate, body + PhysicsGpuAbi.BodyMassOffset), Lane(candidate, body + PhysicsGpuAbi.BodyDragOffset)));
+        Assert.Equal(Bits(.04f), Lane(candidate, ambientOffset + PhysicsGpuAbi.AmbientDragOffset));
+        Assert.Equal((Bits(1f), Bits(0f)), (Lane(candidate, body + PhysicsGpuAbi.BodyMassOffset), Lane(candidate, body + PhysicsGpuAbi.BodyDragOffset)));
         var motion = scene.World.MotionOffset;
         var pieces = Enumerable.Range(0, (int)Lane(candidate, motion + PhysicsMotionRead.CountOffset))
             .Select(i => motion + PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes)

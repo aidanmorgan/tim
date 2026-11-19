@@ -20,11 +20,11 @@ public static class WorkshopGoalEvaluator
         if (goal.Kind == WorkshopGoalKind.Captured)
         {
             if (!read.Bodies.TryGet(goal.Body, out var body) || body.Body.Epoch != epoch.Value) return null;
-            return Occurrence(goal, read.Captures, read.Activations, identities);
+            return Occurrence(goal, read.Captures, read.Activations, read.IntegrityObservers, identities);
         }
-        return Occurrence(goal, read.Captures, read.Activations, identities);
+        return Occurrence(goal, read.Captures, read.Activations, read.IntegrityObservers, identities);
     }
-    public static ActivationTime? Occurrence(WorkshopGoal goal, PhysicsCaptureRead captures, PhysicsActivationRead activations, CompiledIdentityMap identities)
+    public static ActivationTime? Occurrence(WorkshopGoal goal, PhysicsCaptureRead captures, PhysicsActivationRead activations, PhysicsIntegrityRead integrity, CompiledIdentityMap identities)
     {
         goal.Validate();
         if (goal.Kind == WorkshopGoalKind.Captured)
@@ -34,6 +34,10 @@ public static class WorkshopGoalEvaluator
                 if (captures[i].Sensor == rows.Sensor && captures[i].Target == goal.Body && captures[i].Phase == CaptureLatchPhase.Latched)
                     return new(captures[i].EventOrdinal, (float)captures[i].EventPhase);
         }
+        else if (goal.Kind == WorkshopGoalKind.IntegrityBroken && goal.Integrity is { } selector &&
+            identities.TryIntegrity(selector, out var selected) && integrity.TryGet(selected, out var broken) &&
+            broken.Phase == IntegrityPhase.Broken)
+            return new(broken.Ordinal, broken.EventPhase);
         else if (goal.Kind == WorkshopGoalKind.ActivatedAfter)
         {
             ActivationLatch? source = null, target = null;

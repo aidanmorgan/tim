@@ -390,7 +390,7 @@ development_status:
   9a-44b-f32-double-game-values-and-tick-clock: done # published6e0e0ee1799d31211e1769b8883f6bedb3fae396; local4884/0/0, hooks126/0/0, CI40765810580 and terminal artifact/deployment Pass
   # 51 (element)
   epic-12: in-progress
-  12-1-lightweight-tennis-ball-floating-balloon: backlog # split aggregate; use individual children
+  12-1-lightweight-tennis-ball-floating-balloon: done # aggregate only; native children12.1a/12.1b complete; Fan integration and browser qualification retain named owners
   # 52 (deletion)
   9a-24-typed-observation-port: done # Implementation/review and full local 5047/0/0 complete; hooks/exact-SHA approval/publication pending; browser consumers deferred
   # 53 (element)
@@ -543,8 +543,8 @@ development_status:
   11-2b-reverse-transmission: done # native/full-local/review Pass; normal commit/publication checks follow; browser pending
   11-4a-wound-spring: done
   11-4b-cannon: done
-  12-1a-tennis-ball: done # Native implementation/review complete; full6844/0/0, hooks134/0/0, E9 PASS; publication and browser qualification pending
-  12-1b-balloon: backlog
+  12-1a-tennis-ball: done # published15c8681d4db738f0adba148c4afd1ccf8595e74e; full6844/0/0, hooks134/0/0, E9 PASS; browser qualification pending
+  12-1b-balloon: done # native full6912/0/0, protected review hooks134/0/0, E9 PASS; SnapshotApproval294bec23c72cd9ed4dffa42d29c13c5c653959a0; completion publication and browser qualification pending
   13-1a-torch: backlog
   13-1e-amber-laser: backlog
   13-2a-broadband-receiver: backlog

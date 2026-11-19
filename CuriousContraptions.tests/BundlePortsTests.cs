@@ -114,6 +114,8 @@ public sealed class BundlePortsTests
         ["battery"] = ([Electrical(PortId.Supply, Out, 0f, .62f, 0f)], new(1, 0, 0, 0)),
         ["bowling"] = ([], new(1, 1, 0, 0)),
         ["tennis"] = ([], new(1, 1, 0, 0)),
+        ["balloon"] = ([new(PortId.Tie, PortRole.Tie, new("Center tie", SocketGlyph.Text), WorkshopConnectionDomain.Rope,
+            WorkshopPortDirection.Bidirectional, null, new(0, 0, 0), RopeAttachmentRole.Load)], new(1, 1, 0, 0)),
         ["weight"] = ([new(PortId.Tie, PortRole.Tie, new("Tie", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
             new(0f, 4f * (.5771f * .136734f) + .5771f * .453070f, 0f), RopeAttachmentRole.Load,
             new(new("mass"), new(0f, .5771f * .136734f, 0f), new(0f, .5771f * .453070f, 0f)))], new(1, 1, 0, 0)),

@@ -148,7 +148,12 @@ public interface ICoreServices
         ReadOnlySpan<DrivenSurfaceDeclaration> drivenSurfaces = default,
         ReadOnlySpan<EnergyStoreDeclaration> energyStores = default,
         ReadOnlySpan<ChamberRegionDeclaration> chamberRegions = default,
-        ReadOnlySpan<FiniteWorkActuatorDeclaration> finiteWorkActuators = default);
+        ReadOnlySpan<FiniteWorkActuatorDeclaration> finiteWorkActuators = default,
+        ReadOnlySpan<GasStoreDeclaration> gasStores = default,
+        ReadOnlySpan<GasShapeDeclaration> gasShapes = default,
+        ReadOnlySpan<InventoryMassDeclaration> inventoryMasses = default,
+        ReadOnlySpan<AmbientLoadDeclaration> ambientLoads = default,
+        ReadOnlySpan<ContactIntegrityDeclaration> integrityObservers = default);
     IActivationProgram CreateActivation(ReadOnlySpan<ActivationNodeDeclaration> nodes, ReadOnlySpan<ActivationEdge> edges,
         uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default,
         ReadOnlySpan<CompiledSignalContact> contacts = default);

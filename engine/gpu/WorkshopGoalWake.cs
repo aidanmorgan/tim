@@ -20,13 +20,17 @@ public sealed class WorkshopGoalWake
 {
     private readonly HashSet<GpuBodyId> _owners = new(16);
     private readonly bool _anyRecord;
+    private readonly IntegrityObservationId _integrity;
+    private readonly SimulationEpoch _epoch;
     private ulong? _wakeTick;
     private bool _now;
 
-    public WorkshopGoalWake(WorkshopGoal goal, IPhysicsSceneDeclaration scene)
+    public WorkshopGoalWake(WorkshopGoal goal, IPhysicsSceneDeclaration scene, CompiledIdentityMap identities, SimulationEpoch epoch)
     {
         ArgumentNullException.ThrowIfNull(scene);
         goal.Validate();
+        if (epoch.Value == 0) throw new ArgumentException("Goal wake requires an installed epoch.");
+        _epoch = epoch;
         switch (goal.Kind)
         {
             case WorkshopGoalKind.None: break;
@@ -34,6 +38,11 @@ public sealed class WorkshopGoalWake
                 foreach (var sensor in scene.Sensors)
                     if (sensor.Frame == goal.Target) foreach(var body in scene.Bodies)
                         if(body.Id==goal.Body && body.Motion==RigidMotionKind.Dynamic && sensor.Targets.Contains(body.Id,body.Payload)) _owners.Add(sensor.Frame);
+                break;
+            case WorkshopGoalKind.IntegrityBroken:
+                if (goal.Integrity is { } selector && identities.TryIntegrity(selector, out var selected))
+                    foreach (var observation in scene.IntegrityObservers)
+                        if (observation.Id == selected) _integrity = selected;
                 break;
             case WorkshopGoalKind.ActivatedAfter: _anyRecord = true; break;
             default: throw new ArgumentException("Unknown goal kind.");
@@ -49,13 +58,14 @@ public sealed class WorkshopGoalWake
     public void Observe(EventRingDelivery delivery, SimulationTick installed)
     {
         ArgumentNullException.ThrowIfNull(delivery);
+        if (delivery.Epoch != _epoch.Value) return;
         ulong? newest = null;
         foreach (var record in delivery.Records)
         {
             newest = Math.Max(newest ?? 0, record.Tick);
-            if (_anyRecord || (!SimulationEvents.SignalSource(record.Kind) && _owners.Contains(new(record.Source.Value)))) Wake(record.Tick);
+            if (_anyRecord || (record.Kind == SimulationEventKind.IntegrityBroken && _integrity.Value != 0 && record.Source.Value == _integrity.Value) || (!SimulationEvents.SignalSource(record.Kind) && _owners.Contains(new(record.Source.Value)))) Wake(record.Tick);
         }
-        if (delivery.Skipped == 0 || (!_anyRecord && _owners.Count == 0)) return;
+        if (delivery.Skipped == 0 || (!_anyRecord && _owners.Count == 0 && _integrity.Value == 0)) return;
         Lapped = checked(Lapped + delivery.Skipped);
         _now = true;
         Wake(newest ?? checked(installed.Value + 1));

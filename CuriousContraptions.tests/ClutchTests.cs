@@ -1394,6 +1394,7 @@ public sealed partial class ClutchTests
 
         var instancesVector = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instOffset]);
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, save.Construction.Revision.Value);
         var s = save.Construction.Settings;
         CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder,

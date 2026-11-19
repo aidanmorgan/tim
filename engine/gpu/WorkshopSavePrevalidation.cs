@@ -43,6 +43,10 @@ internal static class WorkshopSavePrevalidation
 
     private static void CheckSettings(ConstructionRecord record)
     {
+        if (record.Atmosphere is not { } atmosphere)
+            throw Refuse(WorkshopSaveRejection.MissingField, "The save has no atmosphere selection.");
+        if (!Enum.IsDefined((AtmospherePreset)atmosphere))
+            throw Refuse(WorkshopSaveRejection.UndefinedEnum, "The save names an unknown atmosphere.");
         var s = record.Settings ?? throw Refuse(WorkshopSaveRejection.MissingField, "The save has no simulation settings.");
         var settings = new WorkshopCadenceSettings((SimulationCadence)s.Simulation, (PhysicalStepProfile)s.Physical,
             (AnimationCadence)s.Animation, (PresentationCadence)s.Presentation, new PulseRate(s.PresentationRateNumerator, s.PresentationRateDenominator));
@@ -206,10 +210,13 @@ internal static class WorkshopSavePrevalidation
         var targetNode = p.GoalTargetNode;
         var admitted = (WorkshopGoalKind)p.GoalKind switch
         {
-            WorkshopGoalKind.None => p.GoalBody == 0 && p.GoalTarget == 0 && p.GoalDelay == 0f && sourceNode is null && targetNode is null,
-            WorkshopGoalKind.Captured => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && p.GoalDelay == 0f && sourceNode is null && targetNode is null,
-            _ => p.GoalBody != 0 && p.GoalTarget != 0 && !string.IsNullOrWhiteSpace(sourceNode) && !string.IsNullOrWhiteSpace(targetNode) &&
+            WorkshopGoalKind.None => p.GoalIntegrity is null && p.GoalBody == 0 && p.GoalTarget == 0 && p.GoalDelay == 0f && sourceNode is null && targetNode is null,
+            WorkshopGoalKind.Captured => p.GoalIntegrity is null && p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && p.GoalDelay == 0f && sourceNode is null && targetNode is null,
+            WorkshopGoalKind.ActivatedAfter => p.GoalIntegrity is null && p.GoalBody != 0 && p.GoalTarget != 0 && !string.IsNullOrWhiteSpace(sourceNode) && !string.IsNullOrWhiteSpace(targetNode) &&
                 (p.GoalBody != p.GoalTarget || sourceNode != targetNode),
+            WorkshopGoalKind.IntegrityBroken => p.GoalIntegrity is { Owner: > 0, Observation: > 0 } &&
+                p.GoalBody == 0 && p.GoalTarget == 0 && p.GoalDelay == 0 && sourceNode is null && targetNode is null,
+            _ => false,
         };
         // A Captured goal may name a part the bench no longer holds: a lesson saved after its receiver was deleted keeps its goal
         // (CAT-062b, MissingReceiver), so the goal's identities are not saved-part references.

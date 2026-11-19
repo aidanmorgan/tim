@@ -35,17 +35,20 @@ public readonly record struct MassVector(MassScalar X, MassScalar Y, MassScalar 
 }
 
 /// <summary>Package-owned mass frame, independent of every collision child.</summary>
-public readonly record struct MassFrameDeclaration(MassScalar Mass, MassVector CentreOfMass, PrincipalMomentDeclaration PrincipalMoments,
+public readonly record struct MassFrameDeclaration(BodyMassSourceDeclaration Source, MassVector CentreOfMass,
     Quaternion PrincipalFrame, MassScalar LinearDrag, WorldAccelerationDeclaration Gravity)
 {
     public static MassFrameDeclaration Constant(float mass, Vector3 centreOfMass, Vector3 principalMoments,
         Quaternion principalFrame, float linearDrag, Vector3 gravity) =>
-        new(MassScalar.Constant(mass), MassVector.Constant(centreOfMass), PrincipalMomentDeclaration.Constant(principalMoments),
+        new(BodyMassSourceDeclaration.Declared(MassScalar.Constant(mass), PrincipalMomentDeclaration.Constant(principalMoments)), MassVector.Constant(centreOfMass),
             principalFrame, MassScalar.Constant(linearDrag), WorldAccelerationDeclaration.Constant(gravity));
 
-    public RigidBodyMassProperties Evaluate(IReadOnlyDictionary<ParameterId, float> parameters) =>
-        new(Mass.Evaluate(parameters), CentreOfMass.Evaluate(parameters), PrincipalMoments.Evaluate(parameters),
+    public RigidBodyMassProperties Evaluate(IReadOnlyDictionary<ParameterId, float> parameters, MassSourceContext context)
+    {
+        var mass = Source.Resolve(parameters, context);
+        return new(mass.InitialMass, CentreOfMass.Evaluate(parameters), mass.PrincipalMoments,
             PrincipalFrame, LinearDrag.Evaluate(parameters), Gravity.Evaluate(parameters));
+    }
 }
 
 public enum PayloadPolicy : byte { None, CaptureTarget }

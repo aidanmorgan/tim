@@ -160,8 +160,13 @@
         <Compile Include="DominoGuardTests.cs" />        <Compile Include="DeclaredOrientationTests.cs" />        <Compile Include="WorkshopBowlingTests.cs" />
         <Compile Include="PayloadInstanceTests.cs" />
         <Compile Include="TennisBallTests.cs" />
+        <Compile Include="GasCapabilityTests.cs" />
+        <Compile Include="GasRuntimeTests.cs" />
+        <Compile Include="ContactIntegrityTests.cs" />
         <Compile Include="TennisInteractionTests.cs" />
         <Compile Include="TennisArtTests.cs" />
+        <Compile Include="BalloonTests.cs" />
+        <Compile Include="BalloonArtTests.cs" />
         <Compile Include="ParameterizedBodyIntegrationTests.cs" />
         <Compile Include="InteractionTargetTests.cs" />
         <Compile Include="PlacedParts.cs" />

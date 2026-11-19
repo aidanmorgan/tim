@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
+using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Elements.Ball;
 
-public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryElement
+public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryElement, IAmbientLoadElement
 {
     public ElementPresentation Presentation => new(.46f, PresentationAxes.None,
         [], [], [], []);
@@ -47,8 +48,11 @@ public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryE
         centreOfMass: Vector3.Zero,
         principalMoments: new Vector3(0.04624f, 0.04624f, 0.04624f),
         principalFrame: Quaternion.Identity,
-        linearDrag: 0.04f,
+        linearDrag: 0f,
         gravity: new Vector3(0, -9.81f, 0));
+
+    public IReadOnlyList<AmbientLoadDescriptor> AmbientLoads =>
+        [new(new(0), WorldAccelerationDeclaration.Constant(Vector3.Zero), MassScalar.Constant(.04f), null)];
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 }

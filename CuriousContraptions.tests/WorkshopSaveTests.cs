@@ -154,7 +154,7 @@ public sealed class WorkshopSaveTests
         var json = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json"));
         Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(RuntimeTestServices.Core, RuntimeTestServices.Bundle, json.Replace("\"part\": \"ball\"", "\"part\": \"ball\", \"part\": \"ball\"")));
         Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(RuntimeTestServices.Core, RuntimeTestServices.Bundle, json.Replace("\"availability\": \"Playable\"", "\"availability\": \"Planned\"")));
-        Assert.Equal(14, PuzzleCatalogue.ReadDefinitions(RuntimeTestServices.Core, RuntimeTestServices.Bundle, json).Count);
+        Assert.Equal(15, PuzzleCatalogue.ReadDefinitions(RuntimeTestServices.Core, RuntimeTestServices.Bundle, json).Count);
     }
 
     public enum PlacedConfigurationDamage { Capture, Speed, Dwell, SupportMargin, Acceleration, Participation }
@@ -260,10 +260,14 @@ public sealed class WorkshopSaveTests
                 var slots = lesson.GetProperty("placements").EnumerateArray().Select(p => p.GetProperty("slot").GetString()!).ToArray();
                 GpuBodyId Slot(string slot) => Array.IndexOf(slots, slot) is var index and >= 0 ? instances[index].Id : default;
                 var authoredGoal = lesson.GetProperty("goal");
-                var (sourceId, targetId) = (Slot(authoredGoal.GetProperty("source").GetString()!), Slot(authoredGoal.GetProperty("target").GetString()!));
                 var compiledGoal = construction.Puzzle.Goal;
+                var integrity = compiledGoal.Kind == WorkshopGoalKind.IntegrityBroken;
+                var sourceId = Slot(authoredGoal.GetProperty(integrity ? "owner" : "source").GetString()!);
+                var targetId = integrity ? default : Slot(authoredGoal.GetProperty("target").GetString()!);
                 Assert.NotEqual(default, sourceId);
-                if (compiledGoal.Kind == WorkshopGoalKind.Captured)
+                if (integrity)
+                    Assert.Equal(new IntegrityGoalSelector(sourceId, new(authoredGoal.GetProperty("observation").GetUInt32())), compiledGoal.Integrity);
+                else if (compiledGoal.Kind == WorkshopGoalKind.Captured)
                 {
                     Assert.Equal((sourceId, default(SignalNodeId), default(SignalNodeId)), (compiledGoal.Body, compiledGoal.SourceNode, compiledGoal.TargetNode));
                     if (targetId != default) Assert.Equal(targetId, compiledGoal.Target);
@@ -281,8 +285,8 @@ public sealed class WorkshopSaveTests
                 Assert.Equal(lesson.GetProperty("inventory").GetArrayLength(), inventory.Count);
                 var goal = lesson.GetProperty("goal");
                 Assert.Equal(Enum.Parse<WorkshopGoalKind>(goal.GetProperty("kind").GetString()!), construction.Puzzle.Goal.Kind);
-                Assert.Equal(BitConverter.SingleToUInt32Bits(F(goal.GetProperty("minimum_seconds"))),
-                    BitConverter.SingleToUInt32Bits(construction.Puzzle.Goal.MinimumDuration.Value));
+                Assert.Equal(integrity ? 0f : F(goal.GetProperty("minimum_seconds")),
+                    construction.Puzzle.Goal.MinimumDuration.Value);
                 var profiles = lesson.GetProperty("profiles");
                 Profile(profiles.GetProperty("primary"), construction.Puzzle.PrimaryAssistance, $"{id} primary");
                 Profile(profiles.GetProperty("target"), construction.Puzzle.TargetAssistance, $"{id} target");
@@ -438,6 +442,7 @@ public sealed class WorkshopSaveTests
         var instOffset = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
         var instancesOffset = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instOffset]);
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
         var defCadence = WorkshopCadenceSettings.Default();
         CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)defCadence.Simulation, (uint)defCadence.Physical, (uint)defCadence.Animation, (uint)defCadence.Presentation, defCadence.PresentationRate.Numerator, defCadence.PresentationRate.Denominator));
@@ -772,6 +777,7 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.ConnectionRecord.CreateConnectionRecord(builder, source, target, domain, fromSocket, toSocket, false, 0f);
         var connectionsVector = builder.EndVector();
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, save.Construction.Revision.Value);
         var saveCadence = save.Construction.Settings;
         CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)saveCadence.Simulation, (uint)saveCadence.Physical, (uint)saveCadence.Animation, (uint)saveCadence.Presentation, saveCadence.PresentationRate.Numerator, saveCadence.PresentationRate.Denominator));

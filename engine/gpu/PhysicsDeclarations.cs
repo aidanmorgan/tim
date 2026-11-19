@@ -7,6 +7,16 @@ namespace CuriousContraptions.Gpu;
 
 public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
 {
+    private readonly GasStoreDeclaration[] _gasStores;
+    public ReadOnlySpan<GasStoreDeclaration> GasStores => _gasStores;
+    private readonly GasShapeDeclaration[] _gasShapes;
+    public ReadOnlySpan<GasShapeDeclaration> GasShapes => _gasShapes;
+    private readonly InventoryMassDeclaration[] _inventoryMasses;
+    public ReadOnlySpan<InventoryMassDeclaration> InventoryMasses => _inventoryMasses;
+    private readonly AmbientLoadDeclaration[] _ambientLoads;
+    public ReadOnlySpan<AmbientLoadDeclaration> AmbientLoads => _ambientLoads;
+    private readonly ContactIntegrityDeclaration[] _integrityObservers;
+    public ReadOnlySpan<ContactIntegrityDeclaration> IntegrityObservers => _integrityObservers;
     private readonly TensileSpanDeclaration[] _tensileSpans;
     public ReadOnlySpan<TensileSpanDeclaration> TensileSpans => _tensileSpans;
     private readonly ContactLoadSensorDeclaration[] _contactLoadSensors;
@@ -117,12 +127,28 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         ReadOnlySpan<DrivenSurfaceDeclaration> drivenSurfaces = default,
         ReadOnlySpan<EnergyStoreDeclaration> energyStores = default,
         ReadOnlySpan<ChamberRegionDeclaration> chamberRegions = default,
-        ReadOnlySpan<FiniteWorkActuatorDeclaration> finiteWorkActuators = default)
+        ReadOnlySpan<FiniteWorkActuatorDeclaration> finiteWorkActuators = default,
+        ReadOnlySpan<GasStoreDeclaration> gasStores = default,
+        ReadOnlySpan<GasShapeDeclaration> gasShapes = default,
+        ReadOnlySpan<InventoryMassDeclaration> inventoryMasses = default,
+        ReadOnlySpan<AmbientLoadDeclaration> ambientLoads = default,
+        ReadOnlySpan<ContactIntegrityDeclaration> integrityObservers = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
         var ids = new HashSet<ulong>(64);
         var (bodyMap, dynamicCount, dynamicColliders) = ValidateGeometry(bodies, colliders, materials, nextIdentity, ids);
+        GasSceneValidation.Validate(bodies, colliders, gasStores, gasShapes, inventoryMasses, ambientLoads, integrityObservers, nextIdentity, ids);
+        _gasStores = gasStores.ToArray();
+        Array.Sort(_gasStores, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        _gasShapes = gasShapes.ToArray();
+        Array.Sort(_gasShapes, (a, b) => a.Collider.Value.CompareTo(b.Collider.Value));
+        _inventoryMasses = inventoryMasses.ToArray();
+        Array.Sort(_inventoryMasses, (a, b) => a.Body.Value.CompareTo(b.Body.Value));
+        _ambientLoads = ambientLoads.ToArray();
+        Array.Sort(_ambientLoads, (a, b) => a.Body.Value.CompareTo(b.Body.Value));
+        _integrityObservers = integrityObservers.ToArray();
+        Array.Sort(_integrityObservers, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         _energyStores = ValidateEnergyStores(energyStores, bodyMap, nextIdentity, ids);
         (_chamberRegions, _finiteWorkActuators) = ChamberSceneValidation.Validate(chamberRegions, finiteWorkActuators,
             bodies, colliders, _energyStores, nextIdentity, ids);
@@ -206,10 +232,10 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         World = new(_bodies.Length, _colliders.Length, _materials.Length, _sensors.Length, dynamicCount, _guides.Length,
             _triggers.Length, _contactWorks.Length, _orientationSensors.Length, Electrical.Sources.Length,
             Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length, _tensileSpans.Length, _revolutes.Length,
-            _compliantSurfaces.Length, _transmissions.Length, _energyStores.Length, _chamberRegions.Length, _finiteWorkActuators.Length);
+            _compliantSurfaces.Length, _transmissions.Length, _energyStores.Length, _chamberRegions.Length, _finiteWorkActuators.Length, _gasStores.Length, _gasShapes.Length, _inventoryMasses.Length, _ambientLoads.Length, _integrityObservers.Length);
         _worldView = World;
         _ = World.ByteLength;
-        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes, _compliantSurfaces, _transmissions, _energyStores, _chamberRegions, _finiteWorkActuators);
+        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes, _compliantSurfaces, _transmissions, _energyStores, _chamberRegions, _finiteWorkActuators, _gasStores, _integrityObservers);
     }
 
     private static EnergyStoreDeclaration[] ValidateEnergyStores(ReadOnlySpan<EnergyStoreDeclaration> stores,

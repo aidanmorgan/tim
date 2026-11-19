@@ -177,6 +177,32 @@ public struct ActuatorStateValuesRecord : IFlatbufferObject
   }
 }
 
+public struct AmbientLoadDeclarationRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public AmbientLoadDeclarationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Body { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public ulong InventoryStore { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
+  public float AccelerationX { get { return __p.bb.GetFloat(__p.bb_pos + 16); } }
+  public float AccelerationY { get { return __p.bb.GetFloat(__p.bb_pos + 20); } }
+  public float AccelerationZ { get { return __p.bb.GetFloat(__p.bb_pos + 24); } }
+  public float LinearDrag { get { return __p.bb.GetFloat(__p.bb_pos + 28); } }
+
+  public static Offset<CuriousContraptions.Wire.AmbientLoadDeclarationRecord> CreateAmbientLoadDeclarationRecord(FlatBufferBuilder builder, ulong Body, ulong InventoryStore, float AccelerationX, float AccelerationY, float AccelerationZ, float LinearDrag) {
+    builder.Prep(8, 32);
+    builder.PutFloat(LinearDrag);
+    builder.PutFloat(AccelerationZ);
+    builder.PutFloat(AccelerationY);
+    builder.PutFloat(AccelerationX);
+    builder.PutUlong(InventoryStore);
+    builder.PutUlong(Body);
+    return new Offset<CuriousContraptions.Wire.AmbientLoadDeclarationRecord>(builder.Offset);
+  }
+}
+
 public struct BodyRead : IFlatbufferObject
 {
   private Struct __p;
@@ -1527,6 +1553,8 @@ static public class CapabilityPresentationBindingRecordVerify
       && verifier.VerifyField(tablePos, 34 /*EventMagnitude*/, 4 /*uint*/, 4, false)
       && verifier.VerifyField(tablePos, 36 /*FiniteWorkValues*/, 24 /*CuriousContraptions.Wire.FiniteWorkStateValuesRecord*/, 4, false)
       && verifier.VerifyField(tablePos, 38 /*ImpulsePeak*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 40 /*ImpulseVisibility*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyField(tablePos, 42 /*ImpulseTiming*/, 4 /*uint*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -2951,6 +2979,22 @@ public struct ClockStamp : IFlatbufferObject
   }
 }
 
+public struct CollisionParticipationRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public CollisionParticipationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public uint Value { get { return __p.bb.GetUint(__p.bb_pos + 0); } }
+
+  public static Offset<CuriousContraptions.Wire.CollisionParticipationRecord> CreateCollisionParticipationRecord(FlatBufferBuilder builder, uint Value) {
+    builder.Prep(4, 4);
+    builder.PutUint(Value);
+    return new Offset<CuriousContraptions.Wire.CollisionParticipationRecord>(builder.Offset);
+  }
+}
+
 public struct CommandIdentityRecord : IFlatbufferObject
 {
   private Struct __p;
@@ -3026,6 +3070,8 @@ public struct CompiledPresentationRecord : IFlatbufferObject
   public ulong Retention { get { int o = __p.__offset(26); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public ulong FiniteWork { get { int o = __p.__offset(28); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public ulong Store { get { int o = __p.__offset(30); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong GasShape { get { int o = __p.__offset(32); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public ulong Integrity { get { int o = __p.__offset(34); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
 
   public static Offset<CuriousContraptions.Wire.CompiledPresentationRecord> CreateCompiledPresentationRecord(FlatBufferBuilder builder,
       ulong source = 0,
@@ -3041,8 +3087,12 @@ public struct CompiledPresentationRecord : IFlatbufferObject
       ulong transmission = 0,
       ulong retention = 0,
       ulong finite_work = 0,
-      ulong store = 0) {
-    builder.StartTable(14);
+      ulong store = 0,
+      ulong gas_shape = 0,
+      ulong integrity = 0) {
+    builder.StartTable(16);
+    CompiledPresentationRecord.AddIntegrity(builder, integrity);
+    CompiledPresentationRecord.AddGasShape(builder, gas_shape);
     CompiledPresentationRecord.AddStore(builder, store);
     CompiledPresentationRecord.AddFiniteWork(builder, finite_work);
     CompiledPresentationRecord.AddRetention(builder, retention);
@@ -3060,7 +3110,7 @@ public struct CompiledPresentationRecord : IFlatbufferObject
     return CompiledPresentationRecord.EndCompiledPresentationRecord(builder);
   }
 
-  public static void StartCompiledPresentationRecord(FlatBufferBuilder builder) { builder.StartTable(14); }
+  public static void StartCompiledPresentationRecord(FlatBufferBuilder builder) { builder.StartTable(16); }
   public static void AddSource(FlatBufferBuilder builder, ulong source) { builder.AddUlong(0, source, 0); }
   public static void AddSupplyNode(FlatBufferBuilder builder, ulong supplyNode) { builder.AddUlong(1, supplyNode, 0); }
   public static void AddTarget(FlatBufferBuilder builder, ulong target) { builder.AddUlong(2, target, 0); }
@@ -3075,6 +3125,8 @@ public struct CompiledPresentationRecord : IFlatbufferObject
   public static void AddRetention(FlatBufferBuilder builder, ulong retention) { builder.AddUlong(11, retention, 0); }
   public static void AddFiniteWork(FlatBufferBuilder builder, ulong finiteWork) { builder.AddUlong(12, finiteWork, 0); }
   public static void AddStore(FlatBufferBuilder builder, ulong store) { builder.AddUlong(13, store, 0); }
+  public static void AddGasShape(FlatBufferBuilder builder, ulong gasShape) { builder.AddUlong(14, gasShape, 0); }
+  public static void AddIntegrity(FlatBufferBuilder builder, ulong integrity) { builder.AddUlong(15, integrity, 0); }
   public static Offset<CuriousContraptions.Wire.CompiledPresentationRecord> EndCompiledPresentationRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 14);  // declaration
@@ -3102,23 +3154,9 @@ static public class CompiledPresentationRecordVerify
       && verifier.VerifyField(tablePos, 26 /*Retention*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 28 /*FiniteWork*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 30 /*Store*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 32 /*GasShape*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 34 /*Integrity*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyTableEnd(tablePos);
-  }
-}
-
-public struct CollisionParticipationRecord : IFlatbufferObject
-{
-  private Struct __p;
-  public ByteBuffer ByteBuffer { get { return __p.bb; } }
-  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
-  public CollisionParticipationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
-
-  public uint Value { get { return __p.bb.GetUint(__p.bb_pos + 0); } }
-
-  public static Offset<CuriousContraptions.Wire.CollisionParticipationRecord> CreateCollisionParticipationRecord(FlatBufferBuilder builder, uint Value) {
-    builder.Prep(4, 4);
-    builder.PutUint(Value);
-    return new Offset<CuriousContraptions.Wire.CollisionParticipationRecord>(builder.Offset);
   }
 }
 
@@ -3211,6 +3249,16 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public int ChamberRegionsLength { get { int o = __p.__offset(80); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.FiniteWorkActuatorDeclarationRecord? FiniteWorkActuators(int j) { int o = __p.__offset(82); return o != 0 ? (CuriousContraptions.Wire.FiniteWorkActuatorDeclarationRecord?)(new CuriousContraptions.Wire.FiniteWorkActuatorDeclarationRecord()).__assign(__p.__vector(o) + j * 32, __p.bb) : null; }
   public int FiniteWorkActuatorsLength { get { int o = __p.__offset(82); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.GasStoreDeclarationRecord? GasStores(int j) { int o = __p.__offset(84); return o != 0 ? (CuriousContraptions.Wire.GasStoreDeclarationRecord?)(new CuriousContraptions.Wire.GasStoreDeclarationRecord()).__assign(__p.__vector(o) + j * 64, __p.bb) : null; }
+  public int GasStoresLength { get { int o = __p.__offset(84); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.GasShapeDeclarationRecord? GasShapes(int j) { int o = __p.__offset(86); return o != 0 ? (CuriousContraptions.Wire.GasShapeDeclarationRecord?)(new CuriousContraptions.Wire.GasShapeDeclarationRecord()).__assign(__p.__vector(o) + j * 24, __p.bb) : null; }
+  public int GasShapesLength { get { int o = __p.__offset(86); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.InventoryMassDeclarationRecord? InventoryMasses(int j) { int o = __p.__offset(88); return o != 0 ? (CuriousContraptions.Wire.InventoryMassDeclarationRecord?)(new CuriousContraptions.Wire.InventoryMassDeclarationRecord()).__assign(__p.__vector(o) + j * 16, __p.bb) : null; }
+  public int InventoryMassesLength { get { int o = __p.__offset(88); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.AmbientLoadDeclarationRecord? AmbientLoads(int j) { int o = __p.__offset(90); return o != 0 ? (CuriousContraptions.Wire.AmbientLoadDeclarationRecord?)(new CuriousContraptions.Wire.AmbientLoadDeclarationRecord()).__assign(__p.__vector(o) + j * 32, __p.bb) : null; }
+  public int AmbientLoadsLength { get { int o = __p.__offset(90); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.IntegrityDeclarationRecord? IntegrityObservers(int j) { int o = __p.__offset(92); return o != 0 ? (CuriousContraptions.Wire.IntegrityDeclarationRecord?)(new CuriousContraptions.Wire.IntegrityDeclarationRecord()).__assign(__p.__vector(o) + j * 32, __p.bb) : null; }
+  public int IntegrityObserversLength { get { int o = __p.__offset(92); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<CuriousContraptions.Wire.CompiledSceneRecord> CreateCompiledSceneRecord(FlatBufferBuilder builder,
       ulong identity = 0,
@@ -3252,13 +3300,23 @@ public struct CompiledSceneRecord : IFlatbufferObject
       VectorOffset mechanical_linksOffset = default(VectorOffset),
       VectorOffset energy_storesOffset = default(VectorOffset),
       VectorOffset chamber_regionsOffset = default(VectorOffset),
-      VectorOffset finite_work_actuatorsOffset = default(VectorOffset)) {
-    builder.StartTable(40);
+      VectorOffset finite_work_actuatorsOffset = default(VectorOffset),
+      VectorOffset gas_storesOffset = default(VectorOffset),
+      VectorOffset gas_shapesOffset = default(VectorOffset),
+      VectorOffset inventory_massesOffset = default(VectorOffset),
+      VectorOffset ambient_loadsOffset = default(VectorOffset),
+      VectorOffset integrity_observersOffset = default(VectorOffset)) {
+    builder.StartTable(45);
     CompiledSceneRecord.AddNextIdentity(builder, next_identity);
     CompiledSceneRecord.AddDocumentHigh(builder, document_high);
     CompiledSceneRecord.AddDocumentLow(builder, document_low);
     CompiledSceneRecord.AddRevision(builder, revision);
     CompiledSceneRecord.AddIdentity(builder, identity);
+    CompiledSceneRecord.AddIntegrityObservers(builder, integrity_observersOffset);
+    CompiledSceneRecord.AddAmbientLoads(builder, ambient_loadsOffset);
+    CompiledSceneRecord.AddInventoryMasses(builder, inventory_massesOffset);
+    CompiledSceneRecord.AddGasShapes(builder, gas_shapesOffset);
+    CompiledSceneRecord.AddGasStores(builder, gas_storesOffset);
     CompiledSceneRecord.AddFiniteWorkActuators(builder, finite_work_actuatorsOffset);
     CompiledSceneRecord.AddChamberRegions(builder, chamber_regionsOffset);
     CompiledSceneRecord.AddEnergyStores(builder, energy_storesOffset);
@@ -3297,7 +3355,7 @@ public struct CompiledSceneRecord : IFlatbufferObject
     return CompiledSceneRecord.EndCompiledSceneRecord(builder);
   }
 
-  public static void StartCompiledSceneRecord(FlatBufferBuilder builder) { builder.StartTable(40); }
+  public static void StartCompiledSceneRecord(FlatBufferBuilder builder) { builder.StartTable(45); }
   public static void AddIdentity(FlatBufferBuilder builder, ulong identity) { builder.AddUlong(0, identity, 0); }
   public static void AddRevision(FlatBufferBuilder builder, ulong revision) { builder.AddUlong(1, revision, 0); }
   public static void AddSettings(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CapabilityWorkshopCadenceSettingsRecord> settingsOffset) { builder.AddOffset(2, settingsOffset.Value, 0); }
@@ -3487,6 +3545,16 @@ public struct CompiledSceneRecord : IFlatbufferObject
   public static void StartChamberRegionsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static void AddFiniteWorkActuators(FlatBufferBuilder builder, VectorOffset finiteWorkActuatorsOffset) { builder.AddOffset(39, finiteWorkActuatorsOffset.Value, 0); }
   public static void StartFiniteWorkActuatorsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
+  public static void AddGasStores(FlatBufferBuilder builder, VectorOffset gasStoresOffset) { builder.AddOffset(40, gasStoresOffset.Value, 0); }
+  public static void StartGasStoresVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(64, numElems, 8); }
+  public static void AddGasShapes(FlatBufferBuilder builder, VectorOffset gasShapesOffset) { builder.AddOffset(41, gasShapesOffset.Value, 0); }
+  public static void StartGasShapesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(24, numElems, 8); }
+  public static void AddInventoryMasses(FlatBufferBuilder builder, VectorOffset inventoryMassesOffset) { builder.AddOffset(42, inventoryMassesOffset.Value, 0); }
+  public static void StartInventoryMassesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(16, numElems, 8); }
+  public static void AddAmbientLoads(FlatBufferBuilder builder, VectorOffset ambientLoadsOffset) { builder.AddOffset(43, ambientLoadsOffset.Value, 0); }
+  public static void StartAmbientLoadsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
+  public static void AddIntegrityObservers(FlatBufferBuilder builder, VectorOffset integrityObserversOffset) { builder.AddOffset(44, integrityObserversOffset.Value, 0); }
+  public static void StartIntegrityObserversVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
   public static Offset<CuriousContraptions.Wire.CompiledSceneRecord> EndCompiledSceneRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 8);  // settings
@@ -3495,6 +3563,11 @@ public struct CompiledSceneRecord : IFlatbufferObject
     builder.Required(o, 78);  // energy_stores
     builder.Required(o, 80);  // chamber_regions
     builder.Required(o, 82);  // finite_work_actuators
+    builder.Required(o, 84);  // gas_stores
+    builder.Required(o, 86);  // gas_shapes
+    builder.Required(o, 88);  // inventory_masses
+    builder.Required(o, 90);  // ambient_loads
+    builder.Required(o, 92);  // integrity_observers
     return new Offset<CuriousContraptions.Wire.CompiledSceneRecord>(o);
   }
 }
@@ -3545,6 +3618,11 @@ static public class CompiledSceneRecordVerify
       && verifier.VerifyVectorOfData(tablePos, 78 /*EnergyStores*/, 32 /*CuriousContraptions.Wire.EnergyStoreDeclarationRecord*/, true)
       && verifier.VerifyVectorOfTables(tablePos, 80 /*ChamberRegions*/, CuriousContraptions.Wire.ChamberRegionDeclarationRecordVerify.Verify, true)
       && verifier.VerifyVectorOfData(tablePos, 82 /*FiniteWorkActuators*/, 32 /*CuriousContraptions.Wire.FiniteWorkActuatorDeclarationRecord*/, true)
+      && verifier.VerifyVectorOfData(tablePos, 84 /*GasStores*/, 64 /*CuriousContraptions.Wire.GasStoreDeclarationRecord*/, true)
+      && verifier.VerifyVectorOfData(tablePos, 86 /*GasShapes*/, 24 /*CuriousContraptions.Wire.GasShapeDeclarationRecord*/, true)
+      && verifier.VerifyVectorOfData(tablePos, 88 /*InventoryMasses*/, 16 /*CuriousContraptions.Wire.InventoryMassDeclarationRecord*/, true)
+      && verifier.VerifyVectorOfData(tablePos, 90 /*AmbientLoads*/, 32 /*CuriousContraptions.Wire.AmbientLoadDeclarationRecord*/, true)
+      && verifier.VerifyVectorOfData(tablePos, 92 /*IntegrityObservers*/, 32 /*CuriousContraptions.Wire.IntegrityDeclarationRecord*/, true)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -4324,6 +4402,180 @@ public struct FourStateValuesRecord : IFlatbufferObject
     builder.PutFloat(State1);
     builder.PutFloat(State0);
     return new Offset<CuriousContraptions.Wire.FourStateValuesRecord>(builder.Offset);
+  }
+}
+
+public struct GasShapeDeclarationRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public GasShapeDeclarationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Store { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public ulong Collider { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
+  public float DryRadius { get { return __p.bb.GetFloat(__p.bb_pos + 16); } }
+
+  public static Offset<CuriousContraptions.Wire.GasShapeDeclarationRecord> CreateGasShapeDeclarationRecord(FlatBufferBuilder builder, ulong Store, ulong Collider, float DryRadius) {
+    builder.Prep(8, 24);
+    builder.Pad(4);
+    builder.PutFloat(DryRadius);
+    builder.PutUlong(Collider);
+    builder.PutUlong(Store);
+    return new Offset<CuriousContraptions.Wire.GasShapeDeclarationRecord>(builder.Offset);
+  }
+}
+
+public struct GasStoreDeclarationRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public GasStoreDeclarationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Id { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public ulong Body { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
+  public float GasR { get { return __p.bb.GetFloat(__p.bb_pos + 16); } }
+  public float GasCv { get { return __p.bb.GetFloat(__p.bb_pos + 20); } }
+  public float MinimumTemperature { get { return __p.bb.GetFloat(__p.bb_pos + 24); } }
+  public float MaximumTemperature { get { return __p.bb.GetFloat(__p.bb_pos + 28); } }
+  public float MaximumDensity { get { return __p.bb.GetFloat(__p.bb_pos + 32); } }
+  public float MaximumPressure { get { return __p.bb.GetFloat(__p.bb_pos + 36); } }
+  public float ReferenceMass { get { return __p.bb.GetFloat(__p.bb_pos + 40); } }
+  public float ReferenceVolume { get { return __p.bb.GetFloat(__p.bb_pos + 44); } }
+  public float ReferenceEnergy { get { return __p.bb.GetFloat(__p.bb_pos + 48); } }
+  public float BoundaryPressure { get { return __p.bb.GetFloat(__p.bb_pos + 52); } }
+  public float GaugePressure { get { return __p.bb.GetFloat(__p.bb_pos + 56); } }
+  public float Conductance { get { return __p.bb.GetFloat(__p.bb_pos + 60); } }
+
+  public static Offset<CuriousContraptions.Wire.GasStoreDeclarationRecord> CreateGasStoreDeclarationRecord(FlatBufferBuilder builder, ulong Id, ulong Body, float GasR, float GasCv, float MinimumTemperature, float MaximumTemperature, float MaximumDensity, float MaximumPressure, float ReferenceMass, float ReferenceVolume, float ReferenceEnergy, float BoundaryPressure, float GaugePressure, float Conductance) {
+    builder.Prep(8, 64);
+    builder.PutFloat(Conductance);
+    builder.PutFloat(GaugePressure);
+    builder.PutFloat(BoundaryPressure);
+    builder.PutFloat(ReferenceEnergy);
+    builder.PutFloat(ReferenceVolume);
+    builder.PutFloat(ReferenceMass);
+    builder.PutFloat(MaximumPressure);
+    builder.PutFloat(MaximumDensity);
+    builder.PutFloat(MaximumTemperature);
+    builder.PutFloat(MinimumTemperature);
+    builder.PutFloat(GasCv);
+    builder.PutFloat(GasR);
+    builder.PutUlong(Body);
+    builder.PutUlong(Id);
+    return new Offset<CuriousContraptions.Wire.GasStoreDeclarationRecord>(builder.Offset);
+  }
+}
+
+public struct GasStoreReadRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public GasStoreReadRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Id { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public ulong Body { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
+  public float Mass { get { return __p.bb.GetFloat(__p.bb_pos + 16); } }
+  public float Volume { get { return __p.bb.GetFloat(__p.bb_pos + 20); } }
+  public float Energy { get { return __p.bb.GetFloat(__p.bb_pos + 24); } }
+  public uint Outlet { get { return __p.bb.GetUint(__p.bb_pos + 28); } }
+  public float EnthalpyOut { get { return __p.bb.GetFloat(__p.bb_pos + 32); } }
+  public float BoundaryWork { get { return __p.bb.GetFloat(__p.bb_pos + 36); } }
+  public float ElasticReleased { get { return __p.bb.GetFloat(__p.bb_pos + 40); } }
+  public float MomentumX { get { return __p.bb.GetFloat(__p.bb_pos + 44); } }
+  public float MomentumY { get { return __p.bb.GetFloat(__p.bb_pos + 48); } }
+  public float MomentumZ { get { return __p.bb.GetFloat(__p.bb_pos + 52); } }
+  public float KineticOut { get { return __p.bb.GetFloat(__p.bb_pos + 56); } }
+  public float PreparationWork { get { return __p.bb.GetFloat(__p.bb_pos + 60); } }
+  public float PreparationElastic { get { return __p.bb.GetFloat(__p.bb_pos + 64); } }
+
+  public static Offset<CuriousContraptions.Wire.GasStoreReadRecord> CreateGasStoreReadRecord(FlatBufferBuilder builder, ulong Id, ulong Body, float Mass, float Volume, float Energy, uint Outlet, float EnthalpyOut, float BoundaryWork, float ElasticReleased, float MomentumX, float MomentumY, float MomentumZ, float KineticOut, float PreparationWork, float PreparationElastic) {
+    builder.Prep(8, 72);
+    builder.Pad(4);
+    builder.PutFloat(PreparationElastic);
+    builder.PutFloat(PreparationWork);
+    builder.PutFloat(KineticOut);
+    builder.PutFloat(MomentumZ);
+    builder.PutFloat(MomentumY);
+    builder.PutFloat(MomentumX);
+    builder.PutFloat(ElasticReleased);
+    builder.PutFloat(BoundaryWork);
+    builder.PutFloat(EnthalpyOut);
+    builder.PutUint(Outlet);
+    builder.PutFloat(Energy);
+    builder.PutFloat(Volume);
+    builder.PutFloat(Mass);
+    builder.PutUlong(Body);
+    builder.PutUlong(Id);
+    return new Offset<CuriousContraptions.Wire.GasStoreReadRecord>(builder.Offset);
+  }
+}
+
+public struct IntegrityDeclarationRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public IntegrityDeclarationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Id { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public ulong Collider { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
+  public ulong Store { get { return __p.bb.GetUlong(__p.bb_pos + 16); } }
+  public float Threshold { get { return __p.bb.GetFloat(__p.bb_pos + 24); } }
+  public float MinimumApproachSpeed { get { return __p.bb.GetFloat(__p.bb_pos + 28); } }
+
+  public static Offset<CuriousContraptions.Wire.IntegrityDeclarationRecord> CreateIntegrityDeclarationRecord(FlatBufferBuilder builder, ulong Id, ulong Collider, ulong Store, float Threshold, float MinimumApproachSpeed) {
+    builder.Prep(8, 32);
+    builder.PutFloat(MinimumApproachSpeed);
+    builder.PutFloat(Threshold);
+    builder.PutUlong(Store);
+    builder.PutUlong(Collider);
+    builder.PutUlong(Id);
+    return new Offset<CuriousContraptions.Wire.IntegrityDeclarationRecord>(builder.Offset);
+  }
+}
+
+public struct IntegrityReadRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public IntegrityReadRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Id { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public uint Phase { get { return __p.bb.GetUint(__p.bb_pos + 8); } }
+  public uint Ordinal { get { return __p.bb.GetUint(__p.bb_pos + 12); } }
+  public float EventPhase { get { return __p.bb.GetFloat(__p.bb_pos + 16); } }
+
+  public static Offset<CuriousContraptions.Wire.IntegrityReadRecord> CreateIntegrityReadRecord(FlatBufferBuilder builder, ulong Id, uint Phase, uint Ordinal, float EventPhase) {
+    builder.Prep(8, 24);
+    builder.Pad(4);
+    builder.PutFloat(EventPhase);
+    builder.PutUint(Ordinal);
+    builder.PutUint(Phase);
+    builder.PutUlong(Id);
+    return new Offset<CuriousContraptions.Wire.IntegrityReadRecord>(builder.Offset);
+  }
+}
+
+public struct InventoryMassDeclarationRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public InventoryMassDeclarationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Body { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public float DryMass { get { return __p.bb.GetFloat(__p.bb_pos + 8); } }
+
+  public static Offset<CuriousContraptions.Wire.InventoryMassDeclarationRecord> CreateInventoryMassDeclarationRecord(FlatBufferBuilder builder, ulong Body, float DryMass) {
+    builder.Prep(8, 16);
+    builder.Pad(4);
+    builder.PutFloat(DryMass);
+    builder.PutUlong(Body);
+    return new Offset<CuriousContraptions.Wire.InventoryMassDeclarationRecord>(builder.Offset);
   }
 }
 
@@ -6047,9 +6299,13 @@ public struct WorkshopResponse : IFlatbufferObject
   public int ChamberRegionsLength { get { int o = __p.__offset(72); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.FiniteWorkActuatorReadRecord? FiniteWorkActuators(int j) { int o = __p.__offset(74); return o != 0 ? (CuriousContraptions.Wire.FiniteWorkActuatorReadRecord?)(new CuriousContraptions.Wire.FiniteWorkActuatorReadRecord()).__assign(__p.__vector(o) + j * 48, __p.bb) : null; }
   public int FiniteWorkActuatorsLength { get { int o = __p.__offset(74); return o != 0 ? __p.__vector_len(o) : 0; } }
-  public CuriousContraptions.Wire.PhysicalCommitRevisionRecord? PhysicalCommit { get { int o = __p.__offset(76); return o != 0 ? (CuriousContraptions.Wire.PhysicalCommitRevisionRecord?)(new CuriousContraptions.Wire.PhysicalCommitRevisionRecord()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+  public CuriousContraptions.Wire.GasStoreReadRecord? GasStores(int j) { int o = __p.__offset(76); return o != 0 ? (CuriousContraptions.Wire.GasStoreReadRecord?)(new CuriousContraptions.Wire.GasStoreReadRecord()).__assign(__p.__vector(o) + j * 72, __p.bb) : null; }
+  public int GasStoresLength { get { int o = __p.__offset(76); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.IntegrityReadRecord? IntegrityObservers(int j) { int o = __p.__offset(78); return o != 0 ? (CuriousContraptions.Wire.IntegrityReadRecord?)(new CuriousContraptions.Wire.IntegrityReadRecord()).__assign(__p.__vector(o) + j * 24, __p.bb) : null; }
+  public int IntegrityObserversLength { get { int o = __p.__offset(78); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.PhysicalCommitRevisionRecord? PhysicalCommit { get { int o = __p.__offset(80); return o != 0 ? (CuriousContraptions.Wire.PhysicalCommitRevisionRecord?)(new CuriousContraptions.Wire.PhysicalCommitRevisionRecord()).__assign(o + __p.bb_pos, __p.bb) : null; } }
 
-  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(37); }
+  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(39); }
   public static void AddSequence(FlatBufferBuilder builder, ulong sequence) { builder.AddUlong(0, sequence, 0); }
   public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.ResponseKind kind) { builder.AddByte(1, (byte)kind, 0); }
   public static void AddOutcome(FlatBufferBuilder builder, CuriousContraptions.Wire.CommandOutcome outcome) { builder.AddByte(2, (byte)outcome, 0); }
@@ -6135,10 +6391,14 @@ public struct WorkshopResponse : IFlatbufferObject
   public static void StartChamberRegionsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(40, numElems, 8); }
   public static void AddFiniteWorkActuators(FlatBufferBuilder builder, VectorOffset finiteWorkActuatorsOffset) { builder.AddOffset(35, finiteWorkActuatorsOffset.Value, 0); }
   public static void StartFiniteWorkActuatorsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(48, numElems, 8); }
-  public static void AddPhysicalCommit(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.PhysicalCommitRevisionRecord> physicalCommitOffset) { builder.AddStruct(36, physicalCommitOffset.Value, 0); }
+  public static void AddGasStores(FlatBufferBuilder builder, VectorOffset gasStoresOffset) { builder.AddOffset(36, gasStoresOffset.Value, 0); }
+  public static void StartGasStoresVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(72, numElems, 8); }
+  public static void AddIntegrityObservers(FlatBufferBuilder builder, VectorOffset integrityObserversOffset) { builder.AddOffset(37, integrityObserversOffset.Value, 0); }
+  public static void StartIntegrityObserversVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(24, numElems, 8); }
+  public static void AddPhysicalCommit(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.PhysicalCommitRevisionRecord> physicalCommitOffset) { builder.AddStruct(38, physicalCommitOffset.Value, 0); }
   public static Offset<CuriousContraptions.Wire.WorkshopResponse> EndWorkshopResponse(FlatBufferBuilder builder) {
     int o = builder.EndTable();
-    builder.Required(o, 76);  // physical_commit
+    builder.Required(o, 80);  // physical_commit
     return new Offset<CuriousContraptions.Wire.WorkshopResponse>(o);
   }
   public static void FinishWorkshopResponseBuffer(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.WorkshopResponse> offset) { builder.Finish(offset.Value); }
@@ -6187,7 +6447,9 @@ static public class WorkshopResponseVerify
       && verifier.VerifyVectorOfData(tablePos, 70 /*EnergyStores*/, 32 /*CuriousContraptions.Wire.EnergyStoreReadRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 72 /*ChamberRegions*/, 40 /*CuriousContraptions.Wire.ChamberRegionReadRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 74 /*FiniteWorkActuators*/, 48 /*CuriousContraptions.Wire.FiniteWorkActuatorReadRecord*/, false)
-      && verifier.VerifyField(tablePos, 76 /*PhysicalCommit*/, 8 /*CuriousContraptions.Wire.PhysicalCommitRevisionRecord*/, 8, true)
+      && verifier.VerifyVectorOfData(tablePos, 76 /*GasStores*/, 72 /*CuriousContraptions.Wire.GasStoreReadRecord*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 78 /*IntegrityObservers*/, 24 /*CuriousContraptions.Wire.IntegrityReadRecord*/, false)
+      && verifier.VerifyField(tablePos, 80 /*PhysicalCommit*/, 8 /*CuriousContraptions.Wire.PhysicalCommitRevisionRecord*/, 8, true)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

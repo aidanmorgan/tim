@@ -6,10 +6,11 @@ using System.Linq;
 namespace CuriousContraptions.Gpu;
 
 public enum WorkshopPlacementMode : uint { Manual }
-public enum WorkshopGoalKind : uint { None, Captured, ActivatedAfter }
+public enum WorkshopGoalKind : uint { None, Captured, ActivatedAfter, IntegrityBroken }
+public readonly record struct IntegrityGoalSelector(GpuBodyId Owner, LocalIntegrityObservationId Observation);
 public readonly record struct PuzzlePrecision(float Value);
 public readonly record struct WorkshopGoal(WorkshopGoalKind Kind, GpuBodyId Body, GpuBodyId Target,
-    SignalNodeId SourceNode = default, SignalNodeId TargetNode = default, DurationSeconds MinimumDuration = default)
+    SignalNodeId SourceNode = default, SignalNodeId TargetNode = default, DurationSeconds MinimumDuration = default, IntegrityGoalSelector? Integrity = null)
 {
     public void Validate()
     {
@@ -17,10 +18,13 @@ public readonly record struct WorkshopGoal(WorkshopGoalKind Kind, GpuBodyId Body
         {
             case WorkshopGoalKind.None when this == default: return;
             case WorkshopGoalKind.Captured when Body.Value != 0 && Target.Value != 0 && Body != Target &&
-                SourceNode == default && TargetNode == default && MinimumDuration == default: return;
-            case WorkshopGoalKind.ActivatedAfter when Body != default && Target != default &&
+                SourceNode == default && TargetNode == default && MinimumDuration == default && Integrity is null: return;
+            case WorkshopGoalKind.ActivatedAfter when Integrity is null && Body != default && Target != default &&
                 SourceNode != default && TargetNode != default && (Body != Target || SourceNode != TargetNode):
                 PhysicsDeclarationBounds.Range(MinimumDuration.Value, 0f, 120f); return;
+            case WorkshopGoalKind.IntegrityBroken when Integrity is { } selector && selector.Owner != default &&
+                selector.Observation != default && Body == default && Target == default && SourceNode == default &&
+                TargetNode == default && MinimumDuration == default: return;
             default: throw new ArgumentException("Unsupported named goal.");
         }
     }

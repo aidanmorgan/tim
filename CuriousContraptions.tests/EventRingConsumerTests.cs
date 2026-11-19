@@ -557,7 +557,7 @@ public sealed class EventRingConsumerTests
         GpuBodyId ball = new(1);
         var goal = CaptureGoal(ball, receiver);
         await using var ring = await WorkshopIntegrationHarness.Running(bench);
-        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
+        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)), bench.Instances.Identities, ring.Committed.Epoch);
         var cursor = new EventRingConsumer();
         var installed = ring.Committed;
         var evaluations = new List<(ulong Tick, ActivationTime? Occurrence)>();
@@ -591,7 +591,7 @@ public sealed class EventRingConsumerTests
     {
         var bench = Scenario("capture").Bench;
         var goal = CaptureGoal(new(1), new(2));
-        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
+        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)), bench.Instances.Identities, new(1));
         SimulationEventRecord Record(ulong sequence, ulong tick, ulong source) =>
             new(sequence, tick, SimulationEventKind.Impact, new(source), 1, checked((uint)(tick * Substeps)), 0f, 0f, 1, 0);
         wake.Observe(new(1, 0, [Record(1, 10, 9)]), new(9));
@@ -606,7 +606,7 @@ public sealed class EventRingConsumerTests
         wake.Observe(new(1, 1, []), new(20));
         Assert.Equal(21UL, wake.WakeTick); // nothing delivered: the next read
         // A goal whose sensor is not in the installed scene has nothing to wake it, and never faults the pump.
-        var orphan = new WorkshopGoalWake(goal with { Target = new(999_999) }, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
+        var orphan = new WorkshopGoalWake(goal with { Target = new(999_999) }, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)), bench.Instances.Identities, new(1));
         orphan.Observe(new(1, 4, [Record(1, 10, 2)]), new(9));
         Assert.False(orphan.Due(new(50)));
     }
@@ -622,16 +622,16 @@ public sealed class EventRingConsumerTests
         var goal = CaptureGoal(new(1), new(2));
         Assert.True(bench.Instances.Identities.TryCapture(goal.Target, goal.Body, out var capture));
         Assert.Contains(scene.Sensors.ToArray(), sensor => sensor.Id == capture.Sensor && sensor.Frame == goal.Target && sensor.Targets.Contains(goal.Body, scene.Bodies.ToArray().Single(body => body.Id == goal.Body).Payload));
-        var wake = new WorkshopGoalWake(goal, scene);
+        var wake = new WorkshopGoalWake(goal, scene, bench.Instances.Identities, new(1));
         wake.Observe(new(1, 0, [new(1, 7, SimulationEventKind.Captured, new(2), 1, 28, 0f, 0f, 0, 0)]), new(6));
         Assert.Equal(7UL, wake.WakeTick);
-        var after = new WorkshopGoalWake(new(WorkshopGoalKind.ActivatedAfter, new(3), new(5), new("signal"), new("signal")), scene);
+        var after = new WorkshopGoalWake(new(WorkshopGoalKind.ActivatedAfter, new(3), new(5), new("signal"), new("signal")), scene, bench.Instances.Identities, new(1));
         after.Observe(new(1, 0, [new(1, 4, SimulationEventKind.TriggerActivated, new(3), 1, 16, 0f, 0f, 0, 0)]), new(3));
         Assert.Equal(4UL, after.WakeTick);
         after.Evaluated(new(4), solved: false);
         after.Observe(new(1, 0, [new(2, 9, SimulationEventKind.TriggerActivated, new(77), 1, 36, 0f, 0f, 0, 0)]), new(8));
         Assert.Equal(9UL, after.WakeTick); // a record from any owner: the delay box upstream of the goal's lamp
-        var none = new WorkshopGoalWake(default, scene);
+        var none = new WorkshopGoalWake(default, scene, bench.Instances.Identities, new(1));
         none.Observe(new(1, 0, [new(1, 4, SimulationEventKind.Captured, new(2), 1, 16, 0f, 0f, 0, 0)]), new(3));
         Assert.False(none.Due(new(10)));
     }
@@ -646,6 +646,7 @@ public sealed class EventRingConsumerTests
     [InlineData("wall_and_bumper")]
     [InlineData("domino_effect")]
     [InlineData("delayed_signal")]
+    [InlineData("burst_of_motion")]
     public async Task EveryAuthoredGoalSolvesOnItsWakeExactlyWhenPollingWould(string lesson)
     {
         foreach (var solved in new[] { true, false })
@@ -654,7 +655,7 @@ public sealed class EventRingConsumerTests
                 : PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(.45f));
             var goal = bench.Puzzle.Goal;
             await using var ring = await WorkshopIntegrationHarness.Running(bench);
-            var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)));
+            var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, bench, new(1, 2)), bench.Instances.Identities, ring.Committed.Epoch);
             var cursor = new EventRingConsumer();
             var installed = ring.Committed;
             var polled = new List<(ulong Tick, ActivationTime Occurrence)>();

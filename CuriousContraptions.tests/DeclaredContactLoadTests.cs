@@ -149,7 +149,7 @@ public sealed class DeclaredContactLoadTests
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
-        var refusal = SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes));
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.False(string.IsNullOrWhiteSpace(refusal.Message));
         Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);

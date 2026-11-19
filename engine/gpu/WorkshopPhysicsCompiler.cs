@@ -13,7 +13,7 @@ namespace CuriousContraptions.Gpu;
 /// <summary>An independently authored payload intersects a hollow collider at construction.</summary>
 
 /// <summary>Compiles the bundle's declared bodies, geometry and materials; domain bindings remain separate.</summary>
-public static class WorkshopPhysicsCompiler
+public static partial class WorkshopPhysicsCompiler
 {
     private static RigidMassProperties MassProperties(RigidBodyMassProperties mass) => new(
         new(mass.CentreOfMass.X, mass.CentreOfMass.Y, mass.CentreOfMass.Z),
@@ -49,7 +49,7 @@ public static class WorkshopPhysicsCompiler
     public static IPhysicsSceneDeclaration Compile(ICoreServices core, IBundleServices bundle, WorkshopConstruction construction, PhysicsDocumentId document) =>
         new Compilation(core, bundle, construction, document).Build();
 
-    private sealed class Compilation
+    private sealed partial class Compilation
     {
         private readonly WorkshopConstruction construction;
         private readonly PhysicsDocumentId document;
@@ -102,6 +102,8 @@ public static class WorkshopPhysicsCompiler
             colliders.Add(new(identities.PlaneCollider, plane, planeMaterial,
                 ColliderShapeKind.Plane, RigidLocalPose.Identity, new(0f), default));
             CompileBodies();
+            CompileGas();
+            ValidatePreparedGasPlacement();
             CompileSensors();
             ValidateHollowPlacement();
             var (tensile, ropeGuides, transmissions) = CompileConnections();
@@ -111,7 +113,9 @@ public static class WorkshopPhysicsCompiler
                 compliantSurfaces.ToArray(), revoluteDrives.ToArray(),
                 ropeGuides: ropeGuides.ToArray(),
                 transmissions: transmissions.ToArray(), drivenSurfaces: drivenSurfaces.ToArray(), energyStores: energyStores.ToArray(),
-                chamberRegions: chamberRegions.ToArray(), finiteWorkActuators: finiteWorkActuators.ToArray());
+                chamberRegions: chamberRegions.ToArray(), finiteWorkActuators: finiteWorkActuators.ToArray(),
+                gasStores: gasStores.ToArray(), gasShapes: gasShapes.ToArray(), inventoryMasses: inventoryMasses.ToArray(),
+                ambientLoads: ambientLoads.ToArray(), integrityObservers: integrityObservers.ToArray());
         }
 
         private void AddGeometry(GpuBodyId owner, GpuMaterialId material, IReadOnlyList<GpuColliderId> colliderIdentities,
@@ -159,7 +163,8 @@ public static class WorkshopPhysicsCompiler
                 var y = WorkshopInput.Position(pB.Y);
                 var z = WorkshopInput.Position(pB.Z);
                 var body = slider.MovingBody;
-                var movingMass = body.MassFrame.Evaluate(values);
+                var movingMass = body.MassFrame.Evaluate(values, GasMassReferences.Resolve(new(1 + i),
+                    DeclaredPhysics.Of(instance.PartId).Mechanical!.GasStores, values));
                 movingMass.Validate(KinematicMode.Dynamic);
                 bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
                     CanonicalRotation.Normalize(rB.X, rB.Y, rB.Z, rB.W), default, default, new(movingMass.Mass),
@@ -199,7 +204,8 @@ public static class WorkshopPhysicsCompiler
                 var z = WorkshopInput.Position(pB.Z);
 
                 var body = hinge.MovingBody;
-                var movingMass = body.MassFrame.Evaluate(values);
+                var movingMass = body.MassFrame.Evaluate(values, GasMassReferences.Resolve(new(1 + rows.Sliders.Length + i),
+                    DeclaredPhysics.Of(instance.PartId).Mechanical!.GasStores, values));
                 movingMass.Validate(KinematicMode.Dynamic);
                 bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
                     CanonicalRotation.Normalize(rB.X, rB.Y, rB.Z, rB.W), default, default, new(movingMass.Mass),
@@ -230,7 +236,8 @@ public static class WorkshopPhysicsCompiler
                 var shapes = bundle.Colliders(entry, parameters);
                 var mechanical = entry.Mechanical;
                 var values = parameters.ToDictionary(pair => new ParameterId(pair.Key), pair => pair.Value);
-                var mass = mechanical is { } declared ? declared.MassFrame.Evaluate(values) : default;
+                var mass = mechanical is { } declared ? declared.MassFrame.Evaluate(values,
+                    GasMassReferences.Resolve(new(0), declared.GasStores, values)) : default;
                 var mode = (mechanical?.KinematicMode ?? KinematicMode.Static) switch
                 {
                     KinematicMode.Static => RigidMotionKind.Static,

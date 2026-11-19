@@ -2,11 +2,12 @@ using System.Collections.Generic;
 using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
+using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Elements.TennisBall;
 
 public sealed class TennisBallElementDeclaration : IMechanicalElement, ISceneGeometryElement,
-    IParameterizedGeometryElement, IParameterizedMaterialElement
+    IParameterizedGeometryElement, IParameterizedMaterialElement, IAmbientLoadElement
 {
     public ElementMetadata Metadata => new(Id: "tennis", Category: ElementCategory.Motion, DisplayName: "Tennis ball",
         Description: "A lightweight, high-bounce ball with configurable material.", Color: new(184f / 255f, 219f / 255f, 89f / 255f, 1f),
@@ -41,9 +42,13 @@ public sealed class TennisBallElementDeclaration : IMechanicalElement, ISceneGeo
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
     public MassFrameDeclaration MassFrame => new(
-        new(new ParameterId("mass"), 0f, 1f, 0f, 0f), MassVector.Constant(Vector3.Zero),
+        BodyMassSourceDeclaration.Declared(new(new ParameterId("mass"), 0f, 1f, 0f, 0f),
         new(PrincipalMomentOperation.ScaledMassLengthSquared, default,
-            new(new ParameterId("mass"), 0f), new(new ParameterId("radius"), 0f), new(.4f)),
-        Quaternion.Identity, new(new ParameterId("drag"), 0f, 1f, 0f, 0f),
-        new(new ParameterId("buoyancy"), new(0f, -9.81f, 0f), Vector3.UnitY));
+            new(new ParameterId("mass"), 0f), new(new ParameterId("radius"), 0f), new(.4f))), MassVector.Constant(Vector3.Zero),
+        Quaternion.Identity, MassScalar.Constant(0),
+        WorldAccelerationDeclaration.Constant(new(0f, -9.81f, 0f)));
+
+    public IReadOnlyList<AmbientLoadDescriptor> AmbientLoads =>
+        [new(new(0), new(new ParameterId("buoyancy"), Vector3.Zero, Vector3.UnitY),
+            new(new ParameterId("drag"), 0, 1, 0, 0), null)];
 }

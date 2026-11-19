@@ -83,7 +83,7 @@ public sealed partial class BrowserWorkshopClient
     {
         if (_preparation is not null || _schedule is not { } schedule || _readScene is not { } scene ||
             _history.Latest is not { } latest || latest.Read.Epoch != schedule.World.WorldGeneration) return;
-        _goalWake ??= new WorkshopGoalWake(_construction.Puzzle.Goal, scene);
+        _goalWake ??= new WorkshopGoalWake(_construction.Puzzle.Goal, scene, _construction.Instances.Identities, Epoch);
         _goalWake.Observe(Abstractions.EventRingDelivery.Read(_transport.ReadEvents(_id.Value, schedule.World.WorldGeneration.Value.ToString(System.Globalization.CultureInfo.InvariantCulture))), latest.Read.Tick);
         if (_animationPending is not null || (_goalRequested is not null && !_goalRetry) ||
             (!_goalRetry && !_goalWake.Due(latest.Read.Tick))) return;
@@ -138,7 +138,7 @@ public sealed partial class BrowserWorkshopClient
         if (_frameGoalTaken || physical.Evidence.WorldEpoch != Epoch || physical.FeedbackCapture is null ||
             _goalSample is not { } sample || sample.World != Epoch || sample.AppliedAt.Value > _frameMaster.Value ||
             _goalRequested is not { } occurrence ||
-            WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, physical.Captures, physical.Activations, _construction.Instances.Identities) != occurrence)
+            WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, physical.Captures, physical.Activations, physical.IntegrityObservers, _construction.Instances.Identities) != occurrence)
             return false;
         _frameGoalTaken = true; _goalSample = null; _lastPresentationApplied = _frameMaster;
         opacity = new(sample.Value); return true;

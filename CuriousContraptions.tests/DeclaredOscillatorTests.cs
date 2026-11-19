@@ -150,7 +150,7 @@ public sealed class DeclaredOscillatorTests
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
-        Assert.False(string.IsNullOrWhiteSpace(SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message));
+        Assert.False(string.IsNullOrWhiteSpace(SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);
         Assert.False(string.IsNullOrWhiteSpace(fault.Message));

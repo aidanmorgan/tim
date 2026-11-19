@@ -77,7 +77,7 @@ public sealed class LaunchLessonSolveTests
     }
 
     internal static bool Solved(WorkshopConstruction construction, IEnumerable<WorkshopRead> run) =>
-        run.Any(read => WorkshopGoalEvaluator.Occurrence(construction.Puzzle.Goal, read.Captures, read.Activations, construction.Instances.Identities) is not null);
+        run.Any(read => WorkshopGoalEvaluator.Occurrence(construction.Puzzle.Goal, read.Captures, read.Activations, read.IntegrityObservers, construction.Instances.Identities) is not null);
 
     // The authored solution of every placement-launch lesson solves at every precision (the bumper rows were corrected from x/z 3.2 to
     // 3.3 on 22 Oct 2026: at 3.2 the 0.2 m offset under the falling ball misses the Receiver on main 55ee05b9 and here alike,
@@ -90,7 +90,7 @@ public sealed class LaunchLessonSolveTests
         new("first_principles"), new("spring_forward"), new("domino_effect"), new("bumper_sidekick"),
         new("bumper_depth"), new("wall_and_bumper"), new("delayed_signal"), new("clear_pipe"),
         new("gentle_bend"), new("quarter_bend"), new("joined_pipe"), new("ready_to_rebound"),
-        new("wind_then_release"), new("saved_for_later")
+        new("wind_then_release"), new("saved_for_later"), new("burst_of_motion")
     ];
 
     [Fact]
@@ -192,8 +192,16 @@ public sealed class LaunchLessonSolveTests
     {
         var goal = harness.Construction.Puzzle.Goal;
         var capture = goal.Kind == WorkshopGoalKind.Captured;
-        var owner = goal.Target;
+        var owner = goal.Integrity?.Owner ?? goal.Target;
         var samples = harness.Presentation!.Advance(harness.Schedule, PhysicalTime.FromNanoseconds(harness.Time.Nanoseconds));
+        if (goal.Kind == WorkshopGoalKind.IntegrityBroken)
+        {
+            var envelope = Assert.Single(samples, sample => sample.Owner == owner && sample.Binding == 0);
+            // The declared envelope visibly collapses after a full second of loss; Reset restores its authored radius.
+            if (lit) Assert.InRange(envelope.Value.Scale.Value, .0625f, .1f);
+            else Assert.Equal(.36f, envelope.Value.Scale.Value);
+            return;
+        }
         if (!harness.Construction.Instances.Any(part => part.Id == owner))
         {
             Assert.False(lit);

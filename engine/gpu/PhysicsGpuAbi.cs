@@ -14,8 +14,8 @@ public readonly record struct PhysicsCandidateRead(PhysicsBodyReadSet Bodies, Ph
 /// every game value is one IEEE-754 f32 (Story 9A.44).</summary>
 public static partial class PhysicsGpuAbi
 {
-    /// <summary>The world header (176 bytes, every table population among its counts).</summary>
-    public const int HeaderBytes = 176;
+    /// <summary>The world header (208 bytes, every table population among its counts).</summary>
+    public const int HeaderBytes = 208;
     public const int BodyBytes = 160;
     // Body: f32 pose32/48, velocities64/76; immutable mass/material lanes start88.
     public const int BodyVelocityOffset = 64;
@@ -146,6 +146,7 @@ public static partial class PhysicsGpuAbi
         AdmitContactWorks(data, scene);
         AdmitEnergyStores(data, scene);
         AdmitChambers(data, scene);
+        AdmitGas(data, scene);
         for (var i = 0; i < scene.OrientationSensors.Length; i++)
         {
             var sensor = scene.OrientationSensors[i];
@@ -315,7 +316,8 @@ public static partial class PhysicsGpuAbi
             !candidate[..HeaderStatusOffset].SequenceEqual(source[..HeaderStatusOffset]) ||
             !candidate[HeaderBodyCountOffset..HeaderTickOffset].SequenceEqual(source[HeaderBodyCountOffset..HeaderTickOffset]) ||
             !candidate[HeaderCadenceOffset..HeaderSourceOrdinalOffset].SequenceEqual(source[HeaderCadenceOffset..HeaderSourceOrdinalOffset]) ||
-            !candidate[HeaderGuideCountOffset..HeaderPhysicalRevisionOffset].SequenceEqual(source[HeaderGuideCountOffset..HeaderPhysicalRevisionOffset]))
+            !candidate[HeaderGuideCountOffset..HeaderPhysicalRevisionOffset].SequenceEqual(source[HeaderGuideCountOffset..HeaderPhysicalRevisionOffset]) ||
+            !candidate[HeaderGasStoreCountOffset..HeaderPaddingOffset].SequenceEqual(source[HeaderGasStoreCountOffset..HeaderPaddingOffset]))
             throw new ArgumentException("Candidate identity, scene counts or physical profile changed.");
         // Equal header populations: one layout addresses both worlds, and every table is exactly its population (Story 9R.5b).
         var layout = Layout(source);
@@ -339,6 +341,7 @@ public static partial class PhysicsGpuAbi
         ValidateContactWorkCandidate(candidate, source, expectedTick, candidateInteractions, sourceInteractions);
         ValidateEnergyStoreCandidate(candidate, source);
         ValidateChamberCandidate(candidate, source);
+        ValidateGasCandidate(candidate, source);
         ValidateOrientationCandidate(candidate, source, expectedTick, layout);
         if (expectedTick.Value != 0 && (R32(candidate, layout.MotionOffset + PhysicsMotionRead.SubstepsOffset) != profile.Substeps ||
             R32(candidate, layout.MotionOffset + PhysicsMotionRead.LastOrdinalOffset) != R32(candidate, HeaderSourceOrdinalOffset)))
@@ -361,6 +364,7 @@ public static partial class PhysicsGpuAbi
         // may only change the selected release, paid stores and mechanically coupled response.
         if (!candidate[layout.SensorsOffset..layout.PrismaticsOffset].SequenceEqual(source[layout.SensorsOffset..layout.PrismaticsOffset]) ||
             !candidate[layout.PrismaticsOffset..layout.MechanicalTransmissionsOffset].SequenceEqual(source[layout.PrismaticsOffset..layout.MechanicalTransmissionsOffset]) ||
+            !candidate[layout.GasStoresOffset..layout.CollidersOffset].SequenceEqual(source[layout.GasStoresOffset..layout.CollidersOffset]) ||
             after.Captures.Count != before.Captures.Count || after.Works.Count != before.Works.Count)
             throw new ArgumentException("An instantaneous transaction changed timed observation or control state.");
         foreach (var pair in before.Captures)
@@ -393,15 +397,16 @@ public static partial class PhysicsGpuAbi
             }
             if (motion != RigidMotionKind.Dynamic) throw new ArgumentException("Undefined rigid motion.");
             dynamicCount++;
-            if (!actual[..BodyCellOffset].SequenceEqual(previous[..BodyCellOffset]) || !actual[BodyMassOffset..].SequenceEqual(previous[BodyMassOffset..]) ||
+            if (!actual[..BodyCellOffset].SequenceEqual(previous[..BodyCellOffset]) || !actual[BodyDragOffset..].SequenceEqual(previous[BodyDragOffset..]) ||
                 !AllZero(actual[BodyCellPaddingOffset..BodyLocalOffset]) || !AllZero(actual[BodyLocalPaddingOffset..BodyRotationOffset]))
                 throw new ArgumentException("Dynamic immutable declaration or padding changed.");
+            ValidateInventoryMassWrite(candidate, source, layout, i);
             ReadMassProperties(actual).Validate();
         }
         if (dynamicCount != layout.Dynamic ||
-            !candidate[layout.MaterialsOffset..layout.SensorsOffset].SequenceEqual(source[layout.MaterialsOffset..layout.SensorsOffset]) ||
-            !candidate[layout.CollidersOffset..].SequenceEqual(source[layout.CollidersOffset..]))
-            throw new ArgumentException("Candidate changed body population, geometry or material.");
+            !candidate[layout.MaterialsOffset..layout.SensorsOffset].SequenceEqual(source[layout.MaterialsOffset..layout.SensorsOffset]))
+            throw new ArgumentException("Candidate changed body population or material.");
+        ValidateGasGeometryWrite(candidate, source, layout);
     }
 
     private static void ValidateFixedRowPadding(ReadOnlySpan<byte> candidate, PhysicsWorldLayout layout)

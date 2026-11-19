@@ -1,10 +1,20 @@
 # Gas and airflow capability family
 
-Fluid/gas is one capability family inside the single generic WebAssembly SIMD f32 physics solver described by the [canonical f32 design and capability inventory](gpu-f32-physics.md#capability-inventory) under the [general data-driven engine contract](engine-contracts.md#general-data-driven-engines). The solver already carries the **force region** capability (fan/jet acceleration law) and **finite stores and sources**; this document adds the sealed gas store, gas network node, nozzle source and rotary capture records the airflow elements declare. Every Fan, Bellows, Windmill, hose, valve, reservoir and balloon is declaration data over these records; none has its own kernel branch, equation table or update loop. Status lives in [TODO](../TODO.md); element obligations live in [named-elements](planning/invest/named-elements.md).
+Fluid/gas is one capability family inside the single generic WebAssembly SIMD f32 physics solver described by the [canonical f32 design and capability inventory](gpu-f32-physics.md#capability-inventory) under the [general data-driven engine contract](engine-contracts.md#general-data-driven-engines). This document specifies the family target, not blanket runtime completion. Story 12.1b implements the bounded sealed compliant store, explicit unbounded ambient boundary, pressure-driven loss and contact-integrity bindings described below. Connected gas-network, nozzle and rotary-transfer records retain their later qualification owners. Every Fan, Bellows, Windmill, hose, valve, reservoir and balloon is declaration data over these records; none has its own kernel branch, equation table or update loop. Status lives in [TODO](../TODO.md); element obligations live in [named-elements](planning/invest/named-elements.md).
 
 <a id="airflow-transfer"></a>
 <a id="rotary-capture"></a>
 <a id="sealed-gas"></a>
+## Bounded current sealed-store capability (12.1b)
+
+The [Balloon native spec](../_bmad-output/implementation-artifacts/spec-12-1b-balloon.md) owns current implementation and evidence. A compliant envelope has P=declared ambient pressure+positive gauge pressure and potential gaugePressure×V. Build preparation preserves reference mass through reversible adiabatic equilibrium, explicitly accounting ambient boundary work and envelope potential. Standard/Vacuum are typed persisted construction boundaries under EL-125; Vacuum is an admissible boundary, not an empty gas store or a hidden substitute.
+
+An open outlet applies q=conductance×max(Psource−Pboundary,0) with finite allocation. Isobaric loss retains temperature, reduces m/V/U together and accounts removed enthalpy, ambient compression work and released envelope potential. Canonical empty state is m=V=U=0. Isotropic outflow carries translational momentum and kinetic energy; centered gas inventory has no rotational inertia. One mass source owns dry carrier plus exact current stores. Actual sphere radius and committed art share gas volume plus declared dry core volume.
+
+Accepted approaching-contact impulse for one unordered collider pair can latch an exact integrity observation and open its exact store once; speculative solver trials cannot debit gas or publish the occurrence. Discharge begins the following accepted substep. Rounded residuals clamp/continue rather than faulting a tick.
+
+These bounded native prerequisites satisfy Balloon's required mode under S470. Full S471 connected-volume/valve proof remains required before EL-039 and later reservoir/valve/actuator consumers; S697 open-versus-sealed network integration remains assigned there. Fan 12.2 retains conserved airflow, missed/occluded/no-source controls. No closed-world finite ambient inventory, arbitrary nozzle or complete gas network is claimed.
+
 ## Capability family
 
 ### State variables (canonical IEEE-754 f32)
@@ -23,7 +33,7 @@ Fluid/gas is one capability family inside the single generic WebAssembly SIMD f3
 
 - **Linear transfer.** One source allowance supplies every connected branch jointly; branches are allocated without mutating the candidate pose, paired nozzle/receiver reactions preserve linear and angular momentum, and the source reservoir debits exactly the work delivered plus paired loss. A disabled source plate, a blocked or missed path and an exhausted reservoir each transfer zero. Stationary receivers may accept impulse with zero receiver work. The balanced transfer abstraction has zero ambient exchange and no unloaded thrust; unloaded emission needs the nozzle record.
 - **Rotary capture.** The rotor is a hinge-constrained rigid body with finite inertia, calm-air passive coast-down (resistance b) and typed mechanical output connections. For several branches the signed sum of aligned capped branch forces plus p·alignment·ω fixes cut-in and the bounded unloaded speed. Compile selects a feasible positive pitch and nonnegative resistance for the authored response; the solver never assigns or clamps shaft velocity and never adds an independent drive torque. Front/rear drive, edge-on and opposing sources follow from signed axis alignment of the four samples.
-- **Sealed gas.** Homogeneous single-species calorically perfect ideal gas. A reversible adiabatic volume change gives U₂ = U₁·(V₁/V₂)^(R/Cv) with unchanged mass; work on the gas is U₂ − U₁ and expansion returns negative work. Gas energy gain debits mechanical work and expansion credits the same work in the same substep. Vacuum, zero inventory, non-finite or out-of-limit material states are compile-time admission failures, never a hidden ambient default.
+- **Sealed gas.** Homogeneous single-species calorically perfect ideal gas. A reversible adiabatic volume change gives U₂ = U₁·(V₁/V₂)^(R/Cv) with unchanged mass; work on the gas is U₂ − U₁ and expansion returns negative work. Gas energy gain debits mechanical work and expansion credits the same work in the same substep. A charged store requires positive m/V/U within material limits at admission. Explicit Vacuum boundaries and canonical empty runtime stores are distinct valid states; malformed partial-zero, non-finite or out-of-limit authored states are refused, never replaced by a hidden ambient default.
 - **Nozzle and finite discharge.** A converging nozzle declares NoFlow, Subsonic and Choked regimes with mass continuity, stagnation enthalpy, momentum and pressure thrust. Finite adiabatic discharge cools a rigid reservoir; final mass, internal energy and outlet enthalpy are accounted. A Bellows emits unloaded flow through its nozzle record and refills from its declared environment with 4 N·s/m refill damping; receiver impulse alone never substitutes for emission.
 - **Envelope.** Region and transfer accelerations pass through the shared clamps (64 m/s² linear, 1024 rad/s² angular; authored fan/jet regions A ≤ 16 m/s²). Rounding residual in work, inventory or pressure is clamp-or-continue under the [game-grade envelope](gpu-f32-physics.md#game-grade-envelope); it never creates energy, never faults a tick and never drops elapsed time. No free energy: a Windmill in still air never starts turning, a Fan with an empty reservoir pushes nothing, and simultaneous consumers cannot overdraw one store.
 
@@ -67,12 +77,12 @@ Sources are the Fan (electrical supply + reservoir), Bellows (slider-driven nozz
 
 ## Chrome-observable acceptance for the first airflow slice
 
-The first slice introducing this family is the existing Fan (CAT-028) under the [roadmap's airflow family](planning/invest/vertical-delivery.md#rolling-playable-roadmap). Through actual palette, gizmo and socket controls in Chrome/Playwright:
+Balloon (CAT-003) introduces the bounded sealed-store capability above. The existing Fan (CAT-028) introduces airflow transfer under the [roadmap's airflow family](planning/invest/vertical-delivery.md#rolling-playable-roadmap). Through actual palette, gizmo and socket controls in Chrome/Playwright:
 
 1. Place a supplied Fan beside the Basketball on a ledge, Run: the ball leaves the ledge along the Fan axis and reaches the Receiver (Solved).
 2. Controls: Fan unsupplied, Fan facing away, a Wall between Fan and ball, and reach exceeded each leave the ball resting (no free energy).
 3. Bellows → Windmill → Conveyor default transport: cargo starts at X = 1 and reaches X > 2.5 within 480 ticks; missed, blocked and disconnected controls retain X = 1. A stronger response-4, 960-tick configuration cannot substitute for this default case.
 4. Loaded plate holding, closing gate/shutter, motor/pusher/conveyor and source-mode controls keep their truthful emission observations.
-5. Reset restores the exact construction, reservoir, slider and rotor state; Save/Load where supported restores identical canonical bits.
+5. Reset restores the exact construction, reservoir, slider and rotor state; Save/Load where supported restores decoded canonical authored fields; output-byte identity is not acceptance.
 
 Run/Pause/Step lifecycle, production build and ordinary resource ownership apply per slice; detailed performance and device qualification remain at their named release gates.

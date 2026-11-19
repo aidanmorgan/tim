@@ -116,8 +116,9 @@ public struct ConstructionRecord : IFlatbufferObject
   public int InstancesLength { get { int o = __p.__offset(10); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.ConnectionRecord? Connections(int j) { int o = __p.__offset(12); return o != 0 ? (CuriousContraptions.Wire.ConnectionRecord?)(new CuriousContraptions.Wire.ConnectionRecord()).__assign(__p.__vector(o) + j * 40, __p.bb) : null; }
   public int ConnectionsLength { get { int o = __p.__offset(12); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public uint? Atmosphere { get { int o = __p.__offset(14); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint?)null; } }
 
-  public static void StartConstructionRecord(FlatBufferBuilder builder) { builder.StartTable(5); }
+  public static void StartConstructionRecord(FlatBufferBuilder builder) { builder.StartTable(6); }
   public static void AddRevision(FlatBufferBuilder builder, ulong revision) { builder.AddUlong(0, revision, 0); }
   public static void AddSettings(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CadenceSettingsRecord> settingsOffset) { builder.AddStruct(1, settingsOffset.Value, 0); }
   public static void AddPuzzle(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.PuzzleRecord> puzzleOffset) { builder.AddOffset(2, puzzleOffset.Value, 0); }
@@ -129,6 +130,7 @@ public struct ConstructionRecord : IFlatbufferObject
   public static void StartInstancesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static void AddConnections(FlatBufferBuilder builder, VectorOffset connectionsOffset) { builder.AddOffset(4, connectionsOffset.Value, 0); }
   public static void StartConnectionsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(40, numElems, 8); }
+  public static void AddAtmosphere(FlatBufferBuilder builder, uint? atmosphere) { builder.AddUint(5, atmosphere); }
   public static Offset<CuriousContraptions.Wire.ConstructionRecord> EndConstructionRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.ConstructionRecord>(o);
@@ -146,6 +148,7 @@ static public class ConstructionRecordVerify
       && verifier.VerifyTable(tablePos, 8 /*Puzzle*/, CuriousContraptions.Wire.PuzzleRecordVerify.Verify, false)
       && verifier.VerifyVectorOfTables(tablePos, 10 /*Instances*/, CuriousContraptions.Wire.InstanceRecordVerify.Verify, false)
       && verifier.VerifyVectorOfData(tablePos, 12 /*Connections*/, 40 /*CuriousContraptions.Wire.ConnectionRecord*/, false)
+      && verifier.VerifyField(tablePos, 14 /*Atmosphere*/, 4 /*uint*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -208,6 +211,25 @@ static public class InstanceRecordVerify
       && verifier.VerifyField(tablePos, 14 /*Rotation*/, 16 /*CuriousContraptions.Wire.Quat4f*/, 4, false)
       && verifier.VerifyVectorOfTables(tablePos, 16 /*Parameters*/, CuriousContraptions.Wire.ParameterRecordVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct IntegrityGoalRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public IntegrityGoalRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Owner { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public uint Observation { get { return __p.bb.GetUint(__p.bb_pos + 8); } }
+
+  public static Offset<CuriousContraptions.Wire.IntegrityGoalRecord> CreateIntegrityGoalRecord(FlatBufferBuilder builder, ulong Owner, uint Observation) {
+    builder.Prep(8, 16);
+    builder.Pad(4);
+    builder.PutUint(Observation);
+    builder.PutUlong(Owner);
+    return new Offset<CuriousContraptions.Wire.IntegrityGoalRecord>(builder.Offset);
   }
 }
 
@@ -309,39 +331,9 @@ public struct PuzzleRecord : IFlatbufferObject
   public CuriousContraptions.Wire.AssistanceKnotRecord? Assistance(int j) { int o = __p.__offset(26); return o != 0 ? (CuriousContraptions.Wire.AssistanceKnotRecord?)(new CuriousContraptions.Wire.AssistanceKnotRecord()).__assign(__p.__vector(o) + j * 44, __p.bb) : null; }
   public int AssistanceLength { get { int o = __p.__offset(26); return o != 0 ? __p.__vector_len(o) : 0; } }
   public ulong InteractionTarget { get { int o = __p.__offset(28); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public CuriousContraptions.Wire.IntegrityGoalRecord? GoalIntegrity { get { int o = __p.__offset(30); return o != 0 ? (CuriousContraptions.Wire.IntegrityGoalRecord?)(new CuriousContraptions.Wire.IntegrityGoalRecord()).__assign(o + __p.bb_pos, __p.bb) : null; } }
 
-  public static Offset<CuriousContraptions.Wire.PuzzleRecord> CreatePuzzleRecord(FlatBufferBuilder builder,
-      StringOffset idOffset = default(StringOffset),
-      uint placement = 0,
-      float precision = 0.0f,
-      StringOffset inventory_partOffset = default(StringOffset),
-      uint inventory_count = 0,
-      uint goal_kind = 0,
-      ulong goal_body = 0,
-      ulong goal_target = 0,
-      float goal_delay = 0.0f,
-      StringOffset goal_source_nodeOffset = default(StringOffset),
-      StringOffset goal_target_nodeOffset = default(StringOffset),
-      VectorOffset assistanceOffset = default(VectorOffset),
-      ulong interaction_target = 0) {
-    builder.StartTable(13);
-    PuzzleRecord.AddInteractionTarget(builder, interaction_target);
-    PuzzleRecord.AddGoalTarget(builder, goal_target);
-    PuzzleRecord.AddGoalBody(builder, goal_body);
-    PuzzleRecord.AddAssistance(builder, assistanceOffset);
-    PuzzleRecord.AddGoalTargetNode(builder, goal_target_nodeOffset);
-    PuzzleRecord.AddGoalSourceNode(builder, goal_source_nodeOffset);
-    PuzzleRecord.AddGoalDelay(builder, goal_delay);
-    PuzzleRecord.AddGoalKind(builder, goal_kind);
-    PuzzleRecord.AddInventoryCount(builder, inventory_count);
-    PuzzleRecord.AddInventoryPart(builder, inventory_partOffset);
-    PuzzleRecord.AddPrecision(builder, precision);
-    PuzzleRecord.AddPlacement(builder, placement);
-    PuzzleRecord.AddId(builder, idOffset);
-    return PuzzleRecord.EndPuzzleRecord(builder);
-  }
-
-  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(13); }
+  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(14); }
   public static void AddId(FlatBufferBuilder builder, StringOffset idOffset) { builder.AddOffset(0, idOffset.Value, 0); }
   public static void AddPlacement(FlatBufferBuilder builder, uint placement) { builder.AddUint(1, placement, 0); }
   public static void AddPrecision(FlatBufferBuilder builder, float precision) { builder.AddFloat(2, precision, 0.0f); }
@@ -356,6 +348,7 @@ public struct PuzzleRecord : IFlatbufferObject
   public static void AddAssistance(FlatBufferBuilder builder, VectorOffset assistanceOffset) { builder.AddOffset(11, assistanceOffset.Value, 0); }
   public static void StartAssistanceVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(44, numElems, 4); }
   public static void AddInteractionTarget(FlatBufferBuilder builder, ulong interactionTarget) { builder.AddUlong(12, interactionTarget, 0); }
+  public static void AddGoalIntegrity(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.IntegrityGoalRecord> goalIntegrityOffset) { builder.AddStruct(13, goalIntegrityOffset.Value, 0); }
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> EndPuzzleRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 4);  // id
@@ -383,6 +376,7 @@ static public class PuzzleRecordVerify
       && verifier.VerifyString(tablePos, 24 /*GoalTargetNode*/, false)
       && verifier.VerifyVectorOfData(tablePos, 26 /*Assistance*/, 44 /*CuriousContraptions.Wire.AssistanceKnotRecord*/, true)
       && verifier.VerifyField(tablePos, 28 /*InteractionTarget*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyField(tablePos, 30 /*GoalIntegrity*/, 16 /*CuriousContraptions.Wire.IntegrityGoalRecord*/, 8, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

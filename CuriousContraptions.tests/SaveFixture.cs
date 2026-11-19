@@ -61,6 +61,7 @@ internal static class SaveFixture
         }
         var settings = construction.Settings;
         ConstructionRecord.StartConstructionRecord(builder);
+        ConstructionRecord.AddAtmosphere(builder, (uint)construction.Atmosphere);
         ConstructionRecord.AddRevision(builder, construction.Revision.Value);
         ConstructionRecord.AddSettings(builder, CadenceSettingsRecord.CreateCadenceSettingsRecord(builder,
             (uint)settings.Simulation, (uint)settings.Physical, (uint)settings.Animation, (uint)settings.Presentation,
@@ -116,8 +117,23 @@ internal static class SaveFixture
                 knot.Blend.Value, knot.CaptureMargin.Value, knot.CaptureSpeed.Value, knot.CaptureDwell.Value,
                 knot.GuideAcceleration.Value, knot.TriggerThreshold);
         var assistance = builder.EndVector();
-        return PuzzleRecord.CreatePuzzleRecord(builder, id, (uint)puzzle.Placement, puzzle.Precision.Value, inventory,
-            puzzle.InventoryCount, (uint)puzzle.Goal.Kind, puzzle.Goal.Body.Value, puzzle.Goal.Target.Value,
-            puzzle.Goal.MinimumDuration.Value, source, target, assistance, puzzle.InteractionTarget.Value);
+        PuzzleRecord.StartPuzzleRecord(builder);
+        PuzzleRecord.AddId(builder, id);
+        PuzzleRecord.AddPlacement(builder, (uint)puzzle.Placement);
+        PuzzleRecord.AddPrecision(builder, puzzle.Precision.Value);
+        PuzzleRecord.AddInventoryPart(builder, inventory);
+        PuzzleRecord.AddInventoryCount(builder, puzzle.InventoryCount);
+        PuzzleRecord.AddGoalKind(builder, (uint)puzzle.Goal.Kind);
+        PuzzleRecord.AddGoalBody(builder, puzzle.Goal.Body.Value);
+        PuzzleRecord.AddGoalTarget(builder, puzzle.Goal.Target.Value);
+        PuzzleRecord.AddGoalDelay(builder, puzzle.Goal.MinimumDuration.Value);
+        PuzzleRecord.AddGoalSourceNode(builder, source);
+        PuzzleRecord.AddGoalTargetNode(builder, target);
+        PuzzleRecord.AddAssistance(builder, assistance);
+        PuzzleRecord.AddInteractionTarget(builder, puzzle.InteractionTarget.Value);
+        if (puzzle.Goal.Integrity is { } integrity)
+            PuzzleRecord.AddGoalIntegrity(builder, IntegrityGoalRecord.CreateIntegrityGoalRecord(builder,
+                integrity.Owner.Value, integrity.Observation.Value));
+        return PuzzleRecord.EndPuzzleRecord(builder);
     }
 }

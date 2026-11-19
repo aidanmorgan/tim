@@ -85,3 +85,23 @@ public static class BoxFaces
         _ => throw new ArgumentException("Undefined box face.")
     };
 }
+
+public interface IGasStoreElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.GasStoreDescriptor> GasStores { get; }
+}
+
+public interface IGasShapeElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.GasShapeDescriptor> GasShapes { get; }
+}
+
+public interface IContactIntegrityElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.ContactIntegrityDescriptor> IntegrityObservers { get; }
+}
+
+public interface IAmbientLoadElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.AmbientLoadDescriptor> AmbientLoads { get; }
+}

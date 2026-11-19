@@ -107,12 +107,11 @@ public sealed class ImpactLeverElementDeclaration : IHingeElement, ISceneGeometr
             BodiesCollide: false,
             MovingBody: new(
                 MassFrame: new(
-                    Mass: new(new ParameterId("beam_mass"), 0f, 1f, 0f, 0f),
-                    CentreOfMass: MassVector.Constant(Vector3.Zero),
-                    PrincipalMoments: PrincipalMomentDeclaration.FromPolynomial(new(
+                    Source: BodyMassSourceDeclaration.Declared(new(new ParameterId("beam_mass"), 0f, 1f, 0f, 0f), PrincipalMomentDeclaration.FromPolynomial(new(
                         new(new ParameterId("beam_mass"), 0f, (0.12f * 0.12f + 0.55f * 0.55f) / 3f, 0f, 0f),
                         new(new ParameterId("beam_mass"), 0f, (1.8f * 1.8f + 0.55f * 0.55f) / 3f, 0f, 0f),
-                        new(new ParameterId("beam_mass"), 0f, (1.8f * 1.8f + 0.12f * 0.12f) / 3f, 0f, 0f))),
+                        new(new ParameterId("beam_mass"), 0f, (1.8f * 1.8f + 0.12f * 0.12f) / 3f, 0f, 0f)))),
+                    CentreOfMass: MassVector.Constant(Vector3.Zero),
                     PrincipalFrame: Quaternion.Identity,
                     LinearDrag: MassScalar.Constant(0f),
                     Gravity: WorldAccelerationDeclaration.Constant(new Vector3(0f, -9.81f, 0f))),

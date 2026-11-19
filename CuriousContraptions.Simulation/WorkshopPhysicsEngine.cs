@@ -1012,6 +1012,7 @@ internal sealed partial class WorkshopPhysicsEngine
         for (var s = 0; s < steps; s++)
         {
             GuideWorkspace.Detach(_dynamicBodies);
+            AdvanceGas(span, layout, dt);
             foreach (var joint in _joints) PrismaticMotorSolver.BeginSubstep(joint, dt);
             foreach (var transmission in _transmissions)
             {
@@ -1066,6 +1067,7 @@ internal sealed partial class WorkshopPhysicsEngine
             // Each sample's contact state and the bed's deflection follow this substep's resulting pose; the next substep's force reads them.
             UpdateCompliantContacts(span, layout);
 
+            CommitIntegrity(span, layout, sourceOrdinal + (uint)s + 1);
             CommitContactObservations(span, layout, sourceOrdinal, s, workStates);
             foreach (var transmission in _transmissions) CommitTransmission(span, transmission);
             CommitMotion(span, motionOffset, steps, s, sourceOrdinal);

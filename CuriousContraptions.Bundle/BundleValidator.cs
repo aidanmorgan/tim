@@ -51,6 +51,8 @@ public static class BundleValidator
             Geometry(entry);
             try { BundleMaterial.Validate(entry); }
             catch (ArgumentException) { OutOfRange("MaterialBindings"); }
+            try { GasCouplingDomain.Validate(entry); }
+            catch (ArgumentException) { OutOfRange("GasCoupling"); }
             errors.AddRange(DrivenSurfaceValidation.Validate(entry));
             errors.AddRange(ClippedExtrusionValidation.Validate(entry));
             errors.AddRange(MechanicalTransmissionValidation.Validate(entry));
@@ -119,7 +121,7 @@ public static class BundleValidator
         private void CheckEvents(IReadOnlyList<EventDescriptor> events, MechanicalPayload? mechanical)
         {
             // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
-            var kinds = new HashSet<(SimulationEventKind, SignalNodeId?, CuriousContraptions.Gpu.LocalFiniteWorkActuatorId?)>(4);
+            var kinds = new HashSet<(SimulationEventKind, SignalNodeId?, CuriousContraptions.Gpu.LocalFiniteWorkActuatorId?, CuriousContraptions.Gpu.LocalIntegrityObservationId?)>(4);
             for (var i = 0; i < events.Count; i++)
             {
                 if (events[i].Kind == SimulationEventKind.None) Undefined($"Events[{i}].Kind");
@@ -127,7 +129,10 @@ public static class BundleValidator
                 if ((events[i].Kind == SimulationEventKind.FiniteWorkReleased) != events[i].FiniteWork.HasValue ||
                     events[i].FiniteWork is { } selected && mechanical?.FiniteWorkActuators.Any(value => value.Id == selected) != true)
                     OutOfRange($"Events[{i}].FiniteWork");
-                if (!kinds.Add((events[i].Kind, events[i].SignalNode, events[i].FiniteWork))) OutOfRange($"Events[{i}].Kind");
+                if ((events[i].Kind == SimulationEventKind.IntegrityBroken) != events[i].Integrity.HasValue ||
+                    events[i].Integrity is { } observation && mechanical?.IntegrityObservers.Any(value => value.Id == observation) != true)
+                    OutOfRange($"Events[{i}].Integrity");
+                if (!kinds.Add((events[i].Kind, events[i].SignalNode, events[i].FiniteWork, events[i].Integrity))) OutOfRange($"Events[{i}].Kind");
             }
         }
 
@@ -250,11 +255,23 @@ public static class BundleValidator
                 PresentationBindingActuator(binding, mechanical);
                 PresentationBindingRetention(binding, mechanical);
                 PresentationBindingFiniteWork(binding, mechanical);
+                PresentationBindingGas(binding, mechanical);
                 var transmissionDriver = binding.Driver is PresentationDriver.CommittedTransmissionClosure or PresentationDriver.CommittedTransmissionPhase;
                 if (transmissionDriver != binding.Transmission.HasValue) OutOfRange("Presentation.Transmission");
                 if (binding.Transmission is { } transmissionId &&
                     (transmissionId.Value == 0 || mechanical?.Transmissions?.Any(item => item.Id == transmissionId) != true))
                     OutOfRange("Presentation.Transmission");
+        }
+
+        private void PresentationBindingGas(PresentationBinding binding, MechanicalPayload? mechanical)
+        {
+            if ((binding.Driver == PresentationDriver.CommittedGasRadius) != binding.GasShape.HasValue ||
+                binding.GasShape is { } shape && mechanical?.GasShapes.Any(value => value.Body == shape.Body && value.Collider == shape.Collider) != true)
+                OutOfRange("Presentation.GasShape");
+            var broken = binding.Driver == PresentationDriver.Event && binding.Event == SimulationEventKind.IntegrityBroken;
+            if (broken != binding.Integrity.HasValue ||
+                binding.Integrity is { } observation && mechanical?.IntegrityObservers.Any(value => value.Id == observation) != true)
+                OutOfRange("Presentation.Integrity");
         }
 
         private void PresentationBindingFiniteWork(PresentationBinding binding, MechanicalPayload? mechanical)
@@ -309,7 +326,7 @@ public static class BundleValidator
                 if (binding.Event != SimulationEventKind.None)
                 {
                     Defined("Presentation.Event", binding.Event);
-                    if (!events.Any(declared => declared.Kind == binding.Event && declared.SignalNode == binding.SignalNode && declared.FiniteWork == binding.FiniteWork)) OutOfRange("Presentation.Event");
+                    if (!events.Any(declared => declared.Kind == binding.Event && declared.SignalNode == binding.SignalNode && declared.FiniteWork == binding.FiniteWork && declared.Integrity == binding.Integrity)) OutOfRange("Presentation.Event");
                 }
         }
 
@@ -558,9 +575,11 @@ public static class BundleValidator
         {
             Defined("KinematicMode", mechanical.KinematicMode);
             Defined("Payload", mechanical.Payload);
+            try { GasStoreDomain.Validate(mechanical, parameters); }
+            catch (ArgumentException) { OutOfRange("GasStores"); }
             if (mechanical.Payload != PayloadPolicy.None && mechanical.KinematicMode != KinematicMode.Dynamic)
                 OutOfRange("Payload.Owner");
-            MassFrame("MassFrame", mechanical.MassFrame, mechanical.KinematicMode, parameters);
+            MassFrame("MassFrame", mechanical.MassFrame, mechanical.KinematicMode, parameters, new(0), mechanical.GasStores);
             for (var i = 0; i < mechanical.AnchorPoints.Count; i++)
             {
                 var anchor = mechanical.AnchorPoints[i];
@@ -568,10 +587,10 @@ public static class BundleValidator
                 Finite($"AnchorPoints[{i}].LocalRotation", anchor.LocalRotation);
                 Finite($"AnchorPoints[{i}].Axis", anchor.Axis);
             }
-            for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters);
+            for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters, new(1 + i), mechanical.GasStores);
             try { _ = HingeSupportOrder.Resolve(mechanical.Sliders.Count, mechanical.Hinges); }
             catch (ArgumentException) { OutOfRange("Hinges.Support"); }
-            for (var i = 0; i < mechanical.Hinges.Count; i++) Hinge($"Hinges[{i}]", mechanical.Hinges[i], parameters);
+            for (var i = 0; i < mechanical.Hinges.Count; i++) Hinge($"Hinges[{i}]", mechanical.Hinges[i], parameters, new(1 + mechanical.Sliders.Count + i), mechanical.GasStores);
             MechanicalResidenceSensor(mechanical, parameters);
             MechanicalPlanarGuide(mechanical, parameters);
             MechanicalContactWork(mechanical, parameters);
@@ -665,9 +684,10 @@ public static class BundleValidator
 
         private static bool InSurfaceRange(float metres) => metres >= 1f / 1024f && metres <= 16f;
 
-        private void MassFrame(string path, MassFrameDeclaration frame, KinematicMode mode, IReadOnlyList<ParameterDescriptor> parameters)
+        private void MassFrame(string path, MassFrameDeclaration frame, KinematicMode mode, IReadOnlyList<ParameterDescriptor> parameters,
+            PackageBodyIndex body, IReadOnlyList<CuriousContraptions.Gpu.GasStoreDescriptor> stores)
         {
-            try { MassFrameDomain.Validate(frame, mode, parameters); }
+            try { MassFrameDomain.Validate(frame, mode, parameters, body, stores); }
             catch (ArgumentException) { OutOfRange(path); }
         }
 
@@ -704,7 +724,8 @@ public static class BundleValidator
             Value(path, value, parameters);
         }
 
-        private void Slider(string path, PrismaticSliderDescriptor slider, IReadOnlyList<ParameterDescriptor> parameters)
+        private void Slider(string path, PrismaticSliderDescriptor slider, IReadOnlyList<ParameterDescriptor> parameters,
+            PackageBodyIndex bodyIndex, IReadOnlyList<CuriousContraptions.Gpu.GasStoreDescriptor> stores)
         {
             Finite(path + ".BaseFrame.Position", slider.BaseFrame.Position);
             Finite(path + ".BaseFrame.Rotation", slider.BaseFrame.Rotation);
@@ -718,7 +739,7 @@ public static class BundleValidator
             CaptureValue(path + ".Damping", slider.Damping, parameters, ParameterUnit.NewtonSecondPerMetre, 0f, float.MaxValue);
             Value(path + ".Compression", slider.Compression, parameters);
             var body = slider.MovingBody;
-            MassFrame(path + ".MovingBody.MassFrame", body.MassFrame, KinematicMode.Dynamic, parameters);
+            MassFrame(path + ".MovingBody.MassFrame", body.MassFrame, KinematicMode.Dynamic, parameters, bodyIndex, stores);
             for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
             if (body.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.{path}.MovingBody.Colliders: a body declares no collider"));
@@ -735,7 +756,8 @@ public static class BundleValidator
             }
         }
 
-        private void Hinge(string path, RevoluteHingeDescriptor hinge, IReadOnlyList<ParameterDescriptor> parameters)
+        private void Hinge(string path, RevoluteHingeDescriptor hinge, IReadOnlyList<ParameterDescriptor> parameters,
+            PackageBodyIndex bodyIndex, IReadOnlyList<CuriousContraptions.Gpu.GasStoreDescriptor> stores)
         {
             Finite(path + ".BaseFrame.Position", hinge.BaseFrame.Position);
             Finite(path + ".BaseFrame.Rotation", hinge.BaseFrame.Rotation);
@@ -759,7 +781,7 @@ public static class BundleValidator
                     OutOfRange(path + ".InitialAngle");
             }
             var body = hinge.MovingBody;
-            MassFrame(path + ".MovingBody.MassFrame", body.MassFrame, KinematicMode.Dynamic, parameters);
+            MassFrame(path + ".MovingBody.MassFrame", body.MassFrame, KinematicMode.Dynamic, parameters, bodyIndex, stores);
             for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
             if (body.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.{path}.MovingBody.Colliders: a body declares no collider"));

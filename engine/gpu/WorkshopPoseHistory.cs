@@ -209,7 +209,7 @@ public sealed class WorkshopPoseHistory : IWorkshopPoseHistory
             _simulationTime = TickTime(endpoint.Tick);
             Quality = PresentationQuality.Terminal;
             if (wall is { } mappedWall) _displayWall = mappedWall.Value;
-            sample = new(Pose(endpoint), wall, new(_simulationTime), Quality, Captures: endpoint.Captures, FeedbackCapture: endpoint.Capture, Activations: endpoint.Activations, Timers: endpoint.Timers);
+            sample = new(Pose(endpoint), wall, new(_simulationTime), Quality, Captures: endpoint.Captures, FeedbackCapture: endpoint.Capture, Activations: endpoint.Activations, Timers: endpoint.Timers, IntegrityObservers: endpoint.IntegrityObservers);
             return true;
         }
         if (!clock.IsQualified || clock.DisplayEpoch != _clockEpoch)
@@ -245,7 +245,7 @@ public sealed class WorkshopPoseHistory : IWorkshopPoseHistory
         _displayWall = requested; _simulationTime = requestedTime;
         Quality = LatestAge(now) > StaleNanoseconds ? PresentationQuality.Stale : PresentationQuality.Interpolated;
         sample = new(body, new(requested), new(requestedTime), Quality, Captures: first.Response.Read.Captures,
-            FeedbackCapture: first.Response.Read.Capture, Activations: first.Response.Read.Activations, Timers: first.Response.Read.Timers);
+            FeedbackCapture: first.Response.Read.Capture, Activations: first.Response.Read.Activations, Timers: first.Response.Read.Timers, IntegrityObservers: first.Response.Read.IntegrityObservers);
         return true;
     }
 

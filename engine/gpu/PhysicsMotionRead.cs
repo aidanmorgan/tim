@@ -135,7 +135,7 @@ public sealed class PhysicsMotionRead : IPhysicsMotionRead
         Norm(piece,VelocityOffset,LinearVelocity.MaximumSpeed); Norm(piece,AngularVelocityOffset,AngularVelocity.MaximumSpeed);
         Norm(piece,GravityOffset,16); Norm(piece,SupportedAccelerationOffset,64); Norm(piece,AngularAccelerationOffset,1024);
         Rotation(piece).ValidateCommitted();
-        PhysicsDeclarationBounds.Range(F(piece,DragRateOffset),0f,.125f);
+        PhysicsDeclarationBounds.Range(F(piece,DragRateOffset),0f,float.MaxValue);
         if (kind == PhysicsMotionKind.FreePolynomial &&
             (!Zero(piece.Slice(SupportedAccelerationOffset,PhysicsGpuAbi.VectorBytes)) ||
              !Zero(piece.Slice(AngularAccelerationOffset,PhysicsGpuAbi.VectorBytes))))

@@ -47,7 +47,7 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, LessonTicks);
         var (goalTick, events) = Outcome(run, bench);
         output.WriteLine($"{lesson}/{precision}: goal={goalTick is not null}, tick={goalTick}");
-        AssertGoalEvents(bench, events);
+        AssertGoalEvents(bench, events, run);
         Assert.NotNull(goalTick);
         Assert.InRange(goalTick.Value, 1, LessonTicks);
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
@@ -59,7 +59,7 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
         var (replayGoal, replayEvents) = Outcome(replay, reloaded.Construction);
         Assert.NotNull(replayGoal);
         Assert.InRange(replayGoal.Value, 1, LessonTicks);
-        AssertGoalEvents(reloaded.Construction, replayEvents);
+        AssertGoalEvents(reloaded.Construction, replayEvents, replay);
         NoFixedCapacityTests.AssertSameState(replayBuilt, replayReset, "reloaded Reset");
     }
 
@@ -85,9 +85,22 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
             item => Assert.Equal(ActivationOccurrenceKind.Orientation, item.State.Kind));
     }
 
-    private static void AssertGoalEvents(WorkshopConstruction bench, IReadOnlyList<ObservedEvent> events)
+    private static void AssertGoalEvents(WorkshopConstruction bench, IReadOnlyList<ObservedEvent> events, IReadOnlyList<WorkshopRead> run)
     {
         var goal = bench.Puzzle.Goal;
+        if (goal.Kind == WorkshopGoalKind.IntegrityBroken)
+        {
+            Assert.True(bench.Instances.Identities.TryIntegrity(goal.Integrity!.Value, out var selected));
+            var states = run.Select(read => read.IntegrityObservers.TryGet(selected, out var state)
+                ? state : throw new InvalidOperationException("The selected integrity observation must be committed.")).ToArray();
+            var broken = states.Where(state => state.Phase == IntegrityPhase.Broken).ToArray();
+            Assert.NotEmpty(broken);
+            Assert.True(Assert.Single(broken.Select(state => state.Ordinal).Distinct()) > 0);
+            Assert.Equal(IntegrityPhase.Intact, states[0].Phase);
+            Assert.All(states.SkipWhile(state => state.Phase == IntegrityPhase.Intact),
+                state => Assert.Equal(IntegrityPhase.Broken, state.Phase));
+            return;
+        }
         if (goal.Kind == WorkshopGoalKind.Captured)
         {
             var captured = Assert.Single(events, item => item.State.Category == EventCategory.Capture &&
@@ -139,7 +152,7 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
             for (var i = 0; i < declaredNodes.Length; i++)
                 Assert.Equal(declaredNodes[i], (read.Activations[i].Node, read.Activations[i].Owner));
             if (goalTick is null && bench.Puzzle.Goal.Kind != WorkshopGoalKind.None &&
-                WorkshopGoalEvaluator.Occurrence(bench.Puzzle.Goal, read.Captures, read.Activations, identities) is not null)
+                WorkshopGoalEvaluator.Occurrence(bench.Puzzle.Goal, read.Captures, read.Activations, read.IntegrityObservers, identities) is not null)
                 goalTick = (int)read.Tick.Value;
             if (bench.Puzzle.Goal.Kind == WorkshopGoalKind.Captured)
             {

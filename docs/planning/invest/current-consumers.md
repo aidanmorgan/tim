@@ -27,9 +27,11 @@
 <a id="cat-003-i"></a>
 ### CAT-003-I · balloon
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-003). **Requirements (Incomplete):** [CAT-003](../requirements.md#current-cat-003). **Legacy deleted at this element's slice:** [parts/BallPart.cs](../../../parts/BallPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-003). **Requirements (Incomplete):** [CAT-003](../requirements.md#current-cat-003). **Legacy:** parts/BallPart.cs is already removed; no compatibility path returns. **Mode records:** Configuration=Adjustable. Five BuildOnly controls and native package contract: [CAT-003](../elements/CAT-003-balloon.md).
 
-**First visible interaction / minimum collaborators:** Existing Balloon rises under its declared buoyancy; Fan deflects it in a separate airflow child.
+**Level(s) unlocked:** placed in burst_of_motion.
+
+**First visible interaction / minimum collaborators:** Balloon rises under declared pressure-scaled load, supports a center Tie and finite sealed gas; a Bowling impact can rupture its exact selected observation and complete the popped goal. Standard/Vacuum are explicit unbounded ambient boundaries. Fan deflection remains a later airflow-transfer child.
 
 **Distinct controls / next boundary:** No-fan/occluded-jet controls, pressure profile boundary and tether interaction remain distinct; do not infer buoyancy from visual height.
 
@@ -772,6 +774,7 @@
 | <a id="fix-001-062"></a>FIX-001-062 | a_gentle_rebound/payload | ball / True | CAT-001-V | FIX-001-062 |
 | <a id="fix-001-063"></a>FIX-001-063 | ready_to_rebound/fixture_1 | ball / True | CAT-001-V | FIX-001-063 |
 | <a id="fix-001-064"></a>FIX-001-064 | domino_effect/fixture_1 | ball / True | CAT-001-V | FIX-001-064 |
+| <a id="fix-003-001"></a>FIX-003-001 | burst_of_motion/fixture_1 | balloon / True | CAT-003-V | FIX-003-001 |
 | <a id="fix-004-001"></a>FIX-004-001 | first_principles/fixture_2 | basket / True | CAT-004-V | FIX-004-001 |
 | <a id="fix-004-002"></a>FIX-004-002 | air_mail/receiver | basket / True | CAT-004-V | FIX-004-002 |
 | <a id="fix-004-003"></a>FIX-004-003 | spring_forward/fixture_2 | basket / True | CAT-004-V | FIX-004-003 |

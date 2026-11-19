@@ -662,7 +662,7 @@ public sealed class CompoundCaptureOwnershipTests
         var withoutReceiver = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts.ToArray()));
         var absentRead = (await WorkshopIntegrationHarness.Observe(withoutReceiver, 1))[^1];
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, absentRead, absentRead.Epoch, withoutReceiver.Instances.Identities));
-        var absentWake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, withoutReceiver, new(1, 2)));
+        var absentWake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, withoutReceiver, new(1, 2)), withoutReceiver.Instances.Identities, absentRead.Epoch);
         var construction = withoutReceiver.WithInstance(RuntimeTestServices.Bundle, WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), new(3), 0, 1, 0, 0, 0, 0, 1));
         await using var ring = await WorkshopIntegrationHarness.Running(construction);
         var initial = ring.Committed;
@@ -675,7 +675,7 @@ public sealed class CompoundCaptureOwnershipTests
         Assert.Equal(expected, WorkshopGoalEvaluator.Evaluate(goal, read, read.Epoch, construction.Instances.Identities));
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read,
             new(read.Epoch.Value + 1), construction.Instances.Identities));
-        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2)));
+        var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2)), construction.Instances.Identities, read.Epoch);
         var delivery = new EventRingDelivery(read.Epoch.Value, 0, [captured]);
         wake.Observe(delivery, read.Tick);
         Assert.True(wake.Due(read.Tick)); // owner-level notification; precise truth remains above
@@ -875,7 +875,7 @@ public sealed class CompoundPassageBoundaryTests
 public sealed class CurrentPuzzleShapeTests
 {
     [Theory]
-    [InlineData(13)]
+    [InlineData(14)]
     [InlineData(15)]
     public void AuthoredSaveRefusesUnknownPuzzleFieldsBeforeDomainDecoding(int extraField)
     {
@@ -889,6 +889,7 @@ public sealed class CurrentPuzzleShapeTests
         builder.AddUlong(extraField, 123, 0);
         var puzzle = new Offset<Wire.PuzzleRecord>(builder.EndTable());
         Wire.ConstructionRecord.StartConstructionRecord(builder);
+        Wire.ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         Wire.ConstructionRecord.AddPuzzle(builder, puzzle);
         var construction = Wire.ConstructionRecord.EndConstructionRecord(builder);
         var saved = Wire.SavedConstruction.CreateSavedConstruction(builder, 1, construction);

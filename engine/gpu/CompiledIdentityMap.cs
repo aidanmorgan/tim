@@ -27,7 +27,9 @@ public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArr
     ImmutableDictionary<LocalPrismaticRetentionId, PrismaticRetentionId> Retentions,
     ImmutableDictionary<LocalEnergyStoreId, EnergyStoreId> EnergyStores,
     ImmutableDictionary<LocalChamberRegionId, ChamberRegionId> ChamberRegions,
-    ImmutableDictionary<LocalFiniteWorkActuatorId, FiniteWorkActuatorId> FiniteWorkActuators);
+    ImmutableDictionary<LocalFiniteWorkActuatorId, FiniteWorkActuatorId> FiniteWorkActuators,
+    ImmutableDictionary<LocalGasStoreId, GasStoreId> GasStores,
+    ImmutableDictionary<LocalIntegrityObservationId, IntegrityObservationId> IntegrityObservers);
 
 /// <summary>One immutable scene-sized allocation shared by every consumer of an authored instance collection.</summary>
 public sealed class CompiledIdentityMap
@@ -65,6 +67,13 @@ public sealed class CompiledIdentityMap
             throw new ArgumentException("Absent package collider.");
     }
     public bool IsChild(GpuBodyId owner, GpuBodyId child) => _owners.TryGetValue(child, out var actual) && actual == owner;
+    public bool TryIntegrity(IntegrityGoalSelector selector, out IntegrityObservationId observation)
+    {
+        observation = default;
+        return _parts.TryGetValue(selector.Owner, out var rows) &&
+            rows.IntegrityObservers.TryGetValue(selector.Observation, out observation);
+    }
+
     public bool TryCapture(GpuBodyId owner, GpuBodyId target, out CompiledCaptureIdentities capture)
     {
         capture = default;
@@ -164,8 +173,22 @@ public sealed class CompiledIdentityMap
         foreach (var port in entry.Ports.Where(port => port.AttachmentRole == RopeAttachmentRole.Guide).OrderBy(port => port.Id))
             guides.Add(port.Id, new(nextGuide++));
         var capabilities = AllocateMechanicalCapabilities(entry, Allocate);
+        var gas = AllocateGasCapabilities(entry, Allocate);
         return new(material, colliders, sliders, signals, supply, work.ToImmutable(),
-            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable(), capabilities.Transmissions, capabilities.Retentions, capabilities.Stores, capabilities.Regions, capabilities.Actuators);
+            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable(), capabilities.Transmissions, capabilities.Retentions, capabilities.Stores, capabilities.Regions, capabilities.Actuators, gas.Stores, gas.Observers);
+    }
+
+    private static (ImmutableDictionary<LocalGasStoreId, GasStoreId> Stores,
+        ImmutableDictionary<LocalIntegrityObservationId, IntegrityObservationId> Observers)
+        AllocateGasCapabilities(CuriousContraptions.Bundle.BundleEntry entry, Func<ulong> allocate)
+    {
+        var stores = ImmutableDictionary.CreateBuilder<LocalGasStoreId, GasStoreId>();
+        foreach (var store in (entry.Mechanical?.GasStores ?? []).OrderBy(s => s.Id.Value))
+            stores.Add(store.Id, new(allocate()));
+        var observers = ImmutableDictionary.CreateBuilder<LocalIntegrityObservationId, IntegrityObservationId>();
+        foreach (var observer in (entry.Mechanical?.IntegrityObservers ?? []).OrderBy(s => s.Id.Value))
+            observers.Add(observer.Id, new(allocate()));
+        return (stores.ToImmutable(), observers.ToImmutable());
     }
 
     private static (

@@ -39,9 +39,9 @@ The approved source resolution retains 0.35 kg/0.25 m from `parts/catalog/tennis
 
 Families remain applicable by supported mode ([element map](../general-engine-element-map.md), [binding](../../coverage/engine/element-02.json)): ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction and StateTransaction. This slice uses existing rigid-body/contact/payload/lifecycle laws plus shared typed principal-moment, world-acceleration, damping, exact-body material and geometry/presentation bindings.
 
-Current atmosphere is explicitly uniform normalized p=1. World acceleration is (0,-9.81+buoyancy×1,0) and linear damping is drag×1. Every admitted nonzero buoyancy value executes. There is no admitted pressure input to ignore, and no claim that variable pressure or fluid simulation is implemented.
+Story 12.1b migrates Tennis to the shared explicit construction atmosphere: Standard has relative pressure 1 and Vacuum 0. World acceleration is (0,-9.81+buoyancy×relative pressure,0), with linear damping drag×relative pressure. Every admitted buoyancy value executes. Tennis owns no gas store; its product drag range remains bounded independently of the generic nonnegative drag law.
 
-Variable pressure/profiles, finite atmosphere and applicable gas/liquid coupling belong to 12.1b/S470 before their first consuming interaction, including 12.2. Fan 12.2 owns conserved airflow transfer, light/heavy trajectory comparisons, no-fan/missed/blocked-jet controls and the 22 source airflow lessons. Balloon is a separate element. The historical EL-125 pressure dependency does not turn p=1 into variable-pressure qualification.
+The former “finite atmosphere” handoff is clarified under EL-125: ambient Standard/Vacuum are explicit unbounded boundary reservoirs; finite sealed gas stores and pressure-work admission belong to 12.1b/S470. Spatial profiles and gas/liquid network coupling remain with their first consuming slices, retaining S471/S697 acceptance. Fan 12.2 owns conserved airflow transfer, light/heavy trajectory comparisons, no-fan/missed/blocked-jet controls and the 22 source airflow lessons. Balloon is a separate element. The two explicit boundary presets do not claim full EL-125 lesson or spatial-profile qualification.
 
 ## 4. Sources and legacy
 

@@ -44,7 +44,7 @@ public sealed class WeightTests(ITestOutputHelper output)
             CuriousContraptions.Abstractions.ParameterKind.Real, .25f, 8f, 4f, mass.Options,
             CuriousContraptions.Abstractions.ParameterEditorPolicy.Clamp, CuriousContraptions.Abstractions.ParameterRunEdit.BuildOnly), mass);
         Assert.Empty(mass.Options);
-        Assert.Equal(new ParameterId("mass"), entry.Mechanical!.MassFrame.Mass.Parameter);
+        Assert.Equal(new ParameterId("mass"), entry.Mechanical!.MassFrame.Source.InitialMass.Parameter);
         Assert.Equal(CuriousContraptions.Abstractions.Mechanical.KinematicMode.Dynamic, entry.Mechanical.KinematicMode);
         Assert.Equal(4f, MassFixtures.Evaluate(entry.Mechanical.MassFrame, entry.Metadata.Parameters).Mass);
         Assert.Equal(CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder, entry.Colliders[0].ShapeKind);

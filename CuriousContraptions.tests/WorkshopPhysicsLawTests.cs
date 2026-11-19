@@ -25,7 +25,10 @@ internal static class LawBalls
         MassFixtures.Evaluate(DeclaredPhysics.Of(Part(ball)).Mechanical!.MassFrame, DeclaredPhysics.Of(Part(ball)).Metadata.Parameters);
     public static float Radius(LawBall ball) => Sphere(ball).HalfExtents.X;
     public static float Mass(LawBall ball) => Body(ball).Mass;
-    public static float Drag(LawBall ball) => Body(ball).LinearDrag;
+    // Standard atmosphere has relative pressure one; these zero-parameter packages declare one exact-body ambient load.
+    public static float Drag(LawBall ball) => Assert.Single(DeclaredPhysics.Of(Part(ball)).Mechanical!.AmbientLoads,
+        load => load.Body == new CuriousContraptions.Abstractions.PackageBodyIndex(0)).LinearDrag
+        .Evaluate(new Dictionary<CuriousContraptions.Abstractions.ParameterId, float>());
     public static float Rolling(LawBall ball) => Sphere(ball).Material.RollingResistance;
     public static float Restitution(LawBall ball) => Sphere(ball).Material.Restitution;
     public static float Friction(LawBall ball) => Sphere(ball).Material.Friction;
@@ -64,6 +67,7 @@ internal sealed class LawScene
     public static readonly float BenchY = (float)WorkshopConstruction.WorkbenchSurface.Value;
     public static readonly float Gravity = -(float)WorkshopConstruction.Gravity.Value;
     private readonly List<RigidBodyDeclaration> _bodies = [];
+    private readonly List<AmbientLoadDeclaration> _ambientLoads = [];
     private readonly List<ColliderDeclaration> _colliders = [];
     private readonly List<ContactMaterialDeclaration> _materials = [];
     private readonly List<OrientationSensorDeclaration> _orientationSensors = [];
@@ -150,10 +154,14 @@ internal sealed class LawScene
 
     /// <summary>A declared ball of <paramref name="kind"/> with its own radius, mass, drag and material.</summary>
     public GpuBodyId Ball(LawBall kind, Vector3 position, Vector3 velocity = default, Vector3 angular = default, bool resistanceFree = false,
-        float? gravity = null, float? mass = null) =>
-        Sphere(position, LawBalls.Radius(kind), mass ?? LawBalls.Mass(kind),
+        float? gravity = null, float? mass = null)
+    {
+        var body = Sphere(position, LawBalls.Radius(kind), mass ?? LawBalls.Mass(kind),
             resistanceFree ? LawMaterial.Ball(kind) with { Rolling = 0f } : LawMaterial.Ball(kind), velocity, angular,
-            resistanceFree ? 0f : LawBalls.Drag(kind), gravity ?? Gravity);
+            0f, gravity ?? Gravity);
+        if (!resistanceFree) _ambientLoads.Add(new(body, Vector3.Zero, LawBalls.Drag(kind), null));
+        return body;
+    }
 
     public GpuBodyId Box(Vector3 position, Vector3 half, float mass, LawMaterial material, Quaternion? rotation = null,
         Vector3 velocity = default, Vector3 angular = default, float? gravity = null) =>
@@ -370,7 +378,7 @@ internal sealed class LawScene
         var scene = new PhysicsSceneDeclaration(new(1, 2), _next, [.. _bodies], [.. _colliders], [.. _materials], [.. _residence], [],
             contactWorks: [.. _contactWorks], energyStores: [.. _energyStores], chamberRegions: [.. _chambers], finiteWorkActuators: [.. _actuators], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics],
             prismaticDrives: [.. _drives], tensileSpans: [.. _tensileSpans], revolutes: [.. _revolutes], compliantSurfaces: [.. _compliantSurfaces],
-            electricalSources: [.. _sources], electricalBindings: [.. _storageBindings], supplyNodes: [.. nodes], supplyEdges: [.. _supplyEdges], revoluteDrives: [.. _revoluteDrives], transmissions: [.. _transmissions], drivenSurfaces: [.. _drivenSurfaces]);
+            electricalSources: [.. _sources], electricalBindings: [.. _storageBindings], supplyNodes: [.. nodes], supplyEdges: [.. _supplyEdges], revoluteDrives: [.. _revoluteDrives], transmissions: [.. _transmissions], drivenSurfaces: [.. _drivenSurfaces], ambientLoads: [.. _ambientLoads]);
         return new(scene, PhysicsGpuAbi.Admission(scene, new(1), new(cadence, PhysicalStepProfile.Canonical480Hz, new(1))), cadence);
     }
 }
@@ -1079,18 +1087,21 @@ public sealed class WorkshopPhysicsLawTests
     }
 
     [Fact]
-    public void AtTheEnvelopeBoundaryDeclaredDragStillSlowsABallFlyingAt63Point9OnEveryTick()
+    public void AtTheEnvelopeBoundaryDragChangesHalfSecondSpeedWithoutDampingSpin()
     {
-        var scene = new LawScene(bench: false);
-        var ball = scene.Ball(LawBall.Basketball, At(-40, 1), velocity: At(63.9f, 0, 0), gravity: 0);
-        var world = scene.Admit(SimulationCadence.Hz240);
-        var drag = LawBalls.Drag(LawBall.Basketball); var previous = 63.9f;
-        world.Step(world.TicksPerSecond / 2, (tick, state) =>
+        const float speedAllowance = .05f; // At most 2.5 cm additional travel over this half-second routing window.
+        foreach (var resistanceFree in new[] { false, true })
         {
-            var v = state[ball].Velocity.X; var expected = 63.9f * MathF.Exp(-drag * tick / world.TicksPerSecond);
-            Assert.True(v < previous && MathF.Abs(v - expected) < 1e-3f * expected, $"tick {tick}: {v} vs {expected} (previous {previous})");
-            previous = v;
-        });
+            var scene = new LawScene(bench: false);
+            var ball = scene.Ball(LawBall.Basketball, At(-40, 1), velocity: At(63.9f, 0, 0),
+                angular: At(0, 5, 0), resistanceFree: resistanceFree, gravity: 0);
+            var world = scene.Admit(SimulationCadence.Hz240);
+            var final = world.Step(world.TicksPerSecond / 2)[ball];
+            var expected = resistanceFree ? 63.9f : 63.9f * MathF.Exp(-.04f * .5f);
+            // Declared drag predicts 62.635 m/s; absent (63.9) and doubled (61.394) damping are excluded.
+            Assert.InRange(final.Velocity.X, expected - speedAllowance, expected + speedAllowance);
+            Assert.Equal(5f, final.Angular.Y);
+        }
     }
 
     [Fact]

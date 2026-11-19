@@ -40,6 +40,9 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         public PrismaticRetentionId Retention;
         public FiniteWorkActuatorId FiniteWork;
         public EnergyStoreId Store;
+        public GasStoreId GasStore;
+        public float DryRadius;
+        public IntegrityObservationId Integrity;
         public GpuBodyId StoreOwner;
         public float StoreCapacity;
         public ChamberRegionId Region;
@@ -92,6 +95,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         foreach (var binding in construction.Presentation)
         {
             var declaration = binding.Declaration;
+            var gasShape = binding.GasShape == default ? default : construction.Physics.GasShapes.ToArray().Single(shape => shape.Collider == binding.GasShape);
             tracks.Add(new Track { Owner = binding.Owner, Index = binding.Binding, Declaration = declaration,
                 Target = binding.Target, Node = binding.Activation, Value = PresentationDriverRules.InitialValue(declaration),
                 Capacity = binding.SourceCapacity, Actuator = binding.Actuator, Guide = binding.Guide, Source = binding.Source,
@@ -99,6 +103,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                     ? construction.Physics.Revolutes.ToArray().Single(joint => joint.Id == actuator.RevoluteJoint).BodyA
                     : construction.Physics.Prismatics.ToArray().Single(joint => joint.Id == actuator.PrismaticJoint).BodyA : default,
                 SupplyNode = binding.SupplyNode, Transmission = binding.Transmission, Retention = binding.Retention, FiniteWork = binding.FiniteWork, Store = binding.Store,
+                GasStore = gasShape.Store, DryRadius = gasShape.DryRadius, Integrity = binding.Integrity,
                 StoreOwner = binding.Store == default ? default : construction.Physics.EnergyStores.ToArray().Single(value => value.Id == binding.Store).Owner,
                 StoreCapacity = binding.Store == default ? 0f : construction.Physics.EnergyStores.ToArray().Single(value => value.Id == binding.Store).Capacity.Value,
                 Region = binding.FiniteWork == default ? default : construction.Physics.FiniteWorkActuators.ToArray().Single(value => value.Id == binding.FiniteWork).Region });
@@ -177,6 +182,12 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
     /// <summary>Story 9A.23/9A.25b: one delivery of the Animation worker's event ring cursor, for the installed world. Each record starts
     /// exactly one cue on every event binding of its owner (record Source) that names its kind; any other record (a foreign owner, an
     /// undeclared kind, a level) cues nothing. Sequences only increase within an installation, so a record is never applied twice.</summary>
+    private static bool Matches(Track track, SimulationEventRecord record) => track.Declaration.Driver == PresentationDriver.Event &&
+            track.Declaration.Event == record.Kind && record.Source.Value == (record.Kind == SimulationEventKind.IntegrityBroken ? track.Integrity.Value :
+                record.Kind == SimulationEventKind.FiniteWorkReleased ? track.FiniteWork.Value :
+                SimulationEvents.SignalSource(record.Kind) ? track.Node.Id.Value : track.Owner.Value) &&
+            (track.Declaration.EventMagnitude != PresentationEventMagnitude.Positive || record.Magnitude > 0f);
+
     public void AcceptEvents(EventRingDelivery delivery, WorkshopWorldProjection world)
     {
         if (delivery.Epoch != _latest.Read.Epoch.Value || world.WorldGeneration != _latest.Read.Epoch)
@@ -184,14 +195,13 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         var lapped = checked(Lapped + delivery.Skipped);
         var last = _lastSequence;
         var counts = delivery.Records.Length == 0 ? Array.Empty<int>() : new int[_tracks.Length];
-        bool Matches(Track track, SimulationEventRecord record) => track.Declaration.Driver == PresentationDriver.Event &&
-            track.Declaration.Event == record.Kind && record.Source.Value == (record.Kind == SimulationEventKind.FiniteWorkReleased ? track.FiniteWork.Value :
-                SimulationEvents.SignalSource(record.Kind) ? track.Node.Id.Value : track.Owner.Value) &&
-            (track.Declaration.EventMagnitude != PresentationEventMagnitude.Positive || record.Magnitude > 0f);
         foreach (var record in delivery.Records)
         {
             record.Validate();
             if (record.Kind == SimulationEventKind.FiniteWorkReleased) ValidateFiniteWorkEvent(record);
+            if (record.Kind == SimulationEventKind.IntegrityBroken &&
+                !_construction.Physics.IntegrityObservers.ToArray().Any(observation => observation.Id.Value == record.Source.Value))
+                throw new ArgumentException("Integrity event source is absent from this installation.");
             if (record.Sequence <= last) throw new ArgumentException("An event record was delivered twice.");
             last = record.Sequence;
             _ = EventTime(record);
@@ -379,6 +389,10 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 return QueryActuator(track, read);
             case PresentationDriver.CommittedWheelAngle:
                 return QueryWheelAngle(track, read);
+            case PresentationDriver.CommittedGasRadius:
+                if (!read.GasStores.TryGet(track.GasStore, out var gas))
+                    throw new ArgumentException("Declared gas observation is absent from committed read.");
+                return IsobaricGas.OuterRadius(track.DryRadius, gas.State.Volume);
             case PresentationDriver.CommittedSurfaceDeflection:
                 return QuerySurfaceDeflection(track, read);
             case PresentationDriver.CommittedRetentionReleased:

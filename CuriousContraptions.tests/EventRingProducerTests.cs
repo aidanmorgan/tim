@@ -792,6 +792,8 @@ public sealed class EventRingProducerTests
                 scene.ContactWorks.ToArray().Where(row => row.Owner == owner).Select(_ => SimulationEventKind.Impact)
                     .Concat(scene.FiniteWorkActuators.ToArray().Where(row => scene.ChamberRegions.ToArray().Any(region => region.Id == row.Region && region.Frame == owner))
                         .Select(_ => SimulationEventKind.FiniteWorkReleased))
+                    .Concat(scene.IntegrityObservers.ToArray().Where(row => scene.Colliders.ToArray().Any(collider => collider.Id == row.Collider && collider.Body == owner))
+                        .Select(_ => SimulationEventKind.IntegrityBroken))
                     .Concat(scene.Sensors.ToArray().Where(row => row.Frame == owner).Select(_ => SimulationEventKind.Captured))
                     .Concat(scene.Electrical.Sources.ToArray().Where(row => row.Owner == owner).Select(_ => SimulationEventKind.ElectricalPowered))
                     .Concat(network.PassageSensors.ToArray().Where(row => row.Frame == owner).Select(_ => SimulationEventKind.Passage))
@@ -853,7 +855,8 @@ public sealed class EventRingProducerTests
             "ContactWorkOccurrenceRecord", "PumpCosmetics", "PumpCapture", "PumpActivations", "PumpContactFeedback", "ObserveContactFeedback",
             "TryCosmeticFrame", "CosmeticCurveDeclaration", "AnimationFeedbackSource", "CosmeticBindingSet", "WorkshopCosmeticSample", "IsOneShot",
             "AnimationControlKind.Impulse", "AnimationControlKind.Transition", "ActivationPulse", "ContactImpulse", "CapturePulse" })
-            Assert.Empty(Hits(retired));
+            Assert.DoesNotContain(sources, path => System.Text.RegularExpressions.Regex.IsMatch(
+                File.ReadAllText(Path.Combine(root, path)), @"\b" + System.Text.RegularExpressions.Regex.Escape(retired) + @"\b"));
         // One shared event ring reader, imported by both consumers (the C# reference reader names it as its twin).
         Assert.Equal(["CuriousContraptions.Abstractions/EventRingBuffer.cs", "CuriousContraptions.Animation.Worker/wwwroot/worker.ts",
             "CuriousContraptions.web/wwwroot/event-ring-cursor.ts",

@@ -58,7 +58,9 @@ public static class WorkshopSceneCompiler
                     bindings[i].Actuator is { } actuator ? ResolveActuator(construction.Instances.Identities[owner.Id], actuator) : null,
                     bindings[i].GuidePort is { } guide ? construction.Instances.Identities[owner.Id].Guides[guide] : default, source, supplyNode,
                     bindings[i].Transmission is { } transId ? identities.Transmissions[transId] : default,
-                    bindings[i].Retention is { } retainedId ? identities.Retentions[retainedId] : default, finiteWork, store));
+                    bindings[i].Retention is { } retainedId ? identities.Retentions[retainedId] : default, finiteWork, store,
+                    bindings[i].GasShape is { } gasShape ? construction.Instances.Identities.Collider(owner.Id, gasShape.Body, gasShape.Collider) : default,
+                    bindings[i].Integrity is { } integrity ? identities.IntegrityObservers[integrity] : default));
             }
         }
         return core.CreateScene(identity, construction.Revision, construction.Settings, physics, activation, tracks,

@@ -608,26 +608,44 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     private enum NativeWorkMode { Active, Hidden, Inactive }
 
     [Fact]
-    public void RetainMeasuredActiveHiddenAndInactiveNativeCost()
+    public async Task RetainMeasuredActiveHiddenAndInactiveNativeCost()
     {
         const ulong warmup=10000;
         const ulong iterations=100000;
-        foreach(var mode in Enum.GetValues<NativeWorkMode>())
+        var modes=Enum.GetValues<NativeWorkMode>();
+        var results=new (long Elapsed,long Bytes,AnimationFrameWork Final)[modes.Length];
+        // Measure on an owned worker, apart from the test runner's thread. Construction and warmup
+        // precede the counter; reporting, assertions and exception propagation follow Join.
+        using var measurement=new Task(()=>
         {
-            var batch=new AnimationBatch();
-            var handle=batch.Register(Binding(),Clip(curve:AnimationCurve.SinePulse,repeat:AnimationRepeat.Loop));
-            batch.Start(handle);
-            if(mode==NativeWorkMode.Hidden)batch.SetVisible(handle,false);
-            if(mode==NativeWorkMode.Inactive)batch.StopPlayback(handle,AnimationStop.Hold,AnimationTestTime.Seconds(0));
-            for(ulong frame=1;frame<=warmup;frame++)batch.Advance(frame,AnimationTestTime.Seconds(frame/60.0),AnimationTestTime.Seconds(0));
-            _=System.Diagnostics.Stopwatch.GetTimestamp();
-            var allocated=GC.GetAllocatedBytesForCurrentThread();
-            var started=System.Diagnostics.Stopwatch.GetTimestamp();
-            AnimationFrameWork final=default;
-            for(ulong frame=warmup+1;frame<=warmup+iterations;frame++)
-                final=batch.Advance(frame,AnimationTestTime.Seconds(frame/60.0),AnimationTestTime.Seconds(0));
-            var elapsed=System.Diagnostics.Stopwatch.GetTimestamp()-started;
-            var bytes=GC.GetAllocatedBytesForCurrentThread()-allocated;
+            for(var index=0;index<modes.Length;index++)
+            {
+                var mode=modes[index];
+                var batch=new AnimationBatch();
+                var handle=batch.Register(Binding(),Clip(curve:AnimationCurve.SinePulse,repeat:AnimationRepeat.Loop));
+                batch.Start(handle);
+                if(mode==NativeWorkMode.Hidden)batch.SetVisible(handle,false);
+                if(mode==NativeWorkMode.Inactive)batch.StopPlayback(handle,AnimationStop.Hold,AnimationTestTime.Seconds(0));
+                for(ulong frame=1;frame<=warmup;frame++)batch.Advance(frame,AnimationTestTime.Seconds(frame/60.0),AnimationTestTime.Seconds(0));
+                _=System.Diagnostics.Stopwatch.GetTimestamp();
+                var allocated=GC.GetAllocatedBytesForCurrentThread();
+                var started=System.Diagnostics.Stopwatch.GetTimestamp();
+                AnimationFrameWork final=default;
+                for(ulong frame=warmup+1;frame<=warmup+iterations;frame++)
+                    final=batch.Advance(frame,AnimationTestTime.Seconds(frame/60.0),AnimationTestTime.Seconds(0));
+                var elapsed=System.Diagnostics.Stopwatch.GetTimestamp()-started;
+                var bytes=GC.GetAllocatedBytesForCurrentThread()-allocated;
+                results[index]=(elapsed,bytes,final);
+            }
+        });
+        var worker=new Thread(()=>measurement.RunSynchronously(TaskScheduler.Default));
+        worker.Start();
+        worker.Join();
+        await measurement;
+        for(var index=0;index<modes.Length;index++)
+        {
+            var mode=modes[index];
+            var (elapsed,bytes,final)=results[index];
             output.WriteLine($"ANIMATION_NATIVE_COST mode={mode} registered=1 warmup={warmup} iterations={iterations} elapsedTicks={elapsed} frequency={System.Diagnostics.Stopwatch.Frequency} allocatedBytes={bytes} finalEvaluated={final.Evaluated} finalScheduled={final.Scheduled}");
             Assert.Equal(0,bytes);
             Assert.True(elapsed>0);

@@ -17,9 +17,9 @@ public sealed class ParameterizedMassTests
             new("acceleration_input", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, 0f, 16f, 8f, []),
             new("damping_input", ParameterUnit.InverseSecond, ParameterKind.Real, 0f, .125f, .04f, [])
         ],
-        MassFrame = new(new(new ParameterId("load_input"), 0, 1, 0, 0), MassVector.Constant(Vector3.Zero),
+        MassFrame = new(BodyMassSourceDeclaration.Declared(new(new ParameterId("load_input"), 0, 1, 0, 0),
             new(PrincipalMomentOperation.ScaledMassLengthSquared, default,
-                new(new ParameterId("load_input"), 0), new(new ParameterId("length_input"), 0), new(.2f, .3f, .4f)),
+                new(new ParameterId("load_input"), 0), new(new ParameterId("length_input"), 0), new(.2f, .3f, .4f))), MassVector.Constant(Vector3.Zero),
             Quaternion.Identity, new(new ParameterId("damping_input"), 0, 1, 0, 0),
             new(new ParameterId("acceleration_input"), new(0, 16, 0), new(1, -1, 0)))
     });
@@ -40,7 +40,7 @@ public sealed class ParameterizedMassTests
                 [new("load_input")] = mass, [new("length_input")] = length,
                 [new("acceleration_input")] = 4, [new("damping_input")] = .04f
             };
-            var frame = decoded.Mechanical!.MassFrame.Evaluate(parameters);
+            var frame = decoded.Mechanical!.MassFrame.Evaluate(parameters, new(0, new Dictionary<CuriousContraptions.Gpu.LocalGasStoreId, ReferenceGasMass>()));
             Assert.Equal(new Vector3(4, 12, 0), frame.Gravity);
             Assert.Equal(.04f, frame.LinearDrag);
             var expected = new Vector3(.2f, .3f, .4f) * (mass * length * length);
@@ -56,16 +56,16 @@ public sealed class ParameterizedMassTests
         var frame = entry.Mechanical!.MassFrame;
         var badFrames = new[]
         {
-            frame with { PrincipalMoments = frame.PrincipalMoments with { Coefficients = new(1, 1, 3) } },
-            frame with { PrincipalMoments = frame.PrincipalMoments with { Operation = (PrincipalMomentOperation)99 } },
-            frame with { PrincipalMoments = frame.PrincipalMoments with { Polynomial = MassVector.Constant(Vector3.One) } },
-            frame with { PrincipalMoments = frame.PrincipalMoments with { Mass = new(new ParameterId("missing"), 0) } },
-            frame with { PrincipalMoments = frame.PrincipalMoments with { Length = new(new ParameterId("load_input"), 0) } },
-            frame with { PrincipalMoments = frame.PrincipalMoments with { Mass = new(new ParameterId("load_input"), 2) } },
+            frame with { Source = frame.Source with { DeclaredMoments = frame.Source.DeclaredMoments with { Coefficients = new(1, 1, 3) } } },
+            frame with { Source = frame.Source with { DeclaredMoments = frame.Source.DeclaredMoments with { Operation = (PrincipalMomentOperation)99 } } },
+            frame with { Source = frame.Source with { DeclaredMoments = frame.Source.DeclaredMoments with { Polynomial = MassVector.Constant(Vector3.One) } } },
+            frame with { Source = frame.Source with { DeclaredMoments = frame.Source.DeclaredMoments with { Mass = new(new ParameterId("missing"), 0) } } },
+            frame with { Source = frame.Source with { DeclaredMoments = frame.Source.DeclaredMoments with { Length = new(new ParameterId("load_input"), 0) } } },
+            frame with { Source = frame.Source with { DeclaredMoments = frame.Source.DeclaredMoments with { Mass = new(new ParameterId("load_input"), 2) } } },
             frame with { Gravity = new(new ParameterId("acceleration_input"), new(0, 1, 0), Vector3.UnitX) },
             frame with { Gravity = new(null, Vector3.Zero, Vector3.UnitY) },
             frame with { Gravity = new(new ParameterId("length_input"), Vector3.Zero, Vector3.UnitY) },
-            frame with { LinearDrag = new(new ParameterId("damping_input"), 0, 2, 0, 0) },
+            frame with { LinearDrag = new(new ParameterId("damping_input"), 0, -1, 0, 0) },
             frame with { LinearDrag = MassScalar.Constant(float.NaN) }
         };
         foreach (var invalid in badFrames)

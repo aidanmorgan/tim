@@ -1562,13 +1562,33 @@ finiteWorkActuatorsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-physicalCommit(obj?:PhysicalCommitRevisionRecord):PhysicalCommitRevisionRecord|null {
+gasStores(index: number, obj?:GasStoreReadRecord):GasStoreReadRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 76);
+  return offset ? (obj || new GasStoreReadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 72, this.bb!) : null;
+}
+
+gasStoresLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 76);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+integrityObservers(index: number, obj?:IntegrityReadRecord):IntegrityReadRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 78);
+  return offset ? (obj || new IntegrityReadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 24, this.bb!) : null;
+}
+
+integrityObserversLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 78);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+physicalCommit(obj?:PhysicalCommitRevisionRecord):PhysicalCommitRevisionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 80);
   return offset ? (obj || new PhysicalCommitRevisionRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(37);
+  builder.startObject(39);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1855,13 +1875,29 @@ static startFiniteWorkActuatorsVector(builder:flatbuffers.Builder, numElems:numb
   builder.startVector(48, numElems, 8);
 }
 
+static addGasStores(builder:flatbuffers.Builder, gasStoresOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(36, gasStoresOffset, 0);
+}
+
+static startGasStoresVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(72, numElems, 8);
+}
+
+static addIntegrityObservers(builder:flatbuffers.Builder, integrityObserversOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(37, integrityObserversOffset, 0);
+}
+
+static startIntegrityObserversVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(24, numElems, 8);
+}
+
 static addPhysicalCommit(builder:flatbuffers.Builder, physicalCommitOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(36, physicalCommitOffset, 0);
+  builder.addFieldStruct(38, physicalCommitOffset, 0);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
-  builder.requiredField(offset, 76) // physical_commit
+  builder.requiredField(offset, 80) // physical_commit
   return offset;
 }
 
@@ -5440,9 +5476,6 @@ static createChamberRegionReadRecord(builder:flatbuffers.Builder, id: bigint, fr
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
-
-
 export class FiniteWorkActuatorReadRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -7822,11 +7855,6 @@ static createFiniteWorkStateValuesRecord(builder:flatbuffers.Builder, empty: num
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
-
-
-
-
 export class CapabilityPresentationBindingRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -8258,8 +8286,18 @@ store():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
+gasShape():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+integrity():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
 static startCompiledPresentationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(14);
+  builder.startObject(16);
 }
 
 static addSource(builder:flatbuffers.Builder, source:bigint) {
@@ -8316,6 +8354,14 @@ static addFiniteWork(builder:flatbuffers.Builder, finiteWork:bigint) {
 
 static addStore(builder:flatbuffers.Builder, store:bigint) {
   builder.addFieldInt64(13, store, BigInt('0'));
+}
+
+static addGasShape(builder:flatbuffers.Builder, gasShape:bigint) {
+  builder.addFieldInt64(14, gasShape, BigInt('0'));
+}
+
+static addIntegrity(builder:flatbuffers.Builder, integrity:bigint) {
+  builder.addFieldInt64(15, integrity, BigInt('0'));
 }
 
 static endCompiledPresentationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -9948,8 +9994,58 @@ finiteWorkActuatorsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+gasStores(index: number, obj?:GasStoreDeclarationRecord):GasStoreDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 84);
+  return offset ? (obj || new GasStoreDeclarationRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 64, this.bb!) : null;
+}
+
+gasStoresLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 84);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+gasShapes(index: number, obj?:GasShapeDeclarationRecord):GasShapeDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 86);
+  return offset ? (obj || new GasShapeDeclarationRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 24, this.bb!) : null;
+}
+
+gasShapesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 86);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+inventoryMasses(index: number, obj?:InventoryMassDeclarationRecord):InventoryMassDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 88);
+  return offset ? (obj || new InventoryMassDeclarationRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 16, this.bb!) : null;
+}
+
+inventoryMassesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 88);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+ambientLoads(index: number, obj?:AmbientLoadDeclarationRecord):AmbientLoadDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 90);
+  return offset ? (obj || new AmbientLoadDeclarationRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+}
+
+ambientLoadsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 90);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+integrityObservers(index: number, obj?:IntegrityDeclarationRecord):IntegrityDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 92);
+  return offset ? (obj || new IntegrityDeclarationRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+}
+
+integrityObserversLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 92);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(40);
+  builder.startObject(45);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -10476,6 +10572,46 @@ static startFiniteWorkActuatorsVector(builder:flatbuffers.Builder, numElems:numb
   builder.startVector(32, numElems, 8);
 }
 
+static addGasStores(builder:flatbuffers.Builder, gasStoresOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(40, gasStoresOffset, 0);
+}
+
+static startGasStoresVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(64, numElems, 8);
+}
+
+static addGasShapes(builder:flatbuffers.Builder, gasShapesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(41, gasShapesOffset, 0);
+}
+
+static startGasShapesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(24, numElems, 8);
+}
+
+static addInventoryMasses(builder:flatbuffers.Builder, inventoryMassesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(42, inventoryMassesOffset, 0);
+}
+
+static startInventoryMassesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(16, numElems, 8);
+}
+
+static addAmbientLoads(builder:flatbuffers.Builder, ambientLoadsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(43, ambientLoadsOffset, 0);
+}
+
+static startAmbientLoadsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(32, numElems, 8);
+}
+
+static addIntegrityObservers(builder:flatbuffers.Builder, integrityObserversOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(44, integrityObserversOffset, 0);
+}
+
+static startIntegrityObserversVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(32, numElems, 8);
+}
+
 static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 8) // settings
@@ -10484,7 +10620,415 @@ static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   builder.requiredField(offset, 78) // energy_stores
   builder.requiredField(offset, 80) // chamber_regions
   builder.requiredField(offset, 82) // finite_work_actuators
+  builder.requiredField(offset, 84) // gas_stores
+  builder.requiredField(offset, 86) // gas_shapes
+  builder.requiredField(offset, 88) // inventory_masses
+  builder.requiredField(offset, 90) // ambient_loads
+  builder.requiredField(offset, 92) // integrity_observers
   return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class GasStoreDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):GasStoreDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+body():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+gasR():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+gasCv():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+minimumTemperature():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+maximumTemperature():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
+maximumDensity():number {
+  return this.bb!.readFloat32(this.bb_pos + 32);
+}
+
+maximumPressure():number {
+  return this.bb!.readFloat32(this.bb_pos + 36);
+}
+
+referenceMass():number {
+  return this.bb!.readFloat32(this.bb_pos + 40);
+}
+
+referenceVolume():number {
+  return this.bb!.readFloat32(this.bb_pos + 44);
+}
+
+referenceEnergy():number {
+  return this.bb!.readFloat32(this.bb_pos + 48);
+}
+
+boundaryPressure():number {
+  return this.bb!.readFloat32(this.bb_pos + 52);
+}
+
+gaugePressure():number {
+  return this.bb!.readFloat32(this.bb_pos + 56);
+}
+
+conductance():number {
+  return this.bb!.readFloat32(this.bb_pos + 60);
+}
+
+static sizeOf():number {
+  return 64;
+}
+
+static createGasStoreDeclarationRecord(builder:flatbuffers.Builder, id: bigint, body: bigint, gas_r: number, gas_cv: number, minimum_temperature: number, maximum_temperature: number, maximum_density: number, maximum_pressure: number, reference_mass: number, reference_volume: number, reference_energy: number, boundary_pressure: number, gauge_pressure: number, conductance: number):flatbuffers.Offset {
+  builder.prep(8, 64);
+  builder.writeFloat32(conductance);
+  builder.writeFloat32(gauge_pressure);
+  builder.writeFloat32(boundary_pressure);
+  builder.writeFloat32(reference_energy);
+  builder.writeFloat32(reference_volume);
+  builder.writeFloat32(reference_mass);
+  builder.writeFloat32(maximum_pressure);
+  builder.writeFloat32(maximum_density);
+  builder.writeFloat32(maximum_temperature);
+  builder.writeFloat32(minimum_temperature);
+  builder.writeFloat32(gas_cv);
+  builder.writeFloat32(gas_r);
+  builder.writeInt64(BigInt(body ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class GasShapeDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):GasShapeDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+store():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+collider():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+dryRadius():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+static sizeOf():number {
+  return 24;
+}
+
+static createGasShapeDeclarationRecord(builder:flatbuffers.Builder, store: bigint, collider: bigint, dry_radius: number):flatbuffers.Offset {
+  builder.prep(8, 24);
+  builder.pad(4);
+  builder.writeFloat32(dry_radius);
+  builder.writeInt64(BigInt(collider ?? 0));
+  builder.writeInt64(BigInt(store ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class InventoryMassDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):InventoryMassDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+body():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+dryMass():number {
+  return this.bb!.readFloat32(this.bb_pos + 8);
+}
+
+static sizeOf():number {
+  return 16;
+}
+
+static createInventoryMassDeclarationRecord(builder:flatbuffers.Builder, body: bigint, dry_mass: number):flatbuffers.Offset {
+  builder.prep(8, 16);
+  builder.pad(4);
+  builder.writeFloat32(dry_mass);
+  builder.writeInt64(BigInt(body ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class AmbientLoadDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):AmbientLoadDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+body():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+inventoryStore():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+accelerationX():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+accelerationY():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+accelerationZ():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+linearDrag():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createAmbientLoadDeclarationRecord(builder:flatbuffers.Builder, body: bigint, inventory_store: bigint, acceleration_x: number, acceleration_y: number, acceleration_z: number, linear_drag: number):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.writeFloat32(linear_drag);
+  builder.writeFloat32(acceleration_z);
+  builder.writeFloat32(acceleration_y);
+  builder.writeFloat32(acceleration_x);
+  builder.writeInt64(BigInt(inventory_store ?? 0));
+  builder.writeInt64(BigInt(body ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class IntegrityDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):IntegrityDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+collider():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+store():bigint {
+  return this.bb!.readUint64(this.bb_pos + 16);
+}
+
+threshold():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+minimumApproachSpeed():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createIntegrityDeclarationRecord(builder:flatbuffers.Builder, id: bigint, collider: bigint, store: bigint, threshold: number, minimum_approach_speed: number):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.writeFloat32(minimum_approach_speed);
+  builder.writeFloat32(threshold);
+  builder.writeInt64(BigInt(store ?? 0));
+  builder.writeInt64(BigInt(collider ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class GasStoreReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):GasStoreReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+body():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+mass():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+volume():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+energy():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+outlet():number {
+  return this.bb!.readUint32(this.bb_pos + 28);
+}
+
+enthalpyOut():number {
+  return this.bb!.readFloat32(this.bb_pos + 32);
+}
+
+boundaryWork():number {
+  return this.bb!.readFloat32(this.bb_pos + 36);
+}
+
+elasticReleased():number {
+  return this.bb!.readFloat32(this.bb_pos + 40);
+}
+
+momentumX():number {
+  return this.bb!.readFloat32(this.bb_pos + 44);
+}
+
+momentumY():number {
+  return this.bb!.readFloat32(this.bb_pos + 48);
+}
+
+momentumZ():number {
+  return this.bb!.readFloat32(this.bb_pos + 52);
+}
+
+kineticOut():number {
+  return this.bb!.readFloat32(this.bb_pos + 56);
+}
+
+preparationWork():number {
+  return this.bb!.readFloat32(this.bb_pos + 60);
+}
+
+preparationElastic():number {
+  return this.bb!.readFloat32(this.bb_pos + 64);
+}
+
+static sizeOf():number {
+  return 72;
+}
+
+static createGasStoreReadRecord(builder:flatbuffers.Builder, id: bigint, body: bigint, mass: number, volume: number, energy: number, outlet: number, enthalpy_out: number, boundary_work: number, elastic_released: number, momentum_x: number, momentum_y: number, momentum_z: number, kinetic_out: number, preparation_work: number, preparation_elastic: number):flatbuffers.Offset {
+  builder.prep(8, 72);
+  builder.pad(4);
+  builder.writeFloat32(preparation_elastic);
+  builder.writeFloat32(preparation_work);
+  builder.writeFloat32(kinetic_out);
+  builder.writeFloat32(momentum_z);
+  builder.writeFloat32(momentum_y);
+  builder.writeFloat32(momentum_x);
+  builder.writeFloat32(elastic_released);
+  builder.writeFloat32(boundary_work);
+  builder.writeFloat32(enthalpy_out);
+  builder.writeInt32(outlet);
+  builder.writeFloat32(energy);
+  builder.writeFloat32(volume);
+  builder.writeFloat32(mass);
+  builder.writeInt64(BigInt(body ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class IntegrityReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):IntegrityReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+phase():number {
+  return this.bb!.readUint32(this.bb_pos + 8);
+}
+
+ordinal():number {
+  return this.bb!.readUint32(this.bb_pos + 12);
+}
+
+eventPhase():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+static sizeOf():number {
+  return 24;
+}
+
+static createIntegrityReadRecord(builder:flatbuffers.Builder, id: bigint, phase: number, ordinal: number, event_phase: number):flatbuffers.Offset {
+  builder.prep(8, 24);
+  builder.pad(4);
+  builder.writeFloat32(event_phase);
+  builder.writeInt32(ordinal);
+  builder.writeInt32(phase);
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
 }
 
 }
@@ -10850,6 +11394,39 @@ static endInstanceRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
 
+export class IntegrityGoalRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):IntegrityGoalRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+owner():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+observation():number {
+  return this.bb!.readUint32(this.bb_pos + 8);
+}
+
+static sizeOf():number {
+  return 16;
+}
+
+static createIntegrityGoalRecord(builder:flatbuffers.Builder, owner: bigint, observation: number):flatbuffers.Offset {
+  builder.prep(8, 16);
+  builder.pad(4);
+  builder.writeInt32(observation);
+  builder.writeInt64(BigInt(owner ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
 export class PuzzleRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -10946,8 +11523,13 @@ interactionTarget():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
+goalIntegrity(obj?:IntegrityGoalRecord):IntegrityGoalRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? (obj || new IntegrityGoalRecord()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
 static startPuzzleRecord(builder:flatbuffers.Builder) {
-  builder.startObject(13);
+  builder.startObject(14);
 }
 
 static addId(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset) {
@@ -11006,6 +11588,10 @@ static addInteractionTarget(builder:flatbuffers.Builder, interactionTarget:bigin
   builder.addFieldInt64(12, interactionTarget, BigInt('0'));
 }
 
+static addGoalIntegrity(builder:flatbuffers.Builder, goalIntegrityOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(13, goalIntegrityOffset, 0);
+}
+
 static endPuzzleRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 4) // id
@@ -11013,23 +11599,6 @@ static endPuzzleRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalDelay:number, goalSourceNodeOffset:flatbuffers.Offset, goalTargetNodeOffset:flatbuffers.Offset, assistanceOffset:flatbuffers.Offset, interactionTarget:bigint):flatbuffers.Offset {
-  PuzzleRecord.startPuzzleRecord(builder);
-  PuzzleRecord.addId(builder, idOffset);
-  PuzzleRecord.addPlacement(builder, placement);
-  PuzzleRecord.addPrecision(builder, precision);
-  PuzzleRecord.addInventoryPart(builder, inventoryPartOffset);
-  PuzzleRecord.addInventoryCount(builder, inventoryCount);
-  PuzzleRecord.addGoalKind(builder, goalKind);
-  PuzzleRecord.addGoalBody(builder, goalBody);
-  PuzzleRecord.addGoalTarget(builder, goalTarget);
-  PuzzleRecord.addGoalDelay(builder, goalDelay);
-  PuzzleRecord.addGoalSourceNode(builder, goalSourceNodeOffset);
-  PuzzleRecord.addGoalTargetNode(builder, goalTargetNodeOffset);
-  PuzzleRecord.addAssistance(builder, assistanceOffset);
-  PuzzleRecord.addInteractionTarget(builder, interactionTarget);
-  return PuzzleRecord.endPuzzleRecord(builder);
-}
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
@@ -11087,8 +11656,13 @@ connectionsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+atmosphere():number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : null;
+}
+
 static startConstructionRecord(builder:flatbuffers.Builder) {
-  builder.startObject(5);
+  builder.startObject(6);
 }
 
 static addRevision(builder:flatbuffers.Builder, revision:bigint) {
@@ -11125,6 +11699,10 @@ static addConnections(builder:flatbuffers.Builder, connectionsOffset:flatbuffers
 
 static startConnectionsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(40, numElems, 8);
+}
+
+static addAtmosphere(builder:flatbuffers.Builder, atmosphere:number) {
+  builder.addFieldInt32(5, atmosphere, null);
 }
 
 static endConstructionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {

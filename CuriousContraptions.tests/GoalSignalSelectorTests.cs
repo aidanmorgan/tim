@@ -59,4 +59,33 @@ public sealed class GoalSignalSelectorTests
         Assert.Equal(new SignalNodeId("signal"), bench.Puzzle.Goal.SourceNode);
         Assert.Equal(new SignalNodeId("signal"), bench.Puzzle.Goal.TargetNode);
     }
+
+    [Fact]
+    public void AuthoredIntegrityGoalBindsTheDeclaredObservationAndCurrentSaveField()
+    {
+        _ = SaveFixture.Elements;
+        var content = JsonNode.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")))!.AsArray();
+        var row = content.Single(item => item!["id"]!.GetValue<string>() == "first_principles")!;
+        var instance = row["placements"]![0]!["instance"]!;
+        instance["part"] = "balloon";
+        instance["parameters"] = JsonNode.Parse("""{"mass":0.5,"radius":0.36,"bounce":0.2,"buoyancy":11.5,"drag":0.4}""");
+        row["goal"] = JsonNode.Parse("""{"kind":"IntegrityBroken","owner":"fixture_1","observation":1}""");
+        var definition = PuzzleCatalogue.ReadDefinitions(RuntimeTestServices.Core, RuntimeTestServices.Bundle,
+            content.ToJsonString())[new("first_principles")];
+        var construction = definition.CreateSolution(RuntimeTestServices.Bundle, new(1), WorkshopCadenceSettings.Default(), new(20), new(.45f));
+        var goal = construction.Puzzle.Goal;
+        Assert.Equal(new IntegrityGoalSelector(new(20), new(1)), goal.Integrity);
+        Assert.True(construction.Instances.Identities.TryIntegrity(goal.Integrity!.Value, out _));
+        // Decode the actual canonical save frame separately from the installed catalogue's unchanged lesson settings.
+        var bytes = SaveFixture.Forged(construction, 100);
+        var frame = WorkshopAuthoringFlatBuffers.OpenFrame(RuntimeTestServices.Core.Codecs.Commands, bytes, WorkshopSaveCodec.Identifier);
+        var record = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(frame).Construction!.Value;
+        Assert.Equal(goal, WorkshopAuthoringFlatBuffers.MapConstructionRecord(record).Puzzle.Goal);
+        foreach (var invalid in new[] { 0, 999 })
+        {
+            row["goal"]!["observation"] = invalid;
+            Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(RuntimeTestServices.Core,
+                RuntimeTestServices.Bundle, content.ToJsonString()));
+        }
+    }
 }

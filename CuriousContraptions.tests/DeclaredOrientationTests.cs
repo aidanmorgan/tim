@@ -85,8 +85,8 @@ public sealed class DeclaredOrientationTests
     // These pinned historical commands retain a retired identifier; generated current malformed frames below still reach verification.
     [Theory]
     [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
-    [InlineData("plate", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
-    [InlineData("clock", WorkshopSaveRejection.OutOfRange, WireFaultReason.UnknownIdentifier)]
+    [InlineData("plate", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("clock", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
     public void ABaseEncoderSaveWhoseSlotsMovedIsRefusedTypedAtBothBoundaries(string name,
         WorkshopSaveRejection save, WireFaultReason command)
     {
@@ -107,8 +107,8 @@ public sealed class DeclaredOrientationTests
         var saveBytes = Convert.FromBase64String(PipeSave);
         var commandBytes = Convert.FromBase64String(PipeCommand);
         // Historical scalar length is not a current declared parameter; the authored command envelope is also unsupported.
-        Assert.Equal("This save cannot be loaded: Invalid declared parameters.",
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message);
+        Assert.Equal("This save cannot be loaded: The save has no atmosphere selection.",
+            SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);
     }
@@ -117,32 +117,38 @@ public sealed class DeclaredOrientationTests
 
     public static TheoryData<string> PreDominoRecordNames() => new(OldLayoutSaves.PreDominoRecords().Select(record => record.Name));
 
-    // The 2065d3c5 layout's parameters vector sits in slot 13, beyond the current 8-field table, so its decoder would never see it:
+    // The 2065d3c5 layout's parameters vector sits in slot 13, beyond the current 7-field table, so its decoder would never see it:
     // a zero-parameter package's record carrying an undeclared parameter there (and any record with that field, the base encoder's
-    // empty vector included) is refused by the save boundary; the obsolete command envelope refuses structurally.
+    // empty vector included) remains refused. Missing atmosphere is the current save refusal; the obsolete command envelope refuses structurally.
     [Theory]
     [MemberData(nameof(PreDominoRecordNames))]
-    public void ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(string name)
+    public void HistoricalRecordWithAnExtraFieldIsRefusedAtBothBoundaries(string name)
     {
         var record = OldLayoutSaves.PreDominoRecords().Single(value => value.Name == name);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, record.Save()));
+        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, record.Save()));
         Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(record.Command())).Reason);
     }
 
-    // The boundary slot: a record that is current in every field but holds one extra field at exactly slot 8 (the first slot beyond
-    // the 8-field table) is refused by the save boundary; the same save without it loads (control).
+    // The boundary slot: a record that is current in every field but holds one extra field at exactly slot 7 (the first slot beyond
+    // the 7-field table) is refused by the save boundary; the same save without it loads (control).
     [Fact]
-    public void AFieldAtExactlyTheFirstSlotBeyondTheTableIsRefusedAtBothBoundaries()
+    public void ACurrentSaveRefusesTheFirstUnknownInstanceFieldAndItsValidControlLoads()
     {
-        // schemas/workshop_authoring.fbs: InstanceRecord holds fields 0-7 (C-Clock deleted the threshold, C-Memory the target count), so
-        // slot 8 is the first undefined slot (stated here, not read from the rule's own constant).
-        var layout = new OldLayoutSaves.Layout(9, 7, 16, 2);
-        OldLayoutSaves.Slot[] extra = [new(8, 1f)];
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", extra)));
+        // schemas/workshop_authoring.fbs: InstanceRecord holds id, part_id, locked, cell, local, rotation and parameters in fields 0-6, so
+        // slot 7 is the first undefined slot (stated here, not read from the rule's own constant).
+        var invalid = PayloadInstanceTests.GenericSave("domino", unknownField: true);
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(
+            RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, invalid));
+        // Structural authored-table validation belongs to the save boundary. Worker commands carry compiled scenes.
+        var control = PayloadInstanceTests.GenericSave("domino");
+        Assert.Equal(new PartId("domino"), Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands,
+            RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, control).Construction.Instances).PartId);
+        Assert.Equal(new PartId("domino"), WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(
+            RuntimeTestServices.Core.Codecs.Commands, control).Construction!.Value.Instances(0)!.Value).PartId);
+        var historical = new OldLayoutSaves.Layout(9, 7, 16, 2);
         Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() =>
-            WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "domino", extra))).Reason);
-        Assert.Equal(new PartId("domino"), Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", [])).Construction.Instances).PartId);
-        Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "domino", [])));
+            WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(historical, "domino", [new(8, 1f)]))).Reason);
+        Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(historical, "domino", [])));
     }
 
     // Controls and the pinned walk: current-encoder records (a zero-parameter domino and lamp, a parametered Ramp whose parameters fill

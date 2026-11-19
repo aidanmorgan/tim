@@ -9,7 +9,8 @@ namespace CuriousContraptions.Gpu;
 /// occurrence rows never leave the device, Story 9A.23 D9), the supply sources and the passage tracker (its per-body pass counts and the
 /// passes of the step that produced it).</summary>
 public readonly record struct EventSourceRows(PhysicsCaptureRead Captures, ContactWorkLedger ContactWorks,
-    PhysicsElectricalRead Electrical, PassageSensorTracker Passages, PhysicsFiniteWorkActuatorRead FiniteWork = default);
+    PhysicsElectricalRead Electrical, PassageSensorTracker Passages, PhysicsFiniteWorkActuatorRead FiniteWork = default,
+    PhysicsIntegrityRead Integrity = default);
 
 /// <summary>The event ring producer of one admitted world (Story 9A.22). Every one-shot transition of a committed tick becomes exactly
 /// one record from exactly one source row:
@@ -87,6 +88,7 @@ public sealed class EventRecordProducer
     {
         var records = new List<SimulationEventRecord>(32);
         var boundary = ActivationTime.Boundary(tick, _substeps);
+        AppendIntegrity(records, tick, committed.Integrity, candidate.Integrity);
         AppendFiniteWork(records, tick, checked((uint)((tick.Value - 1) * _substeps)), committed.FiniteWork, candidate.FiniteWork);
         void Add(SimulationEventKind kind, GpuEventSourceId source, GpuBodyId other, ActivationTime time, float magnitude, uint count, uint level) =>
             records.Add(new(0, tick.Value, kind, source, other.Value, time.Ordinal, time.Phase, magnitude, count, level));
@@ -177,6 +179,22 @@ public sealed class EventRecordProducer
                 new(current.Id.Value), current.LastPayload.Value, ordinal, 0f, current.LastDebit.Value, current.OccurrenceCount, 0);
             record.Validate();
             records.Add(record);
+        }
+    }
+
+    private static void AppendIntegrity(List<SimulationEventRecord> records, SimulationTick tick,
+        PhysicsIntegrityRead before, PhysicsIntegrityRead after)
+    {
+        if (before.Count != after.Count) throw new ArgumentException("Integrity event population changed.");
+        for (var i = 0; i < after.Count; i++)
+        {
+            var prior = before[i]; var current = after[i];
+            current.Validate();
+            if (prior.Id != current.Id || prior.Phase == IntegrityPhase.Broken && current != prior)
+                throw new ArgumentException("Integrity occurrence identity or latch changed.");
+            if (current.Phase != IntegrityPhase.Broken || prior.Phase == IntegrityPhase.Broken) continue;
+            records.Add(new(0, tick.Value, SimulationEventKind.IntegrityBroken, new(current.Id.Value),
+                0, current.Ordinal, current.EventPhase, 0, 1, 0));
         }
     }
 

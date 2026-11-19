@@ -1,5 +1,11 @@
 <Project>
   <ItemGroup>
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopWireFlatBuffers.Gas.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopWireFlatBuffers.GasRead.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.GasWriters.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.Gas.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.Gas.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/GasSceneValidation.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)CoreRunControlServices.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MechanicalLinkValidation.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MechanicalLinkPresentation.cs" />
@@ -50,6 +56,7 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/CylindricalContainmentQuery.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/ChamberSceneValidation.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/ChamberReadValidation.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/GasReadValidation.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.Chambers.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MaterialQueryWorkspace.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/MaterialSurface.cs" />

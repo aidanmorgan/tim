@@ -11,6 +11,14 @@ namespace CuriousContraptions.Gpu;
 /// </summary>
 public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
 {
+    private readonly Dictionary<IntegrityObservationId, int> _integrityObserverSlots = new();
+    private readonly Dictionary<IntegrityObservationId, int> _integrityObserverOffsets = new();
+    public int GetIntegrityObserverSlot(IntegrityObservationId id) => _integrityObserverSlots[id];
+    public int GetIntegrityObserverOffset(IntegrityObservationId id) => _integrityObserverOffsets[id];
+    private readonly Dictionary<GasStoreId, int> _gasStoreSlots = new();
+    private readonly Dictionary<GasStoreId, int> _gasStoreOffsets = new();
+    public int GetGasStoreSlot(GasStoreId id) => _gasStoreSlots[id];
+    public int GetGasStoreOffset(GasStoreId id) => _gasStoreOffsets[id];
     private readonly Dictionary<GpuBodyId, int> _bodySlots = new(16);
     private readonly Dictionary<GpuBodyId, int> _bodyOffsets = new(16);
     private readonly Dictionary<GpuColliderId, int> _colliderSlots = new(32);
@@ -123,9 +131,21 @@ public sealed class CompiledMemoryLayout : ICompiledMemoryLayout
         ReadOnlySpan<MechanicalTransmissionDeclaration> transmissions = default,
         ReadOnlySpan<EnergyStoreDeclaration> energyStores = default,
         ReadOnlySpan<ChamberRegionDeclaration> chamberRegions = default,
-        ReadOnlySpan<FiniteWorkActuatorDeclaration> finiteWorkActuators = default)
+        ReadOnlySpan<FiniteWorkActuatorDeclaration> finiteWorkActuators = default,
+        ReadOnlySpan<GasStoreDeclaration> gasStores = default,
+        ReadOnlySpan<ContactIntegrityDeclaration> integrityObservers = default)
     {
         var layout = new CompiledMemoryLayout();
+        for (var i = 0; i < integrityObservers.Length; i++)
+        {
+            layout._integrityObserverSlots.Add(integrityObservers[i].Id, i);
+            layout._integrityObserverOffsets.Add(integrityObservers[i].Id, world.IntegrityObserverOffset(i));
+        }
+        for (var i = 0; i < gasStores.Length; i++)
+        {
+            layout._gasStoreSlots.Add(gasStores[i].Id, i);
+            layout._gasStoreOffsets.Add(gasStores[i].Id, world.GasStoreOffset(i));
+        }
         for (var i = 0; i < chamberRegions.Length; i++)
         {
             layout._chamberRegionSlots.Add(chamberRegions[i].Id, i);

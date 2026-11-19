@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace CuriousContraptions.Abstractions.Mechanical;
 
-public enum PrincipalMomentOperation : byte { PolynomialVector = 1, ScaledMassLengthSquared = 2 }
+public enum PrincipalMomentOperation : byte { None = 0, PolynomialVector = 1, ScaledMassLengthSquared = 2 }
 
 /// <summary>A positive dimensional operand, constant or a declared parameter.</summary>
 public readonly record struct MomentOperand(ParameterId? Parameter, float Constant)

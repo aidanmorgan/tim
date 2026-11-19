@@ -33,6 +33,7 @@ public sealed class EventRingBufferTests
     [Theory]
     [InlineData(SimulationEventKind.Impact, SimulationDomain.Mechanical)]
     [InlineData(SimulationEventKind.FiniteWorkReleased, SimulationDomain.Mechanical)]
+    [InlineData(SimulationEventKind.IntegrityBroken, SimulationDomain.Mechanical)]
     [InlineData(SimulationEventKind.Passage, SimulationDomain.Mechanical)]
     [InlineData(SimulationEventKind.ContactLoad, SimulationDomain.Mechanical)]
     [InlineData(SimulationEventKind.Captured, SimulationDomain.Mechanical)]
@@ -45,10 +46,10 @@ public sealed class EventRingBufferTests
     [Fact]
     public void TheClosedKindSetHasNoElementNamedOrUnproducedKind()
     {
-        Assert.Equal(["None", "Impact", "Passage", "ThresholdReached", "MemoryChanged", "ContactLoad", "Captured", "ElectricalPowered", "TriggerActivated", "FiniteWorkReleased"],
+        Assert.Equal(["None", "Impact", "Passage", "ThresholdReached", "MemoryChanged", "ContactLoad", "Captured", "ElectricalPowered", "TriggerActivated", "FiniteWorkReleased", "IntegrityBroken"],
             Enum.GetNames<SimulationEventKind>());
         Assert.Throws<ArgumentOutOfRangeException>(() => SimulationEvents.Domain(SimulationEventKind.None));
-        Assert.Throws<ArgumentOutOfRangeException>(() => SimulationEvents.Domain((SimulationEventKind)10));
+        Assert.Throws<ArgumentOutOfRangeException>(() => SimulationEvents.Domain((SimulationEventKind)11));
     }
 
     [Theory]

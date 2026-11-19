@@ -53,6 +53,14 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDec
     public IReadOnlyList<CuriousContraptions.Gpu.ChamberRegionDescriptor> ChamberRegions { get; init; } = [];
     [System.Text.Json.Serialization.JsonRequired]
     public IReadOnlyList<CuriousContraptions.Gpu.FiniteWorkActuatorDescriptor> FiniteWorkActuators { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<CuriousContraptions.Gpu.GasStoreDescriptor> GasStores { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<CuriousContraptions.Gpu.GasShapeDescriptor> GasShapes { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<CuriousContraptions.Gpu.ContactIntegrityDescriptor> IntegrityObservers { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<CuriousContraptions.Gpu.AmbientLoadDescriptor> AmbientLoads { get; init; } = [];
 }
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyGraphDescriptor? SupplyGraph);

@@ -206,11 +206,16 @@ public sealed class WorkshopActivationAnimationTests
     }
 
 
-    [Fact]
-    public async Task GoalFeedbackOwnsOccurrenceAcrossProjectionRetryAndReset()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GoalFeedbackOwnsOccurrenceAcrossProjectionRetryAndReset(bool integrityGoal)
     {
         using var session = new NativeClient();
-        var goal = await session.Solve();
+        if (integrityGoal)
+            await session.Construct(PuzzleCatalogue.CreateSolution(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle,
+                new("burst_of_motion"), new(2), WorkshopCadenceSettings.Default(), new(1), new(1f)));
+        var goal = await session.Solve(construct: !integrityGoal);
         var rejectedCadence = await session.Client.Execute(WorkshopCommandKind.ConfigureCadence,
             settings: WorkshopCadenceSettings.Default() with { Simulation = SimulationCadence.Hz60 });
         Assert.Equal(WorkshopRejection.WrongPhase, rejectedCadence.Response.Result.Reason);

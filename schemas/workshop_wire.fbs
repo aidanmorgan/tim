@@ -321,6 +321,8 @@ table WorkshopResponse {
     energy_stores: [EnergyStoreReadRecord];
     chamber_regions: [ChamberRegionReadRecord];
     finite_work_actuators: [FiniteWorkActuatorReadRecord];
+    gas_stores: [GasStoreReadRecord];
+    integrity_observers: [IntegrityReadRecord];
     physical_commit: PhysicalCommitRevisionRecord (required);
 }
 
@@ -852,6 +854,8 @@ table CompiledPresentationRecord {
     retention: ulong;
     finite_work: ulong;
     store: ulong;
+    gas_shape: ulong;
+    integrity: ulong;
 }
 
 table RopeSpanReadRecord {
@@ -1022,6 +1026,63 @@ table CompiledSceneRecord {
     energy_stores: [EnergyStoreDeclarationRecord] (required);
     chamber_regions: [ChamberRegionDeclarationRecord] (required);
     finite_work_actuators: [FiniteWorkActuatorDeclarationRecord] (required);
+    gas_stores: [GasStoreDeclarationRecord] (required);
+    gas_shapes: [GasShapeDeclarationRecord] (required);
+    inventory_masses: [InventoryMassDeclarationRecord] (required);
+    ambient_loads: [AmbientLoadDeclarationRecord] (required);
+    integrity_observers: [IntegrityDeclarationRecord] (required);
 }
 
 root_type WorkshopResponse;
+
+struct GasStoreDeclarationRecord {
+    id: uint64;
+    body: uint64;
+    gas_r: float;
+    gas_cv: float;
+    minimum_temperature: float;
+    maximum_temperature: float;
+    maximum_density: float;
+    maximum_pressure: float;
+    reference_mass: float;
+    reference_volume: float;
+    reference_energy: float;
+    boundary_pressure: float;
+    gauge_pressure: float;
+    conductance: float;
+}
+struct GasShapeDeclarationRecord { store: uint64; collider: uint64; dry_radius: float; }
+struct InventoryMassDeclarationRecord { body: uint64; dry_mass: float; }
+struct AmbientLoadDeclarationRecord {
+    body: uint64;
+    inventory_store: uint64;
+    acceleration_x: float;
+    acceleration_y: float;
+    acceleration_z: float;
+    linear_drag: float;
+}
+struct IntegrityDeclarationRecord {
+    id: uint64;
+    collider: uint64;
+    store: uint64;
+    threshold: float;
+    minimum_approach_speed: float;
+}
+struct GasStoreReadRecord {
+    id: uint64;
+    body: uint64;
+    mass: float;
+    volume: float;
+    energy: float;
+    outlet: uint32;
+    enthalpy_out: float;
+    boundary_work: float;
+    elastic_released: float;
+    momentum_x: float;
+    momentum_y: float;
+    momentum_z: float;
+    kinetic_out: float;
+    preparation_work: float;
+    preparation_elastic: float;
+}
+struct IntegrityReadRecord { id: uint64; phase: uint32; ordinal: uint32; event_phase: float; }

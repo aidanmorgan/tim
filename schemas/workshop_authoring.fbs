@@ -54,6 +54,11 @@ table InstanceRecord {
     parameters: [ParameterRecord];
 }
 
+struct IntegrityGoalRecord {
+    owner: uint64;
+    observation: uint32;
+}
+
 table PuzzleRecord {
     id: string (required);
     placement: uint32;
@@ -68,6 +73,7 @@ table PuzzleRecord {
     goal_target_node: string;
     assistance: [AssistanceKnotRecord] (required);
     interaction_target: uint64;
+    goal_integrity: IntegrityGoalRecord;
 }
 
 table ConstructionRecord {
@@ -76,6 +82,7 @@ table ConstructionRecord {
     puzzle: PuzzleRecord;
     instances: [InstanceRecord];
     connections: [ConnectionRecord];
+    atmosphere: uint32 = null;
 }
 
 table SavedConstruction {

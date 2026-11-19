@@ -82,6 +82,7 @@ public sealed class ConstructionDecodeBoundaryTests
         var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instance]);
         var settings = WorkshopCadenceSettings.Default();
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
         CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
             builder, (uint)settings.Simulation, (uint)settings.Physical,
@@ -241,6 +242,7 @@ public sealed class ConstructionDecodeBoundaryTests
 
         var settings = WorkshopCadenceSettings.Default();
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
         CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
             builder, (uint)settings.Simulation, (uint)settings.Physical,

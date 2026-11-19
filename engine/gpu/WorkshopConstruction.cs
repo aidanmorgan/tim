@@ -5,7 +5,8 @@ using System.Collections.Generic;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Immutable authored Workshop composition; parts compile declarations for the shared engine.</summary>
-public readonly record struct WorkshopConstruction(ConstructionRevision Revision, WorkshopCadenceSettings Settings, WorkshopInstances Instances, WorkshopPuzzle Puzzle = default, WorkshopConnections Connections = null!)
+public readonly record struct WorkshopConstruction(ConstructionRevision Revision, WorkshopCadenceSettings Settings, WorkshopInstances Instances, WorkshopPuzzle Puzzle = default, WorkshopConnections Connections = null!,
+    AtmospherePreset Atmosphere = AtmospherePreset.Standard)
 {
     public WorkshopConstruction WithInstance(IBundleServices bundle, IWorkshopInstance instance) =>
         PuzzleCatalogue.WithInstance(bundle, this, instance);
@@ -17,6 +18,7 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
     {
         if (Revision.Value == 0) throw new ArgumentException("Construction revision must be nonzero.");
         Settings.Validate();
+        _ = AtmosphereBoundary.For(Atmosphere);
         ArgumentNullException.ThrowIfNull(Instances);
         Instances.Validate(bundle); ArgumentNullException.ThrowIfNull(Connections); Connections.Validate(supply, Instances);
         Puzzle.Validate(bundle, this);

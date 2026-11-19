@@ -45,7 +45,7 @@ public static class WorkshopAuthoringFlatBuffers
     {
         const int savedConstructionField = 1, constructionPuzzleField = 2;
         const int minPuzzleVtableBytes = 4 + 2 * 10;
-        const int maxPuzzleVtableBytes = 4 + 2 * 13;
+        const int maxPuzzleVtableBytes = 4 + 2 * 14;
         var constructionField = identifier switch
         {
             WorkshopSaveCodec.Identifier => savedConstructionField,
@@ -124,6 +124,9 @@ public static class WorkshopAuthoringFlatBuffers
             if (puzzle.InventoryPart != default) PuzzleRecord.AddInventoryPart(builder, invPartOffset);
             PuzzleRecord.AddInventoryCount(builder, puzzle.InventoryCount);
             PuzzleRecord.AddGoalKind(builder, (uint)puzzle.Goal.Kind);
+            if (puzzle.Goal.Integrity is { } integrity)
+                PuzzleRecord.AddGoalIntegrity(builder, IntegrityGoalRecord.CreateIntegrityGoalRecord(builder,
+                    integrity.Owner.Value, integrity.Observation.Value));
             PuzzleRecord.AddGoalBody(builder, goalBody);
             PuzzleRecord.AddGoalSourceNode(builder, sourceNode);
             PuzzleRecord.AddGoalTargetNode(builder, targetNode);
@@ -205,6 +208,7 @@ public static class WorkshopAuthoringFlatBuffers
 
         ConstructionRecord.StartConstructionRecord(builder);
         ConstructionRecord.AddRevision(builder, construction.Revision.Value);
+        ConstructionRecord.AddAtmosphere(builder, (uint)construction.Atmosphere);
         ConstructionRecord.AddSettings(builder, CadenceSettingsRecord.CreateCadenceSettingsRecord(builder,
             (uint)construction.Settings.Simulation, (uint)construction.Settings.Physical, (uint)construction.Settings.Animation,
             (uint)construction.Settings.Presentation, construction.Settings.PresentationRate.Numerator, construction.Settings.PresentationRate.Denominator));
@@ -261,6 +265,9 @@ public static class WorkshopAuthoringFlatBuffers
     /// <see cref="WireFaultException"/>; nothing is defaulted.</summary>
     internal static WorkshopConstruction MapConstructionRecord(ConstructionRecord cr)
     {
+        var atmosphere = cr.Atmosphere is { } pressure ? (AtmospherePreset)pressure :
+            throw new WireFaultException(WireFaultReason.MissingField, "A construction requires its atmosphere selection.");
+        if (!Enum.IsDefined(atmosphere)) throw new WireFaultException(WireFaultReason.OutOfRange, "Unknown atmosphere selection.");
         var s = cr.Settings ?? throw new WireFaultException(WireFaultReason.MissingField, "A construction record requires its cadence settings.");
         var settings = new WorkshopCadenceSettings((SimulationCadence)s.Simulation, (PhysicalStepProfile)s.Physical,
             (AnimationCadence)s.Animation, (PresentationCadence)s.Presentation,
@@ -272,7 +279,8 @@ public static class WorkshopAuthoringFlatBuffers
             var kind = (WorkshopGoalKind)p.GoalKind;
             var goal = new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget),
                 p.GoalSourceNode is { } sourceNode ? new(sourceNode) : default,
-                p.GoalTargetNode is { } targetNode ? new(targetNode) : default, new(p.GoalDelay));
+                p.GoalTargetNode is { } targetNode ? new(targetNode) : default, new(p.GoalDelay),
+                p.GoalIntegrity is { } integrity ? new IntegrityGoalSelector(new(integrity.Owner), new(integrity.Observation)) : null);
             if (p.AssistanceLength != AssistanceKnotCount)
                 throw new WireFaultException(WireFaultReason.MissingField, "An authored puzzle requires its nine assistance knots.");
             AssistanceProfile[] profiles = [Profile(p, 0), Profile(p, KnotsPerProfile), Profile(p, 2 * KnotsPerProfile)];
@@ -318,7 +326,7 @@ public static class WorkshopAuthoringFlatBuffers
                 conn.HasRopeLength ? conn.RopeLength : null);
         }
 
-        return new WorkshopConstruction(new(cr.Revision), settings, new(instances), puzzle, new(links));
+        return new WorkshopConstruction(new(cr.Revision), settings, new(instances), puzzle, new(links), atmosphere);
     }
 
     internal static T Required<T>(T? value, string field) where T : struct =>

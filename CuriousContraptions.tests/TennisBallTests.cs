@@ -33,8 +33,11 @@ public sealed class TennisBallTests
         var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, construction, new(1, 2));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == ball.Id);
         Assert.Equal(mass, body.Mass.Value);
-        Assert.Equal(.08f, body.LinearDrag.Value);
-        Assert.Equal(-9.81f + 2f, body.Gravity.Y);
+        Assert.Equal(0f, body.LinearDrag.Value);
+        Assert.Equal(-9.81f, body.Gravity.Y);
+        var ambient = Assert.Single(scene.AmbientLoads.ToArray());
+        Assert.Equal(.08f, ambient.LinearDrag);
+        Assert.Equal(2f, ambient.Acceleration.Y);
         // This tests the kg·m² compilation contract; 0.01% excludes a wrong mass/radius exponent.
         var expected = .4 * mass * radius * radius;
         foreach (var moment in new[] { body.MassProperties.X, body.MassProperties.Y, body.MassProperties.Z })
@@ -152,7 +155,7 @@ public sealed class TennisBallTests
         // material and acceleration values still come from the production package compiler.
         var scene = new PhysicsSceneDeclaration(compiled.Document, compiled.NextIdentity,
             compiled.Bodies.ToArray().Select(body => body.Id == new GpuBodyId(1) ? body with { Velocity = initial } : body).ToArray(),
-            compiled.Colliders, compiled.Materials, compiled.Sensors, compiled.Guides);
+            compiled.Colliders, compiled.Materials, compiled.Sensors, compiled.Guides, ambientLoads: compiled.AmbientLoads);
         return new(scene, PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1))), SimulationCadence.Hz120);
     }

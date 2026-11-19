@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Pink"]
+albedo_color = Color(0.92941177, 0.3882353, 0.47058824, 1)
+roughness = 0.45
+
+[sub_resource type="StandardMaterial3D" id="Cream"]
+albedo_color = Color(0.9098039, 0.8627451, 0.79607844, 1)
+roughness = 1.0
+
+[sub_resource type="SphereMesh" id="Envelope"]
+material = SubResource("Pink")
+radius = 1.0
+height = 2.0
+
+[sub_resource type="CylinderMesh" id="Neck"]
+material = SubResource("Pink")
+top_radius = 0.015
+bottom_radius = 0.035
+height = 0.06
+
+[sub_resource type="CylinderMesh" id="String"]
+material = SubResource("Cream")
+top_radius = 0.006
+bottom_radius = 0.006
+height = 0.85
+
+[sub_resource type="SphereMesh" id="Carrier"]
+material = SubResource("Pink")
+radius = 0.0625
+height = 0.125
+
+[sub_resource type="SphereShape3D" id="Collision"]
+radius = 0.36
+
+[node name="balloon" type="Node3D"]
+
+[node name="Envelope" type="MeshInstance3D" parent="."]
+scale = Vector3(0.36, 0.36, 0.36)
+mesh = SubResource("Envelope")
+
+[node name="Neck" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.36, 0)
+mesh = SubResource("Neck")
+
+[node name="String" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.425, 0)
+mesh = SubResource("String")
+
+[node name="Carrier" type="MeshInstance3D" parent="."]
+mesh = SubResource("Carrier")
+
+[node name="Loc_Port_Tie" type="Marker3D" parent="."]
+
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+visible = false
+shape = SubResource("Collision")

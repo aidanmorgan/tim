@@ -158,7 +158,7 @@ public readonly record struct RigidBodyDeclaration(
         Rotation.Validate();
         AngularVelocity.Validate();
         PhysicsDeclarationBounds.Vector(Gravity.X, Gravity.Y, Gravity.Z, 16f);
-        PhysicsDeclarationBounds.Range(LinearDrag.Value, 0f,0.125f);
+        PhysicsDeclarationBounds.Range(LinearDrag.Value, 0f,float.MaxValue);
         if (Motion == RigidMotionKind.Static)
         {
             if (MassProperties != default || !PhysicsDeclarationBounds.Zero(Mass.Value) || !Velocity.IsPositiveZero || !AngularVelocity.IsPositiveZero ||

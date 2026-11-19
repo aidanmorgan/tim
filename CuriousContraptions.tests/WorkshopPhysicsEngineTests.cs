@@ -584,28 +584,30 @@ public sealed class WorkshopPhysicsEngineTests
         Assert.True(captures == capturedAt > 0, $"offset {offset} m capture expected {captures}, first capture tick {capturedAt}");
     }
 
-    // Former harness facts (drag): in free flight the declared 0.04 1/s drag slows the horizontal speed as exp(-drag t) on
-    // every committed tick, gravity leaves the horizontal component alone, and the free-flight spin is never damped.
+    // Over one second Standard air drag changes horizontal routing speed; Vacuum is the zero-drag control.
+    // Reuse the .05 m/s velocity allowance: at most 5 cm additional travel over a one-second routing window.
     [Theory]
     [InlineData(SimulationCadence.Hz60)]
     [InlineData(SimulationCadence.Hz120)]
     [InlineData(SimulationCadence.Hz240)]
-    public void FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(SimulationCadence cadence)
+    public void FreeFlightDragChangesOneSecondSpeedWithoutDampingSpin(SimulationCadence cadence)
     {
+        const float speedAllowance = .05f;
         var rate = Rate(cadence);
-        var admitted = AdmitMoving(Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 30, 0, 0, 0, 0, 1)), 1, 2f, cadence: cadence);
-        BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(BodyRecord(admitted, 1) + PhysicsGpuAbi.BodyAngularVelocityOffset + 4), 5f);
-        var drag = LawBalls.Drag(LawBall.Basketball);
-        var previous = 2f;
-        Step(admitted, rate, (tick, bodies) =>
+        var construction = Free(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"), new(1), 0, 30, 0, 0, 0, 0, 1));
+        foreach (var atmosphere in new[] { AtmospherePreset.Standard, AtmospherePreset.Vacuum })
         {
-            var vx = bodies[0].Body.Velocity.X;
-            var expected = 2f * MathF.Exp(-drag * tick / rate);
-            Assert.True(vx < previous, $"tick {tick} slows the horizontal speed");
-            Assert.InRange(vx, expected - 1e-4f, expected + 1e-4f);
-            Assert.Equal(5f, bodies[0].AngularVelocity.Y);
-            previous = vx;
-        });
+            var admitted = AdmitMoving(construction with { Atmosphere = atmosphere }, 1, 2f, cadence: cadence);
+            BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(BodyRecord(admitted, 1) + PhysicsGpuAbi.BodyAngularVelocityOffset + 4), 5f);
+            var expected = atmosphere == AtmospherePreset.Standard ? 2f * MathF.Exp(-.04f) : 2f;
+            // Standard predicts 1.922 m/s; absent drag (2) and doubled drag (1.846) both miss this range.
+            Step(admitted, rate, (tick, bodies) =>
+            {
+                if (tick != rate) return;
+                Assert.InRange(bodies[0].Body.Velocity.X, expected - speedAllowance, expected + speedAllowance);
+                Assert.Equal(5f, bodies[0].AngularVelocity.Y);
+            });
+        }
     }
 
     // Former harness fact (rolling resistance): a ball rolling on the bench at 1 m/s decelerates through its declared rolling

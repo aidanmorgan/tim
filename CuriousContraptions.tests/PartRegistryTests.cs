@@ -21,7 +21,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"),
         new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"),
         new("weight"), new("rope_anchor"), new("pulley"), new("impact_lever"), new("trampoline"), new("motor"),
-        new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring"), new("cannon"), new("tennis")
+        new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring"), new("cannon"), new("tennis"), new("balloon")
     ];
 
     private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);
@@ -54,10 +54,10 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
             Assert.StartsWith("res://elements/", metadata.ScenePath, StringComparison.Ordinal);
             Assert.NotNull(definition.Scene);
             Assert.Equal(metadata.ScenePath, definition.ScenePath);
-            // The payload predicate is derived from each admitted declaration: the three admitted ball packages.
-            Assert.Equal(id == new PartId("ball") || id == new PartId("bowling") || id == new PartId("tennis"), DeclaredPhysics.IsPayload(id));
+            // The payload predicate is derived from each admitted declaration, including the gas envelope.
+            Assert.Equal(id == new PartId("ball") || id == new PartId("bowling") || id == new PartId("tennis") || id == new PartId("balloon"), DeclaredPhysics.IsPayload(id));
         }
-        foreach (var part in new PartId[] { new("unregistered_payload"), new("balloon") })
+        foreach (var part in new PartId[] { new("unregistered_payload"), new("unregistered_shape") })
         {
             Assert.False(registry.Definitions.ContainsKey(part), $"Undelivered part '{part}' must not be registered.");
             Assert.False(registry.Free.ContainsKey(part), $"Undelivered part '{part}' must not be offered.");
@@ -147,7 +147,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     {
         var registry = Loaded();
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("unknown-part")));
-        Assert.Throws<ArgumentException>(() => registry.Create(new PartId("balloon")));
+        Assert.Throws<ArgumentException>(() => registry.Create(new PartId("unregistered_shape")));
     }
 
     /// <summary>Private registry loads do not resurrect art wrappers while old finalizers are pending.</summary>
@@ -451,7 +451,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         var registry = Loaded();
         Assert.Equal(PaletteRows.ToHashSet(), registry.Elements.ToHashSet());
         Assert.Equal(registry.Definitions.Keys.ToHashSet(), registry.Elements.ToHashSet());
-        foreach (var part in new PartId[] { new("unregistered_payload"), new("balloon") }) Assert.DoesNotContain(part, registry.Elements);
+        foreach (var part in new PartId[] { new("unregistered_payload"), new("unregistered_shape") }) Assert.DoesNotContain(part, registry.Elements);
     }
 
     private static string Root => twodog.Engine.ResolveProjectDir();
@@ -494,7 +494,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         var constants = typeof(PartId).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
             .Where(field => field.FieldType == typeof(PartId)).Select(field => ((PartId)field.GetValue(null)!).Value).ToArray();
         Assert.Empty(constants);
-        foreach (var part in new PartId[] { new("unregistered_payload"), new("balloon") })
+        foreach (var part in new PartId[] { new("unregistered_payload"), new("unregistered_shape") })
         {
             var id = part;
             Assert.DoesNotContain(id.Value, constants);
@@ -528,7 +528,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         _ = godot;
         var source = File.ReadAllText(Path.Combine(Root, "ui", "WorkshopIcons.cs"));
         var ids = PartRegistry.Read(RuntimeTestServices.Bundle, Bundle()).Select(entry => entry.Metadata.Id)
-            .Concat(new PartId[] { new("unregistered_payload"), new("balloon") }.Select(part => part.Value)).ToArray();
+            .Concat(new PartId[] { new("unregistered_payload"), new("unregistered_shape") }.Select(part => part.Value)).ToArray();
         Assert.Equal(PaletteRows.Length + 2, ids.Length);
         foreach (var id in ids)
         {

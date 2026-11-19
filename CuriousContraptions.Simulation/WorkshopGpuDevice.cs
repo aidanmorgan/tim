@@ -259,7 +259,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             // Story 9A.22: admission compiles the world's event rows and publishes nothing; an Advance stages its tick's records from
             // the committed and candidate row states and the network's transitions. Nothing is sequenced before Commit.
             var actuators = new PhysicsFiniteWorkActuatorRead(PhysicsGpuAbi.ReadFiniteWorkActuators(bytes.Span));
-            var sources = new EventSourceRows(_candidateCaptures, contactWorks, electrical, _candidatePassageTracker, actuators);
+            var integrity = new PhysicsIntegrityRead(PhysicsGpuAbi.ReadIntegrity(bytes.Span));
+            var sources = new EventSourceRows(_candidateCaptures, contactWorks, electrical, _candidatePassageTracker, actuators, integrity);
             if (operation == WorkshopGpuOperation.Admit)
             {
                 contactWorks.ValidateScene(scene!, bodies);
@@ -286,7 +287,9 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 DriveTargets: PhysicsGpuAbi.ReadDriveTargets(bytes.Span),
                 EnergyStores: new PhysicsEnergyStoreRead(PhysicsGpuAbi.ReadEnergyStores(bytes.Span)),
                 ChamberRegions: new PhysicsChamberRead(PhysicsGpuAbi.ReadChamberRegions(bytes.Span)),
-                FiniteWorkActuators: actuators);
+                FiniteWorkActuators: actuators,
+                GasStores: new PhysicsGasRead(PhysicsGpuAbi.ReadGas(bytes.Span)),
+                IntegrityObservers: integrity);
             _candidateRead = read;
             _candidateInputs = inputs with { OwnedFiniteWork = null, AdmissionDrivenSurfaces = [], PhysicalRequests = [], Cuts = [] };
             if (operation == WorkshopGpuOperation.Admit)

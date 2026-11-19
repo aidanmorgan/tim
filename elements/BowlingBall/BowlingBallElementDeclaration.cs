@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
+using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Elements.BowlingBall;
 
 /// <summary>The Bowling ball (CAT-014): a 0.28 m, 4 kg hard shell with low bounce (owner decision, 9 Oct 2026). Its whole ball material
-/// is declared here: radius as the sphere's half-extent, mass and drag as mass properties, and bounce, friction, bounce threshold and
+/// is declared here: radius as the sphere's half-extent, mass as a mass property and drag as an ambient load, and bounce, friction, bounce threshold and
 /// rolling resistance as the collider material. It is not buoyant.</summary>
-public sealed class BowlingBallElementDeclaration : IMechanicalElement, ISceneGeometryElement
+public sealed class BowlingBallElementDeclaration : IMechanicalElement, ISceneGeometryElement, IAmbientLoadElement
 {
     public ElementPresentation Presentation => new(.4f, PresentationAxes.None,
         [], [], [], []);
@@ -50,8 +51,11 @@ public sealed class BowlingBallElementDeclaration : IMechanicalElement, ISceneGe
         centreOfMass: Vector3.Zero,
         principalMoments: new Vector3(0.12544f, 0.12544f, 0.12544f),
         principalFrame: Quaternion.Identity,
-        linearDrag: 0.04f,
+        linearDrag: 0f,
         gravity: new Vector3(0, -9.81f, 0));
+
+    public IReadOnlyList<AmbientLoadDescriptor> AmbientLoads =>
+        [new(new(0), WorldAccelerationDeclaration.Constant(Vector3.Zero), MassScalar.Constant(.04f), null)];
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 }

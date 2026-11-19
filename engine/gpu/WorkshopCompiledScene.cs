@@ -238,7 +238,19 @@ public sealed class WorkshopCompiledScene : ICompiledScene
     }
 
     private bool InvalidPhysicalBinding(CompiledPresentationTrack track) =>
-        InvalidFiniteWorkBinding(track) || InvalidActuatorBinding(track) || InvalidMechanicalObservationBinding(track);
+        InvalidGasBinding(track) || InvalidFiniteWorkBinding(track) || InvalidActuatorBinding(track) || InvalidMechanicalObservationBinding(track);
+
+    private bool InvalidGasBinding(CompiledPresentationTrack track)
+    {
+        var radius = track.Declaration.Driver == PresentationDriver.CommittedGasRadius;
+        var broken = track.Declaration.Driver == PresentationDriver.Event && track.Declaration.Event == SimulationEventKind.IntegrityBroken;
+        if (radius != (track.GasShape.Value != 0) || broken != (track.Integrity.Value != 0)) return true;
+        if (radius && !Physics.GasShapes.ToArray().Any(shape => shape.Collider == track.GasShape &&
+            Physics.GasStores.ToArray().Any(store => store.Id == shape.Store && OwnsBody(track.Owner, store.Body)))) return true;
+        if (broken && !Physics.IntegrityObservers.ToArray().Any(observation => observation.Id == track.Integrity &&
+            Physics.GasStores.ToArray().Any(store => store.Id == observation.Store && OwnsBody(track.Owner, store.Body)))) return true;
+        return false;
+    }
 
     private bool InvalidFiniteWorkBinding(CompiledPresentationTrack track)
     {

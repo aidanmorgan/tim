@@ -358,6 +358,7 @@ public partial class Workshop : Node3D
         files.AddChild(Button("↶ Reset", ResetRun));
         _optionsContents.AddChild(files);
         AddPlaybackControls(_optionsContents);
+        AddAtmosphereControl(_optionsContents);
         _optionsContents.AddChild(Text("Difficulty", 14));
         _precisionText = Text("Balanced");
         _optionsContents.AddChild(_precisionText);
@@ -413,6 +414,7 @@ public partial class Workshop : Node3D
 
     private void RefreshPalette()
     {
+        RefreshAtmosphere();
         foreach (var child in _palette.GetChildren()) { _palette.RemoveChild(child); child.QueueFree(); }
         foreach (var group in _inventory.Keys.GroupBy(key => World.Registry.Definitions[key].Category).OrderBy(group => group.Key))
         {

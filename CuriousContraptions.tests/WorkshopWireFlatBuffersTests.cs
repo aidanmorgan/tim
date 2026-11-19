@@ -29,6 +29,7 @@ public sealed class WorkshopWireFlatBuffersTests
         var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder,
             Enumerable.Repeat(instance, 1001).ToArray());
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instances);
         var settings = WorkshopCadenceSettings.Default();
         CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
@@ -228,6 +229,7 @@ public sealed class WorkshopWireFlatBuffersTests
         {
             WorkshopGoalKind.Captured => PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new(1f)),
             WorkshopGoalKind.ActivatedAfter => PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.5f)),
+            WorkshopGoalKind.IntegrityBroken => PuzzleCatalogue.Create(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, new("burst_of_motion"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.5f)),
             WorkshopGoalKind.None => new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
                 new([WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 3, 0, 0, 0, 0, 1)])),
             _ => throw new ArgumentOutOfRangeException(nameof(kind))
@@ -283,6 +285,7 @@ public sealed class WorkshopWireFlatBuffersTests
         var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instance]);
         var settings = WorkshopCadenceSettings.Default();
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddAtmosphere(builder, (uint)AtmospherePreset.Standard);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
         CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
             builder, (uint)settings.Simulation, (uint)settings.Physical,

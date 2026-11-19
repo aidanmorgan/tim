@@ -313,7 +313,7 @@ public sealed class BundleValidatorTests
         var bound = new MassScalar(new ParameterId("mass"), 0f, 1f, 0f, 0f);
         Bundle.BundleEntry With(MassScalar value, params ParameterDescriptor[] parameters) =>
             entry with { Metadata = entry.Metadata with { Parameters = parameters }, Mechanical = entry.Mechanical! with
-                { MassFrame = entry.Mechanical.MassFrame with { Mass = value } } };
+                { MassFrame = entry.Mechanical.MassFrame with { Source = entry.Mechanical.MassFrame.Source with { InitialMass = value } } } };
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
         Assert.Empty(Check(With(bound, mass)));
         Assert.Empty(Check(With(MassScalar.Constant(4f), mass)));
@@ -328,23 +328,23 @@ public sealed class BundleValidatorTests
             ("below mass domain", With(bound, mass with { Minimum = 1f / 2048f })),
             ("above mass domain", With(bound, mass with { Maximum = 1025f })),
             ("static body", With(bound, mass) with { Mechanical = entry.Mechanical! with
-                { MassFrame = entry.Mechanical.MassFrame with { Mass = bound }, KinematicMode = KinematicMode.Static } })
+                { MassFrame = entry.Mechanical.MassFrame with { Source = entry.Mechanical.MassFrame.Source with { InitialMass = bound } }, KinematicMode = KinematicMode.Static } })
         }) Assert.Contains(Check(candidate), error => error.Detail.Contains(".MassFrame", StringComparison.Ordinal));
 
         // Endpoints .25/8 and default4 are valid; x=1 is the interior minimum.
         Assert.Contains(Check(With(new(new("mass"), .75f, -2, 1, 0), mass)), e => e.Detail.Contains(".MassFrame", StringComparison.Ordinal));
         Assert.Empty(Check(With(new(new("mass"), 1.25f, -2, 1, 0), mass)));
         // Each individual moment stays positive, but Ix+Iy-Iz has a negative interior minimum.
-        var coupled = entry.Mechanical!.MassFrame with { PrincipalMoments = PrincipalMomentDeclaration.FromPolynomial(new(
-            new(new("mass"), 1.25f, -1, .5f, 0), new(new("mass"), 1.25f, -1, .5f, 0), MassScalar.Constant(2))) };
+        var coupled = entry.Mechanical!.MassFrame with { Source = entry.Mechanical.MassFrame.Source with { DeclaredMoments = PrincipalMomentDeclaration.FromPolynomial(new(
+            new(new("mass"), 1.25f, -1, .5f, 0), new(new("mass"), 1.25f, -1, .5f, 0), MassScalar.Constant(2))) } };
         Assert.Contains(Check(entry with { Mechanical = entry.Mechanical with { MassFrame = coupled } }),
             e => e.Detail.Contains(".MassFrame", StringComparison.Ordinal));
         Assert.Empty(Check(entry with { Mechanical = entry.Mechanical with { MassFrame = coupled with
-            { PrincipalMoments = PrincipalMomentDeclaration.FromPolynomial(coupled.PrincipalMoments.Polynomial with { Z = MassScalar.Constant(1) }) } } }));
+            { Source = coupled.Source with { DeclaredMoments = PrincipalMomentDeclaration.FromPolynomial(coupled.Source.DeclaredMoments.Polynomial with { Z = MassScalar.Constant(1) }) } } } }));
         // Different parameters must be considered together, not one at a time at the other's default.
         var second = mass with { Key = "second", Minimum = 1, Maximum = 2, Default = 2 };
         var first = mass with { Minimum = 1, Maximum = 2, Default = 2 };
-        var independent = coupled with { PrincipalMoments = PrincipalMomentDeclaration.FromPolynomial(new(bound, bound with { Parameter = new("second") }, MassScalar.Constant(2.5f))) };
+        var independent = coupled with { Source = coupled.Source with { DeclaredMoments = PrincipalMomentDeclaration.FromPolynomial(new(bound, bound with { Parameter = new("second") }, MassScalar.Constant(2.5f))) } };
         Assert.Contains(Check(entry with { Metadata = entry.Metadata with { Parameters = [first, second] },
             Mechanical = entry.Mechanical with { MassFrame = independent } }), e => e.Detail.Contains(".MassFrame", StringComparison.Ordinal));
 
@@ -827,7 +827,7 @@ public sealed class BundleValidatorTests
             Errors(("FixtureSlider", new Fixture
             {
                 Parameters = Fixture.SpringParameters,
-                Sliders = [Fixture.Slider() with { MovingBody = Fixture.Slider().MovingBody with { MassFrame = Fixture.Slider().MovingBody.MassFrame with { Mass = MassScalar.Constant(float.NaN) } } }]
+                Sliders = [Fixture.Slider() with { MovingBody = Fixture.Slider().MovingBody with { MassFrame = Fixture.Slider().MovingBody.MassFrame with { Source = Fixture.Slider().MovingBody.MassFrame.Source with { InitialMass = MassScalar.Constant(float.NaN) } } } }]
             })));
 
     // C-Gate (9A.19): a supplied drive is declaration data; the bundle refuses one the runtime could not admit.

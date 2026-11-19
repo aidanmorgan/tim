@@ -83,8 +83,8 @@ public sealed class DeclaredMemoryTests
     // counter's target there is read as an offset, which the verifier refuses for every target except 4 and 8, which pass it as an
     // offset to an empty vector and leave the generic counter without its declared target. A base-encoder generic record wrote its
     // (empty) parameters vector in slot 8, beyond the table. Every refusal is typed at both boundaries; nothing is migrated. A latch
-    // record held only its pose and lock, so it loads as the generic latch with the same pose and lock.
-    private const string BeyondSave = "This save cannot be loaded: an instance record holds a field the current record does not define.";
+    // record held only its pose and lock. Current saves additionally require atmosphere, so historical saves now refuse MissingField.
+    private const string MissingAtmosphere = "This save cannot be loaded: The save has no atmosphere selection.";
 
     private static readonly Dictionary<string, (string Save, string Command)> OldSaves = new()
     {
@@ -137,7 +137,7 @@ public sealed class DeclaredMemoryTests
     public void ARecordPathCounterSaveIsRefusedTypedAtBothBoundaries(string name)
     {
         var (save, command) = Bytes(name);
-        var rejected = SaveFixture.Refused(WorkshopSaveRejection.OutOfRange,
+        var rejected = SaveFixture.Refused(WorkshopSaveRejection.MissingField,
             () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save));
         Assert.False(string.IsNullOrWhiteSpace(rejected.Message));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
@@ -147,27 +147,34 @@ public sealed class DeclaredMemoryTests
 
     // A base-encoder parameterless generic record (the lamp) wrote an empty parameters vector in slot 8, beyond the 8-field table.
     [Fact]
-    public void ARecordPathParameterlessGenericSaveIsRefusedForItsFieldBeyondTheTable()
+    public void ARecordPathParameterlessGenericSaveIsRefusedForMissingAtmosphere()
     {
         var (save, command) = Bytes("generic_lamp");
-        Assert.Equal(BeyondSave, SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save)).Message);
+        Assert.Equal(MissingAtmosphere, SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
         Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);
         Assert.False(string.IsNullOrWhiteSpace(fault.Message));
     }
 
-    // A base-encoder latch record (pose and lock only) loads at both boundaries as the generic latch with that same pose and lock.
+    // Historical latch bytes remain refused; current encoding preserves the same authored pose and lock.
     [Theory]
     [InlineData("latch", false)]
     [InlineData("latch_locked_rotated", true)]
-    public void ARecordPathLatchSaveLoadsAsTheGenericLatchWithItsPoseAtBothBoundaries(string name,
+    public void HistoricalLatchIsRefusedAndCurrentLatchPreservesItsPoseAtBothBoundaries(string name,
         bool lockedRotated)
     {
         var (save, command) = Bytes(name);
         var expected = lockedRotated
             ? PlacedParts.Latch(new(1), 2.5f, 3, -1.25f, 0, (float)(Math.Sqrt(.5)), 0, (float)(Math.Sqrt(.5)), locked: true)
             : PlacedParts.Latch(new(1), 0, 3, 0, 0, 0, 0, 1);
-        Assert.Equal(expected, Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save).Construction.Instances));
+        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(
+            RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save));
+        var current = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle,
+            new(new(new(1), WorkshopCadenceSettings.Default(), new(expected)), new(2)));
+        Assert.Equal(expected, Assert.Single(WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands,
+            RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, current).Construction.Instances));
+        Assert.Equal(expected, WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(
+            RuntimeTestServices.Core.Codecs.Commands, current).Construction!.Value.Instances(0)!.Value));
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
     }
 
