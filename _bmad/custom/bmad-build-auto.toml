@@ -1,16 +1,47 @@
-# Curious Contraptions overrides for bmad-build-auto.
-# Merge rules (see .claude/skills/bmad-build-auto/customize.toml): lists append,
-# arrays of tables merge by `id` (a new id appends a layer).
-
+# Project overrides. Requirements: element-free-engine-design.md; verdicts: element-free-engine-review.md.
+# Keep policy text in those guides; prompts below load them explicitly for context-free agents.
 [workflow]
+activation_steps_append = [
+  "Step-04 post-review: after every confirmed finding is fixed and affected independent re-review is complete, run bmad-loop-protocol.md's Final diff scope check and required simplification analysis on the full owned candidate before Finalize, done, sprint synchronization or Commit/publication. Record Final diff scope in Review Triage Log/Auto Run Result; Fail or Incomplete blocks completion. This sequential check is not an additional review layer.",
+  '''
+Apply the engine gate within this Auto iteration, not as a separate review workflow:
+1. Step-01 routing: before any ready/in-progress resume jumps to implementation, verify the selected spec has the eight affected-design answers and a current planning verdict. Reopen a conflicting spec through the native blocked/bad_spec route; a stored ready status is not evidence.
+2. Step-02 Plan: put those answers in the existing Code Map/plan/verification sections, include both guides in context, and record the planning verdict before ready-for-dev. Planned tests suffice here.
+3. Step-03: dispatch the customized implementation_handoff; return conflicts to planning.
+4. Step-04: run the configured Element-Free Engine Auditor in the same review loop. In Classify, a confirmed in-scope engine violation is high; bad_spec applies when the design is wrong. Do not carry a historical verdict that conflicts with current policy, reject a finding merely because its fix edits a spec, or defer it merely because it concerns agent-context files.
+5. Before Finalize sets done or Commit runs, put the acceptance verdict, scope and proof references in Review Triage Log/Auto Run Result. Fail or Incomplete blocks that transition. After any relevant fix, obtain independent re-review of that fix before approval. Publication follows existing owner rules; on_complete is not the approval gate.
+''',
+]
 
-implementation_handoff = """
-Launch a context-free subagent with this prompt:
+activation_steps_prepend = [
+  "Before dispatch run dotnet run --file '{project-root}/tools/anvil/VerifyPolicy.cs' -- --bmad-check --project-root '{project-root}' --route Auto. Apply Effective configuration preflight after structural checks; condition meaning and route behavior require semantic inspection.",
+  "Maintainability gate (owner, 5 November 2026; project-engineering-contract.md E9 and bmad-loop-protocol.md Maintainability gate). This is a hard gate for every slice that starts after adoption (9A.46e, in progress at adoption, finishes under its starting rules; coupling findings do not block 9A.46g, in progress when coupling was added on 6 November 2026): no route, resume, size or shortcut skips it. Run dotnet run --file '{project-root}/tools/anvil/VerifyPolicy.cs' -- --maintainability --project-root '{project-root}' before review handoff, and again on the actual final candidate before the Final diff scope check passes and before Finalize, done, sprint synchronization or Commit/publication. It scores all production and tool code, not only the diff, and excludes test projects (IsTestProject): .NET code metrics maintainability index (CA1505) at least 20 and cyclomatic complexity (CA1502) at most 25, and balanced coupling between production projects (docs/architecture/element-package-isolation.md §3). Balanced coupling is mandatory: it runs inside the same command, --coupling alone never replaces the gate, and a run whose output lacks the Coupling dependencies summary or either canary PASS line is Incomplete. Every listed type, member or coupling dependency, including pre-existing code outside the owned diff, is a confirmed high finding. Add it to the owned repair scope, return it to the implementation owner for a behaviour-preserving refactor in this slice, and independently re-review the fix. Never reject, defer, waive, suppress or exclude it, and never change a threshold, a rule, a declared project kind or a project's test marker. FAIL is Fail; a refused or missing run is Incomplete; both block completion.",
+  "Before step-01 folder-plus-story first/draft routing, apply Bounded story entry in the loop protocol instead of native all-sibling accumulation.",
+  "First-pass rules (21 November 2026 review; apply from the next slice that starts, under the AGENTS.md Stable rules). At session start or resume run the protocol's Session environment check. In step-02, before the planning verdict, apply the protocol's Capability probe: dispatch the read-only planning scout with its card from {project-root}/_bmad/custom/role-cards.md, record cited capabilities, direct consumers and open decisions in the Code Map, split a missing solver, ABI, wire or shared-presentation capability into its own engine slice published first, decide defaultable owner decisions and record them, raise every remaining one together in a single native blocked HALT with recommended defaults, and read the touched deferred-work entries and the previous slice's close note. Keep every native spec section in the spec as the contract, one line per log row, with bulk evidence in the append-only run log (protocol: Slice record); children read the contract fully and the run log only by cited entry. In step-04 Classify, route each confirmed finding by what is wrong (protocol: Routing by what is wrong): a missing, weak or over-precise test or a stale document is patch, and bad_spec is only for wrong or missing specified behaviour, design answer or prerequisite. The handoff full round satisfies step-03 Verify; a second runs only if the candidate changed. Write the run-log close note and deferred-work additions before the candidate commit; completion is one candidate commit and one SnapshotApproval. The coordinator waits with a blocking tool call in the same turn, not a timed poll.",
+  "Read the test-authoring rules in the Implementation owner card of role-cards.md into planning: every matrix and acceptance row gets a named discriminating test with its control and boundary case in the contract's acceptance-to-test table before ready-for-dev.",
+  "Load {project-root}/_bmad/custom/bmad-loop-protocol.md completely before entry; apply its preflight, isolation, repair and recovery rules and pass role-specific instructions to every child.",
 
-Read {spec_file} fully and implement it. Load every file in its context frontmatter. Also read AGENTS.md and docs/testing-guidance.md; the owner's 28 October game-fidelity policy supersedes obsolete numerical acceptance in older specs. Resolve any conflict before implementation. Report what changed, verification and remaining risks.
-"""
+  "Read {project-root}/_bmad/custom/bmad-loop-protocol.md before any routing, status write or dispatch. Apply its named replacements for entry/baseline, planning/repair, reviewer inputs, capacity and completion instead of the contrary native branches. Bind diff_file separately per role, with an informed header for authoritative auditors; resolve every child path before launch. These rules cover resumed/in-review/done and oneshot routes as well as first dispatch.",
+  "Load {project-root}/_bmad/custom/project-engineering-contract.md and apply affected rule families at the native checkpoints below. Record applicability, source, planned or actual evidence and deferred gates in existing fields. The configured Element-Free Engine auditor also audits applicable project engineering rules; other lenses retain their purpose. Confirmed project-rule violations block approval; high severity applies only where owner policy requires it. Missing required-now evidence is Incomplete. Cover non-engine changes when a rule applies; no extra review loop or automatic runtime test round for documentation.",
+  "Before proceeding, load the design guide and review policy from {project-root}/_bmad/custom/. Apply the planning gate before ready-for-dev, including inherited ready specs; apply the acceptance gate to delivered changes.",
+]
 
-persistent_facts = ["Owner clarification, 29 October 2026: apply docs/testing-guidance.md#float-comparison-and-effort-rules. Use quantity-specific tolerances and generous game-time stall guards; no universal epsilon, fixed lesson ceiling or extra precision work without a concrete gameplay/interface defect. Reuse applicable passing evidence. A short rationale suffices; do not create a new precision audit.",
+implementation_handoff = '''
+Follow {project-root}/_bmad/custom/bmad-loop-protocol.md before dispatch. On first implementation, launch a context-free subagent and record its ID in the native spec. On resume or repair, re-engage the recorded implementation owner with the current spec and findings; do not launch a fresh owner or reset baseline_revision. Apply the protocol's owner-unavailable handling if re-engagement fails. The implementation prompt is:
+
+Read {project-root}/_bmad/custom/project-engineering-contract.md, {project-root}/_bmad/custom/element-free-engine-design.md and {project-root}/_bmad/custom/element-free-engine-review.md. Apply the phase-specific requirements to your assigned scope. Report violations or missing evidence in your required output format; the coordinator owns the blocking verdict.
+
+Read the Implementation owner card in {project-root}/_bmad/custom/role-cards.md first and follow it; it lists the recurring defects to avoid and the handoff order. Read {spec_file} (the contract) fully and implement it; read its run log only for an entry the contract cites. Load every file in its context frontmatter, resolving each path inside this checkout. Also read AGENTS.md and docs/testing-guidance.md; the owner's 28 October game-fidelity policy supersedes obsolete numerical acceptance in older specs. Resolve any conflict before implementation. Before the first edit, check the contract's Capability probe (in its Code Map) against the code and return a missing capability to planning. Follow the protocol's Handoff order and first-pass checks: maintainability gate, the matching compiler-log builds, new-package registration check, the filled acceptance-to-test table in Verification, a clean git diff --check and the full local round, in that order. Before handoff or the full round apply the protocol's Implementation handoff and verification ownership section: inspect the full owned diff early and record command executor, build/configuration, raw evidence and invalidating inputs in native fields. Before handoff run the protocol's Maintainability gate command and refactor every type, member or coupling dependency it lists, pre-existing ones included, until it passes. Do not suppress, exclude, reclassify or re-threshold anything. Report what changed, verification, the gate result and remaining risks.
+'''
+
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/bmad-loop-protocol.md",
+  "file:{project-root}/_bmad/custom/project-engineering-contract.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-design.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-review.md",
+  "file:{project-root}/_bmad/custom/role-cards.md",
+  "Apply the design guide and review policy at the appropriate phase. Before delegation, resolve {project-root} to the current checkout and supply role-specific policy/input paths under bmad-loop-protocol.md; the coordinator and engineering auditor load all three guides. Record the policy verdict before readiness, acceptance or completion; blocking findings override default workflow shortcuts.",
+  "Owner clarification, 29 October 2026: apply docs/testing-guidance.md#float-comparison-and-effort-rules. Use quantity-specific tolerances and generous game-time stall guards; no universal epsilon, fixed lesson ceiling or extra precision work without a concrete gameplay/interface defect. Reuse applicable passing evidence. A short rationale suffices; do not create a new precision audit.",
   "Owner policy (28 October 2026): this is a physics puzzle game, not a precision simulation benchmark. Read docs/testing-guidance.md and follow its game-fidelity policy. Test meaningful outcomes, causal interactions, stability and lifecycle. Historical tick proximity, incidental contact ordering, archived trajectories and simulation-output hashes/byte identity are not acceptance. Every strict physical assertion needs a gameplay or defined-interface reason; ULPs/slop fractions alone do not justify scene-level precision. Before a second numerical repair attempt, distinguish a gameplay defect from an over-specified test. Reviewers report unjustified precision as a test-design finding, not a solver defect. Exact typed identities, authored-state restoration, deliberate timing features and justified local mathematical contracts remain protected.",
   "Owner review gate (AGENTS.md, Refactor forward, 25 Oct 2026). A confirmed Forward-Only Auditor finding is triaged `high`. It is never `low`, never rejected as out of scope, and never deferred. It routes to patch, or to bad_spec when the spec asked for the fallback or compatibility. A slice cannot reach `done` while one is unresolved.",
   "No mutation testing until the post-catalogue E2E phase (owner, 25 Oct 2026). Neither the implementer nor any review layer creates, builds or runs mutants or mutated copies of the tree. Verification judges by reading the tests' assertions.",
@@ -19,26 +50,31 @@ persistent_facts = ["Owner clarification, 29 October 2026: apply docs/testing-gu
 [[workflow.review_layers]]
 id = "verification-gap"
 name = "Verification Gap Reviewer"
-instruction = """
+instruction = '''
 Launch a context-free subagent with this prompt:
+
+Read only the Reviewer duties section of {project-root}/_bmad/custom/bmad-loop-protocol.md and applicable authoritative source sections supplied with this launch. Preserve your assigned lens and output contract. Your role-specific diff excludes generated narrative; do not seek claims or previous findings outside the inputs explicitly allowed by your lens. Report missing inputs and evidence limits. No quotas, mutants, deferred browser gates or unjustified precision requirements.
 
 Read `{skill-root}/review-prompts/verification-gap.md` completely and follow it as your review instructions.
 
-Game-fidelity rule: Owner policy (28 October 2026): this is a physics puzzle game, not a precision simulation benchmark. Read docs/testing-guidance.md and follow its game-fidelity policy. Test meaningful outcomes, causal interactions, stability and lifecycle. Historical tick proximity, incidental contact ordering, archived trajectories and simulation-output hashes/byte identity are not acceptance. Every strict physical assertion needs a gameplay or defined-interface reason; ULPs/slop fractions alone do not justify scene-level precision. Before a second numerical repair attempt, distinguish a gameplay defect from an over-specified test. Reviewers report unjustified precision as a test-design finding, not a solver defect. Exact typed identities, authored-state restoration, deliberate timing features and justified local mathematical contracts remain protected.
+Also read the Blind reviewers card in {project-root}/_bmad/custom/role-cards.md; it carries the owner's game-fidelity policy (28 October 2026). Keep your own output format. Read docs/testing-guidance.md and follow its game-fidelity policy: report unjustified precision as a test-design finding, not a solver defect; exact typed identities, authored-state restoration, deliberate timing features and justified local mathematical contracts remain protected.
 
 Owner rule (25 Oct 2026): mutation testing is deferred until the post-catalogue E2E phase. Do NOT create, copy, build or run mutants, mutated trees or probe tests, and do not run the test suite. Judge each Demonstration by reading the relevant tests' assertions and the code they exercise.
 
 Review content: the unified diff at `{diff_file}`. Read that file — it is the content under review.
 
 Do not invoke any skill, and do not spawn subagents of your own — you are the reviewer. If the instruction file is unreadable, report that exact failure and stop. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.
-
-"""
+'''
 
 [[workflow.review_layers]]
 id = "forward-only"
 name = "Forward-Only Auditor"
-instruction = """
+instruction = '''
 Launch a context-free subagent with this prompt:
+
+Read only the Reviewer duties section of {project-root}/_bmad/custom/bmad-loop-protocol.md and applicable authoritative source sections supplied with this launch. Preserve your assigned lens and output contract. Your role-specific diff is the full owned candidate, including changed policy/spec files; do not treat implementation claims as proof. Report missing inputs and evidence limits. No quotas, mutants, deferred browser gates or unjustified precision requirements.
+
+Also read the Informed auditors card in {project-root}/_bmad/custom/role-cards.md; classify each finding as test, product defect or wrong specified behaviour.
 
 You audit a change for one rule only, the project's owner rule "Refactor forward": exactly one current path. That means no fallback, compatibility shim, legacy mode, old-name alias or automatic migration, and no backwards-compatibility shims, helpers or bridges.
 
@@ -60,19 +96,81 @@ When an item is borderline, report it and state which side of the rule it falls 
 Output a Markdown list. For each finding give: the file and line, what was added or kept, which clause of the rule it breaks, and the smallest forward-only fix (usually deletion, or refusal with a typed reason). If you find nothing, say so and list what you checked.
 
 Do not invoke any skill, and do not spawn subagents of your own — you are the reviewer. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.
-"""
+'''
 
 [[workflow.review_layers]]
 id = "blind-hunter"
 name = "Blind Hunter"
-instruction = "Launch a context-free subagent with this prompt:\n\nProject owner policy (28 October 2026): read AGENTS.md and docs/testing-guidance.md. Evaluate game-relevant behaviour, not historical numerical identity. Unjustified precision in tests is a finding. Do not demand exact arrival ticks or incidental contact sequences absent a feature contract.\n\nConduct a review of CONTENT.\nLook for what's missing, not only what's wrong.\nReport concrete defects or unjustified test precision with evidence and a gameplay or interface consequence; there is no minimum finding count.\nOutput a Markdown list of findings only — no severity, priority, or ranking.\nIf the content is empty, stop and say so.\nIf no supported findings remain, say so. Do not invent precision requirements or speculative work to fill a quota.\n\nCONTENT: the unified diff at `{diff_file}`. Read that file — it is the content under review.\n\nDo not invoke any skill, and do not spawn subagents of your own — you are the reviewer. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.\n\n"
+instruction = '''
+Launch a context-free subagent with this prompt:
+
+Read only the Reviewer duties section of {project-root}/_bmad/custom/bmad-loop-protocol.md and applicable authoritative source sections supplied with this launch. Preserve your assigned lens and output contract. Your role-specific diff excludes generated narrative; do not seek claims or previous findings outside the inputs explicitly allowed by your lens. Report missing inputs and evidence limits. No quotas, mutants, deferred browser gates or unjustified precision requirements.
+
+Also read the Blind reviewers card in {project-root}/_bmad/custom/role-cards.md; it carries the owner's game-fidelity policy (28 October 2026). Keep your own output format. docs/testing-guidance.md is the authority when you need detail.
+
+Conduct a review of CONTENT.
+Look for what's missing, not only what's wrong.
+Report concrete defects or unjustified test precision with evidence and a gameplay or interface consequence; there is no minimum finding count.
+Output a Markdown list of findings only — no severity, priority, or ranking.
+If the content is empty, stop and say so.
+If no supported findings remain, say so. Do not invent precision requirements or speculative work to fill a quota.
+
+CONTENT: the unified diff at `{diff_file}`. Read that file — it is the content under review.
+
+Do not invoke any skill, and do not spawn subagents of your own — you are the reviewer. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.
+'''
 
 [[workflow.review_layers]]
 id = "edge-case-hunter"
 name = "Edge Case Hunter"
-instruction = "Launch a context-free subagent with this prompt:\n\nProject owner policy (28 October 2026): read AGENTS.md and docs/testing-guidance.md. Evaluate game-relevant behaviour, not historical numerical identity. Unjustified precision in tests is a finding. Do not demand exact arrival ticks or incidental contact sequences absent a feature contract.\n\nRead `{skill-root}/review-prompts/edge-case-hunter.md` completely and follow it as your review instructions.\n\nclaims_file (leave unread until your instructions call for it): {claims_file}\n\nReview content: the unified diff at `{diff_file}`. Read that file — it is the content under review.\n\nDo not invoke any skill, and do not spawn subagents of your own — you are the reviewer. If the instruction file is unreadable, report that exact failure and stop. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.\n\n"
+instruction = '''
+Launch a context-free subagent with this prompt:
+
+Read only the Reviewer duties section of {project-root}/_bmad/custom/bmad-loop-protocol.md and applicable authoritative source sections supplied with this launch. Preserve your assigned lens and output contract. Your role-specific diff excludes generated narrative; do not seek claims or previous findings outside the inputs explicitly allowed by your lens. Report missing inputs and evidence limits. No quotas, mutants, deferred browser gates or unjustified precision requirements.
+
+Also read the Blind reviewers card in {project-root}/_bmad/custom/role-cards.md; it carries the owner's game-fidelity policy (28 October 2026). Keep your own output format. docs/testing-guidance.md is the authority when you need detail.
+
+Read `{skill-root}/review-prompts/edge-case-hunter.md` completely and follow it as your review instructions.
+
+claims_file (leave unread until your instructions call for it): {claims_file}
+
+Review content: the unified diff at `{diff_file}`. Read that file — it is the content under review.
+
+Do not invoke any skill, and do not spawn subagents of your own — you are the reviewer. If the instruction file is unreadable, report that exact failure and stop. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.
+'''
 
 [[workflow.review_layers]]
 id = "intent-alignment"
 name = "Intent Alignment Auditor"
-instruction = "Launch a subagent with this prompt:\n\nProject owner policy (28 October 2026): read AGENTS.md and docs/testing-guidance.md. Evaluate game-relevant behaviour, not historical numerical identity. Unjustified precision in tests is a finding. Do not demand exact arrival ticks or incidental contact sequences absent a feature contract.\n\nYou are an intent-alignment auditor. You have no other context about how this change was produced. Here is the verbatim intent this work started from:\n\n{verbatim_intent}\n\nThe diff is the unified diff at `{diff_file}`. Read that file — it is the change under review.\n\nYour task is strictly descriptive — do not prescribe additional work. Report: (1) the defensible readings of the intent, enumerated; (2) which reading this diff implements; (3) where the readings and the diff diverge — specifically, which surface the intent's expectations live at versus which surface the diff's changes and its tests exercise.\n\nDo not invoke any skill, and do not spawn subagents of your own — you are the reviewer. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.\n\n"
+instruction = '''
+Launch a subagent with this prompt:
+
+Read only the Reviewer duties section of {project-root}/_bmad/custom/bmad-loop-protocol.md and applicable authoritative source sections supplied with this launch. Preserve your assigned lens and output contract. Your role-specific diff excludes generated narrative; do not seek claims or previous findings outside the inputs explicitly allowed by your lens. Report missing inputs and evidence limits. No quotas, mutants, deferred browser gates or unjustified precision requirements.
+
+Also read the Blind reviewers card in {project-root}/_bmad/custom/role-cards.md; it carries the owner's game-fidelity policy (28 October 2026). Keep your own output format. docs/testing-guidance.md is the authority when you need detail.
+
+You are an intent-alignment auditor. You have no other context about how this change was produced. Here is the verbatim intent this work started from:
+
+{verbatim_intent}
+
+The diff is the unified diff at `{diff_file}`. Read that file — it is the change under review.
+
+Your task is strictly descriptive — do not prescribe additional work. Report: (1) the defensible readings of the intent, enumerated; (2) which reading this diff implements; (3) where the readings and the diff diverge — specifically, which surface the intent's expectations live at versus which surface the diff's changes and its tests exercise.
+
+Do not invoke any skill, and do not spawn subagents of your own — you are the reviewer. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.
+'''
+
+[[workflow.review_layers]]
+id = "element-free-engine"
+name = "Element-Free Engine Auditor"
+instruction = '''
+Launch a context-free subagent with this prompt:
+
+Read {project-root}/_bmad/custom/project-engineering-contract.md, {project-root}/_bmad/custom/element-free-engine-design.md and {project-root}/_bmad/custom/element-free-engine-review.md. Apply the phase-specific requirements to your assigned scope. Report violations or missing evidence in your required output format; the coordinator owns the blocking verdict.
+
+Read the Informed auditors card in {project-root}/_bmad/custom/role-cards.md; classify each finding as test, product defect or wrong specified behaviour. At planning, also verify the capability probe: every capability marked present has a cited symbol and test, every missing capability has an owning slice, and no required-now owner decision is open.
+
+Read {project-root}/_bmad/custom/bmad-loop-protocol.md (Reviewer inputs and Reviewer duties). Your diff_file is the full owned candidate, with a header naming phase, candidate identity, native contract sections and verification receipts. Read those authoritative inputs; the native claims-only restriction does not apply to this informed audit. Missing required inputs or matching executed proof is Incomplete. Do not infer execution from test source. Planning requires planned evidence, not executed tests.
+
+Audit the unified diff at {diff_file} and the affected declaration-to-execution path against the design guide. Trace concrete alternate declarations, explicit references, ownership and varied-declaration tests. Use the review policy's finding format; state inspected scope and evidence limits if clean. Do not invoke skills, spawn agents, edit files, run mutants or require deferred browser qualification.
+'''

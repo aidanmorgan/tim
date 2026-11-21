@@ -1,2 +1,25 @@
+# Project overrides. Requirements: element-free-engine-design.md; verdicts: element-free-engine-review.md.
+# Keep policy text in those guides; prompts below load them explicitly for context-free agents.
 [workflow]
-persistent_facts = ["Owner clarification, 29 October 2026: apply docs/testing-guidance.md#float-comparison-and-effort-rules. Use quantity-specific tolerances and generous game-time stall guards; no universal epsilon, fixed lesson ceiling or extra precision work without a concrete gameplay/interface defect. Reuse applicable passing evidence. A short rationale suffices; do not create a new precision audit.","Owner policy, 28 October 2026: read AGENTS.md and docs/testing-guidance.md. Game outcomes, meaningful causal order and stability govern acceptance. Historical numerical traces, output hashes and unnecessarily tight scene tolerances are not requirements. Apply this policy to specifications, implementation handoffs and every review layer."]
+activation_steps_append = [
+  '''
+Use the configured project spec_template within the native create/update/validate/Story Breakdown process. During extraction, append affected design decisions, constraints and open questions to .memlog.md with the existing memlog tool. Derive the five-field kernel and required companions from that log; never patch a rendered SPEC to bypass derivation.
+Before the native validation/finalization result, verify the eight affected-design answers, concrete planned acceptance and prerequisite dispositions. Append the planning verdict as a native memlog event and report it through the existing validation output. Missing required design keeps the spec unready; planned implementation tests are not required to exist.
+When producing stories.yaml, preserve the relevant engine constraints, design decisions and discriminating acceptance cases in each affected story's existing schema fields, or link its required companion context. A passing SPEC does not automatically make a story with unresolved prerequisites ready.
+''',
+]
+
+spec_template = "{project-root}/_bmad/custom/bmad-spec-template.md"
+activation_steps_prepend = [
+  "Load {project-root}/_bmad/custom/project-engineering-contract.md and apply affected rule families at the native checkpoints below. Record applicability, source, planned or actual evidence and deferred gates in existing fields. The configured Element-Free Engine auditor also audits applicable project engineering rules; other lenses retain their purpose. Confirmed project-rule violations block approval; high severity applies only where owner policy requires it. Missing required-now evidence is Incomplete. Cover non-engine changes when a rule applies; no extra review loop or automatic runtime test round for documentation.",
+  "Before proceeding, load the design guide and review policy from {project-root}/_bmad/custom/. Apply the planning gate before ready-for-dev, including inherited ready specs; apply the acceptance gate to delivered changes.",
+]
+
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/project-engineering-contract.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-design.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-review.md",
+  "Apply the design guide and review policy at the appropriate phase. Before delegation, resolve {project-root} to the current checkout and include all three absolute extension paths in each child prompt. Record the policy verdict before readiness, acceptance or completion; blocking findings override default workflow shortcuts.",
+  "Owner clarification, 29 October 2026: apply docs/testing-guidance.md#float-comparison-and-effort-rules. Use quantity-specific tolerances and generous game-time stall guards; no universal epsilon, fixed lesson ceiling or extra precision work without a concrete gameplay/interface defect. Reuse applicable passing evidence. A short rationale suffices; do not create a new precision audit.",
+  "Owner policy, 28 October 2026: read AGENTS.md and docs/testing-guidance.md. Game outcomes, meaningful causal order and stability govern acceptance. Historical numerical traces, output hashes and unnecessarily tight scene tolerances are not requirements. Apply this policy to specifications, implementation handoffs and every review layer.",
+]

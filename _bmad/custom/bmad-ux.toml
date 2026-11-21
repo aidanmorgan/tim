@@ -1,0 +1,11 @@
+# Project BMAD extension: phase-specific engineering constraints.
+[workflow]
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/project-engineering-contract.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-design.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-review.md",
+  "Resolve project customization before approval, including update, validate and resumed runs. Defaults alone cannot approve. Resolve all three extension paths to absolute paths in applicable child prompts. Apply affected rules and preserve native output schemas.",
+]
+activation_steps_prepend = ["Load {project-root}/_bmad/custom/project-engineering-contract.md and select affected rule families before starting. Apply source precedence and phase-specific blocking verdicts in native artifacts."]
+activation_steps_append = ["During discovery and Update, capture applicable visual, interaction, accessibility and lifecycle constraints as native memlog decisions, then derive DESIGN/EXPERIENCE. Preserve the approved palette and form; isolation .tscn authority wins over older glTF instructions. Include extension paths and affected constraints in distillation and creative-tool handoffs. Before Finalize/Validate approves the result, require the configured engineering audit despite default opt-in review. Violations or missing required decisions block final status. Validate-only reports findings without editing artifacts."]
+finalize_reviewers = ["Read {project-root}/_bmad/custom/project-engineering-contract.md, {project-root}/_bmad/custom/element-free-engine-design.md and {project-root}/_bmad/custom/element-free-engine-review.md. Independently inspect affected constraints, source fidelity, decisions, dependencies and planned acceptance. Report violations and required-now gaps or scoped Pass with limits. Product/design planning does not require implementation proof. Coordinator records verdict in native memlog/validation output before final status; no optional-review bypass."]

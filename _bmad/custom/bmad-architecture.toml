@@ -1,0 +1,27 @@
+# Project overrides. Requirements: element-free-engine-design.md; verdicts: element-free-engine-review.md.
+# Keep policy text in those guides; prompts below load them explicitly for context-free agents.
+[workflow]
+activation_steps_append = [
+  '''
+Use the configured project spine_template and native memlog/AD process. Log affected reusable contracts, ownership, typed references and missing decisions, then derive stable ADs and capability mappings; do not hand-patch the spine outside that process.
+At Finalize and Validate, including Update/re-distill and headless/resumed runs, the configured engine auditor is mandatory for affected engine architecture regardless of the optional stakes shortcut. Preserve validate-only nonmutation semantics: report findings, do not silently edit the reviewed spine.
+Before Close sets status final, resolve blocking design findings, independently re-review affected fixes and record the planning verdict as the existing memlog event and validation result. A final spine certifies only the stated design scope, not implementation tests or dependent-story readiness. Inherited conflicting decisions must be surfaced and corrected through their owner, not locally waived.
+''',
+]
+
+spine_template = "{project-root}/_bmad/custom/bmad-architecture-spine-template.md"
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/project-engineering-contract.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-design.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-review.md",
+  "Apply the design guide and review policy at the appropriate phase. Before delegation, resolve {project-root} to the current checkout and include all three absolute extension paths in each child prompt. Record the policy verdict before readiness, acceptance or completion; blocking findings override default workflow shortcuts.",
+]
+
+activation_steps_prepend = [
+  "Load {project-root}/_bmad/custom/project-engineering-contract.md and apply affected rule families at the native checkpoints below. Record applicability, source, planned or actual evidence and deferred gates in existing fields. The configured Element-Free Engine auditor also audits applicable project engineering rules; other lenses retain their purpose. Confirmed project-rule violations block approval; high severity applies only where owner policy requires it. Missing required-now evidence is Incomplete. Cover non-engine changes when a rule applies; no extra review loop or automatic runtime test round for documentation.",
+  "Before proceeding, load the design guide and review policy from {project-root}/_bmad/custom/. Apply the planning gate before ready-for-dev, including inherited ready specs; apply the acceptance gate to delivered changes.",
+]
+
+finalize_reviewers = [
+  "Read {project-root}/_bmad/custom/project-engineering-contract.md, {project-root}/_bmad/custom/element-free-engine-design.md and {project-root}/_bmad/custom/element-free-engine-review.md. Apply the phase-specific requirements to your assigned scope. Report violations or missing evidence in your required output format; the coordinator owns the blocking verdict. Audit the affected architecture decisions and required design record. Return concrete findings or the inspected scope and limits. The coordinator applies the planning gate before approval.",
+]
