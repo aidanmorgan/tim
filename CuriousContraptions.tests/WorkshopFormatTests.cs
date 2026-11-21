@@ -114,7 +114,7 @@ public sealed class WorkshopFormatTests
         Assert.Equal(["sequence", "kind", "outcome", "reason", "phase", "epoch", "tick", "revision", "publication", "master_generation",
             "cadence", "projection", "session", "capture", "bodies", "captures", "activations", "timers", "contact_works",
             "electrical", "activation_memory", "motion", "memory", "actuator_drives", "contact_loads", "electrical_logic", "ropes", "scene", "rope_guides",
-            "compliant_surfaces", "drive_targets", "transmissions", "retentions", "energy_stores", "chamber_regions", "finite_work_actuators", "gas_stores", "integrity_observers", "physical_commit"], Fields("table WorkshopResponse"));
+            "compliant_surfaces", "drive_targets", "transmissions", "retentions", "energy_stores", "chamber_regions", "finite_work_actuators", "gas_stores", "integrity_observers", "airflow", "physical_commit"], Fields("table WorkshopResponse"));
         Assert.Equal(["frame", "deflection"], Fields("table CompliantSurfaceReadRecord"));
         Assert.Equal(["transmission", "owner", "closure", "phase"], Fields("table MechanicalTransmissionReadRecord"));
         Assert.Equal(["id", "driving_coordinate", "driven_coordinate", "driving_kind", "driven_kind", "constraint_kind", "ratio", "close_seconds", "owner", "retention", "initial_retention_coordinate"], Fields("table MechanicalTransmissionRecord"));

@@ -87,6 +87,7 @@ public static class WorkshopSupplyCompiler
     {
         var drives = ImmutableArray.CreateBuilder<SupplyConsumer>();
         var stores = ImmutableArray.CreateBuilder<EnergyStoreId>();
+        var work = ImmutableArray.CreateBuilder<AirflowSourceId>();
         foreach (var target in consumer.Targets)
             switch (target)
             {
@@ -96,6 +97,9 @@ public static class WorkshopSupplyCompiler
                 case SupplyDriveTarget { Coordinate.Kind: CoordinateKind.Revolute } drive:
                     drives.Add(SupplyConsumer.Revolute(identities.Hinges[drive.Coordinate.Index].Joint));
                     break;
+                case SupplyContinuousWorkTarget continuous:
+                    work.Add(identities.AirflowSources[continuous.Source]);
+                    break;
                 case SupplyEnergyStoreTarget store:
                     stores.Add(identities.EnergyStores[store.Store]);
                     break;
@@ -104,7 +108,8 @@ public static class WorkshopSupplyCompiler
                     break;
                 default: throw new ArgumentException("Unknown supply consumer target.");
             }
-        return new(id, owner, SupplyNodeKind.Consumer, Consumers: drives.ToImmutable(), Storages: stores.ToImmutable());
+        return new(id, owner, SupplyNodeKind.Consumer, Consumers: drives.ToImmutable(), Storages: stores.ToImmutable(),
+            ContinuousWork: work.ToImmutable());
     }
 
     public static ElectricalStorageBinding[] StorageBindings(ISupplyTopology topology)
@@ -112,13 +117,14 @@ public static class WorkshopSupplyCompiler
         var bindings = new List<ElectricalStorageBinding>();
         foreach (var node in topology.Nodes)
         {
-            if (node.Storages.IsDefaultOrEmpty) continue;
+            if (node.Storages.IsDefaultOrEmpty && node.ContinuousWork.IsDefaultOrEmpty) continue;
             var sources = topology.UpstreamSources(node.Id);
             if (sources.Length > 1)
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
-                    "A finite-work store requires at most one potential power source.");
+                    "A finite-work consumer requires at most one potential power source.");
             if (sources.Length == 0) continue;
-            foreach (var store in node.Storages) bindings.Add(new(sources[0], store, node.Id));
+            foreach (var store in node.Storages.IsDefault ? [] : node.Storages)
+                bindings.Add(new(sources[0], store, node.Id));
         }
         return bindings.OrderBy(binding => binding.Source.Value).ThenBy(binding => binding.Storage.Value).ToArray();
     }

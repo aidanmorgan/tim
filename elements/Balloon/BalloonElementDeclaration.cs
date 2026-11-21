@@ -9,7 +9,7 @@ namespace CuriousContraptions.Elements.Balloon;
 
 public sealed class BalloonElementDeclaration : IMechanicalElement, ISceneGeometryElement,
     IParameterizedGeometryElement, IParameterizedMaterialElement, IGasStoreElement, IGasShapeElement,
-    IContactIntegrityElement, IAmbientLoadElement
+    IContactIntegrityElement, IAmbientLoadElement, IAirflowReceiverElement
 {
     private const float DryRadius = .0625f;
     private const float VolumeFactor = 4f * MathF.PI / 3f;
@@ -37,6 +37,10 @@ public sealed class BalloonElementDeclaration : IMechanicalElement, ISceneGeomet
     public IReadOnlyList<PortDescriptor> Ports =>
         [new(PortId.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, PortRole.Tie,
             new("Center tie", SocketGlyph.Text), null, Vector3.Zero, -Vector3.UnitY, RopeAttachmentRole.Load)];
+    public IReadOnlyList<AirflowReceiverDescriptor> AirflowReceivers =>
+        [new(new(1), new(new(0), new(0)), AirflowSampling.ColliderNormalized,
+            [new(new(0, .5f, 0), .25f), new(new(0, -.5f, 0), .25f),
+             new(new(0, 0, .5f), .25f), new(new(0, 0, -.5f), .25f)])];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(.2f, .3f, 0, .1f))];
     public IReadOnlyList<ColliderParameterBinding> ColliderBindings =>

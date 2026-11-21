@@ -88,6 +88,8 @@ internal static class SupplyBundleValidation
     {
         SupplyEnergyStoreTarget store => store.Store != default && (entry.Mechanical?.EnergyStores ?? []).Any(value => value.Id == store.Store),
         SupplyDriveTarget drive => Driven(entry).Contains(drive.Coordinate),
+        SupplyContinuousWorkTarget work => work.Source.Value != 0 &&
+            (entry.Mechanical?.AirflowSources ?? []).Any(source => source.Id == work.Source),
         SupplyTransmissionTarget transmission => transmission.Transmission.Value != 0 &&
             TimedTransmissions(entry).Contains(transmission.Transmission),
         _ => false

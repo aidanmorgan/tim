@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Simulation;
@@ -8,10 +7,13 @@ namespace CuriousContraptions.Simulation;
 /// <summary>Reusable pre-solve state. Contact manifolds are rebuilt; persistent contact caches remain read-only until acceptance.</summary>
 internal sealed class PrismaticTrialWorkspace
 {
-    private BodyState[] _bodies = new BodyState[16];
+    private BodyTrialState[] _bodies = new BodyTrialState[16];
     private float[] _jointImpulses = new float[32], _hingeImpulses = new float[32];
-    private float[] _transmissionImpulses = new float[4], _couplingWindowImpulses = new float[4], _tensileImpulses = new float[4];
-    private float[] _stepWork = new float[4], _stepPositive = new float[4];
+    private float[] _transmissionImpulses = new float[4], _tensileImpulses = new float[4];
+    private PrismaticTrialState[] _jointStates = new PrismaticTrialState[4];
+    private RevoluteTrialState[] _hingeStates = new RevoluteTrialState[4];
+    private TransmissionTrialState[] _couplingStates = new TransmissionTrialState[4];
+    private TensileTrialState[] _ropeStates = new TensileTrialState[4];
     private int[] _parents = new int[16];
     private bool[] _affected = new bool[16];
 
@@ -29,21 +31,23 @@ internal sealed class PrismaticTrialWorkspace
         Reserve(ref _jointImpulses, checked(joints.Count * PrismaticRows.Count));
         Reserve(ref _hingeImpulses, checked(hinges.Count * RevoluteRows.Count));
         Reserve(ref _transmissionImpulses, transmissions.Count);
-        Reserve(ref _couplingWindowImpulses, transmissions.Count);
-        Reserve(ref _stepWork, transmissions.Count); Reserve(ref _stepPositive, transmissions.Count);
+        Reserve(ref _jointStates, joints.Count); Reserve(ref _hingeStates, hinges.Count);
+        Reserve(ref _couplingStates, transmissions.Count); Reserve(ref _ropeStates, ropes.Count);
         Reserve(ref _tensileImpulses, ropes.Count);
         Reserve(ref _parents, bodySlots);
         Reserve(ref _affected, bodySlots);
         Array.Clear(_affected, 0, bodySlots);
         for (var i = 0; i < bodySlots; i++) _parents[i] = i;
-        for (var i = 0; i < bodies.Count; i++) _bodies[i] = BodyState.Capture(bodies[i]);
+        for (var i = 0; i < bodies.Count; i++) _bodies[i] = BodyTrialState.Capture(bodies[i]);
         for (var i = 0; i < joints.Count; i++)
         {
+            _jointStates[i] = PrismaticTrialState.Capture(joints[i]);
             joints[i].Impulses.CopyTo(_jointImpulses, i * PrismaticRows.Count);
             Join(joints[i].A, joints[i].B);
         }
         for (var i = 0; i < hinges.Count; i++)
         {
+            _hingeStates[i] = RevoluteTrialState.Capture(hinges[i]);
             hinges[i].Impulses.CopyTo(_hingeImpulses, i * RevoluteRows.Count);
             Join(hinges[i].A, hinges[i].B);
         }
@@ -57,8 +61,7 @@ internal sealed class PrismaticTrialWorkspace
         {
             var transmission = transmissions[i];
             _transmissionImpulses[i] = transmission.Impulse;
-            _couplingWindowImpulses[i] = transmission.WindowImpulse;
-            _stepWork[i] = transmission.StepWork; _stepPositive[i] = transmission.StepPositive;
+            _couplingStates[i] = TransmissionTrialState.Capture(transmission);
             var a = DynamicEnd(transmission.Driving.A, transmission.Driving.B);
             var b = DynamicEnd(transmission.Driven.A, transmission.Driven.B);
             Join(a, b);
@@ -67,6 +70,7 @@ internal sealed class PrismaticTrialWorkspace
         {
             var rope = ropes[i];
             _tensileImpulses[i] = rope.Impulse;
+            _ropeStates[i] = TensileTrialState.Capture(rope);
             var first = DynamicEnd(rope.A, rope.B);
             Join(rope.A, rope.B);
             foreach (var guide in rope.Guides)
@@ -104,20 +108,25 @@ internal sealed class PrismaticTrialWorkspace
     public void Restore(List<SimBody> bodies, List<SimJoint> joints, List<SimRevoluteJoint> hinges,
         List<SimMechanicalTransmission> transmissions, List<SimTensileRoute> ropes, float multiplier)
     {
-        for (var i = 0; i < bodies.Count; i++) _bodies[i].Restore(bodies[i]);
-        RestoreConstraintImpulses(joints, hinges, transmissions, ropes);
+        RestoreState(bodies, joints, hinges, transmissions, ropes);
         foreach (var joint in joints)
         {
             joint.MotorImpulse = 0f;
             joint.StepWork = 0f;
             joint.EffortMultiplier = _affected[Root(DynamicEnd(joint.A, joint.B).BodySlot)] ? multiplier : 1f;
         }
-        for (var i = 0; i < transmissions.Count; i++)
-        {
-            transmissions[i].WindowImpulse = _couplingWindowImpulses[i];
-            transmissions[i].StepWork = _stepWork[i];
-            transmissions[i].StepPositive = _stepPositive[i];
-        }
+    }
+
+    /// <summary>Restore the complete entrance without selecting a different motor effort.</summary>
+    public void RestoreState(List<SimBody> bodies, List<SimJoint> joints, List<SimRevoluteJoint> hinges,
+        List<SimMechanicalTransmission> transmissions, List<SimTensileRoute> ropes)
+    {
+        for (var i = 0; i < bodies.Count; i++) _bodies[i].Restore(bodies[i]);
+        RestoreConstraintImpulses(joints, hinges, transmissions, ropes);
+        for (var i = 0; i < joints.Count; i++) _jointStates[i].Restore(joints[i]);
+        for (var i = 0; i < hinges.Count; i++) _hingeStates[i].Restore(hinges[i]);
+        for (var i = 0; i < ropes.Count; i++) _ropeStates[i].Restore(ropes[i]);
+        for (var i = 0; i < transmissions.Count; i++) _couplingStates[i].Restore(transmissions[i]);
     }
 
     /// <summary>Restore warm-start memory without undoing accepted velocities or paid channel work.
@@ -142,34 +151,8 @@ internal sealed class PrismaticTrialWorkspace
             var value = transmissions[i];
             if (component.Contains(value.Driving.A) || component.Contains(value.Driving.B) ||
                 component.Contains(value.Driven.A) || component.Contains(value.Driven.B)) continue;
-            value.WindowImpulse = _couplingWindowImpulses[i];
-            value.StepWork = _stepWork[i];
-            value.StepPositive = _stepPositive[i];
+            _couplingStates[i].Restore(value);
         }
     }
 
-    private readonly record struct BodyState(int CellX, int CellY, int CellZ, Vector3 Local, Vector3 Position,
-        Quaternion Rotation, Vector3 Velocity, Vector3 Spin, Quaternion RelativeRotation, float ContactWork,
-        Vector3 WindowV, Vector3 WindowW, Vector3 WindowContactTranslationalImpulse, Vector3 WindowContactAngularImpulse)
-    {
-        public static BodyState Capture(SimBody body) => new(body.CellX, body.CellY, body.CellZ,
-            new(body.LocalX, body.LocalY, body.LocalZ), body.Position, body.Rotation, body.LinearVelocity, body.AngularVelocity,
-            body.TickRelativeRotation, body.ContactWork, body.WindowV, body.WindowW, body.WindowContactTranslationalImpulse,
-            body.WindowContactAngularImpulse);
-        public void Restore(SimBody body)
-        {
-            body.CellX = CellX; body.CellY = CellY; body.CellZ = CellZ;
-            body.LocalX = Local.X; body.LocalY = Local.Y; body.LocalZ = Local.Z;
-            body.Px = Position.X; body.Py = Position.Y; body.Pz = Position.Z;
-            body.Qx = Rotation.X; body.Qy = Rotation.Y; body.Qz = Rotation.Z; body.Qw = Rotation.W;
-            body.Vx = Velocity.X; body.Vy = Velocity.Y; body.Vz = Velocity.Z;
-            body.Wx = Spin.X; body.Wy = Spin.Y; body.Wz = Spin.Z;
-            body.TickRelativeRotation = RelativeRotation;
-            body.ContactWork = ContactWork;
-            // The open accepted-work window as it stood before the trial: the failed trial's credit and new window are discarded.
-            body.WindowV = WindowV; body.WindowW = WindowW;
-            body.WindowContactTranslationalImpulse = WindowContactTranslationalImpulse; body.WindowContactAngularImpulse = WindowContactAngularImpulse;
-            WorkshopCollisionKernels.UpdateDynamicFrame(body);
-        }
-    }
 }

@@ -52,19 +52,16 @@ internal sealed partial class WorkshopPhysicsEngine
     private readonly List<ContactPoint> _probeContacts = new(4);
     private List<ContactManifold> _manifolds = new(16);
     private List<int> _storeIndices = new(4);
-    private List<float> _balances = new(4);
-    private List<float> _capacities = new(4);
-    private List<float> _credits = new(4);
     // Story 9R.5b: per-tick working rows sized from the world's own populations, grown only when a world needs more (per Run).
     private ContactLoadSensorDeclaration[] _loadDeclarations = new ContactLoadSensorDeclaration[4];
     private int[] _loadFrames = new int[4];
     private float[] _loadMass = new float[4];
-    private float[] _elecBefore = new float[4], _elecLimits = new float[4], _elecAfter = new float[4];
+    private float[] _electricalRequests = new float[4], _electricalGrants = new float[4];
     // Whether each drive slot (every prismatic, then every revolute) declares a drive, read once per tick to validate the inputs.
     private bool[] _drivenSlots = new bool[4];
 
     /// <summary>A cleared span of exactly <paramref name="count"/> rows, growing the owned array only when it is too short.</summary>
-    private static Span<T> Scratch<T>(ref T[] array, int count)
+    internal static Span<T> Scratch<T>(ref T[] array, int count)
     {
         if (count > Array.MaxLength) throw new WorkshopStorageException("Scratch storage is not representable.");
         if (count > 3L * array.Length / 4)
@@ -88,12 +85,19 @@ internal sealed partial class WorkshopPhysicsEngine
         _contactCache = new(64); _normalContactSets = new(16); _frictionCache = new(16); _allBodies = new(16);
         _loadContacts = new(64); _staticBodies = new(16); _dynamicBodies = new(16); _restitutionBodies = new(16);
         _colliders = new(32); _joints = new(4); _revoluteJoints = new(4); _candidatePairs = new(64); _contacts = new(64); _manifolds = new(16);
-        _storeIndices = new(4); _balances = new(4); _capacities = new(4); _credits = new(4);
+        _storeIndices = new(4);
         _bodyPool = new(16); _colliderPool = new(32); _jointPool = new(4); _revoluteJointPool = new(4); _manifoldPool = new(16);
         _loadCounted = new GpuBodyId[64]; _loadDeclarations = new ContactLoadSensorDeclaration[4]; _loadFrames = new int[4]; _loadMass = new float[4];
-        _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4]; _drivenSlots = new bool[4]; _timedTransmissions = new bool[4];
+        _electricalRequests = new float[4]; _electricalGrants = new float[4]; _drivenSlots = new bool[4]; _timedTransmissions = new bool[4];
         _restitutionStamp = 0;
         _motorTrial = new();
+        _airflowBranches = [];
+        _airflowImpulses = [];
+        _continuousActive = false;
+        _continuousTrial = new();
+        _continuousComponents.Begin(0, 0);
+        _continuousLoads.Clear(); _continuousLoadPool.Clear(); _componentLoads.Clear();
+        _continuousCoordinateIndices.Clear(); _continuousRoots.Clear();
         _impulseTrial = new();
         _impulseComponent = new(16);
         _materialQueries = new MaterialQueryWorkspace();
@@ -189,18 +193,16 @@ internal sealed partial class WorkshopPhysicsEngine
 
                     var targetImp = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkTargetSpeedOffset, 4));
                     var storeOffset = layout.EnergyStoreOffset((int)ReadU32(span, wOffset + PhysicsGpuAbi.ContactWorkStoreOffset));
-                    var avail = ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreBalanceOffset);
+                    var avail = StoreBalance(span, storeOffset);
                     var capacity = ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreCapacityOffset);
                     var normVec = Vector128.Create(normalTowardDyn.X, normalTowardDyn.Y, normalTowardDyn.Z, 0f);
                     var response = ContactWorkImpulse.FromStore(speed, targetImp, invEffectiveMass, avail, capacity, normVec);
                     // A validated world never holds one; it is a broken ledger, reported rather than paid as empty (blind hunter 14).
                     if (response.Store == ContactWorkStore.Impossible)
                         throw new InvalidOperationException(
-                            $"Contact work {w} holds an impossible store: {avail:R} J available of a {capacity:R} J preload.");
+                            $"Contact work {w} holds an impossible store: {avail.Display:R} J available of a {capacity:R} J preload.");
 
-                    WriteF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreBalanceOffset, response.Remaining);
-                    WriteF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreReleasedOffset,
-                        ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreReleasedOffset) + response.Debit);
+                    StorePayment(span, storeOffset, response.Debit, response.CloseStore);
                     workStates[key]=new(new((uint)w),new((uint)colStatic.Index),key.Target,newCount,curOrd,0,
                         new(approach),new(response.Debit),response.Debit>0 ? ContactWorkEffect.Paid : ContactWorkEffect.Passive);
 
@@ -289,30 +291,7 @@ internal sealed partial class WorkshopPhysicsEngine
 
         var sourceOrdinal = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderSourceOrdinalOffset, 4));
 
-        var supplyCount = layout.ElectricalSources;
-        Span<bool> driven = Scratch(ref _drivenSlots, layout.Prismatics + layout.Revolutes);
-        for (var p = 0; p < layout.Prismatics; p++)
-            driven[p] = (PrismaticDriveKind)ReadU32(span, layout.PrismaticOffset(p) + PhysicsGpuAbi.PrismaticDriveKindOffset) == PrismaticDriveKind.Supplied;
-        var revoluteDrives = 0;
-        for (var r = 0; r < layout.Revolutes; r++)
-        {
-            driven[layout.Prismatics + r] = (RevoluteDriveKind)ReadU32(span, layout.RevoluteOffset(r) + PhysicsGpuAbi.RevoluteDriveKindOffset) == RevoluteDriveKind.Supplied;
-            if (driven[layout.Prismatics + r]) revoluteDrives++;
-        }
-        Span<bool> timed = Scratch(ref _timedTransmissions, layout.MechanicalTransmissions);
-        for (var t = 0; t < layout.MechanicalTransmissions; t++)
-            timed[t] = ReadF32(span, layout.MechanicalTransmissionOffset(t) + PhysicsGpuAbi.MechanicalTransmissionCloseSecondsOffset) > 0f;
-        inputs.Validate(supplyCount, driven, revoluteDrives, timed);
-        ValidatePrismaticCommands(span, layout, inputs);
-        if (inputs.StorageRoutes is null || inputs.StorageRoutes.Length != layout.ElectricalBindings)
-            throw new ArgumentException("Physics storage eligibility differs from admitted routes.");
-        // engine-revolute-drive-target: each driven revolute commits this tick's target before its substeps. The world's revolutes and
-        // the compiled drive table are both in joint identity order, so a driven revolute's rank among the driven ones is its drive index.
-        for (int r = 0, drive = 0; r < layout.Revolutes; r++)
-            if (driven[layout.Prismatics + r])
-                WriteF32(span, layout.RevoluteOffset(r) + PhysicsGpuAbi.RevoluteDriveTargetSpeedOffset, inputs.DriveTarget[drive++]);
-        for (var supply = 0; supply < supplyCount; supply++)
-            WriteF32(span, layout.ElectricalSourceOffset(supply) + PhysicsGpuAbi.ElectricalSourceDebitOffset, 0f);
+        PrepareTickSupply(span, layout, inputs);
 
         var cadence = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderCadenceOffset, 4));
         var steps = cadence == 1 ? 8 : (cadence == 2 ? 4 : 2);
@@ -1028,42 +1007,12 @@ internal sealed partial class WorkshopPhysicsEngine
                 body.V0 = body.LinearVelocity;
                 body.W0 = body.AngularVelocity;
             }
+            GatherAirflowBranches(span, layout, inputs, dt);
             TransferSupply(span, layout, inputs, sourceOrdinal, s);
-            ApplyGuides(span, layout, dt);
-            // Compliant membranes are external forces like gravity, inside the restitution pass's pre-solve energy bound.
-            // The open accepted-work window runs from the previous position integration to the next (SolveIntegratedTrial).
-            ApplyCompliantMembranes(span, layout, dt);
-
-            foreach (var b in _dynamicBodies)
-            {
-                b.Vx += b.Gx * dt;
-                b.Vy += b.Gy * dt;
-                b.Vz += b.Gz * dt;
-                var decay = MathF.Exp(-b.Drag * dt);
-                b.Vx *= decay;
-                b.Vy *= decay;
-                b.Vz *= decay;
-                b.PreSolveKinetic = WorkshopConstraintSolver.Kinetic(b, b.LinearVelocity, b.AngularVelocity);
-            }
-
-            SolveBoundedSubstep(dt, softCoeffs);
-            PrepareRelaxation(dt);
-            for (var iteration = 0; iteration < WorkshopConstraintSolver.RelaxIterations; iteration++)
-            {
-                PrismaticConstraintSolver.SweepConstraints(_joints, false);
-                RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, false);
-                foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Solve(transmission);
-                foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, false);
-                WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Relax, softCoeffs, dt);
-            }
-            foreach (var transmission in _transmissions) transmission.Retention?.SampleRelaxedRate();
-
-            WorkshopConstraintSolver.RestitutionPass(_manifolds, _restitutionBodies, ++_restitutionStamp);
-            _guides.FlushReactions();
+            SolveContinuousSubstep(span, layout, inputs, dt, softCoeffs);
             CommitConstraints(span, dt);
             // Loads are read after the restitution pass: a point that carried normal impulse presses its face even from the gap.
             if (loadRows > 0) MeasureContactLoads(loadDeclarations[..loadRows], loadFrames[..loadRows], loadMass[..loadRows]);
-            foreach (var b in _dynamicBodies) WorkshopConstraintSolver.SettleVelocity(b);
             // Each sample's contact state and the bed's deflection follow this substep's resulting pose; the next substep's force reads them.
             UpdateCompliantContacts(span, layout);
 
@@ -1075,63 +1024,6 @@ internal sealed partial class WorkshopPhysicsEngine
 
     }
 
-    private void TransferSupply(Span<byte> span, PhysicsWorldLayout layout, PhysicsTickInputs inputs, uint sourceOrdinal, int s)
-    {
-        var supplyCount = layout.ElectricalSources;
-        if ((sourceOrdinal + s) % 4 == 0)
-        {
-            for (var supply = 0; supply < supplyCount; supply++)
-            {
-                var supplyOffset = layout.ElectricalSourceOffset(supply);
-                var nextEnabled = inputs.SourceEnable[supply];
-                WriteU32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceEnableOffset, (uint)nextEnabled);
-
-                _storeIndices.Clear();
-                _balances.Clear();
-                _capacities.Clear();
-                _credits.Clear();
-
-                for (var route = 0; route < layout.ElectricalBindings; route++)
-                {
-                    var bindingOffset = layout.ElectricalBindingOffset(route);
-                    if (!inputs.StorageRoutes[route] || ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingSourceOffset) != supply) continue;
-                    var targetStore = (int)ReadU32(span, bindingOffset + PhysicsGpuAbi.ElectricalBindingStorageOffset);
-                    var storeOffset = layout.EnergyStoreOffset(targetStore);
-                    _storeIndices.Add(storeOffset);
-                    _balances.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreBalanceOffset));
-                    _capacities.Add(MathF.Min(ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreCapacityOffset),
-                        ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreBalanceOffset) +
-                        ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStorePowerOffset) * ElectricalSupply.PhaseSeconds));
-                    _credits.Add(ReadF32(span, storeOffset + PhysicsGpuAbi.EnergyStoreSuppliedOffset));
-                }
-
-                var count = _storeIndices.Count;
-                // Per-source load scratch, grown to the largest fan-out this world has (no load capacity).
-                Span<float> elecBefore = Scratch(ref _elecBefore, count);
-                Span<float> elecLimits = Scratch(ref _elecLimits, count);
-                Span<float> elecAfter = Scratch(ref _elecAfter, count);
-                for (var i = 0; i < count; i++)
-                {
-                    elecBefore[i] = _balances[i];
-                    elecLimits[i] = _capacities[i];
-                }
-
-                var bal = ReadF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceRemainingOffset);
-                var pwr = ReadF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceMaximumPowerOffset);
-                var deb = ReadF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceDebitOffset);
-                var transfer = ElectricalSupply.Allocate((ElectricalEnable)nextEnabled, bal, pwr, elecBefore, elecLimits, elecAfter);
-
-                WriteF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceRemainingOffset, transfer.Remaining);
-                WriteF32(span, supplyOffset + PhysicsGpuAbi.ElectricalSourceDebitOffset, deb + transfer.Debit);
-                for (var load = 0; load < count; load++)
-                {
-                    WriteF32(span, _storeIndices[load] + PhysicsGpuAbi.EnergyStoreBalanceOffset, elecAfter[load]);
-                    WriteF32(span, _storeIndices[load] + PhysicsGpuAbi.EnergyStoreSuppliedOffset, _credits[load] + (elecAfter[load] - elecBefore[load]));
-                }
-            }
-        }
-
-    }
 
     private void ApplyGuides(ReadOnlySpan<byte> span, PhysicsWorldLayout layout, float dt)
     {
@@ -1287,6 +1179,7 @@ internal sealed partial class WorkshopPhysicsEngine
         foreach (var b in _dynamicBodies)
         {
             WorkshopConstraintSolver.ClampVelocity(b);
+            b.MotionV = b.LinearVelocity; b.MotionW = b.AngularVelocity;
             var prevCellX = b.CellX; var prevCellY = b.CellY; var prevCellZ = b.CellZ;
             var prevLocX = b.LocalX; var prevLocY = b.LocalY; var prevLocZ = b.LocalZ;
             var prevQ = b.Rotation;
@@ -1479,26 +1372,24 @@ internal sealed partial class WorkshopPhysicsEngine
             span.Slice(pieceOffset, PhysicsMotionRead.PieceBytes).Clear();
             var pieceSpan = span.Slice(pieceOffset, PhysicsMotionRead.PieceBytes);
 
-            WriteU32(pieceSpan, PhysicsMotionRead.KindOffset, (uint)PhysicsMotionKind.FreePolynomial);
+            // The piece describes the interval just integrated, starting at its recorded pre-integration pose.
+            // The sole motion record interpolates actual integrated velocities, never a later relaxed state.
             WriteU32(pieceSpan, PhysicsMotionRead.StartOrdinalOffset, sourceOrdinal + (uint)s);
             WriteU32(pieceSpan, PhysicsMotionRead.EndOrdinalOffset, sourceOrdinal + (uint)s + 1);
-            WriteU32(pieceSpan, PhysicsMotionRead.AnchorOrdinalOffset, sourceOrdinal + (uint)s);
-            WriteF32(pieceSpan, PhysicsMotionRead.StartPhaseOffset, 0f);
-            WriteF32(pieceSpan, PhysicsMotionRead.EndPhaseOffset, 0f);
-            WriteF32(pieceSpan, PhysicsMotionRead.AnchorPhaseOffset, 0f);
-            WriteU32(pieceSpan, PhysicsMotionRead.FrequencyOffset, WorkshopCadenceSettings.PhysicalFrequency);
             WriteU32(pieceSpan, PhysicsMotionRead.OwnerOffset, b.BodyIdLow);
             WriteU32(pieceSpan, PhysicsMotionRead.OwnerOffset + sizeof(uint), b.BodyIdHigh);
-            BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset, 4), b.CellX);
-            BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset + sizeof(int), 4), b.CellY);
-            BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset + 2 * sizeof(int), 4), b.CellZ);
-            WriteVector(pieceSpan, PhysicsMotionRead.CentreRemainderOffset, b.LocalX, b.LocalY, b.LocalZ);
-            WriteF32(pieceSpan, PhysicsMotionRead.DragRateOffset, b.Drag);
-            WriteVector(pieceSpan, PhysicsMotionRead.RotationOffset, b.Qx, b.Qy, b.Qz);
-            WriteF32(pieceSpan, PhysicsMotionRead.RotationOffset + PhysicsGpuAbi.VectorBytes, b.Qw);
-            WriteVector(pieceSpan, PhysicsMotionRead.VelocityOffset, b.Vx, b.Vy, b.Vz);
-            WriteVector(pieceSpan, PhysicsMotionRead.AngularVelocityOffset, b.Wx, b.Wy, b.Wz);
-            WriteVector(pieceSpan, PhysicsMotionRead.GravityOffset, b.Gx, b.Gy, b.Gz);
+            var centre = b.Cm0 * 16f;
+            var cellX = (int)MathF.Floor(centre.X + .5f);
+            var cellY = (int)MathF.Floor(centre.Y + .5f);
+            var cellZ = (int)MathF.Floor(centre.Z + .5f);
+            BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset, 4), cellX);
+            BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset + sizeof(int), 4), cellY);
+            BinaryPrimitives.WriteInt32LittleEndian(pieceSpan.Slice(PhysicsMotionRead.CellOffset + 2 * sizeof(int), 4), cellZ);
+            WriteVector(pieceSpan, PhysicsMotionRead.CentreRemainderOffset, centre.X - cellX, centre.Y - cellY, centre.Z - cellZ);
+            WriteVector(pieceSpan, PhysicsMotionRead.RotationOffset, b.Q0.X, b.Q0.Y, b.Q0.Z);
+            WriteF32(pieceSpan, PhysicsMotionRead.RotationOffset + PhysicsGpuAbi.VectorBytes, b.Q0.W);
+            WriteVector(pieceSpan, PhysicsMotionRead.VelocityOffset, b.MotionV);
+            WriteVector(pieceSpan, PhysicsMotionRead.AngularVelocityOffset, b.MotionW);
         }
     }
 

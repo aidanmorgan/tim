@@ -49,6 +49,7 @@ public static class WorkshopMessages
         ValidateEnergyStoreOwners(read, construction);
         ChamberReadValidation.ValidateOwners(read, construction);
         GasReadValidation.ValidateOwners(read, construction);
+        ValidateAirflowOwners(read, construction);
         ValidateRopeOwners(read, construction);
         for(var i=0;i<read.Captures.Count;i++)
             if(!construction.OwnsCapture(new(read.Captures[i].Sensor,read.Captures[i].Target)))
@@ -63,6 +64,22 @@ public static class WorkshopMessages
 
     }
 
+    private static void ValidateAirflowOwners(WorkshopRead read, ICompiledScene construction)
+    {
+        var declared = construction.Physics.AirflowSources;
+        var expected = read.Epoch.Value == 0 ? 0 : declared.Length;
+        if (read.Airflow.Count != expected) throw new ArgumentException("Airflow population differs from installation.");
+        for (var i = 0; i < expected; i++)
+        {
+            var value = read.Airflow[i];
+            var source = declared[i];
+            if (value.Id != source.Id || value.Owner != source.Owner || value.Input != source.Input.Kind ||
+                value.FlowSpeed != 0 && value.FlowSpeed != source.FlowSpeed ||
+                value.TransferPower > source.MaximumPower)
+                throw new ArgumentException("Airflow identity or rating differs from installation.");
+        }
+    }
+
     private static void ValidateEnergyStoreOwners(WorkshopRead read, ICompiledScene construction)
     {
         var declared = construction.Physics.EnergyStores;
@@ -71,10 +88,11 @@ public static class WorkshopMessages
         for (var i = 0; i < expected; i++)
         {
             var value = read.EnergyStores[i];
-            if (value.Id != declared[i].Id || value.Owner != declared[i].Owner || value.Energy.Value > declared[i].Capacity.Value)
+            if (value.Id != declared[i].Id || value.Owner != declared[i].Owner || value.Balance.CompareTo(declared[i].Capacity.Value) > 0)
                 throw new ArgumentException("Energy store identity or capacity differs from installation.");
-            if (read.PhysicalRevision.IsAdmission && (value.Energy != declared[i].InitialEnergy || value.Supplied.Value != 0f ||
-                value.Released.Value != 0f || value.Dissipated.Value != 0f))
+            if (read.PhysicalRevision.IsAdmission && (value.Balance != new FiniteEnergyBalance(declared[i].InitialEnergy.Value, 0f) || value.Supplied.Value != 0f ||
+                value.Released.Value != 0f || value.Dissipated.Value != 0f || value.Transactions != 0 ||
+                value.CommitSupplied.Value != 0f || value.CommitReleased.Value != 0f || value.CommitDissipated.Value != 0f))
                 throw new ArgumentException("Admission changed authored energy store state.");
         }
     }
@@ -214,7 +232,7 @@ public static class WorkshopMessages
     }
 
     private static bool HasPhysicalState(WorkshopRead read) =>
-        read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || !read.PhysicalRevision.IsAdmission || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.EnergyStores.Count != 0 || read.ChamberRegions.Count != 0 || read.FiniteWorkActuators.Count != 0 || read.GasStores.Count != 0 || read.IntegrityObservers.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0;
+        read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || !read.PhysicalRevision.IsAdmission || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.EnergyStores.Count != 0 || read.ChamberRegions.Count != 0 || read.FiniteWorkActuators.Count != 0 || read.Airflow.Count != 0 || read.GasStores.Count != 0 || read.IntegrityObservers.Count != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0;
 
     private static bool HasPresentationState(WorkshopRead read) =>
         read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0 || read.Presentation.Ropes.Length != 0 || read.Presentation.Transmissions.Length != 0 || read.Presentation.Retentions.Length != 0;

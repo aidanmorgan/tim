@@ -29,7 +29,9 @@ public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArr
     ImmutableDictionary<LocalChamberRegionId, ChamberRegionId> ChamberRegions,
     ImmutableDictionary<LocalFiniteWorkActuatorId, FiniteWorkActuatorId> FiniteWorkActuators,
     ImmutableDictionary<LocalGasStoreId, GasStoreId> GasStores,
-    ImmutableDictionary<LocalIntegrityObservationId, IntegrityObservationId> IntegrityObservers);
+    ImmutableDictionary<LocalIntegrityObservationId, IntegrityObservationId> IntegrityObservers,
+    ImmutableDictionary<LocalAirflowSourceId, AirflowSourceId> AirflowSources,
+    ImmutableDictionary<LocalAirflowReceiverId, AirflowReceiverId> AirflowReceivers);
 
 /// <summary>One immutable scene-sized allocation shared by every consumer of an authored instance collection.</summary>
 public sealed class CompiledIdentityMap
@@ -174,8 +176,22 @@ public sealed class CompiledIdentityMap
             guides.Add(port.Id, new(nextGuide++));
         var capabilities = AllocateMechanicalCapabilities(entry, Allocate);
         var gas = AllocateGasCapabilities(entry, Allocate);
+        var airflow = AllocateAirflowCapabilities(entry, Allocate);
         return new(material, colliders, sliders, signals, supply, work.ToImmutable(),
-            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable(), capabilities.Transmissions, capabilities.Retentions, capabilities.Stores, capabilities.Regions, capabilities.Actuators, gas.Stores, gas.Observers);
+            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable(), capabilities.Transmissions, capabilities.Retentions, capabilities.Stores, capabilities.Regions, capabilities.Actuators, gas.Stores, gas.Observers, airflow.Sources, airflow.AirflowTargets);
+    }
+
+    private static (ImmutableDictionary<LocalAirflowSourceId, AirflowSourceId> Sources,
+        ImmutableDictionary<LocalAirflowReceiverId, AirflowReceiverId> AirflowTargets)
+        AllocateAirflowCapabilities(CuriousContraptions.Bundle.BundleEntry entry, Func<ulong> allocate)
+    {
+        var sources = ImmutableDictionary.CreateBuilder<LocalAirflowSourceId, AirflowSourceId>();
+        foreach (var source in (entry.Mechanical?.AirflowSources ?? []).OrderBy(s => s.Id.Value))
+            sources.Add(source.Id, new(allocate()));
+        var airflowTargets = ImmutableDictionary.CreateBuilder<LocalAirflowReceiverId, AirflowReceiverId>();
+        foreach (var receiver in (entry.Mechanical?.AirflowReceivers ?? []).OrderBy(r => r.Id.Value))
+            airflowTargets.Add(receiver.Id, new(allocate()));
+        return (sources.ToImmutable(), airflowTargets.ToImmutable());
     }
 
     private static (ImmutableDictionary<LocalGasStoreId, GasStoreId> Stores,

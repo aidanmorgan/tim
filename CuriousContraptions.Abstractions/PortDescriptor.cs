@@ -68,7 +68,8 @@ public readonly record struct PortDescriptor(
     float CoordinatePerRadian = 0f,
     float GuideRadius = 0f,
     Vector3 GuideOffset = default,
-    MechanicalRimDescriptor? MechanicalRim = null);
+    MechanicalRimDescriptor? MechanicalRim = null,
+    [property: System.Text.Json.Serialization.JsonRequired] CuriousContraptions.Gpu.ChoicePredicate? Availability = null);
 
 public enum RopeAttachmentRole : byte { None = 0, Anchor = 1, Load = 2, Guide = 3 }
 

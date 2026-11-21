@@ -176,16 +176,14 @@ public sealed class ComposableSupplyRoutingTests
         Assert.Equal(directScene.EnergyStores[0].Id, directBinding.Storage);
         Assert.Equal(composedScene.EnergyStores[0].Id, composedBinding.Storage);
 
-        float[] balances = [10f];
-        float[] capacities = [32f];
+        float[] requests = [22f];
         Span<float> nextBalancesDirect = stackalloc float[1];
         Span<float> nextBalancesComposed = stackalloc float[1];
 
-        var transferDirect = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 500f, 120f, balances, capacities, nextBalancesDirect);
-        var transferComposed = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 500f, 120f, balances, capacities, nextBalancesComposed);
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1f, requests, nextBalancesDirect);
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1f, requests, nextBalancesComposed);
 
-        Assert.Equal(transferDirect.Remaining, transferComposed.Remaining);
-        Assert.Equal(transferDirect.Debit, transferComposed.Debit);
+        Assert.Equal(1f, nextBalancesDirect[0]);
         Assert.Equal(nextBalancesDirect[0], nextBalancesComposed[0]);
     }
 
@@ -247,11 +245,9 @@ public sealed class ComposableSupplyRoutingTests
         Assert.Equal(scene.Electrical.Sources[0].Id, binding.Source);
         Assert.Equal(scene.EnergyStores[0].Id, binding.Storage);
 
-        Span<float> balances = [10f];
-        Span<float> capacities = [32f];
-        Span<float> nextBalances = stackalloc float[1];
-        var transfer = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 1000f, 120f, balances, capacities, nextBalances);
-        Assert.Equal(transfer.Debit, nextBalances[0] - balances[0]);
+        Span<float> grants = stackalloc float[1];
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1f, [22f], grants);
+        Assert.Equal(1f, grants[0]);
     }
 
     [Fact]
@@ -413,39 +409,19 @@ public sealed class ComposableSupplyRoutingTests
     }
 
     [Fact]
-    public void P1GeneralityValidationAndAggregateCapacityRefusal()
+    public void FiniteRequestsShareOneAllowanceEvenWhenTheirTotalExceedsScalarRange()
     {
-        Span<float> balances = [0f];
-        Span<float> capacities = [25f];
-        Span<float> nextBalances = stackalloc float[1];
-
-        var transferLow = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 30f, 5f, balances, capacities, nextBalances);
-        Assert.True(transferLow.Debit > 0f);
-        Assert.Equal(30f - transferLow.Debit, transferLow.Remaining);
-
-        var transferHigh = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 20000f, 500f, balances, capacities, nextBalances);
-        Assert.True(transferHigh.Debit > 0f);
-        Assert.Equal(20000f - transferHigh.Debit, transferHigh.Remaining);
-
-        balances[0] = 0f;
-        capacities[0] = 50f;
-        var transferLarge = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 1000f, 1200f, balances, capacities, nextBalances);
-        Assert.Equal(10f, transferLarge.Debit);
-        Assert.Equal(10f, nextBalances[0]);
-
-        Span<float> zeroBalances = [0f];
-        Span<float> zeroCapacities = [0f];
-        Span<float> nextZeroBalances = stackalloc float[1];
-        var zeroTransfer = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 100f, 120f, zeroBalances, zeroCapacities, nextZeroBalances);
-        Assert.Equal(0f, zeroTransfer.Debit);
-        Assert.Equal(100f, zeroTransfer.Remaining);
-
-        Assert.Throws<ArgumentException>(() =>
-            ElectricalSupply.ValidateCapacityAggregate([float.MaxValue, float.MaxValue]));
-        Assert.Throws<ArgumentException>(() =>
-            ElectricalSupply.ValidateCapacityAggregate([float.PositiveInfinity]));
-        Assert.Throws<ArgumentException>(() =>
-            ElectricalSupply.ValidateCapacityAggregate([-1f]));
+        float[] grants = new float[2];
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, [float.MaxValue, float.MaxValue], grants);
+        Assert.Equal(grants[0], grants[1]);
+        Assert.InRange(grants[0], .499999f, .5f); // Local finite-grant arithmetic, not scene precision.
+        Assert.True(grants[0] + grants[1] <= 1);
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 10, [50f, 0f], grants);
+        Assert.Equal(10, grants[0]); Assert.Equal(0, grants[1]);
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, [0f, 0f], grants);
+        Assert.All(grants, x => Assert.Equal(0, x));
+        Assert.Throws<ArgumentException>(() => ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, [0f, float.PositiveInfinity], grants));
+        Assert.Throws<ArgumentException>(() => ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, [0f, -1f], grants));
     }
 
     [Fact]

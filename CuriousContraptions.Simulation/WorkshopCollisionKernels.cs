@@ -76,6 +76,8 @@ internal sealed class SimBody
 
     public Vector3 Cm0;
     public Quaternion Q0;
+    // Rates actually integrated over this motion piece, before post-integration contact recovery.
+    public Vector3 MotionV, MotionW;
     // Advance-local integration scratch, reset from committed input for every pooled body.
     public Quaternion TickStartRotation;
     public Quaternion TickRelativeRotation;

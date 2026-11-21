@@ -17,6 +17,7 @@ public sealed class ColliderParticipationTests
         var entry = source with
         {
             Metadata = source.Metadata with { Id = "participating_payload" },
+            Mechanical = source.Mechanical! with { AirflowReceivers = [] },
             Colliders = source.Colliders.Select(c => c with { Participation = participation }).ToArray()
         };
         Assert.Empty(BundleValidator.Validate([new(entry.Metadata.Id, entry)]));
@@ -65,6 +66,7 @@ public sealed class ColliderParticipationTests
         var entry = source with
         {
             Metadata = source.Metadata with { Id = "guided_payload" },
+            Mechanical = source.Mechanical! with { AirflowReceivers = [] },
             Colliders = source.Colliders.Select(c => c with { Participation = participation }).ToArray()
         };
         using var physics = DeclaredPhysics.Scoped([entry]);

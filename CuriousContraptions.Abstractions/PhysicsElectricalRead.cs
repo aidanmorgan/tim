@@ -3,15 +3,16 @@ using System.Collections.Immutable;
 
 namespace CuriousContraptions.Gpu;
 
-public readonly record struct ElectricalSourceRead(ElectricalSourceId Id, GpuBodyId Owner, Joules Remaining,
-    Joules Debit, ElectricalEnable Enabled)
+public readonly record struct ElectricalSourceRead(ElectricalSourceId Id, GpuBodyId Owner, FiniteEnergyBalance Balance,
+    Joules Debit, ElectricalEnable Enabled, uint Transactions)
 {
+    public Joules Remaining => new(Balance.Display);
     public bool Available => Enabled == ElectricalEnable.Enabled && Remaining.Value > 0;
     public void Validate()
     {
         if (Id.Value == 0 || Owner.Value == 0 || !Enum.IsDefined(Enabled))
             throw new ArgumentException("Invalid electrical observation identity.");
-        Remaining.Validate(float.MaxValue);
+        Balance.Validate(float.MaxValue);
         Debit.Validate(float.MaxValue);
     }
 }
@@ -44,7 +45,7 @@ public readonly struct PhysicsElectricalRead
         if (Count != other.Count) return false;
         for (var i = 0; i < Count; i++)
             if (this[i].Id != other[i].Id || this[i].Owner != other[i].Owner || this[i].Enabled != other[i].Enabled ||
-                !this[i].Remaining.HasSameBits(other[i].Remaining) || !this[i].Debit.HasSameBits(other[i].Debit)) return false;
+                this[i].Balance != other[i].Balance || this[i].Transactions != other[i].Transactions || !this[i].Debit.HasSameBits(other[i].Debit)) return false;
         return true;
     }
 }

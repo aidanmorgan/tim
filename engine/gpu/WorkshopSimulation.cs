@@ -488,6 +488,7 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
             if (read.Memory[i].Node != source.Memory[i].Node || read.Memory[i].Kind != source.Memory[i].Kind)
                 throw new ArgumentException("Committed counter or clock memory identity changed.");
         read.ContactWorks.ValidateAdvance(source.ContactWorks);
+        ValidateEnergyTransactionCounts(source, read);
         read.Electrical.ValidateAdvance(source.Electrical);
         read.EnergyStores.ValidateAdvance(source.EnergyStores);
         ChamberReadValidation.ValidateAdvance(read, source);
@@ -506,6 +507,36 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
         }
     }
 
+    private void ValidateEnergyTransactionCounts(WorkshopRead before, WorkshopRead after)
+    {
+        var steps = Profile.Substeps;
+        var first = before.Tick.Value * steps;
+        var last = after.Tick.Value * steps;
+        var phases = (last + 3) / 4 - (first + 3) / 4;
+        var maximumSourceTransactions = (ulong)steps * (uint)Scene.Physics.AirflowSources.Length +
+            phases * (ulong)Scene.Physics.Electrical.Bindings.Length;
+        for (var i = 0; i < after.Electrical.Count; i++)
+            if (after.Electrical[i].Transactions > maximumSourceTransactions)
+                throw new ArgumentException("Source transaction count exceeds installed consumers.");
+        for (var i = 0; i < after.EnergyStores.Count; i++)
+        {
+            var store = after.EnergyStores[i];
+            ulong maximum = (1UL + (uint)Scene.Physics.AirflowSources.Length) * steps;
+            for (var j = 0; j < after.ContactWorks.Count; j++)
+                if (after.ContactWorks[j].Store == store.Id)
+                    maximum += after.ContactWorks[j].OccurrenceCount - before.ContactWorks[j].OccurrenceCount;
+            for (var j = 0; j < after.FiniteWorkActuators.Count; j++)
+            {
+                var next = after.FiniteWorkActuators[j]; var prior = before.FiniteWorkActuators[j];
+                if (next.OccurrenceCount < prior.OccurrenceCount)
+                    throw new ArgumentException("Actuator occurrence count reversed.");
+                if (next.Store == store.Id) maximum += next.OccurrenceCount - prior.OccurrenceCount;
+            }
+            if (store.Transactions > maximum)
+                throw new ArgumentException("Store transaction count exceeds installed consumers.");
+        }
+    }
+
     private static void ValidateInitialPhysicalStores(WorkshopRead read, IPhysicsSceneDeclaration physics)
     {
         if (read.ContactWorks.Count != physics.ContactWorks.Length) throw new ArgumentException("Admission work population changed.");
@@ -521,7 +552,7 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
         {
             var source = physics.Electrical.Sources[i]; var actual = read.Electrical[i];
             if (actual.Id != source.Id || actual.Owner != source.Owner || actual.Enabled != source.Enabled ||
-                !actual.Remaining.HasSameBits(source.InitialEnergy) || actual.Debit.Value != 0)
+                actual.Balance != new FiniteEnergyBalance(source.InitialEnergy.Value, 0f) || actual.Debit.Value != 0 || actual.Transactions != 0)
                 throw new ArgumentException("Admission retained source work.");
         }
         // Admission commits each compiled drive's declared target, in drive-table order, owned by its hinge's base body.

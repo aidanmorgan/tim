@@ -104,7 +104,9 @@ struct CaptureLatchRead {
 struct ElectricalSourceRecord {
     id: uint64;
     owner: uint64;
-    remaining: float;
+    remaining_bulk: float;
+    remaining_remainder: float;
+    transactions: uint;
     debit: float;
     enabled: uint8;
     available: bool;
@@ -323,6 +325,7 @@ table WorkshopResponse {
     finite_work_actuators: [FiniteWorkActuatorReadRecord];
     gas_stores: [GasStoreReadRecord];
     integrity_observers: [IntegrityReadRecord];
+    airflow: [AirflowReadRecord];
     physical_commit: PhysicalCommitRevisionRecord (required);
 }
 
@@ -574,7 +577,12 @@ struct FiniteWorkActuatorDeclarationRecord {
 struct EnergyStoreReadRecord {
     id: ulong;
     owner: ulong;
-    energy: float;
+    bulk: float;
+    remainder: float;
+    commit_supplied: float;
+    commit_released: float;
+    commit_dissipated: float;
+    transactions: uint;
     supplied: float;
     released: float;
     dissipated: float;
@@ -681,6 +689,7 @@ table CapabilitySupplyNodeDeclarationRecord {
     operation: uint = null;
     coordinate_joint: ulong;
     coordinate_endpoint: ubyte = null;
+    continuous_work: [ulong] (required);
 }
 
 table CapabilitySupplyEdgeRecord {
@@ -856,6 +865,7 @@ table CompiledPresentationRecord {
     store: ulong;
     gas_shape: ulong;
     integrity: ulong;
+    airflow: ulong = null;
 }
 
 table RopeSpanReadRecord {
@@ -1031,6 +1041,52 @@ table CompiledSceneRecord {
     inventory_masses: [InventoryMassDeclarationRecord] (required);
     ambient_loads: [AmbientLoadDeclarationRecord] (required);
     integrity_observers: [IntegrityDeclarationRecord] (required);
+    airflow_sources: [AirflowSourceDeclarationRecord] (required);
+    airflow_receivers: [AirflowReceiverDeclarationRecord] (required);
+}
+
+struct AirflowReadRecord {
+    id: ulong;
+    owner: ulong;
+    input: uint;
+    availability: uint;
+    flow_speed: float;
+    power: float;
+    work: float;
+    jet_loss: float;
+    commit_work: float;
+    commit_loss: float;
+}
+
+struct AirflowSampleRecord { x: float; y: float; z: float; weight: float; }
+table AirflowSourceDeclarationRecord {
+    id: ulong;
+    owner: ulong;
+    frame: ulong;
+    origin: Vec3f (required);
+    axis: Vec3f (required);
+    reach: float;
+    terminal_radius: float;
+    flow_speed: float;
+    maximum_force: float;
+    maximum_power: float;
+    pressure_scale: float;
+    internal_occluders: [ulong] (required);
+    input_kind: ubyte;
+    store: ulong;
+    electrical: ulong;
+    coordinate: ulong;
+    sense: float;
+    connected: bool;
+    enable: ulong;
+    initially_enabled: bool;
+}
+table AirflowReceiverDeclarationRecord {
+    id: ulong;
+    owner: ulong;
+    collider: ulong;
+    sampling: ubyte;
+    samples: [AirflowSampleRecord] (required);
 }
 
 root_type WorkshopResponse;

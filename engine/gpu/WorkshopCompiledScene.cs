@@ -87,6 +87,10 @@ public sealed class WorkshopCompiledScene : ICompiledScene
             throw new ArgumentException("Electrical owner is outside the installed scene.");
         var nodes = Activation.Nodes.ToArray();
         ValidateActivationReferences(owners, nodes);
+        foreach (var source in Physics.AirflowSources)
+            if (!owners.Contains(source.Owner) || source.Enable is { } enable &&
+                !nodes.Any(node => node.Id == enable && node.Owner == source.Owner && node.Kind == ActivationNodeKind.StateLatch))
+                throw new ArgumentException("Airflow enable must resolve to its owner's exact state latch.");
         ValidatePresentation(owners, nodes);
     }
     private void ValidateRunControls(HashSet<GpuBodyId> owners)
@@ -174,6 +178,10 @@ public sealed class WorkshopCompiledScene : ICompiledScene
         foreach (var actuator in Physics.FiniteWorkActuators)
             if (_membership.Root(regions[actuator.Region].Frame) != _membership.Root(stores[actuator.Store].Owner))
                 throw new ArgumentException("Finite-work actuator names a foreign package store.");
+        foreach (var source in Physics.AirflowSources)
+            if (source.Input.Kind == ContinuousWorkInputKind.Store &&
+                _membership.Root(source.Owner) != _membership.Root(stores[source.Input.Store].Owner))
+                throw new ArgumentException("Continuous work names a foreign package store.");
     }
 
     private void ValidateSupplyOwnership()
@@ -238,7 +246,11 @@ public sealed class WorkshopCompiledScene : ICompiledScene
     }
 
     private bool InvalidPhysicalBinding(CompiledPresentationTrack track) =>
-        InvalidGasBinding(track) || InvalidFiniteWorkBinding(track) || InvalidActuatorBinding(track) || InvalidMechanicalObservationBinding(track);
+        InvalidAirflowBinding(track) || InvalidGasBinding(track) || InvalidFiniteWorkBinding(track) || InvalidActuatorBinding(track) || InvalidMechanicalObservationBinding(track);
+
+    private bool InvalidAirflowBinding(CompiledPresentationTrack track) =>
+        (track.Declaration.Driver == PresentationDriver.CommittedFlowSpeed) != (track.Airflow.Value != 0) ||
+        track.Airflow.Value != 0 && !Physics.AirflowSources.ToArray().Any(source => source.Id == track.Airflow && source.Owner == track.Owner);
 
     private bool InvalidGasBinding(CompiledPresentationTrack track)
     {

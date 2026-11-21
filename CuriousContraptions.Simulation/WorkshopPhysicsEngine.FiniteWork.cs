@@ -23,6 +23,7 @@ internal sealed partial class WorkshopPhysicsEngine
         source.CopyTo(candidate);
         var world = candidate.Span;
         var layout = PhysicsGpuAbi.Layout(world);
+        PrepareStoreCommit(world, layout);
         _staticBodies.Clear(); _dynamicBodies.Clear(); _allBodies.Clear();
         ReadBodies(world, layout, (uint)layout.Bodies);
         ReadColliders(world, layout, (uint)layout.Colliders);
@@ -100,8 +101,9 @@ internal sealed partial class WorkshopPhysicsEngine
 
     private FiniteWorkRequestResult ReleaseStoredWork(Span<byte> actuator, Span<byte> chamber, Span<byte> store, uint candidate)
     {
-        var energy = ReadF32(store, PhysicsGpuAbi.EnergyStoreBalanceOffset);
-        if (energy < ReadF32(store, PhysicsGpuAbi.EnergyStoreCapacityOffset)) return FiniteWorkRequestResult.Uncharged;
+        var balance = StoreBalance(store, 0);
+        var energy = balance.Available;
+        if (balance.CompareTo(ReadF32(store, PhysicsGpuAbi.EnergyStoreCapacityOffset)) < 0) return FiniteWorkRequestResult.Uncharged;
         var payload = _allBodies[(int)candidate];
         var frame = _allBodies[(int)ReadU32(chamber, PhysicsGpuAbi.ChamberFrameOffset)];
         var region = ChamberShape(chamber, frame);
@@ -112,8 +114,7 @@ internal sealed partial class WorkshopPhysicsEngine
         if (AxialRate(payload, frame, region.U1) >= speed) return FiniteWorkRequestResult.SpeedLimited;
         var debit = SolvePaidImpulse(payload, frame, region.U1, energy, speed);
         if (!(debit > 0f)) return FiniteWorkRequestResult.NoResponse;
-        WriteF32(store, PhysicsGpuAbi.EnergyStoreBalanceOffset, MathF.Max(0f, energy - debit));
-        WriteF32(store, PhysicsGpuAbi.EnergyStoreReleasedOffset, ReadF32(store, PhysicsGpuAbi.EnergyStoreReleasedOffset) + debit);
+        StorePayment(store, 0, debit);
         WriteF32(actuator, PhysicsGpuAbi.ActuatorDebitOffset, debit);
         WriteU32(actuator, PhysicsGpuAbi.ActuatorCountOffset, checked(ReadU32(actuator, PhysicsGpuAbi.ActuatorCountOffset) + 1u));
         WriteChamber(chamber, ChamberPhase.Departing, ReadU32(chamber, PhysicsGpuAbi.ChamberOccupancyOffset), candidate, candidate);

@@ -47,6 +47,8 @@ public static class BundleSchema
                     GasShapes = mechanical is IGasShapeElement shape ? shape.GasShapes : [],
                     IntegrityObservers = mechanical is IContactIntegrityElement integrity ? integrity.IntegrityObservers : [],
                     AmbientLoads = mechanical is IAmbientLoadElement ambient ? ambient.AmbientLoads : [],
+                    AirflowSources = mechanical is IAirflowSourceElement airflow ? airflow.AirflowSources : [],
+                    AirflowReceivers = mechanical is IAirflowReceiverElement receiver ? receiver.AirflowReceivers : [],
                     FiniteWorkActuators = mechanical is IFiniteWorkActuatorElement actuator ? actuator.FiniteWorkActuators : [] };
 
     /// <summary>The bundle text for these declarations, ordered by ordinal element id.</summary>
@@ -100,7 +102,7 @@ public static class BundleSchema
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<CoordinateKind>), typeof(ExactEnumConverter<CuriousContraptions.Gpu.EnergyExpressionKind>), typeof(ExactEnumConverter<CuriousContraptions.Gpu.SensorParticipation>), typeof(ExactEnumConverter<CuriousContraptions.Gpu.PhysicalRequestTargetKind>),
-        typeof(ExactEnumConverter<RopeAttachmentRole>),
+        typeof(ExactEnumConverter<RopeAttachmentRole>), typeof(ExactEnumConverter<CuriousContraptions.Gpu.AirflowSampling>),
         typeof(ExactEnumConverter<PortRole>), typeof(ExactEnumConverter<SocketGlyph>), typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<CollisionParticipation>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
         typeof(ExactEnumConverter<BoxFace>), typeof(ExactEnumConverter<RevoluteTravel>), typeof(ExactEnumConverter<TargetSelectorKind>),
         typeof(ExactEnumConverter<SupplyTerminal>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTerminal>), typeof(ExactEnumConverter<SignalContactState>),typeof(ExactEnumConverter<TimerCompletionPolicy>),

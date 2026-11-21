@@ -105,6 +105,7 @@ public static partial class WorkshopPhysicsCompiler
             CompileGas();
             ValidatePreparedGasPlacement();
             CompileSensors();
+            CompileAirflow();
             ValidateHollowPlacement();
             var (tensile, ropeGuides, transmissions) = CompileConnections();
             return core.CreatePhysicsScene(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
@@ -115,7 +116,8 @@ public static partial class WorkshopPhysicsCompiler
                 transmissions: transmissions.ToArray(), drivenSurfaces: drivenSurfaces.ToArray(), energyStores: energyStores.ToArray(),
                 chamberRegions: chamberRegions.ToArray(), finiteWorkActuators: finiteWorkActuators.ToArray(),
                 gasStores: gasStores.ToArray(), gasShapes: gasShapes.ToArray(), inventoryMasses: inventoryMasses.ToArray(),
-                ambientLoads: ambientLoads.ToArray(), integrityObservers: integrityObservers.ToArray());
+                ambientLoads: ambientLoads.ToArray(), integrityObservers: integrityObservers.ToArray(),
+                airflowSources: airflowSources.ToArray(), airflowReceivers: airflowReceivers.ToArray());
         }
 
         private void AddGeometry(GpuBodyId owner, GpuMaterialId material, IReadOnlyList<GpuColliderId> colliderIdentities,
@@ -445,6 +447,7 @@ public static partial class WorkshopPhysicsCompiler
                 foreach (var store in DeclaredPhysics.Of(owner.PartId).Mechanical?.EnergyStores ?? [])
                 {
                     var parameters = owner.Parameters.ToBundleValues();
+                    if (store.Selection is { } selection && parameters[selection.Parameter.Value] != selection.Option) continue;
                     energyStores.Add(new(identities[owner.Id].EnergyStores[store.Id], identities.Body(owner.Id, store.Owner),
                         new(store.Capacity.Evaluate(parameters)), new(store.InitialEnergy.Evaluate(parameters)),
                         new(store.MaximumChargePower.Evaluate(parameters))));

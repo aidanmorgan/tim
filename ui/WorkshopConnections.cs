@@ -80,6 +80,7 @@ public partial class Workshop
         }
         foreach (var port in World.Registry.Ports.Of(part.PartId))
         {
+            if (!port.IsAvailable((WorkshopGenericInstance)World.Construction.Instances.Single(p => p.Id == part.AuthoredId))) continue;
             if (port.Direction is not (WorkshopPortDirection.Output or WorkshopPortDirection.Bidirectional)) continue;
             var owner = part.AuthoredId;
             var button = SocketButton(port, () =>
@@ -107,6 +108,7 @@ public partial class Workshop
         var choices = 0;
         foreach (var port in World.Registry.Ports.Of(target.PartId))
         {
+            if (!port.IsAvailable((WorkshopGenericInstance)World.Construction.Instances.Single(p => p.Id == target.AuthoredId))) continue;
             if (port.Direction is not (WorkshopPortDirection.Input or WorkshopPortDirection.Bidirectional) || port.Domain != source.Port.Domain) continue;
             var link = new WorkshopConnection(source.Owner, source.Port.Id, target.AuthoredId, port.Id, port.Domain);
             var button = SocketButton(port, () => ChangeConnection(link, true), source.Port.Presentation.Label + " to ");

@@ -192,7 +192,7 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
             var sourceIndex = -1;
             for (var s = 0; s < sources.Length; s++)
                 if (sources[s].Id == node.Source && sources[s].Owner == node.Owner) sourceIndex = s;
-            if (sourceIndex < 0 || (!node.Consumers.IsDefaultOrEmpty || !node.Storages.IsDefaultOrEmpty))
+            if (sourceIndex < 0 || !node.Consumers.IsDefaultOrEmpty || !node.Storages.IsDefaultOrEmpty || !node.ContinuousWork.IsDefaultOrEmpty)
                 throw new ArgumentException("Electrical source node is not admitted.");
             return (sourceIndex, [], []);
         }
@@ -201,7 +201,7 @@ public sealed class CompiledSupplyGraph : ICompiledSupplyGraph
             if (node.CoordinateContact is { } endpoint &&
                 !prismatics.ToArray().Any(joint => joint.Id == endpoint.Joint))
                 throw new ArgumentException("A coordinate contact names no admitted joint.");
-            if (node.Source != default || !node.Consumers.IsDefaultOrEmpty || !node.Storages.IsDefaultOrEmpty)
+            if (node.Source != default || !node.Consumers.IsDefaultOrEmpty || !node.Storages.IsDefaultOrEmpty || !node.ContinuousWork.IsDefaultOrEmpty)
                 throw new ArgumentException("Electrical contact cannot carry a source or drive consumers.");
             return (-1, [], []);
         }
@@ -417,12 +417,24 @@ public static class TickControlComposition
             }
         return new(values) { DriveTarget = targets };
     }
-    public static PhysicsTickInputs Compose(ICompiledSupplyGraph graph, WorkshopTickControls controls, Func<SupplyNodeId, bool> contactClosed, PhysicsElectricalRead electrical)
+    public static PhysicsTickInputs Compose(ICompiledSupplyGraph graph, WorkshopTickControls controls, Func<SupplyNodeId, bool> contactClosed, PhysicsElectricalRead electrical,
+        ReadOnlySpan<AirflowSourceDeclaration> airflow = default, Func<ActivationNodeId, bool>? latched = null)
     {
         var resolved=graph.Resolve(controls,contactClosed,electrical);
+        var enabled = new bool[airflow.Length];
+        for (var i = 0; i < airflow.Length; i++)
+        {
+            var source = airflow[i];
+            var on = source.InitiallyEnabled;
+            if (source.Enable is { } enable)
+                on |= (latched ?? throw new ArgumentException("Missing airflow latch projection."))(enable);
+            enabled[i] = on && (source.Input.Kind != ContinuousWorkInputKind.Electrical ||
+                resolved.Outputs.IsPowered(source.Input.Electrical));
+        }
         return new(controls.SourceEnable,resolved.Consumers,resolved.Logic)
         {
             StorageRoutes = resolved.StorageRoutes,
+            AirflowEnabled = enabled,
             Cuts = controls.Cuts,
             Guides = controls.Guides,
             DriveTarget = controls.DriveTarget,

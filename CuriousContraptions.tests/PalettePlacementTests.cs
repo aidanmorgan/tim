@@ -1935,6 +1935,64 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     // Story 9A.39 D3: every Choice parameter renders as an option list of its declared names, the Receiver's capture participation too;
     // picking an option applies its index as one Undo, and Cancel changes nothing.
     [Fact]
+    public void FanEditorQualifiesItsSelfContainedSwitchAndRejectsInvalidForce()
+    {
+        var (scene, client) = BenchScene(new PartId("fan"), PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Choices(scene);
+            void Press(string text) => Assert.Single(Descendants<Button>(choices), b => b.Text == text).EmitSignal(Button.SignalName.Pressed);
+            for (var mode = 0; mode < 3; mode++)
+            {
+                Press("Configure");
+                var supply = Assert.Single(Descendants<OptionButton>(choices), x => x.Name == "supply");
+                supply.Select(mode);
+                Press("Apply parameters");
+                Press("Configure");
+                var powered = Assert.Single(Descendants<OptionButton>(choices), x => x.Name == "powered");
+                Assert.Equal(2, powered.ItemCount);
+                Assert.Equal("Self-contained: Off", powered.GetItemText(0));
+                Assert.Equal("Self-contained: On", powered.GetItemText(1));
+                Assert.Equal(mode, Assert.Single(Descendants<OptionButton>(choices), x => x.Name == "supply").Selected);
+                var prior = scene.World.Construction;
+                var force = Assert.Single(Descendants<LineEdit>(choices), x => x.Name == "force");
+                force.Text = "10";
+                Press("Apply parameters");
+                Assert.Equal("Parameters updated.", Status(scene));
+                var before = scene.World.Construction;
+                var edits = client.EditCount;
+                Press("Configure");
+                force = Assert.Single(Descendants<LineEdit>(choices), x => x.Name == "force");
+                force.Text = "-1";
+                Press("Apply parameters");
+                Assert.Equal(before, scene.World.Construction);
+                Assert.Equal(edits, client.EditCount);
+                Assert.Equal("Invalid declared parameter value.", Status(scene));
+                var refusal = Assert.IsType<WorkshopFaultDiagnostic>(scene.Diagnostics.Snapshot().Last());
+                Assert.Equal(WorkshopFaultKind.Rejection, refusal.Kind);
+                Assert.Equal(typeof(WorkshopEditRejectedException).ToString(), refusal.ExceptionType);
+                Assert.Contains("Invalid declared parameter value.", refusal.Detail, StringComparison.Ordinal);
+                Press("Cancel");
+                Assert.Empty(Undo(scene));
+                Assert.Equal(prior.Instances, scene.World.Construction.Instances);
+                Assert.Equal(prior.Connections, scene.World.Construction.Connections);
+                Assert.Empty(Select(scene, Assert.Single(scene.World.Parts)));
+                Press("Configure");
+                Assert.Single(Descendants<LineEdit>(choices), x => x.Name == "force").Text = "11";
+                Press("Apply parameters");
+                Assert.Equal("Parameters updated.", Status(scene));
+                Assert.Equal(11f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances)).Parameters[new("force")]);
+                Assert.Empty(Undo(scene));
+                Assert.Equal(prior.Instances, scene.World.Construction.Instances);
+                Assert.Empty(Select(scene, Assert.Single(scene.World.Parts)));
+            }
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    [Fact]
     public void AChoiceParameterIsPickedFromItsDeclaredOptions()
     {
         var (scene, _) = BenchScene(new PartId("basket"), PlacementAnswer.Applied);

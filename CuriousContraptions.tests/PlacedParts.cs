@@ -13,7 +13,7 @@ internal static class PlacedParts
 {
     public static PhysicsElectricalRead InitialElectrical(IPhysicsSceneDeclaration scene) => new(
         scene.Electrical.Sources.ToArray().Select(source =>
-            new ElectricalSourceRead(source.Id, source.Owner, source.InitialEnergy, default, source.Enabled)).ToArray());
+            new ElectricalSourceRead(source.Id, source.Owner, new(source.InitialEnergy.Value, 0f), default, source.Enabled, 0)).ToArray());
 
     /// <summary>A Battery with its declared store: capacity (J), power limit (W), initial charge (fraction of capacity) and the
     /// enable state as its Choice index. The defaults are the package's (3600 J, 120 W, full, Enabled).</summary>

@@ -6,18 +6,133 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopReadTests
 {
+    [Theory]
+    [InlineData(.1f)]
+    [InlineData(.01f)]
+    public void ManyAcceptedPaymentsValidateDespiteOrdinarySummaryRounding(float payment)
+    {
+        var balance = new FiniteEnergyBalance(14400, 0);
+        float summary = 0;
+        for (var i = 0; i < 1000; i++) { balance = balance.Debit(payment); summary += payment; }
+        var previous = new PhysicsElectricalRead([new(new(1), new(2), new(14400, 0), new(0), ElectricalEnable.Enabled, 0)]);
+        var after = new ElectricalSourceRead(new(1), new(2), balance, new(summary), ElectricalEnable.Enabled, 1000);
+        new PhysicsElectricalRead([after]).ValidateAdvance(previous);
+        // A whole missing joule materially violates payment; this is not a trajectory tolerance.
+        Assert.Throws<ArgumentException>(() => new PhysicsElectricalRead([after with
+        { Balance = new(balance.Bulk + 1, balance.Remainder) }]).ValidateAdvance(previous));
+        PhysicsReadValidation.ValidateElectricalBudget(summary, 1000, new(14400, 0), default,
+            payment == .01f ? 10 : 100.01f, 1);
+        Assert.Throws<ArgumentException>(() => PhysicsReadValidation.ValidateElectricalBudget(
+            summary + 1, 1000, new(14400, 0), default, payment == .01f ? 10 : 100.01f, 1));
+    }
+
+
+    [Fact]
+    public void MixedCreditAndReleaseAreValidatedAsAcceptedTransactions()
+    {
+        var initial = new EnergyStoreRead(new(1), new(2), new(10, 0), new(0), new(0), new(0),
+            new(0), new(0), new(0), 0);
+        var next = initial with { Balance = initial.Balance.Debit(5).Credit(4, 10),
+            Supplied = new(4), Released = new(5), CommitSupplied = new(4), CommitReleased = new(5), Transactions = 2 };
+        new PhysicsEnergyStoreRead([next]).ValidateAdvance(new([initial]));
+        Assert.Throws<ArgumentException>(() => new PhysicsEnergyStoreRead([next with { Balance = new(10, 0) }])
+            .ValidateAdvance(new([initial])));
+    }
+
+    [Fact]
+    public void ObservationEnclosuresCoverFiniteExtremesAndPreserveZeroRefusals()
+    {
+        foreach (var value in new[] { float.Epsilon, float.Epsilon * 16, 1f, float.MaxValue })
+        {
+            var normalized = EnergyReadInterval.Ratio(value, float.MaxValue);
+            var exact = (double)value / float.MaxValue;
+            Assert.True(normalized.Lower <= exact && normalized.Upper >= exact);
+            var error = EnergyReadInterval.Error(value, uint.MaxValue, value);
+            Assert.True(float.IsFinite(error));
+            PhysicsReadValidation.ValidateSummary(0, value, value, 1);
+        }
+        PhysicsReadValidation.ValidateSummary(float.MaxValue, float.MaxValue, float.Epsilon, 1);
+        Assert.Throws<ArgumentException>(() => PhysicsReadValidation.ValidateSummary(0, 1, 1, 0));
+        Assert.Throws<ArgumentException>(() => PhysicsReadValidation.ValidateElectricalBudget(1, 1, default, default, 0, 0));
+        Assert.Throws<ArgumentException>(() => PhysicsReadValidation.ValidateConnectedCredits(0, 1, 1, 1, 1));
+        // Two finite MaxValue credits cannot be funded by one finite MaxValue debit.
+        Assert.Throws<ArgumentException>(() => PhysicsReadValidation.ValidateConnectedCredits(float.MaxValue, 2, float.MaxValue, 2, 2));
+        PhysicsReadValidation.ValidateConnectedCredits(float.MaxValue, 1, float.MaxValue, 1, 1);
+        PhysicsReadValidation.ValidateElectricalBudget(MathF.BitIncrement(1), 1,
+            new(2, 0), new(1, 1f / 8388608f), 0, 0);
+        PhysicsReadValidation.ValidateElectricalBudget(MathF.BitIncrement(1), 1,
+            new(1, 1f / 8388608f), new(2, 0), 0, 0);
+        // A live phase remainder is real entitlement; zero new windows must not drop it.
+        PhysicsReadValidation.ValidateElectricalBudget(.25f, 1, new(1, 0), new(.25f, 0), 0, 0);
+    }
+
     // Story 9A.23 D9: no read is reliable. A commit that credits a store or debits a source carries a balance transfer, which gates only
     // the CCGPU_RETAINED observation line; a hit or an enable edge is an event ring record (Impact, ElectricalPowered), not a read.
+    [Theory]
+    [InlineData(SimulationCadence.Hz60)]
+    [InlineData(SimulationCadence.Hz120)]
+    [InlineData(SimulationCadence.Hz240)]
+    public void IntegratedWorldRotationMovesOffsetBodyOriginAcrossAVisibleClearance(SimulationCadence cadence)
+    {
+        var scene = new LawScene(false);
+        var start = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitX, MathF.PI / 2);
+        var body = scene.Sphere(new(40, 5, 0), .1f, 1f, LawMaterial.Domino,
+            new(1, 0, 0), new(0, 0, 128), 0, 0, rotation: start);
+        scene.DeclareMassFrame(body, System.Numerics.Vector3.One, new(.5f, 0, 0));
+        var world = scene.Admit(cadence);
+        var result = world.Step(1);
+        var layout = PhysicsGpuAbi.Layout(result.World);
+        var bodies = PhysicsGpuAbi.ReadDynamicBodies(result.World);
+        var motion = PhysicsMotionRead.Decode(result.World.AsSpan(layout.MotionOffset, layout.MotionBytes), bodies, new(1));
+        Assert.True(motion.TrySample(body, new(1, -2048), out var pose));
+        const double elapsed = .5 / 480;
+        var angle = 128 * elapsed;
+        var x = (pose.Cell.X + (double)pose.Local.X) / 16;
+        var y = (pose.Cell.Y + (double)pose.Local.Y) / 16;
+        Assert.InRange(x - (40.5 + elapsed - .5 * Math.Cos(angle)), -.001, .001);
+        Assert.InRange(y - (5 - .5 * Math.Sin(angle)), -.001, .001);
+        Assert.True(y < 4.95, "The offset origin must pass the authored 5 cm clearance.");
+        var q = new System.Numerics.Quaternion(pose.Rotation.X, pose.Rotation.Y, pose.Rotation.Z, pose.Rotation.W);
+        var axis = System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, q);
+        Assert.InRange(axis.X - Math.Cos(angle), -.002, .002);
+        Assert.InRange(axis.Y - Math.Sin(angle), -.002, .002);
+        Assert.False(motion.TrySample(body, new(motion.LastOrdinal), out _));
+        // Unsupported record width is refused, with no alternate reader for the former payload.
+        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(new byte[16 + 8 * 160], bodies, new(1)));
+    }
+
+     [Theory]
+    [InlineData(SimulationCadence.Hz60)]
+    [InlineData(SimulationCadence.Hz120)]
+    [InlineData(SimulationCadence.Hz240)]
+    public void ContactIntervalDoesNotApplyTheLaterRestitutionVelocityEarly(SimulationCadence cadence)
+    {
+        var scene = new LawScene();
+        var height = LawScene.BenchY + .1f;
+        var body = scene.Sphere(new(0, height, 0), .1f, 1f, new LawMaterial(1, .1f, 0, 0),
+            new(0, -20, 0), default, 0, 0);
+        var result = scene.Admit(cadence).Step(1);
+        var layout = PhysicsGpuAbi.Layout(result.World);
+        var bodies = PhysicsGpuAbi.ReadDynamicBodies(result.World);
+        var motion = PhysicsMotionRead.Decode(result.World.AsSpan(layout.MotionOffset, layout.MotionBytes), bodies, new(1));
+        Assert.True(result[body].Velocity.Y > 15, "The ordinary contact must produce a substantial elastic rebound.");
+        Assert.True(motion.TrySample(body, new(1, -2048), out var pose));
+        var sampledHeight = (pose.Cell.Y + pose.Local.Y) / 16;
+        // The first interval is integrated while support arrests the incoming sphere; restitution is applied afterward.
+        // A 5 mm contact allowance excludes using the later >15 m/s rebound early (over 15 mm at this midpoint).
+        Assert.InRange(sampledHeight - height, -.005f, .005f);
+        Assert.False(motion.TrySample(body, new(motion.LastOrdinal), out _));
+    }
     [Fact]
     public void OnlyACommitThatMovesEnergyCarriesABalanceTransfer()
     {
         var baseline = new WorkshopRead(new(1), new(1), new(1), default, new(1),
             ContactWorks: new([new(new(2), new(3), 0, new(6))]),
-            Electrical: new([new(new(4), new(5), new(100f), default, ElectricalEnable.Enabled)]));
+            Electrical: new([new(new(4), new(5), new(100f, 0f), default, ElectricalEnable.Enabled, 0)]));
         Assert.False(baseline.CarriesBalanceTransfer());
-        Assert.True((baseline with { Electrical = new([new(new(4), new(5), new(99f), new(1f), ElectricalEnable.Enabled)]) }).CarriesBalanceTransfer());
+        Assert.True((baseline with { Electrical = new([new(new(4), new(5), new(99f, 0f), new(1f), ElectricalEnable.Enabled, 1)]) }).CarriesBalanceTransfer());
         Assert.False((baseline with { ContactWorks = new([new(new(2), new(3), 1, new(6))]) }).CarriesBalanceTransfer()); // a passive hit
-        Assert.False((baseline with { Electrical = new([new(new(4), new(5), new(100f), default, ElectricalEnable.Disabled)]) }).CarriesBalanceTransfer());
+        Assert.False((baseline with { Electrical = new([new(new(4), new(5), new(100f, 0f), default, ElectricalEnable.Disabled, 0)]) }).CarriesBalanceTransfer());
     }
 
     [Theory]
@@ -67,9 +182,9 @@ public sealed class WorkshopReadTests
         var second = WorkshopWireFlatBuffers.DecodeResponse(encoded).Read;
         Assert.True(first.HasSameContent(second));
         WorkshopRead Wire(WorkshopRead changed) => WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(Response(changed))).Read;
-        var drag = (byte[])motion.Clone();
-        F(drag, piece + PhysicsMotionRead.DragRateOffset, .125f);
-        Assert.False(first.HasSameContent(Wire(read with { Motion = PhysicsMotionRead.Decode(drag, Bodies(body), new(1)) })));
+        var velocity = (byte[])motion.Clone();
+        F(velocity, piece + PhysicsMotionRead.VelocityOffset, .125f);
+        Assert.False(first.HasSameContent(Wire(read with { Motion = PhysicsMotionRead.Decode(velocity, Bodies(body), new(1)) })));
         Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), new(1), CaptureLatchPhase.Latched, 2, 0f)]) })));
         Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), new(1), CaptureLatchPhase.Latched, 1, -0f)]) })));
         // A committed surface deflection is read content: the same deflection through the wire is the same read, another deflection or
@@ -98,7 +213,7 @@ public sealed class WorkshopReadTests
             Motion: PhysicsMotionRead.Decode(bytes, bodies, new(1)));
         var same = first with { Motion = PhysicsMotionRead.Decode(bytes, bodies, new(1)) };
         var absent = first with { Motion = null };
-        F(bytes, PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.DragRateOffset, .125f);
+        F(bytes, PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.VelocityOffset, .125f);
         var different = first with { Motion = PhysicsMotionRead.Decode(bytes, bodies, new(1)) };
         Assert.True(first.Equals(first));
         Assert.Equal(first, same);
@@ -112,63 +227,23 @@ public sealed class WorkshopReadTests
     }
 
     [Fact]
-    public void MotionUsesExactProfileRateAndRejectsRetiredTiming()
+    public void IntegratedMotionUsesEachSubstepStartAndTheFixedPhysicalRate()
     {
         var body = new CanonicalBody(new(1), 2, 15, default, default, default);
         var bytes = MotionBytes(body);
-        var piece = PhysicsMotionRead.HeaderBytes;
         for (var i = 0; i < 4; i++)
-            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.VelocityOffset), 1f);
+            F(bytes, PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.VelocityOffset, 8f);
         var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(15));
-        Assert.True(motion.TrySample(body.Id, new(58), out var pose));
-        Assert.Equal(2, pose.Cell.X);
-        // Bounded linear evaluator: division, scale and cell subtraction at magnitude below two cells.
-        var expected = 58.0 / 480 * 16 - 2;
-        var arithmeticAllowance = 4 * Math.ScaleB(1, -24) * 2;
-        Assert.InRange(pose.Local.X - expected, -arithmeticAllowance, arithmeticAllowance);
-        // The piece frequency is the U32 physical rate: every other rate is retired timing.
-        foreach (var invalid in new uint[] { 0, 240, WorkshopCadenceSettings.PhysicalFrequency + 1 })
-        {
-            var changed = (byte[])bytes.Clone(); U32(changed, piece + PhysicsMotionRead.FrequencyOffset, invalid);
-            Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(changed, Bodies(body), new(15)));
-        }
-        // The next interval must use its newly committed primary anchor.
-        U32(bytes, 8, 60); U32(bytes, 12, 64);
-        for (var i = 0; i < 4; i++)
-        { U32(bytes, piece + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.StartOrdinalOffset, (uint)(60 + i));
-          U32(bytes, piece + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.EndOrdinalOffset, (uint)(61 + i)); }
-        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(bytes, Bodies(body with { Tick = 16 }), new(16)));
-    }
-
-    [Fact]
-    public void FreeMotionSampledBetweenTicksFollowsTheDragDecayedTrajectory()
-    {
-        // A free piece carrying drag k and gravity g samples x = v0(1 - e^-kt)/k and y = (g/k)(t - (1 - e^-kt)/k), the exact solution
-        // of the exponential decay the solver applies; the same piece without its drag lane overshoots by the decay it omits.
-        // The pieces keep their primary anchor at ordinal 0, so the sample at ordinal 58 extrapolates t = 58/480 s.
-        var body = new CanonicalBody(new(1), 2, 15, default, default, default);
-        var k = .125f; var g = -9.81f; const float v0 = 8f;
-        byte[] Pieces(float drag)
-        {
-            var bytes = MotionBytes(body);
-            for (var i = 0; i < 4; i++)
-            {
-                var piece = PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes;
-                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.VelocityOffset), v0);
-                F(bytes, piece + PhysicsMotionRead.GravityOffset + 4, g);
-                F(bytes, piece + PhysicsMotionRead.DragRateOffset, drag);
-            }
-            return bytes;
-        }
-        static double Metres(PresentedBody pose, int axis) => axis == 0
-            ? (pose.Cell.X + (double)pose.Local.X) / 16 : (pose.Cell.Y + (double)pose.Local.Y) / 16;
-        var t = 58.0 / WorkshopCadenceSettings.PhysicalFrequency; var rate = (double)k; var gravity = (double)g;
-        var decay = (1 - Math.Exp(-rate * t)) / rate;
-        Assert.True(PhysicsMotionRead.Decode(Pieces(k), Bodies(body), new(15)).TrySample(body.Id, new(58), out var dragged));
-        Assert.InRange(Metres(dragged, 0) - v0 * decay, -1e-4, 1e-4);
-        Assert.InRange(Metres(dragged, 1) - gravity / rate * (t - decay), -1e-4, 1e-4);
-        Assert.True(PhysicsMotionRead.Decode(Pieces(0f), Bodies(body), new(15)).TrySample(body.Id, new(58), out var undamped));
-        Assert.True(Metres(undamped, 0) - Metres(dragged, 0) > 5e-3);
+        Assert.True(motion.TrySample(body.Id, new(58, -2048), out var pose));
+        // Each piece starts at its own committed COM; half a substep at 8 m/s is 1/120 m.
+        Assert.InRange((pose.Cell.X + (double)pose.Local.X) / 16 - 1.0 / 120, -1e-7, 1e-7);
+        Assert.True(motion.TrySample(body.Id, new(58), out var boundary));
+        Assert.Equal(default(CellOrigin), boundary.Cell);
+        Assert.Equal(default(LocalPosition), boundary.Local);
+        Assert.False(motion.TrySample(body.Id, new(60), out _)); // PoseHistory owns the committed endpoint.
+        var gap = (byte[])bytes.Clone();
+        U32(gap, PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.StartOrdinalOffset, 55);
+        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(gap, Bodies(body), new(15)));
     }
 
     [Fact]
@@ -180,7 +255,7 @@ public sealed class WorkshopReadTests
         var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(1));
         for (var i = 0; i < 4; i++) F(bytes, PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.VelocityOffset, 16f);
         var changed = PhysicsMotionRead.Decode(bytes, Bodies(body), new(1));
-        bytes[^1] = 1; // A reused external input cannot change the validated snapshot.
+        bytes[^1] = 1; // Nonzero unused storage is refused; the decoded snapshot retains its own input.
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(bytes, Bodies(body), new(1)));
         var read = MotionRead(body, motion);
         var encoded = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
@@ -207,7 +282,7 @@ public sealed class WorkshopReadTests
                 Assert.Equal(0, pose.Cell.Y); Assert.Equal(0f, pose.Local.Y);
                 Assert.Equal(0, pose.Cell.Z); Assert.Equal(0f, pose.Local.Z);
                 // This codec/interpolation check allows f32 rounding of x=v*t; it is not a scene-drift acceptance bound.
-                Assert.InRange((pose.Cell.X + (double)pose.Local.X) / 16 - 8 * ordinal / 480, -1e-7, 1e-7);
+                Assert.InRange((pose.Cell.X + (double)pose.Local.X) / 16 - 8 * .5 / 480, -1e-7, 1e-7);
                 Assert.True(changed.TrySample(body.Id, new((ulong)(ordinal + .5), -2048), out var faster));
                 Assert.True((faster.Cell.X + (double)faster.Local.X) / 16 > (pose.Cell.X + (double)pose.Local.X) / 16);
             }
@@ -310,19 +385,19 @@ public sealed class WorkshopReadTests
         ContactWorkLedger Ledger(uint count, ContactWorkOccurrence row) =>
             new([new ContactWorkRead(new(9), new(8), count, new(6))], [row]);
         static PhysicsEnergyStoreRead Stores(float remaining, float released, float supplied = 0f) =>
-            new([new(new(6), new(8), new(remaining), new(supplied), new(released), default)]);
+            new([new(new(6), new(8), new(remaining, 0f), new(supplied), new(released), default, new(supplied), new(released), default, released > 0 || supplied > 0 ? 2u : 0u)]);
         var clear = new ContactWorkOccurrence(new(0), default, target, 0, 0, 0f, default, default, ContactWorkEffect.Passive);
         var hit = new ContactWorkOccurrence(new(0), new(3), target, 1, 16, 0f, new(4f), new(12f), ContactWorkEffect.Paid);
         var before = Ledger(0, clear);
         var after = Ledger(1, hit);
         after.ValidateAdvance(before);
-        after.ValidateReleasedWork(before, Stores(20f, 12f), Stores(32f, 0f), default, default);
+        after.ValidateReleasedWork(before, Stores(20f, 12f), Stores(32f, 0f), default, default, []);
         Stores(20f, 12f).ValidateAdvance(Stores(32f, 0f));
         Stores(20.5f, 12f, .5f).ValidateAdvance(Stores(32f, 0f));
         Ledger(1, hit).ValidateAdvance(after);
         Assert.Throws<ArgumentException>(() => Stores(21f, 12f).ValidateAdvance(Stores(32f, 0f)));
         Assert.Throws<ArgumentException>(() => Stores(31f, 0f).ValidateAdvance(Stores(32f, 0f)));
-        Assert.Throws<ArgumentException>(() => after.ValidateReleasedWork(before, Stores(21f, 11f), Stores(32f, 0f), default, default));
+        Assert.Throws<ArgumentException>(() => after.ValidateReleasedWork(before, Stores(21f, 11f), Stores(32f, 0f), default, default, []));
         foreach (var (name, invalid, previous) in new (string, ContactWorkLedger, ContactWorkLedger)[] {
             ("a counted hit has no row", Ledger(2, hit), before),
             ("a hit reversed in time", Ledger(2, hit with { Sequence = 2, EventOrdinal = 10 }), after),
@@ -348,9 +423,7 @@ public sealed class WorkshopReadTests
         for (uint i = 0; i < 4; i++)
         {
             var piece = PhysicsMotionRead.HeaderBytes + checked((int)i) * PhysicsMotionRead.PieceBytes;
-            U32(bytes, piece, (uint)PhysicsMotionKind.FreePolynomial);
             U32(bytes, piece + PhysicsMotionRead.StartOrdinalOffset, start + i); U32(bytes, piece + PhysicsMotionRead.EndOrdinalOffset, start + i + 1);
-            U32(bytes, piece + PhysicsMotionRead.FrequencyOffset, WorkshopCadenceSettings.PhysicalFrequency);
             BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.OwnerOffset), body.Id.Value);
             BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.RotationOffset + PhysicsGpuAbi.RotationWOffset), 1f);
         }

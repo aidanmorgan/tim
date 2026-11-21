@@ -16,22 +16,23 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Refines / extends | Extends [CAT-028 fan](CAT-028-fan.md) ([requirement](../requirements.md#current-cat-028)): CAT-028 is a self-contained activation-controlled fan; EL-209 requires explicit electrical or shaft supply |
 | Related | EL-108 Powered airlift (same field), EL-196 Battery, EL-199 Electric motor (shaft source), CAT-069 Wind chimes and CAT-070 Windmill (receivers) |
 | Roadmap story | [EL-209 delivery slice](../invest/named-elements.md#element-209); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Status | Native implementation and independent review complete; browser qualification and committed-SHA SnapshotApproval/publication pending ([evidence](../../../_bmad-output/implementation-artifacts/spec-12-2-fan.md)). |
 
 ## 2. Declaration
 
-Geometry, field and parameters are sourced from the legacy fan; the supply ports are the EL extension.
+Geometry and parameters retain the sourced art and ranges below; the current field and supply contract follows the [CAT-028 Story 12.2 decisions](CAT-028-fan.md#current-story-122-contract-owner-decisions-1920-november-2026). One catalogue Fan selects Self-contained (default), Electrical or Shaft. This is the current behavior; historical harvest remains evidence.
 
 ### Bodies and shapes
 - **Base (static).** Box full size 0.65 × 0.18 × 1 m at (0, −0.55, 0) (`parts/FanPart.cs@a6c914e:L36-L36`; `AddBox` stores halves).
+- **Hub (dynamic in every mode).** Sphere proxy radius 0.14 m at the local origin, mass 0.15 kg and isotropic inertia 0.001176 kg·m², on the exact continuous +X hinge. Shaft selects its coordinate for paid load; the other modes leave it passive. It remains contact-bearing independently of cosmetic blade rotation.
 - **Art.** Post 0.13 × 0.5 × 0.15 m; housing ring radius 0.56 m, tube 0.07 m; rotor hub sphere 0.14 m; three blades 0.1 × 0.6 × 0.16 m; airflow line from x 0.6 to 1.15 (`parts/FanPart.cs@a6c914e:L37-L48`).
-- **Air field.** A finite cylinder from the fan origin along local +X with length `reach` and diameter `width` (`parts/FanPart.cs@a6c914e:L19-L23`; `engine/AirflowNetwork.cs@a6c914e:L11-L13`).
+- **Air field.** A finite cone from the fan origin along local +X with length `reach` and terminal radius `width` (`parts/FanPart.cs@a6c914e:L19-L23`; `engine/AirflowNetwork.cs@a6c914e:L11-L13`).
 
 ### Mass and material
-Static, no mass. Base material: the legacy default static surface (restitution 1, threshold 0.1 m/s, friction 0.3) as recorded for delivered static parts (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L110`).
+Only the housing/base is static with no dynamic mass. Hub mass/inertia/proxy are explicit above; hub material is restitution 0, threshold 0.1 m/s, friction 0.3 and rolling resistance 0. Base material: the legacy default static surface (restitution 1, threshold 0.1 m/s, friction 0.3) as recorded for delivered static parts (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L110`).
 
 ### Constraints and joints
-None.
+Shaft supply uses an explicitly referenced continuous revolute input coordinate with finite inertia and reaction load; its art follows that coordinate. Its coincident hub frames have zero initial angle/rate, no drive and zero bearing friction; input selection does not remove its physical mass/contact in the other modes. No element-specific solver or assigned rotor velocity is permitted.
 
 ### Typed ports
 | Socket | Domain | Direction | Variant | Source |
@@ -39,14 +40,17 @@ None.
 | `PowerIn` | Electrical | Input | Electrical | **proposed** placement on the base; identity `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L9` |
 | `DriveIn` | Mechanical | Input, −1 per radian on the rotor | Shaft | **proposed**; relay convention `parts/ConveyorPart.cs@a6c914e:L64-L71` |
 
+### Internal airflow occlusion
+Declare exact same-instance typed collider references for the base and hub as source-internal exclusions. Do not exclude the owner or every collider on either body. A non-exempt same-owner solid and an external Wall block the field; malformed or foreign exclusions refuse atomically. Source and read-only observation queries use the same resolved set. This keeps the real hub from self-blocking the centered Tennis samples while retaining its physical contact/load role.
+
 ### Sensors and activation
 None in EL-209: supply alone enables emission (CAT-028's activation-controlled start is its own catalogue mode).
 
 ### Work and energy stores
 - Emission power is capped at `force` × 12 m/s (reference flow speed) — sourced from the legacy stored flow source (`parts/FanPart.cs@a6c914e:L21-L23`; `engine/AirflowNetwork.cs@a6c914e:L24-L24`); 108 W at the default 9 N.
-- Only work done on a receiver while it is exposed is drawn; exposure and occlusion checks never create or need supply (legacy rows 6 and 7 below).
+- Only accepted source work (receiver/nozzle work plus nonnegative jet dissipation) while a receiver is exposed is drawn; exposure and occlusion checks never create or need supply (legacy rows 6 and 7 below).
 - **Electrical.** Power drawn from the connected supply; depleted or disconnected supply emits nothing.
-- **Shaft.** Emission power equals the shaft power delivered through `DriveIn`, up to the cap — **proposed**: the rotor converts shaft work only; a stopped shaft emits nothing.
+- **Shaft.** Emission power equals the shaft power delivered through `DriveIn`, up to the cap — owner decision, 19 November 2026: ideal conversion, with the paid reaction load on the exact shaft coordinate and no additional conversion loss; a stopped or disconnected shaft emits nothing. Jet dissipation remains. Motor electrical drain remains deferred; this does not prove paid battery-to-shaft conversion.
 - The legacy self-contained 14,400 J store (`parts/FanPart.cs@a6c914e:L12-L16`) is not used by EL-209.
 
 ### Parameters
@@ -55,17 +59,17 @@ None in EL-209: supply alone enables emission (CAT-028's activation-controlled s
 | --- | --- | --- | --- | --- | --- |
 | `force` | f32 | 0–40 | 9 | N | `parts/FanPart.cs@a6c914e:L24-L31`, `parts/catalog/fan.tres@a6c914e:L14-L14` |
 | `reach` | f32 | (0, 12] | 5 | m | same |
-| `width` | f32 | (0, 4] | 0.85 | m | same |
-| `supply` | enum `FanSupply { Electrical, Shaft }` | 2 values | Electrical | — | **proposed**: selects the variant; the legacy `powered` flag is CAT-028's and is not an EL-209 parameter |
+| `width` | f32 | (0, 4] | 0.85 | m terminal cone radius | same |
+| `supply` | enum selection with Self-contained, Electrical, Shaft | 3 values | Self-contained | — | one catalogue selection; `powered` and ActivationIn govern Self-contained only; reject mode changes retaining inactive connections atomically |
 
 ### Cosmetic curves and UI bindings
-Rotor spins one revolution (0 → 2π) per 0.349 s (animation duration τ/18), looping, while emitting, start/stop on activity (`parts/FanPart.cs@a6c914e:L50-L53`); for the Shaft variant the rotor follows the committed shaft pose instead — **proposed**. Rotor artwork may coast but never emits force ([CAT-028 row](../requirements.md#current-cat-028)). UI: parameters through the configuration pattern (`ui/WorkshopConfiguration.cs@a6c914e:L43-L75`). Pick radius 0.75 m (`parts/FanPart.cs@a6c914e:L35-L35`).
+Non-shaft rotor phase integrates committed available flow with scale 18/12 rad per metre, yielding 18 rad/s at 12 m/s, and holds on Pause (`parts/FanPart.cs@a6c914e:L50-L53`); for the Shaft variant the rotor follows the exact committed shaft pose instead. Rotor artwork may coast but never emits force ([CAT-028 row](../requirements.md#current-cat-028)). UI: parameters through the configuration pattern (`ui/WorkshopConfiguration.cs@a6c914e:L43-L75`). Pick radius 0.75 m (`parts/FanPart.cs@a6c914e:L35-L35`).
 
 ### Art
 Housing ring and blades in the Fan colour `#66b8c9` (blades lightened 15%); base `#263d4b`; post `#ccd8dc`; hub `#f4d089`; airflow line `#a9e7e0` (`parts/FanPart.cs@a6c914e:L36-L48`; `parts/catalog/fan.tres@a6c914e:L13-L13`; [DESIGN colour system](../../../DESIGN.md#colour-system)).
 
 ### Catalogue and inventory entry
-Id `fan`, title "Fan", category Power (`parts/catalog/fan.tres@a6c914e:L8-L14`). Whether EL-209 is the same catalogue part with a supply setting or a separate part is open question 1. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `fan`, title "Fan", category Power (`parts/catalog/fan.tres@a6c914e:L8-L14`). EL-209 and CAT-028 are one catalogue part with a supply setting (owner decision, 19 November 2026). Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 - **Electrical supply.** `PowerIn` from a battery. Positive: the field pushes a light ball. Control: no or depleted battery, no force.
@@ -125,7 +129,6 @@ Follow [element-209](../requirements.md#element-209) and [current-cat-028](../re
 - **Save/Load.** Parameters, `supply` and connections round-trip.
 - **Integrations.** Campaign row 2 ("... fan"): first use 11–20, moving/load variants into 41–50, reuse 31–50, 61–80, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); fan → windmill rotor → belt teaching in [todo-190](../requirements.md#todo-190); battery supply (CAT-005) and motor shaft (CAT-042).
 
-## 6. Open questions
+## 6. Resolved decisions
 
-1. Same catalogue part as CAT-028 with a supply setting, or a separate supplied fan? The CAT-028 row says "no battery/shaft input is invented" while Story 12.2 names battery power. Unspecified — owner decision.
-2. Shaft variant conversion (proposed: emission power equals delivered shaft power): owner decision.
+One catalogue Fan with three selectable supply modes and a cone; ideal shaft conversion with paid reaction load; force-rated transfer under global 64 m/s² and 1024 rad/s² bounds, without a separate 16 m/s² transfer cap. Width is terminal radius, sourced static material remains, and 14,400 J is a finite Self-contained budget rather than a timer. Full design and current evidence live in the [native contract](../../../_bmad-output/implementation-artifacts/spec-12-2-fan.md); independent planning passed, while implementation verification and independent Auto review remain in progress.

@@ -31,6 +31,7 @@ internal static class ImpactRules
         ["Cannon"] = new("cannon"),
         ["TennisBall"] = new("tennis"),
         ["Balloon"] = new("balloon"),
+        ["Fan"] = new("fan"),
         ["Clutch"] = new("clutch"),
         ["ReverseTransmission"] = new("reverse_transmission"),
     };

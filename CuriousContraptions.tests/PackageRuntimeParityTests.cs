@@ -220,7 +220,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     {
         _ = godot;
         var hinges = Packages().Where(package => package.Declaration is IHingeElement).ToArray();
-        Assert.Equal(["Clutch", "Conveyor", "ImpactLever", "Motor", "ReverseTransmission", "WoundSpring"], hinges.Select(package => package.Package).Order());
+        Assert.Equal(["Clutch", "Conveyor", "Fan", "ImpactLever", "Motor", "ReverseTransmission", "WoundSpring"], hinges.Select(package => package.Package).Order());
         foreach (var package in hinges)
         {
             var element = (IHingeElement)package.Declaration;
@@ -602,6 +602,14 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("buoyancy", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Lane.Single, 0f, Generic(new("tennis"), "buoyancy"), []),
                 ("drag", ParameterUnit.InverseSecond, ParameterKind.Real, Lane.Single, .04f, Generic(new("tennis"), "drag"), [])
             ],
+            "fan" =>
+            [
+                ("supply", ParameterUnit.None, ParameterKind.Choice, Lane.Single, 0f, Generic(new("fan"), "supply"), ["Self-contained", "Electrical", "Shaft"]),
+                ("powered", ParameterUnit.None, ParameterKind.Choice, Lane.Single, 1f, Generic(new("fan"), "powered"), ["Self-contained: Off", "Self-contained: On"]),
+                ("force", ParameterUnit.Newton, ParameterKind.Real, Lane.Single, 9f, Generic(new("fan"), "force"), []),
+                ("reach", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 5f, Generic(new("fan"), "reach"), []),
+                ("width", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .85f, Generic(new("fan"), "width"), [])
+            ],
             "cannon" =>
             [
                 ("capacity", ParameterUnit.Joule, ParameterKind.Real, Lane.Single, 45f, Generic(new PartId("cannon"), "capacity"), []),
@@ -631,7 +639,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" or "cannon" or "tennis" or "balloon" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" or "cannon" or "tennis" or "balloon" or "fan" =>
             WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),

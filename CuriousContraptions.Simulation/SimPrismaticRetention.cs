@@ -23,6 +23,22 @@ internal sealed class SimPrismaticRetention
     private float _relaxedRate;
     private Vector3 _startCentre;
 
+    internal readonly record struct TrialState(RetentionMode Mode, RetentionPhase Phase, RetentionRequestResult? Result,
+        float Bound, float Potential, float Accepted, float Released, float ContactWork, float GravityWork,
+        float StartPotential, float StartContactWork, float RelaxedRate, Vector3 StartCentre);
+
+    internal TrialState CaptureTrial() => new(Mode, Phase, Result, Bound, Potential, Accepted, Released, ContactWork,
+        GravityWork, _startPotential, _startContactWork, _relaxedRate, _startCentre);
+
+    internal void RestoreTrial(TrialState state)
+    {
+        Mode = state.Mode; Phase = state.Phase; Result = state.Result; Bound = state.Bound;
+        Potential = state.Potential; Accepted = state.Accepted; Released = state.Released;
+        ContactWork = state.ContactWork; GravityWork = state.GravityWork;
+        _startPotential = state.StartPotential; _startContactWork = state.StartContactWork;
+        _relaxedRate = state.RelaxedRate; _startCentre = state.StartCentre;
+    }
+
     public void Request()
     {
         if (Mode == RetentionMode.Releasing) { Result = RetentionRequestResult.AlreadyReleased; return; }

@@ -14,6 +14,45 @@ namespace CuriousContraptions.Tests;
 /// </summary>
 public sealed class WorkshopPhysicsLawRestitutionTests
 {
+    [Theory]
+    [InlineData(true, 1f)]
+    [InlineData(true, 0f)]
+    [InlineData(false, 1f)]
+    public void IncomingContactFundsSupportedReceiverLiftWithoutCreatingEnergy(bool incoming, float restitution)
+    {
+        var scene = new LawScene();
+        var material = new LawMaterial(restitution, .1f, 0f, 0f);
+        var receiver = scene.Sphere(new(0, LawScene.BenchY + .3f, 0), .3f, 1f,
+            material, default, default, 0f, LawScene.Gravity);
+        var projectile = incoming
+            ? scene.Sphere(new(-1, LawScene.BenchY + .1f, 0), .1f, 2f,
+                material, new(3, 0, 0), default, 0f, 0f)
+            : default;
+        var maximumLift = 0f;
+        scene.Admit().Step(180, (_, state) =>
+        {
+            var lifted = state[receiver];
+            var height = lifted.Position.Y - (LawScene.BenchY + .3f);
+            maximumLift = MathF.Max(maximumLift, height);
+            var energy = .5 * Squared(lifted.Velocity) + G * height +
+                .5 * .4 * .3 * .3 * Squared(lifted.Angular);
+            if (incoming)
+            {
+                var moving = state[projectile];
+                energy += Squared(moving.Velocity) + .4 * .1 * .1 * Squared(moving.Angular);
+            }
+            // Projectile starts with 9 J; 0.05 J is a 5 mm receiver-height allowance,
+            // substantially below the required visible lift and independent of solver residuals.
+            Assert.True(energy <= (incoming ? 9 : 0) + .05, $"Contact created energy: {energy} J.");
+        });
+        // The offset hit has upward normal component 1/2. Equal-contact impulse gives
+        // about 1.73 m/s upward at e=1 versus .87 m/s at e=0, hence .15 m versus .038 m rise.
+        if (incoming && restitution == 1)
+            Assert.True(maximumLift > .06f, $"Paid elastic transfer did not clear 6 cm: {maximumLift} m.");
+        else
+            Assert.InRange(maximumLift, 0, incoming ? .06f : .005f);
+    }
+
     private static readonly float BenchY = LawScene.BenchY;
     private static readonly float G = -(float)LawScene.Gravity;
     private const double T = 1.0 / 120;
@@ -386,11 +425,9 @@ public sealed class WorkshopPhysicsLawRestitutionTests
         }
     }
 
-    /// <summary>The lower sphere's initial approach is canceled by declared upward
-    /// gravity before contact solving. A heavy, nonbouncing upper sphere transfers
-    /// motion to it during the solve, so restitution must retain that relaxed energy.
-    /// The first published motion segment records post-restitution velocity before
-    /// the next substep; no private solver state or observer is read.</summary>
+    /// <summary>The restitution energy law must retain energy delivered by an earlier nonbouncing contact,
+    /// even when pre-solve kinetic energy was zero. Exercise the production impulse and restitution channels
+    /// directly: published motion coefficients describe integrated motion, not post-relaxation velocities.</summary>
     [Theory]
     [InlineData(.25f, false)]
     [InlineData(1f, false)]
@@ -398,61 +435,33 @@ public sealed class WorkshopPhysicsLawRestitutionTests
     [InlineData(1f, true)]
     public void ABounceRetainsEnergyTransferredByANonBouncingContactWithoutExceedingIt(float restitution, bool incoming)
     {
-        const float radius = .1f, lowerApproach = .02f, upperApproach = .01f, upperMass = 100f;
-        var scene = new LawScene(bench: false);
-        scene.StaticBox(new(0, 3f, 0), new(1f, .1f, 1f), material: new(1f, .001f, 0f, 0f));
-        var lowerY = 3.1f + radius - .0005f;
-        var lower = scene.Sphere(new(0, lowerY, 0), radius, 1f, new(restitution, .001f, 0f, 0f),
-            new(0, -lowerApproach, 0), default, 0f, 9.6f);
-        var upper = incoming
-            ? scene.Sphere(new(0, lowerY + 2 * radius - .0005f, 0), radius, upperMass, new(0f, .001f, 0f, 0f),
-                new(0, -upperApproach, 0), default, 0f, 0f)
-            : default;
-        var world = scene.Admit(SimulationCadence.Hz240);
-        var end = world.Step(1);
-        // PhysicsMotionRead's owner/start-ordinal/velocity lanes are the published
-        // coefficient ABI. Advance writes each segment after restitution and
-        // velocity settling; this scene has no later contact-work payment.
-        var motion = end.World.AsSpan(PhysicsGpuAbi.Layout(end.World).MotionOffset);
-        var count = (int)BinaryPrimitives.ReadUInt32LittleEndian(motion);
-        var velocities = new Dictionary<GpuBodyId, float>();
-        for (var i = 0; i < count; i++)
+        var lower = new SimBody { Motion = RigidMotionKind.Dynamic, Mass = 1, InvMass = 1,
+            Qw = 1, Principal = Quaternion.Identity, InvI = Vector3.One };
+        var upper = new SimBody { Motion = RigidMotionKind.Dynamic, Mass = 100, InvMass = .01f,
+            Qw = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Vy = -.01f };
+        var floor = new SimBody { Motion = RigidMotionKind.Static, Qw = 1, Principal = Quaternion.Identity };
+        WorkshopCollisionKernels.UpdateDynamicFrame(lower);
+        WorkshopCollisionKernels.UpdateDynamicFrame(upper);
+        if (incoming)
         {
-            var piece = motion.Slice(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes);
-            if (BinaryPrimitives.ReadUInt32LittleEndian(piece[PhysicsMotionRead.StartOrdinalOffset..]) != 0) continue;
-            var owner = new GpuBodyId(BinaryPrimitives.ReadUInt64LittleEndian(piece[PhysicsMotionRead.OwnerOffset..]));
-            var velocity = BinaryPrimitives.ReadSingleLittleEndian(piece[(PhysicsMotionRead.VelocityOffset + sizeof(float))..]);
-            Assert.True(float.IsFinite(velocity));
-            Assert.True(velocities.TryAdd(owner, velocity));
+            // An inelastic central contact equalizes the two rates at -1/101 m/s.
+            // Its independent impulse is relative approach / (1/mLower + 1/mUpper).
+            var transfer = new ContactPoint { A = lower, B = upper, Ny = -1 };
+            WorkshopConstraintSolver.ContactRow(transfer, transfer.Normal).ApplyContact(.01f / 1.01f);
         }
-        Assert.Equal(incoming ? 2 : 1, velocities.Count);
-        // 128 f32 roundings at the declared approach and slop/substep scales,
-        // independent of observed output (m/s).
-        const float allowance = 128f / 16777216f * (.0002f * 480f + lowerApproach + upperApproach);
-        var rebound = velocities[lower];
-        if (!incoming)
-        {
-            Assert.InRange(rebound, -allowance, allowance);
-            return;
-        }
-
-        // Central, frictionless contacts have no torque. The ground contact is
-        // visited before the upper pair; the last zero-bias relax therefore gives
-        // both spheres the same downward speed before the floor's restitution.
-        // q is the inelastic momentum share. During four biased sweeps the lower
-        // speed cannot exceed .012; the pair's recovery target adds at most .012.
-        // Four relax sweeps multiply the upper speed by q four more times.
-        // Both initial .5 mm penetrations remain deep: one substep can recover at
-        // most .025 mm. Thus these independent bounds apply to the relaxed speed.
-        var q4 = Math.Pow(upperMass / (upperMass + 1.0), 4);
-        var minimumRelaxedSpeed = ((upperApproach + .024) * q4 - .024) * q4;
-        var transferred = -velocities[upper];
-        Assert.InRange(transferred, minimumRelaxedSpeed - allowance, upperApproach + allowance);
-        var target = restitution * lowerApproach;
-        var expected = restitution < 1f ? target : transferred;
-        Assert.True(target < minimumRelaxedSpeed || target > upperApproach);
-        Assert.InRange(rebound, expected - allowance, expected + allowance);
-        Assert.True(rebound > .004f, "A genuine transferred-energy rebound must survive the limiter.");
+        var relaxedEnergy = WorkshopConstraintSolver.Kinetic(lower, lower.LinearVelocity, lower.AngularVelocity);
+        var bounce = new ContactPoint { A = lower, B = floor, ColA = new() { Index = 0 }, ColB = new() { Index = 1 }, Ny = 1, RelVel = -.02f,
+            Restitution = restitution, Threshold = .001f, LambdaN = .02f, MaxImpulse = .02f };
+        var manifold = new ContactManifold { Points = [bounce] };
+        WorkshopConstraintSolver.PrepareNormalBlocks(manifold, 1f / 480f, []);
+        WorkshopConstraintSolver.RestitutionPass([manifold], [], 1);
+        var target = restitution * .02f;
+        var expected = incoming ? MathF.Min(target, .01f / 1.01f) : 0;
+        const float arithmeticAllowance = .000001f; // Local impulse/energy-law agreement, not a gameplay trajectory.
+        Assert.InRange(lower.Vy, expected - arithmeticAllowance, expected + arithmeticAllowance);
+        var finalEnergy = WorkshopConstraintSolver.Kinetic(lower, lower.LinearVelocity, lower.AngularVelocity);
+        Assert.InRange(finalEnergy, 0, relaxedEnergy + .00000001f);
+        if (incoming) Assert.True(lower.Vy > .004f, "Paid relaxed energy must survive the restitution limiter.");
     }
 
     /// <summary>A Basketball set down 2 mm above the bench comes to rest within the resting envelope (0.5 mm) and never rises above

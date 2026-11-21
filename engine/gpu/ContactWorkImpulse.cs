@@ -12,7 +12,7 @@ public readonly record struct ContactWorkPayment(float NormalImpulse, float Debi
 /// store), or nothing because it is impossible (a non-finite or negative capacity, or available work that is non-finite,
 /// negative or above the capacity), which the caller must report.</summary>
 public enum ContactWorkStore : byte { Payable, BelowMinimum, Impossible }
-public readonly record struct ContactWorkResponse(float Remaining, float Debit, Vector128<float> Impulse, ContactWorkStore Store);
+public readonly record struct ContactWorkResponse(float Debit, Vector128<float> Impulse, ContactWorkStore Store, bool CloseStore);
 
 /// <summary>
 /// Shared contact-space work law, after ordinary collision response. Inverse effective mass
@@ -31,33 +31,25 @@ public static class ContactWorkImpulse
 
     public static float MinimumPayableWork(float capacity) => capacity * MinimumPayableFraction;
 
-    /// <summary>
-    /// F32 reservoir payment and SIMD projection into the contact normal. The ledger closes exactly
-    /// (<c>Remaining + Debit == availableWork</c>) and the debit is the work the impulse delivers, up to the f32 rounding of
-    /// that work: a target-limited payout debits its delivered work (at most one ULP more, so the store never pays for
-    /// work it did not hold), and a store-limited payout debits the whole store for an impulse authorized from all of it.
-    /// </summary>
+    /// <summary>Chooses actual paid contact work and the sourced minimum/dust disposition.
+    /// The caller alone settles the shared balance; a scalar subtraction never defines delivered work.</summary>
     public static ContactWorkResponse FromStore(float outgoingNormalSpeed, float targetNormalSpeed,
-        float inverseEffectiveMass, float availableWork, float capacity, Vector128<float> normal)
+        float inverseEffectiveMass, FiniteEnergyBalance balance, float capacity, Vector128<float> normal)
     {
-        if (!float.IsFinite(capacity) || capacity < 0 || !float.IsFinite(availableWork) || availableWork < 0 || availableWork > capacity)
-            return new(availableWork, 0, Vector128<float>.Zero, ContactWorkStore.Impossible);
+        try { balance.Validate(capacity); }
+        catch (ArgumentException) { return new(0, Vector128<float>.Zero, ContactWorkStore.Impossible, false); }
         var minimum = MinimumPayableWork(capacity);
-        if (availableWork == 0 || availableWork < minimum) return new(availableWork, 0, Vector128<float>.Zero, ContactWorkStore.BelowMinimum);
-        var unpaid = new ContactWorkResponse(availableWork, 0, Vector128<float>.Zero, ContactWorkStore.Payable);
-        var payment = TowardTarget(outgoingNormalSpeed, targetNormalSpeed, inverseEffectiveMass, availableWork);
+        if (balance.Available == 0 || balance.CompareTo(minimum) < 0)
+            return new(0, Vector128<float>.Zero, ContactWorkStore.BelowMinimum, false);
+        var unpaid = new ContactWorkResponse(0, Vector128<float>.Zero, ContactWorkStore.Payable, false);
+        var payment = TowardTarget(outgoingNormalSpeed, targetNormalSpeed, inverseEffectiveMass, balance.Available);
         if (payment.Debit <= 0) return unpaid;
-        if (payment.Limit == ContactWorkLimit.Target)
-        {
-            var remaining = availableWork - payment.Debit;
-            if (availableWork - remaining < payment.Debit)
-                remaining = MathF.Max(0, MathF.BitDecrement(remaining));
-            if (remaining >= minimum) return new(remaining, availableWork - remaining, normal * payment.NormalImpulse, ContactWorkStore.Payable);
-            // Store-limited: the target would leave less than the minimum payable work, so the payout takes all of it.
-            payment = FromAuthorizedWork(outgoingNormalSpeed, inverseEffectiveMass, availableWork, ContactWorkLimit.Budget);
-            if (payment.Debit <= 0) return unpaid;
-        }
-        return new(0f, availableWork, normal * payment.NormalImpulse, ContactWorkStore.Payable);
+        if (payment.Limit == ContactWorkLimit.Target && balance.Debit(payment.Debit).CompareTo(minimum) >= 0)
+            return new(payment.Debit, normal * payment.NormalImpulse, ContactWorkStore.Payable, false);
+        // The sourced whole-store policy funds a fresh budget-limited impulse, then closes the store.
+        payment = FromAuthorizedWork(outgoingNormalSpeed, inverseEffectiveMass, balance.Available, ContactWorkLimit.Budget);
+        return payment.Debit <= 0 ? unpaid
+            : new(payment.Debit, normal * payment.NormalImpulse, ContactWorkStore.Payable, true);
     }
 
     /// <summary>Spend at most the caller's finite budget, stopping at the declared target speed.</summary>

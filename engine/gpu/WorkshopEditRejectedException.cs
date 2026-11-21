@@ -37,6 +37,8 @@ public enum WorkshopEditRejection : uint
     NonmonotoneFeedback,
     /// <summary>A payload starts inside a solid hollow wall.</summary>
     InitialOverlap,
+    /// <summary>A connection names a port unavailable in the selected Build configuration.</summary>
+    InactivePort,
 }
 
 /// <summary>

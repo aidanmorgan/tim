@@ -60,8 +60,10 @@ public sealed class CoreServices : ICoreServices
         ReadOnlySpan<GasShapeDeclaration> gasShapes = default,
         ReadOnlySpan<InventoryMassDeclaration> inventoryMasses = default,
         ReadOnlySpan<AmbientLoadDeclaration> ambientLoads = default,
-        ReadOnlySpan<ContactIntegrityDeclaration> integrityObservers = default) =>
-        new PhysicsSceneDeclaration(document, nextIdentity, bodies, colliders, materials, sensors, guides, triggers, contactWorks, orientationSensors, electricalSources, electricalBindings, prismatics, supplyNodes, supplyEdges, contactLoadSensors, prismaticDrives, tensileSpans, revolutes, compliantSurfaces, revoluteDrives, ropeGuides, transmissions, drivenSurfaces, energyStores, chamberRegions, finiteWorkActuators, gasStores, gasShapes, inventoryMasses, ambientLoads, integrityObservers);
+        ReadOnlySpan<ContactIntegrityDeclaration> integrityObservers = default,
+        ReadOnlySpan<AirflowSourceDeclaration> airflowSources = default,
+        ReadOnlySpan<AirflowReceiverDeclaration> airflowReceivers = default) =>
+        new PhysicsSceneDeclaration(document, nextIdentity, bodies, colliders, materials, sensors, guides, triggers, contactWorks, orientationSensors, electricalSources, electricalBindings, prismatics, supplyNodes, supplyEdges, contactLoadSensors, prismaticDrives, tensileSpans, revolutes, compliantSurfaces, revoluteDrives, ropeGuides, transmissions, drivenSurfaces, energyStores, chamberRegions, finiteWorkActuators, gasStores, gasShapes, inventoryMasses, ambientLoads, integrityObservers, airflowSources, airflowReceivers);
     public IActivationProgram CreateActivation(ReadOnlySpan<ActivationNodeDeclaration> nodes, ReadOnlySpan<ActivationEdge> edges,
         uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default,
         ReadOnlySpan<CompiledSignalContact> contacts = default) =>

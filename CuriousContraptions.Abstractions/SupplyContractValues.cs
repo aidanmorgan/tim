@@ -45,7 +45,9 @@ public sealed record SupplyConsumerDescriptor(LocalSupplyNodeId Id, IReadOnlyLis
 [JsonDerivedType(typeof(SupplyEnergyStoreTarget), "EnergyStore")]
 [JsonDerivedType(typeof(SupplyDriveTarget), "Drive")]
 [JsonDerivedType(typeof(SupplyTransmissionTarget), "Transmission")]
+[JsonDerivedType(typeof(SupplyContinuousWorkTarget), "ContinuousWork")]
 public abstract record SupplyTarget;
+public sealed record SupplyContinuousWorkTarget(CuriousContraptions.Gpu.LocalAirflowSourceId Source) : SupplyTarget;
 public sealed record SupplyEnergyStoreTarget(CuriousContraptions.Gpu.LocalEnergyStoreId Store) : SupplyTarget;
 public sealed record SupplyDriveTarget(CoordinateReference Coordinate) : SupplyTarget;
 public sealed record SupplyTransmissionTarget(CuriousContraptions.Abstractions.Mechanical.LocalMechanicalTransmissionId Transmission) : SupplyTarget;

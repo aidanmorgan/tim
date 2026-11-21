@@ -7,7 +7,7 @@ using CuriousContraptions.Gpu;
 namespace CuriousContraptions.Elements.TennisBall;
 
 public sealed class TennisBallElementDeclaration : IMechanicalElement, ISceneGeometryElement,
-    IParameterizedGeometryElement, IParameterizedMaterialElement, IAmbientLoadElement
+    IParameterizedGeometryElement, IParameterizedMaterialElement, IAmbientLoadElement, IAirflowReceiverElement
 {
     public ElementMetadata Metadata => new(Id: "tennis", Category: ElementCategory.Motion, DisplayName: "Tennis ball",
         Description: "A lightweight, high-bounce ball with configurable material.", Color: new(184f / 255f, 219f / 255f, 89f / 255f, 1f),
@@ -24,6 +24,10 @@ public sealed class TennisBallElementDeclaration : IMechanicalElement, ISceneGeo
         [new("Visual", PresentationProperty.UniformScale, "radius", 4f, 0f)]);
     public ElementFootprint Footprint => new(1, 1, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports => [];
+    public IReadOnlyList<AirflowReceiverDescriptor> AirflowReceivers =>
+        [new(new(1), new(new(0), new(0)), AirflowSampling.ColliderNormalized,
+            [new(new(0, .5f, 0), .25f), new(new(0, -.5f, 0), .25f),
+             new(new(0, 0, .5f), .25f), new(new(0, 0, -.5f), .25f)])];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(.85f, .3f, 0f, .1f))];
     public IReadOnlyList<ColliderParameterBinding> ColliderBindings =>

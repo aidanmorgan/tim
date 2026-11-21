@@ -143,10 +143,8 @@ public sealed class ActivationTimerTests
             for (uint step=0;step<4;step++)
             {
                 var offset=p+checked((int)step)*PhysicsMotionRead.PieceBytes;
-                U(offset+PhysicsMotionRead.KindOffset,(uint)PhysicsMotionKind.FreePolynomial);
                 U(offset+PhysicsMotionRead.StartOrdinalOffset,checked((uint)(tick-1)*4+step));
-                U(offset+PhysicsMotionRead.EndOrdinalOffset,checked((uint)(tick-1)*4+step+1));U(offset+PhysicsMotionRead.AnchorOrdinalOffset,checked((uint)(tick-1)*4));
-                U(offset+PhysicsMotionRead.FrequencyOffset,WorkshopCadenceSettings.PhysicalFrequency);
+                U(offset+PhysicsMotionRead.EndOrdinalOffset,checked((uint)(tick-1)*4+step+1));
                 BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset+PhysicsMotionRead.RotationOffset+PhysicsGpuAbi.RotationWOffset),1f);
                 BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(offset+PhysicsMotionRead.OwnerOffset),1);
             }

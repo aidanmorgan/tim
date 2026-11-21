@@ -334,33 +334,43 @@ owner():bigint {
   return this.bb!.readUint64(this.bb_pos + 8);
 }
 
-remaining():number {
+remainingBulk():number {
   return this.bb!.readFloat32(this.bb_pos + 16);
 }
 
-debit():number {
+remainingRemainder():number {
   return this.bb!.readFloat32(this.bb_pos + 20);
 }
 
+transactions():number {
+  return this.bb!.readUint32(this.bb_pos + 24);
+}
+
+debit():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
 enabled():number {
-  return this.bb!.readUint8(this.bb_pos + 24);
+  return this.bb!.readUint8(this.bb_pos + 32);
 }
 
 available():boolean {
-  return !!this.bb!.readInt8(this.bb_pos + 25);
+  return !!this.bb!.readInt8(this.bb_pos + 33);
 }
 
 static sizeOf():number {
-  return 32;
+  return 40;
 }
 
-static createElectricalSourceRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, remaining: number, debit: number, enabled: number, available: boolean):flatbuffers.Offset {
-  builder.prep(8, 32);
+static createElectricalSourceRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, remaining_bulk: number, remaining_remainder: number, transactions: number, debit: number, enabled: number, available: boolean):flatbuffers.Offset {
+  builder.prep(8, 40);
   builder.pad(6);
   builder.writeInt8(Number(Boolean(available)));
   builder.writeInt8(enabled);
   builder.writeFloat32(debit);
-  builder.writeFloat32(remaining);
+  builder.writeInt32(transactions);
+  builder.writeFloat32(remaining_remainder);
+  builder.writeFloat32(remaining_bulk);
   builder.writeInt64(BigInt(owner ?? 0));
   builder.writeInt64(BigInt(id ?? 0));
   return builder.offset();
@@ -1399,7 +1409,7 @@ contactWorksLength():number {
 
 electrical(index: number, obj?:ElectricalSourceRecord):ElectricalSourceRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 42);
-  return offset ? (obj || new ElectricalSourceRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+  return offset ? (obj || new ElectricalSourceRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
 }
 
 electricalLength():number {
@@ -1534,7 +1544,7 @@ retentionsLength():number {
 
 energyStores(index: number, obj?:EnergyStoreReadRecord):EnergyStoreReadRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 70);
-  return offset ? (obj || new EnergyStoreReadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+  return offset ? (obj || new EnergyStoreReadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 56, this.bb!) : null;
 }
 
 energyStoresLength():number {
@@ -1582,13 +1592,23 @@ integrityObserversLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-physicalCommit(obj?:PhysicalCommitRevisionRecord):PhysicalCommitRevisionRecord|null {
+airflow(index: number, obj?:AirflowReadRecord):AirflowReadRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 80);
+  return offset ? (obj || new AirflowReadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 48, this.bb!) : null;
+}
+
+airflowLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 80);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+physicalCommit(obj?:PhysicalCommitRevisionRecord):PhysicalCommitRevisionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 82);
   return offset ? (obj || new PhysicalCommitRevisionRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(39);
+  builder.startObject(40);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1704,7 +1724,7 @@ static addElectrical(builder:flatbuffers.Builder, electricalOffset:flatbuffers.O
 }
 
 static startElectricalVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(32, numElems, 8);
+  builder.startVector(40, numElems, 8);
 }
 
 static addActivationMemory(builder:flatbuffers.Builder, activationMemoryOffset:flatbuffers.Offset) {
@@ -1856,7 +1876,7 @@ static addEnergyStores(builder:flatbuffers.Builder, energyStoresOffset:flatbuffe
 }
 
 static startEnergyStoresVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(32, numElems, 8);
+  builder.startVector(56, numElems, 8);
 }
 
 static addChamberRegions(builder:flatbuffers.Builder, chamberRegionsOffset:flatbuffers.Offset) {
@@ -1891,13 +1911,21 @@ static startIntegrityObserversVector(builder:flatbuffers.Builder, numElems:numbe
   builder.startVector(24, numElems, 8);
 }
 
+static addAirflow(builder:flatbuffers.Builder, airflowOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(38, airflowOffset, 0);
+}
+
+static startAirflowVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(48, numElems, 8);
+}
+
 static addPhysicalCommit(builder:flatbuffers.Builder, physicalCommitOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(38, physicalCommitOffset, 0);
+  builder.addFieldStruct(39, physicalCommitOffset, 0);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
-  builder.requiredField(offset, 80) // physical_commit
+  builder.requiredField(offset, 82) // physical_commit
   return offset;
 }
 
@@ -5745,32 +5773,58 @@ owner():bigint {
   return this.bb!.readUint64(this.bb_pos + 8);
 }
 
-energy():number {
+bulk():number {
   return this.bb!.readFloat32(this.bb_pos + 16);
 }
 
-supplied():number {
+remainder():number {
   return this.bb!.readFloat32(this.bb_pos + 20);
 }
 
-released():number {
+commitSupplied():number {
   return this.bb!.readFloat32(this.bb_pos + 24);
 }
 
-dissipated():number {
+commitReleased():number {
   return this.bb!.readFloat32(this.bb_pos + 28);
 }
 
-static sizeOf():number {
-  return 32;
+commitDissipated():number {
+  return this.bb!.readFloat32(this.bb_pos + 32);
 }
 
-static createEnergyStoreReadRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, energy: number, supplied: number, released: number, dissipated: number):flatbuffers.Offset {
-  builder.prep(8, 32);
+transactions():number {
+  return this.bb!.readUint32(this.bb_pos + 36);
+}
+
+supplied():number {
+  return this.bb!.readFloat32(this.bb_pos + 40);
+}
+
+released():number {
+  return this.bb!.readFloat32(this.bb_pos + 44);
+}
+
+dissipated():number {
+  return this.bb!.readFloat32(this.bb_pos + 48);
+}
+
+static sizeOf():number {
+  return 56;
+}
+
+static createEnergyStoreReadRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, bulk: number, remainder: number, commit_supplied: number, commit_released: number, commit_dissipated: number, transactions: number, supplied: number, released: number, dissipated: number):flatbuffers.Offset {
+  builder.prep(8, 56);
+  builder.pad(4);
   builder.writeFloat32(dissipated);
   builder.writeFloat32(released);
   builder.writeFloat32(supplied);
-  builder.writeFloat32(energy);
+  builder.writeInt32(transactions);
+  builder.writeFloat32(commit_dissipated);
+  builder.writeFloat32(commit_released);
+  builder.writeFloat32(commit_supplied);
+  builder.writeFloat32(remainder);
+  builder.writeFloat32(bulk);
   builder.writeInt64(BigInt(owner ?? 0));
   builder.writeInt64(BigInt(id ?? 0));
   return builder.offset();
@@ -6734,8 +6788,18 @@ coordinateEndpoint():number|null {
   return offset ? this.bb!.readUint8(this.bb_pos + offset) : null;
 }
 
+continuousWork(index: number):bigint|null {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
+}
+
+continuousWorkLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(9);
+  builder.startObject(10);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -6798,12 +6862,29 @@ static addCoordinateEndpoint(builder:flatbuffers.Builder, coordinateEndpoint:num
   builder.addFieldInt8(8, coordinateEndpoint, null);
 }
 
+static addContinuousWork(builder:flatbuffers.Builder, continuousWorkOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(9, continuousWorkOffset, 0);
+}
+
+static createContinuousWorkVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
+  builder.startVector(8, data.length, 8);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt64(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startContinuousWorkVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(8, numElems, 8);
+}
+
 static endCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
+  builder.requiredField(offset, 22) // continuous_work
   return offset;
 }
 
-static createCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, storagesOffset:flatbuffers.Offset, owner:bigint, kind:number, source:bigint, consumersOffset:flatbuffers.Offset, operation:number|null, coordinateJoint:bigint, coordinateEndpoint:number|null):flatbuffers.Offset {
+static createCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder, id:bigint, storagesOffset:flatbuffers.Offset, owner:bigint, kind:number, source:bigint, consumersOffset:flatbuffers.Offset, operation:number|null, coordinateJoint:bigint, coordinateEndpoint:number|null, continuousWorkOffset:flatbuffers.Offset):flatbuffers.Offset {
   CapabilitySupplyNodeDeclarationRecord.startCapabilitySupplyNodeDeclarationRecord(builder);
   CapabilitySupplyNodeDeclarationRecord.addId(builder, id);
   CapabilitySupplyNodeDeclarationRecord.addStorages(builder, storagesOffset);
@@ -6816,6 +6897,7 @@ static createCapabilitySupplyNodeDeclarationRecord(builder:flatbuffers.Builder, 
   CapabilitySupplyNodeDeclarationRecord.addCoordinateJoint(builder, coordinateJoint);
   if (coordinateEndpoint !== null)
     CapabilitySupplyNodeDeclarationRecord.addCoordinateEndpoint(builder, coordinateEndpoint);
+  CapabilitySupplyNodeDeclarationRecord.addContinuousWork(builder, continuousWorkOffset);
   return CapabilitySupplyNodeDeclarationRecord.endCapabilitySupplyNodeDeclarationRecord(builder);
 }
 }
@@ -8296,8 +8378,13 @@ integrity():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
+airflow():bigint|null {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : null;
+}
+
 static startCompiledPresentationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(16);
+  builder.startObject(17);
 }
 
 static addSource(builder:flatbuffers.Builder, source:bigint) {
@@ -8362,6 +8449,10 @@ static addGasShape(builder:flatbuffers.Builder, gasShape:bigint) {
 
 static addIntegrity(builder:flatbuffers.Builder, integrity:bigint) {
   builder.addFieldInt64(15, integrity, BigInt('0'));
+}
+
+static addAirflow(builder:flatbuffers.Builder, airflow:bigint) {
+  builder.addFieldInt64(16, airflow, null);
 }
 
 static endCompiledPresentationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -10044,8 +10135,28 @@ integrityObserversLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+airflowSources(index: number, obj?:AirflowSourceDeclarationRecord):AirflowSourceDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 94);
+  return offset ? (obj || new AirflowSourceDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+airflowSourcesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 94);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+airflowReceivers(index: number, obj?:AirflowReceiverDeclarationRecord):AirflowReceiverDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 96);
+  return offset ? (obj || new AirflowReceiverDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+airflowReceiversLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 96);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(45);
+  builder.startObject(47);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -10612,6 +10723,38 @@ static startIntegrityObserversVector(builder:flatbuffers.Builder, numElems:numbe
   builder.startVector(32, numElems, 8);
 }
 
+static addAirflowSources(builder:flatbuffers.Builder, airflowSourcesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(45, airflowSourcesOffset, 0);
+}
+
+static createAirflowSourcesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startAirflowSourcesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addAirflowReceivers(builder:flatbuffers.Builder, airflowReceiversOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(46, airflowReceiversOffset, 0);
+}
+
+static createAirflowReceiversVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startAirflowReceiversVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 8) // settings
@@ -10625,9 +10768,451 @@ static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   builder.requiredField(offset, 88) // inventory_masses
   builder.requiredField(offset, 90) // ambient_loads
   builder.requiredField(offset, 92) // integrity_observers
+  builder.requiredField(offset, 94) // airflow_sources
+  builder.requiredField(offset, 96) // airflow_receivers
   return offset;
 }
 
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class AirflowReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):AirflowReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+owner():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+input():number {
+  return this.bb!.readUint32(this.bb_pos + 16);
+}
+
+availability():number {
+  return this.bb!.readUint32(this.bb_pos + 20);
+}
+
+flowSpeed():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+power():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
+work():number {
+  return this.bb!.readFloat32(this.bb_pos + 32);
+}
+
+jetLoss():number {
+  return this.bb!.readFloat32(this.bb_pos + 36);
+}
+
+commitWork():number {
+  return this.bb!.readFloat32(this.bb_pos + 40);
+}
+
+commitLoss():number {
+  return this.bb!.readFloat32(this.bb_pos + 44);
+}
+
+static sizeOf():number {
+  return 48;
+}
+
+static createAirflowReadRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, input: number, availability: number, flow_speed: number, power: number, work: number, jet_loss: number, commit_work: number, commit_loss: number):flatbuffers.Offset {
+  builder.prep(8, 48);
+  builder.writeFloat32(commit_loss);
+  builder.writeFloat32(commit_work);
+  builder.writeFloat32(jet_loss);
+  builder.writeFloat32(work);
+  builder.writeFloat32(power);
+  builder.writeFloat32(flow_speed);
+  builder.writeInt32(availability);
+  builder.writeInt32(input);
+  builder.writeInt64(BigInt(owner ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class AirflowSampleRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):AirflowSampleRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+x():number {
+  return this.bb!.readFloat32(this.bb_pos);
+}
+
+y():number {
+  return this.bb!.readFloat32(this.bb_pos + 4);
+}
+
+z():number {
+  return this.bb!.readFloat32(this.bb_pos + 8);
+}
+
+weight():number {
+  return this.bb!.readFloat32(this.bb_pos + 12);
+}
+
+static sizeOf():number {
+  return 16;
+}
+
+static createAirflowSampleRecord(builder:flatbuffers.Builder, x: number, y: number, z: number, weight: number):flatbuffers.Offset {
+  builder.prep(4, 16);
+  builder.writeFloat32(weight);
+  builder.writeFloat32(z);
+  builder.writeFloat32(y);
+  builder.writeFloat32(x);
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class AirflowSourceDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):AirflowSourceDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsAirflowSourceDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:AirflowSourceDeclarationRecord):AirflowSourceDeclarationRecord {
+  return (obj || new AirflowSourceDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsAirflowSourceDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:AirflowSourceDeclarationRecord):AirflowSourceDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new AirflowSourceDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+frame():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+origin(obj?:Vec3f):Vec3f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+axis(obj?:Vec3f):Vec3f|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+reach():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+terminalRadius():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+flowSpeed():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maximumForce():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maximumPower():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+pressureScale():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+internalOccluders(index: number):bigint|null {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
+}
+
+internalOccludersLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+inputKind():number {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+store():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+electrical():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+coordinate():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+sense():number {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+connected():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
+enable():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 40);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+initiallyEnabled():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 42);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
+static startAirflowSourceDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(20);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
+static addFrame(builder:flatbuffers.Builder, frame:bigint) {
+  builder.addFieldInt64(2, frame, BigInt('0'));
+}
+
+static addOrigin(builder:flatbuffers.Builder, originOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(3, originOffset, 0);
+}
+
+static addAxis(builder:flatbuffers.Builder, axisOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(4, axisOffset, 0);
+}
+
+static addReach(builder:flatbuffers.Builder, reach:number) {
+  builder.addFieldFloat32(5, reach, 0.0);
+}
+
+static addTerminalRadius(builder:flatbuffers.Builder, terminalRadius:number) {
+  builder.addFieldFloat32(6, terminalRadius, 0.0);
+}
+
+static addFlowSpeed(builder:flatbuffers.Builder, flowSpeed:number) {
+  builder.addFieldFloat32(7, flowSpeed, 0.0);
+}
+
+static addMaximumForce(builder:flatbuffers.Builder, maximumForce:number) {
+  builder.addFieldFloat32(8, maximumForce, 0.0);
+}
+
+static addMaximumPower(builder:flatbuffers.Builder, maximumPower:number) {
+  builder.addFieldFloat32(9, maximumPower, 0.0);
+}
+
+static addPressureScale(builder:flatbuffers.Builder, pressureScale:number) {
+  builder.addFieldFloat32(10, pressureScale, 0.0);
+}
+
+static addInternalOccluders(builder:flatbuffers.Builder, internalOccludersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(11, internalOccludersOffset, 0);
+}
+
+static createInternalOccludersVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
+  builder.startVector(8, data.length, 8);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt64(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startInternalOccludersVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(8, numElems, 8);
+}
+
+static addInputKind(builder:flatbuffers.Builder, inputKind:number) {
+  builder.addFieldInt8(12, inputKind, 0);
+}
+
+static addStore(builder:flatbuffers.Builder, store:bigint) {
+  builder.addFieldInt64(13, store, BigInt('0'));
+}
+
+static addElectrical(builder:flatbuffers.Builder, electrical:bigint) {
+  builder.addFieldInt64(14, electrical, BigInt('0'));
+}
+
+static addCoordinate(builder:flatbuffers.Builder, coordinate:bigint) {
+  builder.addFieldInt64(15, coordinate, BigInt('0'));
+}
+
+static addSense(builder:flatbuffers.Builder, sense:number) {
+  builder.addFieldFloat32(16, sense, 0.0);
+}
+
+static addConnected(builder:flatbuffers.Builder, connected:boolean) {
+  builder.addFieldInt8(17, +connected, +false);
+}
+
+static addEnable(builder:flatbuffers.Builder, enable:bigint) {
+  builder.addFieldInt64(18, enable, BigInt('0'));
+}
+
+static addInitiallyEnabled(builder:flatbuffers.Builder, initiallyEnabled:boolean) {
+  builder.addFieldInt8(19, +initiallyEnabled, +false);
+}
+
+static endAirflowSourceDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 10) // origin
+  builder.requiredField(offset, 12) // axis
+  builder.requiredField(offset, 26) // internal_occluders
+  return offset;
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class AirflowReceiverDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):AirflowReceiverDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsAirflowReceiverDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:AirflowReceiverDeclarationRecord):AirflowReceiverDeclarationRecord {
+  return (obj || new AirflowReceiverDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsAirflowReceiverDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:AirflowReceiverDeclarationRecord):AirflowReceiverDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new AirflowReceiverDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+collider():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+sampling():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+samples(index: number, obj?:AirflowSampleRecord):AirflowSampleRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new AirflowSampleRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 16, this.bb!) : null;
+}
+
+samplesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+static startAirflowReceiverDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(5);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
+static addCollider(builder:flatbuffers.Builder, collider:bigint) {
+  builder.addFieldInt64(2, collider, BigInt('0'));
+}
+
+static addSampling(builder:flatbuffers.Builder, sampling:number) {
+  builder.addFieldInt8(3, sampling, 0);
+}
+
+static addSamples(builder:flatbuffers.Builder, samplesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, samplesOffset, 0);
+}
+
+static startSamplesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(16, numElems, 4);
+}
+
+static endAirflowReceiverDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 12) // samples
+  return offset;
+}
+
+static createAirflowReceiverDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, collider:bigint, sampling:number, samplesOffset:flatbuffers.Offset):flatbuffers.Offset {
+  AirflowReceiverDeclarationRecord.startAirflowReceiverDeclarationRecord(builder);
+  AirflowReceiverDeclarationRecord.addId(builder, id);
+  AirflowReceiverDeclarationRecord.addOwner(builder, owner);
+  AirflowReceiverDeclarationRecord.addCollider(builder, collider);
+  AirflowReceiverDeclarationRecord.addSampling(builder, sampling);
+  AirflowReceiverDeclarationRecord.addSamples(builder, samplesOffset);
+  return AirflowReceiverDeclarationRecord.endAirflowReceiverDeclarationRecord(builder);
+}
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
@@ -11797,6 +12382,16 @@ export function decodeWorkshopResponse(data: Buffer | Uint8Array): WorkshopRespo
 }
 
 /** Resolve an exact compiled reservoir identity; array order is not its identity. */
+export function storedEnergy(store: EnergyStoreReadRecord): number {
+    return Math.fround(store.bulk() + store.remainder());
+}
+
+export function sourceEnergy(source: ElectricalSourceRecord): number;
+export function sourceEnergy(source: ElectricalSourceRecord | null | undefined): number | undefined;
+export function sourceEnergy(source: ElectricalSourceRecord | null | undefined): number | undefined {
+    return source == null ? undefined : Math.fround(source.remainingBulk() + source.remainingRemainder());
+}
+
 export function energyStore(response: WorkshopResponse, id: bigint): EnergyStoreReadRecord {
     for (let i = 0; i < response.energyStoresLength(); i++) {
         const store = response.energyStores(i)!;
@@ -11920,9 +12515,9 @@ export interface MockResponseParams {
     cadence?: bigint;
     projection?: bigint;
     session?: Uint8Array | number[];
-    electrical?: { id?: bigint; owner?: bigint; remaining?: number; debit?: number; enabled?: number; available?: boolean }[];
+    electrical?: { id?: bigint; owner?: bigint; remainingBulk?: number; remainingRemainder?: number; transactions?: number; debit?: number; enabled?: number; available?: boolean }[];
     contactWorks?: { id?: bigint; owner?: bigint; occurrenceCount?: number; store?: bigint }[];
-    energyStores?: { id?: bigint; owner?: bigint; energy?: number; supplied?: number; released?: number; dissipated?: number }[];
+    energyStores?: { id?: bigint; owner?: bigint; bulk?: number; remainder?: number; commitSupplied?: number; commitReleased?: number; commitDissipated?: number; transactions?: number; supplied?: number; released?: number; dissipated?: number }[];
     bodies?: {
         id?: bigint;
         cell?: { x?: number; y?: number; z?: number };
@@ -11961,7 +12556,9 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
                 builder,
                 e.id ?? 1n,
                 e.owner ?? 1n,
-                e.remaining ?? 0,
+                e.remainingBulk ?? 0,
+                e.remainingRemainder ?? 0,
+                e.transactions ?? 0,
                 e.debit ?? 0,
                 e.enabled ?? 1,
                 e.available ?? true
@@ -11990,7 +12587,8 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
         for (let i = params.energyStores.length - 1; i >= 0; i--) {
             const store = params.energyStores[i]!;
             EnergyStoreReadRecord.createEnergyStoreReadRecord(builder, store.id ?? 1n, store.owner ?? 1n,
-                store.energy ?? 0, store.supplied ?? 0, store.released ?? 0, store.dissipated ?? 0);
+                store.bulk ?? 0, store.remainder ?? 0, store.commitSupplied ?? 0, store.commitReleased ?? 0,
+                store.commitDissipated ?? 0, store.transactions ?? 0, store.supplied ?? 0, store.released ?? 0, store.dissipated ?? 0);
         }
         energyStoresOffset = builder.endVector();
     }

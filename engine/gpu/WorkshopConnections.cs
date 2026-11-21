@@ -23,7 +23,11 @@ public readonly record struct WorkshopPort(PortId Id, PortRole Role, SocketPrese
     float GuideRadius = 0f,
     Vector3 GuideOffset = default,
     CoordinateReference? Coordinate = null,
-    float CoordinatePerRadian = 0f, MechanicalRimDescriptor? MechanicalRim = null);
+    float CoordinatePerRadian = 0f, MechanicalRimDescriptor? MechanicalRim = null, ChoicePredicate? Availability = null)
+{
+    public bool IsAvailable(WorkshopGenericInstance instance) =>
+        Availability is not { } selection || instance.Parameters[selection.Parameter] == selection.Option;
+}
 public readonly record struct WorkshopConnection(GpuBodyId Source, PortId Output, GpuBodyId Target,
     PortId Input, WorkshopConnectionDomain Domain, float? RopeLength = null);
 
@@ -68,6 +72,11 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
     {
         ArgumentNullException.ThrowIfNull(instances);
         Validate(id => instances.FirstOrDefault(part => part.Id == id)?.PartId);
+        foreach (var link in _items)
+        {
+            RequireAvailable(instances, link.Source, link.Output);
+            RequireAvailable(instances, link.Target, link.Input);
+        }
         _ = new WorkshopSignalGraph(instances, this);
         _ = WorkshopSupplyCompiler.StorageBindings(WorkshopSupplyCompiler.Compile(supply, instances, this, DeclaredPhysics.Of));
     }
@@ -75,6 +84,15 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
     /// <summary>The connection rules over the parts the construction names: a typed refusal for every inadmissible connection.
     /// The ports are the loaded bundle's declared ports (Story 9A.17). A stored save's pre-validation applies them to its saved
     /// part identities before any instance is constructed.</summary>
+    private static void RequireAvailable(WorkshopInstances instances, GpuBodyId owner, PortId socket)
+    {
+        var instance = (WorkshopGenericInstance)instances.Single(part => part.Id == owner);
+        var port = DeclaredPorts.Current.Of(instance.PartId).ToArray().Single(p => p.Id == socket);
+        if (!port.IsAvailable(instance))
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InactivePort,
+                "Connection names a port inactive in the selected configuration.");
+    }
+
     internal void Validate(Func<GpuBodyId, PartId?> partOf)
     {
         ArgumentNullException.ThrowIfNull(partOf);

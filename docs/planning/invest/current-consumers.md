@@ -268,11 +268,11 @@
 
 **Level(s) unlocked:** placed in cold_start, powered_post, start_and_topple, cold_front, relay_workshop, double_cold_start, cold_signals, cold_bridges; inventory in air_mail, third_dimension, wind_signal, two_deliveries, air_and_belt, wind_and_dominoes, mixed_signals, cross_breezes, spatial_signals, three_deliveries, triple_signal, chain_mail, bounce_mail, depth_telegraph.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-028). **Requirements (Incomplete):** [CAT-028](../requirements.md#current-cat-028). **Legacy removed by Story 7.4:** `parts/FanPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-028-fan.md). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-028). **Requirements:** [CAT-028](../requirements.md#current-cat-028) native Fan implementation and independent review complete; Windmill rotary integration, campaign/browser qualification and committed-SHA SnapshotApproval/publication remain pending. **Legacy removed by Story 7.4:** `parts/FanPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-028-fan.md). **Mode records:** Configuration=Adjustable. The single Fan selects Self-contained, Electrical or Shaft under the [Story 12.2 contract](../../../_bmad-output/implementation-artifacts/spec-12-2-fan.md).
 
-**First visible interaction / minimum collaborators:** Current self-contained Fan pushes Basketball along the jet; a Wall blocks the direct field.
+**First visible interaction / minimum collaborators:** Self-contained Fan pushes Basketball along its cone; Electrical Fan guides Tennis into a Receiver; Shaft selection pays actual coordinate reaction work. A Wall blocks the direct field.
 
-**Distinct controls / next boundary:** No-fan/occlusion/off-axis controls; authored stopped-fan activation is a separate child, not a new external electrical input.
+**Distinct controls / next boundary:** Off/empty/disconnected/missed/occluded controls and Switch cold-start remain distinct. Supply selections are modes of the same element; Windmill rotary integration remains Story 12.3. Native verification and independent implementation acceptance are pending in the native record.
 
 <a id="cat-029-i"></a>
 ### CAT-029-I · flashlight

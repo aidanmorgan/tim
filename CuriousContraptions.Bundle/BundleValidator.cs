@@ -44,6 +44,11 @@ public static class BundleValidator
             for (var i = 0; i < entry.Ports.Count; i++)
             {
                 Port($"Ports[{i}]", entry.Ports[i], entry.Metadata.Parameters, childBodies, entry.Mechanical);
+                if (entry.Ports[i].Availability is { } selection)
+                {
+                    try { _ = ChoiceDomain.Parameter(entry, selection); }
+                    catch (ArgumentException) { OutOfRange($"Ports[{i}].Availability"); }
+                }
                 if (!portsSeen.Add(entry.Ports[i].Id))
                     errors.Add(new(BundleErrorCode.DuplicatePort, $"{source}.Ports[{i}].Id: {entry.Ports[i].Id} is declared more than once"));
             }
@@ -53,6 +58,8 @@ public static class BundleValidator
             catch (ArgumentException) { OutOfRange("MaterialBindings"); }
             try { GasCouplingDomain.Validate(entry); }
             catch (ArgumentException) { OutOfRange("GasCoupling"); }
+            try { AirflowDomain.Validate(entry); }
+            catch (ArgumentException) { OutOfRange("Airflow"); }
             errors.AddRange(DrivenSurfaceValidation.Validate(entry));
             errors.AddRange(ClippedExtrusionValidation.Validate(entry));
             errors.AddRange(MechanicalTransmissionValidation.Validate(entry));
@@ -73,7 +80,8 @@ public static class BundleValidator
             MechanicalPayload? mechanical, ElectricalPayload? electrical, SignalPayload? signal, IReadOnlyList<EventDescriptor> events, int childBodies)
         {
             PresentationSizing(value, parameters);
-            var writers = new HashSet<(string, PresentationProperty)>(4);
+            try { PresentationSelection.Validate(value, parameters); }
+            catch (ArgumentException error) { errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.Presentation.Selection: {error.Message}")); }
             foreach (var binding in value.Bindings)
             {
                 PresentationBindingIdentity(binding, signal);
@@ -81,8 +89,7 @@ public static class BundleValidator
                 PresentationBindingSocket(binding, electrical, ports);
                 PresentationBindingCapabilities(binding, signal, mechanical);
                 PresentationBindingEvents(binding, events);
-                if (!writers.Add((binding.Node, binding.Property)))
-                    errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.Presentation: duplicate property writer"));
+
             }
             PresentationBodies(value, childBodies);
             foreach (var span in value.Spans)
@@ -256,11 +263,22 @@ public static class BundleValidator
                 PresentationBindingRetention(binding, mechanical);
                 PresentationBindingFiniteWork(binding, mechanical);
                 PresentationBindingGas(binding, mechanical);
+                PresentationBindingAirflow(binding, mechanical);
                 var transmissionDriver = binding.Driver is PresentationDriver.CommittedTransmissionClosure or PresentationDriver.CommittedTransmissionPhase;
                 if (transmissionDriver != binding.Transmission.HasValue) OutOfRange("Presentation.Transmission");
                 if (binding.Transmission is { } transmissionId &&
                     (transmissionId.Value == 0 || mechanical?.Transmissions?.Any(item => item.Id == transmissionId) != true))
                     OutOfRange("Presentation.Transmission");
+        }
+
+        private void PresentationBindingAirflow(PresentationBinding binding, MechanicalPayload? mechanical)
+        {
+            if ((binding.Driver == PresentationDriver.CommittedFlowSpeed) != binding.Airflow.HasValue ||
+                binding.Airflow is { } airflow && mechanical?.AirflowSources.Any(value => value.Id == airflow) != true)
+                OutOfRange("Presentation.Airflow");
+            if (binding.Curve == PresentationCurve.IntegratedRate &&
+                (binding.Property != PresentationProperty.LocalRotationZ || binding.Mapping != PresentationValueMapping.Identity))
+                OutOfRange("Presentation.IntegratedRate");
         }
 
         private void PresentationBindingGas(PresentationBinding binding, MechanicalPayload? mechanical)

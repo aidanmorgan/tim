@@ -24,6 +24,8 @@ Clock derivation exchanges, intervals, midpoint, pending and installed correctio
 
 Managed derivation interop uses a32-byte exchange: Before/Master/After I64 at0/8/16, epoch U32 at24, zero U32 at28. A16-byte correction carries I64 at0, outcome U32 at8 (Consistent0, Slewed1, Rederived2), zero U32 at12. Unsupported width/padding/outcomes refuse. Presentation diagnostics are364 bytes: world ordinal U64 at32 and phase F32 at360; the other fields retain their offsets. Current consumers accept this sole layout.
 
+Committed motion uses one 80-byte whole-substep record; its boundaries are integer physical ordinals, not separately authored phase fields or frequency. Fractional `PhysicalTime` queries evaluate linear COM and the world quaternion increment using recorded integrated velocities. The next record owns a shared boundary and committed pose history owns the final endpoint; no later relaxed velocity is extrapolated backward. Committed rate-driven cosmetic intervals retain their own rate and starting phase when several reads arrive before an interior sample; Pause holds, Step admits one new interval and Reset retires those intervals.
+
 ## Exact pulses and bounded missed work
 
 For admitted rate p/q Hz, pulse n has exact master-relative time n*q/p seconds. At integer master elapsed nanoseconds e, the due ordinal is floor(e*p/(1,000,000,000*q)), using checked widened integer products. Its first eligible integer timestamp is ceil(n*1,000,000,000*q/p). Calculate from the original epoch and ordinal, never by repeatedly adding a rounded period. A pulse exactly on its boundary is due; an earlier one is not. Non-divisor schedules such as 144 Hz presentation with 120 Hz simulation require no common rounded period or giant least-common-multiple timer.

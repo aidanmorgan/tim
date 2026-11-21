@@ -7,7 +7,6 @@ namespace CuriousContraptions.Gpu;
 
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, UnsupportedPair, Arithmetic, MotionCapacity }
-public enum PhysicsMotionPhase : uint { Free, Supported }
 public readonly record struct PhysicsCandidateRead(PhysicsBodyReadSet Bodies, PhysicsMotionRead Motion, PhysicalCommitRevision PhysicalRevision);
 
 /// <summary>One bounded generic scene/state ABI. Every record field is a named offset (PhysicsGpuAbi.Header.cs and below), and
@@ -16,6 +15,10 @@ public static partial class PhysicsGpuAbi
 {
     /// <summary>The world header (208 bytes, every table population among its counts).</summary>
     public const int HeaderBytes = 208;
+    public const int AirflowSourceBytes = 144;
+    public const int AirflowReceiverBytes = 32;
+    public const int AirflowSampleBytes = 16;
+    public const int AirflowExclusionBytes = 16;
     public const int BodyBytes = 160;
     // Body: f32 pose32/48, velocities64/76; immutable mass/material lanes start88.
     public const int BodyVelocityOffset = 64;
@@ -147,6 +150,7 @@ public static partial class PhysicsGpuAbi
         AdmitEnergyStores(data, scene);
         AdmitChambers(data, scene);
         AdmitGas(data, scene);
+        AdmitAirflow(data, scene);
         for (var i = 0; i < scene.OrientationSensors.Length; i++)
         {
             var sensor = scene.OrientationSensors[i];
@@ -346,6 +350,7 @@ public static partial class PhysicsGpuAbi
         if (expectedTick.Value != 0 && (R32(candidate, layout.MotionOffset + PhysicsMotionRead.SubstepsOffset) != profile.Substeps ||
             R32(candidate, layout.MotionOffset + PhysicsMotionRead.LastOrdinalOffset) != R32(candidate, HeaderSourceOrdinalOffset)))
             throw new ArgumentException("Motion profile differs from its committed world.");
+        ValidateAirflowCandidate(candidate, source);
         ValidateElectricalCandidate(candidate, source, instantaneous);
         ValidatePrismaticCandidate(candidate, source);
         ValidateTensileCandidate(candidate, source);

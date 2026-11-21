@@ -16,6 +16,7 @@ public sealed class ElectricalSupplyPlan : IElectricalSupplyPlan
         ReadOnlySpan<ElectricalStorageBinding> bindings, ReadOnlySpan<RigidBodyDeclaration> bodies,
         ReadOnlySpan<EnergyStoreDeclaration> storages)
     {
+        foreach (var store in storages) store.Validate();
         for (var i = 0; i < sources.Length; i++)
         {
             var source = sources[i];
@@ -39,23 +40,8 @@ public sealed class ElectricalSupplyPlan : IElectricalSupplyPlan
                 if (bindings[j].Storage == binding.Storage)
                     throw new ArgumentException("A storage input already has an electrical supplier.");
         }
-        ValidateCapacityAggregates(sources, bindings, storages);
         _sources = sources.ToArray();
         _bindings = bindings.ToArray();
     }
 
-    private static void ValidateCapacityAggregates(ReadOnlySpan<ElectricalSourceDeclaration> sources,
-        ReadOnlySpan<ElectricalStorageBinding> bindings, ReadOnlySpan<EnergyStoreDeclaration> storages)
-    {
-        var capacities = new System.Collections.Generic.List<float>();
-        foreach (var source in sources)
-        {
-            capacities.Clear();
-            foreach (var binding in bindings)
-                if (binding.Source == source.Id)
-                    foreach (var storage in storages)
-                        if (storage.Id == binding.Storage) capacities.Add(storage.Capacity.Value);
-            ElectricalSupply.ValidateCapacityAggregate(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(capacities));
-        }
-    }
 }

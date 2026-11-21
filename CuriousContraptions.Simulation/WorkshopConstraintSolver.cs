@@ -414,32 +414,7 @@ internal static class WorkshopConstraintSolver
                 magnitude = MathF.Max(magnitude, MathF.Abs(value));
             }
         }
-        for (var col = 0; col < n; col++)
-        {
-            var pivot = col;
-            for (var row = col + 1; row < n; row++)
-                if (MathF.Abs(a[row * n + col]) > MathF.Abs(a[pivot * n + col])) pivot = row;
-            if (MathF.Abs(a[pivot * n + col]) < (64f / 16777216f) * magnitude) return false;
-            if (pivot != col)
-            {
-                for (var k = 0; k < n; k++)
-                    (a[col * n + k], a[pivot * n + k]) = (a[pivot * n + k], a[col * n + k]);
-                (b[col], b[pivot]) = (b[pivot], b[col]);
-            }
-            for (var row = col + 1; row < n; row++)
-            {
-                var f = a[row * n + col] / a[col * n + col];
-                for (var k = col; k < n; k++) a[row * n + k] -= f * a[col * n + k];
-                b[row] -= f * b[col];
-            }
-        }
-        for (var row = n - 1; row >= 0; row--)
-        {
-            var sum = b[row];
-            for (var k = row + 1; k < n; k++) sum -= a[row * n + k] * x[k];
-            x[row] = sum / a[row * n + row];
-            if (!float.IsFinite(x[row])) return false;
-        }
+        if (!DenseLinearSystem.Solve(a, b, x[..n], (64f / 16777216f) * magnitude)) return false;
         for (var i = 0; i < n; i++) x[i] /= diagonal[i];
         return true;
     }

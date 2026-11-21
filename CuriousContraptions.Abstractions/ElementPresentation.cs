@@ -32,7 +32,8 @@ public enum PresentationDriver : byte
     CommittedRetentionReleased,
     CommittedStoredFraction,
     CommittedFiniteWorkState,
-    CommittedGasRadius
+    CommittedGasRadius,
+    CommittedFlowSpeed
 }
 
 public enum PresentationValueMapping : byte { Identity = 1, SineCyclesToUnit = 2, StateValues = 3, ClampToEndpoints = 4 }
@@ -83,7 +84,7 @@ public readonly record struct PresentationFourStateValues(float State0, float St
     };
 }
 
-public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep, SmoothRiseFall }
+public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep, SmoothRiseFall, IntegratedRate }
 public enum PresentationOverlap : byte { Replace, SaturatingSum, Maximum, HyperbolicTangentSum }
 
 /// <summary>Package body ordinal: zero is the authored root; subsequent ordinals name declared child bodies.</summary>
@@ -106,7 +107,9 @@ public readonly record struct PresentationBinding(
     PresentationFourStateValues? FourStateValues = null, PrismaticPhaseValues? PrismaticValues = null, Mechanical.LocalPrismaticRetentionId? Retention = null, LocalFiniteWorkActuatorId? FiniteWork = null,
     LocalEnergyStoreId? Store = null, PresentationFiniteWorkValues? FiniteWorkValues = null, AnimationPeakPhase? ImpulsePeak = null,
     AnimationImpulseVisibility? ImpulseVisibility = null, AnimationImpulseTiming? ImpulseTiming = null,
-    LocalColliderReference? GasShape = null, LocalIntegrityObservationId? Integrity = null);
+    LocalColliderReference? GasShape = null, LocalIntegrityObservationId? Integrity = null,
+    [property: System.Text.Json.Serialization.JsonRequired] LocalAirflowSourceId? Airflow = null,
+    [property: System.Text.Json.Serialization.JsonRequired] ChoicePredicate? Selection = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(
@@ -149,7 +152,7 @@ public static class PresentationDriverRules
     public static bool Discrete4State(PresentationDriver driver) => driver == PresentationDriver.CommittedTransmissionPhase;
 
     public static bool ContinuousPhysical(PresentationDriver driver) => driver is
-        PresentationDriver.CommittedGasRadius or
+        PresentationDriver.CommittedGasRadius or PresentationDriver.CommittedFlowSpeed or
         PresentationDriver.CommittedWheelAngle or
         PresentationDriver.CommittedRevoluteAngle or
         PresentationDriver.CommittedSurfaceDeflection or
@@ -179,10 +182,12 @@ public static class PresentationDriverRules
 
     /// <summary>Construction/Reset projection: zero scalar input or the declared State0 state.</summary>
     public static float InitialValue(PresentationBinding binding) =>
-        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues, binding.PrismaticValues, binding.FiniteWorkValues);
+        binding.Curve == PresentationCurve.IntegratedRate ? 0f :
+            InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues, binding.PrismaticValues, binding.FiniteWorkValues);
 
     public static float InitialValue(CompiledPresentationBinding binding) =>
-        InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues, binding.PrismaticValues, binding.FiniteWorkValues);
+        binding.Curve == PresentationCurve.IntegratedRate ? 0f :
+            InitialValue(binding.Mapping, binding.From, binding.To, binding.StateValues, binding.FourStateValues, binding.PrismaticValues, binding.FiniteWorkValues);
 
     public static float InitialValue(PresentationValueMapping mapping, float from, float to, PresentationStateValues? stateValues,
         PresentationFourStateValues? fourStateValues, PrismaticPhaseValues? prismaticValues = null, PresentationFiniteWorkValues? finiteWorkValues = null)
@@ -214,6 +219,7 @@ public static class PresentationDriverRules
     });
 
     public static bool ValidPropertyValues(CompiledPresentationBinding d) =>
+        (d.Curve != PresentationCurve.IntegratedRate || d.Property == PresentationProperty.LocalRotationZ && d.Mapping == PresentationValueMapping.Identity) &&
         AdmitsPropertyValue(d.Property, d.From) && AdmitsPropertyValue(d.Property, d.To) &&
         AdmitsStateValues(d.Property, d.From, d.To, d.StateValues) && AdmitsStateValues(d.Property, d.From, d.To, d.FourStateValues) &&
         AdmitsStateValues(d.Property, d.From, d.To, d.PrismaticValues) && AdmitsStateValues(d.Property, d.From, d.To, d.FiniteWorkValues);
@@ -283,7 +289,7 @@ public static class PresentationDriverRules
         if (overlap != PresentationOverlap.Replace) return false;
         if (ContinuousPhysical(driver))
         {
-            return (curve is PresentationCurve.Linear or PresentationCurve.ExponentialFollow) && duration == 0;
+            return (curve is PresentationCurve.Linear or PresentationCurve.ExponentialFollow or PresentationCurve.IntegratedRate) && duration == 0;
         }
         if (Discrete3State(driver) || Discrete4State(driver) || driver is PresentationDriver.CommittedPrismaticPhase or PresentationDriver.CommittedFiniteWorkState)
         {

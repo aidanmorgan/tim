@@ -324,8 +324,7 @@ internal sealed class PassageMotionFixture(PhysicsBodyReadSet previous)
             {
                 var at = PhysicsMotionRead.HeaderBytes + (b * 8 + step) * PhysicsMotionRead.PieceBytes;
                 var ordinal = checked((uint)((tick - 1) * 8 + (ulong)step));
-                U(at, (uint)PhysicsMotionKind.FreePolynomial); U(at + 4, ordinal); U(at + 8, ordinal + 1); U(at + 12, ordinal);
-                U(at + PhysicsMotionRead.FrequencyOffset, 480);
+                U(at + PhysicsMotionRead.StartOrdinalOffset, ordinal); U(at + PhysicsMotionRead.EndOrdinalOffset, ordinal + 1);
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(at + PhysicsMotionRead.OwnerOffset), body.Body.Id.Value);
                 var point = start + (end - start) * (step / 8f);
                 var x = WorkshopInput.Position((float)(point.X)); var y = WorkshopInput.Position((float)(point.Y)); var z = WorkshopInput.Position((float)(point.Z));

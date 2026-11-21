@@ -90,7 +90,8 @@ public static partial class PhysicsGpuAbi
         after.ValidateAdvance(before);
         after.ValidateReleasedWork(before, new PhysicsEnergyStoreRead(ReadEnergyStores(candidate)),
             new PhysicsEnergyStoreRead(ReadEnergyStores(source)),
-            new PhysicsFiniteWorkActuatorRead(ReadFiniteWorkActuators(candidate)), new PhysicsFiniteWorkActuatorRead(ReadFiniteWorkActuators(source)));
+            new PhysicsFiniteWorkActuatorRead(ReadFiniteWorkActuators(candidate)), new PhysicsFiniteWorkActuatorRead(ReadFiniteWorkActuators(source)),
+            expectedTick.Value == R64(source, HeaderTickOffset) ? [] : ReadAirflowStoreDebits(candidate));
         var layout=Layout(source);
         for (var i=0; i<before.Count; i++)
         {

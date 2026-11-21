@@ -7,6 +7,10 @@ namespace CuriousContraptions.Gpu;
 
 public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
 {
+    private readonly AirflowSourceDeclaration[] _airflowSources;
+    public ReadOnlySpan<AirflowSourceDeclaration> AirflowSources => _airflowSources;
+    private readonly AirflowReceiverDeclaration[] _airflowReceivers;
+    public ReadOnlySpan<AirflowReceiverDeclaration> AirflowReceivers => _airflowReceivers;
     private readonly GasStoreDeclaration[] _gasStores;
     public ReadOnlySpan<GasStoreDeclaration> GasStores => _gasStores;
     private readonly GasShapeDeclaration[] _gasShapes;
@@ -132,13 +136,19 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         ReadOnlySpan<GasShapeDeclaration> gasShapes = default,
         ReadOnlySpan<InventoryMassDeclaration> inventoryMasses = default,
         ReadOnlySpan<AmbientLoadDeclaration> ambientLoads = default,
-        ReadOnlySpan<ContactIntegrityDeclaration> integrityObservers = default)
+        ReadOnlySpan<ContactIntegrityDeclaration> integrityObservers = default,
+        ReadOnlySpan<AirflowSourceDeclaration> airflowSources = default,
+        ReadOnlySpan<AirflowReceiverDeclaration> airflowReceivers = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
         var ids = new HashSet<ulong>(64);
         var (bodyMap, dynamicCount, dynamicColliders) = ValidateGeometry(bodies, colliders, materials, nextIdentity, ids);
         GasSceneValidation.Validate(bodies, colliders, gasStores, gasShapes, inventoryMasses, ambientLoads, integrityObservers, nextIdentity, ids);
+        _airflowSources = airflowSources.ToArray();
+        Array.Sort(_airflowSources, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        _airflowReceivers = airflowReceivers.ToArray();
+        Array.Sort(_airflowReceivers, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         _gasStores = gasStores.ToArray();
         Array.Sort(_gasStores, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         _gasShapes = gasShapes.ToArray();
@@ -232,7 +242,10 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         World = new(_bodies.Length, _colliders.Length, _materials.Length, _sensors.Length, dynamicCount, _guides.Length,
             _triggers.Length, _contactWorks.Length, _orientationSensors.Length, Electrical.Sources.Length,
             Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length, _tensileSpans.Length, _revolutes.Length,
-            _compliantSurfaces.Length, _transmissions.Length, _energyStores.Length, _chamberRegions.Length, _finiteWorkActuators.Length, _gasStores.Length, _gasShapes.Length, _inventoryMasses.Length, _ambientLoads.Length, _integrityObservers.Length);
+            _compliantSurfaces.Length, _transmissions.Length, _energyStores.Length, _chamberRegions.Length, _finiteWorkActuators.Length, _gasStores.Length, _gasShapes.Length, _inventoryMasses.Length, _ambientLoads.Length, _integrityObservers.Length,
+            _airflowSources.Length, _airflowReceivers.Length, _airflowReceivers.Sum(receiver => receiver.Samples.Length),
+            _airflowSources.Sum(source => source.InternalOccluders.Length));
+        AirflowSceneValidation.Validate(this, nextIdentity, ids);
         _worldView = World;
         _ = World.ByteLength;
         Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes, _compliantSurfaces, _transmissions, _energyStores, _chamberRegions, _finiteWorkActuators, _gasStores, _integrityObservers);

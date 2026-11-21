@@ -8,6 +8,8 @@ namespace CuriousContraptions.Gpu;
 
 public interface IPhysicsSceneDeclaration
 {
+    ReadOnlySpan<AirflowSourceDeclaration> AirflowSources { get; }
+    ReadOnlySpan<AirflowReceiverDeclaration> AirflowReceivers { get; }
     ReadOnlySpan<GasStoreDeclaration> GasStores { get; }
     ReadOnlySpan<GasShapeDeclaration> GasShapes { get; }
     ReadOnlySpan<InventoryMassDeclaration> InventoryMasses { get; }
@@ -112,6 +114,18 @@ public interface ICompiledMemoryLayout
 
 public interface IPhysicsWorldLayout
 {
+    int AirflowSources { get; }
+    int AirflowReceivers { get; }
+    int AirflowSamples { get; }
+    int AirflowExclusions { get; }
+    int AirflowSourcesOffset { get; }
+    int AirflowReceiversOffset { get; }
+    int AirflowSamplesOffset { get; }
+    int AirflowExclusionsOffset { get; }
+    int AirflowSourceOffset(int slot);
+    int AirflowReceiverOffset(int slot);
+    int AirflowSampleOffset(int slot);
+    int AirflowExclusionOffset(int slot);
     int GasStores { get; }
     int GasStoresOffset { get; }
     int GasStoreOffset(int slot);

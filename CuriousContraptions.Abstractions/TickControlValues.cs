@@ -37,6 +37,7 @@ public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] S
     public PhysicalRequestInput[] PhysicalRequests { get; init; } = [];
     public PrismaticCommandInput[] PrismaticCommands { get; init; } = [];
     public bool[] StorageRoutes { get; init; } = [];
+    public bool[] AirflowEnabled { get; init; } = [];
     public RopeSpanId[] Cuts { get; init; } = [];
     public RopeGuideDeclaration[] Guides { get; init; } = [];
     /// <summary>Every revolute drive's target speed (rad/s) for this step, in drive-table order: exactly one per driven revolute.</summary>

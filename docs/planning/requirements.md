@@ -621,9 +621,11 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-028"></a>
 
-- [ ] **CAT-028 · fan.** Self-contained activation-controlled fan exposes powered, force, reach and width; admitted emission spends a finite source budget shared by all linear/rotary receivers. Actual pose, pressure, opposing jets and transparent solid occlusion matter. Test off/miss/full/partial block, heavy/light load and mixed rotor/body paid branches; no battery/shaft input is invented. Rotor artwork may coast cosmetically but cannot emit force.
+- [ ] **CAT-028 · fan.** Self-contained activation-controlled fan exposes powered, force, reach and width; admitted emission spends a finite source budget shared by all linear/rotary receivers. Actual pose, pressure, opposing jets and transparent solid occlusion matter. Test off/miss/full/partial block, heavy/light load and mixed rotor/body paid branches; Self-contained remains the default, with Electrical and Shaft selectable on the same catalogue Fan (owner, 19 November 2026). The conical field uses width as terminal radius; ideal shaft conversion pays reaction work. Rotor artwork may coast cosmetically but cannot emit force.
 
-  **Configuration / modes:** powered, force, reach, width. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [simulation and element acceptance](#accept-simulation) and this complete entry. **Owner / collaborators:** [CAT-028 D/I/V and fixtures](invest/current-consumers.md#cat-028-i), air capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
+  **Configuration / modes:** Self-contained / Electrical / Shaft supply; powered (Self-contained), force, reach, width. The 14,400 J Self-contained store is a finite budget, not a fixed timer. Force-rated transfer obeys global 64 m/s² and 1024 rad/s² bounds without an extra 16 m/s² cap. **Current acceptance:** [simulation and element acceptance](#accept-simulation) and this complete entry. **Owner / collaborators:** [CAT-028 D/I/V and fixtures](invest/current-consumers.md#cat-028-i), air capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
+
+  **Delivery status (21 November 2026):** Story 12.2 native implementation and independent review complete; [evidence](../../_bmad-output/implementation-artifacts/spec-12-2-fan.md) records 7089/0/0 full proof and final scope PASS. Committed-SHA SnapshotApproval/publication and browser qualification remain pending; rotary receiver integration remains 12.3 and broader campaign qualification remains later. This aggregate checkbox is not closed by native Fan delivery alone.
 
 <a id="current-cat-029"></a>
 
@@ -1075,7 +1077,7 @@ These are current behavior and control criteria under WASM SIMD f32 physics auth
 
 <a id="sequence-task-099"></a>
 
-- [ ] **One airflow geometry/observation path.** Body and rotary loads plus read-only observations use the same typed current-pose airflow fields and owned compound occlusion. Prove rotated/moving frames, partial/blocked exposure, source changes and continuous receiver response with atomic rollback; no duplicated scene sampler decides physical behavior.
+- [ ] **One airflow geometry/observation path.** Body and rotary loads plus read-only observations use the same typed current-pose airflow fields and owned compound occlusion. Prove rotated/moving frames, partial/blocked exposure, source changes and response at accepted physical substeps; invalid edits/installations refuse atomically and Reset restores authored state. No duplicated scene sampler decides physical behavior. Fan body transfer is Story 12.2; rotary receiver integration remains 12.3.
 
 <a id="sequence-task-100"></a>
 
@@ -1103,11 +1105,11 @@ These are current behavior and control criteria under WASM SIMD f32 physics auth
 
 <a id="sequence-task-106"></a>
 
-- [ ] **Current-state airflow force integration.** Airflow body loads use current collider poses, owned state and resampling after shortened accepted intervals. Preserve continuous field boundaries, receiver timing, off-centre force/torque and source/receiver work. Fan parameters remain enums and all changes roll back atomically.
+- [ ] **Current-state airflow force integration.** Airflow body loads use current collider poses, owned state and resampling after shortened accepted intervals. Preserve field entry/exit behavior, causal occurrences, off-centre force/torque and source/receiver work; do not require historical crossing ticks or CPU continuous sweeps. Fan closed selections remain enums and numeric controls remain f32; authored edits/installations refuse atomically and Reset restores authored state.
 
 <a id="sequence-task-107"></a>
 
-- [ ] **Shared airflow geometry and torque.** Typed airflow fields query current compound poses, occlusion and off-centre application points through the GPU geometry owner. Positive, wall-blocked, partial and moving-frame controls must agree with actual body force and torque; no held scene-force path remains.
+- [ ] **Shared airflow geometry and torque.** Typed airflow fields query current compound poses, occlusion and off-centre application points through the production Simulation geometry owner. Positive, wall-blocked, partial and moving-frame controls must agree with actual body force and torque; no held scene-force path remains.
 
 <a id="sequence-task-108"></a>
 
@@ -6066,9 +6068,11 @@ Use the complete [springboard model and parameter contract](../springboard-elast
 
 <a id="sequence-task-762"></a>
 
-- [ ] **EL-209 · Fan.** **Type:** Mechanical. **Scope/evidence source:** [existing record](#campaign-element-coverage). Explicit electrical or shaft supply drives a bounded air field.
+- [ ] **EL-209 · Fan.** **Type:** Mechanical. **Scope/evidence source:** [existing record](#campaign-element-coverage). Electrical or Shaft selection on the single CAT-028 Fan drives its bounded conical air field; Self-contained remains the catalogue default. Shaft conversion is ideal with paid reaction load; Electrical draws exposed accepted source work without a hidden Fan store.
 
 **Successful outcome:** Blocked flow or absent supply prevents remote force. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery status (21 November 2026):** Native implementation and independent review complete under the [Fan record](../../_bmad-output/implementation-artifacts/spec-12-2-fan.md); browser/campaign qualification and exact committed-SHA SnapshotApproval/publication remain pending.
 
 <a id="element-210"></a>
 

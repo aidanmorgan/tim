@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, energyStore, authoredState, decodeSavedConstruction, parameter, contactHits, type BodyRead, type WorkshopResponse, type InstanceRecord } from './workshop-wire.ts';
+import { decodeWorkshopResponse, energyStore, authoredState, decodeSavedConstruction, parameter, contactHits, type BodyRead, type WorkshopResponse, type InstanceRecord , storedEnergy } from './workshop-wire.ts';
 
 
 function bodyState(b: BodyRead) {
@@ -87,7 +87,7 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         // Story 9A.23 D9: the last hit's debit from the owner's stores (the occurrence rows are device-private).
         const hits = contactHits(observations);
         assert.ok(paid.contactWorksLength() >= 1 && hits.length >= 1);
-        const remaining = energyStore(paid, paid.contactWorks(0)!.store()).energy();
+        const remaining = storedEnergy(energyStore(paid, paid.contactWorks(0)!.store()));
         const debit = hits[hits.length - 1].debit;
         const effect = debit > 0 ? 1 : 0;
         const count = paid.contactWorks(0)!.occurrenceCount();
@@ -118,7 +118,7 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         await driver.reset();
         const restored = observations[observations.length - 1];
         assert.deepEqual(bodyState(restored.bodies(0)!), built, 'Reset restores exact placed body state after saved construction reload');
-        assert.equal(energyStore(restored, restored.contactWorks(0)!.store()).energy(), 32);
+        assert.equal(storedEnergy(energyStore(restored, restored.contactWorks(0)!.store())), 32);
         assert.equal(restored.contactWorks(0)!.occurrenceCount(), 0);
         await driver.save();
         assert.deepEqual(authoredState(await savedBytes(driver)), authoredState(construction), 'Reset preserves the full authored construction, including bumper pose and strength');

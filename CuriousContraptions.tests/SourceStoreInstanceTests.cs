@@ -82,8 +82,8 @@ public sealed class SourceStoreInstanceTests
     // ---------- the finite store ----------
 
     // EL-196: each committed tick pays at most the declared power over its 1/120 s phase and never overdraws the previous balance.
-    // Debit is the canonical f32 before-minus-after accounting field, not mechanical energy inferred from a trajectory. Check each
-    // committed transition directly rather than assuming rounded f32 differences telescope exactly in a wider sum. An empty store
+    // Debit is accepted per-commit work; the represented B/R balance retains small payments that display rounding hides.
+    // Check bounded material loss over eight seconds, rather than subtracting rounded display values. An empty store
     // delivers nothing; the heavy ball empties the Bumper's store so the source has demand to meet.
     [Theory]
     [InlineData(3600f, 10f, 1f, 8f)]
@@ -103,15 +103,20 @@ public sealed class SourceStoreInstanceTests
         var reads = await harness.Advance(960);
         // Independently stated 120 Hz accounting contract; no production residual or incidental motion tolerance.
         var limit = power * (1f / 120f);
-        var previousBalance = initial;
+        double previousBalance = initial;
+        double accepted = 0;
         foreach (var read in reads)
         {
             var source = SourceRead(read);
             Assert.InRange(source.Debit.Value, 0f, limit);
             Assert.True(source.Debit.Value <= previousBalance);
-            Assert.InRange(source.Remaining.Value, 0f, previousBalance);
-            Assert.Equal(previousBalance - source.Remaining.Value, source.Debit.Value);
-            previousBalance = source.Remaining.Value;
+            var represented = source.Balance.Bulk + (double)source.Balance.Remainder;
+            Assert.InRange(represented, 0, previousBalance);
+            accepted += source.Debit.Value;
+            // 0.001 J over eight seconds is at most 0.00125% of the smallest 80 J power budget.
+            // This detects repeated scalar-rounding waste without requiring exact display-counter subtraction.
+            Assert.InRange(initial - represented - accepted, -.001, .001);
+            previousBalance = represented;
         }
         if (charge == 0f) Assert.All(reads, read => Assert.Equal((0f, 0f), (SourceRead(read).Debit.Value, read.EnergyStores[0].Supplied.Value)));
         else Assert.Contains(reads, read => SourceRead(read).Debit.Value > 0f);

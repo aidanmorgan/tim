@@ -102,6 +102,32 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
     private bool _disposed;
 
     private readonly ObservedWorldTransport? _worldObserver;
+    private readonly CandidateBoundaryTransport _candidateBoundary;
+    // One-shot corruption at the real worker response boundary; the production device still validates and discards.
+    public Action<byte[]>? ChangeNextCandidate { set => _candidateBoundary.Change = value; }
+
+    private sealed class CandidateBoundaryTransport(IWorkshopGpuTransport inner) : IWorkshopGpuTransport
+    {
+        public Action<byte[]>? Change { get; set; }
+        public Task Initialize() => inner.Initialize();
+        public Task Stage(ReadOnlyMemory<byte> input, WorkshopGpuOperation operation, PhysicsTickInputs inputs) =>
+            inner.Stage(input, operation, inputs);
+        public WorkshopTransportCandidate Read()
+        {
+            var value = inner.Read();
+            if (Change is not { } change) return value;
+            Change = null;
+            var bytes = value.World.ToArray();
+            change(bytes);
+            return value with { World = bytes };
+        }
+        public void PrepareEvents(byte[] batch) => inner.PrepareEvents(batch);
+        public void PublishEvents() => inner.PublishEvents();
+        public void Commit() => inner.Commit();
+        public void Discard() => inner.Discard();
+        public bool DeviceReady() => inner.DeviceReady();
+        public void Dispose() => inner.Dispose();
+    }
     /// <summary>Read only after a successful enclosing command; transport commit alone is not command acceptance.</summary>
     public ReadOnlyMemory<byte> CommittedWorld
     {
@@ -123,7 +149,8 @@ internal sealed class WorkshopIntegrationHarness : IAsyncDisposable
         DeclaredPorts.Install(ElementPortCatalogue.FromBundle(entries));
         IWorkshopGpuTransport transport = new BrowserGpuTransport(Publication);
         if (observeWorld) transport = _worldObserver = new ObservedWorldTransport(transport);
-        Device = new(transport, new(101, 206));
+        _candidateBoundary = new(transport);
+        Device = new(_candidateBoundary, new(101, 206));
         _host = new(this);
         Executor = new(Device, _host);
         Router = new(Executor.Execute);

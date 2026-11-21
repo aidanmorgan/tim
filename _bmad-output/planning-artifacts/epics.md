@@ -4086,8 +4086,8 @@ So that aerodynamic and buoyant contraptions are possible.
 - **And** each part has its own authored `.tscn` scene. The Balloon is a pink gas envelope with a tied neck and a string, and the Tennis Ball is a felt-yellow ball with a seam curve. Neither uses `parts/scenes/ball.tscn`. The palette icon and the 3D model match (owner report, 19 Oct 2026: the Balloon looked like a basketball).
 - **And** `tools/e2e/cat-064-003.test.ts` passes 100% in Chrome serially.
 
-### Story 12.2: Electric Fan Aerodynamic Airflow Jet (CAT-028)
-*Status: Backlog*
+### Story 12.2: Fan with Selectable Supply and Conical Airflow (CAT-028 / EL-209)
+*Status: Native implementation and independent review complete; final diff scope PASS, browser qualification pending; committed-SHA SnapshotApproval/publication pending. [Evidence](../implementation-artifacts/spec-12-2-fan.md).*
 
 As a player,  
 I want an Electric Fan to blow light objects across the workbench,  
@@ -4098,7 +4098,10 @@ So that contactless aerial steering can guide balls into goals.
 - **When** the ball enters the fan's conical airflow cone,
 - **Then** aerodynamic drag forces deflect the ball horizontally into the target receiver.
 - **And** heavy Bowling Balls experience negligible deflection (mass-scaled drag).
-- **And** `tools/e2e/cat-028.test.ts` passes 100% in Chrome serially.
+- **And** the same catalogue Fan offers Self-contained (activation-controlled 14,400 J budget), Electrical and Shaft; ideal shaft conversion applies the paid reaction load with no additional conversion loss.
+- **And** width is terminal cone radius; force-rated transfer is mass-dependent under global linear/angular bounds, without an extra 16 m/s² transfer cap.
+- **And** real native production positive/control/boundary and lifecycle cases pass; actual Chrome construction/configuration/Run/Reset/save-load proof remains pending at the post-catalogue browser gate. No browser test runs in this slice.
+- **Scope:** Windmill rotary capture/integration remains Story 12.3; full gas networks and later campaign qualification are not bundled. Motor electrical drain remains deferred and is not claimed by shaft-to-airflow proof.
 
 ### Story 12.3: Windmill Rotor Aerodynamic Capture & Drive (CAT-070)
 *Status: Backlog*

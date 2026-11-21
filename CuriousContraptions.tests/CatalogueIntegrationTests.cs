@@ -295,7 +295,9 @@ public sealed class CatalogueIntegrationTests
         // TennisInteractionTests executes capture/miss, impact/miss and one/two-ball plate loading.
         PartId[] tennisInteractions = [new("tennis")];
         // BalloonTests executes default rise/ceiling and explicit Vacuum controls; GasRuntimeTests proves finite rupture and Reset.
-        PartId[] gasInteractions = [new("balloon")];
+        // FanGuidanceTests executes supplied capture and no/empty/missed/occluded/heavy controls;
+        // FanIntegrationTests additionally executes paid Shaft and Self-contained activation/lifecycle.
+        PartId[] gasInteractions = [new("balloon"), new("fan")];
         var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions).Concat(finiteWorkInteractions).Concat(tennisInteractions).Concat(gasInteractions)
             .Order().ToArray();
         var actual = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),

@@ -9,6 +9,7 @@ internal sealed partial class WorkshopPhysicsEngine
 {
     private PrismaticTrialWorkspace _motorTrial = new();
     private GuideWorkspace _guides = new();
+    private int _trialRestitutionStamp;
 
     private static void ValidatePrismaticCommands(ReadOnlySpan<byte> world, PhysicsWorldLayout layout, PhysicsTickInputs inputs)
     {
@@ -30,6 +31,7 @@ internal sealed partial class WorkshopPhysicsEngine
     {
         foreach (var collider in _colliders) WorkshopCollisionKernels.RefreshCollider(collider);
         PrepareBroadphase(dt);
+        _trialRestitutionStamp = _restitutionStamp;
         var requiresSnapshot = false;
         foreach (var joint in _joints) requiresSnapshot |= joint.MotorActive;
         // Inactive motors measure zero work, so only an active motor can require a replay snapshot.
@@ -79,6 +81,8 @@ internal sealed partial class WorkshopPhysicsEngine
 
     private void RestoreTrial(float multiplier)
     {
+        GuideWorkspace.Detach(_dynamicBodies);
+        _restitutionStamp = _trialRestitutionStamp;
         _motorTrial.Restore(_dynamicBodies, _joints, _revoluteJoints, _transmissions, _tensile, multiplier);
         foreach (var collider in _colliders) WorkshopCollisionKernels.RefreshCollider(collider);
     }
@@ -88,6 +92,7 @@ internal sealed partial class WorkshopPhysicsEngine
         // A replayed trial starts from the restored window and counters, so the failed trial's credit and new window never survive.
         foreach (var joint in _joints) PrismaticConstraintSolver.PrepareJointRows(joint, dt);
         _guides.Prepare(_dynamicBodies, _joints, true, true);
+        ApplyContinuousImpulses();
         PrepareContacts(dt);
         WarmStartConstraints(dt);
         for (var iteration = 0; iteration < WorkshopConstraintSolver.SolverIterations; iteration++)
@@ -100,9 +105,29 @@ internal sealed partial class WorkshopPhysicsEngine
             PrismaticMotorSolver.Solve(_joints, dt);
         }
         _guides.FlushReactions();
-        // Position integration closes the open accepted-work window and opens the next at the same velocities.
+        // All applied channels use this same fixed-pose midpoint, before integration and relaxation.
+        MeasureContinuousWindow();
         CloseWorkWindow();
         OpenWorkWindow();
         IntegrateBodies(dt);
+        FinishIntegratedTrial(dt, soft);
+    }
+
+    private void FinishIntegratedTrial(float dt, SoftCoefficients soft)
+    {
+        PrepareRelaxation(dt);
+        for (var iteration = 0; iteration < WorkshopConstraintSolver.RelaxIterations; iteration++)
+        {
+            PrismaticConstraintSolver.SweepConstraints(_joints, false);
+            RevoluteConstraintSolver.SweepConstraints(_revoluteJoints, false);
+            foreach (var transmission in _transmissions) MechanicalTransmissionSolver.Solve(transmission);
+            foreach (var tensile in _tensile) TensileConstraintSolver.Solve(tensile, false);
+            WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Relax, soft, dt);
+        }
+        foreach (var transmission in _transmissions) transmission.Retention?.SampleRelaxedRate();
+
+        WorkshopConstraintSolver.RestitutionPass(_manifolds, _restitutionBodies, ++_restitutionStamp);
+        _guides.FlushReactions();
+        foreach (var body in _dynamicBodies) WorkshopConstraintSolver.SettleVelocity(body);
     }
 }

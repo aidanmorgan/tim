@@ -53,11 +53,8 @@ public sealed class OrientationSensorTests
             for (var s = 0u; s < steps; s++)
             {
                 var piece = motion.Slice(PhysicsMotionRead.HeaderBytes + count++ * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.KindOffset..], (uint)PhysicsMotionKind.FreePolynomial);
                 BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.StartOrdinalOffset..], ordinal - steps + s);
                 BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.EndOrdinalOffset..], ordinal - steps + s + 1);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.AnchorOrdinalOffset..], ordinal - steps + s);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.FrequencyOffset..], WorkshopCadenceSettings.PhysicalFrequency);
                 CopyRestingPose(record, piece);
             }
         }

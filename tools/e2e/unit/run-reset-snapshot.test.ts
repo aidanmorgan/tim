@@ -32,7 +32,7 @@ function response(overrides: Partial<MockResponseParams> = {}): Uint8Array {
         ],
         captures: [{ sensor: 9n, target: BALL, phase: 0, eventOrdinal: 0, eventPhase: 0 }],
         contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 0, store: 1n }],
-        energyStores: [{ id: 1n, owner: RECEIVER, energy: 32 }],
+        energyStores: [{ id: 1n, owner: RECEIVER, bulk: 32 }],
         ...overrides,
     }));
 }

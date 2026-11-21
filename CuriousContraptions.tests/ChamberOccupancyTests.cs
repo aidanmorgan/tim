@@ -122,6 +122,7 @@ public sealed class ChamberOccupancyTests
             Colliders = children,
             Mechanical = ball.Mechanical! with
             {
+                AirflowReceivers = [], // This chamber-only fixture intentionally changes/disables the cloned collider.
                 MassFrame = MassFrameDeclaration.Constant(1, Vector3.Zero, new(.1f), Quaternion.Identity, 0, Vector3.Zero)
             }
         });

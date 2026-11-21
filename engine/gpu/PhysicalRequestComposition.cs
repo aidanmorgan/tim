@@ -23,7 +23,13 @@ public static class PhysicalRequestComposition
                     requests[node.RequestTarget] = request;
             }
         }
-        return requests.Values.OrderBy(request => request.Target.Kind).ThenBy(request => request.Target.Retention.Value).ThenBy(request => request.Target.Actuator.Value).ToArray();
+        return requests.Values.OrderBy(request => request.Occurrence.Time)
+            .ThenBy(request => request.Occurrence.Emitter.Value)
+            .ThenBy(request => request.Occurrence.Cause.Body.Value)
+            .ThenBy(request => request.Occurrence.Cause.Collider.Value)
+            .ThenBy(request => request.Target.Kind)
+            .ThenBy(request => request.Target.Retention.Value)
+            .ThenBy(request => request.Target.Actuator.Value).ToArray();
     }
 
     private static bool AnyLatchedRequest(IActivationProgram network, PhysicsActivationRead committed)

@@ -6,7 +6,7 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Elements.Ball;
 
-public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryElement, IAmbientLoadElement
+public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryElement, IAmbientLoadElement, IAirflowReceiverElement
 {
     public ElementPresentation Presentation => new(.46f, PresentationAxes.None,
         [], [], [], []);
@@ -27,6 +27,10 @@ public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryE
     public IReadOnlyList<PortDescriptor> Ports => [];
 
     /// <summary>The Basketball: a 0.34 m sphere with the catalogue ball material.</summary>
+    public IReadOnlyList<AirflowReceiverDescriptor> AirflowReceivers =>
+        [new(new(1), new(new(0), new(0)), AirflowSampling.ColliderNormalized,
+            [new(new(0, .5f, 0), .25f), new(new(0, -.5f, 0), .25f),
+             new(new(0, 0, .5f), .25f), new(new(0, 0, -.5f), .25f)])];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
 
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>

@@ -61,6 +61,10 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDec
     public IReadOnlyList<CuriousContraptions.Gpu.ContactIntegrityDescriptor> IntegrityObservers { get; init; } = [];
     [System.Text.Json.Serialization.JsonRequired]
     public IReadOnlyList<CuriousContraptions.Gpu.AmbientLoadDescriptor> AmbientLoads { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<CuriousContraptions.Gpu.AirflowSourceDescriptor> AirflowSources { get; init; } = [];
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<CuriousContraptions.Gpu.AirflowReceiverDescriptor> AirflowReceivers { get; init; } = [];
 }
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyGraphDescriptor? SupplyGraph);

@@ -44,6 +44,8 @@ public static class WorkshopSceneCompiler
             CompileRunControls(core, bundle, construction, physics, owner, runControls);
             for (var i = 0; i < bindings.Count; i++)
             {
+                if (bindings[i].Selection is { } selection &&
+                    DeclaredPhysics.Parameters(owner)[selection.Parameter.Value] != selection.Option) continue;
                 var identities = construction.Instances.Identities[owner.Id];
                 var source = bindings[i].SupplyNode is { } sourceNode ? identities.Supply[sourceNode].Source : default;
                 var capacity = source == default ? 0f : physics.Electrical.Sources[physics.Layout.GetElectricalSourceSlot(source)].Capacity.Value;
@@ -60,7 +62,8 @@ public static class WorkshopSceneCompiler
                     bindings[i].Transmission is { } transId ? identities.Transmissions[transId] : default,
                     bindings[i].Retention is { } retainedId ? identities.Retentions[retainedId] : default, finiteWork, store,
                     bindings[i].GasShape is { } gasShape ? construction.Instances.Identities.Collider(owner.Id, gasShape.Body, gasShape.Collider) : default,
-                    bindings[i].Integrity is { } integrity ? identities.IntegrityObservers[integrity] : default));
+                    bindings[i].Integrity is { } integrity ? identities.IntegrityObservers[integrity] : default,
+                    bindings[i].Airflow is { } airflow ? identities.AirflowSources[airflow] : default));
             }
         }
         return core.CreateScene(identity, construction.Revision, construction.Settings, physics, activation, tracks,

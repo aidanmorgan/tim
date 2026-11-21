@@ -18,7 +18,11 @@ public static partial class PhysicsGpuAbi
     public const int ElectricalSourceRemainingOffset = 32;
     public const int ElectricalSourceEnableOffset = 36;
     public const int ElectricalSourceDebitOffset = 40;
-    private const int ElectricalSourcePaddingOffset = 44;
+    public const int ElectricalPhaseAllowanceOffset = 44;
+    public const int ElectricalPhaseOrdinalOffset = 48;
+    public const int ElectricalSourceRemainderOffset = 52;
+    public const int ElectricalPhaseRemainderOffset = 56;
+    public const int ElectricalSourceTransactionsOffset = 60;
     public const int ElectricalBindingBytes = 16;
     // Binding row: source slot, contact-work storage slot, zero padding.
     public const int ElectricalBindingSourceOffset = 0;
@@ -64,19 +68,27 @@ public static partial class PhysicsGpuAbi
             var owner = R32(record, ElectricalSourceOwnerOffset);
             if (owner >= R32(data, HeaderBodyCountOffset) ||
                 !AllZero(record[ElectricalSourceDeclarationPaddingOffset..ElectricalSourceDeclarationBytes]) ||
-                !AllZero(record[ElectricalSourcePaddingOffset..]) ||
                 R32(record, ElectricalSourceDeclaredEnableOffset) > (uint)ElectricalEnable.Enabled ||
                 R32(record, ElectricalSourceEnableOffset) > (uint)ElectricalEnable.Enabled)
                 throw new ArgumentException("Invalid electrical source record.");
             ElectricalSourceDeclaration.ValidateStore(new(RF(record, ElectricalSourceCapacityOffset)),
                 new(RF(record, ElectricalSourceMaximumPowerOffset)), 1f, (ElectricalEnable)R32(record, ElectricalSourceDeclaredEnableOffset));
             var initial = RF(record, ElectricalSourceInitialEnergyOffset);
-            if (!float.IsFinite(initial) || initial < 0 || initial > RF(record, ElectricalSourceCapacityOffset) ||
-                RF(record, ElectricalSourceRemainingOffset) > initial)
-                throw new ArgumentException("Electrical source exceeds its initial finite charge.");
+            var balance = new FiniteEnergyBalance(RF(record, ElectricalSourceRemainingOffset),
+                RF(record, ElectricalSourceRemainderOffset));
+            balance.Validate(initial);
+            var allowance = new FiniteEnergyBalance(RF(record, ElectricalPhaseAllowanceOffset),
+                RF(record, ElectricalPhaseRemainderOffset));
+            allowance.Validate(RF(record, ElectricalSourceMaximumPowerOffset) * ElectricalSupply.PhaseSeconds);
+            var phaseOrdinal = R32(record, ElectricalPhaseOrdinalOffset);
+            if (allowance.DecreaseTo(balance) > 0 || phaseOrdinal % 4 != 0 ||
+                phaseOrdinal > R32(data, HeaderSourceOrdinalOffset) ||
+                initial > RF(record, ElectricalSourceCapacityOffset))
+                throw new ArgumentException("Invalid finite electrical phase allowance or initial charge.");
             values[i] = new(new(R64(record, RecordIdentityOffset)), new(R64(data, layout.BodyOffset((int)owner))),
-                new(RF(record, ElectricalSourceRemainingOffset)), new(RF(record, ElectricalSourceDebitOffset)),
-                (ElectricalEnable)R32(record, ElectricalSourceEnableOffset));
+                new(RF(record, ElectricalSourceRemainingOffset), RF(record, ElectricalSourceRemainderOffset)),
+                new(RF(record, ElectricalSourceDebitOffset)), (ElectricalEnable)R32(record, ElectricalSourceEnableOffset),
+                R32(record, ElectricalSourceTransactionsOffset));
         }
         var seen = new bool[layout.EnergyStores];
         for (var i = 0; i < layout.ElectricalBindings; i++)
@@ -103,34 +115,72 @@ public static partial class PhysicsGpuAbi
         var layout = Layout(previous);
         if (!candidate[layout.ElectricalBindingsOffset..layout.PrismaticsOffset].SequenceEqual(previous[layout.ElectricalBindingsOffset..layout.PrismaticsOffset]))
             throw new ArgumentException("Electrical routes changed during a Run.");
-        var phaseCount = (R32(candidate,HeaderSourceOrdinalOffset) + 3) / 4 - (R32(previous,HeaderSourceOrdinalOffset) + 3) / 4;
+        var phaseCount = (uint)(((ulong)R32(candidate, HeaderSourceOrdinalOffset) + 3) / 4 -
+            ((ulong)R32(previous, HeaderSourceOrdinalOffset) + 3) / 4);
         var stores = ReadEnergyStores(candidate);
-        var previousStores = ReadEnergyStores(previous);
         var supplied = new bool[stores.Length];
         for (var i = 0; i < after.Count; i++)
         {
             var offset = layout.ElectricalSourceOffset(i);
             if (!candidate.Slice(offset, ElectricalSourceDeclarationBytes).SequenceEqual(previous.Slice(offset, ElectricalSourceDeclarationBytes)))
                 throw new ArgumentException("Electrical source declaration changed.");
-            var limit = RF(candidate, offset + ElectricalSourceMaximumPowerOffset) * ElectricalSupply.PhaseSeconds * phaseCount;
-            if (after[i].Debit.Value > limit + PhysicsReadValidation.Residual(limit))
-                throw new ArgumentException("Electrical source exceeded its phase power allowance.");
-            float credit = 0, tolerance = PhysicsReadValidation.Residual(before[i].Remaining.Value);
-            for (var route = 0; route < layout.ElectricalBindings; route++)
-            {
-                var binding = layout.ElectricalBindingOffset(route);
-                if (R32(candidate, binding + ElectricalBindingSourceOffset) != i) continue;
-                var slot = (int)R32(candidate, binding + ElectricalBindingStorageOffset);
-                supplied[slot] = true; credit += stores[slot].Supplied.Value - previousStores[slot].Supplied.Value;
-                tolerance += PhysicsReadValidation.Residual(credit);
-                tolerance += PhysicsReadValidation.Residual(stores[slot].Energy.Value) +
-                    PhysicsReadValidation.Residual(stores[slot].Supplied.Value) + PhysicsReadValidation.Residual(previousStores[slot].Supplied.Value);
-            }
-            if ((after[i].Debit.Value == 0 && credit != 0) || MathF.Abs(after[i].Debit.Value - credit) > tolerance)
-                throw new ArgumentException("Electrical debit does not fund its connected storage credits.");
+
+            if (R32(candidate, offset + ElectricalPhaseOrdinalOffset) < R32(previous, offset + ElectricalPhaseOrdinalOffset) ||
+                phaseCount == 0 && new FiniteEnergyBalance(RF(previous, offset + ElectricalPhaseAllowanceOffset),
+                    RF(previous, offset + ElectricalPhaseRemainderOffset)).DecreaseTo(new(
+                    RF(candidate, offset + ElectricalPhaseAllowanceOffset), RF(candidate, offset + ElectricalPhaseRemainderOffset))) < 0)
+                throw new ArgumentException("Electrical phase allowance increased without a phase boundary.");
+
+            var steps = R32(candidate, HeaderSourceOrdinalOffset) - R32(previous, HeaderSourceOrdinalOffset);
+            if (after[i].Transactions > (ulong)steps * (uint)layout.AirflowSources + (ulong)phaseCount * (uint)layout.ElectricalBindings)
+                throw new ArgumentException("Electrical transaction count exceeds admitted consumers.");
+            var priorPhase = R32(previous, HeaderSourceOrdinalOffset) % 4 == 0 ? default :
+                new FiniteEnergyBalance(RF(previous, offset + ElectricalPhaseAllowanceOffset),
+                    RF(previous, offset + ElectricalPhaseRemainderOffset));
+            var quantum = after[i].Enabled == ElectricalEnable.Enabled
+                ? RF(candidate, offset + ElectricalSourceMaximumPowerOffset) * ElectricalSupply.PhaseSeconds : 0f;
+            PhysicsReadValidation.ValidateElectricalBudget(after[i].Debit.Value, after[i].Transactions,
+                before[i].Balance, priorPhase, quantum, phaseCount);
+            ValidateElectricalCredits(candidate, layout, stores, supplied, i, after[i]);
         }
         for (var i = 0; i < stores.Length; i++)
-            if (!supplied[i] && stores[i].Supplied != previousStores[i].Supplied)
+            if (!supplied[i] && stores[i].CommitSupplied.Value != 0)
                 throw new ArgumentException("Unconnected storage received electrical work.");
     }
+    private static void ValidateElectricalCredits(ReadOnlySpan<byte> candidate, PhysicsWorldLayout layout,
+        EnergyStoreRead[] stores, bool[] supplied, int supply, ElectricalSourceRead source)
+    {
+        float maximum = 0, sum = 0;
+        ulong terms = 0;
+        var count = (long)layout.ElectricalBindings + layout.AirflowSources;
+        for (long row = 0; row < count; row++)
+            maximum = MathF.Max(maximum, ConnectedCredit(candidate, layout, stores, supplied, supply, row));
+        var scale = MathF.Max(source.Debit.Value, maximum);
+        for (long row = 0; row < count; row++)
+        {
+            var value = ConnectedCredit(candidate, layout, stores, supplied, supply, row);
+            if (value == 0) continue;
+            terms++;
+            sum += value / scale;
+        }
+        PhysicsReadValidation.ValidateConnectedCredits(source.Debit.Value, source.Transactions, maximum, sum, terms);
+    }
+
+    private static float ConnectedCredit(ReadOnlySpan<byte> candidate, PhysicsWorldLayout layout,
+        EnergyStoreRead[] stores, bool[] supplied, int supply, long row)
+    {
+        if (row < layout.ElectricalBindings)
+        {
+            var binding = layout.ElectricalBindingOffset((int)row);
+            if (R32(candidate, binding + ElectricalBindingSourceOffset) != supply) return 0;
+            var slot = (int)R32(candidate, binding + ElectricalBindingStorageOffset);
+            supplied[slot] = true;
+            return stores[slot].CommitSupplied.Value;
+        }
+        var airflow = layout.AirflowSourceOffset((int)(row - layout.ElectricalBindings));
+        return (ContinuousWorkInputKind)R32(candidate, airflow + AirflowInputKindOffset) == ContinuousWorkInputKind.Electrical &&
+            R32(candidate, airflow + AirflowElectricalOffset) == supply
+            ? RF(candidate, airflow + AirflowCommitWorkOffset) : 0;
+    }
+
 }

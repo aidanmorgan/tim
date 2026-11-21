@@ -944,7 +944,7 @@ public sealed class WorkshopSimulationTests
         // The read carries the owner's stores alone (Story 9A.23 D9: the hit's occurrence row is the device's private ledger).
         WorkshopRead Paid(WorkshopRead read) => read with {
             ContactWorks = new(new[] { read.ContactWorks[0] with { OccurrenceCount=1 } }),
-            EnergyStores = new(new[] { read.EnergyStores[0] with { Energy=new(16), Released=new(16) } }) };
+            EnergyStores = new(new[] { read.EnergyStores[0] with { Balance=new(16, 0f), Released=new(16), CommitReleased=new(16), Transactions=1 } }) };
         installation.HoldNext = true;
         var rejected = simulation.StepOnce().AsTask(); device.CompleteAdvance(0,Paid);
         Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);

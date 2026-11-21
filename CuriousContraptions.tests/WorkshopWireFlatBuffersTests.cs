@@ -393,7 +393,7 @@ public sealed class WorkshopWireFlatBuffersTests
         var work = new ContactWorkRead(new(40), new(1), 1, new(41));
         var contactWorks = new PhysicsContactWorkRead(new[] { work });
 
-        var elec = new ElectricalSourceRead(new(50), new(1), new Joules(100f), new Joules(5f), ElectricalEnable.Enabled);
+        var elec = new ElectricalSourceRead(new(50), new(1), new(100f, 0f), new Joules(5f), ElectricalEnable.Enabled, 1);
         var electrical = new PhysicsElectricalRead(new[] { elec });
         var cause = new ActivationCause(new(2), new(1), new(3), new(1, .1234567f), new(1.234567f), ActivationCauseKind.Physical);
         var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Contact, new(2), cause.Time, cause);
@@ -403,7 +403,7 @@ public sealed class WorkshopWireFlatBuffersTests
         var read = new WorkshopRead(new(1), new(1), new(1), bodies, new(1), stamp, captures,
             PhysicsMotionRead.Decode(WireFaultTests.MotionBytes(canonical), bodies, new(1)),
             ContactWorks: contactWorks, Electrical: electrical,
-            EnergyStores: new([new(new(41), new(1), new(16f), new(4f), new(12f), default)]),
+            EnergyStores: new([new(new(41), new(1), new(16f, 0f), new(4f), new(12f), default, new(4f), new(12f), default, 2)]),
             Activations: new([activation]), Timers: new([timer]));
 
         var response = new WorkshopResponse(default, WorkshopResponseKind.Read,

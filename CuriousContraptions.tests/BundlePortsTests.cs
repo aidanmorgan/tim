@@ -147,6 +147,12 @@ public sealed class BundlePortsTests
         ["delay"] = ([Activation(PortId.ActivationIn, In, Pulse, -.72f, 0f, 0f), Activation(PortId.ActivationOut, Out, Pulse, .72f, 0f, 0f)],
             new(1, 0, 0, 0)),
         ["domino"] = ([Activation(PortId.ActivationOut, Out, Pulse, 0f, .55f, 0f)], new(1, 1, 0, 0)),
+        ["fan"] = ([
+            Activation(PortId.ActivationIn, In, Pulse, 0, 0, 0) with { Availability = new(new("supply"), 0) },
+            Electrical(PortId.PowerIn, In, -.3f, -.55f, 0) with { Availability = new(new("supply"), 1) },
+            Mechanical(PortId.DriveIn, In, -.7f, 0, 0, new(CoordinateKind.Revolute, 0), -1,
+                new(new(0), new(-.7f, 0, 0), new(0, -MathF.Sqrt(.5f), 0, MathF.Sqrt(.5f)), .14f, 1))
+                with { Availability = new(new("supply"), 2) }], new(2, 1, 0, 1)),
         ["funnel"] = ([], new(1, 0, 0, 0)),
         ["hold_timer"] = ([Activation(PortId.ActivationIn, In, Pulse, 0f, .65f, .2f), Electrical(PortId.PowerIn, In, -.78f, 0f, 0f), Electrical(PortId.Supply, Out, .78f, 0f, 0f)], new(1, 0, 0, 0)),
         ["lamp"] = ([Activation(PortId.ActivationIn, In, Level, 0f, 0f, 0f)], new(1, 0, 0, 0)),

@@ -167,7 +167,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
                 throw Refused(ElementPortRejection.OutOfRange, element, index, "declares coordinate-per-radian on a non-mechanical port");
         }
         return new(port.Id, port.Role, port.Presentation, domain, direction, signal, port.LocalPosition, port.AttachmentRole, port.PositionBinding, port.Body,
-            port.GuideRadius, port.GuideOffset, port.Coordinate, port.CoordinatePerRadian, port.MechanicalRim);
+            port.GuideRadius, port.GuideOffset, port.Coordinate, port.CoordinatePerRadian, port.MechanicalRim, port.Availability);
     }
 
     private static void ValidateRole(PartId element, int index, PortDescriptor port,

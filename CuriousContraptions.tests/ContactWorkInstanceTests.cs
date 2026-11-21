@@ -7,6 +7,45 @@ namespace CuriousContraptions.Tests;
 /// <see cref="PlacedParts"/>, so the same assertions ran on the record path before the conversion.</summary>
 public sealed class ContactWorkInstanceTests
 {
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void SmallTargetLimitedContactsShareOneConservativeStore(bool powered)
+    {
+        var scene = new LawScene(false);
+        var support = scene.StaticBox(new(4, 0, 0), new(4, .1f, .2f), material: new LawMaterial(.0001f, 0, 0, 0));
+        var targets = new List<GpuBodyId>();
+        for (var i = 0; i < 64; i++)
+            targets.Add(scene.Sphere(new(1f + i * .1f, .15f, 0), .05f, 1f,
+                new LawMaterial(.0001f, 0, 0, 0), new(0, -1f, 0), default, 0, 0));
+        scene.ContactWork(support, new(BodyTargetKind.AllDynamic, default), powered ? .001f : 0f, 32, 0, ContactWorkDeclaration.MinimumCooldownPhysicalSteps);
+        var shared = scene.Admit().Scene.EnergyStores[0].Id;
+        var nozzle = scene.StaticBox(new(0, 3, 0), new(.1f));
+        var receiver = scene.Sphere(new(1, 3, 0), .1f, 1f, LawMaterial.Domino, default, default, 0, 0);
+        scene.Airflow(nozzle, new(ContinuousWorkInputKind.Store, shared, default, default, 0, true),
+            powered ? .0001f : 0, 4);
+        scene.AirflowTarget(receiver);
+        var result = scene.Admit().Step(1);
+        Assert.Equal(powered, result[receiver].Velocity.X > 0);
+        var store = Assert.Single(PhysicsGpuAbi.ReadEnergyStores(result.World));
+        var paid = store.CommitReleased.Value;
+        var depleted = 32d - store.Balance.Bulk - store.Balance.Remainder;
+        if (powered)
+        {
+            Assert.True(store.Transactions > 32, $"Many distinct target contacts must use the same real store: {store.Transactions} payments, {paid} J, {PhysicsGpuAbi.ReadContactWorks(result.World, result.Interactions)[0].OccurrenceCount} occurrences, first velocity {result[targets[0]].Velocity}.");
+            Assert.InRange(paid, .00001f, .00004f);
+            Assert.InRange(depleted - paid, -.0000005, .0000005); // Under 2% of the independently rated 32 microjoule contact budget; published totals round.
+            Assert.All(targets, target => Assert.True(result[target].Velocity.Y > 0));
+            Assert.Equal(0, store.CommitDissipated.Value); // No minimum/dust closure is warranted near 32 J.
+        }
+        else
+        {
+            Assert.Equal(0, paid);
+            Assert.Equal(0, depleted);
+            Assert.Equal(0u, store.Transactions);
+        }
+    }
+
     private const int TicksPerSecond = 120;
     private static readonly GpuBodyId Ball = new(1), Owner = new(2), Source = new(3);
 
@@ -139,7 +178,8 @@ public sealed class ContactWorkInstanceTests
         var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(new PartId("bowling"), 6, 8f), 4 * TicksPerSecond);
         var occurrences = Occurrences(ledgers).ToArray();
         Assert.True(occurrences.Length >= 2, "the ball returns to the empty Bumper");
-        Assert.Equal((32f, ContactWorkEffect.Paid), (occurrences[0].Debit.Value, occurrences[0].Effect));
+        Assert.Equal(ContactWorkEffect.Paid, occurrences[0].Effect);
+        Assert.InRange(occurrences[0].Debit.Value, 31.995f, 32f); // 5 mJ is below a 0.2 mm lift of this 4 kg payload.
         Assert.All(occurrences.Skip(1), later => Assert.Equal((0f, ContactWorkEffect.Passive), (later.Debit.Value, later.Effect)));
         var paidAt = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
         Assert.True(Speed(Body(reads[paidAt], Ball)) < 7.99f, "the heavy ball cannot reach the target");
@@ -203,7 +243,7 @@ public sealed class ContactWorkInstanceTests
             Assert.NotEmpty(paid);
             if (heavy)
             {
-                Assert.Equal(32f, paid[0].Debit.Value);
+                Assert.InRange(paid[0].Debit.Value, 31.995f, 32f); // Actual delivered work; closing roundoff is store dissipation.
                 Assert.Single(paid);
                 Assert.Contains(hits, hit => hit.Effect == ContactWorkEffect.Passive);
                 Assert.Equal(0f, ring.Reads[^1].EnergyStores[0].Energy.Value);

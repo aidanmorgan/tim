@@ -9,7 +9,7 @@ namespace CuriousContraptions.Elements.BowlingBall;
 /// <summary>The Bowling ball (CAT-014): a 0.28 m, 4 kg hard shell with low bounce (owner decision, 9 Oct 2026). Its whole ball material
 /// is declared here: radius as the sphere's half-extent, mass as a mass property and drag as an ambient load, and bounce, friction, bounce threshold and
 /// rolling resistance as the collider material. It is not buoyant.</summary>
-public sealed class BowlingBallElementDeclaration : IMechanicalElement, ISceneGeometryElement, IAmbientLoadElement
+public sealed class BowlingBallElementDeclaration : IMechanicalElement, ISceneGeometryElement, IAmbientLoadElement, IAirflowReceiverElement
 {
     public ElementPresentation Presentation => new(.4f, PresentationAxes.None,
         [], [], [], []);
@@ -29,6 +29,10 @@ public sealed class BowlingBallElementDeclaration : IMechanicalElement, ISceneGe
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 
+    public IReadOnlyList<AirflowReceiverDescriptor> AirflowReceivers =>
+        [new(new(1), new(new(0), new(0)), AirflowSampling.ColliderNormalized,
+            [new(new(0, .5f, 0), .25f), new(new(0, -.5f, 0), .25f),
+             new(new(0, 0, .5f), .25f), new(new(0, 0, -.5f), .25f)])];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
 
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>

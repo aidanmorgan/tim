@@ -29,7 +29,8 @@ public readonly struct PhysicsEnergyStoreRead
         for (var i = 0; i < Count; i++)
         {
             var a = this[i]; var b = other[i];
-            if (a.Id != b.Id || a.Owner != b.Owner || !a.Energy.HasSameBits(b.Energy) ||
+            if (a.Id != b.Id || a.Owner != b.Owner || a.Balance != b.Balance || a.Transactions != b.Transactions ||
+                a.CommitSupplied != b.CommitSupplied || a.CommitReleased != b.CommitReleased || a.CommitDissipated != b.CommitDissipated ||
                 !a.Supplied.HasSameBits(b.Supplied) || !a.Released.HasSameBits(b.Released) ||
                 !a.Dissipated.HasSameBits(b.Dissipated)) return false;
         }

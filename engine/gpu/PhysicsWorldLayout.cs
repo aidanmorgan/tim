@@ -15,7 +15,8 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     int Triggers, int ContactWorks, int OrientationSensors, int ElectricalSources, int ElectricalBindings,
     int Prismatics, int ContactLoads, int TensileSpans, int Revolutes, int CompliantSurfaces,
     int MechanicalTransmissions = 0, int EnergyStores = 0, int ChamberRegions = 0, int FiniteWorkActuators = 0,
-    int GasStores = 0, int GasShapes = 0, int InventoryMasses = 0, int AmbientLoads = 0, int IntegrityObservers = 0) : IPhysicsWorldLayout
+    int GasStores = 0, int GasShapes = 0, int InventoryMasses = 0, int AmbientLoads = 0, int IntegrityObservers = 0,
+    int AirflowSources = 0, int AirflowReceivers = 0, int AirflowSamples = 0, int AirflowExclusions = 0) : IPhysicsWorldLayout
 {
     /// <summary>The body table directly follows the header in every world.</summary>
     public static int BodiesOffset => PhysicsGpuAbi.HeaderBytes;
@@ -46,10 +47,18 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     public int InventoryMassesOffset => After(GasShapesOffset, GasShapes, PhysicsGpuAbi.GasShapeBytes);
     public int AmbientLoadsOffset => After(InventoryMassesOffset, InventoryMasses, PhysicsGpuAbi.InventoryMassBytes);
     public int IntegrityObserversOffset => After(AmbientLoadsOffset, AmbientLoads, PhysicsGpuAbi.AmbientLoadBytes);
-    public int CollidersOffset => After(IntegrityObserversOffset, IntegrityObservers, PhysicsGpuAbi.IntegrityObserverBytes);
+    public int AirflowSourcesOffset => After(IntegrityObserversOffset, IntegrityObservers, PhysicsGpuAbi.IntegrityObserverBytes);
+    public int AirflowReceiversOffset => After(AirflowSourcesOffset, AirflowSources, PhysicsGpuAbi.AirflowSourceBytes);
+    public int AirflowSamplesOffset => After(AirflowReceiversOffset, AirflowReceivers, PhysicsGpuAbi.AirflowReceiverBytes);
+    public int AirflowExclusionsOffset => After(AirflowSamplesOffset, AirflowSamples, PhysicsGpuAbi.AirflowSampleBytes);
+    public int CollidersOffset => After(AirflowExclusionsOffset, AirflowExclusions, PhysicsGpuAbi.AirflowExclusionBytes);
     /// <summary>The exact world length.</summary>
     public int ByteLength => After(CollidersOffset, Colliders, PhysicsGpuAbi.ColliderBytes);
 
+    public int AirflowSourceOffset(int slot) => Row(AirflowSourcesOffset, slot, AirflowSources, PhysicsGpuAbi.AirflowSourceBytes);
+    public int AirflowReceiverOffset(int slot) => Row(AirflowReceiversOffset, slot, AirflowReceivers, PhysicsGpuAbi.AirflowReceiverBytes);
+    public int AirflowSampleOffset(int slot) => Row(AirflowSamplesOffset, slot, AirflowSamples, PhysicsGpuAbi.AirflowSampleBytes);
+    public int AirflowExclusionOffset(int slot) => Row(AirflowExclusionsOffset, slot, AirflowExclusions, PhysicsGpuAbi.AirflowExclusionBytes);
     public int GasStoreOffset(int slot) => Row(GasStoresOffset, slot, GasStores, PhysicsGpuAbi.GasStoreBytes);
     public int GasShapeOffset(int slot) => Row(GasShapesOffset, slot, GasShapes, PhysicsGpuAbi.GasShapeBytes);
     public int InventoryMassOffset(int slot) => Row(InventoryMassesOffset, slot, InventoryMasses, PhysicsGpuAbi.InventoryMassBytes);
@@ -103,7 +112,11 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
             Count(header, PhysicsGpuAbi.HeaderGasShapeCountOffset),
             Count(header, PhysicsGpuAbi.HeaderInventoryMassCountOffset),
             Count(header, PhysicsGpuAbi.HeaderAmbientLoadCountOffset),
-            Count(header, PhysicsGpuAbi.HeaderIntegrityObserverCountOffset));
+            Count(header, PhysicsGpuAbi.HeaderIntegrityObserverCountOffset),
+            Count(header, PhysicsGpuAbi.HeaderAirflowSourceCountOffset),
+            Count(header, PhysicsGpuAbi.HeaderAirflowReceiverCountOffset),
+            Count(header, PhysicsGpuAbi.HeaderAirflowSampleCountOffset),
+            Count(header, PhysicsGpuAbi.HeaderAirflowExclusionCountOffset));
         _ = layout.ByteLength;
         return layout;
     }
@@ -131,6 +144,10 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
         Write(header, PhysicsGpuAbi.HeaderInventoryMassCountOffset, InventoryMasses);
         Write(header, PhysicsGpuAbi.HeaderAmbientLoadCountOffset, AmbientLoads);
         Write(header, PhysicsGpuAbi.HeaderIntegrityObserverCountOffset, IntegrityObservers);
+        Write(header, PhysicsGpuAbi.HeaderAirflowSourceCountOffset, AirflowSources);
+        Write(header, PhysicsGpuAbi.HeaderAirflowReceiverCountOffset, AirflowReceivers);
+        Write(header, PhysicsGpuAbi.HeaderAirflowSampleCountOffset, AirflowSamples);
+        Write(header, PhysicsGpuAbi.HeaderAirflowExclusionCountOffset, AirflowExclusions);
     }
 
     private static int Count(ReadOnlySpan<byte> header, int offset)

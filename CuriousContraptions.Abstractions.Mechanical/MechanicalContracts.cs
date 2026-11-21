@@ -37,6 +37,16 @@ public interface IEnergyStoreElement : IMechanicalElement
     IReadOnlyList<CuriousContraptions.Gpu.EnergyStoreDescriptor> EnergyStores { get; }
 }
 
+public interface IAirflowSourceElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.AirflowSourceDescriptor> AirflowSources { get; }
+}
+
+public interface IAirflowReceiverElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.AirflowReceiverDescriptor> AirflowReceivers { get; }
+}
+
 public interface IChamberRegionElement : IMechanicalElement
 {
     IReadOnlyList<CuriousContraptions.Gpu.ChamberRegionDescriptor> ChamberRegions { get; }

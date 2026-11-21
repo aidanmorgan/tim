@@ -35,6 +35,35 @@ public sealed class RetentionRequestTests
         Assert.Equal(ActivationPhase.Latched, consumed.Activations[0].Phase);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SharedResourceRequestsFollowOccurrenceBeforeTargetId(bool reverseDeclarations)
+    {
+        ActivationNodeDeclaration[] nodes = [
+            new(new(1), new(1), ActivationNodeKind.ContactSource, new(9)),
+            new(new(2), new(2), ActivationNodeKind.ContactSource, new(10)),
+            new(new(3), new(7), ActivationNodeKind.PhysicalRequest, default,
+                RequestTarget: PhysicalRequestTarget.ForActuator(new(99)), RequestOperation: PhysicalRequestOperation.Release),
+            new(new(4), new(7), ActivationNodeKind.PhysicalRequest, default,
+                RequestTarget: PhysicalRequestTarget.ForActuator(new(1)), RequestOperation: PhysicalRequestOperation.Release),
+            new(new(5), new(7), ActivationNodeKind.PhysicalRequest, default,
+                RequestTarget: PhysicalRequestTarget.ForActuator(new(100)), RequestOperation: PhysicalRequestOperation.Release)
+        ];
+        if (reverseDeclarations) Array.Reverse(nodes);
+        var network = new ActivationNetwork(nodes, [
+            new(new(1), new(3), PortRole.ActivationIn),
+            new(new(2), new(4), PortRole.ActivationIn),
+            new(new(1), new(5), PortRole.ActivationIn)]);
+        var early = new ContactTriggerRead(new(9), new(1), new(99), 1, new(100), 2, 0f, new(1f));
+        var late = new ContactTriggerRead(new(10), new(2), new(99), 1, new(100), 3, 0f, new(1f));
+        var committed = network.Consume(network.Clear(), network.ClearTimers(), [late, early], new(1), [],
+            memory: network.ClearMemory());
+        var requests = PhysicalRequestComposition.Compose(network, committed.Activations);
+        // Resource priority is causal; exact actuator ID breaks the common-occurrence tie.
+        Assert.Equal(new ulong[] { 99, 100, 1 }, requests.Select(request => request.Target.Actuator.Value));
+    }
+
     [Fact]
     public void MalformedPhysicalRequestNodesAndEdgesAreRefusedAtNetworkAdmission()
     {

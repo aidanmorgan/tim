@@ -15,28 +15,38 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | Roadmap story | Epic 12, Story 12.2 "Electric Fan Aerodynamic Airflow Jet"; the first slice of the [gas and airflow family](../../finite-gas-foundation.md) Current [CAT-028 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
+## Current Story 12.2 contract (owner decisions, 19–20 November 2026)
+
+One catalogue `fan` exposes Self-contained (default), Electrical and Shaft supply selections. Self-contained retains the activation latch, authored powered state and finite 14,400 J store; Electrical draws exposed accepted work directly from its connected finite supply; Shaft converts actual shaft work ideally, with reaction load and no additional conversion loss. Electrical and Shaft have no hidden construction reservoir. Their active input is required; inactive input connections make a mode edit refuse atomically until disconnected. Supply selection is Build-only. Motor electrical drain remains deferred: a Motor integration proves paid shaft-to-airflow work, not paid battery-to-shaft conversion.
+
+The field is a strict cone: for axial distance x, 0 < x < reach and radial distance r < width × x/reach; width is terminal radius. Force-rated mass-dependent transfer uses global 64 m/s² linear and 1024 rad/s² angular bounds, scaling the complete paid transfer and paired reactions together. No extra 16 m/s² transfer cap applies; that bound belongs to directly authored acceleration fields. Retain force 0–40 N (default 9), reach (0,12] m (5), width (0,4] m (0.85), flow 12 m/s and power force×12 W. Retain sourced static contact material. The store is an energy budget, not a fixed 133-second timer.
+
+Native script-free Godot artwork and explicitly owned C# components/resources remain required. Non-shaft spin binds committed flow through a generic rate evaluator; Shaft artwork follows its exact committed coordinate. This current contract supersedes conflicting cylindrical/no-external-input and incidental-timing prose below; harvest rows and citations remain historical evidence. Rotary receiver integration belongs to 12.3, chimes to 14.4 and campaign sweeps to their later gate. See the [bounded native plan](../../../_bmad-output/implementation-artifacts/spec-12-2-fan.md).
+
 ## Declaration
 
-- **Bodies and shapes.** One static body. Collider: root box centred at (0, −0.55, 0), size 0.65 × 0.18 × 1 m (legacy `AddBox` makes a root box with half-extents = size/2, `reference/cpu/MachinePart.cs@a6c914e:L352-L356`; `parts/FanPart.cs@a6c914e:L36-L36`). Everything else is artwork.
-- **Mass and material.** Static (no mass). Contact material: the legacy static default restitution 1, threshold 0.1, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`); see Open questions.
-- **Constraints and joints.** None.
-- **Typed sockets and ports.** One `ActivationIn` (activation domain, input) at the local origin; legacy derives it from `CanReceiveActivation` (`parts/FanPart.cs@a6c914e:L18-L18`; `reference/cpu/MachinePart.cs@a6c914e:L247-L254`). Current enum: `WorkshopSocket.ActivationIn` (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L9`). No electrical or shaft port (see Open questions).
+- **Bodies and shapes.** Static housing/base plus one dynamic spherical hub carried by a continuous revolute hinge in all supply modes; Shaft selects that exact coordinate as its work input, while Electrical/Self-contained leave it passive. Collider: root box centred at (0, −0.55, 0), size 0.65 × 0.18 × 1 m (legacy `AddBox` makes a root box with half-extents = size/2, `reference/cpu/MachinePart.cs@a6c914e:L352-L356`; `parts/FanPart.cs@a6c914e:L36-L36`). The additional solid hub proxy is a sphere of radius 0.14 m at the local origin on its own body. Blades, ring, post and arrow are non-contact artwork.
+- **Mass and material.** Housing/base is static with no dynamic mass. Hub is 0.15 kg with isotropic inertia 2mr²/5 = 0.001176 kg·m² and its own contact proxy; hub material is restitution 0, threshold 0.1 m/s, friction 0.3, rolling resistance 0. The housing retains the legacy static default restitution 1, threshold 0.1, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`); retain this sourced material under the resolved current contract.
+- **Constraints and joints.** Continuous +X hinge with coincident local hub frames, zero initial angle/rate, no drive and zero bearing friction. Shaft art follows the exact physical coordinate and pays accepted load work; other modes leave the hub passive and apply committed-flow spin only to non-contact blade art. The spherical hub remains physically posed/contact-bearing in every mode.
+- **Typed sockets and ports.** One `ActivationIn` (activation domain, input) at the local origin; legacy derives it from `CanReceiveActivation` (`parts/FanPart.cs@a6c914e:L18-L18`; `reference/cpu/MachinePart.cs@a6c914e:L247-L254`). Current enum: `WorkshopSocket.ActivationIn` (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L9`). PowerIn and DriveIn are explicit supplied-mode ports; only the selected input is active. Inactive connections refuse atomically.
 - **Sensors and activation.** A Trigger latches the fan on and records an Activated occurrence (`reference/cpu/MachineWorld.cs@a6c914e:L734-L737`); nothing switches it off during a Run.
-- **Work and energy stores.** One finite reservoir, 14,400 J, initial = capacity (`parts/FanPart.cs@a6c914e:L12-L16`).
-- **Airflow source.** While active: origin at local (0, 0, 0), direction local +X, finite cylinder of length `reach` and radius `width`; flow speed 12 m/s; force rating `force`, power rating `force` × 12 W; receiver impedance conductance `force`/12 N·s/m capped at `force` N (`parts/FanPart.cs@a6c914e:L19-L23`; `engine/AirflowNetwork.cs@a6c914e:L12-L13`, `L23-L26`).
+- **Work and energy stores.** Self-contained selects one finite reservoir, 14,400 J, initial = capacity; supplied modes cannot draw it (`parts/FanPart.cs@a6c914e:L12-L16`).
+- **Airflow source.** While active: origin at local (0, 0, 0), direction local +X, finite cone of length `reach` and terminal radius `width`; flow speed 12 m/s; force rating `force`, power rating `force` × 12 W; receiver impedance conductance `force`/12 N·s/m capped at `force` N (`parts/FanPart.cs@a6c914e:L19-L23`; `engine/AirflowNetwork.cs@a6c914e:L12-L13`, `L23-L26`).
+- **Internal airflow occlusion.** Declare exact LocalColliderReference entries for the base collider and hub collider, resolved to same-instance GpuColliderIds. Only those source-internal solids and the exact sampled receiver collider are excluded from streamlines. Other same-owner solids and all external solids block normally. Reject missing, duplicate, cross-instance or wrong-kind references atomically; no owner-wide exclusion or Fan identity branch. The centered Tennis case at x=2 m must transfer paid work with the real hub present.
 - **Parameters.**
 
   | Parameter | Type | Range | Default | Unit |
   | --- | --- | --- | --- | --- |
-  | powered | closed set {0, 1} (legacy float) | 0 or 1 | 1 | — |
+  | supply | typed choice | Self-contained, Electrical, Shaft | Self-contained | — |
+  | powered | enum Off/On (Self-contained only) | Off or On | On | — |
   | force | f32 | 0–40 | 9 | N |
   | reach | f32 | (0, 12] | 5 | m |
-  | width | f32 | (0, 4] | 0.85 | m (jet radius) |
+  | width | f32 | (0, 4] | 0.85 | m (terminal cone radius) |
 
   Ranges `parts/FanPart.cs@a6c914e:L24-L31`; defaults `parts/catalog/fan.tres@a6c914e:L14-L14`. `powered` becomes an enum at the boundary (string-typed closed sets are not carried forward).
-- **Cosmetic curves and UI bindings.** Rotor spin: 0 → 2π every 2π/18 s (18 rad/s), linear, looping, simulation clock, start/stop on owner active (`parts/FanPart.cs@a6c914e:L50-L53`). The gas doc names the target binding "Blade spin rate ← committed source flow".
-- **Art.** Ring "thickness" values are torus half-widths (inner r − t, outer r + t) and line widths are cylinder radii (`engine/PartArt.cs@a6c914e:L22-L27`). Base box `#263d4b`; post 0.13 × 0.5 × 0.15 `#ccd8dc` at (0, −0.3, 0); housing torus radius 0.56, half-width 0.07 (inner 0.49, outer 0.63), axis X, catalogue colour; rotor hub sphere of radius 0.14 `#f4d089`; three blades 0.1 × 0.6 × 0.16 at 0°, 120°, 240° about X, catalogue colour lightened 15%; airflow arrow line (0.6, 0, 0)–(1.15, 0, 0) `#a9e7e0` of radius 0.025; pick radius 0.75 (`parts/FanPart.cs@a6c914e:L32-L49`). Catalogue colour `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`); icon `ui/WorkshopIcons.cs@a6c914e:L51-L51`. Scene file holds only the script reference.
-- **Catalogue and inventory entry.** Id `fan`, title "Fan", category Power, description "A self-contained fan blows along its arrow, pushing balls and wind-chime sails. Solid obstacles block the direct jet. An authored stopped fan can be started by a switch; it has no external electrical input yet." (`parts/catalog/fan.tres@a6c914e:L8-L14`).
+- **Cosmetic curves and UI bindings.** Non-shaft rotor phase integrates committed available flow with package scale 18/12 rad per metre (18 rad/s at 12 m/s), linear looping on world time; Shaft uses exact physical coordinate instead. Historical rotor recipe (`parts/FanPart.cs@a6c914e:L50-L53`). The gas doc names the target binding "Blade spin rate ← committed source flow".
+- **Art.** Ring "thickness" values are torus half-widths (inner r − t, outer r + t) and line widths are cylinder radii (`engine/PartArt.cs@a6c914e:L22-L27`). Base box `#263d4b`; post 0.13 × 0.5 × 0.15 `#ccd8dc` at (0, −0.3, 0); housing torus radius 0.56, half-width 0.07 (inner 0.49, outer 0.63), axis X, catalogue colour; rotor hub sphere of radius 0.14 `#f4d089`; three blades 0.1 × 0.6 × 0.16 at 0°, 120°, 240° about X, catalogue colour lightened 15%; airflow arrow line (0.6, 0, 0)–(1.15, 0, 0) `#a9e7e0` of radius 0.025; pick radius 0.75 (`parts/FanPart.cs@a6c914e:L32-L49`). Catalogue colour `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`); icon `ui/WorkshopIcons.cs@a6c914e:L51-L51`. The historical scene held a script reference; the current native .tscn is script-free, with explicit collision proxies and owned C# behavior/resources.
+- **Catalogue and inventory entry.** Id `fan`, title "Fan", category Power, description "A fan blows along its arrow. Choose Self-contained activation, Electrical input or Shaft input. Solid obstacles block the cone." (`parts/catalog/fan.tres@a6c914e:L8-L14`).
 
 ## Engine capabilities
 
@@ -47,7 +57,7 @@ Families: the [CAT-028 row](../general-engine-element-map.md) and `docs/coverage
   - Airflow source, finite jet geometry with occlusion, receiver impedance, shared finite reservoir and paired reactions: Story 12.2. Decision owner S470 ([decisions](../invest/decisions.md#s470)), row "open-versus-sealed" → S697.
   - EnvironmentState pressure scaling of receiver conductance: Story 12.1.
   - A looped spin cosmetic driven by an active state (the current feedback sources are Activation, Timer, ContactWork, Capture): Story 12.2.
-  - ElectricalPower: Story 8.1 (CAT-005) if the owner adopts the battery-powered fan of Story 12.2.
+  - ElectricalPower: Story 8.1 (CAT-005) supplies routing/storage patterns; Story 12.2 adds generic exposed continuous demand with shared charging arbitration.
   - Rotary receivers: Story 12.3 (CAT-070).
 - **Element dependencies.** Tennis ball (CAT-064) as the light payload, Bowling ball (CAT-014) as the heavy control; Switch (CAT-063) for the cold-start lessons; Wall (CAT-066) for occlusion.
 
@@ -125,16 +135,12 @@ Point of truth: [CAT-028](../requirements.md#current-cat-028), [simulation and e
 - **Chrome construction.** Rebuild `air_mail` through the real palette: place the Fan with the move gizmo left of and below the locked Tennis ball, facing +X; rotate with the rotation ring for depth lanes.
 - **Positive.** Run: the tennis ball is pushed along the fan axis into the Receiver (Solved); the rotor spins while active.
 - **Negative or control.** Fan unpowered (and never triggered), fan facing away, a Wall between fan and ball, reach exceeded, and a Bowling ball in place of the tennis ball each leave the ball undelivered. Two facing fans cancel.
-- **Occlusion controls.** Full block: a Wall across the jet gives zero force. Partial block: a Wall covering one of a Windmill's four rotor samples cuts its force to 3/4 (6.75 N of 9 N, CAT-070 fact 6). Clear shell: a transparent pipe, bend or funnel shell between fan and ball blocks the air although light passes (fact 8).
-- **Boundaries.** Off-axis at or beyond `width` and at or beyond `reach` give zero force; the reservoir is finite; parameter limits reject.
+- **Occlusion controls.** Full block: a Wall across the jet gives zero force. Partial block: one of four equal body receiver samples blocked leaves 3/4 uncapped demand; the Windmill rotor form remains 12.3 integration (CAT-070 fact 6). Clear shell: a transparent pipe, bend or funnel shell between fan and ball blocks the air although light passes (fact 8).
+- **Boundaries.** At axial distance x, radial distance at or beyond `width` × x/`reach`, and x at/beyond either endpoint, give zero force; the reservoir is finite; parameter limits reject.
 - **Run/Reset.** Reset restores construction, reservoir and rotor art exactly.
 - **Save/Load.** Parameters and placement survive save, reload and Load.
 - **Integrations.** Switch-started cold fan (cold_start); windmill and wind chimes receivers (Stories 12.3, 14.4).
 
-## Open questions
+## Resolved planning decisions
 
-1. **Supply.** The requirement says "self-contained activation-controlled … no battery/shaft input is invented" and the legacy has no electrical port, but Story 12.2 says "powered by a battery", EL-209 says "explicit electrical or shaft supply", and the gas doc says the reservoir recharges "only through a declared electrical supply". Unspecified — owner decision.
-2. **Field shape.** Legacy is a finite cylinder (reach × radius `width`); Story 12.2 says "conical airflow cone". Owner decision.
-3. **Acceleration envelope.** The gas doc caps authored fan/jet regions at 16 m/s²; 9 N on a 0.35 kg tennis ball is about 25.7 m/s² (arithmetic). Decide whether the cap applies to transfers or the defaults change.
-4. **Static contact material.** No fan-specific value; legacy used restitution 1 for static parts. Owner decision.
-5. **Reservoir exhaustion.** At the default 9 N the source power is 108 W, so 14,400 J lasts about 133 s (arithmetic). Confirm this is the intended lifetime.
+All five historical questions are resolved by the current Story 12.2 contract above: selectable supply, cone, force-rated global envelope, retained material and finite energy budget. Historical arithmetic/citations are retained as evidence; no readiness or implementation approval is implied.

@@ -112,6 +112,14 @@
         <Compile Include="LinearPusherArtTests.cs" />
         <Compile Include="LinearPusherIntegrationTests.cs" />
         <Compile Include="PrismaticWorkBudgetTests.cs" />
+        <Compile Include="ConicalAirflowTests.cs" />
+        <Compile Include="AirflowRuntimeTests.cs" />
+        <Compile Include="AirflowGeneralityTests.cs" />
+    <Compile Include="AirflowSupplyIntegrationTests.cs" />
+    <Compile Include="FanIntegrationTests.cs" />
+    <Compile Include="FanAdmissionTests.cs" />
+    <Compile Include="FanGuidanceTests.cs" />
+        <Compile Include="LawScene.Airflow.cs" />
         <Compile Include="CanonicalBodyTests.cs" />
         <Compile Include="RigidMassPropertiesTests.cs" />
         <Compile Include="MassFixtures.cs" />
@@ -174,6 +182,7 @@
         <Compile Include="CatalogueIntegrationTests.cs" />
         <Compile Include="ContactWorkInstanceTests.cs" />
         <Compile Include="EnergyStoreContractTests.cs" />
+        <Compile Include="FiniteEnergyBalanceTests.cs" />
         <Compile Include="MaterialSweepTests.cs" />
         <Compile Include="ChamberContractTests.cs" />
         <Compile Include="ColliderParticipationTests.cs" />

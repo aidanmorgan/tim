@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 const requireMcp=createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
 const {PNG}=requireMcp('./node_modules/playwright-core/lib/utilsBundle.js');
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, energyStore, type WorkshopResponse, encodeWorkshopResponse, decodeSavedConstruction, authoredState, contactHits, encodeWorkshopCommand, CommandKind, parameter } from './workshop-wire.ts';
+import { decodeWorkshopResponse, energyStore, type WorkshopResponse, encodeWorkshopResponse, decodeSavedConstruction, authoredState, contactHits, encodeWorkshopCommand, CommandKind, parameter , storedEnergy, sourceEnergy } from './workshop-wire.ts';
 const ElectricalEnable={Disabled:0,Enabled:1} as const;
 type ElectricalEnable=typeof ElectricalEnable[keyof typeof ElectricalEnable];
 const WorkshopCommand={ConfigureCadence:6} as const;
@@ -45,11 +45,11 @@ function accounting(reads:Buffer[], stores:number) {
         const source = res.electrical(0);
         const spent = source?.debit() ?? 0;
         if (duplicate) {
-            assert.equal(source?.remaining(), duplicate.electrical(0)?.remaining(), 'Duplicate source balance');
+            assert.equal(sourceEnergy(source), sourceEnergy(duplicate.electrical(0)), 'Duplicate source balance');
             assert.equal(spent, duplicate.electrical(0)?.debit() ?? 0, 'Duplicate source debit');
             for (let slot=0;slot<stores;slot++) {
                 const id=res.contactWorks(slot)!.store(), actual=energyStore(res,id), prior=energyStore(duplicate,id);
-                assert.equal(actual.energy(),prior.energy(),'Duplicate reservoir balance');
+                assert.equal(storedEnergy(actual),storedEnergy(prior),'Duplicate reservoir balance');
                 assert.equal(actual.supplied(),prior.supplied(),'Duplicate reservoir supplied work');
             }
             continue;
@@ -60,7 +60,7 @@ function accounting(reads:Buffer[], stores:number) {
             const id=res.contactWorks(slot)!.store(), store=energyStore(res,id);
             const prior=previous?.epoch()===res.epoch() ? energyStore(previous,id).supplied() : 0;
             const grant=store.supplied()-prior;
-            assert.ok(grant>=0 && store.energy()>=0 && store.energy()<=32);
+            assert.ok(grant>=0 && storedEnergy(store)>=0 && storedEnergy(store)<=32);
             supplied+=grant;
         }
         // A missing ordinary 50 W / 120 Hz grant is 0.417 J; 0.01 J detects that routing defect
@@ -83,7 +83,7 @@ function assertTransfers(reads:Buffer[], stores:number, depleted=false) {
             const store = energyStore(res, res.contactWorks(slot)!.store());
             credits[slot] = store.supplied();
         }
-        if(source && source.remaining() === 0 && source.debit() > 0) {
+        if(source && sourceEnergy(source) === 0 && source.debit() > 0) {
             const store = energyStore(res, res.contactWorks(0)!.store());
             assert.ok(store.supplied() > 0, 'Final positive debit must deliver a positive store credit');
             finalTick=tick;
@@ -187,59 +187,59 @@ for (const depleted of [false,true]) test(depleted ? 'Battery finite60J source e
         assert.equal(paidRes.electricalLength(), 1); assert.equal(paidRes.contactWorksLength(), 1);
         assert.ok(paidRes.contactWorks(0)!.occurrenceCount()>=3,'Recharge must permit repeated heavy-ball impacts');
         if(depleted) {
-            assert.equal(paidRes.electrical(0)!.remaining(),0);
+            assert.equal(sourceEnergy(paidRes.electrical(0)!),0);
             assert.equal(paidRes.electrical(0)!.available(),false);
-            assert.equal(energyStore(paidRes, paidRes.contactWorks(0)!.store()).energy(),0);
+            assert.equal(storedEnergy(energyStore(paidRes, paidRes.contactWorks(0)!.store())),0);
             const supply=await driver.readLastAnimationSample(String(4n<<32n));
             assert.equal(supply?.value,0);
             const depletedPicture=await indicatorPicture(driver,'depleted');assert.equal(depletedPicture.terminal,false);assert.deepEqual(depletedPicture.marks,[false,false,false,false]);
         } else {
-            const remaining=paidRes.electrical(0)!.remaining();
+            const remaining=sourceEnergy(paidRes.electrical(0)!);
             assert.ok(remaining<3504 && remaining>0);
             await driver.selectPartAt(920,510); await click(driver,130,823);
             const disableRes = decodeWorkshopResponse(reads.at(-1)!);
-            assert.equal(energyStore(disableRes, disableRes.contactWorks(0)!.store()).energy(),energyStore(paidRes, paidRes.contactWorks(0)!.store()).energy(),'Disable must preserve stored work');
+            assert.equal(storedEnergy(energyStore(disableRes, disableRes.contactWorks(0)!.store())),storedEnergy(energyStore(paidRes, paidRes.contactWorks(0)!.store())),'Disable must preserve stored work');
             await driver.resumeSimulation(); await driver.page.waitForTimeout(3500); await driver.pauseSimulation();
             const off=decodeWorkshopResponse(reads.at(-1)!);
-            assert.equal(off.electrical(0)!.enabled(),0); assert.equal(off.electrical(0)!.remaining(),remaining);
-            assert.equal(energyStore(off, off.contactWorks(0)!.store()).energy(),0);
+            assert.equal(off.electrical(0)!.enabled(),0); assert.equal(sourceEnergy(off.electrical(0)!),remaining);
+            assert.equal(storedEnergy(energyStore(off, off.contactWorks(0)!.store())),0);
             assert.equal((await driver.readLastAnimationSample(String(4n<<32n)))?.value,0);
             const retainedBeforeEnable=retained.length;
             await driver.selectPartAt(920,510); await click(driver,130,823);
             await driver.resumeSimulation(); await driver.page.waitForTimeout(700); await driver.pauseSimulation();
             const on=decodeWorkshopResponse(reads.at(-1)!);
             assert.equal(on.electrical(0)!.enabled(),1);
-            assert.ok(on.electrical(0)!.remaining()<remaining,'Re-enable resumes finite source payment');
+            assert.ok(sourceEnergy(on.electrical(0)!)<remaining,'Re-enable resumes finite source payment');
             assert.ok(retained.slice(retainedBeforeEnable).some(read=>(energyStore(decodeWorkshopResponse(read), decodeWorkshopResponse(read).contactWorks(0)!.store()).supplied())>energyStore(off,off.contactWorks(0)!.store()).supplied()),'Re-enabled source actually credits its consumer');
             assert.equal((await driver.readLastAnimationSample(String(4n<<32n)))?.value,1);
             // The preceding prolonged unpaid control can leave the ball resting. Reset through UI for a fresh demand cycle.
             await driver.reset();await driver.run();await driver.page.waitForTimeout(1200);await driver.selectPartAt(920,510);
             const runningStart=retained.length;await click(driver,130,823);
-            const demandStart=Date.now();while(Date.now()-demandStart<3000 && !retained.slice(runningStart).some(read=>{ const r=decodeWorkshopResponse(read); return r.electrical(0)?.enabled()===0 && (energyStore(r, r.contactWorks(0)!.store()).energy())<32; }))await driver.page.waitForTimeout(40);
+            const demandStart=Date.now();while(Date.now()-demandStart<3000 && !retained.slice(runningStart).some(read=>{ const r=decodeWorkshopResponse(read); return r.electrical(0)?.enabled()===0 && (storedEnergy(energyStore(r, r.contactWorks(0)!.store())))<32; }))await driver.page.waitForTimeout(40);
             const disabled=retained.slice(runningStart).filter(read=>decodeWorkshopResponse(read).electrical(0)?.enabled()===0);
-            assert.ok(disabled.some(read=>(energyStore(decodeWorkshopResponse(read), decodeWorkshopResponse(read).contactWorks(0)!.store()).energy())<32),'Running disabled source has actual store demand');
+            assert.ok(disabled.some(read=>(storedEnergy(energyStore(decodeWorkshopResponse(read), decodeWorkshopResponse(read).contactWorks(0)!.store())))<32),'Running disabled source has actual store demand');
             const stoppedRead=decodeWorkshopResponse(disabled[0]);
-            const stopped=stoppedRead.electrical(0)!.remaining();
+            const stopped=sourceEnergy(stoppedRead.electrical(0)!);
             const stoppedSupply=energyStore(stoppedRead,stoppedRead.contactWorks(0)!.store()).supplied();
-            assert.ok(disabled.every(read=>{ const r=decodeWorkshopResponse(read); return r.electrical(0)!.debit()===0 && energyStore(r, r.contactWorks(0)!.store()).supplied()===stoppedSupply && r.electrical(0)!.remaining()===stopped; }));
+            assert.ok(disabled.every(read=>{ const r=decodeWorkshopResponse(read); return r.electrical(0)!.debit()===0 && energyStore(r, r.contactWorks(0)!.store()).supplied()===stoppedSupply && sourceEnergy(r.electrical(0)!)===stopped; }));
             const resumeStart=retained.length;await click(driver,130,823);
             const supplyStart=Date.now();while(Date.now()-supplyStart<3000 && !retained.slice(resumeStart).some(read=>{ const r=decodeWorkshopResponse(read); return r.electrical(0)?.enabled()===1 && r.electrical(0)!.debit()>0 && energyStore(r, r.contactWorks(0)!.store()).supplied()>stoppedSupply; }))await driver.page.waitForTimeout(40);
             await driver.pauseSimulation();
             const resumed=retained.slice(resumeStart).filter(read=>decodeWorkshopResponse(read).electrical(0)?.enabled()===1);
-            console.log(JSON.stringify({runningTransfer:retained.slice(runningStart).map(read=>{ const r=decodeWorkshopResponse(read); return {tick:r.tick().toString(),enabled:r.electrical(0)?.enabled(),source:r.electrical(0)?.remaining(),debit:r.electrical(0)?.debit(),store:energyStore(r, r.contactWorks(0)!.store()).energy(),credit:energyStore(r, r.contactWorks(0)!.store()).supplied()}; })}));
+            console.log(JSON.stringify({runningTransfer:retained.slice(runningStart).map(read=>{ const r=decodeWorkshopResponse(read); return {tick:r.tick().toString(),enabled:r.electrical(0)?.enabled(),source:sourceEnergy(r.electrical(0)),debit:r.electrical(0)?.debit(),store:storedEnergy(energyStore(r, r.contactWorks(0)!.store())),credit:energyStore(r, r.contactWorks(0)!.store()).supplied()}; })}));
             assert.ok(resumed.some(read=>{ const r=decodeWorkshopResponse(read); return r.electrical(0)!.debit()>0 && energyStore(r, r.contactWorks(0)!.store()).supplied()>stoppedSupply; }),'Running re-enable resumes funded transfer');
             assert.ok(decodeWorkshopResponse(reads.at(-1)!).tick()>decodeWorkshopResponse(disabled[0]).tick());
             accounting(retained,1);
         }
         await driver.reset();
         const reset=decodeWorkshopResponse(reads.at(-1)!);
-        assert.equal(reset.electrical(0)!.remaining(),depleted?60:3600);
-        assert.equal(reset.electrical(0)!.enabled(),1); assert.equal(energyStore(reset, reset.contactWorks(0)!.store()).energy(),32);
+        assert.equal(sourceEnergy(reset.electrical(0)!),depleted?60:3600);
+        assert.equal(reset.electrical(0)!.enabled(),1); assert.equal(storedEnergy(energyStore(reset, reset.contactWorks(0)!.store())),32);
         assert.equal(reset.contactWorks(0)!.occurrenceCount(),0);
         const restoredPicture=await indicatorPicture(driver,depleted?'depleted-reset':'funded-reset');assert.equal(restoredPicture.terminal,true);assert.deepEqual(restoredPicture.marks,[true,true,true,true]);
         await driver.save(); assert.deepEqual(authored(await saved(driver)),authored(initial));
         assert.deepEqual(errors,[]);
-        console.log(JSON.stringify({scenario:depleted?'depleted':'funded-disable',source:paidRes.electrical(0)!.remaining(),store:energyStore(paidRes, paidRes.contactWorks(0)!.store()).energy(),hits:paidRes.contactWorks(0)!.occurrenceCount()}));
+        console.log(JSON.stringify({scenario:depleted?'depleted':'funded-disable',source:sourceEnergy(paidRes.electrical(0)!),store:storedEnergy(energyStore(paidRes, paidRes.contactWorks(0)!.store())),hits:paidRes.contactWorks(0)!.occurrenceCount()}));
     } catch (error) { console.error(JSON.stringify({errors})); await driver.page.screenshot({path:depleted?'.anvil/battery-depleted-failure.png':'.anvil/battery-funded-failure.png'}); throw error; }
     finally { await driver.close(); }
 });
@@ -263,15 +263,15 @@ test('Battery fans one finite source out to two existing Bumper stores', async (
         const paid=decodeWorkshopResponse(reads.at(-1)!);
         assertTransfers(retained,2);
         assert.equal(paid.electricalLength(),1);assert.equal(paid.contactWorksLength(),2);
-        assert.ok(paid.electrical(0)!.remaining()<3504);
+        assert.ok(sourceEnergy(paid.electrical(0)!)<3504);
         for(const slot of [0,1]) {
             assert.ok(paid.contactWorks(slot)!.occurrenceCount()>=3);
-            const bal = energyStore(paid, paid.contactWorks(slot)!.store()).energy();
+            const bal = storedEnergy(energyStore(paid, paid.contactWorks(slot)!.store()));
             assert.ok(bal>=0 && bal<=32);
         }
         await driver.reset();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(initial));
         assert.deepEqual(errors,[]);
-        console.log(JSON.stringify({scenario:'fanout',source:paid.electrical(0)!.remaining(),hits:[paid.contactWorks(0)!.occurrenceCount(),paid.contactWorks(1)!.occurrenceCount()]}));
+        console.log(JSON.stringify({scenario:'fanout',source:sourceEnergy(paid.electrical(0)!),hits:[paid.contactWorks(0)!.occurrenceCount(),paid.contactWorks(1)!.occurrenceCount()]}));
     } catch(error) {console.error(JSON.stringify({errors}));await driver.page.screenshot({path:'.anvil/battery-fanout-failure.png'});throw error;}
     finally {await driver.close();}
 });
@@ -327,7 +327,7 @@ test('Battery disconnected authored settings and rendered charge thresholds rest
             await driver.reload();await driver.load();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(initial));
             await driver.run();await driver.page.waitForTimeout(1200);await driver.pauseSimulation();
             const read=decodeWorkshopResponse(reads.at(-1)!);
-            assert.equal(read.electrical(0)!.remaining(),120*fraction);assert.equal(read.electrical(0)!.debit(),0);
+            assert.equal(sourceEnergy(read.electrical(0)!),120*fraction);assert.equal(read.electrical(0)!.debit(),0);
             assert.equal(energyStore(read, read.contactWorks(0)!.store()).supplied(),0);assert.equal(read.electrical(0)!.enabled(),0);
             for(let mark=0;mark<5;mark++)assert.equal((await driver.readLastAnimationSample(String((4n<<32n)+BigInt(mark))))?.value,
                 mark===0?0:(fraction>=mark*.25?1:0));
@@ -335,14 +335,14 @@ test('Battery disconnected authored settings and rendered charge thresholds rest
             assert.deepEqual(picture.marks,[.25,.5,.75,1].map(threshold=>fraction>=threshold));assert.equal(picture.terminal,false);
             await driver.reset();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(initial));
             const reset1=decodeWorkshopResponse(reads.at(-1)!);
-            assert.equal(reset1.electrical(0)!.remaining(),120*fraction);assert.equal(reset1.electrical(0)!.enabled(),0);
+            assert.equal(sourceEnergy(reset1.electrical(0)!),120*fraction);assert.equal(reset1.electrical(0)!.enabled(),0);
             const restored=await indicatorPicture(driver,'fraction-reset-'+fraction);assert.deepEqual(restored.marks,picture.marks);assert.equal(restored.terminal,false);
         }
         // Enabled yet disconnected: source is available, but no credit/debit occurs and preload is finite.
         await configure(driver,120,30,.5,true);await driver.save();const initial=await saved(driver);assert.equal(parameter(decodeSavedConstruction(initial).construction()!.instances(2)!,'enabled'),1);
         await driver.run();await driver.page.waitForTimeout(3000);await driver.pauseSimulation();
-        const read=decodeWorkshopResponse(reads.at(-1)!);assert.equal(read.electrical(0)!.remaining(),60);assert.equal(read.electrical(0)!.debit(),0);
-        assert.equal(energyStore(read, read.contactWorks(0)!.store()).supplied(),0);assert.equal(energyStore(read, read.contactWorks(0)!.store()).energy(),0);
+        const read=decodeWorkshopResponse(reads.at(-1)!);assert.equal(sourceEnergy(read.electrical(0)!),60);assert.equal(read.electrical(0)!.debit(),0);
+        assert.equal(energyStore(read, read.contactWorks(0)!.store()).supplied(),0);assert.equal(storedEnergy(energyStore(read, read.contactWorks(0)!.store())),0);
         assert.equal((await driver.readLastAnimationSample(String(4n<<32n)))?.value,1);
         const on=await indicatorPicture(driver,'terminal-on');
         await driver.selectPartAt(920,510);await click(driver,130,823);
@@ -350,16 +350,16 @@ test('Battery disconnected authored settings and rendered charge thresholds rest
         const off=await indicatorPicture(driver,'terminal-off');assert.equal(on.terminal,true);assert.equal(off.terminal,false);assert.deepEqual(on.marks,off.marks,'Disabling does not repaint charge');
         await driver.reset();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(initial));
         const reset2=decodeWorkshopResponse(reads.at(-1)!);
-        assert.equal(reset2.electrical(0)!.enabled(),1);assert.equal(reset2.electrical(0)!.remaining(),60);
+        assert.equal(reset2.electrical(0)!.enabled(),1);assert.equal(sourceEnergy(reset2.electrical(0)!),60);
         const restored=await indicatorPicture(driver,'terminal-reset');assert.equal(restored.terminal,true);assert.deepEqual(restored.marks,on.marks);
         await connect(driver,false);await driver.save();const connected=await saved(driver);assertLinks(connected,2,[1]);
         const limited:Buffer[]=[];driver.page.on('console',m=>{const text=m.text();if(text.startsWith('CCGPU_RETAINED '))limited.push(Buffer.from(text.slice(15),'base64'));});
         await driver.run();await driver.page.waitForTimeout(1800);await driver.pauseSimulation();
         const budget=accounting(limited,1);assert.ok(budget.debit>0 && budget.credit>0);
         assert.ok(budget.unique.every(read=>decodeWorkshopResponse(read).electrical(0)!.debit()<=.5),'Authored30W limits each at-most-two-phase commit to0.5J');
-        assert.ok(decodeWorkshopResponse(reads.at(-1)!).electrical(0)!.remaining()<60,'a half-charged authored source funds actual demand');
+        assert.ok(sourceEnergy(decodeWorkshopResponse(reads.at(-1)!).electrical(0)!)<60,'a half-charged authored source funds actual demand');
         await driver.reset();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(connected));
-        assert.equal(decodeWorkshopResponse(reads.at(-1)!).electrical(0)!.remaining(),60);
+        assert.equal(sourceEnergy(decodeWorkshopResponse(reads.at(-1)!).electrical(0)!),60);
         assert.deepEqual(errors,[]);
     }finally{await driver.close();}
 });
@@ -377,7 +377,7 @@ test('Battery paused intent reverses and Running controls preserve stores across
         await driver.page.screenshot({path:'.anvil/battery-paused-disable-queued.png'});
         await driver.page.keyboard.press('Escape');await driver.selectPartAt(920,510);await click(driver,130,823);
         await driver.page.screenshot({path:'.anvil/battery-paused-enable-queued.png'});
-        assert.equal(energyStore(decodeWorkshopResponse(reads.at(-1)!), decodeWorkshopResponse(reads.at(-1)!).contactWorks(0)!.store()).energy(),32);
+        assert.equal(storedEnergy(energyStore(decodeWorkshopResponse(reads.at(-1)!), decodeWorkshopResponse(reads.at(-1)!).contactWorks(0)!.store())),32);
         await driver.resumeSimulation();await driver.page.waitForTimeout(400);await driver.pauseSimulation();
         const afterResume=decodeWorkshopResponse(reads.at(-1)!);
         assert.equal(afterResume.electrical(0)!.enabled(),1,'Second paused click reverses queued disable');
@@ -392,8 +392,8 @@ test('Battery paused intent reverses and Running controls preserve stores across
             const start=Date.now();while(Date.now()-start<2500 && !reads.some(read=>{ const r=decodeWorkshopResponse(read); return r.epoch()===before.epoch() && r.tick()>before.tick() && r.electrical(0)?.enabled()===enabled; }))await driver.page.waitForTimeout(40);
             const after=decodeWorkshopResponse(reads.findLast(read=>{ const r=decodeWorkshopResponse(read); return r.epoch()===before.epoch() && r.tick()>before.tick() && r.electrical(0)?.enabled()===enabled; })!);assert.ok(after,'Observe committed state after Running toggle');await driver.page.screenshot({path:'.anvil/battery-running-after-'+enabled+'.png'});assert.equal(after.electrical(0)!.enabled(),enabled);
             assert.ok(after.tick()>before.tick(),'Running command commits while physics continues');
-            assert.equal(energyStore(after, after.contactWorks(0)!.store()).energy(),32,'Toggle preserves unspent stored work');
-            assert.equal(after.electrical(0)!.remaining(),3600);
+            assert.equal(storedEnergy(energyStore(after, after.contactWorks(0)!.store())),32,'Toggle preserves unspent stored work');
+            assert.equal(sourceEnergy(after.electrical(0)!),3600);
             await driver.page.waitForTimeout(200);
         }
         await driver.reset();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(initial));
@@ -454,7 +454,7 @@ test('Battery electrical animation survives same-world cadence downshift through
         assert.ok(BigInt(after.ordinal)<BigInt(before.ordinal),'30 Hz sample ordinal is lower than prior60 Hz ordinal');
         assert.equal(after.value,1);
         const lastRead = decodeWorkshopResponse(reads.at(-1)!);
-        assert.equal(lastRead.electrical(0)!.remaining(),3600);
+        assert.equal(sourceEnergy(lastRead.electrical(0)!),3600);
         assert.deepEqual(errors,[]);
     }finally{await driver.close();}
 });
@@ -463,26 +463,26 @@ test('Battery accounting deduplicates exact commits and rejects mutated or unfun
     const read=encodeWorkshopResponse({
         epoch: 1n,
         tick: 1n, physicalRevision: 1n,
-        electrical: [{ remaining: 59, debit: 1, enabled: 1 }],
+        electrical: [{ remainingBulk: 59, debit: 1, enabled: 1 }],
         contactWorks: [{ store: 1n }, { store: 2n }],
-        energyStores: [{ id: 1n, energy: 16, supplied: 0.5 }, { id: 2n, energy: 16, supplied: 0.5 }]
+        energyStores: [{ id: 1n, bulk: 16, supplied: 0.5 }, { id: 2n, bulk: 16, supplied: 0.5 }]
     });
     const unique=accounting([read,Buffer.from(read)],2);assert.equal(unique.unique.length,1);assert.equal(unique.credit,1);assert.equal(unique.debit,1);
     const mutated=encodeWorkshopResponse({
         epoch: 1n,
         tick: 1n, physicalRevision: 1n,
-        electrical: [{ remaining: 59, debit: 1, enabled: 1 }],
+        electrical: [{ remainingBulk: 59, debit: 1, enabled: 1 }],
         contactWorks: [{ store: 1n }, { store: 2n }],
-        energyStores: [{ id: 1n, energy: 16, supplied: 0.75 }, { id: 2n, energy: 16, supplied: 0.5 }]
+        energyStores: [{ id: 1n, bulk: 16, supplied: 0.75 }, { id: 2n, bulk: 16, supplied: 0.5 }]
     });
     assert.throws(()=>accounting([read,mutated],2),/Duplicate reservoir supplied work/);
     assert.throws(()=>accounting([mutated],2),/Finite commit/);
     const free=encodeWorkshopResponse({
         epoch: 1n,
         tick: 1n, physicalRevision: 1n,
-        electrical: [{ remaining: 59, debit: 0, enabled: 1 }],
+        electrical: [{ remainingBulk: 59, debit: 0, enabled: 1 }],
         contactWorks: [{ store: 1n }, { store: 2n }],
-        energyStores: [{ id: 1n, energy: 16, supplied: 0.5 }, { id: 2n, energy: 16, supplied: 0.5 }]
+        energyStores: [{ id: 1n, bulk: 16, supplied: 0.5 }, { id: 2n, bulk: 16, supplied: 0.5 }]
     });
     assert.throws(()=>accounting([free],2),/Finite commit|Zero debit/);
 });

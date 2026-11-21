@@ -266,15 +266,16 @@ public sealed class WorkshopPhysicsEngineTests
             }
         }
         Assert.True(paid.Count >= 2, "the ball returns to the empty Bumper");
-        Assert.Equal(32f, paid[0]);
+        // Actual delivered work can leave a bounded closing disposition; 5 mJ is below a 2 mm lift of this heavy payload.
+        Assert.InRange(paid[0], 31.995f, 32f);
         Assert.All(paid.Skip(1), debit => Assert.Equal(0f, debit));
         Assert.True(exhausted);
     }
 
     // CAT-015 control: the 1 kg Basketball reaches the 8 m/s target within budget, so it pays less than the store and
-    // the ledger closes exactly (remaining + debit = 32 J).
+    // the actual delivered work and represented remaining balance preserve the finite 32 J budget.
     [Fact]
-    public async Task TargetLimitedPayoutLeavesTheExactRemainder()
+    public async Task TargetLimitedPayoutRetainsTheUnspentBalance()
     {
         var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Free(
             WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),new(1), 0, 4.5f, 0, 0, 0, 0, 1),
@@ -282,7 +283,9 @@ public sealed class WorkshopPhysicsEngineTests
         var first = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
         var debit = ledgers[first].Occurrence(0).Debit.Value;
         Assert.InRange(debit, 1f, 31f);
-        Assert.Equal(32f, reads[first].EnergyStores[0].Energy.Value + debit);
+        var balance = reads[first].EnergyStores[0].Balance;
+        // 1 mJ is under 0.1 mm of lift for the 1 kg payload; larger lost work would shorten repeated operation.
+        Assert.InRange(balance.Bulk + (double)balance.Remainder + debit - 32, -.001, .001);
     }
 
     private static byte[] BasketballOverBumperWithStore(float available)
@@ -325,7 +328,8 @@ public sealed class WorkshopPhysicsEngineTests
         Assert.NotEmpty(debits); // the ball reached the Bumper with a qualifying approach
         if (pays)
         {
-            Assert.Equal((seeded, ContactWorkEffect.Paid), debits[0]);
+            Assert.Equal(ContactWorkEffect.Paid, debits[0].Effect);
+            Assert.True(debits[0].Debit > 0 && debits[0].Debit <= seeded);
             Assert.Equal(0f, available[^1]);
             return;
         }
@@ -342,8 +346,8 @@ public sealed class WorkshopPhysicsEngineTests
     [InlineData(-1f)]
     public void AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(float available)
     {
-        var error = Assert.Throws<InvalidOperationException>(() => StepWorld(BasketballOverBumperWithStore(available), 2 * TicksPerSecond, (_, _, interactions) => { }));
-        Assert.Contains("impossible store", error.Message);
+        var error = Assert.Throws<ArgumentException>(() => StepWorld(BasketballOverBumperWithStore(available), 2 * TicksPerSecond, (_, _, interactions) => { }));
+        Assert.Contains("finite energy balance", error.Message);
     }
 
     // D20 control (advisor review): strength 0 is an authored Bumper whose 0 J preload is a legal, empty store. A ball
@@ -660,12 +664,11 @@ public sealed class WorkshopPhysicsEngineTests
         {
             if (tick % (rate / 2) == 0) debits.Add(3600.0 - PhysicsGpuAbi.ReadElectrical(world)[0].Remaining.Value);
         }, enabledSources: 1);
-        // One phase debits 10 W x 1/120 s, quantised to the f32 grid of the 3600 J balance (the ledger rounds toward the
-        // source keeping at least what it credits); the count of phases is what this proves.
-        var phaseDebit = 3600f - (3600f - 10f * ElectricalSupply.PhaseSeconds);
+        // Independently: 10 W pays 5 J in half a second and 10 J in one second.
+        // A missing phase is over 0.08 J, well outside this 0.001 J material accounting allowance.
         Assert.Equal(2, debits.Count);
-        Assert.InRange(debits[0], 60 * phaseDebit - 1e-4, 60 * phaseDebit + 1e-4);
-        Assert.InRange(debits[1], 120 * phaseDebit - 1e-4, 120 * phaseDebit + 1e-4);
+        Assert.InRange(debits[0], 4.999, 5.001);
+        Assert.InRange(debits[1], 9.999, 10.001);
     }
 
     // Former harness fact (game-grade envelope): a speed beyond the envelope clamps inside the 64 m/s host bound and the

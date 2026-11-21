@@ -50,6 +50,7 @@
     <Project Path="elements/ImpactLever/ImpactLever.csproj" />
     <Project Path="elements/Trampoline/Trampoline.csproj" />
     <Project Path="elements/Motor/Motor.csproj" />
+    <Project Path="elements/Fan/Fan.csproj" />
     <Project Path="elements/Conveyor/Conveyor.csproj" />
     <Project Path="elements/LinearPusher/LinearPusher.csproj" />
     <Project Path="elements/WoundSpring/WoundSpring.csproj" />

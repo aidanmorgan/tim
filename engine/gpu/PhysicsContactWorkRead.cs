@@ -86,13 +86,23 @@ public readonly struct ContactWorkLedger
 
     /// <summary>Accepted contact and actuator occurrences jointly account for each exact reservoir's released work.</summary>
     public void ValidateReleasedWork(ContactWorkLedger previous, PhysicsEnergyStoreRead current, PhysicsEnergyStoreRead prior,
-        PhysicsFiniteWorkActuatorRead actuators, PhysicsFiniteWorkActuatorRead priorActuators)
+        PhysicsFiniteWorkActuatorRead actuators, PhysicsFiniteWorkActuatorRead priorActuators,
+        ReadOnlySpan<EnergyStoreDebit> continuous)
     {
+        foreach (var payment in continuous)
+        {
+            payment.Work.Validate(float.MaxValue);
+            var found = false;
+            for (var i = 0; i < current.Count; i++) found |= current[i].Id == payment.Store;
+            if (!found) throw new ArgumentException("Continuous work names an absent reservoir.");
+        }
         for (var store = 0; store < current.Count; store++)
         {
             var after = current[store]; var before = prior[store];
+            if (after.Id != before.Id || after.Owner != before.Owner)
+                throw new ArgumentException("Released work changed store ownership.");
             var debit = 0f;
-            var allowance = PhysicsReadValidation.Residual(after.Released.Value) + PhysicsReadValidation.Residual(before.Released.Value);
+            var allowance = PhysicsReadValidation.Residual(after.CommitReleased.Value);
             for (var i = 0; i < OccurrenceCount; i++)
             {
                 var occurrence = Occurrence(i);
@@ -114,7 +124,13 @@ public readonly struct ContactWorkLedger
                 debit += actuator.LastDebit.Value;
                 allowance += PhysicsReadValidation.Residual(debit);
             }
-            if (MathF.Abs(after.Released.Value - before.Released.Value - debit) > allowance)
+            foreach (var payment in continuous)
+                if (payment.Store == after.Id)
+                {
+                    debit += payment.Work.Value;
+                    allowance += PhysicsReadValidation.Residual(debit);
+                }
+            if (MathF.Abs(after.CommitReleased.Value - debit) > allowance)
                 throw new ArgumentException("Reservoir releases do not account for accepted work occurrences.");
         }
     }

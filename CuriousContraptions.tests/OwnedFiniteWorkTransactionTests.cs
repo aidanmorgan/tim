@@ -692,7 +692,8 @@ public sealed class OwnedFiniteWorkTransactionTests
         Assert.Equal(before.Memory[0], after.Memory[0]);
         Assert.Equal(before.Timers[0], after.Timers[0]);
         Assert.Equal(before.Electrical[0], after.Electrical[0]);
-        Assert.Equal(credit, Enumerable.Range(0, after.EnergyStores.Count).Select(i => after.EnergyStores[i]).Single(value => value.Id == storage));
+        Assert.Equal(credit with { CommitSupplied = default, CommitReleased = default, CommitDissipated = default, Transactions = 0 },
+            Enumerable.Range(0, after.EnergyStores.Count).Select(i => after.EnergyStores[i]).Single(value => value.Id == storage));
         Assert.True(before.Bodies.TryGet(traveller, out var original));
         Assert.True(after.Bodies.TryGet(traveller, out var preserved));
         Assert.Equal(original, preserved);

@@ -617,7 +617,10 @@ public static partial class WorkshopWireFlatBuffers
             (value.Consumers.IsDefault ? [] : value.Consumers).Select(item => EncodeCapabilitySupplyConsumerRecord(b, item)).ToArray());
         var storages = W.CapabilitySupplyNodeDeclarationRecord.CreateStoragesVector(b,
             (value.Storages.IsDefault ? [] : value.Storages).Select(id => id.Value).ToArray());
+        var continuous = W.CapabilitySupplyNodeDeclarationRecord.CreateContinuousWorkVector(b,
+            (value.ContinuousWork.IsDefault ? [] : value.ContinuousWork).Select(id => id.Value).ToArray());
         W.CapabilitySupplyNodeDeclarationRecord.StartCapabilitySupplyNodeDeclarationRecord(b);
+        W.CapabilitySupplyNodeDeclarationRecord.AddContinuousWork(b, continuous);
         W.CapabilitySupplyNodeDeclarationRecord.AddId(b, value.Id.Value);
         W.CapabilitySupplyNodeDeclarationRecord.AddStorages(b, storages);
         W.CapabilitySupplyNodeDeclarationRecord.AddOwner(b, value.Owner.Value);
@@ -640,7 +643,8 @@ public static partial class WorkshopWireFlatBuffers
         Enumerable.Range(0, row.ConsumersLength).Select(i => DecodeCapabilitySupplyConsumerRecord(Required(row.Consumers(i), "Consumers"))).ToImmutableArray(),
         row.Operation is { } operation ? ObservationEnum<CuriousContraptions.Abstractions.Electrical.LogicGateOperation>(operation) : null,
         Enumerable.Range(0, row.StoragesLength).Select(i => new EnergyStoreId(row.Storages(i))).ToImmutableArray(),
-        DecodeCoordinateContact(row));
+        DecodeCoordinateContact(row),
+        Enumerable.Range(0, row.ContinuousWorkLength).Select(i => new AirflowSourceId(row.ContinuousWork(i))).ToImmutableArray());
 
     private static PrismaticEndpointContact? DecodeCoordinateContact(W.CapabilitySupplyNodeDeclarationRecord row)
     {
@@ -963,6 +967,8 @@ public static partial class WorkshopWireFlatBuffers
         var energyStores = EncodeEnergyStores(b, scene.Physics.EnergyStores);
         var chamberRegions = EncodeChamberDeclarations(b, scene.Physics.ChamberRegions);
         var finiteWorkActuators = EncodeFiniteWorkActuatorDeclarations(b, scene.Physics.FiniteWorkActuators);
+        var airflowSources = W.CompiledSceneRecord.CreateAirflowSourcesVector(b, scene.Physics.AirflowSources.ToArray().Select(s => EncodeAirflowSource(b, s)).ToArray());
+        var airflowReceivers = W.CompiledSceneRecord.CreateAirflowReceiversVector(b, scene.Physics.AirflowReceivers.ToArray().Select(r => EncodeAirflowReceiver(b, r)).ToArray());
         var gasStores = EncodeGasStores(b, scene.Physics.GasStores);
         var gasShapes = EncodeGasShapes(b, scene.Physics.GasShapes);
         var inventoryMasses = EncodeInventoryMasses(b, scene.Physics.InventoryMasses);
@@ -1027,6 +1033,7 @@ public static partial class WorkshopWireFlatBuffers
             W.CompiledPresentationRecord.AddFiniteWork(b, track.FiniteWork.Value);
             W.CompiledPresentationRecord.AddGasShape(b, track.GasShape.Value);
             W.CompiledPresentationRecord.AddIntegrity(b, track.Integrity.Value);
+            W.CompiledPresentationRecord.AddAirflow(b, track.Airflow.Value);
             W.CompiledPresentationRecord.AddStore(b, track.Store.Value);
             return W.CompiledPresentationRecord.EndCompiledPresentationRecord(b);
         }).ToArray());
@@ -1047,6 +1054,8 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddEnergyStores(b, energyStores);
         W.CompiledSceneRecord.AddChamberRegions(b, chamberRegions);
         W.CompiledSceneRecord.AddFiniteWorkActuators(b, finiteWorkActuators);
+        W.CompiledSceneRecord.AddAirflowSources(b, airflowSources);
+        W.CompiledSceneRecord.AddAirflowReceivers(b, airflowReceivers);
         W.CompiledSceneRecord.AddGasStores(b, gasStores);
         W.CompiledSceneRecord.AddGasShapes(b, gasShapes);
         W.CompiledSceneRecord.AddInventoryMasses(b, inventoryMasses);
@@ -1142,7 +1151,9 @@ public static partial class WorkshopWireFlatBuffers
                 revolutes: revolutes, compliantSurfaces: compliant_surfaces, revoluteDrives: revolute_drives,
                 ropeGuides: rope_guides, transmissions: transmissions, drivenSurfaces: drivenSurfaces, energyStores: energyStores,
                 chamberRegions: DecodeChamberDeclarations(row), finiteWorkActuators: DecodeFiniteWorkActuatorDeclarations(row),
-                gasStores: DecodeGasStores(row), gasShapes: DecodeGasShapes(row), inventoryMasses: DecodeInventoryMasses(row), ambientLoads: DecodeAmbientLoads(row), integrityObservers: DecodeIntegrityObservers(row));
+                gasStores: DecodeGasStores(row), gasShapes: DecodeGasShapes(row), inventoryMasses: DecodeInventoryMasses(row), ambientLoads: DecodeAmbientLoads(row), integrityObservers: DecodeIntegrityObservers(row),
+                airflowSources: Enumerable.Range(0, row.AirflowSourcesLength).Select(i => DecodeAirflowSource(Required(row.AirflowSources(i), "airflow source"))).ToArray(),
+                airflowReceivers: Enumerable.Range(0, row.AirflowReceiversLength).Select(i => DecodeAirflowReceiver(Required(row.AirflowReceivers(i), "airflow receiver"))).ToArray());
             var activation = new ActivationNetwork(activation_nodes, activation_edges, row.ActivationSubsteps, passage_sensors,
                 Enumerable.Range(0, row.SignalContactsLength).Select(i =>
                 {
@@ -1158,7 +1169,8 @@ public static partial class WorkshopWireFlatBuffers
                     track.Actuator is { } drive ? ActuatorConsumerOf(drive.Kind, drive.Joint) : null, new(track.Guide),
                     new(track.Source), new(track.SupplyNode), new MechanicalTransmissionId(track.Transmission), new PrismaticRetentionId(track.Retention),
                     new FiniteWorkActuatorId(track.FiniteWork), new EnergyStoreId(track.Store),
-                    new GpuColliderId(track.GasShape), new IntegrityObservationId(track.Integrity));
+                    new GpuColliderId(track.GasShape), new IntegrityObservationId(track.Integrity),
+                    new AirflowSourceId(Required(track.Airflow, "airflow")));
             });
             return new(new(row.Identity), new(row.Revision), DecodeCapabilityWorkshopCadenceSettingsRecord(Required(row.Settings, "settings")),
                 physics, activation, presentation,

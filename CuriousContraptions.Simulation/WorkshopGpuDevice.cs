@@ -55,7 +55,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private PhysicsMemoryRead _committedMemory, _candidateMemory;
     private IActivationProgram? _committedNetwork, _candidateNetwork;
     // Supply routes compiled once at Admit: routes as indices into the admitted drive-slot and source tables.
-    private sealed record CompiledSupply(ICompiledSupplyGraph Graph, int Sources, int Drives);
+    private sealed record CompiledSupply(ICompiledSupplyGraph Graph, int Sources, int Drives, AirflowSourceDeclaration[] Airflow);
     private CompiledSupply? _committedSupply, _candidateSupply;
     private PassageSensorTracker _committedPassageTracker = PassageSensorTracker.Empty;
     private PassageSensorTracker _candidatePassageTracker = PassageSensorTracker.Empty;
@@ -117,7 +117,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         if (scene.Document != document) throw new ArgumentException("Compiled scene belongs to another document.");
         var guides = scene.RopeGuides.ToArray();
         return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence, construction.Activation,
-            new(scene.SupplyGraph, scene.Electrical.Sources.Length, scene.RevoluteDrives.Length), new PhysicsTickInputs([], []) { Guides = guides, AdmissionDrivenSurfaces = scene.DrivenSurfaces.ToArray() }, scene);
+            new(scene.SupplyGraph, scene.Electrical.Sources.Length, scene.RevoluteDrives.Length, scene.AirflowSources.ToArray()), new PhysicsTickInputs([], []) { Guides = guides, AdmissionDrivenSurfaces = scene.DrivenSurfaces.ToArray() }, scene);
     }
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)
     {
@@ -204,7 +204,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                     network.ContactClosed(checkpoint.Activations, checkpoint.Timers, id);
                 inputs = TickControlComposition.Compose(supply.Graph, controls,
                     contactClosed,
-                    PhysicsGpuAbi.ReadElectrical(_committedWorld.Span)) with
+                    PhysicsGpuAbi.ReadElectrical(_committedWorld.Span), supply.Airflow,
+                    id => network.StateLatchPhase(checkpoint.Activations, id) == SimulationLatchPhase.On) with
                 { PhysicalRequests = PhysicalRequestComposition.Compose(network, _committedActivations) };
             }
             if(operation==WorkshopGpuOperation.Admit)
@@ -289,7 +290,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 ChamberRegions: new PhysicsChamberRead(PhysicsGpuAbi.ReadChamberRegions(bytes.Span)),
                 FiniteWorkActuators: actuators,
                 GasStores: new PhysicsGasRead(PhysicsGpuAbi.ReadGas(bytes.Span)),
-                IntegrityObservers: integrity);
+                IntegrityObservers: integrity, Airflow: new PhysicsAirflowRead(PhysicsGpuAbi.ReadAirflow(bytes.Span)));
             _candidateRead = read;
             _candidateInputs = inputs with { OwnedFiniteWork = null, AdmissionDrivenSurfaces = [], PhysicalRequests = [], Cuts = [] };
             if (operation == WorkshopGpuOperation.Admit)

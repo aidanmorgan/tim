@@ -42,7 +42,7 @@ public static partial class WorkshopWireFlatBuffers
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
-        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 39, _ => 0 };
+        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 40, _ => 0 };
         if (fieldCount != 0)
         {
             var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
@@ -68,6 +68,9 @@ public static partial class WorkshopWireFlatBuffers
         {
             var element = vector + sizeof(int) + i * sizeof(int);
             var track = element + buffer.GetInt(element);
+            var trackVtable = track - buffer.GetInt(track);
+            if (buffer.GetUshort(trackVtable) > 4 + 17 * 2)
+                throw new WireFaultException(WireFaultReason.OutOfRange, "Presentation track contains undefined fields.");
             var binding = TableTarget(buffer, track, 5);
             if (binding == 0) continue;
             var vtable = binding - buffer.GetInt(binding);
@@ -303,7 +306,9 @@ public static partial class WorkshopWireFlatBuffers
         {
             var store = read.EnergyStores[i];
             Wire.EnergyStoreReadRecord.CreateEnergyStoreReadRecord(builder, store.Id.Value, store.Owner.Value,
-                store.Energy.Value, store.Supplied.Value, store.Released.Value, store.Dissipated.Value);
+                store.Balance.Bulk, store.Balance.Remainder, store.CommitSupplied.Value,
+                store.CommitReleased.Value, store.CommitDissipated.Value, store.Transactions,
+                store.Supplied.Value, store.Released.Value, store.Dissipated.Value);
         }
         return builder.EndVector();
     }
@@ -346,7 +351,7 @@ public static partial class WorkshopWireFlatBuffers
             for (var i = read.Electrical.Count - 1; i >= 0; i--)
             {
                 var e = read.Electrical[i];
-                ElectricalSourceRecord.CreateElectricalSourceRecord(builder, e.Id.Value, e.Owner.Value, e.Remaining.Value, e.Debit.Value, (byte)e.Enabled, e.Available);
+                ElectricalSourceRecord.CreateElectricalSourceRecord(builder, e.Id.Value, e.Owner.Value, e.Balance.Bulk, e.Balance.Remainder, e.Transactions, e.Debit.Value, (byte)e.Enabled, e.Available);
             }
             electricalOffset = builder.EndVector();
         }
@@ -497,6 +502,7 @@ public static partial class WorkshopWireFlatBuffers
         var energyStoresOffset = EncodeEnergyStoreRead(builder, read);
         var chamberOffset = EncodeChamberRead(builder, read.ChamberRegions);
         var finiteWorkOffset = EncodeFiniteWorkActuatorRead(builder, read.FiniteWorkActuators);
+        var airflowOffset = EncodeAirflowRead(builder, read.Airflow);
         var gasOffset = EncodeGasStoreRead(builder, read.GasStores);
         var integrityOffset = EncodeIntegrityRead(builder, read.IntegrityObservers);
 
@@ -543,6 +549,7 @@ public static partial class WorkshopWireFlatBuffers
         Wire.WorkshopResponse.AddEnergyStores(builder, energyStoresOffset);
         Wire.WorkshopResponse.AddChamberRegions(builder, chamberOffset);
         Wire.WorkshopResponse.AddFiniteWorkActuators(builder, finiteWorkOffset);
+        Wire.WorkshopResponse.AddAirflow(builder, airflowOffset);
         Wire.WorkshopResponse.AddGasStores(builder, gasOffset);
         Wire.WorkshopResponse.AddIntegrityObservers(builder, integrityOffset);
         if (electricalOffset.HasValue) Wire.WorkshopResponse.AddElectrical(builder, electricalOffset.Value);
@@ -628,7 +635,8 @@ public static partial class WorkshopWireFlatBuffers
         for (var i = 0; i < energyStores.Length; i++)
         {
             var value = fb.EnergyStores(i)!.Value;
-            energyStores[i] = new(new(value.Id), new(value.Owner), new(value.Energy), new(value.Supplied), new(value.Released), new(value.Dissipated));
+            energyStores[i] = new(new(value.Id), new(value.Owner), new(value.Bulk, value.Remainder), new(value.Supplied), new(value.Released), new(value.Dissipated),
+                new(value.CommitSupplied), new(value.CommitReleased), new(value.CommitDissipated), value.Transactions);
         }
         var stores = new ContactWorkRead[fb.ContactWorksLength];
         for (var i = 0; i < stores.Length; i++)
@@ -641,7 +649,7 @@ public static partial class WorkshopWireFlatBuffers
         for (var i = 0; i < sources.Length; i++)
         {
             var e = fb.Electrical(i)!.Value;
-            sources[i] = new ElectricalSourceRead(new ElectricalSourceId(e.Id), new GpuBodyId(e.Owner), new Joules(e.Remaining), new Joules(e.Debit), (ElectricalEnable)e.Enabled);
+            sources[i] = new ElectricalSourceRead(new ElectricalSourceId(e.Id), new GpuBodyId(e.Owner), new(e.RemainingBulk, e.RemainingRemainder), new Joules(e.Debit), (ElectricalEnable)e.Enabled, e.Transactions);
         }
         var driveTargets = new RevoluteDriveTargetRead[fb.DriveTargetsLength];
         for (var i = 0; i < driveTargets.Length; i++)
@@ -690,7 +698,7 @@ public static partial class WorkshopWireFlatBuffers
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores),
             new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues),
             new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, guideValues, surfaceValues, transmissionValues, DecodeRetentions(fb)),
-            new PhysicsDriveTargetRead(driveTargets), new PhysicsEnergyStoreRead(energyStores), DecodeChamberRead(fb), DecodeFiniteWorkActuatorRead(fb), DecodeGasStoreRead(fb), DecodeIntegrityRead(fb));
+            new PhysicsDriveTargetRead(driveTargets), new PhysicsEnergyStoreRead(energyStores), DecodeChamberRead(fb), DecodeFiniteWorkActuatorRead(fb), DecodeGasStoreRead(fb), DecodeIntegrityRead(fb), DecodeAirflowRead(fb));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);
 

@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public static partial class PhysicsGpuAbi
 {
-    public const int EnergyStoreBytes = 64;
+    public const int EnergyStoreBytes = 80;
     public const int EnergyStoreOwnerOffset = 8;
     public const int EnergyStoreCapacityOffset = 12;
     public const int EnergyStoreInitialOffset = 16;
@@ -15,7 +15,12 @@ public static partial class PhysicsGpuAbi
     public const int EnergyStoreSuppliedOffset = 36;
     public const int EnergyStoreReleasedOffset = 40;
     public const int EnergyStoreDissipatedOffset = 44;
-    public const int EnergyStorePaddingOffset = 48;
+    public const int EnergyStoreRemainderOffset = 48;
+    public const int EnergyStoreCommitSuppliedOffset = 52;
+    public const int EnergyStoreCommitReleasedOffset = 56;
+    public const int EnergyStoreCommitDissipatedOffset = 60;
+    public const int EnergyStoreTransactionsOffset = 64;
+    public const int EnergyStorePaddingOffset = 68;
 
     private static void AdmitEnergyStores(Span<byte> data, IPhysicsSceneDeclaration scene)
     {
@@ -52,11 +57,13 @@ public static partial class PhysicsGpuAbi
                 new(RF(row, EnergyStoreCapacityOffset)), new(RF(row, EnergyStoreInitialOffset)),
                 new(RF(row, EnergyStorePowerOffset)));
             declaration.Validate();
-            var value = new EnergyStoreRead(declaration.Id, body, new(RF(row, EnergyStoreBalanceOffset)),
+            var value = new EnergyStoreRead(declaration.Id, body, new(RF(row, EnergyStoreBalanceOffset), RF(row, EnergyStoreRemainderOffset)),
                 new(RF(row, EnergyStoreSuppliedOffset)), new(RF(row, EnergyStoreReleasedOffset)),
-                new(RF(row, EnergyStoreDissipatedOffset)));
+                new(RF(row, EnergyStoreDissipatedOffset)), new(RF(row, EnergyStoreCommitSuppliedOffset)),
+                new(RF(row, EnergyStoreCommitReleasedOffset)), new(RF(row, EnergyStoreCommitDissipatedOffset)),
+                R32(row, EnergyStoreTransactionsOffset));
             value.Validate();
-            if (value.Energy.Value > declaration.Capacity.Value)
+            if (value.Balance.CompareTo(declaration.Capacity.Value) > 0)
                 throw new ArgumentException("Energy-store capacity exceeded.");
             result[i] = value;
         }
@@ -73,6 +80,24 @@ public static partial class PhysicsGpuAbi
         for (var i = 0; i < before.Length; i++)
         {
             var offset = layout.EnergyStoreOffset(i);
+            var steps = R32(candidate, HeaderSourceOrdinalOffset) - R32(source, HeaderSourceOrdinalOffset);
+            ulong maximumTransactions = (1UL + (uint)layout.AirflowSources) * steps;
+            for (var contact = 0; contact < layout.ContactWorks; contact++)
+            {
+                var row = layout.ContactWorkOffset(contact);
+                if (R32(candidate, row + ContactWorkStoreOffset) == i)
+                    maximumTransactions += R32(candidate, row + ContactWorkOccurrenceCountOffset) -
+                        R32(source, row + ContactWorkOccurrenceCountOffset);
+            }
+            for (var actuator = 0; actuator < layout.FiniteWorkActuators; actuator++)
+            {
+                var row = layout.FiniteWorkActuatorOffset(actuator);
+                if (R32(candidate, row + ActuatorStoreOffset) == i)
+                    maximumTransactions += R32(candidate, row + ActuatorCountOffset) -
+                        R32(source, row + ActuatorCountOffset);
+            }
+            if (after[i].Transactions > maximumTransactions)
+                throw new ArgumentException("Store transaction count exceeds admitted consumers.");
             if (!source.Slice(offset, EnergyStoreBalanceOffset).SequenceEqual(candidate.Slice(offset, EnergyStoreBalanceOffset)) ||
                 after[i].Supplied.Value < before[i].Supplied.Value ||
                 after[i].Released.Value < before[i].Released.Value ||

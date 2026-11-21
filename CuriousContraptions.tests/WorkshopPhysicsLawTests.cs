@@ -62,7 +62,7 @@ internal readonly record struct LawMaterial(float Restitution, float Threshold, 
 /// same path the compiler's scenes take. It replaces the deleted JS-kernel harness's hand-written admission bytes
 /// (tools/workshop-rigid-body.test.mjs, Story 9.4b).
 /// </summary>
-internal sealed class LawScene
+internal sealed partial class LawScene
 {
     public static readonly float BenchY = (float)WorkshopConstruction.WorkbenchSurface.Value;
     public static readonly float Gravity = -(float)WorkshopConstruction.Gravity.Value;
@@ -237,17 +237,18 @@ internal sealed class LawScene
 
     public FiniteWorkActuatorId FiniteWork(GpuBodyId frame, GpuBodyId payload, float capacity, float initial,
         Vector3? regionCentre = null, BodyTargetSet? targets = null, Quaternion? regionRotation = null,
-        float regionRadius = .48f, float maximumWidth = .84f, float containmentAllowance = .001f, float maximumRelativeSpeed = 1f)
+float regionRadius = .48f, float maximumWidth = .84f, float containmentAllowance = .001f, float maximumRelativeSpeed = 1f,
+        EnergyStoreId? sharedStore = null, float targetSpeed = 12f)
     {
         var rotation = regionRotation ?? Quaternion.Identity;
-        var store = new EnergyStoreId(_next++);
+        var store = sharedStore ?? new EnergyStoreId(_next++);
         var region = new ChamberRegionId(_next++);
         var actuator = new FiniteWorkActuatorId(_next++);
-        _energyStores.Add(new(store, frame, new(capacity), new(initial), new(30f)));
+        if (sharedStore is null) _energyStores.Add(new(store, frame, new(capacity), new(initial), new(30f)));
         _chambers.Add(new(region, frame, _colliderOf[frame], targets ?? new(BodyTargetKind.NamedBody, payload),
             new(new((regionCentre ?? Vector3.Zero).X, (regionCentre ?? Vector3.Zero).Y, (regionCentre ?? Vector3.Zero).Z), CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W)),
             regionRadius, .55f, .6f, maximumWidth, containmentAllowance, maximumRelativeSpeed, SensorParticipation.Enabled));
-        _actuators.Add(new(actuator, store, region, new(12f), .02f));
+        _actuators.Add(new(actuator, store, region, new(targetSpeed), .02f));
         return actuator;
     }
 
@@ -378,7 +379,8 @@ internal sealed class LawScene
         var scene = new PhysicsSceneDeclaration(new(1, 2), _next, [.. _bodies], [.. _colliders], [.. _materials], [.. _residence], [],
             contactWorks: [.. _contactWorks], energyStores: [.. _energyStores], chamberRegions: [.. _chambers], finiteWorkActuators: [.. _actuators], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics],
             prismaticDrives: [.. _drives], tensileSpans: [.. _tensileSpans], revolutes: [.. _revolutes], compliantSurfaces: [.. _compliantSurfaces],
-            electricalSources: [.. _sources], electricalBindings: [.. _storageBindings], supplyNodes: [.. nodes], supplyEdges: [.. _supplyEdges], revoluteDrives: [.. _revoluteDrives], transmissions: [.. _transmissions], drivenSurfaces: [.. _drivenSurfaces], ambientLoads: [.. _ambientLoads]);
+            electricalSources: [.. _sources], electricalBindings: [.. _storageBindings], supplyNodes: [.. nodes], supplyEdges: [.. _supplyEdges], revoluteDrives: [.. _revoluteDrives], transmissions: [.. _transmissions], drivenSurfaces: [.. _drivenSurfaces], ambientLoads: [.. _ambientLoads],
+            airflowSources: [.. _airflowSources], airflowReceivers: [.. _airflowTargets]);
         return new(scene, PhysicsGpuAbi.Admission(scene, new(1), new(cadence, PhysicalStepProfile.Canonical480Hz, new(1))), cadence);
     }
 }
@@ -477,7 +479,8 @@ internal sealed class LawWorld(IPhysicsSceneDeclaration scene, byte[] admitted, 
             driven.Select(slot => supplied && slot).ToArray())
         {
             DriveTarget = revoluteDrives.Select(drive => drive.TargetSpeed).ToArray(),
-            TransmissionClosed = timed.Select(slot => supplied && slot).ToArray()
+            TransmissionClosed = timed.Select(slot => supplied && slot).ToArray(),
+            AirflowEnabled = scene.AirflowSources.ToArray().Select(source => source.InitiallyEnabled).ToArray()
         };
         for (var tick = 1; tick <= ticks; tick++)
         {
@@ -844,12 +847,22 @@ public sealed class WorkshopPhysicsLawTests
         // Catalogue words remain scanned in all other identifiers, including LinearPusher and motorElement.
         "linear", "Linear", "_linear", "otherLinear", "LinearVelocity", "MaxLinearSpeed", "LinearA", "LinearB",
         "PrismaticMotorSolver", "MotorActive", "MotorImpulse", "HoldCoordinate", "PrismaticHoldCoordinateOffset",
-        "PrismaticMotorImpulseOffset", "_motorTrial", "MotorBudgetsHold", "_transmissionImpulses", "rope"];
+"PrismaticMotorImpulseOffset", "_motorTrial", "MotorBudgetsHold", "_transmissionImpulses", "rope",
+        // Dense linear algebra and exact snapshots of declared ratio/tensile constraints contain no package identity.
+        "DenseLinearSystem", "TransmissionTrialState", "_ropeStates",
+        // Trial impulses and component joins operate on arbitrary bodies and declared coordinate relations.
+        "LinearImpulse", "JoinTransmission",
+        // Ambient pressure and electrical phase budgets are physical-domain inputs, not catalogue identities.
+        "pressure", "AirflowPressureOffset", "Electrical", "ReserveElectricalWork",
+        "ElectricalPhaseAllowanceOffset", "ElectricalPhaseOrdinalOffset", "AirflowElectricalOffset",
+        // Exact current finite electrical balance/transaction lanes and generic request scratch, not gate identities.
+        "ElectricalPhaseRemainderOffset", "ElectricalSourceRemainderOffset", "ElectricalSourceTransactionsOffset",
+        "_electricalRequests", "_electricalGrants"];
 
     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token
     // (a future Springboard-specific name) is still found.
-    private const string GenericQualifiedNames = @"\b(?:PrismaticRowKind\.Spring|PrismaticCommand\.Hold|SoftConstraintCoefficients\.FromSpring|CaptureLatch\.Clear|CaptureLatchPhase\.Clear|retained\.Latch|PhysicsMotionRead\.AnchorOrdinalOffset|PhysicsMotionRead\.AnchorPhaseOffset)\b";
+    private const string GenericQualifiedNames = @"\b(?:PrismaticRowKind\.Spring|PrismaticCommand\.Hold|SoftConstraintCoefficients\.FromSpring|CaptureLatch\.Clear|CaptureLatchPhase\.Clear|retained\.Latch)\b";
 
     /// <summary>Murdoch-2 R2-F5: the scanned element names are the catalogue's, never a hand list. Every word of every element
     /// package Id in <c>elements/</c> and of every undelivered part (letters only, three or more), so a new element is scanned the
@@ -899,7 +912,12 @@ public sealed class WorkshopPhysicsLawTests
         "GuideComponent.cs", "GuidePreparedRow.cs", "GuideQr.cs", "GuideWorkspace.cs", "ImpulseJacobian.cs",
         "PrismaticMotorSolver.cs", "PrismaticTrialWorkspace.cs", "WorkshopPhysicsEngine.Extrusions.cs", "WorkshopPhysicsEngine.Motors.cs",
         "WorkshopPhysicsEngine.Retention.cs", "WorkshopPhysicsEngine.Chambers.cs", "WorkshopPhysicsEngine.FiniteWork.cs",
-        "WorkshopPhysicsEngine.FiniteWorkComponent.cs", "WorkshopPhysicsEngine.Requests.cs"];
+        "WorkshopPhysicsEngine.FiniteWorkComponent.cs", "WorkshopPhysicsEngine.Requests.cs",
+        "BodyTrialState.cs", "ConstraintTrialState.cs", "ContinuousWorkComponents.cs", "DenseLinearSystem.cs",
+        "WorkshopPhysicsEngine.Airflow.cs", "WorkshopPhysicsEngine.Supply.cs", "WorkshopPhysicsEngine.EnergyAccounting.cs",
+        "WorkshopPhysicsEngine.ContinuousPrepare.cs", "WorkshopPhysicsEngine.ContinuousWindow.cs",
+        "WorkshopPhysicsEngine.ContinuousReplay.cs", "WorkshopPhysicsEngine.ContinuousSolve.cs",
+        "WorkshopPhysicsEngine.ContinuousNewton.cs", "WorkshopPhysicsEngine.ContinuousCommit.cs"];
 
     [Fact]
     public void TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations()
@@ -975,8 +993,8 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("RopeGeometry", false)]
     [InlineData("AnchorDisplacement", false)]
     [InlineData("anchor", false)]
-    [InlineData("PhysicsMotionRead.AnchorOrdinalOffset", false)]
-    [InlineData("PhysicsMotionRead.AnchorPhaseOffset", false)]
+    [InlineData("PhysicsMotionRead.StartOrdinalOffset", false)]
+    [InlineData("PhysicsMotionRead.AngularVelocityOffset", false)]
     [InlineData("RopeAnchor", true)]
     [InlineData("ropeAnchorForce", true)]
     [InlineData("anchorBoost", true)]
@@ -1105,28 +1123,26 @@ public sealed class WorkshopPhysicsLawTests
     }
 
     [Fact]
-    public void EveryMotionPieceCarriesItsBodysDeclaredDragRate()
+    public void MotionUsesIntegratedVelocityAfterDeclaredDrag()
     {
-        const int MotionPieceBodyIdOffset = PhysicsMotionRead.OwnerOffset;
         var scene = new LawScene(bench: false);
-        var ball = scene.Ball(LawBall.Basketball, At(0, 1), velocity: At(2, 0, 0), gravity: 0);
-        var bowling = scene.Sphere(At(0, 1, 2), LawBalls.Radius(LawBall.Bowling), LawBalls.Mass(LawBall.Bowling),
+        var damped = scene.Sphere(At(0, 1, 2), .2f, 1f,
             LawMaterial.Ball(LawBall.Bowling), At(2, 0, 0), default, .125f, 0);
-        var free = scene.Ball(LawBall.Basketball, At(0, 1, -2), resistanceFree: true, gravity: 0);
+        var free = scene.Sphere(At(0, 1, -2), .2f, 1f,
+            LawMaterial.Ball(LawBall.Bowling), At(2, 0, 0), default, 0f, 0);
         var world = scene.Admit();
         var stepped = world.Step(1).World;
-        var motion = stepped.AsSpan(PhysicsGpuAbi.Layout(stepped).MotionOffset);
-        var declared = new Dictionary<ulong, float> { [ball.Value] = (float)LawBalls.Drag(LawBall.Basketball), [bowling.Value] = .125f,
-            [free.Value] = 0f };
-        var count = (int)BinaryPrimitives.ReadUInt32LittleEndian(motion);
-        Assert.Equal(12, count);
-        for (var i = 0; i < count; i++)
-        {
-            var piece = motion[(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes)..];
-            var id = BinaryPrimitives.ReadUInt64LittleEndian(piece[MotionPieceBodyIdOffset..]);
-            Assert.Equal(BitConverter.SingleToUInt32Bits(declared[id]),
-                BinaryPrimitives.ReadUInt32LittleEndian(piece[PhysicsMotionRead.DragRateOffset..]));
-        }
+        var layout = PhysicsGpuAbi.Layout(stepped);
+        var motion = PhysicsMotionRead.Decode(stepped.AsSpan(layout.MotionOffset, layout.MotionBytes),
+            PhysicsGpuAbi.ReadDynamicBodies(stepped), new(1));
+        Assert.True(motion.TrySample(damped, new(1, -2048), out var dragged));
+        Assert.True(motion.TrySample(free, new(1, -2048), out var control));
+        var dampedX = (dragged.Cell.X + dragged.Local.X) / 16;
+        var freeX = (control.Cell.X + control.Local.X) / 16;
+        Assert.True(dampedX > 0 && dampedX < freeX);
+        // Independent integrated-substep contract: the initial velocity is first damped for 1/480 s.
+        var expected = 2 * Math.Exp(-.125 / 480) * .5 / 480;
+        Assert.InRange(dampedX - expected, -1e-7, 1e-7);
     }
 
     // ---- rolling resistance ----

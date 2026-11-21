@@ -144,9 +144,9 @@ public sealed class EnergyStoreContractTests
         var world = PhysicsGpuAbi.Admission(scene.Physics, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var reads = PhysicsGpuAbi.ReadEnergyStores(world);
-        Assert.Equal(new EnergyStoreRead(identities[new(9)], instance.Id, new(0f), default, default, default),
+        Assert.Equal(new EnergyStoreRead(identities[new(9)], instance.Id, new(0f, 0f), default, default, default, default, default, default, 0),
             Assert.Single(reads, store => store.Id == identities[new(9)]));
-        Assert.Equal(new EnergyStoreRead(identities[new(3)], instance.Id, new(9f), default, default, default),
+        Assert.Equal(new EnergyStoreRead(identities[new(3)], instance.Id, new(9f, 0f), default, default, default, default, default, default, 0),
             Assert.Single(reads, store => store.Id == identities[new(3)]));
     }
 

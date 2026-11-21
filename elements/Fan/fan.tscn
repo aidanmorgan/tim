@@ -1,0 +1,131 @@
+[gd_scene load_steps=16 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Base"]
+albedo_color = Color(0.14902, 0.239216, 0.294118, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Post"]
+albedo_color = Color(0.8, 0.847059, 0.862745, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Cyan"]
+albedo_color = Color(0.4, 0.721569, 0.788235, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Blade"]
+albedo_color = Color(0.49, 0.763333, 0.82, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Hub"]
+albedo_color = Color(0.956863, 0.815686, 0.537255, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Arrow"]
+albedo_color = Color(0.662745, 0.905882, 0.878431, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_Base"]
+material = SubResource("Mat_Base")
+size = Vector3(0.65, 0.18, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_Post"]
+material = SubResource("Mat_Post")
+size = Vector3(0.13, 0.5, 0.15)
+
+[sub_resource type="TorusMesh" id="Mesh_Ring"]
+material = SubResource("Mat_Cyan")
+inner_radius = 0.49
+outer_radius = 0.63
+rings = 32
+ring_segments = 16
+
+[sub_resource type="SphereMesh" id="Mesh_Hub"]
+material = SubResource("Mat_Hub")
+radius = 0.14
+height = 0.28
+
+[sub_resource type="BoxMesh" id="Mesh_Blade"]
+material = SubResource("Mat_Blade")
+size = Vector3(0.16, 0.6, 0.1)
+
+[sub_resource type="CylinderMesh" id="Mesh_Arrow"]
+material = SubResource("Mat_Arrow")
+top_radius = 0.025
+bottom_radius = 0.025
+height = 0.55
+
+[sub_resource type="CylinderMesh" id="Mesh_Tip"]
+material = SubResource("Mat_Arrow")
+top_radius = 0
+bottom_radius = 0.07
+height = 0.12
+
+[sub_resource type="BoxShape3D" id="Shape_Base"]
+size = Vector3(0.65, 0.18, 1)
+
+[sub_resource type="SphereShape3D" id="Shape_Hub"]
+radius = 0.14
+
+[node name="Fan" type="Node3D"]
+
+[node name="col_base" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.55, 0)
+shape = SubResource("Shape_Base")
+
+[node name="Loc_Port_ActivationIn" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Loc_Port_PowerIn" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, -0.55, 0)
+
+[node name="Loc_Port_DriveIn" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0, 0)
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Base" type="MeshInstance3D" parent="Visual"]
+position = Vector3(0, -0.55, 0)
+mesh = SubResource("Mesh_Base")
+
+[node name="Post" type="MeshInstance3D" parent="Visual"]
+position = Vector3(0, -0.3, 0)
+mesh = SubResource("Mesh_Post")
+
+[node name="Ring" type="MeshInstance3D" parent="Visual"]
+rotation = Vector3(0, 0, -1.5707964)
+mesh = SubResource("Mesh_Ring")
+
+[node name="Hub" type="Node3D" parent="Visual"]
+
+[node name="col_hub" type="CollisionShape3D" parent="Visual/Hub"]
+shape = SubResource("Shape_Hub")
+
+[node name="Surface" type="MeshInstance3D" parent="Visual/Hub"]
+mesh = SubResource("Mesh_Hub")
+
+[node name="BladeAxis" type="Node3D" parent="Visual"]
+rotation = Vector3(0, 1.5707964, 0)
+
+[node name="Blades" type="Node3D" parent="Visual/BladeAxis"]
+
+[node name="Blade0" type="MeshInstance3D" parent="Visual/BladeAxis/Blades"]
+position = Vector3(0, 0.28, 0)
+mesh = SubResource("Mesh_Blade")
+
+[node name="Arm1" type="Node3D" parent="Visual/BladeAxis/Blades"]
+rotation = Vector3(0, 0, 2.0943952)
+
+[node name="Blade1" type="MeshInstance3D" parent="Visual/BladeAxis/Blades/Arm1"]
+position = Vector3(0, 0.28, 0)
+mesh = SubResource("Mesh_Blade")
+
+[node name="Arm2" type="Node3D" parent="Visual/BladeAxis/Blades"]
+rotation = Vector3(0, 0, 4.1887903)
+
+[node name="Blade2" type="MeshInstance3D" parent="Visual/BladeAxis/Blades/Arm2"]
+position = Vector3(0, 0.28, 0)
+mesh = SubResource("Mesh_Blade")
+
+[node name="Arrow" type="MeshInstance3D" parent="Visual"]
+position = Vector3(0.875, 0, 0)
+rotation = Vector3(0, 0, -1.5707964)
+mesh = SubResource("Mesh_Arrow")
+
+[node name="Tip" type="MeshInstance3D" parent="Visual"]
+position = Vector3(1.15, 0, 0)
+rotation = Vector3(0, 0, -1.5707964)
+mesh = SubResource("Mesh_Tip")

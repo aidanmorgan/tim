@@ -11,6 +11,25 @@ namespace CuriousContraptions.Tests;
 public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
 {
 
+    [Fact]
+    public void QueuedCommittedRatesSampleTheirOwnInteriorsAndHoldAfterTheEndpoint()
+    {
+        var phase = new CommittedRatePhase(new(0));
+        phase.Commit(phase.Prepare(new(480), 2));
+        phase.Commit(phase.Prepare(new(960), 4));
+        Assert.InRange(phase.Sample(new(240)), 1f - 1e-6f, 1f + 1e-6f);
+        Assert.InRange(phase.Sample(new(480)), 2f - 1e-6f, 2f + 1e-6f);
+        Assert.InRange(phase.Sample(new(600)), 3f - 1e-6f, 3f + 1e-6f);
+        Assert.InRange(phase.Sample(new(600)), 3f - 1e-6f, 3f + 1e-6f);
+        Assert.InRange(phase.Sample(new(960)), 6f - 1e-6f, 6f + 1e-6f);
+        Assert.InRange(phase.Sample(new(1200)), 6f - 1e-6f, 6f + 1e-6f);
+        phase.Commit(phase.Prepare(new(1440), 0));
+        Assert.InRange(phase.Sample(new(1200)), 6f - 1e-6f, 6f + 1e-6f);
+        var reset = new CommittedRatePhase(new(1440));
+        Assert.Equal(0, reset.Sample(new(1440)));
+        // Tolerance belongs to this local rate integral; no world trajectory is pinned.
+    }
+
     public static IEnumerable<object[]> DeclaredImpulseModes()
     {
         foreach (var curve in new[] { PresentationCurve.SmoothRiseFall, PresentationCurve.SineSquaredPulse, PresentationCurve.LinearDecay })

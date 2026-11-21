@@ -6,7 +6,7 @@ namespace CuriousContraptions.Tests;
 
 /// <summary>Story 9A.44 primary proof, for the lanes it names: the ball's mass, drag, gravity, radius, restitution and rolling
 /// resistance, the Receiver's capture speed, dwell, upper bound, guide margin and acceleration, the switch threshold, the Domino's
-/// orientation cosine and the motion pieces' drag and gravity travel authoring → compile → ABI → worker → read model as the same f32
+/// orientation cosine travel authoring → compile → ABI → worker → read model as the same f32
 /// bits, including values no half-precision lane holds and −0. (The save's nine knots are F32SaveBoundaryTests; other declared
 /// lanes are covered by their element and law tests.) A non-finite value is refused at both entry boundaries: in a worker-written
 /// lane by the candidate decode, in a declared lane by admission.</summary>
@@ -86,8 +86,7 @@ public sealed class F32LaneRoundTripTests
         Assert.Equal(Bits((float)Math.Cos(Math.PI / 8)),
             Lane(admitted, layout.GetOrientationSensorOffset(orientation.Id) + PhysicsGpuAbi.OrientationSensorCosineOffset));
 
-        // The worker steps one tick: every immutable lane is unchanged (the candidate validates) and its motion pieces carry the
-        // declared drag and gravity bits.
+        // The worker steps one tick: immutable declaration lanes remain unchanged; integrated motion contains only poses and velocities.
         var candidate = new byte[admitted.Length];
         var interactions = new CuriousContraptions.Simulation.WorkshopPhysicsEngine().Advance(admitted, candidate, new(new ElectricalEnable[scene.World.ElectricalSources], new bool[scene.World.Prismatics]), PhysicsInteractionSnapshot.Empty);
         var read = PhysicsGpuAbi.ValidateCandidate(candidate, admitted, new(1), interactions, PhysicsInteractionSnapshot.Empty);
@@ -98,8 +97,7 @@ public sealed class F32LaneRoundTripTests
             .Select(i => motion + PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes)
             .Where(piece => BinaryPrimitives.ReadUInt64LittleEndian(candidate.AsSpan(piece + PhysicsMotionRead.OwnerOffset)) == Ball.Value).ToArray();
         Assert.Equal(4, pieces.Length);
-        Assert.All(pieces, piece => Assert.Equal((Bits(.04f), Bits(-9.81f)),
-            (Lane(candidate, piece + PhysicsMotionRead.DragRateOffset), Lane(candidate, piece + PhysicsMotionRead.GravityOffset + 4))));
+        Assert.All(pieces, piece => Assert.True(float.IsFinite(BinaryPrimitives.ReadSingleLittleEndian(candidate.AsSpan(piece + PhysicsMotionRead.VelocityOffset + 4)))));
         // The committed read model keeps the ball's centre of mass.
         Assert.True(read.Bodies.TryGet(Ball, out var committed));
         Assert.Equal(sphere.Pose.Translation, committed.LocalCentreOfMass);
@@ -125,8 +123,7 @@ public sealed class F32LaneRoundTripTests
     /// <summary>The f32 lanes the worker writes on every tick: the candidate decode reads their values (it cannot compare them with the
     /// committed world), so a NaN or infinity there is refused as a value, while a finite change of the same lane commits.</summary>
     public enum CandidateLane { BodyVelocity, BodyAngularVelocity, MotionAngularVelocity, MotionVelocity,
-        BodyLocal, BodyRotation, MotionStartPhase, MotionEndPhase, MotionAnchorPhase, MotionCentreRemainder, MotionDragRate, MotionRotation,
-        MotionGravity, MotionSupportedAcceleration, MotionAngularAcceleration, MotionFlaggedVector }
+        BodyLocal, BodyRotation, MotionCentreRemainder, MotionRotation }
 
     private static int LaneOffset(IPhysicsSceneDeclaration scene, CandidateLane lane)
     {
@@ -140,24 +137,13 @@ public sealed class F32LaneRoundTripTests
             CandidateLane.BodyRotation => body + PhysicsGpuAbi.BodyRotationOffset + PhysicsGpuAbi.RotationWOffset,
             CandidateLane.MotionAngularVelocity => firstPiece + PhysicsMotionRead.AngularVelocityOffset,
             CandidateLane.MotionVelocity => firstPiece + PhysicsMotionRead.VelocityOffset,
-            CandidateLane.MotionStartPhase => firstPiece + PhysicsMotionRead.StartPhaseOffset,
-            CandidateLane.MotionEndPhase => firstPiece + PhysicsMotionRead.EndPhaseOffset,
-            CandidateLane.MotionAnchorPhase => firstPiece + PhysicsMotionRead.AnchorPhaseOffset,
             CandidateLane.MotionCentreRemainder => firstPiece + PhysicsMotionRead.CentreRemainderOffset,
-            CandidateLane.MotionDragRate => firstPiece + PhysicsMotionRead.DragRateOffset,
             CandidateLane.MotionRotation => firstPiece + PhysicsMotionRead.RotationOffset + PhysicsGpuAbi.RotationWOffset,
-            CandidateLane.MotionGravity => firstPiece + PhysicsMotionRead.GravityOffset + 4,
-            CandidateLane.MotionSupportedAcceleration => firstPiece + PhysicsMotionRead.SupportedAccelerationOffset,
-            CandidateLane.MotionAngularAcceleration => firstPiece + PhysicsMotionRead.AngularAccelerationOffset,
-            CandidateLane.MotionFlaggedVector => firstPiece + PhysicsMotionRead.FlaggedVectorOffset,
             _ => throw new ArgumentOutOfRangeException(nameof(lane))
         };
     }
 
-    // Every f32 lane the worker writes for a moving body. Value lanes take any finite value, so moving one by an f32 step still commits
-    // (a rotation's w steps down, keeping the quaternion unit); structural lanes (an interval's start, end and anchor phases, the zero
-    // supported and angular accelerations and flagged vector of a free piece) are pinned by the decode, so a finite change is refused
-    // too. A NaN or infinity is refused in both.
+    // All current worker-written motion values admit finite in-domain changes and reject NaN/infinity.
     [Theory]
     [InlineData(CandidateLane.BodyVelocity, float.NaN, true)]
     [InlineData(CandidateLane.BodyAngularVelocity, float.PositiveInfinity, true)]
@@ -165,16 +151,8 @@ public sealed class F32LaneRoundTripTests
     [InlineData(CandidateLane.BodyRotation, float.NaN, true)]
     [InlineData(CandidateLane.MotionAngularVelocity, float.NegativeInfinity, true)]
     [InlineData(CandidateLane.MotionVelocity, float.NaN, true)]
-    [InlineData(CandidateLane.MotionEndPhase, float.PositiveInfinity, false)]
     [InlineData(CandidateLane.MotionCentreRemainder, float.NaN, true)]
-    [InlineData(CandidateLane.MotionDragRate, float.NaN, true)]
     [InlineData(CandidateLane.MotionRotation, float.NegativeInfinity, true)]
-    [InlineData(CandidateLane.MotionGravity, float.NaN, true)]
-    [InlineData(CandidateLane.MotionStartPhase, float.NaN, false)]
-    [InlineData(CandidateLane.MotionAnchorPhase, float.PositiveInfinity, false)]
-    [InlineData(CandidateLane.MotionSupportedAcceleration, float.NaN, false)]
-    [InlineData(CandidateLane.MotionAngularAcceleration, float.NegativeInfinity, false)]
-    [InlineData(CandidateLane.MotionFlaggedVector, float.NaN, false)]
     public void ANonFiniteValueInAWorkerWrittenLaneIsRefusedAFiniteChangeCommitsAndTheTickContinues(CandidateLane lane, float value, bool valueLane)
     {
         var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Bench(), new(1, 2));

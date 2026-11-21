@@ -5,8 +5,33 @@ namespace CuriousContraptions.Tests;
 
 public sealed class ElectricalSupplyTests
 {
-    private static readonly float[] ProportionalShares = [31.25f, 29.75f, 32f];
+    private static readonly float[] ProportionalShares = [.25f, .75f, 0f];
     private static readonly float[] UntouchedOutput = [123f, 456f];
+
+    [Fact]
+    public void ImmediateWorkSharesChargingAllowanceWithoutBecomingStoredEnergy()
+    {
+        float[] grants = new float[2];
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1.5f, [1f, 2f], grants);
+        Assert.Equal(.5f, grants[0]); Assert.Equal(1f, grants[1]);
+        var source = new FiniteEnergyBalance(4, 0).Debit(grants[0]);
+        Assert.Equal(3.5f, source.Available); // Only the accepted charge spends energy.
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, [2f, 2f], grants);
+        Assert.Equal(.5f, grants[0]); Assert.Equal(.5f, grants[1]);
+        Assert.Equal(3.5f, source.Available); // Reservations alone are not payments.
+    }
+
+    [Fact]
+    public void ImmediateReservationsRefuseBalancesAtomicallyAndDoNotCreatePower()
+    {
+        float[] grants = [123f, 456f];
+        Assert.Throws<ArgumentException>(() => ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1.5f, [1f, -1f], grants));
+        Assert.Equal(UntouchedOutput, grants);
+        ElectricalSupply.Reserve(ElectricalEnable.Disabled, 1.5f, [1f, 2f], grants);
+        Assert.All(grants, x => Assert.Equal(0, x));
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 0, [1f, 2f], grants);
+        Assert.All(grants, x => Assert.Equal(0, x));
+    }
 
     [Theory]
     [InlineData(ElectricalEnable.Disabled)]
@@ -83,11 +108,12 @@ public sealed class ElectricalSupplyTests
     [InlineData(3600f, ElectricalEnable.Disabled)]
     public void UnavailableSourcePreservesBothStores(float source, ElectricalEnable enabled)
     {
-        float[] before = [0f, 4f], capacity = [32f, 32f], after = [-1f, -1f];
-        var result = ElectricalSupply.Allocate(enabled, source, 120f, before, capacity, after);
-        Assert.Equal(before, after);
-        Assert.Equal(source, result.Remaining);
-        Assert.Equal(0f, result.Debit);
+        float[] grants = new float[2];
+        var first = new FiniteEnergyBalance(0, 0); var second = new FiniteEnergyBalance(4, 0);
+        ElectricalSupply.Reserve(enabled, MathF.Min(source, 1), [32f, 28f], grants);
+        Assert.All(grants, x => Assert.Equal(0, x));
+        Assert.Equal(first, first.Credit(grants[0], 32));
+        Assert.Equal(second, second.Credit(grants[1], 32));
     }
 
     [Theory]
@@ -96,51 +122,53 @@ public sealed class ElectricalSupplyTests
     public void UnfamiliarSourcesShareTheSameFiniteAllocationLaw(float energy, float power)
     {
         new ElectricalSourceDeclaration(new(1), new(2), new(energy), new(power), 1f, ElectricalEnable.Enabled).Validate();
-        float[] before = [0f, 0f], capacity = [32f, 0f], after = [-1f, -1f];
-        var transfer = ElectricalSupply.Allocate(ElectricalEnable.Enabled, energy, power, before, capacity, after);
-        // Canonical accounting excludes created work; the zero-capacity recipient has no demand.
-        Assert.True(after[0] > 0f);
-        Assert.Equal(0f, after[1]);
-        Assert.Equal(energy - transfer.Remaining, transfer.Debit);
-        Assert.Equal(transfer.Debit, after[0]);
-        Assert.InRange(transfer.Debit, 0f, power / 120f);
-        new ElectricalSourceRead(new(1), new(2), new(transfer.Remaining), new(transfer.Debit), ElectricalEnable.Enabled).Validate();
-        new EnergyStoreRead(new(3), new(4), new(after[0]), new(after[0]), default, default).Validate();
-        if (power == 1200f) Assert.Equal(10f, transfer.Debit);
+        float[] grants = new float[2];
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, MathF.Min(energy, power * ElectricalSupply.PhaseSeconds), [32f, 0f], grants);
+        Assert.True(grants[0] > 0); Assert.Equal(0, grants[1]);
+        Assert.InRange(grants[0], 0, power * ElectricalSupply.PhaseSeconds);
+        var remaining = new FiniteEnergyBalance(energy, 0).Debit(grants[0]);
+        var credited = new FiniteEnergyBalance(0, 0).Credit(grants[0], 32);
+        Assert.Equal(grants[0], credited.Available);
+        Assert.InRange(energy - (double)remaining.Bulk - remaining.Remainder - grants[0],
+            0, FiniteEnergyBalance.LossBound(energy, 0, grants[0], 0, 1));
+        if (power == 1200f) Assert.InRange(grants[0], 10f, 10f + PhysicsReadValidation.Residual(10f));
     }
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void UnrepresentableFutureDemandIsRefusedBeforeWritingEvenForFullRecipients(bool full)
+    public void OversizedRequestedTotalStillSharesAFiniteAllowanceAndFullRecipientsRequestNothing(bool full)
     {
-        float[] capacities = [float.MaxValue, float.MaxValue];
-        float[] balances = full ? [float.MaxValue, float.MaxValue] : [0f, 0f];
-        float[] output = [123f, 456f];
-        Assert.Throws<ArgumentException>(() => ElectricalSupply.Allocate(ElectricalEnable.Enabled,
-            30f, 5f, balances, capacities, output));
-        Assert.Equal(123f, output[0]);
-        Assert.Equal(456f, output[1]);
+        float[] requests = full ? [0f, 0f] : [float.MaxValue, float.MaxValue];
+        float[] grants = [123f, 456f];
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, requests, grants);
+        if (full) Assert.All(grants, x => Assert.Equal(0, x));
+        else
+        {
+            // Equal requests share a finite joule even though their mathematical sum exceeds scalar range.
+            Assert.InRange(grants[0], .499999f, .5f);
+            Assert.Equal(grants[0], grants[1]);
+            Assert.True(grants[0] + grants[1] <= 1);
+        }
     }
 
     [Fact]
     public void EqualFourLoadDemandSharesOneSimdBudget()
     {
-        float[] before = [0f, 0f, 0f, 0f], capacity = [32f, 32f, 32f, 32f], after = new float[4];
-        var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 3600f, 120f, before, capacity, after);
-        Assert.Equal(1f, result.Debit);
-        Assert.All(after, value => Assert.Equal(.25f, value));
-        Assert.Equal(3599f, result.Remaining);
+        float[] grants = new float[4];
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, [32f, 32f, 32f, 32f], grants);
+        Assert.All(grants, value => Assert.Equal(.25f, value));
+        Assert.Equal(1f, grants.Sum());
     }
 
     [Fact]
     public void FinalPositiveSourceBalanceTransfersBeforeAvailabilityClears()
     {
-        float[] before = [0f], capacity = [32f], after = [-1f];
-        var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, .125f, 120f, before, capacity, after);
-        Assert.Equal(0f, result.Remaining);
-        Assert.Equal(.125f, result.Debit);
-        Assert.Equal(.125f, after[0]);
+        float[] grants = new float[1];
+        var source = new FiniteEnergyBalance(.125f, 0);
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, source.Available, [32f], grants);
+        Assert.Equal(.125f, grants[0]);
+        Assert.Equal(default, source.Debit(grants[0]));
     }
 
     [Theory]
@@ -149,52 +177,48 @@ public sealed class ElectricalSupplyTests
     [InlineData(44.9999f, 45f, .001f, false)]
     public void SmallTerminalDemandRequiresAnAffordableRealSourceDebit(float balance, float limit, float power, bool affordable)
     {
-        float[] before = [balance], capacity = [limit], after = [-1f];
-        var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 3600f, power, before, capacity, after);
-        if (affordable)
-        {
-            Assert.Equal(limit, after[0]); // a fully funded device must eventually become ready again
-            Assert.True(result.Debit > 0f);
-            Assert.True(result.Debit >= after[0] - before[0]); // no free recipient work
-        }
-        else
-        {
-            Assert.Equal(before[0], after[0]);
-            Assert.Equal(0f, result.Debit);
-        }
-        Assert.Equal(3600f - result.Remaining, result.Debit);
-        Assert.InRange(result.Debit, 0f, power * ElectricalSupply.PhaseSeconds);
+        var recipient = new FiniteEnergyBalance(balance, 0);
+        var source = new FiniteEnergyBalance(3600, 0);
+        float[] grants = new float[1];
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, power * ElectricalSupply.PhaseSeconds,
+            [recipient.Headroom(limit)], grants);
+        Assert.True(grants[0] > 0); // A tiny phase budget still funds partial progress, without a new force/payment cutoff.
+        var remaining = source.Debit(grants[0]);
+        var credited = recipient.Credit(grants[0], limit);
+        Assert.True(remaining.DecreaseTo(source) < 0);
+        Assert.True(credited.DecreaseTo(recipient) > 0);
+        Assert.InRange(grants[0], 0, power * ElectricalSupply.PhaseSeconds);
+        Assert.Equal(affordable ? 0 : -1, credited.CompareTo(limit));
     }
 
     [Fact]
     public void CrossingRecipientBinadeDoesNotRoundCreditAboveFundedGrant()
     {
-        float[] before = [MathF.BitDecrement(16f), MathF.BitDecrement(16f)];
-        float[] capacity = [32f, 32f], after = new float[2];
-        var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 3600f, 120f, before, capacity, after);
-        Assert.Equal(1f, result.Debit);
-        for (var i = 0; i < after.Length; i++)
-            Assert.InRange((double)after[i] - before[i], .49999, .5);
-        Assert.True(after.Sum(value => (double)value) - before.Sum(value => (double)value) <= result.Debit);
+        var before = new FiniteEnergyBalance(MathF.BitDecrement(16f), 0);
+        float[] grants = new float[2];
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, [16f, 16f], grants);
+        Assert.All(grants, grant => Assert.Equal(.5f, grant));
+        var after = before.Credit(grants[0], 32);
+        var credited = after.Bulk + (double)after.Remainder - before.Bulk;
+        Assert.InRange(credited, .499999, .5); // Local half-joule credit, including its low remainder.
     }
 
     [Fact]
     public void UnequalDemandSharesProportionallyAndFullLoadReceivesNothing()
     {
-        float[] before = [31f, 29f, 32f], capacity = [32f, 32f, 32f], after = new float[3];
-        var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 3600f, 120f, before, capacity, after);
-        Assert.Equal(ProportionalShares, after);
-        Assert.Equal(1f, result.Debit);
+        float[] grants = new float[3];
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, [1f, 3f, 0f], grants);
+        Assert.Equal(ProportionalShares, grants);
     }
 
     [Fact]
     public void AlmostFullLoadRetainsUnrequestedSourceWork()
     {
-        float[] before = [31.75f], capacity = [32f], after = new float[1];
-        var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 3600f, 120f, before, capacity, after);
-        Assert.Equal(32f, after[0]);
-        Assert.Equal(.25f, result.Debit);
-        Assert.Equal(3599.75f, result.Remaining);
+        float[] grants = new float[1];
+        ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, [.25f], grants);
+        Assert.Equal(.25f, grants[0]);
+        Assert.Equal(32, new FiniteEnergyBalance(31.75f, 0).Credit(grants[0], 32).Available);
+        Assert.Equal(3599.75f, new FiniteEnergyBalance(3600, 0).Debit(grants[0]).Available);
     }
 
     [Theory]
@@ -203,20 +227,19 @@ public sealed class ElectricalSupplyTests
     [InlineData(float.PositiveInfinity)]
     public void InvalidSourceRejectsBeforeWriting(float balance)
     {
-        float[] before = [0f], capacity = [32f], after = [123f];
-        Assert.Throws<ArgumentException>(() => ElectricalSupply.Allocate(ElectricalEnable.Enabled, balance, 120f, before, capacity, after));
-        Assert.Equal(123f, after[0]);
+        float[] grants = [123f];
+        Assert.Throws<ArgumentException>(() => ElectricalSupply.Reserve(ElectricalEnable.Enabled, balance, [32f], grants));
+        Assert.Equal(123f, grants[0]);
     }
 
     [Fact]
     public void InvalidLateRecipientOrEnableRejectsAtomically()
     {
-        float[] before = [0f, 33f], capacity = [32f, 32f], after = [123f, 456f];
-        Assert.Throws<ArgumentException>(() => ElectricalSupply.Allocate(ElectricalEnable.Enabled, 3600f, 120f, before, capacity, after));
-        Assert.Equal(UntouchedOutput, after);
-        before[1] = 0;
-        Assert.Throws<ArgumentException>(() => ElectricalSupply.Allocate((ElectricalEnable)2, 3600f, 120f, before, capacity, after));
-        Assert.Equal(UntouchedOutput, after);
+        float[] grants = [123f, 456f];
+        Assert.Throws<ArgumentException>(() => ElectricalSupply.Reserve(ElectricalEnable.Enabled, 1, [32f, -1f], grants));
+        Assert.Equal(UntouchedOutput, grants);
+        Assert.Throws<ArgumentException>(() => ElectricalSupply.Reserve((ElectricalEnable)2, 1, [32f, 32f], grants));
+        Assert.Equal(UntouchedOutput, grants);
     }
 
     // Story 9.4b (CAT-015 ledger class): the electrical ledger never debits work that no store was credited with,
@@ -224,42 +247,47 @@ public sealed class ElectricalSupplyTests
     [Fact]
     public void EverySourceDebitInTheSweepIsBackedByARealizedStoreCredit()
     {
-        float[] capacities = [32f, 32f], next = new float[2];
-        for (var s = 0; s < 400; s++)
-        for (var b = 0; b < 40; b++)
+        float[] grants = new float[2];
+        for (var s = 0; s < 40; s++)
         {
-            var source = s == 0 ? float.Epsilon : s * .0013f + (s % 7) * 1e-7f;
-            float[] balances = [b * .79f, MathF.BitDecrement(32f - b * .41f)];
-            var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, source, 120f, balances, capacities, next);
-            var credited = (double)next[0] - balances[0] + next[1] - balances[1];
-            Assert.Equal(source - result.Remaining, result.Debit);
-            if (result.Debit > 0) Assert.True(credited > 0, $"debit {result.Debit} from {source} without any store credit");
-            Assert.InRange(result.Debit - credited, -1e-12, MathF.BitIncrement(source) - source);
+            var source = new FiniteEnergyBalance(s == 0 ? float.Epsilon : s * .0013f, 0);
+            var first = new FiniteEnergyBalance(0, 0); var second = new FiniteEnergyBalance(16, 0);
+            ElectricalSupply.Reserve(ElectricalEnable.Enabled, source.Available, [32f, 16f], grants);
+            var original = source;
+            first = first.Credit(grants[0], 32); source = source.Debit(grants[0]);
+            var accepted = MathF.Min(grants[1], source.Available);
+            second = second.Credit(accepted, 32); source = source.Debit(accepted);
+            var credited = first.Bulk + (double)first.Remainder + second.Bulk - 16d + second.Remainder;
+            var spent = original.Bulk - (double)source.Bulk - source.Remainder;
+            var bound = FiniteEnergyBalance.LossBound(original.Bulk, grants[0] + accepted, grants[0] + accepted, 0, 4);
+            Assert.InRange(spent - credited, -bound, bound);
+            Assert.True(credited <= original.Bulk);
         }
     }
 
     [Fact]
     public void RepeatedAllocationCannotOverfillOrSpendMoreThanInitialSource()
     {
-        float[] balances = [0f, MathF.BitDecrement(16f), .000001f, 31.9f];
-        float[] capacities = [32f, 32f, 32f, 32f], next = new float[4];
-        var initialTotal = balances.Sum(value => (double)value);
-        var source = 60f;
-        for (var phase = 0; phase < 1000; phase++)
+        var source = new FiniteEnergyBalance(60, 0);
+        FiniteEnergyBalance[] stores = [new(0, 0), new(16, 0), new(0, 0), new(31.5f, 0)];
+        var initial = stores.Sum(x => (double)x.Bulk);
+        float[] requests = new float[4], grants = new float[4];
+        for (var phase = 0; phase < 120; phase++)
         {
-            var oldSource = source;
-            var oldTotal = balances.Sum(value => (double)value);
-            var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, source, 120f, balances, capacities, next);
-            Assert.InRange(result.Debit, 0f, Math.Min(source, 120f * ElectricalSupply.PhaseSeconds));
-            Assert.Equal(oldSource - result.Remaining, result.Debit);
-            var credited = next.Sum(value => (double)value) - oldTotal;
-            Assert.InRange(credited, 0, result.Debit + 4 * Math.Pow(2, -18));
-            if (result.Debit == 0) Assert.Equal(balances, next);
-            for (var i = 0; i < next.Length; i++) Assert.InRange(next[i], balances[i], capacities[i]);
-            source = result.Remaining;
-            (balances, next) = (next, balances);
+            for (var i = 0; i < stores.Length; i++) requests[i] = stores[i].Headroom(32);
+            ElectricalSupply.Reserve(ElectricalEnable.Enabled, MathF.Min(1, source.Available), requests, grants);
+            for (var i = 0; i < stores.Length; i++)
+            {
+                var accepted = MathF.Min(grants[i], source.Available);
+                stores[i] = stores[i].Credit(accepted, 32); source = source.Debit(accepted);
+                stores[i].Validate(32);
+            }
         }
-        Assert.InRange(balances.Sum(value => (double)value) - initialTotal, 0, 60 - source + .0001);
+        var gain = stores.Sum(x => x.Bulk + (double)x.Remainder) - initial;
+        var spent = 60d - source.Bulk - source.Remainder;
+        Assert.InRange(gain, 0, spent);
+        Assert.InRange(spent - gain, 0, .001); // Local conservation comfortably below a millijoule for this 60 J transfer.
+        Assert.InRange(source.Available, 0, .001f); // No material payable budget remains after the transfer window.
     }
 
     [Fact]

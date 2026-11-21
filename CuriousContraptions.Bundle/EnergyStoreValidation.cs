@@ -22,9 +22,27 @@ internal static class EnergyStoreValidation
                 yield return new(BundleErrorCode.DuplicateId, path);
             if (store.Owner.Value < 0 || store.Owner.Value >= entry.Footprint.Bodies)
                 yield return new(BundleErrorCode.UnresolvedReference, path + ".Owner");
+            if (!ValidSelection(entry, store))
+                yield return new(BundleErrorCode.UnresolvedReference, path + ".Selection");
             if (!ValidAmounts(store, entry.Metadata.Parameters))
                 yield return new(BundleErrorCode.OutOfRange, path + ".Amounts");
         }
+    }
+
+    private static bool ValidSelection(BundleEntry entry, EnergyStoreDescriptor store)
+    {
+        if (store.Selection is not { } selection) return true;
+        try { _ = ChoiceDomain.Parameter(entry, selection); }
+        catch (ArgumentException) { return false; }
+        var mechanical = entry.Mechanical!;
+        // These consumers have no selection predicate and therefore cannot refer to an absent store.
+        if (mechanical.ContactWorks.Any(work => work.Store == store.Id) ||
+            mechanical.FiniteWorkActuators.Any(work => work.Store == store.Id) ||
+            (entry.Electrical?.SupplyGraph?.Nodes.OfType<CuriousContraptions.Abstractions.Electrical.SupplyConsumerDescriptor>()
+                .Any(node => node.Targets.OfType<CuriousContraptions.Abstractions.Electrical.SupplyEnergyStoreTarget>()
+                    .Any(target => target.Store == store.Id)) ?? false)) return false;
+        return mechanical.AirflowSources.SelectMany(source => source.Inputs).OfType<StoredAirflowInput>()
+            .Where(input => input.Store == store.Id).All(input => input.Selection == selection);
     }
 
     private static bool ValidAmounts(EnergyStoreDescriptor store, IReadOnlyList<ParameterDescriptor> parameters)

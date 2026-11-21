@@ -41,6 +41,9 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         public FiniteWorkActuatorId FiniteWork;
         public EnergyStoreId Store;
         public GasStoreId GasStore;
+        public AirflowSourceId Airflow;
+        public CommittedRatePhase? RatePhase;
+        public CommittedRatePhase.Segment? PendingRate;
         public float DryRadius;
         public IntegrityObservationId Integrity;
         public GpuBodyId StoreOwner;
@@ -104,6 +107,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                     : construction.Physics.Prismatics.ToArray().Single(joint => joint.Id == actuator.PrismaticJoint).BodyA : default,
                 SupplyNode = binding.SupplyNode, Transmission = binding.Transmission, Retention = binding.Retention, FiniteWork = binding.FiniteWork, Store = binding.Store,
                 GasStore = gasShape.Store, DryRadius = gasShape.DryRadius, Integrity = binding.Integrity,
+                Airflow = binding.Airflow, RatePhase = declaration.Curve == PresentationCurve.IntegratedRate ? new(_time) : null,
                 StoreOwner = binding.Store == default ? default : construction.Physics.EnergyStores.ToArray().Single(value => value.Id == binding.Store).Owner,
                 StoreCapacity = binding.Store == default ? 0f : construction.Physics.EnergyStores.ToArray().Single(value => value.Id == binding.Store).Capacity.Value,
                 Region = binding.FiniteWork == default ? default : construction.Physics.FiniteWorkActuators.ToArray().Single(value => value.Id == binding.FiniteWork).Region });
@@ -293,6 +297,9 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 ? MapDiscreteState(staged[i], read)
                 : PresentationDriverRules.Map(Query(staged[i], read), declaration.Mapping);
             if (!float.IsFinite(staged[i].Input)) throw new ArgumentException("Nonfinite presentation query.");
+            if (staged[i].RatePhase is { } ratePhase)
+                staged[i].PendingRate = ratePhase.Prepare(new PhysicalTime(checked(read.Tick.Value * _substeps)),
+                    PresentationDriverRules.Output(staged[i].Input, declaration.Mapping, declaration.From, declaration.To));
             if (staged[i].Declaration.Driver == PresentationDriver.CommittedOscillatorPulse)
             {
                 var previous = _tracks[i];
@@ -344,6 +351,7 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             var track = _tracks[i]; var next = staged[i];
             var d = track.Declaration;
             var input = next.Input;
+            if (next.PendingRate is { } interval) track.RatePhase!.Commit(interval);
             if (d.Curve == PresentationCurve.ExponentialFollow)
             {
                 // Only a changed target is a new control; an unchanged read leaves the queue as it is.
@@ -389,6 +397,8 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
                 return QueryActuator(track, read);
             case PresentationDriver.CommittedWheelAngle:
                 return QueryWheelAngle(track, read);
+            case PresentationDriver.CommittedFlowSpeed:
+                return QueryAirflow(track, read);
             case PresentationDriver.CommittedGasRadius:
                 if (!read.GasStores.TryGet(track.GasStore, out var gas))
                     throw new ArgumentException("Declared gas observation is absent from committed read.");
@@ -396,14 +406,26 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
             case PresentationDriver.CommittedSurfaceDeflection:
                 return QuerySurfaceDeflection(track, read);
             case PresentationDriver.CommittedRetentionReleased:
-                foreach (var retained in read.Presentation.Retentions)
-                    if (retained.Id == track.Retention && retained.Owner == track.Owner)
-                        return retained.Mode == CuriousContraptions.Abstractions.Mechanical.RetentionMode.Releasing ? 1f : 0f;
-                throw new ArgumentException("Missing retained-coordinate observation.");
+                return QueryRetention(track, read);
             case PresentationDriver.CommittedTransmissionClosure:
                 return QueryTransmission(track, read).Closure;
             default: throw new ArgumentException("Unsupported committed presentation driver.");
         }
+    }
+
+    private static float QueryAirflow(Track track, WorkshopRead read)
+    {
+        if (!read.Airflow.TryGet(track.Airflow, out var flow) || flow.Owner != track.Owner)
+            throw new ArgumentException("Declared airflow observation is absent from committed read.");
+        return flow.FlowSpeed;
+    }
+
+    private static float QueryRetention(Track track, WorkshopRead read)
+    {
+        foreach (var retained in read.Presentation.Retentions)
+            if (retained.Id == track.Retention && retained.Owner == track.Owner)
+                return retained.Mode == CuriousContraptions.Abstractions.Mechanical.RetentionMode.Releasing ? 1f : 0f;
+        throw new ArgumentException("Missing retained-coordinate observation.");
     }
 
     private static float QueryActivation(Track track, WorkshopRead read)
@@ -644,6 +666,12 @@ public sealed class WorkshopDeclaredPresentation : IWorkshopDeclaredPresentation
         {
             var d = track.Declaration;
             if (!track.Visible) continue;
+            if (track.RatePhase is { } phase)
+            {
+                track.Value = phase.Sample(_time);
+                _samples.Add(new(track.Target, track.Owner, track.Index, Value(d.Property, track.Value)));
+                continue;
+            }
             var amount = track.Handle is { } handle
                 ? BitConverter.UInt32BitsToSingle(_batch.Read(handle).Value.CanonicalBits)
                 : track.Input;

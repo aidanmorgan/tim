@@ -67,10 +67,12 @@ public sealed class CannonIntegrationTests
             Assert.Equal(ElectricalEnable.Disabled, h.Committed.Electrical[0].Enabled);
             Assert.Equal(0f, h.Committed.Electrical[0].Debit.Value);
             Assert.Equal(source.Remaining, h.Committed.Electrical[0].Remaining);
-            Assert.Equal(partial, h.Committed.EnergyStores[0]);
+            Assert.Equal(partial with { CommitSupplied = default, CommitReleased = default, CommitDissipated = default, Transactions = 0 },
+                h.Committed.EnergyStores[0]);
             var disabled = h.Committed.Electrical[0];
             await h.Advance(179);
-            Assert.Equal(partial, h.Committed.EnergyStores[0]);
+            Assert.Equal(partial with { CommitSupplied = default, CommitReleased = default, CommitDissipated = default, Transactions = 0 },
+                h.Committed.EnergyStores[0]);
             Assert.Equal(disabled, h.Committed.Electrical[0]);
             Assert.Equal(0u, h.Committed.FiniteWorkActuators[0].OccurrenceCount);
             await h.Require(WorkshopCommandKind.ConfigureRunControl,
