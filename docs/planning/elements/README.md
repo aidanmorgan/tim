@@ -142,7 +142,9 @@ Every spec has six sections, in this order:
 
 ## Named-identity specs
 
-276 specs, one per named puzzle-element identity in [named-elements.md](../invest/named-elements.md): 216 EL, 37 TH, 19 RAD (RAD-01..04, 06..10, 12..18 and 20..22) and 4 GAP (GAP-04, 06, 07 and 09). The rows below follow the batch lists in the Story 7.0 spec.
+276 specs, one per named puzzle-element identity adopted on 24 October 2026 in [named-elements.md](../invest/named-elements.md): 216 EL, 37 TH, 19 RAD (RAD-01..04, 06..10, 12..18 and 20..22) and 4 GAP (GAP-04, 06, 07 and 09). The rows below follow the batch lists in the Story 7.0 spec.
+
+The 25 identities ledgered on 21 November 2026 (EL-217 to EL-241, [campaign-taught parts](../invest/named-elements.md#campaign-taught-parts-ledgered-on-21-november-2026-el-217-to-el-241)) have no spec here yet. Each spec is written when its slice is planned and is added to this index then; until that point the linked requirement source is the contract.
 
 ### Batch F: Water 1 (22)
 
@@ -472,7 +474,7 @@ Every spec has six sections, in this order:
 
 ## Index-only entries
 
-These 17 rows get no spec: 10 umbrella scope-index entries and 7 GAP product features. With the 276 named-identity specs above they account for all 293 named identities in [named-elements.md](../invest/named-elements.md).
+These 17 rows get no spec: 10 umbrella scope-index entries and 7 GAP product features. With the 276 named-identity specs above they account for the 293 identities the ledger held before 21 November 2026; the 25 identities added that day bring [named-elements.md](../invest/named-elements.md) to 301 named identities and 318 entries.
 
 ### Umbrella scope-index entries (10)
 

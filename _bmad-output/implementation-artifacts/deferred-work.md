@@ -254,4 +254,15 @@ Support coverage `a98ef86c` and orientation levelling `bb35e8c4` are published; 
 - source: 7–21 November 2026 BMAD process review; `docs/delivery-workflow.md#new-package-registration-check`.
 - summary: adding an element package requires hand edits to the part registry expectations, bundle identity and port lists, catalogue and palette membership, workbench capacity, the coverage catalogue and `tools/E2eRunner/ImpactRules.cs` `ElementPackages`. Derive these from the package declarations and the bundle, or from one generated source, so a new package needs no table edit.
 - evidence: every published element slice from 11.2a to 12.2 failed its first full local round on these tables; the slice records give first-round failure counts of 50 (11.2a), 138 (11.3), 80 (11.4b), 50 (12.1a), 68 (12.1b) and 53 (12.2). The registration check now catches them before handoff but does not remove the edits.
-- owner: next engine or tooling slice selected after the element in progress; not started. Until then the registration check is the control.
+- owner: in flight since 21 November 2026 in a separate session (`spec-registration-derivation.md`, baseline `4f193bb2`). Until it publishes, the registration check is the control.
+- correction, 21 November 2026: the summary above omitted four hand-edited lists, and the in-flight slice's owned scope does not include them: the test project's explicit compile list (`CuriousContraptions.tests/CuriousContraptions.tests.csproj`), the trim-analysis project list (`CuriousContraptions.tests/CSharpStaticGateTests.cs:703`), and the two placement switches (`CuriousContraptions.tests/PackageRuntimeParityTests.cs:596` and `:653`). The `Place` switch in `WorkbenchCapacityTests.cs` is in its scope. The omitted lists are queued as S2 and S3 below.
+
+## Structural stories queued — 21 November 2026
+
+Each is a ready story with outcome, acceptance and the files it removes from an element slice, in [delivery batches, section 5](../../docs/planning/invest/delivery-batches.md#5-structural-stories). None has started.
+
+- S2: test project compile list becomes a glob. [Story](../../docs/planning/invest/delivery-batches.md#s2-test-project-compile-list-becomes-a-glob).
+- S3: derive the remaining per-package lists (trim-analysis project list, placement switches, solution file). [Story](../../docs/planning/invest/delivery-batches.md#s3-remaining-per-package-lists).
+- S4: one catalogue conformance suite over every package. [Story](../../docs/planning/invest/delivery-batches.md#s4-one-catalogue-conformance-suite).
+- S5: generate the wire accessors in the build instead of committing them. [Story](../../docs/planning/invest/delivery-batches.md#s5-generate-the-wire-accessors-in-the-build).
+- S6: table-driven capability plumbing for the members at the complexity limit. [Story](../../docs/planning/invest/delivery-batches.md#s6-table-driven-capability-plumbing).

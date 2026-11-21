@@ -1,13 +1,13 @@
-# All 293 named source identities
+# All 318 named source identities
 
 **Acceptance policy:** apply the owner's [game-fidelity policy](../../delivery-workflow.md#game-fidelity) and [float comparison and effort rules](../../testing-guidance.md#float-comparison-and-effort-rules) to all linked element criteria. Historical ticks, trajectories and micrometre observations do not create new precision gates. Preserve each intended behavior and requirement identity; exact timing needs a deliberate gameplay contract.
 
 Navigation and preservation ledger only: every EL/TH/RAD/GAP identity and element behaviour fact is kept; the entries do not define the system.
 Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f32-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
-Declaration readiness specs, one per element, are indexed in the [element spec index](../elements/README.md).
+Declaration readiness specs are indexed in the [element spec index](../elements/README.md): one per identity adopted on 24 October 2026; EL-217 to EL-241 have none yet and each gets its spec when its slice is planned.
 Each element is delivered by declaration data (generic capability families, parameters, art, animation bindings) under those authorities; an entry's wording never prescribes a mechanism inside the solver or the animation engine.
 
-216 EL + 37 TH + 22 RAD + 18 GAP remain explicit. Retained umbrellas forward to separate named elements, not combined parts. Every actual named element is required by the owner's 24 October 2026 adoption decision below. Conditional behavior remains tied to its stated inputs; unnamed alternative designs remain explicit decisions, not exclusions. All original source criteria and technical/stage prerequisites remain mandatory. These are scoped labels under existing canonical IDs, not new work orders. A bounded label is not readiness or a Pass. Read the full linked body, including surviving historical checkpoint obligations; old process status, prototypes, schemas and 75-level scene-owned targets are history. At cutover name the sole target owner, update affected callers/content/tests together, delete/reject the obsolete route and prove it unreachable. Choices within the fixed architecture remain negotiable; unknown model/parameter questions end in one bounded decision with the same named implementation next. Positive/control/boundary and all required build/Chrome/Reset/save/performance/publication proof remain at the original stage.
+241 EL + 37 TH + 22 RAD + 18 GAP remain explicit (EL-217 to EL-241 were ledgered on 21 November 2026 by owner decision; see [campaign-taught parts](#campaign-taught-parts-ledgered-on-21-november-2026-el-217-to-el-241)). Retained umbrellas forward to separate named elements, not combined parts. Every actual named element is required by the owner's 24 October 2026 adoption decision below. Conditional behavior remains tied to its stated inputs; unnamed alternative designs remain explicit decisions, not exclusions. All original source criteria and technical/stage prerequisites remain mandatory. These are scoped labels under existing canonical IDs, not new work orders. A bounded label is not readiness or a Pass. Read the full linked body, including surviving historical checkpoint obligations; old process status, prototypes, schemas and 75-level scene-owned targets are history. At cutover name the sole target owner, update affected callers/content/tests together, delete/reject the obsolete route and prove it unreachable. Choices within the fixed architecture remain negotiable; unknown model/parameter questions end in one bounded decision with the same named implementation next. Positive/control/boundary and all required build/Chrome/Reset/save/performance/publication proof remain at the original stage.
 
 [Family model/controls](profiles.md) and [explicit multi-action refinements](refinements.md) apply. Current-part engine migration and future missing behavior are separate stages; no duplicate implementation inferred from similar names.
 
@@ -15,11 +15,11 @@ Each element is delivered by declaration data (generic capability families, para
 
 Future slices follow [AGENTS delivery speed rules](../../../AGENTS.md#delivery-speed-rules-owner-24-october-2026-these-take-precedence-over-conflicting-wording-below): bmad-build-auto's four independent review layers, one slice at a time from published main, incremental builds, one full native suite per round, CI-owned Release/publish and light committed-SHA evidence. Do not add a redundant review or manifest workflow.
 
-This ledger supplies the detailed contracts for the `named-*` sprint keys. Canonical S owners and requirement anchors are unchanged. Owner direction adopts all **276 actual named identities**, including formerly potential thermal/radiation elements. The 10 umbrella rows forward to children; seven GAP product features retain separate owners. The 72 CAT specs overlap this inventory: “refines CAT” links source acceptance, not automatic package equivalence. Reuse a verified existing identity and its applicable independent proof; implement missing behavior without duplicating its package. TH-05 adds thermal behavior to EL-055's one brake; EL-173 diverging and TH-06 converging lenses remain distinct.
+This ledger supplies the detailed contracts for the `named-*` sprint keys. Canonical S owners and requirement anchors are unchanged. Owner direction adopts all **301 actual named identities** (276 adopted on 24 October 2026 plus EL-217 to EL-241 added on 21 November 2026), including formerly potential thermal/radiation elements. The 10 umbrella rows forward to children; seven GAP product features retain separate owners. The 72 CAT specs overlap this inventory: “refines CAT” links source acceptance, not automatic package equivalence. Reuse a verified existing identity and its applicable independent proof; implement missing behavior without duplicating its package. TH-05 adds thermal behavior to EL-055's one brake; EL-173 diverging and TH-06 converging lenses remain distinct.
 
-**Entry/dependencies.** Complete the bounded [stabilization plan](../../../_bmad-output/planning-artifacts/epics.md#current-execution-plan), then select the first ready identity in the family order below. Read that identity's linked Declaration, Engine capabilities, Acceptance outline, Open questions and exact requirement body. Its canonical S owner resolves each finite model/admission question before implementation, recording selected parameters, typed domains, native oracle and first consumer. Questions requiring owner input remain explicit blockers, never exclusions. Missing generic capability work stays in its first consumer's dependency closure under the source decision owner.
+**Entry/dependencies.** Complete the bounded [stabilization plan](../../../_bmad-output/planning-artifacts/epics.md#current-execution-plan), then select the first ready identity in the family order below. Read that identity's linked Declaration, Engine capabilities, Acceptance outline, Open questions and exact requirement body. Its canonical S owner resolves each finite model/admission question before implementation, recording selected parameters, typed domains, native oracle and first consumer. Questions requiring owner input remain explicit blockers, never exclusions. A missing engine, abstraction, wire or shared-presentation capability is delivered first by its own engine-first slice, under the [capability-cluster order](vertical-delivery.md#capability-cluster-order) and the loop protocol's capability probe; it is not built inside its first consumer's slice.
 
-**Order.** Finish the existing individually split CAT lane in Epics 10–14, then remaining mechanical/structural/control identities, water, pneumatic, remaining optical/acoustic identities, thermal, radiation and cross-domain elements. Within a family use identity order subject to actual capability prerequisites. Deliver a prerequisite from a later family when needed, recording the edge, without a whole-subsystem queue. Named obligations refining a current CAT slice travel with that slice; a distinct variant gets its own slice.
+**Order (owner, 21 November 2026).** Follow the [capability-cluster order](vertical-delivery.md#capability-cluster-order): registration derivation; identities that need no new engine capability, with duplicate closures; then, cluster by cluster, the engine-first story followed by the identities it unblocks — gas network, optics, acoustics, the small single-law clusters, liquid, thermal, radiation. Thermal and radiation stay in the first release. Entry order in this ledger, identity numbers and sprint key order are not dependencies. Within a cluster use identity order subject to actual capability prerequisites. Named obligations refining a current CAT slice travel with that slice. Which identities may share a slice, and which close without a slice of their own, is decided only by AGENTS.md's **Family slice** and **Duplicate closure** rules as written there; the groupings are in [delivery batches](delivery-batches.md). Every other distinct variant gets its own slice.
 
 **Collaborator cycles.** Separate build prerequisites from later integration fixtures in the same slice record. Deliver and independently close a generic capability prerequisite using the real production engine and declared qualification fixtures before selecting the first named consumer. Every named slice must finish its intrinsic and required-now acceptance, review and publication before the next named element starts. Assign genuinely later cross-element criteria explicitly to the later consuming slice below; record their original source owner and exact criterion there, without waiving them or claiming catalogue closure early. Reservoir/tap/basin use a completed generic finite-liquid/advection qualification fixture under S416 → S418, head → S419 and a mouth-topology decision owned by S422; EL-001 proves depletion/empty behavior through committed volume/flow, EL-003 owns reservoir→tap controls and EL-004 owns collection/miss/overflow integration. Original source acceptance remains required at those owners. Balloon 12.1b first establishes and natively qualifies the bounded S470 finite sealed-store, compliant ambient-boundary and puncture-loss prerequisite within its consuming slice. EL-125 explicitly permits an unbounded ambient reservoir; this does not require finite ambient inventory. EL-039 authored initial pressure still requires the connected-volume/valve S471 qualification before its gas-network consumers; S471 and S697 are not completed by Balloon's bounded store.  EL-037 owns compressor→reservoir integration after EL-038 hose and EL-043 gauge. TH-04 first closes native temperature/store behavior under a completed sensible-heat IX-43 prerequisite; TH-21 owns plate→sensor integration after its temperature-sensing IX-17 entry decision. RAD-01 first closes source emission/occlusion/finite-inventory behavior under completed S605 photon → S606 proof; RAD-08 owns source→meter integration, using committed native emission as the earlier observable. TH-05 follows EL-055; RAD-20 follows TH-30, TH-10 and finite startup supply. These are concrete cycle-breaking proof stages, not waivers.
 
@@ -1976,6 +1976,145 @@ Owner **S382**. Individual named outcome, modes, proof and publication retained.
 **Delivery slice:** `named-el-216` under canonical **S382**. [EL-216 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-216-capture-cradle.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-216).
+
+## Campaign-taught parts ledgered on 21 November 2026 (EL-217 to EL-241)
+
+**Owner decision, 21 November 2026.** The campaign structure and first-use reservations in [requirements](../requirements.md#campaign-structure-15-chapters-150-levels) teach parts that had a requirement source but no ledger identity. Every part named in the fifteen chapter rows and in the coverage-obligation table was compared with this ledger and the 72 CAT specs; the twenty-five without an identity are added here as EL-217 to EL-241 and are required like every other named element. Each entry's contract is its linked requirement source; no requirement text is changed. Where [scope corrections](scope-corrections.md) already holds a decision owner for the source (S347 gears, S349 mouse motor, S391 trap door, S636 baseball) that owner is named; otherwise the `named-el-*` slice owns the outcome directly. A per-element declaration spec under `docs/planning/elements/` is written when the slice is planned.
+
+**Campaign names that are not new identities, and why.**
+- *Teeter-totter* ([todo-186](../requirements.md#todo-186), [todo-409](../requirements.md#todo-409)): the same hinged beam as CAT-034 Impact lever, whose spec already carries todo-409. The rope end-socket clause of todo-186 is a CAT-034 remainder, verified under **Duplicate closure**.
+- *Material sorter*: the electromagnet material-sorting obligation of [EL-060](#element-060) inside the todo-320 sorting umbrella, beside [EL-058](#element-058) size grate and [EL-059](#element-059) weight tray.
+- *Lamp*, *wound launcher*, *bellows*, *passive trampoline*, *electric linear pusher*: CAT-035, CAT-071, CAT-010, CAT-065 and CAT-039.
+- *Converging lens* and *timed toaster ejector*: [TH-06](#thermal-06) and [TH-34](#thermal-34).
+- *Cannon campaign lessons* ([todo-393](../requirements.md#todo-393), owner S800): lessons for the delivered Cannon (CAT-016), owned by the chapter 5 campaign story.
+- *Holiday replacements* ([todo-223](../requirements.md#todo-223)): cosmetic variants of parts already taught. Requirements reserve no mechanic slot for them and the `edition-decision` refinement owns which are adopted; they are appearance work on existing identities, not elements.
+
+"Needs" names the engine capability each part depends on, read against the code on 21 November 2026. It is a starting point only: every one of these slices runs the capability probe before planning is approved, and a capability the probe finds missing becomes its own engine-first slice. Engine-first stories are in [epics](../../../_bmad-output/planning-artifacts/epics.md#engine-first-capability-stories-21-november-2026). Order is the [capability-cluster order](vertical-delivery.md#capability-cluster-order).
+
+<a id="element-217"></a>
+### element-217 · EL-217 · Reload shuttle with chamber interlock. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-398). A supplied sliding pocket advances one queued ball only when the chamber is empty and the launcher has returned.
+
+Owner: slice `named-el-217` (no earlier S owner). **Source outcome, summarised (the linked row governs):** queue, occupied pocket and jam are shown; overflow is never deleted. **Needs:** supplied prismatic drive, residence sensing and signal logic (present). **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-218"></a>
+### element-218 · EL-218 · Crank-slider. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-423). A signed shaft input produces periodic linear strokes through a visible fixed-length rod and offset crank pin.
+
+Owner: slice `named-el-218` (no earlier S owner). **Source outcome, summarised (the linked row governs):** authored radius, rod length and phase; phase is preserved when stopped; invalid geometry is refused. **Needs:** to be probed at planning. Ratio coupling between a revolute and a prismatic coordinate exists (mechanical transmission); the crank's position-dependent coupling through a fixed-length rod does not. **Campaign:** first use 31–40. **Backlog:** implementation and native proof must be established.
+
+<a id="element-219"></a>
+### element-219 · EL-219 · Rack-and-pinion slide. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-425). A signed shaft drives a finite toothed rail with an attachment carriage and end stops.
+
+Owner: slice `named-el-219` (no earlier S owner). **Source outcome, summarised (the linked row governs):** travel per turn, reversal and end stops hold; the source row distinguishes a prescribed-speed prototype from the load-aware final behaviour, and the load-aware behaviour is the one required. **Needs:** to be probed at planning. Revolute-to-prismatic ratio coupling exists (mechanical transmission, used by the Wound spring); the finite rail's end stops and carried attachment are the parts to confirm. **Campaign:** first use 31–40. **Backlog:** implementation and native proof must be established.
+
+<a id="element-220"></a>
+### element-220 · EL-220 · Docking lift. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-429). A guided supplied tray with upper and lower dock outputs, loading interlocks and an explicit holding brake.
+
+Owner: slice `named-el-220` (no earlier S owner). **Source outcome, summarised (the linked row governs):** cargo stays physically supported through travel; power loss and blocked travel are handled by the brake, not by teleport. **Needs:** to be probed at planning. Supplied prismatic drive and residence sensing exist, and a prismatic holding brake exists as `PrismaticInactiveResponse.SelfLock` (used by the Linear pusher); confirm the lift's brake against it. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-221"></a>
+### element-221 · EL-221 · Parallel gripper. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-430). Supplied opposing jaws with a bounded aperture, a close command and an object-held output.
+
+Owner: slice `named-el-221` (no earlier S owner). **Source outcome, summarised (the linked row governs):** capture requires actual two-sided contact; the supported shapes are defined; this variant releases on power loss. **Needs:** to be probed at planning. Supplied prismatic drive and contact-load sensing exist; holding a carried object by two-sided contact while the gripper moves is the gap to confirm. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-222"></a>
+### element-222 · EL-222 · Supplied pinball flipper. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-410). A battery-supplied pivoted paddle strikes or holds on a signal and a spring returns it.
+
+Owner: slice `named-el-222` (no earlier S owner). **Source outcome, summarised (the linked row governs):** distinct from the radial bumper and the linear boxing glove; missing supply or a blocked paddle gives no strike. **Needs:** to be probed at planning. The revolute drive is supplied and takes a run-control target speed; a signal-commanded strike-and-hold revolute drive and a spring return on a revolute coordinate do not exist. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-223"></a>
+### element-223 · EL-223 · Passive impact scoop. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-412). An arriving ball's momentum rotates a shallow hinged cup that carries the same ball upward before release.
+
+Owner: slice `named-el-223` (no earlier S owner). **Source outcome, summarised (the linked row governs):** no counterweight or boost; below the minimum approach energy the cup stalls; no teleport between mouths. **Needs:** revolute constraint and contact (present). **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-224"></a>
+### element-224 · EL-224 · Counterweighted scoop catapult. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-395). A raised physical weight drives a loaded hinged cup and the same ball leaves on a free trajectory.
+
+Owner: slice `named-el-224` (no earlier S owner). **Source outcome, summarised (the linked row governs):** rope or winch must raise the weight again; falling weight, swept arm and spent state are visible. **Needs:** revolute constraint, tensile rope and Weight (present); a latch release, probed at planning. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-225"></a>
+### element-225 · EL-225 · Latched slingshot cradle. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-396). Rope or winch draws an elastic cradle and a separate latch releases its seated ball.
+
+Owner: slice `named-el-225` (no earlier S owner). **Source outcome, summarised (the linked row governs):** bounded authored charge, visible band extension and return, no free recharge and no aiming during Run. **Needs:** finite elastic energy store and tensile rope (present); a latch release, probed at planning. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-226"></a>
+### element-226 · EL-226 · Hinged elastic catapult. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-397). A charged elastic arm swings a cup before releasing its load.
+
+Owner: slice `named-el-226` (no earlier S owner). **Source outcome, summarised (the linked row governs):** rotary delivery distinct from the linear wound launcher; one-cycle depletion; shares the finite-charge store, not an identical impulse. **Needs:** to be probed at planning. A finite energy store and the revolute constraint exist; a latched release on a revolute coordinate does not (retention exists only for prismatic coordinates). **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-227"></a>
+### element-227 · EL-227 · Magnetic impulse relay. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-399). A compatible arriving ball is retained while a different staged ball departs.
+
+Owner: slice `named-el-227` (no earlier S owner). **Source outcome, summarised (the linked row governs):** explicit finite stored energy and physical rearming; no energy-gaining relay loop; distinct from electromagnet pickup. **Needs:** ENGINE-FIELD-FORCE. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-228"></a>
+### element-228 · EL-228 · Zipline signal carriage. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-400). An incoming ball releases a gravity-driven cable carriage that strikes a separate destination ball; a winch returns it.
+
+Owner: slice `named-el-228` (no earlier S owner). **Source outcome, summarised (the linked row governs):** the carriage neither teleports nor carries the initiating ball; a flat or uphill cable stalls. **Needs:** a body guided along a tensile cable, probed at planning against the existing rope and prismatic capabilities. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-229"></a>
+### element-229 · EL-229 · Hydraulic piston. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-428). Finite liquid displacement drives a rod against a resisting load through pressure and head, with a return path.
+
+Owner: slice `named-el-229` (no earlier S owner). **Source outcome, summarised (the linked row governs):** liquid is conserved; insufficient head does not lift; no perpetual wheel-and-pump loop. **Needs:** ENGINE-LIQUID. **Campaign:** first use 61–70. **Backlog:** implementation and native proof must be established.
+
+<a id="element-230"></a>
+### element-230 · EL-230 · Spring-return pneumatic piston. Type: Pneumatic. Scope/evidence source: [existing record](../requirements.md#todo-426). A finite compressed-air supply and valve extend a rod and a visible spring returns it on exhaust.
+
+Owner: slice `named-el-230` (no earlier S owner). **Source outcome, summarised (the linked row governs):** stroke and reservoir state are shown; inadequate pressure or a disconnected hose gives no stroke; pressure is not an on/off flag. **Needs:** ENGINE-GAS-NETWORK. **Campaign:** first use 71–80. **Backlog:** implementation and native proof must be established.
+
+<a id="element-231"></a>
+### element-231 · EL-231 · Double-acting pneumatic piston. Type: Pneumatic. Scope/evidence source: [existing record](../requirements.md#todo-427). Two typed chamber ports and a directional valve drive both extension and retraction.
+
+Owner: slice `named-el-231` (no earlier S owner). **Source outcome, summarised (the linked row governs):** supply and exhaust are accounted for in both directions; distinct from spring return. **Needs:** ENGINE-GAS-NETWORK. **Campaign:** first use 71–80. **Backlog:** implementation and native proof must be established.
+
+<a id="element-232"></a>
+### element-232 · EL-232 · Gears. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-187). Coupled rotation in which adjacent gears reverse direction.
+
+Owner **S347** (design decision before gear implementation), slice `named-el-232`. **Source outcome, summarised (the linked row governs):** rotational ports and visible meshing; contradictory drive loops create no energy; ratios follow the S347 decision. **Needs:** to be probed at planning. Ratio coupling between shafts exists (mechanical transmission); meshing two separately placed gears by adjacency is the gap to confirm. **Campaign:** first use 31–40. **Backlog:** implementation and native proof must be established.
+
+<a id="element-233"></a>
+### element-233 · EL-233 · Generator. Type: Electrical. Scope/evidence source: [existing record](../requirements.md#todo-189). A driven shaft produces electrical output.
+
+Owner: slice `named-el-233` (no earlier S owner). **Source outcome, summarised (the linked row governs):** losing the shaft source stops dependent devices; no perpetual motor-generator loop. **Needs:** to be probed at planning. Electrical supply and shaft coordinates exist separately; a supply whose output is paid by shaft work is the gap to confirm. **Campaign:** first use 31–40. **Backlog:** implementation and native proof must be established.
+
+<a id="element-234"></a>
+### element-234 · EL-234 · Mouse motor. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-188). An impact-started rotational drive that runs for an authored duration.
+
+Owner **S349** (run duration and retrigger policy), slice `named-el-234`. **Source outcome, summarised (the linked row governs):** a distinct mechanical source, not a disguised electrical switch; the wheel is animated; run duration and retrigger policy are authored. **Needs:** to be probed at planning. Impact sensing, timers and a supplied revolute drive exist; starting a finite-duration shaft drive from an impact is the composition to confirm. **Campaign:** first use 31–40. **Backlog:** implementation and native proof must be established.
+
+<a id="element-235"></a>
+### element-235 · EL-235 · Jack-in-the-box. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-195). A belt-wound launcher that accumulates mechanical input before release.
+
+Owner: slice `named-el-235` (no earlier S owner). **Source outcome, summarised (the linked row governs):** winding, lid opening and launch are shown; no launch without a drive connection. **Needs:** to be probed at planning. A finite energy store charged through a shaft exists (Wound spring); the lid release is the gap to confirm. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-236"></a>
+### element-236 · EL-236 · Egg timer. Type: Control. Scope/evidence source: [existing record](../requirements.md#todo-213). A readable countdown actuator for delayed triggering.
+
+Owner: slice `named-el-236` (no earlier S owner). **Source outcome, summarised (the linked row governs):** zero delay, pause and Reset behave as authored; author configuration stays separate from difficulty assistance. **Needs:** to be probed at planning. Declared timers exist (Delay box, Hold timer); the readable countdown and its actuation output are the parts to confirm. **Campaign:** first use 91–100. **Backlog:** implementation and native proof must be established.
+
+<a id="element-237"></a>
+### element-237 · EL-237 · Boxing glove. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-194). A triggered punch: a directional actuator with an explicit contact face and cooldown.
+
+Owner: slice `named-el-237` (no earlier S owner). **Source outcome, summarised (the linked row governs):** a timed lateral impulse rather than continuous force. It is a separate identity from the Linear pusher (CAT-039) because the reservation keeps each distinct contact contract separate. **Needs:** to be probed at planning. The commanded prismatic drive with finite work exists; the one-shot strike and cooldown are the parts to confirm. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+
+<a id="element-238"></a>
+### element-238 · EL-238 · Selective trap door. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-220). A hinged selective passage that separates objects.
+
+Owner **S391** (original selection rule), slice `named-el-238`. **Source outcome, summarised (the linked row governs):** the selection rule is verified, not assumed to be a size filter; thresholds, heavy and light bodies and moving collision geometry are tested. It is a separate identity from [EL-109](#element-109) speed-sensitive trapdoor, which has its own source. **Needs:** to be probed at planning, after S391 fixes the rule. **Campaign:** first use 91–100. **Backlog:** implementation and native proof must be established.
+
+<a id="element-239"></a>
+### element-239 · EL-239 · Baseball. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-198). An additional ball type.
+
+Owner **S636** (conditional design decision), slice `named-el-239`. **Source outcome, summarised (the linked row governs):** a recognisable silhouette and material variant, adopted as a distinct preset only where measured mass and bounce differences give it a distinct puzzle role. The slice starts with the S636 comparison; if the player cannot see a different bounce or roll, the identity closes under **Duplicate closure** against the ball it matches instead of shipping a duplicate. **Needs:** none expected (ball material declaration). **Campaign:** first use 1–10. **Backlog:** the S636 comparison, then implementation and native proof or closure.
+
+<a id="element-240"></a>
+### element-240 · EL-240 · Waterwheel. Type: Water. Scope/evidence source: [existing record](../requirements.md#sequence-task-386). Flowing water drives a wheel with signed mechanical output.
+
+Owner: slice `named-el-240` (no earlier S owner). **Source outcome, summarised (the linked row governs):** signed output to belts and conveyors, reusable discharge, and no wheel-and-pump loop that gains energy. **Needs:** ENGINE-LIQUID. **Campaign:** first use 61–70. **Backlog:** implementation and native proof must be established.
+
+<a id="element-241"></a>
+### element-241 · EL-241 · Ball hopper with one-ball escapement. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#sequence-task-351). A hopper stores a visible queue and releases exactly one ball per accepted trigger.
+
+Owner: slice `named-el-241` (no earlier S owner). **Source outcome, summarised (the linked row governs):** a held input, an empty hopper or a blocked outlet cannot dump or duplicate the queue. It is a separate identity from [EL-057](#element-057) Escapement, which steps a loaded mechanism. **Needs:** to be probed at planning. Residence sensing and a commanded gate exist; one-per-trigger release under queue pressure is the behaviour to confirm. **Campaign:** first use 21–30. **Backlog:** implementation and native proof must be established.
 
 <a id="gap-01"></a>
 ### gap-01 · Scope index — individual element specifications: [EL-112](../requirements.md#element-112), [EL-113](../requirements.md#element-113). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
