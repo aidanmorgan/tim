@@ -1,5 +1,13 @@
 # Deferred work
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-named-el-239.md`
+  summary: Coverage source sequence-task-530 has no exact proof-owner role; current owner-relation planning owns an explicit grant or disposition, not package registration.
+  evidence: Planning Scoped Pass msg_4d53fb69bf0c retained this limitation; CurrentCapabilityInputsTests.NamedPackageClosureIsRequiredWithoutGrantingCompletion proves MissingScope and retained PlannedMode, no fabricated ModeContract or implementation eligibility, with an explicit resolved-owner control.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-named-el-239.md`
+  summary: Cluster-2 follow-on composition probes for EL-223, EL-241 and EL-217 remain with the next cluster-2 planning owner; no missing-capability verdict is inferred from an untested composition.
+  evidence: Baseball contract Code Map and run-log entry1 preserve requirements todo-398, todo-412 and sequence-task-351; test passive cup carry/release and held/empty/blocked escapement compositions using delivered primitives first, and probe a declaration-only cannon interlock before routing a demonstrated missing contract to cluster6 with REQ-12 ownership.
+
 - source_spec: `_bmad-output/implementation-artifacts/spec-5-1-dynamic-box-rigid-body-upright-stability.md`
   summary: Apply the declared LinearDrag (body record byte 66) in the physics worker (own slice); balls currently roll without decay because the 0.95 resting-damping hack was deleted and the worker never read the drag.
   evidence: worker.js reads mass/gravity/COM/inertia but not offset 66; Basketball declares drag .04 1/s; ENGINE-CORE/ANIM suites pass without it (cumulative 46/46). RESOLVED by Story 6.1b (ENGINE-DRAG, `spec-6-1b-engine-drag-application.md`): the worker applies body record +66 as an exact per-substep decay after gravity, and declared ball rolling resistance (material record +14) stops rolling at every sphere contact.

@@ -105,6 +105,7 @@ public static class CapabilityInputs
             }
             else classifications[key] = new(ObligationKind.FutureProduct, ConsumerKind.FutureDeclaration);
         }
+        AttachNamedPackages(root, catalogue, sources, sourceOwners, artifacts, symbols, modes);
         foreach (var pair in taskAnchors)
             if (sources.Any(source => source.Key == pair.Key))
                 capabilities.Add(pair.Key, CapabilityTaskRequirements.Values[pair.Value].Capabilities);
@@ -131,6 +132,28 @@ public static class CapabilityInputs
             children, CapabilityRequirements.Dependencies, artifacts, capabilities, symbols, classifications,
             CapabilityImplementationRequirements.CurrentDeclarations, roleInput.Eligible);
         return new(expectations, issues.DistinctBy(issue => (issue.Problem, issue.Identity)).ToArray());
+    }
+
+    private static void AttachNamedPackages(DirectoryInfo root, CurrentCatalogue catalogue,
+        IReadOnlyList<SourceRequirement> sources, Dictionary<SourceKey, WorkOrderId> sourceOwners,
+        Dictionary<SourceKey, SourceArtifact[]> artifacts, Dictionary<SourceKey, SourceSymbol[]> symbols,
+        List<ModeContract> modes)
+    {
+        foreach (var package in catalogue.NamedPackages)
+        {
+            var key = package.Source.Key;
+            if (!sources.Any(source => source.Key == key && source.Hash == package.Source.Hash))
+                throw new InvalidDataException("Named source identity or provenance differs from discovered obligations.");
+            artifacts.Add(key, [package.Declaration]);
+            if (sourceOwners.TryGetValue(key, out var owner))
+                modes.AddRange(package.Modes.Select(mode => new ModeContract(key, mode.Dimension, mode.Choice, owner)));
+            if (catalogue.Admitted.TryGetValue(package.Package, out var declaration))
+            {
+                var closure = ReadResourceClosure(root, declaration);
+                artifacts[key] = [..artifacts[key], ..closure.Artifacts];
+                symbols.Add(key, closure.Symbols);
+            }
+        }
     }
 
     public sealed record ResourceClosure(SourceArtifact[] Artifacts, SourceSymbol[] Symbols);

@@ -144,7 +144,7 @@ Every spec has six sections, in this order:
 
 276 specs, one per named puzzle-element identity adopted on 24 October 2026 in [named-elements.md](../invest/named-elements.md): 216 EL, 37 TH, 19 RAD (RAD-01..04, 06..10, 12..18 and 20..22) and 4 GAP (GAP-04, 06, 07 and 09). The rows below follow the batch lists in the Story 7.0 spec.
 
-The 25 identities ledgered on 21 November 2026 (EL-217 to EL-241, [campaign-taught parts](../invest/named-elements.md#campaign-taught-parts-ledgered-on-21-november-2026-el-217-to-el-241)) have no spec here yet. Each spec is written when its slice is planned and is added to this index then; until that point the linked requirement source is the contract.
+The 25 identities ledgered on 21 November 2026 (EL-217 to EL-241, [campaign-taught parts](../invest/named-elements.md#campaign-taught-parts-ledgered-on-21-november-2026-el-217-to-el-241)) now include the [Baseball spec](EL-239-baseball.md); the other 24 have no spec here yet. Each spec is written when its slice is planned and is added to this index then; until that point the linked requirement source is the contract.
 
 ### Batch F: Water 1 (22)
 
@@ -398,6 +398,12 @@ The 25 identities ledgered on 21 November 2026 (EL-217 to EL-241, [campaign-taug
 | [GAP-06](../invest/named-elements.md#gap-06) | P3 potential: Granular dispenser | [GAP-06-granular-dispenser](GAP-06-granular-dispenser.md) | none | done |
 | [GAP-07](../invest/named-elements.md#gap-07) | P3 potential: Granular sieve | [GAP-07-granular-sieve](GAP-07-granular-sieve.md) | none | done |
 | [GAP-09](../invest/named-elements.md#gap-09) | P3 potential: Fragmentation station | [GAP-09-fragmentation-station](GAP-09-fragmentation-station.md) | none | done |
+
+### Campaign addition: Baseball
+
+| Identity | Name | Spec | Refines CAT | Spec status |
+| --- | --- | --- | --- | --- |
+| [EL-239](../invest/named-elements.md#element-239) | Baseball | [EL-239-baseball](EL-239-baseball.md) | none | implementation verification in progress |
 
 ### Batch N: Thermal (37)
 

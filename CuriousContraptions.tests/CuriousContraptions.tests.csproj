@@ -180,6 +180,7 @@
         <Compile Include="DominoGuardTests.cs" />        <Compile Include="DeclaredOrientationTests.cs" />        <Compile Include="WorkshopBowlingTests.cs" />
         <Compile Include="PayloadInstanceTests.cs" />
         <Compile Include="TennisBallTests.cs" />
+        <Compile Include="BaseballTests.cs" />
         <Compile Include="GasCapabilityTests.cs" />
         <Compile Include="GasRuntimeTests.cs" />
         <Compile Include="ContactIntegrityTests.cs" />

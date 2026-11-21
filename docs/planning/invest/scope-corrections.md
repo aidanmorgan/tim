@@ -22,6 +22,8 @@ Identify the original trap door selection rule with two candidate objects and an
 
 Drop a Baseball and each retained ball preset in one identical construction; adopt a distinct Baseball preset only if the player can see a different bounce or roll. Otherwise retain the not-adopted disposition. S636-I implements the verified distinct material declaration, never a duplicate alias.
 
+Native comparison and mass-role evidence: [EL-239 Baseball](../elements/EL-239-baseball.md) and [slice verification](../../../_bmad-output/implementation-artifacts/spec-named-el-239.md). The fixed 0.65 kg preset separates first-rebound height from Basketball, Bowling and Tennis by more than the independently chosen 15 cm clearance; Balloon rises as the retained buoyant control. Matched-size impact distinguishes a payload route from the lighter control and agrees with a mass-matched control. Implementation acceptance remains subject to the slice's required full round and independent review; this outcome grants no coverage proof-owner role or browser qualification.
+
 <a id="s638"></a>
 ### S638 · Design decision before driven-wheel mode
 

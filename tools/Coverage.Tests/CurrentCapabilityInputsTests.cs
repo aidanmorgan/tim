@@ -58,32 +58,9 @@ public class CurrentCapabilityInputsTests
     [Fact]
     public void PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes()
     {
-        var original = Root();
-        var target = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")));
-        var plan = CurrentCatalogue.Read(original);
-        var paths = new HashSet<string>(StringComparer.Ordinal)
-        {
-            "docs/planning/requirements.md", "content/puzzles.json", CurrentCatalogue.PartIdentityPath.Value, "docs/physics-puzzle-gap-audit.md"
-        };
-        foreach (var name in new[] { "engine", "gpu-physics", "refinements", "decisions", "scope-corrections", "current-consumers", "campaign" })
-            paths.Add("docs/planning/invest/" + name + ".md");
-        foreach (var element in plan.Elements) paths.Add(element.Declaration.Path.Value);
-        foreach (var path in Directory.EnumerateFiles(Path.Combine(original.FullName, "docs"), "*research.md"))
-            paths.Add(Path.GetRelativePath(original.FullName, path));
-        foreach (var resource in plan.Admitted.Values)
-        {
-            var closure = CapabilityInputs.ReadResourceClosure(original, resource);
-            foreach (var artifact in closure.Artifacts) paths.Add(artifact.Path.Value);
-            foreach (var symbol in closure.Symbols) paths.Add(symbol.Path.Value);
-        }
+        var target = CopyCurrentInputs();
         try
         {
-            foreach (var path in paths)
-            {
-                var destination = Path.Combine(target.FullName, path);
-                Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
-                File.Copy(Path.Combine(original.FullName, path), destination);
-            }
             // Every supplied logic gate (CAT-024..027) is admitted since Stories 9.7a..9.8b; the Pulley (CAT-053, Story 10.2) is admitted;
             // Laser is still planned with no package.
             Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/Laser")));
@@ -206,5 +183,91 @@ public class CurrentCapabilityInputsTests
             Assert.Throws<InvalidDataException>(() => CapabilityInputs.ReadResourceClosure(new(directory), BallResource));
         }
         finally { Directory.Delete(directory, true); }
+    }
+
+    private static DirectoryInfo CopyCurrentInputs()
+    {
+        var original = Root();
+        var target = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")));
+        var plan = CurrentCatalogue.Read(original);
+        var paths = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "docs/planning/requirements.md", "content/puzzles.json", CurrentCatalogue.PartIdentityPath.Value, "docs/physics-puzzle-gap-audit.md"
+        };
+        foreach (var name in new[] { "engine", "gpu-physics", "refinements", "decisions", "scope-corrections", "current-consumers", "campaign" })
+            paths.Add("docs/planning/invest/" + name + ".md");
+        foreach (var element in plan.Elements) paths.Add(element.Declaration.Path.Value);
+        foreach (var package in plan.NamedPackages)
+        {
+            paths.Add(package.Declaration.Path.Value);
+            paths.Add(package.Ledger.Path.Value);
+            paths.Add(package.Decision.Path.Value);
+        }
+        foreach (var path in Directory.EnumerateFiles(Path.Combine(original.FullName, "docs"), "*research.md"))
+            paths.Add(Path.GetRelativePath(original.FullName, path));
+        foreach (var resource in plan.Admitted.Values)
+        {
+            var closure = CapabilityInputs.ReadResourceClosure(original, resource);
+            foreach (var artifact in closure.Artifacts) paths.Add(artifact.Path.Value);
+            foreach (var symbol in closure.Symbols) paths.Add(symbol.Path.Value);
+        }
+
+        try
+        {
+            foreach (var path in paths)
+            {
+                var destination = Path.Combine(target.FullName, path);
+                Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+                File.Copy(Path.Combine(original.FullName, path), destination);
+            }
+            return target;
+        }
+        catch
+        {
+            if (target.Exists) target.Delete(true);
+            throw;
+        }
+    }
+
+    [Fact]
+    public void NamedPackageClosureIsRequiredWithoutGrantingCompletion()
+    {
+        var target = CopyCurrentInputs();
+        var key = new SourceKey(RequirementOrigin.Task, new("sequence-task-530"));
+        try
+        {
+            var sources = RequirementDiscovery.Discover(target);
+            var prepared = CapabilityInputs.Prepare(target, sources);
+            Assert.Contains(prepared.Issues, issue => issue.Identity == key.Id.Value && issue.Problem == CurrentInputProblem.MissingScope);
+            Assert.False(prepared.Expectations.SourceOwners.ContainsKey(key));
+            Assert.DoesNotContain(prepared.Expectations.Modes, mode => mode.Source == key);
+            var package = Assert.Single(CurrentCatalogue.Read(target).NamedPackages);
+            Assert.Equal(new PlannedMode(ModeDimension.Configuration, ModeChoice.Fixed), Assert.Single(package.Modes));
+            Assert.Contains(prepared.Expectations.RequiredArtifacts[key], artifact =>
+                artifact.Path == new SourcePath("elements/Baseball/baseball.tscn"));
+            Assert.Equal(ConstructionSymbols, prepared.Expectations.RequiredSymbols[key].Select(symbol => symbol.Symbol));
+            Assert.Equal(CapabilityTaskRequirements.Values[key].Capabilities, prepared.Expectations.RequiredCapabilities[key]);
+            Assert.Empty(prepared.Expectations.ImplementationEligibleOwners);
+            // A genuine explicit source-role grant allows the declared mode; package existence alone did not.
+            var decisions = Path.Combine(target.FullName, NamedPackageSources.DecisionPath.Value);
+            var decisionText = File.ReadAllText(decisions);
+            File.WriteAllText(decisions, decisionText.Replace("### S636 · Conditional design decision; adoption status preserved",
+                "### S636 · Conditional design decision; adoption status preserved\n\n" +
+                "Original owner, all criteria and technical stage: S636. **Exact source clauses:** [sequence-task-530](../requirements.md#sequence-task-530)."));
+            var resolved = CapabilityInputs.Prepare(target, RequirementDiscovery.Discover(target));
+            Assert.Equal(new WorkOrderId("S636"), resolved.Expectations.SourceOwners[key]);
+            Assert.Contains(new ModeContract(key, ModeDimension.Configuration, ModeChoice.Fixed, new("S636")), resolved.Expectations.Modes);
+            Assert.DoesNotContain(resolved.Issues, issue => issue.Identity == key.Id.Value);
+            Assert.Empty(resolved.Expectations.ImplementationEligibleOwners);
+            // Provenance must be rediscovered after a source changes.
+            Assert.Throws<InvalidDataException>(() => CapabilityInputs.Prepare(target, sources));
+            File.WriteAllText(decisions, decisionText);
+            var scene = Path.Combine(target.FullName, "elements/Baseball/baseball.tscn");
+            File.Delete(scene);
+            Assert.Throws<FileNotFoundException>(() => CapabilityInputs.Prepare(target, RequirementDiscovery.Discover(target)));
+            File.Delete(Path.Combine(target.FullName, "elements/Baseball/BaseballElementDeclaration.cs"));
+            Assert.Contains("have no element declaration: baseball.", Assert.Throws<InvalidDataException>(() => CurrentCatalogue.Read(target)).Message);
+        }
+        finally { if (target.Exists) target.Delete(true); }
     }
 }

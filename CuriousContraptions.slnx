@@ -17,6 +17,7 @@
     <Project Path="elements/BallDetector/BallDetector.csproj" />
     <Project Path="elements/Battery/Battery.csproj" />
     <Project Path="elements/BowlingBall/BowlingBall.csproj" />
+    <Project Path="elements/Baseball/Baseball.csproj" />
     <Project Path="elements/Bumper/Bumper.csproj" />
     <Project Path="elements/Cannon/Cannon.csproj" />
     <Project Path="elements/TennisBall/TennisBall.csproj" />

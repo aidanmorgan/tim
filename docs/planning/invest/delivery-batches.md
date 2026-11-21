@@ -14,7 +14,7 @@ It adds no delivery rule. The rules it relies on are **Family slice**, **Duplica
 
 | Family | Identities | Reuses | Disqualified if |
 |---|---|---|---|
-| Ball presets | [EL-077 Soccer ball](../elements/EL-077-soccer-ball.md), [EL-091 Cannonball](../elements/EL-091-cannonball.md), EL-239 Baseball ("an additional ball type"; ledgered 21 November 2026, no spec yet) | The whole Tennis ball declaration shape: generic interfaces only (`elements/TennisBall/TennisBallElementDeclaration.cs:9`), five typed parameters (`:16`–`:20`), radius-bound collider (`:33`–`:38`), bounce-bound material (`:39`–`:40`), declared mass frame (`:48`–`:53`) and ambient loads (`:55`–`:57`) | The Cannon's chamber does not admit the cannonball's radius |
+| Ball presets | [EL-077 Soccer ball](../elements/EL-077-soccer-ball.md), [EL-091 Cannonball](../elements/EL-091-cannonball.md), [EL-239 Baseball](../elements/EL-239-baseball.md) ("an additional ball type"; native verification in progress) | The whole Tennis ball declaration shape: generic interfaces only (`elements/TennisBall/TennisBallElementDeclaration.cs:9`), five typed parameters (`:16`–`:20`), radius-bound collider (`:33`–`:38`), bounce-bound material (`:39`–`:40`), declared mass frame (`:48`–`:53`) and ambient loads (`:55`–`:57`) | The Cannon's chamber does not admit the cannonball's radius |
 
 Tennis (12.1a) used exactly this shape and still touched 58 files, almost all registration tables. The saving from batching is one registration pass and one review for three packages; it grows once [registration derivation](#5-structural-stories) lands.
 
@@ -88,7 +88,7 @@ The engine slices are the engine-first stories in `_bmad-output/planning-artifac
 
 ### Identities ledgered after EL-241 — NOT YET CLASSIFIED
 
-EL-217 to EL-241 (25 campaign-taught parts ledgered on 21 November 2026) are classified above from their one-line ledger rows only; none has an element spec yet, so every one of them is a probe candidate at best. If the ledger gains identities after EL-241, none of them is classified here: classify each into 1a, 1b or 1c before planning from this document, and update the totals at the end.
+EL-217 to EL-241 (25 campaign-taught parts ledgered on 21 November 2026) are classified above from their one-line ledger rows only; Baseball now has an [element spec](../elements/EL-239-baseball.md), while the other 24 remain probe candidates without specs. If the ledger gains identities after EL-241, none of them is classified here: classify each into 1a, 1b or 1c before planning from this document, and update the totals at the end.
 
 ## 2. Duplicate closures
 

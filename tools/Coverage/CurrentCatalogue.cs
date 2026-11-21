@@ -13,6 +13,7 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
     /// <summary>Each admitted part identity and the element package declaration that declares it (keyed by the declaration's own
     /// Id).</summary>
     public IReadOnlyDictionary<RequirementId, SourcePath> Admitted { get; init; } = new Dictionary<RequirementId, SourcePath>();
+    public PlannedNamedPackage[] NamedPackages { get; init; } = [];
     public SourceArtifact[] AvailableResources { get; init; } = [];
     public static readonly SourcePath ConsumersPath = new("docs/planning/invest/current-consumers.md");
     /// <summary>The generated element bundle (a build output of tools/BundleElements): its element ids are the declared part
@@ -38,7 +39,7 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
             if (files.Length != 1) throw new InvalidDataException("Catalogue declaration is missing or ambiguous.");
             return (new SourcePath(Path.GetRelativePath(root.FullName, files[0])), File.ReadAllText(files[0]));
         });
-        result = result.BindAcceptance(requirements);
+        result = result.BindAcceptance(requirements) with { NamedPackages = NamedPackageSources.Read(root, requirements) };
         result.ValidateFixtures(File.ReadAllText(Path.Combine(root.FullName, "content/puzzles.json")));
         var bundle = Path.Combine(root.FullName, PartIdentityPath.Value);
         if (!File.Exists(bundle))
@@ -83,9 +84,7 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
             var sentence = Regex.Matches(block, @"\*\*Mode records:\*\* ([^.\r\n]+)\.");
             if (markers.Count != 1 || sentence.Count != 1)
                 throw new InvalidDataException("Mode sentence is missing, duplicated or malformed.");
-            var modes = sentence[0].Groups[1].Value.Split(", ", StringSplitOptions.None).Select(ParseMode).ToArray();
-            if (modes.Distinct().Count() != modes.Length || modes.Count(mode => mode.Dimension == ModeDimension.Configuration) != 1)
-                throw new InvalidDataException("Missing or ambiguous configuration mode, or duplicate planned mode.");
+            var modes = ParseModes(sentence[0].Groups[1].Value);
             var source = declaration(id);
             if (!source.Text.StartsWith("# " + id.Value + " ·", StringComparison.Ordinal))
                 throw new InvalidDataException("Declaration identity differs from catalogue.");
@@ -155,6 +154,14 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
                 throw new InvalidDataException("Empty catalogue acceptance body.");
             return body;
         }
+    }
+
+    public static PlannedMode[] ParseModes(string text)
+    {
+        var modes = text.Split(", ", StringSplitOptions.None).Select(ParseMode).ToArray();
+        if (modes.Distinct().Count() != modes.Length || modes.Count(mode => mode.Dimension == ModeDimension.Configuration) != 1)
+            throw new InvalidDataException("Missing or ambiguous configuration mode, or duplicate planned mode.");
+        return modes;
     }
 
     private static PlannedMode ParseMode(string text)
@@ -227,7 +234,9 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
     {
         if (declared.Count == 0 || declared.Distinct().Count() != declared.Count)
             throw new InvalidDataException("Missing or duplicate declared part identity.");
-        var known = Elements.Select(element => element.Source.Key.Id).ToHashSet();
+        var keys = Elements.Select(element => element.Source.Key.Id).Concat(NamedPackages.Select(source => source.Package)).ToArray();
+        var known = keys.ToHashSet();
+        if (known.Count != keys.Length) throw new InvalidDataException("Duplicate package source binding across catalogue and named contracts.");
         var admitted = new Dictionary<RequirementId, SourcePath>();
         var artifacts = new List<SourceArtifact>();
         foreach (var path in resources)

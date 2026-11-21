@@ -20,8 +20,10 @@ public static class RequirementDiscovery
     {
         var records=new List<SourceRequirement>();
         var todo=File.ReadAllText(Path.Combine(root.FullName,RequirementsPath.Value));
-        records.AddRange(Todo(todo));
-        records.AddRange(CurrentCatalogue.Read(root).Elements.Select(element => element.Source));
+        var catalogue = CurrentCatalogue.Read(root);
+        var named = catalogue.NamedPackages.ToDictionary(package => package.Source.Key, package => package.Source);
+        records.AddRange(Todo(todo).Select(source => named.GetValueOrDefault(source.Key, source)));
+        records.AddRange(catalogue.Elements.Select(element => element.Source));
         records.AddRange(DiscoverFixtures(root).Select(fixture=>fixture.Source));
         foreach(var fullPath in Directory.EnumerateFiles(Path.Combine(root.FullName,DocumentationPath),ResearchPattern)
             .Append(Path.Combine(root.FullName,GapResearchPath)).Order(StringComparer.Ordinal))

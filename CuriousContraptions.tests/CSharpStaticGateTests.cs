@@ -698,6 +698,7 @@ public sealed class CSharpStaticGateTests
         "elements/WoundSpring/WoundSpring.csproj",
         "elements/Cannon/Cannon.csproj",
         "elements/TennisBall/TennisBall.csproj",
+        "elements/Baseball/Baseball.csproj",
         "elements/Balloon/Balloon.csproj",
         "elements/Fan/Fan.csproj",
         "elements/Windmill/Windmill.csproj",

@@ -6,16 +6,24 @@ namespace CuriousContraptions.Tests;
 public sealed class FanGuidanceTests
 {
 
-    public enum Payload { Balloon, Ball }
+    public enum Payload { Balloon, Ball, Baseball }
 
     [Theory]
     [InlineData(Payload.Balloon, true)]
     [InlineData(Payload.Balloon, false)]
     [InlineData(Payload.Ball, true)]
     [InlineData(Payload.Ball, false)]
+    [InlineData(Payload.Baseball, true)]
+    [InlineData(Payload.Baseball, false)]
     public async Task ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow(Payload payload, bool enabled)
     {
-        var part = payload == Payload.Balloon ? new PartId("balloon") : new PartId("ball");
+        var part = payload switch
+        {
+            Payload.Balloon => new PartId("balloon"),
+            Payload.Ball => new PartId("ball"),
+            Payload.Baseball => new PartId("baseball"),
+            _ => throw new ArgumentOutOfRangeException(nameof(payload))
+        };
         var cargo = WorkshopInput.Generic(RuntimeTestServices.Bundle, part, new(2), 3, 5, 0, 0, 0, 0, 1);
         await using var h = await WorkshopIntegrationHarness.Running(
             TennisBallTests.Scene(FanIntegrationTests.Fan(powered: enabled), cargo));

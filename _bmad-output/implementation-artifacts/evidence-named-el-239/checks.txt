@@ -1,0 +1,292 @@
+EL-239 implementation owner evidence, uncommitted candidate on baseline
+8d1d68aa262bb3f89ee9d073bbbaf3a83b9f9322.
+Executor: ctx_dc914d89faaf / term_53b363a1-bc17-483a-8147-c885602e8e2e.
+SDK10.0.403, Node26.12.1, wasm-tools10.0.114/10.0.100; Debug/net10.0.
+Native run-log entry4 contains commands, scope and invalidating inputs.
+This file preserves raw result excerpts; source logs are under .tools/baseball-evidence.
+No browser/remote build/artifact/deployment/performance qualification.
+
+Compiler captures (raw success summaries from compiler-candidate5.txt; exit0).
+Commands, in order:
+dotnet build CuriousContraptions.slnx -c Debug --nologo --no-restore --no-incremental -p:PlaytestDiagnostics=true -noAutoResponse "-bl:$CSHARP_STATIC_GATE_BINLOGS/playtest.binlog"
+dotnet build CuriousContraptions.slnx -c Debug --nologo --no-restore --no-incremental -noAutoResponse "-bl:$CSHARP_STATIC_GATE_BINLOGS/solution.binlog"
+dotnet build CuriousContraptions.web/CuriousContraptions.web.csproj -c Debug --nologo --no-restore --no-incremental -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false -noAutoResponse "-bl:$CSHARP_STATIC_GATE_BINLOGS/web.binlog"
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+Time Elapsed 00:00:23.84
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+Time Elapsed 00:00:24.47
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+Time Elapsed 00:00:22.63
+
+Maintainability (complete raw output, maintainability-candidate5.txt; exit0).
+Command: dotnet run --file tools/anvil/VerifyPolicy.cs -- --maintainability --project-root /Users/aidan/orca/workspaces/tim/tim-cluster2-next
+PASS canary reported for every metric; test-project canary not reported
+PASS coupling canary reported every strength and rule; controls clean; test project excluded
+EXCLUDED test project CuriousContraptions.tests/CuriousContraptions.tests.csproj
+EXCLUDED test project tools/BundleElements.Tests/BundleElements.Tests.csproj
+EXCLUDED test project tools/Coverage.Tests/Coverage.Tests.csproj
+EXCLUDED test project tools/E2eRunner.Tests/E2eRunner.Tests.csproj
+EXCLUDED test project tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj
+Coupling dependencies: contract=4671, model=4, intrusive=0; violations=0
+Maintainability gate (CA1505 index >= 20, CA1502 complexity <= 25, balanced coupling; test projects excluded): violations=0 (metrics=0, coupling=0). PASS
+
+Registration (complete raw output, registration-candidate5.txt; exit0).
+Command: dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter 'FullyQualifiedName~PartRegistryTests|FullyQualifiedName~BundleElementIdTests|FullyQualifiedName~BundlePortsTests|FullyQualifiedName~CatalogueIntegrationTests|FullyQualifiedName~PackageRuntimeParityTests|FullyQualifiedName~PalettePlacementTests|FullyQualifiedName~WorkbenchCapacityTests|FullyQualifiedName~WorkshopIntegrationHarnessTests|FullyQualifiedName~BasketballResourceTests|FullyQualifiedName~CSharpStaticGateTests|FullyQualifiedName~CurrentCatalogueTests|FullyQualifiedName~CurrentCapabilityInputsTests|FullyQualifiedName~ElementManifestTests|FullyQualifiedName~BundleRoundTripTests|FullyQualifiedName~BundleValidatorTests|FullyQualifiedName~PackageReferenceTests|FullyQualifiedName~ChecksTests|FullyQualifiedName~SelectionTests|FullyQualifiedName~TimingDeclarationTests'
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 41 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   192, Skipped:     0, Total:   192, Duration: 875 ms - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    76, Skipped:     0, Total:    76, Duration: 1 s - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    97, Skipped:     0, Total:    97, Duration: 22 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   394, Skipped:     0, Total:   394, Duration: 53 s - CuriousContraptions.tests.dll (net10.0)
+
+Baseball affected tests (raw test results and measurements, baseball-candidate5.txt; exit0).
+Command: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter 'FullyQualifiedName~BaseballTests' --logger 'console;verbosity=detailed'
+  Passed CuriousContraptions.Tests.BaseballTests.UnpoweredDropSettlesWithoutFreeRebound [473 ms]
+  Passed CuriousContraptions.Tests.BaseballTests.FixedPresetCompilesCanonicalMassAndMaterialAndRejectsForeignParameters [42 ms]
+  Passed CuriousContraptions.Tests.BaseballTests.CommittedPresentationFollowsMovingBodyAndReset [78 ms]
+  Passed CuriousContraptions.Tests.BaseballTests.IdenticalDropDistinguishesEveryRetainedPreset [143 ms]
+  Standard Output Messages:
+ baseball: first rebound centre peak 0.16616464 m
+ ball: first rebound centre peak 0.78460294 m
+ bowling: first rebound centre peak -0.11948384 m
+ tennis: first rebound centre peak 1.996308 m
+ balloon: centre after one second 3.7438998 m, ascending
+  Passed CuriousContraptions.Tests.BaseballTests.SceneAndIconExposeSeamedSphereMatchingContactGeometry [164 ms]
+  Passed CuriousContraptions.Tests.BaseballTests.MatchedSizeImpactChangesPayloadRouteByMass [22 ms]
+  Standard Output Messages:
+ One-second payload x: Baseball 1.4895808 m; light control 1.0851698 m; mass-matched control 1.4895808 m
+  Passed CuriousContraptions.Tests.BaseballTests.RunPauseStepResetSaveLoadRestoresAuthoredBaseball [58 ms]
+Test Run Successful.
+Total tests: 7
+     Passed: 7
+ Total time: 4.2546 Seconds
+
+Final candidate6: one palette expectation changed after the failed first full round.
+Matching playtest/solution recaptures (compiler-candidate6.txt; exit0).
+Commands: first two compiler commands above; unchanged web and file-tool captures reused.
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+Time Elapsed 00:00:27.35
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+Time Elapsed 00:00:29.94
+
+Final maintainability (complete raw output, maintainability-candidate6.txt; exit0).
+Command: same maintainability command above; no rebuild followed.
+PASS canary reported for every metric; test-project canary not reported
+PASS coupling canary reported every strength and rule; controls clean; test project excluded
+EXCLUDED test project CuriousContraptions.tests/CuriousContraptions.tests.csproj
+EXCLUDED test project tools/BundleElements.Tests/BundleElements.Tests.csproj
+EXCLUDED test project tools/Coverage.Tests/Coverage.Tests.csproj
+EXCLUDED test project tools/E2eRunner.Tests/E2eRunner.Tests.csproj
+EXCLUDED test project tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj
+Coupling dependencies: contract=4671, model=4, intrusive=0; violations=0
+Maintainability gate (CA1505 index >= 20, CA1502 complexity <= 25, balanced coupling; test projects excluded): violations=0 (metrics=0, coupling=0). PASS
+
+Final expanded registration (complete raw output, registration-candidate6.txt; exit0).
+Command: registration command above with |FullyQualifiedName~WorkshopIntegrationStartupTests appended to its filter.
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 43 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   192, Skipped:     0, Total:   192, Duration: 914 ms - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    76, Skipped:     0, Total:    76, Duration: 1 s - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    97, Skipped:     0, Total:    97, Duration: 31 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   409, Skipped:     0, Total:   409, Duration: 1 m 10 s - CuriousContraptions.tests.dll (net10.0)
+
+First full round (raw failure excerpt from full-candidate5.txt; exit1).
+[xUnit.net 00:06:47.87]     CuriousContraptions.Tests.WorkshopIntegrationStartupTests.NativePaletteGroupsDeclaredCategoriesAndPreservesTheirDisplayOrder [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopIntegrationStartupTests.NativePaletteGroupsDeclaredCategoriesAndPreservesTheirDisplayOrder [75 ms]
+   Assert.Equal() Failure: Collections differ at index 22
+Expected: "Goals"
+Actual:   "baseball"
+     at CuriousContraptions.Tests.WorkshopIntegrationStartupTests.NativePaletteGroupsDeclaredCategoriesAndPreservesTheirDisplayOrder() in /Users/aidan/orca/workspaces/tim/tim-cluster2-next/CuriousContraptions.tests/WorkshopIntegrationHarnessTests.cs:line 700
+   at CuriousContraptions.Tests.WorkshopIntegrationStartupTests.NativePaletteGroupsDeclaredCategoriesAndPreservesTheirDisplayOrder() in /Users/aidan/orca/workspaces/tim/tim-cluster2-next/CuriousContraptions.tests/WorkshopIntegrationHarnessTests.cs:line 710
+Failed!  - Failed:     1, Passed:  6616, Skipped:     0, Total:  6617, Duration: 7 m 48 s - CuriousContraptions.tests.dll (net10.0)
+
+Final full round (complete raw output, full-candidate6.txt; exit0).
+Commands:
+local_deferred_filter=$(dotnet run --project tools/E2eRunner --no-build -c Debug -- deferred-filter)
+caffeinate -i dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter "$local_deferred_filter" -- RunConfiguration.TreatNoTestsAsError=true
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 40 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   287, Skipped:     0, Total:   287, Duration: 1 s - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   108, Skipped:     0, Total:   108, Duration: 1 s - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   256, Skipped:     0, Total:   256, Duration: 40 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  6617, Skipped:     0, Total:  6617, Duration: 7 m 49 s - CuriousContraptions.tests.dll (net10.0)
+
+Final totals: 7285 passed, 0 failed, 0 skipped.
+Explicit browser deferral is the only full-round selection.
+
+Review repair1 evidence, retained owner ctx_e5b79c398ee1.
+Baseline and Debug/net10.0 configuration unchanged; native run-log entries7–8 give scope and invalidating inputs.
+
+Matching captures, raw summaries from repair1-compiler.txt, exit0.
+Commands: the playtest and normal solution compiler capture commands above.
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+Time Elapsed 00:00:34.59
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+Time Elapsed 00:00:25.79
+
+Maintainability, complete raw output from repair1-maintainability.txt, exit0.
+Command: dotnet run --file tools/anvil/VerifyPolicy.cs -- --maintainability --project-root /Users/aidan/orca/workspaces/tim/tim-cluster2-next
+PASS canary reported for every metric; test-project canary not reported
+PASS coupling canary reported every strength and rule; controls clean; test project excluded
+EXCLUDED test project CuriousContraptions.tests/CuriousContraptions.tests.csproj
+EXCLUDED test project tools/BundleElements.Tests/BundleElements.Tests.csproj
+EXCLUDED test project tools/Coverage.Tests/Coverage.Tests.csproj
+EXCLUDED test project tools/E2eRunner.Tests/E2eRunner.Tests.csproj
+EXCLUDED test project tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj
+Coupling dependencies: contract=4671, model=4, intrusive=0; violations=0
+Maintainability gate (CA1505 index >= 20, CA1502 complexity <= 25, balanced coupling; test projects excluded): violations=0 (metrics=0, coupling=0). PASS
+
+Registration, complete raw output from repair1-registration.txt, exit0.
+Command: dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter 'FullyQualifiedName~PartRegistryTests|FullyQualifiedName~BundleElementIdTests|FullyQualifiedName~BundlePortsTests|FullyQualifiedName~CatalogueIntegrationTests|FullyQualifiedName~PackageRuntimeParityTests|FullyQualifiedName~PalettePlacementTests|FullyQualifiedName~WorkbenchCapacityTests|FullyQualifiedName~WorkshopIntegrationHarnessTests|FullyQualifiedName~WorkshopIntegrationStartupTests|FullyQualifiedName~BasketballResourceTests|FullyQualifiedName~CSharpStaticGateTests|FullyQualifiedName~CurrentCatalogueTests|FullyQualifiedName~CurrentCapabilityInputsTests|FullyQualifiedName~ElementManifestTests|FullyQualifiedName~BundleRoundTripTests|FullyQualifiedName~BundleValidatorTests|FullyQualifiedName~PackageReferenceTests|FullyQualifiedName~ChecksTests|FullyQualifiedName~SelectionTests|FullyQualifiedName~TimingDeclarationTests'
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 37 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   192, Skipped:     0, Total:   192, Duration: 852 ms - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    83, Skipped:     0, Total:    83, Duration: 1 s - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    97, Skipped:     0, Total:    97, Duration: 22 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   409, Skipped:     0, Total:   409, Duration: 53 s - CuriousContraptions.tests.dll (net10.0)
+
+Affected tests, raw named-result excerpts from repair1-affected.txt, exit0.
+Command: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter 'FullyQualifiedName~FanGuidanceTests|FullyQualifiedName~BaseballTests' --logger 'console;verbosity=detailed'
+  Passed CuriousContraptions.Tests.BaseballTests.UnpoweredDropSettlesWithoutFreeRebound [487 ms]
+  Passed CuriousContraptions.Tests.BaseballTests.FixedPresetCompilesCanonicalMassAndMaterialAndRejectsForeignParameters [50 ms]
+  Passed CuriousContraptions.Tests.BaseballTests.CommittedPresentationFollowsMovingBodyAndReset [88 ms]
+  Passed CuriousContraptions.Tests.BaseballTests.IdenticalDropDistinguishesEveryRetainedPreset [193 ms]
+  Passed CuriousContraptions.Tests.BaseballTests.SceneAndIconExposeSeamedSphereMatchingContactGeometry [161 ms]
+  Passed CuriousContraptions.Tests.BaseballTests.MatchedSizeImpactChangesPayloadRouteByMass [25 ms]
+  Passed CuriousContraptions.Tests.BaseballTests.RunPauseStepResetSaveLoadRestoresAuthoredBaseball [71 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow(payload: Ball, enabled: True) [68 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow(payload: Baseball, enabled: False) [25 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow(payload: Baseball, enabled: True) [28 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow(payload: Balloon, enabled: True) [27 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow(payload: Ball, enabled: False) [24 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow(payload: Balloon, enabled: False) [25 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.TransparentCurvedAndTaperedSolidWallsOccludeOnlyWhenInTheStream(shape: Funnel, inStream: True) [23 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.TransparentCurvedAndTaperedSolidWallsOccludeOnlyWhenInTheStream(shape: Bend, inStream: False) [25 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.TransparentCurvedAndTaperedSolidWallsOccludeOnlyWhenInTheStream(shape: Bend, inStream: True) [23 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.TransparentCurvedAndTaperedSolidWallsOccludeOnlyWhenInTheStream(shape: Funnel, inStream: False) [24 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls(control: Supplied) [142 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls(control: EmptyBattery) [394 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls(control: Away) [225 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls(control: Heavy) [276 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls(control: NoBattery) [187 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls(control: OutOfReach) [229 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls(control: SolidWall) [233 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ColdStartRequiresTheConnectedSwitchOccurrenceBeforeAnyTransfer(connected: True) [63 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.ColdStartRequiresTheConnectedSwitchOccurrenceBeforeAnyTransfer(connected: False) [46 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.TransparentPipeBlocksAcrossItsShellButAllowsItsOpenBore(acrossShell: False) [32 ms]
+  Passed CuriousContraptions.Tests.FanGuidanceTests.TransparentPipeBlocksAcrossItsShellButAllowsItsOpenBore(acrossShell: True) [21 ms]
+Test Run Successful.
+Total tests: 28
+     Passed: 28
+ Total time: 6.5745 Seconds
+
+Full post-review round, complete raw output from repair1-full.txt, exit0.
+Command: same caffeinate/no-build/full-solution command and generated browser-deferral filter recorded above.
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/orca/workspaces/tim/tim-cluster2-next/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 38 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   287, Skipped:     0, Total:   287, Duration: 1 s - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   115, Skipped:     0, Total:   115, Duration: 1 s - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   256, Skipped:     0, Total:   256, Duration: 36 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  6619, Skipped:     0, Total:  6619, Duration: 7 m 57 s - CuriousContraptions.tests.dll (net10.0)
+
+Repair totals: full7294/0/0, registration798/0/0, affected28/0/0.
+No commit/push or independent acceptance is claimed.
+
+Final coordinator maintainability evidence (complete raw output).
+Coordinator final E9, session4301, exit0; command: dotnet run --file tools/anvil/VerifyPolicy.cs -- --maintainability --project-root /Users/aidan/orca/workspaces/tim/tim-cluster2-next
+PASS canary reported for every metric; test-project canary not reported
+PASS coupling canary reported every strength and rule; controls clean; test project excluded
+EXCLUDED test project CuriousContraptions.tests/CuriousContraptions.tests.csproj
+EXCLUDED test project tools/BundleElements.Tests/BundleElements.Tests.csproj
+EXCLUDED test project tools/Coverage.Tests/Coverage.Tests.csproj
+EXCLUDED test project tools/E2eRunner.Tests/E2eRunner.Tests.csproj
+EXCLUDED test project tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj
+Coupling dependencies: contract=4671, model=4, intrusive=0; violations=0
+Maintainability gate (CA1505 index >= 20, CA1502 complexity <= 25, balanced coupling; test projects excluded): violations=0 (metrics=0, coupling=0). PASS
+
+Independent pass2 clearances and final scope PASS are recorded in run-log entry9.
+Full7294/0/0 and matching evidence reused after record-only finalization.
