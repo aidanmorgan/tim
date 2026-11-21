@@ -646,7 +646,9 @@ static class CustomizationCheck
 /// the solution, its PLAYTEST variant, the web host and every file-based app. The exclusions are all listed here: test
 /// projects (IsTestProject=true; owner rule, 6 November 2026), the vendored FlatBuffers runtime (CSharpStaticGate=false
 /// turns analyzers off) and FlatBuffers-compiler output marked &lt;auto-generated&gt;. The rules and thresholds are
-/// injected for this run only, so normal builds keep the root .editorconfig as their only analyzer configuration. A
+/// injected for this run only, so normal builds keep the root .editorconfig as their only analyzer configuration.
+/// Every gate build writes its outputs under the gate's temporary folder (--artifacts-path), never into the checkout's
+/// bin and obj folders, so a normal verification build made before the gate is still current after it. A
 /// canary method that breaks both thresholds must be reported for both rules, and the same method in a test project for
 /// neither, so a run whose injection or test exclusion silently failed cannot pass.
 /// </summary>
@@ -697,7 +699,7 @@ static partial class MaintainabilityGate
         foreach (var build in Builds(root, work))
         {
             metrics.AddRange(Analyse(root, build, targets, inventory));
-            // Builds share bin folders, so each build's IL is read before the next build replaces it.
+            // The inventory folder is emptied for each build, so each build's IL is read before the next build runs.
             if (build.Coupling) coupling.Add(CouplingGate.Analyse(root, inventory, CouplingGate.Classify));
         }
         var violations = metrics.DistinctBy(violation => (violation.Metric, violation.File, violation.Line, violation.Symbol))
@@ -781,16 +783,23 @@ static partial class MaintainabilityGate
 
     internal static IEnumerable<Build> Builds(string root, string work)
     {
-        yield return new("solution", ["build", "CuriousContraptions.slnx", "-noAutoResponse"], Coupling: true);
-        yield return new("playtest", ["build", "CuriousContraptions.slnx", "-noAutoResponse", "-p:PlaytestDiagnostics=true"],
-            Coupling: true);
+        // Each project build writes to its own folder under the gate's temporary directory, so the checkout's bin and obj
+        // folders, and the normal verification builds and compiler logs made from them, are left as they were. The one
+        // exception is the root game project: the Godot SDK fixes its output under .godot/mono/temp. The builds therefore
+        // run in the order of the documented verification capture (playtest, solution, web), which leaves that project
+        // as the same variant, from the same sources, that the capture leaves.
+        yield return new("playtest", ["build", "CuriousContraptions.slnx", "-noAutoResponse", "-p:PlaytestDiagnostics=true",
+            .. Isolated(work, "playtest")], Coupling: true);
+        yield return new("solution", ["build", "CuriousContraptions.slnx", "-noAutoResponse", .. Isolated(work, "solution")], Coupling: true);
         yield return new("web", ["build", "CuriousContraptions.web/CuriousContraptions.web.csproj", "-noAutoResponse",
-            "-p:WasmBuildOnlyAfterPublish=true", "-p:TwoDogAutoImport=false"], Coupling: true);
+            "-p:WasmBuildOnlyAfterPublish=true", "-p:TwoDogAutoImport=false", .. Isolated(work, "web")], Coupling: true);
         // File-based apps reject MSBuild-only switches; a separate artifacts path never overwrites a running app.
         // They have no project references, so coupling reads only the three project builds above.
         foreach (var app in FileBasedApps(root))
             yield return new(app, ["build", app, "--artifacts-path", Path.Combine(work, "apps", app)], Coupling: false);
     }
+
+    static string[] Isolated(string work, string label) => ["--artifacts-path", Path.Combine(work, "builds", label)];
 
     // A file-based app is a C# file whose first line is a #: directive; tracked or new, never ignored.
     static string[] FileBasedApps(string root)
@@ -814,7 +823,8 @@ static partial class MaintainabilityGate
             int.Parse(match.Groups["score"].Value, System.Globalization.CultureInfo.InvariantCulture)))];
     }
 
-    // Rebuilds from scratch with the injected targets; the emptied inventory folder then lists only this build's projects.
+    // Rebuilds from scratch with the injected targets, into the build's own output folder; the emptied inventory folder
+    // then lists only this build's projects.
     internal static string Compile(string root, Build build, string targets, string inventory)
     {
         if (Directory.Exists(inventory)) Directory.Delete(inventory, true);

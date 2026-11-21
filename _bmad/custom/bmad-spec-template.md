@@ -41,6 +41,7 @@ Name which (or which combination) applies, who is affected, and the backdrop tha
 - **Forward-only change:** {Old symbols, schema paths, callers/content to delete, or explicitly none; current replacements without aliases/fallback/migration.}
 - **Prerequisites and uncertainty:** {Required-now decisions/dependencies and owners; explicitly identify candidate-only prerequisite incorporation. Open required-now decisions prevent readiness.}
 - **Capability probe:** {Each engine/abstraction/bundle/wire/presentation capability the behaviour needs: present (cited symbol and exercising test in this checkout), narrower (how), or missing (the engine slice that delivers it first). Direct consumers that must change: tables, guards, schema, generated files, TypeScript callers, fixtures. See bmad-loop-protocol.md#capability-probe.}
+- **Delivery shape and review tier:** {Single element, Family slice (list the identities and what differs) or closure review of delivered duplicates; any duplicate of this part closed inside this work (the satisfying test); data-only or engine review tier with the reason. Keep each answer in this engine-affecting block to three lines and put derivations in the run log. See bmad-loop-protocol.md#slice-shapes and #review-tiers.}
 - **Planning gate:** {Scoped Pass / Fail / Incomplete, inspected scope and design/contract evidence. Record the verdict as a memlog event; map it to native workflow outcomes under the review policy. A planning Pass is not implementation proof.}
 
 ## Non-goals
