@@ -102,6 +102,8 @@ Engineering applicability: E1/E2/E4/E5/E7/E8/E9 apply to discovery/typed tool bo
 
 ## Implementation Notes
 
+Integration of upstream7c019d64ee54a80bc0d31b82c90533985c2748ba into approved candidate06ac9aa2f210b42eb0cbda37996722ed2badf4b5 is bounded to its16 policy/planning/tool files plus this contract, run log and TODO. Original baseline and intent remain unchanged. Deferred-work resolution preserves registration completion and upstream S2–S6; delivery-workflow preserves both changes. Starting six-lens/order rules still apply; merged E9 isolated-output behavior applies immediately. See run log entry13 for commands, scope, reuse and independent integration review inputs.
+
 Planning readiness Scoped Pass by /root/planning_auditor (fork_turns=none), no findings; all READY FOR DEVELOPMENT criteria checked. Ready-for-dev accepted and native step-03 entered. Implementation owner /root/implementation_owner owns affected checks, E9, compiler captures, registration and full-round execution. No coordinator implementation. Capability probe confirmed before edits; no missing engine capability. Full owned diff inspected for needless branches, duplicate rules and churn: single context-owned mapping replaces the table, rules cached once, no schema/runtime behavior changes. E9's CC26 rule-construction finding repaired by extracting the package-source predicate; second gate passed. See run log entry5.
 
 ## Verification

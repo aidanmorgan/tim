@@ -27,11 +27,12 @@ Read: the documents your prompt names, this card, the slice **contract** (the na
 - No fallback, default identity, second path, alias, migration or retained old field. Refuse unsupported input with a typed reason.
 - No element identity, kind or name in engine code. A new element is declarations, art, bindings and tests.
 - Closed sets stay enums end to end; f32 game values.
+- Validate writes in batches: send the Anvil validation calls for the writes you have ready in one response, then make the allowed writes in the next. Never put a write in the same response as its own validation.
 - Keep each new or changed member within cyclomatic complexity 25 and maintainability index 20 as you write it. Run the [maintainability gate](bmad-loop-protocol.md#maintainability-gate) as soon as the candidate compiles, not only at handoff.
 
 **Before handoff, in this order**
 
-1. Maintainability gate passes; then repeat the matching non-incremental compiler-log builds (the gate's injected build is not verification evidence).
+1. Maintainability gate passes. It builds in its own temporary folder, so the matching compiler-log builds made from the same sources stay current and are not repeated after it.
 2. [New-package registration check](../../docs/delivery-workflow.md#new-package-registration-check) passes, whenever the slice adds or renames a package, port, parameter, wire field, test file or tool.
 3. Affected tests pass, and the acceptance-to-test table names a test that ran for every row.
 4. `git add -N` your new files, then `git diff --check <baseline_revision>` is clean.
@@ -44,29 +45,33 @@ Report: what changed, each command with its result and raw output location, the 
 
 Read: this card, the draft contract, the element's requirement and named-element rows, and the [protocol's capability probe](bmad-loop-protocol.md#capability-probe). Read-only; edit nothing.
 
-Return three lists, each entry cited as `path:line` or a test name in the current checkout:
+Return four lists, each entry cited as `path:line` or a test name in the current checkout:
 
 1. **Capabilities.** Every engine, abstraction, bundle, wire or presentation capability the planned behaviour needs, marked *present* (cite the symbol and a test that exercises it), *present, untested* (cite the symbol; the slice adds the test), *narrower* (say how), or *missing*.
 2. **Direct consumers.** Every table, list, guard, schema, generated file, TypeScript caller and fixture that must change when this package or field is added.
 3. **Open decisions.** Every question only the owner can answer, each with the default you would choose from the game's intent.
+4. **Shape and tier inputs.** List every path the plan will change and say whether each is on the data-only allow-list in the protocol's [Review tiers](bmad-loop-protocol.md#review-tiers); do not restate that test. For a Family slice, list per identity what differs from its siblings; for a Duplicate closure, the satisfying part and the test that proves the duplicate's behaviour through it.
 
 Do not infer a capability from a type name.
 
 ## Blind reviewers (Blind Hunter, Edge Case Hunter, Verification Gap, Intent Alignment)
 
-Read: this card, your layer's instruction, the diff you were given, and the [reviewer duties](bmad-loop-protocol.md#reviewer-duties). Do not load the engineering contract or engine guides.
+Read: this card, your layer's instruction, the diff you were given, the [reviewer duties](bmad-loop-protocol.md#reviewer-duties) and the [reviewer proof and verdicts](../../docs/delivery-workflow.md#agents-reviewer-proof) rule moved out of AGENTS.md. Do not load the engineering contract or engine guides.
 
 - This is a physics puzzle game. Judge outcomes, causal order, stability and lifecycle; do not demand exact ticks, incidental contact sequences or tighter precision. Unjustified precision in a test is itself a finding.
 - Follow your layer's instruction on what you may run. No mutants, no browser gate, no finding quota. Report evidence limits and unreadable inputs.
 - For each finding give the file and line, the concrete defect, and its gameplay or interface consequence, in your layer's own output format. Where you can tell, add whether the fix is a test change or a product change; the coordinator classifies and routes. Intent Alignment stays descriptive and adds no classification.
+- Your diff leaves out generated wire code and binary or imported assets; its header lists the excluded paths that changed. Name one by path if a finding depends on it.
 - On a re-review, your input is the repair diff. Report defects in the repair and in what it directly affects.
 
 ## Informed auditors (Forward-Only, Element-Free Engine, acceptance, planning)
 
-Read: this card, your layer's instruction, the header naming phase, candidate identity and evidence paths, and the [reviewer duties](bmad-loop-protocol.md#reviewer-duties). The Element-Free Engine and planning auditors also read the [engineering contract](project-engineering-contract.md) and both engine guides.
+Read: this card, your layer's instruction, the header naming phase, candidate identity and evidence paths, the [reviewer duties](bmad-loop-protocol.md#reviewer-duties) and the [reviewer proof and verdicts](../../docs/delivery-workflow.md#agents-reviewer-proof) rule moved out of AGENTS.md. The Element-Free Engine and planning auditors also read the [engineering contract](project-engineering-contract.md) and both engine guides.
 
 - Planned tests are not executed proof; test source is not evidence it ran. Missing required-now proof is Incomplete.
 - A planning audit also checks the capability probe: every capability marked *present* has a cited symbol and test, every *missing* capability has an owning slice, and no required-now owner decision is open.
+- The Element-Free Engine Auditor first confirms the review tier named in the header against the allow-list in [Review tiers](bmad-loop-protocol.md#review-tiers), from the full owned diff and the probe. A path or capability that fails it is reported as **Mis-tiered** before any other finding. Both auditors run on every pass.
+- In a Family slice, check that every identity has its own acceptance rows, tests and registration entries. In a Duplicate closure, check that the cited test ran, that it proves the duplicate's required behaviour through the satisfying part, and that the duplicate has no behaviour, parameter or mode that part lacks.
 - Give each finding a classification the coordinator can route on: test, product defect or wrong specified behaviour.
 
 ## Coordinator
@@ -81,3 +86,9 @@ Read: this card and the [loop protocol](bmad-loop-protocol.md) fully.
 - Apply the protocol's Re-review scope from a slice's third pass: only a finding outside the repair diff and what it affects, breaking no rule, criterion or behaviour, is deferred.
 - Keep each native log row, receipt and identity in the contract to one line that cites its run-log entry; bulk goes in the run log.
 - Write the close note and deferred-work additions before the candidate commit.
+- Do not read the candidate diff into your own context. Read `git diff --stat` against the owned scope list, the handoff report with its command results, and only the hunks a finding cites ([Coordinator reading](bmad-loop-protocol.md#coordinator-reading-and-the-review-step), which also lists step-04 in order).
+- Record in the Code Map at planning whether the slice is a single element, a Family slice or a closure review, and its review tier. Before each launch compare the changed paths with the Review tiers allow-list and open the hunks of any path accepted as a list line. Launch only that tier's layers, with both auditors and Verification Gap on every pass; a mis-tiered slice reruns all six as a first pass.
+- An Early level proof runs in its own worktree; publish one slice at a time, and the later publisher merges main once and repeats the full local round.
+- Stage the blind layers' diff without the generated and asset pathspecs in the protocol's Reviewer inputs.
+- Have an informed existing reviewer perform the Final diff scope check from the full diff, and record its compact result.
+- Keep the contract inside the protocol's Contract budget. The planning scout, check runners and status reconciliation may use a smaller model; implementers, reviewers and auditors keep the inherited one.

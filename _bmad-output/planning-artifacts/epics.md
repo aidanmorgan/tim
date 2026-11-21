@@ -38,7 +38,7 @@ Every story is an INVEST vertical slice: delivering one player-observable behavi
 - **FR-05 (Speculative Contacts Anti-Tunneling):** Fast-moving bodies allocate speculative contacts in narrowphase with target velocity absorption to prevent discrete tunneling through barriers of arbitrary thickness.
 - **FR-06 (Decoupled Animation Pipeline):** Cosmetic animations (e.g. halo pulse, switch depression, spring squash) evaluate at 60 Hz on a dedicated animation worker fed one-way by physics events.
 - **FR-07 (Catalogue Puzzle Elements):** 72 distinct catalogue elements implemented purely as declarative capability data without bespoke solver branches.
-- **FR-08 (150 Campaign Levels):** 150 progressively taught challenge levels structured across 5 chapters (30 levels per chapter, taught in 10-level increments) covering mechanical, electrical, pneumatic, optical, and acoustic principles.
+- **FR-08 (150 Campaign Levels):** 150 progressively taught challenge levels structured as 15 chapters of 10 levels, as [requirements](../../docs/planning/requirements.md#campaign-structure-15-chapters-150-levels) define them, covering every adopted element family.
 - **FR-09 (Deterministic Save/Load):** Constructions can be saved to and loaded from JSON preserving exact IEEE-754 `f32` coordinates and connection graphs.
 
 ### Non-Functional Requirements
@@ -70,7 +70,7 @@ Every single story across all epics must formally satisfy the following mandator
 
 **Future slice workflow:** follow [AGENTS delivery speed rules](../../AGENTS.md#delivery-speed-rules-owner-24-october-2026-these-take-precedence-over-conflicting-wording-below): one bmad-build-auto loop with Blind Hunter, Edge Case Hunter, Verification Gap, Intent Alignment and the Forward-Only Auditor (AGENTS.md "Refactor forward", review gate, owner 25 Oct 2026: any fallback, backwards compatibility, retained deprecated slot or second rule for the same behaviour is a Fail), no duplicate review system; fresh implementer per slice, fixes to that implementer; incremental builds, full native suite once per round, CI-owned Release/publish; no mutation testing until the post-catalogue E2E phase (owner, 25 Oct 2026); review Pass on committed SHA and short exact-SHA terminal receipts. New rules apply from the next slice. These rules refine the proof statements below without weakening native behavior or complete-catalogue coverage.
 
-**Owner direction, 24 October 2026.** Stabilize the existing game, then implement **every named element and variant**, then qualify through browsers. This section supersedes older lane alternation, positional numbers and first-undone dispatch. Source behaviors and named requirement IDs remain intact. The [293-identity ledger](../../docs/planning/invest/named-elements.md#execution-contract--complete-named-catalogue-24-october-2026) supplies 276 actual named-element contracts, 10 umbrella child dispositions and 7 product-feature contracts. The72 CAT specifications overlap those identities; all 104 current mode records and source-required variants remain obligations. “Potential” no longer excludes an actual named element.
+**Owner direction, 24 October 2026.** Stabilize the existing game, then implement **every named element and variant**, then qualify through browsers. This section supersedes older lane alternation, positional numbers and first-undone dispatch. Source behaviors and named requirement IDs remain intact. The [318-identity ledger](../../docs/planning/invest/named-elements.md#execution-contract--complete-named-catalogue-24-october-2026) supplies 301 actual named-element contracts (276 adopted on 24 October 2026 plus 25 campaign-taught parts ledgered as EL-217 to EL-241 by owner decision, 21 November 2026), 10 umbrella child dispositions and 7 product-feature contracts. The72 CAT specifications overlap those identities; all 104 current mode records and source-required variants remain obligations. “Potential” no longer excludes an actual named element.
 
 **Current owner follow-ups (27 October):** comparison adoption, synthetic warm-up removal (`822317c`), support coverage (`a98ef86c`) and orientation levelling (`bb35e8c4`) are published. The [owner-approved cap-block completion](../implementation-artifacts/spec-engine-cap-block-game-grade.md) is in progress: replace only the invalid one-substep rod ratio with per-impact non-increasing mechanical energy including small impacts. Retain the active-set candidate, whole-manifold warm-start correction and all settling/Weight/energy bounds. Historical failed attempts remain evidence. Catalogue order is unchanged.
 
@@ -79,9 +79,9 @@ Every single story across all epics must formally satisfy the following mandator
 1. Delivered at main d87b6a1e (CI 40181624977: 3,952 tests, 0 failed, 0 skipped; deployment 7311595713): 9A.44 Part A, the axial-creep slice `engine-cylinder-axial-creep`, and the 9A.23+9A.25b and 10.2a terminal receipts ([delivered slices](../../docs/planning/delivered-slices.md)).
 2. Stabilize in this order (coordinator, 26 Oct 2026; current cap-settling prerequisite and retained orientation retry): delivered `elements-visible-solid` / `elements-visible-solid-sweep` → delivered `engine-hollow-shapes` → delivered `engine-single-point-penetration` → delivered `engine-two-point-friction` → delivered `engine-cap-settling` (`a98ef86c`) → delivered `engine-orientation-levelling` (`bb35e8c4`) → delivered `engine-cap-block` (`6ed1a3e03e94786be964a429d87a6d4a25d9b90c`, full4606/0/0, hooks126/0/0; terminal receipt in current cap-block spec) → delivered `engine-multi-collider-dynamic` (`28a2d302e6c0e1a0e361bfe62beea9b332d6b9f9`, local4822/0/0, hooks126/0/0; terminal receipt in its spec) → delivered `bumper-cap-solid` (`057df5ae99cc8e620ee88cc161bd1497a5e1b980`, local4831/0/0, hooks126/0/0; terminal receipt in its spec) → delivered `face-markings-flush` (`6125040efa3becf31c6a5957f35571735f04972c`, local4845/0/0, hooks126/0/0; terminal receipt in its spec) → delivered9A.44B (`6e0e0ee1799d31211e1769b8883f6bedb3fae396`, local4884/0/0, hooks126/0/0; terminal receipt in its spec) → delivered harness A (`db90de9b231e218025ef72a1007f953e214baee6`, local4901/0/0, hooks126/0/0 and exact-SHA approval; CI/deployment unverified, owner29October says continue without waiting) → delivered harness B (`318d514fba18eae71fa3f9663edb2d13a3cde016`, local4982/0/0, hooks126/0/0 and exact-SHA approval; remote deployment unverified) → delivered TypeScript conversion (`2dae218024ab260cc1797d967b13f2a5ea70d01e`, local4985/0/0, hooks126/0/0 and exact-SHA approval; remote deployment unverified) → test hygiene → 9A.24 → 9A.45. Detailed contracts and [engine and collider stories](#engine-and-collider-slices) below bound this work.
 3. Continue individual CAT slices 10.2b, 10.2c, supported-impact prerequisite before 10.3, 10.4, 10.5, split 11.x/12.x/13.x, then 14.0, 14.2, 14.1, 14.3, 14.4. Resolve CAT-023 offset-COM and its motion-piece origin/tick obligations before its complete claim; attach all F.16 catalogue remainders and required F.4 collider behavior to their actual first consumer rather than leaving them after catalogue qualification.
-4. Complete every remaining `named-*` slice under the identity ledger's family/dependency order. Its source spec/requirement and canonical S owner are the detailed contract; its native entry decisions stay within the slice. Carry remaining CAT modes/fixtures with their owners. A feature/umbrella cannot stand in for a physical element.
+4. Complete every remaining `named-*` slice in the [capability-cluster order](../../docs/planning/invest/vertical-delivery.md#capability-cluster-order) (owner, 21 November 2026): each missing engine capability is delivered first by its [engine-first story](#engine-first-capability-stories-21-november-2026), then the identities it unblocks. Historical row, key and family order is not a dependency. AGENTS.md's **Family slice** and **Duplicate closure** rules govern which identities may share a slice; the groupings are in [delivery batches](../../docs/planning/invest/delivery-batches.md). Its source spec/requirement and canonical S owner are the detailed contract; its native entry decisions stay within the slice. Carry remaining CAT modes/fixtures with their owners. A feature/umbrella cannot stand in for a physical element.
 5. After all named intrinsic element implementations, complete the bounded native stage of [Story 15.0](#story-150-physical-placement-nudging--difficulty-assistance) and all remaining required native mode/collaborator integrations under their existing owners. Story 15.0 owns the CAT-049/CAT-050 assistance clauses retained by Stories 6.9/6.10. This native behavior precedes catalogue closure; exhaustive difficulty/campaign sweeps and browser proof do not.
-6. Verify full catalogue closure: every CAT obligation and all 276 named contracts have actual implementation and passing unit AND integration proof, including Story 15.0 native assistance and later collaborator cases. Only then expand the 150-level campaign, deliver retained product features, re-enable the explicit browser deferral list and run post-catalogue Chrome E2E, exhaustive difficulty/campaign, device/performance and release gates.
+6. Verify full catalogue closure: every CAT obligation and all 301 named contracts have actual implementation and passing unit AND integration proof, including Story 15.0 native assistance and later collaborator cases. Only then expand the 150-level campaign, deliver retained product features, re-enable the explicit browser deferral list and run post-catalogue Chrome E2E, exhaustive difficulty/campaign, device/performance and release gates. AGENTS.md's **Early level proof** rule is the one exception: a planned level that uses only delivered parts may be authored and proven natively before closure; its browser proof stays in the post-catalogue phase.
 
 **Required-now proof:** production C# unit and shared native integration tests; node harnesses test shipped compiler output at genuine browser/worker boundaries. Given each source construction, when the real production system advances bounded ticks, then independently derived outcomes, controls, boundaries, Reset/save/load and ordinary lifecycle hold. All required native tests run with Skipped: 0. No browser test writing, execution or provisioning is a prerequisite now. Existing story Chrome clauses are retained in the final-phase backlog; they do not govern implementation completion before catalogue closure. One matching build, then `--no-build --no-restore`; no output hashes/private reach-ins. Separate implementer/reviewer and individual publication remain required.
 
@@ -262,7 +262,7 @@ Given the [CAT-023 source declaration](../../docs/planning/elements/CAT-023-domi
 ### Catalogue native closure (aggregate)
 *Sprint key: `catalogue-native-closure`; dispatches no new implementation.*
 
-Given all 72 CAT source contracts, 104 current mode records and all 276 named element contracts, when their independently reviewed implementation/unit/integration evidence is reconciled against exact relevant inputs, then every identity, variant, required collaborator and ordinary lifecycle criterion has a terminal applicable Pass, or closure fails naming its existing owner. Given a missing child or stale proof, when checking an umbrella/shared CAT refinement, then the aggregate remains incomplete. Preserve the 10 umbrella and 7 product-feature dispositions, without counting features as elements. No hash count, package count or readiness-doc count establishes behavior. Required now includes the completed native stage of Story 15.0 (closing the CAT-049/CAT-050 assistance clauses from Stories 6.9/6.10), CAT-023c, assigned F.4/F.16 native remainders and other actual first-consumer obligations; browser cases remain pending until this conjunction passes. The existing reviewer records the result; no new framework or recursive audit story is introduced.
+Given all 72 CAT source contracts, 104 current mode records and all 301 named element contracts, when their independently reviewed implementation/unit/integration evidence is reconciled against exact relevant inputs, then every identity, variant, required collaborator and ordinary lifecycle criterion has a terminal applicable Pass, or closure fails naming its existing owner. Given a missing child or stale proof, when checking an umbrella/shared CAT refinement, then the aggregate remains incomplete. Preserve the 10 umbrella and 7 product-feature dispositions, without counting features as elements. No hash count, package count or readiness-doc count establishes behavior. Required now includes the completed native stage of Story 15.0 (closing the CAT-049/CAT-050 assistance clauses from Stories 6.9/6.10), CAT-023c, assigned F.4/F.16 native remainders and other actual first-consumer obligations; browser cases remain pending until this conjunction passes. The existing reviewer records the result; no new framework or recursive audit story is introduced.
 
 ## Delivery order (coordinator, 21 Oct 2026, owner-authorised re-examination)
 
@@ -483,12 +483,12 @@ These done stories still have open clauses, each recorded with its owner:
 9. **Epic 9: Activation, Timing & Electrical Logic** (Pressure Plate, Pulse Counter, System Clock, State Latch, Hold Timer, Dual-Supply Both, Electrical Logic Gates Nand/Nor/Or/Xor) — *[Backlog]*
    - **Epic 9R: Retro-Verification Repair** (Stories 9R.0–9R.18: real C# static gate, exact Run/Reset snapshots, collider table sized at Run, own-supply gate routes, per-plate load rows, plate ActivationOut, typed mouth snapping, `joined_pipe` and `spring_forward` playable, cat-002 and cat-017 proofs, seven missing element suites, independent re-verification with dated review addenda). Delivered after Story 9.4b and before Story 9.4c (coordinator decision under owner delegation, 18 Oct 2026). Its section precedes Epic 9A. — *[Backlog]*
    - **Epic 9A: Sole Architecture Conformance (Project-per-Element, Command/Query, Event Disruptor)** (Stories 9A.0–9A.45: authority docs, legacy purge, single codec, typed transport controls, lossless bundle, nine missing element packages, bundle as the sole catalogue/collider/port/icon source, declared drive and load sensor, event ring producer and consumers, typed observation port, package presentation bindings, lessons as data, one generic-instance conversion per element, f32 lane completion, compile-time isolation gate). Delivered after Stories 9.4 and 9.4b and before Story 9.5 (owner decision, 18 Oct 2026); Story 9.4c precedes it by coordinator placement. Its section follows Epic 9. — *[Backlog]*
-10. **Epic 10: Constrained Mechanics & Elastic Fixtures** (Solid Cylinder Collider & Inertia, Pulley, Rope Anchor, Impact Lever, Counterweight, Trampoline) — *[Backlog]*
-11. **Epic 11: Rotary Drive & Mechanical Actuators** (Electric Motor, Conveyor Belt, Mechanical Clutch, Reverse Transmission, Linear Pusher, Wound Spring Motor, Toy Cannon) — *[Backlog]*
-12. **Epic 12: Conserved Airflow, Pneumatics & Buoyancy** (Tennis Ball, Floating Balloon, Electric Fan, Windmill, Pneumatic Bellows) — *[Backlog]*
+10. **Epic 10: Constrained Mechanics & Elastic Fixtures** (Solid Cylinder Collider & Inertia, Pulley, Rope Anchor, Impact Lever, Counterweight, Trampoline) — *[Elements delivered natively; `engine-resting-stack-settling` open]*
+11. **Epic 11: Rotary Drive & Mechanical Actuators** (Electric Motor, Conveyor Belt, Mechanical Clutch, Reverse Transmission, Linear Pusher, Wound Spring Motor, Toy Cannon) — *[Done natively; browser pending]*
+12. **Epic 12: Conserved Airflow, Pneumatics & Buoyancy** (Tennis Ball, Floating Balloon, Electric Fan, Windmill, Pneumatic Bellows) — *[In-Progress: Bellows 12.4 remains]*
 13. **Epic 13: Optical Propagation, Routing & Sensing** (Torch, Laser, Red/Green/Blue Lasers, Tuned Optical Receivers, Beam Shutter, Spectral Color Filters, Flat Mirror, Beam Splitter & Combiner, Secondary Receivers, Solar Panel, Optical Logic Gates) — *[Backlog]*
 14. **Epic 14: Acoustic Emission & Reception** (Sound Level Meter, Service Bell, Audio Speaker, Wind Chimes) — *[Backlog]*
-15. **Epic 15: 150 Progressively Taught Campaign Levels** (Stories 15.1–15.15 covering all 150 levels in 10-level batches across Chapters 1 to 5, with verified UI solutions and retry loops) — *[Backlog]*
+15. **Epic 15: 150 Progressively Taught Campaign Levels** (Stories 15.1–15.15, one story per chapter: 15 chapters of 10 levels as [requirements](../../docs/planning/requirements.md#campaign-structure-15-chapters-150-levels) define them, with verified UI solutions and retry loops) — *[Backlog]*
 16. **Epic 16: Release Qualification, Performance Audits & Production Packaging** (Cross-platform headless/browser performance audit, WebGL2/WebGPU qualification, 60 FPS display pacing, memory leak audits, and release candidate bundle) — *[Backlog]*
 
 Story order follows the owner re-ordering of 9 Oct 2026 (dependencies): each story comes after what it needs, except the open scheduling items listed in epics.md (below). Every moved story carries a "Depends on" line naming its former number. The old-to-new mapping is in [vertical-delivery.md](../../docs/planning/invest/vertical-delivery.md#owner-reordering-dependencies).
@@ -3894,7 +3894,7 @@ So that project-per-element, command/query and the event ring stay the only poss
 **Goal:** Deliver the solid cylinder collider and inertia, compliant elastic fixtures, pivots, pulleys, ropes, and counterweights using unified TGS Soft constraints without ad-hoc velocity projections or Baumgarte stabilization.
 
 ### Story 10.1: Solid Cylinder Collider & Cylinder Inertia (ENGINE-CYLINDER)
-*Status: Backlog*
+*Status: Done natively (reconciled 21 November 2026 against sprint key `10-1-solid-cylinder-collider-and-inertia`). Browser qualification pending.*
 
 *Depends on: Stories 1.4 (BVH and SAT narrowphase) and 5.1 (dynamic rigid body and inertia compile). New story (owner decision, 9 Oct 2026), placed before its first consumer, the Story 10.2 Pulley wheel; the owner chose cylinders for both the Pulley wheel and the Story 10.3 Lever fulcrum (Open scheduling item e, decided 18 Oct 2026). ENGINE-CYLINDER is a roadmap-only ID, not yet in `docs/planning/requirements.md`.*
 
@@ -3916,7 +3916,7 @@ So that wheeled and pivoted parts move with their real shape and mass.
 - **And** `tools/e2e/engine-cylinder.test.ts` passes 100% in Chrome serially.
 
 ### Story 10.2: Pulley Wheel & Tensile Rope Dynamics (CAT-053, CAT-058)
-*Status: Backlog*
+*Status: Aggregate only; children 10.2a, 10.2b and 10.2c are delivered on main. Browser qualification pending.*
 
 *Depends on: Story 10.1 (cylinder wheel collider; owner decision 18 Oct 2026, CAT-053 open question 1). Moved from Story 10.3, ahead of the Lever whose end rope sockets need the ropes. The Counterweight body (CAT-067) ships with Story 10.2 per CAT-067 §3 and is the rope load in this acceptance (Open scheduling item f, decided 18 Oct 2026); the Lever's rope-load integration is proven in Story 10.3.*
 
@@ -3945,7 +3945,7 @@ Given two delivered Weight bodies and a fixed Rope Anchor constructed through na
 Given two pulleys routing a rope between unequal delivered Weights, when the heavy load falls, then the light load rises through the source tensile/work law; equal masses balance, slack transmits no force, cutting uncouples and pulley routing obeys length/contact boundaries. Preserve every CAT-053 variant and exact source geometry. Prove all parent10.2 cross-element criteria, native Reset/save/load and atomic rejection, then update10.2b's pending pulley integration proof. Files: elements/Pulley, necessary generic routing/constraint declarations and tests/content; no bespoke loop or capacity.
 
 ### Story 10.3: Balanced Impact Lever & Pivot Fulcrum (CAT-034)
-*Status: Backlog*
+*Status: Done natively (reconciled 21 November 2026 against sprint key `10-3-balanced-impact-lever-pivot-fulcrum`). Browser qualification pending.*
 
 *Depends on: engine-supported-impact-restitution native acceptance, Stories 6.2 (Bumper obstacle), 10.1 (solid cylinder fulcrum; owner decision 18 Oct 2026, CAT-034 open question 2) and 10.2 (ropes for its end rope sockets; CAT-034 §3). Moved from Story 10.2 (owner dependency rule, 9 Oct 2026: after ropes). It carries the Lever rope-load integration moved out of Story 10.2 (Open scheduling item f, decided 18 Oct 2026).*
 
@@ -3965,7 +3965,7 @@ So that see-saw mechanisms can fling objects or lift connected ropes.
 *Open item (owner decision, 1 November 2026): the indefinite equal-load balance is reopened. The hinge is frictionless, so a separate engine slice adds a declared pivot holding mechanism; see [deferred work](../implementation-artifacts/deferred-work.md#lever-equal-load-indefinite-balance).*
 
 ### Story 10.4: Counterweight & Multi-Body Pendulum Lifting (CAT-067)
-*Status: Backlog*
+*Status: Done natively (reconciled 21 November 2026 against sprint key `10-4-counterweight-multibody-pendulum-lifting`). Browser qualification pending.*
 
 *Depends on: Story 10.2 (rope anchor and tension-only rope). Number unchanged; the Pulley moved up to Story 10.2 and the Trampoline now follows this story.*
 
@@ -3983,7 +3983,7 @@ So that gravitational energy can be harnessed smoothly.
 - **And** `tools/e2e/cat-067.test.ts` passes 100% in Chrome serially.
 
 ### Story 10.5: Trampoline Compliant Membrane Dynamics (CAT-065)
-*Status: Backlog*
+*Status: Done natively (reconciled 21 November 2026): `elements/Trampoline` is on main and [its record](../implementation-artifacts/spec-10-5-trampoline.md) closed after review loop 5. Browser qualification pending.*
 
 *Depends on: Stories 6.4 (elastic spring constraint), 6.6–6.7 (pipe for the drop-to-pipe lesson), 10.2 (ropes) and 10.4 (the Weight for the tether controls; CAT-065 §3). Moved from Story 10.1 (owner decision, 9 Oct 2026: after ropes and the Weight).*
 
@@ -4006,7 +4006,7 @@ So that contraptions can launch payloads across vertical obstacles.
 **Goal:** Implement electric motors, conveyors, clutches, reversing transmissions, linear pushers, wound springs, and toy cannons as declarative actuators.
 
 ### Story 11.1: Electric Motor & Continuous Tangential Conveyor Belt (CAT-042, CAT-019)
-*Status: Backlog*
+*Status: Aggregate only; children 11.1a (Motor) and 11.1b (Conveyor) are delivered on main. Browser qualification pending.*
 
 As a player,  
 I want an Electric Motor to drive a Conveyor Belt,  
@@ -4021,7 +4021,7 @@ So that resting objects are transported horizontally across the workbench.
 - **And** `tools/e2e/cat-042-019.test.ts` passes 100% in Chrome serially.
 
 ### Story 11.2: Mechanical Clutch & Reverse Transmission (CAT-018, CAT-057)
-*Status: Backlog*
+*Status: Aggregate only; children 11.2a (Clutch) and 11.2b (Reverse transmission) are delivered on main. Browser qualification pending.*
 
 As a player,  
 I want to engage clutches to connect axles and reverse transmissions to invert rotation,  
@@ -4034,7 +4034,7 @@ So that complex mechanical drivetrains can be governed.
 - **And** `tools/e2e/cat-018-057.test.ts` passes 100% in Chrome serially.
 
 ### Story 11.3: Linear Pusher Telescopic Actuator (CAT-039)
-*Status: Backlog*
+*Status: Done natively (reconciled 21 November 2026 against sprint key `11-3-linear-pusher-telescopic-actuator`). Browser qualification pending.*
 
 As a player,  
 I want a Linear Pusher to extend upon signal activation,  
@@ -4048,7 +4048,7 @@ So that objects in front of it are forcibly pushed forward.
 - **And** `tools/e2e/cat-039.test.ts` passes 100% in Chrome serially.
 
 ### Story 11.4: Wound Spring Potential Motor & Toy Cannon Launcher (CAT-071, CAT-016)
-*Status: Backlog*
+*Status: Aggregate only; children 11.4a (Wound spring) and 11.4b (Cannon) are delivered on main. Browser qualification pending.*
 
 *Depends on: Stories 6.4–6.7 (slider, preload store and annular colliders), 8.1, 10.1 (shaft cylinder), 11.1 and 11.2 (shaft drive and ratio coupling); the cannon feeder integration also uses Stories 8.2, 9.3 and 9.4. Renumbered from Story 11.5 after the Powered Gate moved to Story 8.2.*
 
@@ -4070,7 +4070,7 @@ So that high-energy mechanical impulses can launch balls across wide gaps.
 **Goal:** Deliver aerodynamic airflow fields, pneumatic pressure pulses, and buoyant gas dynamics conforming strictly to energy conservation laws.
 
 ### Story 12.1: Lightweight Tennis Ball & Floating Balloon Buoyancy (CAT-064, CAT-003)
-*Status: Backlog*
+*Status: Aggregate only; children 12.1a (Tennis ball) and 12.1b (Balloon) are delivered on main. Browser qualification pending.*
 
 *Note (18 Oct 2026, Open scheduling item h): Story 9A.14 removed Tennis and Balloon from the palette because neither could be constructed and neither had a package. This story creates their `elements/TennisBall` and `elements/Balloon` packages (a declaration, scene, icon and parameter schema for each, in the bundle) and so returns them to the palette.*
 
@@ -4087,7 +4087,7 @@ So that aerodynamic and buoyant contraptions are possible.
 - **And** `tools/e2e/cat-064-003.test.ts` passes 100% in Chrome serially.
 
 ### Story 12.2: Fan with Selectable Supply and Conical Airflow (CAT-028 / EL-209)
-*Status: Native implementation and independent review complete; final diff scope PASS, browser qualification pending; committed-SHA SnapshotApproval/publication pending. [Evidence](../implementation-artifacts/spec-12-2-fan.md).*
+*Status: Done natively and published (4378410e; status b5b9b233); final diff scope PASS, browser qualification pending. [Evidence](../implementation-artifacts/spec-12-2-fan.md).*
 
 As a player,  
 I want an Electric Fan to blow light objects across the workbench,  
@@ -4104,7 +4104,7 @@ So that contactless aerial steering can guide balls into goals.
 - **Scope:** Windmill rotary capture/integration remains Story 12.3; full gas networks and later campaign qualification are not bundled. Motor electrical drain remains deferred and is not claimed by shaft-to-airflow proof.
 
 ### Story 12.3: Windmill Rotor Aerodynamic Capture & Drive (CAT-070)
-*Status: Native implementation and independent review complete; exact-SHA SnapshotApproval/publication pending. Full7232/0/0, hooks134/0/0 and E9 PASS; browser/remote/release qualification unverified. See [native completion record](../implementation-artifacts/spec-12-3-windmill.md#auto-run-result).*
+*Status: Done natively and published (47e01bdb, on main 4f193bb2). Full7232/0/0, hooks134/0/0 and E9 PASS; browser/remote/release qualification unverified. See [native completion record](../implementation-artifacts/spec-12-3-windmill.md#auto-run-result).*
 
 *Depends on: Stories 6.6–6.7 (annular guard collider), 10.3 (hinge), 11.1–11.2 (shaft output and loads) and 12.2 (airflow). Moved from Story 12.4, ahead of the Bellows that needs it.*
 
@@ -4406,9 +4406,158 @@ So that wind-driven musical contraptions can be solved.
 
 ---
 
+## Engine-first capability stories (21 November 2026)
+
+**Why these exist.** The [loop protocol's capability probe](../../_bmad/custom/bmad-loop-protocol.md#capability-probe) and requirement REQ-12 require a missing solver, ABI, wire or shared-presentation capability to be its own engine slice before the first element that needs it. Until now only acoustics (Story 14.0) had such a story. Each story below was checked against this checkout on 21 November 2026: the capability is absent from `CuriousContraptions.Abstractions*`, `CuriousContraptions.Simulation` and `CuriousContraptions.Bundle`, or is present only in the narrower form stated. A story's planning scout re-runs that probe and narrows the story to what is still missing; it never rebuilds a capability that is present.
+
+**Shared acceptance for every story in this section.**
+- **Given** declaration data only (typed descriptors, parameters and ports), **when** the production engine compiles and advances it, **then** the capability's behaviour holds for at least two differently parameterised declared qualification fixtures. No element identity, kind or name appears in engine code, and the story adds no element package.
+- **And** non-finite, out-of-range or unsupported declarations are refused atomically with a typed reason before any state changes; numerical residuals clamp, never fault the tick.
+- **And** every conserved quantity the capability introduces is a finite ledger: nothing is created, lost or duplicated across a tick, Run/Reset or supported Save/Load, and Reset restores the authored state exactly.
+- **And** native tests cover a positive case, a one-cause control and the boundary of each declared threshold, with tolerances chosen from the quantity and its gameplay consequence under the [float rules](../../docs/testing-guidance.md#float-comparison-and-effort-rules). Browser proof is post-catalogue.
+- **And** the wire schema, TypeScript callers and presentation read model the capability needs are part of the story, so the first consuming element is declarations, art, bindings and tests only.
+- **And** open questions of the unblocked family that concern the shared model (units, scales, tick order) are decided in this story's Code Map by game intent, once, and recorded for every consumer.
+
+The elements each story unblocks are the ledger identities whose row in the [general-engine source composition map](../../docs/planning/general-engine-element-map.md) names the listed capability families; counts by ledger type come from [named elements](../../docs/planning/invest/named-elements.md). Order and clustering are in the [capability-cluster order](../../docs/planning/invest/vertical-delivery.md#capability-cluster-order).
+
+### Story ENGINE-GAS-NETWORK: Connected finite gas stores, lines and valves
+*Status: Backlog. Sprint key: `engine-gas-network`.*
+
+*Present today:* one finite gas store per body with an isobaric envelope (`IGasStoreElement`, Balloon), conical airflow sources and receivers (Fan), rotary airflow capture (Windmill), ambient load. A fluid port contract (`IFluidElement`, `FluidPortDescriptor`, `FluidProperties` in `CuriousContraptions.Abstractions.Fluid`) is declared, serialised and validated by the bundle, but no solver or element consumes it. Story 12.4 (Pneumatic Bellows, in flight) owns the compression pulse and whatever it delivers is subtracted from this story. *Missing:* lines that join stores through typed ports, pressure equalisation by conserved transfer, valves and vents commanded by a signal, and pressure doing work on a declared actuator. Under the forward-only rule this story and ENGINE-LIQUID between them either build on that one fluid port contract or delete it; neither adds a second port contract beside it.
+
+*Unblocks:* the 7 Pneumatic identities, the pneumatic pistons EL-230 and EL-231, and the pneumatic sources of the acoustic family (whistles, horns, ducts) that need a pressure supply. Map families: GasState, PressureWork.
+
+**Specific acceptance:**
+- **Given** two declared stores joined by a declared line, **when** a valve opens, **then** gas transfers until pressures balance, total amount is unchanged, and a closed valve or disconnected line transfers none.
+- **And** a declared chamber drives a declared prismatic or revolute coordinate through pressure work paid from the store; an exhausted store does no work.
+
+### Story ENGINE-OPTICAL: Beam emission, transport, surface interaction and reception
+*Status: Backlog. Sprint key: `engine-optical-propagation`. Precedes every Epic 13 story.*
+
+*Present today:* nothing (no beam, ray or optical channel contract in the engine). *Missing:* declared emitters (direction, divergence, channel content), straight-line transport with solid occlusion through the existing BVH, declared surface responses (absorb, reflect, transmit by channel, split, combine), bounded bounce depth, declared receivers that integrate received channels against a threshold, and the beam presentation read model.
+
+*Unblocks:* the 23 optical CAT parts of Epic 13 and the 28 Optical identities. Map families: OpticalTransport, OpticalAbsorption.
+
+**Specific acceptance:**
+- **Given** an emitter, a reflecting surface and a receiver, **when** the path is clear, **then** the receiver reports the emitted channels; inserting an occluding solid or rotating the surface off the path gives none.
+- **And** a channel-selective surface passes only its declared channels, a splitter conserves channel power across its outputs, and evaluation order within a tick is fixed and documented once for all optical consumers.
+
+### Story ENGINE-FIELD-FORCE: Declared non-contact force regions
+*Status: Backlog. Sprint key: `engine-field-force`.*
+
+*Present today:* gravity, conical airflow wrench and ambient load only. *Missing:* a declared field source (region, falloff, strength, switched by a signal or supply) that applies force to bodies carrying a declared responding material property, with the reaction applied to the source body.
+
+*Unblocks:* magnets, electromagnet pickup and the magnetic impulse relay (EL-227), and the Gravity-type identities that alter the local field. Map families: EnvironmentState with RigidBodyDynamics.
+
+**Specific acceptance:**
+- **Given** a responding and a non-responding body at the same distance from a field source, **when** the source is on, **then** only the responding body accelerates toward it; switching the source off removes the force within the tick the command commits.
+- **And** the reaction on a dynamic source body is equal and opposite, so an isolated pair gains no momentum.
+
+### Story ENGINE-ASSEMBLY-JOINTS: Player-built rigid and releasable connections
+*Status: Backlog. Sprint key: `engine-assembly-joints`.*
+
+*Present today:* revolute, prismatic and tensile constraints declared inside one element package; `MechanicalTransmissionDescriptor`, which already couples two coordinates by a ratio, including revolute to prismatic (Wound spring); and a commanded release of a tensile span (rope cut). *Missing:* connections the player makes between two separately placed parts at typed attachment sockets (rigid, hinged or sliding), a commanded release of such a connection, position-dependent coupling such as a crank and rod, and the revolute counterparts of capabilities that exist only for prismatic coordinates: a holding brake (prismatic has `PrismaticInactiveResponse.SelfLock`), retention with a latched release, and a signal-commanded strike-and-hold or position drive (the revolute drive today takes only a run-control target speed). Also missing, and owned by this story: an elastic hinge (spring return on a revolute coordinate), a winch that winds a tensile span, an elastic tensile span, and shaft-to-electrical conversion (a supply whose output is paid by shaft work).
+
+*Unblocks:* the 9 Construction identities and the GAP assembly records. For EL-218 to EL-222, EL-226, EL-232 and EL-235 the capability probe decides which of the missing items above each one needs; none is assumed. Map families: JointConstraint, TopologyTransaction, ShaftTorque.
+
+**Specific acceptance:**
+- **Given** two parts joined at compatible sockets, **when** Run starts, **then** they move as the declared joint allows and incompatible sockets are refused at connection time.
+- **And** a commanded release frees the parts in the tick it commits and Reset restores the authored connection.
+
+### Story ENGINE-FRACTURE: Load-limited connections and irreversible break
+*Status: Backlog. Sprint key: `engine-fracture`. After ENGINE-ASSEMBLY-JOINTS.*
+
+*Present today:* contact-integrity observers on one body (Balloon). *Missing:* a declared load limit on a connection or body, a one-way break that changes topology when the sustained load exceeds it, and declared fragments.
+
+*Unblocks:* EL-159, EL-160 and EL-161 (tension-, shear- and bending-limited connectors, the children of the GAP-05 umbrella) and every identity whose map row names StructuralFracture.
+
+**Specific acceptance:**
+- **Given** the same connection loaded just below and just above its declared limit, **when** the run settles, **then** only the second breaks, it stays broken for the rest of the run, and Reset restores it.
+
+### Story ENGINE-GOALS: Declared goal kinds and ordered objectives
+*Status: Backlog. Sprint key: `engine-goal-evaluation`.*
+
+*Present today:* one goal per level, of kind Captured, ActivatedAfter or IntegrityBroken (`WorkshopGoalKind`, `WorkshopPuzzle.Goal`). The planned-level shape with a `goals` array is indexed but never constructed. *Missing:* evaluation of several goals per level (all-of first, then any-of, ordered and forbidden events), further goal kinds the planned levels use such as turned and powered-after, and per-goal progress with the Solved result on the typed observation port.
+
+*Unblocks:* the 4 Goal identities, including EL-122 ordered-events goal, the goal variants the campaign plan reserves for chapters 3–5, and every planned level that has more than one goal or a goal kind outside the three above.
+
+**Specific acceptance:**
+- **Given** an ordered-events goal, **when** its events occur in the required order, **then** the level is Solved; the same events out of order do not solve it, and a forbidden event fails the attempt until Reset.
+
+**Story 14.0 (ENGINE-ACOUSTIC)** stays as written in [Epic 14](#story-140-acoustic-propagation-occlusion--reception-engine-engine-acoustic); the shared acceptance above applies to it as well.
+
+### Story ENGINE-LIQUID: Conserved liquid inventory, head-driven flow and immersion
+*Status: Backlog. Sprint key: `engine-liquid`.*
+
+*Present today:* no liquid solver, vessel or flow. Buoyancy exists only for a gas-filled body in air. The fluid port contract named under ENGINE-GAS-NETWORK (`IFluidElement`, `FluidPortDescriptor`, `FluidProperties`) is declared and validated with no consumer; this story builds liquid ports on it or, with ENGINE-GAS-NETWORK, deletes it. *Missing:* declared vessels holding a finite volume with a free-surface level, flow between vessels and through apertures and channels driven by head, overflow and spill as conserved transfer, immersion forces on bodies (buoyancy and drag from displaced volume), and level, flow and volume observations.
+
+*Unblocks:* the 44 Water identities ledgered before 21 November 2026, the hydraulic piston EL-229 and the waterwheel EL-240. Map families: FluidAdvection, Buoyancy, CapillaryTransport, PressureWork.
+
+**Specific acceptance:**
+- **Given** an elevated vessel joined to a lower one, **when** the aperture opens, **then** liquid flows until levels balance or the source empties, total volume is unchanged, and an empty source supplies none.
+- **And** a body less dense than the liquid floats at the displacement its mass requires and a denser body sinks.
+
+### Story ENGINE-THERMAL: Heat storage, transfer and phase change
+*Status: Backlog. Sprint key: `engine-thermal`. After ENGINE-LIQUID.*
+
+*Present today:* a gas temperature inside the isobaric gas law only. *Missing:* declared heat capacity and temperature per body or vessel, conduction through declared contacts, convection to a declared medium, declared heat sources and sinks paid from a finite store, phase thresholds (melt, freeze, boil, condense) as conserved transfers, thermal expansion as a declared coordinate, and temperature sensing.
+
+*Unblocks:* the 37 TH identities and the thermal modes of other families. Map families: SensibleHeat, ThermalConduction, ThermalConvection, ThermalExpansion, SolidMelting, LiquidFreezing, LiquidBoiling, VaporCondensation, TemperatureSensing.
+
+**Specific acceptance:**
+- **Given** a hot and a cold body in declared contact, **when** time passes, **then** their temperatures converge, total heat is unchanged, and an insulating declaration between them stops the transfer.
+- **And** a body held at its phase threshold changes phase only after the declared latent amount has been supplied.
+
+### Story ENGINE-RADIATION: Emission, attenuation, decay and exposure
+*Status: Backlog. Sprint key: `engine-radiation`. After ENGINE-OPTICAL (shared straight-line transport) and ENGINE-THERMAL (decay heat).*
+
+*Present today:* nothing. *Missing:* declared sources by kind with decaying activity, straight-line transport attenuated by the declared material and thickness crossed, exposure accumulated at declared detectors and exposure-responsive materials, and the readable detector presentation.
+
+*Unblocks:* the 19 named RAD identities (the 22 RAD rows less the 3 umbrellas RAD-05, RAD-11 and RAD-19, which forward to EL-126 to EL-132) and the 7 Radiation-type EL identities. Map families: RadioactiveDecay with the optical transport family.
+
+**Specific acceptance:**
+- **Given** a source, a declared shield and a detector, **when** the shield is in the path, **then** the detector accumulates less by the declared attenuation; a thicker shield reduces it further and removing the source stops accumulation.
+- **And** activity falls with the declared half-life measured in game time.
+
+### Story ENGINE-IGNITION-BLAST: Ignition, burn and blast impulse
+*Status: Backlog. Sprint key: `engine-ignition-blast`. After ENGINE-THERMAL.*
+
+*Present today:* nothing. *Missing:* a declared ignition threshold, a finite fuel store consumed at a declared rate, extinction when fuel or the declared oxidiser is absent, and a one-shot radial impulse with solid occlusion.
+
+*Unblocks:* the explosive and burning parts. Map families: Ignition, ChemicalReaction, Extinction.
+
+**Specific acceptance:**
+- **Given** a charge behind a solid wall and one in the open, **when** both fire, **then** only the body with a clear path to its charge receives impulse, and a spent charge cannot fire again before Reset.
+
+### Story ENGINE-GRANULAR: Bounded granular inventory and transport
+*Status: Backlog. Sprint key: `engine-granular`. After ENGINE-LIQUID, whose vessel and aperture ledger it reuses.*
+
+*Present today:* nothing. *Missing:* a finite granular inventory per vessel that flows through an aperture at a declared rate independent of head, piles to a declared repose limit and loads its vessel by its mass.
+
+*Unblocks:* the identities whose map row names GranularTransport (sand timers, hoppers of grain).
+
+**Specific acceptance:**
+- **Given** a filled upper vessel over an aperture, **when** it opens, **then** the lower vessel gains exactly what the upper loses, at a rate that does not change with fill height.
+
+### Story ENGINE-CHARACTERS: Declared autonomous agents
+*Status: Backlog. Sprint key: `engine-characters`. Last of the engine-first stories.*
+
+*Present today:* nothing. *Missing:* a declared agent body with a small typed behaviour table (stimulus, response, locomotion along supported surfaces), stimuli read from engine observations only, and deterministic choice.
+
+*Unblocks:* the 7 Character identities. Map families: ProgrammableController, TimedCommand with RigidBodyDynamics.
+
+**Specific acceptance:**
+- **Given** an agent with a declared attraction stimulus, **when** the stimulus is present and reachable, **then** the agent walks to it over supported surfaces; with the stimulus absent or the route unsupported it stays put, and the same construction gives the same route on every run.
+
+---
+
 ## Epic 15: 150 Progressively Taught Campaign Levels
 
-**Goal:** Deliver all 150 progressive challenge levels across Chapters 1 to 5 in structured 10-level increments, each verified with real UI solutions, negative controls, and bit-for-bit Reset in actual Chrome.
+**Goal:** Deliver all 150 progressive challenge levels as 15 chapters of 10 levels, one story per chapter, each verified with real UI solutions, negative controls, and bit-for-bit Reset in actual Chrome.
+
+**Chapter authority (reconciled 21 November 2026).** [Requirements](../../docs/planning/requirements.md#campaign-structure-15-chapters-150-levels) define 15 chapters of 10 levels; the earlier five-chapter, three-part labels in Stories 15.1–15.15 are replaced below. Each story is one chapter. Its teaching focus, first-use elements and reuse come from that chapter's requirements row, the [chapter reservations](../../docs/planning/invest/campaign-reservations.md) and the [level scopes](../../docs/planning/invest/campaign.md); a story's summary sentence never narrows them. Sprint keys keep their story number and carry the corrected chapter number.
+
+**Early level proof (owner, 21 November 2026).** Under AGENTS.md's **Early level proof** rule, a planned level that uses only delivered parts may be authored and proven natively before catalogue closure. Today that is limited by goal evaluation: of the 45 planned levels that use only delivered parts, the 12 with a single captured or activated-after goal can be proven now (21 November 2026 audit); the other 33 wait for Story ENGINE-GOALS. That proof belongs to the level's chapter story; the Chrome clauses below stay in the post-catalogue phase, and a chapter story closes only when all ten levels pass.
 
 ### Story 15.0: Physical Placement Nudging & Difficulty Assistance
 *Status: Backlog*
@@ -4434,7 +4583,7 @@ So that easier difficulties forgive small placement errors and Precise rewards e
 - **And** Run/Reset and Save/Load preserve the nudged pose exactly.
 - **And** `tools/e2e/nudging.test.ts` passes 100%, the `cat-049` and `cat-050` assistance cases pass, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run.
 
-### Story 15.1: Campaign Levels 1–10 (Chapter 1: "On a Roll", Part 1)
+### Story 15.1: Campaign Levels 1–10 (Chapter 1: "On a Roll")
 *Status: Backlog*
 
 As a player,  
@@ -4448,184 +4597,184 @@ So that I learn the core mechanics of Curious Contraptions.
 - **And** exact Reset restores initial authoring state bit-for-bit.
 - **And** `tools/e2e/campaign-01.test.ts` passes 100% in Chrome serially.
 
-### Story 15.2: Campaign Levels 11–20 (Chapter 1: "On a Roll", Part 2)
+### Story 15.2: Campaign Levels 11–20 (Chapter 2: "A Helping Weight")
 *Status: Backlog*
 
 As a player,  
-I want levels teaching multi-ball trajectories, bumper angles, and wall bouncing,  
-So that I develop spatial intuition for kinetic deflection.
+I want the ten levels of "A Helping Weight" to teach the parts and combinations the requirements reserve for slots 11–20,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 11 through 20 in Chapter 1,
+- **Given** Levels 11 through 20 in Chapter 2, with the teaching focus and reservations its requirements row names,
 - **When** solved via real UI placements,
-- **Then** all 10 levels transition to Solved and reset cleanly.
+- **Then** all 10 levels transition to Solved and reset cleanly, and completing them unlocks Chapter 3.
 - **And** `tools/e2e/campaign-02.test.ts` passes 100% in Chrome serially.
 
-### Story 15.3: Campaign Levels 21–30 (Chapter 1: "On a Roll", Part 3)
+### Story 15.3: Campaign Levels 21–30 (Chapter 3: "Pipe Dreams")
 *Status: Backlog*
 
 As a player,  
-I want challenging capstone levels completing Chapter 1,  
-So that I master mechanical momentum before moving to electrical systems.
+I want the ten levels of "Pipe Dreams" to teach the parts and combinations the requirements reserve for slots 21–30,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 21 through 30 in Chapter 1,
+- **Given** Levels 21 through 30 in Chapter 3, with the teaching focus and reservations its requirements row names,
 - **When** played in Chrome,
-- **Then** all 10 levels pass with 100% verification and unlock Chapter 2.
+- **Then** all 10 levels pass with 100% verification and unlock Chapter 4.
 - **And** `tools/e2e/campaign-03.test.ts` passes 100% in Chrome serially.
 
-### Story 15.4: Campaign Levels 31–40 (Chapter 2: "Chain Reactions", Part 1)
+### Story 15.4: Campaign Levels 31–40 (Chapter 4: "Gears of an Idea")
 *Status: Backlog*
 
 As a player,  
-I want levels introducing domino cascades, delay boxes, and aperture sensors,  
-So that I learn to build multi-stage chain reactions.
+I want the ten levels of "Gears of an Idea" to teach the parts and combinations the requirements reserve for slots 31–40,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 31 through 40 in Chapter 2,
+- **Given** Levels 31 through 40 in Chapter 4, with the teaching focus and reservations its requirements row names,
 - **When** solved in Chrome,
-- **Then** all chain-reaction levels pass with verified Solved transitions.
+- **Then** all 10 levels pass with verified Solved transitions and unlock Chapter 5.
 - **And** `tools/e2e/campaign-04.test.ts` passes 100% in Chrome serially.
 
-### Story 15.5: Campaign Levels 41–50 (Chapter 2: "Chain Reactions", Part 2)
+### Story 15.5: Campaign Levels 41–50 (Chapter 5: "Ready, Set, Throw!")
 *Status: Backlog*
 
 As a player,  
-I want levels teaching hold timers, pulse counters, and spring preloads,  
-So that I learn to meter and sequence machine events.
+I want the ten levels of "Ready, Set, Throw!" to teach the parts and combinations the requirements reserve for slots 41–50,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 41 through 50 in Chapter 2,
+- **Given** Levels 41 through 50 in Chapter 5, with the teaching focus and reservations its requirements row names,
 - **When** tested in Chrome,
-- **Then** all 10 levels achieve 100% pass rate serially.
+- **Then** all 10 levels achieve 100% pass rate serially and unlock Chapter 6.
 - **And** `tools/e2e/campaign-05.test.ts` passes 100% in Chrome serially.
 
-### Story 15.6: Campaign Levels 51–60 (Chapter 2: "Chain Reactions", Part 3)
+### Story 15.6: Campaign Levels 51–60 (Chapter 6: "A Bright Idea")
 *Status: Backlog*
 
 As a player,  
-I want capstone chain-reaction puzzles combining dominoes, springs, and pipes,  
-So that Chapter 2 culminates in satisfying multi-path contraptions.
+I want the ten levels of "A Bright Idea" to teach the parts and combinations the requirements reserve for slots 51–60,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 51 through 60 in Chapter 2,
+- **Given** Levels 51 through 60 in Chapter 6, with the teaching focus and reservations its requirements row names,
 - **When** solved in Chrome,
-- **Then** all levels solve and unlock Chapter 3.
+- **Then** all levels solve and unlock Chapter 7.
 - **And** `tools/e2e/campaign-06.test.ts` passes 100% in Chrome serially.
 
-### Story 15.7: Campaign Levels 61–70 (Chapter 3: "Power & Motion", Part 1)
+### Story 15.7: Campaign Levels 61–70 (Chapter 7: "Go with the Flow")
 *Status: Backlog*
 
 As a player,  
-I want levels teaching batteries, electric motors, and conveyor belts,  
-So that I learn to incorporate sustained continuous drive into puzzles.
+I want the ten levels of "Go with the Flow" to teach the parts and combinations the requirements reserve for slots 61–70,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 61 through 70 in Chapter 3,
+- **Given** Levels 61 through 70 in Chapter 7, with the teaching focus and reservations its requirements row names,
 - **When** executed in Chrome,
-- **Then** electrical power and motor-driven transport solve all 10 levels.
+- **Then** all 10 levels solve and unlock Chapter 8.
 - **And** `tools/e2e/campaign-07.test.ts` passes 100% in Chrome serially.
 
-### Story 15.8: Campaign Levels 71–80 (Chapter 3: "Power & Motion", Part 2)
+### Story 15.8: Campaign Levels 71–80 (Chapter 8: "Sounds Like a Plan")
 *Status: Backlog*
 
 As a player,  
-I want levels teaching logic gates (AND, OR, XOR), clutches, and pulleys,  
-So that I can build decision-making mechanical assemblies.
+I want the ten levels of "Sounds Like a Plan" to teach the parts and combinations the requirements reserve for slots 71–80,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 71 through 80 in Chapter 3,
+- **Given** Levels 71 through 80 in Chapter 8, with the teaching focus and reservations its requirements row names,
 - **When** tested in Chrome,
-- **Then** all 10 levels pass 100% serially with verified logic solutions.
+- **Then** all 10 levels pass 100% serially with verified solutions and unlock Chapter 9.
 - **And** `tools/e2e/campaign-08.test.ts` passes 100% in Chrome serially.
 
-### Story 15.9: Campaign Levels 81–90 (Chapter 3: "Power & Motion", Part 3)
+### Story 15.9: Campaign Levels 81–90 (Chapter 9: "Stored Potential")
 *Status: Backlog*
 
 As a player,  
-I want capstone power contraptions featuring linear pushers, cannons, and gates,  
-So that Chapter 3 concludes with grand mechanical spectacles.
+I want the ten levels of "Stored Potential" to teach the parts and combinations the requirements reserve for slots 81–90,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 81 through 90 in Chapter 3,
+- **Given** Levels 81 through 90 in Chapter 9, with the teaching focus and reservations its requirements row names,
 - **When** executed in Chrome,
-- **Then** all 10 levels solve and unlock Chapter 4.
+- **Then** all 10 levels solve and unlock Chapter 10.
 - **And** `tools/e2e/campaign-09.test.ts` passes 100% in Chrome serially.
 
-### Story 15.10: Campaign Levels 91–100 (Chapter 4: "Light & Sound", Part 1)
+### Story 15.10: Campaign Levels 91–100 (Chapter 10: "Oddly Satisfying")
 *Status: Backlog*
 
 As a player,  
-I want levels introducing flashlights, mirrors, and service bells,  
-So that I learn basic optical and acoustic propagation.
+I want the ten levels of "Oddly Satisfying" to teach the parts and combinations the requirements reserve for slots 91–100,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 91 through 100 in Chapter 4,
+- **Given** Levels 91 through 100 in Chapter 10, with the teaching focus and reservations its requirements row names,
 - **When** played in Chrome,
-- **Then** mirror reflections and bell chimes solve all 10 levels.
+- **Then** all 10 levels solve and unlock Chapter 11.
 - **And** `tools/e2e/campaign-10.test.ts` passes 100% in Chrome serially.
 
-### Story 15.11: Campaign Levels 101–110 (Chapter 4: "Light & Sound", Part 2)
+### Story 15.11: Campaign Levels 101–110 (Chapter 11: "A Ray of Possibility")
 *Status: Backlog*
 
 As a player,  
-I want levels teaching lasers, spectral color filters (RGB), and solar panels,  
-So that I learn chromatic light manipulation and solar power.
+I want the ten levels of "A Ray of Possibility" to teach the parts and combinations the requirements reserve for slots 101–110,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 101 through 110 in Chapter 4,
+- **Given** Levels 101 through 110 in Chapter 11, with the teaching focus and reservations its requirements row names,
 - **When** tested in Chrome,
-- **Then** all 10 levels pass 100% serially.
+- **Then** all 10 levels pass 100% serially and unlock Chapter 12.
 - **And** `tools/e2e/campaign-11.test.ts` passes 100% in Chrome serially.
 
-### Story 15.12: Campaign Levels 111–120 (Chapter 4: "Light & Sound", Part 3)
+### Story 15.12: Campaign Levels 111–120 (Chapter 12: "Particle Manners")
 *Status: Backlog*
 
 As a player,  
-I want capstone optical puzzles combining splitters, secondary receivers, and chimes,  
-So that Chapter 4 culminates in intricate laser-acoustic symphonies.
+I want the ten levels of "Particle Manners" to teach the parts and combinations the requirements reserve for slots 111–120,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 111 through 120 in Chapter 4,
+- **Given** Levels 111 through 120 in Chapter 12, with the teaching focus and reservations its requirements row names,
 - **When** solved in Chrome,
-- **Then** all 10 levels solve and unlock Chapter 5.
+- **Then** all 10 levels solve and unlock Chapter 13.
 - **And** `tools/e2e/campaign-12.test.ts` passes 100% in Chrome serially.
 
-### Story 15.13: Campaign Levels 121–130 (Chapter 5: "Master Contraptions", Part 1)
+### Story 15.13: Campaign Levels 121–130 (Chapter 13: "Half the Battle")
 *Status: Backlog*
 
 As a player,  
-I want multi-domain master puzzles combining pneumatics, optics, and mechanics,  
-So that I can test my synthesis of all game systems.
+I want the ten levels of "Half the Battle" to teach the parts and combinations the requirements reserve for slots 121–130,
+So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 121 through 130 in Chapter 5,
+- **Given** Levels 121 through 130 in Chapter 13, with the teaching focus and reservations its requirements row names,
 - **When** solved in Chrome,
-- **Then** all 10 levels achieve verified Solved status.
+- **Then** all 10 levels achieve verified Solved status and unlock Chapter 14.
 - **And** `tools/e2e/campaign-13.test.ts` passes 100% in Chrome serially.
 
-### Story 15.14: Campaign Levels 131–140 (Chapter 5: "Master Contraptions", Part 2)
+### Story 15.14: Campaign Levels 131–140 (Chapter 14: "Many Happy Returns")
 *Status: Backlog*
 
 As a player,  
-I want high-complexity master contraptions requiring precise timing and logic,  
-So that I experience the deepest challenge Curious Contraptions has to offer.
+I want the ten levels of "Many Happy Returns" to teach the parts and combinations the requirements reserve for slots 131–140,
+So that each new part is introduced, practised and combined before the final chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 131 through 140 in Chapter 5,
+- **Given** Levels 131 through 140 in Chapter 14, with the teaching focus and reservations its requirements row names,
 - **When** tested in Chrome,
-- **Then** all 10 levels pass 100% serially.
+- **Then** all 10 levels pass 100% serially and unlock Chapter 15.
 - **And** `tools/e2e/campaign-14.test.ts` passes 100% in Chrome serially.
 
-### Story 15.15: Campaign Levels 141–150 (Chapter 5: "Master Contraptions", Part 3)
+### Story 15.15: Campaign Levels 141–150 (Chapter 15: "All Together Now")
 *Status: Backlog*
 
 As a player,  
-I want the final grandmaster levels concluding the campaign,  
+I want the final chapter to combine everything taught, introducing no new required element,
 So that solving all 150 levels completes the game with celebratory recognition.
 
 **Acceptance Criteria:**
-- **Given** Levels 141 through 150 in Chapter 5,
+- **Given** Levels 141 through 150 in Chapter 15, with the combinations its requirements row names,
 - **When** solved in Chrome,
 - **Then** the final levels complete cleanly, culminating in the 150-Level Campaign Completion achievement.
 - **And** `tools/e2e/campaign-15.test.ts` passes 100% in Chrome serially.
@@ -4686,7 +4835,7 @@ So that Curious Contraptions is ready for public release.
 - **Given** the production build pipeline,
 - **When** executed,
 - **Then** production WASM modules, scripts, and content packs build cleanly with 0 warnings.
-- **And** all 72 puzzle elements, 150 campaign levels, and Free Workshop sandbox are 100% verified in the final distribution bundle.
+- **And** all 72 catalogue parts and all 301 named element identities of the [ledger](../../docs/planning/invest/named-elements.md) (the same set `catalogue-native-closure` verifies), all 150 campaign levels, and the Free Workshop sandbox are 100% verified in the final distribution bundle.
 
 ---
 
