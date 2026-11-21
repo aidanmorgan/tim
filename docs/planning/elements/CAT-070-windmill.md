@@ -26,7 +26,7 @@ The [native Windmill spec](../../../_bmad-output/implementation-artifacts/spec-1
 | Mapped identities | None. No EL, TH, RAD or GAP identity names the windmill. |
 | Capability row | [general-engine-element-map, CAT-070](../general-engine-element-map.md) |
 | Roadmap story | Epic 12, Story 12.3 "Windmill Rotor Aerodynamic Capture & Drive"; [rotary capture](../../finite-gas-foundation.md) in the gas family Current [CAT-070 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Status | Native implementation and required local verification complete; independent step04 review pending. |
+| Status | Native implementation, independent review and Final diff scope complete; local candidate commit exists, exact-SHA SnapshotApproval/publication pending. No push authorization; browser/remote/release qualification unverified. |
 
 ## Declaration
 
@@ -128,4 +128,4 @@ Point of truth: [CAT-070](../requirements.md#current-cat-070) and [retained beha
 
 ## Current decisions
 
-The four former questions (catalogue wording, cut-in unit, contact material and guard reuse) are resolved prospectively in the current contract above and the native plan. Original planning and the bounded first-zero correction have independent approval, but the amended artifact still needs coordinator consistency confirmation before runtime continuation; the preserved harvest does not grant approval.
+The four former questions (catalogue wording, cut-in unit, contact material and guard reuse) are resolved in the current contract and native implementation. Planning, the bounded first-zero correction, implementation repairs and Final diff scope have independent approval. Local candidate commit 47e01bdb9627017dce7ae68e16ef199c87b8c651 exists; its SnapshotApproval identified only the current-status documentation inconsistency now corrected in this follow-up. Exact-SHA approval of the resulting candidate and publication remain pending; no push is authorized. The preserved harvest remains historical evidence, not current authorization.
