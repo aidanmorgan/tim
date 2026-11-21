@@ -224,14 +224,15 @@ These levels were authored against the legacy engine. Expect some solutions to n
 
 Each removes hand edits from every later element slice. None changes gameplay. Each is its own slice through the normal loop.
 
-### S1. Derive new-package registration from declarations — in flight
+### S1. Derive new-package registration from declarations — published
 
-Started 21 November 2026 in another session (`spec-registration-derivation.md`, baseline `4f193bb2`). Its owned scope covers the registry, bundle, capacity, catalogue, palette, coverage-membership and impact tables. It does **not** cover the lists in S2 and S3 below or the capability requirement tables under `tools/Coverage/`.
+Published 21 November 2026 from another session (`spec-registration-derivation.md`, baseline `4f193bb2`; candidate `06ac9aa2`, merged to main as `8d1d68aa`). Its owned scope covered the registry, bundle, capacity, catalogue, palette, coverage-membership and impact tables. It does **not** cover the lists in S2 and S3 below or the capability requirement tables under `tools/Coverage/`.
 
 ### S2. Test project compile list becomes a glob
 
 - **Outcome.** A new test file compiles without editing `CuriousContraptions.tests/CuriousContraptions.tests.csproj`.
-- **Now.** `EnableDefaultCompileItems` is false (`CuriousContraptions.tests/CuriousContraptions.tests.csproj:7`) and every test file is listed by hand: 236 local files plus 2 linked `RuntimeProviders.cs` files. The local list equals the directory's 236 `.cs` files, none missing and none extra (checked 21 November 2026). The file changed in 20 commits since 5 November.
+- **Status.** Delivered by the slice recorded in `_bmad-output/implementation-artifacts/spec-s2-test-compile-glob.md` (21 November 2026): one rule, `<Compile Include="*.cs" />`, compiles every C# file directly in the test project directory, beside the 2 linked files.
+- **Before (baseline `7c019d64`).** Every test file was listed by hand: 236 local files plus 2 linked `RuntimeProviders.cs` files. The local list equalled the directory's 236 `.cs` files, none missing and none extra (checked 21 November 2026), and the project file had changed in 20 commits since 5 November. `EnableDefaultCompileItems` stays false (`CuriousContraptions.tests/CuriousContraptions.tests.csproj:7`).
 - **Acceptance.** The project compiles exactly the same test sources before and after (compare the compiler logs' source lists). The two linked files stay explicit. Any static-gate test that pins the list is rewritten to assert the rule instead. The full round's test total is unchanged, with zero failed and zero skipped.
 - **Removes from an element slice.** One file, and one class of first-round failure (a test file that never ran).
 
