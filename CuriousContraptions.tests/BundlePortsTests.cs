@@ -85,122 +85,62 @@ internal static class TestBundle
 /// <see cref="PortDescriptor"/> list, and its footprint only from its declaration.</summary>
 public sealed class BundlePortsTests
 {
-    private static WorkshopPort Activation(PortId socket, WorkshopPortDirection direction, WorkshopSignalKind signal, float x, float y, float z) =>
-        new(socket, Enum.Parse<PortRole>(socket.Value), new(socket.Value, socket == PortId.SetIn ? SocketGlyph.Set : socket == PortId.ResetIn ? SocketGlyph.Reset : SocketGlyph.Text), WorkshopConnectionDomain.Activation, direction, signal, new(x, y, z));
-    private static WorkshopPort Electrical(PortId socket, WorkshopPortDirection direction, float x, float y, float z, SocketGlyph glyph = SocketGlyph.Text) =>
-        new(socket, Enum.Parse<PortRole>(socket.Value), new(socket.Value, socket == PortId.FirstIn ? SocketGlyph.First : socket == PortId.SecondIn ? SocketGlyph.Second : glyph), WorkshopConnectionDomain.Electrical, direction, null, new(x, y, z));
-    private static WorkshopPort Mechanical(PortId socket, WorkshopPortDirection direction, float x, float y, float z,
-        CoordinateReference coordinate, float coordinatePerRadian, MechanicalRimDescriptor rim) =>
-        new(socket, Enum.Parse<PortRole>(socket.Value), new(socket.Value, SocketGlyph.Text), WorkshopConnectionDomain.Mechanical, direction, null, new(x, y, z),
-            Coordinate: coordinate, CoordinatePerRadian: coordinatePerRadian, MechanicalRim: rim);
-
     private const WorkshopPortDirection In = WorkshopPortDirection.Input;
     private const WorkshopPortDirection Out = WorkshopPortDirection.Output;
-    private const WorkshopSignalKind Pulse = WorkshopSignalKind.Pulse;
-    private const WorkshopSignalKind Level = WorkshopSignalKind.Level;
-
-    /// <summary>The golden table: the runtime's ports (in drawer order) and every declared footprint at the start of Story 9A.17,
-    /// copied from the deleted engine port switch tables and the packages.</summary>
-    private static readonly Dictionary<string, (WorkshopPort[] Ports, ElementFootprint Footprint)> Golden = new(StringComparer.Ordinal)
-    {
-        ["both_gate"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f, SocketGlyph.Power), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_nand"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f, SocketGlyph.Power), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_nor"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f, SocketGlyph.Power), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_or"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f, SocketGlyph.Power), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["electrical_xor"] = ([Electrical(PortId.FirstIn, In, -.94f, .35f, 0f), Electrical(PortId.SecondIn, In, -.94f, -.35f, 0f), Electrical(PortId.PowerIn, In, 0f, -.75f, .55f, SocketGlyph.Power), Electrical(PortId.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["ball"] = ([], new(1, 1, 0, 0)),
-        ["ball_detector"] = ([Activation(PortId.ActivationOut, Out, Pulse, 0f, 1.12f, 0f)], new(1, 0, 0, 0)),
-        ["basket"] = ([], new(1, 0, 0, 0)),
-        ["battery"] = ([Electrical(PortId.Supply, Out, 0f, .62f, 0f)], new(1, 0, 0, 0)),
-        ["bowling"] = ([], new(1, 1, 0, 0)),
-        ["tennis"] = ([], new(1, 1, 0, 0)),
-        ["balloon"] = ([new(PortId.Tie, PortRole.Tie, new("Center tie", SocketGlyph.Text), WorkshopConnectionDomain.Rope,
-            WorkshopPortDirection.Bidirectional, null, new(0, 0, 0), RopeAttachmentRole.Load)], new(1, 1, 0, 0)),
-        ["weight"] = ([new(PortId.Tie, PortRole.Tie, new("Tie", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
-            new(0f, 4f * (.5771f * .136734f) + .5771f * .453070f, 0f), RopeAttachmentRole.Load,
-            new(new("mass"), new(0f, .5771f * .136734f, 0f), new(0f, .5771f * .453070f, 0f)))], new(1, 1, 0, 0)),
-        ["rope_anchor"] = ([new(PortId.Tie, PortRole.Tie, new("Tie", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
-            new(0f, 0f, .18f), RopeAttachmentRole.Anchor)], new(1, 0, 0, 0)),
-        ["pulley"] = ([new(PortId.Tie, PortRole.Tie, new("Tie", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
-            new(0f, .4f, .12f), RopeAttachmentRole.Guide, GuideRadius: 0.4f, GuideOffset: new(0f, 0f, .12f))], new(1, 0, 0, 0)),
-        ["impact_lever"] = ([new(PortId.TieA, PortRole.TieA, new("TieA", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
-            new(-1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1)), new(PortId.TieB, PortRole.TieB, new("TieB", SocketGlyph.Text), WorkshopConnectionDomain.Rope, WorkshopPortDirection.Bidirectional, null,
-            new(1.8f, 0f, 0f), RopeAttachmentRole.Load, null, new(1))], new(2, 1, 0, 1)),
-        ["trampoline"] = ([], new(1, 0, 0, 0)),
-        ["motor"] = ([Electrical(PortId.PowerIn, In, -.55f, 0f, 0f), Mechanical(PortId.Drive, Out, 0f, 0f, .65f, new(CoordinateKind.Revolute, 0), 1f, new(new(0), new(0f, 0f, .605f), Quaternion.Identity, .3f, 1f))], new(2, 1, 0, 1)),
-        ["conveyor"] = ([Mechanical(PortId.DriveIn, In, -1.35f, -.07f, .78f, new(CoordinateKind.Revolute, 0), 1f, new(new(0), new(-1.35f, -.07f, .78f), Quaternion.Identity, .22f, 1f)),
-            Mechanical(PortId.Drive, Out, 1.35f, -.07f, .78f, new(CoordinateKind.Revolute, 0), 1f, new(new(0), new(1.35f, -.07f, .78f), Quaternion.Identity, .22f, 1f))], new(2, 1, 0, 1)),
-        ["clutch"] = ([Mechanical(PortId.DriveIn, In, -.65f, 0f, .55f, new(CoordinateKind.Revolute, 0), 1f, new(new(0), new(-.65f, 0f, .495f), Quaternion.Identity, .28f, 1f)),
-            Mechanical(PortId.Drive, Out, .65f, 0f, .55f, new(CoordinateKind.Revolute, 1), 1f, new(new(0), new(.65f, 0f, .495f), Quaternion.Identity, .28f, 1f)),
-            Electrical(PortId.PowerIn, In, 0f, -.35f, .5f)], new(3, 2, 0, 2)),
-        ["reverse_transmission"] = ([Mechanical(PortId.DriveIn, In, -.36f, 0f, .4f, new(CoordinateKind.Revolute, 0), -1f,
-            new(new(0), new(-.36f, 0f, .39f), Quaternion.Identity, .32f, 1f)),
-            Mechanical(PortId.Drive, Out, .36f, 0f, .4f, new(CoordinateKind.Revolute, 1), -1f,
-            new(new(0), new(.36f, 0f, .39f), Quaternion.Identity, .32f, 1f))], new(3, 2, 0, 2)),
-        ["bumper"] = ([Electrical(PortId.PowerIn, In, 0f, 0f, .65f)], new(1, 0, 0, 0)),
-        ["cannon"] = ([Electrical(PortId.PowerIn, In, -.45f, -.55f, .55f),
-            Activation(PortId.ActivationIn, In, Pulse, .15f, -.55f, .55f)], new(1, 0, 0, 0)),
-        ["clock"] = ([Electrical(PortId.PowerIn, In, -.78f, 0f, 0f), Activation(PortId.ActivationOut, Out, Pulse, .78f, 0f, 0f)],
-            new(1, 0, 0, 0)),
-        ["counter"] = ([Activation(PortId.ActivationIn, In, Pulse, 0f, .72f, .1f), Activation(PortId.ActivationOut, Out, Pulse, 0f, -.72f, .1f),
-            Electrical(PortId.PowerIn, In, -.93f, 0f, 0f), Electrical(PortId.Supply, Out, .93f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["delay"] = ([Activation(PortId.ActivationIn, In, Pulse, -.72f, 0f, 0f), Activation(PortId.ActivationOut, Out, Pulse, .72f, 0f, 0f)],
-            new(1, 0, 0, 0)),
-        ["domino"] = ([Activation(PortId.ActivationOut, Out, Pulse, 0f, .55f, 0f)], new(1, 1, 0, 0)),
-        ["fan"] = ([
-            Activation(PortId.ActivationIn, In, Pulse, 0, 0, 0) with { Availability = new(new("supply"), 0) },
-            Electrical(PortId.PowerIn, In, -.3f, -.55f, 0) with { Availability = new(new("supply"), 1) },
-            Mechanical(PortId.DriveIn, In, -.7f, 0, 0, new(CoordinateKind.Revolute, 0), -1,
-                new(new(0), new(-.7f, 0, 0), new(0, -MathF.Sqrt(.5f), 0, MathF.Sqrt(.5f)), .14f, 1))
-                with { Availability = new(new("supply"), 2) }], new(2, 1, 0, 1)),
-        ["funnel"] = ([], new(1, 0, 0, 0)),
-        ["hold_timer"] = ([Activation(PortId.ActivationIn, In, Pulse, 0f, .65f, .2f), Electrical(PortId.PowerIn, In, -.78f, 0f, 0f), Electrical(PortId.Supply, Out, .78f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["lamp"] = ([Activation(PortId.ActivationIn, In, Level, 0f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["latch"] = ([Activation(PortId.SetIn, In, Pulse, -.45f, .72f, 0f), Activation(PortId.ResetIn, In, Pulse, .45f, .72f, 0f),
-            Electrical(PortId.PowerIn, In, -.93f, 0f, 0f), Activation(PortId.ActivationOut, Out, Level, 0f, -.56f, .38f),
-            Electrical(PortId.Supply, Out, .93f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["pipe"] = ([], new(1, 0, 0, 0)),
-        ["pipe_bend_45"] = ([], new(1, 0, 0, 0)),
-        ["pipe_bend_90"] = ([], new(1, 0, 0, 0)),
-        ["linear_pusher"] = ([Electrical(PortId.PowerIn, In, -.45f, -.4f, .5f, SocketGlyph.Power),
-            new(new("ExtendIn"), PortRole.FirstIn, new("Extend", SocketGlyph.Extend), WorkshopConnectionDomain.Electrical, In, null, new(.15f, -.4f, .5f)),
-            new(new("RetractIn"), PortRole.SecondIn, new("Retract", SocketGlyph.Retract), WorkshopConnectionDomain.Electrical, In, null, new(.55f, -.4f, .5f)),
-            new(new("RetractedOut"), PortRole.Supply, new("Retracted", SocketGlyph.Retracted), WorkshopConnectionDomain.Electrical, Out, null, new(-.45f, .4f, .45f)),
-            new(new("ExtendedOut"), PortRole.Supply, new("Extended", SocketGlyph.Extended), WorkshopConnectionDomain.Electrical, Out, null, new(.45f, .4f, .45f))], new(2, 1, 1, 0)),
-        ["wound_spring"] = ([Mechanical(PortId.DriveIn, In, -.62f, -.55f, .55f, new(CoordinateKind.Revolute, 0), -1f,
-            new(new(0), new(-.62f, -.55f, .55f), Quaternion.Identity, .26f, 1f)),
-            Activation(PortId.ActivationIn, In, Pulse, .62f, -.55f, .55f)], new(3, 2, 1, 1)),
-        ["powered_gate"] = ([Electrical(PortId.PowerIn, In, 0f, 1.65f, .92f)], new(2, 1, 1, 0)),
-        ["pressure_plate"] = ([Electrical(PortId.PowerIn, In, -1.18f, -.08f, 0f), Activation(PortId.ActivationOut, Out, Level, 0f, -.08f, 1.18f),
-            Electrical(PortId.Supply, Out, 1.18f, -.08f, 0f)], new(1, 0, 0, 0)),
-        ["ramp"] = ([], new(1, 0, 0, 0)),
-        ["spring"] = ([], new(2, 1, 1, 0)),
-        ["switch"] = ([Activation(PortId.ActivationOut, Out, Pulse, .45f, 0f, .4f),
-            Electrical(PortId.PowerIn, In, -.58f, 0f, 0f),
-            Electrical(PortId.Supply, Out, .58f, 0f, 0f)], new(1, 0, 0, 0)),
-        ["windmill"] = ([Mechanical(PortId.Drive, Out, .25f, -.1f, .52f, new(CoordinateKind.Revolute, 0), 1f,
-            new(new(0), new(.25f, -.1f, .44f), Quaternion.Identity, .24f, -1f))], new(2, 1, 0, 1)),
-        ["wall"] = ([], new(1, 0, 0, 0)),
-    };
-
-    private static uint Bits(float value) => BitConverter.SingleToUInt32Bits(value);
 
     [Fact]
-    public void EveryElementsBundlePortsAndFootprintEqualTheGoldenTable()
+    public void EveryDeclaredPortAndFootprintSurvivesBundleAdmission()
     {
-        Assert.Equal(Golden.Keys.Order(StringComparer.Ordinal), TestBundle.Entries.Select(entry => entry.Metadata.Id).Order(StringComparer.Ordinal));
-        foreach (var entry in TestBundle.Entries)
+        Assert.Equal(TestBundle.Packages.Select(package => package.Declaration.Metadata.Id).Order(StringComparer.Ordinal),
+            TestBundle.Entries.Select(entry => entry.Metadata.Id).Order(StringComparer.Ordinal));
+        foreach (var package in TestBundle.Packages)
         {
-            var id = entry.Metadata.Id;
-            var (ports, footprint) = Golden[id];
-            Assert.True(footprint == entry.Footprint, $"{id}: footprint {entry.Footprint} in the bundle, {footprint} golden.");
-            var declared = TestBundle.Ports.Of(new PartId(id)).ToArray();
-            Assert.True(ports.Length == declared.Length, $"{id}: {declared.Length} ports from the bundle, {ports.Length} golden.");
-            for (var i = 0; i < ports.Length; i++)
+            var declaration = package.Declaration;
+            var id = new PartId(declaration.Metadata.Id);
+            var entry = TestBundle.Entry(id);
+            Assert.Equal(declaration.Footprint, entry.Footprint);
+            Assert.Equal(declaration.Ports, entry.Ports);
+            var admitted = TestBundle.Ports.Of(id).ToArray();
+            Assert.Equal(declaration.Ports.Count, admitted.Length);
+            for (var i = 0; i < admitted.Length; i++)
             {
-                Assert.True(ports[i] == declared[i], $"{id}.Ports[{i}]: {declared[i]} from the bundle, {ports[i]} golden.");
-                Assert.True(Bits(ports[i].LocalPosition.X) == Bits(declared[i].LocalPosition.X) && Bits(ports[i].LocalPosition.Y) == Bits(declared[i].LocalPosition.Y) &&
-                    Bits(ports[i].LocalPosition.Z) == Bits(declared[i].LocalPosition.Z), $"{id}.Ports[{i}]: position bits differ.");
+                var expected = declaration.Ports[i];
+                var actual = admitted[i];
+                Assert.Equal(expected.Id, actual.Id);
+                Assert.Equal(expected.Role, actual.Role);
+                Assert.Equal(expected.Presentation, actual.Presentation);
+                Assert.Equal(expected.LocalPosition, actual.LocalPosition);
+                Assert.Equal(expected.Coordinate, actual.Coordinate);
+                Assert.Equal(expected.CoordinatePerRadian, actual.CoordinatePerRadian);
+                Assert.Equal(expected.MechanicalRim, actual.MechanicalRim);
+                Assert.Equal(expected.Direction switch
+                {
+                    PortDirection.Input => In,
+                    PortDirection.Output => Out,
+                    PortDirection.Bidirectional => WorkshopPortDirection.Bidirectional,
+                    _ => throw new InvalidOperationException("Unsupported declared port direction.")
+                }, actual.Direction);
+                Assert.Equal(expected.AttachmentRole, actual.AttachmentRole);
+                Assert.Equal(expected.PositionBinding, actual.PositionBinding);
+                Assert.Equal(expected.Body, actual.Body);
+                Assert.Equal(expected.GuideRadius, actual.GuideRadius);
+                Assert.Equal(expected.GuideOffset, actual.GuideOffset);
+                Assert.Equal(expected.Availability, actual.Availability);
+                Assert.Equal(expected.Domain switch
+                {
+                    SimulationDomain.Signal => WorkshopConnectionDomain.Activation,
+                    SimulationDomain.Electrical => WorkshopConnectionDomain.Electrical,
+                    SimulationDomain.Mechanical => WorkshopConnectionDomain.Mechanical,
+                    SimulationDomain.Rope => WorkshopConnectionDomain.Rope,
+                    _ => throw new InvalidOperationException("Unsupported declared port domain.")
+                }, actual.Domain);
+                Assert.Equal(expected.Signal switch
+                {
+                    null => (WorkshopSignalKind?)null,
+                    PortSignalKind.Pulse => WorkshopSignalKind.Pulse,
+                    PortSignalKind.Level => WorkshopSignalKind.Level,
+                    _ => throw new InvalidOperationException("Unsupported declared signal kind.")
+                }, actual.Signal);
             }
         }
     }

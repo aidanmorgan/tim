@@ -87,15 +87,8 @@ public sealed class BundleElementIdTests
     [Fact]
     public void EveryLoadedElementIsKnownToTheWorkerDecode()
     {
-        Assert.Equal(44, SaveFixture.Elements.Count);
-        Assert.Contains(new PartId("windmill"), SaveFixture.Elements);
-        Assert.Contains(new PartId("fan"), SaveFixture.Elements);
-        Assert.Contains(new PartId("balloon"), SaveFixture.Elements);
-        Assert.Contains(new PartId("tennis"), SaveFixture.Elements);
-        Assert.Contains(new PartId("cannon"), SaveFixture.Elements);
-        Assert.Contains(new PartId("wound_spring"), SaveFixture.Elements);
-        Assert.Contains(new PartId("linear_pusher"), SaveFixture.Elements);
-        Assert.Contains(new PartId("reverse_transmission"), SaveFixture.Elements);
+        Assert.Equal(TestBundle.Packages.Select(package => new PartId(package.Declaration.Metadata.Id)).Order(),
+            SaveFixture.Elements.Order());
         foreach (var element in SaveFixture.Elements)
         {
             var builder = new FlatBufferBuilder(256);
@@ -112,6 +105,29 @@ public sealed class BundleElementIdTests
             try { WorkshopAuthoringFlatBuffers.MapInstance(record); }
             catch (WireFaultException fault) { Assert.NotEqual(WireFaultReason.UnknownElement, fault.Reason); }
         }
+    }
+
+    [Fact]
+    public void AnUnfamiliarDeclarationPassesSaveAndWorkerAdmission()
+    {
+        var id = new PartId("unfamiliar_saved_payload");
+        var source = TestBundle.Entry(new("ball"));
+        var entry = source with { Metadata = source.Metadata with { Id = id.Value } };
+        using var declared = DeclaredPhysics.Scoped([entry]);
+        using var ports = DeclaredPorts.Scoped(TestBundle.Ports.Extend([(id, entry.Ports)]));
+        var authored = Construction(WorkshopInput.Generic(RuntimeTestServices.Bundle, id, new(1), 0, 4, 0, 0, 0, 0, 1));
+        var saved = new WorkshopSavedConstruction(authored, new(2));
+        var bytes = WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved);
+        Assert.Equal([id.Value], SavedElementIds(bytes));
+        SaveFixture.Refused(WorkshopSaveRejection.UnknownElement, () => WorkshopSaveCodec.Decode(
+            RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
+        var admitted = SaveFixture.Elements.Append(id).ToHashSet();
+        var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply,
+            RuntimeTestServices.Bundle, admitted, bytes);
+        Assert.Equal(saved, decoded);
+        var command = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(Construct(decoded.Construction)));
+        Assert.Equal(new[] { new GpuBodyId(1) }, command.Scene!.Owners);
+        Assert.Contains(command.Scene.Physics.Bodies.ToArray(), body => body.Id == new GpuBodyId(1));
     }
 
     // ---------- AC2: an unknown id is rejected atomically, naming the id ----------

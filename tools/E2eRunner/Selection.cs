@@ -44,9 +44,16 @@ internal sealed partial class ImpactContext
         _root = root;
         _readBase = readBase;
         _headOverride = headOverride;
+        Bundle = ReadHead(BundlePath) is { } text ? BundleElements(text) : null;
+        Packages = ImpactRules.PackageDirectories(Bundle);
+        Rules = new ImpactRules(Packages);
         SuiteClosures = Enum.GetValues<SuiteId>().ToDictionary(id => id,
             id => (IReadOnlySet<string>)new HashSet<string>(TimingDetector.ImportClosure(root, SuiteCatalogue.RelativePath(id)), StringComparer.Ordinal));
     }
+
+    public IReadOnlyList<BundleElement>? Bundle { get; }
+    public IReadOnlyDictionary<string, PartId>? Packages { get; }
+    public ImpactRules Rules { get; }
 
     public IReadOnlyDictionary<SuiteId, IReadOnlySet<string>> SuiteClosures { get; }
 
@@ -141,7 +148,7 @@ internal static class Selector
             if (!list.Contains(reason, StringComparer.Ordinal)) list.Add(reason);
         }
 
-        var headBundle = context.ReadHead(ImpactContext.BundlePath) is { } bundleText ? ImpactContext.BundleElements(bundleText) : null;
+        var headBundle = context.Bundle;
         foreach (var path in changedPaths.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
             impacts.Add(Classify(path, context, headBundle, Add));
 
@@ -160,8 +167,10 @@ internal static class Selector
     private static PathImpact Classify(string path, ImpactContext context, IReadOnlyList<ImpactContext.BundleElement>? headBundle,
         Action<SuiteId, string> add)
     {
-        var rule = ImpactRules.Resolve(path);
+        var rule = context.Rules.Resolve(path);
         PathImpact Full(FullReason reason, string detail) => new(path, ImpactKind.Full, rule.Name, reason, detail);
+        if (context.Rules.MappingUnavailableFor(path))
+            return Full(FullReason.Unknown, $"{ImpactContext.BundlePath} is missing or does not parse as an unambiguous package mapping (build the solution first)");
         switch (rule.Kind)
         {
             case ImpactKind.Catalogue:
@@ -187,7 +196,7 @@ internal static class Selector
                 foreach (var importer in importers) add(importer, $"shared module: imports {path}");
                 return new(path, rule.Kind, rule.Name, null, $"{importers.Length} importing suite(s)");
             case ImpactKind.Element:
-                var parts = ElementParts(path);
+                var parts = ElementParts(path, context);
                 if (parts.Count == 0) return Full(FullReason.Unknown, "no part resolves from this element path");
                 // Connected suites come from the generated bundle's ports; without it the selection would silently miss them.
                 if (headBundle is null) return Full(FullReason.Unknown, $"{ImpactContext.BundlePath} is missing or does not parse (build the solution first)");
@@ -231,10 +240,10 @@ internal static class Selector
         return new(path, ImpactKind.Element, rule.Name, null, string.Join(",", buildParts));
     }
 
-    private static SortedSet<PartId> ElementParts(string path)
+    private static SortedSet<PartId> ElementParts(string path, ImpactContext context)
     {
         var parts = new SortedSet<PartId>();
-        if (ImpactRules.PackagePart(path) is { } package) parts.Add(package);
+        if (context.Rules.PackagePart(path) is { } package) parts.Add(package);
         return parts;
     }
 

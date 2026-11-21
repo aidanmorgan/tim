@@ -9,33 +9,39 @@ internal enum FullReason { MaterialEngine = 1, SharedRuntime, SharedDriverInfras
 /// <summary>One path-classification rule: a name (reported in reasons), its kind and its path predicate.</summary>
 internal sealed record PathRule(string Name, ImpactKind Kind, Func<string, bool> Matches, FullReason? Full = null);
 
-internal static class ImpactRules
+internal sealed class ImpactRules
 {
-    /// <summary>elements/&lt;Dir&gt; package directories to their part. A test checks it against the directory listing and the bundle.</summary>
-    public static readonly IReadOnlyDictionary<string, PartId> ElementPackages = new Dictionary<string, PartId>(StringComparer.Ordinal)
+    private readonly IReadOnlyDictionary<string, PartId>? _packages;
+    public ImpactRules(IReadOnlyDictionary<string, PartId>? packages)
     {
-        ["Ball"] = new PartId("ball"), ["BallDetector"] = new PartId("ball_detector"), ["Battery"] = new PartId("battery"),
-        ["BothGate"] = new("both_gate"), ["BowlingBall"] = new PartId("bowling"), ["Bumper"] = new PartId("bumper"), ["Counter"] = new PartId("counter"),
-        ["Domino"] = new PartId("domino"), ["DelayBox"] = new PartId("delay"), ["ElectricalNand"] = new("electrical_nand"),
-        ["ElectricalNor"] = new("electrical_nor"), ["ElectricalOr"] = new("electrical_or"), ["ElectricalXor"] = new("electrical_xor"),
-        ["Funnel"] = new PartId("funnel"),
-        ["HoldTimer"] = new("hold_timer"), ["ImpactLever"] = new("impact_lever"), ["ImpactSwitch"] = new PartId("switch"), ["Pipe"] = new PartId("pipe"),
-        ["PipeBend45"] = new PartId("pipe_bend_45"), ["PipeBend90"] = new PartId("pipe_bend_90"),
-        ["PoweredGate"] = new PartId("powered_gate"), ["PressurePlate"] = new PartId("pressure_plate"), ["Pulley"] = new("pulley"), ["Ramp"] = new PartId("ramp"),
-        ["Receiver"] = new PartId("basket"), ["SignalLamp"] = new PartId("lamp"), ["Springboard"] = new PartId("spring"),
-        ["StateLatch"] = new PartId("latch"), ["SystemClock"] = new PartId("clock"), ["Wall"] = new PartId("wall"), ["Weight"] = new("weight"), ["RopeAnchor"] = new("rope_anchor"),
-        ["Trampoline"] = new("trampoline"), ["Motor"] = new("motor"),
-        ["Conveyor"] = new("conveyor"),
-        ["LinearPusher"] = new("linear_pusher"),
-        ["WoundSpring"] = new("wound_spring"),
-        ["Cannon"] = new("cannon"),
-        ["TennisBall"] = new("tennis"),
-        ["Balloon"] = new("balloon"),
-        ["Fan"] = new("fan"),
-        ["Windmill"] = new("windmill"),
-        ["Clutch"] = new("clutch"),
-        ["ReverseTransmission"] = new("reverse_transmission"),
-    };
+        _packages = packages;
+        Rules = CreateRules();
+    }
+
+    public IReadOnlyList<PathRule> Rules { get; }
+
+    public bool MappingUnavailableFor(string path) => _packages is null && Under(path, "elements");
+
+    private bool IsPackageSource(string path) => PackagePart(path) is not null && !path.EndsWith(".csproj", StringComparison.Ordinal);
+
+    /// <summary>One directory per declared identity; invalid mapping prevents narrowed package selection.</summary>
+    public static IReadOnlyDictionary<string, PartId>? PackageDirectories(IReadOnlyList<ImpactContext.BundleElement>? elements)
+    {
+        if (elements is null || elements.Count == 0) return null;
+        var result = new Dictionary<string, PartId>(StringComparer.Ordinal);
+        var identities = new HashSet<PartId>();
+        foreach (var element in elements)
+        {
+            const string prefix = "res://elements/";
+            if (element.ScenePath is not { } scene || !scene.StartsWith(prefix, StringComparison.Ordinal)) return null;
+            var segments = scene[prefix.Length..].Split('/');
+            if (segments.Length < 2 || segments.Any(segment => segment.Length == 0 || segment is "." or ".." ||
+                    segment.Any(character => !char.IsAsciiLetterOrDigit(character) && character is not '_' and not '-' and not '.')) ||
+                !scene.EndsWith(".tscn", StringComparison.Ordinal)) return null;
+            if (!identities.Add(element.Part) || !result.TryAdd(segments[0], element.Part)) return null;
+        }
+        return result;
+    }
 
     /// <summary>Every engine/ (outside engine/gpu), ui/ and scenes/ source to its Workshop area. A file's Godot .uid sidecar follows
     /// its source. A test checks the table against `git ls-files engine ui scenes`; a missing file is Unknown, so Full.</summary>
@@ -95,7 +101,7 @@ internal static class ImpactRules
 
     /// <summary>The rule table. Full rules take precedence over every other rule (a build file inside a package is a build change);
     /// any other overlap is an error that the rule-table test forbids.</summary>
-    public static readonly IReadOnlyList<PathRule> Rules =
+    private IReadOnlyList<PathRule> CreateRules() =>
     [
         new("docs/**", ImpactKind.NoBrowserImpact, path => Under(path, "docs")),
         new("_bmad-output/**", ImpactKind.NoBrowserImpact, path => Under(path, "_bmad-output")),
@@ -111,7 +117,7 @@ internal static class ImpactRules
         new("tools/e2e/*.ts (shared module)", ImpactKind.SharedTestModule,
             path => TopLevelIn(path, "tools/e2e", ".ts") && !SuiteCatalogue.IsSuitePath(path)),
         new("tools/*.ts (shared module)", ImpactKind.SharedTestModule, path => TopLevelIn(path, "tools", ".ts")),
-        new("elements/<package>/**", ImpactKind.Element, path => ElementDirectory(path) is { } directory && ElementPackages.ContainsKey(directory) && !path.EndsWith(".csproj", StringComparison.Ordinal)),
+        new("elements/<package>/**", ImpactKind.Element, IsPackageSource),
         new("known package and solution build", ImpactKind.PackageBuild, path => path == BuildImpact.Solution || (PackagePart(path) is not null && path.EndsWith(".csproj", StringComparison.Ordinal))),
         new("suite catalogue rows", ImpactKind.Catalogue, path => path == "tools/E2eRunner/SuiteCatalogue.cs"),
         new("content/puzzles.json", ImpactKind.Level, path => path == "content/puzzles.json"),
@@ -139,7 +145,7 @@ internal static class ImpactRules
     public static readonly PathRule UnknownRule = new("unmatched path", ImpactKind.Full, _ => true, FullReason.Unknown);
 
     /// <summary>The one rule for a path: a Full rule wins; otherwise exactly one rule matches, or none (Unknown).</summary>
-    public static PathRule Resolve(string path)
+    public PathRule Resolve(string path)
     {
         var matching = Rules.Where(rule => rule.Matches(path)).ToArray();
         if (matching.FirstOrDefault(rule => rule.Kind == ImpactKind.Full) is { } full) return full;
@@ -153,6 +159,6 @@ internal static class ImpactRules
     }
 
     /// <summary>The element package directory of an elements/ path (null outside elements/).</summary>
-    public static PartId? PackagePart(string path) =>
-        ElementDirectory(path) is { } directory && ElementPackages.TryGetValue(directory, out var part) ? part : null;
+    public PartId? PackagePart(string path) =>
+        ElementDirectory(path) is { } directory && _packages is not null && _packages.TryGetValue(directory, out var part) ? part : null;
 }

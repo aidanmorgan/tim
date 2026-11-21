@@ -270,40 +270,34 @@ public sealed class CatalogueIntegrationTests
     }
 
     [Fact]
-    public void EveryAdmittedPartHasAnExecutedNamedInteraction()
+    public async Task EveryAdmittedDeclarationRetainsAuthoredStateAcrossRunResetSaveLoad()
     {
-        // LaunchLessonSolveTests: routing/impact/toppling/receiver goals and one-cause controls.
-        PartId[] lessonInteractions = [new PartId("ramp"), new PartId("spring"), new PartId("domino"), new PartId("bumper"),
-            new PartId("wall"), new PartId("delay"), new PartId("pipe"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("basket")];
-        // The methods above: capture, supplied logic, physical activation, intentional timing/counts and direct load.
-        PartId[] interactions = [new PartId("ball"), new PartId("bowling"), new PartId("funnel"), new PartId("ball_detector"),
-            new PartId("lamp"), new PartId("battery"), new PartId("switch"), new PartId("powered_gate"), new PartId("latch"),
-            new PartId("clock"), new PartId("counter"), new PartId("pressure_plate"), new("weight"), new("hold_timer"),
-            new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor")];
-        // RopeTests.ACompleteRopeSupportsItsLoadWhileAnUnconnectedLoadFalls executes real support and disconnected control.
-        PartId[] ropeInteractions = [new("rope_anchor"), new("pulley"), new("impact_lever")];
-        // TrampolineTests.ADroppedBasketballCompressesTheMembraneAndIsLaunchedUpWithoutEnergyGain launches a real payload; its rim
-        // strikes are the inelastic controls.
-        PartId[] membraneInteractions = [new("trampoline")];
-        // MotorTests.ASuppliedMotorSpinsUpToItsSpeedHoldsItAndPaysOnlyItsBearingLoss spins a Battery-supplied rotor; the unpowered,
-        // stalled and back-driven cases are its controls.
-        // LinearPusherTests and LinearPusherIntegrationTests execute head/shaft loads, rope restraint and the sensor-to-pipe control.
-        PartId[] driveInteractions = [new("motor"), new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring")];
-        // CannonIntegrationTests.GravityReturnsTheSameBallForAnotherPaidShot and
-        // ClockDelayLatchAndGateFeedADistinctSecondBall execute paid reload and supplied/unpowered controls.
-        PartId[] finiteWorkInteractions = [new("cannon")];
-        // TennisInteractionTests executes capture/miss, impact/miss and one/two-ball plate loading.
-        PartId[] tennisInteractions = [new("tennis")];
-        // BalloonTests executes default rise/ceiling and explicit Vacuum controls; GasRuntimeTests proves finite rupture and Reset.
-        // FanGuidanceTests executes supplied capture and no/empty/missed/occluded/heavy controls;
-        // FanIntegrationTests additionally executes paid Shaft and Self-contained activation/lifecycle.
-        // WindmillIntegrationTests executes paid cargo transport, reversed/disconnected drive, load and lifecycle controls.
-        PartId[] gasInteractions = [new("balloon"), new("fan"), new("windmill")];
-        var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions).Concat(finiteWorkInteractions).Concat(tennisInteractions).Concat(gasInteractions)
-            .Order().ToArray();
-        var actual = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),
-            "elements/elements.bundle.json"))).Select(row => new PartId(row.Metadata.Id)).Order().ToArray();
-        Assert.Equal(actual, expected);
+        // One generic instance per declaration, plus the empty boundary. Named interaction tests retain their own oracles.
+        var constructions = TestBundle.Packages.Select(package =>
+            new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
+                new(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId(package.Declaration.Metadata.Id),
+                    new(1), 0, 4, 0, 0, 0, 0, 1))))
+            .Append(new(new(2), WorkshopCadenceSettings.Default(), new()));
+        foreach (var authored in constructions)
+        {
+            var saved = new WorkshopSavedConstruction(authored, new(2));
+            var decoded = WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply,
+                RuntimeTestServices.Bundle, SaveFixture.Elements,
+                WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved));
+            Assert.Equal(saved, decoded);
+            foreach (var construction in new[] { authored, decoded.Construction })
+            {
+                await using var harness = await WorkshopIntegrationHarness.Building(construction);
+                Assert.Equal(authored, harness.Construction);
+                var built = harness.Committed;
+                await harness.Run();
+                await harness.Advance(1);
+                Assert.True(harness.Committed.Tick.Value > built.Tick.Value);
+                await harness.Reset();
+                Assert.Equal(authored, harness.Construction);
+                NoFixedCapacityTests.AssertSameState(built, harness.Committed, "generic declaration Reset");
+            }
+        }
     }
 
     private static WorkshopConnection Power(ulong source, ulong target) =>

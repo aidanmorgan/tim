@@ -13,16 +13,9 @@ namespace CuriousContraptions.Tests;
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class PartRegistryTests(NativeSceneFixture godot)
 {
-    /// <summary>The current delivered Free palette rows in declared palette order.</summary>
-    private static readonly PartId[] PaletteRows =
-    [
-        new PartId("ball"), new PartId("basket"), new PartId("switch"), new PartId("lamp"), new PartId("wall"), new PartId("delay"), new PartId("bumper"),
-        new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"),
-        new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"),
-        new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"),
-        new("weight"), new("rope_anchor"), new("pulley"), new("impact_lever"), new("trampoline"), new("motor"),
-        new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring"), new("cannon"), new("tennis"), new("balloon"), new("fan"), new("windmill")
-    ];
+    /// <summary>Expected order comes from source declarations, independently of the loaded bundle.</summary>
+    private static PartId[] PaletteRows => TestBundle.Packages.OrderBy(package => package.Declaration.Metadata.PaletteOrder)
+        .Select(package => new PartId(package.Declaration.Metadata.Id)).ToArray();
 
     private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);
 
@@ -54,8 +47,9 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
             Assert.StartsWith("res://elements/", metadata.ScenePath, StringComparison.Ordinal);
             Assert.NotNull(definition.Scene);
             Assert.Equal(metadata.ScenePath, definition.ScenePath);
-            // The payload predicate is derived from each admitted declaration, including the gas envelope.
-            Assert.Equal(id == new PartId("ball") || id == new PartId("bowling") || id == new PartId("tennis") || id == new PartId("balloon"), DeclaredPhysics.IsPayload(id));
+            var declaration = TestBundle.Packages.Single(package => package.Declaration.Metadata.Id == id.Value).Declaration;
+            Assert.Equal(declaration is CuriousContraptions.Abstractions.Mechanical.IMechanicalElement
+                { Payload: CuriousContraptions.Abstractions.Mechanical.PayloadPolicy.CaptureTarget }, DeclaredPhysics.IsPayload(id));
         }
         foreach (var part in new PartId[] { new("unregistered_payload"), new("unregistered_shape") })
         {
@@ -97,6 +91,19 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         Assert.True(registry.Definitions.ContainsKey(unfamiliar));
         Assert.True(registry.Free.ContainsKey(unfamiliar));
         Assert.Equal(PaletteRows.Select(id => id == new PartId("bowling") ? unfamiliar : id), registry.Free.Keys);
+    }
+
+    [Fact]
+    public void PaletteOrderFollowsReorderedDeclarationData()
+    {
+        var document = System.Text.Json.Nodes.JsonNode.Parse(Bundle())!;
+        var entries = document["Elements"]!.AsArray();
+        var expected = entries.Reverse().Select(entry => new PartId(entry!["Metadata"]!["Id"]!.GetValue<string>())).ToArray();
+        for (var i = 0; i < entries.Count; i++) entries[i]!["Metadata"]!["PaletteOrder"] = entries.Count - i;
+        var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
+        registry.Load(document.ToJsonString());
+        Assert.Equal(expected, registry.Free.Keys);
+        Assert.All(registry.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
     }
 
     [Theory]

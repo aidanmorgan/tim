@@ -192,31 +192,17 @@ public class CurrentCatalogueTests
         while (root is not null && !File.Exists(Path.Combine(root.FullName, CurrentCatalogue.ConsumersPath.Value))) root = root.Parent;
         Assert.NotNull(root);
         var plan = CurrentCatalogue.Read(root);
-        // Every package in the generated bundle, including the Hold Timer (CAT-033) and the supplied gates: Both (CAT-013), Not both
-        // (CAT-024), Neither (CAT-025), Either (CAT-026) and Exactly one (CAT-027), the Weight (CAT-067), the Pulley (CAT-053),
-        // and the Impact Lever (CAT-034), the Trampoline (CAT-065) and the Electric motor (CAT-042).
-        Assert.Equal(44, plan.Admitted.Count);
-        Assert.Equal(new SourcePath("elements/Windmill/WindmillElementDeclaration.cs"), plan.Admitted[new("windmill")]);
-        Assert.Equal(new SourcePath("elements/Fan/FanElementDeclaration.cs"), plan.Admitted[new("fan")]);
-        Assert.Equal(new SourcePath("elements/Balloon/BalloonElementDeclaration.cs"), plan.Admitted[new("balloon")]);
-        Assert.Equal(new SourcePath("elements/TennisBall/TennisBallElementDeclaration.cs"), plan.Admitted[new("tennis")]);
-        Assert.Equal(new SourcePath("elements/Cannon/CannonElementDeclaration.cs"), plan.Admitted[new("cannon")]);
-        Assert.Equal(new SourcePath("elements/WoundSpring/WoundSpringElementDeclaration.cs"), plan.Admitted[new("wound_spring")]);
-        Assert.Equal(new SourcePath("elements/LinearPusher/LinearPusherElementDeclaration.cs"), plan.Admitted[new("linear_pusher")]);
-        Assert.Equal(new SourcePath("elements/ReverseTransmission/ReverseTransmissionElementDeclaration.cs"), plan.Admitted[new("reverse_transmission")]);
-        Assert.Equal(new SourcePath("elements/Clutch/ClutchElementDeclaration.cs"), plan.Admitted[new("clutch")]);
-        Assert.Equal(new SourcePath("elements/Conveyor/ConveyorElementDeclaration.cs"), plan.Admitted[new("conveyor")]);
-        Assert.Equal(new SourcePath("elements/Motor/MotorElementDeclaration.cs"), plan.Admitted[new("motor")]);
-        Assert.Equal(new SourcePath("elements/Trampoline/TrampolineElementDeclaration.cs"), plan.Admitted[new("trampoline")]);
-        Assert.Equal(new SourcePath("elements/ImpactLever/ImpactLeverElementDeclaration.cs"), plan.Admitted[new("impact_lever")]);
-        Assert.Equal(new SourcePath("elements/Pulley/PulleyElementDeclaration.cs"), plan.Admitted[new("pulley")]);
-        Assert.Equal(new SourcePath("elements/RopeAnchor/RopeAnchorElementDeclaration.cs"), plan.Admitted[new("rope_anchor")]);
-        Assert.Equal(new SourcePath("elements/Weight/WeightElementDeclaration.cs"), plan.Admitted[new("weight")]);
-        Assert.Equal(new SourcePath("elements/ElectricalXor/ElectricalXorElementDeclaration.cs"), plan.Admitted[new("electrical_xor")]);
-        Assert.Equal(new SourcePath("elements/ElectricalNand/ElectricalNandElementDeclaration.cs"), plan.Admitted[new("electrical_nand")]);
-        Assert.Equal(new SourcePath("elements/ElectricalNor/ElectricalNorElementDeclaration.cs"), plan.Admitted[new("electrical_nor")]);
-        Assert.Equal(new SourcePath("elements/ElectricalOr/ElectricalOrElementDeclaration.cs"), plan.Admitted[new("electrical_or")]);
-        Assert.Equal(new SourcePath("elements/Springboard/SpringboardElementDeclaration.cs"), plan.Admitted[new("spring")]);
+        var resources = Directory.EnumerateDirectories(Path.Combine(root.FullName, "elements"))
+            .SelectMany(directory => Directory.EnumerateFiles(directory, "*ElementDeclaration.cs"))
+            .Select(path => new SourcePath(Path.GetRelativePath(root.FullName, path).Replace('\\', '/')))
+            .OrderBy(path => path.Value, StringComparer.Ordinal).ToArray();
+        var declared = CurrentCatalogue.DeclaredPartIdentities(File.ReadAllText(
+            Path.Combine(root.FullName, CurrentCatalogue.PartIdentityPath.Value)));
+        Assert.Equal(declared.OrderBy(id => id.Value, StringComparer.Ordinal),
+            plan.Admitted.Keys.OrderBy(id => id.Value, StringComparer.Ordinal));
+        Assert.Equal(resources, plan.Admitted.Values.OrderBy(path => path.Value, StringComparer.Ordinal));
+        foreach (var (id, path) in plan.Admitted)
+            Assert.Contains("Id: \"" + id.Value + "\"", File.ReadAllText(Path.Combine(root.FullName, path.Value)));
         Assert.Equal(plan.Admitted.Values.OrderBy(path => path.Value, StringComparer.Ordinal),
             plan.AvailableResources.Select(artifact => artifact.Path));
     }

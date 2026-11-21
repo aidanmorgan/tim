@@ -11,6 +11,37 @@ public sealed class FastSelectionTests
         new(TestRepository.Root, candidate => candidate == path ? before : Current(candidate),
             candidate => candidate == path ? after : Current(candidate));
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void PackageBuildReferencesUseDerivedIdentity(bool removing)
+    {
+        const string novel = "elements/NovelDirectory/NovelDirectory.csproj";
+        const string plain = "<Project Sdk=\"Microsoft.NET.Sdk\"><ItemGroup /></Project>";
+        const string linked = "<Project Sdk=\"Microsoft.NET.Sdk\"><ItemGroup><ProjectReference Include=\"../PoweredGate/PoweredGate.csproj\" /></ItemGroup></Project>";
+        var bundle = TestRepository.Read(ImpactContext.BundlePath)
+            .Replace("res://elements/Counter/counter.tscn", "res://elements/NovelDirectory/device.tscn", StringComparison.Ordinal);
+        string? Read(string path, bool before) => path switch
+        {
+            ImpactContext.BundlePath => bundle,
+            novel => before == removing ? linked : plain,
+            _ => Current(path)
+        };
+        var context = new ImpactContext(TestRepository.Root, path => Read(path, true), path => Read(path, false));
+        Assert.Equal(new[] { new PartId("counter"), new PartId("powered_gate") }.Order(),
+            BuildImpact.Parts(novel, context)!.Order());
+        var selection = Selector.Select([novel], context);
+        Assert.Equal(SelectionMode.Selected, selection.Mode);
+        Assert.Contains(selection.Suites, suite => suite.Suite == SuiteId.Cat020);
+        Assert.Contains(selection.Suites, suite => suite.Suite == SuiteId.Cat005);
+        const string empty = "<Solution />";
+        const string added = "<Solution><Project Path=\"elements/NovelDirectory/NovelDirectory.csproj\" /></Solution>";
+        var solution = new ImpactContext(TestRepository.Root,
+            path => path == BuildImpact.Solution ? (removing ? added : empty) : Read(path, true),
+            path => path == BuildImpact.Solution ? (removing ? empty : added) : Read(path, false));
+        Assert.Equal(new[] { new PartId("counter") }, BuildImpact.Parts(BuildImpact.Solution, solution)!.Order());
+    }
+
     [Fact]
     public void HistoricalMissingHeadIsNotResurrectedFromTheWorkingTree()
     {
@@ -88,7 +119,7 @@ public sealed class FastSelectionTests
     [InlineData("CuriousContraptions.Simulation/Program.cs")]
     [InlineData("Directory.Build.props")]
     public void SharedEngineAndBuildRulesRemainFull(string path) =>
-        Assert.Equal(ImpactKind.Full, ImpactRules.Resolve(path).Kind);
+        Assert.Equal(ImpactKind.Full, new ImpactContext(TestRepository.Root, _ => null).Rules.Resolve(path).Kind);
 
     [Theory]
     [InlineData(false, false)]

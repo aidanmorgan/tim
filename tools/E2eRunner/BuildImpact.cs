@@ -12,6 +12,7 @@ internal static class BuildImpact
     {
         try
         {
+            if (context.Packages is null) return null;
             var parts = new HashSet<PartId>();
             if (path == Solution)
             {
@@ -26,13 +27,13 @@ internal static class BuildImpact
                 if (!XNode.DeepEquals(before, after)) return null;
                 foreach (var project in oldProjects.SymmetricDifference(newProjects))
                 {
-                    if (PackageProject(project) is not { } part) return null;
+                    if (PackageProject(project, context) is not { } part) return null;
                     parts.Add(part);
                 }
             }
             else
             {
-                if (PackageProject(path) is not { } part) return null;
+                if (PackageProject(path, context) is not { } part) return null;
                 parts.Add(part);
                 if (context.ReadBase(path) is null && context.ReadHead(path) is null) return null;
                 foreach (var text in new[] { context.ReadBase(path), context.ReadHead(path) })
@@ -57,7 +58,7 @@ internal static class BuildImpact
         while (changed)
         {
             changed = false;
-            foreach (var (directory, part) in ImpactRules.ElementPackages)
+            foreach (var (directory, part) in context.Packages!)
             {
                 var project = $"elements/{directory}/{directory}.csproj";
                 foreach (var text in new[] { context.ReadBase(project), context.ReadHead(project) })
@@ -71,7 +72,7 @@ internal static class BuildImpact
                         if (include is null || include.Contains('$', StringComparison.Ordinal) || include.Contains('*', StringComparison.Ordinal))
                             return false;
                         var resolved = Path.GetRelativePath(Path.GetFullPath("."), Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project)!, include))).Replace('\\', '/');
-                        if (PackageProject(resolved) is not { } referenced)
+                        if (PackageProject(resolved, context) is not { } referenced)
                         {
                             if (!KnownSharedReference(resolved)) return false;
                             continue;
@@ -85,9 +86,9 @@ internal static class BuildImpact
         return true;
     }
 
-    internal static PartId? PackageProject(string path)
+    internal static PartId? PackageProject(string path, ImpactContext context)
     {
-        foreach (var (directory, part) in ImpactRules.ElementPackages)
+        foreach (var (directory, part) in context.Packages!)
             if (path == $"elements/{directory}/{directory}.csproj") return part;
         return null;
     }

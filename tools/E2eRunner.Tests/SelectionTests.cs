@@ -14,6 +14,91 @@ public sealed class SelectionTests
     private static string[] Names(Selection selection) => [.. selection.Suites.Select(suite => SuiteCatalogue.FileName(suite.Suite)).Order(StringComparer.Ordinal)];
     private static readonly string[] Smoke = ["engine-core-2a1", "engine-core-2b1"];
 
+
+    [Fact]
+    public void PackageIdentityComesFromBundleSceneDirectory()
+    {
+        var bundle = TestRepository.Read(ImpactContext.BundlePath)
+            .Replace("res://elements/Counter/counter.tscn", "res://elements/UnfamiliarDirectory/device.tscn", StringComparison.Ordinal);
+        Assert.NotEqual(TestRepository.Read(ImpactContext.BundlePath), bundle);
+        var selection = Select(["elements/UnfamiliarDirectory/Device.cs"], headOverride:
+            path => path == ImpactContext.BundlePath ? bundle : null);
+        Assert.Equal(SelectionMode.Selected, selection.Mode);
+        Assert.Equal("counter", Assert.Single(selection.Paths).Detail);
+        Assert.Contains("cat-020", Names(selection));
+        Assert.Contains("cat-005", Names(selection));
+        Assert.DoesNotContain("cat-049", Names(selection));
+        Assert.Equal(SelectionMode.Full, Select(["elements/Counter/Device.cs"], headOverride:
+            path => path == ImpactContext.BundlePath ? bundle : null).Mode);
+    }
+
+    [Fact]
+    public void AnUnfamiliarDeclaredPackageNeedsNoImpactTableEdit()
+    {
+        const string bundle = """
+            {"Elements":[{"Metadata":{"Id":"unfamiliar_part","ScenePath":"res://elements/NovelPackage/device.tscn"},"Ports":[]}]}
+            """;
+        var context = new ImpactContext(TestRepository.Root, Head, path => path == ImpactContext.BundlePath ? bundle : Head(path));
+        Assert.Equal(new PartId("unfamiliar_part"), context.Rules.PackagePart("elements/NovelPackage/Device.cs"));
+        Assert.Equal(ImpactKind.Element, context.Rules.Resolve("elements/NovelPackage/Device.cs").Kind);
+        // The distinct coverage gate still refuses a package with no named interaction suite.
+        var error = Assert.Throws<RunnerException>(() => Selector.Select(["elements/NovelPackage/Device.cs"], context));
+        Assert.Equal(RunnerError.NoPrimarySuite, error.Error);
+        const string lesson = """
+            [{"id":"first_principles","availability":"Playable","placements":[{"slot":"probe","instance":{"part":"unfamiliar_part","locked":true}}]}]
+            """;
+        var covered = new ImpactContext(TestRepository.Root, Head, path => path switch
+        {
+            ImpactContext.BundlePath => bundle,
+            ImpactContext.LevelsPath => lesson,
+            _ => Head(path)
+        });
+        var selection = Selector.Select(["elements/NovelPackage/Device.cs"], covered);
+        Assert.Equal(SelectionMode.Selected, selection.Mode);
+        Assert.Equal("unfamiliar_part", Assert.Single(selection.Paths).Detail);
+        Assert.Contains("anim-1a", Names(selection));
+        Assert.Contains("engine-core-2c", Names(selection));
+        Assert.Contains("palette-placement", Names(selection));
+        Assert.DoesNotContain("cat-020", Names(selection));
+    }
+
+    [Theory]
+    [InlineData("res://elements/Counter/../device.tscn")]
+    [InlineData("res://elements//device.tscn")]
+    [InlineData("res://parts/Counter/device.tscn")]
+    [InlineData("res://elements/Counter/device.svg")]
+    [InlineData("res://elements/Counter/device.tscn?x")]
+    [InlineData(null)]
+    public void MalformedPackagePathsSelectFullImpact(string? scene)
+    {
+        var bundle = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            Elements = new[] { new { Metadata = new { Id = "counter", ScenePath = scene }, Ports = Array.Empty<object>() } }
+        });
+        var selection = Select(["elements/Counter/Device.cs"], headOverride: path => path == ImpactContext.BundlePath ? bundle : null);
+        Assert.Equal(SelectionMode.Full, selection.Mode);
+        Assert.Equal(FullReason.Unknown, Assert.Single(selection.Paths).Full);
+    }
+
+    [Theory]
+    [InlineData("counter", "Other")]
+    [InlineData("other", "Counter")]
+    public void DuplicatePackageIdentitiesOrDirectoriesSelectFullImpact(string secondId, string secondDirectory)
+    {
+        var bundle = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            Elements = new[]
+            {
+                new { Metadata = new { Id = "counter", ScenePath = "res://elements/Counter/device.tscn" }, Ports = Array.Empty<object>() },
+                new { Metadata = new { Id = secondId, ScenePath = $"res://elements/{secondDirectory}/device.tscn" }, Ports = Array.Empty<object>() }
+            }
+        });
+        var selection = Select(["elements/Counter/Device.cs"], headOverride: path => path == ImpactContext.BundlePath ? bundle : null);
+        Assert.Equal(SelectionMode.Full, selection.Mode);
+        Assert.Null(BuildImpact.Parts(BuildImpact.Solution, new ImpactContext(TestRepository.Root, Head,
+            path => path == ImpactContext.BundlePath ? bundle : Head(path))));
+    }
+
     [Fact]
     public void CounterDeclarationSelectsOwnIntegrationConnectedAndSmoke()
     {
@@ -211,9 +296,10 @@ public sealed class SelectionTests
     public void RuleTableResolvesEveryTrackedPathWithoutOverlap()
     {
         var failures = new List<string>();
+        var context = new ImpactContext(TestRepository.Root, Head);
         foreach (var path in TestRepository.ListFiles())
         {
-            try { ImpactRules.Resolve(path); }
+            try { context.Rules.Resolve(path); }
             catch (InvalidOperationException error) { failures.Add(error.Message); }
         }
         Assert.Empty(failures);

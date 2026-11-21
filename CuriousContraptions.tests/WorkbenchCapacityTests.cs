@@ -112,7 +112,6 @@ public sealed class WorkbenchCapacityTests
     private const int SteppedTicks = 30;
     /// <summary>One past the retired 32-part table.</summary>
     private const int PastThePartTable = 33;
-    private const double DominoUpright = -0.46 + .55;
     // A cradle: the bend rotated -135 degrees about Z (27 fine-rotate steps of -5 degrees in Chrome), so both mouths point up and
     // its tube's lowest wall is a valley.
     private const double CradleZ = -0.9238795, CradleW = 0.3826834;
@@ -123,33 +122,8 @@ public sealed class WorkbenchCapacityTests
 
     public static TheoryData<string> FreeKinds => new(FreePalette.Keys.Select(kind => kind.Value));
 
-    private static IWorkshopInstance Place(PartId kind, GpuBodyId id, double x, double z) => kind.Value switch
-    {
-        "ball" or "bowling" => WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, id, (float)(x), 4, (float)(z), 0, 0, 0, 1),
-        "domino" => PlacedParts.Domino(id, (float)(x), (float)(DominoUpright + .01), (float)(z), 0, 0, 0, 1),
-        "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" => WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, id, (float)(x), 4, (float)(z), 0, 0, 0, 1),
-        "basket" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
-        "ramp" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), id, (float)(x), 2, (float)(z), 0, 0, 0, 1),
-        "wall" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), id, (float)(x), 2, (float)(z), 0, 0, 0, 1, WallFixture.Default),
-        "switch" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
-        "lamp" => PlacedParts.Lamp(id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
-        "delay" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" => WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
-        "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
-        "battery" => PlacedParts.Battery(id, (float)(x), 1, (float)(z)),
-        "spring" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
-        "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "ball_detector" => PlacedParts.Detector(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "pipe_bend_45" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_45"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "pipe_bend_90" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe_bend_90"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "funnel" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("funnel"), id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
-        "linear_pusher" or "wound_spring" or "cannon" or "tennis" or "balloon" or "fan" or "windmill" => WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, id, (float)x, 3f, (float)z, 0, 0, 0, 1),
-        "powered_gate" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("powered_gate"), id, (float)(x), 0, (float)(z), 0, 0, 0, 1),
-        "pressure_plate" => PlacedParts.Plate(id, (float)(x), 1, (float)(z), .5f),
-        "counter" => PlacedParts.Counter(id, (float)(x), 1, (float)(z), 0, 0, 0, 1, 3),
-        "clock" => PlacedParts.Clock(id, (float)(x), 1, (float)(z), 0, 0, 0, 1, 1f),
-        "latch" => PlacedParts.Latch(id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
-        _ => throw new ArgumentException($"Unsupported palette part '{kind}'.", nameof(kind)),
-    };
+    private static WorkshopGenericInstance Place(PartId kind, GpuBodyId id, double x, double z) =>
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, kind, id, (float)x, 4, (float)z, 0, 0, 0, 1);
 
     // Eight columns, rows 2.5 m apart, wide enough that no moving part starts inside a neighbour.
     /// <summary>Eight to a row for the first 64 parts; from the 65th on, sixteen to a row in a second field from x 20, so hundreds of
@@ -185,7 +159,9 @@ public sealed class WorkbenchCapacityTests
         foreach (var undelivered in new PartId[] { new("unregistered_payload"), new("unregistered_shape") })
         {
             Assert.False(FreePalette.ContainsKey(undelivered));
-            Assert.Throws<ArgumentException>(() => Place(undelivered, new(1), 0, 0));
+            var invalid = Free(new(new WorkshopGenericInstance(undelivered, new(1), default, default, CanonicalRotation.Identity)));
+            EditRefusal.Is(WorkshopEditRejection.UnsupportedPart, () =>
+                WorkshopSceneCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, invalid, new(1, 2), new(1)));
         }
     }
 
@@ -285,8 +261,8 @@ public sealed class WorkbenchCapacityTests
     [Fact]
     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
     {
-        PartId[] rows = [new PartId("ball"), new PartId("basket"), new PartId("switch"), new PartId("lamp"),
-            new PartId("wall"), new PartId("delay"), new PartId("bumper"), new PartId("ramp"), new PartId("domino"), new PartId("bowling"), new PartId("battery"), new PartId("spring"), new PartId("pipe"), new PartId("ball_detector"), new PartId("pipe_bend_45"), new PartId("pipe_bend_90"), new PartId("funnel"), new PartId("powered_gate"), new PartId("pressure_plate"), new PartId("counter"), new PartId("clock"), new PartId("latch"), new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"), new("weight"), new("rope_anchor"), new("pulley"), new("impact_lever"), new("trampoline"), new("motor"), new("conveyor"), new("clutch"), new("reverse_transmission"), new("linear_pusher"), new("wound_spring"), new("cannon"), new("tennis"), new("balloon"), new("fan"), new("windmill")];
+        var rows = TestBundle.Packages.OrderBy(package => package.Declaration.Metadata.PaletteOrder)
+            .Select(package => new PartId(package.Declaration.Metadata.Id)).ToArray();
         Assert.Equal(rows, FreePalette.Keys.ToArray());
         Assert.All(FreePalette.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         Assert.Equal(rows.Length, FreePalette.Count);

@@ -1273,6 +1273,9 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             var buttons = Descendants<Button>(scene).Where(button => button.HasMeta("part_kind")).ToArray();
+            var expected = TestBundle.Packages.OrderBy(package => package.Declaration.Metadata.Category)
+                .ThenBy(package => package.Declaration.Metadata.PaletteOrder).Select(package => package.Declaration.Metadata.Id);
+            Assert.Equal(expected, buttons.Select(button => button.GetMeta("part_kind").AsString()));
             foreach (var part in new PartId[] { new("unregistered_payload"), new("unregistered_shape") })
                 Assert.DoesNotContain(buttons, button => button.GetMeta("part_kind").AsString() == part.Value);
             Assert.Empty(client.Commands);

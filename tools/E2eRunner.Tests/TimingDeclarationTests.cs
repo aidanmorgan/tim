@@ -134,10 +134,12 @@ public sealed partial class TimingDeclarationTests(ITestOutputHelper output)
     public void ElementPackagesMatchDirectoriesAndBundle()
     {
         var directories = Directory.EnumerateDirectories(Path.Combine(TestRepository.Root, "elements")).Select(Path.GetFileName).OfType<string>().Order(StringComparer.Ordinal);
-        Assert.Equal(directories, ImpactRules.ElementPackages.Keys.Order(StringComparer.Ordinal));
+        var context = new ImpactContext(TestRepository.Root, _ => null);
+        Assert.NotNull(context.Packages);
+        Assert.Equal(directories, context.Packages.Keys.Order(StringComparer.Ordinal));
         var bundle = ImpactContext.BundleElements(TestRepository.Read(ImpactContext.BundlePath));
         Assert.NotNull(bundle);
-        Assert.Equal(bundle.Select(element => element.Part).Order(), ImpactRules.ElementPackages.Values.Order());
+        Assert.Equal(bundle.Select(element => element.Part).Order(), context.Packages.Values.Order());
     }
 
     [Fact]
