@@ -1,0 +1,10 @@
+# Project BMAD extension: phase-specific engineering constraints.
+[workflow]
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/project-engineering-contract.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-design.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-review.md",
+  "Resolve project customization before approval, including update, validate and resumed runs. Defaults alone cannot approve. Resolve all three extension paths to absolute paths in applicable child prompts. Apply affected rules and preserve native output schemas.",
+]
+activation_steps_prepend = ["Load {project-root}/_bmad/custom/project-engineering-contract.md and select affected rule families before starting. Apply source precedence and phase-specific blocking verdicts in native artifacts."]
+activation_steps_append = ["At activation inspect AGENTS.md and the browser deferral authority tools/E2eRunner/BrowserDeferral.cs. Until every named element is implemented and passing native unit/integration tests, Step 3 must not generate or run browser suites as a gate: queue browser recipes in existing artifacts and generate only appropriate production native/API or compiled TypeScript checks. Step 4 uses local test authority, no skipped tests, output hashes, mutants or unjustified precision. Step 5 reports commands, results and limits; override the default CI-test recommendation because CI owns production build/publish, not game tests. Test generation cannot approve a story: send findings/evidence to the normal build/review workflow; do not mark done or grant SnapshotApproval."]

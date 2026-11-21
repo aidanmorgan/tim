@@ -1,0 +1,21 @@
+# Project overrides. Requirements: element-free-engine-design.md; verdicts: element-free-engine-review.md.
+# Keep policy text in those guides; prompts below load them explicitly for context-free agents.
+[workflow]
+activation_steps_append = [
+  '''
+For the native readiness-gate intent, assess each affected next-dispatch story's eight design answers and prerequisites before generating tracking. Apply Fail/Incomplete mappings from the policy: when the output schema is PASS/CONCERNS/FAIL, missing required engine evidence is FAIL with reason Incomplete; stop before the proceed-anyway or generate-tracking branch. Future backlog stories may retain explicit blockers without pretending they are ready.
+During generation/repair, preserve story statuses unless actual readiness/acceptance evidence authorizes a transition. Status-only and tracking validation remain their native read-only/scoped operations; they may report missing evidence but must not turn a status report into approval. Store gate rationale in the existing readiness report/output, not a new ledger.
+''',
+]
+
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/project-engineering-contract.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-design.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-review.md",
+  "Apply the design guide and review policy at the appropriate phase. Before delegation, resolve {project-root} to the current checkout and include all three absolute extension paths in each child prompt. Record the policy verdict before readiness, acceptance or completion; blocking findings override default workflow shortcuts.",
+]
+
+activation_steps_prepend = [
+  "Load {project-root}/_bmad/custom/project-engineering-contract.md and apply affected rule families at the native checkpoints below. Record applicability, source, planned or actual evidence and deferred gates in existing fields. The configured Element-Free Engine auditor also audits applicable project engineering rules; other lenses retain their purpose. Confirmed project-rule violations block approval; high severity applies only where owner policy requires it. Missing required-now evidence is Incomplete. Cover non-engine changes when a rule applies; no extra review loop or automatic runtime test round for documentation.",
+  "Before proceeding, load the design guide and review policy from {project-root}/_bmad/custom/. Apply the planning gate before ready-for-dev, including inherited ready specs; apply the acceptance gate to delivered changes.",
+]

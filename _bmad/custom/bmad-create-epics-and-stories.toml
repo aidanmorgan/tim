@@ -1,0 +1,24 @@
+# Project overrides. Requirements: element-free-engine-design.md; verdicts: element-free-engine-review.md.
+# Keep policy text in those guides; prompts below load them explicitly for context-free agents.
+[workflow]
+activation_steps_append = [
+  '''
+Apply the rules inside the native four steps:
+Step-01 extracts affected engine requirements D1-D7 alongside source requirement IDs.
+Step-02 groups by bounded reusable behavior, with explicit prerequisite ownership; do not organize work as element-specific core handlers.
+Step-03 puts the affected design answers or exact links to their authoritative decisions in each story's Scope/AC. Add an unfamiliar-declaration positive/control/boundary scenario, typed refusal, relevant lifecycle and deletion criteria. Name any still-missing design as a readiness blocker.
+Step-04 checks requirement coverage, dependency order and the planning gate before finalizing the backlog artifact. Distinguish a validated backlog from ready-for-dev: unresolved per-story design/prerequisites keep that story backlog even when the epic document is complete. Use the native validation output to record scope and verdict; never claim every story ready merely because the document passed structural validation.
+''',
+]
+
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/project-engineering-contract.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-design.md",
+  "file:{project-root}/_bmad/custom/element-free-engine-review.md",
+  "Apply the design guide and review policy at the appropriate phase. Before delegation, resolve {project-root} to the current checkout and include all three absolute extension paths in each child prompt. Record the policy verdict before readiness, acceptance or completion; blocking findings override default workflow shortcuts.",
+]
+
+activation_steps_prepend = [
+  "Load {project-root}/_bmad/custom/project-engineering-contract.md and apply affected rule families at the native checkpoints below. Record applicability, source, planned or actual evidence and deferred gates in existing fields. The configured Element-Free Engine auditor also audits applicable project engineering rules; other lenses retain their purpose. Confirmed project-rule violations block approval; high severity applies only where owner policy requires it. Missing required-now evidence is Incomplete. Cover non-engine changes when a rule applies; no extra review loop or automatic runtime test round for documentation.",
+  "Before proceeding, load the design guide and review policy from {project-root}/_bmad/custom/. Apply the planning gate before ready-for-dev, including inherited ready specs; apply the acceptance gate to delivered changes.",
+]
