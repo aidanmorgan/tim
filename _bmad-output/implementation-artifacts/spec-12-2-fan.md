@@ -149,6 +149,15 @@ Additional acceptance, without changing the immutable matrix:
 
 ## Review Triage Log
 
+### 21 November 2026 — SnapshotApproval documentation correction
+
+Snapshot reviewer `ctx_28a81545f0fd/task_128ec1e62efe/msg_1622590fe30f` returned **SnapshotApproval FAIL** on candidate `4378410e514807e46371193e04f0473f9574a34e`: one confirmed **low** documentation-consistency finding at `docs/planning/elements/EL-209-fan.md:134` and `docs/planning/invest/current-consumers.md:275`. Their old clauses incorrectly described native verification/independent review as still in progress or pending despite accepted completion elsewhere. The coordinator confirmed the finding and prospectively authorized only those two existing owned docs plus this native receipt under `task_30548f73a997/ctx_e7937946ed71`, retained terminal `term_ecaf79ae23996710b9117529b88e0650`.
+
+Corrected only the stale clauses to native verification and affected independent review complete, exact committed-SHA SnapshotApproval/publication and named deferred qualification pending. No behavior, runtime, tests, design or historical evidence changed. Focused comparison checks the affected current status references against accepted native dispositions; the original baseline, 178-path inventory, immutable intent, all implementation closures and historical sequencing-breach record remain intact. Reviewer explicitly retains engine/verification, 7089/0/0 full proof, five captures, E9 and previous scope applicability except this correction. The bounded documentation fix requires same-reviewer exact-new-SHA re-review, not another full suite or workflow layer.
+
+A follow-on local candidate commit preserves the rejected candidate identity in history and runs normal unmodified hooks under the established pinned SDK/Node. Raw command/output is `.tools/fan-evidence/snapshot-status-commit.log`; actual new SHA, hook totals and clean-state/inventory checks return to the coordinator. No push or publication. SnapshotApproval remains pending, and this owner correction is not independent acceptance of the new SHA.
+
+
 ### 21 November 2026 — Accepted implementation and final scope
 
 Coordinator authorization `task_dc8aaa7b3f28/ctx_ce43d0c2b745`, terminal `term_ecaf79ae23996710b9117529b88e0650`, re-engages the retained owner for native finalization and a local candidate commit only. Verification `ctx_2b73c1488da9/task_02e641ee9175/msg_3e555d86091b` returned **Affected verification Pass**, independently closing the remaining F1 caller-path proof and retaining F2–F5 plus unchanged engine/forward closures. It inspected real ABI invocation/refusal/atomic recovery, 40/0/0 affected, 7089/0/0 full, 134/0/0 hooks, all five captures and actual test compile inclusion. No required-now finding remains unresolved.
@@ -1225,6 +1234,8 @@ ui/WorkshopConnections.cs
 **Limits and next owner.** No unresolved required local test/build/hook/gate failure remains. Independent affected implementation review must assess all sixteen fixes and direct callers, including the bounded arithmetic/validator contract and architecture-guard vocabulary; only the coordinator can accept closure. The earlier scope-naming sequencing deviation (some direct consumers recorded after first edit) is explicitly retained above for that disposition; mandatory Anvil validation still preceded writes. Browser/E2E/mutants, detailed performance, remote build/artifact/deployment and release qualification remain pending at their named gates; no local Release worker/web publish or CI wait was performed. Motor electrical drain, Windmill integration and full gas-network/campaign work remain outside this slice. No new owner gameplay/design question is unresolved.
 
 ## Auto Run Result
+
+SnapshotApproval of local candidate `4378410e514807e46371193e04f0473f9574a34e` failed on one low stale-status finding; the two clauses are corrected in the bounded follow-on documentation commit, pending same-reviewer exact-SHA re-review. All implementation closures and applicable proof remain accepted; no publication approval is claimed.
 
 Status: **done — native implementation complete; browser qualification pending**, review_loop_iteration **3**, followup_review_recommended **false**. One catalogue Fan now selects Self-contained, Electrical or Shaft and supplies conserved conical guidance through generic declaration/compiler/simulation/read/presentation contracts, with native artwork, atomic refusals and lifecycle proof. Original baseline `4424da13c868c2be3aca6d2b62b7ca09cb190fa2`, immutable intent, retained owner lineage, R9, all KEEP constraints and the historical sequencing-breach disposition remain unchanged.
 

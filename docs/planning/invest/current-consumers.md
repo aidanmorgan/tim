@@ -272,7 +272,7 @@
 
 **First visible interaction / minimum collaborators:** Self-contained Fan pushes Basketball along its cone; Electrical Fan guides Tennis into a Receiver; Shaft selection pays actual coordinate reaction work. A Wall blocks the direct field.
 
-**Distinct controls / next boundary:** Off/empty/disconnected/missed/occluded controls and Switch cold-start remain distinct. Supply selections are modes of the same element; Windmill rotary integration remains Story 12.3. Native verification and independent implementation acceptance are pending in the native record.
+**Distinct controls / next boundary:** Off/empty/disconnected/missed/occluded controls and Switch cold-start remain distinct. Supply selections are modes of the same element; Windmill rotary integration remains Story 12.3. Native verification and affected independent implementation review are complete in the native record; exact committed-SHA SnapshotApproval/publication and named browser/campaign, detailed performance and remote/release qualification remain pending.
 
 <a id="cat-029-i"></a>
 ### CAT-029-I · flashlight
