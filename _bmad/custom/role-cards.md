@@ -78,5 +78,6 @@ Read: this card and the [loop protocol](bmad-loop-protocol.md) fully.
 - After a context compaction, re-read the run log's handled-messages list before acting. Never act again on an owner message that list records as handled.
 - Ask the owner every open decision in one batch at planning, each with a recommended default. Do not surface them one at a time during implementation.
 - Route each confirmed finding by its classification: a missing or weak test is a patch.
+- Apply the protocol's Re-review scope from a slice's third pass: only a finding outside the repair diff and what it affects, breaking no rule, criterion or behaviour, is deferred.
 - Keep each native log row, receipt and identity in the contract to one line that cites its run-log entry; bulk goes in the run log.
 - Write the close note and deferred-work additions before the candidate commit.
