@@ -21,6 +21,7 @@ public sealed class EnergyStoreContractTests
             System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero, 0f, 0f);
         var jointFrame = new ConstraintFrame(System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity);
         fixture.Prismatic(root, child, jointFrame, jointFrame, -1f, 1f, 0f, 0f, ConnectedCollision.Disabled);
+        fixture.Own(child, root);
         var original = fixture.Admit().Scene;
         var store = new EnergyStoreDeclaration(new(original.NextIdentity), carried ? child : root, new(45f), new(0f), new(30f));
         ICompiledScene Install(GpuBodyId consumerOwner)
@@ -58,6 +59,7 @@ public sealed class EnergyStoreContractTests
             System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero, 0f, 0f);
         var jointFrame = new ConstraintFrame(System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity);
         fixture.Prismatic(root, child, jointFrame, jointFrame, -1f, 1f, 0f, 0f, ConnectedCollision.Disabled);
+        fixture.Own(child, root);
         var original = fixture.Admit().Scene;
         var storeId = new EnergyStoreId(original.NextIdentity);
         var region = new ChamberRegionDeclaration(new(original.NextIdentity + 1), root,

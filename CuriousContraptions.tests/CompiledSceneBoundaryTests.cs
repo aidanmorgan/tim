@@ -717,13 +717,19 @@ public sealed class CompiledSceneBoundaryTests
         var root = new Table(4 + buffer.GetInt(4), buffer);
         var scene = Child(root, 11); // WorkshopCommand.scene
         var bodies = Rows(scene, 6); // CompiledSceneRecord.bodies
-        var body = bodies.Single(row => ReadUInt(row, 1) == (uint)RigidMotionKind.Dynamic);
+        var body = bodies.Single(row => ReadUInt(row, 2) == (uint)RigidMotionKind.Dynamic);
+        var decoded = new CuriousContraptions.Wire.CapabilityRigidBodyDeclarationRecord().__assign(body.bb_pos, buffer);
         switch (defect)
         {
-            case Defect.UnknownMotion: WriteUInt(body, 1, uint.MaxValue); break;
-            case Defect.NarrowedMotion: WriteUInt(body, 1, 256); break;
+            case Defect.UnknownMotion:
+                WriteUInt(body, 2, uint.MaxValue);
+                Assert.Equal(uint.MaxValue, decoded.Motion); break;
+            case Defect.NarrowedMotion:
+                WriteUInt(body, 2, 256);
+                Assert.Equal(256U, decoded.Motion); break;
             case Defect.NonfiniteMass:
-                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(body, 7)), float.NaN); break;
+                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(body, 8)), float.NaN);
+                Assert.True(float.IsNaN(decoded.Mass)); break;
             case Defect.ForeignColliderBody:
                 BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(Rows(scene, 7)[0], 1)), ulong.MaxValue); break;
             case Defect.ForeignTrigger:

@@ -155,7 +155,9 @@ public interface ICoreServices
         ReadOnlySpan<AmbientLoadDeclaration> ambientLoads = default,
         ReadOnlySpan<ContactIntegrityDeclaration> integrityObservers = default,
         ReadOnlySpan<AirflowSourceDeclaration> airflowSources = default,
-        ReadOnlySpan<AirflowReceiverDeclaration> airflowReceivers = default);
+        ReadOnlySpan<AirflowReceiverDeclaration> airflowReceivers = default,
+        ReadOnlySpan<RotaryAirflowCaptureDeclaration> rotaryAirflowCaptures = default,
+        ReadOnlySpan<CoordinateTravelDeclaration> coordinateTravelObservers = default);
     IActivationProgram CreateActivation(ReadOnlySpan<ActivationNodeDeclaration> nodes, ReadOnlySpan<ActivationEdge> edges,
         uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default,
         ReadOnlySpan<CompiledSignalContact> contacts = default);

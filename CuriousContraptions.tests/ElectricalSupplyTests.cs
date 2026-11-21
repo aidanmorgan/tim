@@ -308,8 +308,8 @@ public sealed class ElectricalSupplyTests
     {
         RigidBodyDeclaration[] bodies =
         [
-            new(new(1), RigidMotionKind.Static, default, default, CanonicalRotation.Identity, default, default, default, default, default, default),
-            new(new(2), RigidMotionKind.Static, default, default, CanonicalRotation.Identity, default, default, default, default, default, default)
+            new(new(1), new(1), RigidMotionKind.Static, default, default, CanonicalRotation.Identity, default, default, default, default, default, default),
+            new(new(2), new(2), RigidMotionKind.Static, default, default, CanonicalRotation.Identity, default, default, default, default, default, default)
         ];
         ElectricalSourceDeclaration[] sources =
         [

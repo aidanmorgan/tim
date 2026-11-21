@@ -7,6 +7,18 @@ internal sealed partial class LawScene
 {
     private readonly List<AirflowSourceDeclaration> _airflowSources = [];
     private readonly List<AirflowReceiverDeclaration> _airflowTargets = [];
+    private readonly List<RotaryAirflowCaptureDeclaration> _rotaryCaptures = [];
+
+    public RotaryAirflowCaptureId RotaryCapture(GpuBodyId owner, GpuBodyId frame, RevoluteConstraintId coordinate,
+        float response, float pitch = .4f, float cutIn = .05f, float maximumRate = 12,
+        AirflowSample[]? samples = null, GpuColliderId[]? exclusions = null)
+    {
+        var id = new RotaryAirflowCaptureId(_next++);
+        _rotaryCaptures.Add(new(id, owner, frame, coordinate,
+            samples is null ? [new(Vector3.Zero, 1)] : [.. samples], exclusions is null ? [] : [.. exclusions],
+            pitch, response, cutIn, maximumRate));
+        return id;
+    }
 
     public EnergyStoreId EnergyStore(GpuBodyId owner, float capacity, float initial, float chargePower = 0)
     {
@@ -51,7 +63,7 @@ internal sealed partial class LawScene
 
     public void ReverseResourceDeclarations()
     {
-        _airflowSources.Reverse(); _airflowTargets.Reverse(); _sources.Reverse();
+        _airflowSources.Reverse(); _airflowTargets.Reverse(); _rotaryCaptures.Reverse(); _sources.Reverse();
         _supplyNodes.Reverse(); _supplyEdges.Reverse(); _storageBindings.Reverse();
         _energyStores.Reverse(); _actuators.Reverse(); _chambers.Reverse();
     }

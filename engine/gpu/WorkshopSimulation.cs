@@ -493,6 +493,7 @@ public sealed class WorkshopSimulation : IWorkshopSimulation
         read.EnergyStores.ValidateAdvance(source.EnergyStores);
         ChamberReadValidation.ValidateAdvance(read, source);
         GasReadValidation.ValidateAdvance(read, source);
+        CoordinateTravelReadValidation.Advance(read, source);
         ValidateAppliedControls(source, read);
         read.Bodies.ValidateTime(read.Epoch, read.Tick);
         read.Captures.ValidateAdvance(source.Captures);

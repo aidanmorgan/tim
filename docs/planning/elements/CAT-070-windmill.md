@@ -4,6 +4,19 @@
 
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Legacy citations are `path@a6c914e:Lstart-Lend` and stay retrievable from git history after Epic 7. Current-tree citations also use the a6c914e baseline.
 
+## Current Story 12.3 contract — implementation, 21 November 2026
+
+The [native Windmill spec](../../../_bmad-output/implementation-artifacts/spec-12-3-windmill.md) passed independent artifact consistency review (msg_4e8fe33e7c50) and the initial runtime candidate received independent implementation review. The current package declares the generic capture, physical hinge/blades/output and first-travel observation; affected native tests exercise paid transport, controls and lifecycle. Historical local verification passed (full7184/0/0, affected747/0/0, hooks134/0/0 and E9). Independent pass-1 review confirmed nine findings; the approved repair plan is implemented under coordinator continuation, with final full7232/0/0, hooks134/0/0, five normal compiler logs and E9 PASS recorded in the native spec. All findings, including residual asymmetric observer proof, are independently closed and Final diff scope/simplification passed; native implementation is complete, with exact-SHA SnapshotApproval/publication pending and browser/remote/release qualification unverified. Repairs retain cream guard/output art, exact explicit physical ownership, one current generated accessor surface, and strengthen paid connected lifecycle and generic observation/refusal proof. The current requirements and game-fidelity policy control the harvest below; its pinned numbers and implementation names are evidence, not instructions to restore a deleted solver.
+
+- Four weight-0.25 samples use the actual transformed support frame. Exact hinge/frame and internal collider exclusions are declared; rotor blades and output observe committed physical motion. Partial wall occlusion removes only covered samples; rear drive reverses, edge-on/equal opposed sources are passive.
+- Response `radians_per_force` has units rad/s/N, range0.1–4, default0.6666667. Cut-in is **0.05 N of signed net aligned rest-force magnitude** (0.049 passive, 0.05 active). The old gas-table m/s label is corrected: a force-response law must use a force threshold, independently of source flow speed.
+- Pitch selection uses the FIRST boundary of the connected H(p)=sign(Ω)·R(p,Ω)>0 interval from p=0, or pmax if that interval remains positive through pmax. Poses/axes/sample velocities, target and allocation coefficients are frozen inside the scalar search; a changed outer allocation recalibrates p/b. For the low-flow u=1,c=.75,g=4 case, p=1/3,b=0 gives driving torque below target magnitude3rad/s and ZERO torque at AND above3, in either drive direction. This explicitly supersedes harvest row1c's strict-negative-above-target claim for the zero-damping clipped case; ordinary positive-damping cases retain opposing torque above equilibrium. Fixed-coefficient scalar monotonicity does not qualify the full coupled solve.
+- The cap12rad/s bounds requested unloaded equilibrium. Finite inertia, load and backdrive determine actual motion; no velocity assignment/clamp or independent torque. Active branch impulses share current Fan force/power/joule allocation and debit each actual source. Calm resistance is passive, including depletion/disable/occlusion; moving exposure prepares in simulation each substep, not once from authored pose.
+- Guard reuses the current generic Tube collider (inner0.745, outer0.815, half-length0.035), not superseded compound boxes. Rotor/support use existing rigid-mechanism contact material: restitution0, friction0.3, rolling resistance0, bounce threshold0.1. Exact dimensions, frames, inertia and package-owned palette are retained below.
+- Replace the old ideal-speed catalogue description with finite work/load/coast behavior. Preserve first-full-turn feedback as a generic exact-coordinate accepted-travel occurrence; the old per-part `Turned` name and observe loop are not restored. Do not impose the old 1e-6 active threshold as a physical stopping rule.
+- Harvest tick counts, narrow transient speed bands, every-step trajectories, exact replay and byte comparisons are superseded by finite spin-up/coast, signed causal reversal, actual connected/disconnected cargo, meaningful load response and semantic Reset/save/load proof. The native plan defines quantity-specific tolerances and generous game-time stall guards; no source-ledger hash/certificate.
+- Hinge, hollow geometry, shaft transmission and Fan paid airflow are available in current code; rotary capture is the necessary generic extension within12.3. S470 now concerns later connected gas networks (S471/S697), not a blocker or decision owner for this rotor. Bellows12.4 retains burst integration. Browser construction/connection/motion remains post-catalogue; full gas networks, Motor electrical drain and campaign qualification retain later owners.
+
 ## Identity
 
 | Field | Value |
@@ -13,7 +26,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | Mapped identities | None. No EL, TH, RAD or GAP identity names the windmill. |
 | Capability row | [general-engine-element-map, CAT-070](../general-engine-element-map.md) |
 | Roadmap story | Epic 12, Story 12.3 "Windmill Rotor Aerodynamic Capture & Drive"; [rotary capture](../../finite-gas-foundation.md) in the gas family Current [CAT-070 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Status | Not started. |
+| Status | Native implementation and required local verification complete; independent step04 review pending. |
 
 ## Declaration
 
@@ -41,13 +54,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 
 Families: the [CAT-070 row](../general-engine-element-map.md) and `docs/coverage/catalogue-elements.json` (AerodynamicDrag, ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, GeometryQuery, JointConstraint, RigidBodyDynamics, ShaftTorque, SlidingFriction).
 
-- **Exists now.** Static boxes, dynamic bodies with full inertia, contact (`engine/gpu/WorkshopPhysicsCompiler.cs`, `engine/gpu/RigidMassProperties.cs`).
-- **Missing.**
-  - Hinge joint (JointConstraint): Story 10.3 (CAT-034).
-  - Annular tube collider for the guard: the pipe collider work, Stories 6.6–6.7 (CAT-048).
-  - Airflow field and receivers: Story 12.2 (CAT-028).
-  - Rotary capture law (cut-in, bounded unloaded speed, calm-air coast resistance): Story 12.3, decision owner S470 ([decisions](../invest/decisions.md#s470)).
-  - Mechanical shaft output and belt network (ShaftTorque): Story 11.1 (CAT-042, CAT-019); reverse transmission Story 11.2 (CAT-057).
+- **Available current prerequisites.** Static boxes, finite-inertia dynamic bodies, the shared continuous hinge (10.3), true hollow Tube guard geometry replacing the old6.6–6.7 compound shell, current12.2 conserved airflow/source settlement, and11.1–11.2 finite-inertia shaft/conveyor/reverse transmission. The [native plan's prerequisite table](../../../_bmad-output/implementation-artifacts/spec-12-3-windmill.md#actual-prerequisite-readiness) maps actual code and accepted evidence; old aggregate story status is not a capability refusal.
+- **Necessary Story12.3 extension.** Generic exact-coordinate rotary capture, its passive coast preparation and accepted-travel observation. No new element solver, copied supply budget or whole gas-network prerequisite. S470's S471/S697 rows keep their later network owners.
 - **Element dependencies.** Fan (CAT-028) or Bellows (CAT-010) as source; Conveyor (CAT-019) and Reverse transmission (CAT-057) as loads; Wall (CAT-066) for occlusion.
 
 ## Legacy harvest
@@ -118,9 +126,6 @@ Point of truth: [CAT-070](../requirements.md#current-cat-070) and [retained beha
 - **Save/Load.** Round-trips the gain and the connection; replay reaches the same speed.
 - **Integrations.** Bellows burst (CAT-010); Reverse transmission (CAT-057).
 
-## Open questions
+## Current decisions
 
-1. **Catalogue wording.** The legacy description says "ideal-speed mechanical model, not torque or load conservation", while the requirement asks for finite inertia, load and backdrive with per-branch source debit. Confirm the description is rewritten.
-2. **Cut-in unit.** The gas doc lists the cut-in as 0.05 m/s; the legacy material treats it as 0.05 N of rest force (`engine/physics/RotaryCaptureMaterial.cs@a6c914e:L97-L99`). Owner decision.
-3. **Rotor contact material.** No windmill-specific value. Owner decision.
-4. **Guard tube.** The guard is an annular collider; confirm it reuses the CAT-048 pipe collider rather than a windmill-specific shape.
+The four former questions (catalogue wording, cut-in unit, contact material and guard reuse) are resolved prospectively in the current contract above and the native plan. Original planning and the bounded first-zero correction have independent approval, but the amended artifact still needs coordinator consistency confirmation before runtime continuation; the preserved harvest does not grant approval.

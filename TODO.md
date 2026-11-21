@@ -1,11 +1,9 @@
 # Current delivery
 
-**Outcome:** Story 12.2 Fan native implementation and all required independent affected reviews are complete; final diff scope PASS. Browser qualification remains pending.
+**Outcome:** Story12.3 Windmill (CAT-070) native implementation and independent review are complete. All nine findings and residual VG2/EFE2 are closed; sequential Final diff scope/simplification passed (msg_1e27c3d43b70).
 
-**Baseline / owner:** `4424da13c868c2be3aca6d2b62b7ca09cb190fa2`; branch `story-12-2-fan`. Retained lineage `ctx_45db1e128b73`; finalization `task_dc8aaa7b3f28/ctx_ce43d0c2b745`. Exact 178-path scope, review dispositions, failed attempts and raw evidence are in the [native record](./_bmad-output/implementation-artifacts/spec-12-2-fan.md). Primary unrelated policy/Conveyor work remains separate.
+**Baseline / owner:** `b5b9b233412b315d4efd830ec532121e64d66b03`; same retained owner and isolated candidate. Original intent and all failed evidence remain preserved; unrelated primary Conveyor/policy work is excluded.
 
-**Current result:** authoritative round **7089 passed / 0 failed / 0 skipped**, affected **40/0/0**, five matching normal compiler captures; separate unmodified hooks **134/0/0**; applicable E9 both canaries PASS with zero metric/coupling violations. Verification `msg_3e555d86091b` and sequential final scope `msg_b69e1d4a74fa` passed and were accepted by the coordinator. Earlier receipts remain historical for their inputs.
+**Next check / owner:** coordinator-authorized local candidate commit with normal hooks, followed by independent exact-SHA SnapshotApproval. Publication is pending; no push/deploy or next-story work is authorized.
 
-**Next check:** obtain **exact committed-SHA SnapshotApproval for the local candidate before publication**; the authorized candidate commit runs normal hooks. No push/deployment is authorized in this handoff. The acknowledged historical sequencing breach remains recorded; no required-now finding remains unresolved.
-
-**Order / limits:** finish 12.2 publication before Windmill 12.3 and subsequent [roadmap](./docs/planning/invest/vertical-delivery.md#rolling-playable-roadmap) outcomes. Motor electrical drain remains deferred. Browser/E2E/mutants, remote build/artifact/deployment, detailed performance and release qualification remain unverified; blocked duration unknown.
+**Evidence / limits:** [Native spec and review receipts](./_bmad-output/implementation-artifacts/spec-12-3-windmill.md#auto-run-result): full7232/0/0, affected130/0/0, hooks134/0/0, five matching compiler captures and E9 PASS. Native completion does not establish browser/remote/performance/release qualification. Bellows12.4, gas networks and Motor electrical drain retain later owners.

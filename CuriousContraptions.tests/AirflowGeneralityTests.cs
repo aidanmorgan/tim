@@ -57,6 +57,8 @@ public sealed partial class AirflowRuntimeTests
             var frame = scene.StaticBox(new(0, 5, 0), new(.1f));
             var head = scene.Box(new(0, 5, 0), new(.1f), .5f, LawMaterial.Domino, gravity: 0);
             var shaftBody = scene.Box(new(2, 5, 0), new(.1f), .25f, LawMaterial.Domino, gravity: 0);
+            scene.Own(head, frame);
+            scene.Own(shaftBody, frame);
             var slider = scene.Prismatic(frame, head, ConstraintFrame.Identity, ConstraintFrame.Identity,
                 -.8f, 0f, 160f, 0f, ConnectedCollision.Disabled);
             var shaft = scene.Revolute(frame, shaftBody, new(new(2, 0, 0), Quaternion.Identity),

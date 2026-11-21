@@ -82,10 +82,17 @@ internal sealed partial class LawScene
         if (!bench) return;
         var height = WorkshopInput.Position((float)(BenchY));
         var plane = new GpuBodyId(_next++);
-        _bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0), new(0f, height.Local, 0f), CanonicalRotation.Identity,
+        _bodies.Add(new(plane, plane, RigidMotionKind.Static, new(0, height.Cell, 0), new(0f, height.Local, 0f), CanonicalRotation.Identity,
             default, default, new(0f), default, new(0f), default));
         var material = Material(LawMaterial.Bench);
         _colliders.Add(new(new(_next++), plane, material, ColliderShapeKind.Plane, RigidLocalPose.Identity, new(0f), default));
+    }
+
+    public void Own(GpuBodyId body, GpuBodyId owner)
+    {
+        var index = _bodies.FindIndex(value => value.Id == body);
+        if (index < 0) throw new ArgumentException("Missing fixture body.");
+        _bodies[index] = _bodies[index] with { Owner = owner };
     }
 
     private GpuMaterialId Material(LawMaterial value)
@@ -101,7 +108,7 @@ internal sealed partial class LawScene
         var id = new GpuBodyId(_next++);
         var x = WorkshopInput.Position((float)(position.X)); var y = WorkshopInput.Position((float)(position.Y)); var z = WorkshopInput.Position((float)(position.Z));
         var dynamic = motion == RigidMotionKind.Dynamic;
-        _bodies.Add(new(id, motion, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+        _bodies.Add(new(id, id, motion, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
             CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W),
             dynamic ? new(velocity.X, velocity.Y, velocity.Z) : default, dynamic ? new(angular.X, angular.Y, angular.Z) : default,
             new((float)(dynamic ? mass : 0f)), dynamic ? new(0f, (float)gravity, 0f) : default, new((float)(dynamic ? drag : 0f)),
@@ -188,7 +195,7 @@ internal sealed partial class LawScene
     {
         var id = new GpuBodyId(_next++);
         var x = WorkshopInput.Position((float)(position.X)); var y = WorkshopInput.Position((float)(position.Y)); var z = WorkshopInput.Position((float)(position.Z));
-        _bodies.Add(new(id, RigidMotionKind.Static, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+        _bodies.Add(new(id, id, RigidMotionKind.Static, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
             CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W), default, default, new(0f), default, new(0f), default));
         var collider = new GpuColliderId(_next++);
         _colliderOf[id] = collider;
@@ -380,7 +387,7 @@ float regionRadius = .48f, float maximumWidth = .84f, float containmentAllowance
             contactWorks: [.. _contactWorks], energyStores: [.. _energyStores], chamberRegions: [.. _chambers], finiteWorkActuators: [.. _actuators], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics],
             prismaticDrives: [.. _drives], tensileSpans: [.. _tensileSpans], revolutes: [.. _revolutes], compliantSurfaces: [.. _compliantSurfaces],
             electricalSources: [.. _sources], electricalBindings: [.. _storageBindings], supplyNodes: [.. nodes], supplyEdges: [.. _supplyEdges], revoluteDrives: [.. _revoluteDrives], transmissions: [.. _transmissions], drivenSurfaces: [.. _drivenSurfaces], ambientLoads: [.. _ambientLoads],
-            airflowSources: [.. _airflowSources], airflowReceivers: [.. _airflowTargets]);
+            airflowSources: [.. _airflowSources], airflowReceivers: [.. _airflowTargets], rotaryAirflowCaptures: [.. _rotaryCaptures]);
         return new(scene, PhysicsGpuAbi.Admission(scene, new(1), new(cadence, PhysicalStepProfile.Canonical480Hz, new(1))), cadence);
     }
 }

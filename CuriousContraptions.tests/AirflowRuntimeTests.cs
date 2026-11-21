@@ -16,6 +16,7 @@ public sealed partial class AirflowRuntimeTests
         var frame = scene.StaticBox(new(0, 5, 0), new(.1f));
         var rotor = scene.Sphere(new(0, 5, 0), .1f, 1, LawMaterial.Domino, default, default, 0, 0);
         scene.DeclareMassFrame(rotor, new(.02f));
+        scene.Own(rotor, frame);
         var coordinate = scene.Revolute(frame, rotor, ConstraintFrame.Identity,
             new(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, -.5f)), -MathF.PI, MathF.PI, 0);
         scene.RevoluteSpring(coordinate, charged ? .4f : 0);
@@ -109,6 +110,7 @@ public sealed partial class AirflowRuntimeTests
         var frame = scene.StaticBox(new(0, 5, 0), new(.1f));
         var rotor = scene.Sphere(new(0, 5, 0), .1f, 1, LawMaterial.Domino, default, new(0, 0, 4), 0, 0);
         scene.DeclareMassFrame(rotor, new(.02f));
+        scene.Own(rotor, frame);
         var first = scene.Revolute(frame, rotor, ConstraintFrame.Identity, ConstraintFrame.Identity, -MathF.PI, MathF.PI, 0,
             travel: RevoluteTravel.Continuous);
         var otherRotor = rotor;
@@ -117,6 +119,7 @@ public sealed partial class AirflowRuntimeTests
         {
             otherRotor = scene.Sphere(new(0, 5, 1), .1f, 1, LawMaterial.Domino, default, new(0, 0, 4), 0, 0);
             scene.DeclareMassFrame(otherRotor, new(.02f));
+            scene.Own(otherRotor, frame);
             second = scene.Revolute(frame, otherRotor, new(new(0, 0, 1), Quaternion.Identity), ConstraintFrame.Identity,
                 -MathF.PI, MathF.PI, 0, travel: RevoluteTravel.Continuous);
             scene.Transmission(new(first), new(second), 1);
@@ -149,6 +152,7 @@ public sealed partial class AirflowRuntimeTests
         var frame = scene.StaticBox(new(0, 5, 0), new(.1f));
         var rotor = scene.Sphere(new(0, 5, 0), .1f, 1, LawMaterial.Domino, default, new(0, 0, initialRate), 0, 0);
         scene.DeclareMassFrame(rotor, new(.02f));
+        scene.Own(rotor, frame);
         var coordinate = scene.Revolute(frame, rotor, ConstraintFrame.Identity, ConstraintFrame.Identity, -MathF.PI, MathF.PI, 0,
             travel: RevoluteTravel.Continuous);
         var cargo = scene.Sphere(new(1, 5, 0), .1f, 1, LawMaterial.Domino, default, default, 0, 0);

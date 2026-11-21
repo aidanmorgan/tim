@@ -10,7 +10,7 @@ namespace CuriousContraptions.Gpu;
 /// passes of the step that produced it).</summary>
 public readonly record struct EventSourceRows(PhysicsCaptureRead Captures, ContactWorkLedger ContactWorks,
     PhysicsElectricalRead Electrical, PassageSensorTracker Passages, PhysicsFiniteWorkActuatorRead FiniteWork = default,
-    PhysicsIntegrityRead Integrity = default);
+    PhysicsIntegrityRead Integrity = default, PhysicsCoordinateTravelRead CoordinateTravel = default);
 
 /// <summary>The event ring producer of one admitted world (Story 9A.22). Every one-shot transition of a committed tick becomes exactly
 /// one record from exactly one source row:
@@ -89,6 +89,7 @@ public sealed class EventRecordProducer
         var records = new List<SimulationEventRecord>(32);
         var boundary = ActivationTime.Boundary(tick, _substeps);
         AppendIntegrity(records, tick, committed.Integrity, candidate.Integrity);
+        AppendCoordinateTravel(records, tick, committed.CoordinateTravel, candidate.CoordinateTravel);
         AppendFiniteWork(records, tick, checked((uint)((tick.Value - 1) * _substeps)), committed.FiniteWork, candidate.FiniteWork);
         void Add(SimulationEventKind kind, GpuEventSourceId source, GpuBodyId other, ActivationTime time, float magnitude, uint count, uint level) =>
             records.Add(new(0, tick.Value, kind, source, other.Value, time.Ordinal, time.Phase, magnitude, count, level));
@@ -179,6 +180,20 @@ public sealed class EventRecordProducer
                 new(current.Id.Value), current.LastPayload.Value, ordinal, 0f, current.LastDebit.Value, current.OccurrenceCount, 0);
             record.Validate();
             records.Add(record);
+        }
+    }
+
+    private static void AppendCoordinateTravel(List<SimulationEventRecord> records, SimulationTick tick,
+        PhysicsCoordinateTravelRead before, PhysicsCoordinateTravelRead after)
+    {
+        if (before.Count != after.Count) throw new ArgumentException("Coordinate travel event population changed.");
+        for (var i = 0; i < after.Count; i++)
+        {
+            var prior = before[i]; var current = after[i];
+            CoordinateTravelReadValidation.Advance(current, prior, 0);
+            if (current.Phase != CoordinateTravelPhase.Reached || prior.Phase == CoordinateTravelPhase.Reached) continue;
+            records.Add(new(0, tick.Value, SimulationEventKind.CoordinateTravelReached, new(current.Id.Value),
+                0, current.Ordinal, 0, current.Threshold, 1, 0));
         }
     }
 

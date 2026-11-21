@@ -4104,7 +4104,7 @@ So that contactless aerial steering can guide balls into goals.
 - **Scope:** Windmill rotary capture/integration remains Story 12.3; full gas networks and later campaign qualification are not bundled. Motor electrical drain remains deferred and is not claimed by shaft-to-airflow proof.
 
 ### Story 12.3: Windmill Rotor Aerodynamic Capture & Drive (CAT-070)
-*Status: Backlog*
+*Status: Native implementation and independent review complete; exact-SHA SnapshotApproval/publication pending. Full7232/0/0, hooks134/0/0 and E9 PASS; browser/remote/release qualification unverified. See [native completion record](../implementation-artifacts/spec-12-3-windmill.md#auto-run-result).*
 
 *Depends on: Stories 6.6–6.7 (annular guard collider), 10.3 (hinge), 11.1–11.2 (shaft output and loads) and 12.2 (airflow). Moved from Story 12.4, ahead of the Bellows that needs it.*
 
@@ -4116,8 +4116,8 @@ So that airflow can be converted into mechanical shaft work.
 - **Given** a Windmill positioned in the airflow of an active Electric Fan,
 - **When** airflow strikes the rotor blades,
 - **Then** the windmill spins its axle and delivers rotational torque to connected mechanical components.
-- **And** blocking the fan airflow with a wall stops windmill rotation.
-- **And** `tools/e2e/cat-070.test.ts` passes 100% in Chrome serially.
+- **And** blocking the fan airflow removes drive and the finite-inertia rotor passively coasts to rest; connected/disconnected cargo, signed rear drive and loaded shaft controls follow [CAT-070](../../docs/planning/requirements.md#current-cat-070).
+- **And** required native production unit/integration and ordinary Reset/save/load checks pass now; `tools/e2e/cat-070.test.ts` Chrome construction/configuration/connection/motion proof remains required at the post-catalogue browser gate, not this slice's native gate.
 
 ### Story 12.4: Pneumatic Bellows Compression Pulse (CAT-010)
 *Status: Backlog*

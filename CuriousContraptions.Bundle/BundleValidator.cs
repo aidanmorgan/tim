@@ -60,6 +60,10 @@ public static class BundleValidator
             catch (ArgumentException) { OutOfRange("GasCoupling"); }
             try { AirflowDomain.Validate(entry); }
             catch (ArgumentException) { OutOfRange("Airflow"); }
+            try { RotaryAirflowDomain.Validate(entry); }
+            catch (ArgumentException) { OutOfRange("RotaryAirflow"); }
+            try { CoordinateTravelDomain.Validate(entry); }
+            catch (ArgumentException) { OutOfRange("CoordinateTravel"); }
             errors.AddRange(DrivenSurfaceValidation.Validate(entry));
             errors.AddRange(ClippedExtrusionValidation.Validate(entry));
             errors.AddRange(MechanicalTransmissionValidation.Validate(entry));
@@ -128,7 +132,7 @@ public static class BundleValidator
         private void CheckEvents(IReadOnlyList<EventDescriptor> events, MechanicalPayload? mechanical)
         {
             // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
-            var kinds = new HashSet<(SimulationEventKind, SignalNodeId?, CuriousContraptions.Gpu.LocalFiniteWorkActuatorId?, CuriousContraptions.Gpu.LocalIntegrityObservationId?)>(4);
+            var kinds = new HashSet<EventDescriptor>();
             for (var i = 0; i < events.Count; i++)
             {
                 if (events[i].Kind == SimulationEventKind.None) Undefined($"Events[{i}].Kind");
@@ -139,7 +143,11 @@ public static class BundleValidator
                 if ((events[i].Kind == SimulationEventKind.IntegrityBroken) != events[i].Integrity.HasValue ||
                     events[i].Integrity is { } observation && mechanical?.IntegrityObservers.Any(value => value.Id == observation) != true)
                     OutOfRange($"Events[{i}].Integrity");
-                if (!kinds.Add((events[i].Kind, events[i].SignalNode, events[i].FiniteWork, events[i].Integrity))) OutOfRange($"Events[{i}].Kind");
+                if ((events[i].Kind == SimulationEventKind.CoordinateTravelReached) != events[i].CoordinateTravel.HasValue ||
+                    events[i].CoordinateTravel is { } travel &&
+                    (mechanical?.CoordinateTravelObservers is not { } observers || !observers.Any(value => value.Id == travel)))
+                    OutOfRange($"Events[{i}].CoordinateTravel");
+                if (!kinds.Add(events[i])) OutOfRange($"Events[{i}].Kind");
             }
         }
 

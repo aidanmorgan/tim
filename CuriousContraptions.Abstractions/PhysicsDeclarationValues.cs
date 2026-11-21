@@ -146,7 +146,7 @@ public readonly record struct ContactMaterialDeclaration(
 
 /// <summary>Initial primary state and force parameters; the GPU owns all motion and force evaluation.</summary>
 public readonly record struct RigidBodyDeclaration(
-    GpuBodyId Id, RigidMotionKind Motion, CellOrigin Cell, LocalPosition Local,
+    GpuBodyId Id, GpuBodyId Owner, RigidMotionKind Motion, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, LinearVelocity Velocity, AngularVelocity AngularVelocity,
     Kilograms Mass, AccelerationVector Gravity, InverseSeconds LinearDrag, RigidMassProperties MassProperties, PayloadPolicy Payload = PayloadPolicy.None)
 {
@@ -154,6 +154,7 @@ public readonly record struct RigidBodyDeclaration(
     {
         if (!Enum.IsDefined(Motion) || !Enum.IsDefined(Payload) || (Motion==RigidMotionKind.Static && Payload!=PayloadPolicy.None))
             throw new ArgumentException("Undefined rigid motion or payload policy.");
+        if (Owner.Value == 0) throw new ArgumentException("Physical body ownership is required.");
         new CanonicalBody(Id, 0, 0, Cell, Local, Velocity).Validate();
         Rotation.Validate();
         AngularVelocity.Validate();

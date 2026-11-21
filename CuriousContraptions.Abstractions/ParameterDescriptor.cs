@@ -30,7 +30,8 @@ public enum ParameterUnit : byte
     Newton = 14,
     MetrePerRadian = 15,
     RadianPerMetre = 16,
-    InverseSecond = 17
+    InverseSecond = 17,
+    RadianPerSecondPerNewton = 18
 }
 
 /// <summary>One typed authored parameter of an element: its key, unit and kind, with f32 bounds and default. A Choice parameter

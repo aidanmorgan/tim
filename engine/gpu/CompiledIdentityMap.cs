@@ -31,7 +31,9 @@ public sealed record CompiledPartIdentities(GpuMaterialId Material, ImmutableArr
     ImmutableDictionary<LocalGasStoreId, GasStoreId> GasStores,
     ImmutableDictionary<LocalIntegrityObservationId, IntegrityObservationId> IntegrityObservers,
     ImmutableDictionary<LocalAirflowSourceId, AirflowSourceId> AirflowSources,
-    ImmutableDictionary<LocalAirflowReceiverId, AirflowReceiverId> AirflowReceivers);
+    ImmutableDictionary<LocalAirflowReceiverId, AirflowReceiverId> AirflowReceivers,
+    ImmutableDictionary<LocalRotaryAirflowCaptureId, RotaryAirflowCaptureId> RotaryAirflowCaptures,
+    ImmutableDictionary<LocalCoordinateTravelId, CoordinateTravelId> CoordinateTravelObservers);
 
 /// <summary>One immutable scene-sized allocation shared by every consumer of an authored instance collection.</summary>
 public sealed class CompiledIdentityMap
@@ -178,11 +180,22 @@ public sealed class CompiledIdentityMap
         var gas = AllocateGasCapabilities(entry, Allocate);
         var airflow = AllocateAirflowCapabilities(entry, Allocate);
         return new(material, colliders, sliders, signals, supply, work.ToImmutable(),
-            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable(), capabilities.Transmissions, capabilities.Retentions, capabilities.Stores, capabilities.Regions, capabilities.Actuators, gas.Stores, gas.Observers, airflow.Sources, airflow.AirflowTargets);
+            capture, hinges, compliant, surfaces.ToImmutable(), guides.ToImmutable(), capabilities.Transmissions, capabilities.Retentions, capabilities.Stores, capabilities.Regions, capabilities.Actuators, gas.Stores, gas.Observers, airflow.Sources, airflow.AirflowTargets, airflow.Captures,
+            AllocateCoordinateTravel(entry, Allocate));
+    }
+
+    private static ImmutableDictionary<LocalCoordinateTravelId, CoordinateTravelId> AllocateCoordinateTravel(
+        CuriousContraptions.Bundle.BundleEntry entry, Func<ulong> allocate)
+    {
+        var observers = ImmutableDictionary.CreateBuilder<LocalCoordinateTravelId, CoordinateTravelId>();
+        foreach (var observer in (entry.Mechanical?.CoordinateTravelObservers ?? []).OrderBy(o => o.Id.Value))
+            observers.Add(observer.Id, new(allocate()));
+        return observers.ToImmutable();
     }
 
     private static (ImmutableDictionary<LocalAirflowSourceId, AirflowSourceId> Sources,
-        ImmutableDictionary<LocalAirflowReceiverId, AirflowReceiverId> AirflowTargets)
+        ImmutableDictionary<LocalAirflowReceiverId, AirflowReceiverId> AirflowTargets,
+        ImmutableDictionary<LocalRotaryAirflowCaptureId, RotaryAirflowCaptureId> Captures)
         AllocateAirflowCapabilities(CuriousContraptions.Bundle.BundleEntry entry, Func<ulong> allocate)
     {
         var sources = ImmutableDictionary.CreateBuilder<LocalAirflowSourceId, AirflowSourceId>();
@@ -191,7 +204,10 @@ public sealed class CompiledIdentityMap
         var airflowTargets = ImmutableDictionary.CreateBuilder<LocalAirflowReceiverId, AirflowReceiverId>();
         foreach (var receiver in (entry.Mechanical?.AirflowReceivers ?? []).OrderBy(r => r.Id.Value))
             airflowTargets.Add(receiver.Id, new(allocate()));
-        return (sources.ToImmutable(), airflowTargets.ToImmutable());
+        var captures = ImmutableDictionary.CreateBuilder<LocalRotaryAirflowCaptureId, RotaryAirflowCaptureId>();
+        foreach (var capture in (entry.Mechanical?.RotaryAirflowCaptures ?? []).OrderBy(c => c.Id.Value))
+            captures.Add(capture.Id, new(allocate()));
+        return (sources.ToImmutable(), airflowTargets.ToImmutable(), captures.ToImmutable());
     }
 
     private static (ImmutableDictionary<LocalGasStoreId, GasStoreId> Stores,

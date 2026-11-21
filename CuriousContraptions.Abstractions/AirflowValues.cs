@@ -103,16 +103,7 @@ public sealed record AirflowReceiverDeclaration(AirflowReceiverId Id, GpuBodyId 
     {
         if (Id.Value == 0 || Owner.Value == 0 || Collider.Value == 0 || !Enum.IsDefined(Sampling) || Samples.IsDefaultOrEmpty)
             throw new ArgumentException("Invalid airflow receiver.");
-        var sum = 0f;
-        foreach (var sample in Samples)
-        {
-            AirflowValidation.Vector(sample.Position);
-            AirflowValidation.Positive(sample.Weight);
-            sum += sample.Weight;
-        }
-        // This is an admission arithmetic contract, not a scene-motion tolerance.
-        if (!float.IsFinite(sum) || MathF.Abs(sum - 1f) > 1e-5f)
-            throw new ArgumentException("Receiver sample weights must sum to one.");
+        AirflowSampleValidation.Validate(Samples);
     }
 }
 
@@ -132,6 +123,25 @@ public readonly record struct AirflowSourceRead(AirflowSourceId Id, GpuBodyId Ow
         if (Availability == AirflowAvailability.Unavailable && FlowSpeed != 0)
             throw new ArgumentException("Unavailable airflow cannot report flow.");
     }
+}
+
+public static class AirflowSampleValidation
+{
+    public static void Validate(ImmutableArray<AirflowSample> samples)
+    {
+        if (samples.IsDefaultOrEmpty) throw new ArgumentException("Missing airflow samples.");
+        var sum = 0f;
+        foreach (var sample in samples)
+        {
+            AirflowValidation.Vector(sample.Position);
+            AirflowValidation.Positive(sample.Weight);
+            sum += sample.Weight;
+        }
+        // Admission arithmetic for dimensionless normalized weights, not a scene-motion tolerance.
+        if (!float.IsFinite(sum) || MathF.Abs(sum - 1f) > 1e-5f)
+            throw new ArgumentException("Receiver sample weights must sum to one.");
+    }
+
 }
 
 internal static class AirflowValidation

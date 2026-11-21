@@ -19,10 +19,12 @@ internal readonly record struct PrismaticTrialState(float CommandSpeed, float Ho
     }
 }
 
-internal readonly record struct RevoluteTrialState(float Travel, float Work)
+internal readonly record struct RevoluteTrialState(float Travel, float Work, float Damping,
+    CuriousContraptions.Gpu.SoftConstraintCoefficients Soft)
 {
-    public static RevoluteTrialState Capture(SimRevoluteJoint joint) => new(joint.TravelAngle, joint.Work);
-    public void Restore(SimRevoluteJoint joint) { joint.TravelAngle = Travel; joint.Work = Work; }
+    public static RevoluteTrialState Capture(SimRevoluteJoint joint) => new(joint.TravelAngle, joint.Work, joint.Damping, joint.Soft);
+    public void Restore(SimRevoluteJoint joint)
+    { joint.TravelAngle = Travel; joint.Work = Work; joint.Damping = Damping; joint.Soft = Soft; }
 }
 
 internal readonly record struct TransmissionTrialState(float WindowImpulse, float StepWork, float StepPositive,

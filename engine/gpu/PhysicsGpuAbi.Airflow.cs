@@ -84,6 +84,7 @@ public static partial class PhysicsGpuAbi
                 F32(data, offset + 12, point.Weight);
             }
         }
+        AdmitRotaryAirflow(data, scene, sample, exclusion);
     }
 
     private static void WriteAirflowInput(Span<byte> row, ContinuousWorkInput input,

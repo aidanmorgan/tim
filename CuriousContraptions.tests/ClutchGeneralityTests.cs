@@ -272,7 +272,7 @@ public sealed partial class ClutchTests
     }
 
     [Fact]
-    public async Task CompiledMembershipRejectsSharedForeignDescendantsRootsAndCycles()
+    public async Task CompiledMembershipPreservesExplicitOwnersAcrossSupportsAndRejectsInvalidConstraints()
     {
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(ClutchPart(3), ClutchPart(4)));
@@ -293,9 +293,11 @@ public sealed partial class ClutchTests
         var a = joints.First(j => j.BodyA == new GpuBodyId(3));
         var b = joints.First(j => j.BodyA == new GpuBodyId(4));
         var cross = b with { Id = new(source.NextIdentity + 1), BodyA = a.BodyB };
-        Assert.Throws<ArgumentException>(() => With([.. joints, cross])); // A→a, B→b, a→b
-        Assert.Throws<ArgumentException>(() => With([.. joints, a with { Id = cross.Id }])); // shared child under same root
-        Assert.Throws<ArgumentException>(() => With([.. joints, a with { Id = cross.Id, BodyA = a.BodyB, BodyB = new(3) }])); // root as child/cycle
+        var crossSupported = With([.. joints, cross]); // A→a, B→b, a→b does not reassign either child.
+        Assert.Equal(new GpuBodyId(3), crossSupported.Physics.Bodies.ToArray().Single(body => body.Id == a.BodyB).Owner);
+        Assert.Equal(new GpuBodyId(4), crossSupported.Physics.Bodies.ToArray().Single(body => body.Id == b.BodyB).Owner);
+        Assert.Throws<ArgumentException>(() => With([.. joints, a with { Id = cross.Id }])); // duplicate unordered body pair
+        Assert.Throws<ArgumentException>(() => With([.. joints, a with { Id = cross.Id, BodyA = a.BodyB, BodyB = new(3) }])); // reversed duplicate pair; distinct-pair cycles remain legal
         Assert.Throws<ArgumentException>(() => With(joints.Select(j => j.Id == a.Id ? j with { BodyA = new(99) } : j).ToArray(), new GpuBodyId(99)));
         var prior = harness.Committed.Tick;
         await harness.AdvanceOne();

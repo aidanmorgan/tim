@@ -62,8 +62,10 @@ public sealed class CoreServices : ICoreServices
         ReadOnlySpan<AmbientLoadDeclaration> ambientLoads = default,
         ReadOnlySpan<ContactIntegrityDeclaration> integrityObservers = default,
         ReadOnlySpan<AirflowSourceDeclaration> airflowSources = default,
-        ReadOnlySpan<AirflowReceiverDeclaration> airflowReceivers = default) =>
-        new PhysicsSceneDeclaration(document, nextIdentity, bodies, colliders, materials, sensors, guides, triggers, contactWorks, orientationSensors, electricalSources, electricalBindings, prismatics, supplyNodes, supplyEdges, contactLoadSensors, prismaticDrives, tensileSpans, revolutes, compliantSurfaces, revoluteDrives, ropeGuides, transmissions, drivenSurfaces, energyStores, chamberRegions, finiteWorkActuators, gasStores, gasShapes, inventoryMasses, ambientLoads, integrityObservers, airflowSources, airflowReceivers);
+        ReadOnlySpan<AirflowReceiverDeclaration> airflowReceivers = default,
+        ReadOnlySpan<RotaryAirflowCaptureDeclaration> rotaryAirflowCaptures = default,
+        ReadOnlySpan<CoordinateTravelDeclaration> coordinateTravelObservers = default) =>
+        new PhysicsSceneDeclaration(document, nextIdentity, bodies, colliders, materials, sensors, guides, triggers, contactWorks, orientationSensors, electricalSources, electricalBindings, prismatics, supplyNodes, supplyEdges, contactLoadSensors, prismaticDrives, tensileSpans, revolutes, compliantSurfaces, revoluteDrives, ropeGuides, transmissions, drivenSurfaces, energyStores, chamberRegions, finiteWorkActuators, gasStores, gasShapes, inventoryMasses, ambientLoads, integrityObservers, airflowSources, airflowReceivers, rotaryAirflowCaptures, coordinateTravelObservers);
     public IActivationProgram CreateActivation(ReadOnlySpan<ActivationNodeDeclaration> nodes, ReadOnlySpan<ActivationEdge> edges,
         uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default,
         ReadOnlySpan<CompiledSignalContact> contacts = default) =>

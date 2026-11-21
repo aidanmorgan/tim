@@ -261,7 +261,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             // the committed and candidate row states and the network's transitions. Nothing is sequenced before Commit.
             var actuators = new PhysicsFiniteWorkActuatorRead(PhysicsGpuAbi.ReadFiniteWorkActuators(bytes.Span));
             var integrity = new PhysicsIntegrityRead(PhysicsGpuAbi.ReadIntegrity(bytes.Span));
-            var sources = new EventSourceRows(_candidateCaptures, contactWorks, electrical, _candidatePassageTracker, actuators, integrity);
+            var coordinateTravel = new PhysicsCoordinateTravelRead(PhysicsGpuAbi.ReadCoordinateTravel(bytes.Span));
+            var sources = new EventSourceRows(_candidateCaptures, contactWorks, electrical, _candidatePassageTracker, actuators, integrity, coordinateTravel);
             if (operation == WorkshopGpuOperation.Admit)
             {
                 contactWorks.ValidateScene(scene!, bodies);
@@ -290,7 +291,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 ChamberRegions: new PhysicsChamberRead(PhysicsGpuAbi.ReadChamberRegions(bytes.Span)),
                 FiniteWorkActuators: actuators,
                 GasStores: new PhysicsGasRead(PhysicsGpuAbi.ReadGas(bytes.Span)),
-                IntegrityObservers: integrity, Airflow: new PhysicsAirflowRead(PhysicsGpuAbi.ReadAirflow(bytes.Span)));
+                IntegrityObservers: integrity, Airflow: new PhysicsAirflowRead(PhysicsGpuAbi.ReadAirflow(bytes.Span)), CoordinateTravelObservers: coordinateTravel);
             _candidateRead = read;
             _candidateInputs = inputs with { OwnedFiniteWork = null, AdmissionDrivenSurfaces = [], PhysicalRequests = [], Cuts = [] };
             if (operation == WorkshopGpuOperation.Admit)

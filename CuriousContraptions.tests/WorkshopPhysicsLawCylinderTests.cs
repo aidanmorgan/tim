@@ -30,7 +30,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     [InlineData(.0625, 8, .5)]   // a rod, w >> r
     public void CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(double radius, double width, double mass)
     {
-        var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity, default, default,
+        var body = new RigidBodyDeclaration(new(1), new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity, default, default,
             new((float)mass), default, default, new(default, CanonicalRotation.Identity, new(1f), new(1f), new(1f)));
         var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Cylinder, RigidLocalPose.Identity,
             new((float)radius), new(0f, (float)(width / 2), 0f));

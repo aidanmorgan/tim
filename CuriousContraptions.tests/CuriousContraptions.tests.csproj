@@ -12,6 +12,10 @@
         <RootNamespace>CuriousContraptions.Tests</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="../tools/WorkshopWireGeneration/WorkshopWireGeneration.csproj" />
+    </ItemGroup>
+
     <!-- 2dog packages (2dog.xunit pulls in 2dog.engine for the fixtures and ships the xUnit
          collection definitions as compile-in source) -->
     <ItemGroup>
@@ -113,6 +117,14 @@
         <Compile Include="LinearPusherIntegrationTests.cs" />
         <Compile Include="PrismaticWorkBudgetTests.cs" />
         <Compile Include="ConicalAirflowTests.cs" />
+        <Compile Include="RotaryAirflowLawTests.cs" />
+        <Compile Include="RotaryAirflowRuntimeTests.cs" />
+    <Compile Include="BodyOwnershipTests.cs" />
+    <Compile Include="CoordinateTravelGeneralityTests.cs" />
+    <Compile Include="WorkshopWireGenerationTests.cs" />
+    <Compile Include="WindmillIntegrationTests.cs" />
+    <Compile Include="WindmillAdmissionTests.cs" />
+    <Compile Include="WindmillArtworkTests.cs" />
         <Compile Include="AirflowRuntimeTests.cs" />
         <Compile Include="AirflowGeneralityTests.cs" />
     <Compile Include="AirflowSupplyIntegrationTests.cs" />

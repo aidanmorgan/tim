@@ -25,6 +25,7 @@ internal sealed partial class WorkshopPhysicsEngine
             var proposed = MathF.Min(1, scale + step);
             if (!(proposed > scale)) break;
             SetContinuousScale(layout.AirflowSources, root, proposed);
+            PrepareAllocatedAirflow(dt);
             foreach (var load in _componentLoads) load.Target = ContinuousLoadDemand(world, layout, load);
             for (var i = 0; i < _componentLoads.Count; i++) _componentLoads[i].Impulse = accepted[i];
             var solved = SolveContinuousLoads(world, layout, dt, soft);
@@ -108,7 +109,7 @@ internal sealed partial class WorkshopPhysicsEngine
             var work = 0f;
             foreach (var branch in _airflowBranches)
                 if (branch.Source == source)
-                    work += branch.FlowSpeed * (branch.Impulse * _continuousScales[source]);
+                    work += branch.FlowSpeed * branch.PreparedImpulse;
             total += work;
         }
         return total;

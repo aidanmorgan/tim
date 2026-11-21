@@ -7,7 +7,8 @@ public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, Simula
     PhysicsCaptureRead Captures = default, IPhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default,
     PhysicsMemoryRead Memory = default, PhysicsPresentationRead Presentation = default, PhysicsDriveTargetRead DriveTargets = default, PhysicsEnergyStoreRead EnergyStores = default,
     PhysicsChamberRead ChamberRegions = default, PhysicsFiniteWorkActuatorRead FiniteWorkActuators = default,
-    PhysicsGasRead GasStores = default, PhysicsIntegrityRead IntegrityObservers = default, PhysicsAirflowRead Airflow = default)
+    PhysicsGasRead GasStores = default, PhysicsIntegrityRead IntegrityObservers = default, PhysicsAirflowRead Airflow = default,
+    PhysicsCoordinateTravelRead CoordinateTravelObservers = default)
 {
     public bool HasSameContent(WorkshopRead other) => Epoch == other.Epoch && Tick == other.Tick &&
         Revision == other.Revision && PhysicalRevision == other.PhysicalRevision && Capture == other.Capture && SamePhysicalContent(this, other);
@@ -24,7 +25,7 @@ public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, Simula
             !first.DriveTargets.HasSameBits(second.DriveTargets) || !first.EnergyStores.HasSameBits(second.EnergyStores) ||
             !first.ChamberRegions.HasSameBits(second.ChamberRegions) || !first.FiniteWorkActuators.HasSameBits(second.FiniteWorkActuators) ||
             !first.GasStores.HasSameValues(second.GasStores) || !first.IntegrityObservers.HasSameValues(second.IntegrityObservers) ||
-            !first.Airflow.HasSameValues(second.Airflow)) return false;
+            !first.Airflow.HasSameValues(second.Airflow) || !first.CoordinateTravelObservers.HasSameValues(second.CoordinateTravelObservers)) return false;
         if (!SameMotion(first.Motion, second.Motion)) return false;
         return SameCaptures(first.Captures, second.Captures) && SameActivations(first.Activations, second.Activations) &&
             SameTimers(first.Timers, second.Timers);

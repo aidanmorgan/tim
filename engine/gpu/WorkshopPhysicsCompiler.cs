@@ -95,7 +95,7 @@ public static partial class WorkshopPhysicsCompiler
             var plane = identities.Plane;
             var planeMaterial = identities.PlaneMaterial;
             var height = WorkshopInput.Position(WorkshopConstruction.WorkbenchSurface.Value);
-            bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0),
+            bodies.Add(new(plane, plane, RigidMotionKind.Static, new(0, height.Cell, 0),
                 new(0f, height.Local, 0f), CanonicalRotation.Identity, default, default, new(0f), default, new(0f), default));
             // Static surfaces and boxes declare zero rolling resistance; only a ball material carries a coefficient.
             materials.Add(new(planeMaterial, new(1f), new(.1f), new(.3f), new(0f)));
@@ -106,6 +106,7 @@ public static partial class WorkshopPhysicsCompiler
             ValidatePreparedGasPlacement();
             CompileSensors();
             CompileAirflow();
+            CompileCoordinateTravel();
             ValidateHollowPlacement();
             var (tensile, ropeGuides, transmissions) = CompileConnections();
             return core.CreatePhysicsScene(document, identities.NextIdentity, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
@@ -117,7 +118,8 @@ public static partial class WorkshopPhysicsCompiler
                 chamberRegions: chamberRegions.ToArray(), finiteWorkActuators: finiteWorkActuators.ToArray(),
                 gasStores: gasStores.ToArray(), gasShapes: gasShapes.ToArray(), inventoryMasses: inventoryMasses.ToArray(),
                 ambientLoads: ambientLoads.ToArray(), integrityObservers: integrityObservers.ToArray(),
-                airflowSources: airflowSources.ToArray(), airflowReceivers: airflowReceivers.ToArray());
+                airflowSources: airflowSources.ToArray(), airflowReceivers: airflowReceivers.ToArray(),
+                rotaryAirflowCaptures: rotaryAirflowCaptures.ToArray(), coordinateTravelObservers: coordinateTravelObservers.ToArray());
         }
 
         private void AddGeometry(GpuBodyId owner, GpuMaterialId material, IReadOnlyList<GpuColliderId> colliderIdentities,
@@ -168,7 +170,7 @@ public static partial class WorkshopPhysicsCompiler
                 var movingMass = body.MassFrame.Evaluate(values, GasMassReferences.Resolve(new(1 + i),
                     DeclaredPhysics.Of(instance.PartId).Mechanical!.GasStores, values));
                 movingMass.Validate(KinematicMode.Dynamic);
-                bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+                bodies.Add(new(moving, instance.Id, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
                     CanonicalRotation.Normalize(rB.X, rB.Y, rB.Z, rB.W), default, default, new(movingMass.Mass),
                     new(movingMass.Gravity.X, movingMass.Gravity.Y, movingMass.Gravity.Z), new(movingMass.LinearDrag), MassProperties(movingMass)));
                 AddGeometry(moving, rows.Sliders[i].Material, rows.Sliders[i].Colliders, bundle.BodyColliders(DeclaredPhysics.Of(instance.PartId), new(1 + i), parameters));
@@ -209,7 +211,7 @@ public static partial class WorkshopPhysicsCompiler
                 var movingMass = body.MassFrame.Evaluate(values, GasMassReferences.Resolve(new(1 + rows.Sliders.Length + i),
                     DeclaredPhysics.Of(instance.PartId).Mechanical!.GasStores, values));
                 movingMass.Validate(KinematicMode.Dynamic);
-                bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+                bodies.Add(new(moving, instance.Id, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
                     CanonicalRotation.Normalize(rB.X, rB.Y, rB.Z, rB.W), default, default, new(movingMass.Mass),
                     new(movingMass.Gravity.X, movingMass.Gravity.Y, movingMass.Gravity.Z), new(movingMass.LinearDrag), MassProperties(movingMass)));
                 AddGeometry(moving, rows.Hinges[i].Material, rows.Hinges[i].Colliders, bundle.BodyColliders(DeclaredPhysics.Of(instance.PartId), new(1 + rows.Sliders.Length + i), parameters));
@@ -254,7 +256,7 @@ public static partial class WorkshopPhysicsCompiler
                     entry.Footprint.PrismaticConstraints != sliders.Count ||
                     entry.Footprint.RevoluteConstraints != hinges.Count)
                     throw new ArgumentException("Physical declaration disagrees with its compiled footprint.");
-                bodies.Add(new(instance.Id, mode, instance.Cell, instance.Local, instance.Rotation, default, default,
+                bodies.Add(new(instance.Id, instance.Id, mode, instance.Cell, instance.Local, instance.Rotation, default, default,
                     new(mass.Mass), new(mass.Gravity.X, mass.Gravity.Y, mass.Gravity.Z), new(mass.LinearDrag),
                     mode == RigidMotionKind.Dynamic ? MassProperties(mass) : default, entry.Mechanical?.Payload ?? PayloadPolicy.None));
                 AddGeometry(instance.Id, rows.Material, rows.Colliders, shapes);

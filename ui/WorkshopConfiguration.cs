@@ -256,6 +256,7 @@ public partial class Workshop
     {
         CuriousContraptions.Abstractions.ParameterUnit.None => "",
         CuriousContraptions.Abstractions.ParameterUnit.InverseSecond => "s⁻¹",
+        CuriousContraptions.Abstractions.ParameterUnit.RadianPerSecondPerNewton => "rad/s/N",
         CuriousContraptions.Abstractions.ParameterUnit.Metre => "m",
         CuriousContraptions.Abstractions.ParameterUnit.Kilogram => "kg",
         CuriousContraptions.Abstractions.ParameterUnit.Second => "s",

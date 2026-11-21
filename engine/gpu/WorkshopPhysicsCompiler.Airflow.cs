@@ -13,6 +13,19 @@ public static partial class WorkshopPhysicsCompiler
     {
         private readonly List<AirflowSourceDeclaration> airflowSources = [];
         private readonly List<AirflowReceiverDeclaration> airflowReceivers = [];
+        private readonly List<RotaryAirflowCaptureDeclaration> rotaryAirflowCaptures = [];
+        private readonly List<CoordinateTravelDeclaration> coordinateTravelObservers = [];
+
+        private void CompileCoordinateTravel()
+        {
+            foreach (var owner in construction.Instances)
+            {
+                var ids = identities[owner.Id];
+                foreach (var observer in DeclaredPhysics.Of(owner.PartId).Mechanical?.CoordinateTravelObservers ?? [])
+                    coordinateTravelObservers.Add(new(ids.CoordinateTravelObservers[observer.Id], owner.Id,
+                        ids.Hinges[observer.Coordinate.Index].Joint, observer.Threshold));
+            }
+        }
 
         private void CompileAirflow()
         {
@@ -36,6 +49,13 @@ public static partial class WorkshopPhysicsCompiler
                         CompileInput(owner.Id, ids, input), input.Enable is not { } configured || parameters[configured.InitialState.Value] == 1,
                         input.Enable is { } enable ? ids.Signals[enable.Latch].Node : null));
                 }
+                foreach (var capture in mechanical.RotaryAirflowCaptures)
+                    rotaryAirflowCaptures.Add(new(ids.RotaryAirflowCaptures[capture.Id], owner.Id,
+                        identities.Body(owner.Id, capture.Frame), ids.Hinges[capture.Coordinate.Index].Joint,
+                        capture.Samples.ToImmutableArray(),
+                        capture.InternalOccluders.Select(c => identities.Collider(owner.Id, c.Body, c.Collider)).ToImmutableArray(),
+                        capture.MaximumPitch.Evaluate(parameters), capture.Response.Evaluate(parameters),
+                        capture.CutInForce.Evaluate(parameters), capture.MaximumRate.Evaluate(parameters)));
                 foreach (var receiver in mechanical.AirflowReceivers)
                     airflowReceivers.Add(new(ids.AirflowReceivers[receiver.Id],
                         identities.Body(owner.Id, receiver.Collider.Body),

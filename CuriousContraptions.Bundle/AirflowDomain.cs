@@ -64,7 +64,7 @@ internal static class AirflowDomain
     private static bool Finite(Vector3 value) =>
         float.IsFinite(value.X) && float.IsFinite(value.Y) && float.IsFinite(value.Z);
 
-    private static ColliderDescriptor Collider(BundleEntry entry, LocalColliderReference reference)
+    internal static ColliderDescriptor Collider(BundleEntry entry, LocalColliderReference reference)
     {
         if (reference.Body.Value < 0 || reference.Body.Value >= entry.Footprint.Bodies)
             throw new ArgumentException("Unresolved airflow collider body.");
@@ -74,7 +74,7 @@ internal static class AirflowDomain
         return colliders[reference.Collider.Value];
     }
 
-    private static void Scalar(BundleEntry entry, MechanicalValue value, ParameterUnit unit, bool positive)
+    internal static void Scalar(BundleEntry entry, MechanicalValue value, ParameterUnit unit, bool positive)
     {
         if (!MechanicalValueDomain.TryRange(value, entry.Metadata.Parameters, unit, out var minimum, out _) ||
             (positive ? minimum <= 0 : minimum < 0))

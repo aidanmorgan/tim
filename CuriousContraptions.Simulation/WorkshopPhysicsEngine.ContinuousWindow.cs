@@ -23,16 +23,13 @@ internal sealed partial class WorkshopPhysicsEngine
     private Vector3[] _continuousClosureV = [], _continuousClosureW = [];
     private bool _continuousActive;
 
-    private static ImpulseJacobian AirflowRow(in AirflowBranch branch) =>
-        new(branch.Receiver, branch.Axis, Vector3.Cross(branch.Point - branch.Receiver.CentreOfMass, branch.Axis),
-            branch.Frame, -branch.Axis, Vector3.Cross(branch.Point - branch.Frame.CentreOfMass, -branch.Axis));
 
     private void ApplyContinuousImpulses()
     {
         if (!_continuousActive) return;
         Array.Clear(_continuousWork);
         Array.Clear(_continuousMechanical);
-        foreach (var branch in _airflowBranches) AirflowRow(branch).Apply(branch.Impulse * _continuousScales[branch.Source]);
+        foreach (var branch in _airflowBranches) branch.Row.Apply(branch.PreparedImpulse);
         foreach (var load in _continuousLoads)
         {
             load.Coordinate.Prepare();
@@ -47,8 +44,8 @@ internal sealed partial class WorkshopPhysicsEngine
         if (!_continuousActive) return;
         foreach (var branch in _airflowBranches)
         {
-            var impulse = branch.Impulse * _continuousScales[branch.Source];
-            var row = AirflowRow(branch);
+            var impulse = branch.PreparedImpulse;
+            var row = branch.Row;
             var work = 0f;
             for (var i = 0; i < row.Count; i++)
             {

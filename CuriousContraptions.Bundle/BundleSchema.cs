@@ -49,6 +49,8 @@ public static class BundleSchema
                     AmbientLoads = mechanical is IAmbientLoadElement ambient ? ambient.AmbientLoads : [],
                     AirflowSources = mechanical is IAirflowSourceElement airflow ? airflow.AirflowSources : [],
                     AirflowReceivers = mechanical is IAirflowReceiverElement receiver ? receiver.AirflowReceivers : [],
+                    RotaryAirflowCaptures = mechanical is IRotaryAirflowCaptureElement rotary ? rotary.RotaryAirflowCaptures : [],
+                    CoordinateTravelObservers = mechanical is ICoordinateTravelElement travel ? travel.CoordinateTravelObservers : [],
                     FiniteWorkActuators = mechanical is IFiniteWorkActuatorElement actuator ? actuator.FiniteWorkActuators : [] };
 
     /// <summary>The bundle text for these declarations, ordered by ordinal element id.</summary>

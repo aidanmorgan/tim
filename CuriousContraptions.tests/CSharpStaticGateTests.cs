@@ -700,6 +700,7 @@ public sealed class CSharpStaticGateTests
         "elements/TennisBall/TennisBall.csproj",
         "elements/Balloon/Balloon.csproj",
         "elements/Fan/Fan.csproj",
+        "elements/Windmill/Windmill.csproj",
     ];
     private static readonly string[] RequiredAnalyzers =
     [

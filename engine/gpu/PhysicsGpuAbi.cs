@@ -13,8 +13,8 @@ public readonly record struct PhysicsCandidateRead(PhysicsBodyReadSet Bodies, Ph
 /// every game value is one IEEE-754 f32 (Story 9A.44).</summary>
 public static partial class PhysicsGpuAbi
 {
-    /// <summary>The world header (208 bytes, every table population among its counts).</summary>
-    public const int HeaderBytes = 208;
+    /// <summary>The world header (224 bytes, every table population among its counts).</summary>
+    public const int HeaderBytes = 224;
     public const int AirflowSourceBytes = 144;
     public const int AirflowReceiverBytes = 32;
     public const int AirflowSampleBytes = 16;
@@ -151,6 +151,7 @@ public static partial class PhysicsGpuAbi
         AdmitChambers(data, scene);
         AdmitGas(data, scene);
         AdmitAirflow(data, scene);
+        AdmitCoordinateTravel(data, scene);
         for (var i = 0; i < scene.OrientationSensors.Length; i++)
         {
             var sensor = scene.OrientationSensors[i];
@@ -351,6 +352,7 @@ public static partial class PhysicsGpuAbi
             R32(candidate, layout.MotionOffset + PhysicsMotionRead.LastOrdinalOffset) != R32(candidate, HeaderSourceOrdinalOffset)))
             throw new ArgumentException("Motion profile differs from its committed world.");
         ValidateAirflowCandidate(candidate, source);
+        ValidateCoordinateTravelCandidate(candidate, source);
         ValidateElectricalCandidate(candidate, source, instantaneous);
         ValidatePrismaticCandidate(candidate, source);
         ValidateTensileCandidate(candidate, source);

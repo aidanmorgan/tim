@@ -10,6 +10,8 @@ public interface IPhysicsSceneDeclaration
 {
     ReadOnlySpan<AirflowSourceDeclaration> AirflowSources { get; }
     ReadOnlySpan<AirflowReceiverDeclaration> AirflowReceivers { get; }
+    ReadOnlySpan<RotaryAirflowCaptureDeclaration> RotaryAirflowCaptures { get; }
+    ReadOnlySpan<CoordinateTravelDeclaration> CoordinateTravelObservers { get; }
     ReadOnlySpan<GasStoreDeclaration> GasStores { get; }
     ReadOnlySpan<GasShapeDeclaration> GasShapes { get; }
     ReadOnlySpan<InventoryMassDeclaration> InventoryMasses { get; }
@@ -114,6 +116,12 @@ public interface ICompiledMemoryLayout
 
 public interface IPhysicsWorldLayout
 {
+    int CoordinateTravelObservers { get; }
+    int CoordinateTravelObserversOffset { get; }
+    int CoordinateTravelOffset(int slot);
+    int RotaryAirflowCaptures { get; }
+    int RotaryAirflowCapturesOffset { get; }
+    int RotaryAirflowCaptureOffset(int slot);
     int AirflowSources { get; }
     int AirflowReceivers { get; }
     int AirflowSamples { get; }

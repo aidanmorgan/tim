@@ -11,6 +11,7 @@ internal static class AirflowSceneValidation
     public static void Validate(IPhysicsSceneDeclaration scene, ulong nextIdentity, HashSet<ulong> ids)
     {
         ValidateConsumerReferences(scene);
+        ValidateCaptures(scene, nextIdentity, ids);
         if (scene.AirflowSources.IsEmpty && scene.AirflowReceivers.IsEmpty) return;
         var bodies = scene.Bodies;
         var colliders = scene.Colliders;
@@ -52,6 +53,33 @@ internal static class AirflowSceneValidation
         }
     }
 
+
+    private static void ValidateCaptures(IPhysicsSceneDeclaration scene, ulong nextIdentity, HashSet<ulong> ids)
+    {
+        if (scene.RotaryAirflowCaptures.IsEmpty) return;
+        var membership = new PackageBodyMembership(scene);
+        var bodies = scene.Bodies.ToArray().ToDictionary(b => b.Id);
+        var colliders = scene.Colliders.ToArray().ToDictionary(c => c.Id);
+        var hinges = scene.Revolutes.ToArray().ToDictionary(h => h.Id);
+        var driven = scene.RevoluteDrives.ToArray().Select(d => d.Joint).ToHashSet();
+        var coordinates = new HashSet<RevoluteConstraintId>();
+        foreach (var capture in scene.RotaryAirflowCaptures)
+        {
+            ArgumentNullException.ThrowIfNull(capture);
+            capture.Validate();
+            Identity(capture.Id.Value, nextIdentity, ids);
+            if (!bodies.ContainsKey(capture.Owner) || !bodies.ContainsKey(capture.Frame) ||
+                !membership.Owns(capture.Owner, capture.Frame) ||
+                !hinges.TryGetValue(capture.Coordinate, out var hinge) ||
+                !membership.Owns(capture.Owner, hinge.BodyB) || !coordinates.Add(capture.Coordinate) ||
+                hinge.Damping != 0 || driven.Contains(capture.Coordinate))
+                throw new ArgumentException("Unresolved rotary ownership or competing coordinate writer.");
+            foreach (var excluded in capture.InternalOccluders)
+                if (!colliders.TryGetValue(excluded, out var collider) ||
+                    !membership.Owns(capture.Owner, collider.Body) || collider.Participation != CollisionParticipation.Enabled)
+                    throw new ArgumentException("Rotary exclusion is not an active owned collider.");
+        }
+    }
 
     private static void ValidateConsumerReferences(IPhysicsSceneDeclaration scene)
     {

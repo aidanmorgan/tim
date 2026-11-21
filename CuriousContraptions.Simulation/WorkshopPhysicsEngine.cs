@@ -1011,6 +1011,7 @@ internal sealed partial class WorkshopPhysicsEngine
             TransferSupply(span, layout, inputs, sourceOrdinal, s);
             SolveContinuousSubstep(span, layout, inputs, dt, softCoeffs);
             CommitConstraints(span, dt);
+            CommitCoordinateTravel(span, layout, dt, sourceOrdinal + (uint)s + 1);
             // Loads are read after the restitution pass: a point that carried normal impulse presses its face even from the gap.
             if (loadRows > 0) MeasureContactLoads(loadDeclarations[..loadRows], loadFrames[..loadRows], loadMass[..loadRows]);
             // Each sample's contact state and the bed's deflection follow this substep's resulting pose; the next substep's force reads them.

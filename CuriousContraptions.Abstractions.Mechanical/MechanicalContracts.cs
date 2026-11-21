@@ -47,6 +47,16 @@ public interface IAirflowReceiverElement : IMechanicalElement
     IReadOnlyList<CuriousContraptions.Gpu.AirflowReceiverDescriptor> AirflowReceivers { get; }
 }
 
+public interface ICoordinateTravelElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.CoordinateTravelDescriptor> CoordinateTravelObservers { get; }
+}
+
+public interface IRotaryAirflowCaptureElement : IMechanicalElement
+{
+    IReadOnlyList<CuriousContraptions.Gpu.RotaryAirflowCaptureDescriptor> RotaryAirflowCaptures { get; }
+}
+
 public interface IChamberRegionElement : IMechanicalElement
 {
     IReadOnlyList<CuriousContraptions.Gpu.ChamberRegionDescriptor> ChamberRegions { get; }

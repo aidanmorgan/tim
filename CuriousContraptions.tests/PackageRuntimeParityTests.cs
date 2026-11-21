@@ -220,7 +220,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     {
         _ = godot;
         var hinges = Packages().Where(package => package.Declaration is IHingeElement).ToArray();
-        Assert.Equal(["Clutch", "Conveyor", "Fan", "ImpactLever", "Motor", "ReverseTransmission", "WoundSpring"], hinges.Select(package => package.Package).Order());
+        Assert.Equal(["Clutch", "Conveyor", "Fan", "ImpactLever", "Motor", "ReverseTransmission", "Windmill", "WoundSpring"], hinges.Select(package => package.Package).Order());
         foreach (var package in hinges)
         {
             var element = (IHingeElement)package.Declaration;
@@ -288,6 +288,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 // Compare the physical tensor in body coordinates, not the chosen quaternion representation.
                 var frame = body.MassProperties.PrincipalFrame;
                 var pose = collider.Pose.Rotation;
+                if (package.Declaration.Metadata.Id == "windmill")
+                {
+                    // The compound rotor has a disk mass model; its first hub solid does not define its inertia.
+                    exact = (m * .7 * .7 / 2, m * (3 * .7 * .7 + .075 * .075) / 12,
+                        m * (3 * .7 * .7 + .075 * .075) / 12);
+                    pose = CanonicalRotation.Identity;
+                }
                 if (body.Id == Owner && package.Declaration is IMechanicalElement mechanical &&
                     mechanical.MassFrame.Source.Kind == BodyMassSourceKind.CenteredInventory)
                 {
@@ -602,6 +609,10 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("buoyancy", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Lane.Single, 0f, Generic(new("tennis"), "buoyancy"), []),
                 ("drag", ParameterUnit.InverseSecond, ParameterKind.Real, Lane.Single, .04f, Generic(new("tennis"), "drag"), [])
             ],
+            "windmill" =>
+            [
+                ("radians_per_force", ParameterUnit.RadianPerSecondPerNewton, ParameterKind.Real, Lane.Single, .6666667f, Generic(new("windmill"), "radians_per_force"), [])
+            ],
             "fan" =>
             [
                 ("supply", ParameterUnit.None, ParameterKind.Choice, Lane.Single, 0f, Generic(new("fan"), "supply"), ["Self-contained", "Electrical", "Shaft"]),
@@ -639,7 +650,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" or "cannon" or "tennis" or "balloon" or "fan" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" or "cannon" or "tennis" or "balloon" or "fan" or "windmill" =>
             WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),

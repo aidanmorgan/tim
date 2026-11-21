@@ -115,6 +115,7 @@ public static partial class WorkshopWireFlatBuffers
         var mass_properties = EncodeCapabilityRigidMassPropertiesRecord(b, value.MassProperties);
         W.CapabilityRigidBodyDeclarationRecord.StartCapabilityRigidBodyDeclarationRecord(b);
         W.CapabilityRigidBodyDeclarationRecord.AddId(b, value.Id.Value);
+        W.CapabilityRigidBodyDeclarationRecord.AddOwner(b, value.Owner.Value);
         W.CapabilityRigidBodyDeclarationRecord.AddMotion(b, (uint)value.Motion);
         W.CapabilityRigidBodyDeclarationRecord.AddCell(b, cell);
         W.CapabilityRigidBodyDeclarationRecord.AddLocal(b, local);
@@ -131,6 +132,7 @@ public static partial class WorkshopWireFlatBuffers
 
     private static CuriousContraptions.Gpu.RigidBodyDeclaration DecodeCapabilityRigidBodyDeclarationRecord(W.CapabilityRigidBodyDeclarationRecord row) => new(
         new CuriousContraptions.Gpu.GpuBodyId(row.Id),
+        new CuriousContraptions.Gpu.GpuBodyId(row.Owner),
         ObservationEnum<CuriousContraptions.Gpu.RigidMotionKind>(row.Motion),
         DecodeCapabilityCellOriginRecord(Required(row.Cell, "Cell")),
         DecodeCapabilityLocalPositionRecord(Required(row.Local, "Local")),
@@ -969,6 +971,8 @@ public static partial class WorkshopWireFlatBuffers
         var finiteWorkActuators = EncodeFiniteWorkActuatorDeclarations(b, scene.Physics.FiniteWorkActuators);
         var airflowSources = W.CompiledSceneRecord.CreateAirflowSourcesVector(b, scene.Physics.AirflowSources.ToArray().Select(s => EncodeAirflowSource(b, s)).ToArray());
         var airflowReceivers = W.CompiledSceneRecord.CreateAirflowReceiversVector(b, scene.Physics.AirflowReceivers.ToArray().Select(r => EncodeAirflowReceiver(b, r)).ToArray());
+        var rotaryAirflow = W.CompiledSceneRecord.CreateRotaryAirflowCapturesVector(b, scene.Physics.RotaryAirflowCaptures.ToArray().Select(r => EncodeRotaryAirflow(b, r)).ToArray());
+        var coordinateTravel = W.CompiledSceneRecord.CreateCoordinateTravelObserversVector(b, scene.Physics.CoordinateTravelObservers.ToArray().Select(o => EncodeCoordinateTravel(b, o)).ToArray());
         var gasStores = EncodeGasStores(b, scene.Physics.GasStores);
         var gasShapes = EncodeGasShapes(b, scene.Physics.GasShapes);
         var inventoryMasses = EncodeInventoryMasses(b, scene.Physics.InventoryMasses);
@@ -1056,6 +1060,8 @@ public static partial class WorkshopWireFlatBuffers
         W.CompiledSceneRecord.AddFiniteWorkActuators(b, finiteWorkActuators);
         W.CompiledSceneRecord.AddAirflowSources(b, airflowSources);
         W.CompiledSceneRecord.AddAirflowReceivers(b, airflowReceivers);
+        W.CompiledSceneRecord.AddRotaryAirflowCaptures(b, rotaryAirflow);
+        W.CompiledSceneRecord.AddCoordinateTravelObservers(b, coordinateTravel);
         W.CompiledSceneRecord.AddGasStores(b, gasStores);
         W.CompiledSceneRecord.AddGasShapes(b, gasShapes);
         W.CompiledSceneRecord.AddInventoryMasses(b, inventoryMasses);
@@ -1153,7 +1159,9 @@ public static partial class WorkshopWireFlatBuffers
                 chamberRegions: DecodeChamberDeclarations(row), finiteWorkActuators: DecodeFiniteWorkActuatorDeclarations(row),
                 gasStores: DecodeGasStores(row), gasShapes: DecodeGasShapes(row), inventoryMasses: DecodeInventoryMasses(row), ambientLoads: DecodeAmbientLoads(row), integrityObservers: DecodeIntegrityObservers(row),
                 airflowSources: Enumerable.Range(0, row.AirflowSourcesLength).Select(i => DecodeAirflowSource(Required(row.AirflowSources(i), "airflow source"))).ToArray(),
-                airflowReceivers: Enumerable.Range(0, row.AirflowReceiversLength).Select(i => DecodeAirflowReceiver(Required(row.AirflowReceivers(i), "airflow receiver"))).ToArray());
+                airflowReceivers: Enumerable.Range(0, row.AirflowReceiversLength).Select(i => DecodeAirflowReceiver(Required(row.AirflowReceivers(i), "airflow receiver"))).ToArray(),
+                rotaryAirflowCaptures: Enumerable.Range(0, row.RotaryAirflowCapturesLength).Select(i => DecodeRotaryAirflow(Required(row.RotaryAirflowCaptures(i), "rotary airflow capture"))).ToArray(),
+                coordinateTravelObservers: Enumerable.Range(0, row.CoordinateTravelObserversLength).Select(i => DecodeCoordinateTravel(Required(row.CoordinateTravelObservers(i), "coordinate travel observer"))).ToArray());
             var activation = new ActivationNetwork(activation_nodes, activation_edges, row.ActivationSubsteps, passage_sensors,
                 Enumerable.Range(0, row.SignalContactsLength).Select(i =>
                 {

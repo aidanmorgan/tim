@@ -178,6 +178,8 @@ public sealed class BundlePortsTests
         ["switch"] = ([Activation(PortId.ActivationOut, Out, Pulse, .45f, 0f, .4f),
             Electrical(PortId.PowerIn, In, -.58f, 0f, 0f),
             Electrical(PortId.Supply, Out, .58f, 0f, 0f)], new(1, 0, 0, 0)),
+        ["windmill"] = ([Mechanical(PortId.Drive, Out, .25f, -.1f, .52f, new(CoordinateKind.Revolute, 0), 1f,
+            new(new(0), new(.25f, -.1f, .44f), Quaternion.Identity, .24f, -1f))], new(2, 1, 0, 1)),
         ["wall"] = ([], new(1, 0, 0, 0)),
     };
 

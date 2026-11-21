@@ -360,7 +360,7 @@ public sealed class CompoundPlateMembershipTests
         if (support == Support.TwoBodies) Ball(new(-.6f, .12995f, 0), .6f, new(0, -.1f, 0));
         var fixture = fixtures.Admit().Scene;
         var offset = compiled.NextIdentity;
-        var bodies = compiled.Bodies.ToArray().Concat(fixture.Bodies.ToArray().Select(b => b with { Id = new(b.Id.Value + offset) })).ToArray();
+        var bodies = compiled.Bodies.ToArray().Concat(fixture.Bodies.ToArray().Select(b => b with { Id = new(b.Id.Value + offset), Owner = new(b.Owner.Value + offset) })).ToArray();
         var colliders = compiled.Colliders.ToArray().Concat(fixture.Colliders.ToArray().Select(c => c with
         { Id = new(c.Id.Value + offset), Body = new(c.Body.Value + offset), Material = new(c.Material.Value + offset) })).ToArray();
         var materials = compiled.Materials.ToArray().Concat(fixture.Materials.ToArray().Select(m => m with { Id = new(m.Id.Value + offset) })).ToArray();
@@ -432,7 +432,7 @@ public sealed class AssignedCompoundFeatureTests
             var fixture = fixtures.Admit().Scene;
             var offset = compiled.NextIdentity;
             var bodies = compiled.Bodies.ToArray().Select(b => b with { Gravity = default }).Concat(
-                fixture.Bodies.ToArray().Select(b => b with { Id = new(b.Id.Value + offset) })).ToArray();
+                fixture.Bodies.ToArray().Select(b => b with { Id = new(b.Id.Value + offset), Owner = new(b.Owner.Value + offset) })).ToArray();
             var colliders = compiled.Colliders.ToArray().Concat(fixture.Colliders.ToArray().Select(c => c with
             { Id = new(c.Id.Value + offset), Body = new(c.Body.Value + offset), Material = new(c.Material.Value + offset) })).ToArray();
             var materials = compiled.Materials.ToArray().Concat(fixture.Materials.ToArray().Select(m => m with { Id = new(m.Id.Value + offset) })).ToArray();
@@ -1056,7 +1056,7 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
         var rows = map[owner.Id];
         var bodies = new List<RigidBodyDeclaration>
         {
-            new(owner.Id, RigidMotionKind.Static, owner.Cell, owner.Local, owner.Rotation, default, default, default, default, default, default)
+            new(owner.Id, owner.Id, RigidMotionKind.Static, owner.Cell, owner.Local, owner.Rotation, default, default, default, default, default, default)
         };
         var colliders = new List<ColliderDeclaration>
         {
@@ -1069,7 +1069,7 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
             var slider = sliders[index]; var ids = rows.Sliders[index];
             var x = WorkshopInput.Position((float)(slider.BaseFrame.Position.X));
             var y = WorkshopInput.Position((float)(3 - slider.Compression.Constant));
-            bodies.Add(new(ids.Body, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, 0), new(x.Local, y.Local, 0),
+            bodies.Add(new(ids.Body, owner.Id, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, 0), new(x.Local, y.Local, 0),
                 CanonicalRotation.Identity, new(0, index == 0 ? .2f : -.3f, 0), default, new(1), default, default,
                 new(default, CanonicalRotation.Identity, new(1), new(1), new(1))));
             materials.Add(new(ids.Material, new(0), new(.1f), new(0), new(0)));

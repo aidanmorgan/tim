@@ -140,6 +140,7 @@ public sealed class RevoluteDriveTests
         var anchor = scene.StaticSphere(Hinge, .05f, Quaternion.Identity, LawMaterial.Bench);
         var battery = scene.StaticBox(Hinge + new Vector3(3f, 0f, 0f), new(.1f));
         var rotor = scene.Sphere(Hinge, RotorRadius, RotorMass, LawMaterial.Bench, Vector3.Zero, Vector3.Zero, 0f, LawScene.Gravity);
+        scene.Own(rotor, anchor);
         var joint = scene.Revolute(anchor, rotor, ConstraintFrame.Identity, ConstraintFrame.Identity, lower, upper, frictionTorque,
             travel: travel);
         scene.RevoluteDrive(joint, targetSpeed, maxTorque);
@@ -338,6 +339,7 @@ public sealed class RevoluteDriveTests
         var anchor = scene.StaticSphere(Hinge, .05f, Quaternion.Identity, LawMaterial.Bench);
         var battery = scene.StaticBox(Hinge + new Vector3(3f, 0f, 0f), new(.1f));
         var bar = scene.Box(Hinge + new Vector3(BarArm, 0f, 0f), BarExtents, BarMass, LawMaterial.Bench);
+        scene.Own(bar, anchor);
         var joint = scene.Revolute(anchor, bar, ConstraintFrame.Identity, new(new(-BarArm, 0f, 0f), Quaternion.Identity), -.3f, .3f, 0f);
         scene.RevoluteDrive(joint, targetSpeed, maxTorque);
         scene.Consumer(anchor, scene.Source(battery), SupplyConsumer.Revolute(joint));
@@ -408,6 +410,7 @@ public sealed class RevoluteDriveTests
             var at = Hinge + new Vector3(2f * i, 0f, 0f);
             var anchor = scene.StaticSphere(at, .05f, Quaternion.Identity, LawMaterial.Bench);
             rotors[i] = scene.Sphere(at, RotorRadius, RotorMass, LawMaterial.Bench, Vector3.Zero, Vector3.Zero, 0f, LawScene.Gravity);
+            scene.Own(rotors[i], anchor);
             var joint = scene.Revolute(anchor, rotors[i], ConstraintFrame.Identity, ConstraintFrame.Identity, -MathF.PI, MathF.PI, 0f,
                 travel: RevoluteTravel.Continuous);
             scene.RevoluteDrive(joint, targets[i], torques[i]);
@@ -458,6 +461,7 @@ public sealed class RevoluteDriveTests
         var sourceB = scene.Source(batteryB);
         var frame = scene.StaticBox(new(-3f, 5f, 0f), new(.1f));
         var slider = scene.Box(new(-1f, 5f, 0f), new(.1f), 1f, LawMaterial.Domino);
+        scene.Own(slider, frame);
         var prismatic = scene.Prismatic(frame, slider, new(new(2f, 0f, 0f), Quaternion.Identity), ConstraintFrame.Identity, -.2f, 2f, 3f, .5f,
             ConnectedCollision.Disabled);
         scene.Drive(prismatic, 1.2f, 1.6f, 8f, 16f, 12f);
@@ -465,6 +469,7 @@ public sealed class RevoluteDriveTests
         var anchor = scene.StaticSphere(Hinge + new Vector3(3f, 0f, 0f), .05f, Quaternion.Identity, LawMaterial.Bench);
         var rotor = scene.Sphere(Hinge + new Vector3(3f, 0f, 0f), RotorRadius, RotorMass, LawMaterial.Bench, Vector3.Zero, Vector3.Zero, 0f,
             LawScene.Gravity);
+        scene.Own(rotor, anchor);
         var revolute = scene.Revolute(anchor, rotor, ConstraintFrame.Identity, ConstraintFrame.Identity, -MathF.PI, MathF.PI, 0f,
             travel: RevoluteTravel.Continuous);
         scene.RevoluteDrive(revolute, TargetSpeed, MaxTorque);
@@ -503,6 +508,7 @@ public sealed class RevoluteDriveTests
         var battery = scene.StaticBox(Hinge + new Vector3(3f, 0f, 0f), new(.1f));
         var driveBase = scene.Sphere(Hinge, RotorRadius, baseMass, LawMaterial.Bench, Vector3.Zero, Vector3.Zero, 0f, 0f);
         var rotor = scene.Sphere(Hinge + new Vector3(0f, 0f, 1f), RotorRadius, RotorMass, LawMaterial.Bench, Vector3.Zero, Vector3.Zero, 0f, 0f);
+        scene.Own(rotor, driveBase);
         var joint = scene.Revolute(driveBase, rotor, new(new(0f, 0f, .5f), Quaternion.Identity), new(new(0f, 0f, -.5f), Quaternion.Identity),
             -MathF.PI, MathF.PI, 0f, travel: RevoluteTravel.Continuous);
         scene.RevoluteDrive(joint, TargetSpeed, MaxTorque);
@@ -607,6 +613,7 @@ public sealed class RevoluteDriveTests
         var scene = new LawScene(bench: false);
         var anchor = scene.StaticSphere(Hinge, .05f, Quaternion.Identity, LawMaterial.Bench);
         var rotor = scene.Sphere(Hinge, RotorRadius, RotorMass, LawMaterial.Bench, Vector3.Zero, Vector3.Zero, 0f, LawScene.Gravity);
+        scene.Own(rotor, anchor);
         var joint = staticMoving
             ? scene.Revolute(rotor, anchor, ConstraintFrame.Identity, ConstraintFrame.Identity, -MathF.PI, MathF.PI, 0f, travel: RevoluteTravel.Continuous)
             : scene.Revolute(anchor, rotor, ConstraintFrame.Identity, ConstraintFrame.Identity, -MathF.PI, MathF.PI, 0f, travel: RevoluteTravel.Continuous);
@@ -638,7 +645,7 @@ public sealed class RevoluteDriveTests
     public enum ConsumerDefect { NoConsumer, NoPrismaticConsumer, UndrivenHinge, NotTheOwner, NamedTwice }
 
     // Every declared drive is consumed by exactly one consumer node. Physical admission checks drive references;
-    // compiled package admission separately checks that the consumer owns the joint through its package support tree.
+    // compiled package admission separately checks that the consumer owns the joint through explicit body ownership.
     // A revolute or prismatic drive no node consumes, a revolute consumer naming an undriven hinge, one on a node that does not own the
     // joint, and one node naming the same drive twice are each refused with their own reason; the owned, driven, singly consumed control
     // is admitted.
@@ -667,6 +674,7 @@ public sealed class RevoluteDriveTests
                 scene.Consumer(owner, null, SupplyConsumer.Revolute(hinge));
                 var frame = scene.StaticBox(Hinge + new Vector3(-3f, 0f, 0f), new(.1f));
                 var slider = scene.Box(Hinge + new Vector3(-3f, 0f, 0f), new(.1f), 1f, LawMaterial.Domino);
+                scene.Own(slider, frame);
                 var prismatic = scene.Prismatic(frame, slider, ConstraintFrame.Identity, ConstraintFrame.Identity, -.2f, 2f, 3f, .5f,
                     ConnectedCollision.Disabled);
                 scene.Drive(prismatic, 1.2f, 1.6f, 8f, 16f, 12f);
@@ -979,6 +987,7 @@ public sealed class RevoluteDriveTests
         var scene = new LawScene(bench: false);
         var anchor = scene.StaticSphere(Hinge, .05f, Quaternion.Identity, LawMaterial.Bench);
         var rotor = scene.Sphere(Hinge, RotorRadius, RotorMass, LawMaterial.Bench, Vector3.Zero, Vector3.Zero, 0f, LawScene.Gravity);
+        scene.Own(rotor, anchor);
         var joint = scene.Revolute(anchor, rotor, ConstraintFrame.Identity, ConstraintFrame.Identity, -1f, 1f, 0f);
         var world = scene.Admit();
         Assert.Null(PhysicsGpuAbi.ReadRevoluteDrive(world.Admitted, 0));

@@ -11,6 +11,10 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
     public ReadOnlySpan<AirflowSourceDeclaration> AirflowSources => _airflowSources;
     private readonly AirflowReceiverDeclaration[] _airflowReceivers;
     public ReadOnlySpan<AirflowReceiverDeclaration> AirflowReceivers => _airflowReceivers;
+    private readonly RotaryAirflowCaptureDeclaration[] _rotaryAirflowCaptures;
+    public ReadOnlySpan<RotaryAirflowCaptureDeclaration> RotaryAirflowCaptures => _rotaryAirflowCaptures;
+    private readonly CoordinateTravelDeclaration[] _coordinateTravelObservers;
+    public ReadOnlySpan<CoordinateTravelDeclaration> CoordinateTravelObservers => _coordinateTravelObservers;
     private readonly GasStoreDeclaration[] _gasStores;
     public ReadOnlySpan<GasStoreDeclaration> GasStores => _gasStores;
     private readonly GasShapeDeclaration[] _gasShapes;
@@ -138,13 +142,24 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         ReadOnlySpan<AmbientLoadDeclaration> ambientLoads = default,
         ReadOnlySpan<ContactIntegrityDeclaration> integrityObservers = default,
         ReadOnlySpan<AirflowSourceDeclaration> airflowSources = default,
-        ReadOnlySpan<AirflowReceiverDeclaration> airflowReceivers = default)
+        ReadOnlySpan<AirflowReceiverDeclaration> airflowReceivers = default,
+        ReadOnlySpan<RotaryAirflowCaptureDeclaration> rotaryAirflowCaptures = default,
+        ReadOnlySpan<CoordinateTravelDeclaration> coordinateTravelObservers = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
         var ids = new HashSet<ulong>(64);
         var (bodyMap, dynamicCount, dynamicColliders) = ValidateGeometry(bodies, colliders, materials, nextIdentity, ids);
         GasSceneValidation.Validate(bodies, colliders, gasStores, gasShapes, inventoryMasses, ambientLoads, integrityObservers, nextIdentity, ids);
+        _coordinateTravelObservers = coordinateTravelObservers.ToArray();
+        Array.Sort(_coordinateTravelObservers, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        foreach (var capture in rotaryAirflowCaptures)
+        {
+            if (capture is null) throw new ArgumentException("A rotary capture declaration is required.");
+            capture.Validate();
+        }
+        _rotaryAirflowCaptures = rotaryAirflowCaptures.ToArray();
+        Array.Sort(_rotaryAirflowCaptures, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         _airflowSources = airflowSources.ToArray();
         Array.Sort(_airflowSources, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         _airflowReceivers = airflowReceivers.ToArray();
@@ -168,31 +183,12 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
         ValidateJoints(prismatics, revolutes, bodyMap, nextIdentity, ids);
         ValidateExtrusions(colliders, prismatics);
         _tensileSpans = ValidateTensile(tensileSpans, bodyMap, ropeGuides);
-        var guideIds = new HashSet<RopeGuideId>();
-        foreach (var guide in ropeGuides)
-        {
-            guide.Validate();
-            if (!guideIds.Add(guide.Id))
-                throw new ArgumentException("Rope guides require unique identities.");
-            if (!bodyMap.ContainsKey(guide.Body))
-                throw new ArgumentException("Rope guide requires an admitted body.");
-        }
-        _ropeGuides = ropeGuides.ToArray();
-        Array.Sort(_ropeGuides, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        _ropeGuides = ValidateRopeGuides(ropeGuides, bodyMap);
         _prismatics = prismatics.ToArray();
         Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         _revolutes = revolutes.ToArray();
         Array.Sort(_revolutes, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
-        var surfaceBodies = new HashSet<GpuBodyId>(4);
-        foreach (var surface in compliantSurfaces)
-        {
-            surface.Validate(); Identity(surface.Id.Value, nextIdentity, ids);
-            if (!bodyMap.TryGetValue(surface.Body, out var body) || body.Motion != RigidMotionKind.Static ||
-                !surfaceBodies.Add(surface.Body))
-                throw new ArgumentException("Compliant surface requires a unique static owner body.");
-        }
-        _compliantSurfaces = compliantSurfaces.ToArray();
-        Array.Sort(_compliantSurfaces, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        _compliantSurfaces = ValidateCompliantSurfaces(compliantSurfaces, bodyMap, nextIdentity, ids);
         var driven = new HashSet<PrismaticConstraintId>(4);
         foreach (var drive in prismaticDrives)
         {
@@ -243,12 +239,46 @@ public sealed class PhysicsSceneDeclaration : IPhysicsSceneDeclaration
             _triggers.Length, _contactWorks.Length, _orientationSensors.Length, Electrical.Sources.Length,
             Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length, _tensileSpans.Length, _revolutes.Length,
             _compliantSurfaces.Length, _transmissions.Length, _energyStores.Length, _chamberRegions.Length, _finiteWorkActuators.Length, _gasStores.Length, _gasShapes.Length, _inventoryMasses.Length, _ambientLoads.Length, _integrityObservers.Length,
-            _airflowSources.Length, _airflowReceivers.Length, _airflowReceivers.Sum(receiver => receiver.Samples.Length),
-            _airflowSources.Sum(source => source.InternalOccluders.Length));
+            _airflowSources.Length, _airflowReceivers.Length,
+            checked(_airflowReceivers.Sum(receiver => receiver.Samples.Length) + _rotaryAirflowCaptures.Sum(c => c.Samples.Length)),
+            checked(_airflowSources.Sum(source => source.InternalOccluders.Length) + _rotaryAirflowCaptures.Sum(c => c.InternalOccluders.Length)),
+            _rotaryAirflowCaptures.Length, _coordinateTravelObservers.Length);
+        _ = new PackageBodyMembership(this);
         AirflowSceneValidation.Validate(this, nextIdentity, ids);
+        CoordinateTravelSceneValidation.Validate(this, nextIdentity, ids);
         _worldView = World;
         _ = World.ByteLength;
         Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics, _revolutes, _compliantSurfaces, _transmissions, _energyStores, _chamberRegions, _finiteWorkActuators, _gasStores, _integrityObservers);
+    }
+
+    private static RopeGuideDeclaration[] ValidateRopeGuides(ReadOnlySpan<RopeGuideDeclaration> guides,
+        Dictionary<GpuBodyId, RigidBodyDeclaration> bodies)
+    {
+        var ids = new HashSet<RopeGuideId>();
+        foreach (var guide in guides)
+        {
+            guide.Validate();
+            if (!ids.Add(guide.Id)) throw new ArgumentException("Rope guides require unique identities.");
+            if (!bodies.ContainsKey(guide.Body)) throw new ArgumentException("Rope guide requires an admitted body.");
+        }
+        var result = guides.ToArray();
+        Array.Sort(result, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        return result;
+    }
+
+    private static CompliantSurfaceDeclaration[] ValidateCompliantSurfaces(ReadOnlySpan<CompliantSurfaceDeclaration> surfaces,
+        Dictionary<GpuBodyId, RigidBodyDeclaration> bodies, ulong nextIdentity, HashSet<ulong> ids)
+    {
+        var owners = new HashSet<GpuBodyId>();
+        foreach (var surface in surfaces)
+        {
+            surface.Validate(); Identity(surface.Id.Value, nextIdentity, ids);
+            if (!bodies.TryGetValue(surface.Body, out var body) || body.Motion != RigidMotionKind.Static || !owners.Add(surface.Body))
+                throw new ArgumentException("Compliant surface requires a unique static owner body.");
+        }
+        var result = surfaces.ToArray();
+        Array.Sort(result, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        return result;
     }
 
     private static EnergyStoreDeclaration[] ValidateEnergyStores(ReadOnlySpan<EnergyStoreDeclaration> stores,

@@ -61,7 +61,9 @@ public static partial class PhysicsGpuAbi
     public const int HeaderAirflowReceiverCountOffset = 192;
     public const int HeaderAirflowSampleCountOffset = 196;
     public const int HeaderAirflowExclusionCountOffset = 200;
-    public const int HeaderPaddingOffset = 204;
+    public const int HeaderRotaryAirflowCaptureCountOffset = 204;
+    public const int HeaderCoordinateTravelCountOffset = 208;
+    public const int HeaderPaddingOffset = 212;
 
     // Contact-work record (ContactWorkBytes): identity U64 at 0, owner body slot U32, target kind, the f32 target and
     // admission speeds, cooldown, named target slot, exact reservoir slot, occurrence count, then padding.

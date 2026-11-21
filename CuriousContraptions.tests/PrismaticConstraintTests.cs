@@ -95,8 +95,8 @@ public sealed class PrismaticConstraintTests
         -.25f, 0, 400.00003f, .2f, ConnectedCollision.Disabled);
 
     private static PhysicsSceneDeclaration Scene(PrismaticConstraintDeclaration joint) => new(new(1, 2), 101,
-        [new(new(1), RigidMotionKind.Static, default, default, CanonicalRotation.Identity, default, default, new(0f), default, new(0f), default),
-         new(new(2), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity, default, default, new(.25f), default, new(0f), MassFixtures.Primitive(ColliderShapeKind.Box, .25f, 0f, new(.65f, .075f, .6f)))],
+        [new(new(1), new(1), RigidMotionKind.Static, default, default, CanonicalRotation.Identity, default, default, new(0f), default, new(0f), default),
+         new(new(2), new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity, default, default, new(.25f), default, new(0f), MassFixtures.Primitive(ColliderShapeKind.Box, .25f, 0f, new(.65f, .075f, .6f)))],
         [new(new(4), new(2), new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new(0f), new(.65f, .075f, .6f))],
         [new(new(3), new(0f), new(.05f), new(.1f), new(0f))], [], [], prismatics: [joint]);
 

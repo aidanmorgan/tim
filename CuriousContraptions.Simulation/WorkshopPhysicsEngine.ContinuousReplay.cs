@@ -24,6 +24,7 @@ internal sealed partial class WorkshopPhysicsEngine
         _continuousActive = layout.AirflowSources > 0;
         if (!_continuousActive)
         {
+            PrepareAllocatedAirflow(dt);
             RunOrdinarySubstep(world, layout, dt, soft);
             return;
         }
@@ -78,6 +79,7 @@ internal sealed partial class WorkshopPhysicsEngine
         GuideWorkspace.Detach(_dynamicBodies);
         _continuousTrial.RestoreState(_dynamicBodies, _joints, _revoluteJoints, _transmissions, _tensile);
         _restitutionStamp = _continuousStamp;
+        PrepareAllocatedAirflow(dt);
         foreach (var collider in _colliders) WorkshopCollisionKernels.RefreshCollider(collider);
         RunOrdinarySubstep(world, layout, dt, soft);
         foreach (var load in _continuousLoads)

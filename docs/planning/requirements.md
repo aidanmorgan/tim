@@ -875,7 +875,9 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-070"></a>
 
-- [ ] **CAT-070 · windmill.** Four weighted actual-pose samples preserve partial occlusion, signed rear drive, edge-on/opposing controls, response 0.1–4, cut-in 0.05 and unloaded target cap 12 rad/s. Finite inertia/load/backdrive and passive calm-air loss use the current conserved rotor law with per-branch source debit. No velocity clamp or independent drive torque; shaft/blades/output follow committed state and connected/disconnected cargo controls.
+**Native delivery:** Story12.3 implementation and independent review complete; full7232/0/0, hooks134/0/0 and E9 PASS. Exact-SHA SnapshotApproval/publication pending; the delivery checkbox remains open until publication, and browser/remote/release qualification remains unverified. [Completion evidence](../../_bmad-output/implementation-artifacts/spec-12-3-windmill.md#auto-run-result).
+
+- [ ] **CAT-070 · windmill.** Four weighted actual-pose samples preserve partial occlusion, signed rear drive, edge-on/opposing controls, response 0.1–4 rad/s/N, cut-in 0.05 N of signed net aligned rest-force magnitude and unloaded target cap 12 rad/s. Finite inertia/load/backdrive and passive calm-air loss use the current conserved rotor law with per-branch source debit. No velocity clamp or independent drive torque; shaft/blades/output follow committed state and connected/disconnected cargo controls.
 
   **Configuration / modes:** radians_per_force. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [retained behavior](#sequence-task-311) and this complete entry. **Owner / collaborators:** [CAT-070 D/I/V and fixtures](invest/current-consumers.md#cat-070-i), air capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 

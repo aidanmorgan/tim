@@ -91,7 +91,7 @@ public sealed class RigidMassPropertiesTests
             Collider(ColliderShapeKind.Sphere, 1, 1, 1) with { Body = new(9) }));
     }
 
-    private static RigidBodyDeclaration Body(double mass) => new(new(1), RigidMotionKind.Dynamic,
+    private static RigidBodyDeclaration Body(double mass) => new(new(1), new(1), RigidMotionKind.Dynamic,
         default, default, CanonicalRotation.Identity, default, default, new((float)mass), default, default, new(default, CanonicalRotation.Identity, new(1f), new(1f), new(1f)));
 
     private static ColliderDeclaration Collider(ColliderShapeKind shape, double x, double y, double z) =>
@@ -151,7 +151,7 @@ public sealed class PhysicsBodyReadSetTests
     [Fact]
     public void AngularMagnitudeRejectsComponentValidButVectorInvalidInput()
     {
-        var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default,
+        var body = new RigidBodyDeclaration(new(1), new(1), RigidMotionKind.Dynamic, default, default,
             CanonicalRotation.Identity, default, new(128f, 0f, 0f), new(1f), default, default, new(default, CanonicalRotation.Identity, new(1f), new(1f), new(1f)));
         body.Validate();
         Assert.Throws<ArgumentException>(() => (body with { AngularVelocity = new(128f, 128f, 0f) }).Validate());
@@ -164,7 +164,7 @@ public sealed class PhysicsBodyReadSetTests
     [Fact]
     public void StaticDeclarationsRequireAllZeroF32VelocityBits()
     {
-        var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Static, default, default,
+        var body = new RigidBodyDeclaration(new(1), new(1), RigidMotionKind.Static, default, default,
             CanonicalRotation.Identity, default, default, new(0f), default, default, default);
         body.Validate();
         Assert.Throws<ArgumentException>(() => (body with { Velocity = new(0f, -0f, 0f) }).Validate());
@@ -175,7 +175,7 @@ public sealed class PhysicsBodyReadSetTests
     public void DominoTileMomentsFollowTheDeclaredHalfExtentsAndMass()
     {
         var tile = LawTile.HalfExtents;
-        var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity,
+        var body = new RigidBodyDeclaration(new(1), new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity,
             default, default, new(LawTile.Mass), default, default, new(default, CanonicalRotation.Identity, new(1f), new(1f), new(1f)));
         var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new(0f),
             new(tile.X, tile.Y, tile.Z));

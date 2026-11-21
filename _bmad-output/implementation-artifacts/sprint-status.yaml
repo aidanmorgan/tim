@@ -399,7 +399,7 @@ development_status:
   9a-45-compile-time-isolation-gate: done # published71135ecd; local5057/hooks127, independent approval; browser pending
   epic-9a-retrospective: optional
   # 55 (element)
-  12-3-windmill-rotor-aerodynamic-capture-drive: backlog
+  12-3-windmill-rotor-aerodynamic-capture-drive: done # native implementation/review complete; full7232/0/0, hooks134/0/0, E9 PASS; exact-SHA SnapshotApproval/publication pending; browser/remote/release unverified
   # 56 (polish, after all deletion work). Owner visual report 19 Oct 2026 (Funnel glass inverted).
   9r-19-tube-glass-art-repair: backlog
   # PKG-2 review F15-8 (21 Oct 2026): tube behaviour clauses no repair covered; closes 6-6, 6-7, 6-11 and the 6-9/6-10 remainders

@@ -1602,13 +1602,23 @@ airflowLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-physicalCommit(obj?:PhysicalCommitRevisionRecord):PhysicalCommitRevisionRecord|null {
+coordinateTravel(index: number, obj?:CoordinateTravelReadRecord):CoordinateTravelReadRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 82);
+  return offset ? (obj || new CoordinateTravelReadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+}
+
+coordinateTravelLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 82);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+physicalCommit(obj?:PhysicalCommitRevisionRecord):PhysicalCommitRevisionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 84);
   return offset ? (obj || new PhysicalCommitRevisionRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(40);
+  builder.startObject(41);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1919,13 +1929,21 @@ static startAirflowVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(48, numElems, 8);
 }
 
+static addCoordinateTravel(builder:flatbuffers.Builder, coordinateTravelOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(39, coordinateTravelOffset, 0);
+}
+
+static startCoordinateTravelVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(32, numElems, 8);
+}
+
 static addPhysicalCommit(builder:flatbuffers.Builder, physicalCommitOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(39, physicalCommitOffset, 0);
+  builder.addFieldStruct(40, physicalCommitOffset, 0);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
-  builder.requiredField(offset, 82) // physical_commit
+  builder.requiredField(offset, 84) // physical_commit
   return offset;
 }
 
@@ -4047,122 +4065,131 @@ id():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
-motion():number {
+owner():bigint {
   const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+motion():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 cell(obj?:CapabilityCellOriginRecord):CapabilityCellOriginRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? (obj || new CapabilityCellOriginRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 local(obj?:CapabilityLocalPositionRecord):CapabilityLocalPositionRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
+  const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? (obj || new CapabilityLocalPositionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 rotation(obj?:CapabilityCanonicalRotationRecord):CapabilityCanonicalRotationRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? (obj || new CapabilityCanonicalRotationRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 velocity(obj?:CapabilityLinearVelocityRecord):CapabilityLinearVelocityRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? (obj || new CapabilityLinearVelocityRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 angularVelocity(obj?:CapabilityAngularVelocityRecord):CapabilityAngularVelocityRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? (obj || new CapabilityAngularVelocityRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 mass():number {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 gravity(obj?:CapabilityAccelerationVectorRecord):CapabilityAccelerationVectorRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? (obj || new CapabilityAccelerationVectorRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 linearDrag():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 massProperties(obj?:CapabilityRigidMassPropertiesRecord):CapabilityRigidMassPropertiesRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? (obj || new CapabilityRigidMassPropertiesRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 payload():number {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
+  const offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 static startCapabilityRigidBodyDeclarationRecord(builder:flatbuffers.Builder) {
-  builder.startObject(12);
+  builder.startObject(13);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
   builder.addFieldInt64(0, id, BigInt('0'));
 }
 
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
 static addMotion(builder:flatbuffers.Builder, motion:number) {
-  builder.addFieldInt32(1, motion, 0);
+  builder.addFieldInt32(2, motion, 0);
 }
 
 static addCell(builder:flatbuffers.Builder, cellOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, cellOffset, 0);
+  builder.addFieldOffset(3, cellOffset, 0);
 }
 
 static addLocal(builder:flatbuffers.Builder, localOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, localOffset, 0);
+  builder.addFieldOffset(4, localOffset, 0);
 }
 
 static addRotation(builder:flatbuffers.Builder, rotationOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(4, rotationOffset, 0);
+  builder.addFieldOffset(5, rotationOffset, 0);
 }
 
 static addVelocity(builder:flatbuffers.Builder, velocityOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(5, velocityOffset, 0);
+  builder.addFieldOffset(6, velocityOffset, 0);
 }
 
 static addAngularVelocity(builder:flatbuffers.Builder, angularVelocityOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(6, angularVelocityOffset, 0);
+  builder.addFieldOffset(7, angularVelocityOffset, 0);
 }
 
 static addMass(builder:flatbuffers.Builder, mass:number) {
-  builder.addFieldFloat32(7, mass, 0.0);
+  builder.addFieldFloat32(8, mass, 0.0);
 }
 
 static addGravity(builder:flatbuffers.Builder, gravityOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(8, gravityOffset, 0);
+  builder.addFieldOffset(9, gravityOffset, 0);
 }
 
 static addLinearDrag(builder:flatbuffers.Builder, linearDrag:number) {
-  builder.addFieldFloat32(9, linearDrag, 0.0);
+  builder.addFieldFloat32(10, linearDrag, 0.0);
 }
 
 static addMassProperties(builder:flatbuffers.Builder, massPropertiesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(10, massPropertiesOffset, 0);
+  builder.addFieldOffset(11, massPropertiesOffset, 0);
 }
 
 static addPayload(builder:flatbuffers.Builder, payload:number) {
-  builder.addFieldInt32(11, payload, 0);
+  builder.addFieldInt32(12, payload, 0);
 }
 
 static endCapabilityRigidBodyDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
-  builder.requiredField(offset, 8) // cell
-  builder.requiredField(offset, 10) // local
-  builder.requiredField(offset, 12) // rotation
-  builder.requiredField(offset, 14) // velocity
-  builder.requiredField(offset, 16) // angular_velocity
-  builder.requiredField(offset, 20) // gravity
-  builder.requiredField(offset, 24) // mass_properties
+  builder.requiredField(offset, 10) // cell
+  builder.requiredField(offset, 12) // local
+  builder.requiredField(offset, 14) // rotation
+  builder.requiredField(offset, 16) // velocity
+  builder.requiredField(offset, 18) // angular_velocity
+  builder.requiredField(offset, 22) // gravity
+  builder.requiredField(offset, 26) // mass_properties
   return offset;
 }
 
@@ -10155,8 +10182,28 @@ airflowReceiversLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+rotaryAirflowCaptures(index: number, obj?:RotaryAirflowCaptureDeclarationRecord):RotaryAirflowCaptureDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 98);
+  return offset ? (obj || new RotaryAirflowCaptureDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+rotaryAirflowCapturesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 98);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+coordinateTravelObservers(index: number, obj?:CoordinateTravelDeclarationRecord):CoordinateTravelDeclarationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 100);
+  return offset ? (obj || new CoordinateTravelDeclarationRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+coordinateTravelObserversLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 100);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCompiledSceneRecord(builder:flatbuffers.Builder) {
-  builder.startObject(47);
+  builder.startObject(49);
 }
 
 static addIdentity(builder:flatbuffers.Builder, identity:bigint) {
@@ -10755,6 +10802,38 @@ static startAirflowReceiversVector(builder:flatbuffers.Builder, numElems:number)
   builder.startVector(4, numElems, 4);
 }
 
+static addRotaryAirflowCaptures(builder:flatbuffers.Builder, rotaryAirflowCapturesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(47, rotaryAirflowCapturesOffset, 0);
+}
+
+static createRotaryAirflowCapturesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startRotaryAirflowCapturesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addCoordinateTravelObservers(builder:flatbuffers.Builder, coordinateTravelObserversOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(48, coordinateTravelObserversOffset, 0);
+}
+
+static createCoordinateTravelObserversVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startCoordinateTravelObserversVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 8) // settings
@@ -10770,6 +10849,8 @@ static endCompiledSceneRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   builder.requiredField(offset, 92) // integrity_observers
   builder.requiredField(offset, 94) // airflow_sources
   builder.requiredField(offset, 96) // airflow_receivers
+  builder.requiredField(offset, 98) // rotary_airflow_captures
+  builder.requiredField(offset, 100) // coordinate_travel_observers
   return offset;
 }
 
@@ -10887,6 +10968,296 @@ static createAirflowSampleRecord(builder:flatbuffers.Builder, x: number, y: numb
   return builder.offset();
 }
 
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class CoordinateTravelReadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CoordinateTravelReadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+id():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+owner():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+threshold():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+travel():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+phase():number {
+  return this.bb!.readUint32(this.bb_pos + 24);
+}
+
+ordinal():number {
+  return this.bb!.readUint32(this.bb_pos + 28);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createCoordinateTravelReadRecord(builder:flatbuffers.Builder, id: bigint, owner: bigint, threshold: number, travel: number, phase: number, ordinal: number):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.writeInt32(ordinal);
+  builder.writeInt32(phase);
+  builder.writeFloat32(travel);
+  builder.writeFloat32(threshold);
+  builder.writeInt64(BigInt(owner ?? 0));
+  builder.writeInt64(BigInt(id ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class CoordinateTravelDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):CoordinateTravelDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsCoordinateTravelDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CoordinateTravelDeclarationRecord):CoordinateTravelDeclarationRecord {
+  return (obj || new CoordinateTravelDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsCoordinateTravelDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:CoordinateTravelDeclarationRecord):CoordinateTravelDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CoordinateTravelDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+coordinate():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+threshold():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startCoordinateTravelDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
+static addCoordinate(builder:flatbuffers.Builder, coordinate:bigint) {
+  builder.addFieldInt64(2, coordinate, BigInt('0'));
+}
+
+static addThreshold(builder:flatbuffers.Builder, threshold:number) {
+  builder.addFieldFloat32(3, threshold, 0.0);
+}
+
+static endCoordinateTravelDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
+
+static createCoordinateTravelDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, coordinate:bigint, threshold:number):flatbuffers.Offset {
+  CoordinateTravelDeclarationRecord.startCoordinateTravelDeclarationRecord(builder);
+  CoordinateTravelDeclarationRecord.addId(builder, id);
+  CoordinateTravelDeclarationRecord.addOwner(builder, owner);
+  CoordinateTravelDeclarationRecord.addCoordinate(builder, coordinate);
+  CoordinateTravelDeclarationRecord.addThreshold(builder, threshold);
+  return CoordinateTravelDeclarationRecord.endCoordinateTravelDeclarationRecord(builder);
+}
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */
+
+export class RotaryAirflowCaptureDeclarationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):RotaryAirflowCaptureDeclarationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+static getRootAsRotaryAirflowCaptureDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:RotaryAirflowCaptureDeclarationRecord):RotaryAirflowCaptureDeclarationRecord {
+  return (obj || new RotaryAirflowCaptureDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+static getSizePrefixedRootAsRotaryAirflowCaptureDeclarationRecord(bb:flatbuffers.ByteBuffer, obj?:RotaryAirflowCaptureDeclarationRecord):RotaryAirflowCaptureDeclarationRecord {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new RotaryAirflowCaptureDeclarationRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
+
+id():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+owner():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+frame():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+coordinate():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+samples(index: number, obj?:AirflowSampleRecord):AirflowSampleRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new AirflowSampleRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 16, this.bb!) : null;
+}
+
+samplesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+internalOccluders(index: number):bigint|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readUint64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : BigInt(0);
+}
+
+internalOccludersLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+maximumPitch():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+response():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+cutInForce():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+maximumRate():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+}
+
+static startRotaryAirflowCaptureDeclarationRecord(builder:flatbuffers.Builder) {
+  builder.startObject(10);
+}
+
+static addId(builder:flatbuffers.Builder, id:bigint) {
+  builder.addFieldInt64(0, id, BigInt('0'));
+}
+
+static addOwner(builder:flatbuffers.Builder, owner:bigint) {
+  builder.addFieldInt64(1, owner, BigInt('0'));
+}
+
+static addFrame(builder:flatbuffers.Builder, frame:bigint) {
+  builder.addFieldInt64(2, frame, BigInt('0'));
+}
+
+static addCoordinate(builder:flatbuffers.Builder, coordinate:bigint) {
+  builder.addFieldInt64(3, coordinate, BigInt('0'));
+}
+
+static addSamples(builder:flatbuffers.Builder, samplesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, samplesOffset, 0);
+}
+
+static startSamplesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(16, numElems, 4);
+}
+
+static addInternalOccluders(builder:flatbuffers.Builder, internalOccludersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(5, internalOccludersOffset, 0);
+}
+
+static createInternalOccludersVector(builder:flatbuffers.Builder, data:bigint[]):flatbuffers.Offset {
+  builder.startVector(8, data.length, 8);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt64(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startInternalOccludersVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(8, numElems, 8);
+}
+
+static addMaximumPitch(builder:flatbuffers.Builder, maximumPitch:number) {
+  builder.addFieldFloat32(6, maximumPitch, 0.0);
+}
+
+static addResponse(builder:flatbuffers.Builder, response:number) {
+  builder.addFieldFloat32(7, response, 0.0);
+}
+
+static addCutInForce(builder:flatbuffers.Builder, cutInForce:number) {
+  builder.addFieldFloat32(8, cutInForce, 0.0);
+}
+
+static addMaximumRate(builder:flatbuffers.Builder, maximumRate:number) {
+  builder.addFieldFloat32(9, maximumRate, 0.0);
+}
+
+static endRotaryAirflowCaptureDeclarationRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  builder.requiredField(offset, 12) // samples
+  builder.requiredField(offset, 14) // internal_occluders
+  return offset;
+}
+
+static createRotaryAirflowCaptureDeclarationRecord(builder:flatbuffers.Builder, id:bigint, owner:bigint, frame:bigint, coordinate:bigint, samplesOffset:flatbuffers.Offset, internalOccludersOffset:flatbuffers.Offset, maximumPitch:number, response:number, cutInForce:number, maximumRate:number):flatbuffers.Offset {
+  RotaryAirflowCaptureDeclarationRecord.startRotaryAirflowCaptureDeclarationRecord(builder);
+  RotaryAirflowCaptureDeclarationRecord.addId(builder, id);
+  RotaryAirflowCaptureDeclarationRecord.addOwner(builder, owner);
+  RotaryAirflowCaptureDeclarationRecord.addFrame(builder, frame);
+  RotaryAirflowCaptureDeclarationRecord.addCoordinate(builder, coordinate);
+  RotaryAirflowCaptureDeclarationRecord.addSamples(builder, samplesOffset);
+  RotaryAirflowCaptureDeclarationRecord.addInternalOccluders(builder, internalOccludersOffset);
+  RotaryAirflowCaptureDeclarationRecord.addMaximumPitch(builder, maximumPitch);
+  RotaryAirflowCaptureDeclarationRecord.addResponse(builder, response);
+  RotaryAirflowCaptureDeclarationRecord.addCutInForce(builder, cutInForce);
+  RotaryAirflowCaptureDeclarationRecord.addMaximumRate(builder, maximumRate);
+  return RotaryAirflowCaptureDeclarationRecord.endRotaryAirflowCaptureDeclarationRecord(builder);
+}
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-non-null-assertion */

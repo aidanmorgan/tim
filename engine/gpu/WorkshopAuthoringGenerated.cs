@@ -165,11 +165,7 @@ public struct InstanceRecord : IFlatbufferObject
 
   public ulong Id { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public string PartId { get { int o = __p.__offset(6); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
-#if ENABLE_SPAN_T
-  public Span<byte> GetPartIdBytes() { return __p.__vector_as_span<byte>(6, 1); }
-#else
   public ArraySegment<byte>? GetPartIdBytes() { return __p.__vector_as_arraysegment(6); }
-#endif
   public byte[] GetPartIdArray() { return __p.__vector_as_array<byte>(6); }
   public bool Locked { get { int o = __p.__offset(8); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
   public CuriousContraptions.Wire.Vec3i? Cell { get { int o = __p.__offset(10); return o != 0 ? (CuriousContraptions.Wire.Vec3i?)(new CuriousContraptions.Wire.Vec3i()).__assign(o + __p.bb_pos, __p.bb) : null; } }
@@ -244,11 +240,7 @@ public struct ParameterRecord : IFlatbufferObject
   public ParameterRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public string Key { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
-#if ENABLE_SPAN_T
-  public Span<byte> GetKeyBytes() { return __p.__vector_as_span<byte>(4, 1); }
-#else
   public ArraySegment<byte>? GetKeyBytes() { return __p.__vector_as_arraysegment(4); }
-#endif
   public byte[] GetKeyArray() { return __p.__vector_as_array<byte>(4); }
   public float Value { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
 
@@ -294,20 +286,12 @@ public struct PuzzleRecord : IFlatbufferObject
   public PuzzleRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public string Id { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
-#if ENABLE_SPAN_T
-  public Span<byte> GetIdBytes() { return __p.__vector_as_span<byte>(4, 1); }
-#else
   public ArraySegment<byte>? GetIdBytes() { return __p.__vector_as_arraysegment(4); }
-#endif
   public byte[] GetIdArray() { return __p.__vector_as_array<byte>(4); }
   public uint Placement { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
   public float Precision { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public string InventoryPart { get { int o = __p.__offset(10); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
-#if ENABLE_SPAN_T
-  public Span<byte> GetInventoryPartBytes() { return __p.__vector_as_span<byte>(10, 1); }
-#else
   public ArraySegment<byte>? GetInventoryPartBytes() { return __p.__vector_as_arraysegment(10); }
-#endif
   public byte[] GetInventoryPartArray() { return __p.__vector_as_array<byte>(10); }
   public uint InventoryCount { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
   public uint GoalKind { get { int o = __p.__offset(14); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
@@ -315,18 +299,10 @@ public struct PuzzleRecord : IFlatbufferObject
   public ulong GoalTarget { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public float GoalDelay { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public string GoalSourceNode { get { int o = __p.__offset(22); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
-#if ENABLE_SPAN_T
-  public Span<byte> GetGoalSourceNodeBytes() { return __p.__vector_as_span<byte>(22, 1); }
-#else
   public ArraySegment<byte>? GetGoalSourceNodeBytes() { return __p.__vector_as_arraysegment(22); }
-#endif
   public byte[] GetGoalSourceNodeArray() { return __p.__vector_as_array<byte>(22); }
   public string GoalTargetNode { get { int o = __p.__offset(24); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
-#if ENABLE_SPAN_T
-  public Span<byte> GetGoalTargetNodeBytes() { return __p.__vector_as_span<byte>(24, 1); }
-#else
   public ArraySegment<byte>? GetGoalTargetNodeBytes() { return __p.__vector_as_arraysegment(24); }
-#endif
   public byte[] GetGoalTargetNodeArray() { return __p.__vector_as_array<byte>(24); }
   public CuriousContraptions.Wire.AssistanceKnotRecord? Assistance(int j) { int o = __p.__offset(26); return o != 0 ? (CuriousContraptions.Wire.AssistanceKnotRecord?)(new CuriousContraptions.Wire.AssistanceKnotRecord()).__assign(__p.__vector(o) + j * 44, __p.bb) : null; }
   public int AssistanceLength { get { int o = __p.__offset(26); return o != 0 ? __p.__vector_len(o) : 0; } }

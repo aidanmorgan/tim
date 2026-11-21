@@ -8,7 +8,15 @@
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/GasSceneValidation.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/AirflowSceneValidation.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.Airflow.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.RotaryAirflow.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/PhysicsGpuAbi.CoordinateTravel.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/CoordinateTravelSceneValidation.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/CoordinateTravelReadValidation.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopWireFlatBuffers.CoordinateTravel.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.CoordinateTravel.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../engine/gpu/WorkshopWireFlatBuffers.RotaryAirflow.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.Airflow.cs" />
+    <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.RotaryAirflow.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.Supply.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/WorkshopPhysicsEngine.EnergyAccounting.cs" />
     <CoreRuntimeSource Include="$(MSBuildThisFileDirectory)../CuriousContraptions.Simulation/BodyTrialState.cs" />

@@ -42,7 +42,7 @@ public static partial class WorkshopWireFlatBuffers
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
-        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 40, _ => 0 };
+        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 41, _ => 0 };
         if (fieldCount != 0)
         {
             var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
@@ -505,6 +505,7 @@ public static partial class WorkshopWireFlatBuffers
         var airflowOffset = EncodeAirflowRead(builder, read.Airflow);
         var gasOffset = EncodeGasStoreRead(builder, read.GasStores);
         var integrityOffset = EncodeIntegrityRead(builder, read.IntegrityObservers);
+        var coordinateTravelOffset = EncodeCoordinateTravelRead(builder, read.CoordinateTravelObservers);
 
         var bodiesOffset = EncodeBodiesOffset(builder, read);
 
@@ -552,6 +553,7 @@ public static partial class WorkshopWireFlatBuffers
         Wire.WorkshopResponse.AddAirflow(builder, airflowOffset);
         Wire.WorkshopResponse.AddGasStores(builder, gasOffset);
         Wire.WorkshopResponse.AddIntegrityObservers(builder, integrityOffset);
+        Wire.WorkshopResponse.AddCoordinateTravel(builder, coordinateTravelOffset);
         if (electricalOffset.HasValue) Wire.WorkshopResponse.AddElectrical(builder, electricalOffset.Value);
         if (driveTargetOffset.HasValue) Wire.WorkshopResponse.AddDriveTargets(builder, driveTargetOffset.Value);
         if (transmissionOffset.HasValue) Wire.WorkshopResponse.AddTransmissions(builder, transmissionOffset.Value);
@@ -698,7 +700,7 @@ public static partial class WorkshopWireFlatBuffers
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores),
             new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues),
             new PhysicsPresentationRead(actuatorValues, loadValues, logicValues, ropeValues, guideValues, surfaceValues, transmissionValues, DecodeRetentions(fb)),
-            new PhysicsDriveTargetRead(driveTargets), new PhysicsEnergyStoreRead(energyStores), DecodeChamberRead(fb), DecodeFiniteWorkActuatorRead(fb), DecodeGasStoreRead(fb), DecodeIntegrityRead(fb), DecodeAirflowRead(fb));
+            new PhysicsDriveTargetRead(driveTargets), new PhysicsEnergyStoreRead(energyStores), DecodeChamberRead(fb), DecodeFiniteWorkActuatorRead(fb), DecodeGasStoreRead(fb), DecodeIntegrityRead(fb), DecodeAirflowRead(fb), DecodeCoordinateTravelRead(fb));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);
 

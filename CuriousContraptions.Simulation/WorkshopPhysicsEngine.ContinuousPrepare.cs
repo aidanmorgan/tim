@@ -32,8 +32,12 @@ internal sealed partial class WorkshopPhysicsEngine
         foreach (var pair in _candidatePairs) _continuousComponents.JoinBodies(pair.ColA.Body, pair.ColB.Body);
         foreach (var branch in _airflowBranches)
         {
-            _continuousComponents.JoinSource(branch.Source, branch.Frame);
-            _continuousComponents.JoinSource(branch.Source, branch.Receiver);
+            var row = branch.Row;
+            for (var i = 0; i < row.Count; i++)
+            {
+                row.Get(i, out var body, out _, out _);
+                _continuousComponents.JoinSource(branch.Source, body);
+            }
         }
         for (var source = 0; source < count; source++)
             PrepareContinuousSource(world, layout, inputs, source);

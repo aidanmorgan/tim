@@ -1,0 +1,213 @@
+[gd_scene load_steps=20 format=3]
+
+[ext_resource type="ArrayMesh" path="res://elements/Windmill/guard.obj" id="GuardArt"]
+
+[sub_resource type="StandardMaterial3D" id="Navy"]
+albedo_color = Color(0.14902, 0.239216, 0.294118, 1)
+
+[sub_resource type="StandardMaterial3D" id="Cream"]
+albedo_color = Color(1, 0.973, 0.914, 1)
+
+[sub_resource type="StandardMaterial3D" id="Cyan"]
+albedo_color = Color(0.4, 0.721569, 0.788235, 1)
+
+[sub_resource type="StandardMaterial3D" id="Gold"]
+albedo_color = Color(0.956863, 0.815686, 0.537255, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_Base"]
+material = SubResource("Navy")
+size = Vector3(1.1, 0.16, 0.9)
+
+[sub_resource type="BoxShape3D" id="Shape_Base"]
+size = Vector3(1.1, 0.16, 0.9)
+
+[sub_resource type="BoxMesh" id="Mesh_Tower"]
+material = SubResource("Cream")
+size = Vector3(0.22, 1.1, 0.25)
+
+[sub_resource type="BoxShape3D" id="Shape_Tower"]
+size = Vector3(0.22, 1.1, 0.25)
+
+[sub_resource type="BoxMesh" id="Mesh_Nacelle"]
+material = SubResource("Cream")
+size = Vector3(0.65, 0.45, 0.55)
+
+[sub_resource type="BoxShape3D" id="Shape_Nacelle"]
+size = Vector3(0.65, 0.45, 0.55)
+
+[sub_resource type="BoxMesh" id="Mesh_Blade"]
+material = SubResource("Cyan")
+size = Vector3(0.075, 0.52, 0.21)
+
+[sub_resource type="BoxShape3D" id="Shape_Blade"]
+size = Vector3(0.075, 0.52, 0.21)
+
+[sub_resource type="BoxMesh" id="Mesh_Tip"]
+material = SubResource("Gold")
+size = Vector3(0.075, 0.06, 0.21)
+
+[sub_resource type="BoxMesh" id="Mesh_Spoke"]
+material = SubResource("Navy")
+size = Vector3(0.4, 0.03, 0.02)
+
+[sub_resource type="SphereMesh" id="Mesh_Hub"]
+material = SubResource("Gold")
+radius = 0.14
+height = 0.28
+
+[sub_resource type="SphereShape3D" id="Shape_Hub"]
+radius = 0.14
+
+[sub_resource type="CylinderMesh" id="Mesh_Output"]
+material = SubResource("Cream")
+top_radius = 0.24
+bottom_radius = 0.24
+height = 0.12
+
+[sub_resource type="CylinderMesh" id="Proxy_Guard"]
+top_radius = 0.815
+bottom_radius = 0.815
+height = 0.07
+cap_top = false
+cap_bottom = false
+
+[node name="Windmill" type="Node3D"]
+
+[node name="col_base" type="CollisionShape3D" parent="."]
+position = Vector3(0.25, -1.08, 0)
+shape = SubResource("Shape_Base")
+
+[node name="col_tower" type="CollisionShape3D" parent="."]
+position = Vector3(0.25, -0.55, 0)
+shape = SubResource("Shape_Tower")
+
+[node name="col_nacelle" type="CollisionShape3D" parent="."]
+position = Vector3(0.25, -0.1, 0)
+shape = SubResource("Shape_Nacelle")
+
+[node name="col_guard" type="MeshInstance3D" parent="."]
+position = Vector3(-0.12, 0, 0)
+rotation = Vector3(0, 0, -1.5707964)
+visible = false
+mesh = SubResource("Proxy_Guard")
+metadata/wall_thickness = 0.07
+
+[node name="Loc_Port_Drive" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -0.1, 0.52)
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Base" type="MeshInstance3D" parent="Visual"]
+position = Vector3(0.25, -1.08, 0)
+mesh = SubResource("Mesh_Base")
+
+[node name="Tower" type="MeshInstance3D" parent="Visual"]
+position = Vector3(0.25, -0.55, 0)
+mesh = SubResource("Mesh_Tower")
+
+[node name="Nacelle" type="MeshInstance3D" parent="Visual"]
+position = Vector3(0.25, -0.1, 0)
+mesh = SubResource("Mesh_Nacelle")
+
+[node name="Guard" type="MeshInstance3D" parent="Visual"]
+position = Vector3(-0.12, 0, 0)
+rotation = Vector3(0, 0, -1.5707964)
+mesh = ExtResource("GuardArt")
+material_override = SubResource("Cream")
+
+[node name="Rotor" type="Node3D" parent="Visual"]
+position = Vector3(-0.12, 0, 0)
+
+[node name="col_hub" type="CollisionShape3D" parent="Visual/Rotor"]
+shape = SubResource("Shape_Hub")
+
+[node name="Hub" type="MeshInstance3D" parent="Visual/Rotor"]
+mesh = SubResource("Mesh_Hub")
+
+[node name="Arm0" type="Node3D" parent="Visual/Rotor"]
+rotation = Vector3(0.00000000, 0, 0)
+
+[node name="col_blade" type="CollisionShape3D" parent="Visual/Rotor/Arm0"]
+position = Vector3(0, 0.4, 0)
+rotation = Vector3(0, 0.5235988, 0)
+shape = SubResource("Shape_Blade")
+
+[node name="Blade" type="MeshInstance3D" parent="Visual/Rotor/Arm0"]
+position = Vector3(0, 0.4, 0)
+rotation = Vector3(0, 0.5235988, 0)
+mesh = SubResource("Mesh_Blade")
+
+[node name="Tip" type="MeshInstance3D" parent="Visual/Rotor/Arm0"]
+position = Vector3(0, 0.63, 0)
+rotation = Vector3(0, 0.5235988, 0)
+mesh = SubResource("Mesh_Tip")
+
+[node name="Arm1" type="Node3D" parent="Visual/Rotor"]
+rotation = Vector3(1.57079633, 0, 0)
+
+[node name="col_blade" type="CollisionShape3D" parent="Visual/Rotor/Arm1"]
+position = Vector3(0, 0.4, 0)
+rotation = Vector3(0, 0.5235988, 0)
+shape = SubResource("Shape_Blade")
+
+[node name="Blade" type="MeshInstance3D" parent="Visual/Rotor/Arm1"]
+position = Vector3(0, 0.4, 0)
+rotation = Vector3(0, 0.5235988, 0)
+mesh = SubResource("Mesh_Blade")
+
+[node name="Tip" type="MeshInstance3D" parent="Visual/Rotor/Arm1"]
+position = Vector3(0, 0.63, 0)
+rotation = Vector3(0, 0.5235988, 0)
+mesh = SubResource("Mesh_Tip")
+
+[node name="Arm2" type="Node3D" parent="Visual/Rotor"]
+rotation = Vector3(3.14159265, 0, 0)
+
+[node name="col_blade" type="CollisionShape3D" parent="Visual/Rotor/Arm2"]
+position = Vector3(0, 0.4, 0)
+rotation = Vector3(0, 0.5235988, 0)
+shape = SubResource("Shape_Blade")
+
+[node name="Blade" type="MeshInstance3D" parent="Visual/Rotor/Arm2"]
+position = Vector3(0, 0.4, 0)
+rotation = Vector3(0, 0.5235988, 0)
+mesh = SubResource("Mesh_Blade")
+
+[node name="Tip" type="MeshInstance3D" parent="Visual/Rotor/Arm2"]
+position = Vector3(0, 0.63, 0)
+rotation = Vector3(0, 0.5235988, 0)
+mesh = SubResource("Mesh_Tip")
+
+[node name="Arm3" type="Node3D" parent="Visual/Rotor"]
+rotation = Vector3(4.71238898, 0, 0)
+
+[node name="col_blade" type="CollisionShape3D" parent="Visual/Rotor/Arm3"]
+position = Vector3(0, 0.4, 0)
+rotation = Vector3(0, 0.5235988, 0)
+shape = SubResource("Shape_Blade")
+
+[node name="Blade" type="MeshInstance3D" parent="Visual/Rotor/Arm3"]
+position = Vector3(0, 0.4, 0)
+rotation = Vector3(0, 0.5235988, 0)
+mesh = SubResource("Mesh_Blade")
+
+[node name="Tip" type="MeshInstance3D" parent="Visual/Rotor/Arm3"]
+position = Vector3(0, 0.63, 0)
+rotation = Vector3(0, 0.5235988, 0)
+mesh = SubResource("Mesh_Tip")
+
+[node name="Output" type="Node3D" parent="Visual"]
+position = Vector3(0.25, -0.1, 0.44)
+
+[node name="Wheel" type="MeshInstance3D" parent="Visual/Output"]
+rotation = Vector3(1.5707964, 0, 0)
+mesh = SubResource("Mesh_Output")
+
+[node name="Spoke0" type="MeshInstance3D" parent="Visual/Output"]
+position = Vector3(0, 0, 0.065)
+mesh = SubResource("Mesh_Spoke")
+
+[node name="Spoke1" type="MeshInstance3D" parent="Visual/Output"]
+position = Vector3(0, 0, 0.065)
+rotation = Vector3(0, 0, 1.5707964)
+mesh = SubResource("Mesh_Spoke")

@@ -31,10 +31,8 @@ internal sealed partial class WorkshopPhysicsEngine
         }
         foreach (var branch in _airflowBranches)
         {
-            if (_continuousComponents.SourceRoot(branch.Source) != root || _continuousScales[branch.Source] == 0) continue;
-            var receiver = branch.Receiver; var frame = branch.Frame;
-            var relative = ConicalAirflow.RelativeSpeed(branch.Point, branch.Axis, receiver.CentreOfMass,
-                receiver.LinearVelocity, receiver.AngularVelocity, frame.CentreOfMass, frame.LinearVelocity, frame.AngularVelocity);
+            if (_continuousComponents.SourceRoot(branch.Source) != root || branch.PreparedImpulse == 0) continue;
+            var relative = branch.Rate();
             if (!float.IsFinite(relative) || relative > branch.FlowSpeed) return false;
         }
         return true;

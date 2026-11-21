@@ -353,7 +353,7 @@ public sealed class CannonIntegrationTests
         if (blocked)
         {
             var wall = new GpuBodyId(next++);
-            bodies.Add(bodies.Single(body => body.Id == new GpuBodyId(1)) with { Id = wall });
+            bodies.Add(bodies.Single(body => body.Id == new GpuBodyId(1)) with { Id = wall, Owner = wall });
             colliders.Add(new(new(next++), wall, colliders.First(value => value.Body == new GpuBodyId(1)).Material,
                 CuriousContraptions.Gpu.ColliderShapeKind.Box, new(new(.7f, 0f, 0f), CanonicalRotation.Identity),
                 new(0f), new(.005f, 1f, 1f)));

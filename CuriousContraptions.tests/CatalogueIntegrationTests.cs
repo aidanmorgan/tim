@@ -297,7 +297,8 @@ public sealed class CatalogueIntegrationTests
         // BalloonTests executes default rise/ceiling and explicit Vacuum controls; GasRuntimeTests proves finite rupture and Reset.
         // FanGuidanceTests executes supplied capture and no/empty/missed/occluded/heavy controls;
         // FanIntegrationTests additionally executes paid Shaft and Self-contained activation/lifecycle.
-        PartId[] gasInteractions = [new("balloon"), new("fan")];
+        // WindmillIntegrationTests executes paid cargo transport, reversed/disconnected drive, load and lifecycle controls.
+        PartId[] gasInteractions = [new("balloon"), new("fan"), new("windmill")];
         var expected = lessonInteractions.Concat(interactions).Concat(ropeInteractions).Concat(membraneInteractions).Concat(driveInteractions).Concat(finiteWorkInteractions).Concat(tennisInteractions).Concat(gasInteractions)
             .Order().ToArray();
         var actual = PartRegistry.Read(RuntimeTestServices.Bundle, File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),

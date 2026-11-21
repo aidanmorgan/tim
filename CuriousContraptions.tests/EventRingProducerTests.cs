@@ -794,6 +794,7 @@ public sealed class EventRingProducerTests
                         .Select(_ => SimulationEventKind.FiniteWorkReleased))
                     .Concat(scene.IntegrityObservers.ToArray().Where(row => scene.Colliders.ToArray().Any(collider => collider.Id == row.Collider && collider.Body == owner))
                         .Select(_ => SimulationEventKind.IntegrityBroken))
+                    .Concat(scene.CoordinateTravelObservers.ToArray().Where(row => row.Owner == owner).Select(_ => SimulationEventKind.CoordinateTravelReached))
                     .Concat(scene.Sensors.ToArray().Where(row => row.Frame == owner).Select(_ => SimulationEventKind.Captured))
                     .Concat(scene.Electrical.Sources.ToArray().Where(row => row.Owner == owner).Select(_ => SimulationEventKind.ElectricalPowered))
                     .Concat(network.PassageSensors.ToArray().Where(row => row.Frame == owner).Select(_ => SimulationEventKind.Passage))

@@ -326,6 +326,7 @@ table WorkshopResponse {
     gas_stores: [GasStoreReadRecord];
     integrity_observers: [IntegrityReadRecord];
     airflow: [AirflowReadRecord];
+    coordinate_travel: [CoordinateTravelReadRecord];
     physical_commit: PhysicalCommitRevisionRecord (required);
 }
 
@@ -394,6 +395,7 @@ table WorkshopObservationBatch {
 }
 table CapabilityRigidBodyDeclarationRecord {
     id: ulong;
+    owner: ulong;
     motion: uint;
     cell: CapabilityCellOriginRecord (required);
     local: CapabilityLocalPositionRecord (required);
@@ -1043,6 +1045,8 @@ table CompiledSceneRecord {
     integrity_observers: [IntegrityDeclarationRecord] (required);
     airflow_sources: [AirflowSourceDeclarationRecord] (required);
     airflow_receivers: [AirflowReceiverDeclarationRecord] (required);
+    rotary_airflow_captures: [RotaryAirflowCaptureDeclarationRecord] (required);
+    coordinate_travel_observers: [CoordinateTravelDeclarationRecord] (required);
 }
 
 struct AirflowReadRecord {
@@ -1059,6 +1063,32 @@ struct AirflowReadRecord {
 }
 
 struct AirflowSampleRecord { x: float; y: float; z: float; weight: float; }
+struct CoordinateTravelReadRecord {
+    id: ulong;
+    owner: ulong;
+    threshold: float;
+    travel: float;
+    phase: uint;
+    ordinal: uint;
+}
+table CoordinateTravelDeclarationRecord {
+    id: ulong;
+    owner: ulong;
+    coordinate: ulong;
+    threshold: float;
+}
+table RotaryAirflowCaptureDeclarationRecord {
+    id: ulong;
+    owner: ulong;
+    frame: ulong;
+    coordinate: ulong;
+    samples: [AirflowSampleRecord] (required);
+    internal_occluders: [ulong] (required);
+    maximum_pitch: float;
+    response: float;
+    cut_in_force: float;
+    maximum_rate: float;
+}
 table AirflowSourceDeclarationRecord {
     id: ulong;
     owner: ulong;

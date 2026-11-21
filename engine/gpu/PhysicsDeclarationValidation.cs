@@ -97,27 +97,12 @@ public sealed class PackageBodyMembership
 
     public PackageBodyMembership(IPhysicsSceneDeclaration physics)
     {
-        var bodies = new HashSet<GpuBodyId>();
-        foreach (var body in physics.Bodies) bodies.Add(body.Id);
-        var parents = new Dictionary<GpuBodyId, GpuBodyId>();
-        foreach (var joint in physics.Prismatics) Add(joint.BodyA, joint.BodyB);
-        foreach (var joint in physics.Revolutes) Add(joint.BodyA, joint.BodyB);
-        foreach (var body in bodies)
-        {
-            var cursor = body;
-            var visited = new HashSet<GpuBodyId>();
-            while (parents.TryGetValue(cursor, out var parent))
-            {
-                if (!visited.Add(cursor)) throw new ArgumentException("Cyclic package support.");
-                cursor = parent;
-            }
-            _roots.Add(body, cursor);
-        }
-        void Add(GpuBodyId parent, GpuBodyId child)
-        {
-            if (!bodies.Contains(parent) || !bodies.Contains(child) || !parents.TryAdd(child, parent))
-                throw new ArgumentException("Missing or shared package support body.");
-        }
+        foreach (var body in physics.Bodies)
+            if (body.Owner.Value == 0 || !_roots.TryAdd(body.Id, body.Owner))
+                throw new ArgumentException("Missing owner or duplicate physical body.");
+        foreach (var owner in _roots.Values)
+            if (!_roots.TryGetValue(owner, out var root) || root != owner)
+                throw new ArgumentException("A physical owner must resolve to a self-owned root body.");
     }
 
     public GpuBodyId Root(GpuBodyId body) => _roots.TryGetValue(body, out var root) ? root :

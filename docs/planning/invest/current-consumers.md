@@ -680,7 +680,7 @@
 <a id="cat-070-i"></a>
 ### CAT-070-I · windmill
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-070). **Requirements (Incomplete):** [CAT-070](../requirements.md#current-cat-070). **Legacy removed by Story 7.4:** `parts/WindmillPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-070-windmill.md). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-070). **Requirements (Incomplete):** [CAT-070](../requirements.md#current-cat-070). **Legacy removed by Story 7.4:** `parts/WindmillPart.cs@a6c914e`; current package is `elements/Windmill/WindmillElementDeclaration.cs`, with behavior in the [element contract](../elements/CAT-070-windmill.md). **Mode records:** Configuration=Adjustable. BuildOnly response is 0.1–4 rad/s/N; independent native review and post-catalogue browser qualification remain pending.
 
 **First visible interaction / minimum collaborators:** Fan drives Windmill rotor and its shaft moves Conveyor.
 
