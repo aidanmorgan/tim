@@ -1,6 +1,6 @@
 ---
 title: "10.2a — Weight (CAT-067)"
-status: review
+status: done
 baseline: 0cba945b1d3765a4bb95bd2bbd56dfe58f497e43
 ---
 

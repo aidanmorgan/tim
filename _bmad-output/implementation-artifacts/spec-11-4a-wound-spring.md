@@ -2,7 +2,7 @@
 title: 'Story 11.4a — Wound spring'
 type: 'feature'
 created: '2026-11-18'
-status: 'in-progress'
+status: 'done'
 baseline_revision: 'f476e279cd168b77fac76d1e0c8688c77bbfb778'
 integration_revision: 'bbc9dd8a53735b3682e65f94163c642a11cbdda8'
 review_loop_iteration: 5

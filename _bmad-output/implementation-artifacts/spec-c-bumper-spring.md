@@ -1,6 +1,6 @@
 ---
 title: "C-Bumper+Spring — Pinball Bumper and Springboard generic instances"
-status: review
+status: done
 baseline: 3fce7a034b328be0a79f834a2a70a4d049372a4b
 ---
 

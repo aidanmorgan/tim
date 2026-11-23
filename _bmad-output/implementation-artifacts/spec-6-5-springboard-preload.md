@@ -2,7 +2,7 @@
 title: 'Springboard preload and playable launch lessons'
 type: 'feature'
 created: '2026-10-10'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 baseline_commit: '781e0c81b838abe13fea8bc72d10e60f0ee67dca'
 review_loop_iteration: 0

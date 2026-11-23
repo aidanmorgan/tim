@@ -1,6 +1,6 @@
 ---
 title: "C-Gate — declared prismatic drive and declaration-free warm-up (9A.19 + 9A.21)"
-status: review
+status: done
 baseline: a598a09e2b91d58135b3343a2beeea6b88578013
 ---
 

@@ -31,7 +31,7 @@ deferred: []
 - Only the authored carrier top face (+Y normal) drives contacts; side and underside contacts remain ordinary rigid contacts.
 - Unloaded belt transfers zero work ($W_{\text{transferred}} = 0$). Total kinetic energy plus work respects the energy envelope ($E_k(t) \le E_k(0) + W_{\text{motor}} + \text{slack}$).
 - When motor power is cut, bearing friction on the motor and belt brings the roller and belt to rest without sudden kicks or artificial energy injection.
-- Mechanical connections: `Drive` (Output) couples to `DriveIn` (Input). At most one incoming mechanical belt drive per `DriveIn` socket (fan-in refused; fan-out from `Drive` allowed).
+- Mechanical connections: `Drive` (Output) couples to `DriveIn` (Input). At most one mechanical link per `DriveIn` socket and per `Drive` socket: fan-in and fan-out are both refused, because the engine admits one link per output coordinate and one per input coordinate (`engine/gpu/WorkshopConnections.cs:182`–`:183`).
 - Validator rule (carried from `engine-revolute-drive-target` review): any parameter with `RunEdit == ParameterRunEdit.RunControl` must feed only its bound lane; using it in any other binding (mass, geometry, port offset) is rejected.
 - Parameters: `length` (m, [1.0, 10.0], default 3.0), `width` (m, [0.6, 4.0], default 1.2), `surface_per_radian` (m/rad, [0.1, 5.0], default 0.6666667). All are build-only parameters. Retired properties `powered`, `speed`, and `traction` are rejected.
 - Exact Reset restores authored unrotated roller pose, zero velocity, initial payload positions, and deterministic replay.
